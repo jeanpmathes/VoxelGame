@@ -40,53 +40,72 @@ namespace VoxelGame.Logic
             20, 23, 22
         };
 
+        private float[][] sideVertices;
+        private float[][] sideIndices;
+
         private readonly int vertexBufferObject;
         private readonly int elementBufferObject;
         private readonly int vertexArrayObject;
 
         private Shader shader;
-        private Texture texture;
 
-        public Block(string texturePath, Shader shader, Tuple<int, int, int, int, int, int> sideIndices, Vector4[] sideUVs)
+        public Block(string name, Shader shader, Tuple<int, int, int, int, int, int> sideIndices)
         {
+            int textureIndex = Game.Atlas.GetTextureIndex(name);
+
+            if (textureIndex == -1)
+            {
+                throw new Exception($"No texture '{name}' found!");
+            }
+
+            AtlasPosition[] sideUVs =
+            {
+                Game.Atlas.GetTextureUV(textureIndex + sideIndices.Item1),
+                Game.Atlas.GetTextureUV(textureIndex + sideIndices.Item2),
+                Game.Atlas.GetTextureUV(textureIndex + sideIndices.Item3),
+                Game.Atlas.GetTextureUV(textureIndex + sideIndices.Item4),
+                Game.Atlas.GetTextureUV(textureIndex + sideIndices.Item5),
+                Game.Atlas.GetTextureUV(textureIndex + sideIndices.Item6)
+            };
+
             vertices = new float[]
             {
                 // Position | UV Position
                 // Front face
-                0f, 0f, 0f, sideUVs[sideIndices.Item1].X, sideUVs[sideIndices.Item1].Z,
-                0f, 1f, 0f, sideUVs[sideIndices.Item1].X, sideUVs[sideIndices.Item1].W,
-                1f, 1f, 0f, sideUVs[sideIndices.Item1].Y, sideUVs[sideIndices.Item1].W,
-                1f, 0f, 0f, sideUVs[sideIndices.Item1].Y, sideUVs[sideIndices.Item1].Z,
+                0f, 0f, 0f, sideUVs[0].bottomLeftU, sideUVs[0].bottomLeftV,
+                0f, 1f, 0f, sideUVs[0].bottomLeftU, sideUVs[0].topRightV,
+                1f, 1f, 0f, sideUVs[0].topRightU, sideUVs[0].topRightV,
+                1f, 0f, 0f, sideUVs[0].topRightU, sideUVs[0].bottomLeftV,
 
                 // Back face
-                1f, 0f, 1f, sideUVs[sideIndices.Item2].X, sideUVs[sideIndices.Item2].Z,
-                1f, 1f, 1f, sideUVs[sideIndices.Item2].X, sideUVs[sideIndices.Item2].W,
-                0f, 1f, 1f, sideUVs[sideIndices.Item2].Y, sideUVs[sideIndices.Item2].W,
-                0f, 0f, 1f, sideUVs[sideIndices.Item2].Y, sideUVs[sideIndices.Item2].Z,
+                1f, 0f, 1f, sideUVs[1].bottomLeftU, sideUVs[1].bottomLeftV,
+                1f, 1f, 1f, sideUVs[1].bottomLeftU, sideUVs[1].topRightV,
+                0f, 1f, 1f, sideUVs[1].topRightU, sideUVs[1].topRightV,
+                0f, 0f, 1f, sideUVs[1].topRightU, sideUVs[1].bottomLeftV,
 
                 // Left face
-                0f, 0f, 1f, sideUVs[sideIndices.Item3].X, sideUVs[sideIndices.Item3].Z,
-                0f, 1f, 1f, sideUVs[sideIndices.Item3].X, sideUVs[sideIndices.Item3].W,
-                0f, 1f, 0f, sideUVs[sideIndices.Item3].Y, sideUVs[sideIndices.Item3].W,
-                0f, 0f, 0f, sideUVs[sideIndices.Item3].Y, sideUVs[sideIndices.Item3].Z,
+                0f, 0f, 1f, sideUVs[2].bottomLeftU, sideUVs[2].bottomLeftV,
+                0f, 1f, 1f, sideUVs[2].bottomLeftU, sideUVs[2].topRightV,
+                0f, 1f, 0f, sideUVs[2].topRightU, sideUVs[2].topRightV,
+                0f, 0f, 0f, sideUVs[2].topRightU, sideUVs[2].bottomLeftV,
 
                 // Right face
-                1f, 0f, 0f, sideUVs[sideIndices.Item4].X, sideUVs[sideIndices.Item4].Z,
-                1f, 1f, 0f, sideUVs[sideIndices.Item4].X, sideUVs[sideIndices.Item4].W,
-                1f, 1f, 1f, sideUVs[sideIndices.Item4].Y, sideUVs[sideIndices.Item4].W,
-                1f, 0f, 1f, sideUVs[sideIndices.Item4].Y, sideUVs[sideIndices.Item4].Z,
+                1f, 0f, 0f, sideUVs[3].bottomLeftU, sideUVs[3].bottomLeftV,
+                1f, 1f, 0f, sideUVs[3].bottomLeftU, sideUVs[3].topRightV,
+                1f, 1f, 1f, sideUVs[3].topRightU, sideUVs[3].topRightV,
+                1f, 0f, 1f, sideUVs[3].topRightU, sideUVs[3].bottomLeftV,
 
                 // Bottom face
-                0f, 0f, 1f, sideUVs[sideIndices.Item5].X, sideUVs[sideIndices.Item5].Z,
-                0f, 0f, 0f, sideUVs[sideIndices.Item5].X, sideUVs[sideIndices.Item5].W,
-                1f, 0f, 0f, sideUVs[sideIndices.Item5].Y, sideUVs[sideIndices.Item5].W,
-                1f, 0f, 1f, sideUVs[sideIndices.Item5].Y, sideUVs[sideIndices.Item5].Z,
+                0f, 0f, 1f, sideUVs[4].bottomLeftU, sideUVs[4].bottomLeftV,
+                0f, 0f, 0f, sideUVs[4].bottomLeftU, sideUVs[4].topRightV,
+                1f, 0f, 0f, sideUVs[4].topRightU, sideUVs[4].topRightV,
+                1f, 0f, 1f, sideUVs[4].topRightU, sideUVs[4].bottomLeftV,
 
                 // Top face
-                0f, 1f, 0f, sideUVs[sideIndices.Item6].X, sideUVs[sideIndices.Item6].Z,
-                0f, 1f, 1f, sideUVs[sideIndices.Item6].X, sideUVs[sideIndices.Item6].W,
-                1f, 1f, 1f, sideUVs[sideIndices.Item6].Y, sideUVs[sideIndices.Item6].W,
-                1f, 1f, 0f, sideUVs[sideIndices.Item6].Y, sideUVs[sideIndices.Item6].Z
+                0f, 1f, 0f, sideUVs[5].bottomLeftU, sideUVs[5].bottomLeftV,
+                0f, 1f, 1f, sideUVs[5].bottomLeftU, sideUVs[5].topRightV,
+                1f, 1f, 1f, sideUVs[5].topRightU, sideUVs[5].topRightV,
+                1f, 1f, 0f, sideUVs[5].topRightU, sideUVs[5].bottomLeftV
             };
 
             vertexBufferObject = GL.GenBuffer();
@@ -99,9 +118,6 @@ namespace VoxelGame.Logic
 
             this.shader = shader;
             shader.Use();
-
-            texture = new Texture(texturePath);
-            texture.Use();
 
             vertexArrayObject = GL.GenVertexArray();
             GL.BindVertexArray(vertexArrayObject);
@@ -125,14 +141,26 @@ namespace VoxelGame.Logic
             GL.BindVertexArray(vertexArrayObject);
 
             shader.Use();
-            texture.Use();
+            Game.Atlas.Use();
 
             Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
             shader.SetMatrix4("model", model);
-            shader.SetMatrix4("view", Game.mainCamera.GetViewMatrix());
-            shader.SetMatrix4("projection", Game.mainCamera.GetProjectionMatrix());
+            shader.SetMatrix4("view", Game.MainCamera.GetViewMatrix());
+            shader.SetMatrix4("projection", Game.MainCamera.GetProjectionMatrix());
 
             GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
+        }
+
+        public float[] GetSideVertices(int side, Vector3 position)
+        {
+            // Should use sideVertices (has to be set in the constructor)
+            throw new NotImplementedException();
+        }
+
+        public float[] GetSideIndicies(int side, Vector3 position)
+        {
+            // Should use sideIndicies (has to be set in the constructor)
+            throw new NotImplementedException();
         }
     }
 }
