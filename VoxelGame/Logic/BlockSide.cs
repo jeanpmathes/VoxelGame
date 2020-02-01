@@ -2,6 +2,7 @@
 {
     public enum BlockSide
     {
+        All = -1,
         Front = 0,
         Back = 1,
         Left = 2,

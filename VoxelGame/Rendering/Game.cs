@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
@@ -12,6 +13,7 @@ namespace VoxelGame.Rendering
     {
         public static Camera MainCamera { get; private set; }
         public static TextureAtlas Atlas { get; private set; }
+        public static Shader Shader { get; private set; }
 
         const float cameraSpeed = 1.5f;
         const float sensitivity = 0.2f;        
@@ -21,13 +23,18 @@ namespace VoxelGame.Rendering
 
         private double time;
 
-        private Shader shader;
+        public static Block AIR;
+        public static Block GRASS;
+        public static Block DIRT;
+        public static Block STONE;
+        public static Block COBBLESTONE;
+        public static Block LOG;
+        public static Block SAND;
+        public static Block ORE_COAL;
+        public static Block ORE_IRON;
+        public static Block ORE_GOLD;
 
-        private Block GRASS;
-        private Block DIRT;
-        private Block STONE;
-
-        private Block[,,] blocks;
+        private Section[,,] sections;
 
         public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title) { }
 
@@ -35,44 +42,38 @@ namespace VoxelGame.Rendering
         {
             GL.ClearColor(0.5f, 0.8f, 0.9f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.CullFace);
 
-            MainCamera = new Camera(Vector3.UnitZ * 3, Width / (float)Height);
+            MainCamera = new Camera(new Vector3(-3f, 5f, 5f), Width / (float)Height);
             Atlas = new TextureAtlas("Ressources/Textures");
 
-            shader = new Shader("Rendering/Shaders/shader.vert", "Rendering/Shaders/shader.frag");
+            Shader = new Shader("Rendering/Shaders/shader.vert", "Rendering/Shaders/shader.frag");
 
-            GRASS = new Block("grass", shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 2));
-            DIRT = new Block("dirt", shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            STONE = new Block("stone", shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            AIR = new AirBlock("air");
+            GRASS = new BasicBlock("grass", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 2));
+            DIRT = new BasicBlock("dirt", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            STONE = new BasicBlock("stone", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            COBBLESTONE = new BasicBlock("cobblestone", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            LOG = new BasicBlock("log", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 1));
+            SAND = new BasicBlock("sand", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            ORE_COAL = new BasicBlock("ore_coal", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            ORE_IRON = new BasicBlock("ore_iron", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            ORE_GOLD = new BasicBlock("ore_gold", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));            
 
-            blocks = new Block[32, 32, 32];
-            Block current;
+            CursorVisible = false;
 
-            for (int x = 0; x < 32; x++)
+            sections = new Section[2, 32, 2];
+
+            for (int x = 0; x <= sections.GetUpperBound(0); x++)
             {
-                for (int y = 0; y < 32; y++)
+                for (int y = 0; y <= sections.GetUpperBound(1); y++)
                 {
-                    if (y == 31)
+                    for (int z = 0; z <= sections.GetUpperBound(2); z++)
                     {
-                        current = GRASS;
-                    }
-                    else if (y > 25)
-                    {
-                        current = DIRT;
-                    }
-                    else
-                    {
-                        current = STONE;
-                    }
-
-                    for (int z = 0; z < 32; z++)
-                    {
-                        blocks[x, y, z] = current;
+                        sections[x, y, z] = new Section();
                     }
                 }
             }
-
-            CursorVisible = false;
 
             base.OnLoad(e);
         }
@@ -82,13 +83,19 @@ namespace VoxelGame.Rendering
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             time += e.Time;
 
-            for (int x = 0; x < 32; x++)
+            ErrorCode error = GL.GetError();
+            if (error != ErrorCode.NoError)
             {
-                for (int y = 0; y < 32; y++)
+                Console.WriteLine(error);
+            }
+
+            for (int x = 0; x <= sections.GetUpperBound(0); x++)
+            {
+                for (int y = 0; y <= sections.GetUpperBound(1); y++)
                 {
-                    for (int z = 0; z < 32; z++)
+                    for (int z = 0; z <= sections.GetUpperBound(2); z++)
                     {
-                        blocks[x, y, z].RenderBlock(new Vector3(x, y, z));
+                        sections[x, y, z].Render(new Vector3(x * Section.sectionSize, y * Section.sectionSize, z * Section.sectionSize));
                     }
                 }
             }
@@ -110,6 +117,12 @@ namespace VoxelGame.Rendering
             if (input.IsKeyDown(Key.Escape))
             {
                 Exit();
+            }
+
+            float cameraSpeed = Game.cameraSpeed;
+            if (input.IsKeyDown(Key.ControlLeft))
+            {
+                cameraSpeed *= 5;
             }
 
             if (input.IsKeyDown(Key.W))
@@ -155,26 +168,6 @@ namespace VoxelGame.Rendering
             }
 
             base.OnMouseMove(e);
-        }
-
-        protected override void OnMouseWheel(MouseWheelEventArgs e)
-        {
-            MainCamera.Fov -= e.DeltaPrecise;
-
-            base.OnMouseWheel(e);
-        }
-
-        protected override void OnResize(EventArgs e)
-        {
-            GL.Viewport(0, 0, Width, Height);
-            MainCamera.AspectRatio = Width / (float)Height;
-
-            base.OnResize(e);
-        }
-
-        protected override void OnUnload(EventArgs e)
-        {
-            base.OnUnload(e);
         }
     }
 }
