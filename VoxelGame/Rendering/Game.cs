@@ -25,11 +25,14 @@ namespace VoxelGame.Rendering
 
         public static Block AIR;
         public static Block GRASS;
+        public static Block TALL_GRASS;
         public static Block DIRT;
         public static Block STONE;
         public static Block COBBLESTONE;
         public static Block LOG;
+        public static Block LEAVES;
         public static Block SAND;
+        public static Block GLASS;
         public static Block ORE_COAL;
         public static Block ORE_IRON;
         public static Block ORE_GOLD;
@@ -50,15 +53,18 @@ namespace VoxelGame.Rendering
             Shader = new Shader("Rendering/Shaders/shader.vert", "Rendering/Shaders/shader.frag");
 
             AIR = new AirBlock("air");
-            GRASS = new BasicBlock("grass", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 2));
-            DIRT = new BasicBlock("dirt", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            STONE = new BasicBlock("stone", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            COBBLESTONE = new BasicBlock("cobblestone", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            LOG = new BasicBlock("log", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 1));
-            SAND = new BasicBlock("sand", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            ORE_COAL = new BasicBlock("ore_coal", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            ORE_IRON = new BasicBlock("ore_iron", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            ORE_GOLD = new BasicBlock("ore_gold", true, Shader, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));            
+            GRASS = new BasicBlock("grass", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 2));
+            TALL_GRASS = new CrossBlock("tall_grass");
+            DIRT = new BasicBlock("dirt", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            STONE = new BasicBlock("stone", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            COBBLESTONE = new BasicBlock("cobblestone", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            LOG = new BasicBlock("log", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 1));
+            SAND = new BasicBlock("sand", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            LEAVES = new BasicBlock("leaves", false, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            GLASS = new BasicBlock("glass", false, false, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            ORE_COAL = new BasicBlock("ore_coal", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            ORE_IRON = new BasicBlock("ore_iron", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+            ORE_GOLD = new BasicBlock("ore_gold", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));            
 
             CursorVisible = false;
 

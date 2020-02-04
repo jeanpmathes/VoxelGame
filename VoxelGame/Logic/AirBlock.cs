@@ -1,14 +1,8 @@
-﻿using System;
-using OpenTK;
-using OpenTK.Graphics.OpenGL4;
-
-using VoxelGame.Rendering;
-
-namespace VoxelGame.Logic
+﻿namespace VoxelGame.Logic
 {
     public class AirBlock : Block
     {
-        public AirBlock(string name) : base(name, false)
+        public AirBlock(string name) : base(name, false, false)
         {
 
         }

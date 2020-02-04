@@ -1,6 +1,4 @@
 ﻿using System;
-using OpenTK;
-using OpenTK.Graphics.OpenGL4;
 
 using VoxelGame.Rendering;
 
@@ -9,18 +7,20 @@ namespace VoxelGame.Logic
     public class BasicBlock : Block
     {
         protected float[][] sideVertices;
-        protected uint[] indicies =
+        protected uint[] indices =
         {
             0, 2, 1,
             0, 3, 2
         };
 
-        public BasicBlock(string name, bool isSolid, Shader shader, Tuple<int, int, int, int, int, int> sideIndices) : base(name, isSolid)
+        public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, Tuple<int, int, int, int, int, int> sideIndices) : base(name, true, isOpaque)
         {
-            Setup(shader, sideIndices);
+            RenderFaceAtNonOpaques = renderFaceAtNonOpaques;
+
+            Setup(sideIndices);
         }
 
-        protected virtual void Setup(Shader shader, Tuple<int, int, int, int, int, int> sideIndices)
+        protected virtual void Setup(Tuple<int, int, int, int, int, int> sideIndices)
         {
             int textureIndex = Game.Atlas.GetTextureIndex(Name);
 
@@ -86,10 +86,10 @@ namespace VoxelGame.Logic
             };
         }
 
-        public override uint GetMesh(BlockSide side, out float[] vertecies, out uint[] indicies)
+        public override uint GetMesh(BlockSide side, out float[] vertices, out uint[] indices)
         {
-            vertecies = sideVertices[(int)side];
-            indicies = this.indicies;
+            vertices = sideVertices[(int)side];
+            indices = this.indices;
 
             return 4;
         }

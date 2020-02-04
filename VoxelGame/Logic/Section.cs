@@ -17,7 +17,7 @@ namespace VoxelGame.Logic
         private int elementBufferObject;
         private int vertexArrayObject;
 
-        private uint[] indiciesAll;
+        private uint[] indicesAll;
 
         private bool hasChanged = true;
 
@@ -67,14 +67,45 @@ namespace VoxelGame.Logic
 
             blocks[5, 26, 5] = Game.LOG;
             blocks[5, 27, 5] = Game.LOG;
+            blocks[5, 28, 5] = Game.LOG;
+            blocks[5, 29, 5] = Game.LOG;
+            blocks[5, 30, 5] = Game.LEAVES;
+            blocks[4, 29, 5] = Game.LEAVES;
+            blocks[6, 29, 5] = Game.LEAVES;
+            blocks[4, 29, 4] = Game.LEAVES;
+            blocks[6, 29, 4] = Game.LEAVES;
+            blocks[4, 29, 6] = Game.LEAVES;
+            blocks[6, 29, 6] = Game.LEAVES;
+
             blocks[9, 26, 8] = Game.COBBLESTONE;
             blocks[9, 26, 7] = Game.COBBLESTONE;
             blocks[9, 26, 6] = Game.COBBLESTONE;
+            blocks[9, 27, 8] = Game.GLASS;
+            blocks[9, 27, 7] = Game.GLASS;
+            blocks[9, 27, 6] = Game.GLASS;
+            blocks[9, 28, 6] = Game.LEAVES;
             blocks[12, 26, 12] = Game.ORE_IRON;
             blocks[13, 26, 12] = Game.STONE;
             blocks[14, 26, 12] = Game.ORE_GOLD;
             blocks[15, 26, 12] = Game.STONE;
             blocks[16, 26, 12] = Game.ORE_COAL;
+            blocks[12, 26, 13] = Game.TALL_GRASS;
+            blocks[13, 26, 13] = Game.TALL_GRASS;
+            blocks[14, 26, 13] = Game.TALL_GRASS;
+            blocks[15, 26, 13] = Game.TALL_GRASS;
+            blocks[16, 26, 13] = Game.TALL_GRASS;
+
+            blocks[17, 17, 31] = Game.AIR;
+            blocks[17, 18, 31] = Game.AIR;
+            blocks[17, 16, 31] = Game.AIR;
+            blocks[18, 17, 31] = Game.AIR;
+            blocks[17, 17, 30] = Game.AIR;
+            blocks[16, 17, 31] = Game.AIR;
+
+            blocks[29, 25, 31] = Game.AIR;
+            blocks[28, 25, 31] = Game.AIR;
+            blocks[29, 24, 31] = Game.AIR;
+            blocks[29, 23, 31] = Game.AIR;
         }
 
         public void Render(Vector3 position)
@@ -82,8 +113,8 @@ namespace VoxelGame.Logic
             // Recalculate the mesh and set the buffers
             if (hasChanged)
             {
-                List<float> vertecies = new List<float>();
-                List<uint> indicies = new List<uint>();
+                List<float> vertices = new List<float>();
+                List<uint> indices = new List<uint>();
 
                 uint vertCount = 0;
 
@@ -93,136 +124,145 @@ namespace VoxelGame.Logic
                     {
                         for (int z = 0; z < sectionSize; z++)
                         {
-                            if (blocks[x, y, z].IsSolid) // Check if this block is solid
+                            Block current = blocks[x, y, z];
+
+                            if (current.IsFull) // Check if this block is sized 1x1x1
                             {
                                 // Check all six sides of this block
-                                if (z + 1 >= sectionSize || !blocks[x, y, z + 1].IsSolid) // Front
-                                {
-                                    uint additionalVertCount = blocks[x, y, z].GetMesh(BlockSide.Front, out float[] sideVertecies, out uint[] sideIndicies);
 
-                                    vertecies.AddRange(sideVertecies);
-                                    indicies.AddRange(sideIndicies);
+                                // Front
+                                if (z + 1 >= sectionSize || !blocks[x, y, z + 1].IsFull || (!blocks[x, y, z + 1].IsOpaque && current.IsOpaque) || (!blocks[x, y, z + 1].IsOpaque && (current.RenderFaceAtNonOpaques || blocks[x, y, z + 1].RenderFaceAtNonOpaques)))
+                                {
+                                    uint additionalVertCount = current.GetMesh(BlockSide.Front, out float[] sideVertecies, out uint[] sideIndicies);
+
+                                    vertices.AddRange(sideVertecies);
+                                    indices.AddRange(sideIndicies);
 
                                     for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertecies
                                     {
-                                        vertecies[(int)vertCount * 5 + i + 0] += x;
-                                        vertecies[(int)vertCount * 5 + i + 1] += y;
-                                        vertecies[(int)vertCount * 5 + i + 2] += z;
+                                        vertices[(int)vertCount * 5 + i + 0] += x;
+                                        vertices[(int)vertCount * 5 + i + 1] += y;
+                                        vertices[(int)vertCount * 5 + i + 2] += z;
                                     }
 
                                     for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indicies
                                     {
-                                        indicies[indicies.Count - sideIndicies.Length + i] += vertCount;
+                                        indices[indices.Count - sideIndicies.Length + i] += vertCount;
                                     }
 
                                     vertCount += additionalVertCount;
                                 }
 
-                                if (z - 1 < 0 || !blocks[x, y, z - 1].IsSolid) // Back
+                                // Back
+                                if (z - 1 < 0 || !blocks[x, y, z - 1].IsFull || (!blocks[x, y, z - 1].IsOpaque && current.IsOpaque) || (!blocks[x, y, z - 1].IsOpaque && (current.RenderFaceAtNonOpaques || blocks[x, y, z - 1].RenderFaceAtNonOpaques)))
                                 {
-                                    uint additionalVertCount = blocks[x, y, z].GetMesh(BlockSide.Back, out float[] sideVertecies, out uint[] sideIndicies);
+                                    uint additionalVertCount = current.GetMesh(BlockSide.Back, out float[] sideVertecies, out uint[] sideIndicies);
 
-                                    vertecies.AddRange(sideVertecies);
-                                    indicies.AddRange(sideIndicies);
+                                    vertices.AddRange(sideVertecies);
+                                    indices.AddRange(sideIndicies);
 
                                     for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertecies
                                     {
-                                        vertecies[(int)vertCount * 5 + i + 0] += x;
-                                        vertecies[(int)vertCount * 5 + i + 1] += y;
-                                        vertecies[(int)vertCount * 5 + i + 2] += z;
+                                        vertices[(int)vertCount * 5 + i + 0] += x;
+                                        vertices[(int)vertCount * 5 + i + 1] += y;
+                                        vertices[(int)vertCount * 5 + i + 2] += z;
                                     }
 
                                     for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indicies
                                     {
-                                        indicies[indicies.Count - sideIndicies.Length + i] += vertCount;
+                                        indices[indices.Count - sideIndicies.Length + i] += vertCount;
                                     }
 
                                     vertCount += additionalVertCount;
                                 }
 
-                                if (x - 1 < 0 || !blocks[x - 1, y, z].IsSolid) // Left
+                                // Left
+                                if (x - 1 < 0 || !blocks[x - 1, y, z].IsFull || (!blocks[x - 1, y, z].IsOpaque && current.IsOpaque) || (!blocks[x - 1, y, z].IsOpaque && (current.RenderFaceAtNonOpaques || blocks[x - 1, y, z].RenderFaceAtNonOpaques)))
                                 {
-                                    uint additionalVertCount = blocks[x, y, z].GetMesh(BlockSide.Left, out float[] sideVertecies, out uint[] sideIndicies);
+                                    uint additionalVertCount = current.GetMesh(BlockSide.Left, out float[] sideVertecies, out uint[] sideIndicies);
 
-                                    vertecies.AddRange(sideVertecies);
-                                    indicies.AddRange(sideIndicies);
+                                    vertices.AddRange(sideVertecies);
+                                    indices.AddRange(sideIndicies);
 
                                     for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertecies
                                     {
-                                        vertecies[(int)vertCount * 5 + i + 0] += x;
-                                        vertecies[(int)vertCount * 5 + i + 1] += y;
-                                        vertecies[(int)vertCount * 5 + i + 2] += z;
+                                        vertices[(int)vertCount * 5 + i + 0] += x;
+                                        vertices[(int)vertCount * 5 + i + 1] += y;
+                                        vertices[(int)vertCount * 5 + i + 2] += z;
                                     }
 
                                     for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indicies
                                     {
-                                        indicies[indicies.Count - sideIndicies.Length + i] += vertCount;
+                                        indices[indices.Count - sideIndicies.Length + i] += vertCount;
                                     }
 
                                     vertCount += additionalVertCount;
                                 }
 
-                                if (x + 1 >= sectionSize || !blocks[x + 1, y, z].IsSolid) // Right
+                                // Right
+                                if (x + 1 >= sectionSize || !blocks[x + 1, y, z].IsFull || (!blocks[x + 1, y, z].IsOpaque && current.IsOpaque) || (!blocks[x + 1, y, z].IsOpaque && (current.RenderFaceAtNonOpaques || blocks[x + 1, y, z].RenderFaceAtNonOpaques)))
                                 {
-                                    uint additionalVertCount = blocks[x, y, z].GetMesh(BlockSide.Right, out float[] sideVertecies, out uint[] sideIndicies);
+                                    uint additionalVertCount = current.GetMesh(BlockSide.Right, out float[] sideVertecies, out uint[] sideIndicies);
 
-                                    vertecies.AddRange(sideVertecies);
-                                    indicies.AddRange(sideIndicies);
+                                    vertices.AddRange(sideVertecies);
+                                    indices.AddRange(sideIndicies);
 
                                     for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertecies
                                     {
-                                        vertecies[(int)vertCount * 5 + i + 0] += x;
-                                        vertecies[(int)vertCount * 5 + i + 1] += y;
-                                        vertecies[(int)vertCount * 5 + i + 2] += z;
+                                        vertices[(int)vertCount * 5 + i + 0] += x;
+                                        vertices[(int)vertCount * 5 + i + 1] += y;
+                                        vertices[(int)vertCount * 5 + i + 2] += z;
                                     }
 
                                     for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indicies
                                     {
-                                        indicies[indicies.Count - sideIndicies.Length + i] += vertCount;
+                                        indices[indices.Count - sideIndicies.Length + i] += vertCount;
                                     }
 
                                     vertCount += additionalVertCount;
                                 }
 
-                                if (y - 1 < 0 || !blocks[x, y - 1, z].IsSolid) // Bottom
+                                // Bottom
+                                if (y - 1 < 0 || !blocks[x, y - 1, z].IsFull || (!blocks[x, y - 1, z].IsOpaque && current.IsOpaque) || (!blocks[x, y - 1, z].IsOpaque && (current.RenderFaceAtNonOpaques || blocks[x, y - 1, z].RenderFaceAtNonOpaques)))
                                 {
-                                    uint additionalVertCount = blocks[x, y, z].GetMesh(BlockSide.Bottom, out float[] sideVertecies, out uint[] sideIndicies);
+                                    uint additionalVertCount = current.GetMesh(BlockSide.Bottom, out float[] sideVertecies, out uint[] sideIndicies);
 
-                                    vertecies.AddRange(sideVertecies);
-                                    indicies.AddRange(sideIndicies);
+                                    vertices.AddRange(sideVertecies);
+                                    indices.AddRange(sideIndicies);
 
                                     for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertecies
                                     {
-                                        vertecies[(int)vertCount * 5 + i + 0] += x;
-                                        vertecies[(int)vertCount * 5 + i + 1] += y;
-                                        vertecies[(int)vertCount * 5 + i + 2] += z;
+                                        vertices[(int)vertCount * 5 + i + 0] += x;
+                                        vertices[(int)vertCount * 5 + i + 1] += y;
+                                        vertices[(int)vertCount * 5 + i + 2] += z;
                                     }
 
                                     for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indicies
                                     {
-                                        indicies[indicies.Count - sideIndicies.Length + i] += vertCount;
+                                        indices[indices.Count - sideIndicies.Length + i] += vertCount;
                                     }
 
                                     vertCount += additionalVertCount;
                                 }
 
-                                if (y + 1 >= sectionSize || !blocks[x, y + 1, z].IsSolid) // Top
+                                // Top
+                                if (y + 1 >= sectionSize || !blocks[x, y + 1, z].IsFull || (!blocks[x, y + 1, z].IsOpaque && current.IsOpaque) || (!blocks[x, y + 1, z].IsOpaque && (current.RenderFaceAtNonOpaques || blocks[x, y + 1, z].RenderFaceAtNonOpaques)))
                                 {
-                                    uint additionalVertCount = blocks[x, y, z].GetMesh(BlockSide.Top, out float[] sideVertecies, out uint[] sideIndicies);
+                                    uint additionalVertCount = current.GetMesh(BlockSide.Top, out float[] sideVertecies, out uint[] sideIndicies);
 
-                                    vertecies.AddRange(sideVertecies);
-                                    indicies.AddRange(sideIndicies);
+                                    vertices.AddRange(sideVertecies);
+                                    indices.AddRange(sideIndicies);
 
                                     for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertecies
                                     {
-                                        vertecies[(int)vertCount * 5 + i + 0] += x;
-                                        vertecies[(int)vertCount * 5 + i + 1] += y;
-                                        vertecies[(int)vertCount * 5 + i + 2] += z;
+                                        vertices[(int)vertCount * 5 + i + 0] += x;
+                                        vertices[(int)vertCount * 5 + i + 1] += y;
+                                        vertices[(int)vertCount * 5 + i + 2] += z;
                                     }
 
                                     for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indicies
                                     {
-                                        indicies[indicies.Count - sideIndicies.Length + i] += vertCount;
+                                        indices[indices.Count - sideIndicies.Length + i] += vertCount;
                                     }
 
                                     vertCount += additionalVertCount;
@@ -230,23 +270,23 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                uint additionalVertCount = blocks[x, y, z].GetMesh(BlockSide.All, out float[] sideVertecies, out uint[] sideIndicies);
+                                uint additionalVertCount = current.GetMesh(BlockSide.All, out float[] sideVertecies, out uint[] sideIndicies);
 
                                 if (additionalVertCount != 0)
                                 {
-                                    vertecies.AddRange(sideVertecies);
-                                    indicies.AddRange(sideIndicies);
+                                    vertices.AddRange(sideVertecies);
+                                    indices.AddRange(sideIndicies);
 
                                     for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertecies
                                     {
-                                        vertecies[(int)vertCount * 5 + i + 0] += x;
-                                        vertecies[(int)vertCount * 5 + i + 1] += y;
-                                        vertecies[(int)vertCount * 5 + i + 2] += z;
+                                        vertices[(int)vertCount * 5 + i + 0] += x;
+                                        vertices[(int)vertCount * 5 + i + 1] += y;
+                                        vertices[(int)vertCount * 5 + i + 2] += z;
                                     }
 
                                     for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indicies
                                     {
-                                        indicies[indicies.Count - sideIndicies.Length + i] += vertCount;
+                                        indices[indices.Count - sideIndicies.Length + i] += vertCount;
                                     }
 
                                     vertCount += additionalVertCount;
@@ -258,8 +298,8 @@ namespace VoxelGame.Logic
                     hasChanged = false;
                 }
 
-                float[] verteciesAll = vertecies.ToArray();
-                indiciesAll = indicies.ToArray();
+                float[] verteciesAll = vertices.ToArray();
+                indicesAll = indices.ToArray();
 
                 // Vertex Buffer Object
                 GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
@@ -267,7 +307,7 @@ namespace VoxelGame.Logic
 
                 // Element Buffer Object
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
-                GL.BufferData(BufferTarget.ElementArrayBuffer, indiciesAll.Length * sizeof(uint), indiciesAll, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, indicesAll.Length * sizeof(uint), indicesAll, BufferUsageHint.StaticDraw);
 
                 Game.Shader.Use();
 
@@ -295,7 +335,7 @@ namespace VoxelGame.Logic
             Game.Shader.SetMatrix4("view", Game.MainCamera.GetViewMatrix());
             Game.Shader.SetMatrix4("projection", Game.MainCamera.GetProjectionMatrix());
 
-            GL.DrawElements(PrimitiveType.Triangles, indiciesAll.Length, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Triangles, indicesAll.Length, DrawElementsType.UnsignedInt, 0);
 
             GL.BindVertexArray(0);
             GL.UseProgram(0);
