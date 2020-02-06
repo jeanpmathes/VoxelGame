@@ -1,4 +1,8 @@
-﻿using System;
+﻿// <copyright file="World.cs" company="VoxelGame">
+//     All rights reserved.
+// </copyright>
+// <author>pershingthesecond</author>
+using System;
 using System.Collections.Generic;
 using OpenTK;
 

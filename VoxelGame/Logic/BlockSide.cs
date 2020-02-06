@@ -1,4 +1,8 @@
-﻿namespace VoxelGame.Logic
+﻿// <copyright file="BlockSide.cs" company="VoxelGame">
+//     All rights reserved.
+// </copyright>
+// <author>pershingthesecond</author>
+namespace VoxelGame.Logic
 {
     public enum BlockSide
     {

@@ -1,4 +1,8 @@
-﻿using System;
+﻿// <copyright file="AtlasPosition.cs" company="VoxelGame">
+//     All rights reserved.
+// </copyright>
+// <author>pershingthesecond</author>
+using System;
 
 namespace VoxelGame.Rendering
 {

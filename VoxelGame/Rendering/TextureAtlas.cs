@@ -1,4 +1,8 @@
-﻿using System;
+﻿// <copyright file="TextureAtlas.cs" company="VoxelGame">
+//     All rights reserved.
+// </copyright>
+// <author>pershingthesecond</author>
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Drawing;

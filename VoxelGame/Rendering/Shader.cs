@@ -1,4 +1,8 @@
-﻿using System;
+﻿// <copyright file="Shader.cs" company="VoxelGame">
+//     All rights reserved.
+// </copyright>
+// <author>pershingthesecond</author>
+using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;

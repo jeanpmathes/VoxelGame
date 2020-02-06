@@ -94,6 +94,7 @@
     <None Include="Rendering\Shaders\shader.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="VoxelGame.licenseheader" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Ressources\Textures\cobblestone.png">

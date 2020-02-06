@@ -1,4 +1,8 @@
-﻿using System;
+﻿// <copyright file="Program.cs" company="VoxelGame">
+//     All rights reserved.
+// </copyright>
+// <author>pershingthesecond</author>
+using System;
 
 using VoxelGame.Rendering;
 

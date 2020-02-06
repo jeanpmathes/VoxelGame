@@ -1,4 +1,8 @@
-﻿using System.Drawing;
+﻿// <copyright file="Texture.cs" company="VoxelGame">
+//     All rights reserved.
+// </copyright>
+// <author>pershingthesecond</author>
+using System.Drawing;
 using System.Drawing.Imaging;
 using OpenTK.Graphics.OpenGL4;
 using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;

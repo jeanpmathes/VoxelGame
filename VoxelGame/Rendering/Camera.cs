@@ -1,4 +1,8 @@
-﻿using System;
+﻿// <copyright file="Camera.cs" company="VoxelGame">
+//     All rights reserved.
+// </copyright>
+// <author>pershingthesecond</author>
+using System;
 using OpenTK;
 
 namespace VoxelGame.Rendering

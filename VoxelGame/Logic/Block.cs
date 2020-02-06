@@ -1,4 +1,8 @@
-﻿namespace VoxelGame.Logic
+﻿// <copyright file="Block.cs" company="VoxelGame">
+//     All rights reserved.
+// </copyright>
+// <author>pershingthesecond</author>
+namespace VoxelGame.Logic
 {
     /// <summary>
     /// The basic block class. Blocks are used to construct the world.
