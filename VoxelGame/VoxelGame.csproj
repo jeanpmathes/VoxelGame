@@ -71,8 +71,10 @@
     <Compile Include="Logic\BasicBlock.cs" />
     <Compile Include="Logic\Block.cs" />
     <Compile Include="Logic\BlockSide.cs" />
+    <Compile Include="Logic\Chunk.cs" />
     <Compile Include="Logic\CrossBlock.cs" />
     <Compile Include="Logic\Section.cs" />
+    <Compile Include="Logic\World.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rendering\Camera.cs" />

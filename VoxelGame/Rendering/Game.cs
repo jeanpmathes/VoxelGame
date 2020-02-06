@@ -37,7 +37,7 @@ namespace VoxelGame.Rendering
         public static Block ORE_IRON;
         public static Block ORE_GOLD;
 
-        private Section[,,] sections;
+        public static World world;
 
         public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title) { }
 
@@ -64,22 +64,11 @@ namespace VoxelGame.Rendering
             GLASS = new BasicBlock("glass", false, false, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
             ORE_COAL = new BasicBlock("ore_coal", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
             ORE_IRON = new BasicBlock("ore_iron", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            ORE_GOLD = new BasicBlock("ore_gold", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));            
+            ORE_GOLD = new BasicBlock("ore_gold", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
+
+            world = new World();
 
             CursorVisible = false;
-
-            sections = new Section[2, 32, 2];
-
-            for (int x = 0; x <= sections.GetUpperBound(0); x++)
-            {
-                for (int y = 0; y <= sections.GetUpperBound(1); y++)
-                {
-                    for (int z = 0; z <= sections.GetUpperBound(2); z++)
-                    {
-                        sections[x, y, z] = new Section();
-                    }
-                }
-            }
 
             base.OnLoad(e);
         }
@@ -95,16 +84,7 @@ namespace VoxelGame.Rendering
                 Console.WriteLine(error);
             }
 
-            for (int x = 0; x <= sections.GetUpperBound(0); x++)
-            {
-                for (int y = 0; y <= sections.GetUpperBound(1); y++)
-                {
-                    for (int z = 0; z <= sections.GetUpperBound(2); z++)
-                    {
-                        sections[x, y, z].Render(new Vector3(x * Section.sectionSize, y * Section.sectionSize, z * Section.sectionSize));
-                    }
-                }
-            }
+            world.FrameUpdate();
 
             SwapBuffers();
 
@@ -174,6 +154,12 @@ namespace VoxelGame.Rendering
             }
 
             base.OnMouseMove(e);
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            GL.Viewport(0, 0, Width, Height);
+            base.OnResize(e);
         }
     }
 }
