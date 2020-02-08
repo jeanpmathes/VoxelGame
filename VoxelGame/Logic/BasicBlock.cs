@@ -8,9 +8,13 @@ using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic
 {
+    /// <summary>
+    /// This class represents a simple block that is completely filled. It is used for basic blocks with no functions that make up most of the world.
+    /// </summary>
     public class BasicBlock : Block
     {
         protected float[][] sideVertices;
+
         protected uint[] indices =
         {
             0, 2, 1,

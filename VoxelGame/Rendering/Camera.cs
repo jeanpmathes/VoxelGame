@@ -2,8 +2,8 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
 using OpenTK;
+using System;
 
 namespace VoxelGame.Rendering
 {
@@ -68,7 +68,7 @@ namespace VoxelGame.Rendering
 
         public Matrix4 GetProjectionMatrix()
         {
-            return Matrix4.CreatePerspectiveFieldOfView(fov, AspectRatio, 0.01f, 100f);
+            return Matrix4.CreatePerspectiveFieldOfView(fov, AspectRatio, 0.01f, 1000f);
         }
 
         private void UpdateVectors()

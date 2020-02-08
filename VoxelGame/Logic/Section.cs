@@ -2,11 +2,9 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
-using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
-
+using System.Collections.Generic;
 using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic
@@ -82,7 +80,7 @@ namespace VoxelGame.Logic
             blocks[9, 26, 8] = Game.COBBLESTONE;
             blocks[9, 26, 7] = Game.COBBLESTONE;
             blocks[9, 26, 6] = Game.COBBLESTONE;
-            blocks[9, 27, 8] = Game.GLASS; 
+            blocks[9, 27, 8] = Game.GLASS;
             blocks[9, 27, 7] = Game.GLASS;
             blocks[9, 27, 6] = Game.GLASS;
 
@@ -161,14 +159,14 @@ namespace VoxelGame.Logic
                                 vertices.AddRange(sideVertecies);
                                 indices.AddRange(sideIndicies);
 
-                                for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertecies
+                                for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertices
                                 {
                                     vertices[(int)vertCount * 5 + i + 0] += x;
                                     vertices[(int)vertCount * 5 + i + 1] += y;
                                     vertices[(int)vertCount * 5 + i + 2] += z;
                                 }
 
-                                for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indicies
+                                for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indices
                                 {
                                     indices[indices.Count - sideIndicies.Length + i] += vertCount;
                                 }
@@ -184,14 +182,14 @@ namespace VoxelGame.Logic
                                 vertices.AddRange(sideVertecies);
                                 indices.AddRange(sideIndicies);
 
-                                for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertecies
+                                for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertices
                                 {
                                     vertices[(int)vertCount * 5 + i + 0] += x;
                                     vertices[(int)vertCount * 5 + i + 1] += y;
                                     vertices[(int)vertCount * 5 + i + 2] += z;
                                 }
 
-                                for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indicies
+                                for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indices
                                 {
                                     indices[indices.Count - sideIndicies.Length + i] += vertCount;
                                 }
@@ -207,14 +205,14 @@ namespace VoxelGame.Logic
                                 vertices.AddRange(sideVertecies);
                                 indices.AddRange(sideIndicies);
 
-                                for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertecies
+                                for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertices
                                 {
                                     vertices[(int)vertCount * 5 + i + 0] += x;
                                     vertices[(int)vertCount * 5 + i + 1] += y;
                                     vertices[(int)vertCount * 5 + i + 2] += z;
                                 }
 
-                                for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indicies
+                                for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indices
                                 {
                                     indices[indices.Count - sideIndicies.Length + i] += vertCount;
                                 }
@@ -230,14 +228,14 @@ namespace VoxelGame.Logic
                                 vertices.AddRange(sideVertecies);
                                 indices.AddRange(sideIndicies);
 
-                                for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertecies
+                                for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertices
                                 {
                                     vertices[(int)vertCount * 5 + i + 0] += x;
                                     vertices[(int)vertCount * 5 + i + 1] += y;
                                     vertices[(int)vertCount * 5 + i + 2] += z;
                                 }
 
-                                for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indicies
+                                for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indices
                                 {
                                     indices[indices.Count - sideIndicies.Length + i] += vertCount;
                                 }
@@ -253,14 +251,14 @@ namespace VoxelGame.Logic
                                 vertices.AddRange(sideVertecies);
                                 indices.AddRange(sideIndicies);
 
-                                for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertecies
+                                for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertices
                                 {
                                     vertices[(int)vertCount * 5 + i + 0] += x;
                                     vertices[(int)vertCount * 5 + i + 1] += y;
                                     vertices[(int)vertCount * 5 + i + 2] += z;
                                 }
 
-                                for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indicies
+                                for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indices
                                 {
                                     indices[indices.Count - sideIndicies.Length + i] += vertCount;
                                 }
@@ -276,14 +274,14 @@ namespace VoxelGame.Logic
                                 vertices.AddRange(sideVertecies);
                                 indices.AddRange(sideIndicies);
 
-                                for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertecies
+                                for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertices
                                 {
                                     vertices[(int)vertCount * 5 + i + 0] += x;
                                     vertices[(int)vertCount * 5 + i + 1] += y;
                                     vertices[(int)vertCount * 5 + i + 2] += z;
                                 }
 
-                                for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indicies
+                                for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indices
                                 {
                                     indices[indices.Count - sideIndicies.Length + i] += vertCount;
                                 }
@@ -300,14 +298,14 @@ namespace VoxelGame.Logic
                                 vertices.AddRange(sideVertecies);
                                 indices.AddRange(sideIndicies);
 
-                                for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertecies
+                                for (int i = 0; i < sideVertecies.Length; i += 5) // Add the position to the vertices
                                 {
                                     vertices[(int)vertCount * 5 + i + 0] += x;
                                     vertices[(int)vertCount * 5 + i + 1] += y;
                                     vertices[(int)vertCount * 5 + i + 2] += z;
                                 }
 
-                                for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indicies
+                                for (int i = 0; i < sideIndicies.Length; i++) // Add the additionalVertCount count to the indices
                                 {
                                     indices[indices.Count - sideIndicies.Length + i] += vertCount;
                                 }

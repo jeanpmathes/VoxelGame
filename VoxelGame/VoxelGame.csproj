@@ -97,40 +97,40 @@
     <None Include="VoxelGame.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Ressources\Textures\cobblestone.png">
+    <Content Include="Resources\Textures\cobblestone.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Ressources\Textures\dirt.png">
+    <Content Include="Resources\Textures\dirt.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Ressources\Textures\glass.png">
+    <Content Include="Resources\Textures\glass.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Ressources\Textures\grass.png">
+    <Content Include="Resources\Textures\grass.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Ressources\Textures\leaves.png">
+    <Content Include="Resources\Textures\leaves.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Ressources\Textures\log.png">
+    <Content Include="Resources\Textures\log.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Ressources\Textures\ore_coal.png">
+    <Content Include="Resources\Textures\ore_coal.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Ressources\Textures\ore_gold.png">
+    <Content Include="Resources\Textures\ore_gold.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Ressources\Textures\ore_iron.png">
+    <Content Include="Resources\Textures\ore_iron.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Ressources\Textures\sand.png">
+    <Content Include="Resources\Textures\sand.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Ressources\Textures\stone.png">
+    <Content Include="Resources\Textures\stone.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Ressources\Textures\tall_grass.png">
+    <Content Include="Resources\Textures\tall_grass.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

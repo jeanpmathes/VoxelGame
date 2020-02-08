@@ -2,7 +2,6 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
 using OpenTK;
 
 namespace VoxelGame.Logic
@@ -15,13 +14,14 @@ namespace VoxelGame.Logic
         /// The X position of this chunk in chunk units
         /// </summary>
         public int X { get; private set; }
+
         /// <summary>
         /// The Y position of this chunk in chunk units
         /// </summary>
         public int Z { get; private set; }
 
         private Section[] sections = new Section[32];
-        
+
         public Chunk(int x, int z)
         {
             X = x;

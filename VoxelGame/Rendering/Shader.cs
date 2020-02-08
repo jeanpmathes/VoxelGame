@@ -2,12 +2,12 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
-using System.IO;
-using System.Text;
-using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 namespace VoxelGame.Rendering
 {
@@ -52,7 +52,6 @@ namespace VoxelGame.Rendering
                 uniformLocations.Add(key, location);
             }
         }
-
 
         private static void CompileShader(int shader)
         {

@@ -9,10 +9,21 @@ namespace VoxelGame.Logic
     /// </summary>
     public class AirBlock : Block
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AirBlock"/> class.
+        /// </summary>
+        /// <param name="name">The unique name of this block</param>
         public AirBlock(string name) : base(name, false, false)
         {
         }
 
+        /// <summary>
+        /// This method is used to get the mesh from a block.
+        /// </summary>
+        /// <param name="side">The side of the block the mesh is required from.</param>
+        /// <param name="vertecies">The parameter is not used.</param>
+        /// <param name="indicies">The parameter is not used.</param>
+        /// <returns>Returns null.</returns>
         public override uint GetMesh(BlockSide side, out float[] vertecies, out uint[] indicies)
         {
             vertecies = null;

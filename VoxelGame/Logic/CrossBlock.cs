@@ -11,6 +11,7 @@ namespace VoxelGame.Logic
     public class CrossBlock : Block
     {
         protected float[] vertices;
+
         protected uint[] indices =
         {
             // Direction: /

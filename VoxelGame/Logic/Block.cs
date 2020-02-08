@@ -12,6 +12,7 @@ namespace VoxelGame.Logic
         public string Name { get; protected set; }
         public bool IsFull { get; protected set; }
         public bool IsOpaque { get; protected set; }
+
         /// <summary>
         /// This property is only relevant for non-opaque full blocks. It decides if their faces should be rendered next to another non-opaque block.
         /// </summary>

@@ -2,12 +2,12 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
+using OpenTK.Graphics.OpenGL4;
 using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using OpenTK.Graphics.OpenGL4;
+using System.IO;
 using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
 
 namespace VoxelGame.Rendering
@@ -32,7 +32,7 @@ namespace VoxelGame.Rendering
 
             int currentIndex = 0;
 
-            for (int i = 0; i < texturePaths.Length; i++) // Split all images into separate bitmpas and create a list
+            for (int i = 0; i < texturePaths.Length; i++) // Split all images into separate bitmaps and create a list
             {
                 try
                 {

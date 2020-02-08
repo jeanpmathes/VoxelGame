@@ -2,25 +2,23 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
-using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
-
+using System;
 using VoxelGame.Logic;
 
 namespace VoxelGame.Rendering
 {
-    class Game : GameWindow
+    internal class Game : GameWindow
     {
         public static Camera MainCamera { get; private set; }
         public static TextureAtlas Atlas { get; private set; }
         public static Shader Shader { get; private set; }
 
-        const float cameraSpeed = 1.5f;
-        const float sensitivity = 0.2f;        
+        private const float cameraSpeed = 1.5f;
+        private const float sensitivity = 0.2f;
 
         private bool firstMove = true;
         private Vector2 lastPos;
@@ -43,7 +41,9 @@ namespace VoxelGame.Rendering
 
         public static World world;
 
-        public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title) { }
+        public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
+        {
+        }
 
         protected override void OnLoad(EventArgs e)
         {
@@ -52,7 +52,7 @@ namespace VoxelGame.Rendering
             GL.Enable(EnableCap.CullFace);
 
             MainCamera = new Camera(new Vector3(-3f, 5f, 5f), Width / (float)Height);
-            Atlas = new TextureAtlas("Ressources/Textures");
+            Atlas = new TextureAtlas("Resources/Textures");
 
             Shader = new Shader("Rendering/Shaders/shader.vert", "Rendering/Shaders/shader.frag");
 
@@ -94,7 +94,7 @@ namespace VoxelGame.Rendering
 
             base.OnRenderFrame(e);
         }
-        
+
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             if (!Focused) // check to see if the window is focused
@@ -116,7 +116,7 @@ namespace VoxelGame.Rendering
             }
 
             if (input.IsKeyDown(Key.W))
-                MainCamera.Position += MainCamera.Front * cameraSpeed * (float)e.Time; // Forward 
+                MainCamera.Position += MainCamera.Front * cameraSpeed * (float)e.Time; // Forward
             if (input.IsKeyDown(Key.S))
                 MainCamera.Position -= MainCamera.Front * cameraSpeed * (float)e.Time; // Backwards
             if (input.IsKeyDown(Key.A))
@@ -124,7 +124,7 @@ namespace VoxelGame.Rendering
             if (input.IsKeyDown(Key.D))
                 MainCamera.Position += MainCamera.Right * cameraSpeed * (float)e.Time; // Right
             if (input.IsKeyDown(Key.Space))
-                MainCamera.Position += MainCamera.Up * cameraSpeed * (float)e.Time; // Up 
+                MainCamera.Position += MainCamera.Up * cameraSpeed * (float)e.Time; // Up
             if (input.IsKeyDown(Key.LShift))
                 MainCamera.Position -= MainCamera.Up * cameraSpeed * (float)e.Time; // Down
 

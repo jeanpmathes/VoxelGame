@@ -4,7 +4,6 @@
 // <author>pershingthesecond</author>
 using System;
 using System.Collections.Generic;
-using OpenTK;
 
 namespace VoxelGame.Logic
 {
