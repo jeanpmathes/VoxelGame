@@ -11,6 +11,9 @@ namespace VoxelGame.Logic
     {
         public const int chunkExtents = 4;
 
+        public readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
+        public readonly int chunkHeightExp = (int)Math.Log(Chunk.ChunkHeight, 2);
+
         private Dictionary<ValueTuple<int, int>, Chunk> activeChunks = new Dictionary<ValueTuple<int, int>, Chunk>();
         private List<Chunk> chunksToMesh = new List<Chunk>();
         private List<Chunk> chunksToRender = new List<Chunk>();
@@ -58,24 +61,36 @@ namespace VoxelGame.Logic
             chunksToRender.Clear();
         }
 
+        /// <summary>
+        /// Returns the block at a given position in block coordinates. The block is only searched in active chunks.
+        /// </summary>
+        /// <param name="x">The x position in block coordinates.</param>
+        /// <param name="y">The y position in block coordinates.</param>
+        /// <param name="z">The z position in block coordinates.</param>
+        /// <returns>The Block at x, y, z or null if the block was not found</returns>
         public Block GetBlock(int x, int y, int z)
         {
-            throw new NotImplementedException();
+            return activeChunks[(x << sectionSizeExp, z << sectionSizeExp)]
+                .GetSection(y << chunkHeightExp)
+                .GetBlock(x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1));
         }
 
         public void SetBlock(Block block, int x, int y, int z)
         {
-            throw new NotImplementedException();
+            activeChunks[(x << sectionSizeExp, z << sectionSizeExp)]
+                .GetSection(y << chunkHeightExp)
+                .SetBlock(block, x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1));
         }
 
-        public Chunk GetChunk(int x, int y, int z)
+        public Chunk GetChunk(int x, int z)
         {
-            throw new NotImplementedException();
+            return activeChunks[(x, z)];
         }
 
         public Section GetSection(int x, int y, int z)
         {
-            throw new NotImplementedException();
+            return activeChunks[(x, z)]
+                .GetSection(y);
         }
     }
 }

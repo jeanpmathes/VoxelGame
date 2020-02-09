@@ -131,7 +131,7 @@ namespace VoxelGame.Logic
             blocks[29, 23, 31] = Game.AIR;
         }
 
-        public void CreateMesh(Vector3 position)
+        public void CreateMesh(int sectionX, int sectionY, int sectionZ)
         {
             // Recalculate the mesh and set the buffers
             List<float> vertices = new List<float>();
@@ -360,6 +360,23 @@ namespace VoxelGame.Logic
 
             GL.BindVertexArray(0);
             GL.UseProgram(0);
+        }
+
+        /// <summary>
+        /// Returns the block at a section position.
+        /// </summary>
+        /// <param name="x">The x position of the block in this section.</param>
+        /// <param name="y">The y position of the block in this section.</param>
+        /// <param name="z">The z position of the block in this section.</param>
+        /// <returns>The block at the given position.</returns>
+        public Block GetBlock(int x, int y, int z)
+        {
+            return blocks[x, y, z];
+        }
+
+        public void SetBlock(Block block, int x, int y, int z)
+        {
+            blocks[x, y, z] = block;
         }
     }
 }

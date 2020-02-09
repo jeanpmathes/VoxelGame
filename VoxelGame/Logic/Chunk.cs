@@ -37,7 +37,7 @@ namespace VoxelGame.Logic
         {
             for (int i = 0; i < ChunkHeight; i++)
             {
-                sections[i].CreateMesh(new Vector3(X * Section.SectionSize, i * Section.SectionSize, Z * Section.SectionSize));
+                sections[i].CreateMesh(X, i, Z);
             }
         }
 
@@ -47,6 +47,11 @@ namespace VoxelGame.Logic
             {
                 sections[i].Render(new Vector3(X * Section.SectionSize, i * Section.SectionSize, Z * Section.SectionSize));
             }
+        }
+
+        public Section GetSection(int y)
+        {
+            return sections[y];
         }
     }
 }
