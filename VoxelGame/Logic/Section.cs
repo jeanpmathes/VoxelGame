@@ -133,6 +133,14 @@ namespace VoxelGame.Logic
 
         public void CreateMesh(int sectionX, int sectionY, int sectionZ)
         {
+            // Get the sections next to this section
+            Section frontNeighbour = Game.world.GetSection(sectionX, sectionY, sectionZ + 1);
+            Section backNeighbour = Game.world.GetSection(sectionX, sectionY, sectionZ - 1);
+            Section leftNeighbour = Game.world.GetSection(sectionX - 1, sectionY, sectionZ);
+            Section rightNeighbour = Game.world.GetSection(sectionX + 1, sectionY, sectionZ);
+            Section bottomNeighbour = Game.world.GetSection(sectionX, sectionY - 1, sectionZ);
+            Section topNeighbour = Game.world.GetSection(sectionX, sectionY + 1, sectionZ);
+
             // Recalculate the mesh and set the buffers
             List<float> vertices = new List<float>();
             List<uint> indices = new List<uint>();
@@ -145,16 +153,31 @@ namespace VoxelGame.Logic
                 {
                     for (int z = 0; z < SectionSize; z++)
                     {
-                        Block current = blocks[x, y, z];
+                        Block currentBlock = blocks[x, y, z];
 
-                        if (current.IsFull) // Check if this block is sized 1x1x1
+                        if (currentBlock.IsFull) // Check if this block is sized 1x1x1
                         {
+                            Block blockToCheck = null;
+
                             // Check all six sides of this block
 
                             // Front
-                            if (z + 1 >= SectionSize || !blocks[x, y, z + 1].IsFull || (!blocks[x, y, z + 1].IsOpaque && current.IsOpaque) || (!blocks[x, y, z + 1].IsOpaque && (current.RenderFaceAtNonOpaques || blocks[x, y, z + 1].RenderFaceAtNonOpaques)))
+                            if (z + 1 >= SectionSize && frontNeighbour != null)
                             {
-                                uint additionalVertCount = current.GetMesh(BlockSide.Front, out float[] sideVertecies, out uint[] sideIndicies);
+                                blockToCheck = frontNeighbour.GetBlock(x, y, 0);
+                            }
+                            else if (z + 1 >= SectionSize)
+                            {
+                                blockToCheck = null;
+                            }
+                            else
+                            {
+                                blockToCheck = blocks[x, y, z + 1];
+                            }
+
+                            if (blockToCheck == null || !blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
+                            {
+                                uint additionalVertCount = currentBlock.GetMesh(BlockSide.Front, out float[] sideVertecies, out uint[] sideIndicies);
 
                                 vertices.AddRange(sideVertecies);
                                 indices.AddRange(sideIndicies);
@@ -175,9 +198,22 @@ namespace VoxelGame.Logic
                             }
 
                             // Back
-                            if (z - 1 < 0 || !blocks[x, y, z - 1].IsFull || (!blocks[x, y, z - 1].IsOpaque && current.IsOpaque) || (!blocks[x, y, z - 1].IsOpaque && (current.RenderFaceAtNonOpaques || blocks[x, y, z - 1].RenderFaceAtNonOpaques)))
+                            if (z - 1 < 0 && backNeighbour != null)
                             {
-                                uint additionalVertCount = current.GetMesh(BlockSide.Back, out float[] sideVertecies, out uint[] sideIndicies);
+                                blockToCheck = backNeighbour.GetBlock(x, y, SectionSize - 1);
+                            }
+                            else if (z - 1 < 0)
+                            {
+                                blockToCheck = null;
+                            }
+                            else
+                            {
+                                blockToCheck = blocks[x, y, z - 1];
+                            }
+
+                            if (blockToCheck == null || !blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
+                            {
+                                uint additionalVertCount = currentBlock.GetMesh(BlockSide.Back, out float[] sideVertecies, out uint[] sideIndicies);
 
                                 vertices.AddRange(sideVertecies);
                                 indices.AddRange(sideIndicies);
@@ -198,9 +234,22 @@ namespace VoxelGame.Logic
                             }
 
                             // Left
-                            if (x - 1 < 0 || !blocks[x - 1, y, z].IsFull || (!blocks[x - 1, y, z].IsOpaque && current.IsOpaque) || (!blocks[x - 1, y, z].IsOpaque && (current.RenderFaceAtNonOpaques || blocks[x - 1, y, z].RenderFaceAtNonOpaques)))
+                            if (x - 1 < 0 && leftNeighbour != null)
                             {
-                                uint additionalVertCount = current.GetMesh(BlockSide.Left, out float[] sideVertecies, out uint[] sideIndicies);
+                                blockToCheck = leftNeighbour.GetBlock(SectionSize - 1, y, z);
+                            }
+                            else if (x - 1 < 0)
+                            {
+                                blockToCheck = null;
+                            }
+                            else
+                            {
+                                blockToCheck = blocks[x - 1, y, z];
+                            }
+
+                            if (blockToCheck == null || !blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
+                            {
+                                uint additionalVertCount = currentBlock.GetMesh(BlockSide.Left, out float[] sideVertecies, out uint[] sideIndicies);
 
                                 vertices.AddRange(sideVertecies);
                                 indices.AddRange(sideIndicies);
@@ -221,9 +270,22 @@ namespace VoxelGame.Logic
                             }
 
                             // Right
-                            if (x + 1 >= SectionSize || !blocks[x + 1, y, z].IsFull || (!blocks[x + 1, y, z].IsOpaque && current.IsOpaque) || (!blocks[x + 1, y, z].IsOpaque && (current.RenderFaceAtNonOpaques || blocks[x + 1, y, z].RenderFaceAtNonOpaques)))
+                            if (x + 1 >= SectionSize && rightNeighbour != null)
                             {
-                                uint additionalVertCount = current.GetMesh(BlockSide.Right, out float[] sideVertecies, out uint[] sideIndicies);
+                                blockToCheck = rightNeighbour.GetBlock(31, y, z);
+                            }
+                            else if (x + 1 >= SectionSize)
+                            {
+                                blockToCheck = null;
+                            }
+                            else
+                            {
+                                blockToCheck = blocks[x + 1, y, z];
+                            }
+
+                            if (blockToCheck == null || !blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
+                            {
+                                uint additionalVertCount = currentBlock.GetMesh(BlockSide.Right, out float[] sideVertecies, out uint[] sideIndicies);
 
                                 vertices.AddRange(sideVertecies);
                                 indices.AddRange(sideIndicies);
@@ -244,9 +306,22 @@ namespace VoxelGame.Logic
                             }
 
                             // Bottom
-                            if (y - 1 < 0 || !blocks[x, y - 1, z].IsFull || (!blocks[x, y - 1, z].IsOpaque && current.IsOpaque) || (!blocks[x, y - 1, z].IsOpaque && (current.RenderFaceAtNonOpaques || blocks[x, y - 1, z].RenderFaceAtNonOpaques)))
+                            if (y - 1 < 0 && bottomNeighbour != null)
                             {
-                                uint additionalVertCount = current.GetMesh(BlockSide.Bottom, out float[] sideVertecies, out uint[] sideIndicies);
+                                blockToCheck = bottomNeighbour.GetBlock(x, SectionSize - 1, z);
+                            }
+                            else if (y - 1 < 0)
+                            {
+                                blockToCheck = null;
+                            }
+                            else
+                            {
+                                blockToCheck = blocks[x, y - 1, z];
+                            }
+
+                            if (blockToCheck == null || !blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
+                            {
+                                uint additionalVertCount = currentBlock.GetMesh(BlockSide.Bottom, out float[] sideVertecies, out uint[] sideIndicies);
 
                                 vertices.AddRange(sideVertecies);
                                 indices.AddRange(sideIndicies);
@@ -267,9 +342,22 @@ namespace VoxelGame.Logic
                             }
 
                             // Top
-                            if (y + 1 >= SectionSize || !blocks[x, y + 1, z].IsFull || (!blocks[x, y + 1, z].IsOpaque && current.IsOpaque) || (!blocks[x, y + 1, z].IsOpaque && (current.RenderFaceAtNonOpaques || blocks[x, y + 1, z].RenderFaceAtNonOpaques)))
+                            if (y + 1 >= SectionSize && topNeighbour != null)
                             {
-                                uint additionalVertCount = current.GetMesh(BlockSide.Top, out float[] sideVertecies, out uint[] sideIndicies);
+                                blockToCheck = topNeighbour.GetBlock(x, 0, z);
+                            }
+                            else if (y + 1 >= SectionSize)
+                            {
+                                blockToCheck = null;
+                            }
+                            else
+                            {
+                                blockToCheck = blocks[x, y + 1, z];
+                            }
+
+                            if (blockToCheck == null || !blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
+                            {
+                                uint additionalVertCount = currentBlock.GetMesh(BlockSide.Top, out float[] sideVertecies, out uint[] sideIndicies);
 
                                 vertices.AddRange(sideVertecies);
                                 indices.AddRange(sideIndicies);
@@ -291,7 +379,7 @@ namespace VoxelGame.Logic
                         }
                         else
                         {
-                            uint additionalVertCount = current.GetMesh(BlockSide.All, out float[] sideVertecies, out uint[] sideIndicies);
+                            uint additionalVertCount = currentBlock.GetMesh(BlockSide.All, out float[] sideVertecies, out uint[] sideIndicies);
 
                             if (additionalVertCount != 0)
                             {

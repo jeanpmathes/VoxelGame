@@ -29,14 +29,6 @@ namespace VoxelGame.Logic
             }
 
             chunksToMesh.AddRange(activeChunks.Values);
-
-            // Mesh the listed chunks
-            for (int i = 0; i < chunksToMesh.Count; i++)
-            {
-                chunksToMesh[i].CreateMesh();
-            }
-
-            chunksToMesh.Clear();
         }
 
         public void FrameUpdate()
@@ -70,27 +62,42 @@ namespace VoxelGame.Logic
         /// <returns>The Block at x, y, z or null if the block was not found</returns>
         public Block GetBlock(int x, int y, int z)
         {
-            return activeChunks[(x << sectionSizeExp, z << sectionSizeExp)]
-                .GetSection(y << chunkHeightExp)
-                .GetBlock(x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1));
+            if (activeChunks.TryGetValue((x << sectionSizeExp, z << sectionSizeExp), out Chunk chunk))
+            {
+                return chunk.GetSection(y << chunkHeightExp)
+                    .GetBlock(x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1));
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public void SetBlock(Block block, int x, int y, int z)
         {
-            activeChunks[(x << sectionSizeExp, z << sectionSizeExp)]
-                .GetSection(y << chunkHeightExp)
-                .SetBlock(block, x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1));
+            if (activeChunks.TryGetValue((x << sectionSizeExp, z << sectionSizeExp), out Chunk chunk))
+            {
+                chunk.GetSection(y << chunkHeightExp)
+                    .SetBlock(block, x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1));
+            }
         }
 
         public Chunk GetChunk(int x, int z)
         {
-            return activeChunks[(x, z)];
+            activeChunks.TryGetValue((x, z), out Chunk chunk);
+            return chunk;
         }
 
         public Section GetSection(int x, int y, int z)
-        {
-            return activeChunks[(x, z)]
-                .GetSection(y);
+        {           
+            if (activeChunks.TryGetValue((x, z), out Chunk chunk) && y >= 0 && y < Chunk.ChunkHeight)
+            {
+                return chunk.GetSection(y);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
