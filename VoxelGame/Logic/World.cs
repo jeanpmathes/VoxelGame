@@ -11,8 +11,8 @@ namespace VoxelGame.Logic
     {
         public const int chunkExtents = 4;
 
-        public readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
-        public readonly int chunkHeightExp = (int)Math.Log(Chunk.ChunkHeight, 2);
+        private readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
+        private readonly int chunkHeightExp = (int)Math.Log(Chunk.ChunkHeight, 2);
 
         private Dictionary<ValueTuple<int, int>, Chunk> activeChunks = new Dictionary<ValueTuple<int, int>, Chunk>();
         private List<Chunk> chunksToMesh = new List<Chunk>();
@@ -59,7 +59,7 @@ namespace VoxelGame.Logic
         /// <param name="x">The x position in block coordinates.</param>
         /// <param name="y">The y position in block coordinates.</param>
         /// <param name="z">The z position in block coordinates.</param>
-        /// <returns>The Block at x, y, z or null if the block was not found</returns>
+        /// <returns>The Block at x, y, z or null if the block was not found.</returns>
         public Block GetBlock(int x, int y, int z)
         {
             if (activeChunks.TryGetValue((x << sectionSizeExp, z << sectionSizeExp), out Chunk chunk))
@@ -89,7 +89,7 @@ namespace VoxelGame.Logic
         }
 
         public Section GetSection(int x, int y, int z)
-        {           
+        {
             if (activeChunks.TryGetValue((x, z), out Chunk chunk) && y >= 0 && y < Chunk.ChunkHeight)
             {
                 return chunk.GetSection(y);

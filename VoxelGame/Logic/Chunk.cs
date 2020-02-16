@@ -20,32 +20,32 @@ namespace VoxelGame.Logic
         /// </summary>
         public int Z { get; private set; }
 
-        private Section[] sections = new Section[32];
+        private Section[] sections = new Section[ChunkHeight];
 
         public Chunk(int x, int z)
         {
             X = x;
             Z = z;
 
-            for (int i = 0; i < ChunkHeight; i++)
+            for (int y = 0; y < ChunkHeight; y++)
             {
-                sections[i] = new Section();
+                sections[y] = new Section();
             }
         }
 
         public void CreateMesh()
         {
-            for (int i = 0; i < ChunkHeight; i++)
+            for (int y = 0; y < ChunkHeight; y++)
             {
-                sections[i].CreateMesh(X, i, Z);
+                sections[y].CreateMesh(X, y, Z);
             }
         }
 
         public void Render()
         {
-            for (int i = 0; i < ChunkHeight; i++)
+            for (int y = 0; y < ChunkHeight; y++)
             {
-                sections[i].Render(new Vector3(X * Section.SectionSize, i * Section.SectionSize, Z * Section.SectionSize));
+                sections[y].Render(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize));
             }
         }
 

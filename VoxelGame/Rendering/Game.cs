@@ -17,7 +17,7 @@ namespace VoxelGame.Rendering
         public static TextureAtlas Atlas { get; private set; }
         public static Shader Shader { get; private set; }
 
-        private const float cameraSpeed = 1.5f;
+        private const float cameraSpeed = 8f;
         private const float sensitivity = 0.2f;
 
         private bool firstMove = true;
@@ -51,7 +51,7 @@ namespace VoxelGame.Rendering
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
 
-            MainCamera = new Camera(new Vector3(-3f, 5f, 5f), Width / (float)Height);
+            MainCamera = new Camera(new Vector3(-3f, 1000f, 5f), Width / (float)Height);
             Atlas = new TextureAtlas("Resources/Textures");
 
             Shader = new Shader("Rendering/Shaders/shader.vert", "Rendering/Shaders/shader.frag");

@@ -13,9 +13,9 @@ namespace VoxelGame.Rendering
 {
     public class Shader
     {
-        public readonly int Handle;
-
         private readonly Dictionary<string, int> uniformLocations;
+
+        public int Handle { get; }
 
         public Shader(string vertPath, string fragPath)
         {
