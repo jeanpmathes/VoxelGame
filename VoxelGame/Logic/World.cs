@@ -33,7 +33,7 @@ namespace VoxelGame.Logic
 
         public void FrameUpdate()
         {
-            // Mesh the listed chunks
+            //Mesh the listed chunks
             for (int i = 0; i < chunksToMesh.Count; i++)
             {
                 chunksToMesh[i].CreateMesh();
@@ -65,7 +65,7 @@ namespace VoxelGame.Logic
             if (activeChunks.TryGetValue((x << sectionSizeExp, z << sectionSizeExp), out Chunk chunk))
             {
                 return chunk.GetSection(y << chunkHeightExp)
-                    .GetBlock(x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1));
+                    [x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
             }
             else
             {
@@ -78,7 +78,7 @@ namespace VoxelGame.Logic
             if (activeChunks.TryGetValue((x << sectionSizeExp, z << sectionSizeExp), out Chunk chunk))
             {
                 chunk.GetSection(y << chunkHeightExp)
-                    .SetBlock(block, x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1));
+                    [x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = block;
             }
         }
 

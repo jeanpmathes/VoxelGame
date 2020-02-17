@@ -13,7 +13,7 @@ namespace VoxelGame.Logic
     {
         public const int SectionSize = 32;
 
-        private Block[,,] blocks;
+        private Block[] blocks;
 
         private int vertexBufferObject;
         private int elementBufferObject;
@@ -23,7 +23,7 @@ namespace VoxelGame.Logic
 
         public Section()
         {
-            blocks = new Block[SectionSize, SectionSize, SectionSize];
+            blocks = new Block[SectionSize * SectionSize * SectionSize];
 
             vertexBufferObject = GL.GenBuffer();
             elementBufferObject = GL.GenBuffer();
@@ -60,75 +60,75 @@ namespace VoxelGame.Logic
 
                     for (int z = 0; z < SectionSize; z++)
                     {
-                        blocks[x, y, z] = current;
+                        blocks[(x << 10) + (y << 5) + z] = current;
                     }
                 }
             }
 
-            blocks[5, 26, 5] = Game.LOG;
-            blocks[5, 27, 5] = Game.LOG;
-            blocks[5, 28, 5] = Game.LOG;
-            blocks[5, 29, 5] = Game.LOG;
-            blocks[5, 30, 5] = Game.LEAVES;
-            blocks[4, 29, 5] = Game.LEAVES;
-            blocks[6, 29, 5] = Game.LEAVES;
-            blocks[4, 29, 4] = Game.LEAVES;
-            blocks[6, 29, 4] = Game.LEAVES;
-            blocks[4, 29, 6] = Game.LEAVES;
-            blocks[6, 29, 6] = Game.LEAVES;
+            this[5, 26, 5] = Game.LOG;
+            this[5, 27, 5] = Game.LOG;
+            this[5, 28, 5] = Game.LOG;
+            this[5, 29, 5] = Game.LOG;
+            this[5, 30, 5] = Game.LEAVES;
+            this[4, 29, 5] = Game.LEAVES;
+            this[6, 29, 5] = Game.LEAVES;
+            this[4, 29, 4] = Game.LEAVES;
+            this[6, 29, 4] = Game.LEAVES;
+            this[4, 29, 6] = Game.LEAVES;
+            this[6, 29, 6] = Game.LEAVES;
 
-            blocks[9, 26, 8] = Game.COBBLESTONE;
-            blocks[9, 26, 7] = Game.COBBLESTONE;
-            blocks[9, 26, 6] = Game.COBBLESTONE;
-            blocks[9, 27, 8] = Game.GLASS;
-            blocks[9, 27, 7] = Game.GLASS;
-            blocks[9, 27, 6] = Game.GLASS;
+            this[9, 26, 8] = Game.COBBLESTONE;
+            this[9, 26, 7] = Game.COBBLESTONE;
+            this[9, 26, 6] = Game.COBBLESTONE;
+            this[9, 27, 8] = Game.GLASS;
+            this[9, 27, 7] = Game.GLASS;
+            this[9, 27, 6] = Game.GLASS;
 
-            blocks[10, 27, 8] = Game.GLASS;
-            blocks[10, 27, 7] = Game.GLASS;
-            blocks[10, 27, 6] = Game.GLASS;
+            this[10, 27, 8] = Game.GLASS;
+            this[10, 27, 7] = Game.GLASS;
+            this[10, 27, 6] = Game.GLASS;
 
-            blocks[9, 28, 6] = Game.LEAVES;
-            blocks[12, 26, 12] = Game.ORE_IRON;
-            blocks[13, 26, 12] = Game.STONE;
-            blocks[14, 26, 12] = Game.ORE_GOLD;
-            blocks[15, 26, 12] = Game.STONE;
-            blocks[16, 26, 12] = Game.ORE_COAL;
-            blocks[12, 26, 13] = Game.TALL_GRASS;
-            blocks[13, 26, 13] = Game.TALL_GRASS;
-            blocks[14, 26, 13] = Game.TALL_GRASS;
-            blocks[15, 26, 13] = Game.TALL_GRASS;
-            blocks[16, 26, 13] = Game.TALL_GRASS;
+            this[9, 28, 6] = Game.LEAVES;
+            this[12, 26, 12] = Game.ORE_IRON;
+            this[13, 26, 12] = Game.STONE;
+            this[14, 26, 12] = Game.ORE_GOLD;
+            this[15, 26, 12] = Game.STONE;
+            this[16, 26, 12] = Game.ORE_COAL;
+            this[12, 26, 13] = Game.TALL_GRASS;
+            this[13, 26, 13] = Game.TALL_GRASS;
+            this[14, 26, 13] = Game.TALL_GRASS;
+            this[15, 26, 13] = Game.TALL_GRASS;
+            this[16, 26, 13] = Game.TALL_GRASS;
 
-            blocks[12, 25, 16] = Game.AIR;
-            blocks[13, 25, 16] = Game.TALL_GRASS;
-            blocks[14, 25, 16] = Game.AIR;
-            blocks[15, 25, 16] = Game.TALL_GRASS;
-            blocks[16, 25, 16] = Game.AIR;
+            this[12, 25, 16] = Game.AIR;
+            this[13, 25, 16] = Game.TALL_GRASS;
+            this[14, 25, 16] = Game.AIR;
+            this[15, 25, 16] = Game.TALL_GRASS;
+            this[16, 25, 16] = Game.AIR;
 
-            blocks[12, 25, 14] = Game.AIR;
-            blocks[13, 25, 14] = Game.TALL_GRASS;
-            blocks[14, 25, 14] = Game.AIR;
-            blocks[15, 25, 14] = Game.AIR;
-            blocks[16, 25, 14] = Game.AIR;
+            this[12, 25, 14] = Game.AIR;
+            this[13, 25, 14] = Game.TALL_GRASS;
+            this[14, 25, 14] = Game.AIR;
+            this[15, 25, 14] = Game.AIR;
+            this[16, 25, 14] = Game.AIR;
 
-            blocks[12, 25, 15] = Game.AIR;
-            blocks[13, 25, 15] = Game.AIR;
-            blocks[14, 25, 15] = Game.AIR;
-            blocks[15, 25, 15] = Game.TALL_GRASS;
-            blocks[16, 25, 15] = Game.AIR;
+            this[12, 25, 15] = Game.AIR;
+            this[13, 25, 15] = Game.AIR;
+            this[14, 25, 15] = Game.AIR;
+            this[15, 25, 15] = Game.TALL_GRASS;
+            this[16, 25, 15] = Game.AIR;
 
-            blocks[17, 17, 31] = Game.AIR;
-            blocks[17, 18, 31] = Game.AIR;
-            blocks[17, 16, 31] = Game.AIR;
-            blocks[18, 17, 31] = Game.AIR;
-            blocks[17, 17, 30] = Game.AIR;
-            blocks[16, 17, 31] = Game.AIR;
+            this[17, 17, 31] = Game.AIR;
+            this[17, 18, 31] = Game.AIR;
+            this[17, 16, 31] = Game.AIR;
+            this[18, 17, 31] = Game.AIR;
+            this[17, 17, 30] = Game.AIR;
+            this[16, 17, 31] = Game.AIR;
 
-            blocks[29, 25, 31] = Game.AIR;
-            blocks[28, 25, 31] = Game.AIR;
-            blocks[29, 24, 31] = Game.AIR;
-            blocks[29, 23, 31] = Game.AIR;
+            this[29, 25, 31] = Game.AIR;
+            this[28, 25, 31] = Game.AIR;
+            this[29, 24, 31] = Game.AIR;
+            this[29, 23, 31] = Game.AIR;
         }
 
         public void CreateMesh(int sectionX, int sectionY, int sectionZ)
@@ -153,7 +153,7 @@ namespace VoxelGame.Logic
                 {
                     for (int z = 0; z < SectionSize; z++)
                     {
-                        Block currentBlock = blocks[x, y, z];
+                        Block currentBlock = blocks[(x << 10) + (y << 5) + z];
 
                         if (currentBlock.IsFull) // Check if this block is sized 1x1x1
                         {
@@ -164,7 +164,7 @@ namespace VoxelGame.Logic
                             // Front
                             if (z + 1 >= SectionSize && frontNeighbour != null)
                             {
-                                blockToCheck = frontNeighbour.GetBlock(x, y, 0);
+                                blockToCheck = frontNeighbour[x, y, 0];
                             }
                             else if (z + 1 >= SectionSize)
                             {
@@ -172,7 +172,7 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                blockToCheck = blocks[x, y, z + 1];
+                                blockToCheck = blocks[(x << 10) + (y << 5) + z + 1];
                             }
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
@@ -200,7 +200,7 @@ namespace VoxelGame.Logic
                             // Back
                             if (z - 1 < 0 && backNeighbour != null)
                             {
-                                blockToCheck = backNeighbour.GetBlock(x, y, SectionSize - 1);
+                                blockToCheck = backNeighbour[x, y, SectionSize - 1];
                             }
                             else if (z - 1 < 0)
                             {
@@ -208,7 +208,7 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                blockToCheck = blocks[x, y, z - 1];
+                                blockToCheck = blocks[(x << 10) + (y << 5) + z - 1];
                             }
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
@@ -236,7 +236,7 @@ namespace VoxelGame.Logic
                             // Left
                             if (x - 1 < 0 && leftNeighbour != null)
                             {
-                                blockToCheck = leftNeighbour.GetBlock(SectionSize - 1, y, z);
+                                blockToCheck = leftNeighbour[SectionSize - 1, y, z];
                             }
                             else if (x - 1 < 0)
                             {
@@ -244,7 +244,7 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                blockToCheck = blocks[x - 1, y, z];
+                                blockToCheck = blocks[(x - 1 << 10) + (y << 5) + z];
                             }
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
@@ -272,7 +272,7 @@ namespace VoxelGame.Logic
                             // Right
                             if (x + 1 >= SectionSize && rightNeighbour != null)
                             {
-                                blockToCheck = rightNeighbour.GetBlock(0, y, z);
+                                blockToCheck = rightNeighbour[0, y, z];
                             }
                             else if (x + 1 >= SectionSize)
                             {
@@ -280,7 +280,7 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                blockToCheck = blocks[x + 1, y, z];
+                                blockToCheck = blocks[(x + 1 << 10) + (y << 5) + z];
                             }
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
@@ -308,7 +308,7 @@ namespace VoxelGame.Logic
                             // Bottom
                             if (y - 1 < 0 && bottomNeighbour != null)
                             {
-                                blockToCheck = bottomNeighbour.GetBlock(x, SectionSize - 1, z);
+                                blockToCheck = bottomNeighbour[x, SectionSize - 1, z];
                             }
                             else if (y - 1 < 0)
                             {
@@ -316,7 +316,7 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                blockToCheck = blocks[x, y - 1, z];
+                                blockToCheck = blocks[(x << 10) + (y - 1 << 5) + z];
                             }
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
@@ -344,7 +344,7 @@ namespace VoxelGame.Logic
                             // Top
                             if (y + 1 >= SectionSize && topNeighbour != null)
                             {
-                                blockToCheck = topNeighbour.GetBlock(x, 0, z);
+                                blockToCheck = topNeighbour[x, 0, z];
                             }
                             else if (y + 1 >= SectionSize)
                             {
@@ -352,7 +352,7 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                blockToCheck = blocks[x, y + 1, z];
+                                blockToCheck = blocks[(x << 10) + (y + 1 << 5) + z];
                             }
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
@@ -453,20 +453,16 @@ namespace VoxelGame.Logic
         }
 
         /// <summary>
-        /// Returns the block at a section position.
+        /// Returns or sets the block at a section position.
         /// </summary>
         /// <param name="x">The x position of the block in this section.</param>
         /// <param name="y">The y position of the block in this section.</param>
         /// <param name="z">The z position of the block in this section.</param>
         /// <returns>The block at the given position.</returns>
-        public Block GetBlock(int x, int y, int z)
+        public Block this[int x, int y, int z]
         {
-            return blocks[x, y, z];
-        }
-
-        public void SetBlock(Block block, int x, int y, int z)
-        {
-            blocks[x, y, z] = block;
+            get { return blocks[(x << 10) + (y << 5) + z]; }
+            set { blocks[(x << 10) + (y << 5) + z] = value; }
         }
     }
 }
