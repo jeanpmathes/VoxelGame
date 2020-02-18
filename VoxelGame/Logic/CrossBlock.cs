@@ -61,7 +61,7 @@ namespace VoxelGame.Logic
             };
         }
 
-        public override uint GetMesh(BlockSide side, out float[] vertices, out uint[] indices)
+        public override uint GetMesh(BlockSide side, ushort data, out float[] vertices, out uint[] indices)
         {
             vertices = this.vertices;
             indices = this.indices;

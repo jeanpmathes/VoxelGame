@@ -7,6 +7,8 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using System;
+using System.Collections.Generic;
+
 using VoxelGame.Logic;
 
 namespace VoxelGame.Rendering
@@ -16,14 +18,9 @@ namespace VoxelGame.Rendering
         public static Camera MainCamera { get; private set; }
         public static TextureAtlas Atlas { get; private set; }
         public static Shader Shader { get; private set; }
+        public static World World { get; set; }
 
-        private const float cameraSpeed = 8f;
-        private const float sensitivity = 0.2f;
-
-        private bool firstMove = true;
-        private Vector2 lastPos;
-
-        private double time;
+        public static Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
 
         public static Block AIR;
         public static Block GRASS;
@@ -39,7 +36,11 @@ namespace VoxelGame.Rendering
         public static Block ORE_IRON;
         public static Block ORE_GOLD;
 
-        public static World world;
+        private const float cameraSpeed = 8f;
+        private const float sensitivity = 0.2f;
+
+        private bool firstMove = true;
+        private Vector2 lastPos;
 
         public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
         {
@@ -70,7 +71,9 @@ namespace VoxelGame.Rendering
             ORE_IRON = new BasicBlock("ore_iron", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
             ORE_GOLD = new BasicBlock("ore_gold", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
 
-            world = new World();
+            Console.WriteLine($"Blocks loaded: {blockDictionary.Count} in total");
+
+            World = new World();
 
             CursorVisible = false;
 
@@ -80,7 +83,6 @@ namespace VoxelGame.Rendering
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            time += e.Time;
 
             ErrorCode error = GL.GetError();
             if (error != ErrorCode.NoError)
@@ -88,7 +90,7 @@ namespace VoxelGame.Rendering
                 Console.WriteLine(error);
             }
 
-            world.FrameUpdate();
+            World.FrameUpdate();
 
             SwapBuffers();
 

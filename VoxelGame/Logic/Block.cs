@@ -2,6 +2,10 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
+using System;
+
+using VoxelGame.Rendering;
+
 namespace VoxelGame.Logic
 {
     /// <summary>
@@ -9,6 +13,7 @@ namespace VoxelGame.Logic
     /// </summary>
     public abstract class Block
     {
+        public ushort Id { get; private set; }
         public string Name { get; protected set; }
         public bool IsFull { get; protected set; }
         public bool IsOpaque { get; protected set; }
@@ -23,8 +28,14 @@ namespace VoxelGame.Logic
             Name = name;
             IsFull = isFull;
             IsOpaque = isOpaque;
+
+            if (Game.blockDictionary.Count < 4096)
+            {
+                Game.blockDictionary.Add((ushort)Game.blockDictionary.Count, this);
+                Id = (ushort)(Game.blockDictionary.Count - 1);
+            }
         }
 
-        public abstract uint GetMesh(BlockSide side, out float[] vertecies, out uint[] indicies);
+        public abstract uint GetMesh(BlockSide side, ushort data, out float[] vertecies, out uint[] indicies);
     }
 }
