@@ -19,7 +19,7 @@ namespace VoxelGame.Logic
         private int elementBufferObject;
         private int vertexArrayObject;
 
-        private uint[] indicesAll;
+        private int indicesAmount;
 
         public Section()
         {
@@ -409,7 +409,9 @@ namespace VoxelGame.Logic
             }
 
             float[] verteciesAll = vertices.ToArray();
-            indicesAll = indices.ToArray();
+            uint[] indicesAll = indices.ToArray();
+
+            indicesAmount = indicesAll.Length;
 
             // Vertex Buffer Object
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
@@ -449,7 +451,7 @@ namespace VoxelGame.Logic
             Game.Shader.SetMatrix4("view", Game.MainCamera.GetViewMatrix());
             Game.Shader.SetMatrix4("projection", Game.MainCamera.GetProjectionMatrix());
 
-            GL.DrawElements(PrimitiveType.Triangles, indicesAll.Length, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Triangles, indicesAmount, DrawElementsType.UnsignedInt, 0);
 
             GL.BindVertexArray(0);
             GL.UseProgram(0);
