@@ -92,7 +92,7 @@
     <Compile Include="Rendering\AtlasPosition.cs" />
     <Compile Include="WorldGeneration\FlatGenerator.cs" />
     <Compile Include="WorldGeneration\IWorldGenerator.cs" />
-    <Compile Include="WorldGeneration\SinusGenerator.cs" />
+    <Compile Include="WorldGeneration\SineGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -8,14 +8,14 @@ using VoxelGame.Logic;
 
 namespace VoxelGame.WorldGeneration
 {
-    public class SinusGenerator : IWorldGenerator
+    public class SineGenerator : IWorldGenerator
     {
         int amplitude;
         int mid;
         float a;
         float b;
 
-        public SinusGenerator(int amplitude, int mid, float a = 1f, float b = 1f)
+        public SineGenerator(int amplitude, int mid, float a = 1f, float b = 1f)
         {
             this.amplitude = amplitude;
             this.mid = mid;
