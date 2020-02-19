@@ -24,7 +24,7 @@ namespace VoxelGame.Rendering
         }
 
         public Vector3 Position { get; set; }
-        public float AspectRatio { private get; set; }
+        public float AspectRatio { get; }
 
         public Vector3 Front => front;
         public Vector3 Up => up;

@@ -11,7 +11,7 @@ namespace VoxelGame.Rendering
 {
     public class Texture
     {
-        public readonly int Handle;
+        public int Handle { get; }
 
         public Texture(string path)
         {

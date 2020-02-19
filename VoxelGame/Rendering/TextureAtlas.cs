@@ -59,6 +59,8 @@ namespace VoxelGame.Rendering
                 {
                     Console.WriteLine($"The image could not be loaded: {texturePaths[i]}");
                     Console.WriteLine(e);
+
+                    throw;
                 }
             }
 

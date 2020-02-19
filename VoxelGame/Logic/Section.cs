@@ -5,7 +5,7 @@
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System.Collections.Generic;
-using VoxelGame.Rendering;
+using VoxelGame.WorldGeneration;
 
 namespace VoxelGame.Logic
 {
@@ -28,107 +28,20 @@ namespace VoxelGame.Logic
             vertexBufferObject = GL.GenBuffer();
             elementBufferObject = GL.GenBuffer();
             vertexArrayObject = GL.GenVertexArray();
+        }
 
-            Block current;
+        public void Generate(IWorldGenerator generator, int xOffset, int yOffset, int zOffset)
+        {
             for (int x = 0; x < SectionSize; x++)
             {
                 for (int y = 0; y < SectionSize; y++)
                 {
-                    if (y > 25)
-                    {
-                        current = Game.AIR;
-                    }
-                    else if (y == 25)
-                    {
-                        if (x > 16)
-                        {
-                            current = Game.SAND;
-                        }
-                        else
-                        {
-                            current = Game.GRASS;
-                        }
-                    }
-                    else if (y > 20)
-                    {
-                        current = Game.DIRT;
-                    }
-                    else
-                    {
-                        current = Game.STONE;
-                    }
-
                     for (int z = 0; z < SectionSize; z++)
                     {
-                        this[x, y, z] = current;
+                        blocks[(x << 10) + (y << 5) + z] = generator.GenerateBlock(x + xOffset, y + yOffset, z + zOffset).Id;
                     }
                 }
             }
-
-            this[5, 26, 5] = Game.LOG;
-            this[5, 27, 5] = Game.LOG;
-            this[5, 28, 5] = Game.LOG;
-            this[5, 29, 5] = Game.LOG;
-            this[5, 30, 5] = Game.LEAVES;
-            this[4, 29, 5] = Game.LEAVES;
-            this[6, 29, 5] = Game.LEAVES;
-            this[4, 29, 4] = Game.LEAVES;
-            this[6, 29, 4] = Game.LEAVES;
-            this[4, 29, 6] = Game.LEAVES;
-            this[6, 29, 6] = Game.LEAVES;
-
-            this[9, 26, 8] = Game.COBBLESTONE;
-            this[9, 26, 7] = Game.COBBLESTONE;
-            this[9, 26, 6] = Game.COBBLESTONE;
-            this[9, 27, 8] = Game.GLASS;
-            this[9, 27, 7] = Game.GLASS;
-            this[9, 27, 6] = Game.GLASS;
-
-            this[10, 27, 8] = Game.GLASS;
-            this[10, 27, 7] = Game.GLASS;
-            this[10, 27, 6] = Game.GLASS;
-
-            this[9, 28, 6] = Game.LEAVES;
-            this[12, 26, 12] = Game.ORE_IRON;
-            this[13, 26, 12] = Game.STONE;
-            this[14, 26, 12] = Game.ORE_GOLD;
-            this[15, 26, 12] = Game.STONE;
-            this[16, 26, 12] = Game.ORE_COAL;
-            this[12, 26, 13] = Game.TALL_GRASS;
-            this[13, 26, 13] = Game.TALL_GRASS;
-            this[14, 26, 13] = Game.TALL_GRASS;
-            this[15, 26, 13] = Game.TALL_GRASS;
-            this[16, 26, 13] = Game.TALL_GRASS;
-
-            this[12, 25, 16] = Game.AIR;
-            this[13, 25, 16] = Game.TALL_GRASS;
-            this[14, 25, 16] = Game.AIR;
-            this[15, 25, 16] = Game.TALL_GRASS;
-            this[16, 25, 16] = Game.AIR;
-
-            this[12, 25, 14] = Game.AIR;
-            this[13, 25, 14] = Game.TALL_GRASS;
-            this[14, 25, 14] = Game.AIR;
-            this[15, 25, 14] = Game.AIR;
-            this[16, 25, 14] = Game.AIR;
-
-            this[12, 25, 15] = Game.AIR;
-            this[13, 25, 15] = Game.AIR;
-            this[14, 25, 15] = Game.AIR;
-            this[15, 25, 15] = Game.TALL_GRASS;
-            this[16, 25, 15] = Game.AIR;
-
-            this[17, 17, 31] = Game.AIR;
-            this[17, 18, 31] = Game.AIR;
-            this[17, 16, 31] = Game.AIR;
-            this[18, 17, 31] = Game.AIR;
-            this[17, 17, 30] = Game.AIR;
-            this[16, 17, 31] = Game.AIR;
-
-            this[29, 25, 31] = Game.AIR;
-            this[28, 25, 31] = Game.AIR;
-            this[29, 24, 31] = Game.AIR;
-            this[29, 23, 31] = Game.AIR;
         }
 
         public void CreateMesh(int sectionX, int sectionY, int sectionZ)

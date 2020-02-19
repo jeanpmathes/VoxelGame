@@ -4,6 +4,8 @@
 // <author>pershingthesecond</author>
 using OpenTK;
 
+using VoxelGame.WorldGeneration;
+
 namespace VoxelGame.Logic
 {
     public class Chunk
@@ -30,6 +32,14 @@ namespace VoxelGame.Logic
             for (int y = 0; y < ChunkHeight; y++)
             {
                 sections[y] = new Section();
+            }
+        }
+
+        public void Generate(IWorldGenerator generator)
+        {
+            for (int y = 0; y < ChunkHeight; y++)
+            {
+                sections[y].Generate(generator, X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize);
             }
         }
 

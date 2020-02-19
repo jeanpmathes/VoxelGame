@@ -21,6 +21,7 @@ namespace VoxelGame.Logic
         /// This method is used to get the mesh from a block.
         /// </summary>
         /// <param name="side">The side of the block the mesh is required from.</param>
+        /// <param name="data">The parameter is not used.</param>
         /// <param name="vertecies">The parameter is not used.</param>
         /// <param name="indicies">The parameter is not used.</param>
         /// <returns>Returns null.</returns>

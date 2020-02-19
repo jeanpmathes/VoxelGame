@@ -10,8 +10,10 @@ using System;
 using System.Collections.Generic;
 
 using VoxelGame.Logic;
+using VoxelGame.Rendering;
+using VoxelGame.WorldGeneration;
 
-namespace VoxelGame.Rendering
+namespace VoxelGame
 {
     internal class Game : GameWindow
     {
@@ -52,7 +54,7 @@ namespace VoxelGame.Rendering
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
 
-            MainCamera = new Camera(new Vector3(-3f, 1000f, 5f), Width / (float)Height);
+            MainCamera = new Camera(new Vector3(-3f, 500f, 5f), Width / (float)Height);
             Atlas = new TextureAtlas("Resources/Textures");
 
             Shader = new Shader("Rendering/Shaders/shader.vert", "Rendering/Shaders/shader.frag");
@@ -73,7 +75,8 @@ namespace VoxelGame.Rendering
 
             Console.WriteLine($"Blocks loaded: {blockDictionary.Count} in total");
 
-            World = new World();
+            //World = new World(new FlatGenerator(500, 490));
+            World = new World(new SinusGenerator(20, 512, 0.05f, 0.05f));
 
             CursorVisible = false;
 

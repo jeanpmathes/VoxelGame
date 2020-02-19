@@ -10,9 +10,9 @@ namespace VoxelGame.Logic
 {
     public class CrossBlock : Block
     {
-        protected float[] vertices;
+        private float[] vertices;
 
-        protected uint[] indices =
+        private uint[] indices =
         {
             // Direction: /
             0, 2, 1,
@@ -31,7 +31,9 @@ namespace VoxelGame.Logic
 
         public CrossBlock(string name) : base(name, false, false)
         {
+#pragma warning disable CA2214 // Do not call overridable methods in constructors
             Setup();
+#pragma warning restore CA2214 // Do not call overridable methods in constructors
         }
 
         protected virtual void Setup()

@@ -85,12 +85,14 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rendering\Camera.cs" />
-    <Compile Include="Rendering\Game.cs" />
+    <Compile Include="Game.cs" />
     <Compile Include="Rendering\Shader.cs" />
     <Compile Include="Rendering\Texture.cs" />
     <Compile Include="Rendering\TextureAtlas.cs" />
     <Compile Include="Rendering\AtlasPosition.cs" />
+    <Compile Include="WorldGeneration\FlatGenerator.cs" />
     <Compile Include="WorldGeneration\IWorldGenerator.cs" />
+    <Compile Include="WorldGeneration\SinusGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

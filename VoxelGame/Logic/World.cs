@@ -5,35 +5,55 @@
 using System;
 using System.Collections.Generic;
 
+using VoxelGame.WorldGeneration;
+
 namespace VoxelGame.Logic
 {
     public class World
     {
-        public const int chunkExtents = 4;
+        public const int chunkExtents = 5;
 
         private readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
         private readonly int chunkHeightExp = (int)Math.Log(Chunk.ChunkHeight, 2);
 
+        private IWorldGenerator generator;
+
         private Dictionary<ValueTuple<int, int>, Chunk> activeChunks = new Dictionary<ValueTuple<int, int>, Chunk>();
+        private List<Chunk> chunksToGenerate = new List<Chunk>();
         private List<Chunk> chunksToMesh = new List<Chunk>();
         private List<Chunk> chunksToRender = new List<Chunk>();
 
-        public World()
+        public World(IWorldGenerator generator)
         {
-            for (int x = 0; x < chunkExtents; x++)
+            this.generator = generator;
+
+            for (int x = chunkExtents / -2; x < chunkExtents / 2 + 1; x++)
             {
-                for (int z = 0; z < chunkExtents; z++)
+                for (int z = chunkExtents / -2; z < chunkExtents / 2 + 1; z++)
                 {
                     activeChunks.Add((x, z), new Chunk(x, z));
                 }
             }
 
+            chunksToGenerate.AddRange(activeChunks.Values);
             chunksToMesh.AddRange(activeChunks.Values);
         }
 
         public void FrameUpdate()
         {
-            //Mesh the listed chunks
+            // Collect all chunks to generate
+
+            // Generate all listed chunks
+            for (int i = 0; i < chunksToGenerate.Count; i++)
+            {
+                chunksToGenerate[i].Generate(generator);
+            }
+
+            chunksToGenerate.Clear();
+
+            // Collect all chunks to mesh
+
+            // Mesh the listed chunks
             for (int i = 0; i < chunksToMesh.Count; i++)
             {
                 chunksToMesh[i].CreateMesh();

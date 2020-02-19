@@ -6,7 +6,7 @@ using VoxelGame.Logic;
 
 namespace VoxelGame.WorldGeneration
 {
-    interface IWorldGenerator
+    public interface IWorldGenerator
     {
         Block GenerateBlock(int x, int y, int z);
     }

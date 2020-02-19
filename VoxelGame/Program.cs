@@ -4,8 +4,6 @@
 // <author>pershingthesecond</author>
 using System;
 
-using VoxelGame.Rendering;
-
 namespace VoxelGame
 {
     internal static class Program

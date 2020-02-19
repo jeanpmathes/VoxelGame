@@ -13,13 +13,17 @@ namespace VoxelGame.Logic
     /// </summary>
     public class BasicBlock : Block
     {
+#pragma warning disable CA1051 // Do not declare visible instance fields
         protected float[][] sideVertices;
 
         protected uint[] indices =
+
         {
             0, 2, 1,
             0, 3, 2
         };
+
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
         public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, Tuple<int, int, int, int, int, int> sideIndices) : base(name, true, isOpaque)
         {

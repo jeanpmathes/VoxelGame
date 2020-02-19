@@ -2,9 +2,6 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
-
-using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic
 {
