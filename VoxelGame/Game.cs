@@ -76,7 +76,8 @@ namespace VoxelGame
             Console.WriteLine($"Blocks loaded: {blockDictionary.Count} in total");
 
             //World = new World(new FlatGenerator(500, 490));
-            World = new World(new SineGenerator(20, 512, 0.05f, 0.05f));
+            //World = new World(new SineGenerator(20, 512, 0.05f, 0.05f));
+            World = new World(new NoiseGenerator(2133));
 
             CursorVisible = false;
 

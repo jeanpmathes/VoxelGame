@@ -1,5 +1,5 @@
 ﻿// <copyright file="Camera.cs" company="VoxelGame">
-//     All rights reserved.
+//     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenTK;
