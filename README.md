@@ -1,9 +1,9 @@
 # VoxelGame
 Trying to create a voxel game in C#...
 
-# Used Tutorials
+# Used Tutorials and Resources
 https://opentk.net/learn/index.html
 
-https://sites.google.com/site/letsmakeavoxelengine/home
+https://github.com/Auburns/FastNoise_CSharp
 
-https://flafla2.github.io/2014/08/09/perlinnoise.html
+https://sites.google.com/site/letsmakeavoxelengine/home
