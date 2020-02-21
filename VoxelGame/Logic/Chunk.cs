@@ -37,9 +37,19 @@ namespace VoxelGame.Logic
 
         public void Generate(IWorldGenerator generator)
         {
-            for (int y = 0; y < ChunkHeight; y++)
+            for (int x = 0; x < Section.SectionSize; x++)
             {
-                sections[y].Generate(generator, X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize);
+                for (int z = 0; z < Section.SectionSize; z++)
+                {
+                    int y = 0;
+
+                    foreach (Block block in generator.GenerateColumn(x + X * Section.SectionSize, z + Z * Section.SectionSize))
+                    {
+                        sections[y >> 5][x, y & (Section.SectionSize - 1), z] = block;
+
+                        y++;
+                    }
+                }
             }
         }
 

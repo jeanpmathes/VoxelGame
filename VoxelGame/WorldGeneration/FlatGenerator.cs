@@ -2,6 +2,7 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
+using System.Collections.Generic;
 using VoxelGame.Logic;
 
 namespace VoxelGame.WorldGeneration
@@ -34,6 +35,29 @@ namespace VoxelGame.WorldGeneration
             else
             {
                 return Game.STONE;
+            }
+        }
+
+        public IEnumerable<Block> GenerateColumn(int x, int z)
+        {
+            for (int y = 0; y < Section.SectionSize * Chunk.ChunkHeight; y++)
+            {
+                if (y > heightAir)
+                {
+                    yield return Game.AIR;
+                }
+                else if (y == heightAir)
+                {
+                    yield return Game.GRASS;
+                }
+                else if (y > heightDirt)
+                {
+                    yield return Game.DIRT;
+                }
+                else
+                {
+                    yield return Game.STONE;
+                }
             }
         }
     }

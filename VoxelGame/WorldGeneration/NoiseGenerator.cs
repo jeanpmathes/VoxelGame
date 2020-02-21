@@ -2,6 +2,8 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
+using System.Collections.Generic;
+
 using VoxelGame.Logic;
 
 namespace VoxelGame.WorldGeneration
@@ -83,6 +85,60 @@ namespace VoxelGame.WorldGeneration
                     }
                 }
             }
+        }
+
+        public IEnumerable<Block> GenerateColumn(int x, int z)
+        {
+            int height = (int)(amplitude * halfHeight * noise.GetPerlinFractal(x, z)) + halfHeight;
+
+            for (int y = 0; y < Section.SectionSize * Chunk.ChunkHeight; y++)
+            {
+                if (y == 0)
+                {
+                    yield return Game.COBBLESTONE;
+                }
+                else if (y > height)
+                {
+                    yield return Game.AIR;
+                }
+                else
+                {
+                    if (noise.GetCellular(x, z, y) > caveTreshold + (y / (halfHeight * caveLifter)))
+                    {
+                        yield return Game.AIR;
+                    }
+                    else if (y == height)
+                    {
+                        if (y >= snowLevel)
+                        {
+                            yield return Game.STONE;
+                        }
+                        else if (y <= beachLevel)
+                        {
+                            yield return Game.SAND;
+                        }
+                        else
+                        {
+                            yield return Game.GRASS;
+                        }
+                    }
+                    else
+                    {
+                        if (height < snowLevel && height > beachLevel && y + soilDepth > height)
+                        {
+                            yield return Game.DIRT;
+                        }
+                        else if (height <= beachLevel && y + soilDepth > height)
+                        {
+                            yield return Game.SAND;
+                        }
+                        else
+                        {
+                            yield return Game.STONE;
+                        }
+                    }
+                }
+            }           
         }
     }
 }
