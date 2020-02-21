@@ -15,12 +15,12 @@ namespace VoxelGame.Logic
         /// <summary>
         /// The X position of this chunk in chunk units
         /// </summary>
-        public int X { get; private set; }
+        public int X { get; }
 
         /// <summary>
         /// The Y position of this chunk in chunk units
         /// </summary>
-        public int Z { get; private set; }
+        public int Z { get; }
 
         private Section[] sections = new Section[ChunkHeight];
 

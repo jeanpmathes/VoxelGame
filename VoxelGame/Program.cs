@@ -3,6 +3,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using System;
+using Resources;
 
 namespace VoxelGame
 {
@@ -10,14 +11,14 @@ namespace VoxelGame
     {
         private static void Main()
         {
-            Console.WriteLine("Starting game...");
+            Console.WriteLine(Language.StartingGame);
 
             using (Game game = new Game(800, 450, "VoxelGame"))
             {
                 game.Run(60.0);
             }
 
-            Console.WriteLine("Exiting...");
+            Console.WriteLine(Language.ExitingGame);
         }
     }
 }

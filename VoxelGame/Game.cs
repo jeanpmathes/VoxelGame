@@ -8,6 +8,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
+using Resources;
 
 using VoxelGame.Logic;
 using VoxelGame.Rendering;
@@ -73,7 +74,7 @@ namespace VoxelGame
             ORE_IRON = new BasicBlock("ore_iron", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
             ORE_GOLD = new BasicBlock("ore_gold", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
 
-            Console.WriteLine($"Blocks loaded: {blockDictionary.Count} in total");
+            Console.WriteLine(Language.BlocksLoadedAmount + blockDictionary.Count);
 
             //World = new World(new FlatGenerator(500, 490));
             //World = new World(new SineGenerator(20, 512, 0.05f, 0.05f));
