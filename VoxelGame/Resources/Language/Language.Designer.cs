@@ -86,5 +86,14 @@ namespace Resources {
                 return ResourceManager.GetString("StartingGame", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to VoxelGame.
+        /// </summary>
+        internal static string VoxelGame {
+            get {
+                return ResourceManager.GetString("VoxelGame", resourceCulture);
+            }
+        }
     }
 }

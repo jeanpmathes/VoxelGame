@@ -42,46 +42,46 @@ namespace VoxelGame.WorldGeneration
 
             if (y == 0)
             {
-                return Game.COBBLESTONE;
+                return Block.COBBLESTONE;
             }
             else if (y > height)
             {
-                return Game.AIR;
+                return Block.AIR;
             }
             else
             {
                 if (noise.GetCellular(x, z, y) > caveTreshold + (y / (halfHeight * caveLifter)))
                 {
-                    return Game.AIR;
+                    return Block.AIR;
                 }
                 else if (y == height)
                 {
                     if (y >= snowLevel)
                     {
-                        return Game.STONE;
+                        return Block.STONE;
                     }
                     else if (y <= beachLevel)
                     {
-                        return Game.SAND;
+                        return Block.SAND;
                     }
                     else
                     {
-                        return Game.GRASS;
+                        return Block.GRASS;
                     }
                 }
                 else
                 {
                     if (height < snowLevel && height > beachLevel && y + soilDepth > height)
                     {
-                        return Game.DIRT;
+                        return Block.DIRT;
                     }
                     else if (height <= beachLevel && y + soilDepth > height)
                     {
-                        return Game.SAND;
+                        return Block.SAND;
                     }
                     else
                     {
-                        return Game.STONE;
+                        return Block.STONE;
                     }
                 }
             }
@@ -95,46 +95,46 @@ namespace VoxelGame.WorldGeneration
             {
                 if (y == 0)
                 {
-                    yield return Game.COBBLESTONE;
+                    yield return Block.COBBLESTONE;
                 }
                 else if (y > height)
                 {
-                    yield return Game.AIR;
+                    yield return Block.AIR;
                 }
                 else
                 {
                     if (noise.GetCellular(x, z, y) > caveTreshold + (y / (halfHeight * caveLifter)))
                     {
-                        yield return Game.AIR;
+                        yield return Block.AIR;
                     }
                     else if (y == height)
                     {
                         if (y >= snowLevel)
                         {
-                            yield return Game.STONE;
+                            yield return Block.STONE;
                         }
                         else if (y <= beachLevel)
                         {
-                            yield return Game.SAND;
+                            yield return Block.SAND;
                         }
                         else
                         {
-                            yield return Game.GRASS;
+                            yield return Block.GRASS;
                         }
                     }
                     else
                     {
                         if (height < snowLevel && height > beachLevel && y + soilDepth > height)
                         {
-                            yield return Game.DIRT;
+                            yield return Block.DIRT;
                         }
                         else if (height <= beachLevel && y + soilDepth > height)
                         {
-                            yield return Game.SAND;
+                            yield return Block.SAND;
                         }
                         else
                         {
-                            yield return Game.STONE;
+                            yield return Block.STONE;
                         }
                     }
                 }

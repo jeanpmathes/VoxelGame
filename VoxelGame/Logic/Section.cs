@@ -68,7 +68,7 @@ namespace VoxelGame.Logic
                     {
                         ushort currentBlockData = blocks[(x << 10) + (y << 5) + z];
 
-                        Block currentBlock = Game.blockDictionary[(ushort)(currentBlockData & 0b0000_1111_1111)];
+                        Block currentBlock = Block.blockDictionary[(ushort)(currentBlockData & 0b0000_1111_1111)];
                         ushort currentData = (byte)((currentBlockData & 0b1111_0000_0000) >> 8);
 
                         if (currentBlock.IsFull) // Check if this block is sized 1x1x1
@@ -381,7 +381,7 @@ namespace VoxelGame.Logic
         {
             get
             {
-                return Game.blockDictionary[(ushort)(blocks[(x << 10) + (y << 5) + z] & 0b0000_1111_1111)];
+                return Block.blockDictionary[(ushort)(blocks[(x << 10) + (y << 5) + z] & 0b0000_1111_1111)];
             }
 
             set

@@ -126,4 +126,7 @@
   <data name="StartingGame" xml:space="preserve">
     <value>Starte Spiel...</value>
   </data>
+  <data name="VoxelGame" xml:space="preserve">
+    <value>VolumenelementSpiel</value>
+  </data>
 </root>

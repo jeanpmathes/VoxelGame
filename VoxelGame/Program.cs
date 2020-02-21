@@ -13,7 +13,7 @@ namespace VoxelGame
         {
             Console.WriteLine(Language.StartingGame);
 
-            using (Game game = new Game(800, 450, "VoxelGame"))
+            using (Game game = new Game(800, 450, Language.VoxelGame))
             {
                 game.Run(60.0);
             }

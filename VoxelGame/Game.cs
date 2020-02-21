@@ -7,9 +7,9 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using System;
-using System.Collections.Generic;
 using Resources;
 
+using VoxelGame.Entities;
 using VoxelGame.Logic;
 using VoxelGame.Rendering;
 using VoxelGame.WorldGeneration;
@@ -18,26 +18,11 @@ namespace VoxelGame
 {
     internal class Game : GameWindow
     {
+        public static Player Player { get; private set; }
         public static Camera MainCamera { get; private set; }
         public static TextureAtlas Atlas { get; private set; }
         public static Shader Shader { get; private set; }
         public static World World { get; set; }
-
-        public static Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
-
-        public static Block AIR;
-        public static Block GRASS;
-        public static Block TALL_GRASS;
-        public static Block DIRT;
-        public static Block STONE;
-        public static Block COBBLESTONE;
-        public static Block LOG;
-        public static Block LEAVES;
-        public static Block SAND;
-        public static Block GLASS;
-        public static Block ORE_COAL;
-        public static Block ORE_IRON;
-        public static Block ORE_GOLD;
 
         private const float cameraSpeed = 8f;
         private const float sensitivity = 0.2f;
@@ -55,26 +40,16 @@ namespace VoxelGame
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
 
+            Camera camera = new Camera(new Vector3(-3f, 500f, 5f), Width / (float)Height);
+            Player = new Player(70f, 0.3f, camera);
+
             MainCamera = new Camera(new Vector3(-3f, 500f, 5f), Width / (float)Height);
             Atlas = new TextureAtlas("Resources/Textures");
 
             Shader = new Shader("Rendering/Shaders/shader.vert", "Rendering/Shaders/shader.frag");
 
-            AIR = new AirBlock("air");
-            GRASS = new BasicBlock("grass", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 2));
-            TALL_GRASS = new CrossBlock("tall_grass");
-            DIRT = new BasicBlock("dirt", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            STONE = new BasicBlock("stone", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            COBBLESTONE = new BasicBlock("cobblestone", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            LOG = new BasicBlock("log", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 1));
-            SAND = new BasicBlock("sand", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            LEAVES = new BasicBlock("leaves", false, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            GLASS = new BasicBlock("glass", false, false, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            ORE_COAL = new BasicBlock("ore_coal", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            ORE_IRON = new BasicBlock("ore_iron", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-            ORE_GOLD = new BasicBlock("ore_gold", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0));
-
-            Console.WriteLine(Language.BlocksLoadedAmount + blockDictionary.Count);
+            Block.LoadBlocks();
+            Console.WriteLine(Language.BlocksLoadedAmount + Block.blockDictionary.Count);
 
             //World = new World(new FlatGenerator(500, 490));
             //World = new World(new SineGenerator(20, 512, 0.05f, 0.05f));
