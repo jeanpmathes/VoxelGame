@@ -5,6 +5,8 @@
 using System;
 using Resources;
 
+using OpenTK;
+
 namespace VoxelGame
 {
     internal static class Program

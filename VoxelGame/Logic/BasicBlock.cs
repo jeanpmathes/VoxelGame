@@ -5,6 +5,7 @@
 using System;
 
 using VoxelGame.Rendering;
+using VoxelGame.Physics;
 
 namespace VoxelGame.Logic
 {
@@ -25,7 +26,7 @@ namespace VoxelGame.Logic
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-        public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, Tuple<int, int, int, int, int, int> sideIndices) : base(name, true, isOpaque)
+        public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, Tuple<int, int, int, int, int, int> sideIndices, bool isSolid, BoundingBox boundingBox) : base(name, true, isOpaque, isSolid, boundingBox)
         {
             RenderFaceAtNonOpaques = renderFaceAtNonOpaques;
 

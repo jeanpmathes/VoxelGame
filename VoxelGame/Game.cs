@@ -18,20 +18,15 @@ namespace VoxelGame
 {
     internal class Game : GameWindow
     {
+        public static Game instance;
         public static Player Player { get; private set; }
-        public static Camera MainCamera { get; private set; }
         public static TextureAtlas Atlas { get; private set; }
         public static Shader Shader { get; private set; }
         public static World World { get; set; }
 
-        private const float cameraSpeed = 8f;
-        private const float sensitivity = 0.2f;
-
-        private bool firstMove = true;
-        private Vector2 lastPos;
-
         public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
         {
+            instance = this;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -40,10 +35,9 @@ namespace VoxelGame
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
 
-            Camera camera = new Camera(new Vector3(-3f, 500f, 5f), Width / (float)Height);
-            Player = new Player(70f, 0.3f, camera);
+            Camera camera = new Camera(new Vector3(), Width / (float)Height);
+            Player = new Player(70f, 0.5f, new Vector3(0f, 1000f, 0f), camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.5f, 1f, 0.5f)));
 
-            MainCamera = new Camera(new Vector3(-3f, 500f, 5f), Width / (float)Height);
             Atlas = new TextureAtlas("Resources/Textures");
 
             Shader = new Shader("Rendering/Shaders/shader.vert", "Rendering/Shaders/shader.frag");
@@ -70,7 +64,7 @@ namespace VoxelGame
                 Console.WriteLine(error);
             }
 
-            World.FrameUpdate();
+            World.FrameRender();
 
             SwapBuffers();
 
@@ -79,6 +73,8 @@ namespace VoxelGame
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            World.FrameUpdate((float)e.Time);
+
             if (!Focused) // check to see if the window is focused
             {
                 return;
@@ -89,44 +85,6 @@ namespace VoxelGame
             if (input.IsKeyDown(Key.Escape))
             {
                 Exit();
-            }
-
-            float cameraSpeed = Game.cameraSpeed;
-            if (input.IsKeyDown(Key.ControlLeft))
-            {
-                cameraSpeed *= 5;
-            }
-
-            if (input.IsKeyDown(Key.W))
-                MainCamera.Position += MainCamera.Front * cameraSpeed * (float)e.Time; // Forward
-            if (input.IsKeyDown(Key.S))
-                MainCamera.Position -= MainCamera.Front * cameraSpeed * (float)e.Time; // Backwards
-            if (input.IsKeyDown(Key.A))
-                MainCamera.Position -= MainCamera.Right * cameraSpeed * (float)e.Time; // Left
-            if (input.IsKeyDown(Key.D))
-                MainCamera.Position += MainCamera.Right * cameraSpeed * (float)e.Time; // Right
-            if (input.IsKeyDown(Key.Space))
-                MainCamera.Position += MainCamera.Up * cameraSpeed * (float)e.Time; // Up
-            if (input.IsKeyDown(Key.LShift))
-                MainCamera.Position -= MainCamera.Up * cameraSpeed * (float)e.Time; // Down
-
-            MouseState mouse = Mouse.GetState();
-
-            if (firstMove)
-            {
-                lastPos = new Vector2(mouse.X, mouse.Y);
-                firstMove = false;
-            }
-            else
-            {
-                // Calculate the offset of the mouse position
-                var deltaX = mouse.X - lastPos.X;
-                var deltaY = mouse.Y - lastPos.Y;
-                lastPos = new Vector2(mouse.X, mouse.Y);
-
-                // Apply the camera pitch and yaw (we clamp the pitch in the camera class)
-                MainCamera.Yaw += deltaX * sensitivity;
-                MainCamera.Pitch -= deltaY * sensitivity;
             }
 
             base.OnUpdateFrame(e);

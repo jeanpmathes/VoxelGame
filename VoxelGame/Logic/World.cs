@@ -11,7 +11,7 @@ namespace VoxelGame.Logic
 {
     public class World
     {
-        public const int chunkExtents = 5;
+        public const int ChunkExtents = 5;
 
         private readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
         private readonly int chunkHeightExp = (int)Math.Log(Chunk.ChunkHeight, 2);
@@ -27,9 +27,9 @@ namespace VoxelGame.Logic
         {
             this.generator = generator;
 
-            for (int x = chunkExtents / -2; x < chunkExtents / 2 + 1; x++)
+            for (int x = ChunkExtents / -2; x < ChunkExtents / 2 + 1; x++)
             {
-                for (int z = chunkExtents / -2; z < chunkExtents / 2 + 1; z++)
+                for (int z = ChunkExtents / -2; z < ChunkExtents / 2 + 1; z++)
                 {
                     activeChunks.Add((x, z), new Chunk(x, z));
                 }
@@ -39,7 +39,7 @@ namespace VoxelGame.Logic
             chunksToMesh.AddRange(activeChunks.Values);
         }
 
-        public void FrameUpdate()
+        public void FrameRender()
         {
             // Collect all chunks to generate
 
@@ -73,6 +73,11 @@ namespace VoxelGame.Logic
             chunksToRender.Clear();
         }
 
+        public void FrameUpdate(float deltaTime)
+        {
+            Game.Player.Tick(deltaTime);
+        }
+
         /// <summary>
         /// Returns the block at a given position in block coordinates. The block is only searched in active chunks.
         /// </summary>
@@ -82,9 +87,9 @@ namespace VoxelGame.Logic
         /// <returns>The Block at x, y, z or null if the block was not found.</returns>
         public Block GetBlock(int x, int y, int z)
         {
-            if (activeChunks.TryGetValue((x << sectionSizeExp, z << sectionSizeExp), out Chunk chunk))
+            if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
             {
-                return chunk.GetSection(y << chunkHeightExp)
+                return chunk.GetSection(y >> chunkHeightExp)
                     [x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
             }
             else
@@ -95,9 +100,9 @@ namespace VoxelGame.Logic
 
         public void SetBlock(Block block, int x, int y, int z)
         {
-            if (activeChunks.TryGetValue((x << sectionSizeExp, z << sectionSizeExp), out Chunk chunk))
+            if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
             {
-                chunk.GetSection(y << chunkHeightExp)
+                chunk.GetSection(y >> chunkHeightExp)
                     [x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = block;
             }
         }

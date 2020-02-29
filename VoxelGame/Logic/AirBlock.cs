@@ -2,6 +2,7 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
+using VoxelGame.Physics;
 namespace VoxelGame.Logic
 {
     /// <summary>
@@ -13,7 +14,7 @@ namespace VoxelGame.Logic
         /// Initializes a new instance of the <see cref="AirBlock"/> class.
         /// </summary>
         /// <param name="name">The unique name of this block</param>
-        public AirBlock(string name) : base(name, false, false)
+        public AirBlock(string name) : base(name, false, false, false, new BoundingBox())
         {
         }
 

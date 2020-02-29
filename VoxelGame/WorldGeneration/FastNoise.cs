@@ -591,7 +591,7 @@ public class FastNoise
 
 	// White Noise
 	[MethodImplAttribute(FN_INLINE)]
-	private int FloatCast2Int(FN_DECIMAL f)
+	private static int FloatCast2Int(FN_DECIMAL f)
 	{
 		var i = BitConverter.DoubleToInt64Bits(f);
 
@@ -1199,7 +1199,7 @@ public class FastNoise
 	private const FN_DECIMAL G3 = (FN_DECIMAL)(1.0 / 6.0);
 	private const FN_DECIMAL G33 = G3 * 3 - 1;
 
-	private FN_DECIMAL SingleSimplex(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z)
+	private static FN_DECIMAL SingleSimplex(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z)
 	{
 		FN_DECIMAL t = (x + y + z) * F3;
 		int i = FastFloor(x + t);
@@ -1372,7 +1372,7 @@ public class FastNoise
 	private const FN_DECIMAL F2 = (FN_DECIMAL)(1.0 / 2.0);
 	private const FN_DECIMAL G2 = (FN_DECIMAL)(1.0 / 4.0);
 
-	private FN_DECIMAL SingleSimplex(int seed, FN_DECIMAL x, FN_DECIMAL y)
+	private static FN_DECIMAL SingleSimplex(int seed, FN_DECIMAL x, FN_DECIMAL y)
 	{
 		FN_DECIMAL t = (x + y) * F2;
 		int i = FastFloor(x + t);
@@ -1449,7 +1449,7 @@ public class FastNoise
 	private const FN_DECIMAL F4 = (FN_DECIMAL)((2.23606797 - 1.0) / 4.0);
 	private const FN_DECIMAL G4 = (FN_DECIMAL)((5.0 - 2.23606797) / 20.0);
 
-	private FN_DECIMAL SingleSimplex(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w)
+	private static FN_DECIMAL SingleSimplex(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w)
 	{
 		FN_DECIMAL n0, n1, n2, n3, n4;
 		FN_DECIMAL t = (x + y + z + w) * F4;
@@ -1631,7 +1631,7 @@ public class FastNoise
 
 	private const FN_DECIMAL CUBIC_3D_BOUNDING = 1 / (FN_DECIMAL)(1.5 * 1.5 * 1.5);
 
-	private FN_DECIMAL SingleCubic(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z)
+	private static FN_DECIMAL SingleCubic(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z)
 	{
 		int x1 = FastFloor(x);
 		int y1 = FastFloor(y);
@@ -1765,7 +1765,7 @@ public class FastNoise
 
 	private const FN_DECIMAL CUBIC_2D_BOUNDING = 1 / (FN_DECIMAL)(1.5 * 1.5);
 
-	private FN_DECIMAL SingleCubic(int seed, FN_DECIMAL x, FN_DECIMAL y)
+	private static FN_DECIMAL SingleCubic(int seed, FN_DECIMAL x, FN_DECIMAL y)
 	{
 		int x1 = FastFloor(x);
 		int y1 = FastFloor(y);

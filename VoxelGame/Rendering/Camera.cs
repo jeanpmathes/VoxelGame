@@ -9,13 +9,13 @@ namespace VoxelGame.Rendering
 {
     public class Camera
     {
-        private Vector3 front = -Vector3.UnitZ;
+        private Vector3 front = Vector3.UnitX;
         private Vector3 up = Vector3.UnitY;
-        private Vector3 right = Vector3.UnitX;
+        private Vector3 right = Vector3.UnitZ;
 
         private float pitch;
-        private float yaw = -MathHelper.PiOver2;
-        private float fov = MathHelper.PiOver2;
+        private float yaw;
+        private float fov = MathHelper.PiOver2 / 90f * 70f;
 
         public Camera(Vector3 position, float aspectRatio)
         {

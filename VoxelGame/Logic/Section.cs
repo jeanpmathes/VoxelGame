@@ -361,8 +361,8 @@ namespace VoxelGame.Logic
 
             Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
             Game.Shader.SetMatrix4("model", model);
-            Game.Shader.SetMatrix4("view", Game.MainCamera.GetViewMatrix());
-            Game.Shader.SetMatrix4("projection", Game.MainCamera.GetProjectionMatrix());
+            Game.Shader.SetMatrix4("view", Game.Player.GetViewMatrix());
+            Game.Shader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
 
             GL.DrawElements(PrimitiveType.Triangles, indicesAmount, DrawElementsType.UnsignedInt, 0);
 
