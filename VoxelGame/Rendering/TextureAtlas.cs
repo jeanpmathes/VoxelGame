@@ -14,11 +14,12 @@ namespace VoxelGame.Rendering
 {
     public class TextureAtlas
     {
-        public readonly int Handle;
-        public readonly int extents;
+        private readonly int extents;
 
         private readonly Dictionary<string, int> textureIndicies;
         private readonly int log2Extents;
+
+        public int Handle { get; }
 
         public TextureAtlas(string path)
         {
@@ -64,7 +65,17 @@ namespace VoxelGame.Rendering
                 }
             }
 
-            extents = (int)Math.Sqrt(Math.Pow(2, (Math.Floor(Math.Log(currentIndex, 2)) + 1))); // Calculate the extents of the atlas
+            // Calculate the extents of the atlas
+            extents = (int)Math.Ceiling(Math.Sqrt(textures.Count));
+
+            extents--;
+            extents |= extents >> 1;
+            extents |= extents >> 2;
+            extents |= extents >> 4;
+            extents |= extents >> 8;
+            extents |= extents >> 16;
+            extents++;
+
             log2Extents = (int)Math.Log(extents, 2);
 
             // Create a single bitmap from all textures

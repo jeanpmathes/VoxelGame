@@ -58,7 +58,7 @@ namespace VoxelGame.WorldGeneration
                 {
                     if (y >= snowLevel)
                     {
-                        return Block.STONE;
+                        return Block.SNOW;
                     }
                     else if (y <= beachLevel)
                     {
@@ -111,7 +111,7 @@ namespace VoxelGame.WorldGeneration
                     {
                         if (y >= snowLevel)
                         {
-                            yield return Block.STONE;
+                            yield return Block.SNOW;
                         }
                         else if (y <= beachLevel)
                         {

@@ -13,7 +13,7 @@ namespace VoxelGame.Entities
     public class Player : PhysicsEntity
     {
         private Camera camera;
-        private Vector3 cameraOffset = new Vector3(0f, 1f, 0f);
+        private Vector3 cameraOffset = new Vector3(0f, 0.5f, 0f);
 
         private float speed = 50f;
         private float jumpForce = 200f;

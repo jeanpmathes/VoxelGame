@@ -31,6 +31,8 @@ namespace VoxelGame.Logic
         public static Block ORE_COAL;
         public static Block ORE_IRON;
         public static Block ORE_GOLD;
+        public static Block SNOW;
+        public static Block FLOWER;
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
         public static Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
@@ -50,6 +52,8 @@ namespace VoxelGame.Logic
             ORE_COAL = new BasicBlock("ore_coal", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true, BoundingBox.Block);
             ORE_IRON = new BasicBlock("ore_iron", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true, BoundingBox.Block);
             ORE_GOLD = new BasicBlock("ore_gold", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true, BoundingBox.Block);
+            SNOW = new BasicBlock("snow", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true, BoundingBox.Block);
+            FLOWER = new CrossBlock("flower", new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
         }
 
         #endregion
