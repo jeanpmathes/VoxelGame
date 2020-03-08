@@ -73,24 +73,24 @@ namespace VoxelGame.Physics
                             {
                                 intersects = true;
 
-                                float inverseAngle;
+                                float inverseOverlap;
 
                                 // Check on which plane the collision happened
-                                float angleX = Vector3.CalculateAngle(Vector3.UnitX, currentBoundingBox.Center - Center);
-                                inverseAngle = Vector3.CalculateAngle(-Vector3.UnitX, currentBoundingBox.Center - Center);
-                                angleX = (angleX > inverseAngle) ? angleX : inverseAngle;
+                                float xOverlap = this.Max.X - currentBoundingBox.Min.X;
+                                inverseOverlap = currentBoundingBox.Max.X - this.Min.X;
+                                xOverlap = (xOverlap < inverseOverlap) ? xOverlap : inverseOverlap;
 
-                                float angleY = Vector3.CalculateAngle(Vector3.UnitY, currentBoundingBox.Center - Center);
-                                inverseAngle = Vector3.CalculateAngle(-Vector3.UnitY, currentBoundingBox.Center - Center);
-                                angleY = (angleY > inverseAngle) ? angleY : inverseAngle;
+                                float yOverlap = this.Max.Y - currentBoundingBox.Min.Y;
+                                inverseOverlap = currentBoundingBox.Max.Y - this.Min.Y;
+                                yOverlap = (yOverlap < inverseOverlap) ? yOverlap : inverseOverlap;
 
-                                float angleZ = Vector3.CalculateAngle(Vector3.UnitZ, currentBoundingBox.Center - Center);
-                                inverseAngle = Vector3.CalculateAngle(-Vector3.UnitZ, currentBoundingBox.Center - Center);
-                                angleZ = (angleZ > inverseAngle) ? angleZ : inverseAngle;
-
-                                if (angleX > angleY)
+                                float zOverlap = this.Max.Z - currentBoundingBox.Min.Z;
+                                inverseOverlap = currentBoundingBox.Max.Z - this.Min.Z;
+                                zOverlap = (zOverlap < inverseOverlap) ? zOverlap : inverseOverlap;
+                                
+                                if (xOverlap < yOverlap)
                                 {
-                                    if (angleX > angleZ)
+                                    if (xOverlap < zOverlap)
                                     {
                                         xCollision = true;
                                     }
@@ -101,7 +101,7 @@ namespace VoxelGame.Physics
                                 }
                                 else
                                 {
-                                    if (angleY > angleZ)
+                                    if (yOverlap < zOverlap)
                                     {
                                         yCollision = true;
                                     }

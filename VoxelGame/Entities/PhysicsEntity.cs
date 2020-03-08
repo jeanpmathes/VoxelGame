@@ -3,7 +3,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenTK;
-using System;
 
 using VoxelGame.Physics;
 
@@ -36,8 +35,13 @@ namespace VoxelGame.Entities
             }
         }
 
+        private readonly int physicsIterations = 10;
+
         private BoundingBox boundingBox;
         private Vector3 force;
+
+        private bool addMovement = false;
+        private Vector3 additionalMovement;
 
         public PhysicsEntity(float mass, float drag, BoundingBox boundingBox)
         {
@@ -55,24 +59,51 @@ namespace VoxelGame.Entities
             this.force += force;
         }
 
+        public void Move(Vector3 movement)
+        {
+            additionalMovement += movement;
+            addMovement = true;
+        }
+
         public void Tick(float deltaTime)
         {
             Velocity -= Velocity * Drag * Velocity.Length * deltaTime;
             Velocity += force / Mass * deltaTime;
 
-            boundingBox.Center += Velocity;
-            if (boundingBox.IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision))
+            Vector3 movement = Velocity;
+
+            if (addMovement)
             {
-                Velocity = new Vector3(
-                    xCollision ? 0f : Velocity.X,
-                    yCollision ? 0f : Velocity.Y,
-                    zCollision ? 0f : Velocity.Z);
+                movement += additionalMovement * deltaTime;
             }
 
-            Position += Velocity;
+            movement *= 1f / physicsIterations;
+
+            for (int i = 0; i < physicsIterations; i++)
+            {
+                boundingBox.Center += movement;
+                if (boundingBox.IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision))
+                {
+                    movement = new Vector3(
+                        xCollision ? 0f : movement.X,
+                        yCollision ? 0f : movement.Y,
+                        zCollision ? 0f : movement.Z);
+
+                    Velocity = new Vector3(
+                        xCollision ? 0f : Velocity.X,
+                        yCollision ? 0f : Velocity.Y,
+                        zCollision ? 0f : Velocity.Z);
+                }
+
+                Position += movement;
+            }
+
             boundingBox.Center = Position;
 
             force = new Vector3(0f, Gravity, 0f);
+
+            addMovement = false;
+            additionalMovement = Vector3.Zero;
 
             Update();
         }

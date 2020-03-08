@@ -36,7 +36,7 @@ namespace VoxelGame
             GL.Enable(EnableCap.CullFace);
 
             Camera camera = new Camera(new Vector3(), Width / (float)Height);
-            Player = new Player(70f, 0.5f, new Vector3(0f, 1000f, 0f), camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.5f, 1f, 0.5f)));
+            Player = new Player(70f, 0.03f, new Vector3(0f, 1000f, 0f), camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.45f, 0.9f, 0.45f)));
 
             Atlas = new TextureAtlas("Resources/Textures");
 

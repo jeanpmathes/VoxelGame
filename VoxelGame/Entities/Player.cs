@@ -15,7 +15,7 @@ namespace VoxelGame.Entities
         private Camera camera;
         private Vector3 cameraOffset = new Vector3(0f, 0.5f, 0f);
 
-        private float speed = 50f;
+        private float speed = 5f;
         private float jumpForce = 200f;
 
         private Vector2 lastMousePos;
@@ -73,12 +73,12 @@ namespace VoxelGame.Entities
                 if (movement != Vector3.Zero)
                 {
                     movement = movement.Normalized() * speed;
+
+                    Move(movement);
                 }
                
                 if (input.IsKeyDown(Key.Space))
-                    movement += new Vector3(0f, jumpForce, 0f); // Up
-
-                AddForce(movement);
+                    AddForce(new Vector3(0f, jumpForce, 0f)); // Up
 
                 MouseState mouse = Mouse.GetState();
 
