@@ -71,6 +71,9 @@ namespace VoxelGame.Logic
             }
 
             chunksToRender.Clear();
+
+            // Render the player
+            Game.Player.Render();
         }
 
         public void FrameUpdate(float deltaTime)

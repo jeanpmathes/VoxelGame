@@ -321,31 +321,31 @@ namespace VoxelGame.Logic
                 }
             }
 
-            float[] verteciesAll = vertices.ToArray();
+            float[] verticesAll = vertices.ToArray();
             uint[] indicesAll = indices.ToArray();
 
             indicesAmount = indicesAll.Length;
 
             // Vertex Buffer Object
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, verteciesAll.Length * sizeof(float), verteciesAll, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, verticesAll.Length * sizeof(float), verticesAll, BufferUsageHint.StaticDraw);
 
             // Element Buffer Object
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
             GL.BufferData(BufferTarget.ElementArrayBuffer, indicesAll.Length * sizeof(uint), indicesAll, BufferUsageHint.StaticDraw);
 
-            Game.Shader.Use();
+            Game.DefaultShader.Use();
 
             // Vertex Array Object
             GL.BindVertexArray(vertexArrayObject);
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
 
-            int vertexLocation = Game.Shader.GetAttribLocation("aPosition");
+            int vertexLocation = Game.DefaultShader.GetAttribLocation("aPosition");
             GL.EnableVertexAttribArray(vertexLocation);
             GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
 
-            int texCoordLocation = Game.Shader.GetAttribLocation("aTexCoord");
+            int texCoordLocation = Game.DefaultShader.GetAttribLocation("aTexCoord");
             GL.EnableVertexAttribArray(texCoordLocation);
             GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
 
@@ -356,13 +356,13 @@ namespace VoxelGame.Logic
         {
             GL.BindVertexArray(vertexArrayObject);
 
-            Game.Shader.Use();
+            Game.DefaultShader.Use();
             Game.Atlas.Use();
 
             Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
-            Game.Shader.SetMatrix4("model", model);
-            Game.Shader.SetMatrix4("view", Game.Player.GetViewMatrix());
-            Game.Shader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
+            Game.DefaultShader.SetMatrix4("model", model);
+            Game.DefaultShader.SetMatrix4("view", Game.Player.GetViewMatrix());
+            Game.DefaultShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
 
             GL.DrawElements(PrimitiveType.Triangles, indicesAmount, DrawElementsType.UnsignedInt, 0);
 

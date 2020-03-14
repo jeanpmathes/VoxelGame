@@ -21,7 +21,8 @@ namespace VoxelGame
         public static Game instance;
         public static Player Player { get; private set; }
         public static TextureAtlas Atlas { get; private set; }
-        public static Shader Shader { get; private set; }
+        public static Shader DefaultShader { get; private set; }
+        public static Shader SelectionShader { get; private set; }
         public static World World { get; set; }
 
         public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
@@ -40,7 +41,8 @@ namespace VoxelGame
 
             Atlas = new TextureAtlas("Resources/Textures");
 
-            Shader = new Shader("Rendering/Shaders/shader.vert", "Rendering/Shaders/shader.frag");
+            DefaultShader = new Shader("Rendering/Shaders/default_shader.vert", "Rendering/Shaders/default_shader.frag");
+            SelectionShader = new Shader("Rendering/Shaders/selection_shader.vert", "Rendering/Shaders/selection_shader.frag");
 
             Block.LoadBlocks();
             Console.WriteLine(Language.BlocksLoadedAmount + Block.blockDictionary.Count);

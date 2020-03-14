@@ -3,6 +3,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenTK;
+using System;
 
 using VoxelGame.Physics;
 
@@ -17,8 +18,9 @@ namespace VoxelGame.Entities
 
         public Vector3 Velocity { get; set; }
         public Vector3 Position { get; set; }
-
         public Quaternion Rotation { get; set; }
+
+        public bool IsGrounded { get; private set; }
 
         public Vector3 Forward
         {
@@ -65,8 +67,12 @@ namespace VoxelGame.Entities
             addMovement = true;
         }
 
+        public abstract void Render();
+
         public void Tick(float deltaTime)
         {
+            IsGrounded = false;
+
             Velocity -= Velocity * Drag * Velocity.Length * deltaTime;
             Velocity += force / Mass * deltaTime;
 
@@ -84,6 +90,15 @@ namespace VoxelGame.Entities
                 boundingBox.Center += movement;
                 if (boundingBox.IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision))
                 {
+                    if (yCollision)
+                    {
+                        int xPos = (int)Math.Floor(boundingBox.Center.X);
+                        int yPos = (int)Math.Floor(boundingBox.Center.Y);
+                        int zPos = (int)Math.Floor(boundingBox.Center.Z);
+
+                        IsGrounded = !Game.World.GetBlock(xPos, yPos + (int)Math.Round(boundingBox.Extents.Y), zPos)?.IsSolid ?? true;
+                    }
+
                     movement = new Vector3(
                         xCollision ? 0f : movement.X,
                         yCollision ? 0f : movement.Y,

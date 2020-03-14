@@ -18,7 +18,6 @@ namespace VoxelGame.Logic
         protected float[][] sideVertices;
 
         protected uint[] indices =
-
         {
             0, 2, 1,
             0, 3, 2

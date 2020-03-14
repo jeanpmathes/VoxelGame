@@ -25,11 +25,57 @@ namespace VoxelGame.Physics
 
         public static BoundingBox Block => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.5f, 0.5f, 0.5f));
 
+        public bool Contains(Vector3 point)
+        {
+            return (Min.X <= point.X && Max.X >= point.X) &&
+                (Min.Y <= point.Y && Max.Y >= point.Y) &&
+                (Min.Z <= point.Z && Max.Z >= point.Z);
+        }
+
         public bool Intersects(BoundingBox other)
         {
             return (this.Min.X <= other.Max.X && this.Max.X >= other.Min.X) &&
                 (this.Min.Y <= other.Max.Y && this.Max.Y >= other.Min.Y) &&
                 (this.Min.Z <= other.Max.Z && this.Max.Z >= other.Min.Z);
+        }
+
+        /// <summary>
+        /// Checks if a ray intersects this bounding box. The length of the ray is not used in the calculations.
+        /// </summary>
+        /// <param name="ray">The ray to check.</param>
+        /// <returns>Returns true if the ray with an assumed infinite length intersect the bounding box.</returns>
+        public bool Intersects(Ray ray)
+        {
+            if (Contains(ray.Origin) || Contains(ray.EndPoint))
+            {
+                return true;
+            }
+
+            Vector3 dirfrac = new Vector3()
+            {
+                X = 1.0f / ray.Direction.X,
+                Y = 1.0f / ray.Direction.Y,
+                Z = 1.0f / ray.Direction.Z
+            };
+
+            float t1 = (Min.X - ray.Origin.X) * dirfrac.X;
+            float t2 = (Max.X - ray.Origin.X) * dirfrac.X;
+
+            float t3 = (Min.Y - ray.Origin.Y) * dirfrac.Y;
+            float t4 = (Max.Y - ray.Origin.Y) * dirfrac.Y;
+
+            float t5 = (Min.Z - ray.Origin.Z) * dirfrac.Z;
+            float t6 = (Max.Z - ray.Origin.Z) * dirfrac.Z;
+
+            float tmin = Math.Max(Math.Max(Math.Min(t1, t2), Math.Min(t3, t4)), Math.Min(t5, t6));
+            float tmax = Math.Min(Math.Min(Math.Max(t1, t2), Math.Max(t3, t4)), Math.Max(t5, t6));
+
+            if (tmin > tmax)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public bool IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision)
@@ -117,6 +163,21 @@ namespace VoxelGame.Physics
             }
 
             return intersects;
+        }
+
+        public static bool operator ==(BoundingBox left, BoundingBox right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(BoundingBox left, BoundingBox right)
+        {
+            return !(left == right);
+        }
+
+        public static bool Equals(BoundingBox left, BoundingBox right)
+        {
+            return (left.Extents == right.Extents) && (left.Center == right.Center);
         }
     }
 }

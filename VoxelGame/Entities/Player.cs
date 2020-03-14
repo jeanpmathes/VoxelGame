@@ -7,6 +7,7 @@ using OpenTK.Input;
 
 using VoxelGame.Rendering;
 using VoxelGame.Physics;
+using VoxelGame.Logic;
 
 namespace VoxelGame.Entities
 {
@@ -16,11 +17,14 @@ namespace VoxelGame.Entities
         private Vector3 cameraOffset = new Vector3(0f, 0.5f, 0f);
 
         private float speed = 5f;
-        private float jumpForce = 200f;
+        private float jumpForce = 550f;
 
         private Vector2 lastMousePos;
         private bool firstMove = true;
         private float mouseSensitivity = 0.2f;
+
+        private int selectedX, selectedY, selectedZ;
+        private BoxRenderer selectionRenderer;
 
         public Player(float mass, float drag, Vector3 startPosition, Camera camera, BoundingBox boundingBox) : base(mass, drag, boundingBox)
         {
@@ -28,6 +32,8 @@ namespace VoxelGame.Entities
 
             Position = startPosition;            
             camera.Position = startPosition;
+
+            selectionRenderer = new BoxRenderer();
         }
         
         /// <summary>
@@ -46,6 +52,19 @@ namespace VoxelGame.Entities
         public Matrix4 GetProjectionMatrix()
         {
             return camera.GetProjectionMatrix();
+        }
+
+        public override void Render()
+        {
+            Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ);
+
+            if (selectedBlock != Block.AIR)
+            {
+                BoundingBox selectedBox = selectedBlock.GetBoundingBox(selectedX, selectedY, selectedZ);
+
+                selectionRenderer.SetBoundingBox(selectedBox);
+                selectionRenderer.Draw(selectedBox.Center);
+            }
         }
 
         protected override void Update()
@@ -77,8 +96,10 @@ namespace VoxelGame.Entities
                     Move(movement);
                 }
                
-                if (input.IsKeyDown(Key.Space))
-                    AddForce(new Vector3(0f, jumpForce, 0f)); // Up
+                if (input.IsKeyDown(Key.Space) && IsGrounded) // Jump
+                {
+                    AddForce(new Vector3(0f, jumpForce, 0f));
+                }
 
                 MouseState mouse = Mouse.GetState();
 
@@ -99,6 +120,15 @@ namespace VoxelGame.Entities
                     camera.Pitch -= deltaY * mouseSensitivity;
 
                     Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
+                }
+
+                Ray ray = new Ray(camera.Position, camera.Front, 6f);
+
+                if (Raycast.Cast(ray, out int x, out int y, out int z))
+                {
+                    selectedX = x;
+                    selectedY = y;
+                    selectedZ = z;
                 }
             }
         }

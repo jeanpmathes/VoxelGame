@@ -86,10 +86,14 @@
     <Compile Include="Logic\CrossBlock.cs" />
     <Compile Include="Logic\Section.cs" />
     <Compile Include="Logic\World.cs" />
+    <Compile Include="Physics\Ray.cs" />
+    <Compile Include="Physics\Raycast.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rendering\BoxRenderer.cs" />
     <Compile Include="Rendering\Camera.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="Rendering\DefaultRenderer.cs" />
     <Compile Include="Rendering\Shader.cs" />
     <Compile Include="Rendering\Texture.cs" />
     <Compile Include="Rendering\TextureAtlas.cs" />
@@ -114,10 +118,16 @@
     <None Include="App.config" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
-    <None Include="Rendering\Shaders\shader.frag">
+    <None Include="Rendering\Shaders\selection_shader.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Rendering\Shaders\shader.vert">
+    <None Include="Rendering\Shaders\selection_shader.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Rendering\Shaders\default_shader.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Rendering\Shaders\default_shader.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="VoxelGame.licenseheader" />
