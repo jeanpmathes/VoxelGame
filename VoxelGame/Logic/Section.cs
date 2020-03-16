@@ -3,8 +3,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenTK;
-using OpenTK.Graphics.OpenGL4;
 using System.Collections.Generic;
+
+using VoxelGame.Rendering;
 using VoxelGame.WorldGeneration;
 
 namespace VoxelGame.Logic
@@ -15,19 +16,13 @@ namespace VoxelGame.Logic
 
         private ushort[] blocks;
 
-        private int vertexBufferObject;
-        private int elementBufferObject;
-        private int vertexArrayObject;
-
-        private int indicesAmount;
+        private SectionRenderer renderer;
 
         public Section()
         {
             blocks = new ushort[SectionSize * SectionSize * SectionSize];
 
-            vertexBufferObject = GL.GenBuffer();
-            elementBufferObject = GL.GenBuffer();
-            vertexArrayObject = GL.GenVertexArray();
+            renderer = new SectionRenderer();
         }
 
         public void Generate(IWorldGenerator generator, int xOffset, int yOffset, int zOffset)
@@ -324,50 +319,12 @@ namespace VoxelGame.Logic
             float[] verticesAll = vertices.ToArray();
             uint[] indicesAll = indices.ToArray();
 
-            indicesAmount = indicesAll.Length;
-
-            // Vertex Buffer Object
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, verticesAll.Length * sizeof(float), verticesAll, BufferUsageHint.StaticDraw);
-
-            // Element Buffer Object
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indicesAll.Length * sizeof(uint), indicesAll, BufferUsageHint.StaticDraw);
-
-            Game.DefaultShader.Use();
-
-            // Vertex Array Object
-            GL.BindVertexArray(vertexArrayObject);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
-
-            int vertexLocation = Game.DefaultShader.GetAttribLocation("aPosition");
-            GL.EnableVertexAttribArray(vertexLocation);
-            GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-            int texCoordLocation = Game.DefaultShader.GetAttribLocation("aTexCoord");
-            GL.EnableVertexAttribArray(texCoordLocation);
-            GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-            GL.BindVertexArray(0);
+            renderer.SetData(ref verticesAll, ref indicesAll);
         }
 
         public void Render(Vector3 position)
         {
-            GL.BindVertexArray(vertexArrayObject);
-
-            Game.DefaultShader.Use();
-            Game.Atlas.Use();
-
-            Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
-            Game.DefaultShader.SetMatrix4("model", model);
-            Game.DefaultShader.SetMatrix4("view", Game.Player.GetViewMatrix());
-            Game.DefaultShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
-
-            GL.DrawElements(PrimitiveType.Triangles, indicesAmount, DrawElementsType.UnsignedInt, 0);
-
-            GL.BindVertexArray(0);
-            GL.UseProgram(0);
+            renderer.Draw(position);
         }
 
         /// <summary>

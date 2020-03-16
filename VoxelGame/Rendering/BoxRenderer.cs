@@ -9,7 +9,7 @@ using VoxelGame.Physics;
 
 namespace VoxelGame.Rendering
 {
-    public class BoxRenderer
+    public class BoxRenderer : Renderer
     {
         private int vertexBufferObject;
         private int elementBufferObject;
@@ -95,7 +95,7 @@ namespace VoxelGame.Rendering
             GL.BindVertexArray(0);
         }
 
-        public void Draw(Vector3 position)
+        public override void Draw(Vector3 position)
         {
             GL.BindVertexArray(vertexArrayObject);
 

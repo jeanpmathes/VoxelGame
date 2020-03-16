@@ -21,7 +21,7 @@ namespace VoxelGame
         public static Game instance;
         public static Player Player { get; private set; }
         public static TextureAtlas Atlas { get; private set; }
-        public static Shader DefaultShader { get; private set; }
+        public static Shader SectionShader { get; private set; }
         public static Shader SelectionShader { get; private set; }
         public static World World { get; set; }
 
@@ -41,7 +41,7 @@ namespace VoxelGame
 
             Atlas = new TextureAtlas("Resources/Textures");
 
-            DefaultShader = new Shader("Rendering/Shaders/default_shader.vert", "Rendering/Shaders/default_shader.frag");
+            SectionShader = new Shader("Rendering/Shaders/section_shader.vert", "Rendering/Shaders/section_shader.frag");
             SelectionShader = new Shader("Rendering/Shaders/selection_shader.vert", "Rendering/Shaders/selection_shader.frag");
 
             Block.LoadBlocks();

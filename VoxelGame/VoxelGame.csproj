@@ -93,7 +93,8 @@
     <Compile Include="Rendering\BoxRenderer.cs" />
     <Compile Include="Rendering\Camera.cs" />
     <Compile Include="Game.cs" />
-    <Compile Include="Rendering\DefaultRenderer.cs" />
+    <Compile Include="Rendering\SectionRenderer.cs" />
+    <Compile Include="Rendering\Renderer.cs" />
     <Compile Include="Rendering\Shader.cs" />
     <Compile Include="Rendering\Texture.cs" />
     <Compile Include="Rendering\TextureAtlas.cs" />
@@ -124,10 +125,10 @@
     <None Include="Rendering\Shaders\selection_shader.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Rendering\Shaders\default_shader.frag">
+    <None Include="Rendering\Shaders\section_shader.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Rendering\Shaders\default_shader.vert">
+    <None Include="Rendering\Shaders\section_shader.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="VoxelGame.licenseheader" />
