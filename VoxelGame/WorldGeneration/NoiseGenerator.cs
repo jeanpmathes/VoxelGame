@@ -46,7 +46,25 @@ namespace VoxelGame.WorldGeneration
             }
             else if (y > height)
             {
-                return Block.AIR;
+                if (y == height + 1 && y < snowLevel && y > beachLevel + 1)
+                {
+                    if (noise.GetCellular(x, z, y) > caveTreshold + (y / (halfHeight * caveLifter)) || noise.GetCellular(x, z, y - 1) > caveTreshold + ((y - 1) / (halfHeight * caveLifter)))
+                    {
+                        return Block.AIR;
+                    }
+                    else if (noise.GetWhiteNoise(x, z) > 0)
+                    {
+                        return Block.TALL_GRASS;
+                    }
+                    else
+                    {
+                        return Block.FLOWER;
+                    }
+                }
+                else
+                {
+                    return Block.AIR;
+                }
             }
             else
             {
@@ -99,7 +117,25 @@ namespace VoxelGame.WorldGeneration
                 }
                 else if (y > height)
                 {
-                    yield return Block.AIR;
+                    if (y == height + 1 && y < snowLevel && y > beachLevel + 1)
+                    {
+                        if (noise.GetCellular(x, z, y) > caveTreshold + (y / (halfHeight * caveLifter)) || noise.GetCellular(x, z, y - 1) > caveTreshold + ((y - 1) / (halfHeight * caveLifter)))
+                        {
+                            yield return Block.AIR;
+                        }
+                        else if (noise.GetWhiteNoise(x, z) > 0)
+                        {
+                            yield return Block.TALL_GRASS;
+                        }
+                        else
+                        {
+                            yield return Block.FLOWER;
+                        }
+                    }
+                    else
+                    {
+                        yield return Block.AIR;
+                    }
                 }
                 else
                 {
