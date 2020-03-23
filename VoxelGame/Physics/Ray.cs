@@ -10,20 +10,20 @@ namespace VoxelGame.Physics
     {
         public Vector3 Origin { get; }
         public Vector3 Direction { get; }
-        public float Lenght { get; }
+        public float Length { get; }
 
-        public Ray(Vector3 origin, Vector3 direction, float lenght)
+        public Ray(Vector3 origin, Vector3 direction, float length)
         {
             Origin = origin;
             Direction = direction.Normalized();
-            Lenght = lenght;
+            Length = length;
         }
 
         public Vector3 EndPoint
         {
             get
             {
-                return Origin + Direction * Lenght;
+                return Origin + Direction * Length;
             }
         }
     }

@@ -3,6 +3,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using System;
+using OpenTK;
 
 using VoxelGame.Logic;
 
@@ -10,16 +11,25 @@ namespace VoxelGame.Physics
 {
     public static class Raycast
     {
-        static int looool = 0;
-
-        public static bool Cast(Ray ray, out int hitX, out int hitY, out int hitZ)
+        /// <summary>
+        /// Checks if a ray intersects with a block that is not air.
+        /// </summary>
+        /// <param name="ray">The ray.</param>
+        /// <param name="hitX">The x position where the intersection happens.</param>
+        /// <param name="hitY">The y position where the intersection happens.</param>
+        /// <param name="hitZ">The z position where the intersection happens.</param>
+        /// <returns>True if an intersection happens.</returns>
+        public static bool CastWorld(Ray ray, out int hitX, out int hitY, out int hitZ)
         {
-            looool++;
+            /*
+             * Voxel Traversal Algorithm
+             * Adapted from code by francisengelmann (https://github.com/francisengelmann/fast_voxel_traversal)
+             * See: J. Amanatides and A. Woo, A Fast Voxel Traversal Algorithm for Ray Tracing, Eurographics, 1987.
+             */
 
-            //if (looool > 60)
-            //{
-            //    System.Diagnostics.Debugger.Break();
-            //}
+            // Calculate the direction of the ray with length
+            //Vector3 direction = ray.Direction * ray.Length;
+            Vector3 direction = ray.Direction;
 
             // Get the origin position in world coordinates
             int x = (int)Math.Floor(ray.Origin.X);
@@ -31,175 +41,89 @@ namespace VoxelGame.Physics
             int endY = (int)Math.Floor(ray.EndPoint.Y);
             int endZ = (int)Math.Floor(ray.EndPoint.Z);
 
-            // Calculate the deltas for all axes
-            int deltaX = Math.Abs(endX - x);
-            int deltaY = Math.Abs(endY - y);
-            int deltaZ = Math.Abs(endZ - z);
+            // Get the direction in which the components are incremented
+            int stepX = Math.Sign(direction.X);
+            int stepY = Math.Sign(direction.Y);
+            int stepZ = Math.Sign(direction.Z);
 
-            // Calculate the sign for all axes
-            int signX = (x < endX) ? 1 : -1;
-            int signY = (y < endY) ? 1 : -1;
-            int signZ = (z < endZ) ? 1 : -1;
+            // Calculate the distance to the next voxel border from the current position
+            double nextVoxelBoundaryX = (stepX > 0) ? x + stepX : x;
+            double nextVoxelBoundaryY = (stepY > 0) ? y + stepY : y;
+            double nextVoxelBoundaryZ = (stepZ > 0) ? z + stepZ : z;
 
-            // Check which axis is the main axis
-            if (deltaX >= deltaY && deltaX >= deltaZ) // X axis
+            // Calculate the distance to the next voxel border
+            double tMaxX = (direction.X != 0) ? (nextVoxelBoundaryX - ray.Origin.X) / direction.X : double.MaxValue;
+            double tMaxY = (direction.Y != 0) ? (nextVoxelBoundaryY - ray.Origin.Y) / direction.Y : double.MaxValue;
+            double tMaxZ = (direction.Z != 0) ? (nextVoxelBoundaryZ - ray.Origin.Z) / direction.Z : double.MaxValue;
+
+            // Calculate distance so component equals voxel border
+            double tDeltaX = (direction.X != 0) ? stepX / direction.X : double.MaxValue;
+            double tDeltaY = (direction.Y != 0) ? stepY / direction.Y : double.MaxValue;
+            double tDeltaZ = (direction.Z != 0) ? stepZ / direction.Z : double.MaxValue;
+
+            //Check the current block
+            Block currentBlock = Game.World.GetBlock(x, y, z);
+
+            if (currentBlock != null && currentBlock != Block.AIR)
             {
-                // Calculate slope error
-                int slopeErrorY = 2 * deltaY - deltaX;
-                int slopeErrorZ = 2 * deltaZ - deltaX;
-
-                // Loop along the axis
-                while (x != endX)
+                // Check if the ray intersects the bounding box of the block
+                if (currentBlock.GetBoundingBox(x, y, z).Intersects(ray))
                 {
-                    x += signX;
+                    hitX = x;
+                    hitY = y;
+                    hitZ = z;
 
-                    bool atBlock = false;
-
-                    if (slopeErrorY >= 0)
-                    {
-                        y += signY;
-                        slopeErrorY -= 2 * deltaX;
-
-                        atBlock = true;
-                    }
-
-                    if (slopeErrorZ >= 0)
-                    {
-                        z += signZ;
-                        slopeErrorZ -= 2 * deltaX;
-
-                        atBlock = true;
-                    }
-
-                    if (atBlock)
-                    {
-                        Block block = Game.World.GetBlock(x, y, z);
-
-                        if (block != null && block != Block.AIR)
-                        {
-                            // Check if the ray intersects the bounding box of the block
-                            if (block.GetBoundingBox(x, y, z).Intersects(ray))
-                            {
-                                hitX = x;
-                                hitY = y;
-                                hitZ = z;
-
-                                return true;
-                            }
-                        }
-                    }
-
-                    slopeErrorY += 2 * deltaY;
-                    slopeErrorZ += 2 * deltaZ;
-                }
-            }
-            else if (deltaY >= deltaX && deltaY >= deltaZ) // Y axis
-            {
-                // Calculate slope error
-                int slopeErrorX = 2 * deltaX - deltaY;
-                int slopeErrorZ = 2 * deltaZ - deltaY;
-
-                // Loop along the axis
-                while (y != endY)
-                {
-                    y += signY;
-
-                    bool atBlock = false;
-
-                    if (slopeErrorX >= 0)
-                    {
-                        x += signX;
-                        slopeErrorX -= 2 * deltaY;
-
-                        atBlock = true;
-                    }
-
-                    if (slopeErrorZ >= 0)
-                    {
-                        z += signZ;
-                        slopeErrorZ -= 2 * deltaY;
-
-                        atBlock = true;
-                    }
-
-                    if (atBlock)
-                    {
-                        Block block = Game.World.GetBlock(x, y, z);
-
-                        if (block != null && block != Block.AIR)
-                        {
-                            // Check if the ray intersects the bounding box of the block
-                            if (block.GetBoundingBox(x, y, z).Intersects(ray))
-                            {
-                                hitX = x;
-                                hitY = y;
-                                hitZ = z;
-
-                                return true;
-                            }
-                        }
-                    }
-
-                    slopeErrorX += 2 * deltaX;
-                    slopeErrorZ += 2 * deltaZ;
-                }
-            }
-            else // Z axis
-            {
-                // Calculate slope error
-                int slopeErrorX = 2 * deltaX - deltaZ;
-                int slopeErrorY = 2 * deltaY - deltaZ;
-
-                // Loop along the axis
-                while (z != endZ)
-                {
-                    z += signZ;
-
-                    bool atBlock = false;
-
-                    if (slopeErrorX >= 0)
-                    {
-                        x += signX;
-                        slopeErrorX -= 2 * deltaZ;
-
-                        atBlock = true;
-                    }
-
-                    if (slopeErrorY >= 0)
-                    {
-                        y += signY;
-                        slopeErrorY -= 2 * deltaZ;
-
-                        atBlock = true;
-                    }
-
-                    if (atBlock)
-                    {
-                        Block block = Game.World.GetBlock(x, y, z);
-
-                        if (block != null && block != Block.AIR)
-                        {
-                            // Check if the ray intersects the bounding box of the block
-                            if (block.GetBoundingBox(x, y, z).Intersects(ray))
-                            {
-                                hitX = x;
-                                hitY = y;
-                                hitZ = z;
-
-                                return true;
-                            }
-                        }
-                    }
-
-                    slopeErrorX += 2 * deltaX;
-                    slopeErrorY += 2 * deltaY;
+                    return true;
                 }
             }
 
-            hitX = 0;
-            hitY = 0;
-            hitZ = 0;
+            while (!(x == endX && y == endY && z == endZ))
+            {
+                if (tMaxX < tMaxY)
+                {
+                    if (tMaxX < tMaxZ)
+                    {
+                        x += stepX;
+                        tMaxX += tDeltaX;
+                    }
+                    else
+                    {
+                        z += stepZ;
+                        tMaxZ += tDeltaZ;
+                    }
+                }
+                else
+                {
+                    if (tMaxY < tMaxZ)
+                    {
+                        y += stepY;
+                        tMaxY += tDeltaY;
+                    }
+                    else
+                    {
+                        z += stepZ;
+                        tMaxZ += tDeltaZ;
+                    }
+                }
 
+                //Check the current block
+                currentBlock = Game.World.GetBlock(x, y, z);
+
+                if (currentBlock != null && currentBlock != Block.AIR)
+                {
+                    // Check if the ray intersects the bounding box of the block
+                    if (currentBlock.GetBoundingBox(x, y, z).Intersects(ray))
+                    {
+                        hitX = x;
+                        hitY = y;
+                        hitZ = z;
+
+                        return true;
+                    }
+                }
+            }
+
+            hitX = hitY = hitZ = -1;
             return false;
         }
     }

@@ -29,7 +29,7 @@ namespace VoxelGame.Logic
         {
             RenderFaceAtNonOpaques = renderFaceAtNonOpaques;
 
-            Setup(sideIndices);
+            this.Setup(sideIndices);
         }
 
         protected virtual void Setup(Tuple<int, int, int, int, int, int> sideIndices)

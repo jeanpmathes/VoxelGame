@@ -47,7 +47,7 @@ namespace VoxelGame
             Block.LoadBlocks();
             Console.WriteLine(Language.BlocksLoadedAmount + Block.blockDictionary.Count);
 
-            //World = new World(new FlatGenerator(500, 490));
+            //World = new World(new FlatGenerator(520, 500));
             //World = new World(new SineGenerator(20, 512, 0.05f, 0.05f));
             World = new World(new NoiseGenerator(2133));
 

@@ -74,11 +74,13 @@ namespace VoxelGame.Logic
 
             // Render the player
             Game.Player.Render();
+
+            Game.Player.Tick(0.0166666f);
         }
 
         public void FrameUpdate(float deltaTime)
         {
-            Game.Player.Tick(deltaTime);
+            //Game.Player.Tick(deltaTime);
         }
 
         /// <summary>

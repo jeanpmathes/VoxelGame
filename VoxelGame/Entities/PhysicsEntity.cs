@@ -2,20 +2,36 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
 using System;
+using OpenTK;
 
 using VoxelGame.Physics;
 
 namespace VoxelGame.Entities
 {
+    /// <summary>
+    /// An entity which is affected by gravity and forces.
+    /// </summary>
     public abstract class PhysicsEntity
     {
+        /// <summary>
+        /// The gravitational constant which accelerates all physics entities.
+        /// </summary>
         public const float Gravity = -20f;
 
+        /// <summary>
+        /// Gets the mass of this physics entity.
+        /// </summary>
         public float Mass { get; }
+
+        /// <summary>
+        /// Gets the drag affecting the velocity of this physics entity.
+        /// </summary>
         public float Drag { get; }
 
+        /// <summary>
+        /// Gets or sets the velocity of the physics entity.
+        /// </summary>
         public Vector3 Velocity { get; set; }
         public Vector3 Position { get; set; }
         public Quaternion Rotation { get; set; }
@@ -39,8 +55,13 @@ namespace VoxelGame.Entities
 
         private readonly int physicsIterations = 10;
 
-        private BoundingBox boundingBox;
         private Vector3 force;
+
+        private BoundingBox boundingBox;
+        public BoundingBox BoundingBox 
+        {
+            get => boundingBox;
+        }
 
         private bool addMovement = false;
         private Vector3 additionalMovement;
@@ -88,15 +109,15 @@ namespace VoxelGame.Entities
             for (int i = 0; i < physicsIterations; i++)
             {
                 boundingBox.Center += movement;
-                if (boundingBox.IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision))
+                if (BoundingBox.IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision))
                 {
                     if (yCollision)
                     {
-                        int xPos = (int)Math.Floor(boundingBox.Center.X);
-                        int yPos = (int)Math.Floor(boundingBox.Center.Y);
-                        int zPos = (int)Math.Floor(boundingBox.Center.Z);
+                        int xPos = (int)Math.Floor(BoundingBox.Center.X);
+                        int yPos = (int)Math.Floor(BoundingBox.Center.Y);
+                        int zPos = (int)Math.Floor(BoundingBox.Center.Z);
 
-                        IsGrounded = !Game.World.GetBlock(xPos, yPos + (int)Math.Round(boundingBox.Extents.Y), zPos)?.IsSolid ?? true;
+                        IsGrounded = !Game.World.GetBlock(xPos, yPos + (int)Math.Round(BoundingBox.Extents.Y), zPos)?.IsSolid ?? true;
                     }
 
                     movement = new Vector3(

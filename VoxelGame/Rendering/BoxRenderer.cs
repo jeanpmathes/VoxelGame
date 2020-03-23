@@ -81,7 +81,6 @@ namespace VoxelGame.Rendering
             GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.DynamicDraw);
 
             Game.SelectionShader.Use();
-            Game.SelectionShader.SetVector3("color", new Vector3(1f, 0f, 0f));
 
             // Vertex Array Object
             GL.BindVertexArray(vertexArrayObject);

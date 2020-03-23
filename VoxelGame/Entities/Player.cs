@@ -56,20 +56,38 @@ namespace VoxelGame.Entities
 
         public override void Render()
         {
-            Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ);
-
-            if (selectedBlock != Block.AIR)
+            if (selectedY >= 0)
             {
-                BoundingBox selectedBox = selectedBlock.GetBoundingBox(selectedX, selectedY, selectedZ);
+                Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ);
 
-                selectionRenderer.SetBoundingBox(selectedBox);
-                selectionRenderer.Draw(selectedBox.Center);
+                if (selectedBlock != Block.AIR)
+                {
+                    BoundingBox selectedBox = selectedBlock.GetBoundingBox(selectedX, selectedY, selectedZ);
+
+                    Game.SelectionShader.SetVector3("color", new Vector3(1f, 0f, 0f));
+
+                    selectionRenderer.SetBoundingBox(selectedBox);
+                    selectionRenderer.Draw(selectedBox.Center);
+                }
             }
         }
 
         protected override void Update()
         {
             camera.Position = Position + cameraOffset;
+
+            Ray ray = new Ray(camera.Position, camera.Front, 6f);
+
+            if (Raycast.CastWorld(ray, out int x, out int y, out int z))
+            {
+                selectedX = x;
+                selectedY = y;
+                selectedZ = z;
+            }
+            else
+            {
+                selectedY = -1;
+            }
 
             if (Game.instance.Focused)
             {
@@ -120,15 +138,6 @@ namespace VoxelGame.Entities
                     camera.Pitch -= deltaY * mouseSensitivity;
 
                     Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
-                }
-
-                Ray ray = new Ray(camera.Position, camera.Front, 6f);
-
-                if (Raycast.Cast(ray, out int x, out int y, out int z))
-                {
-                    selectedX = x;
-                    selectedY = y;
-                    selectedZ = z;
                 }
             }
         }
