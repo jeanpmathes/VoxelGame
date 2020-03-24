@@ -25,11 +25,13 @@ namespace VoxelGame.Logic
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-        public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, Tuple<int, int, int, int, int, int> sideIndices, bool isSolid, BoundingBox boundingBox) : base(name, true, isOpaque, isSolid, boundingBox)
+        public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, Tuple<int, int, int, int, int, int> sideIndices, bool isSolid) : base(name, true, isOpaque, isSolid, false, false, BoundingBox.Block)
         {
             RenderFaceAtNonOpaques = renderFaceAtNonOpaques;
 
+#pragma warning disable CA2214 // Do not call overridable methods in constructors
             this.Setup(sideIndices);
+#pragma warning restore CA2214 // Do not call overridable methods in constructors
         }
 
         protected virtual void Setup(Tuple<int, int, int, int, int, int> sideIndices)
@@ -104,6 +106,11 @@ namespace VoxelGame.Logic
             indices = this.indices;
 
             return 4;
+        }
+
+        public override void OnCollision(Entities.PhysicsEntity entity, int x, int y, int z)
+        {
+            throw new NotImplementedException();
         }
     }
 }

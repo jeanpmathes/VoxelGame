@@ -3,6 +3,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using System;
+using System.Collections.Generic;
 using OpenTK;
 
 using VoxelGame.Physics;
@@ -109,7 +110,7 @@ namespace VoxelGame.Entities
             for (int i = 0; i < physicsIterations; i++)
             {
                 boundingBox.Center += movement;
-                if (BoundingBox.IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision))
+                if (BoundingBox.IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision, out List<(int, int, int, Logic.Block)> intersections))
                 {
                     if (yCollision)
                     {
@@ -129,6 +130,14 @@ namespace VoxelGame.Entities
                         xCollision ? 0f : Velocity.X,
                         yCollision ? 0f : Velocity.Y,
                         zCollision ? 0f : Velocity.Z);
+                }
+
+                for (int j = 0; j < intersections.Count; j++)
+                {
+                    if (intersections[j].Item4.RecieveCollisions)
+                    {
+                        intersections[j].Item4.OnCollision(this, intersections[j].Item1, intersections[j].Item2, intersections[j].Item3);
+                    }
                 }
 
                 Position += movement;

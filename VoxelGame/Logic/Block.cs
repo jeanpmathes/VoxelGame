@@ -40,43 +40,74 @@ namespace VoxelGame.Logic
         public static void LoadBlocks()
         {
             AIR = new AirBlock("air");
-            GRASS = new BasicBlock("grass", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 2), true, BoundingBox.Block);
+            GRASS = new BasicBlock("grass", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 2), true);
             TALL_GRASS = new CrossBlock("tall_grass", BoundingBox.Block);
-            DIRT = new BasicBlock("dirt", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true, BoundingBox.Block);
-            STONE = new BasicBlock("stone", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true, BoundingBox.Block);
-            COBBLESTONE = new BasicBlock("cobblestone", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true, BoundingBox.Block);
-            LOG = new BasicBlock("log", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 1), true, BoundingBox.Block);
-            SAND = new BasicBlock("sand", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true, BoundingBox.Block);
-            LEAVES = new BasicBlock("leaves", false, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true, BoundingBox.Block);
-            GLASS = new BasicBlock("glass", false, false, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true, BoundingBox.Block);
-            ORE_COAL = new BasicBlock("ore_coal", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true, BoundingBox.Block);
-            ORE_IRON = new BasicBlock("ore_iron", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true, BoundingBox.Block);
-            ORE_GOLD = new BasicBlock("ore_gold", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true, BoundingBox.Block);
-            SNOW = new BasicBlock("snow", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true, BoundingBox.Block);
+            DIRT = new BasicBlock("dirt", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
+            STONE = new BasicBlock("stone", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
+            COBBLESTONE = new BasicBlock("cobblestone", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
+            LOG = new BasicBlock("log", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 1), true);
+            SAND = new BasicBlock("sand", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
+            LEAVES = new BasicBlock("leaves", false, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
+            GLASS = new BasicBlock("glass", false, false, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
+            ORE_COAL = new BasicBlock("ore_coal", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
+            ORE_IRON = new BasicBlock("ore_iron", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
+            ORE_GOLD = new BasicBlock("ore_gold", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
+            SNOW = new BasicBlock("snow", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
             FLOWER = new CrossBlock("flower", new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
         }
 
         #endregion
 
-        public ushort Id { get;  }
-        public string Name { get; }
-        public bool IsFull { get; }
-        public bool IsOpaque { get; }
-        public bool IsSolid { get; }
+        /// <summary>
+        /// Gets the block id which can be any value from 0 to 4095.
+        /// </summary>
+        public ushort Id { get; }
 
-        private BoundingBox boundingBox;
+        /// <summary>
+        /// Gets the name of the block, which is also used for finding the right texture.
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// Gets whether this block completely fills a 1x1x1 volume or not.
+        /// </summary>
+        public bool IsFull { get; }
+
+        /// <summary>
+        /// Gets whether it is possible to see through this block. This will affect the rendering of this block and the blocks around him.
+        /// </summary>
+        public bool IsOpaque { get; }
 
         /// <summary>
         /// This property is only relevant for non-opaque full blocks. It decides if their faces should be rendered next to another non-opaque block.
         /// </summary>
         public bool RenderFaceAtNonOpaques { get; protected set; } = true;
 
-        public Block(string name, bool isFull, bool isOpaque, bool isSolid, BoundingBox boundingBox)
+        /// <summary>
+        /// Gets whether this block hinders movement.
+        /// </summary>
+        public bool IsSolid { get; }
+
+        /// <summary>
+        /// Gets whether the collision method should be called in case of a collision with an entity.
+        /// </summary>
+        public bool RecieveCollisions { get; }
+
+        /// <summary>
+        /// Gets whether this block should be checked in collision calculations even if it is not solid.
+        /// </summary>
+        public bool IsTrigger { get; }
+
+        private BoundingBox boundingBox;
+
+        public Block(string name, bool isFull, bool isOpaque, bool isSolid, bool recieveCollisions, bool isTrigger, BoundingBox boundingBox)
         {
             Name = name;
             IsFull = isFull;
             IsOpaque = isOpaque;
             IsSolid = isSolid;
+            RecieveCollisions = recieveCollisions;
+            IsTrigger = isTrigger;
 
             this.boundingBox = boundingBox;
 
@@ -93,5 +124,7 @@ namespace VoxelGame.Logic
         }
 
         public abstract uint GetMesh(BlockSide side, ushort data, out float[] vertecies, out uint[] indicies);
+
+        public abstract void OnCollision(Entities.PhysicsEntity entity, int x, int y, int z);
     }
 }
