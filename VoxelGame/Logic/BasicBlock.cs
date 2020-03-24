@@ -25,7 +25,7 @@ namespace VoxelGame.Logic
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-        public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, Tuple<int, int, int, int, int, int> sideIndices, bool isSolid) : base(name, true, isOpaque, isSolid, false, false, BoundingBox.Block)
+        public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, (int, int, int, int, int, int) sideIndices, bool isSolid) : base(name, true, isOpaque, isSolid, false, false, BoundingBox.Block)
         {
             RenderFaceAtNonOpaques = renderFaceAtNonOpaques;
 
@@ -34,7 +34,7 @@ namespace VoxelGame.Logic
 #pragma warning restore CA2214 // Do not call overridable methods in constructors
         }
 
-        protected virtual void Setup(Tuple<int, int, int, int, int, int> sideIndices)
+        protected virtual void Setup((int, int, int, int, int, int) sideIndices)
         {
             int textureIndex = Game.Atlas.GetTextureIndex(Name);
 

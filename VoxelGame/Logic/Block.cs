@@ -33,26 +33,26 @@ namespace VoxelGame.Logic
         public static Block ORE_GOLD;
         public static Block SNOW;
         public static Block FLOWER;
-#pragma warning restore CA2211 // Non-constant fields should not be visible
 
         public static Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
+#pragma warning restore CA2211 // Non-constant fields should not be visible
 
         public static void LoadBlocks()
         {
             AIR = new AirBlock("air");
-            GRASS = new BasicBlock("grass", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 2), true);
+            GRASS = new BasicBlock("grass", true, true, (0, 0, 0, 0, 1, 2), true);
             TALL_GRASS = new CrossBlock("tall_grass", BoundingBox.Block);
-            DIRT = new BasicBlock("dirt", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
-            STONE = new BasicBlock("stone", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
-            COBBLESTONE = new BasicBlock("cobblestone", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
-            LOG = new BasicBlock("log", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 1, 1), true);
-            SAND = new BasicBlock("sand", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
-            LEAVES = new BasicBlock("leaves", false, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
-            GLASS = new BasicBlock("glass", false, false, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
-            ORE_COAL = new BasicBlock("ore_coal", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
-            ORE_IRON = new BasicBlock("ore_iron", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
-            ORE_GOLD = new BasicBlock("ore_gold", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
-            SNOW = new BasicBlock("snow", true, true, new Tuple<int, int, int, int, int, int>(0, 0, 0, 0, 0, 0), true);
+            DIRT = new BasicBlock("dirt", true, true, (0, 0, 0, 0, 0, 0), true);
+            STONE = new BasicBlock("stone", true, true, (0, 0, 0, 0, 0, 0), true);
+            COBBLESTONE = new BasicBlock("cobblestone", true, true, (0, 0, 0, 0, 0, 0), true);
+            LOG = new BasicBlock("log", true, true, (0, 0, 0, 0, 1, 1), true);
+            SAND = new BasicBlock("sand", true, true, (0, 0, 0, 0, 0, 0), true);
+            LEAVES = new BasicBlock("leaves", false, true, (0, 0, 0, 0, 0, 0), true);
+            GLASS = new BasicBlock("glass", false, false, (0, 0, 0, 0, 0, 0), true);
+            ORE_COAL = new BasicBlock("ore_coal", true, true, (0, 0, 0, 0, 0, 0), true);
+            ORE_IRON = new BasicBlock("ore_iron", true, true, (0, 0, 0, 0, 0, 0), true);
+            ORE_GOLD = new BasicBlock("ore_gold", true, true, (0, 0, 0, 0, 0, 0), true);
+            SNOW = new BasicBlock("snow", true, true, (0, 0, 0, 0, 0, 0), true);
             FLOWER = new CrossBlock("flower", new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
         }
 

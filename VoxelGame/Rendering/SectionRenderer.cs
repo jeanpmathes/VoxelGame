@@ -1,4 +1,4 @@
-﻿// <copyright file="DefaultRenderer.cs" company="VoxelGame">
+﻿// <copyright file="SectionRenderer.cs" company="VoxelGame">
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
