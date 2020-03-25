@@ -19,9 +19,19 @@ namespace VoxelGame.Logic
         private IWorldGenerator generator;
 
         private Dictionary<ValueTuple<int, int>, Chunk> activeChunks = new Dictionary<ValueTuple<int, int>, Chunk>();
-        private List<Chunk> chunksToGenerate = new List<Chunk>();
-        private List<Chunk> chunksToMesh = new List<Chunk>();
-        private List<Chunk> chunksToRender = new List<Chunk>();
+        private HashSet<Chunk> chunksToGenerate = new HashSet<Chunk>();
+
+        /// <summary>
+        /// For newly created chunks.
+        /// </summary>
+        private HashSet<Chunk> chunksToMesh = new HashSet<Chunk>();
+
+        /// <summary>
+        /// For sections of already meshed chunks.
+        /// </summary>
+        private HashSet<(Chunk chunk, int index)> sectionsToMesh = new HashSet<(Chunk chunk, int index)>();
+
+        private HashSet<Chunk> chunksToRender = new HashSet<Chunk>();
 
         public World(IWorldGenerator generator)
         {
@@ -35,8 +45,8 @@ namespace VoxelGame.Logic
                 }
             }
 
-            chunksToGenerate.AddRange(activeChunks.Values);
-            chunksToMesh.AddRange(activeChunks.Values);
+            chunksToGenerate.UnionWith(activeChunks.Values);
+            chunksToMesh.UnionWith(activeChunks.Values);
         }
 
         public void FrameRender()
@@ -44,9 +54,9 @@ namespace VoxelGame.Logic
             // Collect all chunks to generate
 
             // Generate all listed chunks
-            for (int i = 0; i < chunksToGenerate.Count; i++)
+            foreach (Chunk chunk in chunksToGenerate)
             {
-                chunksToGenerate[i].Generate(generator);
+                chunk.Generate(generator);
             }
 
             chunksToGenerate.Clear();
@@ -54,33 +64,39 @@ namespace VoxelGame.Logic
             // Collect all chunks to mesh
 
             // Mesh the listed chunks
-            for (int i = 0; i < chunksToMesh.Count; i++)
+            foreach (Chunk chunk in chunksToMesh)
             {
-                chunksToMesh[i].CreateMesh();
+                chunk.CreateMesh();
             }
 
             chunksToMesh.Clear();
 
+            // Mesh all listed sections
+            foreach ((Chunk chunk, int index) meshInstruction in sectionsToMesh)
+            {
+                meshInstruction.chunk.CreateMesh(meshInstruction.index);
+            }
+
+            sectionsToMesh.Clear();
+
             // Collect all chunks to render
-            chunksToRender.AddRange(activeChunks.Values);
+            chunksToRender.UnionWith(activeChunks.Values);
 
             // Render the listed chunks
-            for (int i = 0; i < chunksToRender.Count; i++)
+            foreach (Chunk chunk in chunksToRender)
             {
-                chunksToRender[i].Render();
+                chunk.Render();
             }
 
             chunksToRender.Clear();
 
             // Render the player
             Game.Player.Render();
-
-            Game.Player.Tick(0.0166666f);
         }
 
         public void FrameUpdate(float deltaTime)
         {
-            //Game.Player.Tick(deltaTime);
+            Game.Player.Tick(deltaTime);
         }
 
         /// <summary>

@@ -61,6 +61,11 @@ namespace VoxelGame.Logic
             }
         }
 
+        public void CreateMesh(int y)
+        {
+            sections[y].CreateMesh(X, y, Z);
+        }
+
         public void Render()
         {
             for (int y = 0; y < ChunkHeight; y++)
