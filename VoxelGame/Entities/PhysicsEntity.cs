@@ -110,7 +110,7 @@ namespace VoxelGame.Entities
             for (int i = 0; i < physicsIterations; i++)
             {
                 boundingBox.Center += movement;
-                if (BoundingBox.IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision, out List<(int, int, int, Logic.Block)> intersections))
+                if (BoundingBox.IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision, out List<(int x, int y, int z, Logic.Block block)> intersections))
                 {
                     if (yCollision)
                     {
@@ -134,9 +134,9 @@ namespace VoxelGame.Entities
 
                 for (int j = 0; j < intersections.Count; j++)
                 {
-                    if (intersections[j].Item4.RecieveCollisions)
+                    if (intersections[j].block.RecieveCollisions)
                     {
-                        intersections[j].Item4.OnCollision(this, intersections[j].Item1, intersections[j].Item2, intersections[j].Item3);
+                        intersections[j].block.OnCollision(this, intersections[j].x, intersections[j].y, intersections[j].z);
                     }
                 }
 

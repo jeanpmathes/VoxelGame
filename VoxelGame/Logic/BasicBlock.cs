@@ -25,7 +25,7 @@ namespace VoxelGame.Logic
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-        public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, (int, int, int, int, int, int) sideIndices, bool isSolid) : base(name, true, isOpaque, isSolid, false, false, BoundingBox.Block)
+        public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, (int front, int back, int left, int right, int bottom, int top) sideIndices, bool isSolid) : base(name, true, isOpaque, isSolid, false, false, BoundingBox.Block)
         {
             RenderFaceAtNonOpaques = renderFaceAtNonOpaques;
 
@@ -34,7 +34,7 @@ namespace VoxelGame.Logic
 #pragma warning restore CA2214 // Do not call overridable methods in constructors
         }
 
-        protected virtual void Setup((int, int, int, int, int, int) sideIndices)
+        protected virtual void Setup((int front, int back, int left, int right, int bottom, int top) sideIndices)
         {
             int textureIndex = Game.Atlas.GetTextureIndex(Name);
 
@@ -45,12 +45,12 @@ namespace VoxelGame.Logic
 
             AtlasPosition[] sideUVs =
             {
-                Game.Atlas.GetTextureUV(textureIndex + sideIndices.Item1),
-                Game.Atlas.GetTextureUV(textureIndex + sideIndices.Item2),
-                Game.Atlas.GetTextureUV(textureIndex + sideIndices.Item3),
-                Game.Atlas.GetTextureUV(textureIndex + sideIndices.Item4),
-                Game.Atlas.GetTextureUV(textureIndex + sideIndices.Item5),
-                Game.Atlas.GetTextureUV(textureIndex + sideIndices.Item6)
+                Game.Atlas.GetTextureUV(textureIndex + sideIndices.front),
+                Game.Atlas.GetTextureUV(textureIndex + sideIndices.back),
+                Game.Atlas.GetTextureUV(textureIndex + sideIndices.left),
+                Game.Atlas.GetTextureUV(textureIndex + sideIndices.right),
+                Game.Atlas.GetTextureUV(textureIndex + sideIndices.bottom),
+                Game.Atlas.GetTextureUV(textureIndex + sideIndices.top)
             };
 
             sideVertices = new float[][]

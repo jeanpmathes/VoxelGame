@@ -166,7 +166,7 @@ namespace VoxelGame.Physics
             return intersects;
         }
 
-        public bool IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision, out List<(int, int, int, Block)> intersections)
+        public bool IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision, out List<(int x, int y, int z, Block block)> intersections)
         {
             bool intersects = false;
 
