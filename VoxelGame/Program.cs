@@ -2,10 +2,8 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
 using Resources;
-
-using OpenTK;
+using System;
 
 namespace VoxelGame
 {

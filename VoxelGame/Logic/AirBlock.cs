@@ -3,6 +3,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using VoxelGame.Physics;
+
 namespace VoxelGame.Logic
 {
     /// <summary>
@@ -16,6 +17,16 @@ namespace VoxelGame.Logic
         /// <param name="name">The unique name of this block</param>
         public AirBlock(string name) : base(name, false, false, false, false, false, BoundingBox.Block)
         {
+        }
+
+        public override bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
+        {
+            return false;
+        }
+
+        public override bool Destroy(int x, int y, int z, Entities.PhysicsEntity entity)
+        {
+            return false;
         }
 
         /// <summary>

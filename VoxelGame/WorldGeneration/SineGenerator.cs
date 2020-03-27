@@ -10,10 +10,10 @@ namespace VoxelGame.WorldGeneration
 {
     public class SineGenerator : IWorldGenerator
     {
-        int amplitude;
-        int mid;
-        float a;
-        float b;
+        private int amplitude;
+        private int mid;
+        private float a;
+        private float b;
 
         public SineGenerator(int amplitude, int mid, float a = 1f, float b = 1f)
         {
@@ -50,7 +50,7 @@ namespace VoxelGame.WorldGeneration
             int height = (int)(amplitude * (Math.Sin(a * x) - Math.Sin(b * z))) + mid;
 
             for (int y = 0; y < Section.SectionSize * Chunk.ChunkHeight; y++)
-            {               
+            {
                 if (y > height)
                 {
                     yield return Block.AIR;

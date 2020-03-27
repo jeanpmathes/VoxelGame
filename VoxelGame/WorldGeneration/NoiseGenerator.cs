@@ -174,7 +174,7 @@ namespace VoxelGame.WorldGeneration
                         }
                     }
                 }
-            }           
+            }
         }
     }
 }

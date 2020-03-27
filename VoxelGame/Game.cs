@@ -6,9 +6,8 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
-using System;
 using Resources;
-
+using System;
 using VoxelGame.Entities;
 using VoxelGame.Logic;
 using VoxelGame.Rendering;
@@ -36,9 +35,6 @@ namespace VoxelGame
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
 
-            Camera camera = new Camera(new Vector3(), Width / (float)Height);
-            Player = new Player(70f, 0.03f, new Vector3(0f, 1000f, 0f), camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.45f, 0.9f, 0.45f)));
-
             Atlas = new TextureAtlas("Resources/Textures");
 
             SectionShader = new Shader("Rendering/Shaders/section_shader.vert", "Rendering/Shaders/section_shader.frag");
@@ -46,6 +42,9 @@ namespace VoxelGame
 
             Block.LoadBlocks();
             Console.WriteLine(Language.BlocksLoadedAmount + Block.blockDictionary.Count);
+
+            Camera camera = new Camera(new Vector3(), Width / (float)Height);
+            Player = new Player(70f, 0.03f, new Vector3(0f, 1000f, 0f), camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.45f, 0.9f, 0.45f)));
 
             //World = new World(new FlatGenerator(520, 500));
             //World = new World(new SineGenerator(20, 512, 0.05f, 0.05f));

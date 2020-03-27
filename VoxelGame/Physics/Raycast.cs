@@ -18,8 +18,9 @@ namespace VoxelGame.Physics
         /// <param name="hitX">The x position where the intersection happens.</param>
         /// <param name="hitY">The y position where the intersection happens.</param>
         /// <param name="hitZ">The z position where the intersection happens.</param>
+        /// <param name="side">The side of the voxel which is hit first.</param>
         /// <returns>True if an intersection happens.</returns>
-        public static bool CastWorld(Ray ray, out int hitX, out int hitY, out int hitZ)
+        public static bool CastWorld(Ray ray, out int hitX, out int hitY, out int hitZ, out BlockSide side)
         {
             /*
              * Voxel Traversal Algorithm
@@ -73,6 +74,9 @@ namespace VoxelGame.Physics
                     hitY = y;
                     hitZ = z;
 
+                    // As the ray starts in this voxel, no side is selected
+                    side = BlockSide.All;
+
                     return true;
                 }
             }
@@ -85,11 +89,15 @@ namespace VoxelGame.Physics
                     {
                         x += stepX;
                         tMaxX += tDeltaX;
+
+                        side = (stepX > 0) ? BlockSide.Left : BlockSide.Right;
                     }
                     else
                     {
                         z += stepZ;
                         tMaxZ += tDeltaZ;
+
+                        side = (stepZ > 0) ? BlockSide.Back : BlockSide.Front;
                     }
                 }
                 else
@@ -98,11 +106,15 @@ namespace VoxelGame.Physics
                     {
                         y += stepY;
                         tMaxY += tDeltaY;
+
+                        side = (stepY > 0) ? BlockSide.Bottom : BlockSide.Top;
                     }
                     else
                     {
                         z += stepZ;
                         tMaxZ += tDeltaZ;
+
+                        side = (stepZ > 0) ? BlockSide.Back : BlockSide.Front;
                     }
                 }
 
@@ -124,6 +136,7 @@ namespace VoxelGame.Physics
             }
 
             hitX = hitY = hitZ = -1;
+            side = BlockSide.All;
             return false;
         }
     }

@@ -4,10 +4,9 @@
 // <author>pershingthesecond</author>
 using OpenTK;
 using OpenTK.Input;
-
-using VoxelGame.Rendering;
-using VoxelGame.Physics;
 using VoxelGame.Logic;
+using VoxelGame.Physics;
+using VoxelGame.Rendering;
 
 namespace VoxelGame.Entities
 {
@@ -24,18 +23,26 @@ namespace VoxelGame.Entities
         private float mouseSensitivity = 0.2f;
 
         private int selectedX, selectedY, selectedZ;
+        private BlockSide selectedSide;
         private BoxRenderer selectionRenderer;
+
+        private readonly float interactionCooldown = 0.25f;
+        private float timer;
+
+        private Block activeBlock;
 
         public Player(float mass, float drag, Vector3 startPosition, Camera camera, BoundingBox boundingBox) : base(mass, drag, boundingBox)
         {
             this.camera = camera;
 
-            Position = startPosition;            
+            Position = startPosition;
             camera.Position = startPosition;
 
             selectionRenderer = new BoxRenderer();
+
+            activeBlock = Block.GLASS;
         }
-        
+
         /// <summary>
         /// Gets the view matrix of the camera of this player.
         /// </summary>
@@ -72,27 +79,19 @@ namespace VoxelGame.Entities
             }
         }
 
-        protected override void Update()
+        protected override void Update(float deltaTime)
         {
             camera.Position = Position + cameraOffset;
 
             Ray ray = new Ray(camera.Position, camera.Front, 6f);
 
-            if (Raycast.CastWorld(ray, out int x, out int y, out int z))
-            {
-                selectedX = x;
-                selectedY = y;
-                selectedZ = z;
-            }
-            else
-            {
-                selectedY = -1;
-            }
+            Raycast.CastWorld(ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
 
             if (Game.instance.Focused)
             {
                 KeyboardState input = Keyboard.GetState();
 
+                // Handling movement
                 Vector3 movement = new Vector3();
 
                 if (input.IsKeyDown(Key.W))
@@ -113,7 +112,7 @@ namespace VoxelGame.Entities
 
                     Move(movement);
                 }
-               
+
                 if (input.IsKeyDown(Key.Space) && IsGrounded) // Jump
                 {
                     AddForce(new Vector3(0f, jumpForce, 0f));
@@ -139,7 +138,58 @@ namespace VoxelGame.Entities
 
                     Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
                 }
+
+                // Handling world manipulation
+
+                //Placement
+                if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Right))
+                {
+                    int placePositionX = selectedX;
+                    int placePositionY = selectedY;
+                    int placePositionZ = selectedZ;
+
+                    switch (selectedSide)
+                    {
+                        case BlockSide.Front:
+                            placePositionZ++;
+                            break;
+                        case BlockSide.Back:
+                            placePositionZ--;
+                            break;
+                        case BlockSide.Left:
+                            placePositionX--;
+                            break;
+                        case BlockSide.Right:
+                            placePositionX++;
+                            break;
+                        case BlockSide.Bottom:
+                            placePositionY--;
+                            break;
+                        case BlockSide.Top:
+                            placePositionY++;
+                            break;
+                    }
+
+                    activeBlock.Place(placePositionX, placePositionY, placePositionZ, this);
+
+                    timer = 0;
+                }
+
+                // Destruction
+                if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Left))
+                {
+                    Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ);
+
+                    if (selectedBlock != null)
+                    {
+                        selectedBlock.Destroy(selectedX, selectedY, selectedZ, this);
+
+                        timer = 0;
+                    }
+                }
             }
+
+            timer += deltaTime;
         }
     }
 }

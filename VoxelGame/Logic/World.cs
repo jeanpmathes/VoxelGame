@@ -125,6 +125,40 @@ namespace VoxelGame.Logic
             {
                 chunk.GetSection(y >> chunkHeightExp)
                     [x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = block;
+
+                sectionsToMesh.Add((chunk, y >> chunkHeightExp));
+
+                // Check if sections next to this section have to be changed
+
+                // Next on y axis
+                if ((y & (Section.SectionSize - 1)) == 0 && (y - 1 >> chunkHeightExp) >= 0)
+                {
+                    sectionsToMesh.Add((chunk, y - 1 >> chunkHeightExp));
+                }
+                else if ((y & (Section.SectionSize - 1)) == Section.SectionSize - 1 && (y + 1 >> chunkHeightExp) < Chunk.ChunkHeight)
+                {
+                    sectionsToMesh.Add((chunk, y + 1 >> chunkHeightExp));
+                }
+
+                // Next on x axis
+                if ((x & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x - 1 >> sectionSizeExp, z >> sectionSizeExp), out chunk))
+                {
+                    sectionsToMesh.Add((chunk, y >> chunkHeightExp));
+                }
+                else if ((x & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue((x + 1 >> sectionSizeExp, z >> sectionSizeExp), out chunk))
+                {
+                    sectionsToMesh.Add((chunk, y >> chunkHeightExp));
+                }
+
+                // Next on z axis
+                if ((z & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x >> sectionSizeExp, z - 1 >> sectionSizeExp), out chunk))
+                {
+                    sectionsToMesh.Add((chunk, y >> chunkHeightExp));
+                }
+                else if ((z & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue((x >> sectionSizeExp, z + 1 >> sectionSizeExp), out chunk))
+                {
+                    sectionsToMesh.Add((chunk, y >> chunkHeightExp));
+                }
             }
         }
 

@@ -2,10 +2,9 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
 using OpenTK;
+using System;
 using System.Collections.Generic;
-
 using VoxelGame.Physics;
 
 namespace VoxelGame.Logic
@@ -56,7 +55,7 @@ namespace VoxelGame.Logic
             FLOWER = new CrossBlock("flower", new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
         }
 
-        #endregion
+        #endregion STATIC BLOCK MANAGMENT
 
         /// <summary>
         /// Gets the block id which can be any value from 0 to 4095.
@@ -121,6 +120,38 @@ namespace VoxelGame.Logic
         public virtual BoundingBox GetBoundingBox(int x, int y, int z)
         {
             return new BoundingBox(boundingBox.Center + new Vector3(x, y, z), boundingBox.Extents);
+        }
+
+        public virtual bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
+        {
+            if (Game.World.GetBlock(x, y, z) != Block.AIR)
+            {
+                return false;
+            }
+
+            Game.World.SetBlock(this, x, y, z);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Destroys a block in the world if it is the same type as this block.
+        /// </summary>
+        /// <param name="x">The x position of the block to destroy.</param>
+        /// <param name="y">The y position of the block to destroy.</param>
+        /// <param name="z">The z position of the block to destroy.</param>
+        /// <param name="entity">The entity which caused the destruction.</param>
+        /// <returns>True if the block has been destroyed.</returns>
+        public virtual bool Destroy(int x, int y, int z, Entities.PhysicsEntity entity)
+        {
+            if (Game.World.GetBlock(x, y, z) != this)
+            {
+                return false;
+            }
+
+            Game.World.SetBlock(Block.AIR, x, y, z);
+
+            return true;
         }
 
         public abstract uint GetMesh(BlockSide side, ushort data, out float[] vertecies, out uint[] indicies);

@@ -2,10 +2,9 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
+using OpenTK;
 using System;
 using System.Collections.Generic;
-using OpenTK;
-
 using VoxelGame.Physics;
 
 namespace VoxelGame.Entities
@@ -34,6 +33,7 @@ namespace VoxelGame.Entities
         /// Gets or sets the velocity of the physics entity.
         /// </summary>
         public Vector3 Velocity { get; set; }
+
         public Vector3 Position { get; set; }
         public Quaternion Rotation { get; set; }
 
@@ -46,6 +46,7 @@ namespace VoxelGame.Entities
                 return Rotation * Vector3.UnitX;
             }
         }
+
         public Vector3 Right
         {
             get
@@ -59,7 +60,8 @@ namespace VoxelGame.Entities
         private Vector3 force;
 
         private BoundingBox boundingBox;
-        public BoundingBox BoundingBox 
+
+        public BoundingBox BoundingBox
         {
             get => boundingBox;
         }
@@ -150,9 +152,9 @@ namespace VoxelGame.Entities
             addMovement = false;
             additionalMovement = Vector3.Zero;
 
-            Update();
+            Update(deltaTime);
         }
 
-        protected abstract void Update();
+        protected abstract void Update(float deltaTime);
     }
 }

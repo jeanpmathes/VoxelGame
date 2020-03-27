@@ -134,7 +134,7 @@ namespace VoxelGame.Physics
                                 float zOverlap = this.Max.Z - currentBoundingBox.Min.Z;
                                 inverseOverlap = currentBoundingBox.Max.Z - this.Min.Z;
                                 zOverlap = (zOverlap < inverseOverlap) ? zOverlap : inverseOverlap;
-                                
+
                                 if (xOverlap < yOverlap)
                                 {
                                     if (xOverlap < zOverlap)

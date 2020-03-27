@@ -3,9 +3,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using System;
-
-using VoxelGame.Rendering;
 using VoxelGame.Physics;
+using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic
 {
