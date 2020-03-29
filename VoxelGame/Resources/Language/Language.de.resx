@@ -118,7 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="BlocksLoadedAmount" xml:space="preserve">
-    <value>Anzahl geladener Blöcke:</value>
+    <value>Anzahl geladener Blöcke: </value>
+  </data>
+  <data name="CurrentBlockIs" xml:space="preserve">
+    <value>Der derzeit ausgewählte Block ist: </value>
   </data>
   <data name="ExitingGame" xml:space="preserve">
     <value>Beende...</value>

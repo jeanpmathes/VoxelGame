@@ -1,4 +1,4 @@
-﻿// <copyright file="PerlinGenerator.cs" company="VoxelGame">
+﻿// <copyright file="NoiseGenerator.cs" company="VoxelGame">
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>

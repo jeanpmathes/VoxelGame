@@ -61,11 +61,20 @@ namespace Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Blocks loaded:.
+        ///   Looks up a localized string similar to Blocks loaded: .
         /// </summary>
         internal static string BlocksLoadedAmount {
             get {
                 return ResourceManager.GetString("BlocksLoadedAmount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The current block is: .
+        /// </summary>
+        internal static string CurrentBlockIs {
+            get {
+                return ResourceManager.GetString("CurrentBlockIs", resourceCulture);
             }
         }
         

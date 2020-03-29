@@ -118,7 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="BlocksLoadedAmount" xml:space="preserve">
-    <value>Blocks loaded:</value>
+    <value>Blocks loaded: </value>
+  </data>
+  <data name="CurrentBlockIs" xml:space="preserve">
+    <value>The current block is: </value>
   </data>
   <data name="ExitingGame" xml:space="preserve">
     <value>Exiting...</value>

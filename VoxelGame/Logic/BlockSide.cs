@@ -4,6 +4,9 @@
 // <author>pershingthesecond</author>
 namespace VoxelGame.Logic
 {
+    /// <summary>
+    /// The side of a block.
+    /// </summary>
     public enum BlockSide
     {
         All = -1,

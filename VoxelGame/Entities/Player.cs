@@ -7,6 +7,7 @@ using OpenTK.Input;
 using VoxelGame.Logic;
 using VoxelGame.Physics;
 using VoxelGame.Rendering;
+using Resources;
 
 namespace VoxelGame.Entities
 {
@@ -30,6 +31,8 @@ namespace VoxelGame.Entities
         private float timer;
 
         private Block activeBlock;
+        private bool hasPressedPlus = false;
+        private bool hasPressedMinus = false;
 
         public Player(float mass, float drag, Vector3 startPosition, Camera camera, BoundingBox boundingBox) : base(mass, drag, boundingBox)
         {
@@ -139,9 +142,34 @@ namespace VoxelGame.Entities
                     Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
                 }
 
+                // Block selection
+                if (input.IsKeyDown(Key.KeypadPlus) && !hasPressedPlus)
+                {
+                    activeBlock = (activeBlock.Id != Block.blockDictionary.Count - 1) ? Block.blockDictionary[(ushort)(activeBlock.Id + 1)] : Block.blockDictionary[1];
+                    hasPressedPlus = true;
+
+                    System.Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
+                }
+                else if (input.IsKeyUp(Key.KeypadPlus))
+                {
+                    hasPressedPlus = false;
+                }
+
+                if (input.IsKeyDown(Key.KeypadMinus) && !hasPressedMinus)
+                {
+                    activeBlock = (activeBlock.Id != 1) ? Block.blockDictionary[(ushort)(activeBlock.Id - 1)] : Block.blockDictionary[(ushort)(Block.blockDictionary.Count - 1)];
+                    hasPressedMinus = true;
+
+                    System.Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
+                }
+                else if (input.IsKeyUp(Key.KeypadMinus))
+                {
+                    hasPressedMinus = false;
+                }
+
                 // Handling world manipulation
 
-                //Placement
+                // Placement
                 if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Right))
                 {
                     int placePositionX = selectedX;
@@ -170,9 +198,13 @@ namespace VoxelGame.Entities
                             break;
                     }
 
-                    activeBlock.Place(placePositionX, placePositionY, placePositionZ, this);
+                    // Prevent block placement if the block would intersect the player
+                    if (!BoundingBox.Intersects(activeBlock.GetBoundingBox(placePositionX, placePositionY, placePositionZ)))
+                    {
+                        activeBlock.Place(placePositionX, placePositionY, placePositionZ, this);
 
-                    timer = 0;
+                        timer = 0;
+                    }
                 }
 
                 // Destruction

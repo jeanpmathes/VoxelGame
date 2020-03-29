@@ -5,6 +5,9 @@
 
 namespace VoxelGame.Rendering
 {
+    /// <summary>
+    /// The position of a texture in a texture atlas.
+    /// </summary>
     public struct AtlasPosition
     {
         public float bottomLeftU { get; private set; }
