@@ -1,5 +1,6 @@
-﻿// <copyright file="SinusGenerator.cs" company="VoxelGame">
-//     All rights reserved.
+﻿// <copyright file="SineGenerator.cs" company="VoxelGame">
+//     MIT License
+//	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
 using System;

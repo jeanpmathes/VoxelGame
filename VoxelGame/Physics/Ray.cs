@@ -1,5 +1,6 @@
 ﻿// <copyright file="Ray.cs" company="VoxelGame">
-//     All rights reserved.
+//     MIT License
+//	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenTK;
