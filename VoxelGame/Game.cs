@@ -37,8 +37,8 @@ namespace VoxelGame
 
             Atlas = new TextureAtlas("Resources/Textures");
 
-            SectionShader = new Shader("Rendering/Shaders/section_shader.vert", "Rendering/Shaders/section_shader.frag");
-            SelectionShader = new Shader("Rendering/Shaders/selection_shader.vert", "Rendering/Shaders/selection_shader.frag");
+            SectionShader = new Shader("Resources/Shaders/section_shader.vert", "Resources/Shaders/section_shader.frag");
+            SelectionShader = new Shader("Resources/Shaders/selection_shader.vert", "Resources/Shaders/selection_shader.frag");
 
             Block.LoadBlocks();
             Console.WriteLine(Language.BlocksLoadedAmount + Block.blockDictionary.Count);
