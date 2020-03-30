@@ -24,10 +24,18 @@ namespace VoxelGame.Logic
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-        public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, (int front, int back, int left, int right, int bottom, int top) sideIndices, bool isSolid) : base(name, true, isOpaque, isSolid, false, false, false, BoundingBox.Block)
+        public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, (int front, int back, int left, int right, int bottom, int top) sideIndices, bool isSolid) :
+            base(
+                name: name,
+                isFull: true,
+                isOpaque,
+                renderFaceAtNonOpaques,
+                isSolid,
+                recieveCollisions: false,
+                isTrigger: false,
+                isReplaceable: false,
+                BoundingBox.Block)
         {
-            RenderFaceAtNonOpaques = renderFaceAtNonOpaques;
-
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
             this.Setup(sideIndices);
 #pragma warning restore CA2214 // Do not call overridable methods in constructors

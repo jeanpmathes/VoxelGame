@@ -15,7 +15,17 @@ namespace VoxelGame.Logic
         /// Initializes a new instance of the <see cref="AirBlock"/> class.
         /// </summary>
         /// <param name="name">The unique name of this block</param>
-        public AirBlock(string name) : base(name, false, false, false, false, false, true, BoundingBox.Block)
+        public AirBlock(string name) :
+            base(
+                name: name,
+                isFull: false,
+                isOpaque: false,
+                renderFaceAtNonOpaques: false,
+                isSolid: false,
+                recieveCollisions: false,
+                isTrigger: false,
+                isReplaceable: true,
+                BoundingBox.Block)
         {
         }
 

@@ -80,7 +80,7 @@ namespace VoxelGame.Logic
         /// <summary>
         /// This property is only relevant for non-opaque full blocks. It decides if their faces should be rendered next to another non-opaque block.
         /// </summary>
-        public bool RenderFaceAtNonOpaques { get; protected set; } = true;
+        public bool RenderFaceAtNonOpaques { get; }
 
         /// <summary>
         /// Gets whether this block hinders movement.
@@ -104,11 +104,12 @@ namespace VoxelGame.Logic
 
         private BoundingBox boundingBox;
 
-        public Block(string name, bool isFull, bool isOpaque, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, BoundingBox boundingBox)
+        public Block(string name, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, BoundingBox boundingBox)
         {
             Name = name;
             IsFull = isFull;
             IsOpaque = isOpaque;
+            RenderFaceAtNonOpaques = renderFaceAtNonOpaques;
             IsSolid = isSolid;
             RecieveCollisions = recieveCollisions;
             IsTrigger = isTrigger;
