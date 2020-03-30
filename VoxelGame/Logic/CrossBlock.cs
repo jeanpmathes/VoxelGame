@@ -29,7 +29,16 @@ namespace VoxelGame.Logic
             4, 6, 7
         };
 
-        public CrossBlock(string name, bool isReplaceable, BoundingBox boundingBox) :
+        protected Block RequiredGround { get; }
+
+        /// <summary>
+        /// Initializes a new instance of a cross block; a block made out of two intersecting planes.
+        /// </summary>
+        /// <param name="name">The name of this block and the texture file.</param>
+        /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
+        /// <param name="requiredGround">The block on which this block can be placed.</param>
+        /// <param name="boundingBox">The bounding box of this block.</param>
+        public CrossBlock(string name, bool isReplaceable, Block requiredGround, BoundingBox boundingBox) :
             base(
                 name,
                 isFull: false,
@@ -41,6 +50,8 @@ namespace VoxelGame.Logic
                 isReplaceable,
                 boundingBox)
         {
+            RequiredGround = requiredGround;
+
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
             Setup();
 #pragma warning restore CA2214 // Do not call overridable methods in constructors
@@ -84,6 +95,18 @@ namespace VoxelGame.Logic
         public override void OnCollision(Entities.PhysicsEntity entity, int x, int y, int z)
         {
             throw new NotImplementedException();
+        }
+
+        public override bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
+        {
+            // Check the block under the placement position.
+
+            if ((Game.World.GetBlock(x, y - 1, z) ?? Block.AIR) != RequiredGround)
+            {
+                return false;
+            }
+
+            return base.Place(x, y, z, entity);
         }
     }
 }

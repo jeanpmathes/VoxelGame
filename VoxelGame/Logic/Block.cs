@@ -40,7 +40,7 @@ namespace VoxelGame.Logic
         {
             AIR = new AirBlock("air");
             GRASS = new BasicBlock("grass", true, true, (0, 0, 0, 0, 1, 2), true);
-            TALL_GRASS = new CrossBlock("tall_grass", true,BoundingBox.Block);
+            TALL_GRASS = new CrossBlock("tall_grass", true, Block.GRASS, BoundingBox.Block);
             DIRT = new BasicBlock("dirt", true, true, (0, 0, 0, 0, 0, 0), true);
             STONE = new BasicBlock("stone", true, true, (0, 0, 0, 0, 0, 0), true);
             COBBLESTONE = new BasicBlock("cobblestone", true, true, (0, 0, 0, 0, 0, 0), true);
@@ -52,7 +52,7 @@ namespace VoxelGame.Logic
             ORE_IRON = new BasicBlock("ore_iron", true, true, (0, 0, 0, 0, 0, 0), true);
             ORE_GOLD = new BasicBlock("ore_gold", true, true, (0, 0, 0, 0, 0, 0), true);
             SNOW = new BasicBlock("snow", true, true, (0, 0, 0, 0, 0, 0), true);
-            FLOWER = new CrossBlock("flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
+            FLOWER = new CrossBlock("flower", false, Block.GRASS, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
         }
 
         #endregion STATIC BLOCK MANAGMENT
