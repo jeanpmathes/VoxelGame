@@ -40,7 +40,7 @@ namespace VoxelGame.Logic
         {
             AIR = new AirBlock("air");
             GRASS = new BasicBlock("grass", true, true, (0, 0, 0, 0, 1, 2), true);
-            TALL_GRASS = new CrossBlock("tall_grass", BoundingBox.Block);
+            TALL_GRASS = new CrossBlock("tall_grass", true,BoundingBox.Block);
             DIRT = new BasicBlock("dirt", true, true, (0, 0, 0, 0, 0, 0), true);
             STONE = new BasicBlock("stone", true, true, (0, 0, 0, 0, 0, 0), true);
             COBBLESTONE = new BasicBlock("cobblestone", true, true, (0, 0, 0, 0, 0, 0), true);
@@ -52,7 +52,7 @@ namespace VoxelGame.Logic
             ORE_IRON = new BasicBlock("ore_iron", true, true, (0, 0, 0, 0, 0, 0), true);
             ORE_GOLD = new BasicBlock("ore_gold", true, true, (0, 0, 0, 0, 0, 0), true);
             SNOW = new BasicBlock("snow", true, true, (0, 0, 0, 0, 0, 0), true);
-            FLOWER = new CrossBlock("flower", new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
+            FLOWER = new CrossBlock("flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
         }
 
         #endregion STATIC BLOCK MANAGMENT
@@ -97,9 +97,14 @@ namespace VoxelGame.Logic
         /// </summary>
         public bool IsTrigger { get; }
 
+        /// <summary>
+        /// Gets whether this block can be replaced when placing a block.
+        /// </summary>
+        public bool IsReplaceable { get; }
+
         private BoundingBox boundingBox;
 
-        public Block(string name, bool isFull, bool isOpaque, bool isSolid, bool recieveCollisions, bool isTrigger, BoundingBox boundingBox)
+        public Block(string name, bool isFull, bool isOpaque, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, BoundingBox boundingBox)
         {
             Name = name;
             IsFull = isFull;
@@ -107,6 +112,7 @@ namespace VoxelGame.Logic
             IsSolid = isSolid;
             RecieveCollisions = recieveCollisions;
             IsTrigger = isTrigger;
+            IsReplaceable = isReplaceable;
 
             this.boundingBox = boundingBox;
 
@@ -122,9 +128,17 @@ namespace VoxelGame.Logic
             return new BoundingBox(boundingBox.Center + new Vector3(x, y, z), boundingBox.Extents);
         }
 
+        /// <summary>
+        /// Tries to place a block in the world.
+        /// </summary>
+        /// <param name="x">The x position where a block should be placed.</param>
+        /// <param name="y">The y position where a block should be placed.</param>
+        /// <param name="z">The z position where a block should be placed.</param>
+        /// <param name="entity">The entity that tries to place the block.</param>
+        /// <returns>Returns true if placing the block was successful.</returns>
         public virtual bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
         {
-            if (Game.World.GetBlock(x, y, z) != Block.AIR)
+            if (Game.World.GetBlock(x, y, z)?.IsReplaceable == false)
             {
                 return false;
             }
@@ -141,7 +155,7 @@ namespace VoxelGame.Logic
         /// <param name="y">The y position of the block to destroy.</param>
         /// <param name="z">The z position of the block to destroy.</param>
         /// <param name="entity">The entity which caused the destruction.</param>
-        /// <returns>True if the block has been destroyed.</returns>
+        /// <returns>Returns true if the block has been destroyed.</returns>
         public virtual bool Destroy(int x, int y, int z, Entities.PhysicsEntity entity)
         {
             if (Game.World.GetBlock(x, y, z) != this)

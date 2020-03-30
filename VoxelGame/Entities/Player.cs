@@ -176,26 +176,29 @@ namespace VoxelGame.Entities
                     int placePositionY = selectedY;
                     int placePositionZ = selectedZ;
 
-                    switch (selectedSide)
+                    if (Game.World.GetBlock(placePositionX, placePositionY, placePositionZ)?.IsReplaceable == false)
                     {
-                        case BlockSide.Front:
-                            placePositionZ++;
-                            break;
-                        case BlockSide.Back:
-                            placePositionZ--;
-                            break;
-                        case BlockSide.Left:
-                            placePositionX--;
-                            break;
-                        case BlockSide.Right:
-                            placePositionX++;
-                            break;
-                        case BlockSide.Bottom:
-                            placePositionY--;
-                            break;
-                        case BlockSide.Top:
-                            placePositionY++;
-                            break;
+                        switch (selectedSide)
+                        {
+                            case BlockSide.Front:
+                                placePositionZ++;
+                                break;
+                            case BlockSide.Back:
+                                placePositionZ--;
+                                break;
+                            case BlockSide.Left:
+                                placePositionX--;
+                                break;
+                            case BlockSide.Right:
+                                placePositionX++;
+                                break;
+                            case BlockSide.Bottom:
+                                placePositionY--;
+                                break;
+                            case BlockSide.Top:
+                                placePositionY++;
+                                break;
+                        }
                     }
 
                     // Prevent block placement if the block would intersect the player

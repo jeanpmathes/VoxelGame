@@ -29,7 +29,7 @@ namespace VoxelGame.Logic
             4, 6, 7
         };
 
-        public CrossBlock(string name, BoundingBox boundingBox) : base(name, false, false, false, false, false, boundingBox)
+        public CrossBlock(string name, bool isReplaceable, BoundingBox boundingBox) : base(name, false, false, false, false, false, isReplaceable, boundingBox)
         {
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
             Setup();

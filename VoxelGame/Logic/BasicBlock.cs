@@ -24,7 +24,7 @@ namespace VoxelGame.Logic
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-        public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, (int front, int back, int left, int right, int bottom, int top) sideIndices, bool isSolid) : base(name, true, isOpaque, isSolid, false, false, BoundingBox.Block)
+        public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, (int front, int back, int left, int right, int bottom, int top) sideIndices, bool isSolid) : base(name, true, isOpaque, isSolid, false, false, false, BoundingBox.Block)
         {
             RenderFaceAtNonOpaques = renderFaceAtNonOpaques;
 
