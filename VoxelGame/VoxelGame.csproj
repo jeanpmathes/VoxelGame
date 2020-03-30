@@ -119,18 +119,18 @@
     <None Include="App.config" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
-    <None Include="Resources\Shaders\selection_shader.frag">
+    <Content Include="Resources\Shaders\selection_shader.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Shaders\selection_shader.vert">
+    </Content>
+    <Content Include="Resources\Shaders\selection_shader.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Shaders\section_shader.frag">
+    </Content>
+    <Content Include="Resources\Shaders\section_shader.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Shaders\section_shader.vert">
+    </Content>
+    <Content Include="Resources\Shaders\section_shader.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
     <None Include="VoxelGame.licenseheader" />
   </ItemGroup>
   <ItemGroup>
