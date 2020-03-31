@@ -114,6 +114,11 @@
     <Compile Include="Rendering\Texture.cs" />
     <Compile Include="Rendering\TextureAtlas.cs" />
     <Compile Include="Rendering\AtlasPosition.cs" />
+    <Compile Include="Resources\Language\Language.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Language.resx</DependentUpon>
+    </Compile>
     <Compile Include="WorldGeneration\FastNoise.cs" />
     <Compile Include="WorldGeneration\FlatGenerator.cs" />
     <Compile Include="WorldGeneration\IWorldGenerator.cs" />
