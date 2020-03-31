@@ -38,6 +38,11 @@ namespace VoxelGame.Logic
 
         public void Generate(IWorldGenerator generator)
         {
+            if (generator == null)
+            {
+                throw new System.ArgumentNullException(paramName: nameof(generator));
+            }
+
             for (int x = 0; x < Section.SectionSize; x++)
             {
                 for (int z = 0; z < Section.SectionSize; z++)

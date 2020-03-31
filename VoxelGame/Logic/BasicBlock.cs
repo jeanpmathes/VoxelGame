@@ -120,5 +120,9 @@ namespace VoxelGame.Logic
         {
             throw new NotImplementedException();
         }
+
+        public override void BlockUpdate(int x, int y, int z)
+        {
+        }
     }
 }

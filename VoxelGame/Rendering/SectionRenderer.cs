@@ -25,6 +25,16 @@ namespace VoxelGame.Rendering
 
         public void SetData(ref float[] vertices, ref uint[] indices)
         {
+            if (vertices == null)
+            {
+                throw new System.ArgumentNullException(paramName: nameof(vertices));
+            }
+
+            if (indices == null)
+            {
+                throw new System.ArgumentNullException(paramName: nameof(indices));
+            }
+
             indicesAmount = indices.Length;
 
             // Vertex Buffer Object

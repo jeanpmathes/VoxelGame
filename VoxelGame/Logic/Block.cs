@@ -156,7 +156,7 @@ namespace VoxelGame.Logic
         /// <param name="x">The x position of the block to destroy.</param>
         /// <param name="y">The y position of the block to destroy.</param>
         /// <param name="z">The z position of the block to destroy.</param>
-        /// <param name="entity">The entity which caused the destruction.</param>
+        /// <param name="entity">The entity which caused the destruction, or null if no entity caused it.</param>
         /// <returns>Returns true if the block has been destroyed.</returns>
         public virtual bool Destroy(int x, int y, int z, Entities.PhysicsEntity entity)
         {
@@ -171,6 +171,8 @@ namespace VoxelGame.Logic
         }
 
         public abstract uint GetMesh(BlockSide side, ushort data, out float[] vertecies, out uint[] indicies);
+
+        public abstract void BlockUpdate(int x, int y, int z);
 
         public abstract void OnCollision(Entities.PhysicsEntity entity, int x, int y, int z);
     }

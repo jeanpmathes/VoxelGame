@@ -109,5 +109,14 @@ namespace VoxelGame.Logic
 
             return base.Place(x, y, z, entity);
         }
+
+        public override void BlockUpdate(int x, int y, int z)
+        {
+            // Check the block under this block
+            if (Game.World.GetBlock(x, y - 1, z) != RequiredGround)
+            {
+                Destroy(x, y, z, null);
+            }
+        }
     }
 }

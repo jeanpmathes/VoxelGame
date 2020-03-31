@@ -28,6 +28,11 @@ namespace VoxelGame.Logic
 
         public void Generate(IWorldGenerator generator, int xOffset, int yOffset, int zOffset)
         {
+            if (generator == null)
+            {
+                throw new System.ArgumentNullException(paramName: nameof(generator));
+            }
+
             for (int x = 0; x < SectionSize; x++)
             {
                 for (int y = 0; y < SectionSize; y++)
@@ -344,7 +349,7 @@ namespace VoxelGame.Logic
 
             set
             {
-                blocks[(x << 10) + (y << 5) + z] = value.Id;
+                blocks[(x << 10) + (y << 5) + z] = (value ?? Block.AIR).Id;
             }
         }
     }

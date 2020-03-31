@@ -37,6 +37,11 @@ namespace VoxelGame.Entities
 
         public Player(float mass, float drag, Vector3 startPosition, Camera camera, BoundingBox boundingBox) : base(mass, drag, boundingBox)
         {
+            if (camera == null)
+            {
+                throw new System.ArgumentNullException(paramName: nameof(camera));
+            }
+
             this.camera = camera;
 
             Position = startPosition;

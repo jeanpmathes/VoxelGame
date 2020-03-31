@@ -60,5 +60,9 @@ namespace VoxelGame.Logic
         {
             throw new System.NotImplementedException();
         }
+
+        public override void BlockUpdate(int x, int y, int z)
+        {
+        }
     }
 }

@@ -261,3 +261,4 @@ __pycache__/
 *.pyc
 /Setup
 /VoxelGame/Resources/Language/Language.Designer.cs
+/VoxelGame/Resources/Language/Language.de.Designer.cs
