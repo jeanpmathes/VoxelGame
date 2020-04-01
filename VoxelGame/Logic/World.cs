@@ -17,22 +17,39 @@ namespace VoxelGame.Logic
         private readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
         private readonly int chunkHeightExp = (int)Math.Log(Chunk.ChunkHeight, 2);
 
+        public bool IsReady { get; private set; } = false;
+
         private IWorldGenerator generator;
 
-        private Dictionary<ValueTuple<int, int>, Chunk> activeChunks = new Dictionary<ValueTuple<int, int>, Chunk>();
-        private HashSet<Chunk> chunksToGenerate = new HashSet<Chunk>();
+        /// <summary>
+        /// A set of chunks which is currently not active and should either be loaded or generated.
+        /// </summary>
+        private readonly HashSet<Chunk> chunksToActivate = new HashSet<Chunk>();
+
+        /// <summary>
+        /// A queue that contains all chunks that have to be generated.
+        /// </summary>
+        private readonly Queue<Chunk> chunksToGenerate = new Queue<Chunk>();
+
+        /// <summary>
+        /// A dictionary that contains all active chunks.
+        /// </summary>
+        private readonly Dictionary<ValueTuple<int, int>, Chunk> activeChunks = new Dictionary<ValueTuple<int, int>, Chunk>();
 
         /// <summary>
         /// For newly created chunks.
         /// </summary>
-        private HashSet<Chunk> chunksToMesh = new HashSet<Chunk>();
+        private readonly HashSet<Chunk> chunksToMesh = new HashSet<Chunk>();
 
         /// <summary>
         /// For sections of already meshed chunks.
         /// </summary>
-        private HashSet<(Chunk chunk, int index)> sectionsToMesh = new HashSet<(Chunk chunk, int index)>();
+        private readonly HashSet<(Chunk chunk, int index)> sectionsToMesh = new HashSet<(Chunk chunk, int index)>();
 
-        private HashSet<Chunk> chunksToRender = new HashSet<Chunk>();
+        /// <summary>
+        /// A set of chunks that have to be rendered.
+        /// </summary>
+        private readonly HashSet<Chunk> chunksToRender = new HashSet<Chunk>();
 
         public World(IWorldGenerator generator)
         {
@@ -42,62 +59,67 @@ namespace VoxelGame.Logic
             {
                 for (int z = ChunkExtents / -2; z < ChunkExtents / 2 + 1; z++)
                 {
-                    activeChunks.Add((x, z), new Chunk(x, z));
+                    chunksToActivate.Add(new Chunk(x, z));
                 }
             }
 
-            chunksToGenerate.UnionWith(activeChunks.Values);
-            chunksToMesh.UnionWith(activeChunks.Values);
+            foreach (Chunk chunk in chunksToActivate) chunksToGenerate.Enqueue(chunk);
         }
 
         public void FrameRender()
         {
-            // Collect all chunks to generate
-
-            // Generate all listed chunks
-            foreach (Chunk chunk in chunksToGenerate)
+            if (IsReady)
             {
-                chunk.Generate(generator);
+                // Mesh the listed chunks
+                foreach (Chunk chunk in chunksToMesh)
+                {
+                    chunk.CreateMesh();
+                }
+
+                chunksToMesh.Clear();
+
+                // Mesh all listed sections
+                foreach ((Chunk chunk, int index) meshInstruction in sectionsToMesh)
+                {
+                    meshInstruction.chunk.CreateMesh(meshInstruction.index);
+                }
+
+                sectionsToMesh.Clear();
+
+                // Collect all chunks to render
+                chunksToRender.UnionWith(activeChunks.Values);
+
+                // Render the listed chunks
+                foreach (Chunk chunk in chunksToRender)
+                {
+                    chunk.Render();
+                }
+
+                chunksToRender.Clear();
+
+                // Render the player
+                Game.Player.Render();
             }
-
-            chunksToGenerate.Clear();
-
-            // Collect all chunks to mesh
-
-            // Mesh the listed chunks
-            foreach (Chunk chunk in chunksToMesh)
-            {
-                chunk.CreateMesh();
-            }
-
-            chunksToMesh.Clear();
-
-            // Mesh all listed sections
-            foreach ((Chunk chunk, int index) meshInstruction in sectionsToMesh)
-            {
-                meshInstruction.chunk.CreateMesh(meshInstruction.index);
-            }
-
-            sectionsToMesh.Clear();
-
-            // Collect all chunks to render
-            chunksToRender.UnionWith(activeChunks.Values);
-
-            // Render the listed chunks
-            foreach (Chunk chunk in chunksToRender)
-            {
-                chunk.Render();
-            }
-
-            chunksToRender.Clear();
-
-            // Render the player
-            Game.Player.Render();
         }
 
         public void FrameUpdate(float deltaTime)
         {
-            Game.Player.Tick(deltaTime);
+            // Generate all listed chunks
+            while (chunksToGenerate.Count != 0)
+            {
+                Chunk current = chunksToGenerate.Dequeue();
+                current.Generate(generator);
+
+                activeChunks.Add((current.X, current.Z), current);
+                chunksToMesh.Add(current);
+            }
+
+            IsReady = true;
+
+            if (IsReady)
+            {
+                Game.Player.Tick(deltaTime);
+            }
         }
 
         /// <summary>
@@ -120,6 +142,13 @@ namespace VoxelGame.Logic
             }
         }
 
+        /// <summary>
+        /// Sets a block in the world, adds the changed sections to the re-mesh set and sends block updates to the neighbors of the changed block.
+        /// </summary>
+        /// <param name="block">The block which should be set at the position.</param>
+        /// <param name="x">The x position of the block to set.</param>
+        /// <param name="y">The y position of the block to set.</param>
+        /// <param name="z">The z position of the block to set.</param>
         public void SetBlock(Block block, int x, int y, int z)
         {
             if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
@@ -171,12 +200,25 @@ namespace VoxelGame.Logic
             }
         }
 
+        /// <summary>
+        /// Gets an active chunk.
+        /// </summary>
+        /// <param name="x">The x position of the chunk in chunk coordinates.</param>
+        /// <param name="z">The y position of the chunk in chunk coordinates.</param>
+        /// <returns>The chunk at the given position or null if no active chunk was found.</returns>
         public Chunk GetChunk(int x, int z)
         {
             activeChunks.TryGetValue((x, z), out Chunk chunk);
             return chunk;
         }
 
+        /// <summary>
+        /// Gets a section of an active chunk.
+        /// </summary>
+        /// <param name="x">The x position of the section in chunk coordinates.</param>
+        /// <param name="y">The y position of the section in chunk coordinates.</param>
+        /// <param name="z">The z position of the section in chunk coordinates.</param>
+        /// <returns>The section at the given position or null if no section was found.</returns>
         public Section GetSection(int x, int y, int z)
         {
             if (activeChunks.TryGetValue((x, z), out Chunk chunk) && y >= 0 && y < Chunk.ChunkHeight)
