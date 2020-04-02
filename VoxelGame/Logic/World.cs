@@ -5,7 +5,8 @@
 // <author>pershingthesecond</author>
 using System;
 using System.Collections.Generic;
-
+using Resources;
+using System.Threading.Tasks;
 using VoxelGame.WorldGeneration;
 
 namespace VoxelGame.Logic
@@ -17,9 +18,11 @@ namespace VoxelGame.Logic
         private readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
         private readonly int chunkHeightExp = (int)Math.Log(Chunk.ChunkHeight, 2);
 
+        private const int maxGenerationTasks = 25;
+
         public bool IsReady { get; private set; } = false;
 
-        private IWorldGenerator generator;
+        private readonly IWorldGenerator generator;
 
         /// <summary>
         /// A set of chunks which is currently not active and should either be loaded or generated.
@@ -30,6 +33,8 @@ namespace VoxelGame.Logic
         /// A queue that contains all chunks that have to be generated.
         /// </summary>
         private readonly Queue<Chunk> chunksToGenerate = new Queue<Chunk>();
+        private readonly List<Task> chunkGenerateTasks = new List<Task>();
+        private readonly Dictionary<int, Chunk> chunksCurrentlyGenerating = new Dictionary<int, Chunk>();
 
         /// <summary>
         /// A dictionary that contains all active chunks.
@@ -55,15 +60,17 @@ namespace VoxelGame.Logic
         {
             this.generator = generator;
 
-            for (int x = ChunkExtents / -2; x < ChunkExtents / 2 + 1; x++)
+            for (int x = ChunkExtents / -2; x < (ChunkExtents / 2) + 1; x++)
             {
-                for (int z = ChunkExtents / -2; z < ChunkExtents / 2 + 1; z++)
+                for (int z = ChunkExtents / -2; z < (ChunkExtents / 2) + 1; z++)
                 {
                     chunksToActivate.Add(new Chunk(x, z));
                 }
             }
 
             foreach (Chunk chunk in chunksToActivate) chunksToGenerate.Enqueue(chunk);
+
+            chunksToActivate.Clear();
         }
 
         public void FrameRender()
@@ -79,9 +86,9 @@ namespace VoxelGame.Logic
                 chunksToMesh.Clear();
 
                 // Mesh all listed sections
-                foreach ((Chunk chunk, int index) meshInstruction in sectionsToMesh)
+                foreach ((Chunk chunk, int index) in sectionsToMesh)
                 {
-                    meshInstruction.chunk.CreateMesh(meshInstruction.index);
+                    chunk.CreateMesh(index);
                 }
 
                 sectionsToMesh.Clear();
@@ -104,21 +111,59 @@ namespace VoxelGame.Logic
 
         public void FrameUpdate(float deltaTime)
         {
-            // Generate all listed chunks
-            while (chunksToGenerate.Count != 0)
+            // Handle chunks to activate
+            foreach (Chunk toActivate in chunksToActivate)
             {
-                Chunk current = chunksToGenerate.Dequeue();
-                current.Generate(generator);
-
-                activeChunks.Add((current.X, current.Z), current);
-                chunksToMesh.Add(current);
+                chunksToGenerate.Enqueue(toActivate);
             }
 
-            IsReady = true;
+            chunksToActivate.Clear();
+
+            // Check if tasks have finished and add the generated chunks to the active chunks dictionary
+            if (chunkGenerateTasks.Count > 0)
+            {
+                for (int i = chunkGenerateTasks.Count - 1; i >= 0; i--)
+                {
+                    if (chunkGenerateTasks[i].IsCompleted)
+                    {
+                        Task completed = chunkGenerateTasks[i];
+                        Chunk generatedChunk = chunksCurrentlyGenerating[completed.Id];
+
+                        chunkGenerateTasks.RemoveAt(i);
+                        chunksCurrentlyGenerating.Remove(completed.Id);
+
+                        activeChunks.Add((generatedChunk.X, generatedChunk.Z), generatedChunk);
+                        chunksToMesh.Add(generatedChunk);
+                    }
+                    else if (chunkGenerateTasks[i].IsFaulted)
+                    {
+                        throw chunkGenerateTasks[i].Exception;
+                    }
+                }
+            }
+
+            // Start generating new chunks if necessary
+            while (chunksToGenerate.Count > 0 && chunkGenerateTasks.Count <= maxGenerationTasks)
+            {
+                Chunk current = chunksToGenerate.Dequeue();
+                Task currentTask = current.GenerateAsync(generator);
+
+                chunkGenerateTasks.Add(currentTask);
+                chunksCurrentlyGenerating.Add(currentTask.Id, current);
+            }
 
             if (IsReady)
             {
                 Game.Player.Tick(deltaTime);
+            }
+            else
+            {
+                if (activeChunks.Count >= 25 && activeChunks.ContainsKey((0, 0)))
+                {
+                    IsReady = true;
+
+                    Console.WriteLine(Language.WorldIsReady);
+                }
             }
         }
 

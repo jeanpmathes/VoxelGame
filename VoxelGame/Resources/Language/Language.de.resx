@@ -132,4 +132,7 @@
   <data name="VoxelGame" xml:space="preserve">
     <value>VolumenelementSpiel</value>
   </data>
+  <data name="WorldIsReady" xml:space="preserve">
+    <value>Die Welt ist bereit.</value>
+  </data>
 </root>

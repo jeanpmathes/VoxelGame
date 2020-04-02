@@ -4,7 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenTK;
-
+using System;
+using System.Threading.Tasks;
 using VoxelGame.WorldGeneration;
 
 namespace VoxelGame.Logic
@@ -23,7 +24,7 @@ namespace VoxelGame.Logic
         /// </summary>
         public int Z { get; }
 
-        private Section[] sections = new Section[ChunkHeight];
+        private readonly Section[] sections = new Section[ChunkHeight];
 
         public Chunk(int x, int z)
         {
@@ -40,7 +41,7 @@ namespace VoxelGame.Logic
         {
             if (generator == null)
             {
-                throw new System.ArgumentNullException(paramName: nameof(generator));
+                throw new ArgumentNullException(paramName: nameof(generator));
             }
 
             for (int x = 0; x < Section.SectionSize; x++)
@@ -49,7 +50,7 @@ namespace VoxelGame.Logic
                 {
                     int y = 0;
 
-                    foreach (Block block in generator.GenerateColumn(x + X * Section.SectionSize, z + Z * Section.SectionSize))
+                    foreach (Block block in generator.GenerateColumn(x + (X * Section.SectionSize), z + (Z * Section.SectionSize)))
                     {
                         sections[y >> 5][x, y & (Section.SectionSize - 1), z] = block;
 
@@ -57,6 +58,11 @@ namespace VoxelGame.Logic
                     }
                 }
             }
+        }
+
+        public Task GenerateAsync(IWorldGenerator generator)
+        {
+            return Task.Run(() => Generate(generator));
         }
 
         public void CreateMesh()
