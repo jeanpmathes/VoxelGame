@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenTK;
-using System;
 using System.Collections.Generic;
 using VoxelGame.Physics;
 

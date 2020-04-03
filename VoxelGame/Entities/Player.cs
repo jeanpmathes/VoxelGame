@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using System;
 using OpenTK;
 using OpenTK.Input;
 using VoxelGame.Logic;
@@ -14,19 +15,31 @@ namespace VoxelGame.Entities
 {
     public class Player : PhysicsEntity
     {
-        private Camera camera;
-        private Vector3 cameraOffset = new Vector3(0f, 0.5f, 0f);
+        /// <summary>
+        /// Gets the extents of how many chunks should be around this player.
+        /// </summary>
+        public int RenderDistance { get; } = 4;
 
-        private float speed = 5f;
-        private float jumpForce = 550f;
+        /// <summary>
+        /// Gets whether this player has moved to a different chunk in the last frame.
+        /// </summary>
+        public bool ChunkHasChanged { get; private set; }
+        public int ChunkX { get; private set; }
+        public int ChunkZ { get; private set; }
+
+        private readonly Camera camera;
+        private readonly Vector3 cameraOffset = new Vector3(0f, 0.5f, 0f);
+
+        private readonly float speed = 5f;
+        private readonly float jumpForce = 550f;
 
         private Vector2 lastMousePos;
         private bool firstMove = true;
-        private float mouseSensitivity = 0.2f;
+        private readonly float mouseSensitivity = 0.2f;
 
         private int selectedX, selectedY, selectedZ;
         private BlockSide selectedSide;
-        private BoxRenderer selectionRenderer;
+        private readonly BoxRenderer selectionRenderer;
 
         private readonly float interactionCooldown = 0.25f;
         private float timer;
@@ -231,6 +244,18 @@ namespace VoxelGame.Entities
             }
 
             timer += deltaTime;
+
+            // Check if the current chunk has changed
+            int currentChunkX = (int)Math.Floor(Position.X) / Section.SectionSize;
+            int currentChunkZ = (int)Math.Floor(Position.Z) / Section.SectionSize;
+
+            if (currentChunkX != ChunkX || currentChunkZ != ChunkZ)
+            {
+                ChunkHasChanged = true;
+
+                ChunkX = currentChunkX;
+                ChunkZ = currentChunkZ;
+            }
         }
     }
 }

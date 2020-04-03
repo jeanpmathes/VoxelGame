@@ -20,6 +20,9 @@ namespace VoxelGame.Logic
 
         private const int maxGenerationTasks = 25;
 
+        /// <summary>
+        /// Gets whether this world is ready for physics ticking and rendering.
+        /// </summary>
         public bool IsReady { get; private set; } = false;
 
         private readonly IWorldGenerator generator;
@@ -30,11 +33,24 @@ namespace VoxelGame.Logic
         private readonly HashSet<Chunk> chunksToActivate = new HashSet<Chunk>();
 
         /// <summary>
+        /// A set of chunk positions that are currently being activated. No new chunks for these positions should be created.
+        /// </summary>
+        private readonly HashSet<ValueTuple<int, int>> chunksActivating = new HashSet<ValueTuple<int, int>>();
+
+        /// <summary>
         /// A queue that contains all chunks that have to be generated.
         /// </summary>
         private readonly Queue<Chunk> chunksToGenerate = new Queue<Chunk>();
+
+        /// <summary>
+        /// A list of chunk generation tasks,
+        /// </summary>
         private readonly List<Task> chunkGenerateTasks = new List<Task>();
-        private readonly Dictionary<int, Chunk> chunksCurrentlyGenerating = new Dictionary<int, Chunk>();
+
+        /// <summary>
+        /// A dictionary containing all chunks that are currently generated, with the task id of their generating task as key.
+        /// </summary>
+        private readonly Dictionary<int, Chunk> chunksGenerating = new Dictionary<int, Chunk>();
 
         /// <summary>
         /// A dictionary that contains all active chunks.
@@ -42,7 +58,7 @@ namespace VoxelGame.Logic
         private readonly Dictionary<ValueTuple<int, int>, Chunk> activeChunks = new Dictionary<ValueTuple<int, int>, Chunk>();
 
         /// <summary>
-        /// For newly created chunks.
+        /// For newly created chunks or chunks next to them.
         /// </summary>
         private readonly HashSet<Chunk> chunksToMesh = new HashSet<Chunk>();
 
@@ -111,15 +127,32 @@ namespace VoxelGame.Logic
 
         public void FrameUpdate(float deltaTime)
         {
+            // Check if new chunks have to be activated
+            if (Game.Player.ChunkHasChanged)
+            {
+                for (int x = Game.Player.RenderDistance / -2; x < (Game.Player.RenderDistance / 2) + 1; x++)
+                {
+                    for (int z = Game.Player.RenderDistance / -2; z < (Game.Player.RenderDistance / 2) + 1; z++)
+                    {
+                        if (!chunksActivating.Contains((Game.Player.ChunkX + x, Game.Player.ChunkZ + z)) && !activeChunks.ContainsKey((Game.Player.ChunkX + x, Game.Player.ChunkZ + z)))
+                        {
+                            chunksToActivate.Add(new Chunk(Game.Player.ChunkX + x, Game.Player.ChunkZ + z));
+                        }
+                    }
+                }
+            }
+
             // Handle chunks to activate
             foreach (Chunk toActivate in chunksToActivate)
             {
+                chunksActivating.Add((toActivate.X, toActivate.Z));
+
                 chunksToGenerate.Enqueue(toActivate);
             }
 
             chunksToActivate.Clear();
 
-            // Check if tasks have finished and add the generated chunks to the active chunks dictionary
+            // Check if generation tasks have finished and add the generated chunks to the active chunks dictionary
             if (chunkGenerateTasks.Count > 0)
             {
                 for (int i = chunkGenerateTasks.Count - 1; i >= 0; i--)
@@ -127,13 +160,36 @@ namespace VoxelGame.Logic
                     if (chunkGenerateTasks[i].IsCompleted)
                     {
                         Task completed = chunkGenerateTasks[i];
-                        Chunk generatedChunk = chunksCurrentlyGenerating[completed.Id];
+                        Chunk generatedChunk = chunksGenerating[completed.Id];
 
                         chunkGenerateTasks.RemoveAt(i);
-                        chunksCurrentlyGenerating.Remove(completed.Id);
+                        chunksGenerating.Remove(completed.Id);
+
+                        chunksActivating.Remove((generatedChunk.X, generatedChunk.Z));
 
                         activeChunks.Add((generatedChunk.X, generatedChunk.Z), generatedChunk);
                         chunksToMesh.Add(generatedChunk);
+
+                        // Schedule to mesh the chunks around this chunk
+                        if (activeChunks.TryGetValue((generatedChunk.X + 1, generatedChunk.Z), out Chunk neighbor))
+                        {
+                            chunksToMesh.Add(neighbor);
+                        }
+
+                        if (activeChunks.TryGetValue((generatedChunk.X - 1, generatedChunk.Z), out neighbor))
+                        {
+                            chunksToMesh.Add(neighbor);
+                        }
+
+                        if (activeChunks.TryGetValue((generatedChunk.X, generatedChunk.Z + 1), out neighbor))
+                        {
+                            chunksToMesh.Add(neighbor);
+                        }
+
+                        if (activeChunks.TryGetValue((generatedChunk.X, generatedChunk.Z - 1), out neighbor))
+                        {
+                            chunksToMesh.Add(neighbor);
+                        }
                     }
                     else if (chunkGenerateTasks[i].IsFaulted)
                     {
@@ -149,7 +205,7 @@ namespace VoxelGame.Logic
                 Task currentTask = current.GenerateAsync(generator);
 
                 chunkGenerateTasks.Add(currentTask);
-                chunksCurrentlyGenerating.Add(currentTask.Id, current);
+                chunksGenerating.Add(currentTask.Id, current);
             }
 
             if (IsReady)
