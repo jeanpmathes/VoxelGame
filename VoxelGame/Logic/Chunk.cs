@@ -14,6 +14,8 @@ namespace VoxelGame.Logic
     {
         public const int ChunkHeight = 32;
 
+        private const int maxMeshDataStep = 4;
+
         /// <summary>
         /// The X position of this chunk in chunk units
         /// </summary>
@@ -25,6 +27,9 @@ namespace VoxelGame.Logic
         public int Z { get; }
 
         private readonly Section[] sections = new Section[ChunkHeight];
+
+        private bool hasMeshData = false;
+        private int meshDataIndex = 0;
 
         public Chunk(int x, int z)
         {
@@ -71,6 +76,83 @@ namespace VoxelGame.Logic
             {
                 sections[y].CreateMesh(X, y, Z);
             }
+
+            hasMeshData = true;
+            meshDataIndex = 0;
+        }
+
+        public Task<(float[][] verticesData, uint[][] indicesData)> CreateMeshDataAsync()
+        {
+            return Task.Run(CreateMeshData);
+        }
+
+        private (float[][] verticesData, uint[][] indicesData) CreateMeshData()
+        {
+            float[][] verticesData = new float[ChunkHeight][];
+            uint[][] indicesData = new uint[ChunkHeight][];
+
+            for (int y = 0; y < ChunkHeight; y++)
+            {
+                sections[y].CreateMeshData(X, y, Z, out verticesData[y], out indicesData[y]);
+            }
+
+            meshDataIndex = 0;
+
+            return (verticesData, indicesData);
+        }
+
+        public void SetMeshData(float[][] verticesData, uint[][] indicesData)
+        {
+            if (verticesData == null)
+            {
+                throw new ArgumentNullException(nameof(verticesData));
+            }
+
+            if (indicesData == null)
+            {
+                throw new ArgumentNullException(nameof(indicesData));
+            }
+
+            for (int y = 0; y < ChunkHeight; y++)
+            {
+                sections[y].SetMeshData(ref verticesData[y], ref indicesData[y]);
+            }
+
+            hasMeshData = true;
+            meshDataIndex = 0;
+        }
+
+        public bool SetMeshDataStep(float[][] verticesData, uint[][] indicesData)
+        {
+            if (verticesData == null)
+            {
+                throw new ArgumentNullException(nameof(verticesData));
+            }
+
+            if (indicesData == null)
+            {
+                throw new ArgumentNullException(nameof(indicesData));
+            }
+
+            for (int i = 0; i < maxMeshDataStep; i++)
+            {
+                sections[meshDataIndex].SetMeshData(ref verticesData[meshDataIndex], ref indicesData[meshDataIndex]);
+
+                // The index has reached the end, all sections have received their mesh data
+                if (meshDataIndex == ChunkHeight - 1)
+                {
+                    hasMeshData = true;
+                    meshDataIndex = 0;
+
+                    return true;
+                }
+                else
+                {
+                    meshDataIndex++;
+                }
+            }
+
+            return false;
         }
 
         public void CreateMesh(int y)
@@ -80,9 +162,12 @@ namespace VoxelGame.Logic
 
         public void Render()
         {
-            for (int y = 0; y < ChunkHeight; y++)
+            if (hasMeshData)
             {
-                sections[y].Render(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize));
+                for (int y = 0; y < ChunkHeight; y++)
+                {
+                    sections[y].Render(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize));
+                }
             }
         }
 

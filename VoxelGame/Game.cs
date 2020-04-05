@@ -69,6 +69,8 @@ namespace VoxelGame
 
             SwapBuffers();
 
+            //Console.WriteLine(1f / e.Time);
+
             base.OnRenderFrame(e);
         }
 

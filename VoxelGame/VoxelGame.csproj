@@ -90,6 +90,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\UniqueQueue.cs" />
     <Compile Include="Physics\BoundingBox.cs" />
     <Compile Include="Entities\PhysicsEntity.cs" />
     <Compile Include="Entities\Player.cs" />

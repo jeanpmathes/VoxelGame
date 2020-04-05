@@ -47,6 +47,12 @@ namespace VoxelGame.Logic
 
         public void CreateMesh(int sectionX, int sectionY, int sectionZ)
         {
+            CreateMeshData(sectionX, sectionY, sectionZ, out float[] vertices, out uint[] indices);
+            SetMeshData(ref vertices, ref indices);
+        }
+
+        public void CreateMeshData(int sectionX, int sectionY, int sectionZ, out float[] verticesData, out uint[] indicesData)
+        {
             // Get the sections next to this section
             Section frontNeighbour = Game.World.GetSection(sectionX, sectionY, sectionZ + 1);
             Section backNeighbour = Game.World.GetSection(sectionX, sectionY, sectionZ - 1);
@@ -322,10 +328,13 @@ namespace VoxelGame.Logic
                 }
             }
 
-            float[] verticesAll = vertices.ToArray();
-            uint[] indicesAll = indices.ToArray();
+            verticesData = vertices.ToArray();
+            indicesData = indices.ToArray();
+        }
 
-            renderer.SetData(ref verticesAll, ref indicesAll);
+        public void SetMeshData(ref float[] vertices, ref uint[] indices)
+        {
+            renderer.SetData(ref vertices, ref indices);
         }
 
         public void Render(Vector3 position)

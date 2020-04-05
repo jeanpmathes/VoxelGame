@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Resources;
 using System.Threading.Tasks;
 using VoxelGame.WorldGeneration;
+using VoxelGame.Collections;
 
 namespace VoxelGame.Logic
 {
@@ -18,7 +19,9 @@ namespace VoxelGame.Logic
         private readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
         private readonly int chunkHeightExp = (int)Math.Log(Chunk.ChunkHeight, 2);
 
-        private const int maxGenerationTasks = 25;
+        private const int maxGenerationTasks = 15;
+        private const int maxMeshingTasks = 5;
+        private const int maxMeshDataSends = 2;
 
         /// <summary>
         /// Gets whether this world is ready for physics ticking and rendering.
@@ -58,12 +61,27 @@ namespace VoxelGame.Logic
         private readonly Dictionary<ValueTuple<int, int>, Chunk> activeChunks = new Dictionary<ValueTuple<int, int>, Chunk>();
 
         /// <summary>
-        /// For newly created chunks or chunks next to them.
+        /// A queue with chunks that have to be meshed completely, mainly new chunks.
         /// </summary>
-        private readonly HashSet<Chunk> chunksToMesh = new HashSet<Chunk>();
+        private readonly UniqueQueue<Chunk> chunksToMesh = new UniqueQueue<Chunk>();
 
         /// <summary>
-        /// For sections of already meshed chunks.
+        /// A list of chunk meshing tasks,
+        /// </summary>
+        private readonly List<Task<(float[][] verticesData, uint[][] indicesData)>> chunkMeshingTasks = new List<Task<(float[][] verticesData, uint[][] indicesData)>>();
+
+        /// <summary>
+        /// A dictionary containing all chunks that are currently meshed, with the task id of their meshing task as key.
+        /// </summary>
+        private readonly Dictionary<int, Chunk> chunksMeshing = new Dictionary<int, Chunk>();
+
+        /// <summary>
+        /// A list of chunks where the mesh data has to be set;
+        /// </summary>
+        private readonly List<(Chunk chunk, Task<(float[][] verticesData, uint[][] indicesData)> chunkMeshingTask)> chunksToSendMeshData = new List<(Chunk chunk, Task<(float[][] verticesData, uint[][] indicesData)> chunkMeshingTask)>();
+
+        /// <summary>
+        /// A set of chunks with information on which sections of them are to mesh.
         /// </summary>
         private readonly HashSet<(Chunk chunk, int index)> sectionsToMesh = new HashSet<(Chunk chunk, int index)>();
 
@@ -93,22 +111,6 @@ namespace VoxelGame.Logic
         {
             if (IsReady)
             {
-                // Mesh the listed chunks
-                foreach (Chunk chunk in chunksToMesh)
-                {
-                    chunk.CreateMesh();
-                }
-
-                chunksToMesh.Clear();
-
-                // Mesh all listed sections
-                foreach ((Chunk chunk, int index) in sectionsToMesh)
-                {
-                    chunk.CreateMesh(index);
-                }
-
-                sectionsToMesh.Clear();
-
                 // Collect all chunks to render
                 chunksToRender.UnionWith(activeChunks.Values);
 
@@ -168,27 +170,28 @@ namespace VoxelGame.Logic
                         chunksActivating.Remove((generatedChunk.X, generatedChunk.Z));
 
                         activeChunks.Add((generatedChunk.X, generatedChunk.Z), generatedChunk);
-                        chunksToMesh.Add(generatedChunk);
+
+                        chunksToMesh.Enqueue(generatedChunk);
 
                         // Schedule to mesh the chunks around this chunk
-                        if (activeChunks.TryGetValue((generatedChunk.X + 1, generatedChunk.Z), out Chunk neighbor))
+                        if (activeChunks.TryGetValue((generatedChunk.X + 1, generatedChunk.Z), out Chunk neighbor) && !chunksToMesh.Contains(neighbor))
                         {
-                            chunksToMesh.Add(neighbor);
+                            chunksToMesh.Enqueue(neighbor);
                         }
 
-                        if (activeChunks.TryGetValue((generatedChunk.X - 1, generatedChunk.Z), out neighbor))
+                        if (activeChunks.TryGetValue((generatedChunk.X - 1, generatedChunk.Z), out neighbor) && !chunksToMesh.Contains(neighbor))
                         {
-                            chunksToMesh.Add(neighbor);
+                            chunksToMesh.Enqueue(neighbor);
                         }
 
-                        if (activeChunks.TryGetValue((generatedChunk.X, generatedChunk.Z + 1), out neighbor))
+                        if (activeChunks.TryGetValue((generatedChunk.X, generatedChunk.Z + 1), out neighbor) && !chunksToMesh.Contains(neighbor))
                         {
-                            chunksToMesh.Add(neighbor);
+                            chunksToMesh.Enqueue(neighbor);
                         }
 
-                        if (activeChunks.TryGetValue((generatedChunk.X, generatedChunk.Z - 1), out neighbor))
+                        if (activeChunks.TryGetValue((generatedChunk.X, generatedChunk.Z - 1), out neighbor) && !chunksToMesh.Contains(neighbor))
                         {
-                            chunksToMesh.Add(neighbor);
+                            chunksToMesh.Enqueue(neighbor);
                         }
                     }
                     else if (chunkGenerateTasks[i].IsFaulted)
@@ -199,7 +202,7 @@ namespace VoxelGame.Logic
             }
 
             // Start generating new chunks if necessary
-            while (chunksToGenerate.Count > 0 && chunkGenerateTasks.Count <= maxGenerationTasks)
+            while (chunksToGenerate.Count > 0 && chunkGenerateTasks.Count < maxGenerationTasks)
             {
                 Chunk current = chunksToGenerate.Dequeue();
                 Task currentTask = current.GenerateAsync(generator);
@@ -208,8 +211,59 @@ namespace VoxelGame.Logic
                 chunksGenerating.Add(currentTask.Id, current);
             }
 
+            // Check if meshing tasks have finished
+            if (chunkMeshingTasks.Count > 0)
+            {
+                for (int i = chunkMeshingTasks.Count - 1; i >= 0; i--)
+                {
+                    if (chunkMeshingTasks[i].IsCompleted)
+                    {
+                        Task<(float[][] verticesData, uint[][] indicesData)> completed = chunkMeshingTasks[i];
+                        Chunk meshedChunk = chunksMeshing[completed.Id];
+
+                        chunkMeshingTasks.RemoveAt(i);
+                        chunksMeshing.Remove(completed.Id);
+
+                        chunksToSendMeshData.Add((meshedChunk, completed));
+                    }
+                }
+            }
+
+            // Start meshing the listed chunks
+            while (chunksToMesh.Count > 0 && chunkMeshingTasks.Count < maxMeshingTasks)
+            {
+                Chunk current = chunksToMesh.Dequeue();
+
+                Task<(float[][] verticesData, uint[][] indicesData)> currentTask = current.CreateMeshDataAsync();
+
+                chunkMeshingTasks.Add(currentTask);
+                chunksMeshing.Add(currentTask.Id, current);
+            }
+
+            //Send mesh data to the chunks
+            if (chunksToSendMeshData.Count > 0)
+            {
+                for (int i = chunksToSendMeshData.Count - 1; i >= 0 && chunksToSendMeshData.Count - i <= maxMeshDataSends; i--)
+                {
+                    (Chunk chunk, Task<(float[][] verticesData, uint[][] indicesData)> chunkMeshingTask) = chunksToSendMeshData[i];
+
+                    if (chunk.SetMeshDataStep(chunkMeshingTask.Result.verticesData, chunkMeshingTask.Result.indicesData))
+                    {
+                        chunksToSendMeshData.RemoveAt(i);
+                    }
+                }
+            }
+
             if (IsReady)
             {
+                // Mesh all listed sections
+                foreach ((Chunk chunk, int index) in sectionsToMesh)
+                {
+                    chunk.CreateMesh(index);
+                }
+
+                sectionsToMesh.Clear();
+
                 Game.Player.Tick(deltaTime);
             }
             else
