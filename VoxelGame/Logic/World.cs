@@ -13,7 +13,7 @@ using System.IO;
 
 namespace VoxelGame.Logic
 {
-    public class World
+    public class World : IDisposable
     {
         public const int ChunkExtents = 5;
 
@@ -722,5 +722,67 @@ namespace VoxelGame.Logic
                 return null;
             }
         }
+
+        /// <summary>
+        /// Saves all active chunks that are not currently saved.
+        /// </summary>
+        /// <returns>A task that represents all tasks saving the chunks.</returns>
+        public Task Save()
+        {
+            List<Task> savingTasks = new List<Task>(activeChunks.Count);
+
+            foreach (Chunk chunk in activeChunks.Values)
+            {
+                if (!positionsSaving.Contains((chunk.X, chunk.Z)))
+                {
+                    savingTasks.Add(chunk.SaveAsync(chunkDirectory));
+                }
+            }
+
+            Console.WriteLine(Language.AllChunksSaving);
+
+            return Task.WhenAll(savingTasks);
+        }
+
+        #region IDisposable Support
+        private bool disposedValue = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    foreach (Chunk activeChunk in activeChunks.Values)
+                    {
+                        activeChunk.Dispose();
+                    }
+
+                    foreach (Chunk generatingChunk in chunksGenerating.Values)
+                    {
+                        generatingChunk.Dispose();
+                    }
+
+                    foreach (Chunk savingChunk in chunksSaving.Values)
+                    {
+                        savingChunk.Dispose();
+                    }
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        ~World()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

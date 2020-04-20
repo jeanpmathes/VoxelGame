@@ -8,6 +8,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using Resources;
 using System;
+using System.ComponentModel;
 using System.IO;
 using VoxelGame.Entities;
 using VoxelGame.Logic;
@@ -30,7 +31,7 @@ namespace VoxelGame
         public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
         {
             instance = this;
-        }       
+        }
 
         protected override void OnLoad(EventArgs e)
         {
@@ -106,7 +107,7 @@ namespace VoxelGame
         {
             if (Focused) // check to see if the window is focused
             {
-                Mouse.SetPosition(X + Width / 2f, Y + Height / 2f);
+                Mouse.SetPosition(X + (Width / 2f), Y + (Height / 2f));
             }
 
             base.OnMouseMove(e);
@@ -116,6 +117,29 @@ namespace VoxelGame
         {
             GL.Viewport(0, 0, Width, Height);
             base.OnResize(e);
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            try
+            {
+                World.Save().Wait();
+            }
+            catch (AggregateException exception)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write(
+                    $"{DateTime.Now} | ---- WORLD SAVING ERROR ------------- \n" +
+                    $"An exception was thrown when saving the world. Exception: ({exception.GetBaseException().GetType()})\n" +
+                    $"{exception.GetBaseException().Message}\n" +
+                    $"The process will be terminated, but some data may be lost.\n");
+                Console.ResetColor();
+            }
+
+            World.Dispose();
+            Player.Dispose();
+
+            base.OnClosing(e);
         }
 
         private DebugProc debugCallbackDelegate;
@@ -227,11 +251,11 @@ namespace VoxelGame
 
             Console.ForegroundColor = ConsoleColor.Red;
 
-            Console.WriteLine(
+            Console.Write(
                 $"{DateTime.Now} | ---- GL DEBUG MESSAGE ------------- \n" +
                 $"SOURCE: {sourceShort} | TYPE: {typeShort} \n" +
                 $"ID: {id} ({idResolved}) | SEVERITY: {severityShort} \n" +
-                $"MESSAGE: {System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE"}");
+                $"MESSAGE: {System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE"}\n");
 
             Console.ResetColor();
         }

@@ -22,6 +22,8 @@ namespace VoxelGame
             }
 
             Console.WriteLine(Language.ExitingGame);
+
+            Console.ReadKey(true);
         }
     }
 }
