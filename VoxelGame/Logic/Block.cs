@@ -6,6 +6,7 @@
 using OpenTK;
 using System.Collections.Generic;
 using VoxelGame.Physics;
+using VoxelGame.Logic.Blocks;
 
 namespace VoxelGame.Logic
 {
@@ -63,7 +64,7 @@ namespace VoxelGame.Logic
         {
             AIR = new AirBlock("air");
             GRASS = new BasicBlock("grass", true, true, (0, 0, 0, 0, 1, 2), true);
-            TALL_GRASS = new CrossBlock("tall_grass", true, Block.GRASS, BoundingBox.Block);
+            TALL_GRASS = new CrossPlant("tall_grass", true, BoundingBox.Block);
             DIRT = new BasicBlock("dirt", true, true, (0, 0, 0, 0, 0, 0), true);
             STONE = new BasicBlock("stone", true, true, (0, 0, 0, 0, 0, 0), true);
             COBBLESTONE = new BasicBlock("cobblestone", true, true, (0, 0, 0, 0, 0, 0), true);
@@ -75,7 +76,7 @@ namespace VoxelGame.Logic
             ORE_IRON = new BasicBlock("ore_iron", true, true, (0, 0, 0, 0, 0, 0), true);
             ORE_GOLD = new BasicBlock("ore_gold", true, true, (0, 0, 0, 0, 0, 0), true);
             SNOW = new BasicBlock("snow", true, true, (0, 0, 0, 0, 0, 0), true);
-            FLOWER = new CrossBlock("flower", false, Block.GRASS, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
+            FLOWER = new CrossPlant("flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
         }
 
         #endregion STATIC BLOCK MANAGMENT
@@ -192,7 +193,15 @@ namespace VoxelGame.Logic
             return true;
         }
 
-        public abstract uint GetMesh(BlockSide side, ushort data, out float[] vertecies, out uint[] indicies);
+        /// <summary>
+        /// Returns the mesh of a block side at a certain position.
+        /// </summary>
+        /// <param name="side">The side of the block that is required.</param>
+        /// <param name="data">The block data of the block at the position.</param>
+        /// <param name="vertices">The vertices of the mesh.</param>
+        /// <param name="indices">The indices of the mesh.</param>
+        /// <returns>The amount of polygons in the mesh.</returns>
+        public abstract uint GetMesh(BlockSide side, ushort data, out float[] vertices, out uint[] indices);
 
         public abstract void BlockUpdate(int x, int y, int z);
 

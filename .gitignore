@@ -262,3 +262,9 @@ __pycache__/
 /Setup
 /VoxelGame/Resources/Language/Language.Designer.cs
 /VoxelGame/Resources/Language/Language.de.Designer.cs
+/VoxelGame/Properties
+/VoxelGame/App.config
+/VoxelGame/OpenTK.dll.config
+/VoxelGame/packages.config
+/VoxelGame/Settings.StyleCop
+/VoxelGame/VoxelGame.licenseheader

@@ -13,7 +13,7 @@ namespace VoxelGame.Logic.Blocks
     {
         private float[] vertices;
 
-        private uint[] indices =
+        private readonly uint[] indices =
         {
             // Direction: /
             0, 2, 1,
@@ -30,16 +30,13 @@ namespace VoxelGame.Logic.Blocks
             4, 6, 7
         };
 
-        protected Block RequiredGround { get; }
-
         /// <summary>
         /// Initializes a new instance of a cross block; a block made out of two intersecting planes.
         /// </summary>
         /// <param name="name">The name of this block and the texture file.</param>
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
-        /// <param name="requiredGround">The block on which this block can be placed.</param>
         /// <param name="boundingBox">The bounding box of this block.</param>
-        public CrossBlock(string name, bool isReplaceable, Block requiredGround, BoundingBox boundingBox) :
+        public CrossBlock(string name, bool isReplaceable, BoundingBox boundingBox) :
             base(
                 name,
                 isFull: false,
@@ -51,8 +48,6 @@ namespace VoxelGame.Logic.Blocks
                 isReplaceable,
                 boundingBox)
         {
-            RequiredGround = requiredGround;
-
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
             Setup();
 #pragma warning restore CA2214 // Do not call overridable methods in constructors
@@ -95,28 +90,10 @@ namespace VoxelGame.Logic.Blocks
 
         public override void OnCollision(Entities.PhysicsEntity entity, int x, int y, int z)
         {
-            throw new NotImplementedException();
-        }
-
-        public override bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
-        {
-            // Check the block under the placement position.
-
-            if ((Game.World.GetBlock(x, y - 1, z) ?? Block.AIR) != RequiredGround)
-            {
-                return false;
-            }
-
-            return base.Place(x, y, z, entity);
         }
 
         public override void BlockUpdate(int x, int y, int z)
         {
-            // Check the block under this block
-            if (Game.World.GetBlock(x, y - 1, z) != RequiredGround)
-            {
-                Destroy(x, y, z, null);
-            }
         }
     }
 }

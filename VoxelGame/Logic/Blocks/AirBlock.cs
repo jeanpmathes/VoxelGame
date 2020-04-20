@@ -58,7 +58,6 @@ namespace VoxelGame.Logic.Blocks
 
         public override void OnCollision(Entities.PhysicsEntity entity, int x, int y, int z)
         {
-            throw new System.NotImplementedException();
         }
 
         public override void BlockUpdate(int x, int y, int z)

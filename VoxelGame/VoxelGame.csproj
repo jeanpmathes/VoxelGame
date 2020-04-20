@@ -91,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collections\UniqueQueue.cs" />
+    <Compile Include="Logic\Blocks\CrossPlant.cs" />
     <Compile Include="Physics\BoundingBox.cs" />
     <Compile Include="Entities\PhysicsEntity.cs" />
     <Compile Include="Entities\Player.cs" />
