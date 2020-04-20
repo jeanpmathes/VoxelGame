@@ -10,11 +10,13 @@ namespace VoxelGame.Rendering
 {
     public class SectionRenderer : Renderer
     {
-        private int vertexBufferObject;
-        private int elementBufferObject;
-        private int vertexArrayObject;
+        private readonly int vertexBufferObject;
+        private readonly int elementBufferObject;
+        private readonly int vertexArrayObject;
 
         private int indicesAmount;
+
+        private bool hasData = false;
 
         public SectionRenderer()
         {
@@ -25,6 +27,11 @@ namespace VoxelGame.Rendering
 
         public void SetData(ref float[] vertices, ref uint[] indices)
         {
+            if (disposed)
+            {
+                return;
+            }
+
             if (vertices == null)
             {
                 throw new System.ArgumentNullException(paramName: nameof(vertices));
@@ -61,24 +68,59 @@ namespace VoxelGame.Rendering
             GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
 
             GL.BindVertexArray(0);
+
+            hasData = true;
         }
 
         public override void Draw(Vector3 position)
         {
-            GL.BindVertexArray(vertexArrayObject);
+            if (disposed)
+            {
+                return;
+            }
 
-            Game.SectionShader.Use();
-            Game.Atlas.Use();
+            if (hasData)
+            {
+                GL.BindVertexArray(vertexArrayObject);
 
-            Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
-            Game.SectionShader.SetMatrix4("model", model);
-            Game.SectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
-            Game.SectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
+                Game.SectionShader.Use();
+                Game.Atlas.Use();
 
-            GL.DrawElements(PrimitiveType.Triangles, indicesAmount, DrawElementsType.UnsignedInt, 0);
+                Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
+                Game.SectionShader.SetMatrix4("model", model);
+                Game.SectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
+                Game.SectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
 
-            GL.BindVertexArray(0);
-            GL.UseProgram(0);
+                GL.DrawElements(PrimitiveType.Triangles, indicesAmount, DrawElementsType.UnsignedInt, 0);
+
+                GL.BindVertexArray(0);
+                GL.UseProgram(0);
+            }
         }
+
+        #region IDisposable Support
+        private bool disposed = false;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                GL.DeleteBuffer(vertexBufferObject);
+                GL.DeleteBuffer(elementBufferObject);
+                GL.DeleteVertexArray(vertexArrayObject);
+            }
+            else
+            {
+                System.Console.ForegroundColor = System.ConsoleColor.Yellow;
+                System.Console.WriteLine("WARNING: A renderer has been disposed by GC, without deleting buffers.");
+                System.Console.ResetColor();
+            }
+
+            disposed = true;
+        }
+        #endregion IDisposable Support
     }
 }

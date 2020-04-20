@@ -5,12 +5,16 @@
 // <author>pershingthesecond</author>
 using OpenTK;
 using System;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using VoxelGame.WorldGeneration;
 
 namespace VoxelGame.Logic
 {
-    public class Chunk
+    [Serializable]
+    public class Chunk : IDisposable
     {
         public const int ChunkHeight = 32;
 
@@ -28,8 +32,8 @@ namespace VoxelGame.Logic
 
         private readonly Section[] sections = new Section[ChunkHeight];
 
-        private bool hasMeshData = false;
-        private int meshDataIndex = 0;
+        [NonSerialized] private bool hasMeshData = false;
+        [NonSerialized] private int meshDataIndex = 0;
 
         public Chunk(int x, int z)
         {
@@ -40,6 +44,86 @@ namespace VoxelGame.Logic
             {
                 sections[y] = new Section();
             }
+        }
+
+        /// <summary>
+        /// Calls setup on all sections. This is required after loading.
+        /// </summary>
+        public void Setup()
+        {
+            for (int y = 0; y < ChunkHeight; y++)
+            {
+                sections[y].Setup();
+            }
+        }
+
+        /// <summary>
+        /// Loads a chunk from a file specified by the path. If the loaded chunk does not fit the x and z parameters, null is returned.
+        /// </summary>
+        /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
+        /// <param name="x">The x coordinate of the chunk.</param>
+        /// <param name="z">The z coordinate of the chunk.</param>
+        /// <returns>The loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
+        public static Chunk Load(string path, int x, int z)
+        {
+            Chunk chunk;
+
+            using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                IFormatter formatter = new BinaryFormatter();
+                chunk = (Chunk) formatter.Deserialize(stream);
+            }
+
+            // Checking the chunk
+            if (chunk.X == x && chunk.Z == z)
+            {
+                return chunk;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Runs a task that loads a chunk from a file specified by the path. If the loaded chunk does not fit the x and z parameters, null is returned.
+        /// </summary>
+        /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
+        /// <param name="x">The x coordinate of the chunk.</param>
+        /// <param name="z">The z coordinate of the chunk.</param>
+        /// <returns>A task containing the loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
+        public static Task<Chunk> LoadAsync(string path, int x, int z)
+        {        
+            return Task.Run(() =>
+            {
+                return Load(path, x, z);
+            });
+        }
+
+        /// <summary>
+        /// Saves this chunk in the directory specified by the path.
+        /// </summary>
+        /// <param name="path">The path of the directory where this chunk should be saved.</param>
+        public void Save(string path)
+        {
+            using (Stream stream = new FileStream(path + $@"\x{X}z{Z}.chunk", FileMode.Create, FileAccess.Write, FileShare.Read))
+            {
+                IFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(stream, this);
+            }
+        }
+
+        /// <summary>
+        /// Runs a task which saves this chunk in the directory specified by the path.
+        /// </summary>
+        /// <param name="path">The path of the directory where this chunk should be saved.</param>
+        /// <returns>A task.</returns>
+        public Task SaveAsync(string path)
+        {
+            return Task.Run(() =>
+            {
+                Save(path);
+            });
         }
 
         public void Generate(IWorldGenerator generator)
@@ -175,5 +259,65 @@ namespace VoxelGame.Logic
         {
             return sections[y];
         }
+
+        public override string ToString()
+        {
+            return $"Chunk ({X}|{Z})";
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj != null && obj is Chunk other)
+            {
+                return other.X == this.X && other.Z == this.Z;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 23;
+                hash = hash * 31 + X;
+                hash = hash * 31 + Z;
+
+                return hash;
+            }
+        }
+
+        #region IDisposable Support
+        [NonSerialized] private bool disposed = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    for (int y = 0; y < ChunkHeight; y++)
+                    {
+                        sections[y].Dispose();
+                    }
+                }
+
+                disposed = true;
+            }
+        }
+
+        ~Chunk()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

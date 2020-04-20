@@ -4,25 +4,34 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenTK;
+using System;
 using System.Collections.Generic;
-
 using VoxelGame.Rendering;
 using VoxelGame.WorldGeneration;
 
 namespace VoxelGame.Logic
 {
-    public class Section
+    [Serializable]
+    public class Section : IDisposable
     {
         public const int SectionSize = 32;
 
-        private ushort[] blocks;
+        private readonly ushort[] blocks;
 
-        private SectionRenderer renderer;
+        [NonSerialized] private SectionRenderer renderer;
 
         public Section()
         {
             blocks = new ushort[SectionSize * SectionSize * SectionSize];
 
+            Setup();
+        }
+
+        /// <summary>
+        /// Sets up all non serialized members.
+        /// </summary>
+        public void Setup()
+        {
             renderer = new SectionRenderer();
         }
 
@@ -75,7 +84,7 @@ namespace VoxelGame.Logic
                     {
                         ushort currentBlockData = blocks[(x << 10) + (y << 5) + z];
 
-                        Block currentBlock = Block.blockDictionary[(ushort)(currentBlockData & 0b0000_1111_1111)];
+                        Block currentBlock = Block.TranslateID((ushort)(currentBlockData & 0b0000_1111_1111));
                         ushort currentData = (byte)((currentBlockData & 0b1111_0000_0000) >> 8);
 
                         if (currentBlock.IsFull) // Check if this block is sized 1x1x1
@@ -353,7 +362,7 @@ namespace VoxelGame.Logic
         {
             get
             {
-                return Block.blockDictionary[(ushort)(blocks[(x << 10) + (y << 5) + z] & 0b0000_1111_1111)];
+                return Block.TranslateID((ushort)(blocks[(x << 10) + (y << 5) + z] & 0b0000_1111_1111));
             }
 
             set
@@ -361,5 +370,35 @@ namespace VoxelGame.Logic
                 blocks[(x << 10) + (y << 5) + z] = (value ?? Block.AIR).Id;
             }
         }
+
+        #region IDisposable Support
+
+        [NonSerialized] private bool disposed = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    renderer?.Dispose();
+                }
+
+                disposed = true;
+            }
+        }
+
+        ~Section()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion IDisposable Support
     }
 }

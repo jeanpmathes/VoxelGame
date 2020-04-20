@@ -27,6 +27,11 @@ namespace VoxelGame.Rendering
 
         public void SetBoundingBox(BoundingBox boundingBox)
         {
+            if (disposed)
+            {
+                return;
+            }
+
             if (currentBoundingBox == boundingBox)
             {
                 return;
@@ -97,6 +102,11 @@ namespace VoxelGame.Rendering
 
         public override void Draw(Vector3 position)
         {
+            if (disposed)
+            {
+                return;
+            }
+
             GL.BindVertexArray(vertexArrayObject);
 
             Game.SelectionShader.Use();
@@ -112,5 +122,30 @@ namespace VoxelGame.Rendering
             GL.BindVertexArray(0);
             GL.UseProgram(0);
         }
+
+        #region IDisposable Support
+        bool disposed = false;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                GL.DeleteBuffer(vertexBufferObject);
+                GL.DeleteBuffer(elementBufferObject);
+                GL.DeleteVertexArray(vertexArrayObject);
+            }
+            else
+            {
+                System.Console.ForegroundColor = System.ConsoleColor.Yellow;
+                System.Console.WriteLine("WARNING: A renderer has been disposed by GC, without deleting buffers.");
+                System.Console.ResetColor();
+            }
+
+            disposed = true;
+        }
+        #endregion IDisposable Support
     }
 }

@@ -10,10 +10,11 @@ namespace VoxelGame.Collections
     /// <summary>
     /// A queue where every entry is unique.
     /// </summary>
+    [System.Diagnostics.DebuggerDisplay("Count = {Count}")]
     public class UniqueQueue<T> : IEnumerable<T>
     {
-        private HashSet<T> hashSet;
-        private Queue<T> queue;
+        private readonly HashSet<T> hashSet;
+        private readonly Queue<T> queue;
 
         /// <summary>
         /// Initializes a new instance of the class <see cref="UniqueQueue{T}"/>.

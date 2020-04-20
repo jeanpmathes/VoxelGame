@@ -13,7 +13,7 @@ namespace VoxelGame.Entities
     /// <summary>
     /// An entity which is affected by gravity and forces.
     /// </summary>
-    public abstract class PhysicsEntity
+    public abstract class PhysicsEntity : IDisposable
     {
         /// <summary>
         /// The gravitational constant which accelerates all physics entities.
@@ -156,6 +156,21 @@ namespace VoxelGame.Entities
             Update(deltaTime);
         }
 
+        #region IDisposable Support
         protected abstract void Update(float deltaTime);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~PhysicsEntity()
+        {
+            Dispose(false);
+        }
+
+        protected abstract void Dispose(bool disposing);
+        #endregion IDisposable Support
     }
 }

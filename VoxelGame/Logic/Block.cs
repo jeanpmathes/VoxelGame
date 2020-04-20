@@ -33,7 +33,30 @@ namespace VoxelGame.Logic
         public static Block SNOW;
         public static Block FLOWER;
 
-        public static Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
+        private static Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
+
+        /// <summary>
+        /// Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.
+        /// </summary>
+        /// <param name="id">The ID of the block to return.</param>
+        /// <returns>The block with the ID or air if the ID is not valid.</returns>
+        public static Block TranslateID(ushort id)
+        {
+            if (blockDictionary.TryGetValue(id, out Block block))
+            {
+                return block;
+            }
+            else
+            {
+                return Block.AIR;
+            }
+        }
+
+        /// <summary>
+        /// Gets the count of registered blocks.
+        /// </summary>
+        public static int Count { get => blockDictionary.Count; }
+
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
         public static void LoadBlocks()

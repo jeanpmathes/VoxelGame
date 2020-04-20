@@ -9,6 +9,7 @@ using Resources;
 using System.Threading.Tasks;
 using VoxelGame.WorldGeneration;
 using VoxelGame.Collections;
+using System.IO;
 
 namespace VoxelGame.Logic
 {
@@ -16,12 +17,17 @@ namespace VoxelGame.Logic
     {
         public const int ChunkExtents = 5;
 
-        private readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
-        private readonly int chunkHeightExp = (int)Math.Log(Chunk.ChunkHeight, 2);
-
         private const int maxGenerationTasks = 15;
+        private const int maxLoadingTasks = 15;
         private const int maxMeshingTasks = 5;
         private const int maxMeshDataSends = 2;
+        private const int maxSavingTasks = 15;
+
+        private readonly string worldDirectory;
+        private readonly string chunkDirectory;
+
+        private readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
+        private readonly int chunkHeightExp = (int)Math.Log(Chunk.ChunkHeight, 2);
 
         /// <summary>
         /// Gets whether this world is ready for physics ticking and rendering.
@@ -31,29 +37,44 @@ namespace VoxelGame.Logic
         private readonly IWorldGenerator generator;
 
         /// <summary>
-        /// A set of chunks which is currently not active and should either be loaded or generated.
+        /// A set of chunk positions which are currently not active and should either be loaded or generated.
         /// </summary>
-        private readonly HashSet<Chunk> chunksToActivate = new HashSet<Chunk>();
+        private readonly HashSet<(int x, int z)> positionsToActivate = new HashSet<(int x, int z)>();
 
         /// <summary>
         /// A set of chunk positions that are currently being activated. No new chunks for these positions should be created.
         /// </summary>
-        private readonly HashSet<ValueTuple<int, int>> chunksActivating = new HashSet<ValueTuple<int, int>>();
+        private readonly HashSet<(int, int)> positionsActivating = new HashSet<(int, int)>();
 
         /// <summary>
         /// A queue that contains all chunks that have to be generated.
         /// </summary>
-        private readonly Queue<Chunk> chunksToGenerate = new Queue<Chunk>();
+        private readonly UniqueQueue<Chunk> chunksToGenerate = new UniqueQueue<Chunk>();
 
         /// <summary>
-        /// A list of chunk generation tasks,
+        /// A list of chunk generation tasks.
         /// </summary>
-        private readonly List<Task> chunkGenerateTasks = new List<Task>();
+        private readonly List<Task> chunkGenerateTasks = new List<Task>(maxGenerationTasks);
 
         /// <summary>
         /// A dictionary containing all chunks that are currently generated, with the task id of their generating task as key.
         /// </summary>
-        private readonly Dictionary<int, Chunk> chunksGenerating = new Dictionary<int, Chunk>();
+        private readonly Dictionary<int, Chunk> chunksGenerating = new Dictionary<int, Chunk>(maxGenerationTasks);
+
+        /// <summary>
+        /// A queue that contains all positions that have to be loaded.
+        /// </summary>
+        private readonly UniqueQueue<(int x, int z)> positionsToLoad = new UniqueQueue<(int x, int z)>();
+
+        /// <summary>
+        /// A list of chunk loading tasks.
+        /// </summary>
+        private readonly List<Task<Chunk>> chunkLoadingTasks = new List<Task<Chunk>>(maxLoadingTasks);
+
+        /// <summary>
+        /// A dictionary containing all chunk positions that are currently loaded, with the task id of their loading task as key.
+        /// </summary>
+        private readonly Dictionary<int, (int x, int z)> positionsLoading = new Dictionary<int, (int x, int z)>(maxLoadingTasks);
 
         /// <summary>
         /// A dictionary that contains all active chunks.
@@ -68,17 +89,17 @@ namespace VoxelGame.Logic
         /// <summary>
         /// A list of chunk meshing tasks,
         /// </summary>
-        private readonly List<Task<(float[][] verticesData, uint[][] indicesData)>> chunkMeshingTasks = new List<Task<(float[][] verticesData, uint[][] indicesData)>>();
+        private readonly List<Task<(float[][] verticesData, uint[][] indicesData)>> chunkMeshingTasks = new List<Task<(float[][] verticesData, uint[][] indicesData)>>(maxMeshingTasks);
 
         /// <summary>
         /// A dictionary containing all chunks that are currently meshed, with the task id of their meshing task as key.
         /// </summary>
-        private readonly Dictionary<int, Chunk> chunksMeshing = new Dictionary<int, Chunk>();
+        private readonly Dictionary<int, Chunk> chunksMeshing = new Dictionary<int, Chunk>(maxMeshingTasks);
 
         /// <summary>
         /// A list of chunks where the mesh data has to be set;
         /// </summary>
-        private readonly List<(Chunk chunk, Task<(float[][] verticesData, uint[][] indicesData)> chunkMeshingTask)> chunksToSendMeshData = new List<(Chunk chunk, Task<(float[][] verticesData, uint[][] indicesData)> chunkMeshingTask)>();
+        private readonly List<(Chunk chunk, Task<(float[][] verticesData, uint[][] indicesData)> chunkMeshingTask)> chunksToSendMeshData = new List<(Chunk chunk, Task<(float[][] verticesData, uint[][] indicesData)> chunkMeshingTask)>(maxMeshDataSends);
 
         /// <summary>
         /// A set of chunks with information on which sections of them are to mesh.
@@ -90,21 +111,53 @@ namespace VoxelGame.Logic
         /// </summary>
         private readonly HashSet<Chunk> chunksToRender = new HashSet<Chunk>();
 
-        public World(IWorldGenerator generator)
+        /// <summary>
+        /// A set of chunk positions that should be released on their activation.
+        /// </summary>
+        private readonly HashSet<(int x, int z)> positionsToReleaseOnActivation = new HashSet<(int x, int z)>();
+
+        /// <summary>
+        /// A queue of chunks that should be saved and disposed.
+        /// </summary>
+        private readonly UniqueQueue<Chunk> chunksToSave = new UniqueQueue<Chunk>();
+
+        /// <summary>
+        /// A list of chunk saving tasks.
+        /// </summary>
+        private readonly List<Task> chunkSavingTasks = new List<Task>(maxSavingTasks);
+
+        /// <summary>
+        /// A dictionary containing all chunks that are currently saved, with the task id of their saving task as key.
+        /// </summary>
+        private readonly Dictionary<int, Chunk> chunksSaving = new Dictionary<int, Chunk>(maxSavingTasks);
+
+        /// <summary>
+        /// A set containing all positions that are currently saved.
+        /// </summary>
+        private readonly HashSet<(int x, int z)> positionsSaving = new HashSet<(int x, int z)>(maxSavingTasks);
+
+        /// <summary>
+        /// A set of positions that have no task activating them and have to be activated by the saving code.
+        /// </summary>
+        private readonly HashSet<(int x, int z)> positionsActivatingThroughSaving = new HashSet<(int x, int z)>();
+
+        public World(string path, IWorldGenerator generator)
         {
+            worldDirectory = path;
+            chunkDirectory = worldDirectory + @"\Chunks";
+
+            Directory.CreateDirectory(worldDirectory);
+            Directory.CreateDirectory(chunkDirectory);
+
             this.generator = generator;
 
             for (int x = ChunkExtents / -2; x < (ChunkExtents / 2) + 1; x++)
             {
                 for (int z = ChunkExtents / -2; z < (ChunkExtents / 2) + 1; z++)
                 {
-                    chunksToActivate.Add(new Chunk(x, z));
+                    positionsToActivate.Add((x, z));
                 }
             }
-
-            foreach (Chunk chunk in chunksToActivate) chunksToGenerate.Enqueue(chunk);
-
-            chunksToActivate.Clear();
         }
 
         public void FrameRender()
@@ -129,30 +182,34 @@ namespace VoxelGame.Logic
 
         public void FrameUpdate(float deltaTime)
         {
-            // Check if new chunks have to be activated
-            if (Game.Player.ChunkHasChanged)
+            // Handle chunks to activate
+            foreach ((int x, int z) in positionsToActivate)
             {
-                for (int x = Game.Player.RenderDistance / -2; x < (Game.Player.RenderDistance / 2) + 1; x++)
+                if (!positionsActivating.Contains((x, z)) && !activeChunks.ContainsKey((x, z)))
                 {
-                    for (int z = Game.Player.RenderDistance / -2; z < (Game.Player.RenderDistance / 2) + 1; z++)
+                    string pathToChunk = chunkDirectory + $@"\x{x}z{z}.chunk";
+                    bool isActivating;
+
+                    // Check if a file for the chunk position exists
+                    if (File.Exists(pathToChunk))
                     {
-                        if (!chunksActivating.Contains((Game.Player.ChunkX + x, Game.Player.ChunkZ + z)) && !activeChunks.ContainsKey((Game.Player.ChunkX + x, Game.Player.ChunkZ + z)))
-                        {
-                            chunksToActivate.Add(new Chunk(Game.Player.ChunkX + x, Game.Player.ChunkZ + z));
-                        }
+                        isActivating = positionsToLoad.Enqueue((x, z));
+                    }
+                    else
+                    {
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                        isActivating = chunksToGenerate.Enqueue(new Chunk(x, z));
+#pragma warning restore CA2000 // Dispose objects before losing scope
+                    }
+
+                    if (isActivating)
+                    {
+                        positionsActivating.Add((x, z));
                     }
                 }
             }
 
-            // Handle chunks to activate
-            foreach (Chunk toActivate in chunksToActivate)
-            {
-                chunksActivating.Add((toActivate.X, toActivate.Z));
-
-                chunksToGenerate.Enqueue(toActivate);
-            }
-
-            chunksToActivate.Clear();
+            positionsToActivate.Clear();
 
             // Check if generation tasks have finished and add the generated chunks to the active chunks dictionary
             if (chunkGenerateTasks.Count > 0)
@@ -167,36 +224,43 @@ namespace VoxelGame.Logic
                         chunkGenerateTasks.RemoveAt(i);
                         chunksGenerating.Remove(completed.Id);
 
-                        chunksActivating.Remove((generatedChunk.X, generatedChunk.Z));
+                        positionsActivating.Remove((generatedChunk.X, generatedChunk.Z));
 
-                        activeChunks.Add((generatedChunk.X, generatedChunk.Z), generatedChunk);
-
-                        chunksToMesh.Enqueue(generatedChunk);
-
-                        // Schedule to mesh the chunks around this chunk
-                        if (activeChunks.TryGetValue((generatedChunk.X + 1, generatedChunk.Z), out Chunk neighbor) && !chunksToMesh.Contains(neighbor))
+                        if (completed.IsFaulted)
                         {
-                            chunksToMesh.Enqueue(neighbor);
+                            throw completed.Exception.GetBaseException();
                         }
-
-                        if (activeChunks.TryGetValue((generatedChunk.X - 1, generatedChunk.Z), out neighbor) && !chunksToMesh.Contains(neighbor))
+                        else if (!activeChunks.ContainsKey((generatedChunk.X, generatedChunk.Z)) && !positionsToReleaseOnActivation.Remove((generatedChunk.X, generatedChunk.Z)))
                         {
-                            chunksToMesh.Enqueue(neighbor);
-                        }
+                            activeChunks.Add((generatedChunk.X, generatedChunk.Z), generatedChunk);
 
-                        if (activeChunks.TryGetValue((generatedChunk.X, generatedChunk.Z + 1), out neighbor) && !chunksToMesh.Contains(neighbor))
-                        {
-                            chunksToMesh.Enqueue(neighbor);
-                        }
+                            chunksToMesh.Enqueue(generatedChunk);
 
-                        if (activeChunks.TryGetValue((generatedChunk.X, generatedChunk.Z - 1), out neighbor) && !chunksToMesh.Contains(neighbor))
-                        {
-                            chunksToMesh.Enqueue(neighbor);
+                            // Schedule to mesh the chunks around this chunk
+                            if (activeChunks.TryGetValue((generatedChunk.X + 1, generatedChunk.Z), out Chunk neighbor))
+                            {
+                                chunksToMesh.Enqueue(neighbor);
+                            }
+
+                            if (activeChunks.TryGetValue((generatedChunk.X - 1, generatedChunk.Z), out neighbor))
+                            {
+                                chunksToMesh.Enqueue(neighbor);
+                            }
+
+                            if (activeChunks.TryGetValue((generatedChunk.X, generatedChunk.Z + 1), out neighbor))
+                            {
+                                chunksToMesh.Enqueue(neighbor);
+                            }
+
+                            if (activeChunks.TryGetValue((generatedChunk.X, generatedChunk.Z - 1), out neighbor))
+                            {
+                                chunksToMesh.Enqueue(neighbor);
+                            }
                         }
-                    }
-                    else if (chunkGenerateTasks[i].IsFaulted)
-                    {
-                        throw chunkGenerateTasks[i].Exception;
+                        else
+                        {
+                            generatedChunk.Dispose();
+                        }
                     }
                 }
             }
@@ -209,6 +273,125 @@ namespace VoxelGame.Logic
 
                 chunkGenerateTasks.Add(currentTask);
                 chunksGenerating.Add(currentTask.Id, current);
+            }
+
+            // Check if loading tasks have finished
+            if (chunkLoadingTasks.Count > 0)
+            {
+                for (int i = chunkLoadingTasks.Count - 1; i >= 0; i--)
+                {
+                    if (chunkLoadingTasks[i].IsCompleted)
+                    {
+                        Task<Chunk> completed = chunkLoadingTasks[i];
+                        (int x, int z) = positionsLoading[completed.Id];
+
+                        chunkLoadingTasks.RemoveAt(i);
+                        positionsLoading.Remove(completed.Id);
+
+                        positionsActivating.Remove((x, z));
+
+                        if (completed.IsFaulted)
+                        {
+                            if (!positionsToReleaseOnActivation.Remove((x, z)) || !activeChunks.ContainsKey((x, z)))
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write(
+                                    $"{DateTime.Now} | ---- CHUNK LOADING ERROR -------------\n" +
+                                    $"Position: ({x}|{z}) Exception: ({completed.Exception.GetBaseException().GetType()})\n" +
+                                    $"{completed.Exception.GetBaseException().Message}\n" +
+                                    $"The position has been scheduled for generation.\n");
+                                Console.ResetColor();
+
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                                if (chunksToGenerate.Enqueue(new Chunk(x, z)))
+#pragma warning restore CA2000 // Dispose objects before losing scope
+                                {
+                                    positionsActivating.Add((x, z));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Chunk loadedChunk = completed.Result;
+
+                            if (loadedChunk != null && !activeChunks.ContainsKey((x, z)))
+                            {
+                                if (!positionsToReleaseOnActivation.Remove((loadedChunk.X, loadedChunk.Z)))
+                                {
+                                    loadedChunk.Setup();
+                                    activeChunks.Add((x, z), loadedChunk);
+
+                                    chunksToMesh.Enqueue(loadedChunk);
+
+                                    // Schedule to mesh the chunks around this chunk
+                                    if (activeChunks.TryGetValue((loadedChunk.X + 1, loadedChunk.Z), out Chunk neighbor))
+                                    {
+                                        chunksToMesh.Enqueue(neighbor);
+                                    }
+
+                                    if (activeChunks.TryGetValue((loadedChunk.X - 1, loadedChunk.Z), out neighbor))
+                                    {
+                                        chunksToMesh.Enqueue(neighbor);
+                                    }
+
+                                    if (activeChunks.TryGetValue((loadedChunk.X, loadedChunk.Z + 1), out neighbor))
+                                    {
+                                        chunksToMesh.Enqueue(neighbor);
+                                    }
+
+                                    if (activeChunks.TryGetValue((loadedChunk.X, loadedChunk.Z - 1), out neighbor))
+                                    {
+                                        chunksToMesh.Enqueue(neighbor);
+                                    }
+                                }
+                                else
+                                {
+                                    loadedChunk.Dispose();
+                                }
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine(
+                                    $"{DateTime.Now} | ---- CHUNK LOADING ERROR -------------\n" +
+                                    $"Position: ({x}|{z}) Exception:\n" +
+                                    $"The loaded file did not match the requested chunk. This may be the result of renamed chunk files.\n" +
+                                    $"The position has been scheduled for generation.");
+                                Console.ResetColor();
+
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                                if (chunksToGenerate.Enqueue(new Chunk(x, z)))
+#pragma warning restore CA2000 // Dispose objects before losing scope
+                                {
+                                    positionsActivating.Add((x, z));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Start loading new chunks if necessary
+            while (positionsToLoad.Count > 0 && chunkLoadingTasks.Count < maxLoadingTasks)
+            {
+                (int x, int z) = positionsToLoad.Dequeue();
+
+                // If a chunk is already being loaded or saved no new loading task is needed
+                if (!positionsLoading.ContainsValue((x, z)))
+                {
+                    if (!positionsSaving.Contains((x, z)))
+                    {
+                        string pathToChunk = chunkDirectory + $@"\x{x}z{z}.chunk";
+                        Task<Chunk> currentTask = Chunk.LoadAsync(pathToChunk, x, z);
+
+                        chunkLoadingTasks.Add(currentTask);
+                        positionsLoading.Add(currentTask.Id, (x, z));
+                    }
+                    else
+                    {
+                        positionsActivatingThroughSaving.Add((x, z));
+                    }
+                }
             }
 
             // Check if meshing tasks have finished
@@ -225,6 +408,10 @@ namespace VoxelGame.Logic
                         chunksMeshing.Remove(completed.Id);
 
                         chunksToSendMeshData.Add((meshedChunk, completed));
+                    }
+                    else if (chunkMeshingTasks[i].IsFaulted)
+                    {
+                        throw chunkMeshingTasks[i].Exception.GetBaseException();
                     }
                 }
             }
@@ -243,13 +430,18 @@ namespace VoxelGame.Logic
             //Send mesh data to the chunks
             if (chunksToSendMeshData.Count > 0)
             {
-                for (int i = chunksToSendMeshData.Count - 1; i >= 0 && chunksToSendMeshData.Count - i <= maxMeshDataSends; i--)
+                int i = 0;
+                for (int count = 0; count < maxMeshDataSends && i < chunksToSendMeshData.Count; count++)
                 {
                     (Chunk chunk, Task<(float[][] verticesData, uint[][] indicesData)> chunkMeshingTask) = chunksToSendMeshData[i];
 
                     if (chunk.SetMeshDataStep(chunkMeshingTask.Result.verticesData, chunkMeshingTask.Result.indicesData))
                     {
                         chunksToSendMeshData.RemoveAt(i);
+                    }
+                    else
+                    {
+                        i++;
                     }
                 }
             }
@@ -275,6 +467,151 @@ namespace VoxelGame.Logic
                     Console.WriteLine(Language.WorldIsReady);
                 }
             }
+
+            // Check if saving tasks have finished
+            if (chunkSavingTasks.Count > 0)
+            {
+                for (int i = chunkSavingTasks.Count - 1; i >= 0; i--)
+                {
+                    if (chunkSavingTasks[i].IsCompleted)
+                    {
+                        Task completed = chunkSavingTasks[i];
+                        Chunk completedChunk = chunksSaving[completed.Id];
+
+                        chunkSavingTasks.RemoveAt(i);
+                        chunksSaving.Remove(completed.Id);
+                        positionsSaving.Remove((completedChunk.X, completedChunk.Z));
+
+                        // Check if the chunk should be activated and is not active and not requested to be released on activation; if true, the chunk will not be disposed
+                        if ((positionsToActivate.Contains((completedChunk.X, completedChunk.Z)) || positionsActivating.Contains((completedChunk.X, completedChunk.Z)))
+                            && !activeChunks.ContainsKey((completedChunk.X, completedChunk.Z))
+                            && !positionsToReleaseOnActivation.Contains((completedChunk.X, completedChunk.Z)))
+                        {
+                            positionsToActivate.Remove((completedChunk.X, completedChunk.Z));
+
+                            if (positionsActivatingThroughSaving.Remove((completedChunk.X, completedChunk.Z)))
+                            {
+                                positionsActivating.Remove((completedChunk.X, completedChunk.Z));
+                            }
+
+                            activeChunks.Add((completedChunk.X, completedChunk.Z), completedChunk);
+
+                            chunksToMesh.Enqueue(completedChunk);
+
+                            // Schedule to mesh the chunks around this chunk
+                            if (activeChunks.TryGetValue((completedChunk.X + 1, completedChunk.Z), out Chunk neighbor))
+                            {
+                                chunksToMesh.Enqueue(neighbor);
+                            }
+
+                            if (activeChunks.TryGetValue((completedChunk.X - 1, completedChunk.Z), out neighbor))
+                            {
+                                chunksToMesh.Enqueue(neighbor);
+                            }
+
+                            if (activeChunks.TryGetValue((completedChunk.X, completedChunk.Z + 1), out neighbor))
+                            {
+                                chunksToMesh.Enqueue(neighbor);
+                            }
+
+                            if (activeChunks.TryGetValue((completedChunk.X, completedChunk.Z - 1), out neighbor))
+                            {
+                                chunksToMesh.Enqueue(neighbor);
+                            }
+                        }
+                        else
+                        {
+                            if (completed.IsFaulted)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine(
+                                    $"{DateTime.Now} | ---- CHUNK SAVING ERROR -------------\n" +
+                                    $"Position: ({completedChunk.X}|{completedChunk.Z}) Exception: ({completed.Exception.GetBaseException().GetType()})\n" +
+                                    $"{completed.Exception.GetBaseException().Message}\n" +
+                                    $"The chunk will be disposed without saving.");
+                                Console.ResetColor();
+                            }
+
+                            if (positionsActivatingThroughSaving.Remove((completedChunk.X, completedChunk.Z)))
+                            {
+                                positionsActivating.Remove((completedChunk.X, completedChunk.Z));
+                            }
+
+                            positionsToReleaseOnActivation.Remove((completedChunk.X, completedChunk.Z));
+
+                            completedChunk.Dispose();
+                        }
+                    }
+                }
+            }
+
+            // Start saving chunks if necessary
+            while (chunksToSave.Count > 0 && chunkSavingTasks.Count < maxSavingTasks)
+            {
+                Chunk current = chunksToSave.Dequeue();
+                Task currentTask = current.SaveAsync(chunkDirectory);
+
+                chunkSavingTasks.Add(currentTask);
+                chunksSaving.Add(currentTask.Id, current);
+                positionsSaving.Add((current.X, current.Z));
+            }
+        }
+
+        /// <summary>
+        /// Requests the activation of a chunk. This chunk will either be loaded or generated.
+        /// </summary>
+        /// <param name="x">The x coordinates in chunk coordinates.</param>
+        /// <param name="z">The z coordinates in chunk coordinates.</param>
+        public void RequestChunk(int x, int z)
+        {
+            positionsToReleaseOnActivation.Remove((x, z));
+
+            if (!positionsActivating.Contains((x, z)) && !activeChunks.ContainsKey((x, z)))
+            {
+                positionsToActivate.Add((x, z));
+            }
+        }
+
+        /// <summary>
+        /// Notifies the world that a chunk is no longer needed. The world decides if the chunk is deactivated.
+        /// </summary>
+        /// <param name="x">The x coordinates in chunk coordinates.</param>
+        /// <param name="z">The z coordinates in chunk coordinates.</param>
+        /// <returns>true if the chunk will be released; false if not.</returns>
+        public bool ReleaseChunk(int x, int z)
+        {
+            // Check if the chunk can be released
+            if (x == 0 && z == 0)
+            {
+                return false; // The chunk at (0|0) cannot be released.
+            }
+
+            bool canRelease = false;
+
+            // Check if the chunk exists
+            if (activeChunks.TryGetValue((x, z), out Chunk chunk))
+            {
+                activeChunks.Remove((x, z));
+                chunksToSave.Enqueue(chunk);
+
+                canRelease = true;
+            }
+
+            if (positionsActivating.Contains((x, z)))
+            {
+                positionsToReleaseOnActivation.Add((x, z));
+
+                canRelease = true;
+            }
+
+            if (positionsToActivate.Contains((x, z)))
+            {
+                positionsToActivate.Remove((x, z));
+
+                canRelease = true;
+            }
+
+            return canRelease;
         }
 
         /// <summary>

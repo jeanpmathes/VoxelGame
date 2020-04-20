@@ -18,7 +18,7 @@ namespace VoxelGame.Entities
         /// <summary>
         /// Gets the extents of how many chunks should be around this player.
         /// </summary>
-        public int RenderDistance { get; } = 4;
+        public int RenderDistance { get; } = 2;
 
         /// <summary>
         /// Gets whether this player has moved to a different chunk in the last frame.
@@ -48,14 +48,11 @@ namespace VoxelGame.Entities
         private bool hasPressedPlus = false;
         private bool hasPressedMinus = false;
 
+        private static readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
+
         public Player(float mass, float drag, Vector3 startPosition, Camera camera, BoundingBox boundingBox) : base(mass, drag, boundingBox)
         {
-            if (camera == null)
-            {
-                throw new System.ArgumentNullException(paramName: nameof(camera));
-            }
-
-            this.camera = camera;
+            this.camera = camera ?? throw new ArgumentNullException(paramName: nameof(camera));
 
             Position = startPosition;
             camera.Position = startPosition;
@@ -63,6 +60,19 @@ namespace VoxelGame.Entities
             selectionRenderer = new BoxRenderer();
 
             activeBlock = Block.GLASS;
+
+            // Request chunks around current position
+
+            //int currentChunkX = (int)Math.Floor(Position.X) / Section.SectionSize;
+            //int currentChunkZ = (int)Math.Floor(Position.Z) / Section.SectionSize;
+
+            //for (int x = -RenderDistance; x <= RenderDistance; x++)
+            //{
+            //    for (int z = -RenderDistance; z <= RenderDistance; z++)
+            //    {
+            //        Game.World.RequestChunk(currentChunkX + x, currentChunkZ + z);
+            //    }
+            //}
         }
 
         /// <summary>
@@ -164,10 +174,10 @@ namespace VoxelGame.Entities
                 // Block selection
                 if (input.IsKeyDown(Key.KeypadPlus) && !hasPressedPlus)
                 {
-                    activeBlock = (activeBlock.Id != Block.blockDictionary.Count - 1) ? Block.blockDictionary[(ushort)(activeBlock.Id + 1)] : Block.blockDictionary[1];
+                    activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID((ushort)(activeBlock.Id + 1)) : Block.TranslateID(1);
                     hasPressedPlus = true;
 
-                    System.Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
+                    Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
                 }
                 else if (input.IsKeyUp(Key.KeypadPlus))
                 {
@@ -176,10 +186,10 @@ namespace VoxelGame.Entities
 
                 if (input.IsKeyDown(Key.KeypadMinus) && !hasPressedMinus)
                 {
-                    activeBlock = (activeBlock.Id != 1) ? Block.blockDictionary[(ushort)(activeBlock.Id - 1)] : Block.blockDictionary[(ushort)(Block.blockDictionary.Count - 1)];
+                    activeBlock = (activeBlock.Id != 1) ? Block.TranslateID((ushort)(activeBlock.Id - 1)) : Block.TranslateID((ushort)(Block.Count - 1));
                     hasPressedMinus = true;
 
-                    System.Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
+                    Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
                 }
                 else if (input.IsKeyUp(Key.KeypadMinus))
                 {
@@ -245,17 +255,73 @@ namespace VoxelGame.Entities
 
             timer += deltaTime;
 
-            // Check if the current chunk has changed
-            int currentChunkX = (int)Math.Floor(Position.X) / Section.SectionSize;
-            int currentChunkZ = (int)Math.Floor(Position.Z) / Section.SectionSize;
+            // Check if the current chunk has changed and request new chunks if needed / release unneeded chunks
+            int currentChunkX = (int)Math.Floor(Position.X) >> sectionSizeExp;
+            int currentChunkZ = (int)Math.Floor(Position.Z) >> sectionSizeExp;
 
             if (currentChunkX != ChunkX || currentChunkZ != ChunkZ)
             {
                 ChunkHasChanged = true;
 
+                int deltaX = Math.Abs(currentChunkX - ChunkX);
+                int deltaZ = Math.Abs(currentChunkZ - ChunkZ);
+
+                int signX = (currentChunkX - ChunkX >= 0) ? 1 : -1;
+                int signZ = (currentChunkZ - ChunkZ >= 0) ? 1 : -1;
+
+                // Check if player moved completely out of claimed chunks
+                if (deltaX > 2 * RenderDistance || deltaZ > 2 * RenderDistance)
+                {
+                    for (int x = -RenderDistance; x <= RenderDistance; x++)
+                    {
+                        for (int z = -RenderDistance; z <= RenderDistance; z++)
+                        {
+                            Game.World.ReleaseChunk(ChunkX + x, ChunkZ + z);
+                            Game.World.RequestChunk(currentChunkX + x, currentChunkZ + z);
+                        }
+                    }
+                }
+                else
+                {
+                    for (int x = 0; x < deltaX; x++)
+                    {
+                        for (int z = 0; z < 2 * RenderDistance + 1; z++)
+                        {
+                            Game.World.ReleaseChunk(ChunkX + (RenderDistance - x) * -signX, ChunkZ + (RenderDistance - z) * -signZ);
+                            Game.World.RequestChunk(currentChunkX + (RenderDistance - x) * signX, currentChunkZ + (RenderDistance - z) * signZ);
+                        }
+                    }
+
+                    for (int z = 0; z < deltaZ; z++)
+                    {
+                        for (int x = 0; x < 2 * RenderDistance + 1; x++)
+                        {
+                            Game.World.ReleaseChunk(ChunkX + (RenderDistance - x) * -signX, ChunkZ + (RenderDistance - z) * -signZ);
+                            Game.World.RequestChunk(currentChunkX + (RenderDistance - x) * signX, currentChunkZ + (RenderDistance - z) * signZ);
+                        }
+                    }
+                }
+
                 ChunkX = currentChunkX;
                 ChunkZ = currentChunkZ;
             }
         }
+
+        #region IDisposable Support
+        bool disposed = false;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                selectionRenderer.Dispose();
+            }
+
+            disposed = true;
+        }
+        #endregion IDisposable Support
     }
 }
