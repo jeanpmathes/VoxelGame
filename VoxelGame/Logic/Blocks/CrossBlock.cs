@@ -7,7 +7,7 @@ using System;
 using VoxelGame.Physics;
 using VoxelGame.Rendering;
 
-namespace VoxelGame.Logic
+namespace VoxelGame.Logic.Blocks
 {
     public class CrossBlock : Block
     {

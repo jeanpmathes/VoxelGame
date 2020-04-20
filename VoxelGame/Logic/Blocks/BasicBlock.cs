@@ -7,7 +7,7 @@ using System;
 using VoxelGame.Physics;
 using VoxelGame.Rendering;
 
-namespace VoxelGame.Logic
+namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// This class represents a simple block that is completely filled. It is used for basic blocks with no functions that make up most of the world.

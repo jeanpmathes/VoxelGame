@@ -94,12 +94,12 @@
     <Compile Include="Physics\BoundingBox.cs" />
     <Compile Include="Entities\PhysicsEntity.cs" />
     <Compile Include="Entities\Player.cs" />
-    <Compile Include="Logic\AirBlock.cs" />
-    <Compile Include="Logic\BasicBlock.cs" />
+    <Compile Include="Logic\Blocks\AirBlock.cs" />
+    <Compile Include="Logic\Blocks\BasicBlock.cs" />
     <Compile Include="Logic\Block.cs" />
     <Compile Include="Logic\BlockSide.cs" />
     <Compile Include="Logic\Chunk.cs" />
-    <Compile Include="Logic\CrossBlock.cs" />
+    <Compile Include="Logic\Blocks\CrossBlock.cs" />
     <Compile Include="Logic\Section.cs" />
     <Compile Include="Logic\World.cs" />
     <Compile Include="Physics\Ray.cs" />
