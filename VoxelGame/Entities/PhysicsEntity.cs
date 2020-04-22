@@ -7,6 +7,7 @@ using OpenTK;
 using System;
 using System.Collections.Generic;
 using VoxelGame.Physics;
+using VoxelGame.Utilities;
 
 namespace VoxelGame.Entities
 {
@@ -18,7 +19,7 @@ namespace VoxelGame.Entities
         /// <summary>
         /// The gravitational constant which accelerates all physics entities.
         /// </summary>
-        public const float Gravity = -20f;
+        public const float Gravity = -9.81f;
 
         /// <summary>
         /// Gets the mass of this physics entity.
@@ -67,10 +68,7 @@ namespace VoxelGame.Entities
             get => boundingBox;
         }
 
-        private bool addMovement = false;
-        private Vector3 additionalMovement;
-
-        public PhysicsEntity(float mass, float drag, BoundingBox boundingBox)
+        protected PhysicsEntity(float mass, float drag, BoundingBox boundingBox)
         {
             Rotation = Quaternion.Identity;
 
@@ -81,15 +79,26 @@ namespace VoxelGame.Entities
             boundingBox.Center = Position;
         }
 
+        /// <summary>
+        /// Applies force to this entity.
+        /// </summary>
+        /// <param name="force">The force to apply.</param>
         public void AddForce(Vector3 force)
         {
             this.force += force;
         }
 
-        public void Move(Vector3 movement)
+        /// <summary>
+        /// Tries to move the entity in a certain direction using forces, but never using more force than specified.
+        /// </summary>
+        /// <param name="movement">The target movement, can be null to try to stop moving.</param>
+        /// <param name="maxForce">The maximum allowed force to use.</param>
+        public void Move(Vector3 movement, Vector3 maxForce)
         {
-            additionalMovement += movement;
-            addMovement = true;
+            maxForce = maxForce.Absolute();
+
+            Vector3 requiredForce = (movement - Velocity) * Mass;
+            AddForce(VMath.ClampComponents(requiredForce, -maxForce, maxForce));
         }
 
         public abstract void Render();
@@ -98,16 +107,11 @@ namespace VoxelGame.Entities
         {
             IsGrounded = false;
 
-            Velocity -= Velocity * Drag * Velocity.Length * deltaTime;
+            //force -= Velocity.Sign() * Drag * Velocity.LengthSquared * deltaTime;
+            force -= Velocity.Sign() * (Velocity * Velocity) * Drag;
             Velocity += force / Mass * deltaTime;
 
-            Vector3 movement = Velocity;
-
-            if (addMovement)
-            {
-                movement += additionalMovement * deltaTime;
-            }
-
+            Vector3 movement = Velocity * deltaTime;
             movement *= 1f / physicsIterations;
 
             for (int i = 0; i < physicsIterations; i++)
@@ -148,10 +152,7 @@ namespace VoxelGame.Entities
 
             boundingBox.Center = Position;
 
-            force = new Vector3(0f, Gravity, 0f);
-
-            addMovement = false;
-            additionalMovement = Vector3.Zero;
+            force = new Vector3(0f, Gravity * Mass, 0f);
 
             Update(deltaTime);
         }

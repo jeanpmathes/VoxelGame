@@ -30,8 +30,10 @@ namespace VoxelGame.Entities
         private readonly Camera camera;
         private readonly Vector3 cameraOffset = new Vector3(0f, 0.5f, 0f);
 
-        private readonly float speed = 5f;
-        private readonly float jumpForce = 550f;
+        private readonly float speed = 4f;
+        private readonly float sprintSpeed = 6f;
+        private readonly Vector3 maxForce = new Vector3(5000f, 0f, 5000f);
+        private readonly float jumpForce = 25000f;
 
         private Vector2 lastMousePos;
         private bool firstMove = true;
@@ -140,10 +142,17 @@ namespace VoxelGame.Entities
 
                 if (movement != Vector3.Zero)
                 {
-                    movement = movement.Normalized() * speed;
-
-                    Move(movement);
+                    if (input.IsKeyDown(Key.ShiftLeft))
+                    {
+                        movement = movement.Normalized() * sprintSpeed;
+                    }
+                    else
+                    {
+                        movement = movement.Normalized() * speed;
+                    }
                 }
+
+                Move(movement, maxForce);
 
                 if (input.IsKeyDown(Key.Space) && IsGrounded) // Jump
                 {

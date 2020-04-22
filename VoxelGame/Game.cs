@@ -64,7 +64,7 @@ namespace VoxelGame
             World = new World(Path.Combine(worldsDirectory, newWorld), new NoiseGenerator(2133));
 
             Camera camera = new Camera(new Vector3(), Width / (float)Height);
-            Player = new Player(70f, 0.03f, new Vector3(0f, 1000f, 0f), camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.45f, 0.9f, 0.45f)));
+            Player = new Player(70f, 0.25f, new Vector3(0f, 1000f, 0f), camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.45f, 0.9f, 0.45f)));
 
             CursorVisible = false;
 
