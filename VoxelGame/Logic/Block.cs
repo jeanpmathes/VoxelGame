@@ -33,6 +33,7 @@ namespace VoxelGame.Logic
         public static Block ORE_GOLD;
         public static Block SNOW;
         public static Block FLOWER;
+        public static Block SPIDERWEB;
 
         private static Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
 
@@ -77,6 +78,7 @@ namespace VoxelGame.Logic
             ORE_GOLD = new BasicBlock("ore_gold", true, true, (0, 0, 0, 0, 0, 0), true);
             SNOW = new BasicBlock("snow", true, true, (0, 0, 0, 0, 0, 0), true);
             FLOWER = new CrossPlant("flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
+            SPIDERWEB = new SpiderWeb("spider_web", 0.01f);
         }
 
         #endregion STATIC BLOCK MANAGMENT
@@ -206,5 +208,10 @@ namespace VoxelGame.Logic
         public abstract void BlockUpdate(int x, int y, int z);
 
         public abstract void OnCollision(Entities.PhysicsEntity entity, int x, int y, int z);
+
+        public sealed override string ToString()
+        {
+            return $"Block [{Name}]";
+        }
     }
 }

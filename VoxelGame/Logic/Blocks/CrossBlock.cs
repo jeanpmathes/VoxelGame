@@ -36,15 +36,15 @@ namespace VoxelGame.Logic.Blocks
         /// <param name="name">The name of this block and the texture file.</param>
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
         /// <param name="boundingBox">The bounding box of this block.</param>
-        public CrossBlock(string name, bool isReplaceable, BoundingBox boundingBox) :
+        public CrossBlock(string name, bool isReplaceable, bool recieveCollisions, bool isTrigger, BoundingBox boundingBox) :
             base(
                 name,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: false,
                 isSolid: false,
-                recieveCollisions: false,
-                isTrigger: false,
+                recieveCollisions,
+                isTrigger,
                 isReplaceable,
                 boundingBox)
         {

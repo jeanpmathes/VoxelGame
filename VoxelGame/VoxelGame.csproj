@@ -92,6 +92,7 @@
   <ItemGroup>
     <Compile Include="Collections\UniqueQueue.cs" />
     <Compile Include="Logic\Blocks\CrossPlant.cs" />
+    <Compile Include="Logic\Blocks\SpiderWeb.cs" />
     <Compile Include="Physics\BoundingBox.cs" />
     <Compile Include="Entities\PhysicsEntity.cs" />
     <Compile Include="Entities\Player.cs" />
@@ -126,6 +127,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Language.resx</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\VMath.cs" />
     <Compile Include="WorldGeneration\FastNoise.cs" />
     <Compile Include="WorldGeneration\FlatGenerator.cs" />
     <Compile Include="WorldGeneration\IWorldGenerator.cs" />
@@ -185,6 +187,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Textures\snow.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\spider_web.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Textures\stone.png">

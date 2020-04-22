@@ -22,6 +22,8 @@ namespace VoxelGame.Logic.Blocks
             base(
                 name,
                 isReplaceable,
+                recieveCollisions: false,
+                isTrigger: false,
                 boundingBox)
         {
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
