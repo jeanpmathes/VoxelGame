@@ -18,7 +18,7 @@ namespace VoxelGame.Logic
     {
         public const int ChunkHeight = 32;
 
-        private const int maxMeshDataStep = 4;
+        private const int maxMeshDataStep = 8;
 
         /// <summary>
         /// The X position of this chunk in chunk units

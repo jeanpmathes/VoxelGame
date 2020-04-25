@@ -17,6 +17,8 @@ namespace VoxelGame.Logic
     {
         public const int ChunkExtents = 5;
 
+        public string Name { get; }
+
         private const int maxGenerationTasks = 15;
         private const int maxLoadingTasks = 15;
         private const int maxMeshingTasks = 5;
@@ -141,7 +143,10 @@ namespace VoxelGame.Logic
         /// </summary>
         private readonly HashSet<(int x, int z)> positionsActivatingThroughSaving = new HashSet<(int x, int z)>();
 
-        public World(string path, IWorldGenerator generator)
+        /// <summary>
+        /// This constructor is meant for worlds that are new.
+        /// </summary>
+        public World(string name, string path, IWorldGenerator generator)
         {
             worldDirectory = path;
             chunkDirectory = worldDirectory + @"\Chunks";
@@ -149,8 +154,39 @@ namespace VoxelGame.Logic
             Directory.CreateDirectory(worldDirectory);
             Directory.CreateDirectory(chunkDirectory);
 
+            WorldInformation information = new WorldInformation
+            {
+                Name = name,
+                Creation = DateTime.Now
+            };
+
+            information.Save(Path.Combine(path, "meta.json"));
+
+            Name = information.Name;
             this.generator = generator;
 
+            Setup();
+        }
+
+        /// <summary>
+        /// This constructor is meant for worlds that already exist.
+        /// </summary>
+        public World(WorldInformation information, string path, IWorldGenerator generator)
+        {
+            worldDirectory = path;
+            chunkDirectory = worldDirectory + @"\Chunks";
+
+            Directory.CreateDirectory(worldDirectory);
+            Directory.CreateDirectory(chunkDirectory);
+
+            Name = information.Name;
+            this.generator = generator;
+
+            Setup();
+        }
+
+        private void Setup()
+        {
             for (int x = ChunkExtents / -2; x < (ChunkExtents / 2) + 1; x++)
             {
                 for (int z = ChunkExtents / -2; z < (ChunkExtents / 2) + 1; z++)

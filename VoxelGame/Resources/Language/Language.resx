@@ -123,11 +123,29 @@
   <data name="BlocksLoadedAmount" xml:space="preserve">
     <value>Blocks loaded: </value>
   </data>
+  <data name="CreatedOn" xml:space="preserve">
+    <value>Created on</value>
+  </data>
   <data name="CurrentBlockIs" xml:space="preserve">
     <value>The current block is: </value>
   </data>
+  <data name="EnterIndexOfWorld" xml:space="preserve">
+    <value>Enter the number of the world to load:</value>
+  </data>
+  <data name="EnterNameOfWorld" xml:space="preserve">
+    <value>Enter the name of the world to create:</value>
+  </data>
   <data name="ExitingGame" xml:space="preserve">
     <value>Exiting...</value>
+  </data>
+  <data name="InputNotValid" xml:space="preserve">
+    <value>Input not valid!</value>
+  </data>
+  <data name="ListingWorlds" xml:space="preserve">
+    <value>Listing all worlds: </value>
+  </data>
+  <data name="NewWorldPrompt" xml:space="preserve">
+    <value>Do you want to create a new world?</value>
   </data>
   <data name="StartingGame" xml:space="preserve">
     <value>Starting game...</value>
@@ -137,5 +155,8 @@
   </data>
   <data name="WorldIsReady" xml:space="preserve">
     <value>The World is ready.</value>
+  </data>
+  <data name="WorldNotFound" xml:space="preserve">
+    <value>World not found!</value>
   </data>
 </root>

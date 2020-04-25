@@ -10,6 +10,7 @@ using Resources;
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Collections.Generic;
 using VoxelGame.Entities;
 using VoxelGame.Logic;
 using VoxelGame.Rendering;
@@ -35,6 +36,7 @@ namespace VoxelGame
 
         protected override void OnLoad(EventArgs e)
         {
+            // Rendering setup
             GL.Enable(EnableCap.DebugOutput);
 
             debugCallbackDelegate = new DebugProc(DebugCallback);
@@ -49,20 +51,93 @@ namespace VoxelGame
             SectionShader = new Shader("Resources/Shaders/section_shader.vert", "Resources/Shaders/section_shader.frag");
             SelectionShader = new Shader("Resources/Shaders/selection_shader.vert", "Resources/Shaders/selection_shader.frag");
 
+            // Block setup
             Block.LoadBlocks();
             Console.WriteLine(Language.BlocksLoadedAmount + Block.Count);
 
+            // Finding of worlds and letting the user choose a world
             worldsDirectory = Directory.GetCurrentDirectory() + @"\Worlds";
-            Console.WriteLine("Listing all worlds");
-            foreach (string world in Directory.GetDirectories(worldsDirectory))
+            List<(WorldInformation information, string path)> worlds = new List<(WorldInformation information, string path)>();
+
+            foreach (string directory in Directory.GetDirectories(worldsDirectory))
             {
-                Console.WriteLine(Path.GetFileName(world));
+                string meta = Path.Combine(directory, "meta.json");
+
+                if (File.Exists(meta))
+                {
+                    WorldInformation information = WorldInformation.Load(meta);
+                    worlds.Add((information, directory));
+                }
             }
 
-            Console.WriteLine("Please enter the name of the world to load");
-            string newWorld = Console.ReadLine();
-            World = new World(Path.Combine(worldsDirectory, newWorld), new NoiseGenerator(2133));
+            if (worlds.Count > 0)
+            {
+                Console.WriteLine(Language.ListingWorlds);
+                Console.ForegroundColor = ConsoleColor.Cyan;
 
+                for (int n = 0; n < worlds.Count; n++)
+                {
+                    Console.WriteLine($"{n + 1}: {worlds[n].information.Name} - {Language.CreatedOn}: {worlds[n].information.Creation}");
+                }
+
+                Console.ResetColor();
+            }
+
+            string input;
+            if (worlds.Count == 0)
+            {
+                input = "y";
+            }
+            else
+            {
+                Console.WriteLine(Language.NewWorldPrompt + " [y|skip: n]");
+                input = Console.ReadLine();
+            }
+
+            if (input == "y" || input == "yes")
+            {
+                // Create a new world
+                Console.WriteLine(Language.EnterNameOfWorld);
+
+                string name = Console.ReadLine();
+                string path = Path.Combine(worldsDirectory, name);
+
+                while (Directory.Exists(path))
+                {
+                    path += "_";
+                }
+
+                World = new World(name, path, new NoiseGenerator(2133));
+            }
+            else
+            {
+                // Load an existing world
+                while (World == null)
+                {
+                    Console.WriteLine(Language.EnterIndexOfWorld);
+                    string index = Console.ReadLine();
+
+                    if (int.TryParse(index, out int n))
+                    {
+                        n--;
+
+                        if (n >= 0 && n < worlds.Count)
+                        {
+                            World = new World(worlds[n].information, worlds[n].path, new NoiseGenerator(2133));
+                        }
+                        else
+                        {
+                            Console.WriteLine(Language.WorldNotFound);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine(Language.InputNotValid);
+                    }
+                }
+            }
+
+            // Player setup
             Camera camera = new Camera(new Vector3(), Width / (float)Height);
             Player = new Player(70f, 0.25f, new Vector3(0f, 1000f, 0f), camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.45f, 0.9f, 0.45f)));
 
