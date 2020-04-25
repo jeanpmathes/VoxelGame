@@ -146,7 +146,7 @@ namespace VoxelGame.Logic
         /// <summary>
         /// This constructor is meant for worlds that are new.
         /// </summary>
-        public World(string name, string path, IWorldGenerator generator)
+        public World(string name, string path, int seed)
         {
             worldDirectory = path;
             chunkDirectory = worldDirectory + @"\Chunks";
@@ -157,13 +157,14 @@ namespace VoxelGame.Logic
             WorldInformation information = new WorldInformation
             {
                 Name = name,
+                Seed = seed,
                 Creation = DateTime.Now
             };
 
             information.Save(Path.Combine(path, "meta.json"));
 
             Name = information.Name;
-            this.generator = generator;
+            generator = new NoiseGenerator(seed);
 
             Setup();
         }
@@ -171,7 +172,7 @@ namespace VoxelGame.Logic
         /// <summary>
         /// This constructor is meant for worlds that already exist.
         /// </summary>
-        public World(WorldInformation information, string path, IWorldGenerator generator)
+        public World(WorldInformation information, string path)
         {
             worldDirectory = path;
             chunkDirectory = worldDirectory + @"\Chunks";
@@ -180,7 +181,7 @@ namespace VoxelGame.Logic
             Directory.CreateDirectory(chunkDirectory);
 
             Name = information.Name;
-            this.generator = generator;
+            generator = new NoiseGenerator(information.Seed);
 
             Setup();
         }

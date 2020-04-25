@@ -13,6 +13,7 @@ namespace VoxelGame.Logic
     public class WorldInformation
     {
         public string Name { get; set; }
+        public int Seed { get; set; }
         public DateTime Creation { get; set; }
 
         public void Save(string path)

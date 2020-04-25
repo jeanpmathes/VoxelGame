@@ -14,7 +14,6 @@ using System.Collections.Generic;
 using VoxelGame.Entities;
 using VoxelGame.Logic;
 using VoxelGame.Rendering;
-using VoxelGame.WorldGeneration;
 
 namespace VoxelGame
 {
@@ -100,6 +99,13 @@ namespace VoxelGame
                 Console.WriteLine(Language.EnterNameOfWorld);
 
                 string name = Console.ReadLine();
+
+                // Validate name
+                if (string.IsNullOrEmpty(name) || name.Contains("\"") || name.Contains("<") || name.Contains(">") || name.Contains("|") || name.Contains("\\") || name.Contains("/"))
+                {
+                    name = "New World";
+                }
+
                 string path = Path.Combine(worldsDirectory, name);
 
                 while (Directory.Exists(path))
@@ -107,7 +113,7 @@ namespace VoxelGame
                     path += "_";
                 }
 
-                World = new World(name, path, new NoiseGenerator(2133));
+                World = new World(name, path, DateTime.Now.GetHashCode());
             }
             else
             {
@@ -123,7 +129,7 @@ namespace VoxelGame
 
                         if (n >= 0 && n < worlds.Count)
                         {
-                            World = new World(worlds[n].information, worlds[n].path, new NoiseGenerator(2133));
+                            World = new World(worlds[n].information, worlds[n].path);
                         }
                         else
                         {
