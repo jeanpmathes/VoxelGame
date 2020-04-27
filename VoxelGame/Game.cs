@@ -8,9 +8,9 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using Resources;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Collections.Generic;
 using VoxelGame.Entities;
 using VoxelGame.Logic;
 using VoxelGame.Rendering;
@@ -25,8 +25,6 @@ namespace VoxelGame
         public static Shader SectionShader { get; private set; }
         public static Shader SelectionShader { get; private set; }
         public static World World { get; set; }
-
-        private string worldsDirectory;
 
         public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
         {
@@ -54,8 +52,14 @@ namespace VoxelGame
             Block.LoadBlocks();
             Console.WriteLine(Language.BlocksLoadedAmount + Block.Count);
 
+            // Get the application data folder and set up all required folders there
+            string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "voxel");
+            string worldsDirectory = Path.Combine(appDataFolder, "Worlds");
+
+            Directory.CreateDirectory(appDataFolder);
+            Directory.CreateDirectory(worldsDirectory);
+
             // Finding of worlds and letting the user choose a world
-            worldsDirectory = Directory.GetCurrentDirectory() + @"\Worlds";
             List<(WorldInformation information, string path)> worlds = new List<(WorldInformation information, string path)>();
 
             foreach (string directory in Directory.GetDirectories(worldsDirectory))
@@ -235,18 +239,23 @@ namespace VoxelGame
                 case DebugSource.DebugSourceApi:
                     sourceShort = "API";
                     break;
+
                 case DebugSource.DebugSourceApplication:
                     sourceShort = "APPLICATION";
                     break;
+
                 case DebugSource.DebugSourceOther:
                     sourceShort = "OTHER";
                     break;
+
                 case DebugSource.DebugSourceShaderCompiler:
                     sourceShort = "SHADER COMPILER";
                     break;
+
                 case DebugSource.DebugSourceThirdParty:
                     sourceShort = "THIRD PARTY";
                     break;
+
                 case DebugSource.DebugSourceWindowSystem:
                     sourceShort = "WINDOWS SYSTEM";
                     break;
@@ -258,27 +267,35 @@ namespace VoxelGame
                 case DebugType.DebugTypeDeprecatedBehavior:
                     typeShort = "DEPRECATED BEHAVIOR";
                     break;
+
                 case DebugType.DebugTypeError:
                     typeShort = "ERROR";
                     break;
+
                 case DebugType.DebugTypeMarker:
                     typeShort = "MARKER";
                     break;
+
                 case DebugType.DebugTypeOther:
                     typeShort = "OTHER";
                     break;
+
                 case DebugType.DebugTypePerformance:
                     typeShort = "PERFORMANCE";
                     break;
+
                 case DebugType.DebugTypePopGroup:
                     typeShort = "POP GROUP";
                     break;
+
                 case DebugType.DebugTypePortability:
                     typeShort = "PORTABILITY";
                     break;
+
                 case DebugType.DebugTypePushGroup:
                     typeShort = "PUSH GROUP";
                     break;
+
                 case DebugType.DebugTypeUndefinedBehavior:
                     typeShort = "UNDEFINED BEHAVIOR";
                     break;
@@ -290,24 +307,31 @@ namespace VoxelGame
                 case 0x500:
                     idResolved = "GL_INVALID_ENUM";
                     break;
+
                 case 0x501:
                     idResolved = "GL_INVALID_VALUE";
                     break;
+
                 case 0x502:
                     idResolved = "GL_INVALID_OPERATION";
                     break;
+
                 case 0x503:
                     idResolved = "GL_STACK_OVERFLOW";
                     break;
+
                 case 0x504:
                     idResolved = "GL_STACK_UNDERFLOW";
                     break;
+
                 case 0x505:
                     idResolved = "GL_OUT_OF_MEMORY";
                     break;
+
                 case 0x506:
                     idResolved = "GL_INVALID_FRAMEBUFFER_OPERATION";
                     break;
+
                 case 0x507:
                     idResolved = "GL_CONTEXT_LOST";
                     break;
@@ -319,12 +343,15 @@ namespace VoxelGame
                 case DebugSeverity.DebugSeverityHigh:
                     severityShort = "HIGH";
                     break;
+
                 case DebugSeverity.DebugSeverityLow:
                     severityShort = "LOW";
                     break;
+
                 case DebugSeverity.DebugSeverityMedium:
                     severityShort = "MEDIUM";
                     break;
+
                 case DebugSeverity.DebugSeverityNotification:
                     severityShort = "NOTIFICATION";
                     break;

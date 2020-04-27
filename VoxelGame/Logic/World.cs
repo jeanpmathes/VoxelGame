@@ -3,13 +3,13 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using Resources;
 using System;
 using System.Collections.Generic;
-using Resources;
-using System.Threading.Tasks;
-using VoxelGame.WorldGeneration;
-using VoxelGame.Collections;
 using System.IO;
+using System.Threading.Tasks;
+using VoxelGame.Collections;
+using VoxelGame.WorldGeneration;
 
 namespace VoxelGame.Logic
 {
@@ -782,6 +782,7 @@ namespace VoxelGame.Logic
         }
 
         #region IDisposable Support
+
         private bool disposedValue = false;
 
         protected virtual void Dispose(bool disposing)
@@ -820,6 +821,7 @@ namespace VoxelGame.Logic
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        #endregion
+
+        #endregion IDisposable Support
     }
 }

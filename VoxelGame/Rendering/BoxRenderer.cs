@@ -124,7 +124,8 @@ namespace VoxelGame.Rendering
         }
 
         #region IDisposable Support
-        bool disposed = false;
+
+        private bool disposed = false;
 
         protected override void Dispose(bool disposing)
         {
@@ -146,6 +147,7 @@ namespace VoxelGame.Rendering
 
             disposed = true;
         }
+
         #endregion IDisposable Support
     }
 }

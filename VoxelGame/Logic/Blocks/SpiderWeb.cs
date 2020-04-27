@@ -3,10 +3,9 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using VoxelGame.Entities;
 using VoxelGame.Physics;
 using VoxelGame.Utilities;
-using VoxelGame.Entities;
-using OpenTK;
 
 namespace VoxelGame.Logic.Blocks
 {

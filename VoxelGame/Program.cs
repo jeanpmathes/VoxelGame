@@ -2,9 +2,8 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
 using Resources;
-using System.IO;
+using System;
 
 namespace VoxelGame
 {
@@ -12,8 +11,6 @@ namespace VoxelGame
     {
         private static void Main()
         {
-            Directory.CreateDirectory(Directory.GetCurrentDirectory() + @"\Worlds");
-
             Console.WriteLine(Language.StartingGame);
 
             using (Game game = new Game(800, 450, Language.VoxelGame))

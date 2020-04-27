@@ -71,7 +71,7 @@ namespace VoxelGame.Logic
             using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 IFormatter formatter = new BinaryFormatter();
-                chunk = (Chunk) formatter.Deserialize(stream);
+                chunk = (Chunk)formatter.Deserialize(stream);
             }
 
             // Checking the chunk
@@ -93,7 +93,7 @@ namespace VoxelGame.Logic
         /// <param name="z">The z coordinate of the chunk.</param>
         /// <returns>A task containing the loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
         public static Task<Chunk> LoadAsync(string path, int x, int z)
-        {        
+        {
             return Task.Run(() =>
             {
                 return Load(path, x, z);
@@ -290,6 +290,7 @@ namespace VoxelGame.Logic
         }
 
         #region IDisposable Support
+
         [NonSerialized] private bool disposed = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
@@ -318,6 +319,7 @@ namespace VoxelGame.Logic
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        #endregion
+
+        #endregion IDisposable Support
     }
 }

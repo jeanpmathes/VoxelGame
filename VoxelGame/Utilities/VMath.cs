@@ -3,8 +3,8 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
 using OpenTK;
+using System;
 
 namespace VoxelGame.Utilities
 {

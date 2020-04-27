@@ -3,13 +3,13 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
 using OpenTK;
 using OpenTK.Input;
+using Resources;
+using System;
 using VoxelGame.Logic;
 using VoxelGame.Physics;
 using VoxelGame.Rendering;
-using Resources;
 
 namespace VoxelGame.Entities
 {
@@ -24,6 +24,7 @@ namespace VoxelGame.Entities
         /// Gets whether this player has moved to a different chunk in the last frame.
         /// </summary>
         public bool ChunkHasChanged { get; private set; }
+
         public int ChunkX { get; private set; }
         public int ChunkZ { get; private set; }
 
@@ -221,18 +222,23 @@ namespace VoxelGame.Entities
                             case BlockSide.Front:
                                 placePositionZ++;
                                 break;
+
                             case BlockSide.Back:
                                 placePositionZ--;
                                 break;
+
                             case BlockSide.Left:
                                 placePositionX--;
                                 break;
+
                             case BlockSide.Right:
                                 placePositionX++;
                                 break;
+
                             case BlockSide.Bottom:
                                 placePositionY--;
                                 break;
+
                             case BlockSide.Top:
                                 placePositionY++;
                                 break;
@@ -317,7 +323,8 @@ namespace VoxelGame.Entities
         }
 
         #region IDisposable Support
-        bool disposed = false;
+
+        private bool disposed = false;
 
         protected override void Dispose(bool disposing)
         {
@@ -331,6 +338,7 @@ namespace VoxelGame.Entities
 
             disposed = true;
         }
+
         #endregion IDisposable Support
     }
 }

@@ -5,8 +5,8 @@
 // <author>pershingthesecond</author>
 using OpenTK;
 using System.Collections.Generic;
-using VoxelGame.Physics;
 using VoxelGame.Logic.Blocks;
+using VoxelGame.Physics;
 
 namespace VoxelGame.Logic
 {

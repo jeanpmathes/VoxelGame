@@ -158,6 +158,7 @@ namespace VoxelGame.Entities
         }
 
         #region IDisposable Support
+
         protected abstract void Update(float deltaTime);
 
         public void Dispose()
@@ -172,6 +173,7 @@ namespace VoxelGame.Entities
         }
 
         protected abstract void Dispose(bool disposing);
+
         #endregion IDisposable Support
     }
 }
