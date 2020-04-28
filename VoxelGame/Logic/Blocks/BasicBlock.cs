@@ -25,7 +25,7 @@ namespace VoxelGame.Logic.Blocks
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-        public BasicBlock(string name, bool isOpaque, bool renderFaceAtNonOpaques, (int front, int back, int left, int right, int bottom, int top) sideIndices, bool isSolid) :
+        public BasicBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid) :
             base(
                 name: name,
                 isFull: true,
@@ -38,27 +38,20 @@ namespace VoxelGame.Logic.Blocks
                 BoundingBox.Block)
         {
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
-            this.Setup(sideIndices);
+            this.Setup(layout);
 #pragma warning restore CA2214 // Do not call overridable methods in constructors
         }
 
-        protected virtual void Setup((int front, int back, int left, int right, int bottom, int top) sideIndices)
+        protected virtual void Setup(TextureLayout layout)
         {
-            int textureIndex = Game.Atlas.GetTextureIndex(Name);
-
-            if (textureIndex == -1)
-            {
-                throw new Exception($"No texture '{Name}' found!");
-            }
-
             AtlasPosition[] sideUVs =
             {
-                Game.Atlas.GetTextureUV(textureIndex + sideIndices.front),
-                Game.Atlas.GetTextureUV(textureIndex + sideIndices.back),
-                Game.Atlas.GetTextureUV(textureIndex + sideIndices.left),
-                Game.Atlas.GetTextureUV(textureIndex + sideIndices.right),
-                Game.Atlas.GetTextureUV(textureIndex + sideIndices.bottom),
-                Game.Atlas.GetTextureUV(textureIndex + sideIndices.top)
+                Game.Atlas.GetTextureUV(layout.Front),
+                Game.Atlas.GetTextureUV(layout.Back),
+                Game.Atlas.GetTextureUV(layout.Left),
+                Game.Atlas.GetTextureUV(layout.Right),
+                Game.Atlas.GetTextureUV(layout.Bottom),
+                Game.Atlas.GetTextureUV(layout.Top)
             };
 
             sideVertices = new float[][]

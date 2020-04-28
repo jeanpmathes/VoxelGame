@@ -36,7 +36,7 @@ namespace VoxelGame.Logic.Blocks
         /// <param name="name">The name of this block and the texture file.</param>
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
         /// <param name="boundingBox">The bounding box of this block.</param>
-        public CrossBlock(string name, bool isReplaceable, bool recieveCollisions, bool isTrigger, BoundingBox boundingBox) :
+        public CrossBlock(string name, string texture, bool isReplaceable, bool recieveCollisions, bool isTrigger, BoundingBox boundingBox) :
             base(
                 name,
                 isFull: false,
@@ -49,19 +49,13 @@ namespace VoxelGame.Logic.Blocks
                 boundingBox)
         {
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
-            Setup();
+            Setup(texture);
 #pragma warning restore CA2214 // Do not call overridable methods in constructors
         }
 
-        protected virtual void Setup()
+        protected virtual void Setup(string texture)
         {
-            int textureIndex = Game.Atlas.GetTextureIndex(Name);
-
-            if (textureIndex == -1)
-            {
-                throw new Exception($"No texture '{Name}' found!");
-            }
-
+            int textureIndex = Game.Atlas.GetTextureIndex(texture);
             AtlasPosition uv = Game.Atlas.GetTextureUV(textureIndex);
 
             vertices = new float[]

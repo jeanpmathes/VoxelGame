@@ -139,7 +139,7 @@ namespace VoxelGame.Rendering
             }
             else
             {
-                return -1;
+                throw new ArgumentException($"There is no texture with the name: {name}");
             }
         }
 

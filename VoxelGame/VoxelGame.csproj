@@ -124,6 +124,7 @@
     <Compile Include="Collections\UniqueQueue.cs" />
     <Compile Include="Logic\Blocks\CrossPlant.cs" />
     <Compile Include="Logic\Blocks\SpiderWeb.cs" />
+    <Compile Include="Logic\TextureLayout.cs" />
     <Compile Include="Logic\WorldInformation.cs" />
     <Compile Include="Physics\BoundingBox.cs" />
     <Compile Include="Entities\PhysicsEntity.cs" />

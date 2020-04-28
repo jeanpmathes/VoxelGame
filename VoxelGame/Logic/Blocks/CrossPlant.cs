@@ -16,17 +16,15 @@ namespace VoxelGame.Logic.Blocks
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
         /// <param name="requiredGround">The block on which this block can be placed.</param>
         /// <param name="boundingBox">The bounding box of this block.</param>
-        public CrossPlant(string name, bool isReplaceable, BoundingBox boundingBox) :
+        public CrossPlant(string name, string texture, bool isReplaceable, BoundingBox boundingBox) :
             base(
                 name,
+                texture,
                 isReplaceable,
                 recieveCollisions: false,
                 isTrigger: false,
                 boundingBox)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            Setup();
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
         }
 
         public override bool Place(int x, int y, int z, Entities.PhysicsEntity entity)

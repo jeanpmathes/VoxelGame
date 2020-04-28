@@ -18,19 +18,16 @@ namespace VoxelGame.Logic.Blocks
         /// </summary>
         /// <param name="name">The name of the block.</param>
         /// <param name="maxVelocity">The maximum velocity of entities colliding with this block.</param>
-        public SpiderWeb(string name, float maxVelocity) :
+        public SpiderWeb(string name, string texture, float maxVelocity) :
         base(
             name,
+            texture,
             isReplaceable: false,
             recieveCollisions: true,
             isTrigger: true,
             BoundingBox.Block)
         {
             this.maxVelocity = maxVelocity;
-
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            Setup();
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
         }
 
         public override void OnCollision(PhysicsEntity entity, int x, int y, int z)
