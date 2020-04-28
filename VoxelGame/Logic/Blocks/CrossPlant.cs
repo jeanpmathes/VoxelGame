@@ -30,7 +30,7 @@ namespace VoxelGame.Logic.Blocks
         public override bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
         {
             // Check the block under the placement position.
-            Block ground = (Game.World.GetBlock(x, y - 1, z) ?? Block.AIR);
+            Block ground = (Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR);
 
             if (ground != Block.DIRT && ground != Block.GRASS)
             {
@@ -43,7 +43,7 @@ namespace VoxelGame.Logic.Blocks
         public override void BlockUpdate(int x, int y, int z)
         {
             // Check the block under this block
-            Block ground = (Game.World.GetBlock(x, y - 1, z) ?? Block.AIR);
+            Block ground = (Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR);
 
             if (ground != Block.DIRT && ground != Block.GRASS)
             {

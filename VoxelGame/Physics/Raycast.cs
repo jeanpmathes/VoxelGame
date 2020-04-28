@@ -63,7 +63,7 @@ namespace VoxelGame.Physics
             double tDeltaZ = (direction.Z != 0) ? stepZ / direction.Z : double.MaxValue;
 
             //Check the current block
-            Block currentBlock = Game.World.GetBlock(x, y, z);
+            Block currentBlock = Game.World.GetBlock(x, y, z, out _);
 
             if (currentBlock != null && currentBlock != Block.AIR)
             {
@@ -119,7 +119,7 @@ namespace VoxelGame.Physics
                 }
 
                 //Check the current block
-                currentBlock = Game.World.GetBlock(x, y, z);
+                currentBlock = Game.World.GetBlock(x, y, z, out _);
 
                 if (currentBlock != null && currentBlock != Block.AIR)
                 {

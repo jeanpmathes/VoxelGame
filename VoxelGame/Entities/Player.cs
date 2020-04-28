@@ -100,7 +100,7 @@ namespace VoxelGame.Entities
         {
             if (selectedY >= 0)
             {
-                Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ);
+                Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _);
 
                 if (selectedBlock != Block.AIR)
                 {
@@ -215,7 +215,7 @@ namespace VoxelGame.Entities
                     int placePositionY = selectedY;
                     int placePositionZ = selectedZ;
 
-                    if (Game.World.GetBlock(placePositionX, placePositionY, placePositionZ)?.IsReplaceable == false)
+                    if (Game.World.GetBlock(placePositionX, placePositionY, placePositionZ, out _)?.IsReplaceable == false)
                     {
                         switch (selectedSide)
                         {
@@ -257,7 +257,7 @@ namespace VoxelGame.Entities
                 // Destruction
                 if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Left))
                 {
-                    Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ);
+                    Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _);
 
                     if (selectedBlock != null)
                     {

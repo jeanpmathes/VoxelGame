@@ -657,16 +657,20 @@ namespace VoxelGame.Logic
         /// <param name="x">The x position in block coordinates.</param>
         /// <param name="y">The y position in block coordinates.</param>
         /// <param name="z">The z position in block coordinates.</param>
+        /// <param name="data">The block data at the position.</param>
         /// <returns>The Block at x, y, z or null if the block was not found.</returns>
-        public Block GetBlock(int x, int y, int z)
+        public Block GetBlock(int x, int y, int z, out byte data)
         {
             if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
             {
-                return chunk.GetSection(y >> chunkHeightExp)
-                    [x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
+                ushort val = chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
+
+                data = (byte)(val >> 11);
+                return Block.TranslateID((ushort)(val & 0b0000_0111_1111_1111));
             }
             else
             {
+                data = 0;
                 return null;
             }
         }
@@ -675,25 +679,24 @@ namespace VoxelGame.Logic
         /// Sets a block in the world, adds the changed sections to the re-mesh set and sends block updates to the neighbors of the changed block.
         /// </summary>
         /// <param name="block">The block which should be set at the position.</param>
+        /// <param name="data">The block data which should be set at the position.</param>
         /// <param name="x">The x position of the block to set.</param>
         /// <param name="y">The y position of the block to set.</param>
         /// <param name="z">The z position of the block to set.</param>
-        public void SetBlock(Block block, int x, int y, int z)
+        public void SetBlock(Block block, byte data, int x, int y, int z)
         {
             if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
             {
-                chunk.GetSection(y >> chunkHeightExp)
-                    [x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = block;
-
+                chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = (ushort)((block ?? Block.AIR).Id | (data << 11));
                 sectionsToMesh.Add((chunk, y >> chunkHeightExp));
 
                 // Block updates
-                GetBlock(x, y, z + 1)?.BlockUpdate(x, y, z + 1); // Front
-                GetBlock(x, y, z - 1)?.BlockUpdate(x, y, z - 1); // Back
-                GetBlock(x - 1, y, z)?.BlockUpdate(x - 1, y, z); // Left
-                GetBlock(x + 1, y, z)?.BlockUpdate(x + 1, y, z); // Right
-                GetBlock(x, y - 1, z)?.BlockUpdate(x, y - 1, z); // Bottom
-                GetBlock(x, y + 1, z)?.BlockUpdate(x, y + 1, z); // Top
+                GetBlock(x, y, z + 1, out _)?.BlockUpdate(x, y, z + 1); // Front
+                GetBlock(x, y, z - 1, out _)?.BlockUpdate(x, y, z - 1); // Back
+                GetBlock(x - 1, y, z, out _)?.BlockUpdate(x - 1, y, z); // Left
+                GetBlock(x + 1, y, z, out _)?.BlockUpdate(x + 1, y, z); // Right
+                GetBlock(x, y - 1, z, out _)?.BlockUpdate(x, y - 1, z); // Bottom
+                GetBlock(x, y + 1, z, out _)?.BlockUpdate(x, y + 1, z); // Top
 
                 // Check if sections next to this section have to be changed
 

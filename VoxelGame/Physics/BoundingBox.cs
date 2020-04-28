@@ -110,7 +110,7 @@ namespace VoxelGame.Physics
                 {
                     for (int z = (range - 1) / -2; z <= (range - 1) / 2; z++)
                     {
-                        Block current = Game.World.GetBlock(x + xPos, y + yPos, z + zPos);
+                        Block current = Game.World.GetBlock(x + xPos, y + yPos, z + zPos, out _);
 
                         if (current != null)
                         {
@@ -199,7 +199,7 @@ namespace VoxelGame.Physics
                 {
                     for (int z = (range - 1) / -2; z <= (range - 1) / 2; z++)
                     {
-                        Block current = Game.World.GetBlock(x + xPos, y + yPos, z + zPos);
+                        Block current = Game.World.GetBlock(x + xPos, y + yPos, z + zPos, out _);
 
                         if (current != null)
                         {

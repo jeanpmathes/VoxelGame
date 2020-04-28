@@ -125,7 +125,7 @@ namespace VoxelGame.Entities
                         int yPos = (int)Math.Floor(BoundingBox.Center.Y);
                         int zPos = (int)Math.Floor(BoundingBox.Center.Z);
 
-                        IsGrounded = !Game.World.GetBlock(xPos, yPos + (int)Math.Round(BoundingBox.Extents.Y), zPos)?.IsSolid ?? true;
+                        IsGrounded = !Game.World.GetBlock(xPos, yPos + (int)Math.Round(BoundingBox.Extents.Y), zPos, out _)?.IsSolid ?? true;
                     }
 
                     movement = new Vector3(

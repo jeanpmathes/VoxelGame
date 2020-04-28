@@ -96,7 +96,7 @@ namespace VoxelGame.Logic
                             // Front
                             if (z + 1 >= SectionSize && frontNeighbour != null)
                             {
-                                blockToCheck = frontNeighbour[x, y, 0];
+                                blockToCheck = frontNeighbour.GetBlock(x, y, 0);
                             }
                             else if (z + 1 >= SectionSize)
                             {
@@ -104,7 +104,7 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                blockToCheck = this[x, y, z + 1];
+                                blockToCheck = GetBlock(x, y, z + 1);
                             }
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
@@ -132,7 +132,7 @@ namespace VoxelGame.Logic
                             // Back
                             if (z - 1 < 0 && backNeighbour != null)
                             {
-                                blockToCheck = backNeighbour[x, y, SectionSize - 1];
+                                blockToCheck = backNeighbour.GetBlock(x, y, SectionSize - 1);
                             }
                             else if (z - 1 < 0)
                             {
@@ -140,7 +140,7 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                blockToCheck = this[x, y, z - 1];
+                                blockToCheck = GetBlock(x, y, z - 1);
                             }
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
@@ -168,7 +168,7 @@ namespace VoxelGame.Logic
                             // Left
                             if (x - 1 < 0 && leftNeighbour != null)
                             {
-                                blockToCheck = leftNeighbour[SectionSize - 1, y, z];
+                                blockToCheck = leftNeighbour.GetBlock(SectionSize - 1, y, z);
                             }
                             else if (x - 1 < 0)
                             {
@@ -176,7 +176,7 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                blockToCheck = this[x - 1, y, z];
+                                blockToCheck = GetBlock(x - 1, y, z);
                             }
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
@@ -204,7 +204,7 @@ namespace VoxelGame.Logic
                             // Right
                             if (x + 1 >= SectionSize && rightNeighbour != null)
                             {
-                                blockToCheck = rightNeighbour[0, y, z];
+                                blockToCheck = rightNeighbour.GetBlock(0, y, z);
                             }
                             else if (x + 1 >= SectionSize)
                             {
@@ -212,7 +212,7 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                blockToCheck = this[x + 1, y, z];
+                                blockToCheck = GetBlock(x + 1, y, z);
                             }
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
@@ -240,7 +240,7 @@ namespace VoxelGame.Logic
                             // Bottom
                             if (y - 1 < 0 && bottomNeighbour != null)
                             {
-                                blockToCheck = bottomNeighbour[x, SectionSize - 1, z];
+                                blockToCheck = bottomNeighbour.GetBlock(x, SectionSize - 1, z);
                             }
                             else if (y - 1 < 0)
                             {
@@ -248,7 +248,7 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                blockToCheck = this[x, y - 1, z];
+                                blockToCheck = GetBlock(x, y - 1, z);
                             }
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
@@ -276,7 +276,7 @@ namespace VoxelGame.Logic
                             // Top
                             if (y + 1 >= SectionSize && topNeighbour != null)
                             {
-                                blockToCheck = topNeighbour[x, 0, z];
+                                blockToCheck = topNeighbour.GetBlock(x, 0, z);
                             }
                             else if (y + 1 >= SectionSize)
                             {
@@ -284,7 +284,7 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                blockToCheck = this[x, y + 1, z];
+                                blockToCheck = GetBlock(x, y + 1, z);
                             }
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
@@ -352,23 +352,38 @@ namespace VoxelGame.Logic
         }
 
         /// <summary>
-        /// Returns or sets the block at a section position.
+        /// Gets or sets the block at a section position.
         /// </summary>
         /// <param name="x">The x position of the block in this section.</param>
         /// <param name="y">The y position of the block in this section.</param>
         /// <param name="z">The z position of the block in this section.</param>
         /// <returns>The block at the given position.</returns>
-        public Block this[int x, int y, int z]
+        public ushort this[int x, int y, int z]
         {
             get
             {
-                return Block.TranslateID((ushort)(blocks[(x << 10) + (y << 5) + z] & 0b0000_0111_1111_1111));
+                return blocks[(x << 10) + (y << 5) + z];
             }
 
             set
             {
-                blocks[(x << 10) + (y << 5) + z] = (value ?? Block.AIR).Id;
+                blocks[(x << 10) + (y << 5) + z] = value;
             }
+        }
+
+        private Block GetBlock(int x, int y, int z)
+        {
+            return Block.TranslateID((ushort)(this[x, y, z] & 0b0000_0111_1111_1111));
+        }
+
+        private void SetBlock(Block block, byte data, int x, int y, int z)
+        {
+            this[x, y, z] = (ushort)((block ?? Block.AIR).Id | (data << 11));
+        }
+
+        private void SetBlock(Block block, int x, int y, int z)
+        {
+            this[x, y, z] = (block ?? Block.AIR).Id;
         }
 
         #region IDisposable Support

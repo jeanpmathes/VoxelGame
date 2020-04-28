@@ -141,7 +141,7 @@ namespace VoxelGame.Logic
 
                     foreach (Block block in generator.GenerateColumn(x + (X * Section.SectionSize), z + (Z * Section.SectionSize)))
                     {
-                        sections[y >> 5][x, y & (Section.SectionSize - 1), z] = block;
+                        sections[y >> 5][x, y & (Section.SectionSize - 1), z] = block.Id; // (ushort)((block).Id | (data << 11));
 
                         y++;
                     }
