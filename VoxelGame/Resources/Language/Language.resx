@@ -117,17 +117,29 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Air" xml:space="preserve">
+    <value>Air</value>
+  </data>
   <data name="AllChunksSaving" xml:space="preserve">
     <value>Saving all active chunks of the world.</value>
   </data>
   <data name="BlocksLoadedAmount" xml:space="preserve">
     <value>Blocks loaded: </value>
   </data>
+  <data name="CoalOre" xml:space="preserve">
+    <value>Coal Ore</value>
+  </data>
+  <data name="Cobblestone" xml:space="preserve">
+    <value>Cobblestone</value>
+  </data>
   <data name="CreatedOn" xml:space="preserve">
     <value>Created on</value>
   </data>
   <data name="CurrentBlockIs" xml:space="preserve">
     <value>The current block is: </value>
+  </data>
+  <data name="Dirt" xml:space="preserve">
+    <value>Dirt</value>
   </data>
   <data name="EnterIndexOfWorld" xml:space="preserve">
     <value>Enter the number of the world to load:</value>
@@ -138,17 +150,53 @@
   <data name="ExitingGame" xml:space="preserve">
     <value>Exiting...</value>
   </data>
+  <data name="Flower" xml:space="preserve">
+    <value>Flower</value>
+  </data>
+  <data name="Glass" xml:space="preserve">
+    <value>Glass</value>
+  </data>
+  <data name="GoldOre" xml:space="preserve">
+    <value>Gold Ore</value>
+  </data>
+  <data name="Grass" xml:space="preserve">
+    <value>Grass</value>
+  </data>
   <data name="InputNotValid" xml:space="preserve">
     <value>Input not valid!</value>
+  </data>
+  <data name="IronOre" xml:space="preserve">
+    <value>Iron Ore</value>
+  </data>
+  <data name="Leaves" xml:space="preserve">
+    <value>Leaves</value>
   </data>
   <data name="ListingWorlds" xml:space="preserve">
     <value>Listing all worlds: </value>
   </data>
+  <data name="Log" xml:space="preserve">
+    <value>Log</value>
+  </data>
   <data name="NewWorldPrompt" xml:space="preserve">
     <value>Do you want to create a new world?</value>
   </data>
+  <data name="Sand" xml:space="preserve">
+    <value>Sand</value>
+  </data>
+  <data name="Snow" xml:space="preserve">
+    <value>Snow</value>
+  </data>
+  <data name="SpiderWeb" xml:space="preserve">
+    <value>Spider Web</value>
+  </data>
   <data name="StartingGame" xml:space="preserve">
     <value>Starting game...</value>
+  </data>
+  <data name="Stone" xml:space="preserve">
+    <value>Stone</value>
+  </data>
+  <data name="TallGrass" xml:space="preserve">
+    <value>Tall Grass</value>
   </data>
   <data name="VoxelGame" xml:space="preserve">
     <value>VoxelGame</value>

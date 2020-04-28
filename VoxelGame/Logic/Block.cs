@@ -7,6 +7,7 @@ using OpenTK;
 using System.Collections.Generic;
 using VoxelGame.Logic.Blocks;
 using VoxelGame.Physics;
+using Resources;
 
 namespace VoxelGame.Logic
 {
@@ -63,22 +64,22 @@ namespace VoxelGame.Logic
 
         public static void LoadBlocks()
         {
-            AIR = new AirBlock("Air");
-            GRASS = new BasicBlock("Grass", TextureLayout.UnqiueColumn("grass", 0, 1, 2), true, true, true);
-            TALL_GRASS = new CrossPlant("Tall Grass", "tall_grass", true, BoundingBox.Block);
-            DIRT = new BasicBlock("Dirt", TextureLayout.Uniform("dirt"), true, true, true);
-            STONE = new BasicBlock("Stone", TextureLayout.Uniform("stone"), true, true, true);
-            COBBLESTONE = new BasicBlock("Cobblestone", TextureLayout.Uniform("cobblestone"), true, true, true);
-            LOG = new BasicBlock("Log", TextureLayout.Column("log", 0, 1), true, true, true);
-            SAND = new BasicBlock("Sand", TextureLayout.Uniform("sand"), true, true, true);
-            LEAVES = new BasicBlock("Leaves", TextureLayout.Uniform("leaves"), false, true, true);
-            GLASS = new BasicBlock("Glass", TextureLayout.Uniform("glass"), false, false, true);
-            ORE_COAL = new BasicBlock("Coal Ore", TextureLayout.Uniform("ore_coal"), true, true, true);
-            ORE_IRON = new BasicBlock("Iron Ore", TextureLayout.Uniform("ore_iron"), true, true, true);
-            ORE_GOLD = new BasicBlock("Gold Ore", TextureLayout.Uniform("ore_gold"), true, true, true);
-            SNOW = new BasicBlock("Snow", TextureLayout.Uniform("snow"), true, true, true);
-            FLOWER = new CrossPlant("Flower", "flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
-            SPIDERWEB = new SpiderWeb("Spider Web", "spider_web", 0.01f);
+            AIR = new AirBlock(Language.Air);
+            GRASS = new BasicBlock(Language.Grass, TextureLayout.UnqiueColumn("grass", 0, 1, 2), true, true, true);
+            TALL_GRASS = new CrossPlant(Language.TallGrass, "tall_grass", true, BoundingBox.Block);
+            DIRT = new BasicBlock(Language.Dirt, TextureLayout.Uniform("dirt"), true, true, true);
+            STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"), true, true, true);
+            COBBLESTONE = new BasicBlock(Language.Cobblestone, TextureLayout.Uniform("cobblestone"), true, true, true);
+            LOG = new BasicBlock(Language.Log, TextureLayout.Column("log", 0, 1), true, true, true);
+            SAND = new BasicBlock(Language.Sand, TextureLayout.Uniform("sand"), true, true, true);
+            LEAVES = new BasicBlock(Language.Leaves, TextureLayout.Uniform("leaves"), false, true, true);
+            GLASS = new BasicBlock(Language.Glass, TextureLayout.Uniform("glass"), false, false, true);
+            ORE_COAL = new BasicBlock(Language.CoalOre, TextureLayout.Uniform("ore_coal"), true, true, true);
+            ORE_IRON = new BasicBlock(Language.IronOre, TextureLayout.Uniform("ore_iron"), true, true, true);
+            ORE_GOLD = new BasicBlock(Language.GoldOre, TextureLayout.Uniform("ore_gold"), true, true, true);
+            SNOW = new BasicBlock(Language.Snow, TextureLayout.Uniform("snow"), true, true, true);
+            FLOWER = new CrossPlant(Language.Flower, "flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
+            SPIDERWEB = new SpiderWeb(Language.SpiderWeb, "spider_web", 0.01f);
         }
 
         #endregion STATIC BLOCK MANAGMENT

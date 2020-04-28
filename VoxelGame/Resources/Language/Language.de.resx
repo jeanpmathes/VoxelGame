@@ -117,17 +117,29 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Air" xml:space="preserve">
+    <value>Luft</value>
+  </data>
   <data name="AllChunksSaving" xml:space="preserve">
     <value>Speichere alle aktiven Chunks der Welt.</value>
   </data>
   <data name="BlocksLoadedAmount" xml:space="preserve">
     <value>Anzahl geladener Blöcke: </value>
   </data>
+  <data name="CoalOre" xml:space="preserve">
+    <value>Kohleerz</value>
+  </data>
+  <data name="Cobblestone" xml:space="preserve">
+    <value>Pflasterstein</value>
+  </data>
   <data name="CreatedOn" xml:space="preserve">
     <value>Erstellt am</value>
   </data>
   <data name="CurrentBlockIs" xml:space="preserve">
     <value>Der derzeit ausgewählte Block ist: </value>
+  </data>
+  <data name="Dirt" xml:space="preserve">
+    <value>Erde</value>
   </data>
   <data name="EnterIndexOfWorld" xml:space="preserve">
     <value>Geben sie die Nummer der Welt ein: </value>
@@ -138,17 +150,53 @@
   <data name="ExitingGame" xml:space="preserve">
     <value>Beende...</value>
   </data>
+  <data name="Flower" xml:space="preserve">
+    <value>Blume</value>
+  </data>
+  <data name="Glass" xml:space="preserve">
+    <value>Glas</value>
+  </data>
+  <data name="GoldOre" xml:space="preserve">
+    <value>Golderz</value>
+  </data>
+  <data name="Grass" xml:space="preserve">
+    <value>Gras</value>
+  </data>
   <data name="InputNotValid" xml:space="preserve">
     <value>Eingabe nicht gültig!</value>
+  </data>
+  <data name="IronOre" xml:space="preserve">
+    <value>Eisenerz</value>
+  </data>
+  <data name="Leaves" xml:space="preserve">
+    <value>Blätter</value>
   </data>
   <data name="ListingWorlds" xml:space="preserve">
     <value>Liste alle Welten auf: </value>
   </data>
+  <data name="Log" xml:space="preserve">
+    <value>Stamm</value>
+  </data>
   <data name="NewWorldPrompt" xml:space="preserve">
     <value>Möchten sie eine neue Welt erstellen?</value>
   </data>
+  <data name="Sand" xml:space="preserve">
+    <value>Sand</value>
+  </data>
+  <data name="Snow" xml:space="preserve">
+    <value>Schnee</value>
+  </data>
+  <data name="SpiderWeb" xml:space="preserve">
+    <value>Spinnennetz</value>
+  </data>
   <data name="StartingGame" xml:space="preserve">
     <value>Starte Spiel...</value>
+  </data>
+  <data name="Stone" xml:space="preserve">
+    <value>Stein</value>
+  </data>
+  <data name="TallGrass" xml:space="preserve">
+    <value>Hohes Gras</value>
   </data>
   <data name="VoxelGame" xml:space="preserve">
     <value>VolumenelementSpiel</value>
