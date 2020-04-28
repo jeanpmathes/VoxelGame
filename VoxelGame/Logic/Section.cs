@@ -362,7 +362,7 @@ namespace VoxelGame.Logic
         {
             get
             {
-                return Block.TranslateID((ushort)(blocks[(x << 10) + (y << 5) + z] & 0b0000_1111_1111));
+                return Block.TranslateID((ushort)(blocks[(x << 10) + (y << 5) + z] & 0b0000_0111_1111_1111));
             }
 
             set

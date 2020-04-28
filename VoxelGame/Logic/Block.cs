@@ -144,7 +144,7 @@ namespace VoxelGame.Logic
 
             this.boundingBox = boundingBox;
 
-            if (blockDictionary.Count < 4096)
+            if (blockDictionary.Count < 2048)
             {
                 blockDictionary.Add((ushort)blockDictionary.Count, this);
                 Id = (ushort)(blockDictionary.Count - 1);
