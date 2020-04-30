@@ -35,6 +35,7 @@ namespace VoxelGame.Logic
         public static Block SNOW;
         public static Block FLOWER;
         public static Block SPIDERWEB;
+        public static Block CAVEPAINTING;
 
         private static Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
 
@@ -70,7 +71,7 @@ namespace VoxelGame.Logic
             DIRT = new BasicBlock(Language.Dirt, TextureLayout.Uniform("dirt"), true, true, true);
             STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"), true, true, true);
             COBBLESTONE = new BasicBlock(Language.Cobblestone, TextureLayout.Uniform("cobblestone"), true, true, true);
-            LOG = new BasicBlock(Language.Log, TextureLayout.Column("log", 0, 1), true, true, true);
+            LOG = new RotatedBlock(Language.Log, TextureLayout.Column("log", 0, 1), true, true, true);
             SAND = new BasicBlock(Language.Sand, TextureLayout.Uniform("sand"), true, true, true);
             LEAVES = new BasicBlock(Language.Leaves, TextureLayout.Uniform("leaves"), false, true, true);
             GLASS = new BasicBlock(Language.Glass, TextureLayout.Uniform("glass"), false, false, true);
@@ -80,6 +81,7 @@ namespace VoxelGame.Logic
             SNOW = new BasicBlock(Language.Snow, TextureLayout.Uniform("snow"), true, true, true);
             FLOWER = new CrossPlant(Language.Flower, "flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
             SPIDERWEB = new SpiderWeb(Language.SpiderWeb, "spider_web", 0.01f);
+            CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqieFront("stone_cavepainting", "stone"), true, true, true);
         }
 
         #endregion STATIC BLOCK MANAGMENT
@@ -204,7 +206,7 @@ namespace VoxelGame.Logic
         /// <param name="vertices">The vertices of the mesh.</param>
         /// <param name="indices">The indices of the mesh.</param>
         /// <returns>The amount of polygons in the mesh.</returns>
-        public abstract uint GetMesh(BlockSide side, ushort data, out float[] vertices, out uint[] indices);
+        public abstract uint GetMesh(BlockSide side, byte data, out float[] vertices, out uint[] indices);
 
         public abstract void BlockUpdate(int x, int y, int z);
 

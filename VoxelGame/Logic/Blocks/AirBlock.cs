@@ -48,7 +48,7 @@ namespace VoxelGame.Logic.Blocks
         /// <param name="vertecies">The parameter is not used.</param>
         /// <param name="indicies">The parameter is not used.</param>
         /// <returns>Returns null.</returns>
-        public override uint GetMesh(BlockSide side, ushort data, out float[] vertecies, out uint[] indicies)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertecies, out uint[] indicies)
         {
             vertecies = null;
             indicies = null;

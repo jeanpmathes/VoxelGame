@@ -27,6 +27,8 @@ namespace VoxelGame.Entities
 
         public int ChunkX { get; private set; }
         public int ChunkZ { get; private set; }
+        public override Vector3 LookingDirection { get => camera.Front; }
+        public override BlockSide TargetSide { get => selectedSide; }
 
         private readonly Camera camera;
         private readonly Vector3 cameraOffset = new Vector3(0f, 0.5f, 0f);

@@ -126,6 +126,9 @@
   <data name="BlocksLoadedAmount" xml:space="preserve">
     <value>Anzahl geladener Blöcke: </value>
   </data>
+  <data name="CavePainting" xml:space="preserve">
+    <value>Höhlenmalerei</value>
+  </data>
   <data name="CoalOre" xml:space="preserve">
     <value>Kohleerz</value>
   </data>

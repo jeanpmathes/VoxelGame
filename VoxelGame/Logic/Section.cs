@@ -84,8 +84,13 @@ namespace VoxelGame.Logic
                     {
                         ushort currentBlockData = blocks[(x << 10) + (y << 5) + z];
 
-                        Block currentBlock = Block.TranslateID((ushort)(currentBlockData & 0b0000_1111_1111));
-                        ushort currentData = (byte)((currentBlockData & 0b1111_0000_0000) >> 8);
+                        Block currentBlock = Block.TranslateID((ushort)(currentBlockData & 0b0000_0111_1111_1111));
+                        byte currentData = (byte)((currentBlockData & 0b1111_1000_0000_0000) >> 11);
+
+                        if (currentData == 16)
+                        {
+                            System.Diagnostics.Debugger.Break();
+                        }
 
                         if (currentBlock.IsFull) // Check if this block is sized 1x1x1
                         {

@@ -48,7 +48,6 @@ namespace VoxelGame.Entities
                 return Rotation * Vector3.UnitX;
             }
         }
-
         public Vector3 Right
         {
             get
@@ -57,10 +56,12 @@ namespace VoxelGame.Entities
             }
         }
 
+        public abstract Vector3 LookingDirection { get; }
+        public abstract Logic.BlockSide TargetSide { get; }
+
         private readonly int physicsIterations = 10;
 
         private Vector3 force;
-
         private BoundingBox boundingBox;
 
         public BoundingBox BoundingBox

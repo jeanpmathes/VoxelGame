@@ -84,7 +84,7 @@ namespace VoxelGame.Logic.Blocks
                     1f, 1f, 0f, sideUVs[3].topRightU, sideUVs[3].topRightV,
                     1f, 0f, 0f, sideUVs[3].topRightU, sideUVs[3].bottomLeftV
                 },
-                new float[] // Bottom top
+                new float[] // Bottom face
                 {
                     0f, 0f, 0f, sideUVs[4].bottomLeftU, sideUVs[4].bottomLeftV,
                     0f, 0f, 1f, sideUVs[4].bottomLeftU, sideUVs[4].topRightV,
@@ -101,7 +101,7 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        public override uint GetMesh(BlockSide side, ushort data, out float[] vertices, out uint[] indices)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out uint[] indices)
         {
             vertices = sideVertices[(int)side];
             indices = this.indices;
