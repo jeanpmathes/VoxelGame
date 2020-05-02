@@ -7,7 +7,9 @@ using Resources;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using OpenTK;
 using VoxelGame.Collections;
 using VoxelGame.WorldGeneration;
 
@@ -202,13 +204,34 @@ namespace VoxelGame.Logic
             if (IsReady)
             {
                 // Collect all chunks to render
-                chunksToRender.UnionWith(activeChunks.Values);
+                Chunk playerChunk = activeChunks[(Game.Player.ChunkX, Game.Player.ChunkZ)];
+                chunksToRender.Add(playerChunk);
+                Vector3 normal = Game.Player.LookingDirection.Normalized();
+                Vector3 pivot = playerChunk.ChunkPoint;
+
+                for (int x = -Game.Player.RenderDistance; x <= Game.Player.RenderDistance; x++)
+                {
+                    for (int z = -Game.Player.RenderDistance; z <= Game.Player.RenderDistance; z++)
+                    {
+                        if (activeChunks.TryGetValue((Game.Player.ChunkX + x, Game.Player.ChunkZ + z), out Chunk chunk))
+                        {
+                            if (x == 0 && z == 0)
+                            {
+                                continue;
+                            }
+                                
+                            chunksToRender.Add(chunk);
+                        }
+                    }
+                }
 
                 // Render the listed chunks
                 foreach (Chunk chunk in chunksToRender)
                 {
                     chunk.Render();
                 }
+
+                Console.WriteLine(chunksToRender.Count);
 
                 chunksToRender.Clear();
 
@@ -659,6 +682,7 @@ namespace VoxelGame.Logic
         /// <param name="z">The z position in block coordinates.</param>
         /// <param name="data">The block data at the position.</param>
         /// <returns>The Block at x, y, z or null if the block was not found.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Block GetBlock(int x, int y, int z, out byte data)
         {
             if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
@@ -683,6 +707,7 @@ namespace VoxelGame.Logic
         /// <param name="x">The x position of the block to set.</param>
         /// <param name="y">The y position of the block to set.</param>
         /// <param name="z">The z position of the block to set.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetBlock(Block block, byte data, int x, int y, int z)
         {
             if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
@@ -751,6 +776,7 @@ namespace VoxelGame.Logic
         /// <param name="y">The y position of the section in chunk coordinates.</param>
         /// <param name="z">The z position of the section in chunk coordinates.</param>
         /// <returns>The section at the given position or null if no section was found.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Section GetSection(int x, int y, int z)
         {
             if (activeChunks.TryGetValue((x, z), out Chunk chunk) && y >= 0 && y < Chunk.ChunkHeight)

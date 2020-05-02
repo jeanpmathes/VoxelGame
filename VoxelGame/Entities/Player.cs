@@ -25,8 +25,15 @@ namespace VoxelGame.Entities
         /// </summary>
         public bool ChunkHasChanged { get; private set; }
 
+        /// <summary>
+        /// The x coordinate of the current chunk this player is in.
+        /// </summary>
         public int ChunkX { get; private set; }
+        /// <summary>
+        /// The z coordinate of the current chunk this player is in.
+        /// </summary>
         public int ChunkZ { get; private set; }
+
         public override Vector3 LookingDirection { get => camera.Front; }
         public override BlockSide TargetSide { get => selectedSide; }
 

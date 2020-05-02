@@ -18,6 +18,7 @@ namespace VoxelGame.Logic
 
         private readonly ushort[] blocks;
 
+        [NonSerialized] private bool isEmpty;
         [NonSerialized] private SectionRenderer renderer;
 
         public Section()
@@ -39,7 +40,7 @@ namespace VoxelGame.Logic
         {
             if (generator == null)
             {
-                throw new System.ArgumentNullException(paramName: nameof(generator));
+                throw new ArgumentNullException(paramName: nameof(generator));
             }
 
             for (int x = 0; x < SectionSize; x++)
@@ -71,8 +72,8 @@ namespace VoxelGame.Logic
             Section topNeighbour = Game.World.GetSection(sectionX, sectionY + 1, sectionZ);
 
             // Recalculate the mesh and set the buffers
-            List<float> vertices = new List<float>();
-            List<uint> indices = new List<uint>();
+            List<float> vertices = new List<float>(4096);
+            List<uint> indices = new List<uint>(1024);
 
             uint vertCount = 0;
 
@@ -86,11 +87,6 @@ namespace VoxelGame.Logic
 
                         Block currentBlock = Block.TranslateID((ushort)(currentBlockData & 0b0000_0111_1111_1111));
                         byte currentData = (byte)((currentBlockData & 0b1111_1000_0000_0000) >> 11);
-
-                        if (currentData == 16)
-                        {
-                            System.Diagnostics.Debugger.Break();
-                        }
 
                         if (currentBlock.IsFull) // Check if this block is sized 1x1x1
                         {
@@ -342,6 +338,8 @@ namespace VoxelGame.Logic
                 }
             }
 
+            isEmpty = (vertices.Count == 0);
+
             verticesData = vertices.ToArray();
             indicesData = indices.ToArray();
         }
@@ -353,7 +351,10 @@ namespace VoxelGame.Logic
 
         public void Render(Vector3 position)
         {
-            renderer.Draw(position);
+            if (!isEmpty)
+            {
+                renderer.Draw(position);
+            }
         }
 
         /// <summary>
@@ -379,16 +380,6 @@ namespace VoxelGame.Logic
         private Block GetBlock(int x, int y, int z)
         {
             return Block.TranslateID((ushort)(this[x, y, z] & 0b0000_0111_1111_1111));
-        }
-
-        private void SetBlock(Block block, byte data, int x, int y, int z)
-        {
-            this[x, y, z] = (ushort)((block ?? Block.AIR).Id | (data << 11));
-        }
-
-        private void SetBlock(Block block, int x, int y, int z)
-        {
-            this[x, y, z] = (block ?? Block.AIR).Id;
         }
 
         #region IDisposable Support

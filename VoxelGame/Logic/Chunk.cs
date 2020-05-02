@@ -30,6 +30,14 @@ namespace VoxelGame.Logic
         /// </summary>
         public int Z { get; }
 
+        /// <summary>
+        /// Gets the position of the chunk as a point located in the center of the chunk.
+        /// </summary>
+        public Vector3 ChunkPoint
+        {
+            get => new Vector3(X + (Section.SectionSize / 2), ChunkHeight * Section.SectionSize / 2, Z + (Section.SectionSize / 2));
+        }
+
         private readonly Section[] sections = new Section[ChunkHeight];
 
         [NonSerialized] private bool hasMeshData = false;
