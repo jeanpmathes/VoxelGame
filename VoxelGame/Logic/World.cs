@@ -231,8 +231,6 @@ namespace VoxelGame.Logic
                     chunk.Render();
                 }
 
-                Console.WriteLine(chunksToRender.Count);
-
                 chunksToRender.Clear();
 
                 // Render the player

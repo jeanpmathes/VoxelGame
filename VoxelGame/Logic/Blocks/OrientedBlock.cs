@@ -7,6 +7,7 @@ using OpenTK;
 using System;
 using VoxelGame.Entities;
 using VoxelGame.Rendering;
+using VoxelGame.Utilities;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -159,29 +160,9 @@ namespace VoxelGame.Logic.Blocks
                 return false;
             }
 
-            Game.World.SetBlock(this, (byte)ToOrientation(entity.LookingDirection), x, y, z);
+            Game.World.SetBlock(this, (byte)entity.LookingDirection.ToOrientation(), x, y, z);
 
             return true;
-        }
-
-        protected enum Orientation
-        {
-            North = 0b00,
-            East = 0b01,
-            South = 0b10,
-            West = 0b11
-        }
-
-        protected static Orientation ToOrientation(Vector3 vector)
-        {
-            if (Math.Abs(vector.Z) > Math.Abs(vector.X))
-            {
-                return (vector.Z > 0) ? Orientation.South : Orientation.North;
-            }
-            else
-            {
-                return (vector.X > 0) ? Orientation.East : Orientation.West;
-            }
         }
 
         protected static Orientation ToOrientation(byte data)

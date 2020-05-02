@@ -162,6 +162,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Language.resx</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\Orientation.cs" />
     <Compile Include="Utilities\VMath.cs" />
     <Compile Include="WorldGeneration\FastNoise.cs" />
     <Compile Include="WorldGeneration\FlatGenerator.cs" />
