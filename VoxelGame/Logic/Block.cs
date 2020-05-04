@@ -36,6 +36,7 @@ namespace VoxelGame.Logic
         public static Block FLOWER;
         public static Block SPIDERWEB;
         public static Block CAVEPAINTING;
+        public static Block LADDER;
 
         private static Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
 
@@ -82,6 +83,7 @@ namespace VoxelGame.Logic
             FLOWER = new CrossPlant(Language.Flower, "flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
             SPIDERWEB = new SpiderWeb(Language.SpiderWeb, "spider_web", 0.01f);
             CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqieFront("stone_cavepainting", "stone"), true, true, true);
+            LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f);
         }
 
         #endregion STATIC BLOCK MANAGMENT
@@ -164,7 +166,7 @@ namespace VoxelGame.Logic
         /// <param name="x">The x position where a block should be placed.</param>
         /// <param name="y">The y position where a block should be placed.</param>
         /// <param name="z">The z position where a block should be placed.</param>
-        /// <param name="entity">The entity that tries to place the block.</param>
+        /// <param name="entity">The entity that tries to place the block. May be null.</param>
         /// <returns>Returns true if placing the block was successful.</returns>
         public virtual bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
         {

@@ -208,7 +208,7 @@ namespace VoxelGame.Physics
                             // Check for intersection
                             if ((current.IsSolid || current.IsTrigger) && Intersects(currentBoundingBox))
                             {
-                                intersections.Add((x, y, z, current));
+                                intersections.Add((x + xPos, y + yPos, z + zPos, current));
 
                                 if (current.IsSolid)
                                 {

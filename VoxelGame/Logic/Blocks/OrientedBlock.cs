@@ -19,7 +19,9 @@ namespace VoxelGame.Logic.Blocks
     // o = orientation
     public class OrientedBlock : BasicBlock
     {
-        private float[][] sideUVs;
+#pragma warning disable CA1051 // Do not declare visible instance fields
+        protected float[][] sideUVs;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
         public OrientedBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid) :
             base(
@@ -86,7 +88,7 @@ namespace VoxelGame.Logic.Blocks
                     0f, 1f, 0f,
                     1f, 1f, 0f,
                     1f, 1f, 1f
-                }               
+                }
             };
 
             sideUVs = new float[][]
@@ -139,7 +141,7 @@ namespace VoxelGame.Logic.Blocks
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out uint[] indices)
         {
             float[] vert = sideVertices[(int)side];
-            float[] uv = sideUVs[TranslateIndex(side, ToOrientation(data))];
+            float[] uv = sideUVs[TranslateIndex(side, (Orientation)(data & 0b0_0011))];
 
             vertices = new float[]
             {
@@ -163,11 +165,6 @@ namespace VoxelGame.Logic.Blocks
             Game.World.SetBlock(this, (byte)entity.LookingDirection.ToOrientation(), x, y, z);
 
             return true;
-        }
-
-        protected static Orientation ToOrientation(byte data)
-        {
-            return (Orientation)(data & 0b0_0011);
         }
 
         protected static int TranslateIndex(BlockSide side, Orientation orientation)

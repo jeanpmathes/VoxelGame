@@ -171,6 +171,9 @@
   <data name="IronOre" xml:space="preserve">
     <value>Eisenerz</value>
   </data>
+  <data name="Ladder" xml:space="preserve">
+    <value>Leiter</value>
+  </data>
   <data name="Leaves" xml:space="preserve">
     <value>Blätter</value>
   </data>

@@ -11,7 +11,9 @@ namespace VoxelGame.Logic.Blocks
 {
     public class SpiderWeb : CrossBlock
     {
-        private readonly float maxVelocity;
+#pragma warning disable CA1051 // Do not declare visible instance fields
+        protected readonly float maxVelocity;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
         /// <summary>
         /// Creates a SpiderWeb block, a block that slows down entities that collide with it.

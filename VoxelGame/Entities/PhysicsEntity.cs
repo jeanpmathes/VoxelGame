@@ -56,6 +56,7 @@ namespace VoxelGame.Entities
             }
         }
 
+        public abstract Vector3 Movement { get; }
         public abstract Vector3 LookingDirection { get; }
         public abstract Logic.BlockSide TargetSide { get; }
 

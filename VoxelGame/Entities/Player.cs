@@ -34,6 +34,7 @@ namespace VoxelGame.Entities
         /// </summary>
         public int ChunkZ { get; private set; }
 
+        public override Vector3 Movement { get => movement; }
         public override Vector3 LookingDirection { get => camera.Front; }
         public override BlockSide TargetSide { get => selectedSide; }
 
@@ -44,6 +45,7 @@ namespace VoxelGame.Entities
         private readonly float sprintSpeed = 6f;
         private readonly Vector3 maxForce = new Vector3(5000f, 0f, 5000f);
         private readonly float jumpForce = 25000f;
+        private Vector3 movement;
 
         private Vector2 lastMousePos;
         private bool firstMove = true;
@@ -126,9 +128,9 @@ namespace VoxelGame.Entities
         protected override void Update(float deltaTime)
         {
             camera.Position = Position + cameraOffset;
+            this.movement = Vector3.Zero;
 
             Ray ray = new Ray(camera.Position, camera.Front, 6f);
-
             Raycast.CastWorld(ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
 
             if (Game.instance.Focused)
@@ -162,6 +164,7 @@ namespace VoxelGame.Entities
                     }
                 }
 
+                this.movement = movement;
                 Move(movement, maxForce);
 
                 if (input.IsKeyDown(Key.Space) && IsGrounded) // Jump
