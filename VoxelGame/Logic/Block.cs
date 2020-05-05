@@ -26,8 +26,10 @@ namespace VoxelGame.Logic
         public static Block STONE;
         public static Block COBBLESTONE;
         public static Block LOG;
+        public static Block WOOD;
         public static Block LEAVES;
         public static Block SAND;
+        public static Block GRAVEL;
         public static Block GLASS;
         public static Block ORE_COAL;
         public static Block ORE_IRON;
@@ -73,7 +75,9 @@ namespace VoxelGame.Logic
             STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"), true, true, true);
             COBBLESTONE = new BasicBlock(Language.Cobblestone, TextureLayout.Uniform("cobblestone"), true, true, true);
             LOG = new RotatedBlock(Language.Log, TextureLayout.Column("log", 0, 1), true, true, true);
+            WOOD = new BasicBlock("Wood", TextureLayout.Uniform("wood"), true, true, true);
             SAND = new BasicBlock(Language.Sand, TextureLayout.Uniform("sand"), true, true, true);
+            GRAVEL = new BasicBlock("Gravel", TextureLayout.Uniform("gravel"), true, true, true);
             LEAVES = new BasicBlock(Language.Leaves, TextureLayout.Uniform("leaves"), false, true, true);
             GLASS = new BasicBlock(Language.Glass, TextureLayout.Uniform("glass"), false, false, true);
             ORE_COAL = new BasicBlock(Language.CoalOre, TextureLayout.Uniform("ore_coal"), true, true, true);
