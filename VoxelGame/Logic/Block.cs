@@ -39,6 +39,7 @@ namespace VoxelGame.Logic
         public static Block SPIDERWEB;
         public static Block CAVEPAINTING;
         public static Block LADDER;
+        public static Block VINES;
 
         private static Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
 
@@ -75,9 +76,9 @@ namespace VoxelGame.Logic
             STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"), true, true, true);
             COBBLESTONE = new BasicBlock(Language.Cobblestone, TextureLayout.Uniform("cobblestone"), true, true, true);
             LOG = new RotatedBlock(Language.Log, TextureLayout.Column("log", 0, 1), true, true, true);
-            WOOD = new BasicBlock("Wood", TextureLayout.Uniform("wood"), true, true, true);
+            WOOD = new BasicBlock(Language.Wood, TextureLayout.Uniform("wood"), true, true, true);
             SAND = new BasicBlock(Language.Sand, TextureLayout.Uniform("sand"), true, true, true);
-            GRAVEL = new BasicBlock("Gravel", TextureLayout.Uniform("gravel"), true, true, true);
+            GRAVEL = new BasicBlock(Language.Gravel, TextureLayout.Uniform("gravel"), true, true, true);
             LEAVES = new BasicBlock(Language.Leaves, TextureLayout.Uniform("leaves"), false, true, true);
             GLASS = new BasicBlock(Language.Glass, TextureLayout.Uniform("glass"), false, false, true);
             ORE_COAL = new BasicBlock(Language.CoalOre, TextureLayout.Uniform("ore_coal"), true, true, true);
@@ -88,6 +89,7 @@ namespace VoxelGame.Logic
             SPIDERWEB = new SpiderWeb(Language.SpiderWeb, "spider_web", 0.01f);
             CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqieFront("stone_cavepainting", "stone"), true, true, true);
             LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f);
+            VINES = new FlatBlock(Language.Vines, "vines", 2f, 1f);
         }
 
         #endregion STATIC BLOCK MANAGMENT

@@ -165,6 +165,9 @@
   <data name="Grass" xml:space="preserve">
     <value>Gras</value>
   </data>
+  <data name="Gravel" xml:space="preserve">
+    <value>Kies</value>
+  </data>
   <data name="InputNotValid" xml:space="preserve">
     <value>Eingabe nicht gültig!</value>
   </data>
@@ -204,8 +207,14 @@
   <data name="TallGrass" xml:space="preserve">
     <value>Hohes Gras</value>
   </data>
+  <data name="Vines" xml:space="preserve">
+    <value>Ranken</value>
+  </data>
   <data name="VoxelGame" xml:space="preserve">
     <value>VolumenelementSpiel</value>
+  </data>
+  <data name="Wood" xml:space="preserve">
+    <value>Holz</value>
   </data>
   <data name="WorldIsReady" xml:space="preserve">
     <value>Die Welt ist bereit.</value>
