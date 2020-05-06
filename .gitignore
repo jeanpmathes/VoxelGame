@@ -268,3 +268,4 @@ __pycache__/
 /VoxelGame/packages.config
 /VoxelGame/Settings.StyleCop
 /VoxelGame/VoxelGame.licenseheader
+/.editorconfig

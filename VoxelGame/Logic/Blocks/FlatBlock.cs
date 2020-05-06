@@ -170,9 +170,8 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override void BlockUpdate(int x, int y, int z)
+        public override void BlockUpdate(int x, int y, int z, byte data)
         {
-            Game.World.GetBlock(x, y, z, out byte data);
             Orientation orientation = (Orientation)(data & 0b0_0011);
 
             if (orientation == Orientation.North && (Game.World.GetBlock(x, y, z + 1, out _)?.IsFull != true))

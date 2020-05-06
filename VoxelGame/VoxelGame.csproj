@@ -123,10 +123,12 @@
   <ItemGroup>
     <Compile Include="Collections\UniqueQueue.cs" />
     <Compile Include="Logic\Blocks\CrossPlant.cs" />
+    <Compile Include="Logic\Blocks\FenceBlock.cs" />
     <Compile Include="Logic\Blocks\FlatBlock.cs" />
     <Compile Include="Logic\Blocks\OrientedBlock.cs" />
     <Compile Include="Logic\Blocks\RotatedBlock.cs" />
     <Compile Include="Logic\Blocks\SpiderWeb.cs" />
+    <Compile Include="Logic\Interfaces\IFenceConnectable.cs" />
     <Compile Include="Logic\TextureLayout.cs" />
     <Compile Include="Logic\WorldInformation.cs" />
     <Compile Include="Physics\BoundingBox.cs" />

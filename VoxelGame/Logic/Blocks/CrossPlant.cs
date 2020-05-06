@@ -40,7 +40,7 @@ namespace VoxelGame.Logic.Blocks
             return base.Place(x, y, z, entity);
         }
 
-        public override void BlockUpdate(int x, int y, int z)
+        public override void BlockUpdate(int x, int y, int z, byte data)
         {
             // Check the block under this block
             Block ground = (Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR);

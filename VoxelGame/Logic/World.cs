@@ -714,12 +714,12 @@ namespace VoxelGame.Logic
                 sectionsToMesh.Add((chunk, y >> chunkHeightExp));
 
                 // Block updates
-                GetBlock(x, y, z + 1, out _)?.BlockUpdate(x, y, z + 1); // Front
-                GetBlock(x, y, z - 1, out _)?.BlockUpdate(x, y, z - 1); // Back
-                GetBlock(x - 1, y, z, out _)?.BlockUpdate(x - 1, y, z); // Left
-                GetBlock(x + 1, y, z, out _)?.BlockUpdate(x + 1, y, z); // Right
-                GetBlock(x, y - 1, z, out _)?.BlockUpdate(x, y - 1, z); // Bottom
-                GetBlock(x, y + 1, z, out _)?.BlockUpdate(x, y + 1, z); // Top
+                GetBlock(x, y, z + 1, out data)?.BlockUpdate(x, y, z + 1, data); // Front
+                GetBlock(x, y, z - 1, out data)?.BlockUpdate(x, y, z - 1, data); // Back
+                GetBlock(x - 1, y, z, out data)?.BlockUpdate(x - 1, y, z, data); // Left
+                GetBlock(x + 1, y, z, out data)?.BlockUpdate(x + 1, y, z, data); // Right
+                GetBlock(x, y - 1, z, out data)?.BlockUpdate(x, y - 1, z, data); // Bottom
+                GetBlock(x, y + 1, z, out data)?.BlockUpdate(x, y + 1, z, data); // Top
 
                 // Check if sections next to this section have to be changed
 

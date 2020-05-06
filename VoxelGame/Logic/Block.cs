@@ -40,8 +40,9 @@ namespace VoxelGame.Logic
         public static Block CAVEPAINTING;
         public static Block LADDER;
         public static Block VINES;
+        public static Block FENCE_WOOD;
 
-        private static Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
+        private static readonly Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
 
         /// <summary>
         /// Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.
@@ -90,6 +91,7 @@ namespace VoxelGame.Logic
             CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqieFront("stone_cavepainting", "stone"), true, true, true);
             LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f);
             VINES = new FlatBlock(Language.Vines, "vines", 2f, 1f);
+            FENCE_WOOD = new FenceBlock("Wooden Fence", "wood");
         }
 
         #endregion STATIC BLOCK MANAGMENT
@@ -141,7 +143,7 @@ namespace VoxelGame.Logic
 
         private BoundingBox boundingBox;
 
-        public Block(string name, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, BoundingBox boundingBox)
+        protected Block(string name, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, BoundingBox boundingBox)
         {
             Name = name;
             IsFull = isFull;
@@ -213,10 +215,10 @@ namespace VoxelGame.Logic
         /// <param name="data">The block data of the block at the position.</param>
         /// <param name="vertices">The vertices of the mesh.</param>
         /// <param name="indices">The indices of the mesh.</param>
-        /// <returns>The amount of polygons in the mesh.</returns>
+        /// <returns>The amount of vertices in the mesh.</returns>
         public abstract uint GetMesh(BlockSide side, byte data, out float[] vertices, out uint[] indices);
 
-        public abstract void BlockUpdate(int x, int y, int z);
+        public abstract void BlockUpdate(int x, int y, int z, byte data);
 
         public abstract void OnCollision(Entities.PhysicsEntity entity, int x, int y, int z);
 
