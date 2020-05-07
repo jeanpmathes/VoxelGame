@@ -9,7 +9,7 @@ using VoxelGame.Utilities;
 
 namespace VoxelGame.Logic.Blocks
 {
-    public class SpiderWeb : CrossBlock
+    public class SpiderWebBlock : CrossBlock
     {
 #pragma warning disable CA1051 // Do not declare visible instance fields
         protected readonly float maxVelocity;
@@ -20,7 +20,7 @@ namespace VoxelGame.Logic.Blocks
         /// </summary>
         /// <param name="name">The name of the block.</param>
         /// <param name="maxVelocity">The maximum velocity of entities colliding with this block.</param>
-        public SpiderWeb(string name, string texture, float maxVelocity) :
+        public SpiderWebBlock(string name, string texture, float maxVelocity) :
         base(
             name,
             texture,

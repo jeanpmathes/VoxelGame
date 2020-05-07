@@ -71,8 +71,8 @@ namespace VoxelGame.Logic
         public static void LoadBlocks()
         {
             AIR = new AirBlock(Language.Air);
-            GRASS = new BasicBlock(Language.Grass, TextureLayout.UnqiueColumn("grass", 0, 1, 2), true, true, true);
-            TALL_GRASS = new CrossPlant(Language.TallGrass, "tall_grass", true, BoundingBox.Block);
+            GRASS = new BasicBlock(Language.Grass, TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"), true, true, true);
+            TALL_GRASS = new CrossPlantBlock(Language.TallGrass, "tall_grass", true, BoundingBox.Block);
             DIRT = new BasicBlock(Language.Dirt, TextureLayout.Uniform("dirt"), true, true, true);
             STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"), true, true, true);
             COBBLESTONE = new ConstructionBlock(Language.Cobblestone, TextureLayout.Uniform("cobblestone"));
@@ -86,8 +86,8 @@ namespace VoxelGame.Logic
             ORE_IRON = new BasicBlock(Language.IronOre, TextureLayout.Uniform("ore_iron"), true, true, true);
             ORE_GOLD = new BasicBlock(Language.GoldOre, TextureLayout.Uniform("ore_gold"), true, true, true);
             SNOW = new BasicBlock(Language.Snow, TextureLayout.Uniform("snow"), true, true, true);
-            FLOWER = new CrossPlant(Language.Flower, "flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
-            SPIDERWEB = new SpiderWeb(Language.SpiderWeb, "spider_web", 0.01f);
+            FLOWER = new CrossPlantBlock(Language.Flower, "flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
+            SPIDERWEB = new SpiderWebBlock(Language.SpiderWeb, "spider_web", 0.01f);
             CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqieFront("stone_cavepainting", "stone"), true, true, true);
             LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f);
             VINES = new FlatBlock(Language.Vines, "vines", 2f, 1f);

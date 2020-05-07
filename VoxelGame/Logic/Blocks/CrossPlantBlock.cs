@@ -7,7 +7,7 @@ using VoxelGame.Physics;
 
 namespace VoxelGame.Logic.Blocks
 {
-    public class CrossPlant : CrossBlock
+    public class CrossPlantBlock : CrossBlock
     {
         /// <summary>
         /// Initializes a new instance of a cross plant; a plant made out of two intersecting planes.
@@ -16,7 +16,7 @@ namespace VoxelGame.Logic.Blocks
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
         /// <param name="requiredGround">The block on which this block can be placed.</param>
         /// <param name="boundingBox">The bounding box of this block.</param>
-        public CrossPlant(string name, string texture, bool isReplaceable, BoundingBox boundingBox) :
+        public CrossPlantBlock(string name, string texture, bool isReplaceable, BoundingBox boundingBox) :
             base(
                 name,
                 texture,
