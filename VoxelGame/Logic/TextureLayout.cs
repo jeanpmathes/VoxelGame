@@ -3,8 +3,6 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
-using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic
 {

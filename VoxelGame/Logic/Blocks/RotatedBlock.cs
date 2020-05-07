@@ -11,9 +11,8 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block which can be rotated to be oriented on different axis. The y axis is the default orientation.
-    /// Data bit usage: <c>uuuaa</c>
+    /// Data bit usage: <c>---aa</c>
     /// </summary>
-    // u = unused
     // a = axis
     public class RotatedBlock : BasicBlock
     {
@@ -165,7 +164,6 @@ namespace VoxelGame.Logic.Blocks
                 };
             }
 
-
             indices = this.indices;
 
             return 4;
@@ -197,12 +195,15 @@ namespace VoxelGame.Logic.Blocks
                 case BlockSide.Front:
                 case BlockSide.Back:
                     return Axis.Z;
+
                 case BlockSide.Left:
                 case BlockSide.Right:
                     return Axis.X;
+
                 case BlockSide.Bottom:
                 case BlockSide.Top:
                     return Axis.Y;
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(side));
             }

@@ -4,10 +4,10 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenTK;
+using Resources;
 using System.Collections.Generic;
 using VoxelGame.Logic.Blocks;
 using VoxelGame.Physics;
-using Resources;
 
 namespace VoxelGame.Logic
 {

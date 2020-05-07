@@ -4,19 +4,18 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenTK;
-using VoxelGame.Entities;
-using VoxelGame.Physics;
-using VoxelGame.Logic.Interfaces;
-using VoxelGame.Rendering;
 using System;
+using VoxelGame.Entities;
+using VoxelGame.Logic.Interfaces;
+using VoxelGame.Physics;
+using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// This class represents a block which connects to blocks with the <see cref="IFenceConnectable"/> interface.
-    /// Data bit usage: <c>unesw</c>
+    /// Data bit usage: <c>-nesw</c>
     /// </summary>
-    // u = unused
     // n = connected north
     // e = connected east
     // s = connected south

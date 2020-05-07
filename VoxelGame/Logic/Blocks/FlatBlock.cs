@@ -3,19 +3,18 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using VoxelGame.Physics;
+using OpenTK;
 using VoxelGame.Entities;
+using VoxelGame.Physics;
 using VoxelGame.Rendering;
 using VoxelGame.Utilities;
-using OpenTK;
 
 namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// This class represents a block with a single face that sticks to other blocks.
-    /// Data bit usage: <c>uuuoo</c>
+    /// Data bit usage: <c>---oo</c>
     /// </summary>
-    // u = unused
     // o = orientation
     public class FlatBlock : Block
     {
@@ -33,6 +32,7 @@ namespace VoxelGame.Logic.Blocks
             0, 2, 1,
             0, 3, 2
         };
+
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
         /// <summary>
@@ -114,10 +114,13 @@ namespace VoxelGame.Logic.Blocks
             {
                 case Orientation.North:
                     return new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.95f), new Vector3(0.5f, 0.5f, 0.05f));
+
                 case Orientation.South:
                     return new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.05f), new Vector3(0.5f, 0.5f, 0.05f));
+
                 case Orientation.West:
                     return new BoundingBox(new Vector3(x + 0.95f, y + 0.5f, z + 0.5f), new Vector3(0.05f, 0.5f, 0.5f));
+
                 case Orientation.East:
                     return new BoundingBox(new Vector3(x + 0.05f, y + 0.5f, z + 0.5f), new Vector3(0.05f, 0.5f, 0.5f));
             }
@@ -239,15 +242,19 @@ namespace VoxelGame.Logic.Blocks
                 case BlockSide.Front:
                     orientation = Orientation.South;
                     return true;
+
                 case BlockSide.Back:
                     orientation = Orientation.North;
                     return true;
+
                 case BlockSide.Left:
                     orientation = Orientation.West;
                     return true;
+
                 case BlockSide.Right:
                     orientation = Orientation.East;
                     return true;
+
                 default:
                     orientation = Orientation.North;
                     return false;

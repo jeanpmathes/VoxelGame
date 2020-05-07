@@ -48,6 +48,7 @@ namespace VoxelGame.Entities
                 return Rotation * Vector3.UnitX;
             }
         }
+
         public Vector3 Right
         {
             get

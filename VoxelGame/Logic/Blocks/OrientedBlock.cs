@@ -3,7 +3,6 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
 using System;
 using VoxelGame.Entities;
 using VoxelGame.Rendering;
@@ -13,9 +12,8 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block which can be rotated on the y axis.
-    /// Data bit usage: <c>uuuoo</c>
+    /// Data bit usage: <c>---oo</c>
     /// </summary>
-    // u = unused
     // o = orientation
     public class OrientedBlock : BasicBlock
     {
