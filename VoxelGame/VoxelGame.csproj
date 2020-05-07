@@ -122,6 +122,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collections\UniqueQueue.cs" />
+    <Compile Include="Logic\Blocks\ConstructionBlock.cs" />
     <Compile Include="Logic\Blocks\CrossPlant.cs" />
     <Compile Include="Logic\Blocks\FenceBlock.cs" />
     <Compile Include="Logic\Blocks\FlatBlock.cs" />

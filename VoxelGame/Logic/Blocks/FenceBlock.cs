@@ -297,7 +297,7 @@ namespace VoxelGame.Logic.Blocks
             return base.GetBoundingBox(x, y, z);
         }
 
-        public virtual bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
+        public override bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
         {
             if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable == false)
             {
@@ -307,13 +307,13 @@ namespace VoxelGame.Logic.Blocks
             byte data = 0;
             // Check the neighboring blocks
             if (Game.World.GetBlock(x, y, z - 1, out _) is IFenceConnectable) // North
-                data |= 0b1000;
+                data |= 0b0_1000;
             if (Game.World.GetBlock(x + 1, y, z, out _) is IFenceConnectable) // East
-                data |= 0b0100;
+                data |= 0b0_0100;
             if (Game.World.GetBlock(x, y, z + 1, out _) is IFenceConnectable) // South
-                data |= 0b0010;
+                data |= 0b0_0010;
             if (Game.World.GetBlock(x - 1, y, z, out _) is IFenceConnectable) // West
-                data |= 0b0001;
+                data |= 0b0_0001;
 
             Game.World.SetBlock(this, data, x, y, z);
 
@@ -325,13 +325,13 @@ namespace VoxelGame.Logic.Blocks
             byte newData = 0;
             // Check the neighboring blocks
             if (Game.World.GetBlock(x, y, z - 1, out _) is IFenceConnectable) // North
-                newData |= 0b1000;
+                newData |= 0b0_1000;
             if (Game.World.GetBlock(x + 1, y, z, out _) is IFenceConnectable) // East
-                newData |= 0b0100;
+                newData |= 0b0_0100;
             if (Game.World.GetBlock(x, y, z + 1, out _) is IFenceConnectable) // South
-                newData |= 0b0010;
+                newData |= 0b0_0010;
             if (Game.World.GetBlock(x - 1, y, z, out _) is IFenceConnectable) // West
-                newData |= 0b0001;
+                newData |= 0b0_0001;
 
             if (newData != data)
             {

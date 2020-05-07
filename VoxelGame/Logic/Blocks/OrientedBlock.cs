@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using System;
 using VoxelGame.Entities;
+using VoxelGame.Logic.Interfaces;
 using VoxelGame.Rendering;
 using VoxelGame.Utilities;
 

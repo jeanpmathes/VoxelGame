@@ -75,9 +75,9 @@ namespace VoxelGame.Logic
             TALL_GRASS = new CrossPlant(Language.TallGrass, "tall_grass", true, BoundingBox.Block);
             DIRT = new BasicBlock(Language.Dirt, TextureLayout.Uniform("dirt"), true, true, true);
             STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"), true, true, true);
-            COBBLESTONE = new BasicBlock(Language.Cobblestone, TextureLayout.Uniform("cobblestone"), true, true, true);
+            COBBLESTONE = new ConstructionBlock(Language.Cobblestone, TextureLayout.Uniform("cobblestone"));
             LOG = new RotatedBlock(Language.Log, TextureLayout.Column("log", 0, 1), true, true, true);
-            WOOD = new BasicBlock(Language.Wood, TextureLayout.Uniform("wood"), true, true, true);
+            WOOD = new ConstructionBlock(Language.Wood, TextureLayout.Uniform("wood"));
             SAND = new BasicBlock(Language.Sand, TextureLayout.Uniform("sand"), true, true, true);
             GRAVEL = new BasicBlock(Language.Gravel, TextureLayout.Uniform("gravel"), true, true, true);
             LEAVES = new BasicBlock(Language.Leaves, TextureLayout.Uniform("leaves"), false, true, true);

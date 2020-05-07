@@ -176,6 +176,11 @@ namespace VoxelGame.Logic
         /// </summary>
         public World(WorldInformation information, string path)
         {
+            if (information == null)
+            {
+                throw new ArgumentNullException(nameof(information));
+            }
+
             worldDirectory = path;
             chunkDirectory = worldDirectory + @"\Chunks";
 
