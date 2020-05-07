@@ -216,6 +216,9 @@
   <data name="Wood" xml:space="preserve">
     <value>Wood</value>
   </data>
+  <data name="WoodenFence" xml:space="preserve">
+    <value>Wooden Fence</value>
+  </data>
   <data name="WorldIsReady" xml:space="preserve">
     <value>The World is ready.</value>
   </data>

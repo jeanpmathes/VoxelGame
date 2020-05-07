@@ -91,7 +91,7 @@ namespace VoxelGame.Logic
             CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqieFront("stone_cavepainting", "stone"), true, true, true);
             LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f);
             VINES = new FlatBlock(Language.Vines, "vines", 2f, 1f);
-            FENCE_WOOD = new FenceBlock("Wooden Fence", "wood");
+            FENCE_WOOD = new FenceBlock(Language.WoodenFence, "wood");
         }
 
         #endregion STATIC BLOCK MANAGMENT
