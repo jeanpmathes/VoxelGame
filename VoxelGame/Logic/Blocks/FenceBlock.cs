@@ -294,7 +294,46 @@ namespace VoxelGame.Logic.Blocks
 
         public override BoundingBox GetBoundingBox(int x, int y, int z)
         {
-            return base.GetBoundingBox(x, y, z);
+            Game.World.GetBlock(x, y, z, out byte data);
+
+            bool north = (data & 0b0_1000) != 0;
+            bool east = (data & 0b0_0100) != 0;
+            bool south = (data & 0b0_0010) != 0;
+            bool west = (data & 0b0_0001) != 0;
+
+            int extensions = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
+
+            BoundingBox[] children = new BoundingBox[2 * extensions];
+            extensions = 0;
+
+            if (north)
+            {
+                children[extensions] = new BoundingBox(new Vector3(0.5f, 0.28125f, 0.15625f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.15625f));
+                children[extensions + 1] = new BoundingBox(new Vector3(0.5f, 0.71875f, 0.15625f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.15625f));
+                extensions += 2;
+            }
+
+            if (east)
+            {
+                children[extensions] = new BoundingBox(new Vector3(0.84375f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.15625f, 0.15625f, 0.125f));
+                children[extensions + 1] = new BoundingBox(new Vector3(0.84375f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.15625f, 0.15625f, 0.125f));
+                extensions += 2;
+            }
+
+            if (south)
+            {
+                children[extensions] = new BoundingBox(new Vector3(0.5f, 0.28125f, 0.84375f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.15625f));
+                children[extensions + 1] = new BoundingBox(new Vector3(0.5f, 0.71875f, 0.84375f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.15625f));
+                extensions += 2;
+            }
+
+            if (west)
+            {
+                children[extensions] = new BoundingBox(new Vector3(0.15625f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.15625f, 0.15625f, 0.125f));
+                children[extensions + 1] = new BoundingBox(new Vector3(0.15625f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.15625f, 0.15625f, 0.125f));
+            }
+
+            return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.5f, 0.1875f), children);
         }
 
         public override bool Place(int x, int y, int z, Entities.PhysicsEntity entity)

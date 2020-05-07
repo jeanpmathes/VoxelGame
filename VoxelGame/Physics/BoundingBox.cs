@@ -19,26 +19,93 @@ namespace VoxelGame.Physics
         public Vector3 Min => Center + -Extents;
         public Vector3 Max => Center + Extents;
 
+        private readonly BoundingBox[] children;
+
+        public BoundingBox this[int i]
+        {
+            get => children[i];
+            private set => children[i] = value;
+        }
+
+        public int ChildCount
+        {
+            get => children.Length;
+        }
+
         public BoundingBox(Vector3 center, Vector3 extents)
         {
             Center = center;
             Extents = extents;
+
+            children = Array.Empty<BoundingBox>();
+        }
+
+        public BoundingBox(Vector3 center, Vector3 extents, params BoundingBox[] boundingBoxes)
+        {
+            Center = center;
+            Extents = extents;
+
+            children = boundingBoxes;
         }
 
         public static BoundingBox Block => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.5f, 0.5f, 0.5f));
 
+        /// <summary>
+        /// Checks if this bounding box or one of its children contain a point.
+        /// </summary>
         public bool Contains(Vector3 point)
         {
-            return (Min.X <= point.X && Max.X >= point.X) &&
+            bool containedInParent =
+                (Min.X <= point.X && Max.X >= point.X) &&
                 (Min.Y <= point.Y && Max.Y >= point.Y) &&
                 (Min.Z <= point.Z && Max.Z >= point.Z);
+
+            if (containedInParent)
+                return true;
+
+            if (ChildCount == 0)
+            {
+                return false;
+            }
+            else
+            {
+                for (int i = 0; i < ChildCount; i++)
+                {
+                    if (children[i].Contains(point))
+                        return true;
+                }
+
+                return false;
+            }
         }
 
+        /// <summary>
+        /// Checks if this bounding box or one of its children intersects with the given <see cref="BoundingBox"/>.
+        /// </summary>
         public bool Intersects(BoundingBox other)
         {
-            return (this.Min.X <= other.Max.X && this.Max.X >= other.Min.X) &&
+            bool containedInParent =
+                (this.Min.X <= other.Max.X && this.Max.X >= other.Min.X) &&
                 (this.Min.Y <= other.Max.Y && this.Max.Y >= other.Min.Y) &&
                 (this.Min.Z <= other.Max.Z && this.Max.Z >= other.Min.Z);
+
+            if (containedInParent)
+                return true;
+
+            if (ChildCount == 0)
+            {
+                return false;
+            }
+            else
+            {
+                for (int i = 0; i < ChildCount; i++)
+                {
+                    if (children[i].Intersects(other))
+                        return true;
+                }
+
+                return false;
+            }
         }
 
         /// <summary>
@@ -46,7 +113,7 @@ namespace VoxelGame.Physics
         /// </summary>
         /// <param name="ray">The ray to check.</param>
         /// <returns>Returns true if the ray with an assumed infinite length intersect the bounding box.</returns>
-        public bool Intersects(Ray ray)
+        private bool Intersects_NonRecursive(Ray ray)
         {
             if (Contains(ray.Origin) || Contains(ray.EndPoint))
             {
@@ -72,102 +139,87 @@ namespace VoxelGame.Physics
             float tmin = Math.Max(Math.Max(Math.Min(t1, t2), Math.Min(t3, t4)), Math.Min(t5, t6));
             float tmax = Math.Min(Math.Min(Math.Max(t1, t2), Math.Max(t3, t4)), Math.Max(t5, t6));
 
-            if (tmin > tmax)
+            return tmin <= tmax;
+        }
+
+        /// <summary>
+        /// Returns true if the given ray intersects this <see cref="BoundingBox"/> or any of its children.
+        /// </summary>
+        public bool Intersects(Ray ray)
+        {
+            bool intersectsParent = Intersects_NonRecursive(ray);
+
+            if (intersectsParent)
+                return true;
+
+            if (ChildCount == 0)
             {
                 return false;
             }
+            else
+            {
+                for (int i = 0; i < ChildCount; i++)
+                {
+                    if (children[i].Intersects(ray))
+                        return true;
+                }
 
-            return true;
+                return false;
+            }
         }
 
-        public bool IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision)
+        private void GetIntersectionPlane_NonRecursive(BoundingBox other, ref bool x, ref bool y, ref bool z)
         {
-            bool intersects = false;
+            float inverseOverlap;
 
-            xCollision = false;
-            yCollision = false;
-            zCollision = false;
+            // Check on which plane the collision happened
+            float xOverlap = this.Max.X - other.Min.X;
+            inverseOverlap = other.Max.X - this.Min.X;
+            xOverlap = (xOverlap < inverseOverlap) ? xOverlap : inverseOverlap;
 
-            // Calculate the range of blocks to check
-            float highestExtent = (Extents.X > Extents.Y) ? Extents.X : Extents.Y;
-            highestExtent = (highestExtent > Extents.Z) ? highestExtent : Extents.Z;
+            float yOverlap = this.Max.Y - other.Min.Y;
+            inverseOverlap = other.Max.Y - this.Min.Y;
+            yOverlap = (yOverlap < inverseOverlap) ? yOverlap : inverseOverlap;
 
-            int range = (int)Math.Round(highestExtent * 2, MidpointRounding.AwayFromZero) + 1;
-            if (range % 2 == 0)
+            float zOverlap = this.Max.Z - other.Min.Z;
+            inverseOverlap = other.Max.Z - this.Min.Z;
+            zOverlap = (zOverlap < inverseOverlap) ? zOverlap : inverseOverlap;
+
+            if (xOverlap < yOverlap)
             {
-                range++;
-            }
-
-            // Get the current position in world coordinates
-            int xPos = (int)Math.Floor(Center.X);
-            int yPos = (int)Math.Floor(Center.Y);
-            int zPos = (int)Math.Floor(Center.Z);
-
-            // Loop through the world and check for collisions
-            for (int x = (range - 1) / -2; x <= (range - 1) / 2; x++)
-            {
-                for (int y = (range - 1) / -2; y <= (range - 1) / 2; y++)
+                if (xOverlap < zOverlap)
                 {
-                    for (int z = (range - 1) / -2; z <= (range - 1) / 2; z++)
-                    {
-                        Block current = Game.World.GetBlock(x + xPos, y + yPos, z + zPos, out _);
-
-                        if (current != null)
-                        {
-                            BoundingBox currentBoundingBox = current.GetBoundingBox(x + xPos, y + yPos, z + zPos);
-
-                            // Check for intersection
-                            if (current.IsSolid && Intersects(currentBoundingBox))
-                            {
-                                intersects = true;
-
-                                float inverseOverlap;
-
-                                // Check on which plane the collision happened
-                                float xOverlap = this.Max.X - currentBoundingBox.Min.X;
-                                inverseOverlap = currentBoundingBox.Max.X - this.Min.X;
-                                xOverlap = (xOverlap < inverseOverlap) ? xOverlap : inverseOverlap;
-
-                                float yOverlap = this.Max.Y - currentBoundingBox.Min.Y;
-                                inverseOverlap = currentBoundingBox.Max.Y - this.Min.Y;
-                                yOverlap = (yOverlap < inverseOverlap) ? yOverlap : inverseOverlap;
-
-                                float zOverlap = this.Max.Z - currentBoundingBox.Min.Z;
-                                inverseOverlap = currentBoundingBox.Max.Z - this.Min.Z;
-                                zOverlap = (zOverlap < inverseOverlap) ? zOverlap : inverseOverlap;
-
-                                if (xOverlap < yOverlap)
-                                {
-                                    if (xOverlap < zOverlap)
-                                    {
-                                        xCollision = true;
-                                    }
-                                    else
-                                    {
-                                        zCollision = true;
-                                    }
-                                }
-                                else
-                                {
-                                    if (yOverlap < zOverlap)
-                                    {
-                                        yCollision = true;
-                                    }
-                                    else
-                                    {
-                                        zCollision = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    x = true;
+                }
+                else
+                {
+                    z = true;
                 }
             }
-
-            return intersects;
+            else
+            {
+                if (yOverlap < zOverlap)
+                {
+                    y = true;
+                }
+                else
+                {
+                    z = true;
+                }
+            }
         }
 
-        public bool IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision, out List<(int x, int y, int z, Block block)> intersections)
+        public void GetIntersectionPlane(BoundingBox other, ref bool x, ref bool y, ref bool z)
+        {
+            GetIntersectionPlane_NonRecursive(other, ref x, ref y, ref z);
+
+            for (int i = 0; i < ChildCount; i++)
+            {
+                children[i].GetIntersectionPlane(other, ref x, ref y, ref z);
+            }
+        }
+
+        private bool IntersectsTerrain_NonRecursive(out bool xCollision, out bool yCollision, out bool zCollision, out List<(int x, int y, int z, Block block)> intersections)
         {
             bool intersects = false;
 
@@ -214,43 +266,7 @@ namespace VoxelGame.Physics
                                 {
                                     intersects = true;
 
-                                    float inverseOverlap;
-
-                                    // Check on which plane the collision happened
-                                    float xOverlap = this.Max.X - currentBoundingBox.Min.X;
-                                    inverseOverlap = currentBoundingBox.Max.X - this.Min.X;
-                                    xOverlap = (xOverlap < inverseOverlap) ? xOverlap : inverseOverlap;
-
-                                    float yOverlap = this.Max.Y - currentBoundingBox.Min.Y;
-                                    inverseOverlap = currentBoundingBox.Max.Y - this.Min.Y;
-                                    yOverlap = (yOverlap < inverseOverlap) ? yOverlap : inverseOverlap;
-
-                                    float zOverlap = this.Max.Z - currentBoundingBox.Min.Z;
-                                    inverseOverlap = currentBoundingBox.Max.Z - this.Min.Z;
-                                    zOverlap = (zOverlap < inverseOverlap) ? zOverlap : inverseOverlap;
-
-                                    if (xOverlap < yOverlap)
-                                    {
-                                        if (xOverlap < zOverlap)
-                                        {
-                                            xCollision = true;
-                                        }
-                                        else
-                                        {
-                                            zCollision = true;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (yOverlap < zOverlap)
-                                        {
-                                            yCollision = true;
-                                        }
-                                        else
-                                        {
-                                            zCollision = true;
-                                        }
-                                    }
+                                    GetIntersectionPlane(currentBoundingBox, ref xCollision, ref yCollision, ref zCollision);
                                 }
                             }
                         }
@@ -259,6 +275,33 @@ namespace VoxelGame.Physics
             }
 
             return intersects;
+        }
+
+        public bool IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision, out List<(int x, int y, int z, Block block)> intersections)
+        {
+            bool isIntersecting = IntersectsTerrain_NonRecursive(out xCollision, out yCollision, out zCollision, out intersections);
+
+            if (ChildCount == 0)
+            {
+                return isIntersecting;
+            }
+            else
+            {
+                for (int i = 0; i < ChildCount; i++)
+                {
+                    bool childIntersecting = children[i].IntersectsTerrain(out bool childX, out bool childY, out bool childZ, out List<(int x, int y, int z, Block block)> childIntersections);
+
+                    isIntersecting = childIntersecting || isIntersecting;
+
+                    xCollision = childX || xCollision;
+                    yCollision = childY || yCollision;
+                    zCollision = childZ || zCollision;
+
+                    intersections.AddRange(childIntersections);
+                }
+
+                return isIntersecting;
+            }
         }
 
         public static bool operator ==(BoundingBox left, BoundingBox right)
@@ -274,6 +317,18 @@ namespace VoxelGame.Physics
         public static bool Equals(BoundingBox left, BoundingBox right)
         {
             return (left.Extents == right.Extents) && (left.Center == right.Center);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is BoundingBox other)
+            {
+                return (this.Extents == other.Extents) && (this.Center == other.Center) && children.Equals(other.children);
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

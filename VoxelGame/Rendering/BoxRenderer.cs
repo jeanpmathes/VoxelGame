@@ -5,18 +5,23 @@
 // <author>pershingthesecond</author>
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
-
+using System;
 using VoxelGame.Physics;
 
 namespace VoxelGame.Rendering
 {
+    /// <summary>
+    /// A renderer that renders instances of the <see cref="BoundingBox"/> struct.
+    /// </summary>
     public class BoxRenderer : Renderer
     {
-        private int vertexBufferObject;
-        private int elementBufferObject;
-        private int vertexArrayObject;
+        private readonly int vertexBufferObject;
+        private readonly int elementBufferObject;
+        private readonly int vertexArrayObject;
 
         private BoundingBox currentBoundingBox;
+
+        private int elements;
 
         public BoxRenderer()
         {
@@ -25,24 +30,14 @@ namespace VoxelGame.Rendering
             vertexArrayObject = GL.GenVertexArray();
         }
 
-        public void SetBoundingBox(BoundingBox boundingBox)
+        private int BuildMeshData_NonRecursive(BoundingBox boundingBox, out float[] vertices, out uint[] indices)
         {
-            if (disposed)
-            {
-                return;
-            }
+            Vector3 offset = boundingBox.Center - currentBoundingBox.Center;
 
-            if (currentBoundingBox == boundingBox)
-            {
-                return;
-            }
+            Vector3 min = (-boundingBox.Extents) + offset;
+            Vector3 max = boundingBox.Extents + offset;
 
-            currentBoundingBox = boundingBox;
-
-            Vector3 min = -currentBoundingBox.Extents;
-            Vector3 max = currentBoundingBox.Extents;
-
-            float[] vertices =
+            vertices = new float[]
             {
                 // Bottom
                 min.X, min.Y, min.Z,
@@ -57,7 +52,7 @@ namespace VoxelGame.Rendering
                 min.X, max.Y, max.Z
             };
 
-            uint[] indices =
+            indices = new uint[]
             {
                 // Bottom
                 0, 1,
@@ -77,6 +72,64 @@ namespace VoxelGame.Rendering
                 2, 6,
                 3, 7
             };
+
+            return 24;
+        }
+
+        private int BuildMeshData(BoundingBox boundingBox, out float[] vertices, out uint[] indices)
+        {
+            int elements = BuildMeshData_NonRecursive(boundingBox, out vertices, out indices);
+
+            if (boundingBox.ChildCount == 0)
+            {
+                return elements;
+            }
+            else
+            {
+                for (int i = 0; i < boundingBox.ChildCount; i++)
+                {
+                    int newElements = BuildMeshData(boundingBox[i], out float[] addVertices, out uint[] addIndices);
+
+                    uint offset = (uint)(elements / 3);
+                    for (int j = 0; j < addIndices.Length; j++)
+                    {
+                        addIndices[j] += offset;
+                    }
+
+                    float[] combinedVertices = new float[vertices.Length + addVertices.Length];
+                    Array.Copy(vertices, 0, combinedVertices, 0, vertices.Length);
+                    Array.Copy(addVertices, 0, combinedVertices, vertices.Length, addVertices.Length);
+
+                    vertices = combinedVertices;
+
+                    uint[] combinedIndices = new uint[indices.Length + addIndices.Length];
+                    Array.Copy(indices, 0, combinedIndices, 0, indices.Length);
+                    Array.Copy(addIndices, 0, combinedIndices, indices.Length, addIndices.Length);
+
+                    indices = combinedIndices;
+
+                    elements += newElements;
+                }
+
+                return elements;
+            }
+        }
+
+        public void SetBoundingBox(BoundingBox boundingBox)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (currentBoundingBox == boundingBox)
+            {
+                return;
+            }
+
+            currentBoundingBox = boundingBox;
+
+            elements = BuildMeshData(boundingBox, out float[] vertices, out uint[] indices);
 
             // Vertex Buffer Object
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
@@ -117,7 +170,7 @@ namespace VoxelGame.Rendering
             Game.SelectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
             Game.SelectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
 
-            GL.DrawElements(PrimitiveType.Lines, 24, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Lines, elements, DrawElementsType.UnsignedInt, 0);
 
             GL.BindVertexArray(0);
             GL.UseProgram(0);
