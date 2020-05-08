@@ -153,6 +153,9 @@
   <data name="ExitingGame" xml:space="preserve">
     <value>Beende...</value>
   </data>
+  <data name="Flax" xml:space="preserve">
+    <value>Flachs</value>
+  </data>
   <data name="Flower" xml:space="preserve">
     <value>Blume</value>
   </data>
@@ -189,6 +192,12 @@
   <data name="NewWorldPrompt" xml:space="preserve">
     <value>Möchten sie eine neue Welt erstellen?</value>
   </data>
+  <data name="Onions" xml:space="preserve">
+    <value>Zwiebeln</value>
+  </data>
+  <data name="Potatoes" xml:space="preserve">
+    <value>Kartoffeln</value>
+  </data>
   <data name="Sand" xml:space="preserve">
     <value>Sand</value>
   </data>
@@ -212,6 +221,9 @@
   </data>
   <data name="VoxelGame" xml:space="preserve">
     <value>VolumenelementSpiel</value>
+  </data>
+  <data name="Wheat" xml:space="preserve">
+    <value>Weizen</value>
   </data>
   <data name="Wood" xml:space="preserve">
     <value>Holz</value>

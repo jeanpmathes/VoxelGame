@@ -111,7 +111,7 @@ namespace VoxelGame.Logic
         /// <summary>
         /// Returns a texture layout where all sides but the front have the same texture.
         /// </summary>
-        public static TextureLayout UnqieFront(string front, string rest)
+        public static TextureLayout UnqiueFront(string front, string rest)
         {
             int frontIndex = Game.Atlas.GetTextureIndex(front);
             int restIndex = Game.Atlas.GetTextureIndex(rest);
@@ -122,12 +122,23 @@ namespace VoxelGame.Logic
         /// <summary>
         /// Returns a texture layout where all sides but the front have the same texture.
         /// </summary>
-        public static TextureLayout UnqieFront(string texture, int frontOffset, int restOffset)
+        public static TextureLayout UnqiueFront(string texture, int frontOffset, int restOffset)
         {
             int frontIndex = Game.Atlas.GetTextureIndex(texture) + frontOffset;
             int restIndex = Game.Atlas.GetTextureIndex(texture) + restOffset;
 
             return new TextureLayout(frontIndex, restIndex, restIndex, restIndex, restIndex, restIndex);
+        }
+
+        /// <summary>
+        /// Returns a texture layout where all sides but the top side have the same texture.
+        /// </summary>
+        public static TextureLayout UnqiueTop(string rest, string top)
+        {
+            int topIndex = Game.Atlas.GetTextureIndex(top);
+            int restIndex = Game.Atlas.GetTextureIndex(rest);
+
+            return new TextureLayout(restIndex, restIndex, restIndex, restIndex, restIndex, topIndex);
         }
     }
 }

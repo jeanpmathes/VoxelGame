@@ -23,6 +23,7 @@ namespace VoxelGame.Logic
         public static Block GRASS;
         public static Block TALL_GRASS;
         public static Block DIRT;
+        public static Block FARMLAND;
         public static Block STONE;
         public static Block COBBLESTONE;
         public static Block LOG;
@@ -41,6 +42,10 @@ namespace VoxelGame.Logic
         public static Block LADDER;
         public static Block VINES;
         public static Block FENCE_WOOD;
+        public static Block FLAX;
+        public static Block POTATOES;
+        public static Block ONIONS;
+        public static Block WHEAT;
 
         private static readonly Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
 
@@ -74,6 +79,7 @@ namespace VoxelGame.Logic
             GRASS = new BasicBlock(Language.Grass, TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"), true, true, true);
             TALL_GRASS = new CrossPlantBlock(Language.TallGrass, "tall_grass", true, BoundingBox.Block);
             DIRT = new BasicBlock(Language.Dirt, TextureLayout.Uniform("dirt"), true, true, true);
+            FARMLAND = new BasicBlock("Farmland", TextureLayout.UnqiueTop("dirt", "farmland"), true, true, true);
             STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"), true, true, true);
             COBBLESTONE = new ConstructionBlock(Language.Cobblestone, TextureLayout.Uniform("cobblestone"));
             LOG = new RotatedBlock(Language.Log, TextureLayout.Column("log", 0, 1), true, true, true);
@@ -88,10 +94,14 @@ namespace VoxelGame.Logic
             SNOW = new BasicBlock(Language.Snow, TextureLayout.Uniform("snow"), true, true, true);
             FLOWER = new CrossPlantBlock(Language.Flower, "flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
             SPIDERWEB = new SpiderWebBlock(Language.SpiderWeb, "spider_web", 0.01f);
-            CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqieFront("stone_cavepainting", "stone"), true, true, true);
+            CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqiueFront("stone_cavepainting", "stone"), true, true, true);
             LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f);
             VINES = new FlatBlock(Language.Vines, "vines", 2f, 1f);
             FENCE_WOOD = new FenceBlock(Language.WoodenFence, "wood");
+            FLAX = new CropBlock(Language.Flax, "flax", 0, 1, 2, 3, 3, 4, 5);
+            POTATOES = new CropBlock(Language.Potatoes, "potato", 1, 1, 2, 2, 3, 4, 5);
+            ONIONS = new CropBlock(Language.Onions, "onion", 0, 1, 1, 2, 2, 3, 4);
+            WHEAT = new CropBlock(Language.Wheat, "wheat", 0, 1, 1, 2, 2, 3, 4);
         }
 
         #endregion STATIC BLOCK MANAGMENT

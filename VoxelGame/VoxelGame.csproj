@@ -123,12 +123,13 @@
   <ItemGroup>
     <Compile Include="Collections\UniqueQueue.cs" />
     <Compile Include="Logic\Blocks\ConstructionBlock.cs" />
-    <Compile Include="Logic\Blocks\CrossPlant.cs" />
+    <Compile Include="Logic\Blocks\CropBlock.cs" />
+    <Compile Include="Logic\Blocks\CrossPlantBlock.cs" />
     <Compile Include="Logic\Blocks\FenceBlock.cs" />
     <Compile Include="Logic\Blocks\FlatBlock.cs" />
     <Compile Include="Logic\Blocks\OrientedBlock.cs" />
     <Compile Include="Logic\Blocks\RotatedBlock.cs" />
-    <Compile Include="Logic\Blocks\SpiderWeb.cs" />
+    <Compile Include="Logic\Blocks\SpiderWebBlock.cs" />
     <Compile Include="Logic\Interfaces\IFenceConnectable.cs" />
     <Compile Include="Logic\TextureLayout.cs" />
     <Compile Include="Logic\WorldInformation.cs" />
@@ -175,16 +176,37 @@
     <Compile Include="WorldGeneration\SineGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\Textures\farmland.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\flax.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\grass.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\grass_side.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\Textures\gravel.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Textures\ladder.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\Textures\onion.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\potato.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\Textures\stone_cavepainting.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Textures\vines.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\wheat.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Textures\wood.png">
@@ -219,9 +241,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Textures\glass.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Textures\grass.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Textures\leaves.png">
