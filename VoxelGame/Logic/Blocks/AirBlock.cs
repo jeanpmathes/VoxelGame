@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using System;
 using VoxelGame.Physics;
 
 namespace VoxelGame.Logic.Blocks
@@ -45,13 +46,14 @@ namespace VoxelGame.Logic.Blocks
         /// </summary>
         /// <param name="side">The side of the block the mesh is required from.</param>
         /// <param name="data">The parameter is not used.</param>
-        /// <param name="vertecies">The parameter is not used.</param>
+        /// <param name="vertices">The parameter is not used.</param>
         /// <param name="indicies">The parameter is not used.</param>
         /// <returns>Returns null.</returns>
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertecies, out uint[] indicies)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indicies)
         {
-            vertecies = null;
-            indicies = null;
+            vertices = Array.Empty<float>();
+            textureIndices = Array.Empty<int>();
+            indicies = Array.Empty<uint>();
 
             return 0;
         }

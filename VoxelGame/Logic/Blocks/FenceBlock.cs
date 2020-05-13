@@ -30,6 +30,8 @@ namespace VoxelGame.Logic.Blocks
         protected float[] southVertices;
         protected float[] westVertices;
 
+        protected int[][] textureIndices;
+
         protected uint[][] indices;
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
@@ -53,222 +55,235 @@ namespace VoxelGame.Logic.Blocks
 
         protected void Setup(string texture)
         {
-            AtlasPosition uv = Game.Atlas.GetTextureUV(Game.Atlas.GetTextureIndex(texture));
-            float pixelSize = (uv.topRightU - uv.bottomLeftU) / 16f;
-
             postVertices = new float[]
             {
                 // Front
-                0.3125f, 0f, 0.6875f, uv.bottomLeftU + (5 * pixelSize), uv.bottomLeftV,
-                0.3125f, 1f, 0.6875f, uv.bottomLeftU + (5 * pixelSize), uv.topRightV,
-                0.6875f, 1f, 0.6875f, uv.topRightU - (5 * pixelSize), uv.topRightV,
-                0.6875f, 0f, 0.6875f, uv.topRightU - (5 * pixelSize), uv.bottomLeftV,
+                0.3125f, 0f, 0.6875f, 0.3125f, 0f,
+                0.3125f, 1f, 0.6875f, 0.3125f, 1f,
+                0.6875f, 1f, 0.6875f, 0.6875f, 1f,
+                0.6875f, 0f, 0.6875f, 0.6875f, 0f,
                 // Back
-                0.6875f, 0f, 0.3125f, uv.bottomLeftU + (5 * pixelSize), uv.bottomLeftV,
-                0.6875f, 1f, 0.3125f, uv.bottomLeftU + (5 * pixelSize), uv.topRightV,
-                0.3125f, 1f, 0.3125f, uv.topRightU - (5 * pixelSize), uv.topRightV,
-                0.3125f, 0f, 0.3125f, uv.topRightU - (5 * pixelSize), uv.bottomLeftV,
+                0.6875f, 0f, 0.3125f, 0.3125f, 0f,
+                0.6875f, 1f, 0.3125f, 0.3125f, 1f,
+                0.3125f, 1f, 0.3125f, 0.6875f, 1f,
+                0.3125f, 0f, 0.3125f, 0.6875f, 0f,
                 // Left
-                0.3125f, 0f, 0.3125f, uv.bottomLeftU + (5 * pixelSize), uv.bottomLeftV,
-                0.3125f, 1f, 0.3125f, uv.bottomLeftU + (5 * pixelSize), uv.topRightV,
-                0.3125f, 1f, 0.6875f, uv.topRightU - (5 * pixelSize), uv.topRightV,
-                0.3125f, 0f, 0.6875f, uv.topRightU - (5 * pixelSize), uv.bottomLeftV,
+                0.3125f, 0f, 0.3125f, 0.3125f, 0f,
+                0.3125f, 1f, 0.3125f, 0.3125f, 1f,
+                0.3125f, 1f, 0.6875f, 0.6875f, 1f,
+                0.3125f, 0f, 0.6875f, 0.6875f, 0f,
                 // Right
-                0.6875f, 0f, 0.6875f, uv.bottomLeftU + (5 * pixelSize), uv.bottomLeftV,
-                0.6875f, 1f, 0.6875f, uv.bottomLeftU + (5 * pixelSize), uv.topRightV,
-                0.6875f, 1f, 0.3125f, uv.topRightU - (5 * pixelSize), uv.topRightV,
-                0.6875f, 0f, 0.3125f, uv.topRightU - (5 * pixelSize), uv.bottomLeftV,
+                0.6875f, 0f, 0.6875f, 0.3125f, 0f,
+                0.6875f, 1f, 0.6875f, 0.3125f, 1f,
+                0.6875f, 1f, 0.3125f, 0.6875f, 1f,
+                0.6875f, 0f, 0.3125f, 0.6875f, 0f,
                 // Bottom
-                0.3125f, 0f, 0.3125f, uv.bottomLeftU + (5 * pixelSize), uv.bottomLeftV + (5 * pixelSize),
-                0.3125f, 0f, 0.6875f, uv.bottomLeftU + (5 * pixelSize), uv.topRightV - (5 * pixelSize),
-                0.6875f, 0f, 0.6875f, uv.topRightU - (5 * pixelSize), uv.topRightV - (5 * pixelSize),
-                0.6875f, 0f, 0.3125f, uv.topRightU - (5 * pixelSize), uv.bottomLeftV + (5 * pixelSize),
+                0.3125f, 0f, 0.3125f, 0.3125f, 0.3125f,
+                0.3125f, 0f, 0.6875f, 0.3125f, 0.6875f,
+                0.6875f, 0f, 0.6875f, 0.6875f, 0.6875f,
+                0.6875f, 0f, 0.3125f, 0.6875f, 0.3125f,
                 // Top
-                0.3125f, 1f, 0.6875f, uv.bottomLeftU + (5 * pixelSize), uv.bottomLeftV + (5 * pixelSize),
-                0.3125f, 1f, 0.3125f, uv.bottomLeftU + (5 * pixelSize), uv.topRightV - (5 * pixelSize),
-                0.6875f, 1f, 0.3125f, uv.topRightU - (5 * pixelSize), uv.topRightV - (5 * pixelSize),
-                0.6875f, 1f, 0.6875f, uv.topRightU - (5 * pixelSize), uv.bottomLeftV + (5 * pixelSize),
+                0.3125f, 1f, 0.6875f, 0.3125f, 0.3125f,
+                0.3125f, 1f, 0.3125f, 0.3125f, 0.6875f,
+                0.6875f, 1f, 0.3125f, 0.6875f, 0.6875f,
+                0.6875f, 1f, 0.6875f, 0.6875f, 0.3125f,
             };
 
             northVertices = new float[]
             {
                 // Low extension
-                0.375f, 0.125f, 0f, uv.bottomLeftU, uv.bottomLeftV + (2 * pixelSize),
-                0.375f, 0.4375f, 0f, uv.bottomLeftU, uv.topRightV - (9 * pixelSize),
-                0.375f, 0.4375f, 0.3125f, uv.topRightU - (11 * pixelSize), uv.topRightV - (9 * pixelSize),
-                0.375f, 0.125f, 0.3125f, uv.topRightU - (11 * pixelSize), uv.bottomLeftV + (2 * pixelSize),
+                0.375f, 0.125f, 0f, 0f, 0.125f,
+                0.375f, 0.4375f, 0f, 0f, 0.4375f,
+                0.375f, 0.4375f, 0.3125f, 0.3125f, 0.4375f,
+                0.375f, 0.125f, 0.3125f, 0.3125f, 0.125f,
 
-                0.625f, 0.125f, 0.3125f, uv.bottomLeftU + (11 * pixelSize), uv.bottomLeftV + (2 * pixelSize),
-                0.625f, 0.4375f, 0.3125f, uv.bottomLeftU + (11 * pixelSize), uv.topRightV - (9 * pixelSize),
-                0.625f, 0.4375f, 0f, uv.topRightU, uv.topRightV - (9 * pixelSize),
-                0.625f, 0.125f, 0f, uv.topRightU, uv.bottomLeftV + (2 * pixelSize),
+                0.625f, 0.125f, 0.3125f, 0.6875f, 0.125f,
+                0.625f, 0.4375f, 0.3125f, 0.6875f, 0.4375f,
+                0.625f, 0.4375f, 0f, 1f, 0.4375f,
+                0.625f, 0.125f, 0f, 1f, 0.125f,
 
-                0.375f, 0.125f, 0f, uv.bottomLeftU + (6 * pixelSize), uv.bottomLeftV + (11 * pixelSize),
-                0.375f, 0.125f, 0.3125f, uv.bottomLeftU + (6 * pixelSize), uv.topRightV,
-                0.625f, 0.125f, 0.3125f, uv.topRightU - (6 * pixelSize), uv.topRightV,
-                0.625f, 0.125f, 0f, uv.topRightU - (6 * pixelSize), uv.bottomLeftV + (11 * pixelSize),
+                0.375f, 0.125f, 0f, 0.375f, 0.6875f,
+                0.375f, 0.125f, 0.3125f, 0.375f, 1f,
+                0.625f, 0.125f, 0.3125f, 0.625f, 1f,
+                0.625f, 0.125f, 0f, 0.625f, 0.6875f,
 
-                0.375f, 0.4375f, 0.3125f, uv.bottomLeftU + (6 * pixelSize), uv.bottomLeftV + (11 * pixelSize),
-                0.375f, 0.4375f, 0f, uv.bottomLeftU + (6 * pixelSize), uv.topRightV,
-                0.625f, 0.4375f, 0f, uv.topRightU - (6 * pixelSize), uv.topRightV,
-                0.625f, 0.4375f, 0.3125f, uv.topRightU - (6 * pixelSize), uv.bottomLeftV + (11 * pixelSize),
+                0.375f, 0.4375f, 0.3125f, 0.375f, 0.6875f,
+                0.375f, 0.4375f, 0f, 0.375f, 1f,
+                0.625f, 0.4375f, 0f, 0.625f, 1f,
+                0.625f, 0.4375f, 0.3125f, 0.625f, 0.6875f,
 
                 // High extension
-                0.375f, 0.5625f, 0f, uv.bottomLeftU, uv.bottomLeftV + (9 * pixelSize),
-                0.375f, 0.875f, 0f, uv.bottomLeftU, uv.topRightV - (2 * pixelSize),
-                0.375f, 0.875f, 0.3125f, uv.topRightU - (11 * pixelSize), uv.topRightV - (2 * pixelSize),
-                0.375f, 0.5625f, 0.3125f, uv.topRightU - (11 * pixelSize), uv.bottomLeftV + (9 * pixelSize),
+                0.375f, 0.5625f, 0f, 0f, 0.5625f,
+                0.375f, 0.875f, 0f, 0f, 0.875f,
+                0.375f, 0.875f, 0.3125f, 0.3125f, 0.875f,
+                0.375f, 0.5625f, 0.3125f, 0.3125f, 0.5625f,
 
-                0.625f, 0.5625f, 0.3125f, uv.bottomLeftU + (11 * pixelSize), uv.bottomLeftV + (9 * pixelSize),
-                0.625f, 0.875f, 0.3125f, uv.bottomLeftU + (11 * pixelSize), uv.topRightV - (2 * pixelSize),
-                0.625f, 0.875f, 0f, uv.topRightU, uv.topRightV - (2 * pixelSize),
-                0.625f, 0.5625f, 0f, uv.topRightU, uv.bottomLeftV + (9 * pixelSize),
+                0.625f, 0.5625f, 0.3125f, 0.6875f, 0.5625f,
+                0.625f, 0.875f, 0.3125f, 0.6875f, 0.875f,
+                0.625f, 0.875f, 0f, 1f, 0.875f,
+                0.625f, 0.5625f, 0f, 1f, 0.5625f,
 
-                0.375f, 0.5625f, 0f, uv.bottomLeftU + (6 * pixelSize), uv.bottomLeftV + (11 * pixelSize),
-                0.375f, 0.5625f, 0.3125f, uv.bottomLeftU + (6 * pixelSize), uv.topRightV,
-                0.625f, 0.5625f, 0.3125f, uv.topRightU - (6 * pixelSize), uv.topRightV,
-                0.625f, 0.5625f, 0f, uv.topRightU - (6 * pixelSize), uv.bottomLeftV + (11 * pixelSize),
+                0.375f, 0.5625f, 0f, 0.375f, 0.6875f,
+                0.375f, 0.5625f, 0.3125f, 0.375f, 1f,
+                0.625f, 0.5625f, 0.3125f, 0.625f, 1f,
+                0.625f, 0.5625f, 0f, 0.625f, 0.6875f,
 
-                0.375f, 0.875f, 0.3125f, uv.bottomLeftU + (6 * pixelSize), uv.bottomLeftV + (11 * pixelSize),
-                0.375f, 0.875f, 0f, uv.bottomLeftU + (6 * pixelSize), uv.topRightV,
-                0.625f, 0.875f, 0f, uv.topRightU - (6 * pixelSize), uv.topRightV,
-                0.625f, 0.875f, 0.3125f, uv.topRightU - (6 * pixelSize), uv.bottomLeftV + (11 * pixelSize),
+                0.375f, 0.875f, 0.3125f, 0.375f, 0.6875f,
+                0.375f, 0.875f, 0f, 0.375f, 1f,
+                0.625f, 0.875f, 0f, 0.625f, 1f,
+                0.625f, 0.875f, 0.3125f, 0.625f, 0.6875f,
             };
 
             eastVertices = new float[]
             {
                 // Low extension
-                0.6875f, 0.125f, 0.625f, uv.bottomLeftU + (11 * pixelSize), uv.bottomLeftV + (2 * pixelSize),
-                0.6875f, 0.4375f, 0.625f, uv.bottomLeftU + (11 * pixelSize), uv.topRightV - (9 * pixelSize),
-                1f, 0.4375f, 0.625f, uv.topRightU, uv.topRightV - (9 * pixelSize),
-                1f, 0.125f, 0.625f, uv.topRightU, uv.bottomLeftV + (2 * pixelSize),
+                0.6875f, 0.125f, 0.625f, 0.6875f, 0.125f,
+                0.6875f, 0.4375f, 0.625f, 0.6875f, 0.4375f,
+                1f, 0.4375f, 0.625f, 1f, 0.4375f,
+                1f, 0.125f, 0.625f, 1f, 0.125f,
 
-                1f, 0.125f, 0.375f, uv.bottomLeftU, uv.bottomLeftV + (2 * pixelSize),
-                1f, 0.4375f, 0.375f, uv.bottomLeftU, uv.topRightV - (9 * pixelSize),
-                0.6875f, 0.4375f, 0.375f, uv.topRightU - (11 * pixelSize), uv.topRightV - (9 * pixelSize),
-                0.6875f, 0.125f, 0.375f, uv.topRightU - (11 * pixelSize), uv.bottomLeftV + (2 * pixelSize),
+                1f, 0.125f, 0.375f, 0f, 0.125f,
+                1f, 0.4375f, 0.375f, 0f, 0.4375f,
+                0.6875f, 0.4375f, 0.375f, 0.3125f, 0.4375f,
+                0.6875f, 0.125f, 0.375f, 0.3125f, 0.125f,
 
-                0.6875f, 0.125f, 0.375f, uv.bottomLeftU + (11 * pixelSize), uv.bottomLeftV + (6 * pixelSize),
-                0.6875f, 0.125f, 0.625f, uv.bottomLeftU + (11 * pixelSize), uv.topRightV  - (6 * pixelSize),
-                1f, 0.125f, 0.625f, uv.topRightU, uv.topRightV  - (6 * pixelSize),
-                1f, 0.125f, 0.375f, uv.topRightU, uv.bottomLeftV + (6 * pixelSize),
+                0.6875f, 0.125f, 0.375f, 0.6875f, 0.375f,
+                0.6875f, 0.125f, 0.625f, 0.6875f, 0.625f,
+                1f, 0.125f, 0.625f, 1f, 0.625f,
+                1f, 0.125f, 0.375f, 1f, 0.375f,
 
-                0.6875f, 0.4375f, 0.625f, uv.bottomLeftU + (11 * pixelSize), uv.bottomLeftV + (6 * pixelSize),
-                0.6875f, 0.4375f, 0.375f, uv.bottomLeftU + (11 * pixelSize), uv.topRightV  - (6 * pixelSize),
-                1f, 0.4375f, 0.375f, uv.topRightU, uv.topRightV  - (6 * pixelSize),
-                1f, 0.4375f, 0.625f, uv.topRightU, uv.bottomLeftV + (6 * pixelSize),
+                0.6875f, 0.4375f, 0.625f, 0.6875f, 0.375f,
+                0.6875f, 0.4375f, 0.375f, 0.6875f, 0.625f,
+                1f, 0.4375f, 0.375f, 1f, 0.625f,
+                1f, 0.4375f, 0.625f, 1f, 0.375f,
 
                 // High extension
-                0.6875f, 0.5625f, 0.625f, uv.bottomLeftU, uv.bottomLeftV + (9 * pixelSize),
-                0.6875f, 0.875f, 0.625f, uv.bottomLeftU, uv.topRightV - (2 * pixelSize),
-                1f, 0.875f, 0.625f, uv.topRightU - (11 * pixelSize), uv.topRightV - (2 * pixelSize),
-                1f, 0.5625f, 0.625f, uv.topRightU - (11 * pixelSize), uv.bottomLeftV + (9 * pixelSize),
+                0.6875f, 0.5625f, 0.625f, 0f, 0.5625f,
+                0.6875f, 0.875f, 0.625f, 0f, 0.875f,
+                1f, 0.875f, 0.625f, 0.3125f, 0.875f,
+                1f, 0.5625f, 0.625f, 0.3125f, 0.5625f,
 
-                1f, 0.5625f, 0.375f, uv.bottomLeftU + (11 * pixelSize), uv.bottomLeftV + (9 * pixelSize),
-                1f, 0.875f, 0.375f, uv.bottomLeftU + (11 * pixelSize), uv.topRightV - (2 * pixelSize),
-                0.6875f, 0.875f, 0.375f, uv.topRightU, uv.topRightV - (2 * pixelSize),
-                0.6875f, 0.5625f, 0.375f, uv.topRightU, uv.bottomLeftV + (9 * pixelSize),
+                1f, 0.5625f, 0.375f, 0.6875f, 0.5625f,
+                1f, 0.875f, 0.375f, 0.6875f, 0.875f,
+                0.6875f, 0.875f, 0.375f, 1f, 0.875f,
+                0.6875f, 0.5625f, 0.375f, 1f, 0.5625f,
 
-                0.6875f, 0.5625f, 0.375f, uv.bottomLeftU + (11 * pixelSize), uv.bottomLeftV + (6 * pixelSize),
-                0.6875f, 0.5625f, 0.625f, uv.bottomLeftU + (11 * pixelSize), uv.topRightV  - (6 * pixelSize),
-                1f, 0.5625f, 0.625f, uv.topRightU, uv.topRightV  - (6 * pixelSize),
-                1f, 0.5625f, 0.375f, uv.topRightU, uv.bottomLeftV + (6 * pixelSize),
+                0.6875f, 0.5625f, 0.375f, 0.6875f, 0.375f,
+                0.6875f, 0.5625f, 0.625f, 0.6875f, 0.625f,
+                1f, 0.5625f, 0.625f, 1f, 0.625f,
+                1f, 0.5625f, 0.375f, 1f, 0.375f,
 
-                0.6875f, 0.875f, 0.625f, uv.bottomLeftU + (11 * pixelSize), uv.bottomLeftV + (6 * pixelSize),
-                0.6875f, 0.875f, 0.375f, uv.bottomLeftU + (11 * pixelSize), uv.topRightV  - (6 * pixelSize),
-                1f, 0.875f, 0.375f, uv.topRightU, uv.topRightV  - (6 * pixelSize),
-                1f, 0.875f, 0.625f, uv.topRightU, uv.bottomLeftV + (6 * pixelSize),
+                0.6875f, 0.875f, 0.625f, 0.6875f, 0.375f,
+                0.6875f, 0.875f, 0.375f, 0.6875f, 0.625f,
+                1f, 0.875f, 0.375f, 1f, 0.625f,
+                1f, 0.875f, 0.625f, 1f, 0.375f,
             };
 
             southVertices = new float[]
             {
                 // Low extension
-                0.375f, 0.125f, 0.6875f, uv.bottomLeftU + (11 * pixelSize), uv.bottomLeftV + (2 * pixelSize),
-                0.375f, 0.4375f, 0.6875f, uv.bottomLeftU + (11 * pixelSize), uv.topRightV - (9 * pixelSize),
-                0.375f, 0.4375f, 1f, uv.topRightU, uv.topRightV - (9 * pixelSize),
-                0.375f, 0.125f, 1f, uv.topRightU, uv.bottomLeftV + (2 * pixelSize),
+                0.375f, 0.125f, 0.6875f, 0.6875f, 0.125f,
+                0.375f, 0.4375f, 0.6875f, 0.6875f, 0.4375f,
+                0.375f, 0.4375f, 1f, 1f, 0.4375f,
+                0.375f, 0.125f, 1f, 1f, 0.125f,
 
-                0.625f, 0.125f, 1f, uv.bottomLeftU, uv.bottomLeftV + (2 * pixelSize),
-                0.625f, 0.4375f, 1f, uv.bottomLeftU, uv.topRightV - (9 * pixelSize),
-                0.625f, 0.4375f, 0.6875f, uv.topRightU - (11 * pixelSize), uv.topRightV - (9 * pixelSize),
-                0.625f, 0.125f, 0.6875f, uv.topRightU - (11 * pixelSize), uv.bottomLeftV + (2 * pixelSize),
+                0.625f, 0.125f, 1f, 0f, 0.125f,
+                0.625f, 0.4375f, 1f, 0f, 0.4375f,
+                0.625f, 0.4375f, 0.6875f, 0.3125f, 0.4375f,
+                0.625f, 0.125f, 0.6875f, 0.3125f, 0.125f,
 
-                0.375f, 0.125f, 0.6875f, uv.bottomLeftU + (6 * pixelSize), uv.bottomLeftV,
-                0.375f, 0.125f, 1f, uv.bottomLeftU + (6 * pixelSize), uv.topRightV - (11 * pixelSize),
-                0.625f, 0.125f, 1f, uv.topRightU - (6 * pixelSize), uv.topRightV - (11 * pixelSize),
-                0.625f, 0.125f, 0.6875f, uv.topRightU - (6 * pixelSize), uv.bottomLeftV,
+                0.375f, 0.125f, 0.6875f, 0.375f, 0f,
+                0.375f, 0.125f, 1f, 0.375f, 0.3125f,
+                0.625f, 0.125f, 1f, 0.625f, 0.3125f,
+                0.625f, 0.125f, 0.6875f, 0.625f, 0f,
 
-                0.375f, 0.4375f, 1f, uv.bottomLeftU + (6 * pixelSize), uv.bottomLeftV,
-                0.375f, 0.4375f, 0.6875f, uv.bottomLeftU + (6 * pixelSize), uv.topRightV - (11 * pixelSize),
-                0.625f, 0.4375f, 0.6875f, uv.topRightU - (6 * pixelSize), uv.topRightV - (11 * pixelSize),
-                0.625f, 0.4375f, 1f, uv.topRightU - (6 * pixelSize), uv.bottomLeftV,
+                0.375f, 0.4375f, 1f, 0.375f, 0f,
+                0.375f, 0.4375f, 0.6875f, 0.375f, 0.3125f,
+                0.625f, 0.4375f, 0.6875f, 0.625f, 0.3125f,
+                0.625f, 0.4375f, 1f, 0.625f, 0f,
 
                 // High extension
-                0.375f, 0.5625f, 0.6875f, uv.bottomLeftU + (11 * pixelSize), uv.bottomLeftV + (9 * pixelSize),
-                0.375f, 0.875f, 0.6875f, uv.bottomLeftU + (11 * pixelSize), uv.topRightV - (2 * pixelSize),
-                0.375f, 0.875f, 1f, uv.topRightU, uv.topRightV - (2 * pixelSize),
-                0.375f, 0.5625f, 1f, uv.topRightU, uv.bottomLeftV + (9 * pixelSize),
+                0.375f, 0.5625f, 0.6875f, 0.6875f, 0.5625f,
+                0.375f, 0.875f, 0.6875f, 0.6875f, 0.875f,
+                0.375f, 0.875f, 1f, 1f, 0.875f,
+                0.375f, 0.5625f, 1f, 1f, 0.5625f,
 
-                0.625f, 0.5625f, 1f, uv.bottomLeftU, uv.bottomLeftV + (9 * pixelSize),
-                0.625f, 0.875f, 1f, uv.bottomLeftU, uv.topRightV - (2 * pixelSize),
-                0.625f, 0.875f, 0.6875f, uv.topRightU - (11 * pixelSize), uv.topRightV - (2 * pixelSize),
-                0.625f, 0.5625f, 0.6875f, uv.topRightU - (11 * pixelSize), uv.bottomLeftV + (9 * pixelSize),
+                0.625f, 0.5625f, 1f, 0f, 0.5625f,
+                0.625f, 0.875f, 1f, 0f, 0.875f,
+                0.625f, 0.875f, 0.6875f, 0.3125f, 0.875f,
+                0.625f, 0.5625f, 0.6875f, 0.3125f, 0.5625f,
 
-                0.375f, 0.5625f, 0.6875f, uv.bottomLeftU + (6 * pixelSize), uv.bottomLeftV,
-                0.375f, 0.5625f, 1f, uv.bottomLeftU + (6 * pixelSize), uv.topRightV - (11 * pixelSize),
-                0.625f, 0.5625f, 1f, uv.topRightU - (6 * pixelSize), uv.topRightV - (11 * pixelSize),
-                0.625f, 0.5625f, 0.6875f, uv.topRightU - (6 * pixelSize), uv.bottomLeftV,
+                0.375f, 0.5625f, 0.6875f, 0.375f, 0f,
+                0.375f, 0.5625f, 1f, 0.375f, 0.3125f,
+                0.625f, 0.5625f, 1f, 0.625f, 0.3125f,
+                0.625f, 0.5625f, 0.6875f, 0.625f, 0f,
 
-                0.375f, 0.875f, 1f, uv.bottomLeftU + (6 * pixelSize), uv.bottomLeftV,
-                0.375f, 0.875f, 0.6875f, uv.bottomLeftU + (6 * pixelSize), uv.topRightV - (11 * pixelSize),
-                0.625f, 0.875f, 0.6875f, uv.topRightU - (6 * pixelSize), uv.topRightV - (11 * pixelSize),
-                0.625f, 0.875f, 1f, uv.topRightU - (6 * pixelSize), uv.bottomLeftV,
+                0.375f, 0.875f, 1f, 0.375f, 0f,
+                0.375f, 0.875f, 0.6875f, 0.375f, 0.3125f,
+                0.625f, 0.875f, 0.6875f, 0.625f, 0.3125f,
+                0.625f, 0.875f, 1f, 0.625f, 0f,
             };
 
             westVertices = new float[]
             {
                 // Low extension
-                0f, 0.125f, 0.625f, uv.bottomLeftU, uv.bottomLeftV + (2 * pixelSize),
-                0f, 0.4375f, 0.625f, uv.bottomLeftU, uv.topRightV - (9 * pixelSize),
-                0.3125f, 0.4375f, 0.625f,uv.topRightU - (11 * pixelSize), uv.topRightV - (9 * pixelSize),
-                0.3125f, 0.125f, 0.625f, uv.topRightU - (11 * pixelSize), uv.bottomLeftV + (2 * pixelSize),
+                0f, 0.125f, 0.625f, 0f, 0.125f,
+                0f, 0.4375f, 0.625f, 0f, 0.4375f,
+                0.3125f, 0.4375f, 0.625f,0.3125f, 0.4375f,
+                0.3125f, 0.125f, 0.625f, 0.3125f, 0.125f,
 
-                0.3125f, 0.125f, 0.375f, uv.bottomLeftU + (11 * pixelSize), uv.bottomLeftV + (2 * pixelSize),
-                0.3125f, 0.4375f, 0.375f, uv.bottomLeftU + (11 * pixelSize), uv.topRightV - (9 * pixelSize),
-                0f, 0.4375f, 0.375f, uv.topRightU, uv.topRightV - (9 * pixelSize),
-                0f, 0.125f, 0.375f, uv.topRightU, uv.bottomLeftV + (2 * pixelSize),
+                0.3125f, 0.125f, 0.375f, 0.6875f, 0.125f,
+                0.3125f, 0.4375f, 0.375f, 0.6875f, 0.4375f,
+                0f, 0.4375f, 0.375f, 1f, 0.4375f,
+                0f, 0.125f, 0.375f, 1f, 0.125f,
 
-                0f, 0.125f, 0.375f, uv.bottomLeftU, uv.bottomLeftV + (6 * pixelSize),
-                0f, 0.125f, 0.625f, uv.bottomLeftU, uv.topRightV - (6 * pixelSize),
-                0.3125f, 0.125f, 0.625f, uv.topRightU - (11 * pixelSize), uv.topRightV - (6 * pixelSize),
-                0.3125f, 0.125f, 0.375f, uv.topRightU - (11 * pixelSize), uv.bottomLeftV + (6 * pixelSize),
+                0f, 0.125f, 0.375f, 0f, 0.375f,
+                0f, 0.125f, 0.625f, 0f, 0.625f,
+                0.3125f, 0.125f, 0.625f, 0.3125f, 0.625f,
+                0.3125f, 0.125f, 0.375f, 0.3125f, 0.375f,
 
-                0f, 0.4375f, 0.625f, uv.bottomLeftU, uv.bottomLeftV + (6 * pixelSize),
-                0f, 0.4375f, 0.375f, uv.bottomLeftU, uv.topRightV - (6 * pixelSize),
-                0.3125f, 0.4375f, 0.375f, uv.topRightU - (11 * pixelSize), uv.topRightV - (6 * pixelSize),
-                0.3125f, 0.4375f, 0.625f, uv.topRightU - (11 * pixelSize), uv.bottomLeftV + (6 * pixelSize),
+                0f, 0.4375f, 0.625f, 0f, 0.375f,
+                0f, 0.4375f, 0.375f, 0f, 0.625f,
+                0.3125f, 0.4375f, 0.375f, 0.3125f, 0.625f,
+                0.3125f, 0.4375f, 0.625f, 0.3125f, 0.375f,
 
                 // High extension
-                0f, 0.5625f, 0.625f, uv.bottomLeftU + (11 * pixelSize), uv.bottomLeftV + (9 * pixelSize),
-                0f, 0.875f, 0.625f, uv.bottomLeftU + (11 * pixelSize), uv.topRightV - (2 * pixelSize),
-                0.3125f, 0.875f, 0.625f, uv.topRightU, uv.topRightV - (2 * pixelSize),
-                0.3125f, 0.5625f, 0.625f, uv.topRightU, uv.bottomLeftV + (9 * pixelSize),
+                0f, 0.5625f, 0.625f, 0.6875f, 0.5625f,
+                0f, 0.875f, 0.625f, 0.6875f, 0.875f,
+                0.3125f, 0.875f, 0.625f, 1f, 0.875f,
+                0.3125f, 0.5625f, 0.625f, 1f, 0.5625f,
 
-                0.3125f, 0.5625f, 0.375f, uv.bottomLeftU, uv.bottomLeftV + (9 * pixelSize),
-                0.3125f, 0.875f, 0.375f, uv.bottomLeftU, uv.topRightV - (2 * pixelSize),
-                0f, 0.875f, 0.375f, uv.topRightU - (11 * pixelSize), uv.topRightV - (2 * pixelSize),
-                0f, 0.5625f, 0.375f, uv.topRightU - (11 * pixelSize), uv.bottomLeftV + (9 * pixelSize),
+                0.3125f, 0.5625f, 0.375f, 0f, 0.5625f,
+                0.3125f, 0.875f, 0.375f, 0f, 0.875f,
+                0f, 0.875f, 0.375f, 0.3125f, 0.875f,
+                0f, 0.5625f, 0.375f, 0.3125f, 0.5625f,
 
-                0f, 0.5625f, 0.375f, uv.bottomLeftU, uv.bottomLeftV + (6 * pixelSize),
-                0f, 0.5625f, 0.625f, uv.bottomLeftU, uv.topRightV - (6 * pixelSize),
-                0.3125f, 0.5625f, 0.625f, uv.topRightU - (11 * pixelSize), uv.topRightV - (6 * pixelSize),
-                0.3125f, 0.5625f, 0.375f, uv.topRightU - (11 * pixelSize), uv.bottomLeftV + (6 * pixelSize),
+                0f, 0.5625f, 0.375f, 0f, 0.375f,
+                0f, 0.5625f, 0.625f, 0f, 0.625f,
+                0.3125f, 0.5625f, 0.625f, 0.3125f, 0.625f,
+                0.3125f, 0.5625f, 0.375f, 0.3125f, 0.375f,
 
-                0f, 0.875f, 0.625f, uv.bottomLeftU, uv.bottomLeftV + (6 * pixelSize),
-                0f, 0.875f, 0.375f, uv.bottomLeftU, uv.topRightV - (6 * pixelSize),
-                0.3125f, 0.875f, 0.375f, uv.topRightU - (11 * pixelSize), uv.topRightV - (6 * pixelSize),
-                0.3125f, 0.875f, 0.625f, uv.topRightU - (11 * pixelSize), uv.bottomLeftV + (6 * pixelSize),
+                0f, 0.875f, 0.625f, 0f, 0.375f,
+                0f, 0.875f, 0.375f, 0f, 0.625f,
+                0.3125f, 0.875f, 0.375f, 0.3125f, 0.625f,
+                0.3125f, 0.875f, 0.625f, 0.3125f, 0.375f,
             };
+
+            int tex = Game.BlockTextureArray.GetTextureIndex(texture);
+
+            textureIndices = new int[5][];
+            // Generate texture indices
+            for (int i = 0; i < 5; i++)
+            {
+                int[] texInd = new int[24 + (i * 32)];
+
+                for (int v = 0; v < texInd.Length; v++)
+                {
+                    texInd[v] = tex;
+                }
+
+                textureIndices[i] = texInd;
+            }
 
             indices = new uint[5][];
             // Generate indices
@@ -378,7 +393,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out uint[] indices)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices)
         {
             bool north = (data & 0b0_1000) != 0;
             bool east = (data & 0b0_0100) != 0;
@@ -389,6 +404,7 @@ namespace VoxelGame.Logic.Blocks
             uint vertCount = (uint)(24 + (extensions * 32));
 
             vertices = new float[vertCount * 5];
+            textureIndices = this.textureIndices[extensions];
             indices = this.indices[extensions];
 
             // Combine the required vertices into one array

@@ -173,31 +173,37 @@ namespace VoxelGame.Logic
             meshDataIndex = 0;
         }
 
-        public Task<(float[][] verticesData, uint[][] indicesData)> CreateMeshDataAsync()
+        public Task<(float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData)> CreateMeshDataAsync()
         {
             return Task.Run(CreateMeshData);
         }
 
-        private (float[][] verticesData, uint[][] indicesData) CreateMeshData()
+        private (float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData) CreateMeshData()
         {
             float[][] verticesData = new float[ChunkHeight][];
+            int[][] textureIndicesData = new int[ChunkHeight][];
             uint[][] indicesData = new uint[ChunkHeight][];
 
             for (int y = 0; y < ChunkHeight; y++)
             {
-                sections[y].CreateMeshData(X, y, Z, out verticesData[y], out indicesData[y]);
+                sections[y].CreateMeshData(X, y, Z, out verticesData[y], out textureIndicesData[y], out indicesData[y]);
             }
 
             meshDataIndex = 0;
 
-            return (verticesData, indicesData);
+            return (verticesData, textureIndicesData, indicesData);
         }
 
-        public void SetMeshData(float[][] verticesData, uint[][] indicesData)
+        public void SetMeshData(float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData)
         {
             if (verticesData == null)
             {
                 throw new ArgumentNullException(nameof(verticesData));
+            }
+
+            if (textureIndicesData == null)
+            {
+                throw new ArgumentNullException(nameof(textureIndicesData));
             }
 
             if (indicesData == null)
@@ -207,18 +213,23 @@ namespace VoxelGame.Logic
 
             for (int y = 0; y < ChunkHeight; y++)
             {
-                sections[y].SetMeshData(ref verticesData[y], ref indicesData[y]);
+                sections[y].SetMeshData(ref verticesData[y], ref textureIndicesData[y], ref indicesData[y]);
             }
 
             hasMeshData = true;
             meshDataIndex = 0;
         }
 
-        public bool SetMeshDataStep(float[][] verticesData, uint[][] indicesData)
+        public bool SetMeshDataStep(float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData)
         {
             if (verticesData == null)
             {
                 throw new ArgumentNullException(nameof(verticesData));
+            }
+
+            if (textureIndicesData == null)
+            {
+                throw new ArgumentNullException(nameof(textureIndicesData));
             }
 
             if (indicesData == null)
@@ -228,7 +239,7 @@ namespace VoxelGame.Logic
 
             for (int i = 0; i < maxMeshDataStep; i++)
             {
-                sections[meshDataIndex].SetMeshData(ref verticesData[meshDataIndex], ref indicesData[meshDataIndex]);
+                sections[meshDataIndex].SetMeshData(ref verticesData[meshDataIndex], ref textureIndicesData[meshDataIndex], ref indicesData[meshDataIndex]);
 
                 // The index has reached the end, all sections have received their mesh data
                 if (meshDataIndex == ChunkHeight - 1)

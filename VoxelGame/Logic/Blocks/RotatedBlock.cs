@@ -5,7 +5,6 @@
 // <author>pershingthesecond</author>
 using System;
 using VoxelGame.Entities;
-using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -16,7 +15,18 @@ namespace VoxelGame.Logic.Blocks
     // a = axis
     public class RotatedBlock : BasicBlock
     {
-        private float[][] sideUVs;
+#pragma warning disable CA1051 // Do not declare visible instance fields
+        protected float[] uv = new float[]
+        {
+            0f, 0f,
+            0f, 1f,
+            1f, 1f,
+            1f, 0f
+        };
+
+        protected int[] texIndices;
+
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
         public RotatedBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid) :
             base(
@@ -30,16 +40,6 @@ namespace VoxelGame.Logic.Blocks
 
         protected override void Setup(TextureLayout layout)
         {
-            AtlasPosition[] uvs =
-{
-                Game.Atlas.GetTextureUV(layout.Front),
-                Game.Atlas.GetTextureUV(layout.Back),
-                Game.Atlas.GetTextureUV(layout.Left),
-                Game.Atlas.GetTextureUV(layout.Right),
-                Game.Atlas.GetTextureUV(layout.Bottom),
-                Game.Atlas.GetTextureUV(layout.Top)
-            };
-
             sideVertices = new float[][]
             {
                 new float[] // Front face
@@ -86,59 +86,23 @@ namespace VoxelGame.Logic.Blocks
                 }
             };
 
-            sideUVs = new float[][]
+            texIndices = new int[]
             {
-                new float[] // Front face
-                {
-                    uvs[0].bottomLeftU, uvs[0].bottomLeftV,
-                    uvs[0].bottomLeftU, uvs[0].topRightV,
-                    uvs[0].topRightU, uvs[0].topRightV,
-                    uvs[0].topRightU, uvs[0].bottomLeftV
-                },
-                new float[] // Back face
-                {
-                    uvs[1].bottomLeftU, uvs[1].bottomLeftV,
-                    uvs[1].bottomLeftU, uvs[1].topRightV,
-                    uvs[1].topRightU, uvs[1].topRightV,
-                    uvs[1].topRightU, uvs[1].bottomLeftV
-                },
-                new float[] // Left face
-                {
-                    uvs[2].bottomLeftU, uvs[2].bottomLeftV,
-                    uvs[2].bottomLeftU, uvs[2].topRightV,
-                    uvs[2].topRightU, uvs[2].topRightV,
-                    uvs[2].topRightU, uvs[2].bottomLeftV
-                },
-                new float[] // Right face
-                {
-                    uvs[3].bottomLeftU, uvs[3].bottomLeftV,
-                    uvs[3].bottomLeftU, uvs[3].topRightV,
-                    uvs[3].topRightU, uvs[3].topRightV,
-                    uvs[3].topRightU, uvs[3].bottomLeftV
-                },
-                new float[] // Bottom face
-                {
-                    uvs[4].bottomLeftU, uvs[4].bottomLeftV,
-                    uvs[4].bottomLeftU, uvs[4].topRightV,
-                    uvs[4].topRightU, uvs[4].topRightV,
-                    uvs[4].topRightU, uvs[4].bottomLeftV
-                },
-                new float[] // Top face
-                {
-                    uvs[5].bottomLeftU, uvs[5].bottomLeftV,
-                    uvs[5].bottomLeftU, uvs[5].topRightV,
-                    uvs[5].topRightU, uvs[5].topRightV,
-                    uvs[5].topRightU, uvs[5].bottomLeftV
-                }
+                layout.Front,
+                layout.Back,
+                layout.Left,
+                layout.Right,
+                layout.Bottom,
+                layout.Top
             };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out uint[] indices)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices)
         {
             Axis axis = ToAxis(data);
 
             float[] vert = sideVertices[(int)side];
-            float[] uv = sideUVs[TranslateIndex(side, axis)];
+            int tex = texIndices[TranslateIndex(side, axis)];
 
             // Check if the texture has to be rotated
             if ((axis == Axis.X && (side != BlockSide.Left && side != BlockSide.Right)) || (axis == Axis.Z && (side == BlockSide.Left || side == BlockSide.Right)))
@@ -146,9 +110,9 @@ namespace VoxelGame.Logic.Blocks
                 // Texture rotation
                 vertices = new float[]
                 {
-                    vert[0], vert[1],  vert[2],  uv[2], uv[3],
-                    vert[3], vert[4],  vert[5],  uv[4], uv[5],
-                    vert[6], vert[7],  vert[8],  uv[6], uv[7],
+                    vert[0], vert[1],  vert[2], uv[2], uv[3],
+                    vert[3], vert[4],  vert[5], uv[4], uv[5],
+                    vert[6], vert[7],  vert[8], uv[6], uv[7],
                     vert[9], vert[10], vert[11], uv[0], uv[1],
                 };
             }
@@ -164,6 +128,7 @@ namespace VoxelGame.Logic.Blocks
                 };
             }
 
+            textureIndices = new int[] { tex, tex, tex, tex };
             indices = this.indices;
 
             return 4;

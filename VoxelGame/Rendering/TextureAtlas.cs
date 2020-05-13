@@ -148,4 +148,23 @@ namespace VoxelGame.Rendering
             return new AtlasPosition(1f - 1f / extents * ((index & (extents - 1)) + 1f), 1f - 1f / extents * ((index >> log2Extents) + 1f), 1f - 1f / extents * (index & (extents - 1)), 1f - 1f / extents * (index >> log2Extents));
         }
     }
+
+    /// <summary>
+    /// The position of a texture in a texture atlas.
+    /// </summary>
+    public struct AtlasPosition
+    {
+        public float bottomLeftU { get; private set; }
+        public float bottomLeftV { get; private set; }
+        public float topRightU { get; private set; }
+        public float topRightV { get; private set; }
+
+        public AtlasPosition(float bottomLeftU, float bottomLeftV, float topRightU, float topRightV)
+        {
+            this.bottomLeftU = bottomLeftU;
+            this.bottomLeftV = bottomLeftV;
+            this.topRightU = topRightU;
+            this.topRightV = topRightV;
+        }
+    }
 }

@@ -10,9 +10,11 @@ namespace VoxelGame.Logic.Blocks
 {
     public class CrossBlock : Block
     {
-        private float[] vertices;
+#pragma warning disable CA1051 // Do not declare visible instance fields
+        protected float[] vertices;
+        protected int[] textureIndices;
 
-        private readonly uint[] indices =
+        protected readonly uint[] indices =
         {
             // Direction: /
             0, 2, 1,
@@ -28,6 +30,7 @@ namespace VoxelGame.Logic.Blocks
             4, 5, 6,
             4, 6, 7
         };
+#pragma warning disable CA1051 // Do not declare visible instance fields
 
         /// <summary>
         /// Initializes a new instance of a cross block; a block made out of two intersecting planes.
@@ -54,28 +57,29 @@ namespace VoxelGame.Logic.Blocks
 
         protected virtual void Setup(string texture)
         {
-            int textureIndex = Game.Atlas.GetTextureIndex(texture);
-            AtlasPosition uv = Game.Atlas.GetTextureUV(textureIndex);
-
             vertices = new float[]
             {
                 // Two sides: /
-                0f, 0f, 1f, uv.bottomLeftU, uv.bottomLeftV,
-                0f, 1f, 1f, uv.bottomLeftU, uv.topRightV,
-                1f, 1f, 0f, uv.topRightU, uv.topRightV,
-                1f, 0f, 0f, uv.topRightU, uv.bottomLeftV,
+                0f, 0f, 1f, 0f, 0f,
+                0f, 1f, 1f, 0f, 1f,
+                1f, 1f, 0f, 1f, 1f,
+                1f, 0f, 0f, 1f, 0f,
 
                 // Two sides: \
-                0f, 0f, 0f, uv.bottomLeftU, uv.bottomLeftV,
-                0f, 1f, 0f, uv.bottomLeftU, uv.topRightV,
-                1f, 1f, 1f, uv.topRightU, uv.topRightV,
-                1f, 0f, 1f, uv.topRightU, uv.bottomLeftV
+                0f, 0f, 0f, 0f, 0f,
+                0f, 1f, 0f, 0f, 1f,
+                1f, 1f, 1f, 1f, 1f,
+                1f, 0f, 1f, 1f, 0f
             };
+
+            int tex = Game.BlockTextureArray.GetTextureIndex(texture);
+            textureIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out uint[] indices)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices)
         {
             vertices = this.vertices;
+            textureIndices = this.textureIndices;
             indices = this.indices;
 
             return 8;

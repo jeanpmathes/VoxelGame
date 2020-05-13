@@ -155,8 +155,8 @@
     <Compile Include="Rendering\Renderer.cs" />
     <Compile Include="Rendering\Shader.cs" />
     <Compile Include="Rendering\Texture.cs" />
+    <Compile Include="Rendering\ArrayTexture.cs" />
     <Compile Include="Rendering\TextureAtlas.cs" />
-    <Compile Include="Rendering\AtlasPosition.cs" />
     <Compile Include="Resources\Language\Language.de.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

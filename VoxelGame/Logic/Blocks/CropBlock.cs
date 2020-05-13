@@ -6,7 +6,6 @@
 using OpenTK;
 using VoxelGame.Entities;
 using VoxelGame.Physics;
-using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -18,7 +17,8 @@ namespace VoxelGame.Logic.Blocks
     public class CropBlock : Block
     {
 #pragma warning disable CA1051 // Do not declare visible instance fields
-        protected AtlasPosition[] uvs;
+        protected float[][] stageVertices;
+        protected int[] stageTexIndices;
 
         protected uint[] indices =
         {
@@ -74,19 +74,57 @@ namespace VoxelGame.Logic.Blocks
 
         protected virtual void Setup(string texture, int second, int third, int fourth, int fifth, int sixth, int final, int dead)
         {
-            int baseIndex = Game.Atlas.GetTextureIndex(texture);
+            int baseIndex = Game.BlockTextureArray.GetTextureIndex(texture);
 
-            uvs = new AtlasPosition[]
+            stageTexIndices = new int[]
             {
-                Game.Atlas.GetTextureUV(baseIndex),
-                Game.Atlas.GetTextureUV(baseIndex + second),
-                Game.Atlas.GetTextureUV(baseIndex + third),
-                Game.Atlas.GetTextureUV(baseIndex + fourth),
-                Game.Atlas.GetTextureUV(baseIndex + fifth),
-                Game.Atlas.GetTextureUV(baseIndex + sixth),
-                Game.Atlas.GetTextureUV(baseIndex + final),
-                Game.Atlas.GetTextureUV(baseIndex + dead),
+                baseIndex,
+                baseIndex + second,
+                baseIndex + third,
+                baseIndex + fourth,
+                baseIndex + fifth,
+                baseIndex + sixth,
+                baseIndex + final,
+                baseIndex + dead
             };
+
+            stageVertices = new float[8][];
+
+            for (int i = 0; i < 8; i++)
+            {
+                stageVertices[i] = new float[]
+                {
+                    0.25f, 0f, 0f, 0f, 0f,
+                    0.25f, 1f, 0f, 0f, 1f,
+                    0.25f, 1f, 1f, 1f, 1f,
+                    0.25f, 0f, 1f, 1f, 0f,
+
+                    0.5f, 0f, 0f, 0f, 0f,
+                    0.5f, 1f, 0f, 0f, 1f,
+                    0.5f, 1f, 1f, 1f, 1f,
+                    0.5f, 0f, 1f, 1f, 0f,
+
+                    0.75f, 0f, 0f, 0f, 0f,
+                    0.75f, 1f, 0f, 0f, 1f,
+                    0.75f, 1f, 1f, 1f, 1f,
+                    0.75f, 0f, 1f, 1f, 0f,
+
+                    0f, 0f, 0.25f, 0f, 0f,
+                    0f, 1f, 0.25f, 0f, 1f,
+                    1f, 1f, 0.25f, 1f, 1f,
+                    1f, 0f, 0.25f, 1f, 0f,
+
+                    0f, 0f, 0.5f, 0f, 0f,
+                    0f, 1f, 0.5f, 0f, 1f,
+                    1f, 1f, 0.5f, 1f, 1f,
+                    1f, 0f, 0.5f, 1f, 0f,
+
+                    0f, 0f, 0.75f, 0f, 0f,
+                    0f, 1f, 0.75f, 0f, 1f,
+                    1f, 1f, 0.75f, 1f, 1f,
+                    1f, 0f, 0.75f, 1f, 0f
+                };
+            }
         }
 
         public override BoundingBox GetBoundingBox(int x, int y, int z)
@@ -135,42 +173,15 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out uint[] indices)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices)
         {
-            int s = data & 0b0_0111;
+            vertices = stageVertices[data & 0b0_0111];
+            textureIndices = new int[24];
 
-            vertices = new float[]
+            for (int i = 0; i < 24; i++)
             {
-                0.25f, 0f, 0f, uvs[s].bottomLeftU, uvs[s].bottomLeftV,
-                0.25f, 1f, 0f, uvs[s].bottomLeftU, uvs[s].topRightV,
-                0.25f, 1f, 1f, uvs[s].topRightU, uvs[s].topRightV,
-                0.25f, 0f, 1f, uvs[s].topRightU, uvs[s].bottomLeftV,
-
-                0.5f, 0f, 0f, uvs[s].bottomLeftU, uvs[s].bottomLeftV,
-                0.5f, 1f, 0f, uvs[s].bottomLeftU, uvs[s].topRightV,
-                0.5f, 1f, 1f, uvs[s].topRightU, uvs[s].topRightV,
-                0.5f, 0f, 1f, uvs[s].topRightU, uvs[s].bottomLeftV,
-
-                0.75f, 0f, 0f, uvs[s].bottomLeftU, uvs[s].bottomLeftV,
-                0.75f, 1f, 0f, uvs[s].bottomLeftU, uvs[s].topRightV,
-                0.75f, 1f, 1f, uvs[s].topRightU, uvs[s].topRightV,
-                0.75f, 0f, 1f, uvs[s].topRightU, uvs[s].bottomLeftV,
-
-                0f, 0f, 0.25f, uvs[s].bottomLeftU, uvs[s].bottomLeftV,
-                0f, 1f, 0.25f, uvs[s].bottomLeftU, uvs[s].topRightV,
-                1f, 1f, 0.25f, uvs[s].topRightU, uvs[s].topRightV,
-                1f, 0f, 0.25f, uvs[s].topRightU, uvs[s].bottomLeftV,
-
-                0f, 0f, 0.5f, uvs[s].bottomLeftU, uvs[s].bottomLeftV,
-                0f, 1f, 0.5f, uvs[s].bottomLeftU, uvs[s].topRightV,
-                1f, 1f, 0.5f, uvs[s].topRightU, uvs[s].topRightV,
-                1f, 0f, 0.5f, uvs[s].topRightU, uvs[s].bottomLeftV,
-
-                0f, 0f, 0.75f, uvs[s].bottomLeftU, uvs[s].bottomLeftV,
-                0f, 1f, 0.75f, uvs[s].bottomLeftU, uvs[s].topRightV,
-                1f, 1f, 0.75f, uvs[s].topRightU, uvs[s].topRightV,
-                1f, 0f, 0.75f, uvs[s].topRightU, uvs[s].bottomLeftV
-            };
+                textureIndices[i] = stageTexIndices[data & 0b0_0111];
+            }
 
             indices = this.indices;
 

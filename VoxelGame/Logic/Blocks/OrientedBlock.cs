@@ -19,7 +19,7 @@ namespace VoxelGame.Logic.Blocks
     public class OrientedBlock : BasicBlock
     {
 #pragma warning disable CA1051 // Do not declare visible instance fields
-        protected float[][] sideUVs;
+        protected int[] texIndices;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
         public OrientedBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid) :
@@ -34,16 +34,6 @@ namespace VoxelGame.Logic.Blocks
 
         protected override void Setup(TextureLayout layout)
         {
-            AtlasPosition[] uvs =
-            {
-                Game.Atlas.GetTextureUV(layout.Front),
-                Game.Atlas.GetTextureUV(layout.Back),
-                Game.Atlas.GetTextureUV(layout.Left),
-                Game.Atlas.GetTextureUV(layout.Right),
-                Game.Atlas.GetTextureUV(layout.Bottom),
-                Game.Atlas.GetTextureUV(layout.Top)
-            };
-
             sideVertices = new float[][]
             {
                 new float[] // Front face
@@ -90,65 +80,31 @@ namespace VoxelGame.Logic.Blocks
                 }
             };
 
-            sideUVs = new float[][]
+            texIndices = new int[]
             {
-                new float[] // Front face
-                {
-                    uvs[0].bottomLeftU, uvs[0].bottomLeftV,
-                    uvs[0].bottomLeftU, uvs[0].topRightV,
-                    uvs[0].topRightU, uvs[0].topRightV,
-                    uvs[0].topRightU, uvs[0].bottomLeftV
-                },
-                new float[] // Back face
-                {
-                    uvs[1].bottomLeftU, uvs[1].bottomLeftV,
-                    uvs[1].bottomLeftU, uvs[1].topRightV,
-                    uvs[1].topRightU, uvs[1].topRightV,
-                    uvs[1].topRightU, uvs[1].bottomLeftV
-                },
-                new float[] // Left face
-                {
-                    uvs[2].bottomLeftU, uvs[2].bottomLeftV,
-                    uvs[2].bottomLeftU, uvs[2].topRightV,
-                    uvs[2].topRightU, uvs[2].topRightV,
-                    uvs[2].topRightU, uvs[2].bottomLeftV
-                },
-                new float[] // Right face
-                {
-                    uvs[3].bottomLeftU, uvs[3].bottomLeftV,
-                    uvs[3].bottomLeftU, uvs[3].topRightV,
-                    uvs[3].topRightU, uvs[3].topRightV,
-                    uvs[3].topRightU, uvs[3].bottomLeftV
-                },
-                new float[] // Bottom face
-                {
-                    uvs[4].bottomLeftU, uvs[4].bottomLeftV,
-                    uvs[4].bottomLeftU, uvs[4].topRightV,
-                    uvs[4].topRightU, uvs[4].topRightV,
-                    uvs[4].topRightU, uvs[4].bottomLeftV
-                },
-                new float[] // Top face
-                {
-                    uvs[5].bottomLeftU, uvs[5].bottomLeftV,
-                    uvs[5].bottomLeftU, uvs[5].topRightV,
-                    uvs[5].topRightU, uvs[5].topRightV,
-                    uvs[5].topRightU, uvs[5].bottomLeftV
-                }
+                layout.Front,
+                layout.Back,
+                layout.Left,
+                layout.Right,
+                layout.Bottom,
+                layout.Top
             };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out uint[] indices)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices)
         {
             float[] vert = sideVertices[(int)side];
-            float[] uv = sideUVs[TranslateIndex(side, (Orientation)(data & 0b0_0011))];
+            int tex = texIndices[TranslateIndex(side, (Orientation)(data & 0b0_0011))];
 
             vertices = new float[]
             {
-                vert[0], vert[1],  vert[2],  uv[0], uv[1],
-                vert[3], vert[4],  vert[5],  uv[2], uv[3],
-                vert[6], vert[7],  vert[8],  uv[4], uv[5],
-                vert[9], vert[10], vert[11], uv[6], uv[7],
+                vert[0], vert[1],  vert[2], 0f, 0f,
+                vert[3], vert[4],  vert[5], 0f, 1f,
+                vert[6], vert[7],  vert[8], 1f, 1f,
+                vert[9], vert[10], vert[11], 1f, 0f,
             };
+
+            textureIndices = new int[] { tex, tex, tex, tex };
             indices = this.indices;
 
             return 4;

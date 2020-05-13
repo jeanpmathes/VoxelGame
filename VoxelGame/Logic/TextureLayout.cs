@@ -33,7 +33,7 @@ namespace VoxelGame.Logic
         /// </summary>
         public static TextureLayout Uniform(string texture)
         {
-            int i = Game.Atlas.GetTextureIndex(texture);
+            int i = Game.BlockTextureArray.GetTextureIndex(texture);
 
             return new TextureLayout(i, i, i, i, i, i);
         }
@@ -44,12 +44,12 @@ namespace VoxelGame.Logic
         public static TextureLayout Unique(string front, string back, string left, string right, string bottom, string top)
         {
             return new TextureLayout(
-                front: Game.Atlas.GetTextureIndex(front),
-                back: Game.Atlas.GetTextureIndex(back),
-                left: Game.Atlas.GetTextureIndex(left),
-                right: Game.Atlas.GetTextureIndex(right),
-                bottom: Game.Atlas.GetTextureIndex(bottom),
-                top: Game.Atlas.GetTextureIndex(top));
+                front: Game.BlockTextureArray.GetTextureIndex(front),
+                back: Game.BlockTextureArray.GetTextureIndex(back),
+                left: Game.BlockTextureArray.GetTextureIndex(left),
+                right: Game.BlockTextureArray.GetTextureIndex(right),
+                bottom: Game.BlockTextureArray.GetTextureIndex(bottom),
+                top: Game.BlockTextureArray.GetTextureIndex(top));
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace VoxelGame.Logic
         /// </summary>
         public static TextureLayout Unique(string texture, int front, int back, int left, int right, int bottom, int top)
         {
-            int i = Game.Atlas.GetTextureIndex(texture);
+            int i = Game.BlockTextureArray.GetTextureIndex(texture);
 
             return new TextureLayout(i + front, i + back, i + left, i + right, i + bottom, i + top);
         }
@@ -67,8 +67,8 @@ namespace VoxelGame.Logic
         /// </summary>
         public static TextureLayout Column(string sides, string ends)
         {
-            int sideIndex = Game.Atlas.GetTextureIndex(sides);
-            int endIndex = Game.Atlas.GetTextureIndex(ends);
+            int sideIndex = Game.BlockTextureArray.GetTextureIndex(sides);
+            int endIndex = Game.BlockTextureArray.GetTextureIndex(ends);
 
             return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, endIndex, endIndex);
         }
@@ -78,8 +78,8 @@ namespace VoxelGame.Logic
         /// </summary>
         public static TextureLayout Column(string texture, int sideOffset, int endOffset)
         {
-            int sideIndex = Game.Atlas.GetTextureIndex(texture) + sideOffset;
-            int endIndex = Game.Atlas.GetTextureIndex(texture) + endOffset;
+            int sideIndex = Game.BlockTextureArray.GetTextureIndex(texture) + sideOffset;
+            int endIndex = Game.BlockTextureArray.GetTextureIndex(texture) + endOffset;
 
             return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, endIndex, endIndex);
         }
@@ -89,9 +89,9 @@ namespace VoxelGame.Logic
         /// </summary>
         public static TextureLayout UnqiueColumn(string sides, string bottom, string top)
         {
-            int sideIndex = Game.Atlas.GetTextureIndex(sides);
-            int bottomIndex = Game.Atlas.GetTextureIndex(bottom);
-            int topIndex = Game.Atlas.GetTextureIndex(top);
+            int sideIndex = Game.BlockTextureArray.GetTextureIndex(sides);
+            int bottomIndex = Game.BlockTextureArray.GetTextureIndex(bottom);
+            int topIndex = Game.BlockTextureArray.GetTextureIndex(top);
 
             return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, bottomIndex, topIndex);
         }
@@ -101,9 +101,9 @@ namespace VoxelGame.Logic
         /// </summary>
         public static TextureLayout UnqiueColumn(string texture, int sideOffset, int bottomOffset, int topOffset)
         {
-            int sideIndex = Game.Atlas.GetTextureIndex(texture) + sideOffset;
-            int bottomIndex = Game.Atlas.GetTextureIndex(texture) + bottomOffset;
-            int topIndex = Game.Atlas.GetTextureIndex(texture) + topOffset;
+            int sideIndex = Game.BlockTextureArray.GetTextureIndex(texture) + sideOffset;
+            int bottomIndex = Game.BlockTextureArray.GetTextureIndex(texture) + bottomOffset;
+            int topIndex = Game.BlockTextureArray.GetTextureIndex(texture) + topOffset;
 
             return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, bottomIndex, topIndex);
         }
@@ -113,8 +113,8 @@ namespace VoxelGame.Logic
         /// </summary>
         public static TextureLayout UnqiueFront(string front, string rest)
         {
-            int frontIndex = Game.Atlas.GetTextureIndex(front);
-            int restIndex = Game.Atlas.GetTextureIndex(rest);
+            int frontIndex = Game.BlockTextureArray.GetTextureIndex(front);
+            int restIndex = Game.BlockTextureArray.GetTextureIndex(rest);
 
             return new TextureLayout(frontIndex, restIndex, restIndex, restIndex, restIndex, restIndex);
         }
@@ -124,8 +124,8 @@ namespace VoxelGame.Logic
         /// </summary>
         public static TextureLayout UnqiueFront(string texture, int frontOffset, int restOffset)
         {
-            int frontIndex = Game.Atlas.GetTextureIndex(texture) + frontOffset;
-            int restIndex = Game.Atlas.GetTextureIndex(texture) + restOffset;
+            int frontIndex = Game.BlockTextureArray.GetTextureIndex(texture) + frontOffset;
+            int restIndex = Game.BlockTextureArray.GetTextureIndex(texture) + restOffset;
 
             return new TextureLayout(frontIndex, restIndex, restIndex, restIndex, restIndex, restIndex);
         }
@@ -135,8 +135,8 @@ namespace VoxelGame.Logic
         /// </summary>
         public static TextureLayout UnqiueTop(string rest, string top)
         {
-            int topIndex = Game.Atlas.GetTextureIndex(top);
-            int restIndex = Game.Atlas.GetTextureIndex(rest);
+            int topIndex = Game.BlockTextureArray.GetTextureIndex(top);
+            int restIndex = Game.BlockTextureArray.GetTextureIndex(rest);
 
             return new TextureLayout(restIndex, restIndex, restIndex, restIndex, restIndex, topIndex);
         }

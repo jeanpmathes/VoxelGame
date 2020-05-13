@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using VoxelGame.Physics;
-using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -15,6 +14,7 @@ namespace VoxelGame.Logic.Blocks
     {
 #pragma warning disable CA1051 // Do not declare visible instance fields
         protected float[][] sideVertices;
+        protected int[][] sideTextureIndices;
 
         protected uint[] indices =
         {
@@ -43,66 +43,85 @@ namespace VoxelGame.Logic.Blocks
 
         protected virtual void Setup(TextureLayout layout)
         {
-            AtlasPosition[] sideUVs =
-            {
-                Game.Atlas.GetTextureUV(layout.Front),
-                Game.Atlas.GetTextureUV(layout.Back),
-                Game.Atlas.GetTextureUV(layout.Left),
-                Game.Atlas.GetTextureUV(layout.Right),
-                Game.Atlas.GetTextureUV(layout.Bottom),
-                Game.Atlas.GetTextureUV(layout.Top)
-            };
-
             sideVertices = new float[][]
             {
                 new float[] // Front face
                 {
-                    0f, 0f, 1f, sideUVs[0].bottomLeftU, sideUVs[0].bottomLeftV,
-                    0f, 1f, 1f, sideUVs[0].bottomLeftU, sideUVs[0].topRightV,
-                    1f, 1f, 1f, sideUVs[0].topRightU, sideUVs[0].topRightV,
-                    1f, 0f, 1f, sideUVs[0].topRightU, sideUVs[0].bottomLeftV
+                    0f, 0f, 1f, 0f, 0f,
+                    0f, 1f, 1f, 0f, 1f,
+                    1f, 1f, 1f, 1f, 1f,
+                    1f, 0f, 1f, 1f, 0f
                 },
                 new float[] // Back face
                 {
-                    1f, 0f, 0f, sideUVs[1].bottomLeftU, sideUVs[1].bottomLeftV,
-                    1f, 1f, 0f, sideUVs[1].bottomLeftU, sideUVs[1].topRightV,
-                    0f, 1f, 0f, sideUVs[1].topRightU, sideUVs[1].topRightV,
-                    0f, 0f, 0f, sideUVs[1].topRightU, sideUVs[1].bottomLeftV
+                    1f, 0f, 0f, 0f, 0f,
+                    1f, 1f, 0f, 0f, 1f,
+                    0f, 1f, 0f, 1f, 1f,
+                    0f, 0f, 0f, 1f, 0f
                 },
                 new float[] // Left face
                 {
-                    0f, 0f, 0f, sideUVs[2].bottomLeftU, sideUVs[2].bottomLeftV,
-                    0f, 1f, 0f, sideUVs[2].bottomLeftU, sideUVs[2].topRightV,
-                    0f, 1f, 1f, sideUVs[2].topRightU, sideUVs[2].topRightV,
-                    0f, 0f, 1f, sideUVs[2].topRightU, sideUVs[2].bottomLeftV
+                    0f, 0f, 0f, 0f, 0f,
+                    0f, 1f, 0f, 0f, 1f,
+                    0f, 1f, 1f, 1f, 1f,
+                    0f, 0f, 1f, 1f, 0f
                 },
                 new float[] // Right face
                 {
-                    1f, 0f, 1f, sideUVs[3].bottomLeftU, sideUVs[3].bottomLeftV,
-                    1f, 1f, 1f, sideUVs[3].bottomLeftU, sideUVs[3].topRightV,
-                    1f, 1f, 0f, sideUVs[3].topRightU, sideUVs[3].topRightV,
-                    1f, 0f, 0f, sideUVs[3].topRightU, sideUVs[3].bottomLeftV
+                    1f, 0f, 1f, 0f, 0f,
+                    1f, 1f, 1f, 0f, 1f,
+                    1f, 1f, 0f, 1f, 1f,
+                    1f, 0f, 0f, 1f, 0f
                 },
                 new float[] // Bottom face
                 {
-                    0f, 0f, 0f, sideUVs[4].bottomLeftU, sideUVs[4].bottomLeftV,
-                    0f, 0f, 1f, sideUVs[4].bottomLeftU, sideUVs[4].topRightV,
-                    1f, 0f, 1f, sideUVs[4].topRightU, sideUVs[4].topRightV,
-                    1f, 0f, 0f, sideUVs[4].topRightU, sideUVs[4].bottomLeftV
+                    0f, 0f, 0f, 0f, 0f,
+                    0f, 0f, 1f, 0f, 1f,
+                    1f, 0f, 1f, 1f, 1f,
+                    1f, 0f, 0f, 1f, 0f
                 },
                 new float[] // Top face
                 {
-                    0f, 1f, 1f, sideUVs[5].bottomLeftU, sideUVs[5].bottomLeftV,
-                    0f, 1f, 0f, sideUVs[5].bottomLeftU, sideUVs[5].topRightV,
-                    1f, 1f, 0f, sideUVs[5].topRightU, sideUVs[5].topRightV,
-                    1f, 1f, 1f, sideUVs[5].topRightU, sideUVs[5].bottomLeftV
+                    0f, 1f, 1f, 0f, 0f,
+                    0f, 1f, 0f, 0f, 1f,
+                    1f, 1f, 0f, 1f, 1f,
+                    1f, 1f, 1f, 1f, 0f
+                }
+            };
+
+            sideTextureIndices = new int[][]
+            {
+                new int[]
+                {
+                    layout.Front, layout.Front, layout.Front, layout.Front
+                },
+                new int[]
+                {
+                    layout.Back, layout.Back, layout.Back, layout.Back
+                },
+                new int[]
+                {
+                    layout.Left, layout.Left, layout.Left, layout.Left
+                },
+                new int[]
+                {
+                    layout.Right, layout.Right, layout.Right, layout.Right
+                },
+                new int[]
+                {
+                    layout.Bottom, layout.Bottom, layout.Bottom, layout.Bottom
+                },
+                new int[]
+                {
+                    layout.Top, layout.Top, layout.Top, layout.Top
                 }
             };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out uint[] indices)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices)
         {
             vertices = sideVertices[(int)side];
+            textureIndices = sideTextureIndices[(int)side];
             indices = this.indices;
 
             return 4;

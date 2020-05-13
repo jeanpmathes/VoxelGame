@@ -223,10 +223,10 @@ namespace VoxelGame.Logic
         /// </summary>
         /// <param name="side">The side of the block that is required.</param>
         /// <param name="data">The block data of the block at the position.</param>
-        /// <param name="vertices">The vertices of the mesh.</param>
-        /// <param name="indices">The indices of the mesh.</param>
+        /// <param name="vertices">Vertices of the mesh.</param>
+        /// <param name="indices">The indices of the mesh that determine how triangles are constructed.</param>
         /// <returns>The amount of vertices in the mesh.</returns>
-        public abstract uint GetMesh(BlockSide side, byte data, out float[] vertices, out uint[] indices);
+        public abstract uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices);
 
         public abstract void BlockUpdate(int x, int y, int z, byte data);
 

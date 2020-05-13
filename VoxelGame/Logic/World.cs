@@ -93,7 +93,7 @@ namespace VoxelGame.Logic
         /// <summary>
         /// A list of chunk meshing tasks,
         /// </summary>
-        private readonly List<Task<(float[][] verticesData, uint[][] indicesData)>> chunkMeshingTasks = new List<Task<(float[][] verticesData, uint[][] indicesData)>>(maxMeshingTasks);
+        private readonly List<Task<(float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData)>> chunkMeshingTasks = new List<Task<(float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData)>>(maxMeshingTasks);
 
         /// <summary>
         /// A dictionary containing all chunks that are currently meshed, with the task id of their meshing task as key.
@@ -103,7 +103,7 @@ namespace VoxelGame.Logic
         /// <summary>
         /// A list of chunks where the mesh data has to be set;
         /// </summary>
-        private readonly List<(Chunk chunk, Task<(float[][] verticesData, uint[][] indicesData)> chunkMeshingTask)> chunksToSendMeshData = new List<(Chunk chunk, Task<(float[][] verticesData, uint[][] indicesData)> chunkMeshingTask)>(maxMeshDataSends);
+        private readonly List<(Chunk chunk, Task<(float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData)> chunkMeshingTask)> chunksToSendMeshData = new List<(Chunk chunk, Task<(float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData)> chunkMeshingTask)>(maxMeshDataSends);
 
         /// <summary>
         /// A set of chunks with information on which sections of them are to mesh.
@@ -464,7 +464,7 @@ namespace VoxelGame.Logic
                 {
                     if (chunkMeshingTasks[i].IsCompleted)
                     {
-                        Task<(float[][] verticesData, uint[][] indicesData)> completed = chunkMeshingTasks[i];
+                        Task<(float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData)> completed = chunkMeshingTasks[i];
                         Chunk meshedChunk = chunksMeshing[completed.Id];
 
                         chunkMeshingTasks.RemoveAt(i);
@@ -484,7 +484,7 @@ namespace VoxelGame.Logic
             {
                 Chunk current = chunksToMesh.Dequeue();
 
-                Task<(float[][] verticesData, uint[][] indicesData)> currentTask = current.CreateMeshDataAsync();
+                Task<(float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData)> currentTask = current.CreateMeshDataAsync();
 
                 chunkMeshingTasks.Add(currentTask);
                 chunksMeshing.Add(currentTask.Id, current);
@@ -496,9 +496,9 @@ namespace VoxelGame.Logic
                 int i = 0;
                 for (int count = 0; count < maxMeshDataSends && i < chunksToSendMeshData.Count; count++)
                 {
-                    (Chunk chunk, Task<(float[][] verticesData, uint[][] indicesData)> chunkMeshingTask) = chunksToSendMeshData[i];
+                    (Chunk chunk, Task<(float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData)> chunkMeshingTask) = chunksToSendMeshData[i];
 
-                    if (chunk.SetMeshDataStep(chunkMeshingTask.Result.verticesData, chunkMeshingTask.Result.indicesData))
+                    if (chunk.SetMeshDataStep(chunkMeshingTask.Result.verticesData, chunkMeshingTask.Result.textureIndicesData, chunkMeshingTask.Result.indicesData))
                     {
                         chunksToSendMeshData.RemoveAt(i);
                     }

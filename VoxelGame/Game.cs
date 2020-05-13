@@ -21,10 +21,15 @@ namespace VoxelGame
     {
         public static Game instance;
         public static Player Player { get; private set; }
-        public static TextureAtlas Atlas { get; private set; }
+        public static World World { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1 and 2;
+        /// </summary>
+        public static ArrayTexture BlockTextureArray { get; private set; }
+
         public static Shader SectionShader { get; private set; }
         public static Shader SelectionShader { get; private set; }
-        public static World World { get; set; }
 
         public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
         {
@@ -43,7 +48,9 @@ namespace VoxelGame
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
 
-            Atlas = new TextureAtlas("Resources/Textures");
+            // GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+
+            BlockTextureArray = new ArrayTexture("Resources/Textures", 16, TextureUnit.Texture1, TextureUnit.Texture2);
 
             SectionShader = new Shader("Resources/Shaders/section_shader.vert", "Resources/Shaders/section_shader.frag");
             SelectionShader = new Shader("Resources/Shaders/selection_shader.vert", "Resources/Shaders/selection_shader.frag");
@@ -171,7 +178,9 @@ namespace VoxelGame
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            World.FrameUpdate((float)e.Time);
+            float deltaTime = (float)MathHelper.Clamp(e.Time, 0f, 1f);
+
+            World.FrameUpdate(deltaTime);
 
             if (!Focused) // check to see if the window is focused
             {

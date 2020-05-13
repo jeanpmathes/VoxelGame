@@ -11,61 +11,80 @@ namespace VoxelGame.Rendering
     public class SectionRenderer : Renderer
     {
         private readonly int vertexBufferObject;
+        private readonly int textureIndicesBufferObject;
         private readonly int elementBufferObject;
         private readonly int vertexArrayObject;
 
-        private int indicesAmount;
+        private int elements;
 
         private bool hasData = false;
 
         public SectionRenderer()
         {
             vertexBufferObject = GL.GenBuffer();
+            textureIndicesBufferObject = GL.GenBuffer();
             elementBufferObject = GL.GenBuffer();
             vertexArrayObject = GL.GenVertexArray();
         }
 
-        public void SetData(ref float[] vertices, ref uint[] indices)
+        public void SetData(ref float[] verticesData, ref int[] texIndicesData, ref uint[] indicesData)
         {
             if (disposed)
             {
                 return;
             }
 
-            if (vertices == null)
+            if (verticesData == null)
             {
-                throw new System.ArgumentNullException(paramName: nameof(vertices));
+                throw new System.ArgumentNullException(paramName: nameof(verticesData));
             }
 
-            if (indices == null)
+            if (texIndicesData == null)
             {
-                throw new System.ArgumentNullException(paramName: nameof(indices));
+                throw new System.ArgumentNullException(paramName: nameof(texIndicesData));
             }
 
-            indicesAmount = indices.Length;
+            if (indicesData == null)
+            {
+                throw new System.ArgumentNullException(paramName: nameof(indicesData));
+            }
+
+            elements = indicesData.Length;
 
             // Vertex Buffer Object
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, verticesData.Length * sizeof(float), verticesData, BufferUsageHint.StaticDraw);
+
+            // Vertex Buffer Object
+            GL.BindBuffer(BufferTarget.ArrayBuffer, textureIndicesBufferObject);
+            GL.BufferData(BufferTarget.ArrayBuffer, texIndicesData.Length * sizeof(int), texIndicesData, BufferUsageHint.StaticDraw);
 
             // Element Buffer Object
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indicesData.Length * sizeof(uint), indicesData, BufferUsageHint.StaticDraw);
+
+            int vertexLocation = Game.SectionShader.GetAttribLocation("aPosition");
+            int texIndexLocation = Game.SectionShader.GetAttribLocation("aTexIndex");
+            int texCoordLocation = Game.SectionShader.GetAttribLocation("aTexCoord");
 
             Game.SectionShader.Use();
 
             // Vertex Array Object
             GL.BindVertexArray(vertexArrayObject);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
 
-            int vertexLocation = Game.SectionShader.GetAttribLocation("aPosition");
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
             GL.EnableVertexAttribArray(vertexLocation);
             GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
 
-            int texCoordLocation = Game.SectionShader.GetAttribLocation("aTexCoord");
+            GL.BindBuffer(BufferTarget.ArrayBuffer, textureIndicesBufferObject);
+            GL.EnableVertexAttribArray(texIndexLocation);
+            GL.VertexAttribIPointer(texIndexLocation, 1, VertexAttribIntegerType.Int, 0, System.IntPtr.Zero);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
             GL.EnableVertexAttribArray(texCoordLocation);
             GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
 
             GL.BindVertexArray(0);
 
@@ -84,14 +103,13 @@ namespace VoxelGame.Rendering
                 GL.BindVertexArray(vertexArrayObject);
 
                 Game.SectionShader.Use();
-                Game.Atlas.Use();
 
                 Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
                 Game.SectionShader.SetMatrix4("model", model);
                 Game.SectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
                 Game.SectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
 
-                GL.DrawElements(PrimitiveType.Triangles, indicesAmount, DrawElementsType.UnsignedInt, 0);
+                GL.DrawElements(PrimitiveType.Triangles, elements, DrawElementsType.UnsignedInt, 0);
 
                 GL.BindVertexArray(0);
                 GL.UseProgram(0);
@@ -110,6 +128,7 @@ namespace VoxelGame.Rendering
             if (disposing)
             {
                 GL.DeleteBuffer(vertexBufferObject);
+                GL.DeleteBuffer(textureIndicesBufferObject);
                 GL.DeleteBuffer(elementBufferObject);
                 GL.DeleteVertexArray(vertexArrayObject);
             }

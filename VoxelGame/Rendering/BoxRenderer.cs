@@ -163,7 +163,6 @@ namespace VoxelGame.Rendering
             GL.BindVertexArray(vertexArrayObject);
 
             Game.SelectionShader.Use();
-            Game.Atlas.Use();
 
             Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
             Game.SelectionShader.SetMatrix4("model", model);

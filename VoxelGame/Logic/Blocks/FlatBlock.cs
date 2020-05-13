@@ -23,14 +23,14 @@ namespace VoxelGame.Logic.Blocks
         protected readonly float slidingVelocity;
 
         protected float[][] sideVertices;
-        protected float[] uv;
+        protected int[] textureIndices;
 
         protected uint[] indices =
         {
-            0, 1, 2,
-            0, 2, 3,
             0, 2, 1,
-            0, 3, 2
+            0, 3, 2,
+            0, 1, 2,
+            0, 2, 3
         };
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
@@ -40,7 +40,7 @@ namespace VoxelGame.Logic.Blocks
         /// </summary>
         /// <param name="name">The name of the block.</param>
         /// <param name="texture">The texture to use for the block.</param>
-        /// <param name="climbinVelocity"></param>
+        /// <param name="climbingVelocity"></param>
         /// <param name="slidingVelocity"></param>
         public FlatBlock(string name, string texture, float climbingVelocity, float slidingVelocity) :
             base(
@@ -64,47 +64,40 @@ namespace VoxelGame.Logic.Blocks
 
         protected virtual void Setup(string texture)
         {
-            AtlasPosition atlas = Game.Atlas.GetTextureUV(Game.Atlas.GetTextureIndex(texture));
-
             sideVertices = new float[][]
             {
                 new float[] // North
                 {
-                    0f, 0f, 0.99f,
-                    0f, 1f, 0.99f,
-                    1f, 1f, 0.99f,
-                    1f, 0f, 0.99f
+                    0f, 0f, 0.99f, 0f, 0f,
+                    0f, 1f, 0.99f, 0f, 1f,
+                    1f, 1f, 0.99f, 1f, 1f,
+                    1f, 0f, 0.99f, 1f, 0f
                 },
                 new float[] // East
                 {
-                    0.01f, 0f, 0f,
-                    0.01f, 1f, 0f,
-                    0.01f, 1f, 1f,
-                    0.01f, 0f, 1f
+                    0.01f, 0f, 0f, 0f, 0f,
+                    0.01f, 1f, 0f, 0f, 1f,
+                    0.01f, 1f, 1f, 1f, 1f,
+                    0.01f, 0f, 1f, 1f, 0f
                 },
                 new float[] // South
                 {
-                    0f, 0f, 0.01f,
-                    0f, 1f, 0.01f,
-                    1f, 1f, 0.01f,
-                    1f, 0f, 0.01f
+                    0f, 0f, 0.01f, 0f, 0f,
+                    0f, 1f, 0.01f, 0f, 1f,
+                    1f, 1f, 0.01f, 1f, 1f,
+                    1f, 0f, 0.01f, 1f, 0f
                 },
                 new float[] // West
                 {
-                    0.99f, 0f, 1f,
-                    0.99f, 1f, 1f,
-                    0.99f, 1f, 0f,
-                    0.99f, 0f, 0f
+                    0.99f, 0f, 1f, 0f, 0f,
+                    0.99f, 1f, 1f, 0f, 1f,
+                    0.99f, 1f, 0f, 1f, 1f,
+                    0.99f, 0f, 0f, 1f, 0f
                 }
             };
 
-            uv = new float[]
-            {
-                atlas.bottomLeftU, atlas.bottomLeftV,
-                atlas.bottomLeftU, atlas.topRightV,
-                atlas.topRightU,   atlas.topRightV,
-                atlas.topRightU,   atlas.bottomLeftV
-            };
+            int tex = Game.BlockTextureArray.GetTextureIndex(texture);
+            textureIndices = new int[] { tex, tex, tex, tex};
         }
 
         public override BoundingBox GetBoundingBox(int x, int y, int z)
@@ -198,17 +191,10 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out uint[] indices)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices)
         {
-            float[] vert = sideVertices[data & 0b0_0011];
-
-            vertices = new float[]
-            {
-                vert[0], vert[1],  vert[2],  uv[0], uv[1],
-                vert[3], vert[4],  vert[5],  uv[2], uv[3],
-                vert[6], vert[7],  vert[8],  uv[4], uv[5],
-                vert[9], vert[10], vert[11], uv[6], uv[7],
-            };
+            vertices = sideVertices[data & 0b0_0011];
+            textureIndices = this.textureIndices;
             indices = this.indices;
 
             return 4;
