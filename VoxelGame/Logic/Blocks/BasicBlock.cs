@@ -126,13 +126,5 @@ namespace VoxelGame.Logic.Blocks
 
             return 4;
         }
-
-        public override void OnCollision(Entities.PhysicsEntity entity, int x, int y, int z)
-        {
-        }
-
-        public override void BlockUpdate(int x, int y, int z, byte data)
-        {
-        }
     }
 }

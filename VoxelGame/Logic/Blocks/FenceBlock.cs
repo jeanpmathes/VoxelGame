@@ -437,9 +437,5 @@ namespace VoxelGame.Logic.Blocks
 
             return vertCount;
         }
-
-        public override void OnCollision(PhysicsEntity entity, int x, int y, int z)
-        {
-        }
     }
 }

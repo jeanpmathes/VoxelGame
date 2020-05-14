@@ -232,9 +232,11 @@ namespace VoxelGame.Logic
         /// <returns>The amount of vertices in the mesh.</returns>
         public abstract uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices);
 
-        public abstract void BlockUpdate(int x, int y, int z, byte data);
+        public virtual void BlockUpdate(int x, int y, int z, byte data) { }
 
-        public abstract void OnCollision(Entities.PhysicsEntity entity, int x, int y, int z);
+        public virtual void OnCollision(Entities.PhysicsEntity entity, int x, int y, int z) { }
+
+        public virtual void RandomUpdate(int x, int y, int z, byte data) { }
 
         public sealed override string ToString()
         {

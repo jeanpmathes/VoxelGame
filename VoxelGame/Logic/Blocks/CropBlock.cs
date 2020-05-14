@@ -188,10 +188,6 @@ namespace VoxelGame.Logic.Blocks
             return 24;
         }
 
-        public override void OnCollision(PhysicsEntity entity, int x, int y, int z)
-        {
-        }
-
         protected enum GrowthStage
         {
             Initial,
