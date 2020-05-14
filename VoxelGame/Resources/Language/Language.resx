@@ -180,6 +180,9 @@
   <data name="Ladder" xml:space="preserve">
     <value>Ladder</value>
   </data>
+  <data name="LargeTiles" xml:space="preserve">
+    <value>Large Tiles</value>
+  </data>
   <data name="Leaves" xml:space="preserve">
     <value>Leaves</value>
   </data>
@@ -200,6 +203,9 @@
   </data>
   <data name="Sand" xml:space="preserve">
     <value>Sand</value>
+  </data>
+  <data name="SmallTiles" xml:space="preserve">
+    <value>Small Tiles</value>
   </data>
   <data name="Snow" xml:space="preserve">
     <value>Snow</value>

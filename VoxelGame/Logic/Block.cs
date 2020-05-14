@@ -104,8 +104,8 @@ namespace VoxelGame.Logic
             POTATOES = new CropBlock(Language.Potatoes, "potato", 1, 1, 2, 2, 3, 4, 5);
             ONIONS = new CropBlock(Language.Onions, "onion", 0, 1, 1, 2, 2, 3, 4);
             WHEAT = new CropBlock(Language.Wheat, "wheat", 0, 1, 1, 2, 2, 3, 4);
-            TILES_SMALL = new ConstructionBlock("Small Tiles", TextureLayout.Uniform("small_tiles"));
-            TILES_LARGE = new ConstructionBlock("Large Tiles", TextureLayout.Uniform("large_tiles"));
+            TILES_SMALL = new ConstructionBlock(Language.SmallTiles, TextureLayout.Uniform("small_tiles"));
+            TILES_LARGE = new ConstructionBlock(Language.LargeTiles, TextureLayout.Uniform("large_tiles"));
         }
 
         #endregion STATIC BLOCK MANAGMENT
