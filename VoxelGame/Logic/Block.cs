@@ -46,6 +46,8 @@ namespace VoxelGame.Logic
         public static Block POTATOES;
         public static Block ONIONS;
         public static Block WHEAT;
+        public static Block TILES_SMALL;
+        public static Block TILES_LARGE;
 
         private static readonly Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
 
@@ -102,6 +104,8 @@ namespace VoxelGame.Logic
             POTATOES = new CropBlock(Language.Potatoes, "potato", 1, 1, 2, 2, 3, 4, 5);
             ONIONS = new CropBlock(Language.Onions, "onion", 0, 1, 1, 2, 2, 3, 4);
             WHEAT = new CropBlock(Language.Wheat, "wheat", 0, 1, 1, 2, 2, 3, 4);
+            TILES_SMALL = new ConstructionBlock("Small Tiles", TextureLayout.Uniform("small_tiles"));
+            TILES_LARGE = new ConstructionBlock("Large Tiles", TextureLayout.Uniform("large_tiles"));
         }
 
         #endregion STATIC BLOCK MANAGMENT
