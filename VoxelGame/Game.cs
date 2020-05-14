@@ -31,6 +31,8 @@ namespace VoxelGame
         public static Shader SectionShader { get; private set; }
         public static Shader SelectionShader { get; private set; }
 
+        public static Random Random { get; private set; }
+
         public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
         {
             instance = this;
@@ -159,6 +161,9 @@ namespace VoxelGame
             Player = new Player(70f, 0.25f, new Vector3(0f, 1000f, 0f), camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.45f, 0.9f, 0.45f)));
 
             CursorVisible = false;
+
+            // Other object setup
+            Random = new Random();
 
             base.OnLoad(e);
         }

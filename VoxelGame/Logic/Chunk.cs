@@ -274,6 +274,14 @@ namespace VoxelGame.Logic
             }
         }
 
+        public void Tick()
+        {
+            for (int y = 0; y < ChunkHeight; y++)
+            {
+                sections[y].Tick();
+            }
+        }
+
         public Section GetSection(int y)
         {
             return sections[y];

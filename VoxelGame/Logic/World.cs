@@ -211,8 +211,6 @@ namespace VoxelGame.Logic
                 // Collect all chunks to render
                 Chunk playerChunk = activeChunks[(Game.Player.ChunkX, Game.Player.ChunkZ)];
                 chunksToRender.Add(playerChunk);
-                Vector3 normal = Game.Player.LookingDirection.Normalized();
-                Vector3 pivot = playerChunk.ChunkPoint;
 
                 for (int x = -Game.Player.RenderDistance; x <= Game.Player.RenderDistance; x++)
                 {
@@ -511,6 +509,15 @@ namespace VoxelGame.Logic
 
             if (IsReady)
             {
+                // Tick objects in world
+
+                foreach (Chunk chunk in activeChunks.Values)
+                {
+                    chunk.Tick();
+                }
+
+                Game.Player.Tick(deltaTime);
+
                 // Mesh all listed sections
                 foreach ((Chunk chunk, int index) in sectionsToMesh)
                 {
@@ -518,8 +525,6 @@ namespace VoxelGame.Logic
                 }
 
                 sectionsToMesh.Clear();
-
-                Game.Player.Tick(deltaTime);
             }
             else
             {
@@ -693,7 +698,7 @@ namespace VoxelGame.Logic
                 ushort val = chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
 
                 data = (byte)(val >> 11);
-                return Block.TranslateID((ushort)(val & 0b0000_0111_1111_1111));
+                return Block.TranslateID((ushort)(val & Section.BlockMask));
             }
             else
             {

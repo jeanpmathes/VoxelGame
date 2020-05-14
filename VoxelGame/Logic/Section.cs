@@ -6,6 +6,7 @@
 using OpenTK;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using VoxelGame.Rendering;
 using VoxelGame.WorldGeneration;
 
@@ -15,6 +16,10 @@ namespace VoxelGame.Logic
     public class Section : IDisposable
     {
         public const int SectionSize = 32;
+        public const int TickBatchSize = 16;
+
+        public const int BlockMask = 0b0000_0000_0000_0000_0000_0111_1111_1111;
+        public const int DataMask = 0b0000_0000_0000_0000_1111_1000_0000_0000;
 
         private readonly ushort[] blocks;
 
@@ -86,8 +91,8 @@ namespace VoxelGame.Logic
                     {
                         ushort currentBlockData = blocks[(x << 10) + (y << 5) + z];
 
-                        Block currentBlock = Block.TranslateID((ushort)(currentBlockData & 0b0000_0111_1111_1111));
-                        byte currentData = (byte)((currentBlockData & 0b1111_1000_0000_0000) >> 11);
+                        Block currentBlock = Block.TranslateID((ushort)(currentBlockData & BlockMask));
+                        byte currentData = (byte)((currentBlockData & DataMask) >> 11);
 
                         if (currentBlock.IsFull) // Check if this block is sized 1x1x1
                         {
@@ -366,6 +371,23 @@ namespace VoxelGame.Logic
             }
         }
 
+        public void Tick()
+        {
+            for (int i = 0; i < TickBatchSize; i++)
+            {
+                int index = Game.Random.Next(0, SectionSize * SectionSize * SectionSize);
+                ushort val = blocks[index];
+
+                int z = index & 31;
+                index = (index - z) >> 5;
+                int y = index & 31;
+                index = (index - y) >> 5;
+                int x = index;
+
+                Block.TranslateID((ushort)(val & BlockMask))?.RandomUpdate(x, y, z, (byte)((val & DataMask) >> 11));
+            }
+        }
+
         /// <summary>
         /// Gets or sets the block at a section position.
         /// </summary>
@@ -386,9 +408,10 @@ namespace VoxelGame.Logic
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Block GetBlock(int x, int y, int z)
         {
-            return Block.TranslateID((ushort)(this[x, y, z] & 0b0000_0111_1111_1111));
+            return Block.TranslateID((ushort)(this[x, y, z] & BlockMask));
         }
 
         #region IDisposable Support
