@@ -160,17 +160,9 @@ namespace VoxelGame.Logic.Blocks
                 return false;
             }
 
-            Game.World.SetBlock(this, (byte)(x % 8), x, y, z);
+            Game.World.SetBlock(this, (byte)GrowthStage.Initial, x, y, z);
 
             return true;
-        }
-
-        public override void BlockUpdate(int x, int y, int z, byte data)
-        {
-            if (Game.World.GetBlock(x, y - 1, z, out _) != Block.FARMLAND)
-            {
-                Destroy(x, y, z, null);
-            }
         }
 
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices)
@@ -186,6 +178,24 @@ namespace VoxelGame.Logic.Blocks
             indices = this.indices;
 
             return 24;
+        }
+
+        public override void BlockUpdate(int x, int y, int z, byte data)
+        {
+            if (Game.World.GetBlock(x, y - 1, z, out _) != Block.FARMLAND)
+            {
+                Destroy(x, y, z, null);
+            }
+        }
+
+        public override void RandomUpdate(int x, int y, int z, byte data)
+        {
+            GrowthStage stage = (GrowthStage)(data & 0b0_0111);
+
+            if (stage != GrowthStage.Final && stage != GrowthStage.Dead)
+            {
+                Game.World.SetBlock(this, (byte)(stage + 1), x, y, z);
+            }
         }
 
         protected enum GrowthStage
