@@ -102,10 +102,7 @@ namespace VoxelGame.Logic
         /// <returns>A task containing the loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
         public static Task<Chunk> LoadAsync(string path, int x, int z)
         {
-            return Task.Run(() =>
-            {
-                return Load(path, x, z);
-            });
+            return Task.Run(() => Load(path, x, z));
         }
 
         /// <summary>
@@ -128,10 +125,7 @@ namespace VoxelGame.Logic
         /// <returns>A task.</returns>
         public Task SaveAsync(string path)
         {
-            return Task.Run(() =>
-            {
-                Save(path);
-            });
+            return Task.Run(() => Save(path));
         }
 
         public void Generate(IWorldGenerator generator)
@@ -309,8 +303,8 @@ namespace VoxelGame.Logic
             unchecked
             {
                 int hash = 23;
-                hash = hash * 31 + X;
-                hash = hash * 31 + Z;
+                hash = (hash * 31) + X;
+                hash = (hash * 31) + Z;
 
                 return hash;
             }

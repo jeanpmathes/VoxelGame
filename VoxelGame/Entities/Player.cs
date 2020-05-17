@@ -313,19 +313,19 @@ namespace VoxelGame.Entities
                 {
                     for (int x = 0; x < deltaX; x++)
                     {
-                        for (int z = 0; z < 2 * RenderDistance + 1; z++)
+                        for (int z = 0; z < (2 * RenderDistance) + 1; z++)
                         {
-                            Game.World.ReleaseChunk(ChunkX + (RenderDistance - x) * -signX, ChunkZ + (RenderDistance - z) * -signZ);
-                            Game.World.RequestChunk(currentChunkX + (RenderDistance - x) * signX, currentChunkZ + (RenderDistance - z) * signZ);
+                            Game.World.ReleaseChunk(ChunkX + ((RenderDistance - x) * -signX), ChunkZ + ((RenderDistance - z) * -signZ));
+                            Game.World.RequestChunk(currentChunkX + ((RenderDistance - x) * signX), currentChunkZ + ((RenderDistance - z) * signZ));
                         }
                     }
 
                     for (int z = 0; z < deltaZ; z++)
                     {
-                        for (int x = 0; x < 2 * RenderDistance + 1; x++)
+                        for (int x = 0; x < (2 * RenderDistance) + 1; x++)
                         {
-                            Game.World.ReleaseChunk(ChunkX + (RenderDistance - x) * -signX, ChunkZ + (RenderDistance - z) * -signZ);
-                            Game.World.RequestChunk(currentChunkX + (RenderDistance - x) * signX, currentChunkZ + (RenderDistance - z) * signZ);
+                            Game.World.ReleaseChunk(ChunkX + ((RenderDistance - x) * -signX), ChunkZ + ((RenderDistance - z) * -signZ));
+                            Game.World.RequestChunk(currentChunkX + ((RenderDistance - x) * signX), currentChunkZ + ((RenderDistance - z) * signZ));
                         }
                     }
                 }
