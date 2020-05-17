@@ -48,6 +48,7 @@ namespace VoxelGame.Logic
         public static Block WHEAT;
         public static Block TILES_SMALL;
         public static Block TILES_LARGE;
+#pragma warning restore CA2211 // Non-constant fields should not be visible
 
         private static readonly Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
 
@@ -72,8 +73,6 @@ namespace VoxelGame.Logic
         /// Gets the count of registered blocks.
         /// </summary>
         public static int Count { get => blockDictionary.Count; }
-
-#pragma warning restore CA2211 // Non-constant fields should not be visible
 
         public static void LoadBlocks()
         {
@@ -234,7 +233,7 @@ namespace VoxelGame.Logic
 
         public virtual void BlockUpdate(int x, int y, int z, byte data) { }
 
-        public virtual void OnCollision(Entities.PhysicsEntity entity, int x, int y, int z) { }
+        public virtual void EntityCollision(Entities.PhysicsEntity entity, int x, int y, int z) { }
 
         public virtual void RandomUpdate(int x, int y, int z, byte data) { }
 

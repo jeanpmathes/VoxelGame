@@ -200,7 +200,7 @@ namespace VoxelGame.Logic.Blocks
             return 4;
         }
 
-        public override void OnCollision(PhysicsEntity entity, int x, int y, int z)
+        public override void EntityCollision(PhysicsEntity entity, int x, int y, int z)
         {
             Game.World.GetBlock(x, y, z, out byte data);
             if ((Orientation)(data & 0b0_0011) == (-entity.Movement).ToOrientation())

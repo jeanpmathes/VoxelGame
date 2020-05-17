@@ -16,7 +16,7 @@ namespace VoxelGame.Logic
     public class Section : IDisposable
     {
         public const int SectionSize = 32;
-        public const int TickBatchSize = 16;
+        public const int TickBatchSize = 4;
 
         public const int BlockMask = 0b0000_0000_0000_0000_0000_0111_1111_1111;
         public const int DataMask = 0b0000_0000_0000_0000_1111_1000_0000_0000;

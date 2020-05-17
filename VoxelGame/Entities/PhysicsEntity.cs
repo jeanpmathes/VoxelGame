@@ -146,7 +146,7 @@ namespace VoxelGame.Entities
                 {
                     if (intersections[j].block.RecieveCollisions)
                     {
-                        intersections[j].block.OnCollision(this, intersections[j].x, intersections[j].y, intersections[j].z);
+                        intersections[j].block.EntityCollision(this, intersections[j].x, intersections[j].y, intersections[j].z);
                     }
                 }
 
