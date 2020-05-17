@@ -371,7 +371,7 @@ namespace VoxelGame.Logic
             }
         }
 
-        public void Tick()
+        public void Tick(int sectionX, int sectionY, int sectionZ)
         {
             for (int i = 0; i < TickBatchSize; i++)
             {
@@ -384,7 +384,7 @@ namespace VoxelGame.Logic
                 index = (index - y) >> 5;
                 int x = index;
 
-                Block.TranslateID((ushort)(val & BlockMask))?.RandomUpdate(x, y, z, (byte)((val & DataMask) >> 11));
+                Block.TranslateID((ushort)(val & BlockMask))?.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), (byte)((val & DataMask) >> 11));
             }
         }
 

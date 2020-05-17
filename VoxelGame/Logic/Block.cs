@@ -77,10 +77,10 @@ namespace VoxelGame.Logic
         public static void LoadBlocks()
         {
             AIR = new AirBlock(Language.Air);
-            GRASS = new BasicBlock(Language.Grass, TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"), true, true, true);
+            GRASS = new CoveredDirtBlock(Language.Grass, TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"));
             TALL_GRASS = new CrossPlantBlock(Language.TallGrass, "tall_grass", true, BoundingBox.Block);
-            DIRT = new BasicBlock(Language.Dirt, TextureLayout.Uniform("dirt"), true, true, true);
-            FARMLAND = new BasicBlock("Farmland", TextureLayout.UnqiueTop("dirt", "farmland"), true, true, true);
+            DIRT = new DirtBlock(Language.Dirt, TextureLayout.Uniform("dirt"));
+            FARMLAND = new CoveredDirtBlock("Farmland", TextureLayout.UnqiueTop("dirt", "farmland"));
             STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"), true, true, true);
             COBBLESTONE = new ConstructionBlock(Language.Cobblestone, TextureLayout.Uniform("cobblestone"));
             LOG = new RotatedBlock(Language.Log, TextureLayout.Column("log", 0, 1), true, true, true);

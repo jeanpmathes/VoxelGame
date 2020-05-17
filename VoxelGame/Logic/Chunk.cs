@@ -18,7 +18,7 @@ namespace VoxelGame.Logic
     {
         public const int ChunkHeight = 32;
 
-        private const int maxMeshDataStep = 8;
+        private const int maxMeshDataStep = 4;
 
         /// <summary>
         /// The X position of this chunk in chunk units
@@ -272,7 +272,7 @@ namespace VoxelGame.Logic
         {
             for (int y = 0; y < ChunkHeight; y++)
             {
-                sections[y].Tick();
+                sections[y].Tick(X, y, Z);
             }
         }
 
