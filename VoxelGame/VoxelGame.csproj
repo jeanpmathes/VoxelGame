@@ -129,6 +129,7 @@
     <Compile Include="Logic\Blocks\FenceBlock.cs" />
     <Compile Include="Logic\Blocks\FlatBlock.cs" />
     <Compile Include="Logic\Blocks\CoveredDirtBlock.cs" />
+    <Compile Include="Logic\Blocks\GrowingBlock.cs" />
     <Compile Include="Logic\Blocks\OrientedBlock.cs" />
     <Compile Include="Logic\Blocks\RotatedBlock.cs" />
     <Compile Include="Logic\Blocks\SpiderWebBlock.cs" />
@@ -178,6 +179,9 @@
     <Compile Include="WorldGeneration\SineGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\Textures\cactus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\Textures\farmland.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

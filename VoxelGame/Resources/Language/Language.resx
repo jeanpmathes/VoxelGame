@@ -126,6 +126,9 @@
   <data name="BlocksLoadedAmount" xml:space="preserve">
     <value>Blocks loaded: </value>
   </data>
+  <data name="Cactus" xml:space="preserve">
+    <value>Cactus</value>
+  </data>
   <data name="CavePainting" xml:space="preserve">
     <value>Cave Painting</value>
   </data>

@@ -48,6 +48,7 @@ namespace VoxelGame.Logic
         public static Block WHEAT;
         public static Block TILES_SMALL;
         public static Block TILES_LARGE;
+        public static Block CACTUS;
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
         private static readonly Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
@@ -105,6 +106,7 @@ namespace VoxelGame.Logic
             WHEAT = new CropBlock(Language.Wheat, "wheat", 0, 1, 1, 2, 2, 3, 4);
             TILES_SMALL = new ConstructionBlock(Language.SmallTiles, TextureLayout.Uniform("small_tiles"));
             TILES_LARGE = new ConstructionBlock(Language.LargeTiles, TextureLayout.Uniform("large_tiles"));
+            CACTUS = new GrowingBlock(Language.Cactus, TextureLayout.Column("cactus", 0, 1), Block.SAND, 4);
         }
 
         #endregion STATIC BLOCK MANAGMENT

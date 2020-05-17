@@ -10,12 +10,13 @@ namespace VoxelGame.Logic.Blocks
     /// </summary>
     public class CoveredDirtBlock : BasicBlock
     {
-        public CoveredDirtBlock(string name, TextureLayout layout) : base(
-            name,
-            layout,
-            isOpaque: true,
-            renderFaceAtNonOpaques: true,
-            isSolid: true)
+        public CoveredDirtBlock(string name, TextureLayout layout) :
+            base(
+                name,
+                layout,
+                isOpaque: true,
+                renderFaceAtNonOpaques: true,
+                isSolid: true)
         {
         }
 
