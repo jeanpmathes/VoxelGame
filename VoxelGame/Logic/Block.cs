@@ -25,7 +25,7 @@ namespace VoxelGame.Logic
         public static Block DIRT;
         public static Block FARMLAND;
         public static Block STONE;
-        public static Block COBBLESTONE;
+        public static Block RUBBLE;
         public static Block LOG;
         public static Block WOOD;
         public static Block LEAVES;
@@ -83,7 +83,7 @@ namespace VoxelGame.Logic
             DIRT = new DirtBlock(Language.Dirt, TextureLayout.Uniform("dirt"));
             FARMLAND = new CoveredDirtBlock("Farmland", TextureLayout.UnqiueTop("dirt", "farmland"));
             STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"), true, true, true);
-            COBBLESTONE = new ConstructionBlock(Language.Cobblestone, TextureLayout.Uniform("cobblestone"));
+            RUBBLE = new ConstructionBlock(Language.Rubble, TextureLayout.Uniform("rubble"));
             LOG = new RotatedBlock(Language.Log, TextureLayout.Column("log", 0, 1), true, true, true);
             WOOD = new ConstructionBlock(Language.Wood, TextureLayout.Uniform("wood"));
             SAND = new BasicBlock(Language.Sand, TextureLayout.Uniform("sand"), true, true, true);

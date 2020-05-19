@@ -135,9 +135,6 @@
   <data name="CoalOre" xml:space="preserve">
     <value>Kohleerz</value>
   </data>
-  <data name="Cobblestone" xml:space="preserve">
-    <value>Pflasterstein</value>
-  </data>
   <data name="CreatedOn" xml:space="preserve">
     <value>Erstellt am</value>
   </data>
@@ -203,6 +200,9 @@
   </data>
   <data name="Potatoes" xml:space="preserve">
     <value>Kartoffeln</value>
+  </data>
+  <data name="Rubble" xml:space="preserve">
+    <value>Bruchstein</value>
   </data>
   <data name="Sand" xml:space="preserve">
     <value>Sand</value>

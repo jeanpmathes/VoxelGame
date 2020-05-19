@@ -43,7 +43,7 @@ namespace VoxelGame.WorldGeneration
 
             if (y == 0)
             {
-                return Block.COBBLESTONE;
+                return Block.RUBBLE;
             }
             else if (y > height)
             {
@@ -114,7 +114,7 @@ namespace VoxelGame.WorldGeneration
             {
                 if (y == 0)
                 {
-                    yield return Block.COBBLESTONE;
+                    yield return Block.RUBBLE;
                 }
                 else if (y > height)
                 {
