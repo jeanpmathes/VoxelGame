@@ -9,7 +9,9 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block that grows upwards and is destroyed if a certain ground block is not given.
+    /// Data bit usage: <c>--aaa</c>
     /// </summary>
+    // a = age
     public class GrowingBlock : BasicBlock
     {
 #pragma warning disable CA1051 // Do not declare visible instance fields
@@ -55,24 +57,33 @@ namespace VoxelGame.Logic.Blocks
 
         public override void RandomUpdate(int x, int y, int z, byte data)
         {
-            if (Game.World.GetBlock(x, y + 1, z, out _).IsReplaceable)
-            {
-                int height = 0;
-                for (int o = 0; o < maxHeight; o++)
-                {
-                    if (Game.World.GetBlock(x, y - o, z, out _) == this)
-                    {
-                        height++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
+            int age = data & 0b0_0111;
 
-                if (height < maxHeight)
+            if (age < 7)
+            {
+                Game.World.SetBlock(this, (byte)(age + 1), x, y, z);
+            }
+            else
+            {
+                if (Game.World.GetBlock(x, y + 1, z, out _).IsReplaceable)
                 {
-                    Place(x, y + 1, z, null);
+                    int height = 0;
+                    for (int o = 0; o < maxHeight; o++)
+                    {
+                        if (Game.World.GetBlock(x, y - o, z, out _) == this)
+                        {
+                            height++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    if (height < maxHeight)
+                    {
+                        Place(x, y + 1, z, null);
+                    }
                 }
             }
         }
