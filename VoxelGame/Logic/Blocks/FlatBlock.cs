@@ -225,8 +225,15 @@ namespace VoxelGame.Logic.Blocks
 
         public override void EntityCollision(PhysicsEntity entity, int x, int y, int z)
         {
+            if (entity == null)
+            {
+                throw new System.ArgumentNullException(nameof(entity));
+            }
+
+            Vector3 forwardMovement = Vector3.Dot(entity.Movement, entity.Forward) * entity.Forward;
+
             Game.World.GetBlock(x, y, z, out byte data);
-            if ((Orientation)(data & 0b0_0011) == (-entity?.Movement)?.ToOrientation())
+            if (forwardMovement.LengthSquared > 0.1f && (Orientation)(data & 0b0_0011) == (-forwardMovement).ToOrientation())
             {
                 // Check if entity looks up or down
                 if (Vector3.CalculateAngle(entity.LookingDirection, Vector3.UnitY) < MathHelper.PiOver2)
