@@ -30,8 +30,8 @@ void main()
 		discard;
 	}
 
-	float brightness = dot(normal, normalize(vec3(0.2, 0.7, 0.8)));
-	brightness = (brightness == 0.0) ? 1.0 : max(brightness, 0.0) + 0.2;
+	float brightness = clamp((dot(normal, normalize(vec3(0.3, 0.8, 0.5))) + 1.7) / 2.5, 0.0, 1.0);
+	brightness = (length(normal) < 0.1) ? 1.0 : brightness;
 
 	outputColor = color * tint * brightness;
 }

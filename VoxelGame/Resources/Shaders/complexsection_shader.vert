@@ -14,6 +14,8 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+out vec3 test;
+
 void main()
 {
     // Normal
@@ -22,7 +24,8 @@ void main()
     int nz = (aData.x >> 17) & 31;
     normal = vec3((nx < 16) ? nx : (nx & 15) * -1, (ny < 16) ? ny : (ny & 15) * -1, (nz < 16) ? nz : (nz & 15) * -1);
     normal /= 15.0;
-    normal = (normal.length == 0.0) ? vec3(0.0, 0.0, 0.0) : normalize(normal);
+    normal = normalize(normal);
+    normal = (isnan(normal.x) || isnan(normal.y) || isnan(normal.z)) ? vec3(0.0, 0.0, 0.0) : normal;
 
     // Texture Index
     texIndex = aData.y & 4095;
