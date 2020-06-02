@@ -27,7 +27,8 @@ namespace VoxelGame.Logic.Blocks
                 recieveCollisions: false,
                 isTrigger: false,
                 isReplaceable: true,
-                BoundingBox.Block)
+                BoundingBox.Block,
+                Rendering.TargetBuffer.NotRendered)
         {
         }
 
@@ -42,20 +43,12 @@ namespace VoxelGame.Logic.Blocks
         }
 
         /// <summary>
-        /// This method is used to get the mesh from a block.
+        /// This method is not implemented.
         /// </summary>
-        /// <param name="side">The side of the block the mesh is required from.</param>
-        /// <param name="data">The parameter is not used.</param>
-        /// <param name="vertices">The parameter is not used.</param>
-        /// <param name="indicies">The parameter is not used.</param>
-        /// <returns>Returns null.</returns>
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indicies)
+        /// <exception cref="NotImplementedException"></exception>
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indicies, out Rendering.TintColor tint)
         {
-            vertices = Array.Empty<float>();
-            textureIndices = Array.Empty<int>();
-            indicies = Array.Empty<uint>();
-
-            return 0;
+            throw new NotImplementedException();
         }
     }
 }

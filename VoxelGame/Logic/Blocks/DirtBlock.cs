@@ -10,7 +10,7 @@ namespace VoxelGame.Logic.Blocks
     /// </summary>
     public class DirtBlock : BasicBlock
     {
-        public DirtBlock(string name, TextureLayout layout) : 
+        public DirtBlock(string name, TextureLayout layout) :
             base(
                 name,
                 layout,

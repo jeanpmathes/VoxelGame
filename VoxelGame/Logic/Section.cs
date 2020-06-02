@@ -62,12 +62,21 @@ namespace VoxelGame.Logic
 
         public void CreateMesh(int sectionX, int sectionY, int sectionZ)
         {
-            CreateMeshData(sectionX, sectionY, sectionZ, out float[] vertices, out int[] textureIndices, out uint[] indices);
-            SetMeshData(ref vertices, ref textureIndices, ref indices);
+            CreateMeshData(sectionX, sectionY, sectionZ, out float[] complexVertexPositions, out int[] complexVertexData, out uint[] complexIndices, out int[] simpleVertexData, out uint[] simpleIndices);
+            SetMeshData(ref complexVertexPositions, ref complexVertexData, ref complexIndices, ref simpleVertexData, ref simpleIndices);
         }
 
-        public void CreateMeshData(int sectionX, int sectionY, int sectionZ, out float[] verticesData, out int[] textureIndicesData, out uint[] indicesData)
+        private static long TotalTime = 0;
+        private static float TotalRuns = 0;
+
+        public void CreateMeshData(int sectionX, int sectionY, int sectionZ, out float[] complexVertexPositions, out int[] complexVertexData, out uint[] complexIndices, out int[] simpleVertexData, out uint[] simpleIndices)
         {
+            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
+            // Set the neutral tint color
+            TintColor neutral = new TintColor(0f, 1f, 0f);
+
             // Get the sections next to this section
             Section frontNeighbour = Game.World.GetSection(sectionX, sectionY, sectionZ + 1);
             Section backNeighbour = Game.World.GetSection(sectionX, sectionY, sectionZ - 1);
@@ -76,12 +85,16 @@ namespace VoxelGame.Logic
             Section bottomNeighbour = Game.World.GetSection(sectionX, sectionY - 1, sectionZ);
             Section topNeighbour = Game.World.GetSection(sectionX, sectionY + 1, sectionZ);
 
-            // Recalculate the mesh and set the buffers
-            List<float> vertices = new List<float>(4096);
-            List<int> textureIndices = new List<int>(512);
-            List<uint> indices = new List<uint>(1024);
+            // Create the mesh data
+            List<int> simpleVertexDataBuilder = new List<int>(2048);
+            List<uint> simpleIndicesBuilder = new List<uint>(1024);
 
-            uint vertCount = 0;
+            List<float> complexVertexPositionsBuilder = new List<float>(64);
+            List<int> complexVertexDataBuilder = new List<int>(32);
+            List<uint> complexIndicesBuilder = new List<uint>(16);
+
+            uint simpleVertCount = 0;
+            uint complexVertCount = 0;
 
             for (int x = 0; x < SectionSize; x++)
             {
@@ -94,7 +107,7 @@ namespace VoxelGame.Logic
                         Block currentBlock = Block.TranslateID((ushort)(currentBlockData & BlockMask));
                         byte currentData = (byte)((currentBlockData & DataMask) >> 11);
 
-                        if (currentBlock.IsFull) // Check if this block is sized 1x1x1
+                        if (currentBlock.TargetBuffer == TargetBuffer.Simple)
                         {
                             Block blockToCheck;
 
@@ -116,25 +129,27 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                uint additionalVertCount = currentBlock.GetMesh(BlockSide.Front, currentData, out float[] sideVertices, out int[] sideTextureIndices, out uint[] sideIndices);
+                                uint verts = currentBlock.GetMesh(BlockSide.Front, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
-                                vertices.AddRange(sideVertices);
-                                textureIndices.AddRange(sideTextureIndices);
-                                indices.AddRange(sideIndices);
+                                simpleIndicesBuilder.AddRange(indices);
 
-                                for (int i = 0; i < sideVertices.Length; i += 5) // Add the position to the vertices
+                                for (int i = 0; i < verts; i++)
                                 {
-                                    vertices[((int)vertCount * 5) + i + 0] += x;
-                                    vertices[((int)vertCount * 5) + i + 1] += y;
-                                    vertices[((int)vertCount * 5) + i + 2] += z;
+                                    // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
+                                    int upperData = ((int)BlockSide.Front << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
+                                    simpleVertexDataBuilder.Add(upperData);
+
+                                    // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
+                                    int lowerData =  (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
+                                    simpleVertexDataBuilder.Add(lowerData);
                                 }
 
-                                for (int i = 0; i < sideIndices.Length; i++) // Add the additionalVertCount count to the indices
+                                for (int i = simpleIndicesBuilder.Count - indices.Length; i < simpleIndicesBuilder.Count; i++)
                                 {
-                                    indices[indices.Count - sideIndices.Length + i] += vertCount;
+                                    simpleIndicesBuilder[i] += simpleVertCount;
                                 }
 
-                                vertCount += additionalVertCount;
+                                simpleVertCount += verts;
                             }
 
                             // Back
@@ -153,25 +168,27 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                uint additionalVertCount = currentBlock.GetMesh(BlockSide.Back, currentData, out float[] sideVertices, out int[] sideTextureIndices, out uint[] sideIndices);
+                                uint verts = currentBlock.GetMesh(BlockSide.Back, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
-                                vertices.AddRange(sideVertices);
-                                textureIndices.AddRange(sideTextureIndices);
-                                indices.AddRange(sideIndices);
+                                simpleIndicesBuilder.AddRange(indices);
 
-                                for (int i = 0; i < sideVertices.Length; i += 5) // Add the position to the vertices
+                                for (int i = 0; i < verts; i++)
                                 {
-                                    vertices[((int)vertCount * 5) + i + 0] += x;
-                                    vertices[((int)vertCount * 5) + i + 1] += y;
-                                    vertices[((int)vertCount * 5) + i + 2] += z;
+                                    // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
+                                    int upperData = ((int)BlockSide.Back << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
+                                    simpleVertexDataBuilder.Add(upperData);
+
+                                    // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
+                                    int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
+                                    simpleVertexDataBuilder.Add(lowerData);
                                 }
 
-                                for (int i = 0; i < sideIndices.Length; i++) // Add the additionalVertCount count to the indices
+                                for (int i = simpleIndicesBuilder.Count - indices.Length; i < simpleIndicesBuilder.Count; i++)
                                 {
-                                    indices[indices.Count - sideIndices.Length + i] += vertCount;
+                                    simpleIndicesBuilder[i] += simpleVertCount;
                                 }
 
-                                vertCount += additionalVertCount;
+                                simpleVertCount += verts;
                             }
 
                             // Left
@@ -190,25 +207,27 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                uint additionalVertCount = currentBlock.GetMesh(BlockSide.Left, currentData, out float[] sideVertices, out int[] sideTextureIndices, out uint[] sideIndices);
+                                uint verts = currentBlock.GetMesh(BlockSide.Left, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
-                                vertices.AddRange(sideVertices);
-                                textureIndices.AddRange(sideTextureIndices);
-                                indices.AddRange(sideIndices);
+                                simpleIndicesBuilder.AddRange(indices);
 
-                                for (int i = 0; i < sideVertices.Length; i += 5) // Add the position to the vertices
+                                for (int i = 0; i < verts; i++)
                                 {
-                                    vertices[((int)vertCount * 5) + i + 0] += x;
-                                    vertices[((int)vertCount * 5) + i + 1] += y;
-                                    vertices[((int)vertCount * 5) + i + 2] += z;
+                                    // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
+                                    int upperData = ((int)BlockSide.Left << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
+                                    simpleVertexDataBuilder.Add(upperData);
+
+                                    // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
+                                    int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
+                                    simpleVertexDataBuilder.Add(lowerData);
                                 }
 
-                                for (int i = 0; i < sideIndices.Length; i++) // Add the additionalVertCount count to the indices
+                                for (int i = simpleIndicesBuilder.Count - indices.Length; i < simpleIndicesBuilder.Count; i++)
                                 {
-                                    indices[indices.Count - sideIndices.Length + i] += vertCount;
+                                    simpleIndicesBuilder[i] += simpleVertCount;
                                 }
 
-                                vertCount += additionalVertCount;
+                                simpleVertCount += verts;
                             }
 
                             // Right
@@ -227,25 +246,27 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                uint additionalVertCount = currentBlock.GetMesh(BlockSide.Right, currentData, out float[] sideVertices, out int[] sideTextureIndices, out uint[] sideIndices);
+                                uint verts = currentBlock.GetMesh(BlockSide.Right, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
-                                vertices.AddRange(sideVertices);
-                                textureIndices.AddRange(sideTextureIndices);
-                                indices.AddRange(sideIndices);
+                                simpleIndicesBuilder.AddRange(indices);
 
-                                for (int i = 0; i < sideVertices.Length; i += 5) // Add the position to the vertices
+                                for (int i = 0; i < verts; i++)
                                 {
-                                    vertices[((int)vertCount * 5) + i + 0] += x;
-                                    vertices[((int)vertCount * 5) + i + 1] += y;
-                                    vertices[((int)vertCount * 5) + i + 2] += z;
+                                    // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
+                                    int upperData = ((int)BlockSide.Right << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
+                                    simpleVertexDataBuilder.Add(upperData);
+
+                                    // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
+                                    int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
+                                    simpleVertexDataBuilder.Add(lowerData);
                                 }
 
-                                for (int i = 0; i < sideIndices.Length; i++) // Add the additionalVertCount count to the indices
+                                for (int i = simpleIndicesBuilder.Count - indices.Length; i < simpleIndicesBuilder.Count; i++)
                                 {
-                                    indices[indices.Count - sideIndices.Length + i] += vertCount;
+                                    simpleIndicesBuilder[i] += simpleVertCount;
                                 }
 
-                                vertCount += additionalVertCount;
+                                simpleVertCount += verts;
                             }
 
                             // Bottom
@@ -264,25 +285,27 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
                             {
-                                uint additionalVertCount = currentBlock.GetMesh(BlockSide.Bottom, currentData, out float[] sideVertices, out int[] sideTextureIndices, out uint[] sideIndices);
+                                uint verts = currentBlock.GetMesh(BlockSide.Bottom, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
-                                vertices.AddRange(sideVertices);
-                                textureIndices.AddRange(sideTextureIndices);
-                                indices.AddRange(sideIndices);
+                                simpleIndicesBuilder.AddRange(indices);
 
-                                for (int i = 0; i < sideVertices.Length; i += 5) // Add the position to the vertices
+                                for (int i = 0; i < verts; i++)
                                 {
-                                    vertices[((int)vertCount * 5) + i + 0] += x;
-                                    vertices[((int)vertCount * 5) + i + 1] += y;
-                                    vertices[((int)vertCount * 5) + i + 2] += z;
+                                    // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
+                                    int upperData = ((int)BlockSide.Bottom << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
+                                    simpleVertexDataBuilder.Add(upperData);
+
+                                    // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
+                                    int lowerData = ((tint.IsNeutral ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
+                                    simpleVertexDataBuilder.Add(lowerData);
                                 }
 
-                                for (int i = 0; i < sideIndices.Length; i++) // Add the additionalVertCount count to the indices
+                                for (int i = simpleIndicesBuilder.Count - indices.Length; i < simpleIndicesBuilder.Count; i++)
                                 {
-                                    indices[indices.Count - sideIndices.Length + i] += vertCount;
+                                    simpleIndicesBuilder[i] += simpleVertCount;
                                 }
 
-                                vertCount += additionalVertCount;
+                                simpleVertCount += verts;
                             }
 
                             // Top
@@ -301,66 +324,89 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
                             {
-                                uint additionalVertCount = currentBlock.GetMesh(BlockSide.Top, currentData, out float[] sideVertices, out int[] sideTextureIndices, out uint[] sideIndices);
+                                uint verts = currentBlock.GetMesh(BlockSide.Top, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
-                                vertices.AddRange(sideVertices);
-                                textureIndices.AddRange(sideTextureIndices);
-                                indices.AddRange(sideIndices);
+                                simpleIndicesBuilder.AddRange(indices);
 
-                                for (int i = 0; i < sideVertices.Length; i += 5) // Add the position to the vertices
+                                for (int i = 0; i < verts; i++)
                                 {
-                                    vertices[((int)vertCount * 5) + i + 0] += x;
-                                    vertices[((int)vertCount * 5) + i + 1] += y;
-                                    vertices[((int)vertCount * 5) + i + 2] += z;
+                                    // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
+                                    int upperData = ((int)BlockSide.Top << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
+                                    simpleVertexDataBuilder.Add(upperData);
+
+                                    // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
+                                    int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
+                                    simpleVertexDataBuilder.Add(lowerData);
                                 }
 
-                                for (int i = 0; i < sideIndices.Length; i++) // Add the additionalVertCount count to the indices
+                                for (int i = simpleIndicesBuilder.Count - indices.Length; i < simpleIndicesBuilder.Count; i++)
                                 {
-                                    indices[indices.Count - sideIndices.Length + i] += vertCount;
+                                    simpleIndicesBuilder[i] += simpleVertCount;
                                 }
 
-                                vertCount += additionalVertCount;
+                                simpleVertCount += verts;
                             }
                         }
-                        else
+                        else if (currentBlock.TargetBuffer == TargetBuffer.Complex)
                         {
-                            uint additionalVertCount = currentBlock.GetMesh(BlockSide.All, currentData, out float[] addVertices, out int[] addTextureIndices, out uint[] addIndices);
+                            uint verts = currentBlock.GetMesh(BlockSide.All, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
-                            if (additionalVertCount != 0)
+                            complexIndicesBuilder.AddRange(indices);
+
+                            for (int i = 0; i < verts; i++)
                             {
-                                vertices.AddRange(addVertices);
-                                textureIndices.AddRange(addTextureIndices);
-                                indices.AddRange(addIndices);
+                                complexVertexPositionsBuilder.Add(vertices[(i * 8) + 0] + x);
+                                complexVertexPositionsBuilder.Add(vertices[(i * 8) + 1] + y);
+                                complexVertexPositionsBuilder.Add(vertices[(i * 8) + 2] + z);
 
-                                for (int i = 0; i < addVertices.Length; i += 5) // Add the position to the vertices
-                                {
-                                    vertices[((int)vertCount * 5) + i + 0] += x;
-                                    vertices[((int)vertCount * 5) + i + 1] += y;
-                                    vertices[((int)vertCount * 5) + i + 2] += z;
-                                }
+                                // int: nnnn nooo oopp ppp- ---- --uu uuuv vvvv (nop: normal; uv: texture coords)
+                                int upperData =
+                                    (((vertices[(i * 8) + 5] < 0f) ? (0b1_0000 | (int)(vertices[(i * 8) + 5] * -15f)) : (int)(vertices[(i * 8) + 5] * 15f)) << 27) |
+                                    (((vertices[(i * 8) + 6] < 0f) ? (0b1_0000 | (int)(vertices[(i * 8) + 6] * -15f)) : (int)(vertices[(i * 8) + 6] * 15f)) << 22) |
+                                    (((vertices[(i * 8) + 7] < 0f) ? (0b1_0000 | (int)(vertices[(i * 8) + 7] * -15f)) : (int)(vertices[(i * 8) + 7] * 15f)) << 17) |
+                                    ((int)(vertices[(i * 8) + 3] * 16f) << 5) |
+                                    ((int)(vertices[(i * 8) + 4] * 16f));
 
-                                for (int i = 0; i < addIndices.Length; i++) // Add the additionalVertCount count to the indices
-                                {
-                                    indices[indices.Count - addIndices.Length + i] += vertCount;
-                                }
+                                complexVertexDataBuilder.Add(upperData);
 
-                                vertCount += additionalVertCount;
+                                // int: tttt tttt t--- ---- ---- iiii iiii iiii (t: tint; i: texture index)
+                                int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | textureIndices[i];
+                                complexVertexDataBuilder.Add(lowerData);
                             }
+
+                            for (int i = complexIndicesBuilder.Count - indices.Length; i < complexIndicesBuilder.Count; i++)
+                            {
+                                complexIndicesBuilder[i] += complexVertCount;
+                            }
+
+                            complexVertCount += verts;
                         }
                     }
                 }
             }
 
-            isEmpty = (vertices.Count == 0);
+            isEmpty = complexVertexPositionsBuilder.Count == 0 && simpleVertexDataBuilder.Count == 0;
 
-            verticesData = vertices.ToArray();
-            textureIndicesData = textureIndices.ToArray();
-            indicesData = indices.ToArray();
+            complexVertexPositions = complexVertexPositionsBuilder.ToArray();
+            complexVertexData = complexVertexDataBuilder.ToArray();
+            complexIndices = complexIndicesBuilder.ToArray();
+
+            simpleVertexData = simpleVertexDataBuilder.ToArray();
+            simpleIndices = simpleIndicesBuilder.ToArray();
+
+            stopwatch.Stop();
+            TotalTime += stopwatch.ElapsedMilliseconds;
+            TotalRuns++;
+
+            if (TotalRuns % 50 == 0)
+            {
+                Console.WriteLine($"RUN {TotalRuns} WITH AVRG TIME OF {TotalTime / TotalRuns}");
+            }
         }
 
-        public void SetMeshData(ref float[] vertices, ref int[] textureIndices, ref uint[] indices)
+        public void SetMeshData(ref float[] complexVertexPositions, ref int[] complexVertexData, ref uint[] complexIndices, ref int[] simpleVertexData, ref uint[] simpleIndices)
         {
-            renderer.SetData(ref vertices, ref textureIndices, ref indices);
+            renderer.SetData(ref complexVertexPositions, ref complexVertexData, ref complexIndices, ref simpleVertexData, ref simpleIndices);
         }
 
         public void Render(Vector3 position)

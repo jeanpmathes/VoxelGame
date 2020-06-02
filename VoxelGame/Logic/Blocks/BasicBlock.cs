@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using VoxelGame.Physics;
+using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -34,7 +35,8 @@ namespace VoxelGame.Logic.Blocks
                 recieveCollisions: false,
                 isTrigger: false,
                 isReplaceable: false,
-                BoundingBox.Block)
+                BoundingBox.Block,
+                TargetBuffer.Simple)
         {
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
             this.Setup(layout);
@@ -47,45 +49,45 @@ namespace VoxelGame.Logic.Blocks
             {
                 new float[] // Front face
                 {
-                    0f, 0f, 1f, 0f, 0f,
-                    0f, 1f, 1f, 0f, 1f,
-                    1f, 1f, 1f, 1f, 1f,
-                    1f, 0f, 1f, 1f, 0f
+                    0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f,
+                    0f, 1f, 1f, 0f, 1f, 0f, 0f, 1f,
+                    1f, 1f, 1f, 1f, 1f, 0f, 0f, 1f,
+                    1f, 0f, 1f, 1f, 0f, 0f, 0f, 1f
                 },
                 new float[] // Back face
                 {
-                    1f, 0f, 0f, 0f, 0f,
-                    1f, 1f, 0f, 0f, 1f,
-                    0f, 1f, 0f, 1f, 1f,
-                    0f, 0f, 0f, 1f, 0f
+                    1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f,
+                    1f, 1f, 0f, 0f, 1f, 0f, 0f, -1f,
+                    0f, 1f, 0f, 1f, 1f, 0f, 0f, -1f,
+                    0f, 0f, 0f, 1f, 0f, 0f, 0f, -1f
                 },
                 new float[] // Left face
                 {
-                    0f, 0f, 0f, 0f, 0f,
-                    0f, 1f, 0f, 0f, 1f,
-                    0f, 1f, 1f, 1f, 1f,
-                    0f, 0f, 1f, 1f, 0f
+                    0f, 0f, 0f, 0f, 0f, -1f, 0f, 0f,
+                    0f, 1f, 0f, 0f, 1f, -1f, 0f, 0f,
+                    0f, 1f, 1f, 1f, 1f, -1f, 0f, 0f,
+                    0f, 0f, 1f, 1f, 0f, -1f, 0f, 0f
                 },
                 new float[] // Right face
                 {
-                    1f, 0f, 1f, 0f, 0f,
-                    1f, 1f, 1f, 0f, 1f,
-                    1f, 1f, 0f, 1f, 1f,
-                    1f, 0f, 0f, 1f, 0f
+                    1f, 0f, 1f, 0f, 0f, 1f, 0f, 0f,
+                    1f, 1f, 1f, 0f, 1f, 1f, 0f, 0f,
+                    1f, 1f, 0f, 1f, 1f, 1f, 0f, 0f,
+                    1f, 0f, 0f, 1f, 0f, 1f, 0f, 0f
                 },
                 new float[] // Bottom face
                 {
-                    0f, 0f, 0f, 0f, 0f,
-                    0f, 0f, 1f, 0f, 1f,
-                    1f, 0f, 1f, 1f, 1f,
-                    1f, 0f, 0f, 1f, 0f
+                    0f, 0f, 0f, 0f, 0f, 0f, -1f, 0f,
+                    0f, 0f, 1f, 0f, 1f, 0f, -1f, 0f,
+                    1f, 0f, 1f, 1f, 1f, 0f, -1f, 0f,
+                    1f, 0f, 0f, 1f, 0f, 0f, -1f, 0f
                 },
                 new float[] // Top face
                 {
-                    0f, 1f, 1f, 0f, 0f,
-                    0f, 1f, 0f, 0f, 1f,
-                    1f, 1f, 0f, 1f, 1f,
-                    1f, 1f, 1f, 1f, 0f
+                    0f, 1f, 1f, 0f, 0f, 0f, 1f, 0f,
+                    0f, 1f, 0f, 0f, 1f, 0f, 1f, 0f,
+                    1f, 1f, 0f, 1f, 1f, 0f, 1f, 0f,
+                    1f, 1f, 1f, 1f, 0f, 0f, 1f, 0f
                 }
             };
 
@@ -118,11 +120,13 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
             vertices = sideVertices[(int)side];
             textureIndices = sideTextureIndices[(int)side];
             indices = this.indices;
+
+            tint = TintColor.None;
 
             return 4;
         }

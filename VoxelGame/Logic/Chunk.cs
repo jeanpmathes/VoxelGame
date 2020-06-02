@@ -167,73 +167,95 @@ namespace VoxelGame.Logic
             meshDataIndex = 0;
         }
 
-        public Task<(float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData)> CreateMeshDataAsync()
+        public Task<(float[][] complexVertexPositions, int[][] complexVertexData, uint[][] complexIndices, int[][] simpleVertexData, uint[][] simpleIndices)> CreateMeshDataAsync()
         {
             return Task.Run(CreateMeshData);
         }
 
-        private (float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData) CreateMeshData()
+        private (float[][] complexVertexPositions, int[][] complexVertexData, uint[][] complexIndices, int[][] simpleVertexData, uint[][] simpleIndices) CreateMeshData()
         {
-            float[][] verticesData = new float[ChunkHeight][];
-            int[][] textureIndicesData = new int[ChunkHeight][];
-            uint[][] indicesData = new uint[ChunkHeight][];
+            float[][] complexVertexPositions = new float[ChunkHeight][];
+            int[][] complexVertexData = new int[ChunkHeight][];
+            uint[][] complexIndices = new uint[ChunkHeight][];
+            int[][] simpleVertexData = new int[ChunkHeight][];
+            uint[][] simpleIndices = new uint[ChunkHeight][];
 
             for (int y = 0; y < ChunkHeight; y++)
             {
-                sections[y].CreateMeshData(X, y, Z, out verticesData[y], out textureIndicesData[y], out indicesData[y]);
+                sections[y].CreateMeshData(X, y, Z, out complexVertexPositions[y], out complexVertexData[y], out complexIndices[y], out simpleVertexData[y], out simpleIndices[y]);
             }
 
             meshDataIndex = 0;
 
-            return (verticesData, textureIndicesData, indicesData);
+            return (complexVertexPositions, complexVertexData, complexIndices, simpleVertexData, simpleIndices);
         }
 
-        public void SetMeshData(float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData)
+        public void SetMeshData(float[][] complexVertexPositions, int[][] complexVertexData, uint[][] complexIndices, int[][] simpleVertexData, uint[][] simpleIndices)
         {
-            if (verticesData == null)
+            if (complexVertexPositions == null)
             {
-                throw new ArgumentNullException(nameof(verticesData));
+                throw new ArgumentNullException(nameof(complexVertexPositions));
             }
 
-            if (textureIndicesData == null)
+            if (complexVertexData == null)
             {
-                throw new ArgumentNullException(nameof(textureIndicesData));
+                throw new ArgumentNullException(nameof(complexVertexData));
             }
 
-            if (indicesData == null)
+            if (complexIndices == null)
             {
-                throw new ArgumentNullException(nameof(indicesData));
+                throw new ArgumentNullException(nameof(complexIndices));
+            }
+
+            if (simpleVertexData == null)
+            {
+                throw new ArgumentNullException(nameof(simpleVertexData));
+            }
+
+            if (simpleIndices == null)
+            {
+                throw new ArgumentNullException(nameof(simpleIndices));
             }
 
             for (int y = 0; y < ChunkHeight; y++)
             {
-                sections[y].SetMeshData(ref verticesData[y], ref textureIndicesData[y], ref indicesData[y]);
+                sections[y].SetMeshData(ref complexVertexPositions[y], ref complexVertexData[y], ref complexIndices[y], ref simpleVertexData[y], ref simpleIndices[y]);
             }
 
             hasMeshData = true;
             meshDataIndex = 0;
         }
 
-        public bool SetMeshDataStep(float[][] verticesData, int[][] textureIndicesData, uint[][] indicesData)
+        public bool SetMeshDataStep(float[][] complexVertexPositions, int[][] complexVertexData, uint[][] complexIndices, int[][] simpleVertexData, uint[][] simpleIndices)
         {
-            if (verticesData == null)
+            if (complexVertexPositions == null)
             {
-                throw new ArgumentNullException(nameof(verticesData));
+                throw new ArgumentNullException(nameof(complexVertexPositions));
             }
 
-            if (textureIndicesData == null)
+            if (complexVertexData == null)
             {
-                throw new ArgumentNullException(nameof(textureIndicesData));
+                throw new ArgumentNullException(nameof(complexVertexData));
             }
 
-            if (indicesData == null)
+            if (complexIndices == null)
             {
-                throw new ArgumentNullException(nameof(indicesData));
+                throw new ArgumentNullException(nameof(complexIndices));
+            }
+
+            if (simpleVertexData == null)
+            {
+                throw new ArgumentNullException(nameof(simpleVertexData));
+            }
+
+            if (simpleIndices == null)
+            {
+                throw new ArgumentNullException(nameof(simpleIndices));
             }
 
             for (int i = 0; i < maxMeshDataStep; i++)
             {
-                sections[meshDataIndex].SetMeshData(ref verticesData[meshDataIndex], ref textureIndicesData[meshDataIndex], ref indicesData[meshDataIndex]);
+                sections[meshDataIndex].SetMeshData(ref complexVertexPositions[meshDataIndex], ref complexVertexData[meshDataIndex], ref complexIndices[meshDataIndex], ref simpleVertexData[meshDataIndex], ref simpleIndices[meshDataIndex]);
 
                 // The index has reached the end, all sections have received their mesh data
                 if (meshDataIndex == ChunkHeight - 1)

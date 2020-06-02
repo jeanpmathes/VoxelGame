@@ -29,8 +29,8 @@ namespace VoxelGame.Logic.Blocks
         {
             0, 2, 1,
             0, 3, 2,
-            0, 1, 2,
-            0, 2, 3
+            4, 6, 5,
+            4, 7, 6
         };
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
@@ -52,7 +52,8 @@ namespace VoxelGame.Logic.Blocks
                 recieveCollisions: true,
                 isTrigger: true,
                 isReplaceable: false,
-                BoundingBox.Block)
+                BoundingBox.Block,
+                TargetBuffer.Complex)
         {
             this.climbingVelocity = climbingVelocity;
             this.slidingVelocity = slidingVelocity;
@@ -68,36 +69,56 @@ namespace VoxelGame.Logic.Blocks
             {
                 new float[] // North
                 {
-                    0f, 0f, 0.99f, 0f, 0f,
-                    0f, 1f, 0.99f, 0f, 1f,
-                    1f, 1f, 0.99f, 1f, 1f,
-                    1f, 0f, 0.99f, 1f, 0f
+                    1f, 0f, 0.99f, 1f, 0f, 0f, 0f, -1f,
+                    1f, 1f, 0.99f, 1f, 1f, 0f, 0f, -1f,
+                    0f, 1f, 0.99f, 0f, 1f, 0f, 0f, -1f,
+                    0f, 0f, 0.99f, 0f, 0f, 0f, 0f, -1f,
+
+                    0f, 0f, 0.99f, 0f, 0f, 0f, 0f, 1f,
+                    0f, 1f, 0.99f, 0f, 1f, 0f, 0f, 1f,
+                    1f, 1f, 0.99f, 1f, 1f, 0f, 0f, 1f,
+                    1f, 0f, 0.99f, 1f, 0f, 0f, 0f, 1f
                 },
                 new float[] // East
                 {
-                    0.01f, 0f, 0f, 0f, 0f,
-                    0.01f, 1f, 0f, 0f, 1f,
-                    0.01f, 1f, 1f, 1f, 1f,
-                    0.01f, 0f, 1f, 1f, 0f
+                    0.01f, 0f, 1f, 1f, 0f, 1f, 0f, 0f,
+                    0.01f, 1f, 1f, 1f, 1f, 1f, 0f, 0f,
+                    0.01f, 1f, 0f, 0f, 1f, 1f, 0f, 0f,
+                    0.01f, 0f, 0f, 0f, 0f, 1f, 0f, 0f,
+
+                    0.01f, 0f, 0f, 0f, 0f, -1f, 0f, 0f,
+                    0.01f, 1f, 0f, 0f, 1f, -1f, 0f, 0f,
+                    0.01f, 1f, 1f, 1f, 1f, -1f, 0f, 0f,
+                    0.01f, 0f, 1f, 1f, 0f, -1f, 0f, 0f
                 },
                 new float[] // South
                 {
-                    0f, 0f, 0.01f, 0f, 0f,
-                    0f, 1f, 0.01f, 0f, 1f,
-                    1f, 1f, 0.01f, 1f, 1f,
-                    1f, 0f, 0.01f, 1f, 0f
+                    0f, 0f, 0.01f, 0f, 0f, 0f, 0f, 1f,
+                    0f, 1f, 0.01f, 0f, 1f, 0f, 0f, 1f,
+                    1f, 1f, 0.01f, 1f, 1f, 0f, 0f, 1f,
+                    1f, 0f, 0.01f, 1f, 0f, 0f, 0f, 1f,
+
+                    1f, 0f, 0.01f, 1f, 0f, 0f, 0f, -1f,
+                    1f, 1f, 0.01f, 1f, 1f, 0f, 0f, -1f,
+                    0f, 1f, 0.01f, 0f, 1f, 0f, 0f, -1f,
+                    0f, 0f, 0.01f, 0f, 0f, 0f, 0f, -1f
                 },
                 new float[] // West
                 {
-                    0.99f, 0f, 1f, 0f, 0f,
-                    0.99f, 1f, 1f, 0f, 1f,
-                    0.99f, 1f, 0f, 1f, 1f,
-                    0.99f, 0f, 0f, 1f, 0f
+                    0.99f, 0f, 0f, 1f, 0f, -1f, 0f, 0f,
+                    0.99f, 1f, 0f, 1f, 1f, -1f, 0f, 0f,
+                    0.99f, 1f, 1f, 0f, 1f, -1f, 0f, 0f,
+                    0.99f, 0f, 1f, 0f, 0f, -1f, 0f, 0f,
+
+                    0.99f, 0f, 1f, 0f, 0f, 1f, 0f, 0f,
+                    0.99f, 1f, 1f, 0f, 1f, 1f, 0f, 0f,
+                    0.99f, 1f, 0f, 1f, 1f, 1f, 0f, 0f,
+                    0.99f, 0f, 0f, 1f, 0f, 1f, 0f, 0f
                 }
             };
 
             int tex = Game.BlockTextureArray.GetTextureIndex(texture);
-            textureIndices = new int[] { tex, tex, tex, tex};
+            textureIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
         }
 
         public override BoundingBox GetBoundingBox(int x, int y, int z)
@@ -191,19 +212,21 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
             vertices = sideVertices[data & 0b0_0011];
             textureIndices = this.textureIndices;
             indices = this.indices;
 
-            return 4;
+            tint = TintColor.None;
+
+            return 8;
         }
 
         public override void EntityCollision(PhysicsEntity entity, int x, int y, int z)
         {
             Game.World.GetBlock(x, y, z, out byte data);
-            if ((Orientation)(data & 0b0_0011) == (-entity.Movement).ToOrientation())
+            if ((Orientation)(data & 0b0_0011) == (-entity?.Movement)?.ToOrientation())
             {
                 // Check if entity looks up or down
                 if (Vector3.CalculateAngle(entity.LookingDirection, Vector3.UnitY) < MathHelper.PiOver2)

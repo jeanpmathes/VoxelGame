@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using System;
 using VoxelGame.Entities;
+using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -24,6 +25,7 @@ namespace VoxelGame.Logic.Blocks
             1f, 0f
         };
 
+        protected float[][] sideNormals;
         protected int[] texIndices;
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
@@ -86,6 +88,34 @@ namespace VoxelGame.Logic.Blocks
                 }
             };
 
+            sideNormals = new float[][]
+            {
+                new float[] // Front face
+                {
+                    0f, 0f, 1f
+                },
+                new float[] // Back face
+                {
+                    0f, 0f, -1f
+                },
+                new float[] // Left face
+                {
+                    -1f, 0f, 0f
+                },
+                new float[] // Right face
+                {
+                    1f, 0f, 0f
+                },
+                new float[] // Bottom face
+                {
+                    0f, -1f, 0f
+                },
+                new float[] // Top face
+                {
+                    0f, 1f, 0f
+                }
+            };
+
             texIndices = new int[]
             {
                 layout.Front,
@@ -97,11 +127,12 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
             Axis axis = ToAxis(data);
 
             float[] vert = sideVertices[(int)side];
+            float[] norms = sideNormals[(int)side];
             int tex = texIndices[TranslateIndex(side, axis)];
 
             // Check if the texture has to be rotated
@@ -110,10 +141,10 @@ namespace VoxelGame.Logic.Blocks
                 // Texture rotation
                 vertices = new float[]
                 {
-                    vert[0], vert[1],  vert[2], uv[2], uv[3],
-                    vert[3], vert[4],  vert[5], uv[4], uv[5],
-                    vert[6], vert[7],  vert[8], uv[6], uv[7],
-                    vert[9], vert[10], vert[11], uv[0], uv[1],
+                    vert[0], vert[1],  vert[2], uv[2], uv[3], norms[0], norms[1], norms[2],
+                    vert[3], vert[4],  vert[5], uv[4], uv[5], norms[0], norms[1], norms[2],
+                    vert[6], vert[7],  vert[8], uv[6], uv[7], norms[0], norms[1], norms[2],
+                    vert[9], vert[10], vert[11], uv[0], uv[1], norms[0], norms[1], norms[2]
                 };
             }
             else
@@ -121,15 +152,16 @@ namespace VoxelGame.Logic.Blocks
                 // No texture rotation
                 vertices = new float[]
                 {
-                    vert[0], vert[1],  vert[2],  uv[0], uv[1],
-                    vert[3], vert[4],  vert[5],  uv[2], uv[3],
-                    vert[6], vert[7],  vert[8],  uv[4], uv[5],
-                    vert[9], vert[10], vert[11], uv[6], uv[7],
+                    vert[0], vert[1],  vert[2],  uv[0], uv[1], norms[0], norms[1], norms[2],
+                    vert[3], vert[4],  vert[5],  uv[2], uv[3], norms[0], norms[1], norms[2],
+                    vert[6], vert[7],  vert[8],  uv[4], uv[5], norms[0], norms[1], norms[2],
+                    vert[9], vert[10], vert[11], uv[6], uv[7], norms[0], norms[1], norms[2]
                 };
             }
 
             textureIndices = new int[] { tex, tex, tex, tex };
             indices = this.indices;
+            tint = TintColor.None;
 
             return 4;
         }

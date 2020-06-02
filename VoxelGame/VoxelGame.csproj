@@ -157,9 +157,11 @@
     <Compile Include="Rendering\SectionRenderer.cs" />
     <Compile Include="Rendering\Renderer.cs" />
     <Compile Include="Rendering\Shader.cs" />
+    <Compile Include="Rendering\TargetBuffer.cs" />
     <Compile Include="Rendering\Texture.cs" />
     <Compile Include="Rendering\ArrayTexture.cs" />
     <Compile Include="Rendering\TextureAtlas.cs" />
+    <Compile Include="Rendering\TintColor.cs" />
     <Compile Include="Resources\Language\Language.de.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -240,9 +242,12 @@
     <Content Include="Resources\Shaders\section_shader.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\Shaders\section_shader.vert">
+    <Content Include="Resources\Shaders\simplesection_shader.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\Shaders\complexsection_shader.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="VoxelGame.licenseheader" />
   </ItemGroup>
   <ItemGroup>

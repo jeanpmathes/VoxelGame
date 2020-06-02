@@ -48,7 +48,8 @@ namespace VoxelGame.Logic.Blocks
                 recieveCollisions,
                 isTrigger,
                 isReplaceable,
-                boundingBox)
+                boundingBox,
+                TargetBuffer.Complex)
         {
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
             Setup(texture);
@@ -60,27 +61,28 @@ namespace VoxelGame.Logic.Blocks
             vertices = new float[]
             {
                 // Two sides: /
-                0f, 0f, 1f, 0f, 0f,
-                0f, 1f, 1f, 0f, 1f,
-                1f, 1f, 0f, 1f, 1f,
-                1f, 0f, 0f, 1f, 0f,
+                0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f,
+                0f, 1f, 1f, 0f, 1f, 0f, 0f, 0f,
+                1f, 1f, 0f, 1f, 1f, 0f, 0f, 0f,
+                1f, 0f, 0f, 1f, 0f, 0f, 0f, 0f,
 
                 // Two sides: \
-                0f, 0f, 0f, 0f, 0f,
-                0f, 1f, 0f, 0f, 1f,
-                1f, 1f, 1f, 1f, 1f,
-                1f, 0f, 1f, 1f, 0f
+                0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
+                0f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
+                1f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
+                1f, 0f, 1f, 1f, 0f, 0f, 0f, 0f
             };
 
             int tex = Game.BlockTextureArray.GetTextureIndex(texture);
             textureIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
             vertices = this.vertices;
             textureIndices = this.textureIndices;
             indices = this.indices;
+            tint = TintColor.None;
 
             return 8;
         }

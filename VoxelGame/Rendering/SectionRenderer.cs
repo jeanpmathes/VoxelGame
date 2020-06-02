@@ -3,92 +3,158 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using System;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 
 namespace VoxelGame.Rendering
 {
+    /// <summary>
+    /// A renderer for <see cref="Logic.Section"/>.
+    /// </summary>
     public class SectionRenderer : Renderer
     {
-        private readonly int vertexBufferObject;
-        private readonly int textureIndicesBufferObject;
-        private readonly int elementBufferObject;
-        private readonly int vertexArrayObject;
+        private readonly int simpleDataVBO;
+        private readonly int simpleEBO;
+        private readonly int simpleVAO;
 
-        private int elements;
+        private readonly int complexPositionVBO;
+        private readonly int complexDataVBO;
+        private readonly int complexEBO;
+        private readonly int complexVAO;
 
-        private bool hasData = false;
+        private int simpleElements;
+        private int complexElements;
+
+        private bool hasSimpleData = false;
+        private bool hasComplexData = false;
 
         public SectionRenderer()
         {
-            vertexBufferObject = GL.GenBuffer();
-            textureIndicesBufferObject = GL.GenBuffer();
-            elementBufferObject = GL.GenBuffer();
-            vertexArrayObject = GL.GenVertexArray();
+            simpleDataVBO = GL.GenBuffer();
+            simpleEBO = GL.GenBuffer();
+
+            simpleVAO = GL.GenVertexArray();
+
+            complexPositionVBO = GL.GenBuffer();
+            complexDataVBO = GL.GenBuffer();
+            complexEBO = GL.GenBuffer();
+
+            complexVAO = GL.GenVertexArray();
         }
 
-        public void SetData(ref float[] verticesData, ref int[] texIndicesData, ref uint[] indicesData)
+        public void SetData(ref float[] complexVertexPositions, ref int[] complexVertexData, ref uint[] complexIndices, ref int[] simpleVertexData, ref uint[] simpleIndices)
         {
             if (disposed)
             {
                 return;
             }
 
-            if (verticesData == null)
+            #region NULL CHECK
+
+            if (complexVertexPositions == null)
             {
-                throw new System.ArgumentNullException(paramName: nameof(verticesData));
+                throw new ArgumentNullException(nameof(complexVertexPositions));
             }
 
-            if (texIndicesData == null)
+            if (complexVertexData == null)
             {
-                throw new System.ArgumentNullException(paramName: nameof(texIndicesData));
+                throw new ArgumentNullException(nameof(complexVertexData));
             }
 
-            if (indicesData == null)
+            if (complexIndices == null)
             {
-                throw new System.ArgumentNullException(paramName: nameof(indicesData));
+                throw new ArgumentNullException(nameof(complexIndices));
             }
 
-            elements = indicesData.Length;
+            if (simpleVertexData == null)
+            {
+                throw new ArgumentNullException(nameof(simpleVertexData));
+            }
 
-            // Vertex Buffer Object
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, verticesData.Length * sizeof(float), verticesData, BufferUsageHint.StaticDraw);
+            if (simpleIndices == null)
+            {
+                throw new ArgumentNullException(nameof(simpleIndices));
+            }
 
-            // Vertex Buffer Object
-            GL.BindBuffer(BufferTarget.ArrayBuffer, textureIndicesBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, texIndicesData.Length * sizeof(int), texIndicesData, BufferUsageHint.StaticDraw);
+            #endregion
 
-            // Element Buffer Object
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indicesData.Length * sizeof(uint), indicesData, BufferUsageHint.StaticDraw);
+            #region SIMPLE BUFFER SETUP
 
-            int vertexLocation = Game.SectionShader.GetAttribLocation("aPosition");
-            int texIndexLocation = Game.SectionShader.GetAttribLocation("aTexIndex");
-            int texCoordLocation = Game.SectionShader.GetAttribLocation("aTexCoord");
+            simpleElements = simpleIndices.Length;
 
-            Game.SectionShader.Use();
+            if (simpleElements != 0)
+            {
+                // Vertex Buffer Object
+                GL.BindBuffer(BufferTarget.ArrayBuffer, simpleDataVBO);
+                GL.BufferData(BufferTarget.ArrayBuffer, simpleVertexData.Length * sizeof(int), simpleVertexData, BufferUsageHint.StaticDraw);
 
-            // Vertex Array Object
-            GL.BindVertexArray(vertexArrayObject);
+                // Element Buffer Object
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, simpleEBO);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, simpleIndices.Length * sizeof(uint), simpleIndices, BufferUsageHint.StaticDraw);
 
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.EnableVertexAttribArray(vertexLocation);
-            GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+                int dataLocation = Game.SimpleSectionShader.GetAttribLocation("aData");
 
-            GL.BindBuffer(BufferTarget.ArrayBuffer, textureIndicesBufferObject);
-            GL.EnableVertexAttribArray(texIndexLocation);
-            GL.VertexAttribIPointer(texIndexLocation, 1, VertexAttribIntegerType.Int, 0, System.IntPtr.Zero);
+                Game.SimpleSectionShader.Use();
 
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.EnableVertexAttribArray(texCoordLocation);
-            GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+                // Vertex Array Object
+                GL.BindVertexArray(simpleVAO);
 
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, simpleDataVBO);
+                GL.EnableVertexAttribArray(dataLocation);
+                GL.VertexAttribIPointer(dataLocation, 2, VertexAttribIntegerType.Int, 2 * sizeof(int), System.IntPtr.Zero);
 
-            GL.BindVertexArray(0);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, simpleEBO);
 
-            hasData = true;
+                GL.BindVertexArray(0);
+
+                hasSimpleData = true;
+            }
+
+            #endregion
+
+            #region COMPLEX BUFFER SETUP
+
+            complexElements = complexIndices.Length;
+
+            if (complexElements != 0)
+            {
+                // Vertex Buffer Object
+                GL.BindBuffer(BufferTarget.ArrayBuffer, complexPositionVBO);
+                GL.BufferData(BufferTarget.ArrayBuffer, complexVertexPositions.Length * sizeof(float), complexVertexPositions, BufferUsageHint.StaticDraw);
+
+                // Vertex Buffer Object
+                GL.BindBuffer(BufferTarget.ArrayBuffer, complexDataVBO);
+                GL.BufferData(BufferTarget.ArrayBuffer, complexVertexData.Length * sizeof(int), complexVertexData, BufferUsageHint.StaticDraw);
+
+                // Element Buffer Object
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, complexEBO);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, complexIndices.Length * sizeof(uint), complexIndices, BufferUsageHint.StaticDraw);
+
+                int positionLocation = Game.ComplexSectionShader.GetAttribLocation("aPosition");
+                int dataLocation = Game.ComplexSectionShader.GetAttribLocation("aData");
+
+                Game.ComplexSectionShader.Use();
+
+                // Vertex Array Object
+                GL.BindVertexArray(complexVAO);
+
+                GL.BindBuffer(BufferTarget.ArrayBuffer, complexPositionVBO);
+                GL.EnableVertexAttribArray(positionLocation);
+                GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+
+                GL.BindBuffer(BufferTarget.ArrayBuffer, complexDataVBO);
+                GL.EnableVertexAttribArray(dataLocation);
+                GL.VertexAttribIPointer(dataLocation, 2, VertexAttribIntegerType.Int, 2 * sizeof(int), System.IntPtr.Zero);
+
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, complexEBO);
+
+                GL.BindVertexArray(0);
+
+                hasComplexData = true;
+            }
+
+            #endregion
         }
 
         public override void Draw(Vector3 position)
@@ -98,18 +164,43 @@ namespace VoxelGame.Rendering
                 return;
             }
 
-            if (hasData)
+            if (hasSimpleData || hasComplexData)
             {
-                GL.BindVertexArray(vertexArrayObject);
-
-                Game.SectionShader.Use();
-
                 Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
-                Game.SectionShader.SetMatrix4("model", model);
-                Game.SectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
-                Game.SectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
 
-                GL.DrawElements(PrimitiveType.Triangles, elements, DrawElementsType.UnsignedInt, 0);
+                #region RENDERING SIMPLE
+
+                if (hasSimpleData)
+                {
+                    GL.BindVertexArray(simpleVAO);
+
+                    Game.SimpleSectionShader.Use();
+
+                    Game.SimpleSectionShader.SetMatrix4("model", model);
+                    Game.SimpleSectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
+                    Game.SimpleSectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
+
+                    GL.DrawElements(PrimitiveType.Triangles, simpleElements, DrawElementsType.UnsignedInt, 0);
+                }
+
+                #endregion
+
+                #region RENDERING COMPLEX
+
+                if (hasComplexData)
+                {
+                    GL.BindVertexArray(complexVAO);
+
+                    Game.ComplexSectionShader.Use();
+
+                    Game.ComplexSectionShader.SetMatrix4("model", model);
+                    Game.ComplexSectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
+                    Game.ComplexSectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
+
+                    GL.DrawElements(PrimitiveType.Triangles, complexElements, DrawElementsType.UnsignedInt, 0);
+                }
+
+                #endregion
 
                 GL.BindVertexArray(0);
                 GL.UseProgram(0);
@@ -127,10 +218,16 @@ namespace VoxelGame.Rendering
 
             if (disposing)
             {
-                GL.DeleteBuffer(vertexBufferObject);
-                GL.DeleteBuffer(textureIndicesBufferObject);
-                GL.DeleteBuffer(elementBufferObject);
-                GL.DeleteVertexArray(vertexArrayObject);
+                GL.DeleteBuffer(simpleDataVBO);
+                GL.DeleteBuffer(simpleEBO);
+
+                GL.DeleteVertexArray(simpleVAO);
+
+                GL.DeleteBuffer(complexPositionVBO);
+                GL.DeleteBuffer(complexDataVBO);
+                GL.DeleteBuffer(complexEBO);
+
+                GL.DeleteVertexArray(complexVAO);
             }
             else
             {

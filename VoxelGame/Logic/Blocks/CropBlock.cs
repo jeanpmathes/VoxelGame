@@ -6,6 +6,7 @@
 using OpenTK;
 using VoxelGame.Entities;
 using VoxelGame.Physics;
+using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -65,7 +66,8 @@ namespace VoxelGame.Logic.Blocks
                 recieveCollisions: false,
                 isTrigger: false,
                 isReplaceable: false,
-                BoundingBox.Block)
+                BoundingBox.Block,
+                TargetBuffer.Complex)
         {
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
             this.Setup(texture, second, third, fourth, fifth, sixth, final, dead);
@@ -94,35 +96,36 @@ namespace VoxelGame.Logic.Blocks
             {
                 stageVertices[i] = new float[]
                 {
-                    0.25f, 0f, 0f, 0f, 0f,
-                    0.25f, 1f, 0f, 0f, 1f,
-                    0.25f, 1f, 1f, 1f, 1f,
-                    0.25f, 0f, 1f, 1f, 0f,
+                    //X----Y---Z---U---V---N---O---P
+                    0.25f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
+                    0.25f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
+                    0.25f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
+                    0.25f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
 
-                    0.5f, 0f, 0f, 0f, 0f,
-                    0.5f, 1f, 0f, 0f, 1f,
-                    0.5f, 1f, 1f, 1f, 1f,
-                    0.5f, 0f, 1f, 1f, 0f,
+                    0.5f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
+                    0.5f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
+                    0.5f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
+                    0.5f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
 
-                    0.75f, 0f, 0f, 0f, 0f,
-                    0.75f, 1f, 0f, 0f, 1f,
-                    0.75f, 1f, 1f, 1f, 1f,
-                    0.75f, 0f, 1f, 1f, 0f,
+                    0.75f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
+                    0.75f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
+                    0.75f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
+                    0.75f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
 
-                    0f, 0f, 0.25f, 0f, 0f,
-                    0f, 1f, 0.25f, 0f, 1f,
-                    1f, 1f, 0.25f, 1f, 1f,
-                    1f, 0f, 0.25f, 1f, 0f,
+                    0f, 0f, 0.25f, 0f, 0f, 0f, 0f, 0f,
+                    0f, 1f, 0.25f, 0f, 1f, 0f, 0f, 0f,
+                    1f, 1f, 0.25f, 1f, 1f, 0f, 0f, 0f,
+                    1f, 0f, 0.25f, 1f, 0f, 0f, 0f, 0f,
 
-                    0f, 0f, 0.5f, 0f, 0f,
-                    0f, 1f, 0.5f, 0f, 1f,
-                    1f, 1f, 0.5f, 1f, 1f,
-                    1f, 0f, 0.5f, 1f, 0f,
+                    0f, 0f, 0.5f, 0f, 0f, 0f, 0f, 0f,
+                    0f, 1f, 0.5f, 0f, 1f, 0f, 0f, 0f,
+                    1f, 1f, 0.5f, 1f, 1f, 0f, 0f, 0f,
+                    1f, 0f, 0.5f, 1f, 0f, 0f, 0f, 0f,
 
-                    0f, 0f, 0.75f, 0f, 0f,
-                    0f, 1f, 0.75f, 0f, 1f,
-                    1f, 1f, 0.75f, 1f, 1f,
-                    1f, 0f, 0.75f, 1f, 0f
+                    0f, 0f, 0.75f, 0f, 0f, 0f, 0f, 0f,
+                    0f, 1f, 0.75f, 0f, 1f, 0f, 0f, 0f,
+                    1f, 1f, 0.75f, 1f, 1f, 0f, 0f, 0f,
+                    1f, 0f, 0.75f, 1f, 0f, 0f, 0f, 0f
                 };
             }
         }
@@ -165,7 +168,7 @@ namespace VoxelGame.Logic.Blocks
             return true;
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
             vertices = stageVertices[data & 0b0_0111];
             textureIndices = new int[24];
@@ -176,6 +179,7 @@ namespace VoxelGame.Logic.Blocks
             }
 
             indices = this.indices;
+            tint = TintColor.None;
 
             return 24;
         }

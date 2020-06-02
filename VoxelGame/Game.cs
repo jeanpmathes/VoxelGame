@@ -28,7 +28,8 @@ namespace VoxelGame
         /// </summary>
         public static ArrayTexture BlockTextureArray { get; private set; }
 
-        public static Shader SectionShader { get; private set; }
+        public static Shader SimpleSectionShader { get; private set; }
+        public static Shader ComplexSectionShader { get; private set; }
         public static Shader SelectionShader { get; private set; }
 
         public static Random Random { get; private set; }
@@ -54,7 +55,8 @@ namespace VoxelGame
 
             BlockTextureArray = new ArrayTexture("Resources/Textures", 16, TextureUnit.Texture1, TextureUnit.Texture2);
 
-            SectionShader = new Shader("Resources/Shaders/section_shader.vert", "Resources/Shaders/section_shader.frag");
+            SimpleSectionShader = new Shader("Resources/Shaders/simplesection_shader.vert", "Resources/Shaders/section_shader.frag");
+            ComplexSectionShader = new Shader("Resources/Shaders/complexsection_shader.vert", "Resources/Shaders/section_shader.frag");
             SelectionShader = new Shader("Resources/Shaders/selection_shader.vert", "Resources/Shaders/selection_shader.frag");
 
             // Block setup

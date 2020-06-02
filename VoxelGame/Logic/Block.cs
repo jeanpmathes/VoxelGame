@@ -8,6 +8,7 @@ using Resources;
 using System.Collections.Generic;
 using VoxelGame.Logic.Blocks;
 using VoxelGame.Physics;
+using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic
 {
@@ -50,6 +51,8 @@ namespace VoxelGame.Logic
         public static Block TILES_LARGE;
         public static Block CACTUS;
 #pragma warning restore CA2211 // Non-constant fields should not be visible
+
+        public const int BlockLimit = 2048;
 
         private static readonly Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
 
@@ -156,9 +159,14 @@ namespace VoxelGame.Logic
         /// </summary>
         public bool IsReplaceable { get; }
 
+        /// <summary>
+        /// Gets the section buffer this blocks mesh data should be stored in.
+        /// </summary>
+        public TargetBuffer TargetBuffer { get; }
+
         private BoundingBox boundingBox;
 
-        protected Block(string name, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, BoundingBox boundingBox)
+        protected Block(string name, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, BoundingBox boundingBox, TargetBuffer targetBuffer)
         {
             Name = name;
             IsFull = isFull;
@@ -171,10 +179,21 @@ namespace VoxelGame.Logic
 
             this.boundingBox = boundingBox;
 
-            if (blockDictionary.Count < 2048)
+            TargetBuffer = targetBuffer;
+
+            if (targetBuffer == TargetBuffer.Simple && !isFull)
+            {
+                throw new System.ArgumentException($"TargetBuffer '{nameof(TargetBuffer.Simple)}' requires {nameof(isFull)} to be {!isFull}.", nameof(targetBuffer));
+            }
+
+            if (blockDictionary.Count < BlockLimit)
             {
                 blockDictionary.Add((ushort)blockDictionary.Count, this);
                 Id = (ushort)(blockDictionary.Count - 1);
+            }
+            else
+            {
+                throw new System.InvalidOperationException($"Not more than {BlockLimit} blocks are allowed.");
             }
         }
 
@@ -228,10 +247,10 @@ namespace VoxelGame.Logic
         /// </summary>
         /// <param name="side">The side of the block that is required.</param>
         /// <param name="data">The block data of the block at the position.</param>
-        /// <param name="vertices">Vertices of the mesh.</param>
+        /// <param name="vertices">Vertices of the mesh. Every vertex is made up of 8 floats: XYZ, UV, NOP</param>
         /// <param name="indices">The indices of the mesh that determine how triangles are constructed.</param>
         /// <returns>The amount of vertices in the mesh.</returns>
-        public abstract uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices);
+        public abstract uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
         public virtual void BlockUpdate(int x, int y, int z, byte data) { }
 
