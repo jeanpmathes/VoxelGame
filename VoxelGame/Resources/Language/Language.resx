@@ -132,6 +132,9 @@
   <data name="CavePainting" xml:space="preserve">
     <value>Cave Painting</value>
   </data>
+  <data name="CheckerboardTiles" xml:space="preserve">
+    <value>Checkerboard Tiles</value>
+  </data>
   <data name="CoalOre" xml:space="preserve">
     <value>Coal Ore</value>
   </data>

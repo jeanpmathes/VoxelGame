@@ -49,6 +49,7 @@ namespace VoxelGame.Logic
         public static Block WHEAT;
         public static Block TILES_SMALL;
         public static Block TILES_LARGE;
+        public static Block TILES_CHECKERBOARD;
         public static Block CACTUS;
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
@@ -109,6 +110,7 @@ namespace VoxelGame.Logic
             WHEAT = new CropBlock(Language.Wheat, "wheat", 0, 1, 1, 2, 2, 3, 4);
             TILES_SMALL = new ConstructionBlock(Language.SmallTiles, TextureLayout.Uniform("small_tiles"));
             TILES_LARGE = new ConstructionBlock(Language.LargeTiles, TextureLayout.Uniform("large_tiles"));
+            TILES_CHECKERBOARD = new TintedBlock("Checkerboard Tiles", TextureLayout.Uniform("checkerboard_tiles"));
             CACTUS = new GrowingBlock(Language.Cactus, TextureLayout.Column("cactus", 0, 1), Block.SAND, 4);
         }
 
@@ -212,7 +214,7 @@ namespace VoxelGame.Logic
         /// <returns>Returns true if placing the block was successful.</returns>
         public virtual bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
         {
-            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable == false)
+            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true)
             {
                 return false;
             }

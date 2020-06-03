@@ -132,6 +132,9 @@
   <data name="CavePainting" xml:space="preserve">
     <value>Höhlenmalerei</value>
   </data>
+  <data name="CheckerboardTiles" xml:space="preserve">
+    <value>Schachbrettfliesen</value>
+  </data>
   <data name="CoalOre" xml:space="preserve">
     <value>Kohleerz</value>
   </data>
