@@ -126,6 +126,9 @@
   <data name="BlocksLoadedAmount" xml:space="preserve">
     <value>Blocks loaded: </value>
   </data>
+  <data name="BlockTexturesLoadedAmount" xml:space="preserve">
+    <value>Block textures loaded: </value>
+  </data>
   <data name="Cactus" xml:space="preserve">
     <value>Cactus</value>
   </data>

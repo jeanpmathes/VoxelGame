@@ -126,6 +126,9 @@
   <data name="BlocksLoadedAmount" xml:space="preserve">
     <value>Anzahl geladener Blöcke: </value>
   </data>
+  <data name="BlockTexturesLoadedAmount" xml:space="preserve">
+    <value>Anzahl geladener Block-Texturen: </value>
+  </data>
   <data name="Cactus" xml:space="preserve">
     <value>Kakteen</value>
   </data>

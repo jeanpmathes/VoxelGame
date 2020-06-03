@@ -53,7 +53,9 @@ namespace VoxelGame
 
             // GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
 
+            // WARNING: WHEN CHANGING THE RESOLTUION THIS ALSO HAS TO BE DONE IN THE SHADER
             BlockTextureArray = new ArrayTexture("Resources/Textures", 16, TextureUnit.Texture1, TextureUnit.Texture2);
+            Console.WriteLine(Language.BlockTexturesLoadedAmount + BlockTextureArray.Count);
 
             SimpleSectionShader = new Shader("Resources/Shaders/simplesection_shader.vert", "Resources/Shaders/section_shader.frag");
             ComplexSectionShader = new Shader("Resources/Shaders/complexsection_shader.vert", "Resources/Shaders/section_shader.frag");

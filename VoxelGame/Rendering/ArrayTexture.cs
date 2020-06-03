@@ -15,6 +15,8 @@ namespace VoxelGame.Rendering
 {
     public class ArrayTexture
     {
+        public int Count { get; }
+
         public int HandleA { get; }
         public int HandleB { get; }
 
@@ -45,7 +47,7 @@ namespace VoxelGame.Rendering
                     {
                         if ((bitmap.Width % resolution) == 0 && bitmap.Height == resolution) // Check if image consists of correctly sized textures
                         {
-                            int textureCount = bitmap.Width >> 4;
+                            int textureCount = bitmap.Width / resolution;
                             textureIndicies.Add(Path.GetFileNameWithoutExtension(texturePaths[i]), currentIndex);
 
                             for (int j = 0; j < textureCount; j++)
@@ -74,6 +76,8 @@ namespace VoxelGame.Rendering
             {
                 throw new ArgumentException($"More than 4096 ({textures.Count}) textures were found; only 4096 textures can be stored in one {nameof(ArrayTexture)}!");
             }
+
+            Count = textures.Count;
 
             int countA, countB;
             if (textures.Count > 2048)
@@ -124,7 +128,7 @@ namespace VoxelGame.Rendering
             }
 
             // Set texture parameters for array
-            GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapNearest);
+            GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
             GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
