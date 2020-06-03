@@ -4,13 +4,14 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using VoxelGame.Physics;
+using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic.Blocks
 {
     public class CrossPlantBlock : CrossBlock
     {
         /// <summary>
-        /// Initializes a new instance of a cross plant; a plant made out of two intersecting planes.
+        /// Initializes a new instance of a cross plant; a plant made out of two intersecting planes. It is using a neutral tint.
         /// </summary>
         /// <param name="name">The name of this block and the texture file.</param>
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
@@ -37,6 +38,13 @@ namespace VoxelGame.Logic.Blocks
             }
 
             return base.Place(x, y, z, entity);
+        }
+
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        {
+            tint = TintColor.Neutral;
+
+            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
         }
 
         public override void BlockUpdate(int x, int y, int z, byte data)

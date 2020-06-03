@@ -3,14 +3,20 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using VoxelGame.Rendering;
+
 namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
-    /// A block that changes into dirt when something is placed on top of it.
+    /// A block that changes into dirt when something is placed on top of it. This block can use a neutral tint if specified in the constructor.
     /// </summary>
     public class CoveredDirtBlock : BasicBlock
     {
-        public CoveredDirtBlock(string name, TextureLayout layout) :
+#pragma warning disable CA1051 // Do not declare visible instance fields
+        protected readonly bool hasNeutralTint;
+#pragma warning restore CA1051 // Do not declare visible instance fields
+
+        public CoveredDirtBlock(string name, TextureLayout layout, bool hasNeutralTint) :
             base(
                 name,
                 layout,
@@ -18,6 +24,14 @@ namespace VoxelGame.Logic.Blocks
                 renderFaceAtNonOpaques: true,
                 isSolid: true)
         {
+            this.hasNeutralTint = hasNeutralTint;
+        }
+
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        {
+            tint = (hasNeutralTint) ? TintColor.Neutral : TintColor.None;
+
+            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
         }
 
         public override void BlockUpdate(int x, int y, int z, byte data)

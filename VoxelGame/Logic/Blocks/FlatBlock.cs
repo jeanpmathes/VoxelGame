@@ -22,6 +22,8 @@ namespace VoxelGame.Logic.Blocks
         protected readonly float climbingVelocity;
         protected readonly float slidingVelocity;
 
+        protected readonly bool hasNeutralTint;
+
         protected float[][] sideVertices;
         protected int[] textureIndices;
 
@@ -36,13 +38,13 @@ namespace VoxelGame.Logic.Blocks
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
         /// <summary>
-        /// Creates a FlatBlock, a block with a single face that sticks to other blocks. It allows entities to climb.
+        /// Creates a FlatBlock, a block with a single face that sticks to other blocks. It allows entities to climb and can use neutral tints.
         /// </summary>
         /// <param name="name">The name of the block.</param>
         /// <param name="texture">The texture to use for the block.</param>
         /// <param name="climbingVelocity"></param>
         /// <param name="slidingVelocity"></param>
-        public FlatBlock(string name, string texture, float climbingVelocity, float slidingVelocity) :
+        public FlatBlock(string name, string texture, float climbingVelocity, float slidingVelocity, bool hasNeutralTint) :
             base(
                 name: name,
                 isFull: false,
@@ -57,6 +59,8 @@ namespace VoxelGame.Logic.Blocks
         {
             this.climbingVelocity = climbingVelocity;
             this.slidingVelocity = slidingVelocity;
+
+            this.hasNeutralTint = hasNeutralTint;
 
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
             this.Setup(texture);
@@ -187,6 +191,17 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        {
+            vertices = sideVertices[data & 0b0_0011];
+            textureIndices = this.textureIndices;
+            indices = this.indices;
+
+            tint = (hasNeutralTint) ? TintColor.Neutral : TintColor.None;
+
+            return 8;
+        }
+
         public override void BlockUpdate(int x, int y, int z, byte data)
         {
             Orientation orientation = (Orientation)(data & 0b0_0011);
@@ -210,17 +225,6 @@ namespace VoxelGame.Logic.Blocks
             {
                 Destroy(x, y, z, null);
             }
-        }
-
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
-        {
-            vertices = sideVertices[data & 0b0_0011];
-            textureIndices = this.textureIndices;
-            indices = this.indices;
-
-            tint = TintColor.None;
-
-            return 8;
         }
 
         public override void EntityCollision(PhysicsEntity entity, int x, int y, int z)

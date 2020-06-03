@@ -82,10 +82,10 @@ namespace VoxelGame.Logic
         public static void LoadBlocks()
         {
             AIR = new AirBlock(Language.Air);
-            GRASS = new CoveredDirtBlock(Language.Grass, TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"));
+            GRASS = new CoveredDirtBlock(Language.Grass, TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"), true);
             TALL_GRASS = new CrossPlantBlock(Language.TallGrass, "tall_grass", true, BoundingBox.Block);
             DIRT = new DirtBlock(Language.Dirt, TextureLayout.Uniform("dirt"));
-            FARMLAND = new CoveredDirtBlock("Farmland", TextureLayout.UnqiueTop("dirt", "farmland"));
+            FARMLAND = new CoveredDirtBlock("Farmland", TextureLayout.UnqiueTop("dirt", "farmland"), false);
             STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"), true, true, true);
             RUBBLE = new ConstructionBlock(Language.Rubble, TextureLayout.Uniform("rubble"));
             LOG = new RotatedBlock(Language.Log, TextureLayout.Column("log", 0, 1), true, true, true);
@@ -101,8 +101,8 @@ namespace VoxelGame.Logic
             FLOWER = new CrossPlantBlock(Language.Flower, "flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
             SPIDERWEB = new SpiderWebBlock(Language.SpiderWeb, "spider_web", 0.01f);
             CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqiueFront("stone_cavepainting", "stone"), true, true, true);
-            LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f);
-            VINES = new FlatBlock(Language.Vines, "vines", 2f, 1f);
+            LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f, false);
+            VINES = new FlatBlock(Language.Vines, "vines", 2f, 1f, true);
             FENCE_WOOD = new FenceBlock(Language.WoodenFence, "wood");
             FLAX = new CropBlock(Language.Flax, "flax", 0, 1, 2, 3, 3, 4, 5);
             POTATOES = new CropBlock(Language.Potatoes, "potato", 1, 1, 2, 2, 3, 4, 5);
