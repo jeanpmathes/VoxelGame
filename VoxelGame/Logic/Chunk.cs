@@ -210,7 +210,6 @@ namespace VoxelGame.Logic
                 throw new ArgumentNullException(nameof(sectionMeshes));
             }
 
-
             for (int i = 0; i < maxMeshDataStep; i++)
             {
                 sections[meshDataIndex].SetMeshData(ref sectionMeshes[meshDataIndex]);

@@ -7,6 +7,7 @@ using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using VoxelGame.Collections;
 using VoxelGame.Rendering;
 using VoxelGame.WorldGeneration;
 
@@ -66,14 +67,8 @@ namespace VoxelGame.Logic
             SetMeshData(ref meshData);
         }
 
-        private static long TotalTime = 0;
-        private static float TotalRuns = 0;
-
         public void CreateMeshData(int sectionX, int sectionY, int sectionZ, out SectionMeshData meshData)
         {
-            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-
             // Set the neutral tint color
             TintColor neutral = new TintColor(0f, 1f, 0f);
 
@@ -86,12 +81,12 @@ namespace VoxelGame.Logic
             Section topNeighbour = Game.World.GetSection(sectionX, sectionY + 1, sectionZ);
 
             // Create the mesh data
-            List<int> simpleVertexData = new List<int>(2048);
-            List<uint> simpleIndices = new List<uint>(1024);
+            PooledList<int> simpleVertexData = new PooledList<int>(2048);
+            PooledList<uint> simpleIndices = new PooledList<uint>(1024);
 
-            List<float> complexVertexPositions = new List<float>(64);
-            List<int> complexVertexData = new List<int>(32);
-            List<uint> complexIndices = new List<uint>(16);
+            PooledList<float> complexVertexPositions = new PooledList<float>(64);
+            PooledList<int> complexVertexData = new PooledList<int>(32);
+            PooledList<uint> complexIndices = new PooledList<uint>(16);
 
             uint simpleVertCount = 0;
             uint complexVertCount = 0;
@@ -388,15 +383,6 @@ namespace VoxelGame.Logic
             isEmpty = complexVertexPositions.Count == 0 && simpleVertexData.Count == 0;
 
             meshData = new SectionMeshData(ref simpleVertexData, ref simpleIndices, ref complexVertexPositions, ref complexVertexData, ref complexIndices);
-
-            stopwatch.Stop();
-            TotalTime += stopwatch.ElapsedMilliseconds;
-            TotalRuns++;
-
-            if (TotalRuns % 50 == 0)
-            {
-                Console.WriteLine($"RUN {TotalRuns} WITH AVRG TIME OF {TotalTime / TotalRuns}");
-            }
         }
 
         public void SetMeshData(ref SectionMeshData meshData)

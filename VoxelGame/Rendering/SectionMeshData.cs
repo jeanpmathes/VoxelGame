@@ -4,20 +4,20 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using System;
-using System.Collections.Generic;
+using VoxelGame.Collections;
 
 namespace VoxelGame.Rendering
 {
     public class SectionMeshData
     {
-        internal int[] simpleVertexData;
-        internal uint[] simpleIndices;
+        internal PooledList<int> simpleVertexData;
+        internal PooledList<uint> simpleIndices;
 
-        internal float[] complexVertexPositions;
-        internal int[] complexVertexData;
-        internal uint[] complexIndices;
+        internal PooledList<float> complexVertexPositions;
+        internal PooledList<int> complexVertexData;
+        internal PooledList<uint> complexIndices;
 
-        public SectionMeshData(ref List<int> simpleVertexData, ref List<uint> simpleIndices, ref List<float> complexVertexPositions, ref List<int> complexVertexData, ref List<uint> complexIndices)
+        public SectionMeshData(ref PooledList<int> simpleVertexData, ref PooledList<uint> simpleIndices, ref PooledList<float> complexVertexPositions, ref PooledList<int> complexVertexData, ref PooledList<uint> complexIndices)
         {
             if (simpleVertexData == null)
             {
@@ -44,12 +44,22 @@ namespace VoxelGame.Rendering
                 throw new ArgumentNullException(nameof(complexIndices));
             }
 
-            this.simpleVertexData = simpleVertexData.ToArray();
-            this.simpleIndices = simpleIndices.ToArray();
+            this.simpleVertexData = simpleVertexData;
+            this.simpleIndices = simpleIndices;
 
-            this.complexVertexPositions = complexVertexPositions.ToArray();
-            this.complexVertexData = complexVertexData.ToArray();
-            this.complexIndices = complexIndices.ToArray();
+            this.complexVertexPositions = complexVertexPositions;
+            this.complexVertexData = complexVertexData;
+            this.complexIndices = complexIndices;
+        }
+
+        public void ReturnPooled()
+        {
+            simpleVertexData.ReturnToPool();
+            simpleIndices.ReturnToPool();
+
+            complexVertexPositions.ReturnToPool();
+            complexVertexData.ReturnToPool();
+            complexIndices.ReturnToPool();
         }
     }
 }

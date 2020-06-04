@@ -57,17 +57,17 @@ namespace VoxelGame.Rendering
 
             #region SIMPLE BUFFER SETUP
 
-            simpleElements = meshData.simpleIndices.Length;
+            simpleElements = meshData.simpleIndices.Count;
 
             if (simpleElements != 0)
             {
                 // Vertex Buffer Object
                 GL.BindBuffer(BufferTarget.ArrayBuffer, simpleDataVBO);
-                GL.BufferData(BufferTarget.ArrayBuffer, meshData.simpleVertexData.Length * sizeof(int), meshData.simpleVertexData, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshData.simpleVertexData.Count * sizeof(int), meshData.simpleVertexData.ExposeArray(), BufferUsageHint.StaticDraw);
 
                 // Element Buffer Object
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, simpleEBO);
-                GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.simpleIndices.Length * sizeof(uint), meshData.simpleIndices, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.simpleIndices.Count * sizeof(uint), meshData.simpleIndices.ExposeArray(), BufferUsageHint.StaticDraw);
 
                 int dataLocation = Game.SimpleSectionShader.GetAttribLocation("aData");
 
@@ -91,21 +91,21 @@ namespace VoxelGame.Rendering
 
             #region COMPLEX BUFFER SETUP
 
-            complexElements = meshData.complexIndices.Length;
+            complexElements = meshData.complexIndices.Count;
 
             if (complexElements != 0)
             {
                 // Vertex Buffer Object
                 GL.BindBuffer(BufferTarget.ArrayBuffer, complexPositionVBO);
-                GL.BufferData(BufferTarget.ArrayBuffer, meshData.complexVertexPositions.Length * sizeof(float), meshData.complexVertexPositions, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshData.complexVertexPositions.Count * sizeof(float), meshData.complexVertexPositions.ExposeArray(), BufferUsageHint.StaticDraw);
 
                 // Vertex Buffer Object
                 GL.BindBuffer(BufferTarget.ArrayBuffer, complexDataVBO);
-                GL.BufferData(BufferTarget.ArrayBuffer, meshData.complexVertexData.Length * sizeof(int), meshData.complexVertexData, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshData.complexVertexData.Count * sizeof(int), meshData.complexVertexData.ExposeArray(), BufferUsageHint.StaticDraw);
 
                 // Element Buffer Object
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, complexEBO);
-                GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.complexIndices.Length * sizeof(uint), meshData.complexIndices, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.complexIndices.Count * sizeof(uint), meshData.complexIndices.ExposeArray(), BufferUsageHint.StaticDraw);
 
                 int positionLocation = Game.ComplexSectionShader.GetAttribLocation("aPosition");
                 int dataLocation = Game.ComplexSectionShader.GetAttribLocation("aData");
@@ -131,6 +131,8 @@ namespace VoxelGame.Rendering
             }
 
             #endregion
+
+            meshData.ReturnPooled();
         }
 
         public override void Draw(Vector3 position)
