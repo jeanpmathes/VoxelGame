@@ -25,8 +25,13 @@ namespace VoxelGame.Rendering
 
         private readonly Dictionary<string, int> textureIndicies;
 
-        public ArrayTexture(string path, int resolution, TextureUnit unitA, TextureUnit unitB)
+        public ArrayTexture(string path, int resolution, bool useCustomMipmapGeneration, TextureUnit unitA, TextureUnit unitB)
         {
+            if (resolution <= 0 || (resolution & (resolution - 1)) != 0)
+            {
+                throw new ArgumentException($"The resolution '{resolution}' is either negative or not a power of two, which is not allowed.");
+            }
+
             this.unitA = unitA;
             this.unitB = unitB;
 
@@ -91,8 +96,8 @@ namespace VoxelGame.Rendering
                 countB = 0;
             }
 
-            SetupArrayTexture(HandleA, unitA, resolution, textures, 0, countA);
-            if (countB != 0) SetupArrayTexture(HandleB, unitB, resolution, textures, 2049, countB);
+            SetupArrayTexture(HandleA, unitA, resolution, textures, 0, countA, useCustomMipmapGeneration);
+            if (countB != 0) SetupArrayTexture(HandleB, unitB, resolution, textures, 2049, countB, useCustomMipmapGeneration);
 
             // Cleanup
             foreach (Bitmap bitmap in textures)
@@ -101,19 +106,21 @@ namespace VoxelGame.Rendering
             }
         }
 
-        private void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures, int startIndex, int length)
+        private void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures, int startIndex, int length, bool useCustomMipmapGeneration)
         {
+            int levels = (int)Math.Log(resolution, 2);
+
             GL.ActiveTexture(unit);
             GL.BindTexture(TextureTarget.Texture2DArray, handle);
 
             // Allocate storage for array
-            GL.TexStorage3D(TextureTarget3d.Texture2DArray, (int)Math.Log(resolution, 2), SizedInternalFormat.Rgba8, resolution, resolution, length);
+            GL.TexStorage3D(TextureTarget3d.Texture2DArray, levels, SizedInternalFormat.Rgba8, resolution, resolution, length);
 
-            // Upload pixel data to array
             using (Bitmap container = new Bitmap(resolution, resolution * length))
             {
                 using (Graphics canvas = Graphics.FromImage(container))
                 {
+                    // Combine all textures into one
                     for (int i = startIndex; i < length; i++)
                     {
                         textures[i].RotateFlip(RotateFlipType.RotateNoneFlipY);
@@ -123,19 +130,83 @@ namespace VoxelGame.Rendering
                     canvas.Save();
                 }
 
+                // Upload pixel data to array
                 BitmapData data = container.LockBits(new Rectangle(0, 0, container.Width, container.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 GL.TexSubImage3D(TextureTarget.Texture2DArray, 0, 0, 0, 0, resolution, resolution, length, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+
+                container.UnlockBits(data);
+
+                // Generate mipmaps for array
+                if (!useCustomMipmapGeneration)
+                {
+                    GL.GenerateMipmap(GenerateMipmapTarget.Texture2DArray);
+                }
+                else
+                {
+                    GenerateMipmapWithoutTransparencyMixing(container, levels, length);
+                }
+
+                // Set texture parameters for array
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            }
+        }
+
+        private static void GenerateMipmapWithoutTransparencyMixing(Bitmap baseLevel, int levels, int length)
+        {
+            Bitmap upperLevel = baseLevel;
+
+            for (int lod = 1; lod < levels; lod++)
+            {
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                Bitmap lowerLevel = new Bitmap(upperLevel.Width / 2, upperLevel.Height / 2);
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
+                // Create the lower level by averaging the upper level
+                for (int w = 0; w < lowerLevel.Width; w++)
+                {
+                    for (int h = 0; h < lowerLevel.Height; h++)
+                    {
+                        Color c1 = upperLevel.GetPixel(w * 2, h * 2);
+                        Color c2 = upperLevel.GetPixel((w * 2) + 1, h * 2);
+                        Color c3 = upperLevel.GetPixel(w * 2, (h * 2) + 1);
+                        Color c4 = upperLevel.GetPixel((w * 2) + 1, (h * 2) + 1);
+
+                        int minAlpha = Math.Min(Math.Min(c1.A, c2.A), Math.Min(c3.A, c4.A));
+                        int maxAlpha = Math.Max(Math.Max(c1.A, c2.A), Math.Max(c3.A, c4.A));
+                        int relevantPixels = (minAlpha != 0) ? 4 : ((c1.A == 0) ? 0 : 1) + ((c2.A == 0) ? 0 : 1) + ((c3.A == 0) ? 0 : 1) + ((c4.A == 0) ? 0 : 1);
+
+                        Color average = (relevantPixels == 0) ? Color.FromArgb(0, 0, 0, 0) :
+                            Color.FromArgb(alpha: maxAlpha,
+                                red: (int)Math.Sqrt((c1.R * c1.R + c2.R * c2.R + c3.R * c3.R + c4.R * c4.R) / relevantPixels),
+                                green: (int)Math.Sqrt((c1.G * c1.G + c2.G * c2.G + c3.G * c3.G + c4.G * c4.G) / relevantPixels),
+                                blue: (int)Math.Sqrt((c1.B * c1.B + c2.B * c2.B + c3.B * c3.B + c4.B * c4.B) / relevantPixels));
+
+                        lowerLevel.SetPixel(w, h, average);
+                    }
+                }
+
+                // Upload pixel data to array
+                BitmapData data = lowerLevel.LockBits(new Rectangle(0, 0, lowerLevel.Width, lowerLevel.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                GL.TexSubImage3D(TextureTarget.Texture2DArray, lod, 0, 0, 0, lowerLevel.Width, lowerLevel.Width, length, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+
+                lowerLevel.UnlockBits(data);
+
+                if (!upperLevel.Equals(baseLevel))
+                {
+                    upperLevel?.Dispose();
+                }
+
+                upperLevel = lowerLevel;
             }
 
-            // Set texture parameters for array
-            GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-
-            GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-
-            // Generate mipmaps for array
-            GL.GenerateMipmap(GenerateMipmapTarget.Texture2DArray);
+            if (!upperLevel.Equals(baseLevel))
+            {
+                upperLevel?.Dispose();
+            }
         }
 
         public void Use()
