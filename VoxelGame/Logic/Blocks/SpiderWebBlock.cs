@@ -34,6 +34,11 @@ namespace VoxelGame.Logic.Blocks
 
         public override void EntityCollision(PhysicsEntity entity, int x, int y, int z)
         {
+            if (entity == null)
+            {
+                throw new System.ArgumentNullException(nameof(entity));
+            }
+
             entity.Velocity = VMath.Clamp(entity.Velocity, -1f, maxVelocity);
         }
     }

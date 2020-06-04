@@ -154,17 +154,17 @@ namespace VoxelGame.Rendering
     /// </summary>
     public struct AtlasPosition
     {
-        public float bottomLeftU { get; private set; }
-        public float bottomLeftV { get; private set; }
-        public float topRightU { get; private set; }
-        public float topRightV { get; private set; }
+        public float BottomLeftU { get; }
+        public float BottomLeftV { get; }
+        public float TopRightU { get; }
+        public float TopRightV { get; }
 
         public AtlasPosition(float bottomLeftU, float bottomLeftV, float topRightU, float topRightV)
         {
-            this.bottomLeftU = bottomLeftU;
-            this.bottomLeftV = bottomLeftV;
-            this.topRightU = topRightU;
-            this.topRightV = topRightV;
+            this.BottomLeftU = bottomLeftU;
+            this.BottomLeftV = bottomLeftV;
+            this.TopRightU = topRightU;
+            this.TopRightV = topRightV;
         }
     }
 }

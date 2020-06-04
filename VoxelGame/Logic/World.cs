@@ -11,6 +11,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using VoxelGame.Collections;
+using VoxelGame.Rendering;
 using VoxelGame.WorldGeneration;
 
 namespace VoxelGame.Logic
@@ -93,7 +94,7 @@ namespace VoxelGame.Logic
         /// <summary>
         /// A list of chunk meshing tasks,
         /// </summary>
-        private readonly List<Task<(float[][] complexVertexPositions, int[][] complexVertexData, uint[][] complexIndices, int[][] simpleVertexData, uint[][] simpleIndices)>> chunkMeshingTasks = new List<Task<(float[][] complexVertexPositions, int[][] complexVertexData, uint[][] complexIndices, int[][] simpleVertexData, uint[][] simpleIndices)>>(maxMeshingTasks);
+        private readonly List<Task<SectionMeshData[]>> chunkMeshingTasks = new List<Task<SectionMeshData[]>>(maxMeshingTasks);
 
         /// <summary>
         /// A dictionary containing all chunks that are currently meshed, with the task id of their meshing task as key.
@@ -103,7 +104,7 @@ namespace VoxelGame.Logic
         /// <summary>
         /// A list of chunks where the mesh data has to be set;
         /// </summary>
-        private readonly List<(Chunk chunk, Task<(float[][] complexVertexPositions, int[][] complexVertexData, uint[][] complexIndices, int[][] simpleVertexData, uint[][] simpleIndices)> chunkMeshingTask)> chunksToSendMeshData = new List<(Chunk chunk, Task<(float[][] complexVertexPositions, int[][] complexVertexData, uint[][] complexIndices, int[][] simpleVertexData, uint[][] simpleIndices)> chunkMeshingTask)>(maxMeshDataSends);
+        private readonly List<(Chunk chunk, Task<SectionMeshData[]> chunkMeshingTask)> chunksToSendMeshData = new List<(Chunk chunk, Task<SectionMeshData[]> chunkMeshingTask)>(maxMeshDataSends);
 
         /// <summary>
         /// A set of chunks with information on which sections of them are to mesh.
@@ -499,7 +500,7 @@ namespace VoxelGame.Logic
                 {
                     (Chunk chunk, var chunkMeshingTask) = chunksToSendMeshData[i];
 
-                    if (chunk.SetMeshDataStep(chunkMeshingTask.Result.complexVertexPositions, chunkMeshingTask.Result.complexVertexData, chunkMeshingTask.Result.complexIndices, chunkMeshingTask.Result.simpleVertexData, chunkMeshingTask.Result.simpleIndices))
+                    if (chunk.SetMeshDataStep(chunkMeshingTask.Result))
                     {
                         chunksToSendMeshData.RemoveAt(i);
                     }

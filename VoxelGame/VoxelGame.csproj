@@ -155,6 +155,7 @@
     <Compile Include="Rendering\BoxRenderer.cs" />
     <Compile Include="Rendering\Camera.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="Rendering\SectionMeshData.cs" />
     <Compile Include="Rendering\SectionRenderer.cs" />
     <Compile Include="Rendering\Renderer.cs" />
     <Compile Include="Rendering\Shader.cs" />

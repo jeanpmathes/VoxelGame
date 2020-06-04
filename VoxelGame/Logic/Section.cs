@@ -62,14 +62,14 @@ namespace VoxelGame.Logic
 
         public void CreateMesh(int sectionX, int sectionY, int sectionZ)
         {
-            CreateMeshData(sectionX, sectionY, sectionZ, out float[] complexVertexPositions, out int[] complexVertexData, out uint[] complexIndices, out int[] simpleVertexData, out uint[] simpleIndices);
-            SetMeshData(ref complexVertexPositions, ref complexVertexData, ref complexIndices, ref simpleVertexData, ref simpleIndices);
+            CreateMeshData(sectionX, sectionY, sectionZ, out SectionMeshData meshData);
+            SetMeshData(ref meshData);
         }
 
         private static long TotalTime = 0;
         private static float TotalRuns = 0;
 
-        public void CreateMeshData(int sectionX, int sectionY, int sectionZ, out float[] complexVertexPositions, out int[] complexVertexData, out uint[] complexIndices, out int[] simpleVertexData, out uint[] simpleIndices)
+        public void CreateMeshData(int sectionX, int sectionY, int sectionZ, out SectionMeshData meshData)
         {
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
@@ -86,12 +86,12 @@ namespace VoxelGame.Logic
             Section topNeighbour = Game.World.GetSection(sectionX, sectionY + 1, sectionZ);
 
             // Create the mesh data
-            List<int> simpleVertexDataBuilder = new List<int>(2048);
-            List<uint> simpleIndicesBuilder = new List<uint>(1024);
+            List<int> simpleVertexData = new List<int>(2048);
+            List<uint> simpleIndices = new List<uint>(1024);
 
-            List<float> complexVertexPositionsBuilder = new List<float>(64);
-            List<int> complexVertexDataBuilder = new List<int>(32);
-            List<uint> complexIndicesBuilder = new List<uint>(16);
+            List<float> complexVertexPositions = new List<float>(64);
+            List<int> complexVertexData = new List<int>(32);
+            List<uint> complexIndices = new List<uint>(16);
 
             uint simpleVertCount = 0;
             uint complexVertCount = 0;
@@ -131,22 +131,22 @@ namespace VoxelGame.Logic
                             {
                                 uint verts = currentBlock.GetMesh(BlockSide.Front, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
-                                simpleIndicesBuilder.AddRange(indices);
+                                simpleIndices.AddRange(indices);
 
                                 for (int i = 0; i < verts; i++)
                                 {
                                     // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
                                     int upperData = ((int)BlockSide.Front << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
-                                    simpleVertexDataBuilder.Add(upperData);
+                                    simpleVertexData.Add(upperData);
 
                                     // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
                                     int lowerData =  (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
-                                    simpleVertexDataBuilder.Add(lowerData);
+                                    simpleVertexData.Add(lowerData);
                                 }
 
-                                for (int i = simpleIndicesBuilder.Count - indices.Length; i < simpleIndicesBuilder.Count; i++)
+                                for (int i = simpleIndices.Count - indices.Length; i < simpleIndices.Count; i++)
                                 {
-                                    simpleIndicesBuilder[i] += simpleVertCount;
+                                    simpleIndices[i] += simpleVertCount;
                                 }
 
                                 simpleVertCount += verts;
@@ -170,22 +170,22 @@ namespace VoxelGame.Logic
                             {
                                 uint verts = currentBlock.GetMesh(BlockSide.Back, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
-                                simpleIndicesBuilder.AddRange(indices);
+                                simpleIndices.AddRange(indices);
 
                                 for (int i = 0; i < verts; i++)
                                 {
                                     // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
                                     int upperData = ((int)BlockSide.Back << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
-                                    simpleVertexDataBuilder.Add(upperData);
+                                    simpleVertexData.Add(upperData);
 
                                     // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
                                     int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
-                                    simpleVertexDataBuilder.Add(lowerData);
+                                    simpleVertexData.Add(lowerData);
                                 }
 
-                                for (int i = simpleIndicesBuilder.Count - indices.Length; i < simpleIndicesBuilder.Count; i++)
+                                for (int i = simpleIndices.Count - indices.Length; i < simpleIndices.Count; i++)
                                 {
-                                    simpleIndicesBuilder[i] += simpleVertCount;
+                                    simpleIndices[i] += simpleVertCount;
                                 }
 
                                 simpleVertCount += verts;
@@ -209,22 +209,22 @@ namespace VoxelGame.Logic
                             {
                                 uint verts = currentBlock.GetMesh(BlockSide.Left, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
-                                simpleIndicesBuilder.AddRange(indices);
+                                simpleIndices.AddRange(indices);
 
                                 for (int i = 0; i < verts; i++)
                                 {
                                     // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
                                     int upperData = ((int)BlockSide.Left << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
-                                    simpleVertexDataBuilder.Add(upperData);
+                                    simpleVertexData.Add(upperData);
 
                                     // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
                                     int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
-                                    simpleVertexDataBuilder.Add(lowerData);
+                                    simpleVertexData.Add(lowerData);
                                 }
 
-                                for (int i = simpleIndicesBuilder.Count - indices.Length; i < simpleIndicesBuilder.Count; i++)
+                                for (int i = simpleIndices.Count - indices.Length; i < simpleIndices.Count; i++)
                                 {
-                                    simpleIndicesBuilder[i] += simpleVertCount;
+                                    simpleIndices[i] += simpleVertCount;
                                 }
 
                                 simpleVertCount += verts;
@@ -248,22 +248,22 @@ namespace VoxelGame.Logic
                             {
                                 uint verts = currentBlock.GetMesh(BlockSide.Right, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
-                                simpleIndicesBuilder.AddRange(indices);
+                                simpleIndices.AddRange(indices);
 
                                 for (int i = 0; i < verts; i++)
                                 {
                                     // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
                                     int upperData = ((int)BlockSide.Right << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
-                                    simpleVertexDataBuilder.Add(upperData);
+                                    simpleVertexData.Add(upperData);
 
                                     // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
                                     int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
-                                    simpleVertexDataBuilder.Add(lowerData);
+                                    simpleVertexData.Add(lowerData);
                                 }
 
-                                for (int i = simpleIndicesBuilder.Count - indices.Length; i < simpleIndicesBuilder.Count; i++)
+                                for (int i = simpleIndices.Count - indices.Length; i < simpleIndices.Count; i++)
                                 {
-                                    simpleIndicesBuilder[i] += simpleVertCount;
+                                    simpleIndices[i] += simpleVertCount;
                                 }
 
                                 simpleVertCount += verts;
@@ -287,22 +287,22 @@ namespace VoxelGame.Logic
                             {
                                 uint verts = currentBlock.GetMesh(BlockSide.Bottom, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
-                                simpleIndicesBuilder.AddRange(indices);
+                                simpleIndices.AddRange(indices);
 
                                 for (int i = 0; i < verts; i++)
                                 {
                                     // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
                                     int upperData = ((int)BlockSide.Bottom << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
-                                    simpleVertexDataBuilder.Add(upperData);
+                                    simpleVertexData.Add(upperData);
 
                                     // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
                                     int lowerData = ((tint.IsNeutral ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
-                                    simpleVertexDataBuilder.Add(lowerData);
+                                    simpleVertexData.Add(lowerData);
                                 }
 
-                                for (int i = simpleIndicesBuilder.Count - indices.Length; i < simpleIndicesBuilder.Count; i++)
+                                for (int i = simpleIndices.Count - indices.Length; i < simpleIndices.Count; i++)
                                 {
-                                    simpleIndicesBuilder[i] += simpleVertCount;
+                                    simpleIndices[i] += simpleVertCount;
                                 }
 
                                 simpleVertCount += verts;
@@ -326,22 +326,22 @@ namespace VoxelGame.Logic
                             {
                                 uint verts = currentBlock.GetMesh(BlockSide.Top, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
-                                simpleIndicesBuilder.AddRange(indices);
+                                simpleIndices.AddRange(indices);
 
                                 for (int i = 0; i < verts; i++)
                                 {
                                     // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
                                     int upperData = ((int)BlockSide.Top << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
-                                    simpleVertexDataBuilder.Add(upperData);
+                                    simpleVertexData.Add(upperData);
 
                                     // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
                                     int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
-                                    simpleVertexDataBuilder.Add(lowerData);
+                                    simpleVertexData.Add(lowerData);
                                 }
 
-                                for (int i = simpleIndicesBuilder.Count - indices.Length; i < simpleIndicesBuilder.Count; i++)
+                                for (int i = simpleIndices.Count - indices.Length; i < simpleIndices.Count; i++)
                                 {
-                                    simpleIndicesBuilder[i] += simpleVertCount;
+                                    simpleIndices[i] += simpleVertCount;
                                 }
 
                                 simpleVertCount += verts;
@@ -351,13 +351,13 @@ namespace VoxelGame.Logic
                         {
                             uint verts = currentBlock.GetMesh(BlockSide.All, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
-                            complexIndicesBuilder.AddRange(indices);
+                            complexIndices.AddRange(indices);
 
                             for (int i = 0; i < verts; i++)
                             {
-                                complexVertexPositionsBuilder.Add(vertices[(i * 8) + 0] + x);
-                                complexVertexPositionsBuilder.Add(vertices[(i * 8) + 1] + y);
-                                complexVertexPositionsBuilder.Add(vertices[(i * 8) + 2] + z);
+                                complexVertexPositions.Add(vertices[(i * 8) + 0] + x);
+                                complexVertexPositions.Add(vertices[(i * 8) + 1] + y);
+                                complexVertexPositions.Add(vertices[(i * 8) + 2] + z);
 
                                 // int: nnnn nooo oopp ppp- ---- --uu uuuv vvvv (nop: normal; uv: texture coords)
                                 int upperData =
@@ -367,16 +367,16 @@ namespace VoxelGame.Logic
                                     ((int)(vertices[(i * 8) + 3] * 16f) << 5) |
                                     ((int)(vertices[(i * 8) + 4] * 16f));
 
-                                complexVertexDataBuilder.Add(upperData);
+                                complexVertexData.Add(upperData);
 
                                 // int: tttt tttt t--- ---- ---- iiii iiii iiii (t: tint; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | textureIndices[i];
-                                complexVertexDataBuilder.Add(lowerData);
+                                complexVertexData.Add(lowerData);
                             }
 
-                            for (int i = complexIndicesBuilder.Count - indices.Length; i < complexIndicesBuilder.Count; i++)
+                            for (int i = complexIndices.Count - indices.Length; i < complexIndices.Count; i++)
                             {
-                                complexIndicesBuilder[i] += complexVertCount;
+                                complexIndices[i] += complexVertCount;
                             }
 
                             complexVertCount += verts;
@@ -385,14 +385,9 @@ namespace VoxelGame.Logic
                 }
             }
 
-            isEmpty = complexVertexPositionsBuilder.Count == 0 && simpleVertexDataBuilder.Count == 0;
+            isEmpty = complexVertexPositions.Count == 0 && simpleVertexData.Count == 0;
 
-            complexVertexPositions = complexVertexPositionsBuilder.ToArray();
-            complexVertexData = complexVertexDataBuilder.ToArray();
-            complexIndices = complexIndicesBuilder.ToArray();
-
-            simpleVertexData = simpleVertexDataBuilder.ToArray();
-            simpleIndices = simpleIndicesBuilder.ToArray();
+            meshData = new SectionMeshData(ref simpleVertexData, ref simpleIndices, ref complexVertexPositions, ref complexVertexData, ref complexIndices);
 
             stopwatch.Stop();
             TotalTime += stopwatch.ElapsedMilliseconds;
@@ -404,9 +399,9 @@ namespace VoxelGame.Logic
             }
         }
 
-        public void SetMeshData(ref float[] complexVertexPositions, ref int[] complexVertexData, ref uint[] complexIndices, ref int[] simpleVertexData, ref uint[] simpleIndices)
+        public void SetMeshData(ref SectionMeshData meshData)
         {
-            renderer.SetData(ref complexVertexPositions, ref complexVertexData, ref complexIndices, ref simpleVertexData, ref simpleIndices);
+            renderer.SetData(ref meshData);
         }
 
         public void Render(Vector3 position)
