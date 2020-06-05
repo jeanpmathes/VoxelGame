@@ -156,6 +156,54 @@ namespace VoxelGame.Collections
             }
         }
 
+        /// <summary>
+        /// Adds the elements of another <see cref="PooledList{T}"/> to the end of this <see cref="PooledList{T}"/>.
+        /// </summary>
+        /// <param name="pooledList">The <see cref="PooledList{T}"/> whose elements should be added to the end of the <see cref="PooledList{T}"/>. It is not allowed to be null or equal to the list it should be added to.</param>
+        public void AddRange(PooledList<T> pooledList)
+        {
+            if (pooledList == null)
+            {
+                throw new ArgumentNullException(nameof(pooledList));
+            }
+
+            if (this == pooledList)
+            {
+                throw new ArgumentException($"Adding '{this}' to itself is not allowed.", nameof(pooledList));
+            }
+
+            int count = pooledList.Count;
+
+            if (count > 0)
+            {
+                EnsureCapacity(size + count);
+
+                Array.Copy(pooledList.items, 0, items, size, count);
+
+                size += count;
+            }
+        }
+
+        /// <summary>
+        /// Removes the element at the specified index of the <see cref="PooledList{T}"/>.
+        /// </summary>
+        public void RemoveAt(int index)
+        {
+            if ((uint)index >= (uint)size)
+            {
+                throw new ArgumentOutOfRangeException($"The index '{index}' is not allowed to be larger then the size of the list.");
+            }
+
+            size--;
+
+            if (index < size)
+            {
+                Array.Copy(items, index + 1, items, index, size - index);
+            }
+
+            items[size] = default;
+        }
+
         private void EnsureCapacity(int min)
         {
             if (items.Length < min)
