@@ -81,14 +81,12 @@ namespace VoxelGame.Logic
             Section topNeighbour = Game.World.GetSection(sectionX, sectionY + 1, sectionZ);
 
             // Create the mesh data
-            PooledList<int> simpleVertexData = new PooledList<int>(2048);
-            PooledList<uint> simpleIndices = new PooledList<uint>(1024);
+            PooledList<int> simpleVertexData = new PooledList<int>(4096);
 
             PooledList<float> complexVertexPositions = new PooledList<float>(64);
             PooledList<int> complexVertexData = new PooledList<int>(32);
             PooledList<uint> complexIndices = new PooledList<uint>(16);
 
-            uint simpleVertCount = 0;
             uint complexVertCount = 0;
 
             for (int x = 0; x < SectionSize; x++)
@@ -124,9 +122,7 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                uint verts = currentBlock.GetMesh(BlockSide.Front, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
-
-                                simpleIndices.AddRange(indices);
+                                uint verts = currentBlock.GetMesh(BlockSide.Front, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
 
                                 for (int i = 0; i < verts; i++)
                                 {
@@ -138,13 +134,6 @@ namespace VoxelGame.Logic
                                     int lowerData =  (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
                                     simpleVertexData.Add(lowerData);
                                 }
-
-                                for (int i = simpleIndices.Count - indices.Length; i < simpleIndices.Count; i++)
-                                {
-                                    simpleIndices[i] += simpleVertCount;
-                                }
-
-                                simpleVertCount += verts;
                             }
 
                             // Back
@@ -163,9 +152,7 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                uint verts = currentBlock.GetMesh(BlockSide.Back, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
-
-                                simpleIndices.AddRange(indices);
+                                uint verts = currentBlock.GetMesh(BlockSide.Back, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
 
                                 for (int i = 0; i < verts; i++)
                                 {
@@ -177,13 +164,6 @@ namespace VoxelGame.Logic
                                     int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
                                     simpleVertexData.Add(lowerData);
                                 }
-
-                                for (int i = simpleIndices.Count - indices.Length; i < simpleIndices.Count; i++)
-                                {
-                                    simpleIndices[i] += simpleVertCount;
-                                }
-
-                                simpleVertCount += verts;
                             }
 
                             // Left
@@ -202,9 +182,7 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                uint verts = currentBlock.GetMesh(BlockSide.Left, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
-
-                                simpleIndices.AddRange(indices);
+                                uint verts = currentBlock.GetMesh(BlockSide.Left, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
 
                                 for (int i = 0; i < verts; i++)
                                 {
@@ -216,13 +194,6 @@ namespace VoxelGame.Logic
                                     int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
                                     simpleVertexData.Add(lowerData);
                                 }
-
-                                for (int i = simpleIndices.Count - indices.Length; i < simpleIndices.Count; i++)
-                                {
-                                    simpleIndices[i] += simpleVertCount;
-                                }
-
-                                simpleVertCount += verts;
                             }
 
                             // Right
@@ -241,9 +212,7 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                uint verts = currentBlock.GetMesh(BlockSide.Right, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
-
-                                simpleIndices.AddRange(indices);
+                                uint verts = currentBlock.GetMesh(BlockSide.Right, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
 
                                 for (int i = 0; i < verts; i++)
                                 {
@@ -255,13 +224,6 @@ namespace VoxelGame.Logic
                                     int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
                                     simpleVertexData.Add(lowerData);
                                 }
-
-                                for (int i = simpleIndices.Count - indices.Length; i < simpleIndices.Count; i++)
-                                {
-                                    simpleIndices[i] += simpleVertCount;
-                                }
-
-                                simpleVertCount += verts;
                             }
 
                             // Bottom
@@ -280,9 +242,7 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
                             {
-                                uint verts = currentBlock.GetMesh(BlockSide.Bottom, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
-
-                                simpleIndices.AddRange(indices);
+                                uint verts = currentBlock.GetMesh(BlockSide.Bottom, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
 
                                 for (int i = 0; i < verts; i++)
                                 {
@@ -294,13 +254,6 @@ namespace VoxelGame.Logic
                                     int lowerData = ((tint.IsNeutral ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
                                     simpleVertexData.Add(lowerData);
                                 }
-
-                                for (int i = simpleIndices.Count - indices.Length; i < simpleIndices.Count; i++)
-                                {
-                                    simpleIndices[i] += simpleVertCount;
-                                }
-
-                                simpleVertCount += verts;
                             }
 
                             // Top
@@ -319,9 +272,7 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
                             {
-                                uint verts = currentBlock.GetMesh(BlockSide.Top, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
-
-                                simpleIndices.AddRange(indices);
+                                uint verts = currentBlock.GetMesh(BlockSide.Top, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
 
                                 for (int i = 0; i < verts; i++)
                                 {
@@ -333,13 +284,6 @@ namespace VoxelGame.Logic
                                     int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
                                     simpleVertexData.Add(lowerData);
                                 }
-
-                                for (int i = simpleIndices.Count - indices.Length; i < simpleIndices.Count; i++)
-                                {
-                                    simpleIndices[i] += simpleVertCount;
-                                }
-
-                                simpleVertCount += verts;
                             }
                         }
                         else if (currentBlock.TargetBuffer == TargetBuffer.Complex)
@@ -382,7 +326,7 @@ namespace VoxelGame.Logic
 
             isEmpty = complexVertexPositions.Count == 0 && simpleVertexData.Count == 0;
 
-            meshData = new SectionMeshData(ref simpleVertexData, ref simpleIndices, ref complexVertexPositions, ref complexVertexData, ref complexIndices);
+            meshData = new SectionMeshData(ref simpleVertexData, ref complexVertexPositions, ref complexVertexData, ref complexIndices);
         }
 
         public void SetMeshData(ref SectionMeshData meshData)

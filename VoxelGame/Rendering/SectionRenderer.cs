@@ -15,7 +15,6 @@ namespace VoxelGame.Rendering
     public class SectionRenderer : Renderer
     {
         private readonly int simpleDataVBO;
-        private readonly int simpleEBO;
         private readonly int simpleVAO;
 
         private readonly int complexPositionVBO;
@@ -23,7 +22,7 @@ namespace VoxelGame.Rendering
         private readonly int complexEBO;
         private readonly int complexVAO;
 
-        private int simpleElements;
+        private int simpleIndices;
         private int complexElements;
 
         private bool hasSimpleData = false;
@@ -32,7 +31,6 @@ namespace VoxelGame.Rendering
         public SectionRenderer()
         {
             simpleDataVBO = GL.GenBuffer();
-            simpleEBO = GL.GenBuffer();
 
             simpleVAO = GL.GenVertexArray();
 
@@ -57,17 +55,13 @@ namespace VoxelGame.Rendering
 
             #region SIMPLE BUFFER SETUP
 
-            simpleElements = meshData.simpleIndices.Count;
+            simpleIndices = meshData.simpleVertexData.Count / 2;
 
-            if (simpleElements != 0)
+            if (simpleIndices != 0)
             {
                 // Vertex Buffer Object
                 GL.BindBuffer(BufferTarget.ArrayBuffer, simpleDataVBO);
                 GL.BufferData(BufferTarget.ArrayBuffer, meshData.simpleVertexData.Count * sizeof(int), meshData.simpleVertexData.ExposeArray(), BufferUsageHint.StaticDraw);
-
-                // Element Buffer Object
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, simpleEBO);
-                GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.simpleIndices.Count * sizeof(uint), meshData.simpleIndices.ExposeArray(), BufferUsageHint.StaticDraw);
 
                 int dataLocation = Game.SimpleSectionShader.GetAttribLocation("aData");
 
@@ -79,8 +73,6 @@ namespace VoxelGame.Rendering
                 GL.BindBuffer(BufferTarget.ArrayBuffer, simpleDataVBO);
                 GL.EnableVertexAttribArray(dataLocation);
                 GL.VertexAttribIPointer(dataLocation, 2, VertexAttribIntegerType.Int, 2 * sizeof(int), IntPtr.Zero);
-
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, simpleEBO);
 
                 GL.BindVertexArray(0);
 
@@ -158,7 +150,7 @@ namespace VoxelGame.Rendering
                     Game.SimpleSectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
                     Game.SimpleSectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
 
-                    GL.DrawElements(PrimitiveType.Triangles, simpleElements, DrawElementsType.UnsignedInt, 0);
+                    GL.DrawArrays(PrimitiveType.Triangles, 0, simpleIndices);
                 }
 
                 #endregion
@@ -197,7 +189,6 @@ namespace VoxelGame.Rendering
             if (disposing)
             {
                 GL.DeleteBuffer(simpleDataVBO);
-                GL.DeleteBuffer(simpleEBO);
 
                 GL.DeleteVertexArray(simpleVAO);
 

@@ -17,14 +17,6 @@ namespace VoxelGame.Logic.Blocks
     public class RotatedBlock : BasicBlock
     {
 #pragma warning disable CA1051 // Do not declare visible instance fields
-        protected float[] uv = new float[]
-        {
-            0f, 0f,
-            0f, 1f,
-            1f, 1f,
-            1f, 0f
-        };
-
         protected float[][] sideNormals;
         protected int[] texIndices;
 
@@ -141,10 +133,12 @@ namespace VoxelGame.Logic.Blocks
                 // Texture rotation
                 vertices = new float[]
                 {
-                    vert[0], vert[1],  vert[2], uv[2], uv[3], norms[0], norms[1], norms[2],
-                    vert[3], vert[4],  vert[5], uv[4], uv[5], norms[0], norms[1], norms[2],
-                    vert[6], vert[7],  vert[8], uv[6], uv[7], norms[0], norms[1], norms[2],
-                    vert[9], vert[10], vert[11], uv[0], uv[1], norms[0], norms[1], norms[2]
+                    vert[0], vert[1],  vert[2], 0f, 1f, norms[0], norms[1], norms[2],
+                    vert[6], vert[7],  vert[8], 1f, 0f, norms[0], norms[1], norms[2],
+                    vert[3], vert[4],  vert[5], 1f, 1f, norms[0], norms[1], norms[2],
+                    vert[0], vert[1],  vert[2], 0f, 1f, norms[0], norms[1], norms[2],
+                    vert[9], vert[10], vert[11], 0f, 0f, norms[0], norms[1], norms[2],
+                    vert[6], vert[7],  vert[8], 1f, 0f, norms[0], norms[1], norms[2]
                 };
             }
             else
@@ -152,18 +146,20 @@ namespace VoxelGame.Logic.Blocks
                 // No texture rotation
                 vertices = new float[]
                 {
-                    vert[0], vert[1],  vert[2],  uv[0], uv[1], norms[0], norms[1], norms[2],
-                    vert[3], vert[4],  vert[5],  uv[2], uv[3], norms[0], norms[1], norms[2],
-                    vert[6], vert[7],  vert[8],  uv[4], uv[5], norms[0], norms[1], norms[2],
-                    vert[9], vert[10], vert[11], uv[6], uv[7], norms[0], norms[1], norms[2]
+                    vert[0], vert[1],  vert[2], 0f, 0f, norms[0], norms[1], norms[2],
+                    vert[6], vert[7],  vert[8], 1f, 1f, norms[0], norms[1], norms[2],
+                    vert[3], vert[4],  vert[5], 0f, 1f, norms[0], norms[1], norms[2],
+                    vert[0], vert[1],  vert[2], 0f, 0f, norms[0], norms[1], norms[2],
+                    vert[9], vert[10], vert[11], 1f, 0f, norms[0], norms[1], norms[2],
+                    vert[6], vert[7],  vert[8], 1f, 1f, norms[0], norms[1], norms[2]
                 };
             }
 
-            textureIndices = new int[] { tex, tex, tex, tex };
-            indices = this.indices;
+            textureIndices = new int[] { tex, tex, tex, tex, tex, tex };
+            indices = Array.Empty<uint>();
             tint = TintColor.None;
 
-            return 4;
+            return 6;
         }
 
         public override bool Place(int x, int y, int z, PhysicsEntity entity)

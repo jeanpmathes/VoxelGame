@@ -13,6 +13,7 @@ namespace VoxelGame.Rendering
         NotRendered,
         /// <summary>
         /// Blocks have to accept <see cref="Logic.BlockSide.Front"/> to <see cref="Logic.BlockSide.Top"/>. Blocks that target this buffer have to be full.
+        /// GetMesh has to return 6 vertices that make up one face, indices are ignored.
         /// </summary>
         Simple,
         /// <summary>

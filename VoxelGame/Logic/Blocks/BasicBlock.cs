@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using System;
 using VoxelGame.Physics;
 using VoxelGame.Rendering;
 
@@ -16,13 +17,6 @@ namespace VoxelGame.Logic.Blocks
 #pragma warning disable CA1051 // Do not declare visible instance fields
         protected float[][] sideVertices;
         protected int[][] sideTextureIndices;
-
-        protected uint[] indices =
-        {
-            0, 2, 1,
-            0, 3, 2
-        };
-
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
         public BasicBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid) :
@@ -50,44 +44,56 @@ namespace VoxelGame.Logic.Blocks
                 new float[] // Front face
                 {
                     0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f,
-                    0f, 1f, 1f, 0f, 1f, 0f, 0f, 1f,
                     1f, 1f, 1f, 1f, 1f, 0f, 0f, 1f,
-                    1f, 0f, 1f, 1f, 0f, 0f, 0f, 1f
+                    0f, 1f, 1f, 0f, 1f, 0f, 0f, 1f,
+                    0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f,
+                    1f, 0f, 1f, 1f, 0f, 0f, 0f, 1f,
+                    1f, 1f, 1f, 1f, 1f, 0f, 0f, 1f
                 },
                 new float[] // Back face
                 {
                     1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f,
-                    1f, 1f, 0f, 0f, 1f, 0f, 0f, -1f,
                     0f, 1f, 0f, 1f, 1f, 0f, 0f, -1f,
-                    0f, 0f, 0f, 1f, 0f, 0f, 0f, -1f
+                    1f, 1f, 0f, 0f, 1f, 0f, 0f, -1f,
+                    1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f,
+                    0f, 0f, 0f, 1f, 0f, 0f, 0f, -1f,
+                    0f, 1f, 0f, 1f, 1f, 0f, 0f, -1f
                 },
                 new float[] // Left face
                 {
                     0f, 0f, 0f, 0f, 0f, -1f, 0f, 0f,
-                    0f, 1f, 0f, 0f, 1f, -1f, 0f, 0f,
                     0f, 1f, 1f, 1f, 1f, -1f, 0f, 0f,
-                    0f, 0f, 1f, 1f, 0f, -1f, 0f, 0f
+                    0f, 1f, 0f, 0f, 1f, -1f, 0f, 0f,
+                    0f, 0f, 0f, 0f, 0f, -1f, 0f, 0f,
+                    0f, 0f, 1f, 1f, 0f, -1f, 0f, 0f,
+                    0f, 1f, 1f, 1f, 1f, -1f, 0f, 0f
                 },
                 new float[] // Right face
                 {
                     1f, 0f, 1f, 0f, 0f, 1f, 0f, 0f,
-                    1f, 1f, 1f, 0f, 1f, 1f, 0f, 0f,
                     1f, 1f, 0f, 1f, 1f, 1f, 0f, 0f,
-                    1f, 0f, 0f, 1f, 0f, 1f, 0f, 0f
+                    1f, 1f, 1f, 0f, 1f, 1f, 0f, 0f,
+                    1f, 0f, 1f, 0f, 0f, 1f, 0f, 0f,
+                    1f, 0f, 0f, 1f, 0f, 1f, 0f, 0f,
+                    1f, 1f, 0f, 1f, 1f, 1f, 0f, 0f
                 },
                 new float[] // Bottom face
                 {
                     0f, 0f, 0f, 0f, 0f, 0f, -1f, 0f,
-                    0f, 0f, 1f, 0f, 1f, 0f, -1f, 0f,
                     1f, 0f, 1f, 1f, 1f, 0f, -1f, 0f,
-                    1f, 0f, 0f, 1f, 0f, 0f, -1f, 0f
+                    0f, 0f, 1f, 0f, 1f, 0f, -1f, 0f,
+                    0f, 0f, 0f, 0f, 0f, 0f, -1f, 0f,
+                    1f, 0f, 0f, 1f, 0f, 0f, -1f, 0f,
+                    1f, 0f, 1f, 1f, 1f, 0f, -1f, 0f
                 },
                 new float[] // Top face
                 {
                     0f, 1f, 1f, 0f, 0f, 0f, 1f, 0f,
-                    0f, 1f, 0f, 0f, 1f, 0f, 1f, 0f,
                     1f, 1f, 0f, 1f, 1f, 0f, 1f, 0f,
-                    1f, 1f, 1f, 1f, 0f, 0f, 1f, 0f
+                    0f, 1f, 0f, 0f, 1f, 0f, 1f, 0f,
+                    0f, 1f, 1f, 0f, 0f, 0f, 1f, 0f,
+                    1f, 1f, 1f, 1f, 0f, 0f, 1f, 0f,
+                    1f, 1f, 0f, 1f, 1f, 0f, 1f, 0f
                 }
             };
 
@@ -95,27 +101,27 @@ namespace VoxelGame.Logic.Blocks
             {
                 new int[]
                 {
-                    layout.Front, layout.Front, layout.Front, layout.Front
+                    layout.Front, layout.Front, layout.Front, layout.Front, layout.Front, layout.Front
                 },
                 new int[]
                 {
-                    layout.Back, layout.Back, layout.Back, layout.Back
+                    layout.Back, layout.Back, layout.Back, layout.Back, layout.Back, layout.Back
                 },
                 new int[]
                 {
-                    layout.Left, layout.Left, layout.Left, layout.Left
+                    layout.Left, layout.Left, layout.Left, layout.Left, layout.Left, layout.Left
                 },
                 new int[]
                 {
-                    layout.Right, layout.Right, layout.Right, layout.Right
+                    layout.Right, layout.Right, layout.Right, layout.Right, layout.Right, layout.Right
                 },
                 new int[]
                 {
-                    layout.Bottom, layout.Bottom, layout.Bottom, layout.Bottom
+                    layout.Bottom, layout.Bottom, layout.Bottom, layout.Bottom, layout.Bottom, layout.Bottom
                 },
                 new int[]
                 {
-                    layout.Top, layout.Top, layout.Top, layout.Top
+                    layout.Top, layout.Top, layout.Top, layout.Top, layout.Top, layout.Top
                 }
             };
         }
@@ -124,11 +130,11 @@ namespace VoxelGame.Logic.Blocks
         {
             vertices = sideVertices[(int)side];
             textureIndices = sideTextureIndices[(int)side];
-            indices = this.indices;
+            indices = Array.Empty<uint>();
 
             tint = TintColor.None;
 
-            return 4;
+            return 6;
         }
     }
 }

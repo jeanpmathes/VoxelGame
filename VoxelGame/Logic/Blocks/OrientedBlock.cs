@@ -128,16 +128,18 @@ namespace VoxelGame.Logic.Blocks
             vertices = new float[]
             {
                 vert[0], vert[1],  vert[2], 0f, 0f, norms[0], norms[1], norms[2],
-                vert[3], vert[4],  vert[5], 0f, 1f, norms[0], norms[1], norms[2],
                 vert[6], vert[7],  vert[8], 1f, 1f, norms[0], norms[1], norms[2],
-                vert[9], vert[10], vert[11], 1f, 0f, norms[0], norms[1], norms[2]
+                vert[3], vert[4],  vert[5], 0f, 1f, norms[0], norms[1], norms[2],
+                vert[0], vert[1],  vert[2], 0f, 0f, norms[0], norms[1], norms[2],
+                vert[9], vert[10], vert[11], 1f, 0f, norms[0], norms[1], norms[2],
+                vert[6], vert[7],  vert[8], 1f, 1f, norms[0], norms[1], norms[2]
             };
 
-            textureIndices = new int[] { tex, tex, tex, tex };
-            indices = this.indices;
+            textureIndices = new int[] { tex, tex, tex, tex, tex, tex };
+            indices = Array.Empty<uint>();
             tint = TintColor.None;
 
-            return 4;
+            return 6;
         }
 
         public override bool Place(int x, int y, int z, PhysicsEntity entity)
