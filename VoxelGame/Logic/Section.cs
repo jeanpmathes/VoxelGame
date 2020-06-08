@@ -80,8 +80,12 @@ namespace VoxelGame.Logic
             Section bottomNeighbour = Game.World.GetSection(sectionX, sectionY - 1, sectionZ);
             Section topNeighbour = Game.World.GetSection(sectionX, sectionY + 1, sectionZ);
 
-            // Create the mesh data
-            PooledList<int> simpleVertexData = new PooledList<int>(4096);
+            var simpleFrontFaces = new PooledList<PooledList<PooledList<SimpleFace>>>();
+            var simpleBackFaces = new PooledList<PooledList<PooledList<SimpleFace>>>();
+            var simpleLeftFaces = new PooledList<PooledList<PooledList<SimpleFace>>>();
+            var simpleRightFaces = new PooledList<PooledList<PooledList<SimpleFace>>>();
+            var simpleBottomFaces = new PooledList<PooledList<PooledList<SimpleFace>>>();
+            var simpleTopFaces = new PooledList<PooledList<PooledList<SimpleFace>>>();
 
             PooledList<float> complexVertexPositions = new PooledList<float>(64);
             PooledList<int> complexVertexData = new PooledList<int>(32);
@@ -89,6 +93,7 @@ namespace VoxelGame.Logic
 
             uint complexVertCount = 0;
 
+            // Loop through the section
             for (int x = 0; x < SectionSize; x++)
             {
                 for (int y = 0; y < SectionSize; y++)
@@ -122,17 +127,34 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                uint verts = currentBlock.GetMesh(BlockSide.Front, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
+                                currentBlock.GetMesh(BlockSide.Front, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
 
-                                for (int i = 0; i < verts; i++)
+                                // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
+                                int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
+                                int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
+                                int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
+                                int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
+
+                                // int: tttt tttt t--n nn-- ---- iiii iiii iiii (t: tint; n: normal; i: texture index)
+                                int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Front << 18) | textureIndices[0];
+
+                                while (simpleFrontFaces.Count <= z)
                                 {
-                                    // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
-                                    int upperData = ((int)BlockSide.Front << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
-                                    simpleVertexData.Add(upperData);
+                                    simpleFrontFaces.Add(new PooledList<PooledList<SimpleFace>>());
+                                }
 
-                                    // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
-                                    int lowerData =  (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
-                                    simpleVertexData.Add(lowerData);
+                                while (simpleFrontFaces[z].Count <= y)
+                                {
+                                    simpleFrontFaces[z].Add(new PooledList<SimpleFace>());
+                                }
+
+                                if (simpleFrontFaces[z][y].Count == 0 || !simpleFrontFaces[z][y][simpleFrontFaces[z][y].Count - 1].TryAdd(x, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
+                                {
+                                    simpleFrontFaces[z][y].Add(new SimpleFace(x, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                }
+                                else
+                                {
+                                    simpleFrontFaces[z][y][simpleFrontFaces[z][y].Count - 1] = extendedFace;
                                 }
                             }
 
@@ -152,17 +174,34 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                uint verts = currentBlock.GetMesh(BlockSide.Back, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
+                                currentBlock.GetMesh(BlockSide.Back, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
 
-                                for (int i = 0; i < verts; i++)
+                                // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
+                                int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
+                                int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
+                                int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
+                                int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
+
+                                // int: tttt tttt t--n nn-- ---- iiii iiii iiii (t: tint; n: normal; i: texture index)
+                                int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Back << 18) | textureIndices[0];
+
+                                while (simpleBackFaces.Count <= z)
                                 {
-                                    // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
-                                    int upperData = ((int)BlockSide.Back << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
-                                    simpleVertexData.Add(upperData);
+                                    simpleBackFaces.Add(new PooledList<PooledList<SimpleFace>>());
+                                }
 
-                                    // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
-                                    int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
-                                    simpleVertexData.Add(lowerData);
+                                while (simpleBackFaces[z].Count <= y)
+                                {
+                                    simpleBackFaces[z].Add(new PooledList<SimpleFace>());
+                                }
+
+                                if (simpleBackFaces[z][y].Count == 0 || !simpleBackFaces[z][y][simpleBackFaces[z][y].Count - 1].TryAdd(x, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
+                                {
+                                    simpleBackFaces[z][y].Add(new SimpleFace(x, upperDataA, upperDataB, upperDataC, upperDataD, true, lowerData));
+                                }
+                                else
+                                {
+                                    simpleBackFaces[z][y][simpleBackFaces[z][y].Count - 1] = extendedFace;
                                 }
                             }
 
@@ -182,17 +221,34 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                uint verts = currentBlock.GetMesh(BlockSide.Left, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
+                                currentBlock.GetMesh(BlockSide.Left, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
 
-                                for (int i = 0; i < verts; i++)
+                                // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
+                                int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
+                                int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
+                                int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
+                                int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
+
+                                // int: tttt tttt t--n nn-- ---- iiii iiii iiii (t: tint; n: normal; i: texture index)
+                                int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Left << 18) | textureIndices[0];
+
+                                while (simpleLeftFaces.Count <= x)
                                 {
-                                    // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
-                                    int upperData = ((int)BlockSide.Left << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
-                                    simpleVertexData.Add(upperData);
+                                    simpleLeftFaces.Add(new PooledList<PooledList<SimpleFace>>());
+                                }
 
-                                    // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
-                                    int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
-                                    simpleVertexData.Add(lowerData);
+                                while (simpleLeftFaces[x].Count <= y)
+                                {
+                                    simpleLeftFaces[x].Add(new PooledList<SimpleFace>());
+                                }
+
+                                if (simpleLeftFaces[x][y].Count == 0 || !simpleLeftFaces[x][y][simpleLeftFaces[x][y].Count - 1].TryAdd(z, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
+                                {
+                                    simpleLeftFaces[x][y].Add(new SimpleFace(z, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                }
+                                else
+                                {
+                                    simpleLeftFaces[x][y][simpleLeftFaces[x][y].Count - 1] = extendedFace;
                                 }
                             }
 
@@ -212,17 +268,34 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                uint verts = currentBlock.GetMesh(BlockSide.Right, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
+                                currentBlock.GetMesh(BlockSide.Right, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
 
-                                for (int i = 0; i < verts; i++)
+                                // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
+                                int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
+                                int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
+                                int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
+                                int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
+
+                                // int: tttt tttt t--n nn-- ---- iiii iiii iiii (t: tint; n: normal; i: texture index)
+                                int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Right << 18) | textureIndices[0];
+
+                                while (simpleRightFaces.Count <= x)
                                 {
-                                    // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
-                                    int upperData = ((int)BlockSide.Right << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
-                                    simpleVertexData.Add(upperData);
+                                    simpleRightFaces.Add(new PooledList<PooledList<SimpleFace>>());
+                                }
 
-                                    // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
-                                    int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
-                                    simpleVertexData.Add(lowerData);
+                                while (simpleRightFaces[x].Count <= y)
+                                {
+                                    simpleRightFaces[x].Add(new PooledList<SimpleFace>());
+                                }
+
+                                if (simpleRightFaces[x][y].Count == 0 || !simpleRightFaces[x][y][simpleRightFaces[x][y].Count - 1].TryAdd(z, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
+                                {
+                                    simpleRightFaces[x][y].Add(new SimpleFace(z, upperDataA, upperDataB, upperDataC, upperDataD, true, lowerData));
+                                }
+                                else
+                                {
+                                    simpleRightFaces[x][y][simpleRightFaces[x][y].Count - 1] = extendedFace;
                                 }
                             }
 
@@ -242,17 +315,34 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
                             {
-                                uint verts = currentBlock.GetMesh(BlockSide.Bottom, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
+                                currentBlock.GetMesh(BlockSide.Bottom, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
 
-                                for (int i = 0; i < verts; i++)
+                                // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
+                                int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
+                                int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
+                                int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
+                                int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
+
+                                // int: tttt tttt t--n nn-- ---- iiii iiii iiii (t: tint; n: normal; i: texture index)
+                                int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Bottom << 18) | textureIndices[0];
+
+                                while (simpleBottomFaces.Count <= y)
                                 {
-                                    // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
-                                    int upperData = ((int)BlockSide.Bottom << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
-                                    simpleVertexData.Add(upperData);
+                                    simpleBottomFaces.Add(new PooledList<PooledList<SimpleFace>>());
+                                }
 
-                                    // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
-                                    int lowerData = ((tint.IsNeutral ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
-                                    simpleVertexData.Add(lowerData);
+                                while (simpleBottomFaces[y].Count <= z)
+                                {
+                                    simpleBottomFaces[y].Add(new PooledList<SimpleFace>());
+                                }
+
+                                if (simpleBottomFaces[y][z].Count == 0 || !simpleBottomFaces[y][z][simpleBottomFaces[y][z].Count - 1].TryAdd(x, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
+                                {
+                                    simpleBottomFaces[y][z].Add(new SimpleFace(x, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                }
+                                else
+                                {
+                                    simpleBottomFaces[y][z][simpleBottomFaces[y][z].Count - 1] = extendedFace;
                                 }
                             }
 
@@ -272,17 +362,34 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
                             {
-                                uint verts = currentBlock.GetMesh(BlockSide.Top, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
+                                currentBlock.GetMesh(BlockSide.Top, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint);
 
-                                for (int i = 0; i < verts; i++)
+                                // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
+                                int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
+                                int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
+                                int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
+                                int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
+
+                                // int: tttt tttt t--n nn-- ---- iiii iiii iiii (t: tint; n: normal; i: texture index)
+                                int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Top << 18) | textureIndices[0];
+
+                                while (simpleTopFaces.Count <= y)
                                 {
-                                    // int: ---- ---- ---n nnxx xxxx yyyy yyzz zzzz (n: normal; xyz: position)
-                                    int upperData = ((int)BlockSide.Top << 18) | (((int)vertices[(i * 8) + 0] + x) << 12) | (((int)vertices[(i * 8) + 1] + y) << 6) | ((int)vertices[(i * 8) + 2] + z);
-                                    simpleVertexData.Add(upperData);
+                                    simpleTopFaces.Add(new PooledList<PooledList<SimpleFace>>());
+                                }
 
-                                    // int: tttt tttt t--- -uv- ---- iiii iiii iiii (t: tint; o: orientation; i: texture index)
-                                    int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | (((int)vertices[(i * 8) + 3]) << 18) | (((int)vertices[(i * 8) + 4]) << 17) | textureIndices[i];
-                                    simpleVertexData.Add(lowerData);
+                                while (simpleTopFaces[y].Count <= z)
+                                {
+                                    simpleTopFaces[y].Add(new PooledList<SimpleFace>());
+                                }
+
+                                if (simpleTopFaces[y][z].Count == 0 || !simpleTopFaces[y][z][simpleTopFaces[y][z].Count - 1].TryAdd(x, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
+                                {
+                                    simpleTopFaces[y][z].Add(new SimpleFace(x, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                }
+                                else
+                                {
+                                    simpleTopFaces[y][z][simpleTopFaces[y][z].Count - 1] = extendedFace;
                                 }
                             }
                         }
@@ -324,9 +431,158 @@ namespace VoxelGame.Logic
                 }
             }
 
+            // Build the simple mesh data
+            PooledList<int> simpleVertexData = new PooledList<int>();
+
+            for (int i = 0; i < SectionSize; i++)
+            {
+                for (int j = 0; j < SectionSize; j++)
+                {
+                    for (int k = 0; k < SectionSize; k++)
+                    {
+                        if (i < simpleFrontFaces.Count && j < simpleFrontFaces[i].Count && k < simpleFrontFaces[i][j].Count)
+                        {
+                            simpleFrontFaces[i][j][k].AddMeshTo(ref simpleVertexData);
+                        }
+
+                        if (i < simpleBackFaces.Count && j < simpleBackFaces[i].Count && k < simpleBackFaces[i][j].Count)
+                        {
+                            simpleBackFaces[i][j][k].AddMeshTo(ref simpleVertexData);
+                        }
+
+                        if (i < simpleLeftFaces.Count && j < simpleLeftFaces[i].Count && k < simpleLeftFaces[i][j].Count)
+                        {
+                            simpleLeftFaces[i][j][k].AddMeshTo(ref simpleVertexData);
+                        }
+
+                        if (i < simpleRightFaces.Count && j < simpleRightFaces[i].Count && k < simpleRightFaces[i][j].Count)
+                        {
+                            simpleRightFaces[i][j][k].AddMeshTo(ref simpleVertexData);
+                        }
+
+                        if (i < simpleBottomFaces.Count && j < simpleBottomFaces[i].Count && k < simpleBottomFaces[i][j].Count)
+                        {
+                            simpleBottomFaces[i][j][k].AddMeshTo(ref simpleVertexData);
+                        }
+
+                        if (i < simpleTopFaces.Count && j < simpleTopFaces[i].Count && k < simpleTopFaces[i][j].Count)
+                        {
+                            simpleTopFaces[i][j][k].AddMeshTo(ref simpleVertexData);
+                        }
+                    }
+                }
+            }
+
             isEmpty = complexVertexPositions.Count == 0 && simpleVertexData.Count == 0;
 
             meshData = new SectionMeshData(ref simpleVertexData, ref complexVertexPositions, ref complexVertexData, ref complexIndices);
+        }
+
+        private struct SimpleFace
+        {
+            private readonly bool inverse;
+
+            private readonly int first;
+            private int lenght;
+            private int height;
+
+            private readonly int lowerVertexData;
+            private readonly bool isRotated;
+
+            private readonly int varyingStationaryA;
+            private readonly int varyingStationaryB;
+            private int varyingExtendableA;
+            private int varyingExtendableB;
+
+            public SimpleFace(int first, int upperDataA, int upperDataB, int upperDataC, int upperDataD, bool inverse, int lowerVertexData)
+            {
+                this.first = first;
+                lenght = 0;
+                height = 0;
+
+                this.lowerVertexData = lowerVertexData;
+
+                int uv = (int)((uint)upperDataC >> 30);
+                isRotated = uv != 0b11;
+
+                if (!inverse)
+                {
+                    varyingStationaryA = upperDataA;
+                    varyingStationaryB = upperDataB;
+                    varyingExtendableA = upperDataC;
+                    varyingExtendableB = upperDataD;
+
+                    this.inverse = false;
+                }
+                else
+                {
+                    varyingStationaryA = upperDataC;
+                    varyingStationaryB = upperDataD;
+                    varyingExtendableA = upperDataA;
+                    varyingExtendableB = upperDataB;
+
+                    this.inverse = true;
+                }
+            }
+
+            public bool TryAdd(int next, int upperDataA, int upperDataB, int upperDataC, int upperDataD, int lowerVertexData, out SimpleFace newStruct)
+            {
+                int uv = (int)((uint)upperDataC >> 30);
+                bool isRotated = uv != 0b11;
+                if (next == first + lenght + 1 && isRotated == this.isRotated && lowerVertexData == this.lowerVertexData)
+                {
+                    if (!inverse)
+                    {
+                        varyingExtendableA = upperDataC;
+                        varyingExtendableB = upperDataD;
+                    }
+                    else
+                    {
+                        varyingExtendableA = upperDataA;
+                        varyingExtendableB = upperDataB;
+                    }
+
+                    lenght++;
+
+                    newStruct = this;
+
+                    return true;
+                }
+                else
+                {
+                    newStruct = this;
+
+                    return false;
+                }
+            }
+
+            public void AddMeshTo(ref PooledList<int> meshData)
+            {
+                if (isRotated)
+                {
+                    int temp = lenght;
+                    lenght = height;
+                    height = temp;
+                }
+
+                meshData.Add((lenght << 25) | (height << 20) | varyingStationaryA);
+                meshData.Add(lowerVertexData);
+
+                meshData.Add((lenght << 25) | (height << 20) | varyingExtendableA);
+                meshData.Add(lowerVertexData);
+
+                meshData.Add((lenght << 25) | (height << 20) | varyingStationaryB);
+                meshData.Add(lowerVertexData);
+
+                meshData.Add((lenght << 25) | (height << 20) | varyingStationaryA);
+                meshData.Add(lowerVertexData);
+
+                meshData.Add((lenght << 25) | (height << 20) | varyingExtendableB);
+                meshData.Add(lowerVertexData);
+
+                meshData.Add((lenght << 25) | (height << 20) | varyingExtendableA);
+                meshData.Add(lowerVertexData);
+            }
         }
 
         public void SetMeshData(ref SectionMeshData meshData)

@@ -44,56 +44,44 @@ namespace VoxelGame.Logic.Blocks
                 new float[] // Front face
                 {
                     0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f,
-                    1f, 1f, 1f, 1f, 1f, 0f, 0f, 1f,
                     0f, 1f, 1f, 0f, 1f, 0f, 0f, 1f,
-                    0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f,
-                    1f, 0f, 1f, 1f, 0f, 0f, 0f, 1f,
-                    1f, 1f, 1f, 1f, 1f, 0f, 0f, 1f
+                    1f, 1f, 1f, 1f, 1f, 0f, 0f, 1f,
+                    1f, 0f, 1f, 1f, 0f, 0f, 0f, 1f
                 },
                 new float[] // Back face
                 {
                     1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f,
-                    0f, 1f, 0f, 1f, 1f, 0f, 0f, -1f,
                     1f, 1f, 0f, 0f, 1f, 0f, 0f, -1f,
-                    1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f,
-                    0f, 0f, 0f, 1f, 0f, 0f, 0f, -1f,
-                    0f, 1f, 0f, 1f, 1f, 0f, 0f, -1f
+                    0f, 1f, 0f, 1f, 1f, 0f, 0f, -1f,
+                    0f, 0f, 0f, 1f, 0f, 0f, 0f, -1f
                 },
                 new float[] // Left face
                 {
                     0f, 0f, 0f, 0f, 0f, -1f, 0f, 0f,
-                    0f, 1f, 1f, 1f, 1f, -1f, 0f, 0f,
                     0f, 1f, 0f, 0f, 1f, -1f, 0f, 0f,
-                    0f, 0f, 0f, 0f, 0f, -1f, 0f, 0f,
-                    0f, 0f, 1f, 1f, 0f, -1f, 0f, 0f,
-                    0f, 1f, 1f, 1f, 1f, -1f, 0f, 0f
+                    0f, 1f, 1f, 1f, 1f, -1f, 0f, 0f,
+                    0f, 0f, 1f, 1f, 0f, -1f, 0f, 0f
                 },
                 new float[] // Right face
                 {
                     1f, 0f, 1f, 0f, 0f, 1f, 0f, 0f,
-                    1f, 1f, 0f, 1f, 1f, 1f, 0f, 0f,
                     1f, 1f, 1f, 0f, 1f, 1f, 0f, 0f,
-                    1f, 0f, 1f, 0f, 0f, 1f, 0f, 0f,
-                    1f, 0f, 0f, 1f, 0f, 1f, 0f, 0f,
-                    1f, 1f, 0f, 1f, 1f, 1f, 0f, 0f
+                    1f, 1f, 0f, 1f, 1f, 1f, 0f, 0f,
+                    1f, 0f, 0f, 1f, 0f, 1f, 0f, 0f
                 },
                 new float[] // Bottom face
                 {
                     0f, 0f, 0f, 0f, 0f, 0f, -1f, 0f,
-                    1f, 0f, 1f, 1f, 1f, 0f, -1f, 0f,
                     0f, 0f, 1f, 0f, 1f, 0f, -1f, 0f,
-                    0f, 0f, 0f, 0f, 0f, 0f, -1f, 0f,
-                    1f, 0f, 0f, 1f, 0f, 0f, -1f, 0f,
-                    1f, 0f, 1f, 1f, 1f, 0f, -1f, 0f
+                    1f, 0f, 1f, 1f, 1f, 0f, -1f, 0f,
+                    1f, 0f, 0f, 1f, 0f, 0f, -1f, 0f
                 },
                 new float[] // Top face
                 {
                     0f, 1f, 1f, 0f, 0f, 0f, 1f, 0f,
-                    1f, 1f, 0f, 1f, 1f, 0f, 1f, 0f,
                     0f, 1f, 0f, 0f, 1f, 0f, 1f, 0f,
-                    0f, 1f, 1f, 0f, 0f, 0f, 1f, 0f,
-                    1f, 1f, 1f, 1f, 0f, 0f, 1f, 0f,
-                    1f, 1f, 0f, 1f, 1f, 0f, 1f, 0f
+                    1f, 1f, 0f, 1f, 1f, 0f, 1f, 0f,
+                    1f, 1f, 1f, 1f, 0f, 0f, 1f, 0f
                 }
             };
 
@@ -101,27 +89,27 @@ namespace VoxelGame.Logic.Blocks
             {
                 new int[]
                 {
-                    layout.Front, layout.Front, layout.Front, layout.Front, layout.Front, layout.Front
+                    layout.Front, layout.Front, layout.Front, layout.Front
                 },
                 new int[]
                 {
-                    layout.Back, layout.Back, layout.Back, layout.Back, layout.Back, layout.Back
+                    layout.Back, layout.Back, layout.Back, layout.Back
                 },
                 new int[]
                 {
-                    layout.Left, layout.Left, layout.Left, layout.Left, layout.Left, layout.Left
+                    layout.Left, layout.Left, layout.Left, layout.Left
                 },
                 new int[]
                 {
-                    layout.Right, layout.Right, layout.Right, layout.Right, layout.Right, layout.Right
+                    layout.Right, layout.Right, layout.Right, layout.Right
                 },
                 new int[]
                 {
-                    layout.Bottom, layout.Bottom, layout.Bottom, layout.Bottom, layout.Bottom, layout.Bottom
+                    layout.Bottom, layout.Bottom, layout.Bottom, layout.Bottom
                 },
                 new int[]
                 {
-                    layout.Top, layout.Top, layout.Top, layout.Top, layout.Top, layout.Top
+                    layout.Top, layout.Top, layout.Top, layout.Top
                 }
             };
         }
@@ -134,7 +122,7 @@ namespace VoxelGame.Logic.Blocks
 
             tint = TintColor.None;
 
-            return 6;
+            return 4;
         }
     }
 }
