@@ -18,8 +18,6 @@ Global
 		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
-		Wireframe|Any CPU = Wireframe|Any CPU
-		Wireframe|x64 = Wireframe|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{ACFF7DF6-64D5-43EF-A1F1-2EB2A4D31C04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -30,18 +28,11 @@ Global
 		{ACFF7DF6-64D5-43EF-A1F1-2EB2A4D31C04}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ACFF7DF6-64D5-43EF-A1F1-2EB2A4D31C04}.Release|x64.ActiveCfg = Release|x64
 		{ACFF7DF6-64D5-43EF-A1F1-2EB2A4D31C04}.Release|x64.Build.0 = Release|x64
-		{ACFF7DF6-64D5-43EF-A1F1-2EB2A4D31C04}.Wireframe|Any CPU.ActiveCfg = Wireframe|Any CPU
-		{ACFF7DF6-64D5-43EF-A1F1-2EB2A4D31C04}.Wireframe|Any CPU.Build.0 = Wireframe|Any CPU
-		{ACFF7DF6-64D5-43EF-A1F1-2EB2A4D31C04}.Wireframe|x64.ActiveCfg = Wireframe|x64
-		{ACFF7DF6-64D5-43EF-A1F1-2EB2A4D31C04}.Wireframe|x64.Build.0 = Wireframe|x64
 		{5509F3AF-FC05-4C50-A0AD-CC9D0DFE8FF6}.Debug|Any CPU.ActiveCfg = Debug
 		{5509F3AF-FC05-4C50-A0AD-CC9D0DFE8FF6}.Debug|x64.ActiveCfg = Debug
 		{5509F3AF-FC05-4C50-A0AD-CC9D0DFE8FF6}.Release|Any CPU.ActiveCfg = Release
 		{5509F3AF-FC05-4C50-A0AD-CC9D0DFE8FF6}.Release|x64.ActiveCfg = Release
 		{5509F3AF-FC05-4C50-A0AD-CC9D0DFE8FF6}.Release|x64.Build.0 = Release
-		{5509F3AF-FC05-4C50-A0AD-CC9D0DFE8FF6}.Wireframe|Any CPU.ActiveCfg = Wireframe
-		{5509F3AF-FC05-4C50-A0AD-CC9D0DFE8FF6}.Wireframe|Any CPU.Build.0 = Wireframe
-		{5509F3AF-FC05-4C50-A0AD-CC9D0DFE8FF6}.Wireframe|x64.ActiveCfg = Wireframe
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
