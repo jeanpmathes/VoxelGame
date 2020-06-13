@@ -465,7 +465,18 @@ namespace VoxelGame.Logic
                     {
                         if (chunkMeshingTasks[i].IsFaulted)
                         {
-                            throw chunkMeshingTasks[i].Exception.GetBaseException();
+                            Exception e = chunkMeshingTasks[i].Exception.GetBaseException();
+
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine(
+                                $"{DateTime.Now} | ---- CHUNK MESHING ERROR -------------\n" +
+                                $"Exception:\n" +
+                                $"{e.Message}\n" +
+                                $"Stack Trace:\n" +
+                                $"{e.StackTrace}");
+                            Console.ResetColor();
+
+                            throw e;
                         }
                         else
                         {

@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using VoxelGame.Collections;
 using VoxelGame.Rendering;
@@ -143,18 +143,84 @@ namespace VoxelGame.Logic
                                     simpleFrontFaces.Add(new PooledList<PooledList<SimpleFace>>());
                                 }
 
-                                while (simpleFrontFaces[z].Count <= y)
+                                while (simpleFrontFaces[z].Count <= x)
                                 {
                                     simpleFrontFaces[z].Add(new PooledList<SimpleFace>());
                                 }
 
-                                if (simpleFrontFaces[z][y].Count == 0 || !simpleFrontFaces[z][y][simpleFrontFaces[z][y].Count - 1].TryAdd(x, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
+                                if (simpleFrontFaces[z][x].Count == 0 || !simpleFrontFaces[z][x][simpleFrontFaces[z][x].Count - 1].TryAdd(true, y, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
                                 {
-                                    simpleFrontFaces[z][y].Add(new SimpleFace(x, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                    extendedFace = new SimpleFace(true, y, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData);
+
+                                    if (x > 0)
+                                    {
+                                        bool couldCombine = false;
+
+                                        for (int g = 0; g < simpleFrontFaces[z][x - 1].Count; g++)
+                                        {
+                                            if (simpleFrontFaces[z][x - 1][g].TryCombine(true, extendedFace, false, out SimpleFace up, out SimpleFace down))
+                                            {
+                                                couldCombine = true;
+
+                                                simpleFrontFaces[z][x - 1][g] = up;
+                                                simpleFrontFaces[z][x].Add(down);
+
+                                                break;
+                                            }
+                                        }
+
+                                        if (!couldCombine)
+                                        {
+                                            simpleFrontFaces[z][x].Add(new SimpleFace(true, y, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        simpleFrontFaces[z][x].Add(new SimpleFace(true, y, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                    }
                                 }
                                 else
                                 {
-                                    simpleFrontFaces[z][y][simpleFrontFaces[z][y].Count - 1] = extendedFace;
+                                    if (x > 0)
+                                    {
+                                        bool couldCombine = false;
+
+                                        for (int g = 0; g < simpleFrontFaces[z][x - 1].Count; g++)
+                                        {
+                                            if (simpleFrontFaces[z][x - 1][g].TryCombine(true, extendedFace, false, out SimpleFace up, out SimpleFace down))
+                                            {
+                                                couldCombine = true;
+
+                                                simpleFrontFaces[z][x - 1][g] = up;
+                                                simpleFrontFaces[z][x][simpleFrontFaces[z][x].Count - 1] = down;
+
+                                                break;
+                                            }
+                                        }
+
+                                        if (!couldCombine)
+                                        {
+                                            if (simpleFrontFaces[z][x][simpleFrontFaces[z][x].Count - 1].height == 0)
+                                            {
+                                                simpleFrontFaces[z][x][simpleFrontFaces[z][x].Count - 1] = extendedFace;
+                                            }
+                                            else
+                                            {
+                                                simpleFrontFaces[z][x].Add(new SimpleFace(true, y, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (simpleFrontFaces[z][x][simpleFrontFaces[z][x].Count - 1].height == 0)
+                                        {
+                                            simpleFrontFaces[z][x][simpleFrontFaces[z][x].Count - 1] = extendedFace;
+                                        }
+                                        else
+                                        {
+                                            simpleFrontFaces[z][x].Add(new SimpleFace(true, y, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                        }
+                                    }
                                 }
                             }
 
@@ -190,18 +256,84 @@ namespace VoxelGame.Logic
                                     simpleBackFaces.Add(new PooledList<PooledList<SimpleFace>>());
                                 }
 
-                                while (simpleBackFaces[z].Count <= y)
+                                while (simpleBackFaces[z].Count <= x)
                                 {
                                     simpleBackFaces[z].Add(new PooledList<SimpleFace>());
                                 }
 
-                                if (simpleBackFaces[z][y].Count == 0 || !simpleBackFaces[z][y][simpleBackFaces[z][y].Count - 1].TryAdd(x, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
+                                if (simpleBackFaces[z][x].Count == 0 || !simpleBackFaces[z][x][simpleBackFaces[z][x].Count - 1].TryAdd(true, y, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
                                 {
-                                    simpleBackFaces[z][y].Add(new SimpleFace(x, upperDataA, upperDataB, upperDataC, upperDataD, true, lowerData));
+                                    extendedFace = new SimpleFace(true, y, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData);
+
+                                    if (x > 0)
+                                    {
+                                        bool couldCombine = false;
+
+                                        for (int g = 0; g < simpleBackFaces[z][x - 1].Count; g++)
+                                        {
+                                            if (simpleBackFaces[z][x - 1][g].TryCombine(true, extendedFace, true, out SimpleFace up, out SimpleFace down))
+                                            {
+                                                couldCombine = true;
+
+                                                simpleBackFaces[z][x - 1][g] = up;
+                                                simpleBackFaces[z][x].Add(down);
+
+                                                break;
+                                            }
+                                        }
+
+                                        if (!couldCombine)
+                                        {
+                                            simpleBackFaces[z][x].Add(new SimpleFace(true, y, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        simpleBackFaces[z][x].Add(new SimpleFace(true, y, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                    }
                                 }
                                 else
                                 {
-                                    simpleBackFaces[z][y][simpleBackFaces[z][y].Count - 1] = extendedFace;
+                                    if (x > 0)
+                                    {
+                                        bool couldCombine = false;
+
+                                        for (int g = 0; g < simpleBackFaces[z][x - 1].Count; g++)
+                                        {
+                                            if (simpleBackFaces[z][x - 1][g].TryCombine(true, extendedFace, true, out SimpleFace up, out SimpleFace down))
+                                            {
+                                                couldCombine = true;
+
+                                                simpleBackFaces[z][x - 1][g] = up;
+                                                simpleBackFaces[z][x][simpleBackFaces[z][x].Count - 1] = down;
+
+                                                break;
+                                            }
+                                        }
+
+                                        if (!couldCombine)
+                                        {
+                                            if (simpleBackFaces[z][x][simpleBackFaces[z][x].Count - 1].height == 0)
+                                            {
+                                                simpleBackFaces[z][x][simpleBackFaces[z][x].Count - 1] = extendedFace;
+                                            }
+                                            else
+                                            {
+                                                simpleBackFaces[z][x].Add(new SimpleFace(true, y, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (simpleBackFaces[z][x][simpleBackFaces[z][x].Count - 1].height == 0)
+                                        {
+                                            simpleBackFaces[z][x][simpleBackFaces[z][x].Count - 1] = extendedFace;
+                                        }
+                                        else
+                                        {
+                                            simpleBackFaces[z][x].Add(new SimpleFace(true, y, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                        }
+                                    }
                                 }
                             }
 
@@ -242,13 +374,79 @@ namespace VoxelGame.Logic
                                     simpleLeftFaces[x].Add(new PooledList<SimpleFace>());
                                 }
 
-                                if (simpleLeftFaces[x][y].Count == 0 || !simpleLeftFaces[x][y][simpleLeftFaces[x][y].Count - 1].TryAdd(z, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
+                                if (simpleLeftFaces[x][y].Count == 0 || !simpleLeftFaces[x][y][simpleLeftFaces[x][y].Count - 1].TryAdd(false, z, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
                                 {
-                                    simpleLeftFaces[x][y].Add(new SimpleFace(z, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                    extendedFace = new SimpleFace(false, z, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData);
+
+                                    if (y > 0)
+                                    {
+                                        bool couldCombine = false;
+
+                                        for (int g = 0; g < simpleLeftFaces[x][y - 1].Count; g++)
+                                        {
+                                            if (simpleLeftFaces[x][y - 1][g].TryCombine(false, extendedFace, true, out SimpleFace up, out SimpleFace down))
+                                            {
+                                                couldCombine = true;
+
+                                                simpleLeftFaces[x][y - 1][g] = up;
+                                                simpleLeftFaces[x][y].Add(down);
+
+                                                break;
+                                            }
+                                        }
+
+                                        if (!couldCombine)
+                                        {
+                                            simpleLeftFaces[x][y].Add(new SimpleFace(false, z, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        simpleLeftFaces[x][y].Add(new SimpleFace(false, z, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                    }
                                 }
                                 else
                                 {
-                                    simpleLeftFaces[x][y][simpleLeftFaces[x][y].Count - 1] = extendedFace;
+                                    if (y > 0)
+                                    {
+                                        bool couldCombine = false;
+
+                                        for (int g = 0; g < simpleLeftFaces[x][y - 1].Count; g++)
+                                        {
+                                            if (simpleLeftFaces[x][y - 1][g].TryCombine(false, extendedFace, true, out SimpleFace up, out SimpleFace down))
+                                            {
+                                                couldCombine = true;
+
+                                                simpleLeftFaces[x][y - 1][g] = up;
+                                                simpleLeftFaces[x][y][simpleLeftFaces[x][y].Count - 1] = down;
+
+                                                break;
+                                            }
+                                        }
+
+                                        if (!couldCombine)
+                                        {
+                                            if (simpleLeftFaces[x][y][simpleLeftFaces[x][y].Count - 1].height == 0)
+                                            {
+                                                simpleLeftFaces[x][y][simpleLeftFaces[x][y].Count - 1] = extendedFace;
+                                            }
+                                            else
+                                            {
+                                                simpleLeftFaces[x][y].Add(new SimpleFace(false, z, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (simpleLeftFaces[x][y][simpleLeftFaces[x][y].Count - 1].height == 0)
+                                        {
+                                            simpleLeftFaces[x][y][simpleLeftFaces[x][y].Count - 1] = extendedFace;
+                                        }
+                                        else
+                                        {
+                                            simpleLeftFaces[x][y].Add(new SimpleFace(false, z, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                        }
+                                    }
                                 }
                             }
 
@@ -289,13 +487,79 @@ namespace VoxelGame.Logic
                                     simpleRightFaces[x].Add(new PooledList<SimpleFace>());
                                 }
 
-                                if (simpleRightFaces[x][y].Count == 0 || !simpleRightFaces[x][y][simpleRightFaces[x][y].Count - 1].TryAdd(z, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
+                                if (simpleRightFaces[x][y].Count == 0 || !simpleRightFaces[x][y][simpleRightFaces[x][y].Count - 1].TryAdd(false, z, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
                                 {
-                                    simpleRightFaces[x][y].Add(new SimpleFace(z, upperDataA, upperDataB, upperDataC, upperDataD, true, lowerData));
+                                    extendedFace = new SimpleFace(false, z, upperDataA, upperDataB, upperDataC, upperDataD, true, lowerData);
+
+                                    if (y > 0)
+                                    {
+                                        bool couldCombine = false;
+
+                                        for (int g = 0; g < simpleRightFaces[x][y - 1].Count; g++)
+                                        {
+                                            if (simpleRightFaces[x][y - 1][g].TryCombine(false, extendedFace, false, out SimpleFace up, out SimpleFace down))
+                                            {
+                                                couldCombine = true;
+
+                                                simpleRightFaces[x][y - 1][g] = up;
+                                                simpleRightFaces[x][y].Add(down);
+
+                                                break;
+                                            }
+                                        }
+
+                                        if (!couldCombine)
+                                        {
+                                            simpleRightFaces[x][y].Add(new SimpleFace(false, z, upperDataA, upperDataB, upperDataC, upperDataD, true, lowerData));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        simpleRightFaces[x][y].Add(new SimpleFace(false, z, upperDataA, upperDataB, upperDataC, upperDataD, true, lowerData));
+                                    }
                                 }
                                 else
                                 {
-                                    simpleRightFaces[x][y][simpleRightFaces[x][y].Count - 1] = extendedFace;
+                                    if (y > 0)
+                                    {
+                                        bool couldCombine = false;
+
+                                        for (int g = 0; g < simpleRightFaces[x][y - 1].Count; g++)
+                                        {
+                                            if (simpleRightFaces[x][y - 1][g].TryCombine(false, extendedFace, false, out SimpleFace up, out SimpleFace down))
+                                            {
+                                                couldCombine = true;
+
+                                                simpleRightFaces[x][y - 1][g] = up;
+                                                simpleRightFaces[x][y][simpleRightFaces[x][y].Count - 1] = down;
+
+                                                break;
+                                            }
+                                        }
+
+                                        if (!couldCombine)
+                                        {
+                                            if (simpleRightFaces[x][y][simpleRightFaces[x][y].Count - 1].height == 0)
+                                            {
+                                                simpleRightFaces[x][y][simpleRightFaces[x][y].Count - 1] = extendedFace;
+                                            }
+                                            else
+                                            {
+                                                simpleRightFaces[x][y].Add(new SimpleFace(false, z, upperDataA, upperDataB, upperDataC, upperDataD, true, lowerData));
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (simpleRightFaces[x][y][simpleRightFaces[x][y].Count - 1].height == 0)
+                                        {
+                                            simpleRightFaces[x][y][simpleRightFaces[x][y].Count - 1] = extendedFace;
+                                        }
+                                        else
+                                        {
+                                            simpleRightFaces[x][y].Add(new SimpleFace(false, z, upperDataA, upperDataB, upperDataC, upperDataD, true, lowerData));
+                                        }
+                                    }
                                 }
                             }
 
@@ -331,18 +595,84 @@ namespace VoxelGame.Logic
                                     simpleBottomFaces.Add(new PooledList<PooledList<SimpleFace>>());
                                 }
 
-                                while (simpleBottomFaces[y].Count <= z)
+                                while (simpleBottomFaces[y].Count <= x)
                                 {
                                     simpleBottomFaces[y].Add(new PooledList<SimpleFace>());
                                 }
 
-                                if (simpleBottomFaces[y][z].Count == 0 || !simpleBottomFaces[y][z][simpleBottomFaces[y][z].Count - 1].TryAdd(x, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
+                                if (simpleBottomFaces[y][x].Count == 0 || !simpleBottomFaces[y][x][simpleBottomFaces[y][x].Count - 1].TryAdd(true, z, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
                                 {
-                                    simpleBottomFaces[y][z].Add(new SimpleFace(x, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                    extendedFace = new SimpleFace(true, z, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData);
+
+                                    if (x > 0)
+                                    {
+                                        bool couldCombine = false;
+
+                                        for (int g = 0; g < simpleBottomFaces[y][x - 1].Count; g++)
+                                        {
+                                            if (simpleBottomFaces[y][x - 1][g].TryCombine(true, extendedFace, false, out SimpleFace up, out SimpleFace down))
+                                            {
+                                                couldCombine = true;
+
+                                                simpleBottomFaces[y][x - 1][g] = up;
+                                                simpleBottomFaces[y][x].Add(down);
+
+                                                break;
+                                            }
+                                        }
+
+                                        if (!couldCombine)
+                                        {
+                                            simpleBottomFaces[y][x].Add(new SimpleFace(true, z, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        simpleBottomFaces[y][x].Add(new SimpleFace(true, z, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                    }
                                 }
                                 else
                                 {
-                                    simpleBottomFaces[y][z][simpleBottomFaces[y][z].Count - 1] = extendedFace;
+                                    if (x > 0)
+                                    {
+                                        bool couldCombine = false;
+
+                                        for (int g = 0; g < simpleBottomFaces[y][x - 1].Count; g++)
+                                        {
+                                            if (simpleBottomFaces[y][x - 1][g].TryCombine(true, extendedFace, false, out SimpleFace up, out SimpleFace down))
+                                            {
+                                                couldCombine = true;
+
+                                                simpleBottomFaces[y][x - 1][g] = up;
+                                                simpleBottomFaces[y][x][simpleBottomFaces[y][x].Count - 1] = down;
+
+                                                break;
+                                            }
+                                        }
+
+                                        if (!couldCombine)
+                                        {
+                                            if (simpleBottomFaces[y][x][simpleBottomFaces[y][x].Count - 1].height == 0)
+                                            {
+                                                simpleBottomFaces[y][x][simpleBottomFaces[y][x].Count - 1] = extendedFace;
+                                            }
+                                            else
+                                            {
+                                                simpleBottomFaces[y][x].Add(new SimpleFace(true, z, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (simpleBottomFaces[y][x][simpleBottomFaces[y][x].Count - 1].height == 0)
+                                        {
+                                            simpleBottomFaces[y][x][simpleBottomFaces[y][x].Count - 1] = extendedFace;
+                                        }
+                                        else
+                                        {
+                                            simpleBottomFaces[y][x].Add(new SimpleFace(true, z, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                        }
+                                    }
                                 }
                             }
 
@@ -378,18 +708,84 @@ namespace VoxelGame.Logic
                                     simpleTopFaces.Add(new PooledList<PooledList<SimpleFace>>());
                                 }
 
-                                while (simpleTopFaces[y].Count <= z)
+                                while (simpleTopFaces[y].Count <= x)
                                 {
                                     simpleTopFaces[y].Add(new PooledList<SimpleFace>());
                                 }
 
-                                if (simpleTopFaces[y][z].Count == 0 || !simpleTopFaces[y][z][simpleTopFaces[y][z].Count - 1].TryAdd(x, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
+                                if (simpleTopFaces[y][x].Count == 0 || !simpleTopFaces[y][x][simpleTopFaces[y][x].Count - 1].TryAdd(true, z, upperDataA, upperDataB, upperDataC, upperDataD, lowerData, out SimpleFace extendedFace))
                                 {
-                                    simpleTopFaces[y][z].Add(new SimpleFace(x, upperDataA, upperDataB, upperDataC, upperDataD, false, lowerData));
+                                    extendedFace = new SimpleFace(true, z, upperDataA, upperDataB, upperDataC, upperDataD, true, lowerData);
+
+                                    if (x > 0)
+                                    {
+                                        bool couldCombine = false;
+
+                                        for (int g = 0; g < simpleTopFaces[y][x - 1].Count; g++)
+                                        {
+                                            if (simpleTopFaces[y][x - 1][g].TryCombine(true, extendedFace, false, out SimpleFace up, out SimpleFace down))
+                                            {
+                                                couldCombine = true;
+
+                                                simpleTopFaces[y][x - 1][g] = up;
+                                                simpleTopFaces[y][x].Add(down);
+
+                                                break;
+                                            }
+                                        }
+
+                                        if (!couldCombine)
+                                        {
+                                            simpleTopFaces[y][x].Add(new SimpleFace(true, z, upperDataA, upperDataB, upperDataC, upperDataD, true, lowerData));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        simpleTopFaces[y][x].Add(new SimpleFace(true, z, upperDataA, upperDataB, upperDataC, upperDataD, true, lowerData));
+                                    }
                                 }
                                 else
                                 {
-                                    simpleTopFaces[y][z][simpleTopFaces[y][z].Count - 1] = extendedFace;
+                                    if (x > 0)
+                                    {
+                                        bool couldCombine = false;
+
+                                        for (int g = 0; g < simpleTopFaces[y][x - 1].Count; g++)
+                                        {
+                                            if (simpleTopFaces[y][x - 1][g].TryCombine(true, extendedFace, false, out SimpleFace up, out SimpleFace down))
+                                            {
+                                                couldCombine = true;
+
+                                                simpleTopFaces[y][x - 1][g] = up;
+                                                simpleTopFaces[y][x][simpleTopFaces[y][x].Count - 1] = down;
+
+                                                break;
+                                            }
+                                        }
+
+                                        if (!couldCombine)
+                                        {
+                                            if (simpleTopFaces[y][x][simpleTopFaces[y][x].Count - 1].height == 0)
+                                            {
+                                                simpleTopFaces[y][x][simpleTopFaces[y][x].Count - 1] = extendedFace;
+                                            }
+                                            else
+                                            {
+                                                simpleTopFaces[y][x].Add(new SimpleFace(true, z, upperDataA, upperDataB, upperDataC, upperDataD, true, lowerData));
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (simpleTopFaces[y][x][simpleTopFaces[y][x].Count - 1].height == 0)
+                                        {
+                                            simpleTopFaces[y][x][simpleTopFaces[y][x].Count - 1] = extendedFace;
+                                        }
+                                        else
+                                        {
+                                            simpleTopFaces[y][x].Add(new SimpleFace(true, z, upperDataA, upperDataB, upperDataC, upperDataD, true, lowerData));
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -442,32 +838,32 @@ namespace VoxelGame.Logic
                     {
                         if (i < simpleFrontFaces.Count && j < simpleFrontFaces[i].Count && k < simpleFrontFaces[i][j].Count)
                         {
-                            simpleFrontFaces[i][j][k].AddMeshTo(ref simpleVertexData);
+                            simpleFrontFaces[i][j][k].AddMeshTo(true, ref simpleVertexData);
                         }
 
                         if (i < simpleBackFaces.Count && j < simpleBackFaces[i].Count && k < simpleBackFaces[i][j].Count)
                         {
-                            simpleBackFaces[i][j][k].AddMeshTo(ref simpleVertexData);
+                            simpleBackFaces[i][j][k].AddMeshTo(true, ref simpleVertexData);
                         }
 
                         if (i < simpleLeftFaces.Count && j < simpleLeftFaces[i].Count && k < simpleLeftFaces[i][j].Count)
                         {
-                            simpleLeftFaces[i][j][k].AddMeshTo(ref simpleVertexData);
+                            simpleLeftFaces[i][j][k].AddMeshTo(false, ref simpleVertexData);
                         }
 
                         if (i < simpleRightFaces.Count && j < simpleRightFaces[i].Count && k < simpleRightFaces[i][j].Count)
                         {
-                            simpleRightFaces[i][j][k].AddMeshTo(ref simpleVertexData);
+                            simpleRightFaces[i][j][k].AddMeshTo(false, ref simpleVertexData);
                         }
 
                         if (i < simpleBottomFaces.Count && j < simpleBottomFaces[i].Count && k < simpleBottomFaces[i][j].Count)
                         {
-                            simpleBottomFaces[i][j][k].AddMeshTo(ref simpleVertexData);
+                            simpleBottomFaces[i][j][k].AddMeshTo(true, ref simpleVertexData);
                         }
 
                         if (i < simpleTopFaces.Count && j < simpleTopFaces[i].Count && k < simpleTopFaces[i][j].Count)
                         {
-                            simpleTopFaces[i][j][k].AddMeshTo(ref simpleVertexData);
+                            simpleTopFaces[i][j][k].AddMeshTo(false, ref simpleVertexData);
                         }
                     }
                 }
@@ -480,22 +876,26 @@ namespace VoxelGame.Logic
 
         private struct SimpleFace
         {
+            private bool isMeshed;
+
             private readonly bool inverse;
 
-            private readonly int first;
-            private int lenght;
-            private int height;
+            public readonly int first;
+            public int lenght;
+            public int height;
 
             private readonly int lowerVertexData;
             private readonly bool isRotated;
 
-            private readonly int varyingStationaryA;
-            private readonly int varyingStationaryB;
+            private int varyingStationaryA;
+            private int varyingStationaryB;
             private int varyingExtendableA;
             private int varyingExtendableB;
 
-            public SimpleFace(int first, int upperDataA, int upperDataB, int upperDataC, int upperDataD, bool inverse, int lowerVertexData)
+            public SimpleFace(bool isSpinned, int first, int upperDataA, int upperDataB, int upperDataC, int upperDataD, bool inverse, int lowerVertexData)
             {
+                isMeshed = false;
+
                 this.first = first;
                 lenght = 0;
                 height = 0;
@@ -504,42 +904,83 @@ namespace VoxelGame.Logic
 
                 int uv = (int)((uint)upperDataC >> 30);
                 isRotated = uv != 0b11;
+                isRotated = (isSpinned) ? !isRotated : isRotated;
 
-                if (!inverse)
-                {
-                    varyingStationaryA = upperDataA;
-                    varyingStationaryB = upperDataB;
-                    varyingExtendableA = upperDataC;
-                    varyingExtendableB = upperDataD;
-
-                    this.inverse = false;
-                }
-                else
-                {
-                    varyingStationaryA = upperDataC;
-                    varyingStationaryB = upperDataD;
-                    varyingExtendableA = upperDataA;
-                    varyingExtendableB = upperDataB;
-
-                    this.inverse = true;
-                }
-            }
-
-            public bool TryAdd(int next, int upperDataA, int upperDataB, int upperDataC, int upperDataD, int lowerVertexData, out SimpleFace newStruct)
-            {
-                int uv = (int)((uint)upperDataC >> 30);
-                bool isRotated = uv != 0b11;
-                if (next == first + lenght + 1 && isRotated == this.isRotated && lowerVertexData == this.lowerVertexData)
+                if (!isSpinned)
                 {
                     if (!inverse)
                     {
+                        varyingStationaryA = upperDataA;
+                        varyingStationaryB = upperDataB;
                         varyingExtendableA = upperDataC;
                         varyingExtendableB = upperDataD;
+
+                        this.inverse = false;
                     }
                     else
                     {
+                        varyingStationaryA = upperDataC;
+                        varyingStationaryB = upperDataD;
                         varyingExtendableA = upperDataA;
                         varyingExtendableB = upperDataB;
+
+                        this.inverse = true;
+                    }
+                }
+                else
+                {
+                    if (!inverse)
+                    {
+                        varyingStationaryA = upperDataB;
+                        varyingStationaryB = upperDataA;
+                        varyingExtendableA = upperDataD;
+                        varyingExtendableB = upperDataC;
+                    }
+                    else
+                    {
+                        varyingStationaryA = upperDataA;
+                        varyingStationaryB = upperDataB;
+                        varyingExtendableA = upperDataC;
+                        varyingExtendableB = upperDataD;
+                    }
+
+                    this.inverse = inverse;
+                }
+            }
+
+            public bool TryAdd(bool isSpinned, int next, int upperDataA, int upperDataB, int upperDataC, int upperDataD, int lowerVertexData, out SimpleFace newStruct)
+            {
+                int uv = (int)((uint)upperDataC >> 30);
+                bool isRotated = uv != 0b11;
+                isRotated = (isSpinned) ? !isRotated : isRotated;
+
+                if (next == first + lenght + 1 && isRotated == this.isRotated && lowerVertexData == this.lowerVertexData)
+                {
+                    if (!isSpinned)
+                    {
+                        if (!inverse)
+                        {
+                            varyingExtendableA = upperDataC;
+                            varyingExtendableB = upperDataD;
+                        }
+                        else
+                        {
+                            varyingExtendableA = upperDataA;
+                            varyingExtendableB = upperDataB;
+                        }
+                    }
+                    else
+                    {
+                        if (!inverse)
+                        {
+                            varyingStationaryA = upperDataB;
+                            varyingExtendableB = upperDataC;
+                        }
+                        else
+                        {
+                            varyingStationaryA = upperDataA;
+                            varyingExtendableB = upperDataD;
+                        }
                     }
 
                     lenght++;
@@ -556,8 +997,80 @@ namespace VoxelGame.Logic
                 }
             }
 
-            public void AddMeshTo(ref PooledList<int> meshData)
+            public bool TryCombine(bool isSpinned, SimpleFace below, bool isFlipped, out SimpleFace newUpperFace, out SimpleFace newLowerFace)
             {
+                if (below.isRotated == this.isRotated && below.lowerVertexData == this.lowerVertexData && below.first == this.first && below.lenght == this.lenght)
+                {
+                    newUpperFace = new SimpleFace { isMeshed = true };
+                    newLowerFace = new SimpleFace(isSpinned, isFlipped, below, this);
+
+                    return true;
+                }
+                else
+                {
+                    newUpperFace = new SimpleFace();
+                    newLowerFace = new SimpleFace();
+
+                    return false;
+                }
+            }
+
+            private SimpleFace(bool isSpinned, bool isFlipped, SimpleFace old, SimpleFace upper)
+            {
+                isMeshed = false;
+
+                inverse = old.inverse;
+
+                first = old.first;
+                lenght = old.lenght;
+                height = upper.height + 1;
+
+                lowerVertexData = old.lowerVertexData;
+                isRotated = old.isRotated;
+
+                if (!isSpinned)
+                {
+                    if (!isFlipped)
+                    {
+                        varyingStationaryA = old.varyingStationaryA;
+                        varyingStationaryB = upper.varyingStationaryB;
+                        varyingExtendableA = upper.varyingExtendableA;
+                        varyingExtendableB = old.varyingExtendableB;
+                    }
+                    else
+                    {
+                        varyingStationaryA = upper.varyingStationaryA;
+                        varyingStationaryB = old.varyingStationaryB;
+                        varyingExtendableA = old.varyingExtendableA;
+                        varyingExtendableB = upper.varyingExtendableB;
+                    }
+                }
+                else
+                {
+                    if (!isFlipped)
+                    {
+                        varyingStationaryA = upper.varyingStationaryA;
+                        varyingStationaryB = upper.varyingStationaryB;
+                        varyingExtendableA = old.varyingExtendableA;
+                        varyingExtendableB = old.varyingExtendableB;
+                    }
+                    else
+                    {
+                        varyingStationaryA = old.varyingStationaryA;
+                        varyingStationaryB = old.varyingStationaryB;
+                        varyingExtendableA = upper.varyingExtendableA;
+                        varyingExtendableB = upper.varyingExtendableB;
+                    }
+                }
+            }
+
+            public void AddMeshTo(bool turn, ref PooledList<int> meshData)
+            {
+                if (isMeshed)
+                {
+                    return;
+                }
+
                 if (isRotated)
                 {
                     int temp = lenght;
@@ -565,23 +1078,46 @@ namespace VoxelGame.Logic
                     height = temp;
                 }
 
-                meshData.Add((lenght << 25) | (height << 20) | varyingStationaryA);
-                meshData.Add(lowerVertexData);
+                if (!turn)                
+                {
+                    meshData.Add((lenght << 25) | (height << 20) | varyingStationaryA);
+                    meshData.Add(lowerVertexData);
 
-                meshData.Add((lenght << 25) | (height << 20) | varyingExtendableA);
-                meshData.Add(lowerVertexData);
+                    meshData.Add((lenght << 25) | (height << 20) | varyingExtendableA);
+                    meshData.Add(lowerVertexData);
 
-                meshData.Add((lenght << 25) | (height << 20) | varyingStationaryB);
-                meshData.Add(lowerVertexData);
+                    meshData.Add((lenght << 25) | (height << 20) | varyingStationaryB);
+                    meshData.Add(lowerVertexData);
 
-                meshData.Add((lenght << 25) | (height << 20) | varyingStationaryA);
-                meshData.Add(lowerVertexData);
+                    meshData.Add((lenght << 25) | (height << 20) | varyingStationaryA);
+                    meshData.Add(lowerVertexData);
 
-                meshData.Add((lenght << 25) | (height << 20) | varyingExtendableB);
-                meshData.Add(lowerVertexData);
+                    meshData.Add((lenght << 25) | (height << 20) | varyingExtendableB);
+                    meshData.Add(lowerVertexData);
 
-                meshData.Add((lenght << 25) | (height << 20) | varyingExtendableA);
-                meshData.Add(lowerVertexData);
+                    meshData.Add((lenght << 25) | (height << 20) | varyingExtendableA);
+                    meshData.Add(lowerVertexData);
+                }
+                else
+                {
+                    meshData.Add((lenght << 25) | (height << 20) | varyingStationaryA);
+                    meshData.Add(lowerVertexData);
+
+                    meshData.Add((lenght << 25) | (height << 20) | varyingStationaryB);
+                    meshData.Add(lowerVertexData);
+
+                    meshData.Add((lenght << 25) | (height << 20) | varyingExtendableA);
+                    meshData.Add(lowerVertexData);
+
+                    meshData.Add((lenght << 25) | (height << 20) | varyingStationaryA);
+                    meshData.Add(lowerVertexData);
+
+                    meshData.Add((lenght << 25) | (height << 20) | varyingExtendableA);
+                    meshData.Add(lowerVertexData);
+
+                    meshData.Add((lenght << 25) | (height << 20) | varyingExtendableB);
+                    meshData.Add(lowerVertexData);
+                }
             }
         }
 
