@@ -61,16 +61,22 @@ namespace VoxelGame.Logic.Blocks
             {
                 case BlockColor.Red:
                     return TintColor.Red;
+
                 case BlockColor.Green:
                     return TintColor.Green;
+
                 case BlockColor.Blue:
                     return TintColor.Blue;
+
                 case BlockColor.Yellow:
                     return TintColor.Yellow;
+
                 case BlockColor.Cyan:
                     return TintColor.Cyan;
+
                 case BlockColor.Magenta:
                     return TintColor.Magenta;
+
                 default:
                     return new TintColor(1f, 1f, 1f);
             }

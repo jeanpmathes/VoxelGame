@@ -3,9 +3,9 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace VoxelGame.Rendering
 {
@@ -79,7 +79,7 @@ namespace VoxelGame.Rendering
                 hasSimpleData = true;
             }
 
-            #endregion
+            #endregion SIMPLE BUFFER SETUP
 
             #region COMPLEX BUFFER SETUP
 
@@ -122,7 +122,7 @@ namespace VoxelGame.Rendering
                 hasComplexData = true;
             }
 
-            #endregion
+            #endregion COMPLEX BUFFER SETUP
 
             meshData.ReturnPooled();
         }
@@ -153,7 +153,7 @@ namespace VoxelGame.Rendering
                     GL.DrawArrays(PrimitiveType.Triangles, 0, simpleIndices);
                 }
 
-                #endregion
+                #endregion RENDERING SIMPLE
 
                 #region RENDERING COMPLEX
 
@@ -170,7 +170,7 @@ namespace VoxelGame.Rendering
                     GL.DrawElements(PrimitiveType.Triangles, complexElements, DrawElementsType.UnsignedInt, 0);
                 }
 
-                #endregion
+                #endregion RENDERING COMPLEX
 
                 GL.BindVertexArray(0);
                 GL.UseProgram(0);

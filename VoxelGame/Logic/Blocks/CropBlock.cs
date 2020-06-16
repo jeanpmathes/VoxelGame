@@ -138,17 +138,23 @@ namespace VoxelGame.Logic.Blocks
             {
                 case GrowthStage.Initial:
                 case GrowthStage.Dead:
-                    return new BoundingBox(new Vector3(0.5f, 0.125f, 0.5f) + new Vector3(x, y, z), new Vector3 (0.5f, 0.125f, 0.5f));
+                    return new BoundingBox(new Vector3(0.5f, 0.125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.125f, 0.5f));
+
                 case GrowthStage.Second:
                     return new BoundingBox(new Vector3(0.5f, 0.1875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.1875f, 0.5f));
+
                 case GrowthStage.Third:
                     return new BoundingBox(new Vector3(0.5f, 0.25f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.25f, 0.5f));
+
                 case GrowthStage.Forth:
                     return new BoundingBox(new Vector3(0.5f, 0.3125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.3125f, 0.5f));
+
                 case GrowthStage.Fifth:
                     return new BoundingBox(new Vector3(0.5f, 0.375f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.375f, 0.5f));
+
                 case GrowthStage.Sixth:
                     return new BoundingBox(new Vector3(0.5f, 0.4375f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.4375f, 0.5f));
+
                 case GrowthStage.Final:
                     return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f));
             }

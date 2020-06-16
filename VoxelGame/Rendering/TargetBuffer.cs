@@ -11,6 +11,7 @@ namespace VoxelGame.Rendering
         /// For blocks that are not rendered.
         /// </summary>
         NotRendered,
+
         /// <summary>
         /// Blocks have to accept <see cref="Logic.BlockSide.Front"/> to <see cref="Logic.BlockSide.Top"/>. Blocks that target this buffer have to be full.
         /// GetMesh has to return exactly 4 vertices that make up one face. Only UVs and positions can vary between the vertices.
@@ -18,6 +19,7 @@ namespace VoxelGame.Rendering
         /// The UVs may only be rotated counter-clockwise once.
         /// </summary>
         Simple,
+
         /// <summary>
         /// Blocks have to accept <see cref="Logic.BlockSide.All"/>.
         /// </summary>

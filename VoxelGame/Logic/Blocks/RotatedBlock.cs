@@ -151,7 +151,7 @@ namespace VoxelGame.Logic.Blocks
                 };
             }
 
-            textureIndices = new int[] { tex, tex, tex, tex};
+            textureIndices = new int[] { tex, tex, tex, tex };
             indices = Array.Empty<uint>();
             tint = TintColor.None;
 

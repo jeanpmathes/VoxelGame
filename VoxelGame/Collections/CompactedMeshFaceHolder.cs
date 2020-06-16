@@ -68,14 +68,17 @@ namespace VoxelGame.Collections
                         currentFace.vert_0_1 = vertB;
                         currentFace.vert_1_1 = vertC;
                         break;
+
                     case BlockSide.Left:
                         currentFace.vert_1_1 = vertC;
                         currentFace.vert_1_0 = vertD;
                         break;
+
                     case BlockSide.Right:
                         currentFace.vert_0_0 = vertA;
                         currentFace.vert_0_1 = vertB;
                         break;
+
                     case BlockSide.Top:
                         currentFace.vert_0_0 = vertA;
                         currentFace.vert_1_0 = vertD;
@@ -113,10 +116,12 @@ namespace VoxelGame.Collections
                             currentFace.vert_0_0 = combinationRowFace.vert_0_0;
                             currentFace.vert_0_1 = combinationRowFace.vert_0_1;
                             break;
+
                         case BlockSide.Back:
                             currentFace.vert_1_1 = combinationRowFace.vert_1_1;
                             currentFace.vert_1_0 = combinationRowFace.vert_1_0;
                             break;
+
                         case BlockSide.Left:
                         case BlockSide.Right:
                             currentFace.vert_0_0 = combinationRowFace.vert_0_0;

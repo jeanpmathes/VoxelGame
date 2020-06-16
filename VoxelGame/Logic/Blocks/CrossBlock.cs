@@ -30,6 +30,7 @@ namespace VoxelGame.Logic.Blocks
             4, 5, 6,
             4, 6, 7
         };
+
 #pragma warning disable CA1051 // Do not declare visible instance fields
 
         /// <summary>

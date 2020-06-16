@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenTK;
-using OpenTK.Graphics.OpenGL;
 using System;
 using System.Runtime.CompilerServices;
 using VoxelGame.Collections;
@@ -67,14 +66,8 @@ namespace VoxelGame.Logic
             SetMeshData(ref meshData);
         }
 
-        private static long totalTime;
-        private static float totalRuns;
-
         public void CreateMeshData(int sectionX, int sectionY, int sectionZ, out SectionMeshData meshData)
         {
-            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-
             // Set the neutral tint color
             TintColor neutral = new TintColor(0f, 1f, 0f);
 
@@ -355,15 +348,6 @@ namespace VoxelGame.Logic
             simpleRightFaceHolder.ReturnToPool();
             simpleBottomFaceHolder.ReturnToPool();
             simpleTopFaceHolder.ReturnToPool();
-
-            stopwatch.Stop();
-            totalTime += stopwatch.ElapsedMilliseconds;
-            totalRuns++;
-
-            if (totalRuns % 20 == 0)
-            {
-                Console.WriteLine($"AVRG FOR {totalRuns} RUNS IS {totalTime / totalRuns} ms");
-            }
         }
 
         public void SetMeshData(ref SectionMeshData meshData)
