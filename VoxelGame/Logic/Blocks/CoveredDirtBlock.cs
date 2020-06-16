@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using VoxelGame.Entities;
 using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic.Blocks
@@ -25,6 +26,20 @@ namespace VoxelGame.Logic.Blocks
                 isSolid: true)
         {
             this.hasNeutralTint = hasNeutralTint;
+        }
+
+        public override bool Place(int x, int y, int z, PhysicsEntity entity)
+        {
+            Block above = Game.World.GetBlock(x, y + 1, z, out _);
+
+            if (above.IsSolid && above.IsFull)
+            {
+                return Block.DIRT.Place(x, y, z, entity);
+            }
+            else
+            {
+                return base.Place(x, y, z, entity);
+            }
         }
 
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)

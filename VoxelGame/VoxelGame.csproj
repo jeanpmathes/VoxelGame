@@ -78,6 +78,16 @@
   <PropertyGroup>
     <ApplicationIcon>vg_icon.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Wireframe|AnyCPU'">
+    <OutputPath>bin\Wireframe\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Wireframe|x64'">
+    <OutputPath>bin\x64\Wireframe\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WIREFRAME</DefineConstants>
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
@@ -121,6 +131,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\CompactedMeshFaceHolder.cs" />
     <Compile Include="Collections\PooledList.cs" />
     <Compile Include="Collections\UniqueQueue.cs" />
     <Compile Include="Logic\Blocks\ConstructionBlock.cs" />

@@ -5,7 +5,6 @@
 // <author>pershingthesecond</author>
 using OpenTK;
 using System;
-using VoxelGame.Entities;
 using VoxelGame.Logic.Interfaces;
 using VoxelGame.Physics;
 using VoxelGame.Rendering;

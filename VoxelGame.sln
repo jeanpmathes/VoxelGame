@@ -32,6 +32,7 @@ Global
 		{5509F3AF-FC05-4C50-A0AD-CC9D0DFE8FF6}.Debug|x64.ActiveCfg = Debug
 		{5509F3AF-FC05-4C50-A0AD-CC9D0DFE8FF6}.Release|Any CPU.ActiveCfg = Release
 		{5509F3AF-FC05-4C50-A0AD-CC9D0DFE8FF6}.Release|x64.ActiveCfg = Release
+		{5509F3AF-FC05-4C50-A0AD-CC9D0DFE8FF6}.Release|x64.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

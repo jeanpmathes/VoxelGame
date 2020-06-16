@@ -11,6 +11,7 @@ namespace VoxelGame
     {
         private static void Main()
         {
+            Console.Title = Language.VoxelGame + " Console";
             Console.WriteLine(Language.StartingGame);
 
             using (Game game = new Game(800, 450, Language.VoxelGame))

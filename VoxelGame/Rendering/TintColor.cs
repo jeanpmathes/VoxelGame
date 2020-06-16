@@ -45,32 +45,38 @@ namespace VoxelGame.Rendering
         /// Gets a white color: <c>(1|1|1)</c>
         /// </summary>
         public static TintColor White { get => new TintColor(1f, 1f, 1f); }
+
         /// <summary>
         /// Gets a red color: <c>(1|0|0)</c>
         /// </summary>
         public static TintColor Red { get => new TintColor(1f, 0f, 0f); }
+
         /// <summary>
         /// Gets a green color: <c>(0|1|0)</c>
         /// </summary>
         public static TintColor Green { get => new TintColor(0f, 1f, 0f); }
+
         /// <summary>
         /// Gets a blue color: <c>(0|0|1)</c>
         /// </summary>
         public static TintColor Blue { get => new TintColor(0f, 0f, 1f); }
+
         /// <summary>
         /// Gets a yellow color: <c>(1|1|0)</c>
         /// </summary>
         public static TintColor Yellow { get => new TintColor(1f, 1f, 0f); }
+
         /// <summary>
         /// Gets a cyan color: <c>(0|1|1)</c>
         /// </summary>
         public static TintColor Cyan { get => new TintColor(0f, 1f, 1f); }
+
         /// <summary>
         /// Gets a magenta color: <c>(1|0|1)</c>
         /// </summary>
         public static TintColor Magenta { get => new TintColor(1f, 0f, 1f); }
 
-        #endregion
+        #endregion PREDEFINED COLORS
 
         public int ToBits
         {

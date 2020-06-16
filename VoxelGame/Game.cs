@@ -34,6 +34,9 @@ namespace VoxelGame
 
         public static Random Random { get; private set; }
 
+        private bool wireframeMode = false;
+        private bool hasReleasesWireframeKey = true;
+
         public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
         {
             instance = this;
@@ -51,9 +54,6 @@ namespace VoxelGame
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
 
-            // GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-
-            // WARNING: WHEN CHANGING THE RESOLTUION THIS ALSO HAS TO BE DONE IN THE SHADER
             BlockTextureArray = new ArrayTexture("Resources/Textures", 16, true, TextureUnit.Texture1, TextureUnit.Texture2);
             Console.WriteLine(Language.BlockTexturesLoadedAmount + BlockTextureArray.Count);
 
@@ -197,6 +197,28 @@ namespace VoxelGame
             }
 
             KeyboardState input = Keyboard.GetState();
+
+            if (hasReleasesWireframeKey && input.IsKeyDown(Key.K))
+            {
+                hasReleasesWireframeKey = false;
+
+                if (wireframeMode)
+                {
+                    GL.LineWidth(1f);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    wireframeMode = false;
+                }
+                else
+                {
+                    GL.LineWidth(5f);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                    wireframeMode = true;
+                }
+            }
+            else if (input.IsKeyUp(Key.K))
+            {
+                hasReleasesWireframeKey = true;
+            }
 
             if (input.IsKeyDown(Key.Escape))
             {
