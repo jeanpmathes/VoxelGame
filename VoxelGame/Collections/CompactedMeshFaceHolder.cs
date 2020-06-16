@@ -15,8 +15,9 @@ namespace VoxelGame.Collections
     public class CompactedMeshFaceHolder
     {
         private readonly BlockSide side;
-
         private readonly MeshFace[][] lastFaces;
+
+        private int count;
 
         public CompactedMeshFaceHolder(BlockSide side)
         {
@@ -87,6 +88,8 @@ namespace VoxelGame.Collections
             {
                 currentFace.previousFace = lastFaces[layer][row];
                 lastFaces[layer][row] = currentFace;
+
+                count++;
             }
 
             if (row == 0)
@@ -132,6 +135,8 @@ namespace VoxelGame.Collections
                         lastCombinationRowFace.previousFace = combinationRowFace.previousFace;
                     }
 
+                    count--;
+
                     break;
                 }
 
@@ -146,6 +151,13 @@ namespace VoxelGame.Collections
             {
                 throw new ArgumentNullException(nameof(meshData));
             }
+
+            if (count == 0)
+            {
+                return;
+            }
+
+            meshData.Capacity += count;
 
             for (int l = 0; l < Section.SectionSize; l++)
             {
