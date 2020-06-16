@@ -131,6 +131,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\CompactedMeshFaceHolder.cs" />
     <Compile Include="Collections\PooledList.cs" />
     <Compile Include="Collections\UniqueQueue.cs" />
     <Compile Include="Logic\Blocks\ConstructionBlock.cs" />
