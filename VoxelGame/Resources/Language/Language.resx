@@ -159,6 +159,9 @@
   <data name="ExitingGame" xml:space="preserve">
     <value>Exiting...</value>
   </data>
+  <data name="Farmland" xml:space="preserve">
+    <value>Farmland</value>
+  </data>
   <data name="Flax" xml:space="preserve">
     <value>Flax</value>
   </data>
@@ -228,8 +231,14 @@
   <data name="Stone" xml:space="preserve">
     <value>Stone</value>
   </data>
+  <data name="TallFlower" xml:space="preserve">
+    <value>Tall Flower</value>
+  </data>
   <data name="TallGrass" xml:space="preserve">
     <value>Tall Grass</value>
+  </data>
+  <data name="VeryTallGrass" xml:space="preserve">
+    <value>Very Tall Grass</value>
   </data>
   <data name="Vines" xml:space="preserve">
     <value>Vines</value>

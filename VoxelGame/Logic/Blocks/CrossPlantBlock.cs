@@ -21,9 +21,9 @@ namespace VoxelGame.Logic.Blocks
             base(
                 name,
                 texture,
-                isReplaceable,
                 recieveCollisions: false,
                 isTrigger: false,
+                isReplaceable,
                 boundingBox)
         {
         }
@@ -31,7 +31,7 @@ namespace VoxelGame.Logic.Blocks
         public override bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
         {
             // Check the block under the placement position.
-            Block ground = (Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR);
+            Block ground = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
 
             if (ground is IPlantable)
             {
