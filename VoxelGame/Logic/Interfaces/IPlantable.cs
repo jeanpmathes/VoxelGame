@@ -8,7 +8,7 @@ namespace VoxelGame.Logic.Interfaces
     /// <summary>
     /// Mark a block as able to support plant growth.
     /// </summary>
-    interface IPlantable
+    public interface IPlantable
     {
     }
 }
