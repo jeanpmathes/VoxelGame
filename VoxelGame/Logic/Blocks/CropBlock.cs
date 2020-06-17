@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using OpenTK;
 using VoxelGame.Entities;
+using VoxelGame.Logic.Interfaces;
 using VoxelGame.Physics;
 using VoxelGame.Rendering;
 
@@ -164,7 +165,7 @@ namespace VoxelGame.Logic.Blocks
 
         public override bool Place(int x, int y, int z, PhysicsEntity entity)
         {
-            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y - 1, z, out _) != Block.FARMLAND)
+            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true || !(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
             {
                 return false;
             }
@@ -192,7 +193,7 @@ namespace VoxelGame.Logic.Blocks
 
         public override void BlockUpdate(int x, int y, int z, byte data)
         {
-            if (Game.World.GetBlock(x, y - 1, z, out _) != Block.FARMLAND)
+            if (!(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
             {
                 Destroy(x, y, z, null);
             }
@@ -201,6 +202,11 @@ namespace VoxelGame.Logic.Blocks
         public override void RandomUpdate(int x, int y, int z, byte data)
         {
             GrowthStage stage = (GrowthStage)(data & 0b0_0111);
+
+            if ((int)stage > 2 && Game.World.GetBlock(x, y - 1, z, out _) != Block.FARMLAND)
+            {
+                return;
+            }
 
             if (stage != GrowthStage.Final && stage != GrowthStage.Dead)
             {

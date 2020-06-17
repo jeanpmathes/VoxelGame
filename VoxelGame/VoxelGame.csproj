@@ -147,6 +147,7 @@
     <Compile Include="Logic\Blocks\SpiderWebBlock.cs" />
     <Compile Include="Logic\Blocks\TintedBlock.cs" />
     <Compile Include="Logic\Interfaces\IFenceConnectable.cs" />
+    <Compile Include="Logic\Interfaces\IPlantable.cs" />
     <Compile Include="Logic\TextureLayout.cs" />
     <Compile Include="Logic\WorldInformation.cs" />
     <Compile Include="Physics\BoundingBox.cs" />
