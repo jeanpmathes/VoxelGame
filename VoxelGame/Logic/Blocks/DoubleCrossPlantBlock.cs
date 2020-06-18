@@ -3,10 +3,10 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using VoxelGame.Entities;
+using VoxelGame.Logic.Interfaces;
 using VoxelGame.Physics;
 using VoxelGame.Rendering;
-using VoxelGame.Logic.Interfaces;
-using VoxelGame.Entities;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -18,9 +18,9 @@ namespace VoxelGame.Logic.Blocks
     public class DoubleCrossPlantBlock : Block
     {
 #pragma warning disable CA1051 // Do not declare visible instance fields
-        protected float[] vertices;
-        protected int[] bottomTexIndices;
-        protected int[] topTexIndices;
+        protected float[] vertices = null!;
+        protected int[] bottomTexIndices = null!;
+        protected int[] topTexIndices = null!;
 
         protected readonly uint[] indices =
         {
@@ -83,7 +83,7 @@ namespace VoxelGame.Logic.Blocks
             topTexIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
         }
 
-        public override bool Place(int x, int y, int z, PhysicsEntity entity)
+        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
         {
             if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable != true || !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
             {
@@ -96,7 +96,7 @@ namespace VoxelGame.Logic.Blocks
             return true;
         }
 
-        public override bool Destroy(int x, int y, int z, PhysicsEntity entity)
+        public override bool Destroy(int x, int y, int z, PhysicsEntity? entity)
         {
             if (Game.World.GetBlock(x, y, z, out byte data) != this)
             {

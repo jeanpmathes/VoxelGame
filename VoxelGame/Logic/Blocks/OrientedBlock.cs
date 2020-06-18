@@ -18,8 +18,8 @@ namespace VoxelGame.Logic.Blocks
     public class OrientedBlock : BasicBlock
     {
 #pragma warning disable CA1051 // Do not declare visible instance fields
-        protected float[][] sideNormals;
-        protected int[] texIndices;
+        protected float[][] sideNormals = null!;
+        protected int[] texIndices = null!;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
         public OrientedBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid) :
@@ -140,14 +140,14 @@ namespace VoxelGame.Logic.Blocks
             return 4;
         }
 
-        public override bool Place(int x, int y, int z, PhysicsEntity entity)
+        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
         {
             if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true)
             {
                 return false;
             }
 
-            Game.World.SetBlock(this, (byte)entity?.LookingDirection.ToOrientation(), x, y, z);
+            Game.World.SetBlock(this, (byte)((entity?.LookingDirection.ToOrientation()) ?? Orientation.North), x, y, z);
 
             return true;
         }

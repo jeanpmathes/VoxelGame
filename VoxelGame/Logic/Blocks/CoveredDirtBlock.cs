@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using VoxelGame.Entities;
-using VoxelGame.Rendering;
 using VoxelGame.Logic.Interfaces;
+using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -29,9 +29,9 @@ namespace VoxelGame.Logic.Blocks
             this.hasNeutralTint = hasNeutralTint;
         }
 
-        public override bool Place(int x, int y, int z, PhysicsEntity entity)
+        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
         {
-            Block above = Game.World.GetBlock(x, y + 1, z, out _);
+            Block above = Game.World.GetBlock(x, y + 1, z, out _) ?? Block.AIR;
 
             if (above.IsSolid && above.IsFull)
             {
@@ -53,7 +53,7 @@ namespace VoxelGame.Logic.Blocks
         public override void BlockUpdate(int x, int y, int z, byte data)
         {
             // Check block on top of this block
-            Block above = Game.World.GetBlock(x, y + 1, z, out _);
+            Block above = Game.World.GetBlock(x, y + 1, z, out _) ?? Block.AIR;
 
             if (above.IsSolid && above.IsFull)
             {

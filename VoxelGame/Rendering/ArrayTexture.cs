@@ -3,13 +3,13 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK.Graphics.OpenGL4;
+using OpenToolkit.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
+using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
 
 namespace VoxelGame.Rendering
 {
@@ -48,23 +48,21 @@ namespace VoxelGame.Rendering
             {
                 try
                 {
-                    using (Bitmap bitmap = new Bitmap(texturePaths[i]))
+                    using Bitmap bitmap = new Bitmap(texturePaths[i]);
+                    if ((bitmap.Width % resolution) == 0 && bitmap.Height == resolution) // Check if image consists of correctly sized textures
                     {
-                        if ((bitmap.Width % resolution) == 0 && bitmap.Height == resolution) // Check if image consists of correctly sized textures
-                        {
-                            int textureCount = bitmap.Width / resolution;
-                            textureIndicies.Add(Path.GetFileNameWithoutExtension(texturePaths[i]), currentIndex);
+                        int textureCount = bitmap.Width / resolution;
+                        textureIndicies.Add(Path.GetFileNameWithoutExtension(texturePaths[i]), currentIndex);
 
-                            for (int j = 0; j < textureCount; j++)
-                            {
-                                textures.Add(bitmap.Clone(new Rectangle(j * resolution, 0, resolution, resolution), System.Drawing.Imaging.PixelFormat.Format32bppArgb));
-                                currentIndex++;
-                            }
-                        }
-                        else
+                        for (int j = 0; j < textureCount; j++)
                         {
-                            Console.WriteLine($"The image has the wrong width or height: {texturePaths[i]}");
+                            textures.Add(bitmap.Clone(new Rectangle(j * resolution, 0, resolution, resolution), System.Drawing.Imaging.PixelFormat.Format32bppArgb));
+                            currentIndex++;
                         }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"The image has the wrong width or height: {texturePaths[i]}");
                     }
                 }
                 catch (Exception e)
@@ -106,7 +104,7 @@ namespace VoxelGame.Rendering
             }
         }
 
-        private void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures, int startIndex, int length, bool useCustomMipmapGeneration)
+        private static void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures, int startIndex, int length, bool useCustomMipmapGeneration)
         {
             int levels = (int)Math.Log(resolution, 2);
 
@@ -116,43 +114,41 @@ namespace VoxelGame.Rendering
             // Allocate storage for array
             GL.TexStorage3D(TextureTarget3d.Texture2DArray, levels, SizedInternalFormat.Rgba8, resolution, resolution, length);
 
-            using (Bitmap container = new Bitmap(resolution, resolution * length))
+            using Bitmap container = new Bitmap(resolution, resolution * length);
+            using (Graphics canvas = Graphics.FromImage(container))
             {
-                using (Graphics canvas = Graphics.FromImage(container))
+                // Combine all textures into one
+                for (int i = startIndex; i < length; i++)
                 {
-                    // Combine all textures into one
-                    for (int i = startIndex; i < length; i++)
-                    {
-                        textures[i].RotateFlip(RotateFlipType.RotateNoneFlipY);
-                        canvas.DrawImage(textures[i], 0, i * resolution, resolution, resolution);
-                    }
-
-                    canvas.Save();
+                    textures[i].RotateFlip(RotateFlipType.RotateNoneFlipY);
+                    canvas.DrawImage(textures[i], 0, i * resolution, resolution, resolution);
                 }
 
-                // Upload pixel data to array
-                BitmapData data = container.LockBits(new Rectangle(0, 0, container.Width, container.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                GL.TexSubImage3D(TextureTarget.Texture2DArray, 0, 0, 0, 0, resolution, resolution, length, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
-
-                container.UnlockBits(data);
-
-                // Generate mipmaps for array
-                if (!useCustomMipmapGeneration)
-                {
-                    GL.GenerateMipmap(GenerateMipmapTarget.Texture2DArray);
-                }
-                else
-                {
-                    GenerateMipmapWithoutTransparencyMixing(container, levels, length);
-                }
-
-                // Set texture parameters for array
-                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
-                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-
-                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+                canvas.Save();
             }
+
+            // Upload pixel data to array
+            BitmapData data = container.LockBits(new Rectangle(0, 0, container.Width, container.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            GL.TexSubImage3D(TextureTarget.Texture2DArray, 0, 0, 0, 0, resolution, resolution, length, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+
+            container.UnlockBits(data);
+
+            // Generate mipmaps for array
+            if (!useCustomMipmapGeneration)
+            {
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2DArray);
+            }
+            else
+            {
+                GenerateMipmapWithoutTransparencyMixing(container, levels, length);
+            }
+
+            // Set texture parameters for array
+            GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
+            GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+
+            GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
         }
 
         private static void GenerateMipmapWithoutTransparencyMixing(Bitmap baseLevel, int levels, int length)
@@ -181,9 +177,9 @@ namespace VoxelGame.Rendering
 
                         Color average = (relevantPixels == 0) ? Color.FromArgb(0, 0, 0, 0) :
                             Color.FromArgb(alpha: maxAlpha,
-                                red: (int)Math.Sqrt((c1.R * c1.R + c2.R * c2.R + c3.R * c3.R + c4.R * c4.R) / relevantPixels),
-                                green: (int)Math.Sqrt((c1.G * c1.G + c2.G * c2.G + c3.G * c3.G + c4.G * c4.G) / relevantPixels),
-                                blue: (int)Math.Sqrt((c1.B * c1.B + c2.B * c2.B + c3.B * c3.B + c4.B * c4.B) / relevantPixels));
+                                red: (int)Math.Sqrt(((c1.R * c1.R) + (c2.R * c2.R) + (c3.R * c3.R) + (c4.R * c4.R)) / relevantPixels),
+                                green: (int)Math.Sqrt(((c1.G * c1.G) + (c2.G * c2.G) + (c3.G * c3.G) + (c4.G * c4.G)) / relevantPixels),
+                                blue: (int)Math.Sqrt(((c1.B * c1.B) + (c2.B * c2.B) + (c3.B * c3.B) + (c4.B * c4.B)) / relevantPixels));
 
                         lowerLevel.SetPixel(w, h, average);
                     }

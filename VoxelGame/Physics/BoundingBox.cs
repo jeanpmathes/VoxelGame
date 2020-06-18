@@ -3,10 +3,9 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
+using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
-
 using VoxelGame.Logic;
 
 namespace VoxelGame.Physics
@@ -56,9 +55,9 @@ namespace VoxelGame.Physics
         public bool Contains(Vector3 point)
         {
             bool containedInParent =
-                (Min.X <= point.X && Max.X >= point.X) &&
-                (Min.Y <= point.Y && Max.Y >= point.Y) &&
-                (Min.Z <= point.Z && Max.Z >= point.Z);
+                Min.X <= point.X && Max.X >= point.X &&
+                Min.Y <= point.Y && Max.Y >= point.Y &&
+                Min.Z <= point.Z && Max.Z >= point.Z;
 
             if (containedInParent)
                 return true;
@@ -85,9 +84,9 @@ namespace VoxelGame.Physics
         public bool Intersects(BoundingBox other)
         {
             bool containedInParent =
-                (this.Min.X <= other.Max.X && this.Max.X >= other.Min.X) &&
-                (this.Min.Y <= other.Max.Y && this.Max.Y >= other.Min.Y) &&
-                (this.Min.Z <= other.Max.Z && this.Max.Z >= other.Min.Z);
+                this.Min.X <= other.Max.X && this.Max.X >= other.Min.X &&
+                this.Min.Y <= other.Max.Y && this.Max.Y >= other.Min.Y &&
+                this.Min.Z <= other.Max.Z && this.Max.Z >= other.Min.Z;
 
             if (containedInParent)
                 return true;
@@ -251,7 +250,7 @@ namespace VoxelGame.Physics
                 {
                     for (int z = (range - 1) / -2; z <= (range - 1) / 2; z++)
                     {
-                        Block current = Game.World.GetBlock(x + xPos, y + yPos, z + zPos, out _);
+                        Block? current = Game.World.GetBlock(x + xPos, y + yPos, z + zPos, out _);
 
                         if (current != null)
                         {
@@ -319,7 +318,7 @@ namespace VoxelGame.Physics
             return (left.Extents == right.Extents) && (left.Center == right.Center);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is BoundingBox other)
             {
@@ -329,6 +328,11 @@ namespace VoxelGame.Physics
             {
                 return false;
             }
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Center.GetHashCode(), Extents.GetHashCode());
         }
     }
 }

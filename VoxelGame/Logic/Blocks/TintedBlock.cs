@@ -25,7 +25,7 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        public override bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
+        public override bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
             if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true)
             {
@@ -57,29 +57,16 @@ namespace VoxelGame.Logic.Blocks
 
         protected static TintColor BlockToTintColor(BlockColor color)
         {
-            switch (color)
+            return color switch
             {
-                case BlockColor.Red:
-                    return TintColor.Red;
-
-                case BlockColor.Green:
-                    return TintColor.Green;
-
-                case BlockColor.Blue:
-                    return TintColor.Blue;
-
-                case BlockColor.Yellow:
-                    return TintColor.Yellow;
-
-                case BlockColor.Cyan:
-                    return TintColor.Cyan;
-
-                case BlockColor.Magenta:
-                    return TintColor.Magenta;
-
-                default:
-                    return new TintColor(1f, 1f, 1f);
-            }
+                BlockColor.Red => TintColor.Red,
+                BlockColor.Green => TintColor.Green,
+                BlockColor.Blue => TintColor.Blue,
+                BlockColor.Yellow => TintColor.Yellow,
+                BlockColor.Cyan => TintColor.Cyan,
+                BlockColor.Magenta => TintColor.Magenta,
+                _ => new TintColor(1f, 1f, 1f),
+            };
         }
     }
 }

@@ -3,9 +3,9 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using VoxelGame.Logic.Interfaces;
 using VoxelGame.Physics;
 using VoxelGame.Rendering;
-using VoxelGame.Logic.Interfaces;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -28,7 +28,7 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        public override bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
+        public override bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
             // Check the block under the placement position.
             Block ground = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;

@@ -3,8 +3,8 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
-using OpenTK.Input;
+using OpenToolkit.Mathematics;
+using OpenToolkit.Windowing.Common.Input;
 using Resources;
 using System;
 using VoxelGame.Logic;
@@ -48,9 +48,7 @@ namespace VoxelGame.Entities
         private readonly float jumpForce = 25000f;
         private Vector3 movement;
 
-        private Vector2 lastMousePos;
-        private bool firstMove = true;
-        private readonly float mouseSensitivity = 0.2f;
+        private readonly float mouseSensitivity = 0.1f;
 
         private int selectedX, selectedY, selectedZ;
         private BlockSide selectedSide;
@@ -112,7 +110,7 @@ namespace VoxelGame.Entities
         {
             if (selectedY >= 0)
             {
-                Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _);
+                Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _) ?? Block.AIR;
 
                 if (selectedBlock != Block.AIR)
                 {
@@ -134,9 +132,9 @@ namespace VoxelGame.Entities
             Ray ray = new Ray(camera.Position, camera.Front, 6f);
             Raycast.CastWorld(ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
 
-            if (Game.instance.Focused)
+            if (Game.instance.IsFocused)
             {
-                KeyboardState input = Keyboard.GetState();
+                KeyboardState input = Game.instance.KeyboardState;
 
                 // Handling movement
                 Vector3 movement = new Vector3();
@@ -173,26 +171,19 @@ namespace VoxelGame.Entities
                     AddForce(new Vector3(0f, jumpForce, 0f));
                 }
 
-                MouseState mouse = Mouse.GetState();
+                MouseState mouse = Game.instance.MouseState;
+                Vector2 defaultMousePos = new Vector2(Game.instance.Size.X / 2f, Game.instance.Size.Y / 2f);
+                Game.instance.MousePosition = defaultMousePos;
 
-                if (firstMove)
-                {
-                    lastMousePos = new Vector2(mouse.X, mouse.Y);
-                    firstMove = false;
-                }
-                else
-                {
-                    // Calculate the offset of the mouse position
-                    var deltaX = mouse.X - lastMousePos.X;
-                    var deltaY = mouse.Y - lastMousePos.Y;
-                    lastMousePos = new Vector2(mouse.X, mouse.Y);
+                // Calculate the offset of the mouse position
+                var deltaX = mouse.X - defaultMousePos.X;
+                var deltaY = mouse.Y - defaultMousePos.Y;
 
-                    // Apply the camera pitch and yaw (we clamp the pitch in the camera class)
-                    camera.Yaw += deltaX * mouseSensitivity;
-                    camera.Pitch -= deltaY * mouseSensitivity;
+                // Apply the camera pitch and yaw (we clamp the pitch in the camera class)
+                camera.Yaw += deltaX * mouseSensitivity;
+                camera.Pitch -= deltaY * mouseSensitivity;
 
-                    Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
-                }
+                Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
 
                 // Block selection
                 if (input.IsKeyDown(Key.KeypadPlus) && !hasPressedPlus)
@@ -270,7 +261,7 @@ namespace VoxelGame.Entities
                 // Destruction
                 if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Left))
                 {
-                    Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _);
+                    Block? selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _);
 
                     if (selectedBlock != null)
                     {

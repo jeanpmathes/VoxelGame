@@ -3,13 +3,13 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK.Graphics.OpenGL4;
+using OpenToolkit.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
+using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
 
 namespace VoxelGame.Rendering
 {

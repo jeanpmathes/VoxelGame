@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
+using OpenToolkit.Mathematics;
 using Resources;
 using System.Collections.Generic;
 using VoxelGame.Logic.Blocks;
@@ -20,39 +20,39 @@ namespace VoxelGame.Logic
         #region STATIC BLOCK MANAGMENT
 
 #pragma warning disable CA2211 // Non-constant fields should not be visible
-        public static Block AIR;
-        public static Block GRASS;
-        public static Block TALL_GRASS;
-        public static Block VERY_TALL_GRASS;
-        public static Block DIRT;
-        public static Block FARMLAND;
-        public static Block STONE;
-        public static Block RUBBLE;
-        public static Block LOG;
-        public static Block WOOD;
-        public static Block LEAVES;
-        public static Block SAND;
-        public static Block GRAVEL;
-        public static Block GLASS;
-        public static Block ORE_COAL;
-        public static Block ORE_IRON;
-        public static Block ORE_GOLD;
-        public static Block SNOW;
-        public static Block FLOWER;
-        public static Block TALL_FLOWER;
-        public static Block SPIDERWEB;
-        public static Block CAVEPAINTING;
-        public static Block LADDER;
-        public static Block VINES;
-        public static Block FENCE_WOOD;
-        public static Block FLAX;
-        public static Block POTATOES;
-        public static Block ONIONS;
-        public static Block WHEAT;
-        public static Block TILES_SMALL;
-        public static Block TILES_LARGE;
-        public static Block TILES_CHECKERBOARD;
-        public static Block CACTUS;
+        public static Block AIR = null!;
+        public static Block GRASS = null!;
+        public static Block TALL_GRASS = null!;
+        public static Block VERY_TALL_GRASS = null!;
+        public static Block DIRT = null!;
+        public static Block FARMLAND = null!;
+        public static Block STONE = null!;
+        public static Block RUBBLE = null!;
+        public static Block LOG = null!;
+        public static Block WOOD = null!;
+        public static Block LEAVES = null!;
+        public static Block SAND = null!;
+        public static Block GRAVEL = null!;
+        public static Block GLASS = null!;
+        public static Block ORE_COAL = null!;
+        public static Block ORE_IRON = null!;
+        public static Block ORE_GOLD = null!;
+        public static Block SNOW = null!;
+        public static Block FLOWER = null!;
+        public static Block TALL_FLOWER = null!;
+        public static Block SPIDERWEB = null!;
+        public static Block CAVEPAINTING = null!;
+        public static Block LADDER = null!;
+        public static Block VINES = null!;
+        public static Block FENCE_WOOD = null!;
+        public static Block FLAX = null!;
+        public static Block POTATOES = null!;
+        public static Block ONIONS = null!;
+        public static Block WHEAT = null!;
+        public static Block TILES_SMALL = null!;
+        public static Block TILES_LARGE = null!;
+        public static Block TILES_CHECKERBOARD = null!;
+        public static Block CACTUS = null!;
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
         public const int BlockLimit = 2048;
@@ -66,7 +66,7 @@ namespace VoxelGame.Logic
         /// <returns>The block with the ID or air if the ID is not valid.</returns>
         public static Block TranslateID(ushort id)
         {
-            if (blockDictionary.TryGetValue(id, out Block block))
+            if (blockDictionary.TryGetValue(id, out Block? block))
             {
                 return block;
             }
@@ -216,7 +216,7 @@ namespace VoxelGame.Logic
         /// <param name="z">The z position where a block should be placed.</param>
         /// <param name="entity">The entity that tries to place the block. May be null.</param>
         /// <returns>Returns true if placing the block was successful.</returns>
-        public virtual bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
+        public virtual bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
             if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true)
             {
@@ -236,7 +236,7 @@ namespace VoxelGame.Logic
         /// <param name="z">The z position of the block to destroy.</param>
         /// <param name="entity">The entity which caused the destruction, or null if no entity caused it.</param>
         /// <returns>Returns true if the block has been destroyed.</returns>
-        public virtual bool Destroy(int x, int y, int z, Entities.PhysicsEntity entity)
+        public virtual bool Destroy(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
             if (Game.World.GetBlock(x, y, z, out _) != this)
             {

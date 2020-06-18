@@ -2,6 +2,8 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
+using OpenToolkit.Mathematics;
+using OpenToolkit.Windowing.Desktop;
 using Resources;
 using System;
 
@@ -14,9 +16,20 @@ namespace VoxelGame
             Console.Title = Language.VoxelGame + " Console";
             Console.WriteLine(Language.StartingGame);
 
-            using (Game game = new Game(800, 450, Language.VoxelGame))
+            GameWindowSettings gameWindowSettings = new GameWindowSettings
             {
-                game.Run(60.0);
+                IsMultiThreaded = false,
+                RenderFrequency = 60,
+                UpdateFrequency = 60,
+            };
+
+            NativeWindowSettings nativeWindowSettings = NativeWindowSettings.Default;
+            nativeWindowSettings.Title = Language.VoxelGame;
+            nativeWindowSettings.Size = new Vector2i(800, 450);
+
+            using (Game game = new Game(gameWindowSettings, nativeWindowSettings))
+            {
+                game.Run();
             }
 
             Console.WriteLine(Language.ExitingGame);

@@ -73,7 +73,7 @@ namespace VoxelGame.Logic
         /// <summary>
         /// A list of chunk loading tasks.
         /// </summary>
-        private readonly List<Task<Chunk>> chunkLoadingTasks = new List<Task<Chunk>>(maxLoadingTasks);
+        private readonly List<Task<Chunk?>> chunkLoadingTasks = new List<Task<Chunk?>>(maxLoadingTasks);
 
         /// <summary>
         /// A dictionary containing all chunk positions that are currently loaded, with the task id of their loading task as key.
@@ -216,7 +216,7 @@ namespace VoxelGame.Logic
                 {
                     for (int z = -Game.Player.RenderDistance; z <= Game.Player.RenderDistance; z++)
                     {
-                        if (activeChunks.TryGetValue((Game.Player.ChunkX + x, Game.Player.ChunkZ + z), out Chunk chunk))
+                        if (activeChunks.TryGetValue((Game.Player.ChunkX + x, Game.Player.ChunkZ + z), out Chunk? chunk))
                         {
                             if (x == 0 && z == 0)
                             {
@@ -289,7 +289,7 @@ namespace VoxelGame.Logic
 
                         if (completed.IsFaulted)
                         {
-                            throw completed.Exception.GetBaseException();
+                            throw completed.Exception?.GetBaseException() ?? new Exception("EXCEPTION IS NULL");
                         }
                         else if (!activeChunks.ContainsKey((generatedChunk.X, generatedChunk.Z)) && !positionsToReleaseOnActivation.Remove((generatedChunk.X, generatedChunk.Z)))
                         {
@@ -298,7 +298,7 @@ namespace VoxelGame.Logic
                             chunksToMesh.Enqueue(generatedChunk);
 
                             // Schedule to mesh the chunks around this chunk
-                            if (activeChunks.TryGetValue((generatedChunk.X + 1, generatedChunk.Z), out Chunk neighbor))
+                            if (activeChunks.TryGetValue((generatedChunk.X + 1, generatedChunk.Z), out Chunk? neighbor))
                             {
                                 chunksToMesh.Enqueue(neighbor);
                             }
@@ -343,7 +343,7 @@ namespace VoxelGame.Logic
                 {
                     if (chunkLoadingTasks[i].IsCompleted)
                     {
-                        Task<Chunk> completed = chunkLoadingTasks[i];
+                        Task<Chunk?> completed = chunkLoadingTasks[i];
                         (int x, int z) = positionsLoading[completed.Id];
 
                         chunkLoadingTasks.RemoveAt(i);
@@ -358,9 +358,9 @@ namespace VoxelGame.Logic
                                 Console.ForegroundColor = ConsoleColor.Red;
                                 Console.Write(
                                     $"{DateTime.Now} | ---- CHUNK LOADING ERROR -------------\n" +
-                                    $"Position: ({x}|{z}) Exception: ({completed.Exception.GetBaseException().GetType()})\n" +
-                                    $"{completed.Exception.GetBaseException().Message}\n" +
-                                    $"The position has been scheduled for generation.\n");
+                                    $"Position: ({x}|{z}) Exception: ({(completed.Exception?.GetBaseException().GetType().ToString()) ?? "EXCEPTION IS NULL"})\n" +
+                                    $"{(completed.Exception?.GetBaseException().Message) ?? "EXCEPTION IS NULL"}\n" +
+                                     "The position has been scheduled for generation.\n");
                                 Console.ResetColor();
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
@@ -373,7 +373,7 @@ namespace VoxelGame.Logic
                         }
                         else
                         {
-                            Chunk loadedChunk = completed.Result;
+                            Chunk? loadedChunk = completed.Result;
 
                             if (loadedChunk != null && !activeChunks.ContainsKey((x, z)))
                             {
@@ -385,7 +385,7 @@ namespace VoxelGame.Logic
                                     chunksToMesh.Enqueue(loadedChunk);
 
                                     // Schedule to mesh the chunks around this chunk
-                                    if (activeChunks.TryGetValue((loadedChunk.X + 1, loadedChunk.Z), out Chunk neighbor))
+                                    if (activeChunks.TryGetValue((loadedChunk.X + 1, loadedChunk.Z), out Chunk? neighbor))
                                     {
                                         chunksToMesh.Enqueue(neighbor);
                                     }
@@ -416,8 +416,8 @@ namespace VoxelGame.Logic
                                 Console.WriteLine(
                                     $"{DateTime.Now} | ---- CHUNK LOADING ERROR -------------\n" +
                                     $"Position: ({x}|{z}) Exception:\n" +
-                                    $"The loaded file did not match the requested chunk. This may be the result of renamed chunk files.\n" +
-                                    $"The position has been scheduled for generation.");
+                                     "The loaded file did not match the requested chunk. This may be the result of renamed chunk files.\n" +
+                                     "The position has been scheduled for generation.");
                                 Console.ResetColor();
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
@@ -443,7 +443,7 @@ namespace VoxelGame.Logic
                     if (!positionsSaving.Contains((x, z)))
                     {
                         string pathToChunk = chunkDirectory + $@"\x{x}z{z}.chunk";
-                        Task<Chunk> currentTask = Chunk.LoadAsync(pathToChunk, x, z);
+                        Task<Chunk?> currentTask = Chunk.LoadAsync(pathToChunk, x, z);
 
                         chunkLoadingTasks.Add(currentTask);
                         positionsLoading.Add(currentTask.Id, (x, z));
@@ -464,14 +464,14 @@ namespace VoxelGame.Logic
                     {
                         if (chunkMeshingTasks[i].IsFaulted)
                         {
-                            Exception e = chunkMeshingTasks[i].Exception.GetBaseException();
+                            Exception e = chunkMeshingTasks[i].Exception?.GetBaseException() ?? new Exception("EXCEPTION IS NULL");
 
                             Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine(
                                 $"{DateTime.Now} | ---- CHUNK MESHING ERROR -------------\n" +
-                                $"Exception:\n" +
+                                 "Exception:\n" +
                                 $"{e.Message}\n" +
-                                $"Stack Trace:\n" +
+                                 "Stack Trace:\n" +
                                 $"{e.StackTrace}");
                             Console.ResetColor();
 
@@ -581,7 +581,7 @@ namespace VoxelGame.Logic
                             chunksToMesh.Enqueue(completedChunk);
 
                             // Schedule to mesh the chunks around this chunk
-                            if (activeChunks.TryGetValue((completedChunk.X + 1, completedChunk.Z), out Chunk neighbor))
+                            if (activeChunks.TryGetValue((completedChunk.X + 1, completedChunk.Z), out Chunk? neighbor))
                             {
                                 chunksToMesh.Enqueue(neighbor);
                             }
@@ -608,9 +608,9 @@ namespace VoxelGame.Logic
                                 Console.ForegroundColor = ConsoleColor.Red;
                                 Console.WriteLine(
                                     $"{DateTime.Now} | ---- CHUNK SAVING ERROR -------------\n" +
-                                    $"Position: ({completedChunk.X}|{completedChunk.Z}) Exception: ({completed.Exception.GetBaseException().GetType()})\n" +
-                                    $"{completed.Exception.GetBaseException().Message}\n" +
-                                    $"The chunk will be disposed without saving.");
+                                    $"Position: ({completedChunk.X}|{completedChunk.Z}) Exception: ({(completed.Exception?.GetBaseException().GetType().ToString()) ?? "EXCEPTION IS NULL"})\n" +
+                                    $"{completed.Exception?.GetBaseException().Message ?? "EXCEPTION IS NULL"}\n" +
+                                     "The chunk will be disposed without saving.");
                                 Console.ResetColor();
                             }
 
@@ -671,7 +671,7 @@ namespace VoxelGame.Logic
             bool canRelease = false;
 
             // Check if the chunk exists
-            if (activeChunks.TryGetValue((x, z), out Chunk chunk))
+            if (activeChunks.TryGetValue((x, z), out Chunk? chunk))
             {
                 activeChunks.Remove((x, z));
                 chunksToSave.Enqueue(chunk);
@@ -705,9 +705,9 @@ namespace VoxelGame.Logic
         /// <param name="data">The block data at the position.</param>
         /// <returns>The Block at x, y, z or null if the block was not found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Block GetBlock(int x, int y, int z, out byte data)
+        public Block? GetBlock(int x, int y, int z, out byte data)
         {
-            if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
+            if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
             {
                 ushort val = chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
 
@@ -732,7 +732,7 @@ namespace VoxelGame.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetBlock(Block block, byte data, int x, int y, int z)
         {
-            if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
+            if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
             {
                 chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = (ushort)((data << 11) | (block ?? Block.AIR).Id);
                 sectionsToMesh.Add((chunk, y >> chunkHeightExp));
@@ -785,9 +785,9 @@ namespace VoxelGame.Logic
         /// <param name="x">The x position of the chunk in chunk coordinates.</param>
         /// <param name="z">The y position of the chunk in chunk coordinates.</param>
         /// <returns>The chunk at the given position or null if no active chunk was found.</returns>
-        public Chunk GetChunk(int x, int z)
+        public Chunk? GetChunk(int x, int z)
         {
-            activeChunks.TryGetValue((x, z), out Chunk chunk);
+            activeChunks.TryGetValue((x, z), out Chunk? chunk);
             return chunk;
         }
 
@@ -799,9 +799,9 @@ namespace VoxelGame.Logic
         /// <param name="z">The z position of the section in chunk coordinates.</param>
         /// <returns>The section at the given position or null if no section was found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Section GetSection(int x, int y, int z)
+        public Section? GetSection(int x, int y, int z)
         {
-            if (activeChunks.TryGetValue((x, z), out Chunk chunk) && y >= 0 && y < Chunk.ChunkHeight)
+            if (activeChunks.TryGetValue((x, z), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight)
             {
                 return chunk.GetSection(y);
             }

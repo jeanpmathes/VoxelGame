@@ -15,8 +15,8 @@ namespace VoxelGame.Logic.Blocks
     public class BasicBlock : Block
     {
 #pragma warning disable CA1051 // Do not declare visible instance fields
-        protected float[][] sideVertices;
-        protected int[][] sideTextureIndices;
+        protected float[][] sideVertices = null!;
+        protected int[][] sideTextureIndices = null!;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
         public BasicBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid) :

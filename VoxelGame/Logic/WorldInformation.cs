@@ -11,9 +11,9 @@ namespace VoxelGame.Logic
 {
     public class WorldInformation
     {
-        public string Name { get; set; }
-        public int Seed { get; set; }
-        public DateTime Creation { get; set; }
+        public string Name { get; set; } = "No Name";
+        public int Seed { get; set; } = 2133;
+        public DateTime Creation { get; set; } = DateTime.MinValue;
 
         public void Save(string path)
         {
@@ -29,7 +29,7 @@ namespace VoxelGame.Logic
         public static WorldInformation Load(string path)
         {
             string json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<WorldInformation>(json);
+            return JsonSerializer.Deserialize<WorldInformation>(json) ?? new WorldInformation();
         }
     }
 }

@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
+using OpenToolkit.Mathematics;
 using System;
 using System.Runtime.CompilerServices;
 using VoxelGame.Collections;
@@ -24,7 +24,7 @@ namespace VoxelGame.Logic
         private readonly ushort[] blocks;
 
         [NonSerialized] private bool isEmpty;
-        [NonSerialized] private SectionRenderer renderer;
+        [NonSerialized] private SectionRenderer? renderer;
 
         public Section()
         {
@@ -72,12 +72,12 @@ namespace VoxelGame.Logic
             TintColor neutral = new TintColor(0f, 1f, 0f);
 
             // Get the sections next to this section
-            Section frontNeighbour = Game.World.GetSection(sectionX, sectionY, sectionZ + 1);
-            Section backNeighbour = Game.World.GetSection(sectionX, sectionY, sectionZ - 1);
-            Section leftNeighbour = Game.World.GetSection(sectionX - 1, sectionY, sectionZ);
-            Section rightNeighbour = Game.World.GetSection(sectionX + 1, sectionY, sectionZ);
-            Section bottomNeighbour = Game.World.GetSection(sectionX, sectionY - 1, sectionZ);
-            Section topNeighbour = Game.World.GetSection(sectionX, sectionY + 1, sectionZ);
+            Section? frontNeighbour = Game.World.GetSection(sectionX, sectionY, sectionZ + 1);
+            Section? backNeighbour = Game.World.GetSection(sectionX, sectionY, sectionZ - 1);
+            Section? leftNeighbour = Game.World.GetSection(sectionX - 1, sectionY, sectionZ);
+            Section? rightNeighbour = Game.World.GetSection(sectionX + 1, sectionY, sectionZ);
+            Section? bottomNeighbour = Game.World.GetSection(sectionX, sectionY - 1, sectionZ);
+            Section? topNeighbour = Game.World.GetSection(sectionX, sectionY + 1, sectionZ);
 
             CompactedMeshFaceHolder simpleFrontFaceHolder = new CompactedMeshFaceHolder(BlockSide.Front);
             CompactedMeshFaceHolder simpleBackFaceHolder = new CompactedMeshFaceHolder(BlockSide.Back);
@@ -106,7 +106,7 @@ namespace VoxelGame.Logic
 
                         if (currentBlock.TargetBuffer == TargetBuffer.Simple)
                         {
-                            Block blockToCheck;
+                            Block? blockToCheck;
 
                             // Check all six sides of this block
 
@@ -352,14 +352,14 @@ namespace VoxelGame.Logic
 
         public void SetMeshData(ref SectionMeshData meshData)
         {
-            renderer.SetData(ref meshData);
+            renderer?.SetData(ref meshData);
         }
 
         public void Render(Vector3 position)
         {
             if (!isEmpty)
             {
-                renderer.Draw(position);
+                renderer?.Draw(position);
             }
         }
 
