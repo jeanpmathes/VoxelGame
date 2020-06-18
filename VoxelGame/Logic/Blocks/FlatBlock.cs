@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
+using OpenToolkit.Mathematics;
 using VoxelGame.Entities;
 using VoxelGame.Physics;
 using VoxelGame.Rendering;
@@ -24,8 +24,8 @@ namespace VoxelGame.Logic.Blocks
 
         protected readonly bool hasNeutralTint;
 
-        protected float[][] sideVertices;
-        protected int[] textureIndices;
+        protected float[][] sideVertices = null!;
+        protected int[] textureIndices = null!;
 
         protected uint[] indices =
         {
@@ -128,25 +128,17 @@ namespace VoxelGame.Logic.Blocks
         public override BoundingBox GetBoundingBox(int x, int y, int z)
         {
             Game.World.GetBlock(x, y, z, out byte data);
-            switch ((Orientation)(data & 0b0_0011))
+            return ((Orientation)(data & 0b0_0011)) switch
             {
-                case Orientation.North:
-                    return new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.95f), new Vector3(0.5f, 0.5f, 0.05f));
-
-                case Orientation.South:
-                    return new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.05f), new Vector3(0.5f, 0.5f, 0.05f));
-
-                case Orientation.West:
-                    return new BoundingBox(new Vector3(x + 0.95f, y + 0.5f, z + 0.5f), new Vector3(0.05f, 0.5f, 0.5f));
-
-                case Orientation.East:
-                    return new BoundingBox(new Vector3(x + 0.05f, y + 0.5f, z + 0.5f), new Vector3(0.05f, 0.5f, 0.5f));
-            }
-
-            return new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.95f), new Vector3(0.5f, 0.5f, 0.05f));
+                Orientation.North => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.95f), new Vector3(0.5f, 0.5f, 0.05f)),
+                Orientation.South => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.05f), new Vector3(0.5f, 0.5f, 0.05f)),
+                Orientation.West => new BoundingBox(new Vector3(x + 0.95f, y + 0.5f, z + 0.5f), new Vector3(0.05f, 0.5f, 0.5f)),
+                Orientation.East => new BoundingBox(new Vector3(x + 0.05f, y + 0.5f, z + 0.5f), new Vector3(0.05f, 0.5f, 0.5f)),
+                _ => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.95f), new Vector3(0.5f, 0.5f, 0.05f)),
+            };
         }
 
-        public override bool Place(int x, int y, int z, PhysicsEntity entity)
+        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
         {
             if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true)
             {

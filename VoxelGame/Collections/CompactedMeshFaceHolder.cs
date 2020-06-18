@@ -15,7 +15,7 @@ namespace VoxelGame.Collections
     public class CompactedMeshFaceHolder
     {
         private readonly BlockSide side;
-        private readonly MeshFace[][] lastFaces;
+        private readonly MeshFace?[][] lastFaces;
 
         private int count;
 
@@ -58,7 +58,7 @@ namespace VoxelGame.Collections
             // Check if an already existing face can be extended.
             if (lastFaces[layer][row]?.IsExtendable(currentFace) ?? false)
             {
-                currentFace = lastFaces[layer][row];
+                currentFace = lastFaces[layer][row]!;
 
                 switch (side)
                 {
@@ -100,8 +100,8 @@ namespace VoxelGame.Collections
                 return;
             }
 
-            MeshFace combinationRowFace = lastFaces[layer][row - 1];
-            MeshFace lastCombinationRowFace = null;
+            MeshFace? combinationRowFace = lastFaces[layer][row - 1];
+            MeshFace? lastCombinationRowFace = null;
 
             // Check if the current face can be combined with a face in the previous row.
             while (combinationRowFace != null)
@@ -168,7 +168,7 @@ namespace VoxelGame.Collections
             {
                 for (int r = 0; r < Section.SectionSize; r++)
                 {
-                    MeshFace currentFace = lastFaces[l][r];
+                    MeshFace? currentFace = lastFaces[l][r];
 
                     while (currentFace != null)
                     {
@@ -207,15 +207,15 @@ namespace VoxelGame.Collections
         {
             for (int i = 0; i < Section.SectionSize; i++)
             {
-                ArrayPool<MeshFace>.Shared.Return(lastFaces[i]);
+                ArrayPool<MeshFace>.Shared.Return(lastFaces[i]!);
             }
 
-            ArrayPool<MeshFace[]>.Shared.Return(lastFaces);
+            ArrayPool<MeshFace[]>.Shared.Return(lastFaces!);
         }
 
         private class MeshFace
         {
-            public MeshFace previousFace;
+            public MeshFace? previousFace;
 
             public int vert_0_0;
             public int vert_0_1;

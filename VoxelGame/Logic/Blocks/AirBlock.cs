@@ -32,12 +32,12 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        public override bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
+        public override bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
             return false;
         }
 
-        public override bool Destroy(int x, int y, int z, Entities.PhysicsEntity entity)
+        public override bool Destroy(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
             return false;
         }

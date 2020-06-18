@@ -25,7 +25,7 @@ namespace VoxelGame.Logic.Blocks
         public override void RandomUpdate(int x, int y, int z, byte data)
         {
             // Check if this block can be grass
-            Block above = Game.World.GetBlock(x, y + 1, z, out _);
+            Block above = Game.World.GetBlock(x, y + 1, z, out _) ?? Block.AIR;
 
             if (above.IsSolid && above.IsFull)
             {

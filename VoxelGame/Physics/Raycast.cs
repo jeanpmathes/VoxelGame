@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
+using OpenToolkit.Mathematics;
 using System;
 using VoxelGame.Logic;
 
@@ -63,7 +63,7 @@ namespace VoxelGame.Physics
             double tDeltaZ = (direction.Z != 0) ? stepZ / direction.Z : double.MaxValue;
 
             //Check the current block
-            Block currentBlock = Game.World.GetBlock(x, y, z, out _);
+            Block? currentBlock = Game.World.GetBlock(x, y, z, out _);
 
             if (currentBlock != null && currentBlock != Block.AIR)
             {

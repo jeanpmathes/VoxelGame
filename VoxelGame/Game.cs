@@ -2,14 +2,14 @@
 //     All rights reserved.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
-using OpenTK.Input;
+using OpenToolkit.Graphics.OpenGL4;
+using OpenToolkit.Mathematics;
+using OpenToolkit.Windowing.Common;
+using OpenToolkit.Windowing.Common.Input;
+using OpenToolkit.Windowing.Desktop;
 using Resources;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using VoxelGame.Entities;
 using VoxelGame.Logic;
@@ -19,30 +19,30 @@ namespace VoxelGame
 {
     internal class Game : GameWindow
     {
-        public static Game instance;
-        public static Player Player { get; private set; }
-        public static World World { get; set; }
+        public static Game instance = null!;
+        public static Player Player { get; private set; } = null!;
+        public static World World { get; set; } = null!;
 
         /// <summary>
         /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1 and 2;
         /// </summary>
-        public static ArrayTexture BlockTextureArray { get; private set; }
+        public static ArrayTexture BlockTextureArray { get; private set; } = null!;
 
-        public static Shader SimpleSectionShader { get; private set; }
-        public static Shader ComplexSectionShader { get; private set; }
-        public static Shader SelectionShader { get; private set; }
+        public static Shader SimpleSectionShader { get; private set; } = null!;
+        public static Shader ComplexSectionShader { get; private set; } = null!;
+        public static Shader SelectionShader { get; private set; } = null!;
 
-        public static Random Random { get; private set; }
+        public static Random Random { get; private set; } = null!;
 
         private bool wireframeMode = false;
         private bool hasReleasesWireframeKey = true;
 
-        public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
+        public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             instance = this;
         }
 
-        protected override void OnLoad(EventArgs e)
+        protected override void OnLoad()
         {
             // Rendering setup
             GL.Enable(EnableCap.DebugOutput);
@@ -118,7 +118,13 @@ namespace VoxelGame
                 string name = Console.ReadLine();
 
                 // Validate name
-                if (string.IsNullOrEmpty(name) || name.Contains("\"") || name.Contains("<") || name.Contains(">") || name.Contains("|") || name.Contains("\\") || name.Contains("/"))
+                if (string.IsNullOrEmpty(name) ||
+                    name.Contains("\"", StringComparison.Ordinal) ||
+                    name.Contains("<", StringComparison.Ordinal) ||
+                    name.Contains(">", StringComparison.Ordinal) ||
+                    name.Contains("|", StringComparison.Ordinal) ||
+                    name.Contains("\\", StringComparison.Ordinal) ||
+                    name.Contains("/", StringComparison.Ordinal))
                 {
                     name = "New World";
                 }
@@ -161,7 +167,7 @@ namespace VoxelGame
             }
 
             // Player setup
-            Camera camera = new Camera(new Vector3(), Width / (float)Height);
+            Camera camera = new Camera(new Vector3(), Size.X / (float)Size.Y);
             Player = new Player(70f, 0.25f, new Vector3(0f, 1000f, 0f), camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.45f, 0.9f, 0.45f)));
 
             CursorVisible = false;
@@ -169,7 +175,7 @@ namespace VoxelGame
             // Other object setup
             Random = new Random();
 
-            base.OnLoad(e);
+            base.OnLoad();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -191,12 +197,12 @@ namespace VoxelGame
 
             World.FrameUpdate(deltaTime);
 
-            if (!Focused) // check to see if the window is focused
+            if (!IsFocused) // check to see if the window is focused
             {
                 return;
             }
 
-            KeyboardState input = Keyboard.GetState();
+            KeyboardState input = LastKeyboardState;
 
             if (hasReleasesWireframeKey && input.IsKeyDown(Key.K))
             {
@@ -222,29 +228,19 @@ namespace VoxelGame
 
             if (input.IsKeyDown(Key.Escape))
             {
-                Exit();
+                Close();
             }
 
             base.OnUpdateFrame(e);
         }
 
-        protected override void OnMouseMove(MouseMoveEventArgs e)
+        protected override void OnResize(ResizeEventArgs e)
         {
-            if (Focused) // check to see if the window is focused
-            {
-                Mouse.SetPosition(X + (Width / 2f), Y + (Height / 2f));
-            }
-
-            base.OnMouseMove(e);
-        }
-
-        protected override void OnResize(EventArgs e)
-        {
-            GL.Viewport(0, 0, Width, Height);
+            GL.Viewport(0, 0, Size.X, Size.Y);
             base.OnResize(e);
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override void OnClosed()
         {
             try
             {
@@ -257,17 +253,17 @@ namespace VoxelGame
                     $"{DateTime.Now} | ---- WORLD SAVING ERROR ------------- \n" +
                     $"An exception was thrown when saving the world. Exception: ({exception.GetBaseException().GetType()})\n" +
                     $"{exception.GetBaseException().Message}\n" +
-                    $"The process will be terminated, but some data may be lost.\n");
+                     "The process will be terminated, but some data may be lost.\n");
                 Console.ResetColor();
             }
 
             World.Dispose();
             Player.Dispose();
 
-            base.OnClosing(e);
+            base.OnClosed();
         }
 
-        private DebugProc debugCallbackDelegate;
+        private DebugProc debugCallbackDelegate = null!;
 
         private void DebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
         {

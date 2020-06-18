@@ -11,8 +11,8 @@ namespace VoxelGame.Logic.Blocks
     public class CrossBlock : Block
     {
 #pragma warning disable CA1051 // Do not declare visible instance fields
-        protected float[] vertices;
-        protected int[] textureIndices;
+        protected float[] vertices = null!;
+        protected int[] textureIndices = null!;
 
         protected readonly uint[] indices =
         {

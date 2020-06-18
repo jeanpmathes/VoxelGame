@@ -17,8 +17,8 @@ namespace VoxelGame.Logic.Blocks
     public class RotatedBlock : BasicBlock
     {
 #pragma warning disable CA1051 // Do not declare visible instance fields
-        protected float[][] sideNormals;
-        protected int[] texIndices;
+        protected float[][] sideNormals = null!;
+        protected int[] texIndices = null!;
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
@@ -158,7 +158,7 @@ namespace VoxelGame.Logic.Blocks
             return 4;
         }
 
-        public override bool Place(int x, int y, int z, PhysicsEntity entity)
+        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
         {
             if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true)
             {

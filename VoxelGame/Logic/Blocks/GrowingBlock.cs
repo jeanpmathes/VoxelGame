@@ -31,9 +31,9 @@ namespace VoxelGame.Logic.Blocks
             this.maxHeight = maxHeight;
         }
 
-        public override bool Place(int x, int y, int z, PhysicsEntity entity)
+        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
         {
-            Block down = Game.World.GetBlock(x, y - 1, z, out _);
+            Block down = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
 
             if (down == requiredGround || down == this)
             {
@@ -47,7 +47,7 @@ namespace VoxelGame.Logic.Blocks
 
         public override void BlockUpdate(int x, int y, int z, byte data)
         {
-            Block down = Game.World.GetBlock(x, y - 1, z, out _);
+            Block down = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
 
             if (down != requiredGround && down != this)
             {
@@ -65,7 +65,7 @@ namespace VoxelGame.Logic.Blocks
             }
             else
             {
-                if (Game.World.GetBlock(x, y + 1, z, out _).IsReplaceable)
+                if (Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable ?? false)
                 {
                     int height = 0;
                     for (int o = 0; o < maxHeight; o++)

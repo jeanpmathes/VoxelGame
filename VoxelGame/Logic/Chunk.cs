@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
+using OpenToolkit.Mathematics;
 using System;
 using System.IO;
 using System.Runtime.Serialization;
@@ -73,7 +73,7 @@ namespace VoxelGame.Logic
         /// <param name="x">The x coordinate of the chunk.</param>
         /// <param name="z">The z coordinate of the chunk.</param>
         /// <returns>The loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
-        public static Chunk Load(string path, int x, int z)
+        public static Chunk? Load(string path, int x, int z)
         {
             Chunk chunk;
 
@@ -101,7 +101,7 @@ namespace VoxelGame.Logic
         /// <param name="x">The x coordinate of the chunk.</param>
         /// <param name="z">The z coordinate of the chunk.</param>
         /// <returns>A task containing the loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
-        public static Task<Chunk> LoadAsync(string path, int x, int z)
+        public static Task<Chunk?> LoadAsync(string path, int x, int z)
         {
             return Task.Run(() => Load(path, x, z));
         }
@@ -112,11 +112,9 @@ namespace VoxelGame.Logic
         /// <param name="path">The path of the directory where this chunk should be saved.</param>
         public void Save(string path)
         {
-            using (Stream stream = new FileStream(path + $@"\x{X}z{Z}.chunk", FileMode.Create, FileAccess.Write, FileShare.Read))
-            {
-                IFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(stream, this);
-            }
+            using Stream stream = new FileStream(path + $@"\x{X}z{Z}.chunk", FileMode.Create, FileAccess.Write, FileShare.Read);
+            IFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(stream, this);
         }
 
         /// <summary>
@@ -265,7 +263,7 @@ namespace VoxelGame.Logic
             return $"Chunk ({X}|{Z})";
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj != null && obj is Chunk other)
             {
@@ -279,14 +277,7 @@ namespace VoxelGame.Logic
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                int hash = 23;
-                hash = (hash * 31) + X;
-                hash = (hash * 31) + Z;
-
-                return hash;
-            }
+            return HashCode.Combine(X, Z);
         }
 
         #region IDisposable Support

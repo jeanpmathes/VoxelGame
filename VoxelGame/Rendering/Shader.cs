@@ -2,8 +2,8 @@
 //     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
-using OpenTK.Graphics.OpenGL4;
+using OpenToolkit.Graphics.OpenGL4;
+using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
+using OpenToolkit.Mathematics;
 using System;
 using VoxelGame.Logic.Interfaces;
 using VoxelGame.Physics;
@@ -22,16 +22,16 @@ namespace VoxelGame.Logic.Blocks
     public class FenceBlock : Block, IFenceConnectable
     {
 #pragma warning disable CA1051 // Do not declare visible instance fields
-        protected float[] postVertices;
+        protected float[] postVertices = null!;
 
-        protected float[] northVertices;
-        protected float[] eastVertices;
-        protected float[] southVertices;
-        protected float[] westVertices;
+        protected float[] northVertices = null!;
+        protected float[] eastVertices = null!;
+        protected float[] southVertices = null!;
+        protected float[] westVertices = null!;
 
-        protected int[][] textureIndices;
+        protected int[][] textureIndices = null!;
 
-        protected uint[][] indices;
+        protected uint[][] indices = null!;
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
@@ -351,7 +351,7 @@ namespace VoxelGame.Logic.Blocks
             return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.5f, 0.1875f), children);
         }
 
-        public override bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
+        public override bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
             if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true)
             {

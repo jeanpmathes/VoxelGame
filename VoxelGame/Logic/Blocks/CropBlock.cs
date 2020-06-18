@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
+using OpenToolkit.Mathematics;
 using VoxelGame.Entities;
 using VoxelGame.Logic.Interfaces;
 using VoxelGame.Physics;
@@ -19,8 +19,8 @@ namespace VoxelGame.Logic.Blocks
     public class CropBlock : Block
     {
 #pragma warning disable CA1051 // Do not declare visible instance fields
-        protected float[][] stageVertices;
-        protected int[] stageTexIndices;
+        protected float[][] stageVertices = null!;
+        protected int[] stageTexIndices = null!;
 
         protected uint[] indices =
         {
@@ -163,7 +163,7 @@ namespace VoxelGame.Logic.Blocks
             return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f));
         }
 
-        public override bool Place(int x, int y, int z, PhysicsEntity entity)
+        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
         {
             if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true || !(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
             {

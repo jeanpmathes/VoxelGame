@@ -2,10 +2,10 @@
 //     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK.Graphics.OpenGL4;
+using OpenToolkit.Graphics.OpenGL4;
 using System.Drawing;
 using System.Drawing.Imaging;
-using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
+using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
 
 namespace VoxelGame.Rendering
 {

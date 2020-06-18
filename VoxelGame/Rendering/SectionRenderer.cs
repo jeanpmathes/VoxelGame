@@ -3,8 +3,8 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
-using OpenTK.Graphics.OpenGL4;
+using OpenToolkit.Graphics.OpenGL4;
+using OpenToolkit.Mathematics;
 using System;
 
 namespace VoxelGame.Rendering

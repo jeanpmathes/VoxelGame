@@ -201,7 +201,7 @@ namespace VoxelGame.Collections
                 Array.Copy(items, index + 1, items, index, size - index);
             }
 
-            items[size] = default;
+            items[size] = default!;
         }
 
         private void EnsureCapacity(int min)

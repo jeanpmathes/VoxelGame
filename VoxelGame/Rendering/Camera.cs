@@ -2,7 +2,7 @@
 //     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenTK;
+using OpenToolkit.Mathematics;
 using System;
 
 namespace VoxelGame.Rendering
