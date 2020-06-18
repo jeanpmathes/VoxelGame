@@ -24,9 +24,9 @@ namespace VoxelGame.Logic.Blocks
         base(
             name,
             texture,
-            isReplaceable: false,
             recieveCollisions: true,
             isTrigger: true,
+            isReplaceable: false,
             BoundingBox.Block)
         {
             this.maxVelocity = maxVelocity;

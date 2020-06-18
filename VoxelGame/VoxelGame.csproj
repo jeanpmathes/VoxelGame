@@ -138,6 +138,7 @@
     <Compile Include="Logic\Blocks\CropBlock.cs" />
     <Compile Include="Logic\Blocks\CrossPlantBlock.cs" />
     <Compile Include="Logic\Blocks\DirtBlock.cs" />
+    <Compile Include="Logic\Blocks\DoubleCrossPlantBlock.cs" />
     <Compile Include="Logic\Blocks\FenceBlock.cs" />
     <Compile Include="Logic\Blocks\FlatBlock.cs" />
     <Compile Include="Logic\Blocks\CoveredDirtBlock.cs" />
@@ -147,6 +148,7 @@
     <Compile Include="Logic\Blocks\SpiderWebBlock.cs" />
     <Compile Include="Logic\Blocks\TintedBlock.cs" />
     <Compile Include="Logic\Interfaces\IFenceConnectable.cs" />
+    <Compile Include="Logic\Interfaces\IPlantable.cs" />
     <Compile Include="Logic\TextureLayout.cs" />
     <Compile Include="Logic\WorldInformation.cs" />
     <Compile Include="Physics\BoundingBox.cs" />
@@ -235,6 +237,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Textures\stone_cavepainting.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\tall_flower.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\very_tall_grass.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Textures\vines.png">

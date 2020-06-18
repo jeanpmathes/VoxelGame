@@ -5,13 +5,14 @@
 // <author>pershingthesecond</author>
 using VoxelGame.Entities;
 using VoxelGame.Rendering;
+using VoxelGame.Logic.Interfaces;
 
 namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block that changes into dirt when something is placed on top of it. This block can use a neutral tint if specified in the constructor.
     /// </summary>
-    public class CoveredDirtBlock : BasicBlock
+    public class CoveredDirtBlock : BasicBlock, IPlantable
     {
 #pragma warning disable CA1051 // Do not declare visible instance fields
         protected readonly bool hasNeutralTint;

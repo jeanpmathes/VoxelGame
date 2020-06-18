@@ -3,12 +3,14 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using VoxelGame.Logic.Interfaces;
+
 namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A simple block which allows the spread of grass
     /// </summary>
-    public class DirtBlock : BasicBlock
+    public class DirtBlock : BasicBlock, IPlantable
     {
         public DirtBlock(string name, TextureLayout layout) :
             base(

@@ -23,6 +23,7 @@ namespace VoxelGame.Logic
         public static Block AIR;
         public static Block GRASS;
         public static Block TALL_GRASS;
+        public static Block VERY_TALL_GRASS;
         public static Block DIRT;
         public static Block FARMLAND;
         public static Block STONE;
@@ -38,6 +39,7 @@ namespace VoxelGame.Logic
         public static Block ORE_GOLD;
         public static Block SNOW;
         public static Block FLOWER;
+        public static Block TALL_FLOWER;
         public static Block SPIDERWEB;
         public static Block CAVEPAINTING;
         public static Block LADDER;
@@ -84,8 +86,9 @@ namespace VoxelGame.Logic
             AIR = new AirBlock(Language.Air);
             GRASS = new CoveredDirtBlock(Language.Grass, TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"), true);
             TALL_GRASS = new CrossPlantBlock(Language.TallGrass, "tall_grass", true, BoundingBox.Block);
+            VERY_TALL_GRASS = new DoubleCrossPlantBlock(Language.VeryTallGrass, "very_tall_grass", 1, BoundingBox.Block);
             DIRT = new DirtBlock(Language.Dirt, TextureLayout.Uniform("dirt"));
-            FARMLAND = new CoveredDirtBlock("Farmland", TextureLayout.UnqiueTop("dirt", "farmland"), false);
+            FARMLAND = new CoveredDirtBlock(Language.Farmland, TextureLayout.UnqiueTop("dirt", "farmland"), false);
             STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"), true, true, true);
             RUBBLE = new ConstructionBlock(Language.Rubble, TextureLayout.Uniform("rubble"));
             LOG = new RotatedBlock(Language.Log, TextureLayout.Column("log", 0, 1), true, true, true);
@@ -99,6 +102,7 @@ namespace VoxelGame.Logic
             ORE_GOLD = new BasicBlock(Language.GoldOre, TextureLayout.Uniform("ore_gold"), true, true, true);
             SNOW = new BasicBlock(Language.Snow, TextureLayout.Uniform("snow"), true, true, true);
             FLOWER = new CrossPlantBlock(Language.Flower, "flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
+            TALL_FLOWER = new DoubleCrossPlantBlock(Language.TallFlower, "tall_flower", 1, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
             SPIDERWEB = new SpiderWebBlock(Language.SpiderWeb, "spider_web", 0.01f);
             CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqiueFront("stone_cavepainting", "stone"), true, true, true);
             LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f, false);
@@ -254,14 +258,31 @@ namespace VoxelGame.Logic
         /// <returns>The amount of vertices in the mesh.</returns>
         public abstract uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
+        /// <summary>
+        /// This method is called on blocks next to a position that was changed.
+        /// </summary>
+        /// <param name="x">The x position of the block next to the changed position.</param>
+        /// <param name="y">The y position of the block next to the changed position.</param>
+        /// <param name="z">The z position of the block next to the changed position.</param>
+        /// <param name="data">The data of the block next to the changed position.</param>
         public virtual void BlockUpdate(int x, int y, int z, byte data)
         {
         }
 
+        /// <summary>
+        /// This method is called when an entity collides with this block.
+        /// </summary>
+        /// <param name="entity">The entity that caused the collision.</param>
+        /// <param name="x">The x position of the block the entity collided with.</param>
+        /// <param name="y">The y position of the block the entity collided with.</param>
+        /// <param name="z">The z position of the block the entity collided with.</param>
         public virtual void EntityCollision(Entities.PhysicsEntity entity, int x, int y, int z)
         {
         }
 
+        /// <summary>
+        /// This method is called randomly on some blocks every update.
+        /// </summary>
         public virtual void RandomUpdate(int x, int y, int z, byte data)
         {
         }

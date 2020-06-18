@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using VoxelGame.Physics;
 using VoxelGame.Rendering;
+using VoxelGame.Logic.Interfaces;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -20,9 +21,9 @@ namespace VoxelGame.Logic.Blocks
             base(
                 name,
                 texture,
-                isReplaceable,
                 recieveCollisions: false,
                 isTrigger: false,
+                isReplaceable,
                 boundingBox)
         {
         }
@@ -30,14 +31,16 @@ namespace VoxelGame.Logic.Blocks
         public override bool Place(int x, int y, int z, Entities.PhysicsEntity entity)
         {
             // Check the block under the placement position.
-            Block ground = (Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR);
+            Block ground = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
 
-            if (ground != Block.DIRT && ground != Block.GRASS)
+            if (ground is IPlantable)
+            {
+                return base.Place(x, y, z, entity);
+            }
+            else
             {
                 return false;
             }
-
-            return base.Place(x, y, z, entity);
         }
 
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
@@ -52,7 +55,7 @@ namespace VoxelGame.Logic.Blocks
             // Check the block under this block
             Block ground = (Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR);
 
-            if (ground != Block.DIRT && ground != Block.GRASS)
+            if (!(ground is IPlantable))
             {
                 Destroy(x, y, z, null);
             }
