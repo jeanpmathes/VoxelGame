@@ -250,7 +250,7 @@ namespace VoxelGame.Entities
                     }
 
                     // Prevent block placement if the block would intersect the player
-                    if (!BoundingBox.Intersects(activeBlock.GetBoundingBox(placePositionX, placePositionY, placePositionZ)))
+                    if (!activeBlock.IsSolid || !BoundingBox.Intersects(activeBlock.GetBoundingBox(placePositionX, placePositionY, placePositionZ)))
                     {
                         activeBlock.Place(placePositionX, placePositionY, placePositionZ, this);
 
