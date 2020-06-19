@@ -4,7 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
-using Resources;
+using VoxelGame.Resources.Language;
 using System.Collections.Generic;
 using VoxelGame.Logic.Blocks;
 using VoxelGame.Physics;
@@ -49,6 +49,7 @@ namespace VoxelGame.Logic
         public static Block POTATOES = null!;
         public static Block ONIONS = null!;
         public static Block WHEAT = null!;
+        public static Block MAIZE = null!;
         public static Block TILES_SMALL = null!;
         public static Block TILES_LARGE = null!;
         public static Block TILES_CHECKERBOARD = null!;
@@ -112,6 +113,7 @@ namespace VoxelGame.Logic
             POTATOES = new CropBlock(Language.Potatoes, "potato", 1, 1, 2, 2, 3, 4, 5);
             ONIONS = new CropBlock(Language.Onions, "onion", 0, 1, 1, 2, 2, 3, 4);
             WHEAT = new CropBlock(Language.Wheat, "wheat", 0, 1, 1, 2, 2, 3, 4);
+            MAIZE = new DoubeCropBlock(Language.Maize, "maize", 0, 1, 2, 2, (3, 6), (3, 6), (4, 7), (5, 8));
             TILES_SMALL = new ConstructionBlock(Language.SmallTiles, TextureLayout.Uniform("small_tiles"));
             TILES_LARGE = new ConstructionBlock(Language.LargeTiles, TextureLayout.Uniform("large_tiles"));
             TILES_CHECKERBOARD = new TintedBlock(Language.CheckerboardTiles, TextureLayout.Uniform("checkerboard_tiles"));

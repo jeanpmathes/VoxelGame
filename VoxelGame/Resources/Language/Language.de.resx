@@ -201,6 +201,9 @@
   <data name="Log" xml:space="preserve">
     <value>Stamm</value>
   </data>
+  <data name="Maize" xml:space="preserve">
+    <value>Mais</value>
+  </data>
   <data name="NewWorldPrompt" xml:space="preserve">
     <value>Möchten sie eine neue Welt erstellen?</value>
   </data>
@@ -236,6 +239,9 @@
   </data>
   <data name="TallGrass" xml:space="preserve">
     <value>Hohes Gras</value>
+  </data>
+  <data name="TextureBlockRatio" xml:space="preserve">
+    <value>Verhältnis Texturen/Blöcke: </value>
   </data>
   <data name="VeryTallGrass" xml:space="preserve">
     <value>Sehr Hohes Gras</value>

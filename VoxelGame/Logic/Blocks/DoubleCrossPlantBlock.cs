@@ -123,11 +123,8 @@ namespace VoxelGame.Logic.Blocks
 
         public override void BlockUpdate(int x, int y, int z, byte data)
         {
-            // Check the block under this block
-            Block ground = (Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR);
-            bool isBase = (data & 0b1) == 0;
-
-            if (isBase && !(ground is IPlantable))
+            // Check if this block is the lower part and if the ground supports plant growth.
+            if ((data & 0b1) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
             {
                 Destroy(x, y, z, null);
             }

@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using Resources;
+using VoxelGame.Resources.Language;
 using System;
 using System.Collections.Generic;
 using System.IO;

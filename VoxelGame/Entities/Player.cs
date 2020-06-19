@@ -5,7 +5,7 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common.Input;
-using Resources;
+using VoxelGame.Resources.Language;
 using System;
 using VoxelGame.Logic;
 using VoxelGame.Physics;

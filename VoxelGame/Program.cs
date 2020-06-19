@@ -4,7 +4,7 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Desktop;
-using Resources;
+using VoxelGame.Resources.Language;
 using System;
 
 namespace VoxelGame

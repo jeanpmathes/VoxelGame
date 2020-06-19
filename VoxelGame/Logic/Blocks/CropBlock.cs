@@ -18,9 +18,42 @@ namespace VoxelGame.Logic.Blocks
     // s = stage
     public class CropBlock : Block
     {
-#pragma warning disable CA1051 // Do not declare visible instance fields
-        protected float[][] stageVertices = null!;
+#pragma warning disable CA1051 // Do not declare visible instance fields      
         protected int[] stageTexIndices = null!;
+
+        protected float[] vertices = new float[]
+        {
+            //X----Y---Z---U---V---N---O---P
+            0.25f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
+            0.25f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
+            0.25f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
+            0.25f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
+
+            0.5f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
+            0.5f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
+            0.5f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
+            0.5f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
+
+            0.75f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
+            0.75f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
+            0.75f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
+            0.75f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
+
+            0f, 0f, 0.25f, 0f, 0f, 0f, 0f, 0f,
+            0f, 1f, 0.25f, 0f, 1f, 0f, 0f, 0f,
+            1f, 1f, 0.25f, 1f, 1f, 0f, 0f, 0f,
+            1f, 0f, 0.25f, 1f, 0f, 0f, 0f, 0f,
+
+            0f, 0f, 0.5f, 0f, 0f, 0f, 0f, 0f,
+            0f, 1f, 0.5f, 0f, 1f, 0f, 0f, 0f,
+            1f, 1f, 0.5f, 1f, 1f, 0f, 0f, 0f,
+            1f, 0f, 0.5f, 1f, 0f, 0f, 0f, 0f,
+
+            0f, 0f, 0.75f, 0f, 0f, 0f, 0f, 0f,
+            0f, 1f, 0.75f, 0f, 1f, 0f, 0f, 0f,
+            1f, 1f, 0.75f, 1f, 1f, 0f, 0f, 0f,
+            1f, 0f, 0.75f, 1f, 0f, 0f, 0f, 0f
+        };
 
         protected uint[] indices =
         {
@@ -90,50 +123,14 @@ namespace VoxelGame.Logic.Blocks
                 baseIndex + final,
                 baseIndex + dead
             };
-
-            stageVertices = new float[8][];
-
-            for (int i = 0; i < 8; i++)
-            {
-                stageVertices[i] = new float[]
-                {
-                    //X----Y---Z---U---V---N---O---P
-                    0.25f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
-                    0.25f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
-                    0.25f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
-                    0.25f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
-
-                    0.5f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
-                    0.5f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
-                    0.5f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
-                    0.5f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
-
-                    0.75f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
-                    0.75f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
-                    0.75f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
-                    0.75f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
-
-                    0f, 0f, 0.25f, 0f, 0f, 0f, 0f, 0f,
-                    0f, 1f, 0.25f, 0f, 1f, 0f, 0f, 0f,
-                    1f, 1f, 0.25f, 1f, 1f, 0f, 0f, 0f,
-                    1f, 0f, 0.25f, 1f, 0f, 0f, 0f, 0f,
-
-                    0f, 0f, 0.5f, 0f, 0f, 0f, 0f, 0f,
-                    0f, 1f, 0.5f, 0f, 1f, 0f, 0f, 0f,
-                    1f, 1f, 0.5f, 1f, 1f, 0f, 0f, 0f,
-                    1f, 0f, 0.5f, 1f, 0f, 0f, 0f, 0f,
-
-                    0f, 0f, 0.75f, 0f, 0f, 0f, 0f, 0f,
-                    0f, 1f, 0.75f, 0f, 1f, 0f, 0f, 0f,
-                    1f, 1f, 0.75f, 1f, 1f, 0f, 0f, 0f,
-                    1f, 0f, 0.75f, 1f, 0f, 0f, 0f, 0f
-                };
-            }
         }
 
         public override BoundingBox GetBoundingBox(int x, int y, int z)
         {
-            Game.World.GetBlock(x, y, z, out byte data);
+            if (Game.World.GetBlock(x, y, z, out byte data) != this)
+            {
+                return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f));
+            }
 
             switch ((GrowthStage)(data & 0b0_0111))
             {
@@ -147,7 +144,7 @@ namespace VoxelGame.Logic.Blocks
                 case GrowthStage.Third:
                     return new BoundingBox(new Vector3(0.5f, 0.25f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.25f, 0.5f));
 
-                case GrowthStage.Forth:
+                case GrowthStage.Fourth:
                     return new BoundingBox(new Vector3(0.5f, 0.3125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.3125f, 0.5f));
 
                 case GrowthStage.Fifth:
@@ -177,7 +174,7 @@ namespace VoxelGame.Logic.Blocks
 
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
-            vertices = stageVertices[data & 0b0_0111];
+            vertices = this.vertices;
             textureIndices = new int[24];
 
             for (int i = 0; i < 24; i++)
@@ -219,7 +216,7 @@ namespace VoxelGame.Logic.Blocks
             Initial,
             Second,
             Third,
-            Forth,
+            Fourth,
             Fifth,
             Sixth,
             Final,
