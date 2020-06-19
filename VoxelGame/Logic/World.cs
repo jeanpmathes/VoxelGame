@@ -15,7 +15,7 @@ using VoxelGame.WorldGeneration;
 
 namespace VoxelGame.Logic
 {
-    public class World : IDisposable
+    internal class World : IDisposable
     {
         public const int ChunkExtents = 5;
 
@@ -176,11 +176,6 @@ namespace VoxelGame.Logic
         /// </summary>
         public World(WorldInformation information, string path)
         {
-            if (information == null)
-            {
-                throw new ArgumentNullException(nameof(information));
-            }
-
             worldDirectory = path;
             chunkDirectory = worldDirectory + @"\Chunks";
 

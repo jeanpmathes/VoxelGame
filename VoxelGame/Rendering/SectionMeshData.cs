@@ -3,7 +3,6 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
 using VoxelGame.Collections;
 
 namespace VoxelGame.Rendering
@@ -18,26 +17,6 @@ namespace VoxelGame.Rendering
 
         public SectionMeshData(ref PooledList<int> simpleVertexData, ref PooledList<float> complexVertexPositions, ref PooledList<int> complexVertexData, ref PooledList<uint> complexIndices)
         {
-            if (simpleVertexData == null)
-            {
-                throw new ArgumentNullException(nameof(simpleVertexData));
-            }
-
-            if (complexVertexPositions == null)
-            {
-                throw new ArgumentNullException(nameof(complexVertexPositions));
-            }
-
-            if (complexVertexData == null)
-            {
-                throw new ArgumentNullException(nameof(complexVertexData));
-            }
-
-            if (complexIndices == null)
-            {
-                throw new ArgumentNullException(nameof(complexIndices));
-            }
-
             this.simpleVertexData = simpleVertexData;
 
             this.complexVertexPositions = complexVertexPositions;

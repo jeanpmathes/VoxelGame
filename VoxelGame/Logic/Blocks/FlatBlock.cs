@@ -221,11 +221,6 @@ namespace VoxelGame.Logic.Blocks
 
         public override void EntityCollision(PhysicsEntity entity, int x, int y, int z)
         {
-            if (entity == null)
-            {
-                throw new System.ArgumentNullException(nameof(entity));
-            }
-
             Vector3 forwardMovement = Vector3.Dot(entity.Movement, entity.Forward) * entity.Forward;
 
             Game.World.GetBlock(x, y, z, out byte data);
