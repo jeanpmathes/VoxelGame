@@ -106,8 +106,8 @@ namespace VoxelGame.Logic
             TALL_FLOWER = new DoubleCrossPlantBlock(Language.TallFlower, "tall_flower", 1, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
             SPIDERWEB = new SpiderWebBlock(Language.SpiderWeb, "spider_web", 0.01f);
             CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqiueFront("stone_cavepainting", "stone"), true, true, true);
-            LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f, false);
-            VINES = new FlatBlock(Language.Vines, "vines", 2f, 1f, true);
+            LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f);
+            VINES = new GrowingFlatBlock(Language.Vines, "vines", 2f, 1f);
             FENCE_WOOD = new FenceBlock(Language.WoodenFence, "wood");
             FLAX = new CropBlock(Language.Flax, "flax", 0, 1, 2, 3, 3, 4, 5);
             POTATOES = new CropBlock(Language.Potatoes, "potato", 1, 1, 2, 2, 3, 4, 5);
