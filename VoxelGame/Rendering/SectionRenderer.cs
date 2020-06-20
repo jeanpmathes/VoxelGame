@@ -201,7 +201,9 @@ namespace VoxelGame.Rendering
             else
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
                 Console.WriteLine("WARNING: A renderer has been disposed by GC, without deleting buffers.");
+#pragma warning restore CA1303 // Do not pass literals as localized parameters
                 Console.ResetColor();
             }
 

@@ -285,7 +285,7 @@ namespace VoxelGame.Logic
 
                         if (completed.IsFaulted)
                         {
-                            throw completed.Exception?.GetBaseException() ?? new Exception("EXCEPTION IS NULL");
+                            throw completed.Exception?.GetBaseException() ?? new NullReferenceException();
                         }
                         else if (!activeChunks.ContainsKey((generatedChunk.X, generatedChunk.Z)) && !positionsToReleaseOnActivation.Remove((generatedChunk.X, generatedChunk.Z)))
                         {
@@ -460,7 +460,7 @@ namespace VoxelGame.Logic
                     {
                         if (chunkMeshingTasks[i].IsFaulted)
                         {
-                            Exception e = chunkMeshingTasks[i].Exception?.GetBaseException() ?? new Exception("EXCEPTION IS NULL");
+                            Exception e = chunkMeshingTasks[i].Exception?.GetBaseException() ?? new NullReferenceException();
 
                             Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine(

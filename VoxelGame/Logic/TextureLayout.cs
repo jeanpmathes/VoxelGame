@@ -4,12 +4,15 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
+using System.Security.Policy;
+
 namespace VoxelGame.Logic
 {
     /// <summary>
     /// Provides functionality to define the textures of a default six-sided block.
     /// </summary>
-    public struct TextureLayout
+    public struct TextureLayout : IEquatable<TextureLayout>
     {
         public int Front { get; }
         public int Back { get; }
@@ -139,6 +142,43 @@ namespace VoxelGame.Logic
             int restIndex = Game.BlockTextureArray.GetTextureIndex(rest);
 
             return new TextureLayout(restIndex, restIndex, restIndex, restIndex, restIndex, topIndex);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is TextureLayout other)
+            {
+                return Equals(other: other);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Front, Back, Left, Right, Bottom, Top);
+        }
+
+        public static bool operator ==(TextureLayout left, TextureLayout right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(TextureLayout left, TextureLayout right)
+        {
+            return !(left == right);
+        }
+
+        public bool Equals(TextureLayout other)
+        {
+            return Front == other.Front &&
+                Back == other.Back &&
+                Left == other.Left &&
+                Right == other.Right &&
+                Bottom == other.Bottom &&
+                Top == other.Top;
         }
     }
 }

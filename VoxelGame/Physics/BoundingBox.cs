@@ -10,7 +10,7 @@ using VoxelGame.Logic;
 
 namespace VoxelGame.Physics
 {
-    public struct BoundingBox
+    public struct BoundingBox : IEquatable<BoundingBox>
     {
         public Vector3 Center { get; set; }
         public Vector3 Extents { get; set; }
@@ -333,6 +333,11 @@ namespace VoxelGame.Physics
         public override int GetHashCode()
         {
             return HashCode.Combine(Center.GetHashCode(), Extents.GetHashCode());
+        }
+
+        public bool Equals(BoundingBox other)
+        {
+            return (this.Extents == other.Extents) && (this.Center == other.Center) && children.Equals(other.children);
         }
     }
 }
