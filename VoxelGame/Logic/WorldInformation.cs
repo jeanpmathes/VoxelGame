@@ -14,6 +14,7 @@ namespace VoxelGame.Logic
         public string Name { get; set; } = "No Name";
         public int Seed { get; set; } = 2133;
         public DateTime Creation { get; set; } = DateTime.MinValue;
+        public string Version { get; set; } = "missing";
 
         public void Save(string path)
         {

@@ -243,6 +243,9 @@
   <data name="TextureBlockRatio" xml:space="preserve">
     <value>Verhältnis Texturen/Blöcke: </value>
   </data>
+  <data name="Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
   <data name="VeryTallGrass" xml:space="preserve">
     <value>Sehr Hohes Gras</value>
   </data>

@@ -19,7 +19,7 @@ namespace VoxelGame.Logic
     {
         public const int ChunkExtents = 5;
 
-        public string Name { get; }
+        public WorldInformation Information { get; }
 
         private const int maxGenerationTasks = 15;
         private const int maxLoadingTasks = 15;
@@ -160,12 +160,13 @@ namespace VoxelGame.Logic
             {
                 Name = name,
                 Seed = seed,
-                Creation = DateTime.Now
+                Creation = DateTime.Now,
+                Version = Program.Version
             };
 
-            information.Save(Path.Combine(path, "meta.json"));
+            information.Save(Path.Combine(worldDirectory, "meta.json"));
 
-            Name = information.Name;
+            Information = information;
             generator = new NoiseGenerator(seed);
 
             Setup();
@@ -182,7 +183,7 @@ namespace VoxelGame.Logic
             Directory.CreateDirectory(worldDirectory);
             Directory.CreateDirectory(chunkDirectory);
 
-            Name = information.Name;
+            Information = information;
             generator = new NoiseGenerator(information.Seed);
 
             Setup();
@@ -823,6 +824,10 @@ namespace VoxelGame.Logic
             }
 
             Console.WriteLine(Language.AllChunksSaving);
+
+            Information.Version = Program.Version;
+
+            savingTasks.Add(Task.Run( () => Information.Save(Path.Combine(worldDirectory, "meta.json"))));
 
             return Task.WhenAll(savingTasks);
         }
