@@ -129,11 +129,6 @@ namespace VoxelGame.Logic
 
         public void Generate(IWorldGenerator generator)
         {
-            if (generator == null)
-            {
-                throw new ArgumentNullException(paramName: nameof(generator));
-            }
-
             for (int x = 0; x < Section.SectionSize; x++)
             {
                 for (int z = 0; z < Section.SectionSize; z++)
@@ -142,7 +137,7 @@ namespace VoxelGame.Logic
 
                     foreach (Block block in generator.GenerateColumn(x + (X * Section.SectionSize), z + (Z * Section.SectionSize)))
                     {
-                        sections[y >> 5][x, y & (Section.SectionSize - 1), z] = block.Id; // (ushort)((block).Id | (data << 11));
+                        sections[y >> 5][x, y & (Section.SectionSize - 1), z] = block.Id;
 
                         y++;
                     }
@@ -187,11 +182,6 @@ namespace VoxelGame.Logic
 
         public void SetMeshData(SectionMeshData[] sectionMeshes)
         {
-            if (sectionMeshes == null)
-            {
-                throw new ArgumentNullException(nameof(sectionMeshes));
-            }
-
             for (int y = 0; y < ChunkHeight; y++)
             {
                 sections[y].SetMeshData(ref sectionMeshes[y]);
@@ -203,11 +193,6 @@ namespace VoxelGame.Logic
 
         public bool SetMeshDataStep(SectionMeshData[] sectionMeshes)
         {
-            if (sectionMeshes == null)
-            {
-                throw new ArgumentNullException(nameof(sectionMeshes));
-            }
-
             for (int i = 0; i < maxMeshDataStep; i++)
             {
                 sections[meshDataIndex].SetMeshData(ref sectionMeshes[meshDataIndex]);

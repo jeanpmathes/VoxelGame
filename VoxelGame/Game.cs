@@ -7,7 +7,7 @@ using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Common.Input;
 using OpenToolkit.Windowing.Desktop;
-using Resources;
+using VoxelGame.Resources.Language;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -64,6 +64,8 @@ namespace VoxelGame
             // Block setup
             Block.LoadBlocks();
             Console.WriteLine(Language.BlocksLoadedAmount + Block.Count);
+
+            Console.WriteLine(Language.TextureBlockRatio + $"{BlockTextureArray.Count * 1f / Block.Count:F02}");
 
             // Get the application data folder and set up all required folders there
             string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "voxel");

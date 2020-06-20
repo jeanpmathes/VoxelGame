@@ -22,8 +22,6 @@ namespace VoxelGame.Logic.Blocks
         protected readonly float climbingVelocity;
         protected readonly float slidingVelocity;
 
-        protected readonly bool hasNeutralTint;
-
         protected float[][] sideVertices = null!;
         protected int[] textureIndices = null!;
 
@@ -44,7 +42,7 @@ namespace VoxelGame.Logic.Blocks
         /// <param name="texture">The texture to use for the block.</param>
         /// <param name="climbingVelocity"></param>
         /// <param name="slidingVelocity"></param>
-        public FlatBlock(string name, string texture, float climbingVelocity, float slidingVelocity, bool hasNeutralTint) :
+        public FlatBlock(string name, string texture, float climbingVelocity, float slidingVelocity) :
             base(
                 name: name,
                 isFull: false,
@@ -59,8 +57,6 @@ namespace VoxelGame.Logic.Blocks
         {
             this.climbingVelocity = climbingVelocity;
             this.slidingVelocity = slidingVelocity;
-
-            this.hasNeutralTint = hasNeutralTint;
 
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
             this.Setup(texture);
@@ -130,10 +126,10 @@ namespace VoxelGame.Logic.Blocks
             Game.World.GetBlock(x, y, z, out byte data);
             return ((Orientation)(data & 0b0_0011)) switch
             {
-                Orientation.North => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.95f), new Vector3(0.5f, 0.5f, 0.05f)),
-                Orientation.South => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.05f), new Vector3(0.5f, 0.5f, 0.05f)),
-                Orientation.West => new BoundingBox(new Vector3(x + 0.95f, y + 0.5f, z + 0.5f), new Vector3(0.05f, 0.5f, 0.5f)),
-                Orientation.East => new BoundingBox(new Vector3(x + 0.05f, y + 0.5f, z + 0.5f), new Vector3(0.05f, 0.5f, 0.5f)),
+                Orientation.North => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.95f), new Vector3(0.45f, 0.5f, 0.05f)),
+                Orientation.South => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.05f), new Vector3(0.45f, 0.5f, 0.05f)),
+                Orientation.West => new BoundingBox(new Vector3(x + 0.95f, y + 0.5f, z + 0.5f), new Vector3(0.05f, 0.5f, 0.45f)),
+                Orientation.East => new BoundingBox(new Vector3(x + 0.05f, y + 0.5f, z + 0.5f), new Vector3(0.05f, 0.5f, 0.45f)),
                 _ => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.95f), new Vector3(0.5f, 0.5f, 0.05f)),
             };
         }
@@ -189,7 +185,7 @@ namespace VoxelGame.Logic.Blocks
             textureIndices = this.textureIndices;
             indices = this.indices;
 
-            tint = (hasNeutralTint) ? TintColor.Neutral : TintColor.None;
+            tint = TintColor.None;
 
             return 8;
         }
@@ -221,11 +217,6 @@ namespace VoxelGame.Logic.Blocks
 
         public override void EntityCollision(PhysicsEntity entity, int x, int y, int z)
         {
-            if (entity == null)
-            {
-                throw new System.ArgumentNullException(nameof(entity));
-            }
-
             Vector3 forwardMovement = Vector3.Dot(entity.Movement, entity.Forward) * entity.Forward;
 
             Game.World.GetBlock(x, y, z, out byte data);

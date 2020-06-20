@@ -4,7 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
-using Resources;
+using VoxelGame.Resources.Language;
 using System.Collections.Generic;
 using VoxelGame.Logic.Blocks;
 using VoxelGame.Physics;
@@ -49,6 +49,7 @@ namespace VoxelGame.Logic
         public static Block POTATOES = null!;
         public static Block ONIONS = null!;
         public static Block WHEAT = null!;
+        public static Block MAIZE = null!;
         public static Block TILES_SMALL = null!;
         public static Block TILES_LARGE = null!;
         public static Block TILES_CHECKERBOARD = null!;
@@ -105,13 +106,14 @@ namespace VoxelGame.Logic
             TALL_FLOWER = new DoubleCrossPlantBlock(Language.TallFlower, "tall_flower", 1, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
             SPIDERWEB = new SpiderWebBlock(Language.SpiderWeb, "spider_web", 0.01f);
             CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqiueFront("stone_cavepainting", "stone"), true, true, true);
-            LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f, false);
-            VINES = new FlatBlock(Language.Vines, "vines", 2f, 1f, true);
+            LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f);
+            VINES = new GrowingFlatBlock(Language.Vines, "vines", 2f, 1f);
             FENCE_WOOD = new FenceBlock(Language.WoodenFence, "wood");
             FLAX = new CropBlock(Language.Flax, "flax", 0, 1, 2, 3, 3, 4, 5);
             POTATOES = new CropBlock(Language.Potatoes, "potato", 1, 1, 2, 2, 3, 4, 5);
             ONIONS = new CropBlock(Language.Onions, "onion", 0, 1, 1, 2, 2, 3, 4);
             WHEAT = new CropBlock(Language.Wheat, "wheat", 0, 1, 1, 2, 2, 3, 4);
+            MAIZE = new DoubeCropBlock(Language.Maize, "maize", 0, 1, 2, 2, (3, 6), (3, 6), (4, 7), (5, 8));
             TILES_SMALL = new ConstructionBlock(Language.SmallTiles, TextureLayout.Uniform("small_tiles"));
             TILES_LARGE = new ConstructionBlock(Language.LargeTiles, TextureLayout.Uniform("large_tiles"));
             TILES_CHECKERBOARD = new TintedBlock(Language.CheckerboardTiles, TextureLayout.Uniform("checkerboard_tiles"));

@@ -271,3 +271,4 @@ __pycache__/
 /.editorconfig
 /MigrationBackup/b72498c1/VoxelGame
 /VoxelGame/VoxelGame.csproj.old
+/VoxelGame/GlobalSuppressions.cs
