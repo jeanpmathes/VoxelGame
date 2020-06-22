@@ -54,6 +54,8 @@ namespace VoxelGame.Logic
         public static Block TILES_LARGE = null!;
         public static Block TILES_CHECKERBOARD = null!;
         public static Block CACTUS = null!;
+        public static Block VASE = null!;
+        public static Block CAKE = null!;
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
         public const int BlockLimit = 2048;
@@ -118,6 +120,7 @@ namespace VoxelGame.Logic
             TILES_LARGE = new ConstructionBlock(Language.LargeTiles, TextureLayout.Uniform("large_tiles"));
             TILES_CHECKERBOARD = new TintedBlock(Language.CheckerboardTiles, TextureLayout.Uniform("checkerboard_tiles"));
             CACTUS = new GrowingBlock(Language.Cactus, TextureLayout.Column("cactus", 0, 1), Block.SAND, 4);
+            VASE = new CustomModelBlock(Language.Vase, "vase", true, new BoundingBox(new Vector3(0.5f, 0.375f, 0.5f), new Vector3(0.25f, 0.375f, 0.25f)));
         }
 
         #endregion STATIC BLOCK MANAGMENT

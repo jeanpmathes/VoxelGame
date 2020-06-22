@@ -181,7 +181,10 @@ namespace VoxelGame
                 while (World == null)
                 {
                     Console.WriteLine(Language.EnterIndexOfWorld);
+
+                    Console.ForegroundColor = ConsoleColor.White;
                     string index = Console.ReadLine();
+                    Console.ResetColor();
 
                     if (int.TryParse(index, out int n))
                     {

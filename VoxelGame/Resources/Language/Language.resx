@@ -243,6 +243,9 @@
   <data name="TextureBlockRatio" xml:space="preserve">
     <value>Ratio Texture/Block: </value>
   </data>
+  <data name="Vase" xml:space="preserve">
+    <value>Vase</value>
+  </data>
   <data name="Version" xml:space="preserve">
     <value>Version</value>
   </data>
