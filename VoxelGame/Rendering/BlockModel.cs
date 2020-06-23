@@ -24,14 +24,7 @@ namespace VoxelGame.Rendering
 
             for (int i = 0; i < TextureNames.Length; i++)
             {
-                try
-                {
-                    texIndexLookup[i] = Game.BlockTextureArray.GetTextureIndex(TextureNames[i]);
-                }
-                catch (ArgumentException)
-                {
-                    texIndexLookup[i] = 0;
-                }
+                texIndexLookup[i] = Game.BlockTextureArray.GetTextureIndex(TextureNames[i]);
             }
 
             vertices = new float[Quads.Length * 32];
