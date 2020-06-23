@@ -150,15 +150,20 @@ namespace VoxelGame.Logic
             return Task.Run(() => Generate(generator));
         }
 
-        public void CreateMesh()
+        public void CreateAndSetMesh()
         {
             for (int y = 0; y < ChunkHeight; y++)
             {
-                sections[y].CreateMesh(X, y, Z);
+                sections[y].CreateAndSetMesh(X, y, Z);
             }
 
             hasMeshData = true;
             meshDataIndex = 0;
+        }
+
+        public void CreateAndSetMesh(int y)
+        {
+            sections[y].CreateAndSetMesh(X, y, Z);
         }
 
         public Task<SectionMeshData[]> CreateMeshDataAsync()
@@ -212,11 +217,6 @@ namespace VoxelGame.Logic
             }
 
             return false;
-        }
-
-        public void CreateMesh(int y)
-        {
-            sections[y].CreateMesh(X, y, Z);
         }
 
         public void Render()

@@ -60,7 +60,7 @@ namespace VoxelGame.Logic
             }
         }
 
-        public void CreateMesh(int sectionX, int sectionY, int sectionZ)
+        public void CreateAndSetMesh(int sectionX, int sectionY, int sectionZ)
         {
             CreateMeshData(sectionX, sectionY, sectionZ, out SectionMeshData meshData);
             SetMeshData(ref meshData);

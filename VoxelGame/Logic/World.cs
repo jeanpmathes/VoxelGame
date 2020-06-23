@@ -531,7 +531,7 @@ namespace VoxelGame.Logic
                 // Mesh all listed sections
                 foreach ((Chunk chunk, int index) in sectionsToMesh)
                 {
-                    chunk.CreateMesh(index);
+                    chunk.CreateAndSetMesh(index);
                 }
 
                 sectionsToMesh.Clear();
