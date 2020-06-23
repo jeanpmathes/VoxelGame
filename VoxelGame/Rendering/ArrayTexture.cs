@@ -244,6 +244,11 @@ namespace VoxelGame.Rendering
 
         public int GetTextureIndex(string name)
         {
+            if (name == "missing_texture")
+            {
+                return 0;
+            }
+
             if (textureIndicies.TryGetValue(name, out int value))
             {
                 return value;

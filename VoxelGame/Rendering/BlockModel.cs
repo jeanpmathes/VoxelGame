@@ -108,8 +108,62 @@ namespace VoxelGame.Rendering
 
         public static BlockModel Load(string name)
         {
-            string json = File.ReadAllText(Path.Combine(path, name + ".json"));
-            return JsonSerializer.Deserialize<BlockModel>(json) ?? new BlockModel();
+            try
+            {
+                string json = File.ReadAllText(Path.Combine(path, name + ".json"));
+                return JsonSerializer.Deserialize<BlockModel>(json) ?? new BlockModel();
+            }
+            catch (Exception e) when (e is IOException || e is FileNotFoundException || e is JsonException)
+            {
+                Console.ForegroundColor = System.ConsoleColor.Yellow;
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
+                Console.WriteLine($"WARNING: The model '{name}' could not be loaded, because an exception ({e.Message}) occurred. Fallback is used.");
+#pragma warning restore CA1303 // Do not pass literals as localized parameters
+                Console.ResetColor();
+
+                return CreateFallback();
+            }
+        }
+
+        private static BlockModel CreateFallback()
+        {
+            return new BlockModel
+            {
+                TextureNames = new string[] { "missing_texture" },
+                Quads = new Quad[]
+                {
+                    new Quad { Vert0 = new Vertex { X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.000f, N = -1f, O = 0f, P = 0f},
+                               Vert1 = new Vertex { X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.000f, N = -1f, O = 0f, P = 0f},
+                               Vert2 = new Vertex { X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.250f, N = -1f, O = 0f, P = 0f},
+                               Vert3 = new Vertex { X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.250f, N = -1f, O = 0f, P = 0f}
+                    },
+                    new Quad { Vert0 = new Vertex { X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.250f, N = 0f, O = 0f, P = 1f},
+                               Vert1 = new Vertex { X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.250f, N = 0f, O = 0f, P = 1f},
+                               Vert2 = new Vertex { X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 0f, O = 0f, P = 1f},
+                               Vert3 = new Vertex { X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 0f, O = 0f, P = 1f}
+                    },
+                    new Quad { Vert0 = new Vertex { X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 1f, O = 0f, P = 0f},
+                               Vert1 = new Vertex { X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 1f, O = 0f, P = 0f},
+                               Vert2 = new Vertex { X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 1f, O = 0f, P = 0f},
+                               Vert3 = new Vertex { X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 1f, O = 0f, P = 0f}
+                    },
+                    new Quad { Vert0 = new Vertex { X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 0f, O = 0f, P = -1f},
+                               Vert1 = new Vertex { X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 0f, O = 0f, P = -1f},
+                               Vert2 = new Vertex { X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 1.000f, N = 0f, O = 0f, P = -1f},
+                               Vert3 = new Vertex { X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 1.000f, N = 0f, O = 0f, P = -1f}
+                    },
+                    new Quad { Vert0 = new Vertex { X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.125f, V = 0.500f, N = 0f, O = -1f, P = 0f},
+                               Vert1 = new Vertex { X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 0f, O = -1f, P = 0f},
+                               Vert2 = new Vertex { X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 0f, O = -1f, P = 0f},
+                               Vert3 = new Vertex { X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.125f, V = 0.750f, N = 0f, O = -1f, P = 0f}
+                    },
+                    new Quad { Vert0 = new Vertex { X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 0f, O = 1f, P = 0f},
+                               Vert1 = new Vertex { X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.875f, V = 0.500f, N = 0f, O = 1f, P = 0f},
+                               Vert2 = new Vertex { X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.875f, V = 0.750f, N = 0f, O = 1f, P = 0f},
+                               Vert3 = new Vertex { X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 0f, O = 1f, P = 0f}
+                    }
+                }
+            };
         }
     }
 
