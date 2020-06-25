@@ -326,7 +326,7 @@ namespace VoxelGame.Logic
             while (chunksToGenerate.Count > 0 && chunkGenerateTasks.Count < maxGenerationTasks)
             {
                 Chunk current = chunksToGenerate.Dequeue();
-                Task currentTask = current.GenerateAsync(generator);
+                Task currentTask = current.GenerateTask(generator);
 
                 chunkGenerateTasks.Add(currentTask);
                 chunksGenerating.Add(currentTask.Id, current);
@@ -439,7 +439,7 @@ namespace VoxelGame.Logic
                     if (!positionsSaving.Contains((x, z)))
                     {
                         string pathToChunk = chunkDirectory + $@"\x{x}z{z}.chunk";
-                        Task<Chunk?> currentTask = Chunk.LoadAsync(pathToChunk, x, z);
+                        Task<Chunk?> currentTask = Chunk.LoadTask(pathToChunk, x, z);
 
                         chunkLoadingTasks.Add(currentTask);
                         positionsLoading.Add(currentTask.Id, (x, z));
@@ -492,7 +492,7 @@ namespace VoxelGame.Logic
             {
                 Chunk current = chunksToMesh.Dequeue();
 
-                var currentTask = current.CreateMeshDataAsync();
+                var currentTask = current.CreateMeshDataTask();
 
                 chunkMeshingTasks.Add(currentTask);
                 chunksMeshing.Add(currentTask.Id, current);
@@ -627,7 +627,7 @@ namespace VoxelGame.Logic
             while (chunksToSave.Count > 0 && chunkSavingTasks.Count < maxSavingTasks)
             {
                 Chunk current = chunksToSave.Dequeue();
-                Task currentTask = current.SaveAsync(chunkDirectory);
+                Task currentTask = current.SaveTask(chunkDirectory);
 
                 chunkSavingTasks.Add(currentTask);
                 chunksSaving.Add(currentTask.Id, current);
@@ -819,7 +819,7 @@ namespace VoxelGame.Logic
             {
                 if (!positionsSaving.Contains((chunk.X, chunk.Z)))
                 {
-                    savingTasks.Add(chunk.SaveAsync(chunkDirectory));
+                    savingTasks.Add(chunk.SaveTask(chunkDirectory));
                 }
             }
 

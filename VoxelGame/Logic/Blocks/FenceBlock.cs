@@ -12,7 +12,7 @@ using VoxelGame.Rendering;
 namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
-    /// This class represents a block which connects to blocks with the <see cref="IFenceConnectable"/> interface.
+    /// This class represents a block which connects to blocks with the <see cref="IFenceConnectable"/> interface. The texture and indices of the BlockModels are ignored.
     /// Data bit usage: <c>-nesw</c>
     /// </summary>
     // n = connected north
@@ -35,7 +35,7 @@ namespace VoxelGame.Logic.Blocks
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-        public FenceBlock(string name, string texture) :
+        public FenceBlock(string name, string texture, string post, string extension) :
             base(
                 name: name,
                 isFull: false,
@@ -49,225 +49,25 @@ namespace VoxelGame.Logic.Blocks
                 TargetBuffer.Complex)
         {
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
-            this.Setup(texture);
+            this.Setup(texture, BlockModel.Load(post), BlockModel.Load(extension));
 #pragma warning restore CA2214 // Do not call overridable methods in constructors
         }
 
-        protected void Setup(string texture)
+        protected void Setup(string texture, BlockModel post, BlockModel extension)
         {
-            postVertices = new float[]
-            {
-                // Front
-                0.3125f, 0f, 0.6875f, 0.3125f, 0f, 0f, 0f, 1f,
-                0.3125f, 1f, 0.6875f, 0.3125f, 1f, 0f, 0f, 1f,
-                0.6875f, 1f, 0.6875f, 0.6875f, 1f, 0f, 0f, 1f,
-                0.6875f, 0f, 0.6875f, 0.6875f, 0f, 0f, 0f, 1f,
-                // Back
-                0.6875f, 0f, 0.3125f, 0.3125f, 0f, 0f, 0f, -1f,
-                0.6875f, 1f, 0.3125f, 0.3125f, 1f, 0f, 0f, -1f,
-                0.3125f, 1f, 0.3125f, 0.6875f, 1f, 0f, 0f, -1f,
-                0.3125f, 0f, 0.3125f, 0.6875f, 0f, 0f, 0f, -1f,
-                // Left
-                0.3125f, 0f, 0.3125f, 0.3125f, 0f, -1f, 0f, 0f,
-                0.3125f, 1f, 0.3125f, 0.3125f, 1f, -1f, 0f, 0f,
-                0.3125f, 1f, 0.6875f, 0.6875f, 1f, -1f, 0f, 0f,
-                0.3125f, 0f, 0.6875f, 0.6875f, 0f, -1f, 0f, 0f,
-                // Right
-                0.6875f, 0f, 0.6875f, 0.3125f, 0f, 1f, 0f, 0f,
-                0.6875f, 1f, 0.6875f, 0.3125f, 1f, 1f, 0f, 0f,
-                0.6875f, 1f, 0.3125f, 0.6875f, 1f, 1f, 0f, 0f,
-                0.6875f, 0f, 0.3125f, 0.6875f, 0f, 1f, 0f, 0f,
-                // Bottom
-                0.3125f, 0f, 0.3125f, 0.3125f, 0.3125f, 0f, -1f, 0f,
-                0.3125f, 0f, 0.6875f, 0.3125f, 0.6875f, 0f, -1f, 0f,
-                0.6875f, 0f, 0.6875f, 0.6875f, 0.6875f, 0f, -1f, 0f,
-                0.6875f, 0f, 0.3125f, 0.6875f, 0.3125f, 0f, -1f, 0f,
-                // Top
-                0.3125f, 1f, 0.6875f, 0.3125f, 0.3125f, 0f, 1f, 0f,
-                0.3125f, 1f, 0.3125f, 0.3125f, 0.6875f, 0f, 1f, 0f,
-                0.6875f, 1f, 0.3125f, 0.6875f, 0.6875f, 0f, 1f, 0f,
-                0.6875f, 1f, 0.6875f, 0.6875f, 0.3125f, 0f, 1f, 0f
-            };
+            post.ToData(out postVertices, out _, out _);
 
-            northVertices = new float[]
-            {
-                // Low extension
-                0.375f, 0.125f, 0f, 0f, 0.125f, -1f, 0f, 0f,
-                0.375f, 0.4375f, 0f, 0f, 0.4375f, -1f, 0f, 0f,
-                0.375f, 0.4375f, 0.3125f, 0.3125f, 0.4375f, -1f, 0f, 0f,
-                0.375f, 0.125f, 0.3125f, 0.3125f, 0.125f, -1f, 0f, 0f,
+            extension.RotateY(0);
+            extension.ToData(out northVertices, out _, out _);
 
-                0.625f, 0.125f, 0.3125f, 0.6875f, 0.125f, 1f, 0f, 0f,
-                0.625f, 0.4375f, 0.3125f, 0.6875f, 0.4375f, 1f, 0f, 0f,
-                0.625f, 0.4375f, 0f, 1f, 0.4375f, 1f, 0f, 0f,
-                0.625f, 0.125f, 0f, 1f, 0.125f, 1f, 0f, 0f,
+            extension.RotateY(1);
+            extension.ToData(out eastVertices, out _, out _);
 
-                0.375f, 0.125f, 0f, 0.375f, 0.6875f, 0f, -1f, 0f,
-                0.375f, 0.125f, 0.3125f, 0.375f, 1f, 0f, -1f, 0f,
-                0.625f, 0.125f, 0.3125f, 0.625f, 1f, 0f, -1f, 0f,
-                0.625f, 0.125f, 0f, 0.625f, 0.6875f, 0f, -1f, 0f,
+            extension.RotateY(1);
+            extension.ToData(out southVertices, out _, out _);
 
-                0.375f, 0.4375f, 0.3125f, 0.375f, 0.6875f, 0f, 1f, 0f,
-                0.375f, 0.4375f, 0f, 0.375f, 1f, 0f, 1f, 0f,
-                0.625f, 0.4375f, 0f, 0.625f, 1f, 0f, 1f, 0f,
-                0.625f, 0.4375f, 0.3125f, 0.625f, 0.6875f, 0f, 1f, 0f,
-
-                // High extension
-                0.375f, 0.5625f, 0f, 0f, 0.5625f, -1f, 0f, 0f,
-                0.375f, 0.875f, 0f, 0f, 0.875f, -1f, 0f, 0f,
-                0.375f, 0.875f, 0.3125f, 0.3125f, 0.875f, -1f, 0f, 0f,
-                0.375f, 0.5625f, 0.3125f, 0.3125f, 0.5625f, -1f, 0f, 0f,
-
-                0.625f, 0.5625f, 0.3125f, 0.6875f, 0.5625f, 1f, 0f, 0f,
-                0.625f, 0.875f, 0.3125f, 0.6875f, 0.875f, 1f, 0f, 0f,
-                0.625f, 0.875f, 0f, 1f, 0.875f, 1f, 0f, 0f,
-                0.625f, 0.5625f, 0f, 1f, 0.5625f, 1f, 0f, 0f,
-
-                0.375f, 0.5625f, 0f, 0.375f, 0.6875f, 0f, -1f, 0f,
-                0.375f, 0.5625f, 0.3125f, 0.375f, 1f, 0f, -1f, 0f,
-                0.625f, 0.5625f, 0.3125f, 0.625f, 1f, 0f, -1f, 0f,
-                0.625f, 0.5625f, 0f, 0.625f, 0.6875f, 0f, -1f, 0f,
-
-                0.375f, 0.875f, 0.3125f, 0.375f, 0.6875f, 0f, 1f, 0f,
-                0.375f, 0.875f, 0f, 0.375f, 1f, 0f, 1f, 0f,
-                0.625f, 0.875f, 0f, 0.625f, 1f, 0f, 1f, 0f,
-                0.625f, 0.875f, 0.3125f, 0.625f, 0.6875f, 0f, 1f, 0f
-            };
-
-            eastVertices = new float[]
-            {
-                // Low extension
-                0.6875f, 0.125f, 0.625f, 0.6875f, 0.125f, 0f, 0f, 1f,
-                0.6875f, 0.4375f, 0.625f, 0.6875f, 0.4375f, 0f, 0f, 1f,
-                1f, 0.4375f, 0.625f, 1f, 0.4375f, 0f, 0f, 1f,
-                1f, 0.125f, 0.625f, 1f, 0.125f, 0f, 0f, 1f,
-
-                1f, 0.125f, 0.375f, 0f, 0.125f, 0f, 0f, -1f,
-                1f, 0.4375f, 0.375f, 0f, 0.4375f, 0f, 0f, -1f,
-                0.6875f, 0.4375f, 0.375f, 0.3125f, 0.4375f, 0f, 0f, -1f,
-                0.6875f, 0.125f, 0.375f, 0.3125f, 0.125f, 0f, 0f, -1f,
-
-                0.6875f, 0.125f, 0.375f, 0.6875f, 0.375f, 0f, -1f, 0f,
-                0.6875f, 0.125f, 0.625f, 0.6875f, 0.625f, 0f, -1f, 0f,
-                1f, 0.125f, 0.625f, 1f, 0.625f, 0f, -1f, 0f,
-                1f, 0.125f, 0.375f, 1f, 0.375f, 0f, -1f, 0f,
-
-                0.6875f, 0.4375f, 0.625f, 0.6875f, 0.375f, 0f, 1f, 0f,
-                0.6875f, 0.4375f, 0.375f, 0.6875f, 0.625f, 0f, 1f, 0f,
-                1f, 0.4375f, 0.375f, 1f, 0.625f, 0f, 1f, 0f,
-                1f, 0.4375f, 0.625f, 1f, 0.375f, 0f, 1f, 0f,
-
-                // High extension
-                0.6875f, 0.5625f, 0.625f, 0f, 0.5625f, 0f, 0f, 1f,
-                0.6875f, 0.875f, 0.625f, 0f, 0.875f, 0f, 0f, 1f,
-                1f, 0.875f, 0.625f, 0.3125f, 0.875f, 0f, 0f, 1f,
-                1f, 0.5625f, 0.625f, 0.3125f, 0.5625f, 0f, 0f, 1f,
-
-                1f, 0.5625f, 0.375f, 0.6875f, 0.5625f, 0f, 0f, -1f,
-                1f, 0.875f, 0.375f, 0.6875f, 0.875f, 0f, 0f, -1f,
-                0.6875f, 0.875f, 0.375f, 1f, 0.875f, 0f, 0f, -1f,
-                0.6875f, 0.5625f, 0.375f, 1f, 0.5625f, 0f, 0f, -1f,
-
-                0.6875f, 0.5625f, 0.375f, 0.6875f, 0.375f, 0f, -1f, 0f,
-                0.6875f, 0.5625f, 0.625f, 0.6875f, 0.625f, 0f, -1f, 0f,
-                1f, 0.5625f, 0.625f, 1f, 0.625f, 0f, -1f, 0f,
-                1f, 0.5625f, 0.375f, 1f, 0.375f, 0f, -1f, 0f,
-
-                0.6875f, 0.875f, 0.625f, 0.6875f, 0.375f, 0f, 1f, 0f,
-                0.6875f, 0.875f, 0.375f, 0.6875f, 0.625f, 0f, 1f, 0f,
-                1f, 0.875f, 0.375f, 1f, 0.625f, 0f, 1f, 0f,
-                1f, 0.875f, 0.625f, 1f, 0.375f, 0f, 1f, 0f
-            };
-
-            southVertices = new float[]
-            {
-                // Low extension
-                0.375f, 0.125f, 0.6875f, 0.6875f, 0.125f, -1f, 0f, 0f,
-                0.375f, 0.4375f, 0.6875f, 0.6875f, 0.4375f, -1f, 0f, 0f,
-                0.375f, 0.4375f, 1f, 1f, 0.4375f, -1f, 0f, 0f,
-                0.375f, 0.125f, 1f, 1f, 0.125f, -1f, 0f, 0f,
-
-                0.625f, 0.125f, 1f, 0f, 0.125f, 1f, 0f, 0f,
-                0.625f, 0.4375f, 1f, 0f, 0.4375f, 1f, 0f, 0f,
-                0.625f, 0.4375f, 0.6875f, 0.3125f, 0.4375f, 1f, 0f, 0f,
-                0.625f, 0.125f, 0.6875f, 0.3125f, 0.125f, 1f, 0f, 0f,
-
-                0.375f, 0.125f, 0.6875f, 0.375f, 0f, 0f, -1f, 0f,
-                0.375f, 0.125f, 1f, 0.375f, 0.3125f, 0f, -1f, 0f,
-                0.625f, 0.125f, 1f, 0.625f, 0.3125f, 0f, -1f, 0f,
-                0.625f, 0.125f, 0.6875f, 0.625f, 0f, 0f, -1f, 0f,
-
-                0.375f, 0.4375f, 1f, 0.375f, 0f, 0f, 1f, 0f,
-                0.375f, 0.4375f, 0.6875f, 0.375f, 0.3125f, 0f, 1f, 0f,
-                0.625f, 0.4375f, 0.6875f, 0.625f, 0.3125f, 0f, 1f, 0f,
-                0.625f, 0.4375f, 1f, 0.625f, 0f, 0f, 1f, 0f,
-
-                // High extension
-                0.375f, 0.5625f, 0.6875f, 0.6875f, 0.5625f, -1f, 0f, 0f,
-                0.375f, 0.875f, 0.6875f, 0.6875f, 0.875f, -1f, 0f, 0f,
-                0.375f, 0.875f, 1f, 1f, 0.875f, -1f, 0f, 0f,
-                0.375f, 0.5625f, 1f, 1f, 0.5625f, -1f, 0f, 0f,
-
-                0.625f, 0.5625f, 1f, 0f, 0.5625f, 1f, 0f, 0f,
-                0.625f, 0.875f, 1f, 0f, 0.875f, 1f, 0f, 0f,
-                0.625f, 0.875f, 0.6875f, 0.3125f, 0.875f, 1f, 0f, 0f,
-                0.625f, 0.5625f, 0.6875f, 0.3125f, 0.5625f, 1f, 0f, 0f,
-
-                0.375f, 0.5625f, 0.6875f, 0.375f, 0f, 0f, -1f, 0f,
-                0.375f, 0.5625f, 1f, 0.375f, 0.3125f, 0f, -1f, 0f,
-                0.625f, 0.5625f, 1f, 0.625f, 0.3125f, 0f, -1f, 0f,
-                0.625f, 0.5625f, 0.6875f, 0.625f, 0f, 0f, -1f, 0f,
-
-                0.375f, 0.875f, 1f, 0.375f, 0f, 0f, 1f, 0f,
-                0.375f, 0.875f, 0.6875f, 0.375f, 0.3125f, 0f, 1f, 0f,
-                0.625f, 0.875f, 0.6875f, 0.625f, 0.3125f, 0f, 1f, 0f,
-                0.625f, 0.875f, 1f, 0.625f, 0f, 0f, 1f, 0f
-            };
-
-            westVertices = new float[]
-            {
-                // Low extension
-                0f, 0.125f, 0.625f, 0f, 0.125f, 0f, 0f, 1f,
-                0f, 0.4375f, 0.625f, 0f, 0.4375f, 0f, 0f, 1f,
-                0.3125f, 0.4375f, 0.625f,0.3125f, 0.4375f, 0f, 0f, 1f,
-                0.3125f, 0.125f, 0.625f, 0.3125f, 0.125f, 0f, 0f, 1f,
-
-                0.3125f, 0.125f, 0.375f, 0.6875f, 0.125f, 0f, 0f, -1f,
-                0.3125f, 0.4375f, 0.375f, 0.6875f, 0.4375f, 0f, 0f, -1f,
-                0f, 0.4375f, 0.375f, 1f, 0.4375f, 0f, 0f, -1f,
-                0f, 0.125f, 0.375f, 1f, 0.125f, 0f, 0f, -1f,
-
-                0f, 0.125f, 0.375f, 0f, 0.375f, 0f, -1f, 0f,
-                0f, 0.125f, 0.625f, 0f, 0.625f, 0f, -1f, 0f,
-                0.3125f, 0.125f, 0.625f, 0.3125f, 0.625f, 0f, -1f, 0f,
-                0.3125f, 0.125f, 0.375f, 0.3125f, 0.375f, 0f, -1f, 0f,
-
-                0f, 0.4375f, 0.625f, 0f, 0.375f, 0f, 1f, 0f,
-                0f, 0.4375f, 0.375f, 0f, 0.625f, 0f, 1f, 0f,
-                0.3125f, 0.4375f, 0.375f, 0.3125f, 0.625f, 0f, 1f, 0f,
-                0.3125f, 0.4375f, 0.625f, 0.3125f, 0.375f, 0f, 1f, 0f,
-
-                // High extension
-                0f, 0.5625f, 0.625f, 0.6875f, 0.5625f, 0f, 0f, 1f,
-                0f, 0.875f, 0.625f, 0.6875f, 0.875f, 0f, 0f, 1f,
-                0.3125f, 0.875f, 0.625f, 1f, 0.875f, 0f, 0f, 1f,
-                0.3125f, 0.5625f, 0.625f, 1f, 0.5625f, 0f, 0f, 1f,
-
-                0.3125f, 0.5625f, 0.375f, 0f, 0.5625f, 0f, 0f, -1f,
-                0.3125f, 0.875f, 0.375f, 0f, 0.875f, 0f, 0f, -1f,
-                0f, 0.875f, 0.375f, 0.3125f, 0.875f, 0f, 0f, -1f,
-                0f, 0.5625f, 0.375f, 0.3125f, 0.5625f, 0f, 0f, -1f,
-
-                0f, 0.5625f, 0.375f, 0f, 0.375f, 0f, -1f, 0f,
-                0f, 0.5625f, 0.625f, 0f, 0.625f, 0f, -1f, 0f,
-                0.3125f, 0.5625f, 0.625f, 0.3125f, 0.625f, 0f, -1f, 0f,
-                0.3125f, 0.5625f, 0.375f, 0.3125f, 0.375f, 0f, -1f, 0f,
-
-                0f, 0.875f, 0.625f, 0f, 0.375f, 0f, 1f, 0f,
-                0f, 0.875f, 0.375f, 0f, 0.625f, 0f, 1f, 0f,
-                0.3125f, 0.875f, 0.375f, 0.3125f, 0.625f, 0f, 1f, 0f,
-                0.3125f, 0.875f, 0.625f, 0.3125f, 0.375f, 0f, 1f, 0f
-            };
+            extension.RotateY(1);
+            extension.ToData(out westVertices, out _, out _);
 
             int tex = Game.BlockTextureArray.GetTextureIndex(texture);
 
@@ -275,7 +75,7 @@ namespace VoxelGame.Logic.Blocks
             // Generate texture indices
             for (int i = 0; i < 5; i++)
             {
-                int[] texInd = new int[24 + (i * 32)];
+                int[] texInd = new int[post.VertexCount + (i * extension.VertexCount)];
 
                 for (int v = 0; v < texInd.Length; v++)
                 {
@@ -289,7 +89,7 @@ namespace VoxelGame.Logic.Blocks
             // Generate indices
             for (int i = 0; i < 5; i++)
             {
-                uint[] ind = new uint[36 + (i * 48)];
+                uint[] ind = new uint[(post.Quads.Length * 6) + (i * extension.Quads.Length * 6)];
 
                 for (int f = 0; f < 6 + (i * 8); f++)
                 {

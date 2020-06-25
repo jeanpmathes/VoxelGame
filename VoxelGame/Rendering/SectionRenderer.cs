@@ -48,12 +48,9 @@ namespace VoxelGame.Rendering
                 return;
             }
 
-            if (meshData == null)
-            {
-                throw new ArgumentNullException(nameof(meshData));
-            }
-
             #region SIMPLE BUFFER SETUP
+
+            hasSimpleData = false;
 
             simpleIndices = meshData.simpleVertexData.Count / 2;
 
@@ -82,6 +79,8 @@ namespace VoxelGame.Rendering
             #endregion SIMPLE BUFFER SETUP
 
             #region COMPLEX BUFFER SETUP
+
+            hasComplexData = false;
 
             complexElements = meshData.complexIndices.Count;
 

@@ -101,7 +101,7 @@ namespace VoxelGame.Logic
         /// <param name="x">The x coordinate of the chunk.</param>
         /// <param name="z">The z coordinate of the chunk.</param>
         /// <returns>A task containing the loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
-        public static Task<Chunk?> LoadAsync(string path, int x, int z)
+        public static Task<Chunk?> LoadTask(string path, int x, int z)
         {
             return Task.Run(() => Load(path, x, z));
         }
@@ -122,7 +122,7 @@ namespace VoxelGame.Logic
         /// </summary>
         /// <param name="path">The path of the directory where this chunk should be saved.</param>
         /// <returns>A task.</returns>
-        public Task SaveAsync(string path)
+        public Task SaveTask(string path)
         {
             return Task.Run(() => Save(path));
         }
@@ -145,7 +145,7 @@ namespace VoxelGame.Logic
             }
         }
 
-        public Task GenerateAsync(IWorldGenerator generator)
+        public Task GenerateTask(IWorldGenerator generator)
         {
             return Task.Run(() => Generate(generator));
         }
@@ -166,7 +166,7 @@ namespace VoxelGame.Logic
             sections[y].CreateAndSetMesh(X, y, Z);
         }
 
-        public Task<SectionMeshData[]> CreateMeshDataAsync()
+        public Task<SectionMeshData[]> CreateMeshDataTask()
         {
             return Task.Run(CreateMeshData);
         }

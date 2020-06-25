@@ -110,7 +110,7 @@ namespace VoxelGame.Logic
             CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqiueFront("stone_cavepainting", "stone"), true, true, true);
             LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f);
             VINES = new GrowingFlatBlock(Language.Vines, "vines", 2f, 1f);
-            FENCE_WOOD = new FenceBlock(Language.WoodenFence, "wood");
+            FENCE_WOOD = new FenceBlock(Language.WoodenFence, "wood", "fence_post", "fence_extension");
             FLAX = new CropBlock(Language.Flax, "flax", 0, 1, 2, 3, 3, 4, 5);
             POTATOES = new CropBlock(Language.Potatoes, "potato", 1, 1, 2, 2, 3, 4, 5);
             ONIONS = new CropBlock(Language.Onions, "onion", 0, 1, 1, 2, 2, 3, 4);

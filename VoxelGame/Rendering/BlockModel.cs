@@ -7,6 +7,7 @@ using OpenToolkit.Mathematics;
 using System;
 using System.IO;
 using System.Text.Json;
+using VoxelGame.Utilities;
 
 namespace VoxelGame.Rendering
 {
@@ -17,6 +18,26 @@ namespace VoxelGame.Rendering
 
         public string[] TextureNames { get; set; } = Array.Empty<string>();
         public Quad[] Quads { get; set; } = Array.Empty<Quad>();
+
+        public int VertexCount { get => Quads.Length * 4; }
+
+        public void RotateY(int rotations)
+        {
+            if (rotations == 0)
+            {
+                return;
+            }
+
+            float angle = rotations * MathHelper.PiOver2 * -1f;
+
+            Matrix4 xyz = Matrix4.CreateTranslation(-0.5f, -0.5f, -0.5f) * Matrix4.CreateRotationY(angle) * Matrix4.CreateTranslation(0.5f, 0.5f, 0.5f);
+            Matrix4 nop = Matrix4.CreateRotationY(angle);
+
+            for (int i = 0; i < Quads.Length; i++)
+            {
+                Quads[i] = Quads[i].ApplyRotationMatrixY(xyz, nop, rotations);
+            }
+        }
 
         public void ToData(out float[] vertices, out int[] textureIndices, out uint[] indices)
         {
@@ -100,9 +121,9 @@ namespace VoxelGame.Rendering
 
         public void Save(string name)
         {
-            JsonSerializerOptions options = new JsonSerializerOptions { WriteIndented = true };
+            JsonSerializerOptions options = new JsonSerializerOptions {  IgnoreReadOnlyProperties = true, WriteIndented = true };
 
-            string json = JsonSerializer.Serialize<BlockModel>(this, options);
+            string json = JsonSerializer.Serialize(this, options);
             File.WriteAllText(Path.Combine(path, name + ".json"), json);
         }
 
@@ -115,7 +136,7 @@ namespace VoxelGame.Rendering
             }
             catch (Exception e) when (e is IOException || e is FileNotFoundException || e is JsonException)
             {
-                Console.ForegroundColor = System.ConsoleColor.Yellow;
+                Console.ForegroundColor = ConsoleColor.Yellow;
 #pragma warning disable CA1303 // Do not pass literals as localized parameters
                 Console.WriteLine($"WARNING: The model '{name}' could not be loaded, because an exception ({e.Message}) occurred. Fallback is used.");
 #pragma warning restore CA1303 // Do not pass literals as localized parameters
@@ -167,7 +188,9 @@ namespace VoxelGame.Rendering
         }
     }
 
+#pragma warning disable CA1815 // Override equals and operator equals on value types
     public struct Quad
+#pragma warning restore CA1815 // Override equals and operator equals on value types
     {
         public int TextureId { get; set; }
 
@@ -175,9 +198,34 @@ namespace VoxelGame.Rendering
         public Vertex Vert1 { get; set; }
         public Vertex Vert2 { get; set; }
         public Vertex Vert3 { get; set; }
+
+        public Quad ApplyRotationMatrixY(Matrix4 xyz, Matrix4 nop, int rotations)
+        {
+            // Rotate positions and normals.
+            Vert0 = Vert0.ApplyRotationMatrixY(xyz, nop);
+            Vert1 = Vert1.ApplyRotationMatrixY(xyz, nop);
+            Vert2 = Vert2.ApplyRotationMatrixY(xyz, nop);
+            Vert3 = Vert3.ApplyRotationMatrixY(xyz, nop);
+
+            // Rotate UVs for top and bottom sides.
+            if (new Vector3(Vert0.N, Vert0.O, Vert0.P).Absolute() == Vector3.UnitY)
+            {
+                for (int r = 0; r < rotations; r++)
+                {
+                    Vert0 = Vert0.RotateUV();
+                    Vert1 = Vert1.RotateUV();
+                    Vert2 = Vert2.RotateUV();
+                    Vert3 = Vert3.RotateUV();
+                }
+            }
+
+            return this;
+        }
     }
 
+#pragma warning disable CA1815 // Override equals and operator equals on value types
     public struct Vertex
+#pragma warning restore CA1815 // Override equals and operator equals on value types
     {
         public float X { get; set; }
         public float Y { get; set; }
@@ -189,5 +237,31 @@ namespace VoxelGame.Rendering
         public float N { get; set; }
         public float O { get; set; }
         public float P { get; set; }
+
+        public Vertex ApplyRotationMatrixY(Matrix4 xyz, Matrix4 nop)
+        {
+            Vector4 position = new Vector4(X, Y, Z, 1f) * xyz;
+            Vector4 normal = new Vector4(N, O, P, 1f) * nop;
+
+            X = position.X;
+            Y = position.Y;
+            Z = position.Z;
+
+            N = normal.X;
+            O = normal.Y;
+            P = normal.Z;
+
+            return this;
+        }
+
+        public Vertex RotateUV()
+        {
+            Vertex old = this;
+
+            U = Math.Abs(old.V - 1f);
+            V = old.U;
+
+            return this;
+        }
     }
 }

@@ -45,7 +45,7 @@ namespace VoxelGame.Logic.Blocks
             BlockModel model = BlockModel.Load(modelName);
 
             model.ToData(out vertices, out texIndices, out indices);
-            vertCount = (uint)(model.Quads.Length * 4);
+            vertCount = (uint)(model.VertexCount);
         }
 
         public override bool Place(int x, int y, int z, PhysicsEntity? entity)
