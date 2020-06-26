@@ -132,6 +132,9 @@
   <data name="Bricks" xml:space="preserve">
     <value>Bricks</value>
   </data>
+  <data name="BrickWall" xml:space="preserve">
+    <value>BrickWall</value>
+  </data>
   <data name="Cactus" xml:space="preserve">
     <value>Cactus</value>
   </data>
@@ -224,6 +227,9 @@
   </data>
   <data name="Rubble" xml:space="preserve">
     <value>Rubble</value>
+  </data>
+  <data name="RubbleWall" xml:space="preserve">
+    <value>Rubble Wall</value>
   </data>
   <data name="Sand" xml:space="preserve">
     <value>Sand</value>

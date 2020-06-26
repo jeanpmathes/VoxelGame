@@ -59,6 +59,8 @@ namespace VoxelGame.Logic
         public static Block CAKE = null!;
         public static Block BRICKS = null!;
         public static Block PAVING_STONE = null!;
+        public static Block WALL_RUBBLE = null!;
+        public static Block WALL_BRICKS = null!;
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
         public const int BlockLimit = 2048;
@@ -127,6 +129,8 @@ namespace VoxelGame.Logic
             VASE = new CustomModelBlock(Language.Vase, "vase", true, new BoundingBox(new Vector3(0.5f, 0.375f, 0.5f), new Vector3(0.25f, 0.375f, 0.25f)));
             BRICKS = new ConstructionBlock(Language.Bricks, TextureLayout.Uniform("bricks"));
             PAVING_STONE = new ConstructionBlock(Language.PavingStone, TextureLayout.Uniform("paving_stone"));
+            WALL_RUBBLE = new WallBlock(Language.RubbleWall, "rubble", "wall_post", "wall_extension", "wall_extension_straight");
+            WALL_BRICKS = new WallBlock(Language.BrickWall, "bricks", "wall_post", "wall_extension", "wall_extension_straight");
         }
 
         #endregion STATIC BLOCK MANAGMENT

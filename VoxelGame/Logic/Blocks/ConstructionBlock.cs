@@ -10,7 +10,7 @@ namespace VoxelGame.Logic.Blocks
     /// <summary>
     ///Blocks that are used in constructing structures.
     /// </summary>
-    public class ConstructionBlock : BasicBlock, IFenceConnectable
+    public class ConstructionBlock : BasicBlock, IConnectable
     {
         public ConstructionBlock(string name, TextureLayout layout) :
             base(
