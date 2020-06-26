@@ -13,7 +13,7 @@ namespace VoxelGame.Logic.Blocks
     /// Data bit usage: <c>--ccc</c>
     /// </summary>
     // c = color
-    public class TintedBlock : BasicBlock, IFenceConnectable
+    public class TintedBlock : BasicBlock, IConnectable
     {
         public TintedBlock(string name, TextureLayout layout) :
             base(

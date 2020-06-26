@@ -11,10 +11,15 @@ namespace VoxelGame
 {
     internal static class Program
     {
+        public static string Version { get; private set; } = null!;
+
         private static void Main()
         {
-            Console.Title = Language.VoxelGame + " Console";
+            Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";
+            Console.Title = Language.VoxelGame + " " + Version;
+
             Console.WriteLine(Language.StartingGame);
+            Console.WriteLine(Language.Version + " " + Version);
 
             GameWindowSettings gameWindowSettings = new GameWindowSettings
             {
@@ -24,7 +29,7 @@ namespace VoxelGame
             };
 
             NativeWindowSettings nativeWindowSettings = NativeWindowSettings.Default;
-            nativeWindowSettings.Title = Language.VoxelGame;
+            nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
             nativeWindowSettings.Size = new Vector2i(800, 450);
 
             using (Game game = new Game(gameWindowSettings, nativeWindowSettings))

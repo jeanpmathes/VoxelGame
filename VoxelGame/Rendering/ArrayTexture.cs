@@ -42,7 +42,11 @@ namespace VoxelGame.Rendering
             List<Bitmap> textures = new List<Bitmap>();
             textureIndicies = new Dictionary<string, int>();
 
-            int currentIndex = 0;
+            int currentIndex = 1;
+
+            // Create fall back texture.
+            Bitmap fallback = CreateFallback(resolution);
+            textures.Add(fallback);
 
             for (int i = 0; i < texturePaths.Length; i++) // Split all images into separate bitmaps and create a list
             {
@@ -102,6 +106,31 @@ namespace VoxelGame.Rendering
             {
                 bitmap.Dispose();
             }
+        }
+
+        private static Bitmap CreateFallback(int resolution)
+        {
+            Bitmap fallback = new Bitmap(resolution, resolution, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            Color magenta = Color.FromArgb(64, 255, 0, 255);
+            Color black = Color.FromArgb(64, 0, 0, 0);
+
+            for (int x = 0; x < fallback.Width; x++)
+            {
+                for (int y = 0; y < fallback.Height; y++)
+                {
+                    if (x % 2 == 0 ^ y % 2 == 0)
+                    {
+                        fallback.SetPixel(x, y, magenta);
+                    }
+                    else
+                    {
+                        fallback.SetPixel(x, y, black);
+                    }
+                }
+            }
+
+            return fallback;
         }
 
         private static void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures, int startIndex, int length, bool useCustomMipmapGeneration)
@@ -218,13 +247,24 @@ namespace VoxelGame.Rendering
 
         public int GetTextureIndex(string name)
         {
+            if (name == "missing_texture")
+            {
+                return 0;
+            }
+
             if (textureIndicies.TryGetValue(name, out int value))
             {
                 return value;
             }
             else
             {
-                throw new ArgumentException($"There is no texture with the name: {name}");
+                Console.ForegroundColor = System.ConsoleColor.Yellow;
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
+                Console.WriteLine($"WARNING: The texture '{name}' is not available, fallback is used.");
+#pragma warning restore CA1303 // Do not pass literals as localized parameters
+                Console.ResetColor();
+
+                return 0;
             }
         }
     }

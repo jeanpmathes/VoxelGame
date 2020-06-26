@@ -42,13 +42,14 @@ namespace VoxelGame.Logic.Blocks
             return false;
         }
 
-        /// <summary>
-        /// This method is not implemented.
-        /// </summary>
-        /// <exception cref="NotImplementedException"></exception>
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indicies, out Rendering.TintColor tint)
         {
-            throw new NotImplementedException();
+            vertices = Array.Empty<float>();
+            textureIndices = Array.Empty<int>();
+            indicies = Array.Empty<uint>();
+            tint = Rendering.TintColor.None;
+
+            return 0;
         }
     }
 }

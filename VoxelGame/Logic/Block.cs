@@ -52,8 +52,15 @@ namespace VoxelGame.Logic
         public static Block MAIZE = null!;
         public static Block TILES_SMALL = null!;
         public static Block TILES_LARGE = null!;
-        public static Block TILES_CHECKERBOARD = null!;
+        public static Block TILES_CHECKERBOARD_BLACK = null!;
+        public static Block TILES_CHECKERBOARD_WHITE = null!;
         public static Block CACTUS = null!;
+        public static Block VASE = null!;
+        public static Block CAKE = null!;
+        public static Block BRICKS = null!;
+        public static Block PAVING_STONE = null!;
+        public static Block WALL_RUBBLE = null!;
+        public static Block WALL_BRICKS = null!;
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
         public const int BlockLimit = 2048;
@@ -108,7 +115,7 @@ namespace VoxelGame.Logic
             CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqiueFront("stone_cavepainting", "stone"), true, true, true);
             LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f);
             VINES = new GrowingFlatBlock(Language.Vines, "vines", 2f, 1f);
-            FENCE_WOOD = new FenceBlock(Language.WoodenFence, "wood");
+            FENCE_WOOD = new FenceBlock(Language.WoodenFence, "wood", "fence_post", "fence_extension");
             FLAX = new CropBlock(Language.Flax, "flax", 0, 1, 2, 3, 3, 4, 5);
             POTATOES = new CropBlock(Language.Potatoes, "potato", 1, 1, 2, 2, 3, 4, 5);
             ONIONS = new CropBlock(Language.Onions, "onion", 0, 1, 1, 2, 2, 3, 4);
@@ -116,8 +123,14 @@ namespace VoxelGame.Logic
             MAIZE = new DoubeCropBlock(Language.Maize, "maize", 0, 1, 2, 2, (3, 6), (3, 6), (4, 7), (5, 8));
             TILES_SMALL = new ConstructionBlock(Language.SmallTiles, TextureLayout.Uniform("small_tiles"));
             TILES_LARGE = new ConstructionBlock(Language.LargeTiles, TextureLayout.Uniform("large_tiles"));
-            TILES_CHECKERBOARD = new TintedBlock(Language.CheckerboardTiles, TextureLayout.Uniform("checkerboard_tiles"));
+            TILES_CHECKERBOARD_BLACK = new TintedBlock(Language.CheckerboardTilesBlack, TextureLayout.Uniform("checkerboard_tiles_black"));
+            TILES_CHECKERBOARD_WHITE = new TintedBlock(Language.CheckerboardTilesWhite, TextureLayout.Uniform("checkerboard_tiles_white"));
             CACTUS = new GrowingBlock(Language.Cactus, TextureLayout.Column("cactus", 0, 1), Block.SAND, 4);
+            VASE = new CustomModelBlock(Language.Vase, "vase", true, new BoundingBox(new Vector3(0.5f, 0.375f, 0.5f), new Vector3(0.25f, 0.375f, 0.25f)));
+            BRICKS = new ConstructionBlock(Language.Bricks, TextureLayout.Uniform("bricks"));
+            PAVING_STONE = new ConstructionBlock(Language.PavingStone, TextureLayout.Uniform("paving_stone"));
+            WALL_RUBBLE = new WallBlock(Language.RubbleWall, "rubble", "wall_post", "wall_extension", "wall_extension_straight");
+            WALL_BRICKS = new WallBlock(Language.BrickWall, "bricks", "wall_post", "wall_extension", "wall_extension_straight");
         }
 
         #endregion STATIC BLOCK MANAGMENT

@@ -20,11 +20,10 @@ namespace VoxelGame.Logic.Blocks
     // h = height
     public class DoubeCropBlock : Block
     {
-#pragma warning disable CA1051 // Do not declare visible instance fields
-        protected int[] stageTexIndicesLow = null!;
-        protected int[] stageTexIndicesTop = null!;
+        private protected int[] stageTexIndicesLow = null!;
+        private protected int[] stageTexIndicesTop = null!;
 
-        protected float[] vertices = new float[]
+        private protected float[] vertices = new float[]
         {
             //X----Y---Z---U---V---N---O---P
             0.25f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
@@ -48,7 +47,7 @@ namespace VoxelGame.Logic.Blocks
             1f, 0f, 0.75f, 1f, 0f, 0f, 0f, 0f
         };
 
-        protected uint[] indices =
+        private protected uint[] indices =
         {
             0, 2, 1,
             0, 3, 2,
@@ -70,8 +69,6 @@ namespace VoxelGame.Logic.Blocks
             12, 13, 14,
             12, 14, 15
         };
-
-#pragma warning restore CA1051 // Do not declare visible instance fields
 
         public DoubeCropBlock(string name, string texture, int dead, int first, int second, int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final) :
             base(

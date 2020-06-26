@@ -74,6 +74,23 @@ namespace VoxelGame
             Directory.CreateDirectory(appDataFolder);
             Directory.CreateDirectory(worldsDirectory);
 
+            WorldSetup(worldsDirectory);
+
+            // Player setup
+            Camera camera = new Camera(new Vector3(), Size.X / (float)Size.Y);
+            Player = new Player(70f, 0.25f, new Vector3(0f, 1000f, 0f), camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.45f, 0.9f, 0.45f)));
+
+            CursorVisible = false;
+
+            // Other object setup
+            Random = new Random();
+
+            base.OnLoad();
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "The characters '[' and ']' are not culture dependent.")]
+        private static void WorldSetup(string worldsDirectory)
+        {
             // Finding of worlds and letting the user choose a world
             List<(WorldInformation information, string path)> worlds = new List<(WorldInformation information, string path)>();
 
@@ -91,11 +108,24 @@ namespace VoxelGame
             if (worlds.Count > 0)
             {
                 Console.WriteLine(Language.ListingWorlds);
-                Console.ForegroundColor = ConsoleColor.Cyan;
 
                 for (int n = 0; n < worlds.Count; n++)
                 {
-                    Console.WriteLine($"{n + 1}: {worlds[n].information.Name} - {Language.CreatedOn}: {worlds[n].information.Creation}");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write($"{n + 1}: ");
+
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.Write($"{worlds[n].information.Name} - {Language.CreatedOn}: {worlds[n].information.Creation}");
+
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(" [");
+
+                    if (worlds[n].information.Version == Program.Version) Console.ForegroundColor = ConsoleColor.Green;
+                    else Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write(worlds[n].information.Version);
+
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine("]");
                 }
 
                 Console.ResetColor();
@@ -109,7 +139,10 @@ namespace VoxelGame
             else
             {
                 Console.WriteLine(Language.NewWorldPrompt + " [y|skip: n]");
+
+                Console.ForegroundColor = ConsoleColor.White;
                 input = Console.ReadLine();
+                Console.ResetColor();
             }
 
             if (input == "y" || input == "yes")
@@ -117,7 +150,9 @@ namespace VoxelGame
                 // Create a new world
                 Console.WriteLine(Language.EnterNameOfWorld);
 
+                Console.ForegroundColor = ConsoleColor.White;
                 string name = Console.ReadLine();
+                Console.ResetColor();
 
                 // Validate name
                 if (string.IsNullOrEmpty(name) ||
@@ -146,7 +181,10 @@ namespace VoxelGame
                 while (World == null)
                 {
                     Console.WriteLine(Language.EnterIndexOfWorld);
+
+                    Console.ForegroundColor = ConsoleColor.White;
                     string index = Console.ReadLine();
+                    Console.ResetColor();
 
                     if (int.TryParse(index, out int n))
                     {
@@ -167,17 +205,6 @@ namespace VoxelGame
                     }
                 }
             }
-
-            // Player setup
-            Camera camera = new Camera(new Vector3(), Size.X / (float)Size.Y);
-            Player = new Player(70f, 0.25f, new Vector3(0f, 1000f, 0f), camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.45f, 0.9f, 0.45f)));
-
-            CursorVisible = false;
-
-            // Other object setup
-            Random = new Random();
-
-            base.OnLoad();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -187,8 +214,6 @@ namespace VoxelGame
             World.FrameRender();
 
             SwapBuffers();
-
-            //Console.WriteLine(1f / e.Time);
 
             base.OnRenderFrame(e);
         }

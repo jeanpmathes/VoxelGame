@@ -10,8 +10,6 @@ namespace VoxelGame.WorldGeneration
 {
     public interface IWorldGenerator
     {
-        Block GenerateBlock(int x, int y, int z);
-
         IEnumerable<Block> GenerateColumn(int x, int z);
     }
 }

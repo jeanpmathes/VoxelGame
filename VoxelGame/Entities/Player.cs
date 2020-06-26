@@ -7,6 +7,7 @@ using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common.Input;
 using VoxelGame.Resources.Language;
 using System;
+using System.Configuration;
 using VoxelGame.Logic;
 using VoxelGame.Physics;
 using VoxelGame.Rendering;
@@ -48,7 +49,7 @@ namespace VoxelGame.Entities
         private readonly float jumpForce = 25000f;
         private Vector3 movement;
 
-        private readonly float mouseSensitivity = 0.1f;
+        private readonly float mouseSensitivity = float.TryParse(ConfigurationManager.AppSettings["MouseSensitivity"], out float f) ? f : 0.1f;
 
         private int selectedX, selectedY, selectedZ;
         private BlockSide selectedSide;

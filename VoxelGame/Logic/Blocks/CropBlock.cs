@@ -18,10 +18,9 @@ namespace VoxelGame.Logic.Blocks
     // s = stage
     public class CropBlock : Block
     {
-#pragma warning disable CA1051 // Do not declare visible instance fields      
-        protected int[] stageTexIndices = null!;
+        private protected int[] stageTexIndices = null!;
 
-        protected float[] vertices = new float[]
+        private protected float[] vertices = new float[]
         {
             //X----Y---Z---U---V---N---O---P
             0.25f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
@@ -55,7 +54,7 @@ namespace VoxelGame.Logic.Blocks
             1f, 0f, 0.75f, 1f, 0f, 0f, 0f, 0f
         };
 
-        protected uint[] indices =
+        private protected uint[] indices =
         {
             0, 2, 1,
             0, 3, 2,
@@ -87,8 +86,6 @@ namespace VoxelGame.Logic.Blocks
             20, 21, 22,
             20, 22, 23,
         };
-
-#pragma warning restore CA1051 // Do not declare visible instance fields
 
         public CropBlock(string name, string texture, int second, int third, int fourth, int fifth, int sixth, int final, int dead) :
             base(

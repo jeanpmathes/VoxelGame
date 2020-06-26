@@ -19,7 +19,7 @@ namespace VoxelGame.Logic
     {
         public const int ChunkExtents = 5;
 
-        public string Name { get; }
+        public WorldInformation Information { get; }
 
         private const int maxGenerationTasks = 15;
         private const int maxLoadingTasks = 15;
@@ -160,13 +160,14 @@ namespace VoxelGame.Logic
             {
                 Name = name,
                 Seed = seed,
-                Creation = DateTime.Now
+                Creation = DateTime.Now,
+                Version = Program.Version
             };
 
-            information.Save(Path.Combine(path, "meta.json"));
+            information.Save(Path.Combine(worldDirectory, "meta.json"));
 
-            Name = information.Name;
-            generator = new NoiseGenerator(seed);
+            Information = information;
+            generator = new ComplexGenerator(seed);
 
             Setup();
         }
@@ -182,8 +183,8 @@ namespace VoxelGame.Logic
             Directory.CreateDirectory(worldDirectory);
             Directory.CreateDirectory(chunkDirectory);
 
-            Name = information.Name;
-            generator = new NoiseGenerator(information.Seed);
+            Information = information;
+            generator = new ComplexGenerator(information.Seed);
 
             Setup();
         }
@@ -284,7 +285,7 @@ namespace VoxelGame.Logic
 
                         if (completed.IsFaulted)
                         {
-                            throw completed.Exception?.GetBaseException() ?? new Exception("EXCEPTION IS NULL");
+                            throw completed.Exception?.GetBaseException() ?? new NullReferenceException();
                         }
                         else if (!activeChunks.ContainsKey((generatedChunk.X, generatedChunk.Z)) && !positionsToReleaseOnActivation.Remove((generatedChunk.X, generatedChunk.Z)))
                         {
@@ -325,7 +326,7 @@ namespace VoxelGame.Logic
             while (chunksToGenerate.Count > 0 && chunkGenerateTasks.Count < maxGenerationTasks)
             {
                 Chunk current = chunksToGenerate.Dequeue();
-                Task currentTask = current.GenerateAsync(generator);
+                Task currentTask = current.GenerateTask(generator);
 
                 chunkGenerateTasks.Add(currentTask);
                 chunksGenerating.Add(currentTask.Id, current);
@@ -438,7 +439,7 @@ namespace VoxelGame.Logic
                     if (!positionsSaving.Contains((x, z)))
                     {
                         string pathToChunk = chunkDirectory + $@"\x{x}z{z}.chunk";
-                        Task<Chunk?> currentTask = Chunk.LoadAsync(pathToChunk, x, z);
+                        Task<Chunk?> currentTask = Chunk.LoadTask(pathToChunk, x, z);
 
                         chunkLoadingTasks.Add(currentTask);
                         positionsLoading.Add(currentTask.Id, (x, z));
@@ -459,7 +460,7 @@ namespace VoxelGame.Logic
                     {
                         if (chunkMeshingTasks[i].IsFaulted)
                         {
-                            Exception e = chunkMeshingTasks[i].Exception?.GetBaseException() ?? new Exception("EXCEPTION IS NULL");
+                            Exception e = chunkMeshingTasks[i].Exception?.GetBaseException() ?? new NullReferenceException();
 
                             Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine(
@@ -491,7 +492,7 @@ namespace VoxelGame.Logic
             {
                 Chunk current = chunksToMesh.Dequeue();
 
-                var currentTask = current.CreateMeshDataAsync();
+                var currentTask = current.CreateMeshDataTask();
 
                 chunkMeshingTasks.Add(currentTask);
                 chunksMeshing.Add(currentTask.Id, current);
@@ -530,7 +531,7 @@ namespace VoxelGame.Logic
                 // Mesh all listed sections
                 foreach ((Chunk chunk, int index) in sectionsToMesh)
                 {
-                    chunk.CreateMesh(index);
+                    chunk.CreateAndSetMesh(index);
                 }
 
                 sectionsToMesh.Clear();
@@ -626,7 +627,7 @@ namespace VoxelGame.Logic
             while (chunksToSave.Count > 0 && chunkSavingTasks.Count < maxSavingTasks)
             {
                 Chunk current = chunksToSave.Dequeue();
-                Task currentTask = current.SaveAsync(chunkDirectory);
+                Task currentTask = current.SaveTask(chunkDirectory);
 
                 chunkSavingTasks.Add(currentTask);
                 chunksSaving.Add(currentTask.Id, current);
@@ -818,11 +819,15 @@ namespace VoxelGame.Logic
             {
                 if (!positionsSaving.Contains((chunk.X, chunk.Z)))
                 {
-                    savingTasks.Add(chunk.SaveAsync(chunkDirectory));
+                    savingTasks.Add(chunk.SaveTask(chunkDirectory));
                 }
             }
 
             Console.WriteLine(Language.AllChunksSaving);
+
+            Information.Version = Program.Version;
+
+            savingTasks.Add(Task.Run( () => Information.Save(Path.Combine(worldDirectory, "meta.json"))));
 
             return Task.WhenAll(savingTasks);
         }

@@ -4,10 +4,11 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
+using System;
 
 namespace VoxelGame.Physics
 {
-    public struct Ray
+    public struct Ray : IEquatable<Ray>
     {
         public Vector3 Origin { get; }
         public Vector3 Direction { get; }
@@ -24,8 +25,40 @@ namespace VoxelGame.Physics
         {
             get
             {
-                return Origin + Direction * Length;
+                return Origin + (Direction * Length);
             }
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is Ray ray)
+            {
+                return Equals(other: ray);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Origin.GetHashCode(), Direction.GetHashCode());
+        }
+
+        public static bool operator ==(Ray left, Ray right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Ray left, Ray right)
+        {
+            return !(left == right);
+        }
+
+        public bool Equals(Ray other)
+        {
+            return Origin.Equals(other.Origin) && Direction.Equals(other.Direction);
         }
     }
 }

@@ -17,10 +17,8 @@ namespace VoxelGame.Logic.Blocks
     // o = orientation
     public class OrientedBlock : BasicBlock
     {
-#pragma warning disable CA1051 // Do not declare visible instance fields
-        protected float[][] sideNormals = null!;
-        protected int[] texIndices = null!;
-#pragma warning restore CA1051 // Do not declare visible instance fields
+        private protected float[][] sideNormals = null!;
+        private protected int[] texIndices = null!;
 
         public OrientedBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid) :
             base(

@@ -129,14 +129,23 @@
   <data name="BlockTexturesLoadedAmount" xml:space="preserve">
     <value>Anzahl geladener Block-Texturen: </value>
   </data>
+  <data name="Bricks" xml:space="preserve">
+    <value>Ziegelsteine</value>
+  </data>
+  <data name="BrickWall" xml:space="preserve">
+    <value>Ziegelmauer</value>
+  </data>
   <data name="Cactus" xml:space="preserve">
     <value>Kakteen</value>
   </data>
   <data name="CavePainting" xml:space="preserve">
     <value>Höhlenmalerei</value>
   </data>
-  <data name="CheckerboardTiles" xml:space="preserve">
-    <value>Schachbrettfliesen</value>
+  <data name="CheckerboardTilesBlack" xml:space="preserve">
+    <value>Schwarze Schachbrettfliesen</value>
+  </data>
+  <data name="CheckerboardTilesWhite" xml:space="preserve">
+    <value>Weiße Schachbrettfliesen</value>
   </data>
   <data name="CoalOre" xml:space="preserve">
     <value>Kohleerz</value>
@@ -210,11 +219,17 @@
   <data name="Onions" xml:space="preserve">
     <value>Zwiebeln</value>
   </data>
+  <data name="PavingStone" xml:space="preserve">
+    <value>Pflasterstein</value>
+  </data>
   <data name="Potatoes" xml:space="preserve">
     <value>Kartoffeln</value>
   </data>
   <data name="Rubble" xml:space="preserve">
     <value>Bruchstein</value>
+  </data>
+  <data name="RubbleWall" xml:space="preserve">
+    <value>Bruchsteinmauer</value>
   </data>
   <data name="Sand" xml:space="preserve">
     <value>Sand</value>
@@ -242,6 +257,12 @@
   </data>
   <data name="TextureBlockRatio" xml:space="preserve">
     <value>Verhältnis Texturen/Blöcke: </value>
+  </data>
+  <data name="Vase" xml:space="preserve">
+    <value>Vase</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Version</value>
   </data>
   <data name="VeryTallGrass" xml:space="preserve">
     <value>Sehr Hohes Gras</value>

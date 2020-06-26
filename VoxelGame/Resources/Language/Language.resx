@@ -129,14 +129,23 @@
   <data name="BlockTexturesLoadedAmount" xml:space="preserve">
     <value>Block textures loaded: </value>
   </data>
+  <data name="Bricks" xml:space="preserve">
+    <value>Bricks</value>
+  </data>
+  <data name="BrickWall" xml:space="preserve">
+    <value>BrickWall</value>
+  </data>
   <data name="Cactus" xml:space="preserve">
     <value>Cactus</value>
   </data>
   <data name="CavePainting" xml:space="preserve">
     <value>Cave Painting</value>
   </data>
-  <data name="CheckerboardTiles" xml:space="preserve">
-    <value>Checkerboard Tiles</value>
+  <data name="CheckerboardTilesBlack" xml:space="preserve">
+    <value>Black Checkerboard Tiles</value>
+  </data>
+  <data name="CheckerboardTilesWhite" xml:space="preserve">
+    <value>White Checkerboard Tiles</value>
   </data>
   <data name="CoalOre" xml:space="preserve">
     <value>Coal Ore</value>
@@ -210,11 +219,17 @@
   <data name="Onions" xml:space="preserve">
     <value>Onions</value>
   </data>
+  <data name="PavingStone" xml:space="preserve">
+    <value>Paving Stone</value>
+  </data>
   <data name="Potatoes" xml:space="preserve">
     <value>Potatoes</value>
   </data>
   <data name="Rubble" xml:space="preserve">
     <value>Rubble</value>
+  </data>
+  <data name="RubbleWall" xml:space="preserve">
+    <value>Rubble Wall</value>
   </data>
   <data name="Sand" xml:space="preserve">
     <value>Sand</value>
@@ -242,6 +257,12 @@
   </data>
   <data name="TextureBlockRatio" xml:space="preserve">
     <value>Ratio Texture/Block: </value>
+  </data>
+  <data name="Vase" xml:space="preserve">
+    <value>Vase</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Version</value>
   </data>
   <data name="VeryTallGrass" xml:space="preserve">
     <value>Very Tall Grass</value>

@@ -14,10 +14,8 @@ namespace VoxelGame.Logic.Blocks
     // a = age
     public class GrowingBlock : BasicBlock
     {
-#pragma warning disable CA1051 // Do not declare visible instance fields
-        protected readonly Block requiredGround;
-        protected readonly int maxHeight;
-#pragma warning restore CA1051 // Do not declare visible instance fields
+        private protected readonly Block requiredGround;
+        private protected readonly int maxHeight;
 
         public GrowingBlock(string name, TextureLayout layout, Block ground, int maxHeight) :
             base(

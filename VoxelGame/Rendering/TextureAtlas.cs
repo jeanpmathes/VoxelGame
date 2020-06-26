@@ -149,9 +149,11 @@ namespace VoxelGame.Rendering
         }
     }
 
+
     /// <summary>
     /// The position of a texture in a texture atlas.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "Not Used")]
     public struct AtlasPosition
     {
         public float BottomLeftU { get; }

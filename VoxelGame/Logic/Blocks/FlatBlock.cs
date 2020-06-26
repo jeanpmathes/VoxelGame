@@ -18,22 +18,19 @@ namespace VoxelGame.Logic.Blocks
     // o = orientation
     public class FlatBlock : Block
     {
-#pragma warning disable CA1051 // Do not declare visible instance fields
-        protected readonly float climbingVelocity;
-        protected readonly float slidingVelocity;
+        private protected readonly float climbingVelocity;
+        private protected readonly float slidingVelocity;
 
-        protected float[][] sideVertices = null!;
-        protected int[] textureIndices = null!;
+        private protected float[][] sideVertices = null!;
+        private protected int[] textureIndices = null!;
 
-        protected uint[] indices =
+        private protected uint[] indices =
         {
             0, 2, 1,
             0, 3, 2,
             4, 6, 5,
             4, 7, 6
         };
-
-#pragma warning restore CA1051 // Do not declare visible instance fields
 
         /// <summary>
         /// Creates a FlatBlock, a block with a single face that sticks to other blocks. It allows entities to climb and can use neutral tints.
@@ -143,28 +140,28 @@ namespace VoxelGame.Logic.Blocks
 
             if (SideToOrientation(entity?.TargetSide ?? BlockSide.Front, out Orientation orientation))
             {
-                if (orientation == Orientation.North && Game.World.GetBlock(x, y, z + 1, out _)?.IsFull == true)
+                if (orientation == Orientation.North && Game.World.GetBlock(x, y, z + 1, out _)?.IsFull == true && Game.World.GetBlock(x, y, z + 1, out _)?.IsSolid == true)
                 {
                     Game.World.SetBlock(this, (byte)orientation, x, y, z);
 
                     return true;
                 }
 
-                if (orientation == Orientation.South && Game.World.GetBlock(x, y, z - 1, out _)?.IsFull == true)
+                if (orientation == Orientation.South && Game.World.GetBlock(x, y, z - 1, out _)?.IsFull == true && Game.World.GetBlock(x, y, z - 1, out _)?.IsSolid == true)
                 {
                     Game.World.SetBlock(this, (byte)orientation, x, y, z);
 
                     return true;
                 }
 
-                if (orientation == Orientation.East && Game.World.GetBlock(x - 1, y, z, out _)?.IsFull == true)
+                if (orientation == Orientation.East && Game.World.GetBlock(x - 1, y, z, out _)?.IsFull == true && Game.World.GetBlock(x - 1, y, z, out _)?.IsSolid == true)
                 {
                     Game.World.SetBlock(this, (byte)orientation, x, y, z);
 
                     return true;
                 }
 
-                if (orientation == Orientation.West && Game.World.GetBlock(x + 1, y, z, out _)?.IsFull == true)
+                if (orientation == Orientation.West && Game.World.GetBlock(x + 1, y, z, out _)?.IsFull == true && Game.World.GetBlock(x + 1, y, z, out _)?.IsSolid == true)
                 {
                     Game.World.SetBlock(this, (byte)orientation, x, y, z);
 
