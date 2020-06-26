@@ -138,8 +138,11 @@
   <data name="CavePainting" xml:space="preserve">
     <value>Höhlenmalerei</value>
   </data>
-  <data name="CheckerboardTiles" xml:space="preserve">
-    <value>Schachbrettfliesen</value>
+  <data name="CheckerboardTilesBlack" xml:space="preserve">
+    <value>Schwarze Schachbrettfliesen</value>
+  </data>
+  <data name="CheckerboardTilesWhite" xml:space="preserve">
+    <value>Weiße Schachbrettfliesen</value>
   </data>
   <data name="CoalOre" xml:space="preserve">
     <value>Kohleerz</value>
@@ -212,6 +215,9 @@
   </data>
   <data name="Onions" xml:space="preserve">
     <value>Zwiebeln</value>
+  </data>
+  <data name="PavingStone" xml:space="preserve">
+    <value>Pflasterstein</value>
   </data>
   <data name="Potatoes" xml:space="preserve">
     <value>Kartoffeln</value>

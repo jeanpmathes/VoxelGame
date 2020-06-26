@@ -52,11 +52,13 @@ namespace VoxelGame.Logic
         public static Block MAIZE = null!;
         public static Block TILES_SMALL = null!;
         public static Block TILES_LARGE = null!;
-        public static Block TILES_CHECKERBOARD = null!;
+        public static Block TILES_CHECKERBOARD_BLACK = null!;
+        public static Block TILES_CHECKERBOARD_WHITE = null!;
         public static Block CACTUS = null!;
         public static Block VASE = null!;
         public static Block CAKE = null!;
         public static Block BRICKS = null!;
+        public static Block PAVING_STONE = null!;
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
         public const int BlockLimit = 2048;
@@ -119,10 +121,12 @@ namespace VoxelGame.Logic
             MAIZE = new DoubeCropBlock(Language.Maize, "maize", 0, 1, 2, 2, (3, 6), (3, 6), (4, 7), (5, 8));
             TILES_SMALL = new ConstructionBlock(Language.SmallTiles, TextureLayout.Uniform("small_tiles"));
             TILES_LARGE = new ConstructionBlock(Language.LargeTiles, TextureLayout.Uniform("large_tiles"));
-            TILES_CHECKERBOARD = new TintedBlock(Language.CheckerboardTiles, TextureLayout.Uniform("checkerboard_tiles"));
+            TILES_CHECKERBOARD_BLACK = new TintedBlock(Language.CheckerboardTilesBlack, TextureLayout.Uniform("checkerboard_tiles_black"));
+            TILES_CHECKERBOARD_WHITE = new TintedBlock(Language.CheckerboardTilesWhite, TextureLayout.Uniform("checkerboard_tiles_white"));
             CACTUS = new GrowingBlock(Language.Cactus, TextureLayout.Column("cactus", 0, 1), Block.SAND, 4);
             VASE = new CustomModelBlock(Language.Vase, "vase", true, new BoundingBox(new Vector3(0.5f, 0.375f, 0.5f), new Vector3(0.25f, 0.375f, 0.25f)));
             BRICKS = new ConstructionBlock(Language.Bricks, TextureLayout.Uniform("bricks"));
+            PAVING_STONE = new ConstructionBlock(Language.PavingStone, TextureLayout.Uniform("paving_stone"));
         }
 
         #endregion STATIC BLOCK MANAGMENT

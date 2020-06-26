@@ -138,8 +138,11 @@
   <data name="CavePainting" xml:space="preserve">
     <value>Cave Painting</value>
   </data>
-  <data name="CheckerboardTiles" xml:space="preserve">
-    <value>Checkerboard Tiles</value>
+  <data name="CheckerboardTilesBlack" xml:space="preserve">
+    <value>Black Checkerboard Tiles</value>
+  </data>
+  <data name="CheckerboardTilesWhite" xml:space="preserve">
+    <value>White Checkerboard Tiles</value>
   </data>
   <data name="CoalOre" xml:space="preserve">
     <value>Coal Ore</value>
@@ -212,6 +215,9 @@
   </data>
   <data name="Onions" xml:space="preserve">
     <value>Onions</value>
+  </data>
+  <data name="PavingStone" xml:space="preserve">
+    <value>Paving Stone</value>
   </data>
   <data name="Potatoes" xml:space="preserve">
     <value>Potatoes</value>
