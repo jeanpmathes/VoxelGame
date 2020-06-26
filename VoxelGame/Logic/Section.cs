@@ -41,25 +41,6 @@ namespace VoxelGame.Logic
             renderer = new SectionRenderer();
         }
 
-        public void Generate(IWorldGenerator generator, int xOffset, int yOffset, int zOffset)
-        {
-            if (generator == null)
-            {
-                throw new ArgumentNullException(paramName: nameof(generator));
-            }
-
-            for (int x = 0; x < SectionSize; x++)
-            {
-                for (int y = 0; y < SectionSize; y++)
-                {
-                    for (int z = 0; z < SectionSize; z++)
-                    {
-                        blocks[(x << 10) + (y << 5) + z] = generator.GenerateBlock(x + xOffset, y + yOffset, z + zOffset).Id;
-                    }
-                }
-            }
-        }
-
         public void CreateAndSetMesh(int sectionX, int sectionY, int sectionZ)
         {
             CreateMeshData(sectionX, sectionY, sectionZ, out SectionMeshData meshData);

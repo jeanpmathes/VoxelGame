@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using System;
 using System.Collections.Generic;
 using VoxelGame.Logic;
 
@@ -10,33 +11,13 @@ namespace VoxelGame.WorldGeneration
 {
     public class FlatGenerator : IWorldGenerator
     {
-        private int heightAir;
-        private int heightDirt;
+        private readonly int heightAir;
+        private readonly int heightDirt;
 
         public FlatGenerator(int heightAir, int heightDirt)
         {
             this.heightAir = heightAir;
             this.heightDirt = heightDirt;
-        }
-
-        public Block GenerateBlock(int x, int y, int z)
-        {
-            if (y > heightAir)
-            {
-                return Block.AIR;
-            }
-            else if (y == heightAir)
-            {
-                return Block.GRASS;
-            }
-            else if (y > heightDirt)
-            {
-                return Block.DIRT;
-            }
-            else
-            {
-                return Block.STONE;
-            }
         }
 
         public IEnumerable<Block> GenerateColumn(int x, int z)

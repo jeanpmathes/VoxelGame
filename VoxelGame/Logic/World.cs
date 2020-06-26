@@ -167,7 +167,7 @@ namespace VoxelGame.Logic
             information.Save(Path.Combine(worldDirectory, "meta.json"));
 
             Information = information;
-            generator = new NoiseGenerator(seed);
+            generator = new ComplexGenerator(seed);
 
             Setup();
         }
@@ -184,7 +184,7 @@ namespace VoxelGame.Logic
             Directory.CreateDirectory(chunkDirectory);
 
             Information = information;
-            generator = new NoiseGenerator(information.Seed);
+            generator = new ComplexGenerator(information.Seed);
 
             Setup();
         }

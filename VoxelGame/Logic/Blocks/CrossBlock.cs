@@ -10,11 +10,10 @@ namespace VoxelGame.Logic.Blocks
 {
     public class CrossBlock : Block
     {
-#pragma warning disable CA1051 // Do not declare visible instance fields
-        protected float[] vertices = null!;
-        protected int[] textureIndices = null!;
+        private protected float[] vertices = null!;
+        private protected int[] textureIndices = null!;
 
-        protected readonly uint[] indices =
+        private protected readonly uint[] indices =
         {
             // Direction: /
             0, 2, 1,
@@ -30,8 +29,6 @@ namespace VoxelGame.Logic.Blocks
             4, 5, 6,
             4, 6, 7
         };
-
-#pragma warning disable CA1051 // Do not declare visible instance fields
 
         /// <summary>
         /// Initializes a new instance of a cross block; a block made out of two intersecting planes.

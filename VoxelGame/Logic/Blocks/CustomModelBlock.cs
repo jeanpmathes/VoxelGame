@@ -14,13 +14,11 @@ namespace VoxelGame.Logic.Blocks
     /// </summary>
     public class CustomModelBlock : Block
     {
-#pragma warning disable CA1051 // Do not declare visible instance fields
-        protected float[] vertices = null!;
-        protected int[] texIndices = null!;
-        protected uint[] indices = null!;
+        private protected float[] vertices = null!;
+        private protected int[] texIndices = null!;
+        private protected uint[] indices = null!;
 
-        protected uint vertCount;
-#pragma warning restore CA1051 // Do not declare visible instance fields
+        private protected uint vertCount;
 
         public CustomModelBlock(string name, string modelName, bool isSolid, Physics.BoundingBox boundingBox) :
             base(

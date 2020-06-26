@@ -17,12 +17,11 @@ namespace VoxelGame.Logic.Blocks
     // h = height
     public class DoubleCrossPlantBlock : Block
     {
-#pragma warning disable CA1051 // Do not declare visible instance fields
-        protected float[] vertices = null!;
-        protected int[] bottomTexIndices = null!;
-        protected int[] topTexIndices = null!;
+        private protected float[] vertices = null!;
+        private protected int[] bottomTexIndices = null!;
+        private protected int[] topTexIndices = null!;
 
-        protected readonly uint[] indices =
+        private protected readonly uint[] indices =
         {
             // Direction: /
             0, 2, 1,
@@ -38,8 +37,6 @@ namespace VoxelGame.Logic.Blocks
             4, 5, 6,
             4, 6, 7
         };
-
-#pragma warning disable CA1051 // Do not declare visible instance fields
 
         public DoubleCrossPlantBlock(string name, string bottomTexture, int topTexOffset, BoundingBox boundingBox) :
             base(

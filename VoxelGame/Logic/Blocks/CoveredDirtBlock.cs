@@ -14,9 +14,7 @@ namespace VoxelGame.Logic.Blocks
     /// </summary>
     public class CoveredDirtBlock : BasicBlock, IPlantable
     {
-#pragma warning disable CA1051 // Do not declare visible instance fields
-        protected readonly bool hasNeutralTint;
-#pragma warning restore CA1051 // Do not declare visible instance fields
+        private protected readonly bool hasNeutralTint;
 
         public CoveredDirtBlock(string name, TextureLayout layout, bool hasNeutralTint) :
             base(

@@ -23,18 +23,17 @@ namespace VoxelGame.Utilities
         public static Vector3 Clamp(Vector3 vector, float min, float max)
         {
             float length = vector.Length;
-            Vector3 clamped = vector;
 
             if (length < min)
             {
-                clamped = vector.Normalized() * min;
+                return vector.Normalized() * min;
             }
             else if (length > max)
             {
-                clamped = vector.Normalized() * max;
+                return vector.Normalized() * max;
             }
 
-            return clamped;
+            return vector;
         }
 
         /// <summary>

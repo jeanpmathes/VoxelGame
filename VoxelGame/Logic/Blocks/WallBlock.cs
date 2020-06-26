@@ -21,27 +21,25 @@ namespace VoxelGame.Logic.Blocks
     // w = connected west
     public class WallBlock : Block, IConnectable
     {
-#pragma warning disable CA1051 // Do not declare visible instance fields
-        protected uint postVertCount;
-        protected uint extensionVertCount;
-        protected uint straightVertCount;
+        private protected uint postVertCount;
+        private protected uint extensionVertCount;
+        private protected uint straightVertCount;
 
-        protected float[] postVertices = null!;
+        private protected float[] postVertices = null!;
 
-        protected float[] northVertices = null!;
-        protected float[] eastVertices = null!;
-        protected float[] southVertices = null!;
-        protected float[] westVertices = null!;
+        private protected float[] northVertices = null!;
+        private protected float[] eastVertices = null!;
+        private protected float[] southVertices = null!;
+        private protected float[] westVertices = null!;
 
-        protected int[][] textureIndices = null!;
-        protected uint[][] indices = null!;
+        private protected int[][] textureIndices = null!;
+        private protected uint[][] indices = null!;
 
-        protected float[] extensionStraightZ = null!;
-        protected float[] extensionStraightX = null!;
+        private protected float[] extensionStraightZ = null!;
+        private protected float[] extensionStraightX = null!;
 
-        protected int[] texIndicesStraight = null!;
-        protected uint[] indicesStraight = null!;
-#pragma warning restore CA1051 // Do not declare visible instance fields
+        private protected int[] texIndicesStraight = null!;
+        private protected uint[] indicesStraight = null!;
 
         public WallBlock(string name, string texture, string post, string extension, string extensionStraight) :
             base(
