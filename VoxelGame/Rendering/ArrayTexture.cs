@@ -112,17 +112,20 @@ namespace VoxelGame.Rendering
         {
             Bitmap fallback = new Bitmap(resolution, resolution, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
+            Color magenta = Color.FromArgb(64, 255, 0, 255);
+            Color black = Color.FromArgb(64, 0, 0, 0);
+
             for (int x = 0; x < fallback.Width; x++)
             {
                 for (int y = 0; y < fallback.Height; y++)
                 {
                     if (x % 2 == 0 ^ y % 2 == 0)
                     {
-                        fallback.SetPixel(x, y, Color.Magenta);
+                        fallback.SetPixel(x, y, magenta);
                     }
                     else
                     {
-                        fallback.SetPixel(x, y, Color.Black);
+                        fallback.SetPixel(x, y, black);
                     }
                 }
             }
