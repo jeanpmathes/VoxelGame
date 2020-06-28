@@ -187,6 +187,11 @@ namespace VoxelGame.Logic
         /// </summary>
         public TargetBuffer TargetBuffer { get; }
 
+        /// <summary>
+        /// Gets whether this block is solid and full.
+        /// </summary>
+        public bool IsSolidAndFull => IsSolid && IsFull;
+
         private BoundingBox boundingBox;
 
         protected Block(string name, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, BoundingBox boundingBox, TargetBuffer targetBuffer)

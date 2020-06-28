@@ -140,28 +140,28 @@ namespace VoxelGame.Logic.Blocks
 
             if (SideToOrientation(entity?.TargetSide ?? BlockSide.Front, out Orientation orientation))
             {
-                if (orientation == Orientation.North && Game.World.GetBlock(x, y, z + 1, out _)?.IsFull == true && Game.World.GetBlock(x, y, z + 1, out _)?.IsSolid == true)
+                if (orientation == Orientation.North && Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull == true)
                 {
                     Game.World.SetBlock(this, (byte)orientation, x, y, z);
 
                     return true;
                 }
 
-                if (orientation == Orientation.South && Game.World.GetBlock(x, y, z - 1, out _)?.IsFull == true && Game.World.GetBlock(x, y, z - 1, out _)?.IsSolid == true)
+                if (orientation == Orientation.South && Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull == true)
                 {
                     Game.World.SetBlock(this, (byte)orientation, x, y, z);
 
                     return true;
                 }
 
-                if (orientation == Orientation.East && Game.World.GetBlock(x - 1, y, z, out _)?.IsFull == true && Game.World.GetBlock(x - 1, y, z, out _)?.IsSolid == true)
+                if (orientation == Orientation.East && Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull == true)
                 {
                     Game.World.SetBlock(this, (byte)orientation, x, y, z);
 
                     return true;
                 }
 
-                if (orientation == Orientation.West && Game.World.GetBlock(x + 1, y, z, out _)?.IsFull == true && Game.World.GetBlock(x + 1, y, z, out _)?.IsSolid == true)
+                if (orientation == Orientation.West && Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull == true)
                 {
                     Game.World.SetBlock(this, (byte)orientation, x, y, z);
 
@@ -191,22 +191,22 @@ namespace VoxelGame.Logic.Blocks
         {
             Orientation orientation = (Orientation)(data & 0b0_0011);
 
-            if (orientation == Orientation.North && (Game.World.GetBlock(x, y, z + 1, out _)?.IsFull != true))
+            if (orientation == Orientation.North && (Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull != true))
             {
                 Destroy(x, y, z, null);
             }
 
-            if (orientation == Orientation.South && (Game.World.GetBlock(x, y, z - 1, out _)?.IsFull != true))
+            if (orientation == Orientation.South && (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull != true))
             {
                 Destroy(x, y, z, null);
             }
 
-            if (orientation == Orientation.East && (Game.World.GetBlock(x - 1, y, z, out _)?.IsFull != true))
+            if (orientation == Orientation.East && (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull != true))
             {
                 Destroy(x, y, z, null);
             }
 
-            if (orientation == Orientation.West && (Game.World.GetBlock(x + 1, y, z, out _)?.IsFull != true))
+            if (orientation == Orientation.West && (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull != true))
             {
                 Destroy(x, y, z, null);
             }

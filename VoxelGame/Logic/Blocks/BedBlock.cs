@@ -76,7 +76,7 @@ namespace VoxelGame.Logic.Blocks
 
         public override bool Place(int x, int y, int z, PhysicsEntity? entity)
         {
-            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y - 1, z, out _)?.IsSolid != true || Game.World.GetBlock(x, y - 1, z, out _)?.IsFull != true)
+            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
             {
                 return false;
             }
@@ -85,7 +85,7 @@ namespace VoxelGame.Logic.Blocks
             {
                 case Orientation.North:
 
-                    if (Game.World.GetBlock(x, y, z - 1, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y - 1, z - 1, out _)?.IsSolid != true || Game.World.GetBlock(x, y - 1, z - 1, out _)?.IsFull != true)
+                    if (Game.World.GetBlock(x, y, z - 1, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y - 1, z - 1, out _)?.IsSolidAndFull != true)
                     {
                         return false;
                     }
@@ -97,7 +97,7 @@ namespace VoxelGame.Logic.Blocks
 
                 case Orientation.East:
 
-                    if (Game.World.GetBlock(x + 1, y, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x + 1, y - 1, z, out _)?.IsSolid != true || Game.World.GetBlock(x + 1, y - 1, z, out _)?.IsFull != true)
+                    if (Game.World.GetBlock(x + 1, y, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x + 1, y - 1, z, out _)?.IsSolidAndFull != true)
                     {
                         return false;
                     }
@@ -109,7 +109,7 @@ namespace VoxelGame.Logic.Blocks
 
                 case Orientation.South:
 
-                    if (Game.World.GetBlock(x, y, z + 1, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y - 1, z + 1, out _)?.IsSolid != true || Game.World.GetBlock(x, y - 1, z + 1, out _)?.IsFull != true)
+                    if (Game.World.GetBlock(x, y, z + 1, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y - 1, z + 1, out _)?.IsSolidAndFull != true)
                     {
                         return false;
                     }
@@ -121,7 +121,7 @@ namespace VoxelGame.Logic.Blocks
 
                 case Orientation.West:
 
-                    if (Game.World.GetBlock(x - 1, y, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x - 1, y - 1, z, out _)?.IsSolid != true || Game.World.GetBlock(x - 1, y - 1, z, out _)?.IsFull != true)
+                    if (Game.World.GetBlock(x - 1, y, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x - 1, y - 1, z, out _)?.IsSolidAndFull != true)
                     {
                         return false;
                     }
@@ -201,7 +201,7 @@ namespace VoxelGame.Logic.Blocks
 
         public override void BlockUpdate(int x, int y, int z, byte data)
         {
-            if (Game.World.GetBlock(x, y - 1, z, out _)?.IsSolid != true || Game.World.GetBlock(x, y - 1, z, out _)?.IsFull != true)
+            if (Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
             {
                 Destroy(x, y, z, null);
             }

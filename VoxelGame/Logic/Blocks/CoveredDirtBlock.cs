@@ -29,9 +29,7 @@ namespace VoxelGame.Logic.Blocks
 
         public override bool Place(int x, int y, int z, PhysicsEntity? entity)
         {
-            Block above = Game.World.GetBlock(x, y + 1, z, out _) ?? Block.AIR;
-
-            if (above.IsSolid && above.IsFull)
+            if ((Game.World.GetBlock(x, y + 1, z, out _) ?? Block.AIR).IsSolidAndFull)
             {
                 return Block.DIRT.Place(x, y, z, entity);
             }
@@ -50,10 +48,7 @@ namespace VoxelGame.Logic.Blocks
 
         public override void BlockUpdate(int x, int y, int z, byte data)
         {
-            // Check block on top of this block
-            Block above = Game.World.GetBlock(x, y + 1, z, out _) ?? Block.AIR;
-
-            if (above.IsSolid && above.IsFull)
+            if ((Game.World.GetBlock(x, y + 1, z, out _) ?? Block.AIR).IsSolidAndFull)
             {
                 Game.World.SetBlock(Block.DIRT, 0, x, y, z);
             }
