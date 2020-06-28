@@ -47,6 +47,17 @@ namespace VoxelGame.Utilities
         }
 
         /// <summary>
+        /// Rounds every component of a vector.
+        /// </summary>
+        /// <param name="vector">The vector to round.</param>
+        /// <param name="digits">The number of fractional digits in the return value.</param>
+        /// <returns>The rounded vector.</returns>
+        public static Vector3 Rounded(this Vector3 vector, int digits = 0)
+        {
+            return new Vector3((float)Math.Round(vector.X, digits), (float)Math.Round(vector.Y, digits), (float)Math.Round(vector.Z, digits));
+        }
+
+        /// <summary>
         /// Clamps every component of a vector.
         /// </summary>
         /// <param name="vector">The vector to clamp.</param>

@@ -67,16 +67,16 @@ namespace VoxelGame.Logic.Blocks
 
             post.ToData(out postVertices, out _, out _);
 
-            extension.RotateY(0);
+            extension.RotateY(0, false);
             extension.ToData(out northVertices, out _, out _);
 
-            extension.RotateY(1);
+            extension.RotateY(1, false);
             extension.ToData(out eastVertices, out _, out _);
 
-            extension.RotateY(1);
+            extension.RotateY(1, false);
             extension.ToData(out southVertices, out _, out _);
 
-            extension.RotateY(1);
+            extension.RotateY(1, false);
             extension.ToData(out westVertices, out _, out _);
 
             int tex = Game.BlockTextureArray.GetTextureIndex(texture);
@@ -116,10 +116,10 @@ namespace VoxelGame.Logic.Blocks
                 indices[i] = ind;
             }
 
-            extensionStraight.RotateY(0);
+            extensionStraight.RotateY(0, false);
             extensionStraight.ToData(out extensionStraightZ, out texIndicesStraight, out indicesStraight);
 
-            extensionStraight.RotateY(1);
+            extensionStraight.RotateY(1, false);
             extensionStraight.ToData(out extensionStraightX, out _, out _);
 
             for (int i = 0; i < texIndicesStraight.Length; i++)

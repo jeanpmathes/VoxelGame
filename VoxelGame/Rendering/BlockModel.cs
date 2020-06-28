@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using VoxelGame.Utilities;
@@ -21,7 +22,58 @@ namespace VoxelGame.Rendering
 
         public int VertexCount { get => Quads.Length * 4; }
 
-        public void RotateY(int rotations)
+        /// <summary>
+        /// Splits the BlockModel into two parts, using a given plane to sort all faces.
+        /// </summary>
+        /// <param name="position">Position of the plane.</param>
+        /// <param name="normal">Normal of the plane.</param>
+        /// <param name="a">The first model.</param>
+        /// <param name="b">The second model.</param>
+        public void PlaneSplit(Vector3 position, Vector3 normal, out BlockModel a, out BlockModel b)
+        {
+            normal = normal.Normalized();
+            List<Quad> quadsA = new List<Quad>();
+            List<Quad> quadsB = new List<Quad>();
+
+            foreach (Quad quad in Quads)
+            {
+                if (Vector3.Dot(quad.Center - position, normal) > 0)
+                {
+                    quadsA.Add(quad);
+                }
+                else
+                {
+                    quadsB.Add(quad);
+                }
+            }
+
+            a = new BlockModel() { TextureNames = this.TextureNames };
+            b = new BlockModel() { TextureNames = this.TextureNames };
+
+            a.Quads = quadsA.ToArray();
+            b.Quads = quadsB.ToArray();
+        }
+
+        /// <summary>
+        /// Moves all vertices of this model.
+        /// </summary>
+        /// <param name="movement"></param>
+        public void Move(Vector3 movement)
+        {
+            Matrix4 xyz = Matrix4.CreateTranslation(movement);
+
+            for (int i = 0; i < Quads.Length; i++)
+            {
+                Quads[i] = Quads[i].ApplyTranslationMatrix(xyz);
+            }
+        }
+
+        /// <summary>
+        /// Rotates the model on the y axis in steps of ninety degrees.
+        /// </summary>
+        /// <param name="rotations">Number of rotations.</param>
+        /// <param name="rotateTopAndBottomTexture">Whether the top and bottom texture should be rotated.</param>
+        public void RotateY(int rotations, bool rotateTopAndBottomTexture)
         {
             if (rotations == 0)
             {
@@ -32,6 +84,8 @@ namespace VoxelGame.Rendering
 
             Matrix4 xyz = Matrix4.CreateTranslation(-0.5f, -0.5f, -0.5f) * Matrix4.CreateRotationY(angle) * Matrix4.CreateTranslation(0.5f, 0.5f, 0.5f);
             Matrix4 nop = Matrix4.CreateRotationY(angle);
+
+            rotations = rotateTopAndBottomTexture ? 0 : rotations;
 
             for (int i = 0; i < Quads.Length; i++)
             {
@@ -199,16 +253,28 @@ namespace VoxelGame.Rendering
         public Vertex Vert2 { get; set; }
         public Vertex Vert3 { get; set; }
 
+        public Vector3 Center => (Vert0.Position + Vert1.Position + Vert2.Position + Vert3.Position) / 4;
+
+        public Quad ApplyTranslationMatrix(Matrix4 xyz)
+        {
+            Vert0 = Vert0.ApplyTranslationMatrix(xyz);
+            Vert1 = Vert1.ApplyTranslationMatrix(xyz);
+            Vert2 = Vert2.ApplyTranslationMatrix(xyz);
+            Vert3 = Vert3.ApplyTranslationMatrix(xyz);
+
+            return this;
+        }
+
         public Quad ApplyRotationMatrixY(Matrix4 xyz, Matrix4 nop, int rotations)
         {
             // Rotate positions and normals.
-            Vert0 = Vert0.ApplyRotationMatrixY(xyz, nop);
-            Vert1 = Vert1.ApplyRotationMatrixY(xyz, nop);
-            Vert2 = Vert2.ApplyRotationMatrixY(xyz, nop);
-            Vert3 = Vert3.ApplyRotationMatrixY(xyz, nop);
+            Vert0 = Vert0.ApplyRotationMatrix(xyz, nop);
+            Vert1 = Vert1.ApplyRotationMatrix(xyz, nop);
+            Vert2 = Vert2.ApplyRotationMatrix(xyz, nop);
+            Vert3 = Vert3.ApplyRotationMatrix(xyz, nop);
 
             // Rotate UVs for top and bottom sides.
-            if (new Vector3(Vert0.N, Vert0.O, Vert0.P).Absolute() == Vector3.UnitY)
+            if (new Vector3(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(2) == Vector3.UnitY)
             {
                 for (int r = 0; r < rotations; r++)
                 {
@@ -238,7 +304,20 @@ namespace VoxelGame.Rendering
         public float O { get; set; }
         public float P { get; set; }
 
-        public Vertex ApplyRotationMatrixY(Matrix4 xyz, Matrix4 nop)
+        public Vector3 Position => new Vector3(X, Y, Z);
+
+        public Vertex ApplyTranslationMatrix(Matrix4 xyz)
+        {
+            Vector4 position = new Vector4(X, Y, Z, 1f) * xyz;
+
+            X = position.X;
+            Y = position.Y;
+            Z = position.Z;
+
+            return this;
+        }
+
+        public Vertex ApplyRotationMatrix(Matrix4 xyz, Matrix4 nop)
         {
             Vector4 position = new Vector4(X, Y, Z, 1f) * xyz;
             Vector4 normal = new Vector4(N, O, P, 1f) * nop;

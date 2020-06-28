@@ -60,16 +60,16 @@ namespace VoxelGame.Logic.Blocks
 
             post.ToData(out postVertices, out _, out _);
 
-            extension.RotateY(0);
+            extension.RotateY(0, false);
             extension.ToData(out northVertices, out _, out _);
 
-            extension.RotateY(1);
+            extension.RotateY(1, false);
             extension.ToData(out eastVertices, out _, out _);
 
-            extension.RotateY(1);
+            extension.RotateY(1, false);
             extension.ToData(out southVertices, out _, out _);
 
-            extension.RotateY(1);
+            extension.RotateY(1, false);
             extension.ToData(out westVertices, out _, out _);
 
             int tex = Game.BlockTextureArray.GetTextureIndex(texture);
