@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using VoxelGame.Logic.Interfaces;
 using VoxelGame.Visuals;
+using VoxelGame.Utilities;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -27,7 +28,7 @@ namespace VoxelGame.Logic.Blocks
 
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
-            tint = BlockToTintColor((BlockColor)(0b0_0111 & data));
+            tint = ((BlockColor)(0b0_0111 & data)).ToTintColor();
 
             return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
         }
@@ -42,31 +43,6 @@ namespace VoxelGame.Logic.Blocks
             Game.World.SetBlock(this, (byte)(x & 0b111), x, y, z);
 
             return true;
-        }
-
-        protected enum BlockColor
-        {
-            Default,
-            Red,
-            Green,
-            Blue,
-            Yellow,
-            Cyan,
-            Magenta
-        }
-
-        protected static TintColor BlockToTintColor(BlockColor color)
-        {
-            return color switch
-            {
-                BlockColor.Red => TintColor.Red,
-                BlockColor.Green => TintColor.Green,
-                BlockColor.Blue => TintColor.Blue,
-                BlockColor.Yellow => TintColor.Yellow,
-                BlockColor.Cyan => TintColor.Cyan,
-                BlockColor.Magenta => TintColor.Magenta,
-                _ => new TintColor(1f, 1f, 1f),
-            };
         }
     }
 }

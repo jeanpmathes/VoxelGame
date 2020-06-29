@@ -161,6 +161,9 @@
     <None Update="Resources\Textures\vase.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Textures\wood_nt.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Utilities\modelexporter.py">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

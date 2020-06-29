@@ -12,8 +12,9 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block that is two blocks long and allows setting the spawn point.
-    /// Data bit usage: <c>--oop</c>
+    /// Data bit usage: <c>ccoop</c>
     /// </summary>
+    // c = color
     // o = orientation
     // p = position
     public class BedBlock : Block
@@ -78,6 +79,7 @@ namespace VoxelGame.Logic.Blocks
         {
             bool isBase = (data & 0b1) == 1;
             int orientation = (data & 0b0_0110) >> 1;
+            BlockColor color = (BlockColor)((data & 0b1_1000) >> 3);
 
             if (isBase)
             {
@@ -85,7 +87,7 @@ namespace VoxelGame.Logic.Blocks
                 textureIndices = topTextureIndices;
                 indices = topIndices;
 
-                tint = TintColor.None;
+                tint = color.ToTintColor();
 
                 return topVertCount;
             }
@@ -95,7 +97,7 @@ namespace VoxelGame.Logic.Blocks
                 textureIndices = bottomTextureIndices;
                 indices = bottomIndices;
 
-                tint = TintColor.None;
+                tint = color.ToTintColor();
 
                 return bottomVertCount;
             }
@@ -108,6 +110,8 @@ namespace VoxelGame.Logic.Blocks
                 return false;
             }
 
+            int colorData = (x & 0b11) << 3;
+
             switch (entity?.LookingDirection.ToOrientation() ?? Orientation.North)
             {
                 case Orientation.North:
@@ -117,8 +121,8 @@ namespace VoxelGame.Logic.Blocks
                         return false;
                     }
 
-                    Game.World.SetBlock(this, (byte)(((int)(entity?.LookingDirection.ToOrientation() ?? Orientation.North) << 1) | 0), x, y, z);
-                    Game.World.SetBlock(this, (byte)(((int)(entity?.LookingDirection.ToOrientation() ?? Orientation.North) << 1) | 1), x, y, z - 1);
+                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.North << 1) | 0), x, y, z);
+                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.North << 1) | 1), x, y, z - 1);
 
                     return true;
 
@@ -129,8 +133,8 @@ namespace VoxelGame.Logic.Blocks
                         return false;
                     }
 
-                    Game.World.SetBlock(this, (byte)(((int)(entity?.LookingDirection.ToOrientation() ?? Orientation.North) << 1) | 0), x, y, z);
-                    Game.World.SetBlock(this, (byte)(((int)(entity?.LookingDirection.ToOrientation() ?? Orientation.North) << 1) | 1), x + 1, y, z);
+                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.East << 1) | 0), x, y, z);
+                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.East << 1) | 1), x + 1, y, z);
 
                     return true;
 
@@ -141,8 +145,8 @@ namespace VoxelGame.Logic.Blocks
                         return false;
                     }
 
-                    Game.World.SetBlock(this, (byte)(((int)(entity?.LookingDirection.ToOrientation() ?? Orientation.North) << 1) | 0), x, y, z);
-                    Game.World.SetBlock(this, (byte)(((int)(entity?.LookingDirection.ToOrientation() ?? Orientation.North) << 1) | 1), x, y, z + 1);
+                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.South << 1) | 0), x, y, z);
+                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.South << 1) | 1), x, y, z + 1);
 
                     return true;
 
@@ -153,8 +157,8 @@ namespace VoxelGame.Logic.Blocks
                         return false;
                     }
 
-                    Game.World.SetBlock(this, (byte)(((int)(entity?.LookingDirection.ToOrientation() ?? Orientation.North) << 1) | 0), x, y, z);
-                    Game.World.SetBlock(this, (byte)(((int)(entity?.LookingDirection.ToOrientation() ?? Orientation.North) << 1) | 1), x - 1, y, z);
+                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.West << 1) | 0), x, y, z);
+                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.West << 1) | 1), x - 1, y, z);
 
                     return true;
 
@@ -181,6 +185,7 @@ namespace VoxelGame.Logic.Blocks
                     return true;
 
                 case Orientation.South:
+
                     Game.World.SetBlock(Block.AIR, 0, x, y, z);
                     Game.World.SetBlock(Block.AIR, 0, x, y, z - (isBase ? 1 : -1));
                     return true;
