@@ -8,7 +8,7 @@ using VoxelGame.Resources.Language;
 using System.Collections.Generic;
 using VoxelGame.Logic.Blocks;
 using VoxelGame.Physics;
-using VoxelGame.Rendering;
+using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic
 {

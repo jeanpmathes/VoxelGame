@@ -5,7 +5,7 @@
 // <author>pershingthesecond</author>
 using System;
 
-namespace VoxelGame.Rendering
+namespace VoxelGame.Visuals
 {
     /// <summary>
     /// A tint that can be applied to blocks.

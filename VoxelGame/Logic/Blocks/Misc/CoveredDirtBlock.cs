@@ -5,7 +5,7 @@
 // <author>pershingthesecond</author>
 using VoxelGame.Entities;
 using VoxelGame.Logic.Interfaces;
-using VoxelGame.Rendering;
+using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
 {

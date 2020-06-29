@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-namespace VoxelGame.Rendering
+namespace VoxelGame.Visuals
 {
     public enum TargetBuffer
     {

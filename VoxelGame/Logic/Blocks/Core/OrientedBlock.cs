@@ -1,25 +1,26 @@
-﻿// <copyright file="RotatedBlock.cs" company="VoxelGame">
+﻿// <copyright file="OrientedBlock.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
 using System;
 using VoxelGame.Entities;
-using VoxelGame.Rendering;
+using VoxelGame.Visuals;
+using VoxelGame.Utilities;
 
 namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
-    /// A block which can be rotated to be oriented on different axis. The y axis is the default orientation.
-    /// Data bit usage: <c>---aa</c>
+    /// A block which can be rotated on the y axis.
+    /// Data bit usage: <c>---oo</c>
     /// </summary>
-    // a = axis
-    public class RotatedBlock : BasicBlock
+    // o = orientation
+    public class OrientedBlock : BasicBlock
     {
         private protected float[][] sideNormals = null!;
         private protected int[] texIndices = null!;
 
-        public RotatedBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid) :
+        public OrientedBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid) :
             base(
                 name,
                 layout,
@@ -118,35 +119,17 @@ namespace VoxelGame.Logic.Blocks
 
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
-            Axis axis = ToAxis(data);
-
             float[] vert = sideVertices[(int)side];
             float[] norms = sideNormals[(int)side];
-            int tex = texIndices[TranslateIndex(side, axis)];
+            int tex = texIndices[TranslateIndex(side, (Orientation)(data & 0b0_0011))];
 
-            // Check if the texture has to be rotated
-            if ((axis == Axis.X && (side != BlockSide.Left && side != BlockSide.Right)) || (axis == Axis.Z && (side == BlockSide.Left || side == BlockSide.Right)))
+            vertices = new float[]
             {
-                // Texture rotation
-                vertices = new float[]
-                {
-                    vert[0], vert[1],  vert[2], 0f, 1f, norms[0], norms[1], norms[2],
-                    vert[3], vert[4],  vert[5], 1f, 1f, norms[0], norms[1], norms[2],
-                    vert[6], vert[7],  vert[8], 1f, 0f, norms[0], norms[1], norms[2],
-                    vert[9], vert[10], vert[11], 0f, 0f, norms[0], norms[1], norms[2]
-                };
-            }
-            else
-            {
-                // No texture rotation
-                vertices = new float[]
-                {
-                    vert[0], vert[1],  vert[2], 0f, 0f, norms[0], norms[1], norms[2],
-                    vert[3], vert[4],  vert[5], 0f, 1f, norms[0], norms[1], norms[2],
-                    vert[6], vert[7],  vert[8], 1f, 1f, norms[0], norms[1], norms[2],
-                    vert[9], vert[10], vert[11], 1f, 0f, norms[0], norms[1], norms[2]
-                };
-            }
+                vert[0], vert[1],  vert[2], 0f, 0f, norms[0], norms[1], norms[2],
+                vert[3], vert[4],  vert[5], 0f, 1f, norms[0], norms[1], norms[2],
+                vert[6], vert[7],  vert[8], 1f, 1f, norms[0], norms[1], norms[2],
+                vert[9], vert[10], vert[11], 1f, 0f, norms[0], norms[1], norms[2]
+            };
 
             textureIndices = new int[] { tex, tex, tex, tex };
             indices = Array.Empty<uint>();
@@ -162,56 +145,33 @@ namespace VoxelGame.Logic.Blocks
                 return false;
             }
 
-            Game.World.SetBlock(this, (byte)ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
+            Game.World.SetBlock(this, (byte)((entity?.LookingDirection.ToOrientation()) ?? Orientation.North), x, y, z);
 
             return true;
         }
 
-        protected enum Axis
-        {
-            X, // East-West
-            Y, // Up-Down
-            Z  // North-South
-        }
-
-        protected static Axis ToAxis(BlockSide side)
-        {
-            switch (side)
-            {
-                case BlockSide.Front:
-                case BlockSide.Back:
-                    return Axis.Z;
-
-                case BlockSide.Left:
-                case BlockSide.Right:
-                    return Axis.X;
-
-                case BlockSide.Bottom:
-                case BlockSide.Top:
-                    return Axis.Y;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(side));
-            }
-        }
-
-        protected static Axis ToAxis(byte data)
-        {
-            return (Axis)(data & 0b0_0011);
-        }
-
-        protected static int TranslateIndex(BlockSide side, Axis axis)
+        protected static int TranslateIndex(BlockSide side, Orientation orientation)
         {
             int index = (int)side;
 
-            if (axis == Axis.X && side != BlockSide.Front && side != BlockSide.Back)
+            if (index < 0 || index > 5)
             {
-                index = 7 - index;
+                throw new ArgumentOutOfRangeException(nameof(side));
             }
 
-            if (axis == Axis.Z && side != BlockSide.Left && side != BlockSide.Right)
+            if (side == BlockSide.Bottom || side == BlockSide.Top)
             {
-                index = 5 - index;
+                return index;
+            }
+
+            if (((int)orientation & 0b01) == 1)
+            {
+                index = (3 - (index * (1 - (index & 2)))) % 5; // Rotates the index one step
+            }
+
+            if (((int)orientation & 0b10) == 2)
+            {
+                index = 3 - (index + 2) + ((index & 2) * 2); // Flips the index
             }
 
             return index;

@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using VoxelGame.Rendering;
+using VoxelGame.Visuals;
 using VoxelGame.Physics;
 using System;
 using VoxelGame.Entities;

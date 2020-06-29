@@ -7,6 +7,7 @@ using OpenToolkit.Mathematics;
 using System;
 using System.Runtime.CompilerServices;
 using VoxelGame.Collections;
+using VoxelGame.Visuals;
 using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic

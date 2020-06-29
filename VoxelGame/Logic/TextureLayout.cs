@@ -3,9 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-
 using System;
-using System.Security.Policy;
 
 namespace VoxelGame.Logic
 {

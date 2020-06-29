@@ -28,7 +28,7 @@ namespace VoxelGame.Logic.Blocks
                 isTrigger: false,
                 isReplaceable: true,
                 BoundingBox.Block,
-                Rendering.TargetBuffer.NotRendered)
+                Visuals.TargetBuffer.NotRendered)
         {
         }
 
@@ -42,12 +42,12 @@ namespace VoxelGame.Logic.Blocks
             return false;
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indicies, out Rendering.TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indicies, out Visuals.TintColor tint)
         {
             vertices = Array.Empty<float>();
             textureIndices = Array.Empty<int>();
             indicies = Array.Empty<uint>();
-            tint = Rendering.TintColor.None;
+            tint = Visuals.TintColor.None;
 
             return 0;
         }

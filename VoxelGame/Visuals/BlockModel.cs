@@ -10,7 +10,7 @@ using System.IO;
 using System.Text.Json;
 using VoxelGame.Utilities;
 
-namespace VoxelGame.Rendering
+namespace VoxelGame.Visuals
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = "This class is meant for data storage.")]
     public class BlockModel

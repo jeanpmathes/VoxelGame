@@ -1,4 +1,4 @@
-﻿// <copyright file="WallBlock.cs" company="VoxelGame">
+﻿// <copyright file="FenceBlock.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -7,23 +7,22 @@ using OpenToolkit.Mathematics;
 using System;
 using VoxelGame.Logic.Interfaces;
 using VoxelGame.Physics;
-using VoxelGame.Rendering;
+using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
-    /// This class represents a wall block which connects to blocks with the <see cref="IConnectable"/> interface. When connecting in a straight line, no post is used and indices are not ignored, else indices are ignored.
+    /// This class represents a block which connects to blocks with the <see cref="IConnectable"/> interface. The texture and indices of the BlockModels are ignored.
     /// Data bit usage: <c>-nesw</c>
     /// </summary>
     // n = connected north
     // e = connected east
     // s = connected south
     // w = connected west
-    public class WallBlock : Block, IConnectable
+    public class FenceBlock : Block, IConnectable
     {
         private protected uint postVertCount;
         private protected uint extensionVertCount;
-        private protected uint straightVertCount;
 
         private protected float[] postVertices = null!;
 
@@ -33,15 +32,10 @@ namespace VoxelGame.Logic.Blocks
         private protected float[] westVertices = null!;
 
         private protected int[][] textureIndices = null!;
+
         private protected uint[][] indices = null!;
 
-        private protected float[] extensionStraightZ = null!;
-        private protected float[] extensionStraightX = null!;
-
-        private protected int[] texIndicesStraight = null!;
-        private protected uint[] indicesStraight = null!;
-
-        public WallBlock(string name, string texture, string post, string extension, string extensionStraight) :
+        public FenceBlock(string name, string texture, string post, string extension) :
             base(
                 name: name,
                 isFull: false,
@@ -51,19 +45,18 @@ namespace VoxelGame.Logic.Blocks
                 recieveCollisions: false,
                 isTrigger: false,
                 isReplaceable: false,
-                new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)),
+                new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.1875f, 0.5f, 0.1875f)),
                 TargetBuffer.Complex)
         {
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
-            this.Setup(texture, BlockModel.Load(post), BlockModel.Load(extension), BlockModel.Load(extensionStraight));
+            this.Setup(texture, BlockModel.Load(post), BlockModel.Load(extension));
 #pragma warning restore CA2214 // Do not call overridable methods in constructors
         }
 
-        protected void Setup(string texture, BlockModel post, BlockModel extension, BlockModel extensionStraight)
+        protected void Setup(string texture, BlockModel post, BlockModel extension)
         {
             postVertCount = (uint)post.VertexCount;
             extensionVertCount = (uint)extension.VertexCount;
-            straightVertCount = (uint)extensionStraight.VertexCount;
 
             post.ToData(out postVertices, out _, out _);
 
@@ -82,7 +75,7 @@ namespace VoxelGame.Logic.Blocks
             int tex = Game.BlockTextureArray.GetTextureIndex(texture);
 
             textureIndices = new int[5][];
-
+            // Generate texture indices
             for (int i = 0; i < 5; i++)
             {
                 int[] texInd = new int[post.VertexCount + (i * extension.VertexCount)];
@@ -96,7 +89,7 @@ namespace VoxelGame.Logic.Blocks
             }
 
             indices = new uint[5][];
-
+            // Generate indices
             for (int i = 0; i < 5; i++)
             {
                 uint[] ind = new uint[(post.Quads.Length * 6) + (i * extension.Quads.Length * 6)];
@@ -115,17 +108,6 @@ namespace VoxelGame.Logic.Blocks
 
                 indices[i] = ind;
             }
-
-            extensionStraight.RotateY(0, false);
-            extensionStraight.ToData(out extensionStraightZ, out texIndicesStraight, out indicesStraight);
-
-            extensionStraight.RotateY(1, false);
-            extensionStraight.ToData(out extensionStraightX, out _, out _);
-
-            for (int i = 0; i < texIndicesStraight.Length; i++)
-            {
-                texIndicesStraight[i] = tex;
-            }
         }
 
         public override BoundingBox GetBoundingBox(int x, int y, int z)
@@ -137,49 +119,39 @@ namespace VoxelGame.Logic.Blocks
             bool south = (data & 0b0_0010) != 0;
             bool west = (data & 0b0_0001) != 0;
 
-            bool straightZ = north && south && !east && !west;
-            bool straightX = !north && !south && east && west;
+            int extensions = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
 
-            if (straightZ)
+            BoundingBox[] children = new BoundingBox[2 * extensions];
+            extensions = 0;
+
+            if (north)
             {
-                return new BoundingBox(new Vector3(0.5f, 0.4375f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.4375f, 0.5f));
+                children[extensions] = new BoundingBox(new Vector3(0.5f, 0.28125f, 0.15625f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.15625f));
+                children[extensions + 1] = new BoundingBox(new Vector3(0.5f, 0.71875f, 0.15625f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.15625f));
+                extensions += 2;
             }
-            else if (straightX)
+
+            if (east)
             {
-                return new BoundingBox(new Vector3(0.5f, 0.4375f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.4375f, 0.1875f));
+                children[extensions] = new BoundingBox(new Vector3(0.84375f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.15625f, 0.15625f, 0.125f));
+                children[extensions + 1] = new BoundingBox(new Vector3(0.84375f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.15625f, 0.15625f, 0.125f));
+                extensions += 2;
             }
-            else
+
+            if (south)
             {
-                int extensions = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
-
-                BoundingBox[] children = new BoundingBox[extensions];
-                extensions = 0;
-
-                if (north)
-                {
-                    children[extensions] = new BoundingBox(new Vector3(0.5f, 0.4375f, 0.125f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.4375f, 0.125f));
-                    extensions++;
-                }
-
-                if (east)
-                {
-                    children[extensions] = new BoundingBox(new Vector3(0.875f, 0.4375f, 0.5f) + new Vector3(x, y, z), new Vector3(0.125f, 0.4375f, 0.1875f));
-                    extensions++;
-                }
-
-                if (south)
-                {
-                    children[extensions] = new BoundingBox(new Vector3(0.5f, 0.4375f, 0.875f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.4375f, 0.125f));
-                    extensions++;
-                }
-
-                if (west)
-                {
-                    children[extensions] = new BoundingBox(new Vector3(0.125f, 0.4375f, 0.5f) + new Vector3(x, y, z), new Vector3(0.125f, 0.4375f, 0.1875f));
-                }
-
-                return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.25f, 0.5f, 0.25f), children);
+                children[extensions] = new BoundingBox(new Vector3(0.5f, 0.28125f, 0.84375f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.15625f));
+                children[extensions + 1] = new BoundingBox(new Vector3(0.5f, 0.71875f, 0.84375f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.15625f));
+                extensions += 2;
             }
+
+            if (west)
+            {
+                children[extensions] = new BoundingBox(new Vector3(0.15625f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.15625f, 0.15625f, 0.125f));
+                children[extensions + 1] = new BoundingBox(new Vector3(0.15625f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.15625f, 0.15625f, 0.125f));
+            }
+
+            return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.5f, 0.1875f), children);
         }
 
         public override bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
@@ -212,60 +184,44 @@ namespace VoxelGame.Logic.Blocks
             bool south = (data & 0b0_0010) != 0;
             bool west = (data & 0b0_0001) != 0;
 
-            bool straightZ = north && south && !east && !west;
-            bool straightX = !north && !south && east && west;
+            int extensions = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
+            uint vertCount = (uint)(postVertCount + (extensions * extensionVertCount));
 
-            if (straightZ || straightX)
+            vertices = new float[vertCount * 8];
+            textureIndices = this.textureIndices[extensions];
+            indices = this.indices[extensions];
+
+            // Combine the required vertices into one array
+            int position = 0;
+            Array.Copy(postVertices, 0, vertices, 0, postVertices.Length);
+            position += postVertices.Length;
+
+            if (north)
             {
-                vertices = straightZ ? extensionStraightZ : extensionStraightX;
-                textureIndices = texIndicesStraight;
-                indices = indicesStraight;
-
-                tint = TintColor.None;
-
-                return straightVertCount;
+                Array.Copy(northVertices, 0, vertices, position, northVertices.Length);
+                position += northVertices.Length;
             }
-            else
+
+            if (east)
             {
-                int extensions = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
-                uint vertCount = (uint)(postVertCount + (extensions * extensionVertCount));
-
-                vertices = new float[vertCount * 8];
-                textureIndices = this.textureIndices[extensions];
-                indices = this.indices[extensions];
-
-                // Combine the required vertices into one array
-                int position = 0;
-                Array.Copy(postVertices, 0, vertices, 0, postVertices.Length);
-                position += postVertices.Length;
-
-                if (north)
-                {
-                    Array.Copy(northVertices, 0, vertices, position, northVertices.Length);
-                    position += northVertices.Length;
-                }
-
-                if (east)
-                {
-                    Array.Copy(eastVertices, 0, vertices, position, eastVertices.Length);
-                    position += eastVertices.Length;
-                }
-
-                if (south)
-                {
-                    Array.Copy(southVertices, 0, vertices, position, southVertices.Length);
-                    position += southVertices.Length;
-                }
-
-                if (west)
-                {
-                    Array.Copy(westVertices, 0, vertices, position, westVertices.Length);
-                }
-
-                tint = TintColor.None;
-
-                return vertCount;
+                Array.Copy(eastVertices, 0, vertices, position, eastVertices.Length);
+                position += eastVertices.Length;
             }
+
+            if (south)
+            {
+                Array.Copy(southVertices, 0, vertices, position, southVertices.Length);
+                position += southVertices.Length;
+            }
+
+            if (west)
+            {
+                Array.Copy(westVertices, 0, vertices, position, westVertices.Length);
+            }
+
+            tint = TintColor.None;
+
+            return vertCount;
         }
 
         public override void BlockUpdate(int x, int y, int z, byte data)

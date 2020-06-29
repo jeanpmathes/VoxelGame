@@ -5,7 +5,7 @@
 // <author>pershingthesecond</author>
 using System;
 using VoxelGame.Physics;
-using VoxelGame.Rendering;
+using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
 {

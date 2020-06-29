@@ -5,7 +5,7 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using VoxelGame.Entities;
-using VoxelGame.Rendering;
+using VoxelGame.Visuals;
 using VoxelGame.Utilities;
 
 namespace VoxelGame.Logic.Blocks
