@@ -42,9 +42,9 @@ namespace VoxelGame.Logic.Blocks
                 isReplaceable: false,
                 boundingBox,
                 TargetBuffer.Complex)
-                {
+        {
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
-                    Setup(BlockModel.Load(model));
+            Setup(BlockModel.Load(model));
 #pragma warning restore CA2214 // Do not call overridable methods in constructors
         }
 
@@ -74,9 +74,36 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
-            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
+            bool isBase = (data & 0b1) == 1;
+            int orientation = (data & 0b0_0110) >> 1;
+
+            if (isBase)
+            {
+                vertices = topVertices[orientation];
+                textureIndices = topTextureIndices;
+                indices = topIndices;
+
+                tint = TintColor.None;
+
+                return topVertCount;
+            }
+            else
+            {
+                vertices = bottomVertices[orientation];
+                textureIndices = bottomTextureIndices;
+                indices = bottomIndices;
+
+                tint = TintColor.None;
+
+                return bottomVertCount;
+            }
+        }
+
+        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        {
+            if (replaceable != true || Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
             {
                 return false;
             }
@@ -135,13 +162,9 @@ namespace VoxelGame.Logic.Blocks
                     return false;
             }
         }
-        public override bool Destroy(int x, int y, int z, PhysicsEntity? entity)
-        {
-            if (Game.World.GetBlock(x, y, z, out byte data) != this)
-            {
-                return false;
-            }
 
+        protected override bool Destroy(int x, int y, int z, byte data, PhysicsEntity? entity)
+        {
             bool isBase = (data & 0b1) == 1;
 
             switch ((Orientation)((data & 0b0_0110) >> 1))
@@ -172,34 +195,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
-        {
-            bool isBase = (data & 0b1) == 1;
-            int orientation = (data & 0b0_0110) >> 1;
-
-            if (isBase)
-            {
-                vertices = topVertices[orientation];
-                textureIndices = topTextureIndices;
-                indices = topIndices;
-
-                tint = TintColor.None;
-
-                return topVertCount;
-            }
-            else
-            {
-                vertices = bottomVertices[orientation];
-                textureIndices = bottomTextureIndices;
-                indices = bottomIndices;
-
-                tint = TintColor.None;
-
-                return bottomVertCount;
-            }
-        }
-
-        public override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data)
         {
             if (Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
             {

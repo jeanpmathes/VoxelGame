@@ -118,9 +118,8 @@ namespace VoxelGame.Logic.Blocks
             textureIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
         }
 
-        public override BoundingBox GetBoundingBox(int x, int y, int z)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
         {
-            Game.World.GetBlock(x, y, z, out byte data);
             return ((Orientation)(data & 0b0_0011)) switch
             {
                 Orientation.North => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.95f), new Vector3(0.45f, 0.5f, 0.05f)),
@@ -131,9 +130,20 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
-            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true)
+            vertices = sideVertices[data & 0b0_0011];
+            textureIndices = this.textureIndices;
+            indices = this.indices;
+
+            tint = TintColor.None;
+
+            return 8;
+        }
+
+        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        {
+            if (replaceable != true)
             {
                 return false;
             }
@@ -176,18 +186,29 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        protected override void EntityCollision(PhysicsEntity entity, int x, int y, int z, byte data)
         {
-            vertices = sideVertices[data & 0b0_0011];
-            textureIndices = this.textureIndices;
-            indices = this.indices;
+            Vector3 forwardMovement = Vector3.Dot(entity.Movement, entity.Forward) * entity.Forward;
 
-            tint = TintColor.None;
-
-            return 8;
+            if (forwardMovement.LengthSquared > 0.1f && (Orientation)(data & 0b0_0011) == (-forwardMovement).ToOrientation())
+            {
+                // Check if entity looks up or down
+                if (Vector3.CalculateAngle(entity.LookingDirection, Vector3.UnitY) < MathHelper.PiOver2)
+                {
+                    entity.Velocity = new Vector3(entity.Velocity.X, climbingVelocity, entity.Velocity.Z);
+                }
+                else
+                {
+                    entity.Velocity = new Vector3(entity.Velocity.X, -climbingVelocity, entity.Velocity.Z);
+                }
+            }
+            else
+            {
+                entity.Velocity = new Vector3(entity.Velocity.X, MathHelper.Clamp(entity.Velocity.Y, -slidingVelocity, float.MaxValue), entity.Velocity.Z);
+            }
         }
 
-        public override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data)
         {
             Orientation orientation = (Orientation)(data & 0b0_0011);
 
@@ -209,29 +230,6 @@ namespace VoxelGame.Logic.Blocks
             if (orientation == Orientation.West && (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull != true))
             {
                 Destroy(x, y, z, null);
-            }
-        }
-
-        public override void EntityCollision(PhysicsEntity entity, int x, int y, int z)
-        {
-            Vector3 forwardMovement = Vector3.Dot(entity.Movement, entity.Forward) * entity.Forward;
-
-            Game.World.GetBlock(x, y, z, out byte data);
-            if (forwardMovement.LengthSquared > 0.1f && (Orientation)(data & 0b0_0011) == (-forwardMovement).ToOrientation())
-            {
-                // Check if entity looks up or down
-                if (Vector3.CalculateAngle(entity.LookingDirection, Vector3.UnitY) < MathHelper.PiOver2)
-                {
-                    entity.Velocity = new Vector3(entity.Velocity.X, climbingVelocity, entity.Velocity.Z);
-                }
-                else
-                {
-                    entity.Velocity = new Vector3(entity.Velocity.X, -climbingVelocity, entity.Velocity.Z);
-                }
-            }
-            else
-            {
-                entity.Velocity = new Vector3(entity.Velocity.X, MathHelper.Clamp(entity.Velocity.Y, -slidingVelocity, float.MaxValue), entity.Velocity.Z);
             }
         }
 

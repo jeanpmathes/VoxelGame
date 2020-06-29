@@ -29,13 +29,15 @@ namespace VoxelGame.Logic.Blocks
             this.maxHeight = maxHeight;
         }
 
-        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
+        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
         {
             Block down = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
 
-            if (down == requiredGround || down == this)
+            if (replaceable == true && (down == requiredGround || down == this))
             {
-                return base.Place(x, y, z, entity);
+                Game.World.SetBlock(this, 0, x, y, z);
+
+                return true;
             }
             else
             {
@@ -43,7 +45,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data)
         {
             Block down = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
 
@@ -53,7 +55,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override void RandomUpdate(int x, int y, int z, byte data)
+        internal override void RandomUpdate(int x, int y, int z, byte data)
         {
             int age = data & 0b0_0111;
 

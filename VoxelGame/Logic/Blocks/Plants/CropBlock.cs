@@ -122,13 +122,8 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        public override BoundingBox GetBoundingBox(int x, int y, int z)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
         {
-            if (Game.World.GetBlock(x, y, z, out byte data) != this)
-            {
-                return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f));
-            }
-
             switch ((GrowthStage)(data & 0b0_0111))
             {
                 case GrowthStage.Initial:
@@ -157,18 +152,6 @@ namespace VoxelGame.Logic.Blocks
             return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f));
         }
 
-        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
-        {
-            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true || !(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
-            {
-                return false;
-            }
-
-            Game.World.SetBlock(this, (byte)GrowthStage.Initial, x, y, z);
-
-            return true;
-        }
-
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
             vertices = this.vertices;
@@ -185,7 +168,19 @@ namespace VoxelGame.Logic.Blocks
             return 24;
         }
 
-        public override void BlockUpdate(int x, int y, int z, byte data)
+        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        {
+            if (replaceable != true || !(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
+            {
+                return false;
+            }
+
+            Game.World.SetBlock(this, (byte)GrowthStage.Initial, x, y, z);
+
+            return true;
+        }
+
+        internal override void BlockUpdate(int x, int y, int z, byte data)
         {
             if (!(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
             {
@@ -193,7 +188,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override void RandomUpdate(int x, int y, int z, byte data)
+        internal override void RandomUpdate(int x, int y, int z, byte data)
         {
             GrowthStage stage = (GrowthStage)(data & 0b0_0111);
 

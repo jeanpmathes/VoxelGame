@@ -117,13 +117,8 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        public override BoundingBox GetBoundingBox(int x, int y, int z)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
         {
-            if (Game.World.GetBlock(x, y, z, out byte data) != this)
-            {
-                return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f));
-            }
-
             GrowthStage stage = (GrowthStage)(data & 0b0_0111);
 
             if (((data & 0b0_1000) == 0 && stage == GrowthStage.Initial) ||
@@ -135,35 +130,6 @@ namespace VoxelGame.Logic.Blocks
             {
                 return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f));
             }
-        }
-
-        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
-        {
-            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true || !(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
-            {
-                return false;
-            }
-
-            Game.World.SetBlock(this, (byte)GrowthStage.Initial, x, y, z);
-
-            return true;
-        }
-
-        public override bool Destroy(int x, int y, int z, PhysicsEntity? entity)
-        {
-            if (Game.World.GetBlock(x, y, z, out byte data) != this)
-            {
-                return false;
-            }
-
-            Game.World.SetBlock(Block.AIR, 0, x, y, z);
-
-            if ((data & 0b0_0111) >= (int)GrowthStage.Fourth)
-            {
-                Game.World.SetBlock(Block.AIR, 0, x, y + ((data & 0b0_1000) == 0 ? 1 : -1), z);
-            }
-
-            return true;
         }
 
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
@@ -194,7 +160,31 @@ namespace VoxelGame.Logic.Blocks
             return 16;
         }
 
-        public override void BlockUpdate(int x, int y, int z, byte data)
+        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        {
+            if (replaceable != true || !(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
+            {
+                return false;
+            }
+
+            Game.World.SetBlock(this, (byte)GrowthStage.Initial, x, y, z);
+
+            return true;
+        }
+
+        protected override bool Destroy(int x, int y, int z, byte data, PhysicsEntity? entity)
+        {
+            Game.World.SetBlock(Block.AIR, 0, x, y, z);
+
+            if ((data & 0b0_0111) >= (int)GrowthStage.Fourth)
+            {
+                Game.World.SetBlock(Block.AIR, 0, x, y + ((data & 0b0_1000) == 0 ? 1 : -1), z);
+            }
+
+            return true;
+        }
+
+        internal override void BlockUpdate(int x, int y, int z, byte data)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
             if ((data & 0b0_1000) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
@@ -203,7 +193,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override void RandomUpdate(int x, int y, int z, byte data)
+        internal override void RandomUpdate(int x, int y, int z, byte data)
         {
             GrowthStage stage = (GrowthStage)(data & 0b0_0111);
 
@@ -238,30 +228,37 @@ namespace VoxelGame.Logic.Blocks
             /// One Block tall.
             /// </summary>
             Dead,
+
             /// <summary>
             /// One Block tall.
             /// </summary>
             Initial,
+
             /// <summary>
             /// One Block tall.
             /// </summary>
             Second,
+
             /// <summary>
             /// One Block tall.
             /// </summary>
             Third,
+
             /// <summary>
             /// Two blocks tall.
             /// </summary>
             Fourth,
+
             /// <summary>
             /// Two blocks tall.
             /// </summary>
             Fifth,
+
             /// <summary>
             /// Two blocks tall.
             /// </summary>
             Sixth,
+
             /// <summary>
             /// Two blocks tall.
             /// </summary>

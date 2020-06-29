@@ -38,26 +38,6 @@ namespace VoxelGame.Logic.Blocks
 #pragma warning restore CA2214 // Do not call overridable methods in constructors
         }
 
-        protected virtual void Setup(string modelName)
-        {
-            BlockModel model = BlockModel.Load(modelName);
-
-            model.ToData(out vertices, out texIndices, out indices);
-            vertCount = (uint)(model.VertexCount);
-        }
-
-        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
-        {
-            if ((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR).IsSolidAndFull)
-            {
-                return base.Place(x, y, z, entity);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
             vertices = this.vertices;
@@ -69,7 +49,29 @@ namespace VoxelGame.Logic.Blocks
             return vertCount;
         }
 
-        public override void BlockUpdate(int x, int y, int z, byte data)
+        protected virtual void Setup(string modelName)
+        {
+            BlockModel model = BlockModel.Load(modelName);
+
+            model.ToData(out vertices, out texIndices, out indices);
+            vertCount = (uint)(model.VertexCount);
+        }
+
+        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        {
+            if (replaceable == true && (Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR).IsSolidAndFull)
+            {
+                Game.World.SetBlock(this, 0, x, y, z);
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        internal override void BlockUpdate(int x, int y, int z, byte data)
         {
             if (!(Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR).IsSolidAndFull)
             {

@@ -80,34 +80,6 @@ namespace VoxelGame.Logic.Blocks
             topTexIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
         }
 
-        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
-        {
-            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable != true || !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
-            {
-                return false;
-            }
-
-            Game.World.SetBlock(this, 0, x, y, z);
-            Game.World.SetBlock(this, 1, x, y + 1, z);
-
-            return true;
-        }
-
-        public override bool Destroy(int x, int y, int z, PhysicsEntity? entity)
-        {
-            if (Game.World.GetBlock(x, y, z, out byte data) != this)
-            {
-                return false;
-            }
-
-            bool isBase = (data & 0b1) == 0;
-
-            Game.World.SetBlock(Block.AIR, 0, x, y, z);
-            Game.World.SetBlock(Block.AIR, 0, x, y + (isBase ? 1 : -1), z);
-
-            return true;
-        }
-
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
             vertices = this.vertices;
@@ -118,7 +90,30 @@ namespace VoxelGame.Logic.Blocks
             return 8;
         }
 
-        public override void BlockUpdate(int x, int y, int z, byte data)
+        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        {
+            if (replaceable != true || Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable != true || !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
+            {
+                return false;
+            }
+
+            Game.World.SetBlock(this, 0, x, y, z);
+            Game.World.SetBlock(this, 1, x, y + 1, z);
+
+            return true;
+        }
+
+        protected override bool Destroy(int x, int y, int z, byte data, PhysicsEntity? entity)
+        {
+            bool isBase = (data & 0b1) == 0;
+
+            Game.World.SetBlock(Block.AIR, 0, x, y, z);
+            Game.World.SetBlock(Block.AIR, 0, x, y + (isBase ? 1 : -1), z);
+
+            return true;
+        }
+
+        internal override void BlockUpdate(int x, int y, int z, byte data)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
             if ((data & 0b1) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))

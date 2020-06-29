@@ -128,10 +128,8 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override BoundingBox GetBoundingBox(int x, int y, int z)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
         {
-            Game.World.GetBlock(x, y, z, out byte data);
-
             bool north = (data & 0b0_1000) != 0;
             bool east = (data & 0b0_0100) != 0;
             bool south = (data & 0b0_0010) != 0;
@@ -180,29 +178,6 @@ namespace VoxelGame.Logic.Blocks
 
                 return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.25f, 0.5f, 0.25f), children);
             }
-        }
-
-        public override bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
-        {
-            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true)
-            {
-                return false;
-            }
-
-            byte data = 0;
-            // Check the neighboring blocks
-            if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable) // North
-                data |= 0b0_1000;
-            if (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable) // East
-                data |= 0b0_0100;
-            if (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable) // South
-                data |= 0b0_0010;
-            if (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable) // West
-                data |= 0b0_0001;
-
-            Game.World.SetBlock(this, data, x, y, z);
-
-            return true;
         }
 
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
@@ -268,7 +243,30 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override void BlockUpdate(int x, int y, int z, byte data)
+        protected override bool Place(int x, int y, int z, bool? replaceable, Entities.PhysicsEntity? entity)
+        {
+            if (replaceable != true)
+            {
+                return false;
+            }
+
+            byte data = 0;
+            // Check the neighboring blocks
+            if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable) // North
+                data |= 0b0_1000;
+            if (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable) // East
+                data |= 0b0_0100;
+            if (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable) // South
+                data |= 0b0_0010;
+            if (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable) // West
+                data |= 0b0_0001;
+
+            Game.World.SetBlock(this, data, x, y, z);
+
+            return true;
+        }
+
+        internal override void BlockUpdate(int x, int y, int z, byte data)
         {
             byte newData = 0;
             // Check the neighboring blocks

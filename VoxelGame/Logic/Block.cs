@@ -225,10 +225,39 @@ namespace VoxelGame.Logic
             }
         }
 
-        public virtual BoundingBox GetBoundingBox(int x, int y, int z)
+        /// <summary>
+        /// Returns the bounding box of this block if it would be at the given position.
+        /// </summary>
+        /// <param name="x">The x position.</param>
+        /// <param name="y">The y position.</param>
+        /// <param name="z">The z position.</param>
+        /// <returns>The bounding box.</returns>
+        public BoundingBox GetBoundingBox(int x, int y, int z)
+        {
+            if (Game.World.GetBlock(x, y, z, out byte data) == this)
+            {
+                return GetBoundingBox(x, y, z, data);
+            }
+            else
+            {
+                return new BoundingBox(boundingBox.Center + new Vector3(x, y, z), boundingBox.Extents);
+            }
+        }
+
+        protected virtual BoundingBox GetBoundingBox(int x, int y, int z, byte data)
         {
             return new BoundingBox(boundingBox.Center + new Vector3(x, y, z), boundingBox.Extents);
         }
+
+        /// <summary>
+        /// Returns the mesh of a block side at a certain position.
+        /// </summary>
+        /// <param name="side">The side of the block that is required.</param>
+        /// <param name="data">The block data of the block at the position.</param>
+        /// <param name="vertices">Vertices of the mesh. Every vertex is made up of 8 floats: XYZ, UV, NOP</param>
+        /// <param name="indices">The indices of the mesh that determine how triangles are constructed.</param>
+        /// <returns>The amount of vertices in the mesh.</returns>
+        public abstract uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
         /// <summary>
         /// Tries to place a block in the world.
@@ -238,9 +267,14 @@ namespace VoxelGame.Logic
         /// <param name="z">The z position where a block should be placed.</param>
         /// <param name="entity">The entity that tries to place the block. May be null.</param>
         /// <returns>Returns true if placing the block was successful.</returns>
-        public virtual bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
+        public bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
-            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true)
+            return Place(x, y, z, Game.World.GetBlock(x, y, z, out _)?.IsReplaceable, entity);
+        }
+
+        protected virtual bool Place(int x, int y, int z, bool? replaceable, Entities.PhysicsEntity? entity)
+        {
+            if (replaceable != true)
             {
                 return false;
             }
@@ -258,37 +292,23 @@ namespace VoxelGame.Logic
         /// <param name="z">The z position of the block to destroy.</param>
         /// <param name="entity">The entity which caused the destruction, or null if no entity caused it.</param>
         /// <returns>Returns true if the block has been destroyed.</returns>
-        public virtual bool Destroy(int x, int y, int z, Entities.PhysicsEntity? entity)
+        public bool Destroy(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
-            if (Game.World.GetBlock(x, y, z, out _) != this)
+            if (Game.World.GetBlock(x, y, z, out byte data) == this)
+            {
+                return Destroy(x, y, z, data, entity);
+            }
+            else
             {
                 return false;
             }
+        }
 
+        protected virtual bool Destroy(int x, int y, int z, byte data, Entities.PhysicsEntity? entity)
+        {
             Game.World.SetBlock(Block.AIR, 0, x, y, z);
 
             return true;
-        }
-
-        /// <summary>
-        /// Returns the mesh of a block side at a certain position.
-        /// </summary>
-        /// <param name="side">The side of the block that is required.</param>
-        /// <param name="data">The block data of the block at the position.</param>
-        /// <param name="vertices">Vertices of the mesh. Every vertex is made up of 8 floats: XYZ, UV, NOP</param>
-        /// <param name="indices">The indices of the mesh that determine how triangles are constructed.</param>
-        /// <returns>The amount of vertices in the mesh.</returns>
-        public abstract uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
-
-        /// <summary>
-        /// This method is called on blocks next to a position that was changed.
-        /// </summary>
-        /// <param name="x">The x position of the block next to the changed position.</param>
-        /// <param name="y">The y position of the block next to the changed position.</param>
-        /// <param name="z">The z position of the block next to the changed position.</param>
-        /// <param name="data">The data of the block next to the changed position.</param>
-        public virtual void BlockUpdate(int x, int y, int z, byte data)
-        {
         }
 
         /// <summary>
@@ -298,14 +318,33 @@ namespace VoxelGame.Logic
         /// <param name="x">The x position of the block the entity collided with.</param>
         /// <param name="y">The y position of the block the entity collided with.</param>
         /// <param name="z">The z position of the block the entity collided with.</param>
-        public virtual void EntityCollision(Entities.PhysicsEntity entity, int x, int y, int z)
+        public void EntityCollision(Entities.PhysicsEntity entity, int x, int y, int z)
+        {
+            if (Game.World.GetBlock(x, y, z, out byte data) == this)
+            {
+                EntityCollision(entity, x, y, z, data);
+            }
+        }
+
+        protected virtual void EntityCollision(Entities.PhysicsEntity entity, int x, int y, int z, byte data)
+        {
+        }
+
+        /// <summary>
+        /// This method is called on blocks next to a position that was changed.
+        /// </summary>
+        /// <param name="x">The x position of the block next to the changed position.</param>
+        /// <param name="y">The y position of the block next to the changed position.</param>
+        /// <param name="z">The z position of the block next to the changed position.</param>
+        /// <param name="data">The data of the block next to the changed position.</param>
+        internal virtual void BlockUpdate(int x, int y, int z, byte data)
         {
         }
 
         /// <summary>
         /// This method is called randomly on some blocks every update.
         /// </summary>
-        public virtual void RandomUpdate(int x, int y, int z, byte data)
+        internal virtual void RandomUpdate(int x, int y, int z, byte data)
         {
         }
 

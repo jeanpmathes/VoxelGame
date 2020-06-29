@@ -22,7 +22,7 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        public override void RandomUpdate(int x, int y, int z, byte data)
+        internal override void RandomUpdate(int x, int y, int z, byte data)
         {
             // Check if this block can be grass
             if ((Game.World.GetBlock(x, y + 1, z, out _) ?? Block.AIR).IsSolidAndFull)

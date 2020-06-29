@@ -28,21 +28,6 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        public override bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
-        {
-            // Check the block under the placement position.
-            Block ground = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
-
-            if (ground is IPlantable)
-            {
-                return base.Place(x, y, z, entity);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
             tint = TintColor.Neutral;
@@ -50,7 +35,24 @@ namespace VoxelGame.Logic.Blocks
             return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
         }
 
-        public override void BlockUpdate(int x, int y, int z, byte data)
+        protected override bool Place(int x, int y, int z, bool? replaceable, Entities.PhysicsEntity? entity)
+        {
+            // Check the block under the placement position.
+            Block ground = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
+
+            if (replaceable == true && ground is IPlantable)
+            {
+                Game.World.SetBlock(this, 0, x, y, z);
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        internal override void BlockUpdate(int x, int y, int z, byte data)
         {
             // Check the block under this block
             Block ground = (Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR);

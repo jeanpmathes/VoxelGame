@@ -25,9 +25,16 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        public override bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
-            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true)
+            tint = BlockToTintColor((BlockColor)(0b0_0111 & data));
+
+            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
+        }
+
+        protected override bool Place(int x, int y, int z, bool? replaceable, Entities.PhysicsEntity? entity)
+        {
+            if (replaceable != true)
             {
                 return false;
             }
@@ -35,13 +42,6 @@ namespace VoxelGame.Logic.Blocks
             Game.World.SetBlock(this, (byte)(x & 0b111), x, y, z);
 
             return true;
-        }
-
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
-        {
-            tint = BlockToTintColor((BlockColor)(0b0_0111 & data));
-
-            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
         }
 
         protected enum BlockColor

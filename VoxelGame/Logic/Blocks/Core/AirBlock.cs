@@ -32,16 +32,6 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        public override bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
-        {
-            return false;
-        }
-
-        public override bool Destroy(int x, int y, int z, Entities.PhysicsEntity? entity)
-        {
-            return false;
-        }
-
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indicies, out Visuals.TintColor tint)
         {
             vertices = Array.Empty<float>();
@@ -50,6 +40,16 @@ namespace VoxelGame.Logic.Blocks
             tint = Visuals.TintColor.None;
 
             return 0;
+        }
+
+        protected override bool Place(int x, int y, int z, bool? replaceable, Entities.PhysicsEntity? entity)
+        {
+            return false;
+        }
+
+        protected override bool Destroy(int x, int y, int z, byte data, Entities.PhysicsEntity? entity)
+        {
+            return false;
         }
     }
 }

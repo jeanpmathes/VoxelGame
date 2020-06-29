@@ -32,7 +32,7 @@ namespace VoxelGame.Logic.Blocks
             return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
         }
 
-        public override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data)
         {
             Orientation orientation = (Orientation)(data & 0b0_0011);
 
@@ -63,7 +63,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override void RandomUpdate(int x, int y, int z, byte data)
+        internal override void RandomUpdate(int x, int y, int z, byte data)
         {
             Orientation orientation = (Orientation)(data & 0b0_0011);
             int age = (data & 0b1_1100) >> 2;

@@ -155,9 +155,9 @@ namespace VoxelGame.Logic.Blocks
             return 4;
         }
 
-        public override bool Place(int x, int y, int z, PhysicsEntity? entity)
+        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
         {
-            if (Game.World.GetBlock(x, y, z, out _)?.IsReplaceable != true)
+            if (replaceable != true)
             {
                 return false;
             }
