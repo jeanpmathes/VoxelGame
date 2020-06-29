@@ -29,5 +29,17 @@ namespace VoxelGame.Utilities
                 return (vector.X > 0) ? Orientation.East : Orientation.West;
             }
         }
+
+        public static Orientation Invert(this Orientation orientation)
+        {
+            return orientation switch
+            {
+                Orientation.North => Orientation.South,
+                Orientation.East => Orientation.West,
+                Orientation.South => Orientation.North,
+                Orientation.West => Orientation.East,
+                _ => Orientation.North
+            };
+        }
     }
 }

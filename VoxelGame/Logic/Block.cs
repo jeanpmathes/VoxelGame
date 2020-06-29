@@ -132,7 +132,7 @@ namespace VoxelGame.Logic
             PAVING_STONE = new ConstructionBlock(Language.PavingStone, TextureLayout.Uniform("paving_stone"));
             WALL_RUBBLE = new WallBlock(Language.RubbleWall, "rubble", "wall_post", "wall_extension", "wall_extension_straight");
             WALL_BRICKS = new WallBlock(Language.BrickWall, "bricks", "wall_post", "wall_extension", "wall_extension_straight");
-            BED = new BedBlock(Language.Bed, "bed", new BoundingBox(new Vector3(0.5f, 0.21875f, 0.5f), new Vector3(0.5f, 0.21875f, 0.5f)));
+            BED = new BedBlock(Language.Bed, "bed");
         }
 
         #endregion STATIC BLOCK MANAGMENT

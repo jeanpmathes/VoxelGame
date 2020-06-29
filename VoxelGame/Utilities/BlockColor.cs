@@ -8,7 +8,7 @@ using VoxelGame.Visuals;
 namespace VoxelGame.Utilities
 {
     /// <summary>
-    /// A set of colors that can be stored in three bits.
+    /// A set of colors that can be stored in three bits or, with less colors, in two bits.
     /// </summary>
     public enum BlockColor
     {

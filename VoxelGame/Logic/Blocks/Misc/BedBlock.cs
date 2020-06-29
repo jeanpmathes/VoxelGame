@@ -7,6 +7,7 @@ using OpenToolkit.Mathematics;
 using VoxelGame.Entities;
 using VoxelGame.Visuals;
 using VoxelGame.Utilities;
+using VoxelGame.Physics;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -31,7 +32,7 @@ namespace VoxelGame.Logic.Blocks
         private protected uint topVertCount;
         private protected uint bottomVertCount;
 
-        public BedBlock(string name, string model, Physics.BoundingBox boundingBox) :
+        public BedBlock(string name, string model) :
             base(
                 name,
                 isFull: false,
@@ -41,7 +42,7 @@ namespace VoxelGame.Logic.Blocks
                 recieveCollisions: false,
                 isTrigger: false,
                 isReplaceable: false,
-                boundingBox,
+                new BoundingBox(new Vector3(0.5f, 0.21875f, 0.5f), new Vector3(0.5f, 0.21875f, 0.5f)),
                 TargetBuffer.Complex)
         {
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
@@ -73,6 +74,47 @@ namespace VoxelGame.Logic.Blocks
                     bottom.ToData(out bottomVertices[i], out _, out _);
                 }
             }
+        }
+
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
+        {
+            bool isBase = (data & 0b1) == 1;
+            Orientation orientation = (Orientation)((data & 0b0_0110) >> 1);
+
+            BoundingBox[] legs = new BoundingBox[2];
+
+            switch (isBase ? orientation : orientation.Invert())
+            {
+                case Orientation.North:
+
+                    legs[0] = new BoundingBox(new Vector3(0.09375f, 0.09375f, 0.09375f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
+                    legs[1] = new BoundingBox(new Vector3(0.90625f, 0.09375f, 0.09375f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
+
+                    break;
+
+                case Orientation.East:
+
+                    legs[0] = new BoundingBox(new Vector3(0.90625f, 0.09375f, 0.09375f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
+                    legs[1] = new BoundingBox(new Vector3(0.90625f, 0.09375f, 0.90625f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
+
+                    break;
+
+                case Orientation.South:
+
+                    legs[0] = new BoundingBox(new Vector3(0.09375f, 0.09375f, 0.90625f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
+                    legs[1] = new BoundingBox(new Vector3(0.90625f, 0.09375f, 0.90625f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
+
+                    break;
+
+                case Orientation.West:
+
+                    legs[0] = new BoundingBox(new Vector3(0.09375f, 0.09375f, 0.09375f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
+                    legs[1] = new BoundingBox(new Vector3(0.09375f, 0.09375f, 0.90625f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
+
+                    break;
+            }
+
+            return new BoundingBox(new Vector3(0.5f, 0.3125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.125f, 0.5f), legs);
         }
 
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
