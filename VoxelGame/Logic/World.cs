@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using VoxelGame.Collections;
 using VoxelGame.Rendering;
 using VoxelGame.WorldGeneration;
+using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Logic
 {
@@ -191,13 +192,7 @@ namespace VoxelGame.Logic
 
         private void Setup()
         {
-            for (int x = ChunkExtents / -2; x < (ChunkExtents / 2) + 1; x++)
-            {
-                for (int z = ChunkExtents / -2; z < (ChunkExtents / 2) + 1; z++)
-                {
-                    positionsToActivate.Add((x, z));
-                }
-            }
+            positionsToActivate.Add((0, 0));
         }
 
         public void FrameRender()
@@ -808,6 +803,15 @@ namespace VoxelGame.Logic
         }
 
         /// <summary>
+        /// Sets the spawn position of this world.
+        /// </summary>
+        /// <param name="position">The position to set as spawn.</param>
+        public void SetSpawnPosition(Vector3 position)
+        {
+            Information.SpawnInformation = new SpawnInformation(position);
+        }
+
+        /// <summary>
         /// Saves all active chunks that are not currently saved.
         /// </summary>
         /// <returns>A task that represents all tasks saving the chunks.</returns>
@@ -827,7 +831,7 @@ namespace VoxelGame.Logic
 
             Information.Version = Program.Version;
 
-            savingTasks.Add(Task.Run( () => Information.Save(Path.Combine(worldDirectory, "meta.json"))));
+            savingTasks.Add(Task.Run(() => Information.Save(Path.Combine(worldDirectory, "meta.json"))));
 
             return Task.WhenAll(savingTasks);
         }

@@ -166,6 +166,8 @@ namespace VoxelGame.Logic.Blocks
                     Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.North << 1) | 0), x, y, z);
                     Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.North << 1) | 1), x, y, z - 1);
 
+                    Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
+
                     return true;
 
                 case Orientation.East:
@@ -177,6 +179,8 @@ namespace VoxelGame.Logic.Blocks
 
                     Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.East << 1) | 0), x, y, z);
                     Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.East << 1) | 1), x + 1, y, z);
+
+                    Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
 
                     return true;
 
@@ -190,6 +194,8 @@ namespace VoxelGame.Logic.Blocks
                     Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.South << 1) | 0), x, y, z);
                     Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.South << 1) | 1), x, y, z + 1);
 
+                    Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
+
                     return true;
 
                 case Orientation.West:
@@ -201,6 +207,8 @@ namespace VoxelGame.Logic.Blocks
 
                     Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.West << 1) | 0), x, y, z);
                     Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.West << 1) | 1), x - 1, y, z);
+
+                    Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
 
                     return true;
 

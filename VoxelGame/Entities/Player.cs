@@ -64,12 +64,12 @@ namespace VoxelGame.Entities
 
         private static readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
 
-        public Player(float mass, float drag, Vector3 startPosition, Camera camera, BoundingBox boundingBox) : base(mass, drag, boundingBox)
+        public Player(float mass, float drag, Camera camera, BoundingBox boundingBox) : base(mass, drag, boundingBox)
         {
             this.camera = camera ?? throw new ArgumentNullException(paramName: nameof(camera));
 
-            Position = startPosition;
-            camera.Position = startPosition;
+            Position = Game.World.Information.SpawnInformation.Position;
+            camera.Position = Position;
 
             selectionRenderer = new BoxRenderer();
 
@@ -77,16 +77,16 @@ namespace VoxelGame.Entities
 
             // Request chunks around current position
 
-            //int currentChunkX = (int)Math.Floor(Position.X) / Section.SectionSize;
-            //int currentChunkZ = (int)Math.Floor(Position.Z) / Section.SectionSize;
+            ChunkX = (int)Math.Floor(Position.X) / Section.SectionSize;
+            ChunkZ = (int)Math.Floor(Position.Z) / Section.SectionSize;
 
-            //for (int x = -RenderDistance; x <= RenderDistance; x++)
-            //{
-            //    for (int z = -RenderDistance; z <= RenderDistance; z++)
-            //    {
-            //        Game.World.RequestChunk(currentChunkX + x, currentChunkZ + z);
-            //    }
-            //}
+            for (int x = -RenderDistance; x <= RenderDistance; x++)
+            {
+                for (int z = -RenderDistance; z <= RenderDistance; z++)
+                {
+                    Game.World.RequestChunk(ChunkX + x, ChunkZ + z);
+                }
+            }
         }
 
         /// <summary>
