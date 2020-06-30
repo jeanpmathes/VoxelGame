@@ -249,6 +249,9 @@
   <data name="StartingGame" xml:space="preserve">
     <value>Starte Spiel...</value>
   </data>
+  <data name="Steel" xml:space="preserve">
+    <value>Stahl</value>
+  </data>
   <data name="Stone" xml:space="preserve">
     <value>Stein</value>
   </data>

@@ -159,6 +159,9 @@
     <None Update="Resources\Textures\paving_stone.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Textures\steel.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\Textures\vase.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

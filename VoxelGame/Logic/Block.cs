@@ -62,6 +62,7 @@ namespace VoxelGame.Logic
         public static Block WALL_RUBBLE = null!;
         public static Block WALL_BRICKS = null!;
         public static Block BED = null!;
+        public static Block STEEL = null!;
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
         public const int BlockLimit = 2048;
@@ -133,6 +134,7 @@ namespace VoxelGame.Logic
             WALL_RUBBLE = new WallBlock(Language.RubbleWall, "rubble", "wall_post", "wall_extension", "wall_extension_straight");
             WALL_BRICKS = new WallBlock(Language.BrickWall, "bricks", "wall_post", "wall_extension", "wall_extension_straight");
             BED = new BedBlock(Language.Bed, "bed");
+            STEEL = new ConstructionBlock(Language.Steel, TextureLayout.Uniform("steel"));
         }
 
         #endregion STATIC BLOCK MANAGMENT
