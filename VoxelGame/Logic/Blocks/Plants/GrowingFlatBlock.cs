@@ -3,8 +3,8 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using VoxelGame.Visuals;
 using VoxelGame.Utilities;
+using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
 {

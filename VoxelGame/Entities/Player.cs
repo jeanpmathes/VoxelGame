@@ -5,12 +5,12 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common.Input;
-using VoxelGame.Resources.Language;
 using System;
 using System.Configuration;
 using VoxelGame.Logic;
 using VoxelGame.Physics;
 using VoxelGame.Rendering;
+using VoxelGame.Resources.Language;
 
 namespace VoxelGame.Entities
 {

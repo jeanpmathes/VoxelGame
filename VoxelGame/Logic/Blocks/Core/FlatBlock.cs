@@ -6,8 +6,8 @@
 using OpenToolkit.Mathematics;
 using VoxelGame.Entities;
 using VoxelGame.Physics;
-using VoxelGame.Visuals;
 using VoxelGame.Utilities;
+using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
 {

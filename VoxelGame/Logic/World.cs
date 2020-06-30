@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using VoxelGame.Resources.Language;
+using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,8 +11,8 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using VoxelGame.Collections;
 using VoxelGame.Rendering;
+using VoxelGame.Resources.Language;
 using VoxelGame.WorldGeneration;
-using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Logic
 {

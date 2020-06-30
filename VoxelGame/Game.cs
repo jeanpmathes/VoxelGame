@@ -7,13 +7,13 @@ using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Common.Input;
 using OpenToolkit.Windowing.Desktop;
-using VoxelGame.Resources.Language;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using VoxelGame.Entities;
 using VoxelGame.Logic;
 using VoxelGame.Rendering;
+using VoxelGame.Resources.Language;
 
 namespace VoxelGame
 {

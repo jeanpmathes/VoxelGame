@@ -7,7 +7,6 @@ using OpenToolkit.Mathematics;
 using System;
 using System.IO;
 using System.Text.Json;
-using System.Xml.Serialization;
 
 namespace VoxelGame.Logic
 {

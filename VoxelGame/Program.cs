@@ -4,8 +4,8 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Desktop;
-using VoxelGame.Resources.Language;
 using System;
+using VoxelGame.Resources.Language;
 
 namespace VoxelGame
 {

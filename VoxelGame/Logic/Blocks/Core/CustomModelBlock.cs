@@ -3,7 +3,6 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
 using VoxelGame.Entities;
 using VoxelGame.Visuals;
 

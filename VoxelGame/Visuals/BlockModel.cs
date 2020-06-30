@@ -175,7 +175,7 @@ namespace VoxelGame.Visuals
 
         public void Save(string name)
         {
-            JsonSerializerOptions options = new JsonSerializerOptions {  IgnoreReadOnlyProperties = true, WriteIndented = true };
+            JsonSerializerOptions options = new JsonSerializerOptions { IgnoreReadOnlyProperties = true, WriteIndented = true };
 
             string json = JsonSerializer.Serialize(this, options);
             File.WriteAllText(Path.Combine(path, name + ".json"), json);
@@ -243,6 +243,7 @@ namespace VoxelGame.Visuals
     }
 
 #pragma warning disable CA1815 // Override equals and operator equals on value types
+
     public struct Quad
 #pragma warning restore CA1815 // Override equals and operator equals on value types
     {
@@ -290,6 +291,7 @@ namespace VoxelGame.Visuals
     }
 
 #pragma warning disable CA1815 // Override equals and operator equals on value types
+
     public struct Vertex
 #pragma warning restore CA1815 // Override equals and operator equals on value types
     {

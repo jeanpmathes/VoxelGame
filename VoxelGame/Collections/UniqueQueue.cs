@@ -1,6 +1,6 @@
 ﻿// <copyright file="UniqueQueue.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
 using System.Collections.Generic;

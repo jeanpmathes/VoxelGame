@@ -3,12 +3,11 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using VoxelGame.Visuals;
-using VoxelGame.Physics;
-using System;
+using OpenToolkit.Mathematics;
 using VoxelGame.Entities;
 using VoxelGame.Logic.Interfaces;
-using OpenToolkit.Mathematics;
+using VoxelGame.Physics;
+using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
 {

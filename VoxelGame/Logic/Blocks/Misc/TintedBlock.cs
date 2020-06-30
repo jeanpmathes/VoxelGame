@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using VoxelGame.Logic.Interfaces;
-using VoxelGame.Visuals;
 using VoxelGame.Utilities;
+using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
 {

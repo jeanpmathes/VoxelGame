@@ -5,9 +5,9 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using VoxelGame.Entities;
-using VoxelGame.Visuals;
-using VoxelGame.Utilities;
 using VoxelGame.Physics;
+using VoxelGame.Utilities;
+using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
 {
