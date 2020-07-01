@@ -20,17 +20,17 @@ namespace VoxelGame.Logic.Blocks
     // p = position
     public class BedBlock : Block
     {
-        private protected float[][] topVertices = new float[4][];
-        private protected float[][] bottomVertices = new float[4][];
+        private protected float[][] verticesHead = new float[4][];
+        private protected float[][] verticesEnd = new float[4][];
 
-        private protected int[] topTextureIndices = null!;
-        private protected int[] bottomTextureIndices = null!;
+        private protected int[] texIndicesHead = null!;
+        private protected int[] texIndicesEnd = null!;
 
-        private protected uint[] topIndices = null!;
-        private protected uint[] bottomIndices = null!;
+        private protected uint[] indicesHead = null!;
+        private protected uint[] indicesEnd = null!;
 
-        private protected uint topVertCount;
-        private protected uint bottomVertCount;
+        private protected uint vertexCountHead;
+        private protected uint vertexCountEnd;
 
         public BedBlock(string name, string model) :
             base(
@@ -55,23 +55,23 @@ namespace VoxelGame.Logic.Blocks
             model.PlaneSplit(Vector3.UnitZ, Vector3.UnitZ, out BlockModel top, out BlockModel bottom);
             bottom.Move(-Vector3.UnitZ);
 
-            topVertCount = (uint)top.VertexCount;
-            bottomVertCount = (uint)bottom.VertexCount;
+            vertexCountHead = (uint)top.VertexCount;
+            vertexCountEnd = (uint)bottom.VertexCount;
 
             for (int i = 0; i < 4; i++)
             {
                 if (i == 0)
                 {
-                    top.ToData(out topVertices[i], out topTextureIndices, out topIndices);
-                    bottom.ToData(out bottomVertices[i], out bottomTextureIndices, out bottomIndices);
+                    top.ToData(out verticesHead[i], out texIndicesHead, out indicesHead);
+                    bottom.ToData(out verticesEnd[i], out texIndicesEnd, out indicesEnd);
                 }
                 else
                 {
                     top.RotateY(1);
-                    top.ToData(out topVertices[i], out _, out _);
+                    top.ToData(out verticesHead[i], out _, out _);
 
                     bottom.RotateY(1);
-                    bottom.ToData(out bottomVertices[i], out _, out _);
+                    bottom.ToData(out verticesEnd[i], out _, out _);
                 }
             }
         }
@@ -119,29 +119,29 @@ namespace VoxelGame.Logic.Blocks
 
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
-            bool isBase = (data & 0b1) == 1;
+            bool isHead = (data & 0b1) == 1;
             int orientation = (data & 0b0_0110) >> 1;
             BlockColor color = (BlockColor)((data & 0b1_1000) >> 3);
 
-            if (isBase)
+            if (isHead)
             {
-                vertices = topVertices[orientation];
-                textureIndices = topTextureIndices;
-                indices = topIndices;
+                vertices = verticesHead[orientation];
+                textureIndices = texIndicesHead;
+                indices = indicesHead;
 
                 tint = color.ToTintColor();
 
-                return topVertCount;
+                return vertexCountHead;
             }
             else
             {
-                vertices = bottomVertices[orientation];
-                textureIndices = bottomTextureIndices;
-                indices = bottomIndices;
+                vertices = verticesEnd[orientation];
+                textureIndices = texIndicesEnd;
+                indices = indicesEnd;
 
                 tint = color.ToTintColor();
 
-                return bottomVertCount;
+                return vertexCountEnd;
             }
         }
 
@@ -219,30 +219,30 @@ namespace VoxelGame.Logic.Blocks
 
         protected override bool Destroy(int x, int y, int z, byte data, PhysicsEntity? entity)
         {
-            bool isBase = (data & 0b1) == 1;
+            bool isHead = (data & 0b1) == 1;
 
             switch ((Orientation)((data & 0b0_0110) >> 1))
             {
                 case Orientation.North:
 
-                    isBase = !isBase;
+                    isHead = !isHead;
                     goto case Orientation.South;
 
                 case Orientation.East:
 
                     Game.World.SetBlock(Block.AIR, 0, x, y, z);
-                    Game.World.SetBlock(Block.AIR, 0, x - (isBase ? 1 : -1), y, z);
+                    Game.World.SetBlock(Block.AIR, 0, x - (isHead ? 1 : -1), y, z);
                     return true;
 
                 case Orientation.South:
 
                     Game.World.SetBlock(Block.AIR, 0, x, y, z);
-                    Game.World.SetBlock(Block.AIR, 0, x, y, z - (isBase ? 1 : -1));
+                    Game.World.SetBlock(Block.AIR, 0, x, y, z - (isHead ? 1 : -1));
                     return true;
 
                 case Orientation.West:
 
-                    isBase = !isBase;
+                    isHead = !isHead;
                     goto case Orientation.East;
 
                 default:
