@@ -10,7 +10,7 @@ namespace VoxelGame.Utilities
     /// <summary>
     /// Helper class to simplify configuration value retrieval.
     /// </summary>
-    public static class Configuration
+    public static class Config
     {
         /// <summary>
         /// Retrieves a float value from the configuration file or uses the provided fallback when retrieval fails.

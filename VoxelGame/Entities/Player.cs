@@ -49,7 +49,7 @@ namespace VoxelGame.Entities
         private readonly float jumpForce = 25000f;
         private Vector3 movement;
 
-        private readonly float mouseSensitivity = Configuration.GetFloat("MouseSensitivity", 0.1f);
+        private readonly float mouseSensitivity = Config.GetFloat("MouseSensitivity", 0.1f);
 
         private int selectedX, selectedY, selectedZ;
         private BlockSide selectedSide;

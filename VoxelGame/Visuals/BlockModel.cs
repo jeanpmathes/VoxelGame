@@ -73,7 +73,7 @@ namespace VoxelGame.Visuals
         /// </summary>
         /// <param name="rotations">Number of rotations.</param>
         /// <param name="rotateTopAndBottomTexture">Whether the top and bottom texture should be rotated.</param>
-        public void RotateY(int rotations, bool rotateTopAndBottomTexture)
+        public void RotateY(int rotations, bool rotateTopAndBottomTexture = true)
         {
             if (rotations == 0)
             {

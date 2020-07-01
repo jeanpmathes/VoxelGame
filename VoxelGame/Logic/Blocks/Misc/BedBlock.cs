@@ -67,10 +67,10 @@ namespace VoxelGame.Logic.Blocks
                 }
                 else
                 {
-                    top.RotateY(1, true);
+                    top.RotateY(1);
                     top.ToData(out topVertices[i], out _, out _);
 
-                    bottom.RotateY(1, true);
+                    bottom.RotateY(1);
                     bottom.ToData(out bottomVertices[i], out _, out _);
                 }
             }

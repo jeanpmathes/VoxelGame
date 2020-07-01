@@ -63,6 +63,8 @@ namespace VoxelGame.Logic
         public static Block WALL_BRICKS = null!;
         public static Block BED = null!;
         public static Block STEEL = null!;
+        public static Block DOOR_STEEL = null!;
+        public static Block DOOR_WOOD = null!;
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
         public const int BlockLimit = 2048;
@@ -135,6 +137,8 @@ namespace VoxelGame.Logic
             WALL_BRICKS = new WallBlock(Language.BrickWall, "bricks", "wall_post", "wall_extension", "wall_extension_straight");
             BED = new BedBlock(Language.Bed, "bed");
             STEEL = new ConstructionBlock(Language.Steel, TextureLayout.Uniform("steel"));
+            DOOR_STEEL = new DoorBlock(Language.SteelDoor, "door_steel_closed", "door_steel_open");
+            DOOR_WOOD = new DoorBlock(Language.WoodenDoor, "door_wood_closed", "door_wood_open");
         }
 
         #endregion STATIC BLOCK MANAGMENT
