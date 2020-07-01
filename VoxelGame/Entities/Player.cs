@@ -133,149 +133,170 @@ namespace VoxelGame.Entities
             Ray ray = new Ray(camera.Position, camera.Front, 6f);
             Raycast.CastWorld(ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
 
+            // Do input handling.
             if (Game.instance.IsFocused)
             {
                 KeyboardState input = Game.instance.KeyboardState;
-
-                // Handling movement
-                Vector3 movement = new Vector3();
-
-                if (input.IsKeyDown(Key.W))
-                    movement += Forward; // Forward
-
-                if (input.IsKeyDown(Key.S))
-                    movement -= Forward; // Backwards
-
-                if (input.IsKeyDown(Key.A))
-                    movement -= Right; // Left
-
-                if (input.IsKeyDown(Key.D))
-                    movement += Right; // Right
-
-                if (movement != Vector3.Zero)
-                {
-                    if (input.IsKeyDown(Key.ShiftLeft))
-                    {
-                        movement = movement.Normalized() * sprintSpeed;
-                    }
-                    else
-                    {
-                        movement = movement.Normalized() * speed;
-                    }
-                }
-
-                this.movement = movement;
-                Move(movement, maxForce);
-
-                if (input.IsKeyDown(Key.Space) && IsGrounded) // Jump
-                {
-                    AddForce(new Vector3(0f, jumpForce, 0f));
-                }
 
                 MouseState mouse = Game.instance.MouseState;
                 Vector2 defaultMousePos = new Vector2(Game.instance.Size.X / 2f, Game.instance.Size.Y / 2f);
                 Game.instance.MousePosition = defaultMousePos;
 
-                // Calculate the offset of the mouse position
-                var deltaX = mouse.X - defaultMousePos.X;
-                var deltaY = mouse.Y - defaultMousePos.Y;
+                MovementInput(input);
+                MouseChange(mouse, defaultMousePos);
 
-                // Apply the camera pitch and yaw (we clamp the pitch in the camera class)
-                camera.Yaw += deltaX * mouseSensitivity;
-                camera.Pitch -= deltaY * mouseSensitivity;
+                BlockSelection(input);
 
-                Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
-
-                // Block selection
-                if (input.IsKeyDown(Key.KeypadPlus) && !hasPressedPlus)
-                {
-                    activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID((ushort)(activeBlock.Id + 1)) : Block.TranslateID(1);
-                    hasPressedPlus = true;
-
-                    Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
-                }
-                else if (input.IsKeyUp(Key.KeypadPlus))
-                {
-                    hasPressedPlus = false;
-                }
-
-                if (input.IsKeyDown(Key.KeypadMinus) && !hasPressedMinus)
-                {
-                    activeBlock = (activeBlock.Id != 1) ? Block.TranslateID((ushort)(activeBlock.Id - 1)) : Block.TranslateID((ushort)(Block.Count - 1));
-                    hasPressedMinus = true;
-
-                    Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
-                }
-                else if (input.IsKeyUp(Key.KeypadMinus))
-                {
-                    hasPressedMinus = false;
-                }
-
-                // Handling world manipulation
-
-                // Placement
-                if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Right))
-                {
-                    int placePositionX = selectedX;
-                    int placePositionY = selectedY;
-                    int placePositionZ = selectedZ;
-
-                    if (Game.World.GetBlock(placePositionX, placePositionY, placePositionZ, out _)?.IsReplaceable == false)
-                    {
-                        switch (selectedSide)
-                        {
-                            case BlockSide.Front:
-                                placePositionZ++;
-                                break;
-
-                            case BlockSide.Back:
-                                placePositionZ--;
-                                break;
-
-                            case BlockSide.Left:
-                                placePositionX--;
-                                break;
-
-                            case BlockSide.Right:
-                                placePositionX++;
-                                break;
-
-                            case BlockSide.Bottom:
-                                placePositionY--;
-                                break;
-
-                            case BlockSide.Top:
-                                placePositionY++;
-                                break;
-                        }
-                    }
-
-                    // Prevent block placement if the block would intersect the player
-                    if (!activeBlock.IsSolid || !BoundingBox.Intersects(activeBlock.GetBoundingBox(placePositionX, placePositionY, placePositionZ)))
-                    {
-                        activeBlock.Place(placePositionX, placePositionY, placePositionZ, this);
-
-                        timer = 0;
-                    }
-                }
-
-                // Destruction
-                if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Left))
-                {
-                    Block? selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _);
-
-                    if (selectedBlock != null)
-                    {
-                        selectedBlock.Destroy(selectedX, selectedY, selectedZ, this);
-
-                        timer = 0;
-                    }
-                }
+                WorldInteraction(mouse);
             }
 
             timer += deltaTime;
 
-            // Check if the current chunk has changed and request new chunks if needed / release unneeded chunks
+            // Check if the current chunk has changed and request new chunks if needed / release unneeded chunks.
+            ChunkChange();
+        }
+
+        private void MovementInput(KeyboardState input)
+        {
+            Vector3 movement = new Vector3();
+
+            if (input.IsKeyDown(Key.W))
+                movement += Forward; // Forward
+
+            if (input.IsKeyDown(Key.S))
+                movement -= Forward; // Backwards
+
+            if (input.IsKeyDown(Key.A))
+                movement -= Right; // Left
+
+            if (input.IsKeyDown(Key.D))
+                movement += Right; // Right
+
+            if (movement != Vector3.Zero)
+            {
+                if (input.IsKeyDown(Key.ShiftLeft))
+                {
+                    movement = movement.Normalized() * sprintSpeed;
+                }
+                else
+                {
+                    movement = movement.Normalized() * speed;
+                }
+            }
+
+            this.movement = movement;
+            Move(movement, maxForce);
+
+            if (input.IsKeyDown(Key.Space) && IsGrounded) // Jump
+            {
+                AddForce(new Vector3(0f, jumpForce, 0f));
+            }
+        }
+
+        private void MouseChange(MouseState mouse, Vector2 defaultMousePos)
+        {
+            // Calculate the offset of the mouse position
+            var deltaX = mouse.X - defaultMousePos.X;
+            var deltaY = mouse.Y - defaultMousePos.Y;
+
+            // Apply the camera pitch and yaw (we clamp the pitch in the camera class)
+            camera.Yaw += deltaX * mouseSensitivity;
+            camera.Pitch -= deltaY * mouseSensitivity;
+
+            Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
+        }
+
+        private void WorldInteraction(MouseState mouse)
+        {
+            // Placement
+            if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Right))
+            {
+                int placePositionX = selectedX;
+                int placePositionY = selectedY;
+                int placePositionZ = selectedZ;
+
+                if (Game.World.GetBlock(placePositionX, placePositionY, placePositionZ, out _)?.IsReplaceable == false)
+                {
+                    switch (selectedSide)
+                    {
+                        case BlockSide.Front:
+                            placePositionZ++;
+                            break;
+
+                        case BlockSide.Back:
+                            placePositionZ--;
+                            break;
+
+                        case BlockSide.Left:
+                            placePositionX--;
+                            break;
+
+                        case BlockSide.Right:
+                            placePositionX++;
+                            break;
+
+                        case BlockSide.Bottom:
+                            placePositionY--;
+                            break;
+
+                        case BlockSide.Top:
+                            placePositionY++;
+                            break;
+                    }
+                }
+
+                // Prevent block placement if the block would intersect the player
+                if (!activeBlock.IsSolid || !BoundingBox.Intersects(activeBlock.GetBoundingBox(placePositionX, placePositionY, placePositionZ)))
+                {
+                    activeBlock.Place(placePositionX, placePositionY, placePositionZ, this);
+
+                    timer = 0;
+                }
+            }
+
+            // Destruction
+            if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Left))
+            {
+                Block? selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _);
+
+                if (selectedBlock != null)
+                {
+                    selectedBlock.Destroy(selectedX, selectedY, selectedZ, this);
+
+                    timer = 0;
+                }
+            }
+        }
+
+        private void BlockSelection(KeyboardState input)
+        {
+            if (input.IsKeyDown(Key.KeypadPlus) && !hasPressedPlus)
+            {
+                activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID((ushort)(activeBlock.Id + 1)) : Block.TranslateID(1);
+                hasPressedPlus = true;
+
+                Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
+            }
+            else if (input.IsKeyUp(Key.KeypadPlus))
+            {
+                hasPressedPlus = false;
+            }
+
+            if (input.IsKeyDown(Key.KeypadMinus) && !hasPressedMinus)
+            {
+                activeBlock = (activeBlock.Id != 1) ? Block.TranslateID((ushort)(activeBlock.Id - 1)) : Block.TranslateID((ushort)(Block.Count - 1));
+                hasPressedMinus = true;
+
+                Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
+            }
+            else if (input.IsKeyUp(Key.KeypadMinus))
+            {
+                hasPressedMinus = false;
+            }
+        }
+
+        private void ChunkChange()
+        {
             int currentChunkX = (int)Math.Floor(Position.X) >> sectionSizeExp;
             int currentChunkZ = (int)Math.Floor(Position.Z) >> sectionSizeExp;
 
