@@ -1,5 +1,6 @@
-﻿// <copyright file="Game.cs" company="VoxelGame">
-//     All rights reserved.
+﻿// <copyright file="World.cs" company="VoxelGame">
+//     MIT License
+//	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenToolkit.Graphics.OpenGL4;
