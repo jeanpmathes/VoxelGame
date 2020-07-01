@@ -9,14 +9,14 @@ import json
 from json import JSONEncoder
 
 PATH = os.path.expanduser("~\Desktop\\VoxelGameTextures\\Models\\")
-NAME = "vase"
+NAME = "name"
 
 class Vertex:
     def __init__(self, co, uv, nm):
         self.X = round(co.x, 5)
         self.Y = round(co.z, 5)
         self.Z = round(co.y, 5)
-        self.U = round(uv.x, 4)
+        self.U = round(abs(1 - uv.x), 4)
         self.V = round(uv.y, 4)
         self.N = round(nm.x, 4)
         self.O = round(nm.z, 4)
