@@ -41,21 +41,24 @@ namespace VoxelGame.Entities
         public override BlockSide TargetSide { get => selectedSide; }
 
         private readonly Camera camera;
-        private readonly Vector3 cameraOffset = new Vector3(0f, 0.5f, 0f);
+        private readonly Vector3 cameraOffset = new Vector3(0f, 0.65f, 0f);
 
         private readonly float speed = 4f;
         private readonly float sprintSpeed = 6f;
         private readonly Vector3 maxForce = new Vector3(5000f, 0f, 5000f);
         private readonly float jumpForce = 25000f;
+
         private Vector3 movement;
 
         private readonly float mouseSensitivity = Config.GetFloat("MouseSensitivity", 0.1f);
 
         private int selectedX, selectedY, selectedZ;
         private BlockSide selectedSide;
+
         private readonly BoxRenderer selectionRenderer;
 
         private readonly float interactionCooldown = 0.25f;
+
         private float timer;
 
         private Block activeBlock;
