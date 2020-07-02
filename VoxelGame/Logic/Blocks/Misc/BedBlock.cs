@@ -42,6 +42,7 @@ namespace VoxelGame.Logic.Blocks
                 recieveCollisions: false,
                 isTrigger: false,
                 isReplaceable: false,
+                isInteractable: true,
                 new BoundingBox(new Vector3(0.5f, 0.21875f, 0.5f), new Vector3(0.5f, 0.21875f, 0.5f)),
                 TargetBuffer.Complex)
         {
@@ -152,8 +153,6 @@ namespace VoxelGame.Logic.Blocks
                 return false;
             }
 
-            int colorData = (x & 0b11) << 3;
-
             switch (entity?.LookingDirection.ToOrientation() ?? Orientation.North)
             {
                 case Orientation.North:
@@ -163,8 +162,8 @@ namespace VoxelGame.Logic.Blocks
                         return false;
                     }
 
-                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.North << 1) | 0), x, y, z);
-                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.North << 1) | 1), x, y, z - 1);
+                    Game.World.SetBlock(this, (byte)(((int)Orientation.North << 1) | 0), x, y, z);
+                    Game.World.SetBlock(this, (byte)(((int)Orientation.North << 1) | 1), x, y, z - 1);
 
                     Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
 
@@ -177,8 +176,8 @@ namespace VoxelGame.Logic.Blocks
                         return false;
                     }
 
-                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.East << 1) | 0), x, y, z);
-                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.East << 1) | 1), x + 1, y, z);
+                    Game.World.SetBlock(this, (byte)(((int)Orientation.East << 1) | 0), x, y, z);
+                    Game.World.SetBlock(this, (byte)(((int)Orientation.East << 1) | 1), x + 1, y, z);
 
                     Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
 
@@ -191,8 +190,8 @@ namespace VoxelGame.Logic.Blocks
                         return false;
                     }
 
-                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.South << 1) | 0), x, y, z);
-                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.South << 1) | 1), x, y, z + 1);
+                    Game.World.SetBlock(this, (byte)(((int)Orientation.South << 1) | 0), x, y, z);
+                    Game.World.SetBlock(this, (byte)(((int)Orientation.South << 1) | 1), x, y, z + 1);
 
                     Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
 
@@ -205,8 +204,8 @@ namespace VoxelGame.Logic.Blocks
                         return false;
                     }
 
-                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.West << 1) | 0), x, y, z);
-                    Game.World.SetBlock(this, (byte)(colorData | ((int)Orientation.West << 1) | 1), x - 1, y, z);
+                    Game.World.SetBlock(this, (byte)(((int)Orientation.West << 1) | 0), x, y, z);
+                    Game.World.SetBlock(this, (byte)(((int)Orientation.West << 1) | 1), x - 1, y, z);
 
                     Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
 
@@ -247,6 +246,36 @@ namespace VoxelGame.Logic.Blocks
 
                 default:
                     return false;
+            }
+        }
+
+        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, byte data)
+        {
+            bool isHead = (data & 0b1) == 1;
+
+            switch ((Orientation)((data & 0b0_0110) >> 1))
+            {
+                case Orientation.North:
+
+                    isHead = !isHead;
+                    goto case Orientation.South;
+
+                case Orientation.East:
+
+                    Game.World.SetBlock(this, (byte)(data + 0b0_1000 & 0b1_1111), x, y, z);
+                    Game.World.SetBlock(this, (byte)((data + 0b0_1000 & 0b1_1111) ^ 0b0_0001), x - (isHead ? 1 : -1), y, z);
+                    break;
+
+                case Orientation.South:
+
+                    Game.World.SetBlock(this, (byte)(data + 0b0_1000 & 0b1_1111), x, y, z);
+                    Game.World.SetBlock(this, (byte)((data + 0b0_1000 & 0b1_1111) ^ 0b0_0001), x, y, z - (isHead ? 1 : -1));
+                    break;
+
+                case Orientation.West:
+
+                    isHead = !isHead;
+                    goto case Orientation.East;
             }
         }
 

@@ -17,7 +17,7 @@ namespace VoxelGame.Logic.Blocks
         private protected float[][] sideVertices = null!;
         private protected int[][] sideTextureIndices = null!;
 
-        public BasicBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid) :
+        public BasicBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool isInteractable) :
             base(
                 name: name,
                 isFull: true,
@@ -27,6 +27,7 @@ namespace VoxelGame.Logic.Blocks
                 recieveCollisions: false,
                 isTrigger: false,
                 isReplaceable: false,
+                isInteractable,
                 BoundingBox.Block,
                 TargetBuffer.Simple)
         {

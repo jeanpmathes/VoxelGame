@@ -147,7 +147,7 @@ namespace VoxelGame.Entities
 
                 BlockSelection(input);
 
-                WorldInteraction(mouse);
+                WorldInteraction(input, mouse);
             }
 
             timer += deltaTime;
@@ -206,65 +206,76 @@ namespace VoxelGame.Entities
             Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
         }
 
-        private void WorldInteraction(MouseState mouse)
+        private void WorldInteraction(KeyboardState input, MouseState mouse)
         {
-            // Placement
+            Block? target = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _);
+
+            if (target == null)
+            {
+                return;
+            }
+
+            // Right mouse button.
             if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Right))
             {
-                int placePositionX = selectedX;
-                int placePositionY = selectedY;
-                int placePositionZ = selectedZ;
-
-                if (Game.World.GetBlock(placePositionX, placePositionY, placePositionZ, out _)?.IsReplaceable == false)
+                if (input.IsKeyDown(Key.ControlLeft) || !target.IsInteractable)
                 {
-                    switch (selectedSide)
+                    int placePositionX = selectedX;
+                    int placePositionY = selectedY;
+                    int placePositionZ = selectedZ;
+
+                    if (!target.IsReplaceable)
                     {
-                        case BlockSide.Front:
-                            placePositionZ++;
-                            break;
+                        switch (selectedSide)
+                        {
+                            case BlockSide.Front:
+                                placePositionZ++;
+                                break;
 
-                        case BlockSide.Back:
-                            placePositionZ--;
-                            break;
+                            case BlockSide.Back:
+                                placePositionZ--;
+                                break;
 
-                        case BlockSide.Left:
-                            placePositionX--;
-                            break;
+                            case BlockSide.Left:
+                                placePositionX--;
+                                break;
 
-                        case BlockSide.Right:
-                            placePositionX++;
-                            break;
+                            case BlockSide.Right:
+                                placePositionX++;
+                                break;
 
-                        case BlockSide.Bottom:
-                            placePositionY--;
-                            break;
+                            case BlockSide.Bottom:
+                                placePositionY--;
+                                break;
 
-                        case BlockSide.Top:
-                            placePositionY++;
-                            break;
+                            case BlockSide.Top:
+                                placePositionY++;
+                                break;
+                        }
+                    }
+
+                    // Prevent block placement if the block would intersect the player.
+                    if (!activeBlock.IsSolid || !BoundingBox.Intersects(activeBlock.GetBoundingBox(placePositionX, placePositionY, placePositionZ)))
+                    {
+                        activeBlock.Place(placePositionX, placePositionY, placePositionZ, this);
+
+                        timer = 0;
                     }
                 }
-
-                // Prevent block placement if the block would intersect the player
-                if (!activeBlock.IsSolid || !BoundingBox.Intersects(activeBlock.GetBoundingBox(placePositionX, placePositionY, placePositionZ)))
+                else if (target.IsInteractable)
                 {
-                    activeBlock.Place(placePositionX, placePositionY, placePositionZ, this);
+                    target.EntityInteract(this, selectedX, selectedY, selectedZ);
 
                     timer = 0;
                 }
             }
 
-            // Destruction
+            // Left mouse button.
             if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Left))
             {
-                Block? selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _);
+                target.Destroy(selectedX, selectedY, selectedZ, this);
 
-                if (selectedBlock != null)
-                {
-                    selectedBlock.Destroy(selectedX, selectedY, selectedZ, this);
-
-                    timer = 0;
-                }
+                timer = 0;
             }
         }
 

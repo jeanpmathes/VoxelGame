@@ -101,18 +101,18 @@ namespace VoxelGame.Logic
             VERY_TALL_GRASS = new DoubleCrossPlantBlock(Language.VeryTallGrass, "very_tall_grass", 1, BoundingBox.Block);
             DIRT = new DirtBlock(Language.Dirt, TextureLayout.Uniform("dirt"));
             FARMLAND = new CoveredDirtBlock(Language.Farmland, TextureLayout.UnqiueTop("dirt", "farmland"), false);
-            STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"), true, true, true);
+            STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"), true, true, true, false);
             RUBBLE = new ConstructionBlock(Language.Rubble, TextureLayout.Uniform("rubble"));
             LOG = new RotatedBlock(Language.Log, TextureLayout.Column("log", 0, 1), true, true, true);
             WOOD = new ConstructionBlock(Language.Wood, TextureLayout.Uniform("wood"));
-            SAND = new BasicBlock(Language.Sand, TextureLayout.Uniform("sand"), true, true, true);
-            GRAVEL = new BasicBlock(Language.Gravel, TextureLayout.Uniform("gravel"), true, true, true);
-            LEAVES = new BasicBlock(Language.Leaves, TextureLayout.Uniform("leaves"), false, true, true);
-            GLASS = new BasicBlock(Language.Glass, TextureLayout.Uniform("glass"), false, false, true);
-            ORE_COAL = new BasicBlock(Language.CoalOre, TextureLayout.Uniform("ore_coal"), true, true, true);
-            ORE_IRON = new BasicBlock(Language.IronOre, TextureLayout.Uniform("ore_iron"), true, true, true);
-            ORE_GOLD = new BasicBlock(Language.GoldOre, TextureLayout.Uniform("ore_gold"), true, true, true);
-            SNOW = new BasicBlock(Language.Snow, TextureLayout.Uniform("snow"), true, true, true);
+            SAND = new BasicBlock(Language.Sand, TextureLayout.Uniform("sand"), true, true, true, false);
+            GRAVEL = new BasicBlock(Language.Gravel, TextureLayout.Uniform("gravel"), true, true, true, false);
+            LEAVES = new BasicBlock(Language.Leaves, TextureLayout.Uniform("leaves"), false, true, true, false);
+            GLASS = new BasicBlock(Language.Glass, TextureLayout.Uniform("glass"), false, false, true, false);
+            ORE_COAL = new BasicBlock(Language.CoalOre, TextureLayout.Uniform("ore_coal"), true, true, true, false);
+            ORE_IRON = new BasicBlock(Language.IronOre, TextureLayout.Uniform("ore_iron"), true, true, true, false);
+            ORE_GOLD = new BasicBlock(Language.GoldOre, TextureLayout.Uniform("ore_gold"), true, true, true, false);
+            SNOW = new BasicBlock(Language.Snow, TextureLayout.Uniform("snow"), true, true, true, false);
             FLOWER = new CrossPlantBlock(Language.Flower, "flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
             TALL_FLOWER = new DoubleCrossPlantBlock(Language.TallFlower, "tall_flower", 1, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
             SPIDERWEB = new SpiderWebBlock(Language.SpiderWeb, "spider_web", 0.01f);
@@ -189,6 +189,11 @@ namespace VoxelGame.Logic
         public bool IsReplaceable { get; }
 
         /// <summary>
+        /// Gets whether this block responds to interactions.
+        /// </summary>
+        public bool IsInteractable { get; }
+
+        /// <summary>
         /// Gets the section buffer this blocks mesh data should be stored in.
         /// </summary>
         public TargetBuffer TargetBuffer { get; }
@@ -200,7 +205,7 @@ namespace VoxelGame.Logic
 
         private BoundingBox boundingBox;
 
-        protected Block(string name, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, BoundingBox boundingBox, TargetBuffer targetBuffer)
+        protected Block(string name, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable, BoundingBox boundingBox, TargetBuffer targetBuffer)
         {
             Name = name;
             IsFull = isFull;
@@ -210,6 +215,7 @@ namespace VoxelGame.Logic
             RecieveCollisions = recieveCollisions;
             IsTrigger = isTrigger;
             IsReplaceable = isReplaceable;
+            IsInteractable = isInteractable;
 
             this.boundingBox = boundingBox;
 
@@ -333,6 +339,18 @@ namespace VoxelGame.Logic
         }
 
         protected virtual void EntityCollision(Entities.PhysicsEntity entity, int x, int y, int z, byte data)
+        {
+        }
+
+        public void EntityInteract(Entities.PhysicsEntity entity, int x, int y, int z)
+        {
+            if (Game.World.GetBlock(x, y, z, out byte data) == this)
+            {
+                EntityInteract(entity, x, y, z, data);
+            }
+        }
+
+        protected virtual void EntityInteract(Entities.PhysicsEntity entity, int x, int y, int z, byte data)
         {
         }
 

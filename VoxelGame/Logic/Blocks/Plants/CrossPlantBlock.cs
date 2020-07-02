@@ -55,7 +55,7 @@ namespace VoxelGame.Logic.Blocks
         internal override void BlockUpdate(int x, int y, int z, byte data)
         {
             // Check the block under this block
-            Block ground = (Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR);
+            Block ground = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
 
             if (!(ground is IPlantable))
             {

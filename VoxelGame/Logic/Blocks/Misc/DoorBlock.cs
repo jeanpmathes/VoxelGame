@@ -44,6 +44,7 @@ namespace VoxelGame.Logic.Blocks
                 recieveCollisions: false,
                 isTrigger: false,
                 isReplaceable: false,
+                isInteractable: true,
                 BoundingBox.Block,
                 TargetBuffer.Complex)
         {
@@ -92,6 +93,12 @@ namespace VoxelGame.Logic.Blocks
         {
             Orientation orientation = (Orientation)(data & 0b0_0011);
 
+            // Check if door is open and if the door is left sided.
+            if ((data & 0b1_0000) != 0)
+            {
+                orientation = ((data & 0b0_1000) == 0) ? orientation.Rotate() : orientation.Rotate().Invert();
+            }
+
             return orientation switch
             {
                 Orientation.North => new BoundingBox(new Vector3(0.5f, 0.5f, 0.9375f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.0625f)),
@@ -111,7 +118,7 @@ namespace VoxelGame.Logic.Blocks
 
             if (isBase)
             {
-                vertices = verticesBase[(isLeftSided ? (int)orientation : (int)orientation.Invert()) + (isClosed ? 0 : 4)];
+                vertices = verticesBase[isClosed ? (int)orientation : 4 + (isLeftSided ? (int)orientation.Invert() : (int)orientation)];
 
                 textureIndices = texIndicesBase;
                 indices = indicesBase;
@@ -121,7 +128,7 @@ namespace VoxelGame.Logic.Blocks
             }
             else
             {
-                vertices = verticesTop[(isLeftSided ? (int)orientation : (int)orientation.Invert()) + (isClosed ? 0 : 4)];
+                vertices = verticesTop[isClosed ? (int)orientation : 4 + (isLeftSided ? (int)orientation.Invert() : (int)orientation)];
 
                 textureIndices = texIndicesTop;
                 indices = indicesTop;
@@ -141,8 +148,11 @@ namespace VoxelGame.Logic.Blocks
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
             BlockSide side = entity?.TargetSide ?? BlockSide.Top;
 
-            bool isLeftSided = ((orientation == Orientation.North || orientation == Orientation.South) && (side != BlockSide.Right)) ||
-                ((orientation == Orientation.East || orientation == Orientation.West) && (side != BlockSide.Front));
+            bool isLeftSided =
+                (orientation == Orientation.North && side != BlockSide.Left) ||
+                (orientation == Orientation.East && side != BlockSide.Back) ||
+                (orientation == Orientation.South && side != BlockSide.Right) ||
+                (orientation == Orientation.West && side != BlockSide.Front);
 
             Game.World.SetBlock(this, (byte)((isLeftSided ? 0b0000 : 0b1000) | 0b0000 | (int)orientation), x, y, z);
             Game.World.SetBlock(this, (byte)((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int)orientation), x, y + 1, z);
@@ -156,6 +166,17 @@ namespace VoxelGame.Logic.Blocks
             Game.World.SetBlock(Block.AIR, 0, x, y + ((data & 0b0_0100) == 0 ? 1 : -1), z);
 
             return true;
+        }
+
+        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, byte data)
+        {
+            bool isBase = (data & 0b0_0100) == 0;
+
+            if (!entity.BoundingBox.Intersects(new BoundingBox(new Vector3(0.5f, 1f, 0.5f) + new Vector3(x, isBase ? y : y + 1, z), new Vector3(0.5f, 1f, 0.5f))))
+            {
+                Game.World.SetBlock(this, (byte)(data ^ 0b1_0000), x, y, z);
+                Game.World.SetBlock(this, (byte)(data ^ 0b1_0100), x, y + (isBase ? 1 : -1), z);
+            }
         }
 
         internal override void BlockUpdate(int x, int y, int z, byte data)

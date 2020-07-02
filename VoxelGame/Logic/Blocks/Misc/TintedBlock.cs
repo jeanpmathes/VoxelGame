@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using VoxelGame.Entities;
 using VoxelGame.Logic.Interfaces;
 using VoxelGame.Utilities;
 using VoxelGame.Visuals;
@@ -22,7 +23,8 @@ namespace VoxelGame.Logic.Blocks
                 layout,
                 isOpaque: true,
                 renderFaceAtNonOpaques: true,
-                isSolid: true)
+                isSolid: true,
+                isInteractable: true)
         {
         }
 
@@ -40,9 +42,14 @@ namespace VoxelGame.Logic.Blocks
                 return false;
             }
 
-            Game.World.SetBlock(this, (byte)(x & 0b111), x, y, z);
+            Game.World.SetBlock(this, 0, x, y, z);
 
             return true;
+        }
+
+        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, byte data)
+        {
+            Game.World.SetBlock(this, (byte)(data + 1 & 0b0_0111), x, y, z);
         }
     }
 }

@@ -46,6 +46,7 @@ namespace VoxelGame.Logic.Blocks
                 recieveCollisions,
                 isTrigger,
                 isReplaceable,
+                isInteractable: false,
                 boundingBox,
                 TargetBuffer.Complex)
         {

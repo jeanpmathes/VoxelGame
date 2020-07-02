@@ -41,5 +41,17 @@ namespace VoxelGame.Utilities
                 _ => Orientation.North
             };
         }
+
+        public static Orientation Rotate(this Orientation orientation)
+        {
+            return orientation switch
+            {
+                Orientation.North => Orientation.East,
+                Orientation.East => Orientation.South,
+                Orientation.South => Orientation.West,
+                Orientation.West => Orientation.North,
+                _ => Orientation.North
+            };
+        }
     }
 }

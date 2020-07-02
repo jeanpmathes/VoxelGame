@@ -138,6 +138,11 @@ namespace VoxelGame.Physics
             float tmin = Math.Max(Math.Max(Math.Min(t1, t2), Math.Min(t3, t4)), Math.Min(t5, t6));
             float tmax = Math.Min(Math.Min(Math.Max(t1, t2), Math.Max(t3, t4)), Math.Max(t5, t6));
 
+            if (tmax < 0f)
+            {
+                return false;
+            }
+
             return tmin <= tmax;
         }
 

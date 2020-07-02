@@ -26,7 +26,8 @@ namespace VoxelGame.Logic.Blocks
                 layout,
                 isOpaque,
                 renderFaceAtNonOpaques,
-                isSolid)
+                isSolid,
+                isInteractable: false)
         {
         }
 
