@@ -45,7 +45,7 @@ namespace VoxelGame.Logic.Blocks
                 isTrigger: false,
                 isReplaceable: false,
                 isInteractable: true,
-                BoundingBox.Block,
+                new BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.5f, 1f, 0.5f)),
                 TargetBuffer.Complex)
         {
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
@@ -148,11 +148,48 @@ namespace VoxelGame.Logic.Blocks
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
             BlockSide side = entity?.TargetSide ?? BlockSide.Top;
 
-            bool isLeftSided =
-                (orientation == Orientation.North && side != BlockSide.Left) ||
-                (orientation == Orientation.East && side != BlockSide.Back) ||
-                (orientation == Orientation.South && side != BlockSide.Right) ||
-                (orientation == Orientation.West && side != BlockSide.Front);
+            bool isLeftSided;
+
+            if (side == BlockSide.Top)
+            {
+                // Choose side according to neighboring doors to form a double door.
+                Block neighbour;
+                byte data;
+
+                switch (orientation)
+                {
+                    case Orientation.North:
+                        neighbour = Game.World.GetBlock(x - 1, y, z, out data) ?? Block.AIR;
+                        break;
+
+                    case Orientation.East:
+                        neighbour = Game.World.GetBlock(x, y, z - 1, out data) ?? Block.AIR;
+                        break;
+
+                    case Orientation.South:
+                        neighbour = Game.World.GetBlock(x + 1, y, z, out data) ?? Block.AIR;
+                        break;
+
+                    case Orientation.West:
+                        neighbour = Game.World.GetBlock(x, y, z + 1, out data) ?? Block.AIR;
+                        break;
+
+                    default:
+                        neighbour = Block.AIR;
+                        data = 0;
+                        break;
+                }
+
+                isLeftSided = neighbour != this || (data & 0b0_1011) != (int)orientation;
+            }
+            else
+            {
+                isLeftSided =
+                    (orientation == Orientation.North && side != BlockSide.Left) ||
+                    (orientation == Orientation.East && side != BlockSide.Back) ||
+                    (orientation == Orientation.South && side != BlockSide.Right) ||
+                    (orientation == Orientation.West && side != BlockSide.Front);
+            }
 
             Game.World.SetBlock(this, (byte)((isLeftSided ? 0b0000 : 0b1000) | 0b0000 | (int)orientation), x, y, z);
             Game.World.SetBlock(this, (byte)((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int)orientation), x, y + 1, z);
@@ -176,6 +213,50 @@ namespace VoxelGame.Logic.Blocks
             {
                 Game.World.SetBlock(this, (byte)(data ^ 0b1_0000), x, y, z);
                 Game.World.SetBlock(this, (byte)(data ^ 0b1_0100), x, y + (isBase ? 1 : -1), z);
+
+                // Open a neighboring door, if available.
+                switch (((data & 0b0_1000) == 0) ? ((Orientation)(data & 0b0_0011)).Invert() : (Orientation)(data & 0b0_0011))
+                {
+                    case Orientation.North:
+                        Block neighbour = Game.World.GetBlock(x - 1, y, z, out byte neighbourData) ?? Block.AIR;
+
+                        if (neighbour == this && (data & 0b1_1011) == ((neighbourData ^ 0b0_1000) & 0b1_1011))
+                        {
+                            neighbour.EntityInteract(entity, x - 1, y, z);
+                        }
+
+                        break;
+
+                    case Orientation.East:
+                        neighbour = Game.World.GetBlock(x, y, z - 1, out neighbourData) ?? Block.AIR;
+
+                        if (neighbour == this && (data & 0b1_1011) == ((neighbourData ^ 0b0_1000) & 0b1_1011))
+                        {
+                            neighbour.EntityInteract(entity, x, y, z - 1);
+                        }
+
+                        break;
+
+                    case Orientation.South:
+                        neighbour = Game.World.GetBlock(x + 1, y, z, out neighbourData) ?? Block.AIR;
+
+                        if (neighbour == this && (data & 0b1_1011) == ((neighbourData ^ 0b0_1000) & 0b1_1011))
+                        {
+                            neighbour.EntityInteract(entity, x + 1, y, z);
+                        }
+
+                        break;
+
+                    case Orientation.West:
+                        neighbour = Game.World.GetBlock(x, y, z + 1, out neighbourData) ?? Block.AIR;
+
+                        if (neighbour == this && (data & 0b1_1011) == ((neighbourData ^ 0b0_1000) & 0b1_1011))
+                        {
+                            neighbour.EntityInteract(entity, x, y, z + 1);
+                        }
+
+                        break;
+                }
             }
         }
 
