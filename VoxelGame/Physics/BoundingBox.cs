@@ -47,7 +47,32 @@ namespace VoxelGame.Physics
             children = boundingBoxes;
         }
 
+        /// <summary>
+        /// Gets a <see cref="BoundingBox"/> with the size of a block.
+        /// </summary>
         public static BoundingBox Block => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.5f, 0.5f, 0.5f));
+
+        /// <summary>
+        /// Returns a <see cref="BoundingBox"/> with the size of a block, translated to a specified position.
+        /// </summary>
+        /// <param name="x">The x position.</param>
+        /// <param name="y">The y position.</param>
+        /// <param name="z">The z position.</param>
+        public static BoundingBox BlockAt(int x, int y, int z)
+        {
+            return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f));
+        }
+
+        /// <summary>
+        /// Returns a translated copy of this <see cref="BoundingBox"/>.
+        /// </summary>
+        /// <param name="x">The x position.</param>
+        /// <param name="y">The y position.</param>
+        /// <param name="z">The z position.</param>
+        public BoundingBox Translated(int x, int y, int z)
+        {
+            return new BoundingBox(Center + new Vector3(x, y, z), Extents, children);
+        }
 
         /// <summary>
         /// Checks if this bounding box or one of its children contain a point.

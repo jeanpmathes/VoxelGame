@@ -252,13 +252,13 @@ namespace VoxelGame.Logic
             }
             else
             {
-                return new BoundingBox(boundingBox.Center + new Vector3(x, y, z), boundingBox.Extents);
+                return boundingBox.Translated(x, y, z);
             }
         }
 
         protected virtual BoundingBox GetBoundingBox(int x, int y, int z, byte data)
         {
-            return new BoundingBox(boundingBox.Center + new Vector3(x, y, z), boundingBox.Extents);
+            return boundingBox.Translated(x, y, z);
         }
 
         /// <summary>
