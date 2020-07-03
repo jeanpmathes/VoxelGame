@@ -32,49 +32,49 @@ namespace VoxelGame.Physics
             //Vector3 direction = ray.Direction * ray.Length;
             Vector3 direction = ray.Direction;
 
-            // Get the origin position in world coordinates
+            // Get the origin position in world coordinates.
             int x = (int)Math.Floor(ray.Origin.X);
             int y = (int)Math.Floor(ray.Origin.Y);
             int z = (int)Math.Floor(ray.Origin.Z);
 
-            // Get the end position in world coordinates
+            // Get the end position in world coordinates.
             int endX = (int)Math.Floor(ray.EndPoint.X);
             int endY = (int)Math.Floor(ray.EndPoint.Y);
             int endZ = (int)Math.Floor(ray.EndPoint.Z);
 
-            // Get the direction in which the components are incremented
+            // Get the direction in which the components are incremented.
             int stepX = Math.Sign(direction.X);
             int stepY = Math.Sign(direction.Y);
             int stepZ = Math.Sign(direction.Z);
 
-            // Calculate the distance to the next voxel border from the current position
+            // Calculate the distance to the next voxel border from the current position.
             double nextVoxelBoundaryX = (stepX > 0) ? x + stepX : x;
             double nextVoxelBoundaryY = (stepY > 0) ? y + stepY : y;
             double nextVoxelBoundaryZ = (stepZ > 0) ? z + stepZ : z;
 
-            // Calculate the distance to the next voxel border
+            // Calculate the distance to the next voxel border.
             double tMaxX = (direction.X != 0) ? (nextVoxelBoundaryX - ray.Origin.X) / direction.X : double.MaxValue;
             double tMaxY = (direction.Y != 0) ? (nextVoxelBoundaryY - ray.Origin.Y) / direction.Y : double.MaxValue;
             double tMaxZ = (direction.Z != 0) ? (nextVoxelBoundaryZ - ray.Origin.Z) / direction.Z : double.MaxValue;
 
-            // Calculate distance so component equals voxel border
+            // Calculate distance so component equals voxel border.
             double tDeltaX = (direction.X != 0) ? stepX / direction.X : double.MaxValue;
             double tDeltaY = (direction.Y != 0) ? stepY / direction.Y : double.MaxValue;
             double tDeltaZ = (direction.Z != 0) ? stepZ / direction.Z : double.MaxValue;
 
-            //Check the current block
+            // Check the current block.
             Block? currentBlock = Game.World.GetBlock(x, y, z, out _);
 
             if (currentBlock != null && currentBlock != Block.AIR)
             {
-                // Check if the ray intersects the bounding box of the block
+                // Check if the ray intersects the bounding box of the block.
                 if (currentBlock.GetBoundingBox(x, y, z).Intersects(ray))
                 {
                     hitX = x;
                     hitY = y;
                     hitZ = z;
 
-                    // As the ray starts in this voxel, no side is selected
+                    // As the ray starts in this voxel, no side is selected.
                     side = BlockSide.All;
 
                     return true;

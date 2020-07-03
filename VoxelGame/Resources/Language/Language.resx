@@ -123,6 +123,9 @@
   <data name="AllChunksSaving" xml:space="preserve">
     <value>Saving all active chunks of the world.</value>
   </data>
+  <data name="Bed" xml:space="preserve">
+    <value>Bed</value>
+  </data>
   <data name="BlocksLoadedAmount" xml:space="preserve">
     <value>Blocks loaded: </value>
   </data>
@@ -246,6 +249,12 @@
   <data name="StartingGame" xml:space="preserve">
     <value>Starting game...</value>
   </data>
+  <data name="Steel" xml:space="preserve">
+    <value>Steel</value>
+  </data>
+  <data name="SteelDoor" xml:space="preserve">
+    <value>Steel Door</value>
+  </data>
   <data name="Stone" xml:space="preserve">
     <value>Stone</value>
   </data>
@@ -279,8 +288,14 @@
   <data name="Wood" xml:space="preserve">
     <value>Wood</value>
   </data>
+  <data name="WoodenDoor" xml:space="preserve">
+    <value>Wooden Door</value>
+  </data>
   <data name="WoodenFence" xml:space="preserve">
     <value>Wooden Fence</value>
+  </data>
+  <data name="WoodenGate" xml:space="preserve">
+    <value>Wooden Gate</value>
   </data>
   <data name="WorldIsReady" xml:space="preserve">
     <value>The World is ready.</value>

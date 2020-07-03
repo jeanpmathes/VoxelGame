@@ -89,10 +89,8 @@ namespace VoxelGame.Rendering
 
         private static string LoadSource(string path)
         {
-            using (var sr = new StreamReader(path, Encoding.UTF8))
-            {
-                return sr.ReadToEnd();
-            }
+            using var sr = new StreamReader(path, Encoding.UTF8);
+            return sr.ReadToEnd();
         }
 
         /// <summary>

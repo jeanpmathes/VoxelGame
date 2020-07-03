@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using VoxelGame.Resources.Language;
+using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +11,8 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using VoxelGame.Collections;
 using VoxelGame.Rendering;
+using VoxelGame.Resources.Language;
+using VoxelGame.Utilities;
 using VoxelGame.WorldGeneration;
 
 namespace VoxelGame.Logic
@@ -21,11 +23,11 @@ namespace VoxelGame.Logic
 
         public WorldInformation Information { get; }
 
-        private const int maxGenerationTasks = 15;
-        private const int maxLoadingTasks = 15;
-        private const int maxMeshingTasks = 5;
-        private const int maxMeshDataSends = 2;
-        private const int maxSavingTasks = 15;
+        private readonly int maxGenerationTasks = Config.GetInt("maxGenerationTasks", 15);
+        private readonly int maxLoadingTasks = Config.GetInt("maxLoadingTasks", 15);
+        private readonly int maxMeshingTasks = Config.GetInt("maxMeshingTasks", 5);
+        private readonly int maxMeshDataSends = Config.GetInt("maxMeshDataSends", 2);
+        private readonly int maxSavingTasks = Config.GetInt("maxSavingTasks", 15);
 
         private readonly string worldDirectory;
         private readonly string chunkDirectory;
@@ -43,161 +45,181 @@ namespace VoxelGame.Logic
         /// <summary>
         /// A set of chunk positions which are currently not active and should either be loaded or generated.
         /// </summary>
-        private readonly HashSet<(int x, int z)> positionsToActivate = new HashSet<(int x, int z)>();
+        private readonly HashSet<(int x, int z)> positionsToActivate;
 
         /// <summary>
         /// A set of chunk positions that are currently being activated. No new chunks for these positions should be created.
         /// </summary>
-        private readonly HashSet<(int, int)> positionsActivating = new HashSet<(int, int)>();
+        private readonly HashSet<(int, int)> positionsActivating;
 
         /// <summary>
         /// A queue that contains all chunks that have to be generated.
         /// </summary>
-        private readonly UniqueQueue<Chunk> chunksToGenerate = new UniqueQueue<Chunk>();
+        private readonly UniqueQueue<Chunk> chunksToGenerate;
 
         /// <summary>
         /// A list of chunk generation tasks.
         /// </summary>
-        private readonly List<Task> chunkGenerateTasks = new List<Task>(maxGenerationTasks);
+        private readonly List<Task> chunkGenerateTasks;
 
         /// <summary>
         /// A dictionary containing all chunks that are currently generated, with the task id of their generating task as key.
         /// </summary>
-        private readonly Dictionary<int, Chunk> chunksGenerating = new Dictionary<int, Chunk>(maxGenerationTasks);
+        private readonly Dictionary<int, Chunk> chunksGenerating;
 
         /// <summary>
         /// A queue that contains all positions that have to be loaded.
         /// </summary>
-        private readonly UniqueQueue<(int x, int z)> positionsToLoad = new UniqueQueue<(int x, int z)>();
+        private readonly UniqueQueue<(int x, int z)> positionsToLoad;
 
         /// <summary>
         /// A list of chunk loading tasks.
         /// </summary>
-        private readonly List<Task<Chunk?>> chunkLoadingTasks = new List<Task<Chunk?>>(maxLoadingTasks);
+        private readonly List<Task<Chunk?>> chunkLoadingTasks;
 
         /// <summary>
         /// A dictionary containing all chunk positions that are currently loaded, with the task id of their loading task as key.
         /// </summary>
-        private readonly Dictionary<int, (int x, int z)> positionsLoading = new Dictionary<int, (int x, int z)>(maxLoadingTasks);
+        private readonly Dictionary<int, (int x, int z)> positionsLoading;
 
         /// <summary>
         /// A dictionary that contains all active chunks.
         /// </summary>
-        private readonly Dictionary<ValueTuple<int, int>, Chunk> activeChunks = new Dictionary<ValueTuple<int, int>, Chunk>();
+        private readonly Dictionary<ValueTuple<int, int>, Chunk> activeChunks;
 
         /// <summary>
         /// A queue with chunks that have to be meshed completely, mainly new chunks.
         /// </summary>
-        private readonly UniqueQueue<Chunk> chunksToMesh = new UniqueQueue<Chunk>();
+        private readonly UniqueQueue<Chunk> chunksToMesh;
 
         /// <summary>
         /// A list of chunk meshing tasks,
         /// </summary>
-        private readonly List<Task<SectionMeshData[]>> chunkMeshingTasks = new List<Task<SectionMeshData[]>>(maxMeshingTasks);
+        private readonly List<Task<SectionMeshData[]>> chunkMeshingTasks;
 
         /// <summary>
         /// A dictionary containing all chunks that are currently meshed, with the task id of their meshing task as key.
         /// </summary>
-        private readonly Dictionary<int, Chunk> chunksMeshing = new Dictionary<int, Chunk>(maxMeshingTasks);
+        private readonly Dictionary<int, Chunk> chunksMeshing;
 
         /// <summary>
         /// A list of chunks where the mesh data has to be set;
         /// </summary>
-        private readonly List<(Chunk chunk, Task<SectionMeshData[]> chunkMeshingTask)> chunksToSendMeshData = new List<(Chunk chunk, Task<SectionMeshData[]> chunkMeshingTask)>(maxMeshDataSends);
+        private readonly List<(Chunk chunk, Task<SectionMeshData[]> chunkMeshingTask)> chunksToSendMeshData;
 
         /// <summary>
         /// A set of chunks with information on which sections of them are to mesh.
         /// </summary>
-        private readonly HashSet<(Chunk chunk, int index)> sectionsToMesh = new HashSet<(Chunk chunk, int index)>();
+        private readonly HashSet<(Chunk chunk, int index)> sectionsToMesh;
 
         /// <summary>
         /// A set of chunks that have to be rendered.
         /// </summary>
-        private readonly HashSet<Chunk> chunksToRender = new HashSet<Chunk>();
+        private readonly HashSet<Chunk> chunksToRender;
 
         /// <summary>
         /// A set of chunk positions that should be released on their activation.
         /// </summary>
-        private readonly HashSet<(int x, int z)> positionsToReleaseOnActivation = new HashSet<(int x, int z)>();
+        private readonly HashSet<(int x, int z)> positionsToReleaseOnActivation;
 
         /// <summary>
         /// A queue of chunks that should be saved and disposed.
         /// </summary>
-        private readonly UniqueQueue<Chunk> chunksToSave = new UniqueQueue<Chunk>();
+        private readonly UniqueQueue<Chunk> chunksToSave;
 
         /// <summary>
         /// A list of chunk saving tasks.
         /// </summary>
-        private readonly List<Task> chunkSavingTasks = new List<Task>(maxSavingTasks);
+        private readonly List<Task> chunkSavingTasks;
 
         /// <summary>
         /// A dictionary containing all chunks that are currently saved, with the task id of their saving task as key.
         /// </summary>
-        private readonly Dictionary<int, Chunk> chunksSaving = new Dictionary<int, Chunk>(maxSavingTasks);
+        private readonly Dictionary<int, Chunk> chunksSaving;
 
         /// <summary>
         /// A set containing all positions that are currently saved.
         /// </summary>
-        private readonly HashSet<(int x, int z)> positionsSaving = new HashSet<(int x, int z)>(maxSavingTasks);
+        private readonly HashSet<(int x, int z)> positionsSaving;
 
         /// <summary>
         /// A set of positions that have no task activating them and have to be activated by the saving code.
         /// </summary>
-        private readonly HashSet<(int x, int z)> positionsActivatingThroughSaving = new HashSet<(int x, int z)>();
+        private readonly HashSet<(int x, int z)> positionsActivatingThroughSaving;
 
         /// <summary>
         /// This constructor is meant for worlds that are new.
         /// </summary>
-        public World(string name, string path, int seed)
+        public World(string name, string path, int seed) :
+            this(
+                new WorldInformation
+                {
+                    Name = name,
+                    Seed = seed,
+                    Creation = DateTime.Now,
+                    Version = Program.Version
+                },
+                worldDirectory: path,
+                chunkDirectory: path + @"\Chunks",
+                new ComplexGenerator(seed))
         {
-            worldDirectory = path;
-            chunkDirectory = worldDirectory + @"\Chunks";
-
-            Directory.CreateDirectory(worldDirectory);
-            Directory.CreateDirectory(chunkDirectory);
-
-            WorldInformation information = new WorldInformation
-            {
-                Name = name,
-                Seed = seed,
-                Creation = DateTime.Now,
-                Version = Program.Version
-            };
-
-            information.Save(Path.Combine(worldDirectory, "meta.json"));
-
-            Information = information;
-            generator = new ComplexGenerator(seed);
-
-            Setup();
+            Information.Save(Path.Combine(worldDirectory, "meta.json"));
         }
 
         /// <summary>
         /// This constructor is meant for worlds that already exist.
         /// </summary>
-        public World(WorldInformation information, string path)
+        public World(WorldInformation information, string path) :
+            this(
+                information,
+                worldDirectory: path,
+                chunkDirectory: path + @"\Chunks",
+                new ComplexGenerator(information.Seed))
         {
-            worldDirectory = path;
-            chunkDirectory = worldDirectory + @"\Chunks";
+        }
 
-            Directory.CreateDirectory(worldDirectory);
-            Directory.CreateDirectory(chunkDirectory);
+        /// <summary>
+        /// Setup of readonly fields and non-optional steps.
+        /// </summary>
+        private World(WorldInformation information, string worldDirectory, string chunkDirectory, IWorldGenerator generator)
+        {
+            positionsToActivate = new HashSet<(int x, int z)>();
+            positionsActivating = new HashSet<(int, int)>();
+            chunksToGenerate = new UniqueQueue<Chunk>();
+            chunkGenerateTasks = new List<Task>(maxGenerationTasks);
+            chunksGenerating = new Dictionary<int, Chunk>(maxGenerationTasks);
+            positionsToLoad = new UniqueQueue<(int x, int z)>();
+            chunkLoadingTasks = new List<Task<Chunk?>>(maxLoadingTasks);
+            positionsLoading = new Dictionary<int, (int x, int z)>(maxLoadingTasks);
+            activeChunks = new Dictionary<ValueTuple<int, int>, Chunk>();
+            chunksToMesh = new UniqueQueue<Chunk>();
+            chunkMeshingTasks = new List<Task<SectionMeshData[]>>(maxMeshingTasks);
+            chunksMeshing = new Dictionary<int, Chunk>(maxMeshingTasks);
+            chunksToSendMeshData = new List<(Chunk chunk, Task<SectionMeshData[]> chunkMeshingTask)>(maxMeshDataSends);
+            sectionsToMesh = new HashSet<(Chunk chunk, int index)>();
+            chunksToRender = new HashSet<Chunk>();
+            positionsToReleaseOnActivation = new HashSet<(int x, int z)>();
+            chunksToSave = new UniqueQueue<Chunk>();
+            chunkSavingTasks = new List<Task>(maxSavingTasks);
+            chunksSaving = new Dictionary<int, Chunk>(maxSavingTasks);
+            positionsSaving = new HashSet<(int x, int z)>(maxSavingTasks);
+            positionsActivatingThroughSaving = new HashSet<(int x, int z)>();
 
             Information = information;
-            generator = new ComplexGenerator(information.Seed);
+
+            this.worldDirectory = worldDirectory;
+            this.chunkDirectory = chunkDirectory;
+            this.generator = generator;
 
             Setup();
         }
 
         private void Setup()
         {
-            for (int x = ChunkExtents / -2; x < (ChunkExtents / 2) + 1; x++)
-            {
-                for (int z = ChunkExtents / -2; z < (ChunkExtents / 2) + 1; z++)
-                {
-                    positionsToActivate.Add((x, z));
-                }
-            }
+            Directory.CreateDirectory(worldDirectory);
+            Directory.CreateDirectory(chunkDirectory);
+
+            positionsToActivate.Add((0, 0));
         }
 
         public void FrameRender()
@@ -808,6 +830,15 @@ namespace VoxelGame.Logic
         }
 
         /// <summary>
+        /// Sets the spawn position of this world.
+        /// </summary>
+        /// <param name="position">The position to set as spawn.</param>
+        public void SetSpawnPosition(Vector3 position)
+        {
+            Information.SpawnInformation = new SpawnInformation(position);
+        }
+
+        /// <summary>
         /// Saves all active chunks that are not currently saved.
         /// </summary>
         /// <returns>A task that represents all tasks saving the chunks.</returns>
@@ -827,7 +858,7 @@ namespace VoxelGame.Logic
 
             Information.Version = Program.Version;
 
-            savingTasks.Add(Task.Run( () => Information.Save(Path.Combine(worldDirectory, "meta.json"))));
+            savingTasks.Add(Task.Run(() => Information.Save(Path.Combine(worldDirectory, "meta.json"))));
 
             return Task.WhenAll(savingTasks);
         }

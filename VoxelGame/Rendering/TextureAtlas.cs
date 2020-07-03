@@ -38,23 +38,22 @@ namespace VoxelGame.Rendering
             {
                 try
                 {
-                    using (Bitmap bitmap = new Bitmap(texturePaths[i]))
-                    {
-                        if ((bitmap.Width & 15) == 0 && bitmap.Height == 16) // Check if image consists of 16x16 textures
-                        {
-                            int textureCount = bitmap.Width >> 4;
-                            textureIndicies.Add(Path.GetFileNameWithoutExtension(texturePaths[i]), currentIndex);
+                    using Bitmap bitmap = new Bitmap(texturePaths[i]);
 
-                            for (int j = 0; j < textureCount; j++)
-                            {
-                                textures.Add(bitmap.Clone(new Rectangle(j << 4, 0, 16, 16), System.Drawing.Imaging.PixelFormat.Format32bppArgb));
-                                currentIndex++;
-                            }
-                        }
-                        else
+                    if ((bitmap.Width & 15) == 0 && bitmap.Height == 16) // Check if image consists of 16x16 textures
+                    {
+                        int textureCount = bitmap.Width >> 4;
+                        textureIndicies.Add(Path.GetFileNameWithoutExtension(texturePaths[i]), currentIndex);
+
+                        for (int j = 0; j < textureCount; j++)
                         {
-                            Console.WriteLine($"The image has the wrong width or height: {texturePaths[i]}");
+                            textures.Add(bitmap.Clone(new Rectangle(j << 4, 0, 16, 16), System.Drawing.Imaging.PixelFormat.Format32bppArgb));
+                            currentIndex++;
                         }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"The image has the wrong width or height: {texturePaths[i]}");
                     }
                 }
                 catch (Exception e)
@@ -145,10 +144,9 @@ namespace VoxelGame.Rendering
 
         public AtlasPosition GetTextureUV(int index)
         {
-            return new AtlasPosition(1f - 1f / extents * ((index & (extents - 1)) + 1f), 1f - 1f / extents * ((index >> log2Extents) + 1f), 1f - 1f / extents * (index & (extents - 1)), 1f - 1f / extents * (index >> log2Extents));
+            return new AtlasPosition(1f - (1f / extents * ((index & (extents - 1)) + 1f)), 1f - (1f / extents * ((index >> log2Extents) + 1f)), 1f - (1f / extents * (index & (extents - 1))), 1f - (1f / extents * (index >> log2Extents)));
         }
     }
-
 
     /// <summary>
     /// The position of a texture in a texture atlas.

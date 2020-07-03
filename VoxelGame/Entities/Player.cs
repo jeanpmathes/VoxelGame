@@ -5,12 +5,12 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common.Input;
-using VoxelGame.Resources.Language;
 using System;
-using System.Configuration;
 using VoxelGame.Logic;
 using VoxelGame.Physics;
 using VoxelGame.Rendering;
+using VoxelGame.Resources.Language;
+using VoxelGame.Utilities;
 
 namespace VoxelGame.Entities
 {
@@ -41,52 +41,55 @@ namespace VoxelGame.Entities
         public override BlockSide TargetSide { get => selectedSide; }
 
         private readonly Camera camera;
-        private readonly Vector3 cameraOffset = new Vector3(0f, 0.5f, 0f);
+        private readonly Vector3 cameraOffset = new Vector3(0f, 0.65f, 0f);
 
         private readonly float speed = 4f;
         private readonly float sprintSpeed = 6f;
         private readonly Vector3 maxForce = new Vector3(5000f, 0f, 5000f);
         private readonly float jumpForce = 25000f;
+
         private Vector3 movement;
 
-        private readonly float mouseSensitivity = float.TryParse(ConfigurationManager.AppSettings["MouseSensitivity"], out float f) ? f : 0.1f;
+        private readonly float mouseSensitivity = Config.GetFloat("mouseSensitivity", 0.1f);
 
         private int selectedX, selectedY, selectedZ;
         private BlockSide selectedSide;
+
         private readonly BoxRenderer selectionRenderer;
 
         private readonly float interactionCooldown = 0.25f;
+
         private float timer;
 
         private Block activeBlock;
-        private bool hasPressedPlus = false;
-        private bool hasPressedMinus = false;
+        private bool hasPressedPlus;
+        private bool hasPressedMinus;
 
         private static readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
 
-        public Player(float mass, float drag, Vector3 startPosition, Camera camera, BoundingBox boundingBox) : base(mass, drag, boundingBox)
+        public Player(float mass, float drag, Camera camera, BoundingBox boundingBox) : base(mass, drag, boundingBox)
         {
             this.camera = camera ?? throw new ArgumentNullException(paramName: nameof(camera));
 
-            Position = startPosition;
-            camera.Position = startPosition;
+            Position = Game.World.Information.SpawnInformation.Position;
+            camera.Position = Position;
 
             selectionRenderer = new BoxRenderer();
 
-            activeBlock = Block.GLASS;
+            activeBlock = Block.GRASS;
 
             // Request chunks around current position
 
-            //int currentChunkX = (int)Math.Floor(Position.X) / Section.SectionSize;
-            //int currentChunkZ = (int)Math.Floor(Position.Z) / Section.SectionSize;
+            ChunkX = (int)Math.Floor(Position.X) / Section.SectionSize;
+            ChunkZ = (int)Math.Floor(Position.Z) / Section.SectionSize;
 
-            //for (int x = -RenderDistance; x <= RenderDistance; x++)
-            //{
-            //    for (int z = -RenderDistance; z <= RenderDistance; z++)
-            //    {
-            //        Game.World.RequestChunk(currentChunkX + x, currentChunkZ + z);
-            //    }
-            //}
+            for (int x = -RenderDistance; x <= RenderDistance; x++)
+            {
+                for (int z = -RenderDistance; z <= RenderDistance; z++)
+                {
+                    Game.World.RequestChunk(ChunkX + x, ChunkZ + z);
+                }
+            }
         }
 
         /// <summary>
@@ -133,94 +136,98 @@ namespace VoxelGame.Entities
             Ray ray = new Ray(camera.Position, camera.Front, 6f);
             Raycast.CastWorld(ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
 
+            // Do input handling.
             if (Game.instance.IsFocused)
             {
                 KeyboardState input = Game.instance.KeyboardState;
-
-                // Handling movement
-                Vector3 movement = new Vector3();
-
-                if (input.IsKeyDown(Key.W))
-                    movement += Forward; // Forward
-
-                if (input.IsKeyDown(Key.S))
-                    movement -= Forward; // Backwards
-
-                if (input.IsKeyDown(Key.A))
-                    movement -= Right; // Left
-
-                if (input.IsKeyDown(Key.D))
-                    movement += Right; // Right
-
-                if (movement != Vector3.Zero)
-                {
-                    if (input.IsKeyDown(Key.ShiftLeft))
-                    {
-                        movement = movement.Normalized() * sprintSpeed;
-                    }
-                    else
-                    {
-                        movement = movement.Normalized() * speed;
-                    }
-                }
-
-                this.movement = movement;
-                Move(movement, maxForce);
-
-                if (input.IsKeyDown(Key.Space) && IsGrounded) // Jump
-                {
-                    AddForce(new Vector3(0f, jumpForce, 0f));
-                }
 
                 MouseState mouse = Game.instance.MouseState;
                 Vector2 defaultMousePos = new Vector2(Game.instance.Size.X / 2f, Game.instance.Size.Y / 2f);
                 Game.instance.MousePosition = defaultMousePos;
 
-                // Calculate the offset of the mouse position
-                var deltaX = mouse.X - defaultMousePos.X;
-                var deltaY = mouse.Y - defaultMousePos.Y;
+                MovementInput(input);
+                MouseChange(mouse, defaultMousePos);
 
-                // Apply the camera pitch and yaw (we clamp the pitch in the camera class)
-                camera.Yaw += deltaX * mouseSensitivity;
-                camera.Pitch -= deltaY * mouseSensitivity;
+                BlockSelection(input);
 
-                Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
+                WorldInteraction(input, mouse);
+            }
 
-                // Block selection
-                if (input.IsKeyDown(Key.KeypadPlus) && !hasPressedPlus)
+            timer += deltaTime;
+
+            // Check if the current chunk has changed and request new chunks if needed / release unneeded chunks.
+            ChunkChange();
+        }
+
+        private void MovementInput(KeyboardState input)
+        {
+            Vector3 movement = new Vector3();
+
+            if (input.IsKeyDown(Key.W))
+                movement += Forward; // Forward
+
+            if (input.IsKeyDown(Key.S))
+                movement -= Forward; // Backwards
+
+            if (input.IsKeyDown(Key.A))
+                movement -= Right; // Left
+
+            if (input.IsKeyDown(Key.D))
+                movement += Right; // Right
+
+            if (movement != Vector3.Zero)
+            {
+                if (input.IsKeyDown(Key.ShiftLeft))
                 {
-                    activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID((ushort)(activeBlock.Id + 1)) : Block.TranslateID(1);
-                    hasPressedPlus = true;
-
-                    Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
+                    movement = movement.Normalized() * sprintSpeed;
                 }
-                else if (input.IsKeyUp(Key.KeypadPlus))
+                else
                 {
-                    hasPressedPlus = false;
+                    movement = movement.Normalized() * speed;
                 }
+            }
 
-                if (input.IsKeyDown(Key.KeypadMinus) && !hasPressedMinus)
-                {
-                    activeBlock = (activeBlock.Id != 1) ? Block.TranslateID((ushort)(activeBlock.Id - 1)) : Block.TranslateID((ushort)(Block.Count - 1));
-                    hasPressedMinus = true;
+            this.movement = movement;
+            Move(movement, maxForce);
 
-                    Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
-                }
-                else if (input.IsKeyUp(Key.KeypadMinus))
-                {
-                    hasPressedMinus = false;
-                }
+            if (input.IsKeyDown(Key.Space) && IsGrounded) // Jump
+            {
+                AddForce(new Vector3(0f, jumpForce, 0f));
+            }
+        }
 
-                // Handling world manipulation
+        private void MouseChange(MouseState mouse, Vector2 defaultMousePos)
+        {
+            // Calculate the offset of the mouse position
+            var deltaX = mouse.X - defaultMousePos.X;
+            var deltaY = mouse.Y - defaultMousePos.Y;
 
-                // Placement
-                if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Right))
+            // Apply the camera pitch and yaw (we clamp the pitch in the camera class)
+            camera.Yaw += deltaX * mouseSensitivity;
+            camera.Pitch -= deltaY * mouseSensitivity;
+
+            Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
+        }
+
+        private void WorldInteraction(KeyboardState input, MouseState mouse)
+        {
+            Block? target = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _);
+
+            if (target == null)
+            {
+                return;
+            }
+
+            // Right mouse button.
+            if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Right))
+            {
+                if (input.IsKeyDown(Key.ControlLeft) || !target.IsInteractable)
                 {
                     int placePositionX = selectedX;
                     int placePositionY = selectedY;
                     int placePositionZ = selectedZ;
 
-                    if (Game.World.GetBlock(placePositionX, placePositionY, placePositionZ, out _)?.IsReplaceable == false)
+                    if (!target.IsReplaceable)
                     {
                         switch (selectedSide)
                         {
@@ -250,7 +257,7 @@ namespace VoxelGame.Entities
                         }
                     }
 
-                    // Prevent block placement if the block would intersect the player
+                    // Prevent block placement if the block would intersect the player.
                     if (!activeBlock.IsSolid || !BoundingBox.Intersects(activeBlock.GetBoundingBox(placePositionX, placePositionY, placePositionZ)))
                     {
                         activeBlock.Place(placePositionX, placePositionY, placePositionZ, this);
@@ -258,24 +265,52 @@ namespace VoxelGame.Entities
                         timer = 0;
                     }
                 }
-
-                // Destruction
-                if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Left))
+                else if (target.IsInteractable)
                 {
-                    Block? selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _);
+                    target.EntityInteract(this, selectedX, selectedY, selectedZ);
 
-                    if (selectedBlock != null)
-                    {
-                        selectedBlock.Destroy(selectedX, selectedY, selectedZ, this);
-
-                        timer = 0;
-                    }
+                    timer = 0;
                 }
             }
 
-            timer += deltaTime;
+            // Left mouse button.
+            if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Left))
+            {
+                target.Destroy(selectedX, selectedY, selectedZ, this);
 
-            // Check if the current chunk has changed and request new chunks if needed / release unneeded chunks
+                timer = 0;
+            }
+        }
+
+        private void BlockSelection(KeyboardState input)
+        {
+            if (input.IsKeyDown(Key.KeypadPlus) && !hasPressedPlus)
+            {
+                activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID((ushort)(activeBlock.Id + 1)) : Block.TranslateID(1);
+                hasPressedPlus = true;
+
+                Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
+            }
+            else if (input.IsKeyUp(Key.KeypadPlus))
+            {
+                hasPressedPlus = false;
+            }
+
+            if (input.IsKeyDown(Key.KeypadMinus) && !hasPressedMinus)
+            {
+                activeBlock = (activeBlock.Id != 1) ? Block.TranslateID((ushort)(activeBlock.Id - 1)) : Block.TranslateID((ushort)(Block.Count - 1));
+                hasPressedMinus = true;
+
+                Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
+            }
+            else if (input.IsKeyUp(Key.KeypadMinus))
+            {
+                hasPressedMinus = false;
+            }
+        }
+
+        private void ChunkChange()
+        {
             int currentChunkX = (int)Math.Floor(Position.X) >> sectionSizeExp;
             int currentChunkZ = (int)Math.Floor(Position.Z) >> sectionSizeExp;
 

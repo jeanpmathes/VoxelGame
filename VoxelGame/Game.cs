@@ -1,5 +1,6 @@
-﻿// <copyright file="Game.cs" company="VoxelGame">
-//     All rights reserved.
+﻿// <copyright file="World.cs" company="VoxelGame">
+//     MIT License
+//	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenToolkit.Graphics.OpenGL4;
@@ -7,13 +8,13 @@ using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Common.Input;
 using OpenToolkit.Windowing.Desktop;
-using VoxelGame.Resources.Language;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using VoxelGame.Entities;
 using VoxelGame.Logic;
 using VoxelGame.Rendering;
+using VoxelGame.Resources.Language;
 
 namespace VoxelGame
 {
@@ -78,7 +79,7 @@ namespace VoxelGame
 
             // Player setup
             Camera camera = new Camera(new Vector3(), Size.X / (float)Size.Y);
-            Player = new Player(70f, 0.25f, new Vector3(0f, 1000f, 0f), camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.45f, 0.9f, 0.45f)));
+            Player = new Player(70f, 0.25f, camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.35f, 0.9f, 0.35f)));
 
             CursorVisible = false;
 

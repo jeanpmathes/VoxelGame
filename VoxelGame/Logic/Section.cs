@@ -8,7 +8,7 @@ using System;
 using System.Runtime.CompilerServices;
 using VoxelGame.Collections;
 using VoxelGame.Rendering;
-using VoxelGame.WorldGeneration;
+using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic
 {
