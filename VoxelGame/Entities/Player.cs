@@ -50,7 +50,7 @@ namespace VoxelGame.Entities
 
         private Vector3 movement;
 
-        private readonly float mouseSensitivity = Config.GetFloat("MouseSensitivity", 0.1f);
+        private readonly float mouseSensitivity = Config.GetFloat("mouseSensitivity", 0.1f);
 
         private int selectedX, selectedY, selectedZ;
         private BlockSide selectedSide;
