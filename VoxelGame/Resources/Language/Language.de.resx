@@ -294,6 +294,9 @@
   <data name="WoodenFence" xml:space="preserve">
     <value>Holzzaun</value>
   </data>
+  <data name="WoodenGate" xml:space="preserve">
+    <value>Holztor</value>
+  </data>
   <data name="WorldIsReady" xml:space="preserve">
     <value>Die Welt ist bereit.</value>
   </data>

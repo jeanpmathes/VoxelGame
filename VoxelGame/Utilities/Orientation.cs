@@ -30,6 +30,18 @@ namespace VoxelGame.Utilities
             }
         }
 
+        public static Vector3 ToVector(this Orientation orientation)
+        {
+            return orientation switch
+            {
+                Orientation.North => -Vector3.UnitZ,
+                Orientation.East => Vector3.UnitX,
+                Orientation.South => Vector3.UnitZ,
+                Orientation.West => -Vector3.UnitX,
+                _ => -Vector3.UnitZ
+            };
+        }
+
         public static Orientation Invert(this Orientation orientation)
         {
             return orientation switch

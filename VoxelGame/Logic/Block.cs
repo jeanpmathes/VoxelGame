@@ -30,9 +30,9 @@ namespace VoxelGame.Logic
         public static Block RUBBLE = null!;
         public static Block LOG = null!;
         public static Block WOOD = null!;
-        public static Block LEAVES = null!;
         public static Block SAND = null!;
         public static Block GRAVEL = null!;
+        public static Block LEAVES = null!;
         public static Block GLASS = null!;
         public static Block ORE_COAL = null!;
         public static Block ORE_IRON = null!;
@@ -56,7 +56,6 @@ namespace VoxelGame.Logic
         public static Block TILES_CHECKERBOARD_WHITE = null!;
         public static Block CACTUS = null!;
         public static Block VASE = null!;
-        public static Block CAKE = null!;
         public static Block BRICKS = null!;
         public static Block PAVING_STONE = null!;
         public static Block WALL_RUBBLE = null!;
@@ -65,6 +64,7 @@ namespace VoxelGame.Logic
         public static Block STEEL = null!;
         public static Block DOOR_STEEL = null!;
         public static Block DOOR_WOOD = null!;
+        public static Block GATE_WOOD = null!;
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
         public const int BlockLimit = 2048;
@@ -139,6 +139,7 @@ namespace VoxelGame.Logic
             STEEL = new ConstructionBlock(Language.Steel, TextureLayout.Uniform("steel"));
             DOOR_STEEL = new DoorBlock(Language.SteelDoor, "door_steel_closed", "door_steel_open");
             DOOR_WOOD = new DoorBlock(Language.WoodenDoor, "door_wood_closed", "door_wood_open");
+            GATE_WOOD = new GateBlock(Language.WoodenGate, "gate_wood_closed", "gate_wood_open");
         }
 
         #endregion STATIC BLOCK MANAGMENT
