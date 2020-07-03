@@ -10,6 +10,7 @@ using VoxelGame.Utilities;
 using OpenToolkit.Mathematics;
 using VoxelGame.Entities;
 using System;
+using System.Security.Cryptography.Xml;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -181,8 +182,8 @@ namespace VoxelGame.Logic.Blocks
 
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
 
-            bool connectX = (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east != this) || (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west != this);
-            bool connectZ = (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south != this) || (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north != this);
+            bool connectX = (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z)) || (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z));
+            bool connectZ = (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1)) || (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1));
 
             if ((orientation == Orientation.North || orientation == Orientation.South) && !connectX)
             {
@@ -234,17 +235,38 @@ namespace VoxelGame.Logic.Blocks
 
             if (orientation == Orientation.North || orientation == Orientation.South)
             {
-                if (!((Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east != this) || (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west != this)))
+                if (!((Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z)) || (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))))
                 {
                     Destroy(x, y, z, null);
                 }
             }
             else
             {
-                if (!((Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south != this) || (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north != this)))
+                if (!((Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1)) || (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))))
                 {
                     Destroy(x, y, z, null);
                 }
+            }
+        }
+
+        public bool IsConnetable(BlockSide side, int x, int y, int z)
+        {
+            if (Game.World.GetBlock(x, y, z, out byte data) == this)
+            {
+                Orientation orientation = (Orientation)(data & 0b0_0011);
+
+                return orientation switch
+                {
+                    Orientation.North => side == BlockSide.Left || side == BlockSide.Right,
+                    Orientation.East => side == BlockSide.Front || side == BlockSide.Back,
+                    Orientation.South => side == BlockSide.Left || side == BlockSide.Right,
+                    Orientation.West => side == BlockSide.Front || side == BlockSide.Back,
+                    _ => false
+                };
+            }
+            else
+            {
+                return false;
             }
         }
     }
