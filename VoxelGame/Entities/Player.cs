@@ -62,8 +62,8 @@ namespace VoxelGame.Entities
         private float timer;
 
         private Block activeBlock;
-        private bool hasPressedPlus = false;
-        private bool hasPressedMinus = false;
+        private bool hasPressedPlus;
+        private bool hasPressedMinus;
 
         private static readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
 
@@ -76,7 +76,7 @@ namespace VoxelGame.Entities
 
             selectionRenderer = new BoxRenderer();
 
-            activeBlock = Block.GLASS;
+            activeBlock = Block.GRASS;
 
             // Request chunks around current position
 
