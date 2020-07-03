@@ -377,5 +377,15 @@ namespace VoxelGame.Logic
         {
             return $"Block [{Name}]";
         }
+
+        public sealed override bool Equals(object? obj)
+        {
+            return ReferenceEquals(this, obj);
+        }
+
+        public sealed override int GetHashCode()
+        {
+            return Id;
+        }
     }
 }
