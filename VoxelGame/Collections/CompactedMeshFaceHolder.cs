@@ -6,8 +6,6 @@
 using System;
 using System.Buffers;
 using System.Collections.Concurrent;
-using System.Drawing;
-using System.Windows.Forms;
 using VoxelGame.Logic;
 
 namespace VoxelGame.Collections
@@ -194,6 +192,7 @@ namespace VoxelGame.Collections
                         meshData.Add(vertTexRepetition | currentFace.vert_1_1);
                         meshData.Add(currentFace.vertData);
 
+                        currentFace.Return();
                         currentFace = currentFace.previousFace;
                     }
                 }
@@ -251,6 +250,8 @@ namespace VoxelGame.Collections
             {
                 MeshFace instance = objects.TryTake(out instance!) ? instance : new MeshFace();
 
+                instance.previousFace = null;
+
                 instance.vert_0_0 = vert_0_0;
                 instance.vert_0_1 = vert_0_1;
                 instance.vert_1_1 = vert_1_1;
@@ -261,17 +262,14 @@ namespace VoxelGame.Collections
                 instance.isRotated = isRotated;
 
                 instance.position = position;
+                instance.length = 0;
+                instance.height = 0;
 
                 return instance;
             }
 
             public void Return()
             {
-                previousFace = null;
-
-                length = 0;
-                height = 0;
-
                 objects.Add(this);
             }
 
