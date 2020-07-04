@@ -14,6 +14,9 @@ namespace VoxelGame.Collections
     /// </summary>
     public class CompactedMeshFaceHolder
     {
+        private static readonly ArrayPool<MeshFace[]> layerPool = ArrayPool<MeshFace[]>.Create(Section.SectionSize, 64);
+        private static readonly ArrayPool<MeshFace> rowPool = ArrayPool<MeshFace>.Create(Section.SectionSize, 256);
+
         private readonly BlockSide side;
         private readonly MeshFace?[][] lastFaces;
 
@@ -24,12 +27,12 @@ namespace VoxelGame.Collections
             this.side = side;
 
             // Initialize layers.
-            lastFaces = ArrayPool<MeshFace[]>.Shared.Rent(Section.SectionSize);
+            lastFaces = layerPool.Rent(Section.SectionSize);
 
             // Initialize rows.
             for (int i = 0; i < Section.SectionSize; i++)
             {
-                lastFaces[i] = ArrayPool<MeshFace>.Shared.Rent(Section.SectionSize);
+                lastFaces[i] = rowPool.Rent(Section.SectionSize);
 
                 for (int j = 0; j < Section.SectionSize; j++)
                 {
@@ -207,10 +210,10 @@ namespace VoxelGame.Collections
         {
             for (int i = 0; i < Section.SectionSize; i++)
             {
-                ArrayPool<MeshFace>.Shared.Return(lastFaces[i]!);
+                rowPool.Return(lastFaces[i]!);
             }
 
-            ArrayPool<MeshFace[]>.Shared.Return(lastFaces!);
+            layerPool.Return(lastFaces!);
         }
 
         private class MeshFace
