@@ -208,7 +208,7 @@ namespace VoxelGame.Logic.Blocks
         {
             bool isBase = (data & 0b0_0100) == 0;
 
-            if (!entity.BoundingBox.Intersects(new BoundingBox(new Vector3(0.5f, 1f, 0.5f) + new Vector3(x, isBase ? y : y + 1, z), new Vector3(0.5f, 1f, 0.5f))))
+            if (!entity.BoundingBox.Intersects(new BoundingBox(new Vector3(0.5f, 1f, 0.5f) + new Vector3(x, isBase ? y : y - 1, z), new Vector3(0.5f, 1f, 0.5f))))
             {
                 Game.World.SetBlock(this, (byte)(data ^ 0b1_0000), x, y, z);
                 Game.World.SetBlock(this, (byte)(data ^ 0b1_0100), x, y + (isBase ? 1 : -1), z);

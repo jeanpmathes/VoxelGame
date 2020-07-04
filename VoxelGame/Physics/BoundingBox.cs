@@ -71,7 +71,14 @@ namespace VoxelGame.Physics
         /// <param name="z">The z position.</param>
         public BoundingBox Translated(int x, int y, int z)
         {
-            return new BoundingBox(Center + new Vector3(x, y, z), Extents, children);
+            BoundingBox[] translatedChildren = new BoundingBox[ChildCount];
+
+            for (int i = 0; i < ChildCount; i++)
+            {
+                translatedChildren[i] = children[i].Translated(x, y, z);
+            }
+
+            return new BoundingBox(Center + new Vector3(x, y, z), Extents, translatedChildren);
         }
 
         /// <summary>
