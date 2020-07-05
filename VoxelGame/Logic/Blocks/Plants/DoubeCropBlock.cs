@@ -184,10 +184,10 @@ namespace VoxelGame.Logic.Blocks
             return true;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
-            if ((data & 0b0_1000) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
+            if (side == BlockSide.Bottom && (data & 0b0_1000) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
             {
                 Destroy(x, y, z, null);
             }

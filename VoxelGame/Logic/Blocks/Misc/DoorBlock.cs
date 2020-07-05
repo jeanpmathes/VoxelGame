@@ -259,9 +259,9 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
-            if ((data & 0b0_0100) == 0 && Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
+            if (side == BlockSide.Bottom && (data & 0b0_0100) == 0 && Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
             {
                 Destroy(x, y, z, null);
             }

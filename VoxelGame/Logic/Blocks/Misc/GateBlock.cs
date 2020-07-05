@@ -229,23 +229,37 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
             Orientation orientation = (Orientation)(data & 0b0_0011);
 
-            if (orientation == Orientation.North || orientation == Orientation.South)
+            switch (side)
             {
-                if (!((Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z)) || (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))))
-                {
-                    Destroy(x, y, z, null);
-                }
-            }
-            else
-            {
-                if (!((Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1)) || (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))))
-                {
-                    Destroy(x, y, z, null);
-                }
+                case BlockSide.Left:
+                case BlockSide.Right:
+
+                    if (orientation == Orientation.North || orientation == Orientation.South)
+                    {
+                        if (!((Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z)) || (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))))
+                        {
+                            Destroy(x, y, z, null);
+                        }
+                    }
+
+                    break;
+
+                case BlockSide.Front:
+                case BlockSide.Back:
+
+                    if (orientation == Orientation.East || orientation == Orientation.West)
+                    {
+                        if (!((Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1)) || (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))))
+                        {
+                            Destroy(x, y, z, null);
+                        }
+                    }
+
+                    break;
             }
         }
 

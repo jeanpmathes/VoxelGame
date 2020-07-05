@@ -362,7 +362,8 @@ namespace VoxelGame.Logic
         /// <param name="y">The y position of the block next to the changed position.</param>
         /// <param name="z">The z position of the block next to the changed position.</param>
         /// <param name="data">The data of the block next to the changed position.</param>
-        internal virtual void BlockUpdate(int x, int y, int z, byte data)
+        /// <param name="side">The side of the block where the change happened.</param>
+        internal virtual void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
         }
 

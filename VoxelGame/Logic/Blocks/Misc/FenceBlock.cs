@@ -223,18 +223,65 @@ namespace VoxelGame.Logic.Blocks
             return true;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
-            byte newData = 0;
-            // Check the neighboring blocks
-            if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))
-                newData |= 0b0_1000;
-            if (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z))
-                newData |= 0b0_0100;
-            if (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1))
-                newData |= 0b0_0010;
-            if (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))
-                newData |= 0b0_0001;
+            byte newData = data;
+
+            // Check the changed block
+            switch (side)
+            {
+                case BlockSide.Back:
+
+                    if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))
+                    {
+                        newData |= 0b0_1000;
+                    }
+                    else
+                    {
+                        newData &= 0b1_0111;
+                    }
+
+                    break;
+
+                case BlockSide.Right:
+
+                    if (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z))
+                    {
+                        newData |= 0b0_0100;
+                    }
+                    else
+                    {
+                        newData &= 0b1_1011;
+                    }
+
+                    break;
+
+                case BlockSide.Front:
+
+                    if (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1))
+                    {
+                        newData |= 0b0_0010;
+                    }
+                    else
+                    {
+                        newData &= 0b1_1101;
+                    }
+
+                    break;
+
+                case BlockSide.Left:
+
+                    if (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))
+                    {
+                        newData |= 0b0_0001;
+                    }
+                    else
+                    {
+                        newData &= 0b1_1110;
+                    }
+
+                    break;
+            }
 
             if (newData != data)
             {
