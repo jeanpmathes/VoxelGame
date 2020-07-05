@@ -41,6 +41,8 @@ namespace VoxelGame.Logic.Blocks
         private protected int[] texIndicesStraight = null!;
         private protected uint[] indicesStraight = null!;
 
+        private protected string texture, post, extension, extensionStraight;
+
         public WallBlock(string name, string texture, string post, string extension, string extensionStraight) :
             base(
                 name: name,
@@ -55,13 +57,18 @@ namespace VoxelGame.Logic.Blocks
                 new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)),
                 TargetBuffer.Complex)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            this.Setup(texture, BlockModel.Load(post), BlockModel.Load(extension), BlockModel.Load(extensionStraight));
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.texture = texture;
+            this.post = post;
+            this.extension = extension;
+            this.extensionStraight = extensionStraight;
         }
 
-        protected void Setup(string texture, BlockModel post, BlockModel extension, BlockModel extensionStraight)
+        protected override void Setup()
         {
+            BlockModel post = BlockModel.Load(this.post);
+            BlockModel extension = BlockModel.Load(this.extension);
+            BlockModel extensionStraight = BlockModel.Load(this.extensionStraight);
+
             postVertCount = (uint)post.VertexCount;
             extensionVertCount = (uint)extension.VertexCount;
             straightVertCount = (uint)extensionStraight.VertexCount;

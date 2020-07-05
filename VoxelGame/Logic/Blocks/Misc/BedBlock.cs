@@ -32,6 +32,8 @@ namespace VoxelGame.Logic.Blocks
         private protected uint vertexCountHead;
         private protected uint vertexCountEnd;
 
+        private protected string model;
+
         public BedBlock(string name, string model) :
             base(
                 name,
@@ -46,13 +48,13 @@ namespace VoxelGame.Logic.Blocks
                 new BoundingBox(new Vector3(0.5f, 0.21875f, 0.5f), new Vector3(0.5f, 0.21875f, 0.5f)),
                 TargetBuffer.Complex)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            Setup(BlockModel.Load(model));
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.model = model;
         }
 
-        public virtual void Setup(BlockModel model)
+        protected override void Setup()
         {
+            BlockModel model = BlockModel.Load(this.model);
+
             model.PlaneSplit(Vector3.UnitZ, Vector3.UnitZ, out BlockModel top, out BlockModel bottom);
             bottom.Move(-Vector3.UnitZ);
 

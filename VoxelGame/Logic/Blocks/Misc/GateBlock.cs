@@ -9,8 +9,6 @@ using VoxelGame.Physics;
 using VoxelGame.Utilities;
 using OpenToolkit.Mathematics;
 using VoxelGame.Entities;
-using System;
-using System.Security.Cryptography.Xml;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -32,6 +30,8 @@ namespace VoxelGame.Logic.Blocks
         private protected uint vertexCountClosed;
         private protected uint vertexCountOpen;
 
+        private protected string closed, open;
+
         public GateBlock(string name, string closed, string open) :
         base(
             name,
@@ -46,13 +46,15 @@ namespace VoxelGame.Logic.Blocks
             BoundingBox.Block,
             TargetBuffer.Complex)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            Setup(BlockModel.Load(closed), BlockModel.Load(open));
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.closed = closed;
+            this.open = open;
         }
 
-        protected virtual void Setup(BlockModel closed, BlockModel open)
+        protected override void Setup()
         {
+            BlockModel closed = BlockModel.Load(this.closed);
+            BlockModel open = BlockModel.Load(this.open);
+
             for (int i = 0; i < 4; i++)
             {
                 if (i == 0)

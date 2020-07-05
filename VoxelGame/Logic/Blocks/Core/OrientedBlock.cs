@@ -31,7 +31,7 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        protected override void Setup(TextureLayout layout)
+        protected override void Setup()
         {
             sideVertices = new float[][]
             {

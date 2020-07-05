@@ -30,6 +30,8 @@ namespace VoxelGame.Logic.Blocks
             4, 6, 7
         };
 
+        private protected string texture;
+
         /// <summary>
         /// Initializes a new instance of a cross block; a block made out of two intersecting planes.
         /// </summary>
@@ -50,12 +52,10 @@ namespace VoxelGame.Logic.Blocks
                 boundingBox,
                 TargetBuffer.Complex)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            Setup(texture);
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.texture = texture;
         }
 
-        protected virtual void Setup(string texture)
+        protected override void Setup()
         {
             vertices = new float[]
             {

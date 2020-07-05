@@ -33,6 +33,8 @@ namespace VoxelGame.Logic.Blocks
         private protected uint vertexCountTop;
         private protected uint vertexCountBase;
 
+        private protected string closed, open;
+
         public DoorBlock(string name, string closed, string open) :
             base(
                 name,
@@ -47,17 +49,16 @@ namespace VoxelGame.Logic.Blocks
                 new BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.5f, 1f, 0.5f)),
                 TargetBuffer.Complex)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            Setup(BlockModel.Load(closed), BlockModel.Load(open));
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.closed = closed;
+            this.open = open;
         }
 
-        protected virtual void Setup(BlockModel closed, BlockModel open)
+        protected override void Setup()
         {
-            closed.PlaneSplit(Vector3.UnitY, -Vector3.UnitY, out BlockModel baseClosed, out BlockModel topClosed);
+            BlockModel.Load(closed).PlaneSplit(Vector3.UnitY, -Vector3.UnitY, out BlockModel baseClosed, out BlockModel topClosed);
             topClosed.Move(-Vector3.UnitY);
 
-            open.PlaneSplit(Vector3.UnitY, -Vector3.UnitY, out BlockModel baseOpen, out BlockModel topOpen);
+            BlockModel.Load(open).PlaneSplit(Vector3.UnitY, -Vector3.UnitY, out BlockModel baseOpen, out BlockModel topOpen);
             topOpen.Move(-Vector3.UnitY);
 
             for (int i = 0; i < 4; i++)

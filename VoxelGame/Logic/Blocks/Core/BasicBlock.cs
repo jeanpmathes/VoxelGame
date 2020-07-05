@@ -17,6 +17,8 @@ namespace VoxelGame.Logic.Blocks
         private protected float[][] sideVertices = null!;
         private protected int[][] sideTextureIndices = null!;
 
+        private protected TextureLayout layout;
+
         public BasicBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool isInteractable) :
             base(
                 name: name,
@@ -31,12 +33,10 @@ namespace VoxelGame.Logic.Blocks
                 BoundingBox.Block,
                 TargetBuffer.Simple)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            this.Setup(layout);
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.layout = layout;
         }
 
-        protected virtual void Setup(TextureLayout layout)
+        protected override void Setup()
         {
             sideVertices = new float[][]
             {

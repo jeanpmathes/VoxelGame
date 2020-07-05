@@ -35,6 +35,8 @@ namespace VoxelGame.Logic.Blocks
 
         private protected uint[][] indices = null!;
 
+        private string texture, post, extension;
+
         public FenceBlock(string name, string texture, string post, string extension) :
             base(
                 name: name,
@@ -49,13 +51,16 @@ namespace VoxelGame.Logic.Blocks
                 new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.1875f, 0.5f, 0.1875f)),
                 TargetBuffer.Complex)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            this.Setup(texture, BlockModel.Load(post), BlockModel.Load(extension));
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.texture = texture;
+            this.post = post;
+            this.extension = extension;
         }
 
-        protected void Setup(string texture, BlockModel post, BlockModel extension)
+        protected override void Setup()
         {
+            BlockModel post = BlockModel.Load(this.post);
+            BlockModel extension = BlockModel.Load(this.extension);
+
             postVertCount = (uint)post.VertexCount;
             extensionVertCount = (uint)extension.VertexCount;
 

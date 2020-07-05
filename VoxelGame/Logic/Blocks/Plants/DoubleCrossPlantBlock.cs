@@ -38,6 +38,9 @@ namespace VoxelGame.Logic.Blocks
             4, 6, 7
         };
 
+        private protected string bottomTexture;
+        private protected int topTexOffset;
+
         public DoubleCrossPlantBlock(string name, string bottomTexture, int topTexOffset, BoundingBox boundingBox) :
             base(
                 name,
@@ -52,12 +55,11 @@ namespace VoxelGame.Logic.Blocks
                 boundingBox,
                 TargetBuffer.Complex)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            Setup(bottomTexture, topTexOffset);
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.bottomTexture = bottomTexture;
+            this.topTexOffset = topTexOffset;
         }
 
-        protected virtual void Setup(string bottomTexture, int topTexOffset)
+        protected override void Setup()
         {
             vertices = new float[]
             {

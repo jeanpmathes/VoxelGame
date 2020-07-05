@@ -32,6 +32,8 @@ namespace VoxelGame.Logic.Blocks
             4, 7, 6
         };
 
+        private protected string texture;
+
         /// <summary>
         /// Creates a FlatBlock, a block with a single face that sticks to other blocks. It allows entities to climb and can use neutral tints.
         /// </summary>
@@ -56,12 +58,10 @@ namespace VoxelGame.Logic.Blocks
             this.climbingVelocity = climbingVelocity;
             this.slidingVelocity = slidingVelocity;
 
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            this.Setup(texture);
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.texture = texture;
         }
 
-        protected virtual void Setup(string texture)
+        protected override void Setup()
         {
             sideVertices = new float[][]
             {

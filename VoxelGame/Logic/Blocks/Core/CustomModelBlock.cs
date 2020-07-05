@@ -19,6 +19,8 @@ namespace VoxelGame.Logic.Blocks
 
         private protected uint vertCount;
 
+        private protected string model;
+
         public CustomModelBlock(string name, string modelName, bool isSolid, Physics.BoundingBox boundingBox) :
             base(
                 name,
@@ -33,9 +35,15 @@ namespace VoxelGame.Logic.Blocks
                 boundingBox,
                 TargetBuffer.Complex)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            Setup(modelName);
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.model = modelName;
+        }
+
+        protected override void Setup()
+        {
+            BlockModel model = BlockModel.Load(this.model);
+
+            model.ToData(out vertices, out texIndices, out indices);
+            vertCount = (uint)(model.VertexCount);
         }
 
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
@@ -47,14 +55,6 @@ namespace VoxelGame.Logic.Blocks
             tint = TintColor.None;
 
             return vertCount;
-        }
-
-        protected virtual void Setup(string modelName)
-        {
-            BlockModel model = BlockModel.Load(modelName);
-
-            model.ToData(out vertices, out texIndices, out indices);
-            vertCount = (uint)(model.VertexCount);
         }
 
         protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
