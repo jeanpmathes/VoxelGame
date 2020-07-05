@@ -35,7 +35,7 @@ namespace VoxelGame.Logic.Blocks
 
         private protected uint[][] indices = null!;
 
-        private string texture, post, extension;
+        private protected string texture, post, extension;
 
         public FenceBlock(string name, string texture, string post, string extension) :
             base(
