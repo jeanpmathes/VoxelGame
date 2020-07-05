@@ -13,6 +13,8 @@ namespace VoxelGame.Logic
 {
     public abstract partial class Block
     {
+        public const int BlockLimit = 2048;
+
         private static readonly Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
 
         public static readonly Block AIR = new AirBlock(Language.Air);
@@ -21,22 +23,22 @@ namespace VoxelGame.Logic
         public static readonly Block VERY_TALL_GRASS = new DoubleCrossPlantBlock(Language.VeryTallGrass, "very_tall_grass", 1, BoundingBox.Block);
         public static readonly Block DIRT = new DirtBlock(Language.Dirt, TextureLayout.Uniform("dirt"));
         public static readonly Block FARMLAND = new CoveredDirtBlock(Language.Farmland, TextureLayout.UnqiueTop("dirt", "farmland"), false);
-        public static readonly Block STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"), true, true, true, false);
+        public static readonly Block STONE = new BasicBlock(Language.Stone, TextureLayout.Uniform("stone"));
         public static readonly Block RUBBLE = new ConstructionBlock(Language.Rubble, TextureLayout.Uniform("rubble"));
-        public static readonly Block LOG = new RotatedBlock(Language.Log, TextureLayout.Column("log", 0, 1), true, true, true);
+        public static readonly Block LOG = new RotatedBlock(Language.Log, TextureLayout.Column("log", 0, 1));
         public static readonly Block WOOD = new ConstructionBlock(Language.Wood, TextureLayout.Uniform("wood"));
-        public static readonly Block SAND = new BasicBlock(Language.Sand, TextureLayout.Uniform("sand"), true, true, true, false);
-        public static readonly Block GRAVEL = new BasicBlock(Language.Gravel, TextureLayout.Uniform("gravel"), true, true, true, false);
-        public static readonly Block LEAVES = new BasicBlock(Language.Leaves, TextureLayout.Uniform("leaves"), false, true, true, false);
-        public static readonly Block GLASS = new BasicBlock(Language.Glass, TextureLayout.Uniform("glass"), false, false, true, false);
-        public static readonly Block ORE_COAL = new BasicBlock(Language.CoalOre, TextureLayout.Uniform("ore_coal"), true, true, true, false);
-        public static readonly Block ORE_IRON = new BasicBlock(Language.IronOre, TextureLayout.Uniform("ore_iron"), true, true, true, false);
-        public static readonly Block ORE_GOLD = new BasicBlock(Language.GoldOre, TextureLayout.Uniform("ore_gold"), true, true, true, false);
-        public static readonly Block SNOW = new BasicBlock(Language.Snow, TextureLayout.Uniform("snow"), true, true, true, false);
+        public static readonly Block SAND = new BasicBlock(Language.Sand, TextureLayout.Uniform("sand"));
+        public static readonly Block GRAVEL = new BasicBlock(Language.Gravel, TextureLayout.Uniform("gravel"));
+        public static readonly Block LEAVES = new BasicBlock(Language.Leaves, TextureLayout.Uniform("leaves"), isOpaque: false);
+        public static readonly Block GLASS = new BasicBlock(Language.Glass, TextureLayout.Uniform("glass"), isOpaque: false, renderFaceAtNonOpaques: false);
+        public static readonly Block ORE_COAL = new BasicBlock(Language.CoalOre, TextureLayout.Uniform("ore_coal"));
+        public static readonly Block ORE_IRON = new BasicBlock(Language.IronOre, TextureLayout.Uniform("ore_iron"));
+        public static readonly Block ORE_GOLD = new BasicBlock(Language.GoldOre, TextureLayout.Uniform("ore_gold"));
+        public static readonly Block SNOW = new BasicBlock(Language.Snow, TextureLayout.Uniform("snow"));
         public static readonly Block FLOWER = new CrossPlantBlock(Language.Flower, "flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
         public static readonly Block TALL_FLOWER = new DoubleCrossPlantBlock(Language.TallFlower, "tall_flower", 1, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
         public static readonly Block SPIDERWEB = new SpiderWebBlock(Language.SpiderWeb, "spider_web", 0.01f);
-        public static readonly Block CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqiueFront("stone_cavepainting", "stone"), true, true, true);
+        public static readonly Block CAVEPAINTING = new OrientedBlock(Language.CavePainting, TextureLayout.UnqiueFront("stone_cavepainting", "stone"));
         public static readonly Block LADDER = new FlatBlock(Language.Ladder, "ladder", 3f, 1f);
         public static readonly Block VINES = new GrowingFlatBlock(Language.Vines, "vines", 2f, 1f);
         public static readonly Block FENCE_WOOD = new FenceBlock(Language.WoodenFence, "wood", "fence_post", "fence_extension");
@@ -60,8 +62,6 @@ namespace VoxelGame.Logic
         public static readonly Block DOOR_STEEL = new DoorBlock(Language.SteelDoor, "door_steel_closed", "door_steel_open");
         public static readonly Block DOOR_WOOD = new DoorBlock(Language.WoodenDoor, "door_wood_closed", "door_wood_open");
         public static readonly Block GATE_WOOD = new GateBlock(Language.WoodenGate, "gate_wood_closed", "gate_wood_open");
-
-        public const int BlockLimit = 2048;
 
         /// <summary>
         /// Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.

@@ -20,7 +20,7 @@ namespace VoxelGame.Logic.Blocks
         private protected float[][] sideNormals = null!;
         private protected int[] texIndices = null!;
 
-        public OrientedBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid) :
+        public OrientedBlock(string name, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
             base(
                 name,
                 layout,

@@ -19,7 +19,7 @@ namespace VoxelGame.Logic.Blocks
 
         private protected TextureLayout layout;
 
-        public BasicBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool isInteractable) :
+        public BasicBlock(string name, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true, bool isInteractable = false) :
             base(
                 name: name,
                 isFull: true,
