@@ -55,7 +55,7 @@ namespace VoxelGame
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
 
-            BlockTextureArray = new ArrayTexture("Resources/Textures", 16, true, TextureUnit.Texture1, TextureUnit.Texture2);
+            BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2);
             Console.WriteLine(Language.BlockTexturesLoadedAmount + BlockTextureArray.Count);
 
             SimpleSectionShader = new Shader("Resources/Shaders/simplesection_shader.vert", "Resources/Shaders/section_shader.frag");
