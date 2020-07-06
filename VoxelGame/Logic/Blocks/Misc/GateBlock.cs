@@ -221,14 +221,20 @@ namespace VoxelGame.Logic.Blocks
             bool isClosed = (data & 0b0_0100) == 0;
 
             // Check if orientation has to be inverted.
-            if (isClosed && Vector2.Dot(orientation.ToVector().Xz, entity.Position.Xz - new Vector2(x + 0.5f, z + 0.5f)) > 0)
+            if (isClosed && Vector2.Dot(orientation.ToVector().Xz, entity.Position.Xz - new Vector2(x + 0.5f, z + 0.5f)) < 0)
             {
-                Game.World.SetBlock(this, (byte)(0b0_0100 | (int)orientation.Invert()), x, y, z);
+                orientation = orientation.Invert();
             }
-            else
+
+            Vector3 center = isClosed ? new Vector3(0.5f, 0.5f, 0.5f) + (orientation.ToVector() * 0.09375f) : new Vector3(0.5f, 0.5f, 0.5f);
+            Vector3 extents = (orientation == Orientation.North || orientation == Orientation.South) ? new Vector3(0.5f, 0.375f, 0.125f + (isClosed ? 0.09375f : 0f)) : new Vector3(0.125f + (isClosed ? 0.09375f : 0f), 0.375f, 0.5f);
+
+            if (entity.BoundingBox.Intersects(new BoundingBox(center + new Vector3(x, y, z), extents)))
             {
-                Game.World.SetBlock(this, (byte)(data ^ 0b0_0100), x, y, z);
+                return;
             }
+
+            Game.World.SetBlock(this, (byte)((isClosed ? 0b0_0100 : 0b0_0000) | (int)orientation.Invert()), x, y, z);
         }
 
         internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
