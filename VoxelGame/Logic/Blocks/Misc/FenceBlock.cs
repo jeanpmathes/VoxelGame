@@ -35,6 +35,8 @@ namespace VoxelGame.Logic.Blocks
 
         private protected uint[][] indices = null!;
 
+        private protected string texture, post, extension;
+
         public FenceBlock(string name, string texture, string post, string extension) :
             base(
                 name: name,
@@ -49,13 +51,16 @@ namespace VoxelGame.Logic.Blocks
                 new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.1875f, 0.5f, 0.1875f)),
                 TargetBuffer.Complex)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            this.Setup(texture, BlockModel.Load(post), BlockModel.Load(extension));
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.texture = texture;
+            this.post = post;
+            this.extension = extension;
         }
 
-        protected void Setup(string texture, BlockModel post, BlockModel extension)
+        protected override void Setup()
         {
+            BlockModel post = BlockModel.Load(this.post);
+            BlockModel extension = BlockModel.Load(this.extension);
+
             postVertCount = (uint)post.VertexCount;
             extensionVertCount = (uint)extension.VertexCount;
 
@@ -223,18 +228,65 @@ namespace VoxelGame.Logic.Blocks
             return true;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
-            byte newData = 0;
-            // Check the neighboring blocks
-            if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))
-                newData |= 0b0_1000;
-            if (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z))
-                newData |= 0b0_0100;
-            if (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1))
-                newData |= 0b0_0010;
-            if (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))
-                newData |= 0b0_0001;
+            byte newData = data;
+
+            // Check the changed block
+            switch (side)
+            {
+                case BlockSide.Back:
+
+                    if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))
+                    {
+                        newData |= 0b0_1000;
+                    }
+                    else
+                    {
+                        newData &= 0b1_0111;
+                    }
+
+                    break;
+
+                case BlockSide.Right:
+
+                    if (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z))
+                    {
+                        newData |= 0b0_0100;
+                    }
+                    else
+                    {
+                        newData &= 0b1_1011;
+                    }
+
+                    break;
+
+                case BlockSide.Front:
+
+                    if (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1))
+                    {
+                        newData |= 0b0_0010;
+                    }
+                    else
+                    {
+                        newData &= 0b1_1101;
+                    }
+
+                    break;
+
+                case BlockSide.Left:
+
+                    if (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))
+                    {
+                        newData |= 0b0_0001;
+                    }
+                    else
+                    {
+                        newData &= 0b1_1110;
+                    }
+
+                    break;
+            }
 
             if (newData != data)
             {

@@ -46,13 +46,16 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
-            Block down = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
-
-            if (down != requiredGround && down != this)
+            if (side == BlockSide.Bottom)
             {
-                Destroy(x, y, z, null);
+                Block below = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
+
+                if (below != requiredGround && below != this)
+                {
+                    Destroy(x, y, z, null);
+                }
             }
         }
 

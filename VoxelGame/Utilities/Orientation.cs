@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using System;
+using VoxelGame.Logic;
 
 namespace VoxelGame.Utilities
 {
@@ -39,6 +40,18 @@ namespace VoxelGame.Utilities
                 Orientation.South => Vector3.UnitZ,
                 Orientation.West => -Vector3.UnitX,
                 _ => -Vector3.UnitZ
+            };
+        }
+
+        public static BlockSide ToBlockSide(this Orientation orientation)
+        {
+            return orientation switch
+            {
+                Orientation.North => BlockSide.Back,
+                Orientation.East => BlockSide.Right,
+                Orientation.South => BlockSide.Front,
+                Orientation.West => BlockSide.Left,
+                _ => BlockSide.Back
             };
         }
 

@@ -35,11 +35,13 @@ namespace VoxelGame.Logic.Blocks
         private protected int[][] textureIndices = null!;
         private protected uint[][] indices = null!;
 
-        private protected float[] extensionStraightZ = null!;
-        private protected float[] extensionStraightX = null!;
+        private protected float[] extensionStraightZVertices = null!;
+        private protected float[] extensionStraightXVertices = null!;
 
         private protected int[] texIndicesStraight = null!;
         private protected uint[] indicesStraight = null!;
+
+        private protected string texture, post, extension, extensionStraight;
 
         public WallBlock(string name, string texture, string post, string extension, string extensionStraight) :
             base(
@@ -55,13 +57,18 @@ namespace VoxelGame.Logic.Blocks
                 new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)),
                 TargetBuffer.Complex)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            this.Setup(texture, BlockModel.Load(post), BlockModel.Load(extension), BlockModel.Load(extensionStraight));
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.texture = texture;
+            this.post = post;
+            this.extension = extension;
+            this.extensionStraight = extensionStraight;
         }
 
-        protected void Setup(string texture, BlockModel post, BlockModel extension, BlockModel extensionStraight)
+        protected override void Setup()
         {
+            BlockModel post = BlockModel.Load(this.post);
+            BlockModel extension = BlockModel.Load(this.extension);
+            BlockModel extensionStraight = BlockModel.Load(this.extensionStraight);
+
             postVertCount = (uint)post.VertexCount;
             extensionVertCount = (uint)extension.VertexCount;
             straightVertCount = (uint)extensionStraight.VertexCount;
@@ -118,10 +125,10 @@ namespace VoxelGame.Logic.Blocks
             }
 
             extensionStraight.RotateY(0, false);
-            extensionStraight.ToData(out extensionStraightZ, out texIndicesStraight, out indicesStraight);
+            extensionStraight.ToData(out extensionStraightZVertices, out texIndicesStraight, out indicesStraight);
 
             extensionStraight.RotateY(1, false);
-            extensionStraight.ToData(out extensionStraightX, out _, out _);
+            extensionStraight.ToData(out extensionStraightXVertices, out _, out _);
 
             for (int i = 0; i < texIndicesStraight.Length; i++)
             {
@@ -141,11 +148,11 @@ namespace VoxelGame.Logic.Blocks
 
             if (straightZ)
             {
-                return new BoundingBox(new Vector3(0.5f, 0.4375f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.4375f, 0.5f));
+                return new BoundingBox(new Vector3(0.5f, 0.46875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.46875f, 0.5f));
             }
             else if (straightX)
             {
-                return new BoundingBox(new Vector3(0.5f, 0.4375f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.4375f, 0.1875f));
+                return new BoundingBox(new Vector3(0.5f, 0.46875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.46875f, 0.1875f));
             }
             else
             {
@@ -156,25 +163,25 @@ namespace VoxelGame.Logic.Blocks
 
                 if (north)
                 {
-                    children[extensions] = new BoundingBox(new Vector3(0.5f, 0.4375f, 0.125f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.4375f, 0.125f));
+                    children[extensions] = new BoundingBox(new Vector3(0.5f, 0.46875f, 0.125f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.46875f, 0.125f));
                     extensions++;
                 }
 
                 if (east)
                 {
-                    children[extensions] = new BoundingBox(new Vector3(0.875f, 0.4375f, 0.5f) + new Vector3(x, y, z), new Vector3(0.125f, 0.4375f, 0.1875f));
+                    children[extensions] = new BoundingBox(new Vector3(0.875f, 0.46875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.125f, 0.46875f, 0.1875f));
                     extensions++;
                 }
 
                 if (south)
                 {
-                    children[extensions] = new BoundingBox(new Vector3(0.5f, 0.4375f, 0.875f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.4375f, 0.125f));
+                    children[extensions] = new BoundingBox(new Vector3(0.5f, 0.46875f, 0.875f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.46875f, 0.125f));
                     extensions++;
                 }
 
                 if (west)
                 {
-                    children[extensions] = new BoundingBox(new Vector3(0.125f, 0.4375f, 0.5f) + new Vector3(x, y, z), new Vector3(0.125f, 0.4375f, 0.1875f));
+                    children[extensions] = new BoundingBox(new Vector3(0.125f, 0.46875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.125f, 0.46875f, 0.1875f));
                 }
 
                 return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.25f, 0.5f, 0.25f), children);
@@ -193,7 +200,7 @@ namespace VoxelGame.Logic.Blocks
 
             if (straightZ || straightX)
             {
-                vertices = straightZ ? extensionStraightZ : extensionStraightX;
+                vertices = straightZ ? extensionStraightZVertices : extensionStraightXVertices;
                 textureIndices = texIndicesStraight;
                 indices = indicesStraight;
 
@@ -267,18 +274,65 @@ namespace VoxelGame.Logic.Blocks
             return true;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
-            byte newData = 0;
-            // Check the neighboring blocks
-            if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))
-                newData |= 0b0_1000;
-            if (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z))
-                newData |= 0b0_0100;
-            if (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1))
-                newData |= 0b0_0010;
-            if (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))
-                newData |= 0b0_0001;
+            byte newData = data;
+
+            // Check the changed block
+            switch (side)
+            {
+                case BlockSide.Back:
+
+                    if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))
+                    {
+                        newData |= 0b0_1000;
+                    }
+                    else
+                    {
+                        newData &= 0b1_0111;
+                    }
+
+                    break;
+
+                case BlockSide.Right:
+
+                    if (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z))
+                    {
+                        newData |= 0b0_0100;
+                    }
+                    else
+                    {
+                        newData &= 0b1_1011;
+                    }
+
+                    break;
+
+                case BlockSide.Front:
+
+                    if (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1))
+                    {
+                        newData |= 0b0_0010;
+                    }
+                    else
+                    {
+                        newData &= 0b1_1101;
+                    }
+
+                    break;
+
+                case BlockSide.Left:
+
+                    if (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))
+                    {
+                        newData |= 0b0_0001;
+                    }
+                    else
+                    {
+                        newData &= 0b1_1110;
+                    }
+
+                    break;
+            }
 
             if (newData != data)
             {

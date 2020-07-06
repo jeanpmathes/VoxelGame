@@ -339,8 +339,8 @@ namespace VoxelGame.Visuals
         {
             Vertex old = this;
 
-            U = Math.Abs(old.V - 1f);
-            V = old.U;
+            U = old.V;
+            V = Math.Abs(old.U - 1f);
 
             return this;
         }

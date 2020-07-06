@@ -7,6 +7,7 @@ using OpenToolkit.Mathematics;
 using VoxelGame.Entities;
 using VoxelGame.Logic.Interfaces;
 using VoxelGame.Physics;
+using VoxelGame.Rendering;
 using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
@@ -69,6 +70,10 @@ namespace VoxelGame.Logic.Blocks
             12, 14, 15
         };
 
+        private protected string texture;
+        private protected int dead, first, second, third;
+        private protected (int low, int top) fourth, fifth, sixth, final;
+
         public DoubeCropBlock(string name, string texture, int dead, int first, int second, int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final) :
             base(
                 name,
@@ -83,12 +88,20 @@ namespace VoxelGame.Logic.Blocks
                 BoundingBox.Block,
                 TargetBuffer.Complex)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            this.Setup(texture, dead, first, second, third, fourth, fifth, sixth, final);
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.texture = texture;
+
+            this.dead = dead;
+            this.first = first;
+            this.second = second;
+            this.third = third;
+
+            this.fourth = fourth;
+            this.fifth = fifth;
+            this.sixth = sixth;
+            this.final = final;
         }
 
-        protected virtual void Setup(string texture, int dead, int first, int second, int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final)
+        protected override void Setup()
         {
             int baseIndex = Game.BlockTextureArray.GetTextureIndex(texture);
 
@@ -184,10 +197,10 @@ namespace VoxelGame.Logic.Blocks
             return true;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
-            if ((data & 0b0_1000) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
+            if (side == BlockSide.Bottom && (data & 0b0_1000) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
             {
                 Destroy(x, y, z, null);
             }

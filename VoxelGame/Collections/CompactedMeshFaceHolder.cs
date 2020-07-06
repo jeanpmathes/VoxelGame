@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using System;
 using System.Buffers;
+using System.Collections.Concurrent;
 using VoxelGame.Logic;
 
 namespace VoxelGame.Collections
@@ -14,6 +15,9 @@ namespace VoxelGame.Collections
     /// </summary>
     public class CompactedMeshFaceHolder
     {
+        private static readonly ArrayPool<MeshFace[]> layerPool = ArrayPool<MeshFace[]>.Create(Section.SectionSize, 64);
+        private static readonly ArrayPool<MeshFace> rowPool = ArrayPool<MeshFace>.Create(Section.SectionSize, 256);
+
         private readonly BlockSide side;
         private readonly MeshFace?[][] lastFaces;
 
@@ -24,12 +28,12 @@ namespace VoxelGame.Collections
             this.side = side;
 
             // Initialize layers.
-            lastFaces = ArrayPool<MeshFace[]>.Shared.Rent(Section.SectionSize);
+            lastFaces = layerPool.Rent(Section.SectionSize);
 
             // Initialize rows.
             for (int i = 0; i < Section.SectionSize; i++)
             {
-                lastFaces[i] = ArrayPool<MeshFace>.Shared.Rent(Section.SectionSize);
+                lastFaces[i] = rowPool.Rent(Section.SectionSize);
 
                 for (int j = 0; j < Section.SectionSize; j++)
                 {
@@ -41,23 +45,12 @@ namespace VoxelGame.Collections
         public void AddFace(int layer, int row, int position, int vertA, int vertB, int vertC, int vertD, int vertData)
         {
             // Build current face.
-            MeshFace currentFace = new MeshFace
-            {
-                vert_0_0 = vertA,
-                vert_0_1 = vertB,
-                vert_1_1 = vertC,
-                vert_1_0 = vertD,
-
-                vertData = vertData,
-
-                isRotated = (int)((uint)vertC >> 30) != 0b11,
-
-                position = position
-            };
+            MeshFace currentFace = MeshFace.Get(vertA, vertB, vertC, vertD, vertData, (int)((uint)vertC >> 30) != 0b11, position);
 
             // Check if an already existing face can be extended.
             if (lastFaces[layer][row]?.IsExtendable(currentFace) ?? false)
             {
+                currentFace.Return();
                 currentFace = lastFaces[layer][row]!;
 
                 switch (side)
@@ -133,10 +126,12 @@ namespace VoxelGame.Collections
 
                     if (lastCombinationRowFace == null)
                     {
+                        lastFaces[layer][row - 1]?.Return();
                         lastFaces[layer][row - 1] = combinationRowFace.previousFace;
                     }
                     else
                     {
+                        lastCombinationRowFace.previousFace?.Return();
                         lastCombinationRowFace.previousFace = combinationRowFace.previousFace;
                     }
 
@@ -197,6 +192,7 @@ namespace VoxelGame.Collections
                         meshData.Add(vertTexRepetition | currentFace.vert_1_1);
                         meshData.Add(currentFace.vertData);
 
+                        currentFace.Return();
                         currentFace = currentFace.previousFace;
                     }
                 }
@@ -207,10 +203,10 @@ namespace VoxelGame.Collections
         {
             for (int i = 0; i < Section.SectionSize; i++)
             {
-                ArrayPool<MeshFace>.Shared.Return(lastFaces[i]!);
+                rowPool.Return(lastFaces[i]!);
             }
 
-            ArrayPool<MeshFace[]>.Shared.Return(lastFaces!);
+            layerPool.Return(lastFaces!);
         }
 
         private class MeshFace
@@ -245,6 +241,39 @@ namespace VoxelGame.Collections
                     this.isRotated == addition.isRotated &&
                     this.vertData == addition.vertData;
             }
+
+            #region POOLING
+
+            private readonly static ConcurrentBag<MeshFace> objects = new ConcurrentBag<MeshFace>();
+
+            public static MeshFace Get(int vert_0_0, int vert_0_1, int vert_1_1, int vert_1_0, int vertData, bool isRotated, int position)
+            {
+                MeshFace instance = objects.TryTake(out instance!) ? instance : new MeshFace();
+
+                instance.previousFace = null;
+
+                instance.vert_0_0 = vert_0_0;
+                instance.vert_0_1 = vert_0_1;
+                instance.vert_1_1 = vert_1_1;
+                instance.vert_1_0 = vert_1_0;
+
+                instance.vertData = vertData;
+
+                instance.isRotated = isRotated;
+
+                instance.position = position;
+                instance.length = 0;
+                instance.height = 0;
+
+                return instance;
+            }
+
+            public void Return()
+            {
+                objects.Add(this);
+            }
+
+            #endregion POOLING
         }
     }
 }

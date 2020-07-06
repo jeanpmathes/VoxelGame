@@ -87,6 +87,9 @@ namespace VoxelGame.Logic.Blocks
             20, 22, 23,
         };
 
+        private protected string texture;
+        private protected int second, third, fourth, fifth, sixth, final, dead;
+
         public CropBlock(string name, string texture, int second, int third, int fourth, int fifth, int sixth, int final, int dead) :
             base(
                 name,
@@ -101,12 +104,17 @@ namespace VoxelGame.Logic.Blocks
                 BoundingBox.Block,
                 TargetBuffer.Complex)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            this.Setup(texture, second, third, fourth, fifth, sixth, final, dead);
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.texture = texture;
+            this.second = second;
+            this.third = third;
+            this.fourth = fourth;
+            this.fifth = fifth;
+            this.sixth = sixth;
+            this.final = final;
+            this.dead = dead;
         }
 
-        protected virtual void Setup(string texture, int second, int third, int fourth, int fifth, int sixth, int final, int dead)
+        protected override void Setup()
         {
             int baseIndex = Game.BlockTextureArray.GetTextureIndex(texture);
 
@@ -181,9 +189,9 @@ namespace VoxelGame.Logic.Blocks
             return true;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
-            if (!(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
+            if (side == BlockSide.Bottom && !(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
             {
                 Destroy(x, y, z, null);
             }

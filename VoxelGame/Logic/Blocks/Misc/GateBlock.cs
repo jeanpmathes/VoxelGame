@@ -9,8 +9,6 @@ using VoxelGame.Physics;
 using VoxelGame.Utilities;
 using OpenToolkit.Mathematics;
 using VoxelGame.Entities;
-using System;
-using System.Security.Cryptography.Xml;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -32,6 +30,8 @@ namespace VoxelGame.Logic.Blocks
         private protected uint vertexCountClosed;
         private protected uint vertexCountOpen;
 
+        private protected string closed, open;
+
         public GateBlock(string name, string closed, string open) :
         base(
             name,
@@ -46,13 +46,15 @@ namespace VoxelGame.Logic.Blocks
             BoundingBox.Block,
             TargetBuffer.Complex)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            Setup(BlockModel.Load(closed), BlockModel.Load(open));
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.closed = closed;
+            this.open = open;
         }
 
-        protected virtual void Setup(BlockModel closed, BlockModel open)
+        protected override void Setup()
         {
+            BlockModel closed = BlockModel.Load(this.closed);
+            BlockModel open = BlockModel.Load(this.open);
+
             for (int i = 0; i < 4; i++)
             {
                 if (i == 0)
@@ -219,33 +221,53 @@ namespace VoxelGame.Logic.Blocks
             bool isClosed = (data & 0b0_0100) == 0;
 
             // Check if orientation has to be inverted.
-            if (isClosed && Vector2.Dot(orientation.ToVector().Xz, entity.Position.Xz - new Vector2(x + 0.5f, z + 0.5f)) > 0)
+            if (isClosed && Vector2.Dot(orientation.ToVector().Xz, entity.Position.Xz - new Vector2(x + 0.5f, z + 0.5f)) < 0)
             {
-                Game.World.SetBlock(this, (byte)(0b0_0100 | (int)orientation.Invert()), x, y, z);
+                orientation = orientation.Invert();
             }
-            else
+
+            Vector3 center = isClosed ? new Vector3(0.5f, 0.5f, 0.5f) + (orientation.ToVector() * 0.09375f) : new Vector3(0.5f, 0.5f, 0.5f);
+            Vector3 extents = (orientation == Orientation.North || orientation == Orientation.South) ? new Vector3(0.5f, 0.375f, 0.125f + (isClosed ? 0.09375f : 0f)) : new Vector3(0.125f + (isClosed ? 0.09375f : 0f), 0.375f, 0.5f);
+
+            if (entity.BoundingBox.Intersects(new BoundingBox(center + new Vector3(x, y, z), extents)))
             {
-                Game.World.SetBlock(this, (byte)(data ^ 0b0_0100), x, y, z);
+                return;
             }
+
+            Game.World.SetBlock(this, (byte)((isClosed ? 0b0_0100 : 0b0_0000) | (int)orientation.Invert()), x, y, z);
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
             Orientation orientation = (Orientation)(data & 0b0_0011);
 
-            if (orientation == Orientation.North || orientation == Orientation.South)
+            switch (side)
             {
-                if (!((Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z)) || (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))))
-                {
-                    Destroy(x, y, z, null);
-                }
-            }
-            else
-            {
-                if (!((Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1)) || (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))))
-                {
-                    Destroy(x, y, z, null);
-                }
+                case BlockSide.Left:
+                case BlockSide.Right:
+
+                    if (orientation == Orientation.North || orientation == Orientation.South)
+                    {
+                        if (!((Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z)) || (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))))
+                        {
+                            Destroy(x, y, z, null);
+                        }
+                    }
+
+                    break;
+
+                case BlockSide.Front:
+                case BlockSide.Back:
+
+                    if (orientation == Orientation.East || orientation == Orientation.West)
+                    {
+                        if (!((Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1)) || (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))))
+                        {
+                            Destroy(x, y, z, null);
+                        }
+                    }
+
+                    break;
             }
         }
 

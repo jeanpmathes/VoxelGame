@@ -19,7 +19,7 @@ namespace VoxelGame.Logic.Blocks
         private protected float[][] sideNormals = null!;
         private protected int[] texIndices = null!;
 
-        public RotatedBlock(string name, TextureLayout layout, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid) :
+        public RotatedBlock(string name, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
             base(
                 name,
                 layout,
@@ -30,7 +30,7 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        protected override void Setup(TextureLayout layout)
+        protected override void Setup()
         {
             sideVertices = new float[][]
             {

@@ -32,7 +32,7 @@ namespace VoxelGame.Logic.Blocks
             return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
             Orientation orientation = (Orientation)(data & 0b0_0011);
 
@@ -41,25 +41,48 @@ namespace VoxelGame.Logic.Blocks
             {
                 return;
             }
-
-            if (orientation == Orientation.North && (Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull != true))
+            else if (side == BlockSide.Top)
             {
-                Destroy(x, y, z, null);
+                side = orientation.Invert().ToBlockSide();
             }
 
-            if (orientation == Orientation.South && (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull != true))
+            switch (side)
             {
-                Destroy(x, y, z, null);
-            }
+                case BlockSide.Front:
 
-            if (orientation == Orientation.East && (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull != true))
-            {
-                Destroy(x, y, z, null);
-            }
+                    if (orientation == Orientation.North && (Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull != true))
+                    {
+                        Destroy(x, y, z, null);
+                    }
 
-            if (orientation == Orientation.West && (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull != true))
-            {
-                Destroy(x, y, z, null);
+                    break;
+
+                case BlockSide.Back:
+
+                    if (orientation == Orientation.South && (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull != true))
+                    {
+                        Destroy(x, y, z, null);
+                    }
+
+                    break;
+
+                case BlockSide.Left:
+
+                    if (orientation == Orientation.East && (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull != true))
+                    {
+                        Destroy(x, y, z, null);
+                    }
+
+                    break;
+
+                case BlockSide.Right:
+
+                    if (orientation == Orientation.West && (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull != true))
+                    {
+                        Destroy(x, y, z, null);
+                    }
+
+                    break;
             }
         }
 

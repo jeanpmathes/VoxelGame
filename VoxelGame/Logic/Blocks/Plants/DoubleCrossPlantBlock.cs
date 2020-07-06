@@ -38,6 +38,9 @@ namespace VoxelGame.Logic.Blocks
             4, 6, 7
         };
 
+        private protected string bottomTexture;
+        private protected int topTexOffset;
+
         public DoubleCrossPlantBlock(string name, string bottomTexture, int topTexOffset, BoundingBox boundingBox) :
             base(
                 name,
@@ -52,12 +55,11 @@ namespace VoxelGame.Logic.Blocks
                 boundingBox,
                 TargetBuffer.Complex)
         {
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            Setup(bottomTexture, topTexOffset);
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
+            this.bottomTexture = bottomTexture;
+            this.topTexOffset = topTexOffset;
         }
 
-        protected virtual void Setup(string bottomTexture, int topTexOffset)
+        protected override void Setup()
         {
             vertices = new float[]
             {
@@ -114,10 +116,10 @@ namespace VoxelGame.Logic.Blocks
             return true;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data)
+        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
-            if ((data & 0b1) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
+            if (side == BlockSide.Bottom && (data & 0b1) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
             {
                 Destroy(x, y, z, null);
             }
