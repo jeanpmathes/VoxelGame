@@ -42,9 +42,17 @@ namespace VoxelGame
         public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             instance = this;
+
+            Load += OnLoad;
+
+            RenderFrame += OnRenderFrame;
+            UpdateFrame += OnUpdateFrame;
+
+            Resize += OnResize;
+            Closed += OnClosed;
         }
 
-        protected override void OnLoad()
+        new protected void OnLoad()
         {
             // Rendering setup
             GL.Enable(EnableCap.DebugOutput);
@@ -64,7 +72,7 @@ namespace VoxelGame
             SelectionShader = new Shader("Resources/Shaders/selection_shader.vert", "Resources/Shaders/selection_shader.frag");
             ScreenElementShader = new Shader("Resources/Shaders/screenelement_shader.vert", "Resources/Shaders/screenelement_shader.frag");
 
-            ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(ClientSize.X, ClientSize.Y, 0f, 1f));
+            ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
 
             // Block setup
             Block.LoadBlocks();
@@ -89,8 +97,6 @@ namespace VoxelGame
 
             // Other object setup
             Random = new Random();
-
-            base.OnLoad();
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "The characters '[' and ']' are not culture dependent.")]
@@ -212,18 +218,16 @@ namespace VoxelGame
             }
         }
 
-        protected override void OnRenderFrame(FrameEventArgs e)
+        new protected void OnRenderFrame(FrameEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             World.FrameRender();
 
             SwapBuffers();
-
-            base.OnRenderFrame(e);
         }
 
-        protected override void OnUpdateFrame(FrameEventArgs e)
+        new protected void OnUpdateFrame(FrameEventArgs e)
         {
             float deltaTime = (float)MathHelper.Clamp(e.Time, 0f, 1f);
 
@@ -262,19 +266,15 @@ namespace VoxelGame
             {
                 Close();
             }
-
-            base.OnUpdateFrame(e);
         }
 
-        protected override void OnResize(ResizeEventArgs e)
+        new protected void OnResize(ResizeEventArgs e)
         {
             GL.Viewport(0, 0, Size.X, Size.Y);
-            ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(ClientSize.X, ClientSize.Y, 0f, 1f));
-
-            base.OnResize(e);
+            ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
         }
 
-        protected override void OnClosed()
+        new protected void OnClosed()
         {
             try
             {
@@ -293,8 +293,6 @@ namespace VoxelGame
 
             World.Dispose();
             Player.Dispose();
-
-            base.OnClosed();
         }
 
         private DebugProc debugCallbackDelegate = null!;
