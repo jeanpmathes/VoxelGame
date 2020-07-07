@@ -12,8 +12,6 @@ namespace VoxelGame.Rendering
 {
     public class Texture : IDisposable
     {
-        private bool disposed;
-
         public int Handle { get; }
         public TextureUnit TextureUnit { get; private set; }
 
@@ -62,6 +60,8 @@ namespace VoxelGame.Rendering
 
         #region IDisposable Support
 
+        private bool disposed;
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposed)
@@ -72,7 +72,7 @@ namespace VoxelGame.Rendering
                 }
                 else
                 {
-                    Console.ForegroundColor = System.ConsoleColor.Yellow;
+                    Console.ForegroundColor = ConsoleColor.Yellow;
 #pragma warning disable CA1303 // Do not pass literals as localized parameters
                     Console.WriteLine("WARNING: A texture has been disposed by GC, without deleting the texture storage.");
 #pragma warning restore CA1303 // Do not pass literals as localized parameters
