@@ -32,6 +32,7 @@ namespace VoxelGame
         public static Shader SimpleSectionShader { get; private set; } = null!;
         public static Shader ComplexSectionShader { get; private set; } = null!;
         public static Shader SelectionShader { get; private set; } = null!;
+        public static Shader ScreenElementShader { get; private set; } = null!;
 
         public static Random Random { get; private set; } = null!;
 
@@ -61,6 +62,9 @@ namespace VoxelGame
             SimpleSectionShader = new Shader("Resources/Shaders/simplesection_shader.vert", "Resources/Shaders/section_shader.frag");
             ComplexSectionShader = new Shader("Resources/Shaders/complexsection_shader.vert", "Resources/Shaders/section_shader.frag");
             SelectionShader = new Shader("Resources/Shaders/selection_shader.vert", "Resources/Shaders/selection_shader.frag");
+            ScreenElementShader = new Shader("Resources/Shaders/screenelement_shader.vert", "Resources/Shaders/screenelement_shader.frag");
+
+            ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(ClientSize.X, ClientSize.Y, 0f, 1f));
 
             // Block setup
             Block.LoadBlocks();
@@ -265,6 +269,8 @@ namespace VoxelGame
         protected override void OnResize(ResizeEventArgs e)
         {
             GL.Viewport(0, 0, Size.X, Size.Y);
+            ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(ClientSize.X, ClientSize.Y, 0f, 1f));
+
             base.OnResize(e);
         }
 

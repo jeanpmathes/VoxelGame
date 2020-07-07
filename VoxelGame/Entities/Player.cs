@@ -36,6 +36,8 @@ namespace VoxelGame.Entities
         /// </summary>
         public int ChunkZ { get; private set; }
 
+        private Vector3 movement;
+
         public override Vector3 Movement { get => movement; }
         public override Vector3 LookingDirection { get => camera.Front; }
         public override BlockSide TargetSide { get => selectedSide; }
@@ -43,27 +45,7 @@ namespace VoxelGame.Entities
         private readonly Camera camera;
         private readonly Vector3 cameraOffset = new Vector3(0f, 0.65f, 0f);
 
-        private readonly float speed = 4f;
-        private readonly float sprintSpeed = 6f;
-        private readonly Vector3 maxForce = new Vector3(5000f, 0f, 5000f);
-        private readonly float jumpForce = 25000f;
-
-        private Vector3 movement;
-
         private readonly float mouseSensitivity = Config.GetFloat("mouseSensitivity", 0.1f);
-
-        private int selectedX, selectedY, selectedZ;
-        private BlockSide selectedSide;
-
-        private readonly BoxRenderer selectionRenderer;
-
-        private readonly float interactionCooldown = 0.25f;
-
-        private float timer;
-
-        private Block activeBlock;
-        private bool hasPressedPlus;
-        private bool hasPressedMinus;
 
         private static readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
 
@@ -75,6 +57,12 @@ namespace VoxelGame.Entities
             camera.Position = Position;
 
             selectionRenderer = new BoxRenderer();
+
+            crosshair = new Texture("Resources/Textures/UI/crosshair.png");
+            crosshair.Use(OpenToolkit.Graphics.OpenGL4.TextureUnit.Texture6);
+
+            crosshairRenderer = new ScreenElementRenderer();
+            crosshairRenderer.SetTexture(crosshair);
 
             activeBlock = Block.GRASS;
 
@@ -110,6 +98,11 @@ namespace VoxelGame.Entities
             return camera.GetProjectionMatrix();
         }
 
+        private readonly BoxRenderer selectionRenderer;
+
+        private readonly Texture crosshair;
+        private readonly ScreenElementRenderer crosshairRenderer;
+
         public override void Render()
         {
             if (selectedY >= 0)
@@ -126,6 +119,8 @@ namespace VoxelGame.Entities
                     selectionRenderer.Draw(selectedBox.Center);
                 }
             }
+
+            crosshairRenderer.Draw(new Vector3(0f, 0f, 25f));
         }
 
         protected override void Update(float deltaTime)
@@ -158,6 +153,11 @@ namespace VoxelGame.Entities
             // Check if the current chunk has changed and request new chunks if needed / release unneeded chunks.
             ChunkChange();
         }
+
+        private readonly float speed = 4f;
+        private readonly float sprintSpeed = 6f;
+        private readonly Vector3 maxForce = new Vector3(5000f, 0f, 5000f);
+        private readonly float jumpForce = 25000f;
 
         private void MovementInput(KeyboardState input)
         {
@@ -208,6 +208,13 @@ namespace VoxelGame.Entities
 
             Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
         }
+
+        private readonly float interactionCooldown = 0.25f;
+
+        private int selectedX, selectedY, selectedZ;
+        private BlockSide selectedSide;
+
+        private float timer;
 
         private void WorldInteraction(KeyboardState input, MouseState mouse)
         {
@@ -281,6 +288,10 @@ namespace VoxelGame.Entities
                 timer = 0;
             }
         }
+
+        private Block activeBlock;
+        private bool hasPressedPlus;
+        private bool hasPressedMinus;
 
         private void BlockSelection(KeyboardState input)
         {
@@ -373,7 +384,10 @@ namespace VoxelGame.Entities
 
             if (disposing)
             {
+                crosshair.Dispose();
+
                 selectionRenderer.Dispose();
+                crosshairRenderer.Dispose();
             }
 
             disposed = true;
