@@ -45,7 +45,7 @@ namespace VoxelGame.Entities
         private readonly Camera camera;
         private readonly Vector3 cameraOffset = new Vector3(0f, 0.65f, 0f);
 
-        private readonly float mouseSensitivity = Config.GetFloat("mouseSensitivity", 0.5f);
+        private readonly float mouseSensitivity = Config.GetFloat("mouseSensitivity", 0.3f);
 
         private static readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
 

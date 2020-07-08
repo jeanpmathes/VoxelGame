@@ -319,7 +319,7 @@ namespace VoxelGame
             Vector2 center = new Vector2(Size.X / 2f, Size.Y / 2f);
 
             rawMouseDelta += e.Delta;
-            mouseCorrection = center - MousePosition;
+            mouseCorrection += center - MousePosition;
 
             MousePosition = center;
         }
@@ -343,6 +343,7 @@ namespace VoxelGame
 
             lastMouseDelta = mouseDelta;
             rawMouseDelta = Vector2.Zero;
+            mouseCorrection = Vector2.Zero;
         }
 
         #endregion MOUSE MOVE
