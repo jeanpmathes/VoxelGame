@@ -13,7 +13,7 @@ using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
 
 namespace VoxelGame.Rendering
 {
-    public class TextureAtlas
+    public class TextureAtlas : IDisposable
     {
         private readonly int extents;
 
@@ -146,6 +146,42 @@ namespace VoxelGame.Rendering
         {
             return new AtlasPosition(1f - (1f / extents * ((index & (extents - 1)) + 1f)), 1f - (1f / extents * ((index >> log2Extents) + 1f)), 1f - (1f / extents * (index & (extents - 1))), 1f - (1f / extents * (index >> log2Extents)));
         }
+
+        #region IDisposalbe Support
+
+        private bool disposed;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    GL.DeleteTexture(Handle);
+                }
+
+                Console.ForegroundColor = ConsoleColor.Yellow;
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
+                Console.WriteLine("WARNING: A texture has been disposed by GC, without deleting the texture storage.");
+#pragma warning restore CA1303 // Do not pass literals as localized parameters
+                Console.ResetColor();
+
+                disposed = true;
+            }
+        }
+
+        ~TextureAtlas()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion IDisposalbe Support
     }
 
     /// <summary>

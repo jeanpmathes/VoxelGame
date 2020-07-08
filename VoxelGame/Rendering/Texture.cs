@@ -3,15 +3,17 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using OpenToolkit.Graphics.OpenGL4;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
 
 namespace VoxelGame.Rendering
 {
-    public class Texture
+    public class Texture : IDisposable
     {
         public int Handle { get; }
+        public TextureUnit TextureUnit { get; private set; }
 
         public Texture(string path)
         {
@@ -52,6 +54,46 @@ namespace VoxelGame.Rendering
         {
             GL.ActiveTexture(unit);
             GL.BindTexture(TextureTarget.Texture2D, Handle);
+
+            TextureUnit = unit;
         }
+
+        #region IDisposable Support
+
+        private bool disposed;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    GL.DeleteTexture(Handle);
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
+                    Console.WriteLine("WARNING: A texture has been disposed by GC, without deleting the texture storage.");
+#pragma warning restore CA1303 // Do not pass literals as localized parameters
+                    Console.ResetColor();
+                }
+
+                disposed = true;
+            }
+        }
+
+        ~Texture()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion IDisposable Support
     }
 }

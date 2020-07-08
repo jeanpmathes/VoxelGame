@@ -21,8 +21,6 @@ namespace VoxelGame
     internal class Game : GameWindow
     {
         public static Game instance = null!;
-        public static Player Player { get; private set; } = null!;
-        public static World World { get; set; } = null!;
 
         /// <summary>
         /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1 and 2;
@@ -32,8 +30,14 @@ namespace VoxelGame
         public static Shader SimpleSectionShader { get; private set; } = null!;
         public static Shader ComplexSectionShader { get; private set; } = null!;
         public static Shader SelectionShader { get; private set; } = null!;
+        public static Shader ScreenElementShader { get; private set; } = null!;
+
+        public static World World { get; set; } = null!;
+        public static Player Player { get; private set; } = null!;
 
         public static Random Random { get; private set; } = null!;
+
+        public float AspectRatio { get => Size.X / (float)Size.Y; }
 
         private bool wireframeMode = false;
         private bool hasReleasesWireframeKey = true;
@@ -41,9 +45,22 @@ namespace VoxelGame
         public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             instance = this;
+
+            Load += OnLoad;
+
+            RenderFrame += OnRenderFrame;
+            UpdateFrame += OnUpdateFrame;
+            UpdateFrame += MouseUpdate;
+
+            Resize += OnResize;
+            Closed += OnClosed;
+
+            MouseMove += OnMouseMove;
+
+            CursorVisible = false;
         }
 
-        protected override void OnLoad()
+        new protected void OnLoad()
         {
             // Rendering setup
             GL.Enable(EnableCap.DebugOutput);
@@ -55,12 +72,15 @@ namespace VoxelGame
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
 
-            BlockTextureArray = new ArrayTexture("Resources/Textures", 16, true, TextureUnit.Texture1, TextureUnit.Texture2);
+            BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2);
             Console.WriteLine(Language.BlockTexturesLoadedAmount + BlockTextureArray.Count);
 
             SimpleSectionShader = new Shader("Resources/Shaders/simplesection_shader.vert", "Resources/Shaders/section_shader.frag");
             ComplexSectionShader = new Shader("Resources/Shaders/complexsection_shader.vert", "Resources/Shaders/section_shader.frag");
             SelectionShader = new Shader("Resources/Shaders/selection_shader.vert", "Resources/Shaders/selection_shader.frag");
+            ScreenElementShader = new Shader("Resources/Shaders/screenelement_shader.vert", "Resources/Shaders/screenelement_shader.frag");
+
+            ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
 
             // Block setup
             Block.LoadBlocks();
@@ -78,15 +98,11 @@ namespace VoxelGame
             WorldSetup(worldsDirectory);
 
             // Player setup
-            Camera camera = new Camera(new Vector3(), Size.X / (float)Size.Y);
+            Camera camera = new Camera(new Vector3());
             Player = new Player(70f, 0.25f, camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)));
-
-            CursorVisible = false;
 
             // Other object setup
             Random = new Random();
-
-            base.OnLoad();
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "The characters '[' and ']' are not culture dependent.")]
@@ -208,18 +224,16 @@ namespace VoxelGame
             }
         }
 
-        protected override void OnRenderFrame(FrameEventArgs e)
+        new protected void OnRenderFrame(FrameEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             World.FrameRender();
 
             SwapBuffers();
-
-            base.OnRenderFrame(e);
         }
 
-        protected override void OnUpdateFrame(FrameEventArgs e)
+        new protected void OnUpdateFrame(FrameEventArgs e)
         {
             float deltaTime = (float)MathHelper.Clamp(e.Time, 0f, 1f);
 
@@ -258,17 +272,15 @@ namespace VoxelGame
             {
                 Close();
             }
-
-            base.OnUpdateFrame(e);
         }
 
-        protected override void OnResize(ResizeEventArgs e)
+        new protected void OnResize(ResizeEventArgs e)
         {
             GL.Viewport(0, 0, Size.X, Size.Y);
-            base.OnResize(e);
+            ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
         }
 
-        protected override void OnClosed()
+        new protected void OnClosed()
         {
             try
             {
@@ -287,9 +299,56 @@ namespace VoxelGame
 
             World.Dispose();
             Player.Dispose();
-
-            base.OnClosed();
         }
+
+        #region MOUSE MOVE
+
+        public static Vector2 SmoothMouseDelta { get; private set; }
+
+        private Vector2 lastMouseDelta;
+        private Vector2 rawMouseDelta;
+        private Vector2 mouseDelta;
+
+        private Vector2 mouseCorrection;
+        private bool mouseHasMoved;
+
+        new protected void OnMouseMove(MouseMoveEventArgs e)
+        {
+            mouseHasMoved = true;
+
+            Vector2 center = new Vector2(Size.X / 2f, Size.Y / 2f);
+
+            rawMouseDelta += e.Delta;
+            mouseCorrection += center - MousePosition;
+
+            MousePosition = center;
+        }
+
+        private void MouseUpdate(FrameEventArgs e)
+        {
+            if (!mouseHasMoved)
+            {
+                mouseDelta = Vector2.Zero;
+            }
+            else
+            {
+                const float a = 0.4f;
+
+                mouseDelta = rawMouseDelta - mouseCorrection;
+                mouseDelta = (lastMouseDelta * (1f - a)) + (mouseDelta * a);
+            }
+
+            SmoothMouseDelta = mouseDelta;
+            mouseHasMoved = false;
+
+            lastMouseDelta = mouseDelta;
+            rawMouseDelta = Vector2.Zero;
+            mouseCorrection = Vector2.Zero;
+        }
+
+        #endregion MOUSE MOVE
+
+        #region GL DEBUG
 
         private DebugProc debugCallbackDelegate = null!;
 
@@ -431,5 +490,7 @@ namespace VoxelGame
 
             Console.ResetColor();
         }
+
+        #endregion GL DEBUG
     }
 }
