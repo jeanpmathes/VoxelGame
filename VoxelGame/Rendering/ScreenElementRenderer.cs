@@ -79,6 +79,7 @@ namespace VoxelGame.Rendering
                 return;
             }
 
+            // float screenSize = (float)Math.Sqrt((Game.instance.Size.X * Game.instance.Size.X) + (Game.instance.Size.Y * Game.instance.Size.Y));
             Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(Vector3.Zero) * Matrix4.CreateScale(position.Z);
 
             GL.BindVertexArray(vertexArrayObject);

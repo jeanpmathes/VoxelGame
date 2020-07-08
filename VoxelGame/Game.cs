@@ -15,6 +15,7 @@ using VoxelGame.Entities;
 using VoxelGame.Logic;
 using VoxelGame.Rendering;
 using VoxelGame.Resources.Language;
+using VoxelGame.Utilities;
 
 namespace VoxelGame
 {
@@ -47,9 +48,14 @@ namespace VoxelGame
 
             RenderFrame += OnRenderFrame;
             UpdateFrame += OnUpdateFrame;
+            UpdateFrame += MouseUpdate;
 
             Resize += OnResize;
             Closed += OnClosed;
+
+            MouseMove += OnMouseMove;
+
+            CursorVisible = false;
         }
 
         new protected void OnLoad()
@@ -92,8 +98,6 @@ namespace VoxelGame
             // Player setup
             Camera camera = new Camera(new Vector3(), Size.X / (float)Size.Y);
             Player = new Player(70f, 0.25f, camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)));
-
-            CursorVisible = false;
 
             // Other object setup
             Random = new Random();
@@ -295,6 +299,54 @@ namespace VoxelGame
             Player.Dispose();
         }
 
+        #region MOUSE MOVE
+
+        public static Vector2 SmoothMouseDelta { get; private set; }
+
+        private Vector2 lastMouseDelta;
+        private Vector2 rawMouseDelta;
+        private Vector2 mouseDelta;
+
+        private Vector2 mouseCorrection;
+        private bool mouseHasMoved;
+
+        new protected void OnMouseMove(MouseMoveEventArgs e)
+        {
+            mouseHasMoved = true;
+
+            Vector2 center = new Vector2(Size.X / 2f, Size.Y / 2f);
+
+            rawMouseDelta += e.Delta;
+            mouseCorrection = center - MousePosition;
+
+            MousePosition = center;
+        }
+
+        private void MouseUpdate(FrameEventArgs e)
+        {
+            if (!mouseHasMoved)
+            {
+                mouseDelta = Vector2.Zero;
+            }
+            else
+            {
+                const float a = 0.4f;
+
+                mouseDelta = rawMouseDelta - mouseCorrection;
+                mouseDelta = (lastMouseDelta * (1f - a)) + (mouseDelta * a);
+            }
+
+            SmoothMouseDelta = mouseDelta;
+            mouseHasMoved = false;
+
+            lastMouseDelta = mouseDelta;
+            rawMouseDelta = Vector2.Zero;
+        }
+
+        #endregion MOUSE MOVE
+
+        #region GL DEBUG
+
         private DebugProc debugCallbackDelegate = null!;
 
         private void DebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
@@ -435,5 +487,7 @@ namespace VoxelGame
 
             Console.ResetColor();
         }
+
+        #endregion GL DEBUG
     }
 }

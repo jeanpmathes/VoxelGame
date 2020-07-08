@@ -45,7 +45,7 @@ namespace VoxelGame.Entities
         private readonly Camera camera;
         private readonly Vector3 cameraOffset = new Vector3(0f, 0.65f, 0f);
 
-        private readonly float mouseSensitivity = Config.GetFloat("mouseSensitivity", 0.1f);
+        private readonly float mouseSensitivity = Config.GetFloat("mouseSensitivity", 0.5f);
 
         private static readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
 
@@ -135,13 +135,10 @@ namespace VoxelGame.Entities
             if (Game.instance.IsFocused)
             {
                 KeyboardState input = Game.instance.KeyboardState;
-
                 MouseState mouse = Game.instance.MouseState;
-                Vector2 defaultMousePos = new Vector2(Game.instance.Size.X / 2f, Game.instance.Size.Y / 2f);
-                Game.instance.MousePosition = defaultMousePos;
 
                 MovementInput(input);
-                MouseChange(mouse, defaultMousePos);
+                MouseChange();
 
                 BlockSelection(input);
 
@@ -196,15 +193,11 @@ namespace VoxelGame.Entities
             }
         }
 
-        private void MouseChange(MouseState mouse, Vector2 defaultMousePos)
+        private void MouseChange()
         {
-            // Calculate the offset of the mouse position
-            var deltaX = mouse.X - defaultMousePos.X;
-            var deltaY = mouse.Y - defaultMousePos.Y;
-
             // Apply the camera pitch and yaw (we clamp the pitch in the camera class)
-            camera.Yaw += deltaX * mouseSensitivity;
-            camera.Pitch -= deltaY * mouseSensitivity;
+            camera.Yaw += Game.SmoothMouseDelta.X * mouseSensitivity;
+            camera.Pitch -= Game.SmoothMouseDelta.Y * mouseSensitivity;
 
             Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
         }
