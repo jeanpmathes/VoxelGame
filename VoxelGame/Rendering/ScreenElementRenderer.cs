@@ -79,8 +79,11 @@ namespace VoxelGame.Rendering
                 return;
             }
 
-            // float screenSize = (float)Math.Sqrt((Game.instance.Size.X * Game.instance.Size.X) + (Game.instance.Size.Y * Game.instance.Size.Y));
-            Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(Vector3.Zero) * Matrix4.CreateScale(position.Z);
+            Vector2 screenSize = Game.instance.Size.ToVector2();
+            Vector3 scale = new Vector3(position.Z, position.Z, 1f) * screenSize.Length;
+            Vector3 translate = new Vector3((position.Xy - new Vector2(0.5f, 0.5f)) * screenSize);
+
+            Matrix4 model = Matrix4.Identity * Matrix4.CreateScale(scale) * Matrix4.CreateTranslation(translate);
 
             GL.BindVertexArray(vertexArrayObject);
 
