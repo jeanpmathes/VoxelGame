@@ -17,14 +17,12 @@ namespace VoxelGame.Rendering
         private float yaw;
         private float fov = MathHelper.PiOver2 / 90f * 70f;
 
-        public Camera(Vector3 position, float aspectRatio)
+        public Camera(Vector3 position)
         {
             Position = position;
-            AspectRatio = aspectRatio;
         }
 
         public Vector3 Position { get; set; }
-        public float AspectRatio { get; }
 
         public Vector3 Front => front;
         public Vector3 Up => up;
@@ -68,7 +66,7 @@ namespace VoxelGame.Rendering
 
         public Matrix4 GetProjectionMatrix()
         {
-            return Matrix4.CreatePerspectiveFieldOfView(fov, AspectRatio, 0.01f, 1000f);
+            return Matrix4.CreatePerspectiveFieldOfView(fov, Game.instance.AspectRatio, 0.01f, 1000f);
         }
 
         private void UpdateVectors()

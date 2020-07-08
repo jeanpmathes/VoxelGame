@@ -15,15 +15,12 @@ using VoxelGame.Entities;
 using VoxelGame.Logic;
 using VoxelGame.Rendering;
 using VoxelGame.Resources.Language;
-using VoxelGame.Utilities;
 
 namespace VoxelGame
 {
     internal class Game : GameWindow
     {
         public static Game instance = null!;
-        public static Player Player { get; private set; } = null!;
-        public static World World { get; set; } = null!;
 
         /// <summary>
         /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1 and 2;
@@ -35,7 +32,12 @@ namespace VoxelGame
         public static Shader SelectionShader { get; private set; } = null!;
         public static Shader ScreenElementShader { get; private set; } = null!;
 
+        public static World World { get; set; } = null!;
+        public static Player Player { get; private set; } = null!;
+
         public static Random Random { get; private set; } = null!;
+
+        public float AspectRatio { get => Size.X / (float)Size.Y; }
 
         private bool wireframeMode = false;
         private bool hasReleasesWireframeKey = true;
@@ -96,7 +98,7 @@ namespace VoxelGame
             WorldSetup(worldsDirectory);
 
             // Player setup
-            Camera camera = new Camera(new Vector3(), Size.X / (float)Size.Y);
+            Camera camera = new Camera(new Vector3());
             Player = new Player(70f, 0.25f, camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)));
 
             // Other object setup
