@@ -142,13 +142,8 @@ namespace VoxelGame.Logic.Blocks
             return 8;
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable != true)
-            {
-                return false;
-            }
-
             if (SideToOrientation(entity?.TargetSide ?? BlockSide.Front, out Orientation orientation))
             {
                 if (orientation == Orientation.North && Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull == true)

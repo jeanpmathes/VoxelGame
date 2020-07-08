@@ -173,9 +173,9 @@ namespace VoxelGame.Logic.Blocks
             return 16;
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable != true || !(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
+            if (!(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
             {
                 return false;
             }
@@ -185,7 +185,7 @@ namespace VoxelGame.Logic.Blocks
             return true;
         }
 
-        protected override bool Destroy(int x, int y, int z, byte data, PhysicsEntity? entity)
+        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, byte data)
         {
             Game.World.SetBlock(Block.AIR, 0, x, y, z);
 

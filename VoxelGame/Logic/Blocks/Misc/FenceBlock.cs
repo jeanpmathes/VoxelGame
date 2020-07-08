@@ -205,13 +205,8 @@ namespace VoxelGame.Logic.Blocks
             return vertCount;
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, Entities.PhysicsEntity? entity)
+        protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable != true)
-            {
-                return false;
-            }
-
             byte data = 0;
             // Check the neighboring blocks
             if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))

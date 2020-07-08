@@ -156,13 +156,8 @@ namespace VoxelGame.Logic.Blocks
             return 4;
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable != true)
-            {
-                return false;
-            }
-
             Game.World.SetBlock(this, (byte)ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
 
             return true;

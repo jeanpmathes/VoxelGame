@@ -175,13 +175,8 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable != true)
-            {
-                return false;
-            }
-
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
 
             bool connectX = (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z)) || (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z));

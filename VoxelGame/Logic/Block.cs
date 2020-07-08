@@ -155,16 +155,11 @@ namespace VoxelGame.Logic
         /// <returns>Returns true if placing the block was successful.</returns>
         public bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
-            return Place(x, y, z, Game.World.GetBlock(x, y, z, out _)?.IsReplaceable, entity);
+            return Game.World.GetBlock(x, y, z, out _)?.IsReplaceable == true && Place(entity, x, y, z);
         }
 
-        protected virtual bool Place(int x, int y, int z, bool? replaceable, Entities.PhysicsEntity? entity)
+        protected virtual bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable != true)
-            {
-                return false;
-            }
-
             Game.World.SetBlock(this, 0, x, y, z);
 
             return true;
@@ -182,7 +177,7 @@ namespace VoxelGame.Logic
         {
             if (Game.World.GetBlock(x, y, z, out byte data) == this)
             {
-                return Destroy(x, y, z, data, entity);
+                return Destroy(entity, x, y, z, data);
             }
             else
             {
@@ -190,7 +185,7 @@ namespace VoxelGame.Logic
             }
         }
 
-        protected virtual bool Destroy(int x, int y, int z, byte data, Entities.PhysicsEntity? entity)
+        protected virtual bool Destroy(Entities.PhysicsEntity? entity, int x, int y, int z, byte data)
         {
             Game.World.SetBlock(Block.AIR, 0, x, y, z);
 
