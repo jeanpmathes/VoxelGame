@@ -15,6 +15,7 @@ namespace VoxelGame.Rendering
         private readonly int vertexArrayObject;
 
         private int texUnit;
+        private Vector3 color;
 
         public ScreenElementRenderer()
         {
@@ -72,6 +73,16 @@ namespace VoxelGame.Rendering
             texUnit = texture.TextureUnit - TextureUnit.Texture0;
         }
 
+        public void SetColor(Vector3 color)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            this.color = color;
+        }
+
         public override void Draw(Vector3 position)
         {
             if (disposed)
@@ -90,6 +101,7 @@ namespace VoxelGame.Rendering
             Game.ScreenElementShader.Use();
 
             Game.ScreenElementShader.SetMatrix4("model", model);
+            Game.ScreenElementShader.SetVector3("color", color);
             Game.ScreenElementShader.SetInt("tex", texUnit);
 
             GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);

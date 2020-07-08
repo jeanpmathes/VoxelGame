@@ -63,6 +63,7 @@ namespace VoxelGame.Entities
 
             crosshairRenderer = new ScreenElementRenderer();
             crosshairRenderer.SetTexture(crosshair);
+            crosshairRenderer.SetColor(crosshairColor);
 
             activeBlock = Block.GRASS;
 
@@ -103,6 +104,9 @@ namespace VoxelGame.Entities
         private readonly Texture crosshair;
         private readonly ScreenElementRenderer crosshairRenderer;
 
+        private readonly Vector3 crosshairPositionScale = new Vector3(0.5f, 0.5f, Config.GetFloat("crosshairScale", 0.0225f));
+        private readonly Vector3 crosshairColor = Config.GetVector3("crosshairColor", Vector3.One);
+
         public override void Render()
         {
             if (selectedY >= 0)
@@ -120,7 +124,7 @@ namespace VoxelGame.Entities
                 }
             }
 
-            crosshairRenderer.Draw(new Vector3(0.5f, 0.5f, 0.0225f));
+            crosshairRenderer.Draw(crosshairPositionScale);
         }
 
         protected override void Update(float deltaTime)

@@ -4,14 +4,17 @@ out vec4 outputColor;
 
 in vec2 texCoord;
 
+uniform vec3 color;
 uniform sampler2D tex;
 
 void main()
 {
-	outputColor = texture(tex, texCoord);
+	vec4 texColor = texture(tex, texCoord);
 
-	if (outputColor.a == 0.0)
+	if (texColor.a == 0.0)
 	{
 		discard;
 	}
+
+	outputColor = vec4(color, 1.0) * texColor;
 }
