@@ -15,7 +15,7 @@ namespace VoxelGame
     {
         public static string Version { get; private set; } = null!;
 
-        public static ILoggerFactory LoggerFactory { get; private set; } = null!;
+        private static ILoggerFactory LoggerFactory { get; set; } = null!;
 
         private static void Main()
         {
@@ -63,6 +63,11 @@ namespace VoxelGame
             logger.LogInformation("Exiting game.");
 
             LoggerFactory.Dispose();
+        }
+
+        public static ILogger CreateLogger<T>()
+        {
+            return LoggerFactory.CreateLogger<T>();
         }
     }
 }

@@ -13,7 +13,7 @@ namespace VoxelGame.Logic
 {
     public class WorldInformation
     {
-        private static readonly ILogger logger = Program.LoggerFactory.CreateLogger<WorldInformation>();
+        private static readonly ILogger logger = Program.CreateLogger<WorldInformation>();
 
         public string Name { get; set; } = "No Name";
         public int Seed { get; set; } = 2133;

@@ -18,7 +18,7 @@ namespace VoxelGame.Logic
     [Serializable]
     public class Chunk : IDisposable
     {
-        private static readonly ILogger logger = Program.LoggerFactory.CreateLogger<Chunk>();
+        private static readonly ILogger logger = Program.CreateLogger<Chunk>();
 
         public const int ChunkHeight = 32;
 

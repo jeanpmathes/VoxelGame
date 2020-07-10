@@ -21,7 +21,7 @@ namespace VoxelGame
 {
     internal class Game : GameWindow
     {
-        private static readonly ILogger logger = Program.LoggerFactory.CreateLogger<Game>();
+        private static readonly ILogger logger = Program.CreateLogger<Game>();
 
         public static Game instance = null!;
 

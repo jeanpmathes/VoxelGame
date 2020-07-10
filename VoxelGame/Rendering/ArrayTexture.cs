@@ -16,7 +16,7 @@ namespace VoxelGame.Rendering
 {
     public class ArrayTexture : IDisposable
     {
-        private static readonly ILogger logger = Program.LoggerFactory.CreateLogger<ArrayTexture>();
+        private static readonly ILogger logger = Program.CreateLogger<ArrayTexture>();
 
         public int Count { get; }
 

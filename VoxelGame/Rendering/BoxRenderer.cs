@@ -16,7 +16,7 @@ namespace VoxelGame.Rendering
     /// </summary>
     public class BoxRenderer : Renderer
     {
-        private static readonly ILogger logger = Program.LoggerFactory.CreateLogger<BoxRenderer>();
+        private static readonly ILogger logger = Program.CreateLogger<BoxRenderer>();
 
         private readonly int vertexBufferObject;
         private readonly int elementBufferObject;

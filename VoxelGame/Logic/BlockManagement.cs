@@ -14,7 +14,7 @@ namespace VoxelGame.Logic
 {
     public abstract partial class Block
     {
-        private static readonly ILogger logger = Program.LoggerFactory.CreateLogger<Block>();
+        private static readonly ILogger logger = Program.CreateLogger<Block>();
 
         public const int BlockLimit = 2048;
 
