@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Logic.Blocks;
 using VoxelGame.Physics;
 using VoxelGame.Resources.Language;
@@ -13,6 +14,8 @@ namespace VoxelGame.Logic
 {
     public abstract partial class Block
     {
+        private static readonly ILogger logger = Program.LoggerFactory.CreateLogger<Block>();
+
         public const int BlockLimit = 2048;
 
         private static readonly Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
@@ -90,9 +93,16 @@ namespace VoxelGame.Logic
         /// </summary>
         public static void LoadBlocks()
         {
-            foreach (Block block in blockDictionary.Values)
+            using (logger.BeginScope("Block Loading"))
             {
-                block.Setup();
+                foreach (Block block in blockDictionary.Values)
+                {
+                    block.Setup();
+
+                    logger.LogDebug(LoggingEvents.BlockLoad, "Loaded the block {block} with ID {id}.", block, block.Id);
+                }
+
+                logger.LogInformation("Block setup complete. A total of {count} blocks have been loaded.", Count);
             }
         }
     }

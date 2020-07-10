@@ -44,6 +44,9 @@
     <DefineConstants>DEBUG</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Rendering\BoxRenderer.cs~RF168dd7a3.TMP" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="vg_icon.ico" />
     <Content Include="Resources\Shaders\selection_shader.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -299,6 +302,10 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="3.1.5" />
     <PackageReference Include="OpenTK">
       <Version>4.0.0-pre9.1</Version>
     </PackageReference>

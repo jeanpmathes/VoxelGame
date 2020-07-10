@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 
 using VoxelGame.Logic;
@@ -11,6 +12,8 @@ namespace VoxelGame.WorldGeneration
 {
     public class ComplexGenerator : IWorldGenerator
     {
+        private static readonly ILogger logger = Program.LoggerFactory.CreateLogger<ComplexGenerator>();
+
         private readonly FastNoise noise;
         private readonly int halfHeight = Section.SectionSize * Chunk.ChunkHeight / 2;
 
@@ -35,6 +38,8 @@ namespace VoxelGame.WorldGeneration
             noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance2Div);
             noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Euclidean);
             noise.SetCellularJitter(0.4f);
+
+            logger.LogInformation("Created an IWorldGenerator of type Complex.");
         }
 
         public IEnumerable<Block> GenerateColumn(int x, int z)

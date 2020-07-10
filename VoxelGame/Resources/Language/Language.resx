@@ -126,12 +126,6 @@
   <data name="Bed" xml:space="preserve">
     <value>Bed</value>
   </data>
-  <data name="BlocksLoadedAmount" xml:space="preserve">
-    <value>Blocks loaded: </value>
-  </data>
-  <data name="BlockTexturesLoadedAmount" xml:space="preserve">
-    <value>Block textures loaded: </value>
-  </data>
   <data name="Bricks" xml:space="preserve">
     <value>Bricks</value>
   </data>
@@ -167,9 +161,6 @@
   </data>
   <data name="EnterNameOfWorld" xml:space="preserve">
     <value>Enter the name of the world to create:</value>
-  </data>
-  <data name="ExitingGame" xml:space="preserve">
-    <value>Exiting...</value>
   </data>
   <data name="Farmland" xml:space="preserve">
     <value>Farmland</value>
@@ -228,6 +219,9 @@
   <data name="Potatoes" xml:space="preserve">
     <value>Potatoes</value>
   </data>
+  <data name="PressAnyKeyToExit" xml:space="preserve">
+    <value>Press any key to exit...</value>
+  </data>
   <data name="Rubble" xml:space="preserve">
     <value>Rubble</value>
   </data>
@@ -264,9 +258,6 @@
   <data name="TallGrass" xml:space="preserve">
     <value>Tall Grass</value>
   </data>
-  <data name="TextureBlockRatio" xml:space="preserve">
-    <value>Ratio Texture/Block: </value>
-  </data>
   <data name="Vase" xml:space="preserve">
     <value>Vase</value>
   </data>
@@ -296,9 +287,6 @@
   </data>
   <data name="WoodenGate" xml:space="preserve">
     <value>Wooden Gate</value>
-  </data>
-  <data name="WorldIsReady" xml:space="preserve">
-    <value>The World is ready.</value>
   </data>
   <data name="WorldNotFound" xml:space="preserve">
     <value>World not found!</value>

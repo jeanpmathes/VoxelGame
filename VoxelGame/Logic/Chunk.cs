@@ -9,6 +9,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Rendering;
 using VoxelGame.WorldGeneration;
 
@@ -17,6 +18,8 @@ namespace VoxelGame.Logic
     [Serializable]
     public class Chunk : IDisposable
     {
+        private static readonly ILogger logger = Program.LoggerFactory.CreateLogger<Chunk>();
+
         public const int ChunkHeight = 32;
 
         private const int maxMeshDataStep = 4;
@@ -75,6 +78,8 @@ namespace VoxelGame.Logic
         /// <returns>The loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
         public static Chunk? Load(string path, int x, int z)
         {
+            logger.LogDebug("Loading chunk for position: ({x}|{z})", x, z);
+
             Chunk chunk;
 
             using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -90,6 +95,8 @@ namespace VoxelGame.Logic
             }
             else
             {
+                logger.LogWarning("The file for the chunk at ({x}|{z}) was not valid as the position did not match.", x, z);
+
                 return null;
             }
         }
@@ -112,7 +119,11 @@ namespace VoxelGame.Logic
         /// <param name="path">The path of the directory where this chunk should be saved.</param>
         public void Save(string path)
         {
-            using Stream stream = new FileStream(path + $@"\x{X}z{Z}.chunk", FileMode.Create, FileAccess.Write, FileShare.Read);
+            string chunkFile = path + $@"\x{X}z{Z}.chunk";
+
+            logger.LogDebug("Saving the chunk ({x}|{z}) to: {path}", X, Z, chunkFile);
+
+            using Stream stream = new FileStream(chunkFile, FileMode.Create, FileAccess.Write, FileShare.Read);
             IFormatter formatter = new BinaryFormatter();
             formatter.Serialize(stream, this);
         }
@@ -129,6 +140,8 @@ namespace VoxelGame.Logic
 
         public void Generate(IWorldGenerator generator)
         {
+            logger.LogDebug("Generating the chunk ({x}|{z}) using the '{name}' generator.", X, Z, generator);
+
             for (int x = 0; x < Section.SectionSize; x++)
             {
                 for (int z = 0; z < Section.SectionSize; z++)

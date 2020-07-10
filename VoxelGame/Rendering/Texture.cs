@@ -2,6 +2,7 @@
 //     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
 // <author>pershingthesecond</author>
+using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using System;
 using System.Drawing;
@@ -12,6 +13,8 @@ namespace VoxelGame.Rendering
 {
     public class Texture : IDisposable
     {
+        private static readonly ILogger logger = Program.LoggerFactory.CreateLogger<Texture>();
+
         public int Handle { get; }
         public TextureUnit TextureUnit { get; private set; }
 
@@ -72,11 +75,7 @@ namespace VoxelGame.Rendering
                 }
                 else
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
-                    Console.WriteLine("WARNING: A texture has been disposed by GC, without deleting the texture storage.");
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
-                    Console.ResetColor();
+                    logger.LogWarning(LoggingEvents.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");
                 }
 
                 disposed = true;

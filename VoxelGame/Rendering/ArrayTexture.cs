@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,8 @@ namespace VoxelGame.Rendering
 {
     public class ArrayTexture : IDisposable
     {
+        private static readonly ILogger logger = Program.LoggerFactory.CreateLogger<ArrayTexture>();
+
         public int Count { get; }
 
         public int HandleA { get; }
@@ -66,15 +69,12 @@ namespace VoxelGame.Rendering
                     }
                     else
                     {
-                        Console.WriteLine($"The image has the wrong width or height: {texturePaths[i]}");
+                        logger.LogDebug("The size of the image did not match the specified resolution ({resolution}) and was not loaded: {path}", resolution, texturePaths[i]);
                     }
                 }
-                catch (Exception e)
+                catch (FileNotFoundException e)
                 {
-                    Console.WriteLine($"The image could not be loaded: {texturePaths[i]}");
-                    Console.WriteLine(e);
-
-                    throw;
+                    logger.LogError(e, "The image could not be loaded: {path}", texturePaths[i]);
                 }
             }
 
@@ -106,6 +106,8 @@ namespace VoxelGame.Rendering
             {
                 bitmap.Dispose();
             }
+
+            logger.LogDebug("ArrayTexture with {count} textures loaded.", Count);
         }
 
         private static Bitmap CreateFallback(int resolution)
@@ -258,11 +260,7 @@ namespace VoxelGame.Rendering
             }
             else
             {
-                Console.ForegroundColor = System.ConsoleColor.Yellow;
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
-                Console.WriteLine($"WARNING: The texture '{name}' is not available, fallback is used.");
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
-                Console.ResetColor();
+                logger.LogWarning(LoggingEvents.MissingRessource, "The texture '{name}' is not available, fallback is used.", name);
 
                 return 0;
             }
@@ -282,11 +280,7 @@ namespace VoxelGame.Rendering
                     GL.DeleteTexture(HandleB);
                 }
 
-                Console.ForegroundColor = ConsoleColor.Yellow;
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
-                Console.WriteLine("WARNING: A texture has been disposed by GC, without deleting the texture storage.");
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
-                Console.ResetColor();
+                logger.LogWarning(LoggingEvents.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");
 
                 disposed = true;
             }

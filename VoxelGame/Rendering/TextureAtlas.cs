@@ -13,6 +13,7 @@ using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
 
 namespace VoxelGame.Rendering
 {
+    [Obsolete("This class is currently not in use and does not meet all requirements, e.g. logging.")]
     public class TextureAtlas : IDisposable
     {
         private readonly int extents;

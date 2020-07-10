@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using System;
@@ -14,6 +15,8 @@ namespace VoxelGame.Rendering
     /// </summary>
     public class SectionRenderer : Renderer
     {
+        private static readonly ILogger logger = Program.LoggerFactory.CreateLogger<SectionRenderer>();
+
         private readonly int simpleDataVBO;
         private readonly int simpleVAO;
 
@@ -199,11 +202,7 @@ namespace VoxelGame.Rendering
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
-                Console.WriteLine("WARNING: A renderer has been disposed by GC, without deleting buffers.");
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
-                Console.ResetColor();
+                logger.LogWarning(LoggingEvents.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
             }
 
             disposed = true;

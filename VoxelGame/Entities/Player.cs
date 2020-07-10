@@ -68,9 +68,8 @@ namespace VoxelGame.Entities
             activeBlock = Block.GRASS;
 
             // Request chunks around current position
-
-            ChunkX = (int)Math.Floor(Position.X) / Section.SectionSize;
-            ChunkZ = (int)Math.Floor(Position.Z) / Section.SectionSize;
+            ChunkX = (int)Math.Floor(Position.X) >> sectionSizeExp;
+            ChunkZ = (int)Math.Floor(Position.Z) >> sectionSizeExp;
 
             for (int x = -RenderDistance; x <= RenderDistance; x++)
             {

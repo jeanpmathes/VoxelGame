@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using Microsoft.Extensions.Logging;
 using VoxelGame.Physics;
 using VoxelGame.Visuals;
 
@@ -244,7 +245,7 @@ namespace VoxelGame.Logic
 
         public sealed override string ToString()
         {
-            return $"Block [{Name}]";
+            return $"[{Name}]-BLOCK";
         }
 
         public sealed override bool Equals(object? obj)

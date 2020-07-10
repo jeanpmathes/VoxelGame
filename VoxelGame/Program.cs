@@ -6,16 +6,32 @@
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Desktop;
 using System;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Resources.Language;
 
 namespace VoxelGame
 {
-    internal static class Program
+    internal class Program
     {
         public static string Version { get; private set; } = null!;
 
+        public static ILoggerFactory LoggerFactory { get; private set; } = null!;
+
         private static void Main()
         {
+            LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
+            {
+                builder
+                    .AddFilter("Microsoft", LogLevel.Warning)
+                    .AddFilter("System", LogLevel.Warning)
+                    .AddFilter("VoxelGame", LogLevel.Debug)
+                    .AddConsole(options => options.IncludeScopes = true)
+                    .AddDebug()
+                    .AddEventLog();
+            });
+
+            ILogger logger = LoggerFactory.CreateLogger<Program>();
+
             Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";
             Console.Title = Language.VoxelGame + " " + Version;
 
@@ -33,14 +49,20 @@ namespace VoxelGame
             nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
             nativeWindowSettings.Size = new Vector2i(800, 450);
 
+            logger.LogInformation("Starting game on version: {Version}", Version);
+
             using (Game game = new Game(gameWindowSettings, nativeWindowSettings))
             {
                 game.Run();
             }
 
-            Console.WriteLine(Language.ExitingGame);
-
+            Console.WriteLine();
+            Console.WriteLine(Language.PressAnyKeyToExit);
             Console.ReadKey(true);
+
+            logger.LogInformation("Exiting game.");
+
+            LoggerFactory.Dispose();
         }
     }
 }

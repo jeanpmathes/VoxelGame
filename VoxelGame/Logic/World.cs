@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,8 @@ namespace VoxelGame.Logic
 {
     internal class World : IDisposable
     {
+        private static readonly ILogger logger = Program.LoggerFactory.CreateLogger<World>();
+
         public const int ChunkExtents = 5;
 
         public WorldInformation Information { get; }
@@ -164,6 +167,8 @@ namespace VoxelGame.Logic
                 new ComplexGenerator(seed))
         {
             Information.Save(Path.Combine(worldDirectory, "meta.json"));
+
+            logger.LogInformation("Created a new world.");
         }
 
         /// <summary>
@@ -176,6 +181,7 @@ namespace VoxelGame.Logic
                 chunkDirectory: path + @"\Chunks",
                 new ComplexGenerator(information.Seed))
         {
+            logger.LogInformation("Loaded an existing world.");
         }
 
         /// <summary>
@@ -373,13 +379,8 @@ namespace VoxelGame.Logic
                         {
                             if (!positionsToReleaseOnActivation.Remove((x, z)) || !activeChunks.ContainsKey((x, z)))
                             {
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.Write(
-                                    $"{DateTime.Now} | ---- CHUNK LOADING ERROR -------------\n" +
-                                    $"Position: ({x}|{z}) Exception: ({(completed.Exception?.GetBaseException().GetType().ToString()) ?? "EXCEPTION IS NULL"})\n" +
-                                    $"{(completed.Exception?.GetBaseException().Message) ?? "EXCEPTION IS NULL"}\n" +
-                                     "The position has been scheduled for generation.\n");
-                                Console.ResetColor();
+                                logger.LogError(LoggingEvents.ChunkLoadingError, completed.Exception!.GetBaseException(), "An exception occurred when loading the chunk ({x}|{z}). " +
+                                    "The chunk has been scheduled for generation", x, z);
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
                                 if (chunksToGenerate.Enqueue(new Chunk(x, z)))
@@ -430,13 +431,9 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine(
-                                    $"{DateTime.Now} | ---- CHUNK LOADING ERROR -------------\n" +
-                                    $"Position: ({x}|{z}) Exception:\n" +
-                                     "The loaded file did not match the requested chunk. This may be the result of renamed chunk files.\n" +
-                                     "The position has been scheduled for generation.");
-                                Console.ResetColor();
+                                logger.LogError(LoggingEvents.ChunkLoadingError, "The position of the loaded chunk file for position ({x}|{z}) did not match the requested position. " +
+                                    "This may be the result of a renamed chunk file. " +
+                                    "The position will be scheduled for generation.", x, z);
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
                                 if (chunksToGenerate.Enqueue(new Chunk(x, z)))
@@ -480,26 +477,19 @@ namespace VoxelGame.Logic
                 {
                     if (chunkMeshingTasks[i].IsCompleted)
                     {
+                        var completed = chunkMeshingTasks[i];
+                        Chunk meshedChunk = chunksMeshing[completed.Id];
+
                         if (chunkMeshingTasks[i].IsFaulted)
                         {
-                            Exception e = chunkMeshingTasks[i].Exception?.GetBaseException() ?? new NullReferenceException();
+                            Exception e = completed.Exception?.GetBaseException() ?? new NullReferenceException();
 
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine(
-                                $"{DateTime.Now} | ---- CHUNK MESHING ERROR -------------\n" +
-                                 "Exception:\n" +
-                                $"{e.Message}\n" +
-                                 "Stack Trace:\n" +
-                                $"{e.StackTrace}");
-                            Console.ResetColor();
+                            logger.LogCritical(LoggingEvents.ChunkMeshingError, e, "An exception occurred when meshing the chunk ({x}|{z}). The exception will be re-thrown.", meshedChunk.X, meshedChunk.Z);
 
                             throw e;
                         }
                         else
                         {
-                            var completed = chunkMeshingTasks[i];
-                            Chunk meshedChunk = chunksMeshing[completed.Id];
-
                             chunkMeshingTasks.RemoveAt(i);
                             chunksMeshing.Remove(completed.Id);
 
@@ -564,7 +554,7 @@ namespace VoxelGame.Logic
                 {
                     IsReady = true;
 
-                    Console.WriteLine(Language.WorldIsReady);
+                    logger.LogInformation("The world is ready.");
                 }
             }
 
@@ -623,13 +613,8 @@ namespace VoxelGame.Logic
                         {
                             if (completed.IsFaulted)
                             {
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine(
-                                    $"{DateTime.Now} | ---- CHUNK SAVING ERROR -------------\n" +
-                                    $"Position: ({completedChunk.X}|{completedChunk.Z}) Exception: ({(completed.Exception?.GetBaseException().GetType().ToString()) ?? "EXCEPTION IS NULL"})\n" +
-                                    $"{completed.Exception?.GetBaseException().Message ?? "EXCEPTION IS NULL"}\n" +
-                                     "The chunk will be disposed without saving.");
-                                Console.ResetColor();
+                                logger.LogError(LoggingEvents.ChunkSavingError, completed.Exception!.GetBaseException(), "An exception occurred when saving chunk ({x}|{z}). " +
+                                    "The chunk will be disposed without saving.", completedChunk.X, completedChunk.Z);
                             }
 
                             if (positionsActivatingThroughSaving.Remove((completedChunk.X, completedChunk.Z)))
@@ -669,6 +654,8 @@ namespace VoxelGame.Logic
             if (!positionsActivating.Contains((x, z)) && !activeChunks.ContainsKey((x, z)))
             {
                 positionsToActivate.Add((x, z));
+
+                logger.LogDebug(LoggingEvents.ChunkRequest, "Chunk ({x}|{z}) has been requested successfully.", x, z);
             }
         }
 
@@ -694,6 +681,8 @@ namespace VoxelGame.Logic
                 activeChunks.Remove((x, z));
                 chunksToSave.Enqueue(chunk);
 
+                logger.LogDebug(LoggingEvents.ChunkRelease, "Released chunk ({x}|{z}).", x, z);
+
                 canRelease = true;
             }
 
@@ -701,12 +690,16 @@ namespace VoxelGame.Logic
             {
                 positionsToReleaseOnActivation.Add((x, z));
 
+                logger.LogDebug(LoggingEvents.ChunkRelease, "Scheduled to release chunk ({x}|{z}) after activation.", x, z);
+
                 canRelease = true;
             }
 
             if (positionsToActivate.Contains((x, z)))
             {
                 positionsToActivate.Remove((x, z));
+
+                logger.LogDebug(LoggingEvents.ChunkRelease, "Chunk ({x}|{z}) has been removed from activation list.", x, z);
 
                 canRelease = true;
             }
@@ -836,6 +829,8 @@ namespace VoxelGame.Logic
         public void SetSpawnPosition(Vector3 position)
         {
             Information.SpawnInformation = new SpawnInformation(position);
+
+            logger.LogInformation("World spawn position has been set to: {position}", position);
         }
 
         /// <summary>
@@ -844,6 +839,11 @@ namespace VoxelGame.Logic
         /// <returns>A task that represents all tasks saving the chunks.</returns>
         public Task Save()
         {
+            Console.WriteLine(Language.AllChunksSaving);
+            Console.WriteLine();
+
+            logger.LogInformation("Saving world.");
+
             List<Task> savingTasks = new List<Task>(activeChunks.Count);
 
             foreach (Chunk chunk in activeChunks.Values)
@@ -853,8 +853,6 @@ namespace VoxelGame.Logic
                     savingTasks.Add(chunk.SaveTask(chunkDirectory));
                 }
             }
-
-            Console.WriteLine(Language.AllChunksSaving);
 
             Information.Version = Program.Version;
 

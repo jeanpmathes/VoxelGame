@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
@@ -20,6 +21,8 @@ namespace VoxelGame
 {
     internal class Game : GameWindow
     {
+        private static readonly ILogger logger = Program.LoggerFactory.CreateLogger<Game>();
+
         public static Game instance = null!;
 
         /// <summary>
@@ -62,163 +65,193 @@ namespace VoxelGame
 
         new protected void OnLoad()
         {
-            // Rendering setup
-            GL.Enable(EnableCap.DebugOutput);
+            using (logger.BeginScope("Window Load"))
+            {
+                // Rendering setup.
+                GL.Enable(EnableCap.DebugOutput);
 
-            debugCallbackDelegate = new DebugProc(DebugCallback);
-            GL.DebugMessageCallback(debugCallbackDelegate, IntPtr.Zero);
+                debugCallbackDelegate = new DebugProc(DebugCallback);
+                GL.DebugMessageCallback(debugCallbackDelegate, IntPtr.Zero);
 
-            GL.ClearColor(0.5f, 0.8f, 0.9f, 1.0f);
-            GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.CullFace);
+                GL.ClearColor(0.5f, 0.8f, 0.9f, 1.0f);
+                GL.Enable(EnableCap.DepthTest);
+                GL.Enable(EnableCap.CullFace);
 
-            BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2);
-            Console.WriteLine(Language.BlockTexturesLoadedAmount + BlockTextureArray.Count);
+                // Texture setup.
+                BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2);
 
-            SimpleSectionShader = new Shader("Resources/Shaders/simplesection_shader.vert", "Resources/Shaders/section_shader.frag");
-            ComplexSectionShader = new Shader("Resources/Shaders/complexsection_shader.vert", "Resources/Shaders/section_shader.frag");
-            SelectionShader = new Shader("Resources/Shaders/selection_shader.vert", "Resources/Shaders/selection_shader.frag");
-            ScreenElementShader = new Shader("Resources/Shaders/screenelement_shader.vert", "Resources/Shaders/screenelement_shader.frag");
+                logger.LogInformation("Block");
 
-            ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
+                // Shader setup.
+                using (logger.BeginScope("Shader setup"))
+                {
+                    SimpleSectionShader = new Shader("Resources/Shaders/simplesection_shader.vert", "Resources/Shaders/section_shader.frag");
+                    ComplexSectionShader = new Shader("Resources/Shaders/complexsection_shader.vert", "Resources/Shaders/section_shader.frag");
+                    SelectionShader = new Shader("Resources/Shaders/selection_shader.vert", "Resources/Shaders/selection_shader.frag");
+                    ScreenElementShader = new Shader("Resources/Shaders/screenelement_shader.vert", "Resources/Shaders/screenelement_shader.frag");
 
-            // Block setup
-            Block.LoadBlocks();
-            Console.WriteLine(Language.BlocksLoadedAmount + Block.Count);
+                    ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
 
-            Console.WriteLine(Language.TextureBlockRatio + $"{BlockTextureArray.Count * 1f / Block.Count:F02}");
+                    logger.LogInformation("Shader setup complete.");
+                }
 
-            // Get the application data folder and set up all required folders there
-            string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "voxel");
-            string worldsDirectory = Path.Combine(appDataFolder, "Worlds");
+                // Block setup.
+                Block.LoadBlocks();
 
-            Directory.CreateDirectory(appDataFolder);
-            Directory.CreateDirectory(worldsDirectory);
+                logger.LogDebug("Texture/Block ratio: {ratio:F02}", BlockTextureArray.Count / (float)Block.Count);
 
-            WorldSetup(worldsDirectory);
+                // Get the application data folder and set up all required folders there.
+                string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "voxel");
+                string worldsDirectory = Path.Combine(appDataFolder, "Worlds");
 
-            // Player setup
-            Camera camera = new Camera(new Vector3());
-            Player = new Player(70f, 0.25f, camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)));
+                Directory.CreateDirectory(appDataFolder);
+                Directory.CreateDirectory(worldsDirectory);
 
-            // Other object setup
-            Random = new Random();
+                WorldSetup(worldsDirectory);
+
+                // Player setup.
+                Camera camera = new Camera(new Vector3());
+                Player = new Player(70f, 0.25f, camera, new Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)));
+
+                // Other object setup.
+                Random = new Random();
+
+                logger.LogInformation("Finished OnLoad");
+            }
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "The characters '[' and ']' are not culture dependent.")]
         private static void WorldSetup(string worldsDirectory)
         {
-            // Finding of worlds and letting the user choose a world
-            List<(WorldInformation information, string path)> worlds = new List<(WorldInformation information, string path)>();
-
-            foreach (string directory in Directory.GetDirectories(worldsDirectory))
+            using (logger.BeginScope("WorldSetup"))
             {
-                string meta = Path.Combine(directory, "meta.json");
+                // Finding of worlds and letting the user choose a world
+                List<(WorldInformation information, string path)> worlds = new List<(WorldInformation information, string path)>();
 
-                if (File.Exists(meta))
+                foreach (string directory in Directory.GetDirectories(worldsDirectory))
                 {
-                    WorldInformation information = WorldInformation.Load(meta);
-                    worlds.Add((information, directory));
-                }
-            }
+                    string meta = Path.Combine(directory, "meta.json");
 
-            if (worlds.Count > 0)
-            {
-                Console.WriteLine(Language.ListingWorlds);
-
-                for (int n = 0; n < worlds.Count; n++)
-                {
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write($"{n + 1}: ");
-
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write($"{worlds[n].information.Name} - {Language.CreatedOn}: {worlds[n].information.Creation}");
-
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write(" [");
-
-                    if (worlds[n].information.Version == Program.Version) Console.ForegroundColor = ConsoleColor.Green;
-                    else Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write(worlds[n].information.Version);
-
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine("]");
-                }
-
-                Console.ResetColor();
-            }
-
-            string input;
-            if (worlds.Count == 0)
-            {
-                input = "y";
-            }
-            else
-            {
-                Console.WriteLine(Language.NewWorldPrompt + " [y|skip: n]");
-
-                Console.ForegroundColor = ConsoleColor.White;
-                input = Console.ReadLine();
-                Console.ResetColor();
-            }
-
-            if (input == "y" || input == "yes")
-            {
-                // Create a new world
-                Console.WriteLine(Language.EnterNameOfWorld);
-
-                Console.ForegroundColor = ConsoleColor.White;
-                string name = Console.ReadLine();
-                Console.ResetColor();
-
-                // Validate name
-                if (string.IsNullOrEmpty(name) ||
-                    name.Contains("\"", StringComparison.Ordinal) ||
-                    name.Contains("<", StringComparison.Ordinal) ||
-                    name.Contains(">", StringComparison.Ordinal) ||
-                    name.Contains("|", StringComparison.Ordinal) ||
-                    name.Contains("\\", StringComparison.Ordinal) ||
-                    name.Contains("/", StringComparison.Ordinal))
-                {
-                    name = "New World";
-                }
-
-                string path = Path.Combine(worldsDirectory, name);
-
-                while (Directory.Exists(path))
-                {
-                    path += "_";
-                }
-
-                World = new World(name, path, DateTime.Now.GetHashCode());
-            }
-            else
-            {
-                // Load an existing world
-                while (World == null)
-                {
-                    Console.WriteLine(Language.EnterIndexOfWorld);
-
-                    Console.ForegroundColor = ConsoleColor.White;
-                    string index = Console.ReadLine();
-                    Console.ResetColor();
-
-                    if (int.TryParse(index, out int n))
+                    if (File.Exists(meta))
                     {
-                        n--;
+                        WorldInformation information = WorldInformation.Load(meta);
+                        worlds.Add((information, directory));
 
-                        if (n >= 0 && n < worlds.Count)
-                        {
-                            World = new World(worlds[n].information, worlds[n].path);
-                        }
-                        else
-                        {
-                            Console.WriteLine(Language.WorldNotFound);
-                        }
+                        logger.LogDebug("Valid world directory found: {directory}", directory);
                     }
                     else
                     {
-                        Console.WriteLine(Language.InputNotValid);
+                        logger.LogDebug("The directory has no meta file and is ignored: {directory}", directory);
+                    }
+                }
+
+                logger.LogDebug("Completed world lookup, {Count} valid directories have been found.", worlds.Count);
+
+                if (worlds.Count > 0)
+                {
+                    Console.WriteLine(Language.ListingWorlds);
+
+                    for (int n = 0; n < worlds.Count; n++)
+                    {
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write($"{n + 1}: ");
+
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write($"{worlds[n].information.Name} - {Language.CreatedOn}: {worlds[n].information.Creation}");
+
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write(" [");
+
+                        if (worlds[n].information.Version == Program.Version) Console.ForegroundColor = ConsoleColor.Green;
+                        else Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write(worlds[n].information.Version);
+
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine("]");
+                    }
+
+                    Console.ResetColor();
+                    Console.WriteLine();
+                }
+
+                string input;
+                if (worlds.Count == 0)
+                {
+                    logger.LogInformation("Skipping new world prompt as no worlds are available to load.");
+
+                    input = "y";
+                }
+                else
+                {
+                    Console.WriteLine(Language.NewWorldPrompt + " [y|skip: n]");
+
+                    Console.ForegroundColor = ConsoleColor.White;
+                    input = Console.ReadLine();
+                    Console.ResetColor();
+                }
+
+                if (input == "y" || input == "yes")
+                {
+                    // Create a new world
+                    Console.WriteLine(Language.EnterNameOfWorld);
+
+                    Console.ForegroundColor = ConsoleColor.White;
+                    string name = Console.ReadLine();
+                    Console.ResetColor();
+
+                    // Validate name
+                    if (string.IsNullOrEmpty(name) ||
+                        name.Contains("\"", StringComparison.Ordinal) ||
+                        name.Contains("<", StringComparison.Ordinal) ||
+                        name.Contains(">", StringComparison.Ordinal) ||
+                        name.Contains("|", StringComparison.Ordinal) ||
+                        name.Contains("\\", StringComparison.Ordinal) ||
+                        name.Contains("/", StringComparison.Ordinal))
+                    {
+                        name = "New World";
+                    }
+
+                    string path = Path.Combine(worldsDirectory, name);
+
+                    while (Directory.Exists(path))
+                    {
+                        path += "_";
+                    }
+
+                    World = new World(name, path, DateTime.Now.GetHashCode());
+                }
+                else
+                {
+                    // Load an existing world
+                    while (World == null)
+                    {
+                        Console.WriteLine(Language.EnterIndexOfWorld);
+
+                        Console.ForegroundColor = ConsoleColor.White;
+                        string index = Console.ReadLine();
+                        Console.ResetColor();
+
+                        if (int.TryParse(index, out int n))
+                        {
+                            n--;
+
+                            if (n >= 0 && n < worlds.Count)
+                            {
+                                World = new World(worlds[n].information, worlds[n].path);
+                            }
+                            else
+                            {
+                                logger.LogWarning("The index ({i}) is too high or too low.", n);
+
+                                Console.WriteLine(Language.WorldNotFound);
+                            }
+                        }
+                        else
+                        {
+                            logger.LogWarning("The input ({input}) could not be parsed to an int value.", index);
+
+                            Console.WriteLine(Language.InputNotValid);
+                        }
                     }
                 }
             }
@@ -226,79 +259,89 @@ namespace VoxelGame
 
         new protected void OnRenderFrame(FrameEventArgs e)
         {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            using (logger.BeginScope("RenderFrame"))
+            {
+                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            World.FrameRender();
+                World.FrameRender();
 
-            SwapBuffers();
+                SwapBuffers();
+            }
         }
 
         new protected void OnUpdateFrame(FrameEventArgs e)
         {
-            float deltaTime = (float)MathHelper.Clamp(e.Time, 0f, 1f);
-
-            World.FrameUpdate(deltaTime);
-
-            if (!IsFocused) // check to see if the window is focused
+            using (logger.BeginScope("UpdateFrame"))
             {
-                return;
-            }
+                float deltaTime = (float)MathHelper.Clamp(e.Time, 0f, 1f);
 
-            KeyboardState input = LastKeyboardState;
+                World.FrameUpdate(deltaTime);
 
-            if (hasReleasesWireframeKey && input.IsKeyDown(Key.K))
-            {
-                hasReleasesWireframeKey = false;
-
-                if (wireframeMode)
+                if (!IsFocused) // check to see if the window is focused
                 {
-                    GL.LineWidth(1f);
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                    wireframeMode = false;
+                    return;
                 }
-                else
-                {
-                    GL.LineWidth(5f);
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-                    wireframeMode = true;
-                }
-            }
-            else if (input.IsKeyUp(Key.K))
-            {
-                hasReleasesWireframeKey = true;
-            }
 
-            if (input.IsKeyDown(Key.Escape))
-            {
-                Close();
+                KeyboardState input = LastKeyboardState;
+
+                if (hasReleasesWireframeKey && input.IsKeyDown(Key.K))
+                {
+                    hasReleasesWireframeKey = false;
+
+                    if (wireframeMode)
+                    {
+                        GL.LineWidth(1f);
+                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                        wireframeMode = false;
+
+                        logger.LogInformation("Disabled wireframe mode.");
+                    }
+                    else
+                    {
+                        GL.LineWidth(5f);
+                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                        wireframeMode = true;
+
+                        logger.LogInformation("Enabled wireframe mode.");
+                    }
+                }
+                else if (input.IsKeyUp(Key.K))
+                {
+                    hasReleasesWireframeKey = true;
+                }
+
+                if (input.IsKeyDown(Key.Escape))
+                {
+                    Close();
+                }
             }
         }
 
         new protected void OnResize(ResizeEventArgs e)
         {
+            logger.LogDebug("Window has been resized to: {size}", e.Size);
+
             GL.Viewport(0, 0, Size.X, Size.Y);
             ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
         }
 
         new protected void OnClosed()
         {
+            logger.LogInformation("{method} has been called.", nameof(OnClosed));
+
             try
             {
                 World.Save().Wait();
             }
             catch (AggregateException exception)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write(
-                    $"{DateTime.Now} | ---- WORLD SAVING ERROR ------------- \n" +
-                    $"An exception was thrown when saving the world. Exception: ({exception.GetBaseException().GetType()})\n" +
-                    $"{exception.GetBaseException().Message}\n" +
-                     "The process will be terminated, but some data may be lost.\n");
-                Console.ResetColor();
+                logger.LogCritical(LoggingEvents.WorldSavingError, exception.GetBaseException(), "An exception was thrown when saving the world.");
             }
 
             World.Dispose();
             Player.Dispose();
+
+            logger.LogInformation("Closing window.");
         }
 
         #region MOUSE MOVE
@@ -425,70 +468,77 @@ namespace VoxelGame
             }
 
             string idResolved = "-";
+            int eventId = 0;
             switch (id)
             {
                 case 0x500:
                     idResolved = "GL_INVALID_ENUM";
+                    eventId = LoggingEvents.GlInvalidEnum;
                     break;
 
                 case 0x501:
                     idResolved = "GL_INVALID_VALUE";
+                    eventId = LoggingEvents.GlInvalidValue;
                     break;
 
                 case 0x502:
                     idResolved = "GL_INVALID_OPERATION";
+                    eventId = LoggingEvents.GlInvalidOperation;
                     break;
 
                 case 0x503:
                     idResolved = "GL_STACK_OVERFLOW";
+                    eventId = LoggingEvents.GlStackOverflow;
                     break;
 
                 case 0x504:
                     idResolved = "GL_STACK_UNDERFLOW";
+                    eventId = LoggingEvents.GlStackUnderflow;
                     break;
 
                 case 0x505:
                     idResolved = "GL_OUT_OF_MEMORY";
+                    eventId = LoggingEvents.GlOutOfMemory;
                     break;
 
                 case 0x506:
                     idResolved = "GL_INVALID_FRAMEBUFFER_OPERATION";
+                    eventId = LoggingEvents.GlInvalidFramebufferOperation;
                     break;
 
                 case 0x507:
                     idResolved = "GL_CONTEXT_LOST";
+                    eventId = LoggingEvents.GlContextLost;
                     break;
             }
 
-            string severityShort = "NONE";
             switch (severity)
             {
-                case DebugSeverity.DebugSeverityHigh:
-                    severityShort = "HIGH";
+                case DebugSeverity.DebugSeverityNotification:
+                    logger.LogInformation(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
                     break;
 
                 case DebugSeverity.DebugSeverityLow:
-                    severityShort = "LOW";
+                    logger.LogWarning(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
                     break;
 
                 case DebugSeverity.DebugSeverityMedium:
-                    severityShort = "MEDIUM";
+                    logger.LogError(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
                     break;
 
-                case DebugSeverity.DebugSeverityNotification:
-                    severityShort = "NOTIFICATION";
+                case DebugSeverity.DebugSeverityHigh:
+                    logger.LogCritical(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
+                    break;
+
+                default:
+                    logger.LogInformation(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
                     break;
             }
-
-            Console.ForegroundColor = ConsoleColor.Red;
-
-            Console.Write(
-                $"{DateTime.Now} | ---- GL DEBUG MESSAGE ------------- \n" +
-                $"SOURCE: {sourceShort} | TYPE: {typeShort} \n" +
-                $"ID: {id} ({idResolved}) | SEVERITY: {severityShort} \n" +
-                $"MESSAGE: {System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE"}\n");
-
-            Console.ResetColor();
         }
 
         #endregion GL DEBUG
