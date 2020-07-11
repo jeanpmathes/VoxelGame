@@ -32,9 +32,10 @@ namespace VoxelGame.Logic.Blocks
 
         private protected string closed, open;
 
-        public GateBlock(string name, string closed, string open) :
+        public GateBlock(string name, string namedId, string closed, string open) :
         base(
             name,
+            namedId,
             isFull: false,
             isOpaque: false,
             renderFaceAtNonOpaques: true,

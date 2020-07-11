@@ -18,9 +18,10 @@ namespace VoxelGame.Logic.Blocks
         /// </summary>
         /// <param name="name">The name of the block.</param>
         /// <param name="maxVelocity">The maximum velocity of entities colliding with this block.</param>
-        public SpiderWebBlock(string name, string texture, float maxVelocity) :
+        public SpiderWebBlock(string name, string namedId, string texture, float maxVelocity) :
         base(
             name,
+            namedId,
             texture,
             recieveCollisions: true,
             isTrigger: true,

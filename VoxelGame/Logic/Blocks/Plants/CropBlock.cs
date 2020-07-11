@@ -90,9 +90,10 @@ namespace VoxelGame.Logic.Blocks
         private protected string texture;
         private protected int second, third, fourth, fifth, sixth, final, dead;
 
-        public CropBlock(string name, string texture, int second, int third, int fourth, int fifth, int sixth, int final, int dead) :
+        public CropBlock(string name, string namedId, string texture, int second, int third, int fourth, int fifth, int sixth, int final, int dead) :
             base(
                 name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,

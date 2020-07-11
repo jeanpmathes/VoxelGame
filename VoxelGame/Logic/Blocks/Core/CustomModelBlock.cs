@@ -21,9 +21,10 @@ namespace VoxelGame.Logic.Blocks
 
         private protected string model;
 
-        public CustomModelBlock(string name, string modelName, bool isSolid, Physics.BoundingBox boundingBox) :
+        public CustomModelBlock(string name, string namedId, string modelName, bool isSolid, Physics.BoundingBox boundingBox) :
             base(
                 name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,

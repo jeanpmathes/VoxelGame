@@ -20,9 +20,14 @@ namespace VoxelGame.Logic
         public ushort Id { get; }
 
         /// <summary>
-        /// Gets the name of the block, which is also used for finding the right texture.
+        /// Gets the localized name of the block.
         /// </summary>
         public string Name { get; }
+
+        /// <summary>
+        /// An unlocalized string that identifies this block.
+        /// </summary>
+        public string NamedId { get; }
 
         /// <summary>
         /// Gets whether this block completely fills a 1x1x1 volume or not.
@@ -76,9 +81,11 @@ namespace VoxelGame.Logic
 
         private BoundingBox boundingBox;
 
-        protected Block(string name, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable, BoundingBox boundingBox, TargetBuffer targetBuffer)
+        protected Block(string name, string namedId, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable, BoundingBox boundingBox, TargetBuffer targetBuffer)
         {
             Name = name;
+            NamedId = namedId;
+
             IsFull = isFull;
             IsOpaque = isOpaque;
             RenderFaceAtNonOpaques = renderFaceAtNonOpaques;
@@ -100,6 +107,8 @@ namespace VoxelGame.Logic
             if (blockDictionary.Count < BlockLimit)
             {
                 blockDictionary.Add((ushort)blockDictionary.Count, this);
+                namedBlockDictionary.Add(namedId, this);
+
                 Id = (ushort)(blockDictionary.Count - 1);
             }
             else
@@ -245,7 +254,7 @@ namespace VoxelGame.Logic
 
         public sealed override string ToString()
         {
-            return $"[{Name}]-BLOCK";
+            return NamedId;
         }
 
         public sealed override bool Equals(object? obj)

@@ -35,9 +35,10 @@ namespace VoxelGame.Logic.Blocks
 
         private protected string closed, open;
 
-        public DoorBlock(string name, string closed, string open) :
+        public DoorBlock(string name, string namedId, string closed, string open) :
             base(
                 name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,

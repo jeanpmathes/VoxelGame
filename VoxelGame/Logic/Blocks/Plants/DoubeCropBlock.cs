@@ -74,9 +74,10 @@ namespace VoxelGame.Logic.Blocks
         private protected int dead, first, second, third;
         private protected (int low, int top) fourth, fifth, sixth, final;
 
-        public DoubeCropBlock(string name, string texture, int dead, int first, int second, int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final) :
+        public DoubeCropBlock(string name, string namedId, string texture, int dead, int first, int second, int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final) :
             base(
                 name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,

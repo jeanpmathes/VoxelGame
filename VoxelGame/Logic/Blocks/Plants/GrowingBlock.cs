@@ -17,9 +17,10 @@ namespace VoxelGame.Logic.Blocks
         private protected readonly Block requiredGround;
         private protected readonly int maxHeight;
 
-        public GrowingBlock(string name, TextureLayout layout, Block ground, int maxHeight) :
+        public GrowingBlock(string name, string namedId, TextureLayout layout, Block ground, int maxHeight) :
             base(
                 name,
+                namedId,
                 layout,
                 isOpaque: true,
                 renderFaceAtNonOpaques: true,

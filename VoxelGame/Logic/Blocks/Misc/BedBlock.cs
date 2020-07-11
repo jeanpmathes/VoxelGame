@@ -34,9 +34,10 @@ namespace VoxelGame.Logic.Blocks
 
         private protected string model;
 
-        public BedBlock(string name, string model) :
+        public BedBlock(string name, string namedId, string model) :
             base(
                 name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,

@@ -43,9 +43,10 @@ namespace VoxelGame.Logic.Blocks
 
         private protected string texture, post, extension, extensionStraight;
 
-        public WallBlock(string name, string texture, string post, string extension, string extensionStraight) :
+        public WallBlock(string name, string namedId, string texture, string post, string extension, string extensionStraight) :
             base(
                 name: name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,

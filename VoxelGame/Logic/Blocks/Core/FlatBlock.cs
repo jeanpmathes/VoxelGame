@@ -41,9 +41,10 @@ namespace VoxelGame.Logic.Blocks
         /// <param name="texture">The texture to use for the block.</param>
         /// <param name="climbingVelocity"></param>
         /// <param name="slidingVelocity"></param>
-        public FlatBlock(string name, string texture, float climbingVelocity, float slidingVelocity) :
+        public FlatBlock(string name, string namedId, string texture, float climbingVelocity, float slidingVelocity) :
             base(
-                name: name,
+                name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,

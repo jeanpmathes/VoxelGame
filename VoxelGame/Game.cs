@@ -80,7 +80,7 @@ namespace VoxelGame
                 // Texture setup.
                 BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2);
 
-                logger.LogInformation("Block");
+                logger.LogInformation("Block textures all loaded.");
 
                 // Shader setup.
                 using (logger.BeginScope("Shader setup"))

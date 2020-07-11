@@ -37,9 +37,10 @@ namespace VoxelGame.Logic.Blocks
 
         private protected string texture, post, extension;
 
-        public FenceBlock(string name, string texture, string post, string extension) :
+        public FenceBlock(string name, string namedId, string texture, string post, string extension) :
             base(
-                name: name,
+                name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,

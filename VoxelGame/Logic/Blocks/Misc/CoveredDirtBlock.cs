@@ -16,9 +16,10 @@ namespace VoxelGame.Logic.Blocks
     {
         private protected readonly bool hasNeutralTint;
 
-        public CoveredDirtBlock(string name, TextureLayout layout, bool hasNeutralTint) :
+        public CoveredDirtBlock(string name, string namedId, TextureLayout layout, bool hasNeutralTint) :
             base(
                 name,
+                namedId,
                 layout,
                 isOpaque: true,
                 renderFaceAtNonOpaques: true,

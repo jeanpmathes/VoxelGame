@@ -17,9 +17,10 @@ namespace VoxelGame.Logic.Blocks
     // c = color
     public class TintedBlock : BasicBlock, IConnectable
     {
-        public TintedBlock(string name, TextureLayout layout) :
+        public TintedBlock(string name, string namedId, TextureLayout layout) :
             base(
                 name,
+                namedId,
                 layout,
                 isOpaque: true,
                 renderFaceAtNonOpaques: true,
