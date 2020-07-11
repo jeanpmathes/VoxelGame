@@ -9,6 +9,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Resources.Language;
 using System.IO;
+using System.Threading;
 
 namespace VoxelGame
 {
@@ -55,6 +56,8 @@ namespace VoxelGame
             {
                 game.Run();
             }
+
+            Thread.Sleep(100);
 
             Console.WriteLine();
             Console.WriteLine(Language.PressAnyKeyToExit);

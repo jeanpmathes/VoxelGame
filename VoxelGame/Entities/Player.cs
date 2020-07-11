@@ -58,7 +58,7 @@ namespace VoxelGame.Entities
 
             selectionRenderer = new BoxRenderer();
 
-            crosshair = new Texture("Resources/Textures/UI/crosshair.png");
+            crosshair = new Texture("Resources/Textures/UI/crosshair.png", fallbackResolution: 32);
             crosshair.Use(OpenToolkit.Graphics.OpenGL4.TextureUnit.Texture6);
 
             crosshairRenderer = new ScreenElementRenderer();

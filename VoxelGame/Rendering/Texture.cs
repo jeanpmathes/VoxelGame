@@ -7,6 +7,7 @@ using OpenToolkit.Graphics.OpenGL4;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
 
 namespace VoxelGame.Rendering
@@ -18,30 +19,25 @@ namespace VoxelGame.Rendering
         public int Handle { get; }
         public TextureUnit TextureUnit { get; private set; }
 
-        public Texture(string path)
+        public Texture(string path, int fallbackResolution = 16)
         {
             Handle = GL.GenTexture();
 
             Use();
 
-            using (Bitmap image = new Bitmap(path))
+            try
             {
-                image.RotateFlip(RotateFlipType.Rotate180FlipX);
+                using Bitmap bitmap = new Bitmap(path);
+                SetupTexture(bitmap);
+            }
+            catch (Exception exception) when (exception is FileNotFoundException || exception is ArgumentException)
+            {
+                using (Bitmap bitmap = CreateFallback(fallbackResolution))
+                {
+                    SetupTexture(bitmap);
+                }
 
-                BitmapData data = image.LockBits(
-                    new Rectangle(0, 0, image.Width, image.Height),
-                    ImageLockMode.ReadOnly,
-                    System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-                GL.TexImage2D(TextureTarget.Texture2D,
-                    0,
-                    PixelInternalFormat.Rgba,
-                    image.Width,
-                    image.Height,
-                    0,
-                    PixelFormat.Bgra,
-                    PixelType.UnsignedByte,
-                    data.Scan0);
+                logger.LogWarning(LoggingEvents.MissingRessource, exception, "The texture could not be loaded and a fallback was used instead because the file was not found: {path}", path);
             }
 
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
@@ -51,6 +47,28 @@ namespace VoxelGame.Rendering
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
 
             GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+        }
+
+        private void SetupTexture(Bitmap bitmap)
+        {
+            Use();
+
+            bitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
+
+            BitmapData data = bitmap.LockBits(
+                new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                ImageLockMode.ReadOnly,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            GL.TexImage2D(TextureTarget.Texture2D,
+                0,
+                PixelInternalFormat.Rgba,
+                bitmap.Width,
+                bitmap.Height,
+                0,
+                PixelFormat.Bgra,
+                PixelType.UnsignedByte,
+                data.Scan0);
         }
 
         public void Use(TextureUnit unit = TextureUnit.Texture0)
@@ -94,5 +112,30 @@ namespace VoxelGame.Rendering
         }
 
         #endregion IDisposable Support
+
+        internal static Bitmap CreateFallback(int resolution)
+        {
+            Bitmap fallback = new Bitmap(resolution, resolution, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            Color magenta = Color.FromArgb(64, 255, 0, 255);
+            Color black = Color.FromArgb(64, 0, 0, 0);
+
+            for (int x = 0; x < fallback.Width; x++)
+            {
+                for (int y = 0; y < fallback.Height; y++)
+                {
+                    if (x % 2 == 0 ^ y % 2 == 0)
+                    {
+                        fallback.SetPixel(x, y, magenta);
+                    }
+                    else
+                    {
+                        fallback.SetPixel(x, y, black);
+                    }
+                }
+            }
+
+            return fallback;
+        }
     }
 }

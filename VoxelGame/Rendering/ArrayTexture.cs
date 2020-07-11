@@ -48,7 +48,7 @@ namespace VoxelGame.Rendering
             int currentIndex = 1;
 
             // Create fall back texture.
-            Bitmap fallback = CreateFallback(resolution);
+            Bitmap fallback = Texture.CreateFallback(resolution);
             textures.Add(fallback);
 
             for (int i = 0; i < texturePaths.Length; i++) // Split all images into separate bitmaps and create a list
@@ -108,31 +108,6 @@ namespace VoxelGame.Rendering
             }
 
             logger.LogDebug("ArrayTexture with {count} textures loaded.", Count);
-        }
-
-        private static Bitmap CreateFallback(int resolution)
-        {
-            Bitmap fallback = new Bitmap(resolution, resolution, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-            Color magenta = Color.FromArgb(64, 255, 0, 255);
-            Color black = Color.FromArgb(64, 0, 0, 0);
-
-            for (int x = 0; x < fallback.Width; x++)
-            {
-                for (int y = 0; y < fallback.Height; y++)
-                {
-                    if (x % 2 == 0 ^ y % 2 == 0)
-                    {
-                        fallback.SetPixel(x, y, magenta);
-                    }
-                    else
-                    {
-                        fallback.SetPixel(x, y, black);
-                    }
-                }
-            }
-
-            return fallback;
         }
 
         private static void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures, int startIndex, int length, bool useCustomMipmapGeneration)
