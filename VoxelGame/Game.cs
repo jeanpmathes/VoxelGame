@@ -12,6 +12,7 @@ using OpenToolkit.Windowing.Desktop;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using VoxelGame.Entities;
 using VoxelGame.Logic;
 using VoxelGame.Rendering;
@@ -146,7 +147,9 @@ namespace VoxelGame
                     }
                 }
 
-                logger.LogDebug("Completed world lookup, {Count} valid directories have been found.", worlds.Count);
+                logger.LogInformation("Completed world lookup, {Count} valid directories have been found.", worlds.Count);
+
+                Thread.Sleep(100);
 
                 if (worlds.Count > 0)
                 {
