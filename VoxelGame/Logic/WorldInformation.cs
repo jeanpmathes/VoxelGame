@@ -35,12 +35,21 @@ namespace VoxelGame.Logic
 
         public static WorldInformation Load(string path)
         {
-            string json = File.ReadAllText(path);
-            WorldInformation information = JsonSerializer.Deserialize<WorldInformation>(json) ?? new WorldInformation();
+            try
+            {
+                string json = File.ReadAllText(path);
+                WorldInformation information = JsonSerializer.Deserialize<WorldInformation>(json) ?? new WorldInformation();
 
-            logger.LogDebug("WorldInformation for World '{name}' was loaded from: {path}", information.Name, path);
+                logger.LogDebug("WorldInformation for World '{name}' was loaded from: {path}", information.Name, path);
 
-            return information;
+                return information;
+            }
+            catch (JsonException exception)
+            {
+                logger.LogError(LoggingEvents.WorldLoadingError, exception, "The meta file could not be loaded: {path}", path);
+
+                return new WorldInformation();
+            }
         }
     }
 

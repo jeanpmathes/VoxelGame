@@ -73,19 +73,24 @@ namespace VoxelGame
         public const int WorldSavingError = 1000;
 
         /// <summary>
+        /// An error that occurs when loading a world, e.g. when the meta file is damaged.
+        /// </summary>
+        public const int WorldLoadingError = 1001;
+
+        /// <summary>
         /// An error that occurs when saving a chunk.
         /// </summary>
-        public const int ChunkSavingError = 1001;
+        public const int ChunkSavingError = 1002;
 
         /// <summary>
         /// An error that occurs when loading a chunk.
         /// </summary>
-        public const int ChunkLoadingError = 1002;
+        public const int ChunkLoadingError = 1003;
 
         /// <summary>
         /// An error that occurs when meshing a chunk.
         /// </summary>
-        public const int ChunkMeshingError = 1003;
+        public const int ChunkMeshingError = 1004;
 
         /// <summary>
         /// Occurs when a chunk is requested.
