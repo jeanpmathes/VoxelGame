@@ -35,9 +35,10 @@ namespace VoxelGame.Logic.Blocks
 
         private protected string closed, open;
 
-        public DoorBlock(string name, string closed, string open) :
+        public DoorBlock(string name, string namedId, string closed, string open) :
             base(
                 name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,
@@ -138,9 +139,9 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable != true || Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
+            if (Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
             {
                 return false;
             }
@@ -197,7 +198,7 @@ namespace VoxelGame.Logic.Blocks
             return true;
         }
 
-        protected override bool Destroy(int x, int y, int z, byte data, PhysicsEntity? entity)
+        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, byte data)
         {
             Game.World.SetBlock(Block.AIR, 0, x, y, z);
             Game.World.SetBlock(Block.AIR, 0, x, y + ((data & 0b0_0100) == 0 ? 1 : -1), z);

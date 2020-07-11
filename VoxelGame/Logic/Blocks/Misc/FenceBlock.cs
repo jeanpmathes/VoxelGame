@@ -37,9 +37,10 @@ namespace VoxelGame.Logic.Blocks
 
         private protected string texture, post, extension;
 
-        public FenceBlock(string name, string texture, string post, string extension) :
+        public FenceBlock(string name, string namedId, string texture, string post, string extension) :
             base(
-                name: name,
+                name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,
@@ -205,13 +206,8 @@ namespace VoxelGame.Logic.Blocks
             return vertCount;
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, Entities.PhysicsEntity? entity)
+        protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable != true)
-            {
-                return false;
-            }
-
             byte data = 0;
             // Check the neighboring blocks
             if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))

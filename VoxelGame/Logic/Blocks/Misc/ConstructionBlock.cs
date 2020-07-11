@@ -12,9 +12,10 @@ namespace VoxelGame.Logic.Blocks
     /// </summary>
     public class ConstructionBlock : BasicBlock, IConnectable
     {
-        public ConstructionBlock(string name, TextureLayout layout) :
+        public ConstructionBlock(string name, string namedId, TextureLayout layout) :
             base(
                 name,
+                namedId,
                 layout,
                 isOpaque: true,
                 renderFaceAtNonOpaques: true,

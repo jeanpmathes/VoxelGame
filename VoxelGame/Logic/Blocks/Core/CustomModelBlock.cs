@@ -21,9 +21,10 @@ namespace VoxelGame.Logic.Blocks
 
         private protected string model;
 
-        public CustomModelBlock(string name, string modelName, bool isSolid, Physics.BoundingBox boundingBox) :
+        public CustomModelBlock(string name, string namedId, string modelName, bool isSolid, Physics.BoundingBox boundingBox) :
             base(
                 name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,
@@ -57,9 +58,9 @@ namespace VoxelGame.Logic.Blocks
             return vertCount;
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable == true && (Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR).IsSolidAndFull)
+            if ((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR).IsSolidAndFull)
             {
                 Game.World.SetBlock(this, 0, x, y, z);
 

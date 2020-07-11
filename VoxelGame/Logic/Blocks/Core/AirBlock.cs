@@ -17,9 +17,10 @@ namespace VoxelGame.Logic.Blocks
         /// Initializes a new instance of the <see cref="AirBlock"/> class.
         /// </summary>
         /// <param name="name">The unique name of this block</param>
-        public AirBlock(string name) :
+        public AirBlock(string name, string namedId) :
             base(
                 name: name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: false,
@@ -43,12 +44,12 @@ namespace VoxelGame.Logic.Blocks
             return 0;
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, Entities.PhysicsEntity? entity)
+        protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
         {
             return false;
         }
 
-        protected override bool Destroy(int x, int y, int z, byte data, Entities.PhysicsEntity? entity)
+        protected override bool Destroy(Entities.PhysicsEntity? entity, int x, int y, int z, byte data)
         {
             return false;
         }

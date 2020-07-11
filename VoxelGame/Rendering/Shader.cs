@@ -2,6 +2,7 @@
 //     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
 // <author>pershingthesecond</author>
+using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using System;
@@ -13,6 +14,8 @@ namespace VoxelGame.Rendering
 {
     public class Shader
     {
+        private static readonly ILogger logger = Program.CreateLogger<Shader>();
+
         private readonly Dictionary<string, int> uniformLocations;
 
         public int Handle { get; }
@@ -59,9 +62,18 @@ namespace VoxelGame.Rendering
 
             // Check for compilation errors
             GL.GetShader(shader, ShaderParameter.CompileStatus, out int code);
+
             if (code != (int)All.True)
             {
-                throw new Exception($"Error occurred whilst compiling Shader({shader})");
+                Exception e = new Exception($"Error occurred whilst compiling Shader({shader})");
+
+                logger.LogCritical(LoggingEvents.ShaderError, e, "Error occurred whilst compiling Shader({shader}): {info}", shader, GL.GetShaderInfoLog(shader));
+
+                throw e;
+            }
+            else
+            {
+                logger.LogDebug("Successfully compiled Shader({shader})", shader);
             }
         }
 
@@ -71,9 +83,18 @@ namespace VoxelGame.Rendering
 
             // Check for linking errors
             GL.GetProgram(program, GetProgramParameterName.LinkStatus, out var code);
+
             if (code != (int)All.True)
             {
-                throw new Exception($"Error occurred whilst linking Program({program}). Info log:\n{GL.GetProgramInfoLog(program)}");
+                Exception e = new Exception($"Error occurred whilst linking Program({program})");
+
+                logger.LogCritical(LoggingEvents.ShaderError, e, "Error occurred whilst linking Program({program}): {info}", program, GL.GetProgramInfoLog(program));
+
+                throw e;
+            }
+            else
+            {
+                logger.LogDebug("Successfully linked Program({program})", program);
             }
         }
 

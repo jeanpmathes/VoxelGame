@@ -20,9 +20,10 @@ namespace VoxelGame.Logic.Blocks
         private protected float[][] sideNormals = null!;
         private protected int[] texIndices = null!;
 
-        public OrientedBlock(string name, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
+        public OrientedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
             base(
                 name,
+                namedId,
                 layout,
                 isOpaque,
                 renderFaceAtNonOpaques,
@@ -139,13 +140,8 @@ namespace VoxelGame.Logic.Blocks
             return 4;
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable != true)
-            {
-                return false;
-            }
-
             Game.World.SetBlock(this, (byte)((entity?.LookingDirection.ToOrientation()) ?? Orientation.North), x, y, z);
 
             return true;

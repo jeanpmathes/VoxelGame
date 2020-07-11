@@ -34,9 +34,10 @@ namespace VoxelGame.Logic.Blocks
 
         private protected string model;
 
-        public BedBlock(string name, string model) :
+        public BedBlock(string name, string namedId, string model) :
             base(
                 name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,
@@ -148,9 +149,9 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable != true || Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
+            if (Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
             {
                 return false;
             }
@@ -218,7 +219,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        protected override bool Destroy(int x, int y, int z, byte data, PhysicsEntity? entity)
+        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, byte data)
         {
             bool isHead = (data & 0b1) == 1;
 

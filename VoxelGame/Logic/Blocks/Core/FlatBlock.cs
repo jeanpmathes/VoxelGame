@@ -41,9 +41,10 @@ namespace VoxelGame.Logic.Blocks
         /// <param name="texture">The texture to use for the block.</param>
         /// <param name="climbingVelocity"></param>
         /// <param name="slidingVelocity"></param>
-        public FlatBlock(string name, string texture, float climbingVelocity, float slidingVelocity) :
+        public FlatBlock(string name, string namedId, string texture, float climbingVelocity, float slidingVelocity) :
             base(
-                name: name,
+                name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,
@@ -142,13 +143,8 @@ namespace VoxelGame.Logic.Blocks
             return 8;
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable != true)
-            {
-                return false;
-            }
-
             if (SideToOrientation(entity?.TargetSide ?? BlockSide.Front, out Orientation orientation))
             {
                 if (orientation == Orientation.North && Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull == true)

@@ -17,9 +17,10 @@ namespace VoxelGame.Logic.Blocks
         /// <param name="name">The name of this block and the texture file.</param>
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
         /// <param name="boundingBox">The bounding box of this block.</param>
-        public CrossPlantBlock(string name, string texture, bool isReplaceable, BoundingBox boundingBox) :
+        public CrossPlantBlock(string name, string namedId, string texture, bool isReplaceable, BoundingBox boundingBox) :
             base(
                 name,
+                namedId,
                 texture,
                 recieveCollisions: false,
                 isTrigger: false,
@@ -35,12 +36,12 @@ namespace VoxelGame.Logic.Blocks
             return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, Entities.PhysicsEntity? entity)
+        protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
         {
             // Check the block under the placement position.
             Block ground = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
 
-            if (replaceable == true && ground is IPlantable)
+            if (ground is IPlantable)
             {
                 Game.World.SetBlock(this, 0, x, y, z);
 

@@ -17,9 +17,10 @@ namespace VoxelGame.Logic.Blocks
     // c = color
     public class TintedBlock : BasicBlock, IConnectable
     {
-        public TintedBlock(string name, TextureLayout layout) :
+        public TintedBlock(string name, string namedId, TextureLayout layout) :
             base(
                 name,
+                namedId,
                 layout,
                 isOpaque: true,
                 renderFaceAtNonOpaques: true,
@@ -35,13 +36,8 @@ namespace VoxelGame.Logic.Blocks
             return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, Entities.PhysicsEntity? entity)
+        protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable != true)
-            {
-                return false;
-            }
-
             Game.World.SetBlock(this, 0, x, y, z);
 
             return true;

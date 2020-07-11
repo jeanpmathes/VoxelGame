@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,8 @@ namespace VoxelGame.Visuals
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = "This class is meant for data storage.")]
     public class BlockModel
     {
+        private static readonly ILogger logger = Program.CreateLogger<BlockModel>();
+
         private static readonly string path = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Models");
 
         public string[] TextureNames { get; set; } = Array.Empty<string>();
@@ -186,15 +189,15 @@ namespace VoxelGame.Visuals
             try
             {
                 string json = File.ReadAllText(Path.Combine(path, name + ".json"));
-                return JsonSerializer.Deserialize<BlockModel>(json) ?? new BlockModel();
+                BlockModel model = JsonSerializer.Deserialize<BlockModel>(json) ?? new BlockModel();
+
+                logger.LogDebug("Loaded BlockModel: {name}", name);
+
+                return model;
             }
             catch (Exception e) when (e is IOException || e is FileNotFoundException || e is JsonException)
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
-                Console.WriteLine($"WARNING: The model '{name}' could not be loaded, because an exception ({e.Message}) occurred. Fallback is used.");
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
-                Console.ResetColor();
+                logger.LogWarning(LoggingEvents.MissingRessource, e, "Could not load the model '{name}' because an exception occurred, a fallback will be used instead.", name);
 
                 return CreateFallback();
             }

@@ -90,9 +90,10 @@ namespace VoxelGame.Logic.Blocks
         private protected string texture;
         private protected int second, third, fourth, fifth, sixth, final, dead;
 
-        public CropBlock(string name, string texture, int second, int third, int fourth, int fifth, int sixth, int final, int dead) :
+        public CropBlock(string name, string namedId, string texture, int second, int third, int fourth, int fifth, int sixth, int final, int dead) :
             base(
                 name,
+                namedId,
                 isFull: false,
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,
@@ -177,9 +178,9 @@ namespace VoxelGame.Logic.Blocks
             return 24;
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable != true || !(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
+            if (!(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
             {
                 return false;
             }

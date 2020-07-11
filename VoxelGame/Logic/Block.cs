@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using Microsoft.Extensions.Logging;
 using VoxelGame.Physics;
 using VoxelGame.Visuals;
 
@@ -19,9 +20,14 @@ namespace VoxelGame.Logic
         public ushort Id { get; }
 
         /// <summary>
-        /// Gets the name of the block, which is also used for finding the right texture.
+        /// Gets the localized name of the block.
         /// </summary>
         public string Name { get; }
+
+        /// <summary>
+        /// An unlocalized string that identifies this block.
+        /// </summary>
+        public string NamedId { get; }
 
         /// <summary>
         /// Gets whether this block completely fills a 1x1x1 volume or not.
@@ -75,9 +81,11 @@ namespace VoxelGame.Logic
 
         private BoundingBox boundingBox;
 
-        protected Block(string name, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable, BoundingBox boundingBox, TargetBuffer targetBuffer)
+        protected Block(string name, string namedId, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable, BoundingBox boundingBox, TargetBuffer targetBuffer)
         {
             Name = name;
+            NamedId = namedId;
+
             IsFull = isFull;
             IsOpaque = isOpaque;
             RenderFaceAtNonOpaques = renderFaceAtNonOpaques;
@@ -99,6 +107,8 @@ namespace VoxelGame.Logic
             if (blockDictionary.Count < BlockLimit)
             {
                 blockDictionary.Add((ushort)blockDictionary.Count, this);
+                namedBlockDictionary.Add(namedId, this);
+
                 Id = (ushort)(blockDictionary.Count - 1);
             }
             else
@@ -155,16 +165,11 @@ namespace VoxelGame.Logic
         /// <returns>Returns true if placing the block was successful.</returns>
         public bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
-            return Place(x, y, z, Game.World.GetBlock(x, y, z, out _)?.IsReplaceable, entity);
+            return Game.World.GetBlock(x, y, z, out _)?.IsReplaceable == true && Place(entity, x, y, z);
         }
 
-        protected virtual bool Place(int x, int y, int z, bool? replaceable, Entities.PhysicsEntity? entity)
+        protected virtual bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
         {
-            if (replaceable != true)
-            {
-                return false;
-            }
-
             Game.World.SetBlock(this, 0, x, y, z);
 
             return true;
@@ -182,7 +187,7 @@ namespace VoxelGame.Logic
         {
             if (Game.World.GetBlock(x, y, z, out byte data) == this)
             {
-                return Destroy(x, y, z, data, entity);
+                return Destroy(entity, x, y, z, data);
             }
             else
             {
@@ -190,7 +195,7 @@ namespace VoxelGame.Logic
             }
         }
 
-        protected virtual bool Destroy(int x, int y, int z, byte data, Entities.PhysicsEntity? entity)
+        protected virtual bool Destroy(Entities.PhysicsEntity? entity, int x, int y, int z, byte data)
         {
             Game.World.SetBlock(Block.AIR, 0, x, y, z);
 
@@ -249,7 +254,7 @@ namespace VoxelGame.Logic
 
         public sealed override string ToString()
         {
-            return $"Block [{Name}]";
+            return NamedId;
         }
 
         public sealed override bool Equals(object? obj)

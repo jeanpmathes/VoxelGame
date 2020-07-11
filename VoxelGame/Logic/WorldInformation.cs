@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System;
 using System.IO;
@@ -12,6 +13,8 @@ namespace VoxelGame.Logic
 {
     public class WorldInformation
     {
+        private static readonly ILogger logger = Program.CreateLogger<WorldInformation>();
+
         public string Name { get; set; } = "No Name";
         public int Seed { get; set; } = 2133;
         public DateTime Creation { get; set; } = DateTime.MinValue;
@@ -32,8 +35,21 @@ namespace VoxelGame.Logic
 
         public static WorldInformation Load(string path)
         {
-            string json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<WorldInformation>(json) ?? new WorldInformation();
+            try
+            {
+                string json = File.ReadAllText(path);
+                WorldInformation information = JsonSerializer.Deserialize<WorldInformation>(json) ?? new WorldInformation();
+
+                logger.LogDebug("WorldInformation for World '{name}' was loaded from: {path}", information.Name, path);
+
+                return information;
+            }
+            catch (JsonException exception)
+            {
+                logger.LogError(LoggingEvents.WorldLoadingError, exception, "The meta file could not be loaded: {path}", path);
+
+                return new WorldInformation();
+            }
         }
     }
 

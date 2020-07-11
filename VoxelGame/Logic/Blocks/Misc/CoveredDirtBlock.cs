@@ -16,9 +16,10 @@ namespace VoxelGame.Logic.Blocks
     {
         private protected readonly bool hasNeutralTint;
 
-        public CoveredDirtBlock(string name, TextureLayout layout, bool hasNeutralTint) :
+        public CoveredDirtBlock(string name, string namedId, TextureLayout layout, bool hasNeutralTint) :
             base(
                 name,
+                namedId,
                 layout,
                 isOpaque: true,
                 renderFaceAtNonOpaques: true,
@@ -35,7 +36,7 @@ namespace VoxelGame.Logic.Blocks
             return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
         }
 
-        protected override bool Place(int x, int y, int z, bool? replaceable, PhysicsEntity? entity)
+        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
             if ((Game.World.GetBlock(x, y + 1, z, out _) ?? Block.AIR).IsSolidAndFull)
             {
@@ -43,11 +44,6 @@ namespace VoxelGame.Logic.Blocks
             }
             else
             {
-                if (replaceable != true)
-                {
-                    return false;
-                }
-
                 Game.World.SetBlock(this, 0, x, y, z);
 
                 return true;
