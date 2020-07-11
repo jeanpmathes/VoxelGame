@@ -42,12 +42,16 @@ namespace VoxelGame
 
         public float AspectRatio { get => Size.X / (float)Size.Y; }
 
+        private readonly string appDataFolder;
+
         private bool wireframeMode = false;
         private bool hasReleasesWireframeKey = true;
 
-        public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
+        public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, string appDataFolder) : base(gameWindowSettings, nativeWindowSettings)
         {
             instance = this;
+
+            this.appDataFolder = appDataFolder;
 
             Load += OnLoad;
 
@@ -80,7 +84,7 @@ namespace VoxelGame
                 // Texture setup.
                 BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2);
 
-                logger.LogInformation("Block textures all loaded.");
+                logger.LogInformation("All block textures loaded.");
 
                 // Shader setup.
                 using (logger.BeginScope("Shader setup"))
@@ -100,11 +104,8 @@ namespace VoxelGame
 
                 logger.LogDebug("Texture/Block ratio: {ratio:F02}", BlockTextureArray.Count / (float)Block.Count);
 
-                // Get the application data folder and set up all required folders there.
-                string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "voxel");
+                // Create required folders in %appdata% directory
                 string worldsDirectory = Path.Combine(appDataFolder, "Worlds");
-
-                Directory.CreateDirectory(appDataFolder);
                 Directory.CreateDirectory(worldsDirectory);
 
                 WorldSetup(worldsDirectory);

@@ -8,6 +8,7 @@ using OpenToolkit.Windowing.Desktop;
 using System;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Resources.Language;
+using System.IO;
 
 namespace VoxelGame
 {
@@ -19,6 +20,8 @@ namespace VoxelGame
 
         private static void Main()
         {
+            string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "voxel");
+
             LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
             {
                 builder
@@ -26,7 +29,7 @@ namespace VoxelGame
                     .AddFilter("System", LogLevel.Warning)
                     .AddFilter("VoxelGame", LogLevel.Debug)
                     .AddConsole(options => options.IncludeScopes = true)
-                    .AddDebug()
+                    .AddFile(Path.Combine(appDataFolder, "Logs", "voxel-log-{Date}.txt"), LogLevel.Debug)
                     .AddEventLog();
             });
 
@@ -51,7 +54,7 @@ namespace VoxelGame
 
             logger.LogInformation("Starting game on version: {Version}", Version);
 
-            using (Game game = new Game(gameWindowSettings, nativeWindowSettings))
+            using (Game game = new Game(gameWindowSettings, nativeWindowSettings, appDataFolder))
             {
                 game.Run();
             }
