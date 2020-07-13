@@ -76,6 +76,51 @@ namespace VoxelGame.Visuals
         /// </summary>
         public static TintColor Magenta { get => new TintColor(1f, 0f, 1f); }
 
+        /// <summary>
+        /// Gets an orange color: <c>(1|0.5|0)</c>
+        /// </summary>
+        public static TintColor Orange { get => new TintColor(1f, 0.5f, 0f); }
+
+        /// <summary>
+        /// Gets a dark green color: <c>(0|0.5|0)</c>
+        /// </summary>
+        public static TintColor DarkGreen { get => new TintColor(0f, 0.5f, 0f); }
+
+        /// <summary>
+        /// Gets a lime color: <c>(0.75|1|0)</c>
+        /// </summary>
+        public static TintColor Lime { get => new TintColor(0.75f, 1f, 0f); }
+
+        /// <summary>
+        /// Gets a gray color: <c>(0.15|0.15|0.15)</c>
+        /// </summary>
+        public static TintColor Gray { get => new TintColor(0.15f, 0.15f, 0.15f); }
+
+        /// <summary>
+        /// Gets an indigo color: <c>(0.5|1|0)</c>
+        /// </summary>
+        public static TintColor Indigo { get => new TintColor(0.5f, 1f, 0f); }
+
+        /// <summary>
+        /// Gets a maroon color: <c>(0.5|0|0)</c>
+        /// </summary>
+        public static TintColor Maroon { get => new TintColor(0.5f, 0f, 0f); }
+
+        /// <summary>
+        /// Gets an olive color: <c>(0.5|0.5|0)</c>
+        /// </summary>
+        public static TintColor Olive { get => new TintColor(0.5f, 0.5f, 0f); }
+
+        /// <summary>
+        /// Gets a brown color: <c>(0.5|0.25|0)</c>
+        /// </summary>
+        public static TintColor Brown { get => new TintColor(0.5f, 0.25f, 0f); }
+
+        /// <summary>
+        /// Gets a navy color: <c>(0|0|0.5)</c>
+        /// </summary>
+        public static TintColor Navy { get => new TintColor(0f, 0f, 0.5f); }
+
         #endregion PREDEFINED COLORS
 
         public int ToBits

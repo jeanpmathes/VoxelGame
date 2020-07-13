@@ -1,31 +1,28 @@
-﻿// <copyright file="TintedBlock.cs" company="VoxelGame">
+﻿// <copyright file="TintedCustomModelBlock.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
 using VoxelGame.Entities;
-using VoxelGame.Logic.Interfaces;
 using VoxelGame.Utilities;
 using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
-    /// A block that has differently colored versions.
+    /// A custom model block that uses tint.
     /// Data bit usage: <c>-cccc</c>
     /// </summary>
     // c = color
-    public class TintedBlock : BasicBlock, IConnectable
+    public class TintedCustomModelBlock : CustomModelBlock
     {
-        public TintedBlock(string name, string namedId, TextureLayout layout) :
+        public TintedCustomModelBlock(string name, string namedId, string modelName, bool isSolid, Physics.BoundingBox boundingBox) :
             base(
                 name,
                 namedId,
-                layout,
-                isOpaque: true,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                isInteractable: true)
+                modelName,
+                isSolid,
+                boundingBox)
         {
         }
 
