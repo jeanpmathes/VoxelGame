@@ -70,6 +70,7 @@ namespace VoxelGame.Logic
         public static readonly Block MELON = new GroundedBlock(Language.Melon, nameof(MELON), TextureLayout.Column("melon_side", "melon_top"));
         public static readonly Block PUMPKIN_PLANT = new FruitCropBlock(Language.PumpkinPlant, nameof(PUMPKIN_PLANT), "pumpkin_plant", 0, 1, 2, 3, 4, PUMPKIN);
         public static readonly Block MELON_PLANT = new FruitCropBlock(Language.MelonPlant, nameof(MELON_PLANT), "melon_plant", 0, 1, 2, 3, 4, MELON);
+        public static readonly Block WOOL = new TintedBlock("Wool", nameof(WOOL), TextureLayout.Uniform("wool"));
 
         /// <summary>
         /// Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.

@@ -36,13 +36,6 @@ namespace VoxelGame.Logic.Blocks
             return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
         }
 
-        protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
-        {
-            Game.World.SetBlock(this, 0, x, y, z);
-
-            return true;
-        }
-
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, byte data)
         {
             Game.World.SetBlock(this, (byte)(data + 1 & 0b0_0111), x, y, z);
