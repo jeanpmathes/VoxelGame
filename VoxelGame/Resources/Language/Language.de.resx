@@ -135,6 +135,9 @@
   <data name="Cactus" xml:space="preserve">
     <value>Kakteen</value>
   </data>
+  <data name="Carpet" xml:space="preserve">
+    <value>Teppich</value>
+  </data>
   <data name="CavePainting" xml:space="preserve">
     <value>Höhlenmalerei</value>
   </data>
@@ -299,6 +302,9 @@
   </data>
   <data name="WoodenGate" xml:space="preserve">
     <value>Holztor</value>
+  </data>
+  <data name="Wool" xml:space="preserve">
+    <value>Wolle</value>
   </data>
   <data name="WorldNotFound" xml:space="preserve">
     <value>Welt wurde nicht gefunden!</value>

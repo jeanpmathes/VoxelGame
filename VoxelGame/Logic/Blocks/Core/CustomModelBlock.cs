@@ -21,7 +21,7 @@ namespace VoxelGame.Logic.Blocks
 
         private protected string model;
 
-        public CustomModelBlock(string name, string namedId, string modelName, bool isSolid, Physics.BoundingBox boundingBox) :
+        public CustomModelBlock(string name, string namedId, string modelName, Physics.BoundingBox boundingBox, bool isSolid = true, bool isInteractable = false) :
             base(
                 name,
                 namedId,
@@ -32,7 +32,7 @@ namespace VoxelGame.Logic.Blocks
                 recieveCollisions: false,
                 isTrigger: false,
                 isReplaceable: false,
-                isInteractable: false,
+                isInteractable,
                 boundingBox,
                 TargetBuffer.Complex)
         {

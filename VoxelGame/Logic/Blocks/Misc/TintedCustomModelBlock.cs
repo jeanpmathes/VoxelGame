@@ -16,13 +16,14 @@ namespace VoxelGame.Logic.Blocks
     // c = color
     public class TintedCustomModelBlock : CustomModelBlock
     {
-        public TintedCustomModelBlock(string name, string namedId, string modelName, bool isSolid, Physics.BoundingBox boundingBox) :
+        public TintedCustomModelBlock(string name, string namedId, string modelName, Physics.BoundingBox boundingBox, bool isSolid = true) :
             base(
                 name,
                 namedId,
                 modelName,
+                boundingBox,
                 isSolid,
-                boundingBox)
+                isInteractable: true)
         {
         }
 

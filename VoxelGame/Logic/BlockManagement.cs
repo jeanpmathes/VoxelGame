@@ -56,7 +56,7 @@ namespace VoxelGame.Logic
         public static readonly Block TILES_CHECKERBOARD_BLACK = new TintedBlock(Language.CheckerboardTilesBlack, nameof(TILES_CHECKERBOARD_BLACK), TextureLayout.Uniform("checkerboard_tiles_black"));
         public static readonly Block TILES_CHECKERBOARD_WHITE = new TintedBlock(Language.CheckerboardTilesWhite, nameof(TILES_CHECKERBOARD_WHITE), TextureLayout.Uniform("checkerboard_tiles_white"));
         public static readonly Block CACTUS = new GrowingBlock(Language.Cactus, nameof(CACTUS), TextureLayout.Column("cactus", 0, 1), Block.SAND, 4);
-        public static readonly Block VASE = new CustomModelBlock(Language.Vase, nameof(VASE), "vase", true, new BoundingBox(new Vector3(0.5f, 0.375f, 0.5f), new Vector3(0.25f, 0.375f, 0.25f)));
+        public static readonly Block VASE = new CustomModelBlock(Language.Vase, nameof(VASE), "vase", new BoundingBox(new Vector3(0.5f, 0.375f, 0.5f), new Vector3(0.25f, 0.375f, 0.25f)));
         public static readonly Block BRICKS = new ConstructionBlock(Language.Bricks, nameof(BRICKS), TextureLayout.Uniform("bricks"));
         public static readonly Block PAVING_STONE = new ConstructionBlock(Language.PavingStone, nameof(PAVING_STONE), TextureLayout.Uniform("paving_stone"));
         public static readonly Block WALL_RUBBLE = new WallBlock(Language.RubbleWall, nameof(WALL_RUBBLE), "rubble", "wall_post", "wall_extension", "wall_extension_straight");
@@ -70,7 +70,8 @@ namespace VoxelGame.Logic
         public static readonly Block MELON = new GroundedBlock(Language.Melon, nameof(MELON), TextureLayout.Column("melon_side", "melon_top"));
         public static readonly Block PUMPKIN_PLANT = new FruitCropBlock(Language.PumpkinPlant, nameof(PUMPKIN_PLANT), "pumpkin_plant", 0, 1, 2, 3, 4, PUMPKIN);
         public static readonly Block MELON_PLANT = new FruitCropBlock(Language.MelonPlant, nameof(MELON_PLANT), "melon_plant", 0, 1, 2, 3, 4, MELON);
-        public static readonly Block WOOL = new TintedBlock("Wool", nameof(WOOL), TextureLayout.Uniform("wool"));
+        public static readonly Block WOOL = new TintedBlock(Language.Wool, nameof(WOOL), TextureLayout.Uniform("wool"));
+        public static readonly Block CARPET = new TintedCustomModelBlock(Language.Carpet, nameof(CARPET), "carpet", new BoundingBox(new Vector3(0.5f, 0.03125f, 0.5f), new Vector3(0.5f, 0.03125f, 0.5f)));
 
         /// <summary>
         /// Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.
