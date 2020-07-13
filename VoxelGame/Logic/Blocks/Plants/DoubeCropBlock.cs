@@ -106,6 +106,12 @@ namespace VoxelGame.Logic.Blocks
         {
             int baseIndex = Game.BlockTextureArray.GetTextureIndex(texture);
 
+            if (baseIndex == 0)
+            {
+                dead = first = second = third = 0;
+                fourth = fifth = sixth = final = (0, 0);
+            }
+
             stageTexIndicesLow = new int[]
             {
                 baseIndex + dead,

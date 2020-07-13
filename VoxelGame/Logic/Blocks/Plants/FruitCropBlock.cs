@@ -29,7 +29,7 @@ namespace VoxelGame.Logic.Blocks
 
         private protected readonly Block fruit;
 
-        private protected readonly int dead, initial, noFruit, withFruit, connector;
+        private protected int dead, initial, noFruit, withFruit, connector;
 
         public FruitCropBlock(string name, string namedId, string texture, int dead, int initial, int noFruit, int withFruit, int connector, Block fruit) :
             base(
@@ -107,6 +107,11 @@ namespace VoxelGame.Logic.Blocks
             }, 0, verticesConnected[3], 64, 32);
 
             int tex = Game.BlockTextureArray.GetTextureIndex(texture);
+
+            if (tex == 0)
+            {
+                dead = initial = noFruit = withFruit = connector = 0;
+            }
 
             texIndices = new int[][]
             {
