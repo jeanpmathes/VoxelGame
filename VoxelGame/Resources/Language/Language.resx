@@ -135,6 +135,9 @@
   <data name="Cactus" xml:space="preserve">
     <value>Cactus</value>
   </data>
+  <data name="Carpet" xml:space="preserve">
+    <value>Carpet</value>
+  </data>
   <data name="CavePainting" xml:space="preserve">
     <value>Cave Painting</value>
   </data>
@@ -207,6 +210,12 @@
   <data name="Maize" xml:space="preserve">
     <value>Maize</value>
   </data>
+  <data name="Melon" xml:space="preserve">
+    <value>Melon</value>
+  </data>
+  <data name="MelonPlant" xml:space="preserve">
+    <value>Melon Plant</value>
+  </data>
   <data name="NewWorldPrompt" xml:space="preserve">
     <value>Do you want to create a new world?</value>
   </data>
@@ -221,6 +230,12 @@
   </data>
   <data name="PressAnyKeyToExit" xml:space="preserve">
     <value>Press any key to exit...</value>
+  </data>
+  <data name="Pumpkin" xml:space="preserve">
+    <value>Pumpkin</value>
+  </data>
+  <data name="PumpkinPlant" xml:space="preserve">
+    <value>Pumpkin Plant</value>
   </data>
   <data name="Rubble" xml:space="preserve">
     <value>Rubble</value>
@@ -287,6 +302,9 @@
   </data>
   <data name="WoodenGate" xml:space="preserve">
     <value>Wooden Gate</value>
+  </data>
+  <data name="Wool" xml:space="preserve">
+    <value>Wool</value>
   </data>
   <data name="WorldNotFound" xml:space="preserve">
     <value>World not found!</value>

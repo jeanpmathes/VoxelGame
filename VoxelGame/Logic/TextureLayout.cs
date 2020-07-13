@@ -54,16 +54,6 @@ namespace VoxelGame.Logic
         }
 
         /// <summary>
-        /// Returns a texture layout where every side has a different texture and the textures are specified as offset from one single texture.
-        /// </summary>
-        public static TextureLayout Unique(string texture, int front, int back, int left, int right, int bottom, int top)
-        {
-            int i = Game.BlockTextureArray.GetTextureIndex(texture);
-
-            return new TextureLayout(i + front, i + back, i + left, i + right, i + bottom, i + top);
-        }
-
-        /// <summary>
         /// Returns a texture layout where two textures are used, one for top/bottom, the other for the sides around it.
         /// </summary>
         public static TextureLayout Column(string sides, string ends)
@@ -98,35 +88,12 @@ namespace VoxelGame.Logic
         }
 
         /// <summary>
-        /// Returns a texture layout where three textures are used, one for top, one for bottom, the other for the sides around it.
-        /// </summary>
-        public static TextureLayout UnqiueColumn(string texture, int sideOffset, int bottomOffset, int topOffset)
-        {
-            int sideIndex = Game.BlockTextureArray.GetTextureIndex(texture) + sideOffset;
-            int bottomIndex = Game.BlockTextureArray.GetTextureIndex(texture) + bottomOffset;
-            int topIndex = Game.BlockTextureArray.GetTextureIndex(texture) + topOffset;
-
-            return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, bottomIndex, topIndex);
-        }
-
-        /// <summary>
         /// Returns a texture layout where all sides but the front have the same texture.
         /// </summary>
         public static TextureLayout UnqiueFront(string front, string rest)
         {
             int frontIndex = Game.BlockTextureArray.GetTextureIndex(front);
             int restIndex = Game.BlockTextureArray.GetTextureIndex(rest);
-
-            return new TextureLayout(frontIndex, restIndex, restIndex, restIndex, restIndex, restIndex);
-        }
-
-        /// <summary>
-        /// Returns a texture layout where all sides but the front have the same texture.
-        /// </summary>
-        public static TextureLayout UnqiueFront(string texture, int frontOffset, int restOffset)
-        {
-            int frontIndex = Game.BlockTextureArray.GetTextureIndex(texture) + frontOffset;
-            int restIndex = Game.BlockTextureArray.GetTextureIndex(texture) + restOffset;
 
             return new TextureLayout(frontIndex, restIndex, restIndex, restIndex, restIndex, restIndex);
         }
