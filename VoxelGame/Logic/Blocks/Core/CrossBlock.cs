@@ -10,8 +10,22 @@ namespace VoxelGame.Logic.Blocks
 {
     public class CrossBlock : Block
     {
-        private protected float[] vertices = null!;
         private protected int[] textureIndices = null!;
+
+        private protected float[] vertices = new float[]
+        {
+                // Two sides: /
+                0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f,
+                0f, 1f, 1f, 0f, 1f, 0f, 0f, 0f,
+                1f, 1f, 0f, 1f, 1f, 0f, 0f, 0f,
+                1f, 0f, 0f, 1f, 0f, 0f, 0f, 0f,
+
+                // Two sides: \
+                0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
+                0f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
+                1f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
+                1f, 0f, 1f, 1f, 0f, 0f, 0f, 0f
+        };
 
         private protected readonly uint[] indices =
         {
@@ -58,21 +72,6 @@ namespace VoxelGame.Logic.Blocks
 
         protected override void Setup()
         {
-            vertices = new float[]
-            {
-                // Two sides: /
-                0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f,
-                0f, 1f, 1f, 0f, 1f, 0f, 0f, 0f,
-                1f, 1f, 0f, 1f, 1f, 0f, 0f, 0f,
-                1f, 0f, 0f, 1f, 0f, 0f, 0f, 0f,
-
-                // Two sides: \
-                0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
-                0f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
-                1f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
-                1f, 0f, 1f, 1f, 0f, 0f, 0f, 0f
-            };
-
             int tex = Game.BlockTextureArray.GetTextureIndex(texture);
             textureIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
         }

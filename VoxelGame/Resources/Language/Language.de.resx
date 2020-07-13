@@ -207,6 +207,12 @@
   <data name="Maize" xml:space="preserve">
     <value>Mais</value>
   </data>
+  <data name="Melon" xml:space="preserve">
+    <value>Melone</value>
+  </data>
+  <data name="MelonPlant" xml:space="preserve">
+    <value>Melonenpflanze</value>
+  </data>
   <data name="NewWorldPrompt" xml:space="preserve">
     <value>Möchten sie eine neue Welt erstellen?</value>
   </data>
@@ -221,6 +227,12 @@
   </data>
   <data name="PressAnyKeyToExit" xml:space="preserve">
     <value>Beliebige Taste zum Verlassen drücken...</value>
+  </data>
+  <data name="Pumpkin" xml:space="preserve">
+    <value>Kürbis</value>
+  </data>
+  <data name="PumpkinPlant" xml:space="preserve">
+    <value>Kürbispflanze</value>
   </data>
   <data name="Rubble" xml:space="preserve">
     <value>Bruchstein</value>

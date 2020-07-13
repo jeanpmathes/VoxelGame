@@ -66,6 +66,10 @@ namespace VoxelGame.Logic
         public static readonly Block DOOR_STEEL = new DoorBlock(Language.SteelDoor, nameof(DOOR_STEEL), "door_steel_closed", "door_steel_open");
         public static readonly Block DOOR_WOOD = new DoorBlock(Language.WoodenDoor, nameof(DOOR_WOOD), "door_wood_closed", "door_wood_open");
         public static readonly Block GATE_WOOD = new GateBlock(Language.WoodenGate, nameof(GATE_WOOD), "gate_wood_closed", "gate_wood_open");
+        public static readonly Block PUMPKIN = new GroundedBlock(Language.Pumpkin, nameof(PUMPKIN), TextureLayout.Column("pumpkin_side", "pumpkin_top"));
+        public static readonly Block MELON = new GroundedBlock(Language.Melon, nameof(MELON), TextureLayout.Column("melon_side", "melon_top"));
+        public static readonly Block PUMPKIN_PLANT = new FruitCropBlock(Language.PumpkinPlant, nameof(PUMPKIN_PLANT), "pumpkin_plant", 0, 1, 2, 3, 4, PUMPKIN);
+        public static readonly Block MELON_PLANT = new FruitCropBlock(Language.MelonPlant, nameof(MELON_PLANT), "melon_plant", 0, 1, 2, 3, 4, MELON);
 
         /// <summary>
         /// Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.
