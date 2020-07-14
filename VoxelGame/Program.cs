@@ -43,7 +43,7 @@ namespace VoxelGame
             {
                 IsMultiThreaded = false,
                 RenderFrequency = 60,
-                UpdateFrequency = 60,
+                UpdateFrequency = 60
             };
 
             NativeWindowSettings nativeWindowSettings = NativeWindowSettings.Default;
