@@ -20,9 +20,9 @@ namespace VoxelGame.Utilities
         /// <param name="key">The key of the value to retrieve.</param>
         /// <param name="fallback">The fallback to use in case of failed retrieval.</param>
         /// <returns>The retrieved value.</returns>
-        public static float GetFloat(string key, float fallback = default)
+        public static float GetFloat(string key, float fallback = default, float min = float.NegativeInfinity, float max = float.PositiveInfinity)
         {
-            return float.TryParse(ConfigurationManager.AppSettings[key], out float f) ? f : fallback;
+            return Math.Clamp(float.TryParse(ConfigurationManager.AppSettings[key], out float f) ? f : fallback, min, max);
         }
 
         /// <summary>
@@ -31,9 +31,9 @@ namespace VoxelGame.Utilities
         /// <param name="key">The key of the value to retrieve.</param>
         /// <param name="fallback">The fallback to use in case of failed retrieval.</param>
         /// <returns>The retrieved value.</returns>
-        public static int GetInt(string key, int fallback = default)
+        public static int GetInt(string key, int fallback = default, int min = int.MinValue, int max = int.MaxValue)
         {
-            return int.TryParse(ConfigurationManager.AppSettings[key], out int i) ? i : fallback;
+            return Math.Clamp(int.TryParse(ConfigurationManager.AppSettings[key], out int i) ? i : fallback, min, max);
         }
 
         /// <summary>

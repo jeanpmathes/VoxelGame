@@ -117,6 +117,9 @@ namespace VoxelGame.Logic
             }
         }
 
+        /// <summary>
+        /// Called by the base block constructor, meant to setup vertex data, indices etc.
+        /// </summary>
         protected virtual void Setup()
         {
         }
@@ -221,6 +224,13 @@ namespace VoxelGame.Logic
         {
         }
 
+        /// <summary>
+        /// Called when a block and an entity collide.
+        /// </summary>
+        /// <param name="entity">The entity that collided with the block.</param>
+        /// <param name="x">The x position of the block.</param>
+        /// <param name="y">The y position of the block.</param>
+        /// <param name="z">The z position of the block.</param>
         public void EntityInteract(Entities.PhysicsEntity entity, int x, int y, int z)
         {
             if (Game.World.GetBlock(x, y, z, out byte data) == this)
