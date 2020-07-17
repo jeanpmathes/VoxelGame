@@ -98,6 +98,11 @@ namespace VoxelGame.Entities
             return camera.GetProjectionMatrix();
         }
 
+        /// <summary>
+        /// Gets the frustum of the player camera.
+        /// </summary>
+        public Frustum Frustum { get => camera.Frustum; }
+
         private readonly BoxRenderer selectionRenderer;
 
         private readonly Texture crosshair;

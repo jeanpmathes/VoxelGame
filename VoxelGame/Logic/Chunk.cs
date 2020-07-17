@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Rendering;
 using VoxelGame.WorldGeneration;
+using VoxelGame.Physics;
 
 namespace VoxelGame.Logic
 {
@@ -37,10 +38,9 @@ namespace VoxelGame.Logic
         /// <summary>
         /// Gets the position of the chunk as a point located in the center of the chunk.
         /// </summary>
-        public Vector3 ChunkPoint
-        {
-            get => new Vector3(X + (Section.SectionSize / 2), ChunkHeight * Section.SectionSize / 2, Z + (Section.SectionSize / 2));
-        }
+        public Vector3 ChunkPoint { get => new Vector3((X * Section.SectionSize) + (Section.SectionSize / 2f), ChunkHeight * Section.SectionSize / 2f, (Z * Section.SectionSize) + (Section.SectionSize / 2f)); }
+
+        public static Vector3 ChunkExtents { get => new Vector3(Section.SectionSize / 2f, ChunkHeight * Section.SectionSize / 2f, Section.SectionSize / 2f); }
 
         private readonly Section[] sections = new Section[ChunkHeight];
 
@@ -232,11 +232,51 @@ namespace VoxelGame.Logic
             return false;
         }
 
+        /// <summary>
+        /// Renders all sections of this chunk.
+        /// </summary>
+        [Obsolete("Use RenderCulled instead.")]
         public void Render()
         {
             if (hasMeshData)
             {
                 for (int y = 0; y < ChunkHeight; y++)
+                {
+                    sections[y].Render(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Renders only the sections that are inside the given <see cref="Frustum"/>.
+        /// </summary>
+        public void RenderCulled(Frustum frustum)
+        {
+            if (hasMeshData && frustum.BoxInFrustrum(new BoundingBox(ChunkPoint, ChunkExtents)))
+            {
+                int start = 0, end = Section.SectionSize - 1;
+
+                for (int y = start; y < ChunkHeight; y++)
+                {
+                    if (frustum.BoxInFrustrum(new BoundingBox(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) + Section.Extents, Section.Extents)))
+                    {
+                        start = y;
+
+                        break;
+                    }
+                }
+
+                for (int y = end; y >= 0; y--)
+                {
+                    if (frustum.BoxInFrustrum(new BoundingBox(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) + Section.Extents, Section.Extents)))
+                    {
+                        end = y;
+
+                        break;
+                    }
+                }
+
+                for (int y = start; y <= end; y++)
                 {
                     sections[y].Render(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize));
                 }

@@ -4,11 +4,15 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using System;
+using VoxelGame.Physics;
 
 namespace VoxelGame.Rendering
 {
     public class Camera
     {
+        private readonly float nearClipping = 0.1f;
+        private readonly float farClipping = 1000f;
+
         private Vector3 front = Vector3.UnitX;
         private Vector3 up = Vector3.UnitY;
         private Vector3 right = Vector3.UnitZ;
@@ -23,6 +27,8 @@ namespace VoxelGame.Rendering
         }
 
         public Vector3 Position { get; set; }
+
+        public Frustum Frustum { get => new Frustum(fov, Game.instance.AspectRatio, nearClipping, farClipping, Position, front, up, right); }
 
         public Vector3 Front => front;
         public Vector3 Up => up;
@@ -66,7 +72,7 @@ namespace VoxelGame.Rendering
 
         public Matrix4 GetProjectionMatrix()
         {
-            return Matrix4.CreatePerspectiveFieldOfView(fov, Game.instance.AspectRatio, 0.01f, 1000f);
+            return Matrix4.CreatePerspectiveFieldOfView(fov, Game.instance.AspectRatio, nearClipping, farClipping);
         }
 
         private void UpdateVectors()
