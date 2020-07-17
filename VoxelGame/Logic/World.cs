@@ -116,11 +116,6 @@ namespace VoxelGame.Logic
         private readonly HashSet<(Chunk chunk, int index)> sectionsToMesh;
 
         /// <summary>
-        /// A set of chunks that have to be rendered.
-        /// </summary>
-        private readonly HashSet<Chunk> chunksToRender;
-
-        /// <summary>
         /// A set of chunk positions that should be released on their activation.
         /// </summary>
         private readonly HashSet<(int x, int z)> positionsToReleaseOnActivation;
@@ -203,7 +198,6 @@ namespace VoxelGame.Logic
             chunksMeshing = new Dictionary<int, Chunk>(maxMeshingTasks);
             chunksToSendMeshData = new List<(Chunk chunk, Task<SectionMeshData[]> chunkMeshingTask)>(maxMeshDataSends);
             sectionsToMesh = new HashSet<(Chunk chunk, int index)>();
-            chunksToRender = new HashSet<Chunk>();
             positionsToReleaseOnActivation = new HashSet<(int x, int z)>();
             chunksToSave = new UniqueQueue<Chunk>();
             chunkSavingTasks = new List<Task>(maxSavingTasks);
@@ -233,32 +227,16 @@ namespace VoxelGame.Logic
             if (IsReady)
             {
                 // Collect all chunks to render
-                Chunk playerChunk = activeChunks[(Game.Player.ChunkX, Game.Player.ChunkZ)];
-                chunksToRender.Add(playerChunk);
-
                 for (int x = -Game.Player.RenderDistance; x <= Game.Player.RenderDistance; x++)
                 {
                     for (int z = -Game.Player.RenderDistance; z <= Game.Player.RenderDistance; z++)
                     {
                         if (activeChunks.TryGetValue((Game.Player.ChunkX + x, Game.Player.ChunkZ + z), out Chunk? chunk))
                         {
-                            if (x == 0 && z == 0)
-                            {
-                                continue;
-                            }
-
-                            chunksToRender.Add(chunk);
+                            chunk.RenderCulled(Game.Player.Frustum);
                         }
                     }
                 }
-
-                // Render the listed chunks
-                foreach (Chunk chunk in chunksToRender)
-                {
-                    chunk.Render();
-                }
-
-                chunksToRender.Clear();
 
                 // Render the player
                 Game.Player.Render();

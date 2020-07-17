@@ -41,6 +41,8 @@ namespace VoxelGame.Logic
             renderer = new SectionRenderer();
         }
 
+        public static Vector3 Extents { get => new Vector3(SectionSize / 2f, SectionSize / 2f, SectionSize / 2f); }
+
         public void CreateAndSetMesh(int sectionX, int sectionY, int sectionZ)
         {
             CreateMeshData(sectionX, sectionY, sectionZ, out SectionMeshData meshData);
