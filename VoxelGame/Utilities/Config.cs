@@ -19,6 +19,8 @@ namespace VoxelGame.Utilities
         /// </summary>
         /// <param name="key">The key of the value to retrieve.</param>
         /// <param name="fallback">The fallback to use in case of failed retrieval.</param>
+        /// <param name="min">The minimum value to clamp to.</param>
+        /// <param name="max">The maximum value to clamp to.</param>
         /// <returns>The retrieved value.</returns>
         public static float GetFloat(string key, float fallback = default, float min = float.NegativeInfinity, float max = float.PositiveInfinity)
         {
@@ -30,10 +32,25 @@ namespace VoxelGame.Utilities
         /// </summary>
         /// <param name="key">The key of the value to retrieve.</param>
         /// <param name="fallback">The fallback to use in case of failed retrieval.</param>
+        /// <param name="min">The minimum value to clamp to.</param>
+        /// <param name="max">The maximum value to clamp to.</param>
         /// <returns>The retrieved value.</returns>
         public static int GetInt(string key, int fallback = default, int min = int.MinValue, int max = int.MaxValue)
         {
             return Math.Clamp(int.TryParse(ConfigurationManager.AppSettings[key], out int i) ? i : fallback, min, max);
+        }
+
+        /// <summary>
+        /// Retrieves a <see cref="double"/> value from the configuration file.
+        /// </summary>
+        /// <param name="key">The key of the value to retrieve.</param>
+        /// <param name="fallback">The fallback to use in case of failed retrieval</param>
+        /// <param name="min">The minimum value to clamp to.</param>
+        /// <param name="max">The maximum value to clamp to.</param>
+        /// <returns>The retrieved value.</returns>
+        public static double GetDouble(string key, double fallback = default, double min = double.NegativeInfinity, double max = double.PositiveInfinity)
+        {
+            return Math.Clamp(double.TryParse(ConfigurationManager.AppSettings[key], out double i) ? i : fallback, min, max);
         }
 
         /// <summary>

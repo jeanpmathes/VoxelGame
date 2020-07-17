@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using VoxelGame.Resources.Language;
 using System.IO;
 using System.Threading;
+using VoxelGame.Utilities;
 
 namespace VoxelGame
 {
@@ -42,8 +43,8 @@ namespace VoxelGame
             GameWindowSettings gameWindowSettings = new GameWindowSettings
             {
                 IsMultiThreaded = false,
-                RenderFrequency = 60,
-                UpdateFrequency = 60
+                RenderFrequency = Config.GetDouble("maxFps", fallback: 60.0, min: 0.0),
+                UpdateFrequency = 60.0
             };
 
             NativeWindowSettings nativeWindowSettings = NativeWindowSettings.Default;
