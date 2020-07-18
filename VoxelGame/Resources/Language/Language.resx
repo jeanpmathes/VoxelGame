@@ -168,6 +168,9 @@
   <data name="Farmland" xml:space="preserve">
     <value>Farmland</value>
   </data>
+  <data name="Fire" xml:space="preserve">
+    <value>Fire</value>
+  </data>
   <data name="Flax" xml:space="preserve">
     <value>Flax</value>
   </data>

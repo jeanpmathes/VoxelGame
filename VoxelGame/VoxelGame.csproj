@@ -159,6 +159,9 @@
     <None Update="Resources\Textures\Blocks\farmland.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Textures\Blocks\fire.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\Textures\Blocks\flax.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -72,6 +72,7 @@ namespace VoxelGame.Logic
         public static readonly Block MELON_PLANT = new FruitCropBlock(Language.MelonPlant, nameof(MELON_PLANT), "melon_plant", 0, 1, 2, 3, 4, MELON);
         public static readonly Block WOOL = new TintedBlock(Language.Wool, nameof(WOOL), TextureLayout.Uniform("wool"));
         public static readonly Block CARPET = new TintedCustomModelBlock(Language.Carpet, nameof(CARPET), "carpet", new BoundingBox(new Vector3(0.5f, 0.03125f, 0.5f), new Vector3(0.5f, 0.03125f, 0.5f)));
+        public static readonly Block FIRE = new FireBlock(Language.Fire, nameof(FIRE), "fire");
 
         /// <summary>
         /// Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.

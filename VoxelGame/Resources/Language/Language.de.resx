@@ -168,6 +168,9 @@
   <data name="Farmland" xml:space="preserve">
     <value>Ackerboden</value>
   </data>
+  <data name="Fire" xml:space="preserve">
+    <value>Feuer</value>
+  </data>
   <data name="Flax" xml:space="preserve">
     <value>Flachs</value>
   </data>
