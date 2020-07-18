@@ -20,55 +20,12 @@ namespace VoxelGame.Logic.Blocks
     // h = height
     public class DoubeCropBlock : Block
     {
+        private protected float[] vertices = null!;
+
         private protected int[] stageTexIndicesLow = null!;
         private protected int[] stageTexIndicesTop = null!;
 
-        private protected float[] vertices = new float[]
-        {
-            //X----Y---Z---U---V---N---O---P
-            0.25f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
-            0.25f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
-            0.25f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
-            0.25f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
-
-            0.75f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
-            0.75f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
-            0.75f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
-            0.75f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
-
-            0f, 0f, 0.25f, 0f, 0f, 0f, 0f, 0f,
-            0f, 1f, 0.25f, 0f, 1f, 0f, 0f, 0f,
-            1f, 1f, 0.25f, 1f, 1f, 0f, 0f, 0f,
-            1f, 0f, 0.25f, 1f, 0f, 0f, 0f, 0f,
-
-            0f, 0f, 0.75f, 0f, 0f, 0f, 0f, 0f,
-            0f, 1f, 0.75f, 0f, 1f, 0f, 0f, 0f,
-            1f, 1f, 0.75f, 1f, 1f, 0f, 0f, 0f,
-            1f, 0f, 0.75f, 1f, 0f, 0f, 0f, 0f
-        };
-
-        private protected uint[] indices =
-        {
-            0, 2, 1,
-            0, 3, 2,
-            0, 1, 2,
-            0, 2, 3,
-
-            4, 6, 5,
-            4, 7, 6,
-            4, 5, 6,
-            4, 6, 7,
-
-            8, 10, 9,
-            8, 11, 10,
-            8, 9, 10,
-            8, 10, 11,
-
-            12, 14, 13,
-            12, 15, 14,
-            12, 13, 14,
-            12, 14, 15
-        };
+        private protected uint[] indices = null!;
 
         private protected string texture;
         private protected int dead, first, second, third;
@@ -104,6 +61,30 @@ namespace VoxelGame.Logic.Blocks
 
         protected override void Setup()
         {
+            vertices = new float[]
+            {
+                //X----Y---Z---U---V---N---O---P
+                0.25f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
+                0.25f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
+                0.25f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
+                0.25f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
+
+                0.75f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
+                0.75f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
+                0.75f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
+                0.75f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
+
+                0f, 0f, 0.25f, 0f, 0f, 0f, 0f, 0f,
+                0f, 1f, 0.25f, 0f, 1f, 0f, 0f, 0f,
+                1f, 1f, 0.25f, 1f, 1f, 0f, 0f, 0f,
+                1f, 0f, 0.25f, 1f, 0f, 0f, 0f, 0f,
+
+                0f, 0f, 0.75f, 0f, 0f, 0f, 0f, 0f,
+                0f, 1f, 0.75f, 0f, 1f, 0f, 0f, 0f,
+                1f, 1f, 0.75f, 1f, 1f, 0f, 0f, 0f,
+                1f, 0f, 0.75f, 1f, 0f, 0f, 0f, 0f
+            };
+
             int baseIndex = Game.BlockTextureArray.GetTextureIndex(texture);
 
             if (baseIndex == 0)
@@ -135,6 +116,29 @@ namespace VoxelGame.Logic.Blocks
                 baseIndex + sixth.top,
                 baseIndex + final.top,
             };
+
+            indices = new uint[]
+            {
+                0, 2, 1,
+                0, 3, 2,
+                0, 1, 2,
+                0, 2, 3,
+
+                4, 6, 5,
+                4, 7, 6,
+                4, 5, 6,
+                4, 6, 7,
+
+                8, 10, 9,
+                8, 11, 10,
+                8, 9, 10,
+                8, 10, 11,
+
+                12, 14, 13,
+                12, 15, 14,
+                12, 13, 14,
+                12, 14, 15
+            };
         }
 
         protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
@@ -152,7 +156,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             vertices = this.vertices;
             textureIndices = new int[24];
@@ -175,7 +179,9 @@ namespace VoxelGame.Logic.Blocks
             }
 
             indices = this.indices;
+
             tint = TintColor.None;
+            isAnimated = false;
 
             return 16;
         }

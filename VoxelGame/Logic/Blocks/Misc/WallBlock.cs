@@ -189,7 +189,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             bool north = (data & 0b0_1000) != 0;
             bool east = (data & 0b0_0100) != 0;
@@ -206,6 +206,7 @@ namespace VoxelGame.Logic.Blocks
                 indices = indicesStraight;
 
                 tint = TintColor.None;
+                isAnimated = false;
 
                 return straightVertCount;
             }
@@ -247,6 +248,7 @@ namespace VoxelGame.Logic.Blocks
                 }
 
                 tint = TintColor.None;
+                isAnimated = false;
 
                 return vertCount;
             }

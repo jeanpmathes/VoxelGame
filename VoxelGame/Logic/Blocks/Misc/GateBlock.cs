@@ -18,8 +18,8 @@ namespace VoxelGame.Logic.Blocks
     /// </summary>
     public class GateBlock : Block, IConnectable
     {
-        private protected float[][] verticesClosed = new float[4][];
-        private protected float[][] verticesOpen = new float[4][];
+        private protected float[][] verticesClosed = null!;
+        private protected float[][] verticesOpen = null!;
 
         private protected int[] texIndicesClosed = null!;
         private protected int[] texIndicesOpen = null!;
@@ -53,6 +53,9 @@ namespace VoxelGame.Logic.Blocks
 
         protected override void Setup()
         {
+            verticesClosed = new float[4][];
+            verticesOpen = new float[4][];
+
             BlockModel closed = BlockModel.Load(this.closed);
             BlockModel open = BlockModel.Load(this.open);
 
@@ -152,7 +155,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             if ((data & 0b0_0100) == 0)
             {
@@ -161,6 +164,7 @@ namespace VoxelGame.Logic.Blocks
                 indices = indicesClosed;
 
                 tint = TintColor.None;
+                isAnimated = false;
 
                 return vertexCountClosed;
             }
@@ -171,6 +175,7 @@ namespace VoxelGame.Logic.Blocks
                 indices = indicesOpen;
 
                 tint = TintColor.None;
+                isAnimated = false;
 
                 return vertexCountOpen;
             }

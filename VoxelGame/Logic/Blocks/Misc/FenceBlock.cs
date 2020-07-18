@@ -159,7 +159,7 @@ namespace VoxelGame.Logic.Blocks
             return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.5f, 0.1875f), children);
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             bool north = (data & 0b0_1000) != 0;
             bool east = (data & 0b0_0100) != 0;
@@ -202,6 +202,7 @@ namespace VoxelGame.Logic.Blocks
             }
 
             tint = TintColor.None;
+            isAnimated = false;
 
             return vertCount;
         }

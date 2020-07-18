@@ -42,6 +42,8 @@ namespace VoxelGame
 
         public static Random Random { get; private set; } = null!;
 
+        public static double Time { get; private set; }
+
         public float AspectRatio { get => Size.X / (float)Size.Y; }
 
         private int samples;
@@ -298,6 +300,8 @@ namespace VoxelGame
         {
             using (logger.BeginScope("RenderFrame"))
             {
+                Time += e.Time;
+
                 GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, fbo);
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 

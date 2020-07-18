@@ -9,12 +9,11 @@ flat out int texIndex;
 out vec2 texCoord;
 
 out vec4 tint;
+flat out int anim;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-
-out vec3 test;
 
 void main()
 {
@@ -35,6 +34,9 @@ void main()
 
     // Tint
     tint = vec4(((aData.y >> 29) & 7) / 7.0, ((aData.y >> 26) & 7) / 7.0, ((aData.y >> 23) & 7) / 7.0, 1.0);
+
+    // Animation
+    anim = (aData.y >> 16) & 1;
 
     // Position
     gl_Position = vec4(aPosition, 1.0) * model * view * projection;

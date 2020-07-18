@@ -29,11 +29,11 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             tint = ((BlockColor)(0b0_1111 & data)).ToTintColor();
 
-            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
+            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _, out isAnimated);
         }
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, byte data)

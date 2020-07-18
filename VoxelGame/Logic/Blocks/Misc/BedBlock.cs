@@ -121,7 +121,7 @@ namespace VoxelGame.Logic.Blocks
             return new BoundingBox(new Vector3(0.5f, 0.3125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.125f, 0.5f), legs);
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             bool isHead = (data & 0b1) == 1;
             int orientation = (data & 0b0_0110) >> 1;
@@ -134,6 +134,7 @@ namespace VoxelGame.Logic.Blocks
                 indices = indicesHead;
 
                 tint = color.ToTintColor();
+                isAnimated = false;
 
                 return vertexCountHead;
             }
@@ -144,6 +145,7 @@ namespace VoxelGame.Logic.Blocks
                 indices = indicesEnd;
 
                 tint = color.ToTintColor();
+                isAnimated = false;
 
                 return vertexCountEnd;
             }

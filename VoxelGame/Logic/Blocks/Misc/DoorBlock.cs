@@ -110,7 +110,7 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             Orientation orientation = (Orientation)(data & 0b0_0011);
             bool isBase = (data & 0b0_0100) == 0;
@@ -124,6 +124,7 @@ namespace VoxelGame.Logic.Blocks
                 textureIndices = texIndicesBase;
                 indices = indicesBase;
                 tint = TintColor.None;
+                isAnimated = false;
 
                 return vertexCountBase;
             }
@@ -134,6 +135,7 @@ namespace VoxelGame.Logic.Blocks
                 textureIndices = texIndicesTop;
                 indices = indicesTop;
                 tint = TintColor.None;
+                isAnimated = false;
 
                 return vertexCountTop;
             }

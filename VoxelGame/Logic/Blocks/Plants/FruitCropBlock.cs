@@ -50,20 +50,6 @@ namespace VoxelGame.Logic.Blocks
             this.connector = connector;
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
-        {
-            GrowthStage stage = (GrowthStage)((data >> 2) & 0b111);
-
-            if (stage < GrowthStage.First)
-            {
-                return new BoundingBox(new Vector3(0.5f, 0.25f, 0.5f) + new Vector3(x, y, z), new Vector3(0.25f, 0.25f, 0.25f));
-            }
-            else
-            {
-                return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.25f, 0.5f, 0.25f));
-            }
-        }
-
         protected override void Setup()
         {
             base.Setup();
@@ -131,7 +117,21 @@ namespace VoxelGame.Logic.Blocks
             }, 0, indicesConnected, 24, 12);
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
+        {
+            GrowthStage stage = (GrowthStage)((data >> 2) & 0b111);
+
+            if (stage < GrowthStage.First)
+            {
+                return new BoundingBox(new Vector3(0.5f, 0.25f, 0.5f) + new Vector3(x, y, z), new Vector3(0.25f, 0.25f, 0.25f));
+            }
+            else
+            {
+                return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.25f, 0.5f, 0.25f));
+            }
+        }
+
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             GrowthStage stage = (GrowthStage)((data >> 2) & 0b111);
 
@@ -141,6 +141,7 @@ namespace VoxelGame.Logic.Blocks
                 textureIndices = texIndices[stage < GrowthStage.Second ? (int)stage : 2];
                 indices = this.indices;
                 tint = TintColor.None;
+                isAnimated = false;
 
                 return 8;
             }
@@ -152,6 +153,7 @@ namespace VoxelGame.Logic.Blocks
                 textureIndices = texIndices[3];
                 indices = indicesConnected;
                 tint = TintColor.None;
+                isAnimated = false;
 
                 return 12;
             }
