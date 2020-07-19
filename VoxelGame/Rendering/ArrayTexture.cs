@@ -222,6 +222,23 @@ namespace VoxelGame.Rendering
             GL.BindTexture(TextureTarget.Texture2DArray, HandleB);
         }
 
+        public void SetWrapMode(TextureWrapMode mode)
+        {
+            GL.ActiveTexture(unitA);
+            GL.BindTexture(TextureTarget.Texture2DArray, HandleA);
+            SetMode(mode);
+
+            GL.ActiveTexture(unitB);
+            GL.BindTexture(TextureTarget.Texture2DArray, HandleB);
+            SetMode(mode);
+
+            static void SetMode(TextureWrapMode mode)
+            {
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapS, (int)mode);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapT, (int)mode);
+            }
+        }
+
         public int GetTextureIndex(string name)
         {
             if (name == "missing_texture")
