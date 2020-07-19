@@ -222,7 +222,7 @@ namespace VoxelGame.Rendering
             GL.BindTexture(TextureTarget.Texture2DArray, HandleB);
         }
 
-        public void SetWrapMode(TextureWrapMode mode)
+        internal void SetWrapMode(TextureWrapMode mode)
         {
             GL.ActiveTexture(unitA);
             GL.BindTexture(TextureTarget.Texture2DArray, HandleA);

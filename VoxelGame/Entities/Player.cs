@@ -117,7 +117,11 @@ namespace VoxelGame.Entities
             {
                 Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _) ?? Block.AIR;
 
+#if DEBUG
+                if (selectedBlock != Block.AIR)
+#else
                 if (!selectedBlock.IsReplaceable)
+#endif
                 {
                     BoundingBox selectedBox = selectedBlock.GetBoundingBox(selectedX, selectedY, selectedZ);
 

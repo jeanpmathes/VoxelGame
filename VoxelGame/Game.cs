@@ -25,12 +25,14 @@ namespace VoxelGame
     {
         private static readonly ILogger logger = Program.CreateLogger<Game>();
 
+        #region STATIC PROPERTIES
+
         public static Game instance = null!;
 
         /// <summary>
         /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1 and 2;
         /// </summary>
-        public static ArrayTexture BlockTextureArray { get; private set; } = null!;
+        public static ArrayTexture BlockTextureArray { get; set; } = null!;
 
         public static Shader SimpleSectionShader { get; private set; } = null!;
         public static Shader ComplexSectionShader { get; private set; } = null!;
@@ -43,6 +45,8 @@ namespace VoxelGame
         public static Random Random { get; private set; } = null!;
 
         public static double Time { get; private set; }
+
+        #endregion STATIC PROPERTIES
 
         public float AspectRatio { get => Size.X / (float)Size.Y; }
 
