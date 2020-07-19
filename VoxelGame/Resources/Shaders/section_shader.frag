@@ -19,7 +19,8 @@ void main()
 {
 	vec4 color;
 
-	int animatedTexOffset = texIndex + int(mod(anim * time * 8, 8));
+	float quadID = -mod(gl_PrimitiveID, 2) + gl_PrimitiveID;
+	int animatedTexOffset = texIndex + int(mod(anim * time * 8 + anim * quadID * 0.125, 8));
 
 	if ((animatedTexOffset & 4096) == 0)
 	{
