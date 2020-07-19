@@ -7,6 +7,8 @@ using VoxelGame.Visuals;
 using VoxelGame.Physics;
 using VoxelGame.Entities;
 using System;
+using VoxelGame.Utilities;
+using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -175,6 +177,73 @@ namespace VoxelGame.Logic.Blocks
                     1f, 0.8f, 1f, 1f, 1f, 0f, 0f, 0f
                 }
             };
+        }
+
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
+        {
+            if (data == 0)
+            {
+                return BoundingBox.BlockAt(x, y, z);
+            }
+            else
+            {
+                int count = BitHelper.CountSetBits(data);
+
+                BoundingBox parent = new BoundingBox();
+                BoundingBox[] children = new BoundingBox[count - 1];
+
+                if ((data & 0b1_0000) != 0)
+                {
+                    count--;
+
+                    BoundingBox north = new BoundingBox(new Vector3(0.5f, 0.5f, 0.1f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
+
+                    if (count == 0) parent = north;
+                    else children[count - 1] = north;
+                }
+
+                if ((data & 0b0_1000) != 0)
+                {
+                    count--;
+
+                    BoundingBox east = new BoundingBox(new Vector3(0.9f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
+
+                    if (count == 0) parent = east;
+                    else children[count - 1] = east;
+                }
+
+                if ((data & 0b0_0100) != 0)
+                {
+                    count--;
+
+                    BoundingBox south = new BoundingBox(new Vector3(0.5f, 0.5f, 0.9f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
+
+                    if (count == 0) parent = south;
+                    else children[count - 1] = south;
+                }
+
+                if ((data & 0b0_0010) != 0)
+                {
+                    count--;
+
+                    BoundingBox west = new BoundingBox(new Vector3(0.1f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
+
+                    if (count == 0) parent = west;
+                    else children[count - 1] = west;
+                }
+
+                if ((data & 0b0_0001) != 0)
+                {
+                    count--;
+
+                    BoundingBox top = new BoundingBox(new Vector3(0.5f, 0.9f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.1f, 0.5f));
+
+                    if (count == 0) parent = top;
+                    else children[count - 1] = top;
+                }
+
+                return (children.Length == 0) ? parent : new BoundingBox(parent.Center, parent.Extents, children);
+            }
         }
 
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
