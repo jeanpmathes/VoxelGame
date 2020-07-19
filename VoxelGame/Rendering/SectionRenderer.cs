@@ -152,8 +152,6 @@ namespace VoxelGame.Rendering
                     Game.SimpleSectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
                     Game.SimpleSectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
 
-                    Game.SimpleSectionShader.SetFloat("time", (float)Game.Time);
-
                     GL.DrawArrays(PrimitiveType.Triangles, 0, simpleIndices);
                 }
 
@@ -170,8 +168,6 @@ namespace VoxelGame.Rendering
                     Game.ComplexSectionShader.SetMatrix4("model", model);
                     Game.ComplexSectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
                     Game.ComplexSectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
-
-                    Game.ComplexSectionShader.SetFloat("time", (float)Game.Time);
 
                     GL.DrawElements(PrimitiveType.Triangles, complexElements, DrawElementsType.UnsignedInt, 0);
                 }

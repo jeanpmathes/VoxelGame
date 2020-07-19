@@ -302,6 +302,9 @@ namespace VoxelGame
             {
                 Time += e.Time;
 
+                SimpleSectionShader.SetFloat("time", (float)Time);
+                ComplexSectionShader.SetFloat("time", (float)Time);
+
                 GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, fbo);
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
