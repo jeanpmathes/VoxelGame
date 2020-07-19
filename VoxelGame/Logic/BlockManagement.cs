@@ -39,7 +39,7 @@ namespace VoxelGame.Logic
         public static readonly Block ORE_IRON = new BasicBlock(Language.IronOre, nameof(ORE_IRON), TextureLayout.Uniform("ore_iron"));
         public static readonly Block ORE_GOLD = new BasicBlock(Language.GoldOre, nameof(ORE_GOLD), TextureLayout.Uniform("ore_gold"));
         public static readonly Block SNOW = new BasicBlock(Language.Snow, nameof(SNOW), TextureLayout.Uniform("snow"));
-        public static readonly Block FLOWER = new CrossPlantBlock(Language.Flower, nameof(FLOWER), "flower", false, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
+        public static readonly Block FLOWER = new CrossPlantBlock(Language.Flower, nameof(FLOWER), "flower", true, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
         public static readonly Block TALL_FLOWER = new DoubleCrossPlantBlock(Language.TallFlower, nameof(TALL_FLOWER), "tall_flower", 1, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
         public static readonly Block SPIDERWEB = new SpiderWebBlock(Language.SpiderWeb, nameof(SPIDERWEB), "spider_web", 0.01f);
         public static readonly Block CAVEPAINTING = new OrientedBlock(Language.CavePainting, nameof(CAVEPAINTING), TextureLayout.UnqiueFront("stone_cavepainting", "stone"));
