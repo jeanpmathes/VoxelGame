@@ -222,6 +222,9 @@
     <None Update="Resources\Textures\Blocks\potato.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Textures\Blocks\pulsating.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\Textures\Blocks\pumpkin_plant.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

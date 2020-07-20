@@ -76,6 +76,7 @@ namespace VoxelGame.Logic
         public static readonly Block CARPET = new TintedCustomModelBlock(Language.Carpet, nameof(CARPET), "carpet", new BoundingBox(new Vector3(0.5f, 0.03125f, 0.5f), new Vector3(0.5f, 0.03125f, 0.5f)));
         public static readonly Block FIRE = new FireBlock(Language.Fire, nameof(FIRE), "fire");
         public static readonly Block GRASS_BURNED = new CoveredDirtBlock(Language.AshCoveredDirt, nameof(GRASS_BURNED), TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"), false);
+        public static readonly Block PULSATING = new TintedBlock(Language.PulsatingBlock, nameof(PULSATING), TextureLayout.Uniform("pulsating"), isAnimated: true);
 
         /// <summary>
         /// Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.

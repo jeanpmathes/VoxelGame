@@ -237,6 +237,9 @@
   <data name="PressAnyKeyToExit" xml:space="preserve">
     <value>Beliebige Taste zum Verlassen drücken...</value>
   </data>
+  <data name="PulsatingBlock" xml:space="preserve">
+    <value>Pulsierender Block</value>
+  </data>
   <data name="Pumpkin" xml:space="preserve">
     <value>Kürbis</value>
   </data>
