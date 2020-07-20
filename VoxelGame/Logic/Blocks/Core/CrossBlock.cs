@@ -45,16 +45,16 @@ namespace VoxelGame.Logic.Blocks
             vertices = new float[]
             {
                 // Two sides: /
-                0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f,
-                0f, 1f, 1f, 0f, 1f, 0f, 0f, 0f,
-                1f, 1f, 0f, 1f, 1f, 0f, 0f, 0f,
-                1f, 0f, 0f, 1f, 0f, 0f, 0f, 0f,
+                0.145f, 0f, 0.855f, 0f, 0f, 0f, 0f, 0f,
+                0.145f, 1f, 0.855f, 0f, 1f, 0f, 0f, 0f,
+                0.855f, 1f, 0.145f, 1f, 1f, 0f, 0f, 0f,
+                0.855f, 0f, 0.145f, 1f, 0f, 0f, 0f, 0f,
 
                 // Two sides: \
-                0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
-                0f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
-                1f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
-                1f, 0f, 1f, 1f, 0f, 0f, 0f, 0f
+                0.145f, 0f, 0.145f, 0f, 0f, 0f, 0f, 0f,
+                0.145f, 1f, 0.145f, 0f, 1f, 0f, 0f, 0f,
+                0.855f, 1f, 0.855f, 1f, 1f, 0f, 0f, 0f,
+                0.855f, 0f, 0.855f, 1f, 0f, 0f, 0f, 0f
             };
 
             indices = new uint[]
