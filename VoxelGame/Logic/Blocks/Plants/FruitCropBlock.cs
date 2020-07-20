@@ -19,7 +19,7 @@ namespace VoxelGame.Logic.Blocks
     /// </summary>
     // s = stage
     // c = connection (orientation)
-    public class FruitCropBlock : CrossBlock
+    public class FruitCropBlock : CrossBlock, IFlammable
     {
         private protected float[][] verticesConnected = null!;
 

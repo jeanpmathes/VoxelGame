@@ -19,7 +19,7 @@ namespace VoxelGame.Logic.Blocks
     // e = connected east
     // s = connected south
     // w = connected west
-    public class FenceBlock : Block, IConnectable
+    public class FenceBlock : Block, IConnectable, IFlammable
     {
         private protected uint postVertCount;
         private protected uint extensionVertCount;

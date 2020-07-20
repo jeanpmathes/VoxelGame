@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using VoxelGame.Entities;
+using VoxelGame.Logic.Interfaces;
 using VoxelGame.Utilities;
 using VoxelGame.Visuals;
 
@@ -14,7 +15,7 @@ namespace VoxelGame.Logic.Blocks
     /// Data bit usage: <c>-cccc</c>
     /// </summary>
     // c = color
-    public class TintedCustomModelBlock : CustomModelBlock
+    public class TintedCustomModelBlock : CustomModelBlock, IFlammable
     {
         public TintedCustomModelBlock(string name, string namedId, string modelName, Physics.BoundingBox boundingBox, bool isSolid = true) :
             base(

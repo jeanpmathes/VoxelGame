@@ -4,12 +4,13 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using VoxelGame.Entities;
+using VoxelGame.Logic.Interfaces;
 using VoxelGame.Physics;
 using VoxelGame.Utilities;
 
 namespace VoxelGame.Logic.Blocks
 {
-    public class SpiderWebBlock : CrossBlock
+    public class SpiderWebBlock : CrossBlock, IFlammable
     {
         private protected readonly float maxVelocity;
 

@@ -9,10 +9,11 @@ using Microsoft.Extensions.Logging;
 using VoxelGame.Logic.Blocks;
 using VoxelGame.Physics;
 using VoxelGame.Resources.Language;
+using VoxelGame.Logic.Blocks.Misc;
 
 namespace VoxelGame.Logic
 {
-    public abstract partial class Block
+    public abstract partial class Block : IBlockBase
     {
         private static readonly ILogger logger = Program.CreateLogger<Block>();
 
@@ -30,10 +31,10 @@ namespace VoxelGame.Logic
         public static readonly Block STONE = new BasicBlock(Language.Stone, nameof(STONE), TextureLayout.Uniform("stone"));
         public static readonly Block RUBBLE = new ConstructionBlock(Language.Rubble, nameof(RUBBLE), TextureLayout.Uniform("rubble"));
         public static readonly Block LOG = new RotatedBlock(Language.Log, nameof(LOG), TextureLayout.Column("log", 0, 1));
-        public static readonly Block WOOD = new ConstructionBlock(Language.Wood, nameof(WOOD), TextureLayout.Uniform("wood"));
+        public static readonly Block WOOD = new OrganicConstructionBlock(Language.Wood, nameof(WOOD), TextureLayout.Uniform("wood"));
         public static readonly Block SAND = new BasicBlock(Language.Sand, nameof(SAND), TextureLayout.Uniform("sand"));
         public static readonly Block GRAVEL = new BasicBlock(Language.Gravel, nameof(GRAVEL), TextureLayout.Uniform("gravel"));
-        public static readonly Block LEAVES = new BasicBlock(Language.Leaves, nameof(LEAVES), TextureLayout.Uniform("leaves"), isOpaque: false);
+        public static readonly Block LEAVES = new NaturalBlock(Language.Leaves, nameof(LEAVES), TextureLayout.Uniform("leaves"), isOpaque: false);
         public static readonly Block GLASS = new BasicBlock(Language.Glass, nameof(GLASS), TextureLayout.Uniform("glass"), isOpaque: false, renderFaceAtNonOpaques: false);
         public static readonly Block ORE_COAL = new BasicBlock(Language.CoalOre, nameof(ORE_COAL), TextureLayout.Uniform("ore_coal"));
         public static readonly Block ORE_IRON = new BasicBlock(Language.IronOre, nameof(ORE_IRON), TextureLayout.Uniform("ore_iron"));
@@ -70,7 +71,7 @@ namespace VoxelGame.Logic
         public static readonly Block MELON = new GroundedBlock(Language.Melon, nameof(MELON), TextureLayout.Column("melon_side", "melon_top"));
         public static readonly Block PUMPKIN_PLANT = new FruitCropBlock(Language.PumpkinPlant, nameof(PUMPKIN_PLANT), "pumpkin_plant", 0, 1, 2, 3, 4, PUMPKIN);
         public static readonly Block MELON_PLANT = new FruitCropBlock(Language.MelonPlant, nameof(MELON_PLANT), "melon_plant", 0, 1, 2, 3, 4, MELON);
-        public static readonly Block WOOL = new TintedBlock(Language.Wool, nameof(WOOL), TextureLayout.Uniform("wool"));
+        public static readonly Block WOOL = new OrganicTintedBlock(Language.Wool, nameof(WOOL), TextureLayout.Uniform("wool"));
         public static readonly Block CARPET = new TintedCustomModelBlock(Language.Carpet, nameof(CARPET), "carpet", new BoundingBox(new Vector3(0.5f, 0.03125f, 0.5f), new Vector3(0.5f, 0.03125f, 0.5f)));
         public static readonly Block FIRE = new FireBlock(Language.Fire, nameof(FIRE), "fire");
 

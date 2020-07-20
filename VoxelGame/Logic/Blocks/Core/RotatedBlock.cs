@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using System;
 using VoxelGame.Entities;
+using VoxelGame.Logic.Interfaces;
 using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
@@ -14,7 +15,7 @@ namespace VoxelGame.Logic.Blocks
     /// Data bit usage: <c>---aa</c>
     /// </summary>
     // a = axis
-    public class RotatedBlock : BasicBlock
+    public class RotatedBlock : BasicBlock, IFlammable
     {
         private protected float[][] sideNormals = null!;
         private protected int[] texIndices = null!;

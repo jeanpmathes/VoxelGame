@@ -1,4 +1,4 @@
-﻿// <copyright file="CrossPlant.cs" company="VoxelGame">
+﻿// <copyright file="CrossPlantBlock.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -9,7 +9,7 @@ using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
 {
-    public class CrossPlantBlock : CrossBlock
+    public class CrossPlantBlock : CrossBlock, IFlammable
     {
         /// <summary>
         /// Initializes a new instance of a cross plant; a plant made out of two intersecting planes. It is using a neutral tint.

@@ -16,7 +16,7 @@ namespace VoxelGame.Logic.Blocks
     /// Data bit usage: <c>--sss</c>
     /// </summary>
     // s = stage
-    public class CropBlock : Block
+    public class CropBlock : Block, IFlammable
     {
         private protected float[] vertices = null!;
         private protected int[] stageTexIndices = null!;

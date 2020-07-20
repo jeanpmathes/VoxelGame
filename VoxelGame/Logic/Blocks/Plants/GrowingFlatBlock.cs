@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using VoxelGame.Logic.Interfaces;
 using VoxelGame.Utilities;
 using VoxelGame.Visuals;
 
@@ -14,7 +15,7 @@ namespace VoxelGame.Logic.Blocks
     /// </summary>
     // o = orientation
     // a = age
-    public class GrowingFlatBlock : FlatBlock
+    public class GrowingFlatBlock : FlatBlock, IFlammable
     {
         public GrowingFlatBlock(string name, string namedId, string texture, float climbingVelocity, float slidingVelocity) :
             base(

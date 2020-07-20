@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using VoxelGame.Entities;
+using VoxelGame.Logic.Interfaces;
 using VoxelGame.Physics;
 using VoxelGame.Utilities;
 using VoxelGame.Visuals;
@@ -18,7 +19,7 @@ namespace VoxelGame.Logic.Blocks
     // c = color
     // o = orientation
     // p = position
-    public class BedBlock : Block
+    public class BedBlock : Block, IFlammable
     {
         private protected float[][] verticesHead = new float[4][];
         private protected float[][] verticesEnd = new float[4][];

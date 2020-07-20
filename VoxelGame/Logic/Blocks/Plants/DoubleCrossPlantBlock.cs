@@ -1,4 +1,4 @@
-﻿// <copyright file="DoubleCrossPlant.cs" company="VoxelGame">
+﻿// <copyright file="DoubleCrossPlantBlock.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
