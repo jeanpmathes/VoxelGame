@@ -65,7 +65,7 @@ namespace VoxelGame.Logic
         public static readonly Block BED = new BedBlock(Language.Bed, nameof(BED), "bed");
         public static readonly Block STEEL = new ConstructionBlock(Language.Steel, nameof(STEEL), TextureLayout.Uniform("steel"));
         public static readonly Block DOOR_STEEL = new DoorBlock(Language.SteelDoor, nameof(DOOR_STEEL), "door_steel_closed", "door_steel_open");
-        public static readonly Block DOOR_WOOD = new DoorBlock(Language.WoodenDoor, nameof(DOOR_WOOD), "door_wood_closed", "door_wood_open");
+        public static readonly Block DOOR_WOOD = new OrganicDoorBlock(Language.WoodenDoor, nameof(DOOR_WOOD), "door_wood_closed", "door_wood_open");
         public static readonly Block GATE_WOOD = new GateBlock(Language.WoodenGate, nameof(GATE_WOOD), "gate_wood_closed", "gate_wood_open");
         public static readonly Block PUMPKIN = new GroundedBlock(Language.Pumpkin, nameof(PUMPKIN), TextureLayout.Column("pumpkin_side", "pumpkin_top"));
         public static readonly Block MELON = new GroundedBlock(Language.Melon, nameof(MELON), TextureLayout.Column("melon_side", "melon_top"));
