@@ -10,6 +10,7 @@ using VoxelGame.Logic.Blocks;
 using VoxelGame.Physics;
 using VoxelGame.Resources.Language;
 using VoxelGame.Logic.Blocks.Misc;
+using VoxelGame.Logic.Blocks.Nature;
 
 namespace VoxelGame.Logic
 {
@@ -23,7 +24,7 @@ namespace VoxelGame.Logic
         private static readonly Dictionary<string, Block> namedBlockDictionary = new Dictionary<string, Block>();
 
         public static readonly Block AIR = new AirBlock(Language.Air, nameof(AIR));
-        public static readonly Block GRASS = new CoveredDirtBlock(Language.Grass, nameof(GRASS), TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"), true);
+        public static readonly Block GRASS = new GrassBlock(Language.Grass, nameof(GRASS), TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"));
         public static readonly Block TALL_GRASS = new CrossPlantBlock(Language.TallGrass, nameof(TALL_GRASS), "tall_grass", true, BoundingBox.Block);
         public static readonly Block VERY_TALL_GRASS = new DoubleCrossPlantBlock(Language.VeryTallGrass, nameof(VERY_TALL_GRASS), "very_tall_grass", 1, BoundingBox.Block);
         public static readonly Block DIRT = new DirtBlock(Language.Dirt, nameof(DIRT), TextureLayout.Uniform("dirt"));
@@ -74,6 +75,7 @@ namespace VoxelGame.Logic
         public static readonly Block WOOL = new OrganicTintedBlock(Language.Wool, nameof(WOOL), TextureLayout.Uniform("wool"));
         public static readonly Block CARPET = new TintedCustomModelBlock(Language.Carpet, nameof(CARPET), "carpet", new BoundingBox(new Vector3(0.5f, 0.03125f, 0.5f), new Vector3(0.5f, 0.03125f, 0.5f)));
         public static readonly Block FIRE = new FireBlock(Language.Fire, nameof(FIRE), "fire");
+        public static readonly Block GRASS_BURNED = new CoveredDirtBlock(Language.AshCoveredDirt, nameof(GRASS_BURNED), TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"), false);
 
         /// <summary>
         /// Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.

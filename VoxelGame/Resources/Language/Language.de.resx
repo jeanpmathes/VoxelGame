@@ -123,6 +123,9 @@
   <data name="AllChunksSaving" xml:space="preserve">
     <value>Speichere alle aktiven Chunks der Welt.</value>
   </data>
+  <data name="AshCoveredDirt" xml:space="preserve">
+    <value>Aschebedeckte Erde</value>
+  </data>
   <data name="Bed" xml:space="preserve">
     <value>Bett</value>
   </data>

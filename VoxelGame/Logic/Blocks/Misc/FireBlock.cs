@@ -462,7 +462,7 @@ namespace VoxelGame.Logic.Blocks
                 {
                     hasFlammable = true;
 
-                    if (block.Burn(x, y, z))
+                    if (block.Burn(x, y, z, this))
                     {
                         Place(x, y, z, null);
                     }

@@ -16,8 +16,9 @@ namespace VoxelGame.Logic.Interfaces
         /// <param name="x">The x position to burn.</param>
         /// <param name="y">The y position to burn.</param>
         /// <param name="z">The z position to burn.</param>
-        /// <returns>true if the block was burned, false if not.</returns>
-        public bool Burn(int x, int y, int z)
+        /// <param name="fire">The fire block that caused the burning.</param>
+        /// <returns>true if the block was destroyed, false if not.</returns>
+        public bool Burn(int x, int y, int z, Block fire)
         {
             Destroy(x, y, z, null);
 
