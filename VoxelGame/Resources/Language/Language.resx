@@ -123,6 +123,9 @@
   <data name="AllChunksSaving" xml:space="preserve">
     <value>Saving all active chunks of the world.</value>
   </data>
+  <data name="AshCoveredDirt" xml:space="preserve">
+    <value>Ash-covered Dirt</value>
+  </data>
   <data name="Bed" xml:space="preserve">
     <value>Bed</value>
   </data>
@@ -167,6 +170,9 @@
   </data>
   <data name="Farmland" xml:space="preserve">
     <value>Farmland</value>
+  </data>
+  <data name="Fire" xml:space="preserve">
+    <value>Fire</value>
   </data>
   <data name="Flax" xml:space="preserve">
     <value>Flax</value>
@@ -230,6 +236,9 @@
   </data>
   <data name="PressAnyKeyToExit" xml:space="preserve">
     <value>Press any key to exit...</value>
+  </data>
+  <data name="PulsatingBlock" xml:space="preserve">
+    <value>Pulsating Block</value>
   </data>
   <data name="Pumpkin" xml:space="preserve">
     <value>Pumpkin</value>

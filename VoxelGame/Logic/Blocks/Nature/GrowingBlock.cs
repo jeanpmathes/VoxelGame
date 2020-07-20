@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using VoxelGame.Entities;
+using VoxelGame.Logic.Interfaces;
 
 namespace VoxelGame.Logic.Blocks
 {
@@ -12,7 +13,7 @@ namespace VoxelGame.Logic.Blocks
     /// Data bit usage: <c>--aaa</c>
     /// </summary>
     // a = age
-    public class GrowingBlock : BasicBlock
+    public class GrowingBlock : BasicBlock, IFlammable
     {
         private protected readonly Block requiredGround;
         private protected readonly int maxHeight;

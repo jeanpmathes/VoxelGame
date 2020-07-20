@@ -47,13 +47,14 @@ namespace VoxelGame.Logic.Blocks
             vertCount = (uint)(model.VertexCount);
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             vertices = this.vertices;
             textureIndices = texIndices;
             indices = this.indices;
 
             tint = TintColor.None;
+            isAnimated = false;
 
             return vertCount;
         }

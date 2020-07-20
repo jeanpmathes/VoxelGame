@@ -3,7 +3,6 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using Microsoft.Extensions.Logging;
 using VoxelGame.Physics;
 using VoxelGame.Visuals;
 
@@ -12,7 +11,7 @@ namespace VoxelGame.Logic
     /// <summary>
     /// The basic block class. Blocks are used to construct the world.
     /// </summary>
-    public abstract partial class Block
+    public abstract partial class Block : IBlockBase
     {
         /// <summary>
         /// Gets the block id which can be any value from 0 to 4095.
@@ -156,16 +155,8 @@ namespace VoxelGame.Logic
         /// <param name="vertices">Vertices of the mesh. Every vertex is made up of 8 floats: XYZ, UV, NOP</param>
         /// <param name="indices">The indices of the mesh that determine how triangles are constructed.</param>
         /// <returns>The amount of vertices in the mesh.</returns>
-        public abstract uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
+        public abstract uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated);
 
-        /// <summary>
-        /// Tries to place a block in the world.
-        /// </summary>
-        /// <param name="x">The x position where a block should be placed.</param>
-        /// <param name="y">The y position where a block should be placed.</param>
-        /// <param name="z">The z position where a block should be placed.</param>
-        /// <param name="entity">The entity that tries to place the block. May be null.</param>
-        /// <returns>Returns true if placing the block was successful.</returns>
         public bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
             return Game.World.GetBlock(x, y, z, out _)?.IsReplaceable == true && Place(entity, x, y, z);
@@ -178,14 +169,6 @@ namespace VoxelGame.Logic
             return true;
         }
 
-        /// <summary>
-        /// Destroys a block in the world if it is the same type as this block.
-        /// </summary>
-        /// <param name="x">The x position of the block to destroy.</param>
-        /// <param name="y">The y position of the block to destroy.</param>
-        /// <param name="z">The z position of the block to destroy.</param>
-        /// <param name="entity">The entity which caused the destruction, or null if no entity caused it.</param>
-        /// <returns>Returns true if the block has been destroyed.</returns>
         public bool Destroy(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
             if (Game.World.GetBlock(x, y, z, out byte data) == this)

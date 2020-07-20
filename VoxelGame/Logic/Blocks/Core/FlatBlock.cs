@@ -24,13 +24,7 @@ namespace VoxelGame.Logic.Blocks
         private protected float[][] sideVertices = null!;
         private protected int[] textureIndices = null!;
 
-        private protected uint[] indices =
-        {
-            0, 2, 1,
-            0, 3, 2,
-            4, 6, 5,
-            4, 7, 6
-        };
+        private protected uint[] indices = null!;
 
         private protected string texture;
 
@@ -118,6 +112,14 @@ namespace VoxelGame.Logic.Blocks
 
             int tex = Game.BlockTextureArray.GetTextureIndex(texture);
             textureIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
+
+            indices = new uint[]
+            {
+                0, 2, 1,
+                0, 3, 2,
+                4, 6, 5,
+                4, 7, 6
+            };
         }
 
         protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
@@ -132,13 +134,14 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             vertices = sideVertices[data & 0b0_0011];
             textureIndices = this.textureIndices;
             indices = this.indices;
 
             tint = TintColor.None;
+            isAnimated = false;
 
             return 8;
         }

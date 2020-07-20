@@ -123,6 +123,9 @@
   <data name="AllChunksSaving" xml:space="preserve">
     <value>Speichere alle aktiven Chunks der Welt.</value>
   </data>
+  <data name="AshCoveredDirt" xml:space="preserve">
+    <value>Aschebedeckte Erde</value>
+  </data>
   <data name="Bed" xml:space="preserve">
     <value>Bett</value>
   </data>
@@ -167,6 +170,9 @@
   </data>
   <data name="Farmland" xml:space="preserve">
     <value>Ackerboden</value>
+  </data>
+  <data name="Fire" xml:space="preserve">
+    <value>Feuer</value>
   </data>
   <data name="Flax" xml:space="preserve">
     <value>Flachs</value>
@@ -230,6 +236,9 @@
   </data>
   <data name="PressAnyKeyToExit" xml:space="preserve">
     <value>Beliebige Taste zum Verlassen drücken...</value>
+  </data>
+  <data name="PulsatingBlock" xml:space="preserve">
+    <value>Pulsierender Block</value>
   </data>
   <data name="Pumpkin" xml:space="preserve">
     <value>Kürbis</value>

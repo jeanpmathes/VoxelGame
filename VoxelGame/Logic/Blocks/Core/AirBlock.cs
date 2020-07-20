@@ -34,12 +34,14 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indicies, out Visuals.TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indicies, out Visuals.TintColor tint, out bool isAnimated)
         {
             vertices = Array.Empty<float>();
             textureIndices = Array.Empty<int>();
             indicies = Array.Empty<uint>();
+
             tint = Visuals.TintColor.None;
+            isAnimated = false;
 
             return 0;
         }

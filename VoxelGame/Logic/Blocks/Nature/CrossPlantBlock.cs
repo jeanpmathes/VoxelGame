@@ -1,4 +1,4 @@
-﻿// <copyright file="CrossPlant.cs" company="VoxelGame">
+﻿// <copyright file="CrossPlantBlock.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -9,7 +9,7 @@ using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
 {
-    public class CrossPlantBlock : CrossBlock
+    public class CrossPlantBlock : CrossBlock, IFlammable
     {
         /// <summary>
         /// Initializes a new instance of a cross plant; a plant made out of two intersecting planes. It is using a neutral tint.
@@ -29,11 +29,11 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             tint = TintColor.Neutral;
 
-            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
+            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _, out isAnimated);
         }
 
         protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)

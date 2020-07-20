@@ -146,6 +146,8 @@ namespace VoxelGame.Rendering
                 {
                     GL.BindVertexArray(simpleVAO);
 
+                    Game.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+
                     Game.SimpleSectionShader.Use();
 
                     Game.SimpleSectionShader.SetMatrix4("model", model);
@@ -162,6 +164,8 @@ namespace VoxelGame.Rendering
                 if (hasComplexData)
                 {
                     GL.BindVertexArray(complexVAO);
+
+                    Game.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
                     Game.ComplexSectionShader.Use();
 

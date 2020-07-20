@@ -29,11 +29,11 @@ namespace VoxelGame.Logic.Blocks
             this.hasNeutralTint = hasNeutralTint;
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             tint = (hasNeutralTint) ? TintColor.Neutral : TintColor.None;
 
-            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _);
+            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _, out isAnimated);
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)

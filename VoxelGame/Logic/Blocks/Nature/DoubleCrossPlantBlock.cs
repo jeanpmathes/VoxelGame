@@ -1,4 +1,4 @@
-﻿// <copyright file="DoubleCrossPlant.cs" company="VoxelGame">
+﻿// <copyright file="DoubleCrossPlantBlock.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -21,22 +21,7 @@ namespace VoxelGame.Logic.Blocks
         private protected int[] bottomTexIndices = null!;
         private protected int[] topTexIndices = null!;
 
-        private protected readonly uint[] indices =
-        {
-            // Direction: /
-            0, 2, 1,
-            0, 3, 2,
-
-            0, 1, 2,
-            0, 2, 3,
-
-            // Direction: \
-            4, 6, 5,
-            4, 7, 6,
-
-            4, 5, 6,
-            4, 6, 7
-        };
+        private protected uint[] indices = null!;
 
         private protected string bottomTexture;
         private protected int topTexOffset;
@@ -82,14 +67,32 @@ namespace VoxelGame.Logic.Blocks
 
             tex += topTexOffset;
             topTexIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
+
+            indices = new uint[]
+            {
+                // Direction: /
+                0, 2, 1,
+                0, 3, 2,
+
+                0, 1, 2,
+                0, 2, 3,
+
+                // Direction: \
+                4, 6, 5,
+                4, 7, 6,
+
+                4, 5, 6,
+                4, 6, 7
+            };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             vertices = this.vertices;
             textureIndices = ((data & 0b1) == 0) ? bottomTexIndices : topTexIndices;
             indices = this.indices;
             tint = TintColor.Neutral;
+            isAnimated = false;
 
             return 8;
         }

@@ -8,6 +8,7 @@ flat out int texIndex;
 out vec2 texCoord;
 
 out vec4 tint;
+flat out int anim;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -34,6 +35,9 @@ void main()
 
     // Tint
     tint = vec4(((aData.y >> 29) & 7) / 7.0, ((aData.y >> 26) & 7) / 7.0, ((aData.y >> 23) & 7) / 7.0, 1.0);
+
+    // Animation
+    anim = (aData.y >> 16) & 1;
 
     // Position
     vec3 position = vec3((aData.x >> 12) & 63, (aData.x >> 6) & 63, aData.x & 63);

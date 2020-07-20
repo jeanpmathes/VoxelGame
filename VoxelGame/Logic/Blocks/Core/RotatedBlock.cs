@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using System;
 using VoxelGame.Entities;
+using VoxelGame.Logic.Interfaces;
 using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
@@ -14,7 +15,7 @@ namespace VoxelGame.Logic.Blocks
     /// Data bit usage: <c>---aa</c>
     /// </summary>
     // a = axis
-    public class RotatedBlock : BasicBlock
+    public class RotatedBlock : BasicBlock, IFlammable
     {
         private protected float[][] sideNormals = null!;
         private protected int[] texIndices = null!;
@@ -118,7 +119,7 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             Axis axis = ToAxis(data);
 
@@ -152,7 +153,9 @@ namespace VoxelGame.Logic.Blocks
 
             textureIndices = new int[] { tex, tex, tex, tex };
             indices = Array.Empty<uint>();
+
             tint = TintColor.None;
+            isAnimated = false;
 
             return 4;
         }
