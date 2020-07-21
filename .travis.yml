@@ -1,6 +1,9 @@
 language: csharp
+os: windows
 solution: VoxelGame.sln
 mono: none
-dotnet: 3.1
 script:
-  - dotnet build
+  - choco install dotnetcore-sdk
+  - dotnet --version
+  - dotnet restore
+  - msbuild /p:Configuration=Release VoxelGame.sln
