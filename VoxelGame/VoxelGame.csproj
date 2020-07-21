@@ -255,7 +255,10 @@
     <None Update="Resources\Textures\Blocks\stone.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Textures\Blocks\stone_cavepainting.png">
+    <None Update="Resources\Textures\Blocks\stone_worked.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Textures\Blocks\stone_worked_face.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Textures\Blocks\tall_flower.png">

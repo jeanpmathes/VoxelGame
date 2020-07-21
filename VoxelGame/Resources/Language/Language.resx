@@ -141,9 +141,6 @@
   <data name="Carpet" xml:space="preserve">
     <value>Carpet</value>
   </data>
-  <data name="CavePainting" xml:space="preserve">
-    <value>Cave Painting</value>
-  </data>
   <data name="CheckerboardTilesBlack" xml:space="preserve">
     <value>Black Checkerboard Tiles</value>
   </data>
@@ -275,6 +272,9 @@
   </data>
   <data name="Stone" xml:space="preserve">
     <value>Stone</value>
+  </data>
+  <data name="StoneFace" xml:space="preserve">
+    <value>Stone Face</value>
   </data>
   <data name="TallFlower" xml:space="preserve">
     <value>Tall Flower</value>

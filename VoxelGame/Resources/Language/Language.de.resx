@@ -141,9 +141,6 @@
   <data name="Carpet" xml:space="preserve">
     <value>Teppich</value>
   </data>
-  <data name="CavePainting" xml:space="preserve">
-    <value>Höhlenmalerei</value>
-  </data>
   <data name="CheckerboardTilesBlack" xml:space="preserve">
     <value>Schwarze Schachbrettfliesen</value>
   </data>
@@ -275,6 +272,9 @@
   </data>
   <data name="Stone" xml:space="preserve">
     <value>Stein</value>
+  </data>
+  <data name="StoneFace" xml:space="preserve">
+    <value>Steinernes Gesicht</value>
   </data>
   <data name="TallFlower" xml:space="preserve">
     <value>Hohe Blume</value>
