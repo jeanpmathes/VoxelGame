@@ -10,6 +10,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block that loads its complete model from a file. The block can only be placed on top of solid and full blocks.
+    /// Data bit usage: <c>-----</c>
     /// </summary>
     public class CustomModelBlock : Block
     {

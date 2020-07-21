@@ -9,6 +9,7 @@ namespace VoxelGame.Logic.Blocks.Misc
 {
     /// <summary>
     /// A <see cref="ConstructionBlock"/> made out of organic, flammable materials.
+    /// Data bit usage: <c>-----</c>
     /// </summary>
     public class OrganicConstructionBlock : ConstructionBlock, IFlammable
     {

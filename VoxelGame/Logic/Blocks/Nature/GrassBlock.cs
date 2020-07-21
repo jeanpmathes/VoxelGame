@@ -9,6 +9,7 @@ namespace VoxelGame.Logic.Blocks.Nature
 {
     /// <summary>
     /// Dirt covered with flammable grass.
+    /// Data bit usage: <c>-----</c>
     /// </summary>
     public class GrassBlock : CoveredDirtBlock, IFlammable
     {

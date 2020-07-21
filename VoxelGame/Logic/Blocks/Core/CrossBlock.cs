@@ -18,6 +18,7 @@ namespace VoxelGame.Logic.Blocks
 
         /// <summary>
         /// Initializes a new instance of a cross block; a block made out of two intersecting planes.
+        /// Data bit usage: <c>-----</c>
         /// </summary>
         /// <param name="name">The name of this block and the texture file.</param>
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>

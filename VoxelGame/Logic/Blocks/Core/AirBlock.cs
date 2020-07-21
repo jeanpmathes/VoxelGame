@@ -10,6 +10,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// AirBlocks are blocks that have no collision and are not rendered. They are used for the air block that stands for the absence of other blocks.
+    /// Data bit usage: <c>-----</c>
     /// </summary>
     public class AirBlock : Block
     {
