@@ -303,7 +303,7 @@ namespace VoxelGame.Logic
 
         public override bool Equals(object? obj)
         {
-            if (obj != null && obj is Chunk other)
+            if (obj is Chunk other)
             {
                 return other.X == this.X && other.Z == this.Z;
             }

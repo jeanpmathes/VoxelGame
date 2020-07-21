@@ -117,9 +117,11 @@ namespace VoxelGame.Logic.Blocks
             bool isLeftSided = (data & 0b0_1000) == 0;
             bool isClosed = (data & 0b1_0000) == 0;
 
+            Orientation openOrientation = isLeftSided ? orientation.Invert() : orientation;
+
             if (isBase)
             {
-                vertices = verticesBase[isClosed ? (int)orientation : 4 + (isLeftSided ? (int)orientation.Invert() : (int)orientation)];
+                vertices = verticesBase[isClosed ? (int)orientation : 4 + (int)openOrientation];
 
                 textureIndices = texIndicesBase;
                 indices = indicesBase;
@@ -130,7 +132,7 @@ namespace VoxelGame.Logic.Blocks
             }
             else
             {
-                vertices = verticesTop[isClosed ? (int)orientation : 4 + (isLeftSided ? (int)orientation.Invert() : (int)orientation)];
+                vertices = verticesTop[isClosed ? (int)orientation : 4 + (int)openOrientation];
 
                 textureIndices = texIndicesTop;
                 indices = indicesTop;
@@ -194,7 +196,7 @@ namespace VoxelGame.Logic.Blocks
                     (orientation == Orientation.West && side != BlockSide.Front);
             }
 
-            Game.World.SetBlock(this, (byte)((isLeftSided ? 0b0000 : 0b1000) | 0b0000 | (int)orientation), x, y, z);
+            Game.World.SetBlock(this, (byte)((isLeftSided ? 0b0000 : 0b1000) | (int)orientation), x, y, z);
             Game.World.SetBlock(this, (byte)((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int)orientation), x, y + 1, z);
 
             return true;

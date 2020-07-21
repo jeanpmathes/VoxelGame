@@ -243,26 +243,18 @@ namespace VoxelGame.Logic.Blocks
                 if (fruit.Place(x, y, z - 1, null))
                 {
                     Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.North, x, y, z);
-
-                    return;
                 }
                 else if (fruit.Place(x + 1, y, z, null))
                 {
                     Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.East, x, y, z);
-
-                    return;
                 }
                 else if (fruit.Place(x, y, z + 1, null))
                 {
                     Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.South, x, y, z);
-
-                    return;
                 }
                 else if (fruit.Place(x - 1, y, z, null))
                 {
                     Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.West, x, y, z);
-
-                    return;
                 }
             }
         }

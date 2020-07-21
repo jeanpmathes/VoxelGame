@@ -12,6 +12,7 @@ using OpenToolkit.Windowing.Desktop;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading;
 using VoxelGame.Entities;
 using VoxelGame.Logic;
@@ -27,12 +28,12 @@ namespace VoxelGame
 
         #region STATIC PROPERTIES
 
-        public static Game instance = null!;
+        public static Game Instance { get; private set; } = null!;
 
         /// <summary>
         /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1 and 2;
         /// </summary>
-        public static ArrayTexture BlockTextureArray { get; set; } = null!;
+        public static ArrayTexture BlockTextureArray { get; private set; } = null!;
 
         public static Shader SimpleSectionShader { get; private set; } = null!;
         public static Shader ComplexSectionShader { get; private set; } = null!;
@@ -63,7 +64,7 @@ namespace VoxelGame
 
         public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, string appDataFolder) : base(gameWindowSettings, nativeWindowSettings)
         {
-            instance = this;
+            Instance = this;
 
             this.appDataFolder = appDataFolder;
 
@@ -88,7 +89,7 @@ namespace VoxelGame
                 // GL debug setup.
                 GL.Enable(EnableCap.DebugOutput);
 
-                debugCallbackDelegate = new DebugProc(DebugCallback);
+                DebugProc debugCallbackDelegate = new DebugProc(DebugCallback);
                 GL.DebugMessageCallback(debugCallbackDelegate, IntPtr.Zero);
 
                 // Rendering setup.
@@ -254,14 +255,14 @@ namespace VoxelGame
                         name = "New World";
                     }
 
-                    string path = Path.Combine(worldsDirectory, name);
+                    StringBuilder path = new StringBuilder(Path.Combine(worldsDirectory, name));
 
-                    while (Directory.Exists(path))
+                    while (Directory.Exists(path.ToString()))
                     {
-                        path += "_";
+                        path.Append('_');
                     }
 
-                    World = new World(name, path, DateTime.Now.GetHashCode());
+                    World = new World(name, path.ToString(), DateTime.Now.GetHashCode());
                 }
                 else
                 {
@@ -454,8 +455,6 @@ namespace VoxelGame
         #endregion MOUSE MOVE
 
         #region GL DEBUG
-
-        private DebugProc debugCallbackDelegate = null!;
 
         private void DebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
         {

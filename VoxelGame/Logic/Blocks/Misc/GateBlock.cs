@@ -56,102 +56,95 @@ namespace VoxelGame.Logic.Blocks
             verticesClosed = new float[4][];
             verticesOpen = new float[4][];
 
-            BlockModel closed = BlockModel.Load(this.closed);
-            BlockModel open = BlockModel.Load(this.open);
+            BlockModel closedModel = BlockModel.Load(this.closed);
+            BlockModel openModel = BlockModel.Load(this.open);
 
             for (int i = 0; i < 4; i++)
             {
                 if (i == 0)
                 {
-                    closed.ToData(out verticesClosed[i], out texIndicesClosed, out indicesClosed);
-                    open.ToData(out verticesOpen[i], out texIndicesOpen, out indicesOpen);
+                    closedModel.ToData(out verticesClosed[i], out texIndicesClosed, out indicesClosed);
+                    openModel.ToData(out verticesOpen[i], out texIndicesOpen, out indicesOpen);
                 }
                 else
                 {
-                    closed.RotateY(1, false);
-                    closed.ToData(out verticesClosed[i], out _, out _);
-                    open.RotateY(1, false);
-                    open.ToData(out verticesOpen[i], out _, out _);
+                    closedModel.RotateY(1, false);
+                    closedModel.ToData(out verticesClosed[i], out _, out _);
+                    openModel.RotateY(1, false);
+                    openModel.ToData(out verticesOpen[i], out _, out _);
                 }
             }
 
-            vertexCountClosed = (uint)closed.VertexCount;
-            vertexCountOpen = (uint)open.VertexCount;
+            vertexCountClosed = (uint)closedModel.VertexCount;
+            vertexCountOpen = (uint)openModel.VertexCount;
         }
 
         protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
         {
             bool isClosed = (data & 0b0_0100) == 0;
-            float offst = 0.375f;
 
-            switch ((Orientation)(data & 0b0_0011))
+            return ((Orientation)(data & 0b0_0011)) switch
             {
-                case Orientation.North:
+                Orientation.North => NorthSouth(0.375f),
+                Orientation.East => WestEast(0.625f),
+                Orientation.South => NorthSouth(0.625f),
+                Orientation.West => WestEast(0.375f),
+                _ => NorthSouth(0.375f),
+            };
+            BoundingBox NorthSouth(float offst)
+            {
+                if (isClosed)
+                {
+                    return new BoundingBox(new Vector3(0.96875f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f),
+                    new BoundingBox(new Vector3(0.96875f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                    new BoundingBox(new Vector3(0.03125f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                    new BoundingBox(new Vector3(0.03125f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                    // Moving parts.
+                    new BoundingBox(new Vector3(0.75f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(0.75f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(0.25f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(0.25f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)));
+                }
+                else
+                {
+                    return new BoundingBox(new Vector3(0.96875f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f),
+                    new BoundingBox(new Vector3(0.96875f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                    new BoundingBox(new Vector3(0.03125f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                    new BoundingBox(new Vector3(0.03125f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                    // Moving parts.
+                    new BoundingBox(new Vector3(0.875f, 0.71875f, offst) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.875f, 0.28125f, offst) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.125f, 0.71875f, offst) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.125f, 0.28125f, offst) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)));
+                }
+            }
 
-                    if (isClosed)
-                    {
-                        return new BoundingBox(new Vector3(0.96875f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f),
-                        new BoundingBox(new Vector3(0.96875f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                        new BoundingBox(new Vector3(0.03125f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                        new BoundingBox(new Vector3(0.03125f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                        // Moving parts.
-                        new BoundingBox(new Vector3(0.75f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                        new BoundingBox(new Vector3(0.75f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                        new BoundingBox(new Vector3(0.25f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                        new BoundingBox(new Vector3(0.25f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)));
-                    }
-                    else
-                    {
-                        return new BoundingBox(new Vector3(0.96875f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f),
-                        new BoundingBox(new Vector3(0.96875f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                        new BoundingBox(new Vector3(0.03125f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                        new BoundingBox(new Vector3(0.03125f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                        // Moving parts.
-                        new BoundingBox(new Vector3(0.875f, 0.71875f, offst) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                        new BoundingBox(new Vector3(0.875f, 0.28125f, offst) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                        new BoundingBox(new Vector3(0.125f, 0.71875f, offst) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                        new BoundingBox(new Vector3(0.125f, 0.28125f, offst) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)));
-                    }
-
-                case Orientation.East:
-
-                    offst = 0.625f;
-                    goto case Orientation.West;
-
-                case Orientation.South:
-
-                    offst = 0.625f;
-                    goto case Orientation.North;
-
-                case Orientation.West:
-
-                    if (isClosed)
-                    {
-                        return new BoundingBox(new Vector3(0.5f, 0.71875f, 0.96875f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f),
-                        new BoundingBox(new Vector3(0.5f, 0.28125f, 0.96875f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                        new BoundingBox(new Vector3(0.5f, 0.71875f, 0.03125f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                        new BoundingBox(new Vector3(0.5f, 0.28125f, 0.03125f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                        // Moving parts.
-                        new BoundingBox(new Vector3(0.5f, 0.71875f, 0.75f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                        new BoundingBox(new Vector3(0.5f, 0.28125f, 0.75f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                        new BoundingBox(new Vector3(0.5f, 0.71875f, 0.25f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                        new BoundingBox(new Vector3(0.5f, 0.28125f, 0.25f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)));
-                    }
-                    else
-                    {
-                        return new BoundingBox(new Vector3(0.5f, 0.71875f, 0.96875f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f),
-                        new BoundingBox(new Vector3(0.5f, 0.28125f, 0.96875f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                        new BoundingBox(new Vector3(0.5f, 0.71875f, 0.03125f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                        new BoundingBox(new Vector3(0.5f, 0.28125f, 0.03125f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                        // Moving parts.
-                        new BoundingBox(new Vector3(offst, 0.71875f, 0.875f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                        new BoundingBox(new Vector3(offst, 0.28125f, 0.875f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                        new BoundingBox(new Vector3(offst, 0.71875f, 0.125f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                        new BoundingBox(new Vector3(offst, 0.28125f, 0.125f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)));
-                    }
-
-                default:
-                    goto case Orientation.North;
+            BoundingBox WestEast(float offst)
+            {
+                if (isClosed)
+                {
+                    return new BoundingBox(new Vector3(0.5f, 0.71875f, 0.96875f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f),
+                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.96875f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.03125f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.03125f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                    // Moving parts.
+                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.75f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.75f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.25f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.25f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)));
+                }
+                else
+                {
+                    return new BoundingBox(new Vector3(0.5f, 0.71875f, 0.96875f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f),
+                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.96875f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.03125f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.03125f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                    // Moving parts.
+                    new BoundingBox(new Vector3(offst, 0.71875f, 0.875f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(offst, 0.28125f, 0.875f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(offst, 0.71875f, 0.125f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(offst, 0.28125f, 0.125f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)));
+                }
             }
         }
 
@@ -227,8 +220,9 @@ namespace VoxelGame.Logic.Blocks
                 orientation = orientation.Invert();
             }
 
-            Vector3 center = isClosed ? new Vector3(0.5f, 0.5f, 0.5f) + (orientation.ToVector() * 0.09375f) : new Vector3(0.5f, 0.5f, 0.5f);
-            Vector3 extents = (orientation == Orientation.North || orientation == Orientation.South) ? new Vector3(0.5f, 0.375f, 0.125f + (isClosed ? 0.09375f : 0f)) : new Vector3(0.125f + (isClosed ? 0.09375f : 0f), 0.375f, 0.5f);
+            Vector3 center = isClosed ? new Vector3(0.5f, 0.5f, 0.5f) + (-orientation.ToVector() * 0.09375f) : new Vector3(0.5f, 0.5f, 0.5f);
+            float closedOffset = isClosed ? 0.09375f : 0f;
+            Vector3 extents = (orientation == Orientation.North || orientation == Orientation.South) ? new Vector3(0.5f, 0.375f, 0.125f + closedOffset) : new Vector3(0.125f + closedOffset, 0.375f, 0.5f);
 
             if (entity.BoundingBox.Intersects(new BoundingBox(center + new Vector3(x, y, z), extents)))
             {
@@ -247,12 +241,11 @@ namespace VoxelGame.Logic.Blocks
                 case BlockSide.Left:
                 case BlockSide.Right:
 
-                    if (orientation == Orientation.North || orientation == Orientation.South)
+                    if ((orientation == Orientation.North || orientation == Orientation.South) &&
+                        !((Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z)) ||
+                        (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))))
                     {
-                        if (!((Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z)) || (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))))
-                        {
-                            Destroy(x, y, z, null);
-                        }
+                        Destroy(x, y, z, null);
                     }
 
                     break;
@@ -260,12 +253,11 @@ namespace VoxelGame.Logic.Blocks
                 case BlockSide.Front:
                 case BlockSide.Back:
 
-                    if (orientation == Orientation.East || orientation == Orientation.West)
+                    if ((orientation == Orientation.East || orientation == Orientation.West) &&
+                        !((Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1)) ||
+                        (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))))
                     {
-                        if (!((Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1)) || (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))))
-                        {
-                            Destroy(x, y, z, null);
-                        }
+                        Destroy(x, y, z, null);
                     }
 
                     break;

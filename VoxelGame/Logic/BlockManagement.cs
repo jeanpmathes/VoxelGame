@@ -11,7 +11,6 @@ using VoxelGame.Physics;
 using VoxelGame.Resources.Language;
 using VoxelGame.Logic.Blocks.Misc;
 using VoxelGame.Logic.Blocks.Nature;
-using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic
 {

@@ -179,7 +179,9 @@ namespace VoxelGame.Rendering
 
                         int minAlpha = Math.Min(Math.Min(c1.A, c2.A), Math.Min(c3.A, c4.A));
                         int maxAlpha = Math.Max(Math.Max(c1.A, c2.A), Math.Max(c3.A, c4.A));
-                        int relevantPixels = (minAlpha != 0) ? 4 : ((c1.A == 0) ? 0 : 1) + ((c2.A == 0) ? 0 : 1) + ((c3.A == 0) ? 0 : 1) + ((c4.A == 0) ? 0 : 1);
+
+                        int one = ((c1.A == 0) ? 0 : 1), two = ((c2.A == 0) ? 0 : 1), three = ((c3.A == 0) ? 0 : 1), four = ((c4.A == 0) ? 0 : 1);
+                        double relevantPixels = (minAlpha != 0) ? 4 : one + two + three + four;
 
                         Color average = (relevantPixels == 0) ? Color.FromArgb(0, 0, 0, 0) :
                             Color.FromArgb(alpha: maxAlpha,

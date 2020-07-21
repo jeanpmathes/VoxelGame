@@ -42,10 +42,10 @@ namespace VoxelGame.Logic.Blocks
 
         protected override void Setup()
         {
-            BlockModel model = BlockModel.Load(this.model);
+            BlockModel blockModel = BlockModel.Load(this.model);
 
-            model.ToData(out vertices, out texIndices, out indices);
-            vertCount = (uint)(model.VertexCount);
+            blockModel.ToData(out vertices, out texIndices, out indices);
+            vertCount = (uint)(blockModel.VertexCount);
         }
 
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
