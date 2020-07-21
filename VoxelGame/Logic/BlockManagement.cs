@@ -11,6 +11,7 @@ using VoxelGame.Physics;
 using VoxelGame.Resources.Language;
 using VoxelGame.Logic.Blocks.Misc;
 using VoxelGame.Logic.Blocks.Nature;
+using VoxelGame.Rendering;
 
 namespace VoxelGame.Logic
 {
@@ -78,6 +79,7 @@ namespace VoxelGame.Logic
         public static readonly Block GRASS_BURNED = new CoveredDirtBlock(Language.AshCoveredDirt, nameof(GRASS_BURNED), TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"), false);
         public static readonly Block PULSATING = new TintedBlock(Language.PulsatingBlock, nameof(PULSATING), TextureLayout.Uniform("pulsating"), isAnimated: true);
         public static readonly Block STONE_WORKED = new BasicBlock(Language.WorkedStone, nameof(STONE_WORKED), TextureLayout.Uniform("stone_worked"));
+        public static readonly Block ETERNAL_FLAME = new EternalFlame(Language.EternalFlame, nameof(ETERNAL_FLAME), TextureLayout.Uniform("eternal_flame"));
 
         /// <summary>
         /// Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.

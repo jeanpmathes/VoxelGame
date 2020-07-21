@@ -156,6 +156,9 @@
     <None Update="Resources\Textures\Blocks\door_wood.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Textures\Blocks\eternal_flame.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\Textures\Blocks\farmland.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

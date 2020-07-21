@@ -165,6 +165,9 @@
   <data name="EnterNameOfWorld" xml:space="preserve">
     <value>Geben sie den Namen der neuen Welt ein: </value>
   </data>
+  <data name="EternalFlame" xml:space="preserve">
+    <value>Ewiges Feuer</value>
+  </data>
   <data name="Farmland" xml:space="preserve">
     <value>Ackerboden</value>
   </data>

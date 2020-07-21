@@ -165,6 +165,9 @@
   <data name="EnterNameOfWorld" xml:space="preserve">
     <value>Enter the name of the world to create:</value>
   </data>
+  <data name="EternalFlame" xml:space="preserve">
+    <value>Eternal Flame</value>
+  </data>
   <data name="Farmland" xml:space="preserve">
     <value>Farmland</value>
   </data>
