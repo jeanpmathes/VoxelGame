@@ -315,6 +315,9 @@
   <data name="Wool" xml:space="preserve">
     <value>Wool</value>
   </data>
+  <data name="WorkedStone" xml:space="preserve">
+    <value>Worked Stone</value>
+  </data>
   <data name="WorldNotFound" xml:space="preserve">
     <value>World not found!</value>
   </data>
