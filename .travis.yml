@@ -6,4 +6,4 @@ script:
   - choco install dotnetcore-sdk
   - dotnet --version
   - dotnet restore
-  - msbuild /p:Configuration=Release VoxelGame.sln
+  - msbuild.exe /p:Configuration=Release VoxelGame.sln
