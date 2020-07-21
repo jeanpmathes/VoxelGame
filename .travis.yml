@@ -5,4 +5,3 @@ mono: none
 script:
   - choco install dotnetcore-sdk
   - dotnet restore
-  - dotnet build
