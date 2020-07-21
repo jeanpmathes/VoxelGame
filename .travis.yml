@@ -4,4 +4,6 @@ solution: VoxelGame.sln
 mono: none
 script:
   - choco install dotnetcore-sdk
+  - dotnet --version
   - dotnet restore
+  - dotnet build
