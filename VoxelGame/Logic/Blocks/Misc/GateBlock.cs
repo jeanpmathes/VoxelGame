@@ -272,7 +272,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public bool IsConnetable(BlockSide side, int x, int y, int z)
+        public virtual bool IsConnetable(BlockSide side, int x, int y, int z)
         {
             if (Game.World.GetBlock(x, y, z, out byte data) == this)
             {

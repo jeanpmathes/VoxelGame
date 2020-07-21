@@ -25,7 +25,7 @@ namespace VoxelGame.Logic.Blocks.Misc
         {
         }
 
-        public bool Burn(int x, int y, int z, Block fire)
+        public virtual bool Burn(int x, int y, int z, Block fire)
         {
             return false;
         }
