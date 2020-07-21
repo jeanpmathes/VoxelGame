@@ -6,4 +6,4 @@ script:
   - choco install dotnetcore-sdk
   - dotnet --version
   - dotnet restore
-  - dotnet build
+  - msbuild
