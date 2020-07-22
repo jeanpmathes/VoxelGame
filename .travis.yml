@@ -16,7 +16,7 @@ before_install:
   - choco install dotnetcore-sdk
   - dotnet --version
   - dotnet tool install --global dotnet-sonarscanner
-  - refreshenv
+  - cmd.exe //c "RefreshEnv.cmd & iisexpress.exe"
 addons:
   sonarcloud:
     organization: "pershingthesecond"
