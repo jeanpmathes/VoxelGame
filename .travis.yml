@@ -21,6 +21,9 @@ addons:
 script:
   - choco install dotnetcore-sdk
   - dotnet --version
+  - dotnet tool install --global dotnet-sonarscanner
   - dotnet restore
+  - dotnet sonarscanner begin /k:"pershingthesecond" 
   - dotnet build
+  - dotnet sonarscanner end 
   - sonar-scanner
