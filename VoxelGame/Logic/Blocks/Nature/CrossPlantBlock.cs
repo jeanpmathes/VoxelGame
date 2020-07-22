@@ -58,7 +58,7 @@ namespace VoxelGame.Logic.Blocks
         {
             if (side == BlockSide.Bottom && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
             {
-                Destroy(x, y, z, null);
+                Destroy(x, y, z);
             }
         }
     }

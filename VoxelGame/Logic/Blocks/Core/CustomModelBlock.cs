@@ -78,7 +78,7 @@ namespace VoxelGame.Logic.Blocks
         {
             if (side == BlockSide.Bottom && !(Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR).IsSolidAndFull)
             {
-                Destroy(x, y, z, null);
+                Destroy(x, y, z);
             }
         }
     }

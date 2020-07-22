@@ -25,7 +25,7 @@ namespace VoxelGame.Logic.Blocks.Nature
         public virtual bool Burn(int x, int y, int z, Block fire)
         {
             Game.World.SetBlock(Block.GRASS_BURNED, 0, x, y, z);
-            fire.Place(x, y + 1, z, null);
+            fire.Place(x, y + 1, z);
 
             return false;
         }

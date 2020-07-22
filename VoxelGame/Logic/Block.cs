@@ -157,7 +157,7 @@ namespace VoxelGame.Logic
         /// <returns>The amount of vertices in the mesh.</returns>
         public abstract uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated);
 
-        public bool Place(int x, int y, int z, Entities.PhysicsEntity? entity)
+        public bool Place(int x, int y, int z, Entities.PhysicsEntity? entity = null)
         {
             return Game.World.GetBlock(x, y, z, out _)?.IsReplaceable == true && Place(entity, x, y, z);
         }
@@ -169,10 +169,15 @@ namespace VoxelGame.Logic
             return true;
         }
 
-        public bool Destroy(int x, int y, int z, Entities.PhysicsEntity? entity)
+        public bool Destroy(int x, int y, int z, Entities.PhysicsEntity? entity = null)
         {
             if (Game.World.GetBlock(x, y, z, out byte data) == this)
             {
+                IBlockBase block = this;
+                block.Destroy(x, y, z);
+                this.Destroy(x, y, z);
+                Destroy(x, y, z);
+
                 return Destroy(entity, x, y, z, data);
             }
             else

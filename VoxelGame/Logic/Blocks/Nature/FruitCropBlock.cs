@@ -179,7 +179,7 @@ namespace VoxelGame.Logic.Blocks
             {
                 if (!(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
                 {
-                    Destroy(x, y, z, null);
+                    Destroy(x, y, z);
                 }
             }
             else if (side == orientation.ToBlockSide() && (GrowthStage)((data >> 2) & 0b111) == GrowthStage.WithFruit)
@@ -240,19 +240,19 @@ namespace VoxelGame.Logic.Blocks
             }
             else if (stage == GrowthStage.BeforeFruit)
             {
-                if (fruit.Place(x, y, z - 1, null))
+                if (fruit.Place(x, y, z - 1))
                 {
                     Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.North, x, y, z);
                 }
-                else if (fruit.Place(x + 1, y, z, null))
+                else if (fruit.Place(x + 1, y, z))
                 {
                     Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.East, x, y, z);
                 }
-                else if (fruit.Place(x, y, z + 1, null))
+                else if (fruit.Place(x, y, z + 1))
                 {
                     Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.South, x, y, z);
                 }
-                else if (fruit.Place(x - 1, y, z, null))
+                else if (fruit.Place(x - 1, y, z))
                 {
                     Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.West, x, y, z);
                 }

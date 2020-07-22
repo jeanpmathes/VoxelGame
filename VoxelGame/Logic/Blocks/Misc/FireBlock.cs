@@ -429,7 +429,7 @@ namespace VoxelGame.Logic.Blocks
                 }
                 else
                 {
-                    Destroy(x, y, z, null);
+                    Destroy(x, y, z);
                 }
             }
         }
@@ -453,7 +453,7 @@ namespace VoxelGame.Logic.Blocks
 
             if (!canBurn)
             {
-                Destroy(x, y, z, null);
+                Destroy(x, y, z);
             }
 
             bool BurnAt(int x, int y, int z)
@@ -462,7 +462,7 @@ namespace VoxelGame.Logic.Blocks
                 {
                     if (block.Burn(x, y, z, this))
                     {
-                        Place(x, y, z, null);
+                        Place(x, y, z);
                     }
 
                     return true;
