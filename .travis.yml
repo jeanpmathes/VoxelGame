@@ -2,15 +2,33 @@ language: csharp
 os: windows
 solution: VoxelGame.sln
 mono: none
+env:
+  global:
+    # Convenience variables for shortening commands
+    - GRAVIS_REPO="https://github.com/DanySK/Gravis-CI.git"
+    - GRAVIS="$HOME/gravis"
+  matrix:
+    # List any JDK you want to build your software with.
+    # You can see the list of supported environments by installing Jabba and using ls-remote:
+    # https://github.com/shyiko/jabba#usage
+    - JDK="adopt@1.8.212-04"
+    # Partial versions are allowed. They are dynamically resoved by launching jabba ls-remote,
+    # filtering for the provided JDK string, then picking the *first* match. This is useful if
+    # the intent is to target the latest release of some Java major release, or if the latest
+    # available build differs among platforms.
+    - JDK="adopt-openj9@1.11"
+before_install:
+  # Check out the script set
+  - travis_retry git clone --depth 1 $GRAVIS_REPO $GRAVIS
+  # Install the JDK you configured in the $JDK environment variable
+  # Never use travis_retry: hides failures. travis_retry is used internally where possible.
+  - source $GRAVIS/install-jdk
 addons:
   sonarcloud:
     organization: "pershingthesecond"
     token:
       secure: "FT//XiQ1636UJhu+7tlSpe4ifbd+pLNuTSPm9kHgBnUUAWR3ZXXdKio+uDQLVfNiY7Z90ahh9bTbJfWo4Tf21t74PmMZLHswoCgQd7djRz6/I6D97spmO98scb6WVFqiPm2lZGCtyLD0ZekSUyZDmiFwPxpkTYHlW2uX2wtSJdbFE7NXFBBN/xrYfPDTa1UzBM1merq+oCiaWPLSiYWlkppG/Xvv3hVvOAjrQw056aya6sVMwR+b2eh2b2Dk/E+TF+XAu5W8G8AIpED+dI1yW5uCIkKBvGh5FJYj447LZgzDXrbhy3hH2kZvYbjrb3gvuW9y4Ajjd5DqopLgPJLwKnMMDRw3x4FxRQiuSbGdclWq/bSPFgxxCwIPsXhcxt0c+430WG09UF8INfh6QLJMOo1IwRobmCC4UzE0XX84whU5sdrAp0tC36/ynIjZ8psA3JWQUkSSQyaCyMRScY8LGe/Evzs98yP4+4tg8llQGkTR57ApxJKvhhhKrhNwxQICPwLjoRVF6sfNWq3QjYgIuqz1PpxDglmbNS3snQUr0C9OyeS9ShscWOQu0/r1FWgsGx3Q7CEq+w6+7rUXCUA7MebbFrktPuV0FE2c2P5SxPhhnzof57mzZeB8ulL1BocBGmRre1AF/GQbrS05K8YVlYKC0lKeL8FscnNo0DS2Gzg="
 script:
-  - choco install jdk8
-  - export PATH=$PATH:"/c/Program Files/Java/jdk1.8.0_191/bin"
-  - java -version
   - choco install dotnetcore-sdk
   - dotnet --version
   - dotnet restore
