@@ -23,16 +23,16 @@ class Vertex:
         self.P = round(nm.y, 4)
     
 class Quad:
-    def __init__(self, texId, verts):
-        self.TextureId = texId
+    def __init__(self, tex_id, verts):
+        self.TextureId = tex_id
         self.Vert0 = verts[0]
         self.Vert1 = verts[1]
         self.Vert2 = verts[2]
         self.Vert3 = verts[3]
         
 class Model:
-    def __init__(self, texNames, quads):
-        self.TextureNames = texNames
+    def __init__(self, tex_names, quads):
+        self.TextureNames = tex_names
         self.Quads = quads
         
 class ModelEncoder(JSONEncoder):
@@ -42,7 +42,7 @@ class ModelEncoder(JSONEncoder):
 obj = bpy.context.view_layer.objects.active
 mesh = obj.data
 
-texNames = []
+tex_names = []
 quads = []
 
 for face in mesh.polygons:
@@ -56,8 +56,8 @@ for face in mesh.polygons:
     else:
         matName = "none"
         
-    if matName not in texNames:
-        texNames.append(matName)
+    if matName not in tex_names:
+        tex_names.append(matName)
         
     verts = []
     
@@ -67,9 +67,9 @@ for face in mesh.polygons:
         norm = face.normal
         verts.append(Vertex(cord, uv, norm))
     
-    quads.append(Quad(texNames.index(matName), verts))
+    quads.append(Quad(tex_names.index(matName), verts))
 
-model = Model(texNames, quads)
+model = Model(tex_names, quads)
 json = json.dumps(model, indent=4, cls=ModelEncoder)
 
 file = open(PATH + NAME + ".json", "w+")
