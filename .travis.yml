@@ -3,7 +3,7 @@ os: windows
 solution: VoxelGame.sln
 mono: none
 git:
-  depth: false
+  depth: full
 env:
   global:
     - GRAVIS_REPO="https://github.com/DanySK/Gravis-CI.git"
