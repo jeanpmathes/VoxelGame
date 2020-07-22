@@ -89,7 +89,7 @@ namespace VoxelGame
                 // GL debug setup.
                 GL.Enable(EnableCap.DebugOutput);
 
-                DebugProc debugCallbackDelegate = new DebugProc(DebugCallback);
+                debugCallbackDelegate = new DebugProc(DebugCallback);
                 GL.DebugMessageCallback(debugCallbackDelegate, IntPtr.Zero);
 
                 // Rendering setup.
@@ -455,6 +455,9 @@ namespace VoxelGame
         #endregion MOUSE MOVE
 
         #region GL DEBUG
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Minor Code Smell", "S1450:Private fields only used as local variables in methods should become local variables", Justification = "Has to be field to prevent GC collection.")]
+        private DebugProc debugCallbackDelegate = null!;
 
         private void DebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
         {

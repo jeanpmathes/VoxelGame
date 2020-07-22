@@ -367,7 +367,7 @@
     </EmbeddedResource>
     <EmbeddedResource Update="Resources\Language\Language.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
-      <StronglyTypedFileName>$(IntermediateOutputPath)\Language.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedFileName>Resources\Language\Language.Designer.cs</StronglyTypedFileName>
       <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
       <StronglyTypedNamespace>VoxelGame.Resources.Language</StronglyTypedNamespace>
       <StronglyTypedClassName>Language</StronglyTypedClassName>
