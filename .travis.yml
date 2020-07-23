@@ -16,8 +16,8 @@ before_install:
   - choco install dotnetcore-sdk
   - dotnet --version
   - dotnet tool install -g dotnet-sonarscanner
-  - cd
-  - dir C:\Users\travis\.dotnet\tools
+  - Get-Location
+  - Get-ChildItem C:\Users\travis\.dotnet\tools
   - export PATH=$PATH:"/c:/Users/travis/.dotnet/tools" 
   - cmd.exe //c "RefreshEnv.cmd"
   - echo $PATH
