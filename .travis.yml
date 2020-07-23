@@ -15,9 +15,9 @@ before_install:
   - source $GRAVIS/install-jdk
   - choco install dotnetcore-sdk
   - dotnet --version
+  - echo $PATH
   - dotnet tool install -g dotnet-sonarscanner
-  - Get-Location
-  - Get-ChildItem C:\Users\travis\.dotnet\tools
+  - echo $PATH
   - export PATH=$PATH:"/c:/Users/travis/.dotnet/tools" 
   - cmd.exe //c "RefreshEnv.cmd"
   - echo $PATH
