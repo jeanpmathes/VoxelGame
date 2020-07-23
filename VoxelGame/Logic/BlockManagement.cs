@@ -44,7 +44,7 @@ namespace VoxelGame.Logic
         public static readonly Block FLOWER = new CrossPlantBlock(Language.Flower, nameof(FLOWER), "flower", true, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
         public static readonly Block TALL_FLOWER = new DoubleCrossPlantBlock(Language.TallFlower, nameof(TALL_FLOWER), "tall_flower", 1, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
         public static readonly Block SPIDERWEB = new SpiderWebBlock(Language.SpiderWeb, nameof(SPIDERWEB), "spider_web", 0.01f);
-        public static readonly Block CAVEPAINTING = new OrientedBlock(Language.CavePainting, nameof(CAVEPAINTING), TextureLayout.UnqiueFront("stone_cavepainting", "stone"));
+        public static readonly Block STONE_FACE = new OrientedBlock(Language.StoneFace, nameof(STONE_FACE), TextureLayout.UnqiueFront("stone_worked_face", "stone_worked"));
         public static readonly Block LADDER = new FlatBlock(Language.Ladder, nameof(LADDER), "ladder", 3f, 1f);
         public static readonly Block VINES = new GrowingFlatBlock(Language.Vines, nameof(VINES), "vines", 2f, 1f);
         public static readonly Block FENCE_WOOD = new FenceBlock(Language.WoodenFence, nameof(FENCE_WOOD), "wood", "fence_post", "fence_extension");
@@ -77,6 +77,8 @@ namespace VoxelGame.Logic
         public static readonly Block FIRE = new FireBlock(Language.Fire, nameof(FIRE), "fire");
         public static readonly Block GRASS_BURNED = new CoveredDirtBlock(Language.AshCoveredDirt, nameof(GRASS_BURNED), TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"), false);
         public static readonly Block PULSATING = new TintedBlock(Language.PulsatingBlock, nameof(PULSATING), TextureLayout.Uniform("pulsating"), isAnimated: true);
+        public static readonly Block STONE_WORKED = new BasicBlock(Language.WorkedStone, nameof(STONE_WORKED), TextureLayout.Uniform("stone_worked"));
+        public static readonly Block ETERNAL_FLAME = new EternalFlame(Language.EternalFlame, nameof(ETERNAL_FLAME), TextureLayout.Uniform("eternal_flame"));
 
         /// <summary>
         /// Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.

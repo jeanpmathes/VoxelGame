@@ -144,10 +144,10 @@ namespace VoxelGame.Entities
             Raycast.CastWorld(ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
 
             // Do input handling.
-            if (Game.instance.IsFocused)
+            if (Game.Instance.IsFocused)
             {
-                KeyboardState input = Game.instance.KeyboardState;
-                MouseState mouse = Game.instance.MouseState;
+                KeyboardState input = Game.Instance.KeyboardState;
+                MouseState mouse = Game.Instance.MouseState;
 
                 MovementInput(input);
                 MouseChange();
@@ -170,7 +170,7 @@ namespace VoxelGame.Entities
 
         private void MovementInput(KeyboardState input)
         {
-            Vector3 movement = new Vector3();
+            movement = new Vector3();
 
             if (input.IsKeyDown(Key.W))
                 movement += Forward; // Forward
@@ -196,7 +196,6 @@ namespace VoxelGame.Entities
                 }
             }
 
-            this.movement = movement;
             Move(movement, maxForce);
 
             if (input.IsKeyDown(Key.Space) && IsGrounded) // Jump

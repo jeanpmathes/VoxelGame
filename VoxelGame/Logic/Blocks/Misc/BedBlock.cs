@@ -55,9 +55,9 @@ namespace VoxelGame.Logic.Blocks
 
         protected override void Setup()
         {
-            BlockModel model = BlockModel.Load(this.model);
+            BlockModel blockModel = BlockModel.Load(this.model);
 
-            model.PlaneSplit(Vector3.UnitZ, Vector3.UnitZ, out BlockModel top, out BlockModel bottom);
+            blockModel.PlaneSplit(Vector3.UnitZ, Vector3.UnitZ, out BlockModel top, out BlockModel bottom);
             bottom.Move(-Vector3.UnitZ);
 
             vertexCountHead = (uint)top.VertexCount;
@@ -168,8 +168,8 @@ namespace VoxelGame.Logic.Blocks
                         return false;
                     }
 
-                    Game.World.SetBlock(this, (byte)(((int)Orientation.North << 1) | 0), x, y, z);
-                    Game.World.SetBlock(this, (byte)(((int)Orientation.North << 1) | 1), x, y, z - 1);
+                    Game.World.SetBlock(this, (int)Orientation.North << 1, x, y, z);
+                    Game.World.SetBlock(this, ((int)Orientation.North << 1) | 1, x, y, z - 1);
 
                     Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
 
@@ -182,8 +182,8 @@ namespace VoxelGame.Logic.Blocks
                         return false;
                     }
 
-                    Game.World.SetBlock(this, (byte)(((int)Orientation.East << 1) | 0), x, y, z);
-                    Game.World.SetBlock(this, (byte)(((int)Orientation.East << 1) | 1), x + 1, y, z);
+                    Game.World.SetBlock(this, (int)Orientation.East << 1, x, y, z);
+                    Game.World.SetBlock(this, ((int)Orientation.East << 1) | 1, x + 1, y, z);
 
                     Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
 
@@ -196,8 +196,8 @@ namespace VoxelGame.Logic.Blocks
                         return false;
                     }
 
-                    Game.World.SetBlock(this, (byte)(((int)Orientation.South << 1) | 0), x, y, z);
-                    Game.World.SetBlock(this, (byte)(((int)Orientation.South << 1) | 1), x, y, z + 1);
+                    Game.World.SetBlock(this, (int)Orientation.South << 1, x, y, z);
+                    Game.World.SetBlock(this, ((int)Orientation.South << 1) | 1, x, y, z + 1);
 
                     Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
 
@@ -210,8 +210,8 @@ namespace VoxelGame.Logic.Blocks
                         return false;
                     }
 
-                    Game.World.SetBlock(this, (byte)(((int)Orientation.West << 1) | 0), x, y, z);
-                    Game.World.SetBlock(this, (byte)(((int)Orientation.West << 1) | 1), x - 1, y, z);
+                    Game.World.SetBlock(this, (int)Orientation.West << 1, x, y, z);
+                    Game.World.SetBlock(this, ((int)Orientation.West << 1) | 1, x - 1, y, z);
 
                     Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
 
@@ -231,7 +231,10 @@ namespace VoxelGame.Logic.Blocks
                 case Orientation.North:
 
                     isHead = !isHead;
-                    goto case Orientation.South;
+
+                    Game.World.SetBlock(Block.AIR, 0, x, y, z);
+                    Game.World.SetBlock(Block.AIR, 0, x, y, z - (isHead ? 1 : -1));
+                    return true;
 
                 case Orientation.East:
 
@@ -248,7 +251,10 @@ namespace VoxelGame.Logic.Blocks
                 case Orientation.West:
 
                     isHead = !isHead;
-                    goto case Orientation.East;
+
+                    Game.World.SetBlock(Block.AIR, 0, x, y, z);
+                    Game.World.SetBlock(Block.AIR, 0, x - (isHead ? 1 : -1), y, z);
+                    return true;
 
                 default:
                     return false;
@@ -264,7 +270,10 @@ namespace VoxelGame.Logic.Blocks
                 case Orientation.North:
 
                     isHead = !isHead;
-                    goto case Orientation.South;
+
+                    Game.World.SetBlock(this, (byte)(data + 0b0_1000 & 0b1_1111), x, y, z);
+                    Game.World.SetBlock(this, (byte)((data + 0b0_1000 & 0b1_1111) ^ 0b0_0001), x, y, z - (isHead ? 1 : -1));
+                    break;
 
                 case Orientation.East:
 
@@ -281,7 +290,10 @@ namespace VoxelGame.Logic.Blocks
                 case Orientation.West:
 
                     isHead = !isHead;
-                    goto case Orientation.East;
+
+                    Game.World.SetBlock(this, (byte)(data + 0b0_1000 & 0b1_1111), x, y, z);
+                    Game.World.SetBlock(this, (byte)((data + 0b0_1000 & 0b1_1111) ^ 0b0_0001), x - (isHead ? 1 : -1), y, z);
+                    break;
             }
         }
 
@@ -289,7 +301,7 @@ namespace VoxelGame.Logic.Blocks
         {
             if (side == BlockSide.Bottom && Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
             {
-                Destroy(x, y, z, null);
+                Destroy(x, y, z);
             }
         }
     }

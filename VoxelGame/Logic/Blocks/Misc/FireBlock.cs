@@ -360,7 +360,7 @@ namespace VoxelGame.Logic.Blocks
                     if ((data & 0b1_0000) != 0 && Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull != true)
                     {
                         data ^= 0b1_0000;
-                        SetData();
+                        SetData(data);
                     }
 
                     break;
@@ -370,7 +370,7 @@ namespace VoxelGame.Logic.Blocks
                     if ((data & 0b0_1000) != 0 && Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull != true)
                     {
                         data ^= 0b0_1000;
-                        SetData();
+                        SetData(data);
                     }
 
                     break;
@@ -380,7 +380,7 @@ namespace VoxelGame.Logic.Blocks
                     if ((data & 0b0_0100) != 0 && Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull != true)
                     {
                         data ^= 0b0_0100;
-                        SetData();
+                        SetData(data);
                     }
 
                     break;
@@ -390,7 +390,7 @@ namespace VoxelGame.Logic.Blocks
                     if ((data & 0b0_0010) != 0 && Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull != true)
                     {
                         data ^= 0b0_0010;
-                        SetData();
+                        SetData(data);
                     }
 
                     break;
@@ -400,7 +400,7 @@ namespace VoxelGame.Logic.Blocks
                     if ((data & 0b0_0001) != 0 && Game.World.GetBlock(x, y + 1, z, out _)?.IsSolidAndFull != true)
                     {
                         data ^= 0b0_0001;
-                        SetData();
+                        SetData(data);
                     }
 
                     break;
@@ -415,13 +415,13 @@ namespace VoxelGame.Logic.Blocks
                         if (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b0_0010; // West.
                         if (Game.World.GetBlock(x, y + 1, z, out _)?.IsSolidAndFull == true) data |= 0b0_0001; // Top.
 
-                        SetData();
+                        SetData(data);
                     }
 
                     break;
             }
 
-            void SetData()
+            void SetData(byte data)
             {
                 if (data != 0)
                 {
@@ -429,43 +429,47 @@ namespace VoxelGame.Logic.Blocks
                 }
                 else
                 {
-                    Destroy(x, y, z, null);
+                    Destroy(x, y, z);
                 }
             }
         }
 
         internal override void RandomUpdate(int x, int y, int z, byte data)
         {
+            bool canBurn = false;
+
             if (data == 0)
             {
-                BurnAt(x, y - 1, z); // Bottom.
+                canBurn = BurnAt(x, y - 1, z); // Bottom.
 
                 data = 0b1_1111;
             }
 
-            bool hasFlammable = false;
+            if ((data & 0b1_0000) != 0) canBurn = BurnAt(x, y, z - 1); // North.
+            if ((data & 0b0_1000) != 0) canBurn = BurnAt(x + 1, y, z); // East.
+            if ((data & 0b0_0100) != 0) canBurn = BurnAt(x, y, z + 1); // South.
+            if ((data & 0b0_0010) != 0) canBurn = BurnAt(x - 1, y, z); // West.
+            if ((data & 0b0_0001) != 0) canBurn = BurnAt(x, y + 1, z); // Top.
 
-            if ((data & 0b1_0000) != 0) BurnAt(x, y, z - 1); // North.
-            if ((data & 0b0_1000) != 0) BurnAt(x + 1, y, z); // East.
-            if ((data & 0b0_0100) != 0) BurnAt(x, y, z + 1); // South.
-            if ((data & 0b0_0010) != 0) BurnAt(x - 1, y, z); // West.
-            if ((data & 0b0_0001) != 0) BurnAt(x, y + 1, z); // Top.
-
-            if (!hasFlammable)
+            if (!canBurn)
             {
-                Destroy(x, y, z, null);
+                Destroy(x, y, z);
             }
 
-            void BurnAt(int x, int y, int z)
+            bool BurnAt(int x, int y, int z)
             {
                 if (Game.World.GetBlock(x, y, z, out _) is IFlammable block)
                 {
-                    hasFlammable = true;
-
                     if (block.Burn(x, y, z, this))
                     {
-                        Place(x, y, z, null);
+                        Place(x, y, z);
                     }
+
+                    return true;
+                }
+                else
+                {
+                    return false;
                 }
             }
         }

@@ -29,18 +29,6 @@ namespace VoxelGame.Physics
             }
         }
 
-        public override bool Equals(object? obj)
-        {
-            if (obj is Ray ray)
-            {
-                return Equals(other: ray);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         public override int GetHashCode()
         {
             return HashCode.Combine(Origin.GetHashCode(), Direction.GetHashCode());
@@ -54,6 +42,18 @@ namespace VoxelGame.Physics
         public static bool operator !=(Ray left, Ray right)
         {
             return !(left == right);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is Ray ray)
+            {
+                return Equals(other: ray);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public bool Equals(Ray other)

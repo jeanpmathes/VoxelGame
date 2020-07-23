@@ -8,7 +8,8 @@ using VoxelGame.Logic.Interfaces;
 namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
-    /// A simple block which allows the spread of grass
+    /// A simple block which allows the spread of grass.
+    /// Data bit usage: <c>-----</c>
     /// </summary>
     public class DirtBlock : BasicBlock, IPlantable
     {

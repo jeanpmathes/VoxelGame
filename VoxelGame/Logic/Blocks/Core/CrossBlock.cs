@@ -18,6 +18,7 @@ namespace VoxelGame.Logic.Blocks
 
         /// <summary>
         /// Initializes a new instance of a cross block; a block made out of two intersecting planes.
+        /// Data bit usage: <c>-----</c>
         /// </summary>
         /// <param name="name">The name of this block and the texture file.</param>
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
@@ -45,16 +46,16 @@ namespace VoxelGame.Logic.Blocks
             vertices = new float[]
             {
                 // Two sides: /
-                0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f,
-                0f, 1f, 1f, 0f, 1f, 0f, 0f, 0f,
-                1f, 1f, 0f, 1f, 1f, 0f, 0f, 0f,
-                1f, 0f, 0f, 1f, 0f, 0f, 0f, 0f,
+                0.145f, 0f, 0.855f, 0f, 0f, 0f, 0f, 0f,
+                0.145f, 1f, 0.855f, 0f, 1f, 0f, 0f, 0f,
+                0.855f, 1f, 0.145f, 1f, 1f, 0f, 0f, 0f,
+                0.855f, 0f, 0.145f, 1f, 0f, 0f, 0f, 0f,
 
                 // Two sides: \
-                0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
-                0f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
-                1f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
-                1f, 0f, 1f, 1f, 0f, 0f, 0f, 0f
+                0.145f, 0f, 0.145f, 0f, 0f, 0f, 0f, 0f,
+                0.145f, 1f, 0.145f, 0f, 1f, 0f, 0f, 0f,
+                0.855f, 1f, 0.855f, 1f, 1f, 0f, 0f, 0f,
+                0.855f, 0f, 0.855f, 1f, 0f, 0f, 0f, 0f
             };
 
             indices = new uint[]

@@ -110,7 +110,6 @@ namespace VoxelGame.Entities
         {
             IsGrounded = false;
 
-            //force -= Velocity.Sign() * Drag * Velocity.LengthSquared * deltaTime;
             force -= Velocity.Sign() * (Velocity * Velocity) * Drag;
             Velocity += force / Mass * deltaTime;
 

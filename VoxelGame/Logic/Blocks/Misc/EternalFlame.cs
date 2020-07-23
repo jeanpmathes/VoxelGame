@@ -1,19 +1,19 @@
-﻿// <copyright file="ConstructionBlock.cs" company="VoxelGame">
+﻿// <copyright file="EternalFlame.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
 using VoxelGame.Logic.Interfaces;
 
-namespace VoxelGame.Logic.Blocks
+namespace VoxelGame.Logic.Blocks.Misc
 {
     /// <summary>
-    ///Blocks that are used in constructing structures.
-    ///Data bit usage: <c>-----</c>
+    /// A block that does not stop burning.
+    /// Data bit usage: <c>-----</c>
     /// </summary>
-    public class ConstructionBlock : BasicBlock, IConnectable
+    public class EternalFlame : BasicBlock, IFlammable
     {
-        public ConstructionBlock(string name, string namedId, TextureLayout layout) :
+        public EternalFlame(string name, string namedId, TextureLayout layout) :
             base(
                 name,
                 namedId,
@@ -23,6 +23,11 @@ namespace VoxelGame.Logic.Blocks
                 isSolid: true,
                 isInteractable: false)
         {
+        }
+
+        public virtual bool Burn(int x, int y, int z, Block fire)
+        {
+            return false;
         }
     }
 }

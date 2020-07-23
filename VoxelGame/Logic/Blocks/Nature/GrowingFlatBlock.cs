@@ -39,7 +39,7 @@ namespace VoxelGame.Logic.Blocks
             Orientation orientation = (Orientation)(data & 0b0_0011);
 
             // If another block of this type is above, no solid block is required to hold.
-            if ((Block)(Game.World.GetBlock(x, y + 1, z, out byte dataAbove) ?? Block.AIR) == this && orientation == (Orientation)(dataAbove & 0b0_0011))
+            if ((Game.World.GetBlock(x, y + 1, z, out byte dataAbove) ?? Block.AIR) == this && orientation == (Orientation)(dataAbove & 0b0_0011))
             {
                 return;
             }
@@ -54,7 +54,7 @@ namespace VoxelGame.Logic.Blocks
 
                     if (orientation == Orientation.North && (Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull != true))
                     {
-                        Destroy(x, y, z, null);
+                        Destroy(x, y, z);
                     }
 
                     break;
@@ -63,7 +63,7 @@ namespace VoxelGame.Logic.Blocks
 
                     if (orientation == Orientation.South && (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull != true))
                     {
-                        Destroy(x, y, z, null);
+                        Destroy(x, y, z);
                     }
 
                     break;
@@ -72,7 +72,7 @@ namespace VoxelGame.Logic.Blocks
 
                     if (orientation == Orientation.East && (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull != true))
                     {
-                        Destroy(x, y, z, null);
+                        Destroy(x, y, z);
                     }
 
                     break;
@@ -81,7 +81,7 @@ namespace VoxelGame.Logic.Blocks
 
                     if (orientation == Orientation.West && (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull != true))
                     {
-                        Destroy(x, y, z, null);
+                        Destroy(x, y, z);
                     }
 
                     break;

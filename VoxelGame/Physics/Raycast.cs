@@ -29,7 +29,6 @@ namespace VoxelGame.Physics
              */
 
             // Calculate the direction of the ray with length
-            //Vector3 direction = ray.Direction * ray.Length;
             Vector3 direction = ray.Direction;
 
             // Get the origin position in world coordinates.
@@ -65,20 +64,17 @@ namespace VoxelGame.Physics
             // Check the current block.
             Block? currentBlock = Game.World.GetBlock(x, y, z, out _);
 
-            if (currentBlock != null && currentBlock != Block.AIR)
+            // Check if the ray intersects the bounding box of the block.
+            if (currentBlock != null && currentBlock != Block.AIR && currentBlock.GetBoundingBox(x, y, z).Intersects(ray))
             {
-                // Check if the ray intersects the bounding box of the block.
-                if (currentBlock.GetBoundingBox(x, y, z).Intersects(ray))
-                {
-                    hitX = x;
-                    hitY = y;
-                    hitZ = z;
+                hitX = x;
+                hitY = y;
+                hitZ = z;
 
-                    // As the ray starts in this voxel, no side is selected.
-                    side = BlockSide.All;
+                // As the ray starts in this voxel, no side is selected.
+                side = BlockSide.All;
 
-                    return true;
-                }
+                return true;
             }
 
             while (!(x == endX && y == endY && z == endZ))
@@ -121,17 +117,14 @@ namespace VoxelGame.Physics
                 //Check the current block
                 currentBlock = Game.World.GetBlock(x, y, z, out _);
 
-                if (currentBlock != null && currentBlock != Block.AIR)
+                // Check if the ray intersects the bounding box of the block
+                if (currentBlock != null && currentBlock != Block.AIR && currentBlock.GetBoundingBox(x, y, z).Intersects(ray))
                 {
-                    // Check if the ray intersects the bounding box of the block
-                    if (currentBlock.GetBoundingBox(x, y, z).Intersects(ray))
-                    {
-                        hitX = x;
-                        hitY = y;
-                        hitZ = z;
+                    hitX = x;
+                    hitY = y;
+                    hitZ = z;
 
-                        return true;
-                    }
+                    return true;
                 }
             }
 

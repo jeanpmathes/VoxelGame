@@ -109,18 +109,6 @@ namespace VoxelGame.Logic
             return new TextureLayout(restIndex, restIndex, restIndex, restIndex, restIndex, topIndex);
         }
 
-        public override bool Equals(object? obj)
-        {
-            if (obj is TextureLayout other)
-            {
-                return Equals(other: other);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         public override int GetHashCode()
         {
             return HashCode.Combine(Front, Back, Left, Right, Bottom, Top);
@@ -134,6 +122,18 @@ namespace VoxelGame.Logic
         public static bool operator !=(TextureLayout left, TextureLayout right)
         {
             return !(left == right);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is TextureLayout other)
+            {
+                return Equals(other: other);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public bool Equals(TextureLayout other)

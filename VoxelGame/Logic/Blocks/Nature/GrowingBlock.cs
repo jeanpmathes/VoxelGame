@@ -56,7 +56,7 @@ namespace VoxelGame.Logic.Blocks
 
                 if (below != requiredGround && below != this)
                 {
-                    Destroy(x, y, z, null);
+                    Destroy(x, y, z);
                 }
             }
         }
@@ -88,7 +88,7 @@ namespace VoxelGame.Logic.Blocks
 
                     if (height < maxHeight)
                     {
-                        Place(x, y + 1, z, null);
+                        Place(x, y + 1, z);
                     }
                 }
             }

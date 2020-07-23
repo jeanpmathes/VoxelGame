@@ -218,7 +218,7 @@ namespace VoxelGame.Logic.Blocks
 
                     if (orientation == Orientation.North && (Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull != true))
                     {
-                        Destroy(x, y, z, null);
+                        Destroy(x, y, z);
                     }
 
                     break;
@@ -227,7 +227,7 @@ namespace VoxelGame.Logic.Blocks
 
                     if (orientation == Orientation.South && (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull != true))
                     {
-                        Destroy(x, y, z, null);
+                        Destroy(x, y, z);
                     }
 
                     break;
@@ -236,7 +236,7 @@ namespace VoxelGame.Logic.Blocks
 
                     if (orientation == Orientation.East && (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull != true))
                     {
-                        Destroy(x, y, z, null);
+                        Destroy(x, y, z);
                     }
 
                     break;
@@ -245,7 +245,7 @@ namespace VoxelGame.Logic.Blocks
 
                     if (orientation == Orientation.West && (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull != true))
                     {
-                        Destroy(x, y, z, null);
+                        Destroy(x, y, z);
                     }
 
                     break;

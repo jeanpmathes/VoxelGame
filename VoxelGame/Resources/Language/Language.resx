@@ -141,9 +141,6 @@
   <data name="Carpet" xml:space="preserve">
     <value>Carpet</value>
   </data>
-  <data name="CavePainting" xml:space="preserve">
-    <value>Cave Painting</value>
-  </data>
   <data name="CheckerboardTilesBlack" xml:space="preserve">
     <value>Black Checkerboard Tiles</value>
   </data>
@@ -167,6 +164,9 @@
   </data>
   <data name="EnterNameOfWorld" xml:space="preserve">
     <value>Enter the name of the world to create:</value>
+  </data>
+  <data name="EternalFlame" xml:space="preserve">
+    <value>Eternal Flame</value>
   </data>
   <data name="Farmland" xml:space="preserve">
     <value>Farmland</value>
@@ -276,6 +276,9 @@
   <data name="Stone" xml:space="preserve">
     <value>Stone</value>
   </data>
+  <data name="StoneFace" xml:space="preserve">
+    <value>Stone Face</value>
+  </data>
   <data name="TallFlower" xml:space="preserve">
     <value>Tall Flower</value>
   </data>
@@ -314,6 +317,9 @@
   </data>
   <data name="Wool" xml:space="preserve">
     <value>Wool</value>
+  </data>
+  <data name="WorkedStone" xml:space="preserve">
+    <value>Worked Stone</value>
   </data>
   <data name="WorldNotFound" xml:space="preserve">
     <value>World not found!</value>

@@ -3,7 +3,6 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenToolkit.Graphics.OpenGL;
 using OpenToolkit.Mathematics;
 using System;
 

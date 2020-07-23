@@ -162,81 +162,6 @@ namespace VoxelGame.Physics
             }
         }
 
-        private bool Intersects_OneWithAll(BoundingBox one, ref bool x, ref bool y, ref bool z)
-        {
-            bool intersects = false;
-
-            if (Intersects_NonRecursive(one, ref x, ref y, ref z))
-                intersects = true;
-
-            for (int i = 0; i < ChildCount; i++)
-            {
-                if (children[i].Intersects_OneWithAll(one, ref x, ref y, ref z))
-                    intersects = true;
-            }
-
-            return intersects;
-        }
-
-        /// <summary>
-        /// Checks if this <see cref="BoundingBox"/> intersects with the given <see cref="BoundingBox"/> and sets the collision planes.
-        /// </summary>
-        public bool Intersects(BoundingBox other, ref bool x, ref bool y, ref bool z)
-        {
-            bool intersects = false;
-
-            if (other.Intersects_OneWithAll(this, ref x, ref y, ref z))
-                intersects = true;
-
-            for (int i = 0; i < ChildCount; i++)
-            {
-                if (children[i].Intersects(other))
-                    intersects = true;
-            }
-
-            return intersects;
-        }
-
-        private bool Intersects_OneWithAll(BoundingBox one)
-        {
-            if (this.Min.X <= one.Max.X && this.Max.X >= one.Min.X &&
-                this.Min.Y <= one.Max.Y && this.Max.Y >= one.Min.Y &&
-                this.Min.Z <= one.Max.Z && this.Max.Z >= one.Min.Z)
-            {
-                return true;
-            }
-
-            for (int i = 0; i < ChildCount; i++)
-            {
-                if (children[i].Intersects_OneWithAll(one))
-                    return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Checks if this <see cref="BoundingBox"/> or one of its children intersects with the given <see cref="BoundingBox"/> or its children.
-        /// </summary>
-        public bool Intersects(BoundingBox other)
-        {
-            if (other.Intersects_OneWithAll(this))
-                return true;
-
-            for (int i = 0; i < ChildCount; i++)
-            {
-                if (children[i].Intersects(other))
-                    return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Checks if a ray intersects this bounding box. The length of the ray is not used in the calculations.
-        /// </summary>
-        /// <param name="ray">The ray to check.</param>
-        /// <returns>Returns true if the ray with an assumed infinite length intersect the bounding box.</returns>
         private bool Intersects_NonRecursive(Ray ray)
         {
             if (Contains(ray.Origin) || Contains(ray.EndPoint))
@@ -269,6 +194,76 @@ namespace VoxelGame.Physics
             }
 
             return tmin <= tmax;
+        }
+
+        private bool Intersects_OneWithAll(BoundingBox one, ref bool x, ref bool y, ref bool z)
+        {
+            bool intersects = false;
+
+            if (Intersects_NonRecursive(one, ref x, ref y, ref z))
+                intersects = true;
+
+            for (int i = 0; i < ChildCount; i++)
+            {
+                if (children[i].Intersects_OneWithAll(one, ref x, ref y, ref z))
+                    intersects = true;
+            }
+
+            return intersects;
+        }
+
+        private bool Intersects_OneWithAll(BoundingBox one)
+        {
+            if (this.Min.X <= one.Max.X && this.Max.X >= one.Min.X &&
+                this.Min.Y <= one.Max.Y && this.Max.Y >= one.Min.Y &&
+                this.Min.Z <= one.Max.Z && this.Max.Z >= one.Min.Z)
+            {
+                return true;
+            }
+
+            for (int i = 0; i < ChildCount; i++)
+            {
+                if (children[i].Intersects_OneWithAll(one))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if this <see cref="BoundingBox"/> intersects with the given <see cref="BoundingBox"/> and sets the collision planes.
+        /// </summary>
+        public bool Intersects(BoundingBox other, ref bool x, ref bool y, ref bool z)
+        {
+            bool intersects = false;
+
+            if (other.Intersects_OneWithAll(this, ref x, ref y, ref z))
+                intersects = true;
+
+            for (int i = 0; i < ChildCount; i++)
+            {
+                if (children[i].Intersects(other))
+                    intersects = true;
+            }
+
+            return intersects;
+        }
+
+        /// <summary>
+        /// Checks if this <see cref="BoundingBox"/> or one of its children intersects with the given <see cref="BoundingBox"/> or its children.
+        /// </summary>
+        public bool Intersects(BoundingBox other)
+        {
+            if (other.Intersects_OneWithAll(this))
+                return true;
+
+            for (int i = 0; i < ChildCount; i++)
+            {
+                if (children[i].Intersects(other))
+                    return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -413,14 +408,14 @@ namespace VoxelGame.Physics
             }
         }
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Center.GetHashCode(), Extents.GetHashCode());
-        }
-
         public bool Equals(BoundingBox other)
         {
             return (this.Extents == other.Extents) && (this.Center == other.Center) && children.Equals(other.children);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Center.GetHashCode(), Extents.GetHashCode());
         }
     }
 }

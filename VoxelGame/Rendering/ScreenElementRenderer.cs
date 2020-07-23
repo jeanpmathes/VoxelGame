@@ -93,7 +93,7 @@ namespace VoxelGame.Rendering
                 return;
             }
 
-            Vector2 screenSize = Game.instance.Size.ToVector2();
+            Vector2 screenSize = Game.Instance.Size.ToVector2();
             Vector3 scale = new Vector3(position.Z, position.Z, 1f) * screenSize.Length;
             Vector3 translate = new Vector3((position.Xy - new Vector2(0.5f, 0.5f)) * screenSize);
 

@@ -141,9 +141,6 @@
   <data name="Carpet" xml:space="preserve">
     <value>Teppich</value>
   </data>
-  <data name="CavePainting" xml:space="preserve">
-    <value>Höhlenmalerei</value>
-  </data>
   <data name="CheckerboardTilesBlack" xml:space="preserve">
     <value>Schwarze Schachbrettfliesen</value>
   </data>
@@ -167,6 +164,9 @@
   </data>
   <data name="EnterNameOfWorld" xml:space="preserve">
     <value>Geben sie den Namen der neuen Welt ein: </value>
+  </data>
+  <data name="EternalFlame" xml:space="preserve">
+    <value>Ewiges Feuer</value>
   </data>
   <data name="Farmland" xml:space="preserve">
     <value>Ackerboden</value>
@@ -276,6 +276,9 @@
   <data name="Stone" xml:space="preserve">
     <value>Stein</value>
   </data>
+  <data name="StoneFace" xml:space="preserve">
+    <value>Steinernes Gesicht</value>
+  </data>
   <data name="TallFlower" xml:space="preserve">
     <value>Hohe Blume</value>
   </data>
@@ -314,6 +317,9 @@
   </data>
   <data name="Wool" xml:space="preserve">
     <value>Wolle</value>
+  </data>
+  <data name="WorkedStone" xml:space="preserve">
+    <value>Bearbeiteter Stein</value>
   </data>
   <data name="WorldNotFound" xml:space="preserve">
     <value>Welt wurde nicht gefunden!</value>
