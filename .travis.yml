@@ -29,4 +29,3 @@ script:
   - c:/Users/travis/.dotnet/tools/dotnet-sonarscanner.exe begin -o:pershingthesecond -k:pershingthesecond_VoxelGame
   - dotnet build VoxelGame.sln
   - c:/Users/travis/.dotnet/tools/dotnet-sonarscanner.exe end
-  - sonar-scanner
