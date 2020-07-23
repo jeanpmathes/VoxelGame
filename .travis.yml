@@ -16,8 +16,9 @@ before_install:
   - choco install dotnetcore-sdk
   - dotnet --version
   - dotnet tool install --global dotnet-sonarscanner
-  - export PATH=$HOME/.dotnet/tools:$PATH
+  - $env:Path += ";$HOME/.dotnet/tools"
   - cmd.exe //c "RefreshEnv.cmd"
+  - echo $PATH
 addons:
   sonarcloud:
     organization: "pershingthesecond"
