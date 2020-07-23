@@ -20,7 +20,7 @@ before_install:
   - dotnet tool install -g dotnet-sonarscanner
   - cmd.exe //c "RefreshEnv.cmd"
   - dotnet tool list -g
-  - dotnet tool restore -g dotnet-sonarscanner
+  - dir c:/Users/travis/.dotnet/tools
 addons:
   sonarcloud:
     organization: "pershingthesecond"
