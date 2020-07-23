@@ -18,7 +18,6 @@ using VoxelGame.Entities;
 using VoxelGame.Logic;
 using VoxelGame.Rendering;
 using VoxelGame.Resources.Language;
-using VoxelGame.Utilities;
 
 namespace VoxelGame
 {
@@ -49,15 +48,9 @@ namespace VoxelGame
 
         #endregion STATIC PROPERTIES
 
-        public float AspectRatio { get => Size.X / (float)Size.Y; }
-
-        private int samples;
-
-        private int mstex;
-        private int fbo;
-        private int rbo;
-
         private readonly string appDataFolder;
+
+        private Screen screen = null!;
 
         private bool wireframeMode = false;
         private bool hasReleasesWireframeKey = true;
@@ -84,7 +77,7 @@ namespace VoxelGame
 
         new protected void OnLoad()
         {
-            using (logger.BeginScope("Window Load"))
+            using (logger.BeginScope("Game OnLoad"))
             {
                 // GL debug setup.
                 GL.Enable(EnableCap.DebugOutput);
@@ -92,35 +85,8 @@ namespace VoxelGame
                 debugCallbackDelegate = new DebugProc(DebugCallback);
                 GL.DebugMessageCallback(debugCallbackDelegate, IntPtr.Zero);
 
-                // Rendering setup.
-                samples = Config.GetInt("sampleCount", min: 1, max: GL.GetInteger(GetPName.MaxSamples));
-                logger.LogDebug("Sample count: {samples}", samples);
-
-                GL.ClearColor(0.5f, 0.8f, 0.9f, 1.0f);
-                GL.Enable(EnableCap.DepthTest);
-                GL.Enable(EnableCap.CullFace);
-                GL.Enable(EnableCap.Multisample);
-
-                mstex = GL.GenTexture();
-                GL.BindTexture(TextureTarget.Texture2DMultisample, mstex);
-                GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, samples, PixelInternalFormat.Rgba8, Size.X, Size.Y, true);
-                GL.BindTexture(TextureTarget.Texture2DMultisample, 0);
-
-                fbo = GL.GenFramebuffer();
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
-                GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2DMultisample, mstex, 0);
-
-                while (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
-                {
-                    logger.LogWarning("Framebuffer not complete, waiting...");
-                    Thread.Sleep(100);
-                }
-
-                rbo = GL.GenRenderbuffer();
-                GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
-                GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
-                GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
-                GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, rbo);
+                // Screen setup.
+                screen = new Screen();
 
                 // Texture setup.
                 BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2);
@@ -310,15 +276,11 @@ namespace VoxelGame
                 SimpleSectionShader.SetFloat("time", (float)Time);
                 ComplexSectionShader.SetFloat("time", (float)Time);
 
-                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, fbo);
-                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                screen.Clear();
 
                 World.FrameRender();
 
-                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
-                GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, fbo);
-                GL.DrawBuffer(DrawBufferMode.Back);
-                GL.BlitFramebuffer(0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
+                screen.Draw();
 
                 SwapBuffers();
             }
@@ -374,18 +336,11 @@ namespace VoxelGame
 
         new protected void OnResize(ResizeEventArgs e)
         {
-            logger.LogDebug("Window has been resized to: {size}", e.Size);
+            screen.Resize();
 
-            GL.Viewport(0, 0, Size.X, Size.Y);
             ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
 
-            GL.BindTexture(TextureTarget.Texture2DMultisample, mstex);
-            GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, samples, PixelInternalFormat.Rgba8, Size.X, Size.Y, true);
-            GL.BindTexture(TextureTarget.Texture2DMultisample, 0);
-
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
-            GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
+            logger.LogDebug("Window has been resized to: {size}", e.Size);
         }
 
         new protected void OnClosed()
