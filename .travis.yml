@@ -1,0 +1,31 @@
+language: csharp
+os: windows
+solution: VoxelGame.sln
+mono: none
+git:
+  depth: false
+env:
+  global:
+    - GRAVIS_REPO="https://github.com/DanySK/Gravis-CI.git"
+    - GRAVIS="$HOME/gravis"
+  jobs:
+    - JDK="adopt-openj9@1.11"
+before_install:
+  - travis_retry git clone --depth 1 $GRAVIS_REPO $GRAVIS
+  - source $GRAVIS/install-jdk
+  - choco install dotnetcore-sdk
+  - dotnet --version
+  - cmd.exe //c "RefreshEnv.cmd"
+  - export PATH=$PATH:"/c:/Users/travis/.dotnet/tools"
+  - dotnet tool install -g dotnet-sonarscanner
+  - cmd.exe //c "RefreshEnv.cmd"
+  - dotnet tool list -g
+addons:
+  sonarcloud:
+    organization: "pershingthesecond"
+    token:
+      secure: "FT//XiQ1636UJhu+7tlSpe4ifbd+pLNuTSPm9kHgBnUUAWR3ZXXdKio+uDQLVfNiY7Z90ahh9bTbJfWo4Tf21t74PmMZLHswoCgQd7djRz6/I6D97spmO98scb6WVFqiPm2lZGCtyLD0ZekSUyZDmiFwPxpkTYHlW2uX2wtSJdbFE7NXFBBN/xrYfPDTa1UzBM1merq+oCiaWPLSiYWlkppG/Xvv3hVvOAjrQw056aya6sVMwR+b2eh2b2Dk/E+TF+XAu5W8G8AIpED+dI1yW5uCIkKBvGh5FJYj447LZgzDXrbhy3hH2kZvYbjrb3gvuW9y4Ajjd5DqopLgPJLwKnMMDRw3x4FxRQiuSbGdclWq/bSPFgxxCwIPsXhcxt0c+430WG09UF8INfh6QLJMOo1IwRobmCC4UzE0XX84whU5sdrAp0tC36/ynIjZ8psA3JWQUkSSQyaCyMRScY8LGe/Evzs98yP4+4tg8llQGkTR57ApxJKvhhhKrhNwxQICPwLjoRVF6sfNWq3QjYgIuqz1PpxDglmbNS3snQUr0C9OyeS9ShscWOQu0/r1FWgsGx3Q7CEq+w6+7rUXCUA7MebbFrktPuV0FE2c2P5SxPhhnzof57mzZeB8ulL1BocBGmRre1AF/GQbrS05K8YVlYKC0lKeL8FscnNo0DS2Gzg="
+script:
+  - c:/Users/travis/.dotnet/tools/dotnet-sonarscanner.exe begin -o:pershingthesecond -k:pershingthesecond_VoxelGame
+  - dotnet build VoxelGame.sln
+  - c:/Users/travis/.dotnet/tools/dotnet-sonarscanner.exe end
