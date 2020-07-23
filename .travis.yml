@@ -15,12 +15,10 @@ before_install:
   - source $GRAVIS/install-jdk
   - choco install dotnetcore-sdk
   - dotnet --version
-  - echo $PATH
-  - dotnet tool install -g dotnet-sonarscanner -v d
-  - echo $PATH
+  - cmd.exe //c "RefreshEnv.cmd"
+  - dotnet tool install -g dotnet-sonarscanner
   - export PATH=$PATH:"/c:/Users/travis/.dotnet/tools" 
   - cmd.exe //c "RefreshEnv.cmd"
-  - echo $PATH
 addons:
   sonarcloud:
     organization: "pershingthesecond"
