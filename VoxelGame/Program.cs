@@ -27,7 +27,11 @@ namespace VoxelGame
         private static void Main(string[] args)
 #endif
         {
-            string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "voxel");
+            string appDataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "voxel");
+            string screenshotDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "VoxelGame");
+
+            Directory.CreateDirectory(appDataDirectory);
+            Directory.CreateDirectory(screenshotDirectory);
 
             bool logDebug;
 
@@ -37,7 +41,7 @@ namespace VoxelGame
             logDebug = args.Length > 0 && args[0] == "-logDebug";
 #endif
 
-            ILogger logger = SetupLogging(logDebug, appDataFolder);
+            ILogger logger = SetupLogging(logDebug, appDataDirectory);
 
 #if !DEBUG
             logger.LogInformation(logDebug ? "Debug will be logged." : "Debug will not be logged. Use '-logDebug' to log debug messages.");
@@ -62,7 +66,7 @@ namespace VoxelGame
 
             logger.LogInformation("Starting game on version: {Version}", Version);
 
-            using (Game game = new Game(gameWindowSettings, nativeWindowSettings, appDataFolder))
+            using (Game game = new Game(gameWindowSettings, nativeWindowSettings, appDataDirectory, screenshotDirectory))
             {
                 game.Run();
             }
@@ -78,7 +82,7 @@ namespace VoxelGame
             LoggerFactory.Dispose();
         }
 
-        private static ILogger SetupLogging(bool logDebug, string appDataFolder)
+        private static ILogger SetupLogging(bool logDebug, string appDataDirectory)
         {
             LogLevel level = logDebug ? LogLevel.Debug : LogLevel.Information;
 
@@ -89,7 +93,7 @@ namespace VoxelGame
                     .AddFilter("System", LogLevel.Warning)
                     .AddFilter("VoxelGame", level)
                     .AddConsole(options => options.IncludeScopes = true)
-                    .AddFile(Path.Combine(appDataFolder, "Logs", $"voxel-log-{{Date}}{DateTime.Now:_HH-mm-ss}.log"), level);
+                    .AddFile(Path.Combine(appDataDirectory, "Logs", $"voxel-log-{{Date}}{DateTime.Now:_HH-mm-ss}.log"), level);
             });
 
             return LoggerFactory.CreateLogger(nameof(Program));

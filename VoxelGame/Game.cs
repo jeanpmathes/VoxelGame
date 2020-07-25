@@ -48,18 +48,22 @@ namespace VoxelGame
 
         #endregion STATIC PROPERTIES
 
-        private readonly string appDataFolder;
+        private readonly string appDataDirectory;
+        private readonly string screenshotDirectory;
 
         private Screen screen = null!;
 
         private bool wireframeMode = false;
         private bool hasReleasesWireframeKey = true;
 
-        public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, string appDataFolder) : base(gameWindowSettings, nativeWindowSettings)
+        private bool hasReleasedScreenshotKey = true;
+
+        public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, string appDataDirectory, string screenshotDirectory) : base(gameWindowSettings, nativeWindowSettings)
         {
             Instance = this;
 
-            this.appDataFolder = appDataFolder;
+            this.appDataDirectory = appDataDirectory;
+            this.screenshotDirectory = screenshotDirectory;
 
             Load += OnLoad;
 
@@ -112,7 +116,7 @@ namespace VoxelGame
                 logger.LogDebug("Texture/Block ratio: {ratio:F02}", BlockTextureArray.Count / (float)Block.Count);
 
                 // Create required folders in %appdata% directory
-                string worldsDirectory = Path.Combine(appDataFolder, "Worlds");
+                string worldsDirectory = Path.Combine(appDataDirectory, "Worlds");
                 Directory.CreateDirectory(worldsDirectory);
 
                 WorldSetup(worldsDirectory);
@@ -325,6 +329,17 @@ namespace VoxelGame
                 else if (input.IsKeyUp(Key.K))
                 {
                     hasReleasesWireframeKey = true;
+                }
+
+                if (hasReleasedScreenshotKey && input.IsKeyDown(Key.F12))
+                {
+                    hasReleasedScreenshotKey = false;
+
+                    Screen.TakeScreenshot(screenshotDirectory);
+                }
+                else if (input.IsKeyUp(Key.F12))
+                {
+                    hasReleasedScreenshotKey = true;
                 }
 
                 if (input.IsKeyDown(Key.Escape))
