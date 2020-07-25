@@ -59,25 +59,25 @@ namespace VoxelGame.Logic.Blocks
 
         protected override void Setup()
         {
-            BlockModel post = BlockModel.Load(this.post);
-            BlockModel extension = BlockModel.Load(this.extension);
+            BlockModel postModel = BlockModel.Load(this.post);
+            BlockModel extensionModel = BlockModel.Load(this.extension);
 
-            postVertCount = (uint)post.VertexCount;
-            extensionVertCount = (uint)extension.VertexCount;
+            postVertCount = (uint)postModel.VertexCount;
+            extensionVertCount = (uint)extensionModel.VertexCount;
 
-            post.ToData(out postVertices, out _, out _);
+            postModel.ToData(out postVertices, out _, out _);
 
-            extension.RotateY(0, false);
-            extension.ToData(out northVertices, out _, out _);
+            extensionModel.RotateY(0, false);
+            extensionModel.ToData(out northVertices, out _, out _);
 
-            extension.RotateY(1, false);
-            extension.ToData(out eastVertices, out _, out _);
+            extensionModel.RotateY(1, false);
+            extensionModel.ToData(out eastVertices, out _, out _);
 
-            extension.RotateY(1, false);
-            extension.ToData(out southVertices, out _, out _);
+            extensionModel.RotateY(1, false);
+            extensionModel.ToData(out southVertices, out _, out _);
 
-            extension.RotateY(1, false);
-            extension.ToData(out westVertices, out _, out _);
+            extensionModel.RotateY(1, false);
+            extensionModel.ToData(out westVertices, out _, out _);
 
             int tex = Game.BlockTextureArray.GetTextureIndex(texture);
 
@@ -85,7 +85,7 @@ namespace VoxelGame.Logic.Blocks
             // Generate texture indices
             for (int i = 0; i < 5; i++)
             {
-                int[] texInd = new int[post.VertexCount + (i * extension.VertexCount)];
+                int[] texInd = new int[postModel.VertexCount + (i * extensionModel.VertexCount)];
 
                 for (int v = 0; v < texInd.Length; v++)
                 {
@@ -99,9 +99,9 @@ namespace VoxelGame.Logic.Blocks
             // Generate indices
             for (int i = 0; i < 5; i++)
             {
-                uint[] ind = new uint[(post.Quads.Length * 6) + (i * extension.Quads.Length * 6)];
+                uint[] ind = new uint[(postModel.Quads.Length * 6) + (i * extensionModel.Quads.Length * 6)];
 
-                for (int f = 0; f < post.Quads.Length + (i * extension.Quads.Length); f++)
+                for (int f = 0; f < postModel.Quads.Length + (i * extensionModel.Quads.Length); f++)
                 {
                     uint offset = (uint)(f * 4);
 
@@ -229,65 +229,46 @@ namespace VoxelGame.Logic.Blocks
         {
             byte newData = data;
 
-            // Check the changed block
             switch (side)
             {
                 case BlockSide.Back:
 
-                    if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))
-                    {
-                        newData |= 0b0_1000;
-                    }
-                    else
-                    {
-                        newData &= 0b1_0111;
-                    }
-
+                    newData = CheckNeighbour(x, y, z - 1, BlockSide.Front, 0b0_1000, newData);
                     break;
 
                 case BlockSide.Right:
 
-                    if (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z))
-                    {
-                        newData |= 0b0_0100;
-                    }
-                    else
-                    {
-                        newData &= 0b1_1011;
-                    }
-
+                    newData = CheckNeighbour(x + 1, y, z, BlockSide.Left, 0b0_0100, newData);
                     break;
 
                 case BlockSide.Front:
 
-                    if (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1))
-                    {
-                        newData |= 0b0_0010;
-                    }
-                    else
-                    {
-                        newData &= 0b1_1101;
-                    }
-
+                    newData = CheckNeighbour(x, y, z + 1, BlockSide.Back, 0b0_0010, newData);
                     break;
 
                 case BlockSide.Left:
 
-                    if (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))
-                    {
-                        newData |= 0b0_0001;
-                    }
-                    else
-                    {
-                        newData &= 0b1_1110;
-                    }
-
+                    newData = CheckNeighbour(x - 1, y, z, BlockSide.Right, 0b0_0001, newData);
                     break;
             }
 
             if (newData != data)
             {
                 Game.World.SetBlock(this, newData, x, y, z);
+            }
+
+            static byte CheckNeighbour(int x, int y, int z, BlockSide side, byte mask, byte newData)
+            {
+                if (Game.World.GetBlock(x, y, z, out _) is IConnectable neighbour && neighbour.IsConnetable(side, x, y, z))
+                {
+                    newData |= mask;
+                }
+                else
+                {
+                    newData = (byte)(newData & ~mask);
+                }
+
+                return newData;
             }
         }
     }
