@@ -42,10 +42,10 @@ namespace VoxelGame.Collections
             }
         }
 
-        public void AddFace(int layer, int row, int position, int vertA, int vertB, int vertC, int vertD, int vertData)
+        public void AddFace(int layer, int row, int position, int vertData, (int vertA, int vertB, int vertC, int vertD) vertices)
         {
             // Build current face.
-            MeshFace currentFace = MeshFace.Get(vertA, vertB, vertC, vertD, vertData, (int)((uint)vertC >> 30) != 0b11, position);
+            MeshFace currentFace = MeshFace.Get(vertices.vertA, vertices.vertB, vertices.vertC, vertices.vertD, vertData, (int)((uint)vertices.vertC >> 30) != 0b11, position);
 
             // Check if an already existing face can be extended.
             if (lastFaces[layer][row]?.IsExtendable(currentFace) ?? false)
@@ -58,23 +58,23 @@ namespace VoxelGame.Collections
                     case BlockSide.Front:
                     case BlockSide.Back:
                     case BlockSide.Bottom:
-                        currentFace.vert_0_1 = vertB;
-                        currentFace.vert_1_1 = vertC;
+                        currentFace.vert_0_1 = vertices.vertB;
+                        currentFace.vert_1_1 = vertices.vertC;
                         break;
 
                     case BlockSide.Left:
-                        currentFace.vert_1_1 = vertC;
-                        currentFace.vert_1_0 = vertD;
+                        currentFace.vert_1_1 = vertices.vertC;
+                        currentFace.vert_1_0 = vertices.vertD;
                         break;
 
                     case BlockSide.Right:
-                        currentFace.vert_0_0 = vertA;
-                        currentFace.vert_0_1 = vertB;
+                        currentFace.vert_0_0 = vertices.vertA;
+                        currentFace.vert_0_1 = vertices.vertB;
                         break;
 
                     case BlockSide.Top:
-                        currentFace.vert_0_0 = vertA;
-                        currentFace.vert_1_0 = vertD;
+                        currentFace.vert_0_0 = vertices.vertA;
+                        currentFace.vert_1_0 = vertices.vertD;
                         break;
                 }
 
@@ -147,11 +147,6 @@ namespace VoxelGame.Collections
 
         public void GenerateMesh(ref PooledList<int> meshData)
         {
-            if (meshData == null)
-            {
-                throw new ArgumentNullException(nameof(meshData));
-            }
-
             if (count == 0)
             {
                 return;
@@ -172,7 +167,7 @@ namespace VoxelGame.Collections
                             currentFace.isRotated = !currentFace.isRotated;
                         }
 
-                        int vertTexRepetition = (!currentFace.isRotated) ? ((currentFace.height << 25) | (currentFace.length << 20)) : ((currentFace.length << 25) | (currentFace.height << 20));
+                        int vertTexRepetition = BuildVertexTexRepetitionMask(currentFace.isRotated, currentFace.height, currentFace.length);
 
                         meshData.Add(vertTexRepetition | currentFace.vert_0_0);
                         meshData.Add(currentFace.vertData);
@@ -197,6 +192,11 @@ namespace VoxelGame.Collections
                     }
                 }
             }
+        }
+
+        private static int BuildVertexTexRepetitionMask(bool isRotated, int height, int length)
+        {
+            return !isRotated ? ((height << 25) | (length << 20)) : ((length << 25) | (height << 20));
         }
 
         public void ReturnToPool()

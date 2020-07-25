@@ -120,7 +120,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--n nn-a ---- iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Front << 18) | (isAnimated && textureIndices[0] != 0 ? (1 << 16) : 0) | textureIndices[0];
 
-                                simpleFrontFaceHolder.AddFace(z, x, y, upperDataA, upperDataB, upperDataC, upperDataD, lowerData);
+                                simpleFrontFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
 
                             // Back
@@ -150,7 +150,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--n nn-a ---- iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Back << 18) | (isAnimated && textureIndices[0] != 0 ? (1 << 16) : 0) | textureIndices[0];
 
-                                simpleBackFaceHolder.AddFace(z, x, y, upperDataA, upperDataB, upperDataC, upperDataD, lowerData);
+                                simpleBackFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
 
                             // Left
@@ -180,7 +180,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--n nn-a ---- iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Left << 18) | (isAnimated && textureIndices[0] != 0 ? (1 << 16) : 0) | textureIndices[0];
 
-                                simpleLeftFaceHolder.AddFace(x, y, z, upperDataA, upperDataB, upperDataC, upperDataD, lowerData);
+                                simpleLeftFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
 
                             // Right
@@ -210,7 +210,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--n nn-a ---- iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Right << 18) | (isAnimated && textureIndices[0] != 0 ? (1 << 16) : 0) | textureIndices[0];
 
-                                simpleRightFaceHolder.AddFace(x, y, z, upperDataA, upperDataB, upperDataC, upperDataD, lowerData);
+                                simpleRightFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
 
                             // Bottom
@@ -240,7 +240,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--n nn-a ---- iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Bottom << 18) | (isAnimated && textureIndices[0] != 0 ? (1 << 16) : 0) | textureIndices[0];
 
-                                simpleBottomFaceHolder.AddFace(y, x, z, upperDataA, upperDataB, upperDataC, upperDataD, lowerData);
+                                simpleBottomFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
 
                             // Top
@@ -270,7 +270,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--n nn-a ---- iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? neutral.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Top << 18) | (isAnimated && textureIndices[0] != 0 ? (1 << 16) : 0) | textureIndices[0];
 
-                                simpleTopFaceHolder.AddFace(y, x, z, upperDataA, upperDataB, upperDataC, upperDataD, lowerData);
+                                simpleTopFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
                         }
                         else if (currentBlock.TargetBuffer == TargetBuffer.Complex)
