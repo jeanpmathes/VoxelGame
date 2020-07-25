@@ -173,11 +173,6 @@ namespace VoxelGame.Logic
         {
             if (Game.World.GetBlock(x, y, z, out byte data) == this)
             {
-                IBlockBase block = this;
-                block.Destroy(x, y, z);
-                this.Destroy(x, y, z);
-                Destroy(x, y, z);
-
                 return Destroy(entity, x, y, z, data);
             }
             else
