@@ -99,7 +99,7 @@ namespace VoxelGame.Logic.Blocks
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            if (Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable != true || !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
+            if (Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable != true || !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
             {
                 return false;
             }
@@ -114,8 +114,8 @@ namespace VoxelGame.Logic.Blocks
         {
             bool isBase = (data & 0b1) == 0;
 
-            Game.World.SetBlock(Block.AIR, 0, x, y, z);
-            Game.World.SetBlock(Block.AIR, 0, x, y + (isBase ? 1 : -1), z);
+            Game.World.SetBlock(Block.Air, 0, x, y, z);
+            Game.World.SetBlock(Block.Air, 0, x, y + (isBase ? 1 : -1), z);
 
             return true;
         }
@@ -123,7 +123,7 @@ namespace VoxelGame.Logic.Blocks
         internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
-            if (side == BlockSide.Bottom && (data & 0b1) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
+            if (side == BlockSide.Bottom && (data & 0b1) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
             {
                 Destroy(x, y, z);
             }

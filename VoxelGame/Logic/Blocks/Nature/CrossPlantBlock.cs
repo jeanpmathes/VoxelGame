@@ -40,7 +40,7 @@ namespace VoxelGame.Logic.Blocks
         protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
         {
             // Check the block under the placement position.
-            Block ground = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
+            Block ground = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air;
 
             if (ground is IPlantable)
             {
@@ -56,7 +56,7 @@ namespace VoxelGame.Logic.Blocks
 
         internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
+            if (side == BlockSide.Bottom && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
             {
                 Destroy(x, y, z);
             }

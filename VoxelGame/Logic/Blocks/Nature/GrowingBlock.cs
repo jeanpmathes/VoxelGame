@@ -34,7 +34,7 @@ namespace VoxelGame.Logic.Blocks
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            Block down = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
+            Block down = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air;
 
             if (down == requiredGround || down == this)
             {
@@ -52,7 +52,7 @@ namespace VoxelGame.Logic.Blocks
         {
             if (side == BlockSide.Bottom)
             {
-                Block below = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR;
+                Block below = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air;
 
                 if (below != requiredGround && below != this)
                 {

@@ -723,7 +723,7 @@ namespace VoxelGame.Logic
         {
             if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
             {
-                chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = (ushort)((data << 11) | (block ?? Block.AIR).Id);
+                chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = (ushort)((data << 11) | (block ?? Block.Air).Id);
                 sectionsToMesh.Add((chunk, y >> chunkHeightExp));
 
                 // Block updates

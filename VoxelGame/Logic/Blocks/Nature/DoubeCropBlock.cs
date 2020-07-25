@@ -200,11 +200,11 @@ namespace VoxelGame.Logic.Blocks
 
         protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, byte data)
         {
-            Game.World.SetBlock(Block.AIR, 0, x, y, z);
+            Game.World.SetBlock(Block.Air, 0, x, y, z);
 
             if ((data & 0b0_0111) >= (int)GrowthStage.Fourth)
             {
-                Game.World.SetBlock(Block.AIR, 0, x, y + ((data & 0b0_1000) == 0 ? 1 : -1), z);
+                Game.World.SetBlock(Block.Air, 0, x, y + ((data & 0b0_1000) == 0 ? 1 : -1), z);
             }
 
             return true;
@@ -213,7 +213,7 @@ namespace VoxelGame.Logic.Blocks
         internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
-            if (side == BlockSide.Bottom && (data & 0b0_1000) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.AIR) is IPlantable))
+            if (side == BlockSide.Bottom && (data & 0b0_1000) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
             {
                 Destroy(x, y, z);
             }
@@ -224,7 +224,7 @@ namespace VoxelGame.Logic.Blocks
             GrowthStage stage = (GrowthStage)(data & 0b0_0111);
 
             // If this block is the upper part or the block cannot grow more on this type of ground, the random update is ignored.
-            if ((data & 0b0_1000) != 0 || ((int)stage > 2 && Game.World.GetBlock(x, y - 1, z, out _) != Block.FARMLAND))
+            if ((data & 0b0_1000) != 0 || ((int)stage > 2 && Game.World.GetBlock(x, y - 1, z, out _) != Block.Farmland))
             {
                 return;
             }

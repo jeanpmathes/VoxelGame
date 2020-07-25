@@ -65,7 +65,7 @@ namespace VoxelGame.Entities
             crosshairRenderer.SetTexture(crosshair);
             crosshairRenderer.SetColor(crosshairColor);
 
-            activeBlock = Block.GRASS;
+            activeBlock = Block.Grass;
 
             // Request chunks around current position
             ChunkX = (int)Math.Floor(Position.X) >> sectionSizeExp;
@@ -115,10 +115,10 @@ namespace VoxelGame.Entities
         {
             if (selectedY >= 0)
             {
-                Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _) ?? Block.AIR;
+                Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _) ?? Block.Air;
 
 #if DEBUG
-                if (selectedBlock != Block.AIR)
+                if (selectedBlock != Block.Air)
 #else
                 if (!selectedBlock.IsReplaceable)
 #endif

@@ -164,23 +164,23 @@ namespace VoxelGame.Logic.Blocks
                 switch (orientation)
                 {
                     case Orientation.North:
-                        neighbour = Game.World.GetBlock(x - 1, y, z, out data) ?? Block.AIR;
+                        neighbour = Game.World.GetBlock(x - 1, y, z, out data) ?? Block.Air;
                         break;
 
                     case Orientation.East:
-                        neighbour = Game.World.GetBlock(x, y, z - 1, out data) ?? Block.AIR;
+                        neighbour = Game.World.GetBlock(x, y, z - 1, out data) ?? Block.Air;
                         break;
 
                     case Orientation.South:
-                        neighbour = Game.World.GetBlock(x + 1, y, z, out data) ?? Block.AIR;
+                        neighbour = Game.World.GetBlock(x + 1, y, z, out data) ?? Block.Air;
                         break;
 
                     case Orientation.West:
-                        neighbour = Game.World.GetBlock(x, y, z + 1, out data) ?? Block.AIR;
+                        neighbour = Game.World.GetBlock(x, y, z + 1, out data) ?? Block.Air;
                         break;
 
                     default:
-                        neighbour = Block.AIR;
+                        neighbour = Block.Air;
                         data = 0;
                         break;
                 }
@@ -204,8 +204,8 @@ namespace VoxelGame.Logic.Blocks
 
         protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, byte data)
         {
-            Game.World.SetBlock(Block.AIR, 0, x, y, z);
-            Game.World.SetBlock(Block.AIR, 0, x, y + ((data & 0b0_0100) == 0 ? 1 : -1), z);
+            Game.World.SetBlock(Block.Air, 0, x, y, z);
+            Game.World.SetBlock(Block.Air, 0, x, y + ((data & 0b0_0100) == 0 ? 1 : -1), z);
 
             return true;
         }
@@ -223,7 +223,7 @@ namespace VoxelGame.Logic.Blocks
                 switch (((data & 0b0_1000) == 0) ? ((Orientation)(data & 0b0_0011)).Invert() : (Orientation)(data & 0b0_0011))
                 {
                     case Orientation.North:
-                        Block neighbour = Game.World.GetBlock(x - 1, y, z, out byte neighbourData) ?? Block.AIR;
+                        Block neighbour = Game.World.GetBlock(x - 1, y, z, out byte neighbourData) ?? Block.Air;
 
                         if (neighbour == this && (data & 0b1_1011) == ((neighbourData ^ 0b0_1000) & 0b1_1011))
                         {
@@ -233,7 +233,7 @@ namespace VoxelGame.Logic.Blocks
                         break;
 
                     case Orientation.East:
-                        neighbour = Game.World.GetBlock(x, y, z - 1, out neighbourData) ?? Block.AIR;
+                        neighbour = Game.World.GetBlock(x, y, z - 1, out neighbourData) ?? Block.Air;
 
                         if (neighbour == this && (data & 0b1_1011) == ((neighbourData ^ 0b0_1000) & 0b1_1011))
                         {
@@ -243,7 +243,7 @@ namespace VoxelGame.Logic.Blocks
                         break;
 
                     case Orientation.South:
-                        neighbour = Game.World.GetBlock(x + 1, y, z, out neighbourData) ?? Block.AIR;
+                        neighbour = Game.World.GetBlock(x + 1, y, z, out neighbourData) ?? Block.Air;
 
                         if (neighbour == this && (data & 0b1_1011) == ((neighbourData ^ 0b0_1000) & 0b1_1011))
                         {
@@ -253,7 +253,7 @@ namespace VoxelGame.Logic.Blocks
                         break;
 
                     case Orientation.West:
-                        neighbour = Game.World.GetBlock(x, y, z + 1, out neighbourData) ?? Block.AIR;
+                        neighbour = Game.World.GetBlock(x, y, z + 1, out neighbourData) ?? Block.Air;
 
                         if (neighbour == this && (data & 0b1_1011) == ((neighbourData ^ 0b0_1000) & 0b1_1011))
                         {

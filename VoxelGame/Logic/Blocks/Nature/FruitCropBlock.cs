@@ -227,7 +227,7 @@ namespace VoxelGame.Logic.Blocks
 
         internal override void RandomUpdate(int x, int y, int z, byte data)
         {
-            if (Game.World.GetBlock(x, y - 1, z, out _) != Block.FARMLAND)
+            if (Game.World.GetBlock(x, y - 1, z, out _) != Block.Farmland)
             {
                 return;
             }

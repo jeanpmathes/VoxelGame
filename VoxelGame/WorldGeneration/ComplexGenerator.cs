@@ -50,7 +50,7 @@ namespace VoxelGame.WorldGeneration
             {
                 if (y == 0)
                 {
-                    yield return Block.RUBBLE;
+                    yield return Block.Rubble;
                 }
                 else if (y > height)
                 {
@@ -60,20 +60,20 @@ namespace VoxelGame.WorldGeneration
                         if (noise.GetCellular(x, z, y) > caveTreshold + (y / (halfHeight * caveLifter)) || noise.GetCellular(x, z, y - 1) > caveTreshold + ((y - 1) / (halfHeight * caveLifter)))
 #pragma warning restore S2234 // Parameters should be passed in the correct order
                         {
-                            yield return Block.AIR;
+                            yield return Block.Air;
                         }
                         else if (noise.GetWhiteNoise(x, z) > 0)
                         {
-                            yield return Block.TALL_GRASS;
+                            yield return Block.TallGrass;
                         }
                         else
                         {
-                            yield return Block.FLOWER;
+                            yield return Block.Flower;
                         }
                     }
                     else
                     {
-                        yield return Block.AIR;
+                        yield return Block.Air;
                     }
                 }
                 else
@@ -82,36 +82,36 @@ namespace VoxelGame.WorldGeneration
                     if (noise.GetCellular(x, z, y) > caveTreshold + (y / (halfHeight * caveLifter)))
 #pragma warning restore S2234 // Parameters should be passed in the correct order
                     {
-                        yield return Block.AIR;
+                        yield return Block.Air;
                     }
                     else if (y == height)
                     {
                         if (y >= snowLevel)
                         {
-                            yield return Block.SNOW;
+                            yield return Block.Snow;
                         }
                         else if (y <= beachLevel)
                         {
-                            yield return Block.SAND;
+                            yield return Block.Sand;
                         }
                         else
                         {
-                            yield return Block.GRASS;
+                            yield return Block.Grass;
                         }
                     }
                     else
                     {
                         if (height < snowLevel && height > beachLevel && y + soilDepth > height)
                         {
-                            yield return Block.DIRT;
+                            yield return Block.Dirt;
                         }
                         else if (height <= beachLevel && y + soilDepth > height)
                         {
-                            yield return Block.SAND;
+                            yield return Block.Sand;
                         }
                         else
                         {
-                            yield return Block.STONE;
+                            yield return Block.Stone;
                         }
                     }
                 }

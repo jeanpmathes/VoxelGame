@@ -65,7 +65,7 @@ namespace VoxelGame.Physics
             Block? currentBlock = Game.World.GetBlock(x, y, z, out _);
 
             // Check if the ray intersects the bounding box of the block.
-            if (currentBlock != null && currentBlock != Block.AIR && currentBlock.GetBoundingBox(x, y, z).Intersects(ray))
+            if (currentBlock != null && currentBlock != Block.Air && currentBlock.GetBoundingBox(x, y, z).Intersects(ray))
             {
                 hitX = x;
                 hitY = y;
@@ -118,7 +118,7 @@ namespace VoxelGame.Physics
                 currentBlock = Game.World.GetBlock(x, y, z, out _);
 
                 // Check if the ray intersects the bounding box of the block
-                if (currentBlock != null && currentBlock != Block.AIR && currentBlock.GetBoundingBox(x, y, z).Intersects(ray))
+                if (currentBlock != null && currentBlock != Block.Air && currentBlock.GetBoundingBox(x, y, z).Intersects(ray))
                 {
                     hitX = x;
                     hitY = y;
