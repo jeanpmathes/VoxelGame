@@ -229,43 +229,23 @@ namespace VoxelGame.Entities
                 return;
             }
 
-            // Right mouse button.
-            if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Right))
+            PlaceInteract(input, mouse, target);
+            DestroyInteract(mouse, target);
+        }
+
+        private void PlaceInteract(KeyboardState input, MouseState mouse, Block target)
+        {
+            int placePositionX = selectedX;
+            int placePositionY = selectedY;
+            int placePositionZ = selectedZ;
+
+            if (timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Right))
             {
                 if (input.IsKeyDown(Key.ControlLeft) || !target.IsInteractable)
                 {
-                    int placePositionX = selectedX;
-                    int placePositionY = selectedY;
-                    int placePositionZ = selectedZ;
-
                     if (!target.IsReplaceable)
                     {
-                        switch (selectedSide)
-                        {
-                            case BlockSide.Front:
-                                placePositionZ++;
-                                break;
-
-                            case BlockSide.Back:
-                                placePositionZ--;
-                                break;
-
-                            case BlockSide.Left:
-                                placePositionX--;
-                                break;
-
-                            case BlockSide.Right:
-                                placePositionX++;
-                                break;
-
-                            case BlockSide.Bottom:
-                                placePositionY--;
-                                break;
-
-                            case BlockSide.Top:
-                                placePositionY++;
-                                break;
-                        }
+                        OffsetSelection();
                     }
 
                     // Prevent block placement if the block would intersect the player.
@@ -284,8 +264,40 @@ namespace VoxelGame.Entities
                 }
             }
 
-            // Left mouse button.
-            if (selectedY >= 0 && timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Left))
+            void OffsetSelection()
+            {
+                switch (selectedSide)
+                {
+                    case BlockSide.Front:
+                        placePositionZ++;
+                        break;
+
+                    case BlockSide.Back:
+                        placePositionZ--;
+                        break;
+
+                    case BlockSide.Left:
+                        placePositionX--;
+                        break;
+
+                    case BlockSide.Right:
+                        placePositionX++;
+                        break;
+
+                    case BlockSide.Bottom:
+                        placePositionY--;
+                        break;
+
+                    case BlockSide.Top:
+                        placePositionY++;
+                        break;
+                }
+            }
+        }
+
+        private void DestroyInteract(MouseState mouse, Block target)
+        {
+            if (timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Left))
             {
                 target.Destroy(selectedX, selectedY, selectedZ, this);
 
@@ -329,52 +341,54 @@ namespace VoxelGame.Entities
             int currentChunkX = (int)Math.Floor(Position.X) >> sectionSizeExp;
             int currentChunkZ = (int)Math.Floor(Position.Z) >> sectionSizeExp;
 
-            if (currentChunkX != ChunkX || currentChunkZ != ChunkZ)
+            if (currentChunkX == ChunkX && currentChunkZ == ChunkZ)
             {
-                ChunkHasChanged = true;
-
-                int deltaX = Math.Abs(currentChunkX - ChunkX);
-                int deltaZ = Math.Abs(currentChunkZ - ChunkZ);
-
-                int signX = (currentChunkX - ChunkX >= 0) ? 1 : -1;
-                int signZ = (currentChunkZ - ChunkZ >= 0) ? 1 : -1;
-
-                // Check if player moved completely out of claimed chunks
-                if (deltaX > 2 * RenderDistance || deltaZ > 2 * RenderDistance)
-                {
-                    for (int x = -RenderDistance; x <= RenderDistance; x++)
-                    {
-                        for (int z = -RenderDistance; z <= RenderDistance; z++)
-                        {
-                            Game.World.ReleaseChunk(ChunkX + x, ChunkZ + z);
-                            Game.World.RequestChunk(currentChunkX + x, currentChunkZ + z);
-                        }
-                    }
-                }
-                else
-                {
-                    for (int x = 0; x < deltaX; x++)
-                    {
-                        for (int z = 0; z < (2 * RenderDistance) + 1; z++)
-                        {
-                            Game.World.ReleaseChunk(ChunkX + ((RenderDistance - x) * -signX), ChunkZ + ((RenderDistance - z) * -signZ));
-                            Game.World.RequestChunk(currentChunkX + ((RenderDistance - x) * signX), currentChunkZ + ((RenderDistance - z) * signZ));
-                        }
-                    }
-
-                    for (int z = 0; z < deltaZ; z++)
-                    {
-                        for (int x = 0; x < (2 * RenderDistance) + 1; x++)
-                        {
-                            Game.World.ReleaseChunk(ChunkX + ((RenderDistance - x) * -signX), ChunkZ + ((RenderDistance - z) * -signZ));
-                            Game.World.RequestChunk(currentChunkX + ((RenderDistance - x) * signX), currentChunkZ + ((RenderDistance - z) * signZ));
-                        }
-                    }
-                }
-
-                ChunkX = currentChunkX;
-                ChunkZ = currentChunkZ;
+                return;
             }
+
+            ChunkHasChanged = true;
+
+            int deltaX = Math.Abs(currentChunkX - ChunkX);
+            int deltaZ = Math.Abs(currentChunkZ - ChunkZ);
+
+            int signX = (currentChunkX - ChunkX >= 0) ? 1 : -1;
+            int signZ = (currentChunkZ - ChunkZ >= 0) ? 1 : -1;
+
+            // Check if player moved completely out of claimed chunks
+            if (deltaX > 2 * RenderDistance || deltaZ > 2 * RenderDistance)
+            {
+                for (int x = -RenderDistance; x <= RenderDistance; x++)
+                {
+                    for (int z = -RenderDistance; z <= RenderDistance; z++)
+                    {
+                        Game.World.ReleaseChunk(ChunkX + x, ChunkZ + z);
+                        Game.World.RequestChunk(currentChunkX + x, currentChunkZ + z);
+                    }
+                }
+            }
+            else
+            {
+                for (int x = 0; x < deltaX; x++)
+                {
+                    for (int z = 0; z < (2 * RenderDistance) + 1; z++)
+                    {
+                        Game.World.ReleaseChunk(ChunkX + ((RenderDistance - x) * -signX), ChunkZ + ((RenderDistance - z) * -signZ));
+                        Game.World.RequestChunk(currentChunkX + ((RenderDistance - x) * signX), currentChunkZ + ((RenderDistance - z) * signZ));
+                    }
+                }
+
+                for (int z = 0; z < deltaZ; z++)
+                {
+                    for (int x = 0; x < (2 * RenderDistance) + 1; x++)
+                    {
+                        Game.World.ReleaseChunk(ChunkX + ((RenderDistance - x) * -signX), ChunkZ + ((RenderDistance - z) * -signZ));
+                        Game.World.RequestChunk(currentChunkX + ((RenderDistance - x) * signX), currentChunkZ + ((RenderDistance - z) * signZ));
+                    }
+                }
+            }
+
+            ChunkX = currentChunkX;
+            ChunkZ = currentChunkZ;
         }
 
         #region IDisposable Support
