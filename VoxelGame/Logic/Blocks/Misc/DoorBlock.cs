@@ -214,53 +214,45 @@ namespace VoxelGame.Logic.Blocks
         {
             bool isBase = (data & 0b0_0100) == 0;
 
-            if (!entity.BoundingBox.Intersects(new BoundingBox(new Vector3(0.5f, 1f, 0.5f) + new Vector3(x, isBase ? y : y - 1, z), new Vector3(0.5f, 1f, 0.5f))))
+            if (entity.BoundingBox.Intersects(new BoundingBox(new Vector3(0.5f, 1f, 0.5f) + new Vector3(x, isBase ? y : y - 1, z), new Vector3(0.5f, 1f, 0.5f))))
             {
-                Game.World.SetBlock(this, (byte)(data ^ 0b1_0000), x, y, z);
-                Game.World.SetBlock(this, (byte)(data ^ 0b1_0100), x, y + (isBase ? 1 : -1), z);
+                return;
+            }
 
-                // Open a neighboring door, if available.
-                switch (((data & 0b0_1000) == 0) ? ((Orientation)(data & 0b0_0011)).Invert() : (Orientation)(data & 0b0_0011))
+            Game.World.SetBlock(this, (byte)(data ^ 0b1_0000), x, y, z);
+            Game.World.SetBlock(this, (byte)(data ^ 0b1_0100), x, y + (isBase ? 1 : -1), z);
+
+            // Open a neighboring door, if available.
+            switch (((data & 0b0_1000) == 0) ? ((Orientation)(data & 0b0_0011)).Invert() : (Orientation)(data & 0b0_0011))
+            {
+                case Orientation.North:
+
+                    OpenNeighbour(x - 1, y, z);
+                    break;
+
+                case Orientation.East:
+
+                    OpenNeighbour(x, y, z - 1);
+                    break;
+
+                case Orientation.South:
+
+                    OpenNeighbour(x + 1, y, z);
+                    break;
+
+                case Orientation.West:
+
+                    OpenNeighbour(x, y, z + 1);
+                    break;
+            }
+
+            void OpenNeighbour(int x, int y, int z)
+            {
+                Block neighbour = Game.World.GetBlock(x, y, z, out byte neighbourData) ?? Block.Air;
+
+                if (neighbour == this && (data & 0b1_1011) == ((neighbourData ^ 0b0_1000) & 0b1_1011))
                 {
-                    case Orientation.North:
-                        Block neighbour = Game.World.GetBlock(x - 1, y, z, out byte neighbourData) ?? Block.Air;
-
-                        if (neighbour == this && (data & 0b1_1011) == ((neighbourData ^ 0b0_1000) & 0b1_1011))
-                        {
-                            neighbour.EntityInteract(entity, x - 1, y, z);
-                        }
-
-                        break;
-
-                    case Orientation.East:
-                        neighbour = Game.World.GetBlock(x, y, z - 1, out neighbourData) ?? Block.Air;
-
-                        if (neighbour == this && (data & 0b1_1011) == ((neighbourData ^ 0b0_1000) & 0b1_1011))
-                        {
-                            neighbour.EntityInteract(entity, x, y, z - 1);
-                        }
-
-                        break;
-
-                    case Orientation.South:
-                        neighbour = Game.World.GetBlock(x + 1, y, z, out neighbourData) ?? Block.Air;
-
-                        if (neighbour == this && (data & 0b1_1011) == ((neighbourData ^ 0b0_1000) & 0b1_1011))
-                        {
-                            neighbour.EntityInteract(entity, x + 1, y, z);
-                        }
-
-                        break;
-
-                    case Orientation.West:
-                        neighbour = Game.World.GetBlock(x, y, z + 1, out neighbourData) ?? Block.Air;
-
-                        if (neighbour == this && (data & 0b1_1011) == ((neighbourData ^ 0b0_1000) & 0b1_1011))
-                        {
-                            neighbour.EntityInteract(entity, x, y, z + 1);
-                        }
-
-                        break;
+                    neighbour.EntityInteract(entity, x, y, z);
                 }
             }
         }
