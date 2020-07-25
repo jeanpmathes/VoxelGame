@@ -312,7 +312,7 @@ namespace VoxelGame.Logic
             }
 
             // Build the simple mesh data
-            PooledList<int> simpleVertexData = new PooledList<int>();
+            PooledList<int> simpleVertexData = new PooledList<int>(4096);
 
             simpleFrontFaceHolder.GenerateMesh(ref simpleVertexData);
             simpleBackFaceHolder.GenerateMesh(ref simpleVertexData);
