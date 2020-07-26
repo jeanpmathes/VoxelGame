@@ -210,45 +210,40 @@ namespace VoxelGame.Logic.Blocks
 
         internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
         {
-            Orientation orientation = (Orientation)(data & 0b0_0011);
+            CheckBack(x, y, z, side, (Orientation)(data & 0b0_0011));
+        }
 
+        protected void CheckBack(int x, int y, int z, BlockSide side, Orientation blockOrientation)
+        {
             switch (side)
             {
                 case BlockSide.Front:
 
-                    if (orientation == Orientation.North && (Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull != true))
-                    {
-                        Destroy(x, y, z);
-                    }
-
+                    CheckBack(x, y, z + 1, Orientation.North);
                     break;
 
                 case BlockSide.Back:
 
-                    if (orientation == Orientation.South && (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull != true))
-                    {
-                        Destroy(x, y, z);
-                    }
-
+                    CheckBack(x, y, z - 1, Orientation.South);
                     break;
 
                 case BlockSide.Left:
 
-                    if (orientation == Orientation.East && (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull != true))
-                    {
-                        Destroy(x, y, z);
-                    }
-
+                    CheckBack(x - 1, y, z, Orientation.East);
                     break;
 
                 case BlockSide.Right:
 
-                    if (orientation == Orientation.West && (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull != true))
-                    {
-                        Destroy(x, y, z);
-                    }
-
+                    CheckBack(x + 1, y, z, Orientation.West);
                     break;
+            }
+
+            void CheckBack(int bx, int by, int bz, Orientation orientation)
+            {
+                if (blockOrientation == orientation && (Game.World.GetBlock(bx, by, bz, out _)?.IsSolidAndFull != true))
+                {
+                    Destroy(x, y, z);
+                }
             }
         }
 

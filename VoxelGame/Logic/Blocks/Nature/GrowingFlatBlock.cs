@@ -48,36 +48,7 @@ namespace VoxelGame.Logic.Blocks
                 side = orientation.Invert().ToBlockSide();
             }
 
-            switch (side)
-            {
-                case BlockSide.Front:
-
-                    CheckBack(x, y, z + 1);
-                    break;
-
-                case BlockSide.Back:
-
-                    CheckBack(x, y, z - 1);
-                    break;
-
-                case BlockSide.Left:
-
-                    CheckBack(x - 1, y, z);
-                    break;
-
-                case BlockSide.Right:
-
-                    CheckBack(x + 1, y, z);
-                    break;
-            }
-
-            void CheckBack(int bx, int by, int bz)
-            {
-                if (orientation == Orientation.North && (Game.World.GetBlock(bx, by, bz, out _)?.IsSolidAndFull != true))
-                {
-                    Destroy(x, y, z);
-                }
-            }
+            CheckBack(x, y, z, side, orientation);
         }
 
         internal override void RandomUpdate(int x, int y, int z, byte data)
