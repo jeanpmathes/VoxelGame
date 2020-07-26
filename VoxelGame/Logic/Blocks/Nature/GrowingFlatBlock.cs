@@ -52,39 +52,31 @@ namespace VoxelGame.Logic.Blocks
             {
                 case BlockSide.Front:
 
-                    if (orientation == Orientation.North && (Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull != true))
-                    {
-                        Destroy(x, y, z);
-                    }
-
+                    CheckBack(x, y, z + 1);
                     break;
 
                 case BlockSide.Back:
 
-                    if (orientation == Orientation.South && (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull != true))
-                    {
-                        Destroy(x, y, z);
-                    }
-
+                    CheckBack(x, y, z - 1);
                     break;
 
                 case BlockSide.Left:
 
-                    if (orientation == Orientation.East && (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull != true))
-                    {
-                        Destroy(x, y, z);
-                    }
-
+                    CheckBack(x - 1, y, z);
                     break;
 
                 case BlockSide.Right:
 
-                    if (orientation == Orientation.West && (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull != true))
-                    {
-                        Destroy(x, y, z);
-                    }
-
+                    CheckBack(x + 1, y, z);
                     break;
+            }
+
+            void CheckBack(int bx, int by, int bz)
+            {
+                if (orientation == Orientation.North && (Game.World.GetBlock(bx, by, bz, out _)?.IsSolidAndFull != true))
+                {
+                    Destroy(x, y, z);
+                }
             }
         }
 
