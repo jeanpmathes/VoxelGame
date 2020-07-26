@@ -78,5 +78,21 @@ namespace VoxelGame.Utilities
                 _ => Orientation.North
             };
         }
+
+        /// <summary>
+        /// Check if this orientation is on the x axis.
+        /// </summary>
+        public static bool IsX(this Orientation orientation)
+        {
+            return orientation == Orientation.East || orientation == Orientation.West;
+        }
+
+        /// <summary>
+        /// Check if this orientation is on the z axis.
+        /// </summary>
+        public static bool IsZ(this Orientation orientation)
+        {
+            return orientation == Orientation.North || orientation == Orientation.South;
+        }
     }
 }
