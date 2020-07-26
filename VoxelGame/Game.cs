@@ -345,23 +345,22 @@ namespace VoxelGame
         {
             Console.WriteLine(Language.EnterNameOfWorld);
 
-            Console.ForegroundColor = ConsoleColor.White;
-            string name = Console.ReadLine();
-            Console.ResetColor();
+            string name;
 
-            // Validate name
-            if (string.IsNullOrEmpty(name) ||
-                name.Contains("\"", StringComparison.Ordinal) ||
-                name.Contains("<", StringComparison.Ordinal) ||
-                name.Contains(">", StringComparison.Ordinal) ||
-                name.Contains("|", StringComparison.Ordinal) ||
-                name.Contains("\\", StringComparison.Ordinal) ||
-                name.Contains("/", StringComparison.Ordinal))
+            do
             {
-                name = "New World";
+                Console.ForegroundColor = ConsoleColor.White;
+                name = Console.ReadLine();
+                Console.ResetColor();
             }
+            while (!IsNameValid(name));
 
             StringBuilder path = new StringBuilder(Path.Combine(worldsDirectory, name));
+
+            if (IsNameReserved(name))
+            {
+                path.Append('_');
+            }
 
             while (Directory.Exists(path.ToString()))
             {
@@ -369,6 +368,80 @@ namespace VoxelGame
             }
 
             World = new World(name, path.ToString(), DateTime.Now.GetHashCode());
+        }
+
+        private static bool IsNameValid(string name)
+        {
+            if (name[^1] == ' ')
+            {
+                logger.LogWarning("The input ends with a whitespace.");
+
+                Console.WriteLine(Language.InputNotValid);
+
+                return false;
+            }
+
+            foreach (char c in Path.GetInvalidFileNameChars())
+            {
+                if (!CheckChar(c)) return false;
+            }
+
+            foreach (char c in new char[] { '.', ',', '{', '}' })
+            {
+                if (!CheckChar(c)) return false;
+            }
+
+            return true;
+
+            bool CheckChar(char c)
+            {
+                if (name.Contains(c, StringComparison.Ordinal))
+                {
+                    logger.LogWarning("The input contains an invalid character.");
+
+                    Console.WriteLine(Language.InputNotValid);
+
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        private static bool IsNameReserved(string name)
+        {
+            switch (name)
+            {
+                case "CON":
+                case "PRN":
+                case "AUX":
+                case "NUL":
+                case "COM":
+                case "COM0":
+                case "COM1":
+                case "COM2":
+                case "COM3":
+                case "COM4":
+                case "COM5":
+                case "COM6":
+                case "COM7":
+                case "COM8":
+                case "COM9":
+                case "LPT0":
+                case "LPT1":
+                case "LPT2":
+                case "LPT3":
+                case "LPT4":
+                case "LPT5":
+                case "LPT6":
+                case "LPT7":
+                case "LPT8":
+                case "LPT9":
+                    return true;
+
+                default:
+                    return false;
+            }
         }
 
         private static void LoadExistingWorld(List<(WorldInformation information, string path)> worlds)
