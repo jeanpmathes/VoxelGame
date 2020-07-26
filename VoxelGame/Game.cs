@@ -132,145 +132,6 @@ namespace VoxelGame
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "The characters '[' and ']' are not culture dependent.")]
-        private static void WorldSetup(string worldsDirectory)
-        {
-            using (logger.BeginScope("WorldSetup"))
-            {
-                // Finding of worlds and letting the user choose a world
-                List<(WorldInformation information, string path)> worlds = new List<(WorldInformation information, string path)>();
-
-                foreach (string directory in Directory.GetDirectories(worldsDirectory))
-                {
-                    string meta = Path.Combine(directory, "meta.json");
-
-                    if (File.Exists(meta))
-                    {
-                        WorldInformation information = WorldInformation.Load(meta);
-                        worlds.Add((information, directory));
-
-                        logger.LogDebug("Valid world directory found: {directory}", directory);
-                    }
-                    else
-                    {
-                        logger.LogDebug("The directory has no meta file and is ignored: {directory}", directory);
-                    }
-                }
-
-                logger.LogInformation("Completed world lookup, {Count} valid directories have been found.", worlds.Count);
-
-                Thread.Sleep(100);
-
-                if (worlds.Count > 0)
-                {
-                    Console.WriteLine(Language.ListingWorlds);
-
-                    for (int n = 0; n < worlds.Count; n++)
-                    {
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.Write($"{n + 1}: ");
-
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.Write($"{worlds[n].information.Name} - {Language.CreatedOn}: {worlds[n].information.Creation}");
-
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.Write(" [");
-
-                        if (worlds[n].information.Version == Program.Version) Console.ForegroundColor = ConsoleColor.Green;
-                        else Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Write(worlds[n].information.Version);
-
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.WriteLine("]");
-                    }
-
-                    Console.ResetColor();
-                    Console.WriteLine();
-                }
-
-                string input;
-                if (worlds.Count == 0)
-                {
-                    logger.LogInformation("Skipping new world prompt as no worlds are available to load.");
-
-                    input = "y";
-                }
-                else
-                {
-                    Console.WriteLine(Language.NewWorldPrompt + " [y|skip: n]");
-
-                    Console.ForegroundColor = ConsoleColor.White;
-                    input = Console.ReadLine();
-                    Console.ResetColor();
-                }
-
-                if (input == "y" || input == "yes")
-                {
-                    // Create a new world
-                    Console.WriteLine(Language.EnterNameOfWorld);
-
-                    Console.ForegroundColor = ConsoleColor.White;
-                    string name = Console.ReadLine();
-                    Console.ResetColor();
-
-                    // Validate name
-                    if (string.IsNullOrEmpty(name) ||
-                        name.Contains("\"", StringComparison.Ordinal) ||
-                        name.Contains("<", StringComparison.Ordinal) ||
-                        name.Contains(">", StringComparison.Ordinal) ||
-                        name.Contains("|", StringComparison.Ordinal) ||
-                        name.Contains("\\", StringComparison.Ordinal) ||
-                        name.Contains("/", StringComparison.Ordinal))
-                    {
-                        name = "New World";
-                    }
-
-                    StringBuilder path = new StringBuilder(Path.Combine(worldsDirectory, name));
-
-                    while (Directory.Exists(path.ToString()))
-                    {
-                        path.Append('_');
-                    }
-
-                    World = new World(name, path.ToString(), DateTime.Now.GetHashCode());
-                }
-                else
-                {
-                    // Load an existing world
-                    while (World == null)
-                    {
-                        Console.WriteLine(Language.EnterIndexOfWorld);
-
-                        Console.ForegroundColor = ConsoleColor.White;
-                        string index = Console.ReadLine();
-                        Console.ResetColor();
-
-                        if (int.TryParse(index, out int n))
-                        {
-                            n--;
-
-                            if (n >= 0 && n < worlds.Count)
-                            {
-                                World = new World(worlds[n].information, worlds[n].path);
-                            }
-                            else
-                            {
-                                logger.LogWarning("The index ({i}) is too high or too low.", n);
-
-                                Console.WriteLine(Language.WorldNotFound);
-                            }
-                        }
-                        else
-                        {
-                            logger.LogWarning("The input ({input}) could not be parsed to an int value.", index);
-
-                            Console.WriteLine(Language.InputNotValid);
-                        }
-                    }
-                }
-            }
-        }
-
         new protected void OnRenderFrame(FrameEventArgs e)
         {
             using (logger.BeginScope("RenderFrame"))
@@ -376,6 +237,175 @@ namespace VoxelGame
 
             logger.LogInformation("Closing window.");
         }
+
+        #region WORLD SETUP
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "The characters '[' and ']' are not culture dependent.")]
+        private static void WorldSetup(string worldsDirectory)
+        {
+            using (logger.BeginScope("WorldSetup"))
+            {
+                List<(WorldInformation information, string path)> worlds = WorldLookup(worldsDirectory);
+                ListWorlds(worlds);
+
+                bool newWorld;
+
+                if (worlds.Count == 0)
+                {
+                    logger.LogInformation("Skipping new world prompt as no worlds are available to load.");
+
+                    newWorld = false;
+                }
+                else
+                {
+                    newWorld = NewWorldPrompt();
+                }
+
+                if (newWorld)
+                {
+                    CreateNewWorld(worldsDirectory);
+                }
+                else
+                {
+                    LoadExistingWorld(worlds);
+                }
+            }
+        }
+
+        private static List<(WorldInformation information, string path)> WorldLookup(string worldsDirectory)
+        {
+            List<(WorldInformation information, string path)> worlds = new List<(WorldInformation information, string path)>();
+
+            foreach (string directory in Directory.GetDirectories(worldsDirectory))
+            {
+                string meta = Path.Combine(directory, "meta.json");
+
+                if (File.Exists(meta))
+                {
+                    WorldInformation information = WorldInformation.Load(meta);
+                    worlds.Add((information, directory));
+
+                    logger.LogDebug("Valid world directory found: {directory}", directory);
+                }
+                else
+                {
+                    logger.LogDebug("The directory has no meta file and is ignored: {directory}", directory);
+                }
+            }
+
+            logger.LogInformation("Completed world lookup, {Count} valid directories have been found.", worlds.Count);
+
+            return worlds;
+        }
+
+        private static void ListWorlds(List<(WorldInformation information, string path)> worlds)
+        {
+            Thread.Sleep(100);
+
+            if (worlds.Count > 0)
+            {
+                Console.WriteLine(Language.ListingWorlds);
+
+                for (int n = 0; n < worlds.Count; n++)
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write($"{n + 1}: ");
+
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.Write($"{worlds[n].information.Name} - {Language.CreatedOn}: {worlds[n].information.Creation}");
+
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(" [");
+
+                    if (worlds[n].information.Version == Program.Version) Console.ForegroundColor = ConsoleColor.Green;
+                    else Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write(worlds[n].information.Version);
+
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine("]");
+                }
+
+                Console.ResetColor();
+                Console.WriteLine();
+            }
+        }
+
+        private static bool NewWorldPrompt()
+        {
+            Console.WriteLine(Language.NewWorldPrompt + " [y|skip: n]");
+
+            Console.ForegroundColor = ConsoleColor.White;
+            string input = Console.ReadLine().ToUpperInvariant();
+            Console.ResetColor();
+
+            return input == "Y" || input == "YES";
+        }
+
+        private static void CreateNewWorld(string worldsDirectory)
+        {
+            Console.WriteLine(Language.EnterNameOfWorld);
+
+            Console.ForegroundColor = ConsoleColor.White;
+            string name = Console.ReadLine();
+            Console.ResetColor();
+
+            // Validate name
+            if (string.IsNullOrEmpty(name) ||
+                name.Contains("\"", StringComparison.Ordinal) ||
+                name.Contains("<", StringComparison.Ordinal) ||
+                name.Contains(">", StringComparison.Ordinal) ||
+                name.Contains("|", StringComparison.Ordinal) ||
+                name.Contains("\\", StringComparison.Ordinal) ||
+                name.Contains("/", StringComparison.Ordinal))
+            {
+                name = "New World";
+            }
+
+            StringBuilder path = new StringBuilder(Path.Combine(worldsDirectory, name));
+
+            while (Directory.Exists(path.ToString()))
+            {
+                path.Append('_');
+            }
+
+            World = new World(name, path.ToString(), DateTime.Now.GetHashCode());
+        }
+
+        private static void LoadExistingWorld(List<(WorldInformation information, string path)> worlds)
+        {
+            while (World == null)
+            {
+                Console.WriteLine(Language.EnterIndexOfWorld);
+
+                Console.ForegroundColor = ConsoleColor.White;
+                string index = Console.ReadLine();
+                Console.ResetColor();
+
+                if (int.TryParse(index, out int n))
+                {
+                    n--;
+
+                    if (n >= 0 && n < worlds.Count)
+                    {
+                        World = new World(worlds[n].information, worlds[n].path);
+                    }
+                    else
+                    {
+                        logger.LogWarning("The index ({i}) is too high or too low.", n);
+
+                        Console.WriteLine(Language.WorldNotFound);
+                    }
+                }
+                else
+                {
+                    logger.LogWarning("The input ({input}) could not be parsed to an int value.", index);
+
+                    Console.WriteLine(Language.InputNotValid);
+                }
+            }
+        }
+
+        #endregion WORLD SETUP
 
         #region MOUSE MOVE
 

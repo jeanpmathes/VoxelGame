@@ -245,7 +245,52 @@ namespace VoxelGame.Logic
 
         public void FrameUpdate(float deltaTime)
         {
-            // Handle chunks to activate
+            StartActivatingChunks();
+
+            FinishGeneratingChunks();
+            StartGeneratingChunks();
+
+            FinishLoadingChunks();
+            StartLoadingChunks();
+
+            FinishMeshingChunks();
+            StartMeshingChunks();
+            SendMeshData();
+
+            if (IsReady)
+            {
+                // Tick objects in world.
+                foreach (Chunk chunk in activeChunks.Values)
+                {
+                    chunk.Tick();
+                }
+
+                Game.Player.Tick(deltaTime);
+
+                // Mesh all listed sections.
+                foreach ((Chunk chunk, int index) in sectionsToMesh)
+                {
+                    chunk.CreateAndSetMesh(index);
+                }
+
+                sectionsToMesh.Clear();
+            }
+            else
+            {
+                if (activeChunks.Count >= 25 && activeChunks.ContainsKey((0, 0)))
+                {
+                    IsReady = true;
+
+                    logger.LogInformation("The world is ready.");
+                }
+            }
+
+            FinishSavingChunks();
+            StartSavingChunks();
+        }
+
+        private void StartActivatingChunks()
+        {
             foreach ((int x, int z) in positionsToActivate)
             {
                 if (!positionsActivating.Contains((x, z)) && !activeChunks.ContainsKey((x, z)))
@@ -273,8 +318,10 @@ namespace VoxelGame.Logic
             }
 
             positionsToActivate.Clear();
+        }
 
-            // Check if generation tasks have finished and add the generated chunks to the active chunks dictionary
+        private void FinishGeneratingChunks()
+        {
             if (chunkGenerateTasks.Count > 0)
             {
                 for (int i = chunkGenerateTasks.Count - 1; i >= 0; i--)
@@ -327,8 +374,10 @@ namespace VoxelGame.Logic
                     }
                 }
             }
+        }
 
-            // Start generating new chunks if necessary
+        private void StartGeneratingChunks()
+        {
             while (chunksToGenerate.Count > 0 && chunkGenerateTasks.Count < maxGenerationTasks)
             {
                 Chunk current = chunksToGenerate.Dequeue();
@@ -337,8 +386,10 @@ namespace VoxelGame.Logic
                 chunkGenerateTasks.Add(currentTask);
                 chunksGenerating.Add(currentTask.Id, current);
             }
+        }
 
-            // Check if loading tasks have finished
+        private void FinishLoadingChunks()
+        {
             if (chunkLoadingTasks.Count > 0)
             {
                 for (int i = chunkLoadingTasks.Count - 1; i >= 0; i--)
@@ -424,8 +475,10 @@ namespace VoxelGame.Logic
                     }
                 }
             }
+        }
 
-            // Start loading new chunks if necessary
+        private void StartLoadingChunks()
+        {
             while (positionsToLoad.Count > 0 && chunkLoadingTasks.Count < maxLoadingTasks)
             {
                 (int x, int z) = positionsToLoad.Dequeue();
@@ -447,8 +500,10 @@ namespace VoxelGame.Logic
                     }
                 }
             }
+        }
 
-            // Check if meshing tasks have finished
+        private void FinishMeshingChunks()
+        {
             if (chunkMeshingTasks.Count > 0)
             {
                 for (int i = chunkMeshingTasks.Count - 1; i >= 0; i--)
@@ -476,8 +531,10 @@ namespace VoxelGame.Logic
                     }
                 }
             }
+        }
 
-            // Start meshing the listed chunks
+        private void StartMeshingChunks()
+        {
             while (chunksToMesh.Count > 0 && chunkMeshingTasks.Count < maxMeshingTasks)
             {
                 Chunk current = chunksToMesh.Dequeue();
@@ -487,8 +544,10 @@ namespace VoxelGame.Logic
                 chunkMeshingTasks.Add(currentTask);
                 chunksMeshing.Add(currentTask.Id, current);
             }
+        }
 
-            //Send mesh data to the chunks
+        private void SendMeshData()
+        {
             if (chunksToSendMeshData.Count > 0)
             {
                 int i = 0;
@@ -506,48 +565,21 @@ namespace VoxelGame.Logic
                     }
                 }
             }
+        }
 
-            if (IsReady)
-            {
-                // Tick objects in world
-
-                foreach (Chunk chunk in activeChunks.Values)
-                {
-                    chunk.Tick();
-                }
-
-                Game.Player.Tick(deltaTime);
-
-                // Mesh all listed sections
-                foreach ((Chunk chunk, int index) in sectionsToMesh)
-                {
-                    chunk.CreateAndSetMesh(index);
-                }
-
-                sectionsToMesh.Clear();
-            }
-            else
-            {
-                if (activeChunks.Count >= 25 && activeChunks.ContainsKey((0, 0)))
-                {
-                    IsReady = true;
-
-                    logger.LogInformation("The world is ready.");
-                }
-            }
-
-            // Check if saving tasks have finished
+        private void FinishSavingChunks()
+        {
             if (chunkSavingTasks.Count > 0)
             {
-                for (int i = chunkSavingTasks.Count - 1; i >= 0; i--)
+                for (int i2 = chunkSavingTasks.Count - 1; i2 >= 0; i2--)
                 {
-                    if (chunkSavingTasks[i].IsCompleted)
+                    if (chunkSavingTasks[i2].IsCompleted)
                     {
-                        Task completed = chunkSavingTasks[i];
-                        Chunk completedChunk = chunksSaving[completed.Id];
+                        Task completed2 = chunkSavingTasks[i2];
+                        Chunk completedChunk = chunksSaving[completed2.Id];
 
-                        chunkSavingTasks.RemoveAt(i);
-                        chunksSaving.Remove(completed.Id);
+                        chunkSavingTasks.RemoveAt(i2);
+                        chunksSaving.Remove(completed2.Id);
                         positionsSaving.Remove((completedChunk.X, completedChunk.Z));
 
                         // Check if the chunk should be activated and is not active and not requested to be released on activation; if true, the chunk will not be disposed
@@ -567,31 +599,31 @@ namespace VoxelGame.Logic
                             chunksToMesh.Enqueue(completedChunk);
 
                             // Schedule to mesh the chunks around this chunk
-                            if (activeChunks.TryGetValue((completedChunk.X + 1, completedChunk.Z), out Chunk? neighbor))
+                            if (activeChunks.TryGetValue((completedChunk.X + 1, completedChunk.Z), out Chunk? neighbor2))
                             {
-                                chunksToMesh.Enqueue(neighbor);
+                                chunksToMesh.Enqueue(neighbor2);
                             }
 
-                            if (activeChunks.TryGetValue((completedChunk.X - 1, completedChunk.Z), out neighbor))
+                            if (activeChunks.TryGetValue((completedChunk.X - 1, completedChunk.Z), out neighbor2))
                             {
-                                chunksToMesh.Enqueue(neighbor);
+                                chunksToMesh.Enqueue(neighbor2);
                             }
 
-                            if (activeChunks.TryGetValue((completedChunk.X, completedChunk.Z + 1), out neighbor))
+                            if (activeChunks.TryGetValue((completedChunk.X, completedChunk.Z + 1), out neighbor2))
                             {
-                                chunksToMesh.Enqueue(neighbor);
+                                chunksToMesh.Enqueue(neighbor2);
                             }
 
-                            if (activeChunks.TryGetValue((completedChunk.X, completedChunk.Z - 1), out neighbor))
+                            if (activeChunks.TryGetValue((completedChunk.X, completedChunk.Z - 1), out neighbor2))
                             {
-                                chunksToMesh.Enqueue(neighbor);
+                                chunksToMesh.Enqueue(neighbor2);
                             }
                         }
                         else
                         {
-                            if (completed.IsFaulted)
+                            if (completed2.IsFaulted)
                             {
-                                logger.LogError(LoggingEvents.ChunkSavingError, completed.Exception!.GetBaseException(), "An exception occurred when saving chunk ({x}|{z}). " +
+                                logger.LogError(LoggingEvents.ChunkSavingError, completed2.Exception!.GetBaseException(), "An exception occurred when saving chunk ({x}|{z}). " +
                                     "The chunk will be disposed without saving.", completedChunk.X, completedChunk.Z);
                             }
 
@@ -607,8 +639,10 @@ namespace VoxelGame.Logic
                     }
                 }
             }
+        }
 
-            // Start saving chunks if necessary
+        private void StartSavingChunks()
+        {
             while (chunksToSave.Count > 0 && chunkSavingTasks.Count < maxSavingTasks)
             {
                 Chunk current = chunksToSave.Dequeue();
@@ -721,50 +755,52 @@ namespace VoxelGame.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetBlock(Block block, byte data, int x, int y, int z)
         {
-            if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
+            if (!activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight * Section.SectionSize)
             {
-                chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = (ushort)((data << 11) | (block ?? Block.AIR).Id);
+                return;
+            }
+
+            chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = (ushort)((data << 11) | (block ?? Block.Air).Id);
+            sectionsToMesh.Add((chunk, y >> chunkHeightExp));
+
+            // Block updates
+            GetBlock(x, y, z + 1, out data)?.BlockUpdate(x, y, z + 1, data, BlockSide.Back);
+            GetBlock(x, y, z - 1, out data)?.BlockUpdate(x, y, z - 1, data, BlockSide.Front);
+            GetBlock(x - 1, y, z, out data)?.BlockUpdate(x - 1, y, z, data, BlockSide.Right);
+            GetBlock(x + 1, y, z, out data)?.BlockUpdate(x + 1, y, z, data, BlockSide.Left);
+            GetBlock(x, y - 1, z, out data)?.BlockUpdate(x, y - 1, z, data, BlockSide.Top);
+            GetBlock(x, y + 1, z, out data)?.BlockUpdate(x, y + 1, z, data, BlockSide.Bottom);
+
+            // Check if sections next to this section have to be changed
+
+            // Next on y axis
+            if ((y & (Section.SectionSize - 1)) == 0 && (y - 1 >> chunkHeightExp) >= 0)
+            {
+                sectionsToMesh.Add((chunk, y - 1 >> chunkHeightExp));
+            }
+            else if ((y & (Section.SectionSize - 1)) == Section.SectionSize - 1 && (y + 1 >> chunkHeightExp) < Chunk.ChunkHeight)
+            {
+                sectionsToMesh.Add((chunk, y + 1 >> chunkHeightExp));
+            }
+
+            // Next on x axis
+            if ((x & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x - 1 >> sectionSizeExp, z >> sectionSizeExp), out chunk))
+            {
                 sectionsToMesh.Add((chunk, y >> chunkHeightExp));
+            }
+            else if ((x & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue((x + 1 >> sectionSizeExp, z >> sectionSizeExp), out chunk))
+            {
+                sectionsToMesh.Add((chunk, y >> chunkHeightExp));
+            }
 
-                // Block updates
-                GetBlock(x, y, z + 1, out data)?.BlockUpdate(x, y, z + 1, data, BlockSide.Back);
-                GetBlock(x, y, z - 1, out data)?.BlockUpdate(x, y, z - 1, data, BlockSide.Front);
-                GetBlock(x - 1, y, z, out data)?.BlockUpdate(x - 1, y, z, data, BlockSide.Right);
-                GetBlock(x + 1, y, z, out data)?.BlockUpdate(x + 1, y, z, data, BlockSide.Left);
-                GetBlock(x, y - 1, z, out data)?.BlockUpdate(x, y - 1, z, data, BlockSide.Top);
-                GetBlock(x, y + 1, z, out data)?.BlockUpdate(x, y + 1, z, data, BlockSide.Bottom);
-
-                // Check if sections next to this section have to be changed
-
-                // Next on y axis
-                if ((y & (Section.SectionSize - 1)) == 0 && (y - 1 >> chunkHeightExp) >= 0)
-                {
-                    sectionsToMesh.Add((chunk, y - 1 >> chunkHeightExp));
-                }
-                else if ((y & (Section.SectionSize - 1)) == Section.SectionSize - 1 && (y + 1 >> chunkHeightExp) < Chunk.ChunkHeight)
-                {
-                    sectionsToMesh.Add((chunk, y + 1 >> chunkHeightExp));
-                }
-
-                // Next on x axis
-                if ((x & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x - 1 >> sectionSizeExp, z >> sectionSizeExp), out chunk))
-                {
-                    sectionsToMesh.Add((chunk, y >> chunkHeightExp));
-                }
-                else if ((x & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue((x + 1 >> sectionSizeExp, z >> sectionSizeExp), out chunk))
-                {
-                    sectionsToMesh.Add((chunk, y >> chunkHeightExp));
-                }
-
-                // Next on z axis
-                if ((z & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x >> sectionSizeExp, z - 1 >> sectionSizeExp), out chunk))
-                {
-                    sectionsToMesh.Add((chunk, y >> chunkHeightExp));
-                }
-                else if ((z & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue((x >> sectionSizeExp, z + 1 >> sectionSizeExp), out chunk))
-                {
-                    sectionsToMesh.Add((chunk, y >> chunkHeightExp));
-                }
+            // Next on z axis
+            if ((z & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x >> sectionSizeExp, z - 1 >> sectionSizeExp), out chunk))
+            {
+                sectionsToMesh.Add((chunk, y >> chunkHeightExp));
+            }
+            else if ((z & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue((x >> sectionSizeExp, z + 1 >> sectionSizeExp), out chunk))
+            {
+                sectionsToMesh.Add((chunk, y >> chunkHeightExp));
             }
         }
 

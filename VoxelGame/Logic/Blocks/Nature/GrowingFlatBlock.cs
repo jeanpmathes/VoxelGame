@@ -39,7 +39,7 @@ namespace VoxelGame.Logic.Blocks
             Orientation orientation = (Orientation)(data & 0b0_0011);
 
             // If another block of this type is above, no solid block is required to hold.
-            if ((Game.World.GetBlock(x, y + 1, z, out byte dataAbove) ?? Block.AIR) == this && orientation == (Orientation)(dataAbove & 0b0_0011))
+            if ((Game.World.GetBlock(x, y + 1, z, out byte dataAbove) ?? Block.Air) == this && orientation == (Orientation)(dataAbove & 0b0_0011))
             {
                 return;
             }
@@ -48,44 +48,7 @@ namespace VoxelGame.Logic.Blocks
                 side = orientation.Invert().ToBlockSide();
             }
 
-            switch (side)
-            {
-                case BlockSide.Front:
-
-                    if (orientation == Orientation.North && (Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull != true))
-                    {
-                        Destroy(x, y, z);
-                    }
-
-                    break;
-
-                case BlockSide.Back:
-
-                    if (orientation == Orientation.South && (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull != true))
-                    {
-                        Destroy(x, y, z);
-                    }
-
-                    break;
-
-                case BlockSide.Left:
-
-                    if (orientation == Orientation.East && (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull != true))
-                    {
-                        Destroy(x, y, z);
-                    }
-
-                    break;
-
-                case BlockSide.Right:
-
-                    if (orientation == Orientation.West && (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull != true))
-                    {
-                        Destroy(x, y, z);
-                    }
-
-                    break;
-            }
+            CheckBack(x, y, z, side, orientation);
         }
 
         internal override void RandomUpdate(int x, int y, int z, byte data)
@@ -97,7 +60,7 @@ namespace VoxelGame.Logic.Blocks
             {
                 Game.World.SetBlock(this, (byte)(((age + 1) << 2) | (int)orientation), x, y, z);
             }
-            else if (Game.World.GetBlock(x, y - 1, z, out _) == Block.AIR)
+            else if (Game.World.GetBlock(x, y - 1, z, out _) == Block.Air)
             {
                 Game.World.SetBlock(this, (byte)orientation, x, y - 1, z);
             }

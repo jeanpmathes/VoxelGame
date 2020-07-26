@@ -186,64 +186,55 @@ namespace VoxelGame.Logic.Blocks
             {
                 return BoundingBox.BlockAt(x, y, z);
             }
-            else
+
+            int count = BitHelper.CountSetBits(data);
+
+            BoundingBox parent = new BoundingBox();
+            BoundingBox[] children = new BoundingBox[count - 1];
+
+            if ((data & 0b1_0000) != 0)
             {
-                int count = BitHelper.CountSetBits(data);
+                BoundingBox child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.1f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
 
-                BoundingBox parent = new BoundingBox();
-                BoundingBox[] children = new BoundingBox[count - 1];
+                IncludeChild(child);
+            }
 
-                if ((data & 0b1_0000) != 0)
-                {
-                    count--;
+            if ((data & 0b0_1000) != 0)
+            {
+                BoundingBox child = new BoundingBox(new Vector3(0.9f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
 
-                    BoundingBox north = new BoundingBox(new Vector3(0.5f, 0.5f, 0.1f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
+                IncludeChild(child);
+            }
 
-                    if (count == 0) parent = north;
-                    else children[count - 1] = north;
-                }
+            if ((data & 0b0_0100) != 0)
+            {
+                BoundingBox child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.9f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
 
-                if ((data & 0b0_1000) != 0)
-                {
-                    count--;
+                IncludeChild(child);
+            }
 
-                    BoundingBox east = new BoundingBox(new Vector3(0.9f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
+            if ((data & 0b0_0010) != 0)
+            {
+                BoundingBox child = new BoundingBox(new Vector3(0.1f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
 
-                    if (count == 0) parent = east;
-                    else children[count - 1] = east;
-                }
+                IncludeChild(child);
+            }
 
-                if ((data & 0b0_0100) != 0)
-                {
-                    count--;
+            if ((data & 0b0_0001) != 0)
+            {
+                BoundingBox child = new BoundingBox(new Vector3(0.5f, 0.9f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.1f, 0.5f));
 
-                    BoundingBox south = new BoundingBox(new Vector3(0.5f, 0.5f, 0.9f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
+                IncludeChild(child);
+            }
 
-                    if (count == 0) parent = south;
-                    else children[count - 1] = south;
-                }
+            return (children.Length == 0) ? parent : new BoundingBox(parent.Center, parent.Extents, children);
 
-                if ((data & 0b0_0010) != 0)
-                {
-                    count--;
+            void IncludeChild(BoundingBox child)
+            {
+                count--;
 
-                    BoundingBox west = new BoundingBox(new Vector3(0.1f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
-
-                    if (count == 0) parent = west;
-                    else children[count - 1] = west;
-                }
-
-                if ((data & 0b0_0001) != 0)
-                {
-                    count--;
-
-                    BoundingBox top = new BoundingBox(new Vector3(0.5f, 0.9f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.1f, 0.5f));
-
-                    if (count == 0) parent = top;
-                    else children[count - 1] = top;
-                }
-
-                return (children.Length == 0) ? parent : new BoundingBox(parent.Center, parent.Extents, children);
+                if (count == 0) parent = child;
+                else children[count - 1] = child;
             }
         }
 
@@ -260,64 +251,42 @@ namespace VoxelGame.Logic.Blocks
 
                 return 24;
             }
-            else
+
+            int faceCount = BitHelper.CountSetBits(data & 0b1_1111);
+
+            if ((data & 0b0_0001) != 0)
             {
-                int faceCount = 0;
-
-                if ((data & 0b1_0000) != 0)
-                {
-                    faceCount++;
-                }
-
-                if ((data & 0b0_1000) != 0)
-                {
-                    faceCount++;
-                }
-
-                if ((data & 0b0_0100) != 0)
-                {
-                    faceCount++;
-                }
-
-                if ((data & 0b0_0010) != 0)
-                {
-                    faceCount++;
-                }
-
-                if ((data & 0b0_0001) != 0)
-                {
-                    faceCount += 2;
-                }
-
-                vertices = new float[faceCount * 32];
-
-                int vi = 0;
-
-                for (int i = 0; i < 5; i++)
-                {
-                    if ((data & (0b1_0000 >> i)) != 0)
-                    {
-                        Array.Copy(attachedVertices[i], 0, vertices, vi, attachedVertices[i].Length);
-                        vi += attachedVertices[i].Length;
-                    }
-                }
-
-                textureIndices = new int[faceCount * 4];
-
-                for (int i = 0; i < textureIndices.Length; i++)
-                {
-                    textureIndices[i] = texIndex;
-                }
-
-                indices = new uint[faceCount * 12];
-
-                Array.Copy(completeIndices, indices, indices.Length);
-
-                tint = TintColor.None;
-                isAnimated = true;
-
-                return (uint)(faceCount * 4);
+                faceCount++;
             }
+
+            vertices = new float[faceCount * 32];
+
+            int vi = 0;
+
+            for (int i = 0; i < 5; i++)
+            {
+                if ((data & (0b1_0000 >> i)) != 0)
+                {
+                    Array.Copy(attachedVertices[i], 0, vertices, vi, attachedVertices[i].Length);
+                    vi += attachedVertices[i].Length;
+                }
+            }
+
+            textureIndices = new int[faceCount * 4];
+
+            for (int i = 0; i < textureIndices.Length; i++)
+            {
+                textureIndices[i] = texIndex;
+            }
+
+            indices = new uint[faceCount * 12];
+
+            Array.Copy(completeIndices, indices, indices.Length);
+
+            tint = TintColor.None;
+            isAnimated = true;
+
+            return (uint)(faceCount * 4);
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
@@ -357,68 +326,59 @@ namespace VoxelGame.Logic.Blocks
             {
                 case BlockSide.Back:
 
-                    if ((data & 0b1_0000) != 0 && Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull != true)
-                    {
-                        data ^= 0b1_0000;
-                        SetData(data);
-                    }
-
+                    CheckNeighbour(x, y, z - 1, 0b1_0000);
                     break;
 
                 case BlockSide.Right:
 
-                    if ((data & 0b0_1000) != 0 && Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull != true)
-                    {
-                        data ^= 0b0_1000;
-                        SetData(data);
-                    }
-
+                    CheckNeighbour(x + 1, y, z, 0b0_1000);
                     break;
 
                 case BlockSide.Front:
 
-                    if ((data & 0b0_0100) != 0 && Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull != true)
-                    {
-                        data ^= 0b0_0100;
-                        SetData(data);
-                    }
-
+                    CheckNeighbour(x, y, z + 1, 0b0_0100);
                     break;
 
                 case BlockSide.Left:
 
-                    if ((data & 0b0_0010) != 0 && Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull != true)
-                    {
-                        data ^= 0b0_0010;
-                        SetData(data);
-                    }
-
+                    CheckNeighbour(x - 1, y, z, 0b0_0010);
                     break;
 
                 case BlockSide.Top:
 
-                    if ((data & 0b0_0001) != 0 && Game.World.GetBlock(x, y + 1, z, out _)?.IsSolidAndFull != true)
-                    {
-                        data ^= 0b0_0001;
-                        SetData(data);
-                    }
-
+                    CheckNeighbour(x, y + 1, z, 0b0_0001);
                     break;
 
                 case BlockSide.Bottom:
 
-                    if (data == 0)
+                    if (data != 0)
                     {
-                        if (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull == true) data |= 0b1_0000; // North.
-                        if (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b0_1000; // East.
-                        if (Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull == true) data |= 0b0_0100; // South.
-                        if (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b0_0010; // West.
-                        if (Game.World.GetBlock(x, y + 1, z, out _)?.IsSolidAndFull == true) data |= 0b0_0001; // Top.
-
-                        SetData(data);
+                        break;
                     }
 
+                    data |= AddNeighbour(x, y, z - 1, 0b1_0000); // North.
+                    data |= AddNeighbour(x + 1, y, z, 0b0_1000); // East.
+                    data |= AddNeighbour(x, y, z + 1, 0b0_0100); // South.
+                    data |= AddNeighbour(x - 1, y, z, 0b0_0010); // West.
+                    data |= AddNeighbour(x, y + 1, z, 0b0_0001); // Top.
+
+                    SetData(data);
+
                     break;
+            }
+
+            void CheckNeighbour(int x, int y, int z, byte mask)
+            {
+                if ((data & mask) != 0 && Game.World.GetBlock(x, y, z, out _)?.IsSolidAndFull != true)
+                {
+                    data ^= mask;
+                    SetData(data);
+                }
+            }
+
+            static byte AddNeighbour(int x, int y, int z, byte mask)
+            {
+                return (Game.World.GetBlock(x, y, z, out _)?.IsSolidAndFull == true) ? mask : (byte)0;
             }
 
             void SetData(byte data)
@@ -440,16 +400,16 @@ namespace VoxelGame.Logic.Blocks
 
             if (data == 0)
             {
-                canBurn = BurnAt(x, y - 1, z); // Bottom.
+                canBurn |= BurnAt(x, y - 1, z); // Bottom.
 
                 data = 0b1_1111;
             }
 
-            if ((data & 0b1_0000) != 0) canBurn = BurnAt(x, y, z - 1); // North.
-            if ((data & 0b0_1000) != 0) canBurn = BurnAt(x + 1, y, z); // East.
-            if ((data & 0b0_0100) != 0) canBurn = BurnAt(x, y, z + 1); // South.
-            if ((data & 0b0_0010) != 0) canBurn = BurnAt(x - 1, y, z); // West.
-            if ((data & 0b0_0001) != 0) canBurn = BurnAt(x, y + 1, z); // Top.
+            if ((data & 0b1_0000) != 0) canBurn |= BurnAt(x, y, z - 1); // North.
+            if ((data & 0b0_1000) != 0) canBurn |= BurnAt(x + 1, y, z); // East.
+            if ((data & 0b0_0100) != 0) canBurn |= BurnAt(x, y, z + 1); // South.
+            if ((data & 0b0_0010) != 0) canBurn |= BurnAt(x - 1, y, z); // West.
+            if ((data & 0b0_0001) != 0) canBurn |= BurnAt(x, y + 1, z); // Top.
 
             if (!canBurn)
             {

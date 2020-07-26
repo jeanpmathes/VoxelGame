@@ -25,19 +25,19 @@ namespace VoxelGame.WorldGeneration
             {
                 if (y > heightAir)
                 {
-                    yield return Block.AIR;
+                    yield return Block.Air;
                 }
                 else if (y == heightAir)
                 {
-                    yield return Block.GRASS;
+                    yield return Block.Grass;
                 }
                 else if (y > heightDirt)
                 {
-                    yield return Block.DIRT;
+                    yield return Block.Dirt;
                 }
                 else
                 {
-                    yield return Block.STONE;
+                    yield return Block.Stone;
                 }
             }
         }

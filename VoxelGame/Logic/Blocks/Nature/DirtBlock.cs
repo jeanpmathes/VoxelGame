@@ -28,62 +28,62 @@ namespace VoxelGame.Logic.Blocks
         internal override void RandomUpdate(int x, int y, int z, byte data)
         {
             // Check if this block can be grass
-            if ((Game.World.GetBlock(x, y + 1, z, out _) ?? Block.AIR).IsSolidAndFull)
+            if ((Game.World.GetBlock(x, y + 1, z, out _) ?? Block.Air).IsSolidAndFull)
             {
                 return;
             }
 
             // Check surrounding blocks for grass
             // Same height:
-            if (Game.World.GetBlock(x + 1, y, z, out _) == Block.GRASS)
+            if (Game.World.GetBlock(x + 1, y, z, out _) == Block.Grass)
             {
-                Game.World.SetBlock(Block.GRASS, 0, x, y, z);
+                Game.World.SetBlock(Block.Grass, 0, x, y, z);
             }
-            else if (Game.World.GetBlock(x - 1, y, z, out _) == Block.GRASS)
+            else if (Game.World.GetBlock(x - 1, y, z, out _) == Block.Grass)
             {
-                Game.World.SetBlock(Block.GRASS, 0, x, y, z);
+                Game.World.SetBlock(Block.Grass, 0, x, y, z);
             }
-            else if (Game.World.GetBlock(x, y, z + 1, out _) == Block.GRASS)
+            else if (Game.World.GetBlock(x, y, z + 1, out _) == Block.Grass)
             {
-                Game.World.SetBlock(Block.GRASS, 0, x, y, z);
+                Game.World.SetBlock(Block.Grass, 0, x, y, z);
             }
-            else if (Game.World.GetBlock(x, y, z - 1, out _) == Block.GRASS)
+            else if (Game.World.GetBlock(x, y, z - 1, out _) == Block.Grass)
             {
-                Game.World.SetBlock(Block.GRASS, 0, x, y, z);
+                Game.World.SetBlock(Block.Grass, 0, x, y, z);
             }
             // One block up:
-            else if (Game.World.GetBlock(x + 1, y + 1, z, out _) == Block.GRASS)
+            else if (Game.World.GetBlock(x + 1, y + 1, z, out _) == Block.Grass)
             {
-                Game.World.SetBlock(Block.GRASS, 0, x, y, z);
+                Game.World.SetBlock(Block.Grass, 0, x, y, z);
             }
-            else if (Game.World.GetBlock(x - 1, y + 1, z, out _) == Block.GRASS)
+            else if (Game.World.GetBlock(x - 1, y + 1, z, out _) == Block.Grass)
             {
-                Game.World.SetBlock(Block.GRASS, 0, x, y, z);
+                Game.World.SetBlock(Block.Grass, 0, x, y, z);
             }
-            else if (Game.World.GetBlock(x, y + 1, z + 1, out _) == Block.GRASS)
+            else if (Game.World.GetBlock(x, y + 1, z + 1, out _) == Block.Grass)
             {
-                Game.World.SetBlock(Block.GRASS, 0, x, y, z);
+                Game.World.SetBlock(Block.Grass, 0, x, y, z);
             }
-            else if (Game.World.GetBlock(x, y + 1, z - 1, out _) == Block.GRASS)
+            else if (Game.World.GetBlock(x, y + 1, z - 1, out _) == Block.Grass)
             {
-                Game.World.SetBlock(Block.GRASS, 0, x, y, z);
+                Game.World.SetBlock(Block.Grass, 0, x, y, z);
             }
             // One block down:
-            else if (Game.World.GetBlock(x + 1, y - 1, z, out _) == Block.GRASS)
+            else if (Game.World.GetBlock(x + 1, y - 1, z, out _) == Block.Grass)
             {
-                Game.World.SetBlock(Block.GRASS, 0, x, y, z);
+                Game.World.SetBlock(Block.Grass, 0, x, y, z);
             }
-            else if (Game.World.GetBlock(x - 1, y - 1, z, out _) == Block.GRASS)
+            else if (Game.World.GetBlock(x - 1, y - 1, z, out _) == Block.Grass)
             {
-                Game.World.SetBlock(Block.GRASS, 0, x, y, z);
+                Game.World.SetBlock(Block.Grass, 0, x, y, z);
             }
-            else if (Game.World.GetBlock(x, y - 1, z + 1, out _) == Block.GRASS)
+            else if (Game.World.GetBlock(x, y - 1, z + 1, out _) == Block.Grass)
             {
-                Game.World.SetBlock(Block.GRASS, 0, x, y, z);
+                Game.World.SetBlock(Block.Grass, 0, x, y, z);
             }
-            else if (Game.World.GetBlock(x, y - 1, z - 1, out _) == Block.GRASS)
+            else if (Game.World.GetBlock(x, y - 1, z - 1, out _) == Block.Grass)
             {
-                Game.World.SetBlock(Block.GRASS, 0, x, y, z);
+                Game.World.SetBlock(Block.Grass, 0, x, y, z);
             }
         }
     }

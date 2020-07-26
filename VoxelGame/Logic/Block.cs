@@ -183,7 +183,7 @@ namespace VoxelGame.Logic
 
         protected virtual bool Destroy(Entities.PhysicsEntity? entity, int x, int y, int z, byte data)
         {
-            Game.World.SetBlock(Block.AIR, 0, x, y, z);
+            Game.World.SetBlock(Block.Air, 0, x, y, z);
 
             return true;
         }

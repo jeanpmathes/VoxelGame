@@ -116,40 +116,19 @@ namespace VoxelGame.Entities
             Vector3 movement = Velocity * deltaTime;
             movement *= 1f / physicsIterations;
 
+            HashSet<(int x, int y, int z, Logic.Block block)> intersections = new HashSet<(int x, int y, int z, Logic.Block block)>();
+
             for (int i = 0; i < physicsIterations; i++)
             {
-                boundingBox.Center += movement;
-                if (BoundingBox.IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision, out List<(int x, int y, int z, Logic.Block block)> intersections))
+                DoPhysicsStep(ref movement, ref intersections);
+            }
+
+            foreach ((int x, int y, int z, Logic.Block block) in intersections)
+            {
+                if (block.RecieveCollisions)
                 {
-                    if (yCollision)
-                    {
-                        int xPos = (int)Math.Floor(BoundingBox.Center.X);
-                        int yPos = (int)Math.Floor(BoundingBox.Center.Y);
-                        int zPos = (int)Math.Floor(BoundingBox.Center.Z);
-
-                        IsGrounded = !Game.World.GetBlock(xPos, yPos + (int)Math.Round(BoundingBox.Extents.Y), zPos, out _)?.IsSolid ?? true;
-                    }
-
-                    movement = new Vector3(
-                        xCollision ? 0f : movement.X,
-                        yCollision ? 0f : movement.Y,
-                        zCollision ? 0f : movement.Z);
-
-                    Velocity = new Vector3(
-                        xCollision ? 0f : Velocity.X,
-                        yCollision ? 0f : Velocity.Y,
-                        zCollision ? 0f : Velocity.Z);
+                    block.EntityCollision(this, x, y, z);
                 }
-
-                for (int j = 0; j < intersections.Count; j++)
-                {
-                    if (intersections[j].block.RecieveCollisions)
-                    {
-                        intersections[j].block.EntityCollision(this, intersections[j].x, intersections[j].y, intersections[j].z);
-                    }
-                }
-
-                Position += movement;
             }
 
             boundingBox.Center = Position;
@@ -157,6 +136,35 @@ namespace VoxelGame.Entities
             force = new Vector3(0f, Gravity * Mass, 0f);
 
             Update(deltaTime);
+        }
+
+        private void DoPhysicsStep(ref Vector3 movement, ref HashSet<(int x, int y, int z, Logic.Block block)> intersections)
+        {
+            boundingBox.Center += movement;
+
+            if (BoundingBox.IntersectsTerrain(ref intersections, out bool xCollision, out bool yCollision, out bool zCollision))
+            {
+                if (yCollision)
+                {
+                    int xPos = (int)Math.Floor(BoundingBox.Center.X);
+                    int yPos = (int)Math.Floor(BoundingBox.Center.Y);
+                    int zPos = (int)Math.Floor(BoundingBox.Center.Z);
+
+                    IsGrounded = !Game.World.GetBlock(xPos, yPos + (int)Math.Round(BoundingBox.Extents.Y), zPos, out _)?.IsSolid ?? true;
+                }
+
+                movement = new Vector3(
+                    xCollision ? 0f : movement.X,
+                    yCollision ? 0f : movement.Y,
+                    zCollision ? 0f : movement.Z);
+
+                Velocity = new Vector3(
+                    xCollision ? 0f : Velocity.X,
+                    yCollision ? 0f : Velocity.Y,
+                    zCollision ? 0f : Velocity.Z);
+            }
+
+            Position += movement;
         }
 
         #region IDisposable Support

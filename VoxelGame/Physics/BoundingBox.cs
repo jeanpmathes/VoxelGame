@@ -292,15 +292,13 @@ namespace VoxelGame.Physics
             }
         }
 
-        private bool IntersectsTerrain_NonRecursive(out bool xCollision, out bool yCollision, out bool zCollision, out List<(int x, int y, int z, Block block)> intersections)
+        private bool IntersectsTerrain_NonRecursive(ref HashSet<(int x, int y, int z, Block block)> intersections, out bool xCollision, out bool yCollision, out bool zCollision)
         {
             bool intersects = false;
 
             xCollision = false;
             yCollision = false;
             zCollision = false;
-
-            intersections = new List<(int, int, int, Block)>();
 
             // Calculate the range of blocks to check
             float highestExtent = (Extents.X > Extents.Y) ? Extents.X : Extents.Y;
@@ -354,9 +352,9 @@ namespace VoxelGame.Physics
             return intersects;
         }
 
-        public bool IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision, out List<(int x, int y, int z, Block block)> intersections)
+        public bool IntersectsTerrain(ref HashSet<(int x, int y, int z, Block block)> intersections, out bool xCollision, out bool yCollision, out bool zCollision)
         {
-            bool isIntersecting = IntersectsTerrain_NonRecursive(out xCollision, out yCollision, out zCollision, out intersections);
+            bool isIntersecting = IntersectsTerrain_NonRecursive(ref intersections, out xCollision, out yCollision, out zCollision);
 
             if (ChildCount == 0)
             {
@@ -366,15 +364,13 @@ namespace VoxelGame.Physics
             {
                 for (int i = 0; i < ChildCount; i++)
                 {
-                    bool childIntersecting = children[i].IntersectsTerrain(out bool childX, out bool childY, out bool childZ, out List<(int x, int y, int z, Block block)> childIntersections);
+                    bool childIntersecting = children[i].IntersectsTerrain(ref intersections, out bool childX, out bool childY, out bool childZ);
 
                     isIntersecting = childIntersecting || isIntersecting;
 
                     xCollision = childX || xCollision;
                     yCollision = childY || yCollision;
                     zCollision = childZ || zCollision;
-
-                    intersections.AddRange(childIntersections);
                 }
 
                 return isIntersecting;

@@ -12,6 +12,8 @@ namespace VoxelGame.Collections
     [DebuggerDisplay("Count = {Count}")]
     public class PooledList<T>
     {
+        private readonly ArrayPool<T> arrayPool;
+
         private T[] items;
         private int size;
 
@@ -20,6 +22,7 @@ namespace VoxelGame.Collections
         /// </summary>
         public PooledList()
         {
+            arrayPool = ArrayPool<T>.Shared;
             items = Array.Empty<T>();
         }
 
@@ -29,6 +32,8 @@ namespace VoxelGame.Collections
         /// <param name="capacity">The minimum number of elements that the new list can initially store. The</param>
         public PooledList(int capacity)
         {
+            arrayPool = ArrayPool<T>.Shared;
+
             if (capacity < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(capacity), $"The value '{capacity}' is negative, which is not allowed.");
@@ -40,8 +45,18 @@ namespace VoxelGame.Collections
             }
             else
             {
-                items = ArrayPool<T>.Shared.Rent(capacity);
+                items = arrayPool.Rent(capacity);
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledList{T}"/> class that is empty, has at least the specified initial capacity and uses a specified <see cref="ArrayPool{T}"/>
+        /// </summary>
+        /// <param name="capacity">The minimum number of elements that the new list can initially store. The</param>
+        /// <param name="arrayPool">The <see cref="ArrayPool{T}"/> to use.</param>
+        public PooledList(int capacity, ArrayPool<T> arrayPool) : this(capacity)
+        {
+            this.arrayPool = arrayPool;
         }
 
         /// <summary>
@@ -61,14 +76,14 @@ namespace VoxelGame.Collections
                 {
                     if (value > 0)
                     {
-                        T[] newItems = ArrayPool<T>.Shared.Rent(value);
+                        T[] newItems = arrayPool.Rent(value);
 
                         if (size > 0)
                         {
                             Array.Copy(items, 0, newItems, 0, size);
                         }
 
-                        ArrayPool<T>.Shared.Return(items);
+                        arrayPool.Return(items);
 
                         items = newItems;
                     }
@@ -76,7 +91,7 @@ namespace VoxelGame.Collections
                     {
                         if (items.Length > 0)
                         {
-                            ArrayPool<T>.Shared.Return(items);
+                            arrayPool.Return(items);
                         }
 
                         items = Array.Empty<T>();
@@ -237,7 +252,7 @@ namespace VoxelGame.Collections
         /// </summary>
         public void ReturnToPool()
         {
-            ArrayPool<T>.Shared.Return(items);
+            arrayPool.Return(items);
             items = Array.Empty<T>();
 
             size = 0;

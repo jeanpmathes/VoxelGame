@@ -181,27 +181,23 @@ namespace VoxelGame.Logic.Blocks
             bool connectX = (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z)) || (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z));
             bool connectZ = (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1)) || (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1));
 
-            if ((orientation == Orientation.North || orientation == Orientation.South) && !connectX)
+            if (orientation.IsZ() && !connectX)
             {
-                if (connectZ)
-                {
-                    orientation = orientation.Rotate();
-                }
-                else
+                if (!connectZ)
                 {
                     return false;
                 }
+
+                orientation = orientation.Rotate();
             }
-            else if ((orientation == Orientation.East || orientation == Orientation.West) && !connectZ)
+            else if (orientation.IsX() && !connectZ)
             {
-                if (connectX)
-                {
-                    orientation = orientation.Rotate();
-                }
-                else
+                if (!connectX)
                 {
                     return false;
                 }
+
+                orientation = orientation.Rotate();
             }
 
             Game.World.SetBlock(this, (byte)orientation, x, y, z);
@@ -241,7 +237,7 @@ namespace VoxelGame.Logic.Blocks
                 case BlockSide.Left:
                 case BlockSide.Right:
 
-                    if ((orientation == Orientation.North || orientation == Orientation.South) &&
+                    if (orientation.IsZ() &&
                         !((Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z)) ||
                         (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))))
                     {
@@ -253,7 +249,7 @@ namespace VoxelGame.Logic.Blocks
                 case BlockSide.Front:
                 case BlockSide.Back:
 
-                    if ((orientation == Orientation.East || orientation == Orientation.West) &&
+                    if (orientation.IsX() &&
                         !((Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1)) ||
                         (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))))
                     {

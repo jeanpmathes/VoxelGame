@@ -210,7 +210,7 @@ namespace VoxelGame.Logic.Blocks
         {
             GrowthStage stage = (GrowthStage)(data & 0b0_0111);
 
-            if ((int)stage > 2 && Game.World.GetBlock(x, y - 1, z, out _) != Block.FARMLAND)
+            if ((int)stage > 2 && Game.World.GetBlock(x, y - 1, z, out _) != Block.Farmland)
             {
                 return;
             }
