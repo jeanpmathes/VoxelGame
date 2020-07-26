@@ -82,16 +82,16 @@ namespace VoxelGame.Logic.Blocks
                 0.001f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
 
                 // Two sides: /
-                0.001f, 0f, 0.999f, 0f, 0f, 0f, 0f, 0f,
-                0.001f, 1f, 0.999f, 0f, 1f, 0f, 0f, 0f,
-                0.999f, 1f, 0.001f, 1f, 1f, 0f, 0f, 0f,
-                0.999f, 0f, 0.001f, 1f, 0f, 0f, 0f, 0f,
+                0.145f, 0f, 0.855f, 0f, 0f, 0f, 0f, 0f,
+                0.145f, 1f, 0.855f, 0f, 1f, 0f, 0f, 0f,
+                0.855f, 1f, 0.145f, 1f, 1f, 0f, 0f, 0f,
+                0.855f, 0f, 0.145f, 1f, 0f, 0f, 0f, 0f,
 
                 // Two sides: \
-                0.001f, 0f, 0.001f, 0f, 0f, 0f, 0f, 0f,
-                0.001f, 1f, 0.001f, 0f, 1f, 0f, 0f, 0f,
-                0.999f, 1f, 0.999f, 1f, 1f, 0f, 0f, 0f,
-                0.999f, 0f, 0.999f, 1f, 0f, 0f, 0f, 0f
+                0.145f, 0f, 0.145f, 0f, 0f, 0f, 0f, 0f,
+                0.145f, 1f, 0.145f, 0f, 1f, 0f, 0f, 0f,
+                0.855f, 1f, 0.855f, 1f, 1f, 0f, 0f, 0f,
+                0.855f, 0f, 0.855f, 1f, 0f, 0f, 0f, 0f
             };
 
             completeTexIndices = new int[24];
