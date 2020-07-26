@@ -17,9 +17,6 @@ namespace VoxelGame.Logic.Blocks
     // o = orientation
     public class OrientedBlock : BasicBlock
     {
-        private protected float[][] sideNormals = null!;
-        private protected int[] texIndices = null!;
-
         public OrientedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
             base(
                 name,
@@ -32,108 +29,19 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        protected override void Setup()
-        {
-            sideVertices = new float[][]
-            {
-                new float[] // Front face
-                {
-                    0f, 0f, 1f,
-                    0f, 1f, 1f,
-                    1f, 1f, 1f,
-                    1f, 0f, 1f
-                },
-                new float[] // Back face
-                {
-                    1f, 0f, 0f,
-                    1f, 1f, 0f,
-                    0f, 1f, 0f,
-                    0f, 0f, 0f
-                },
-                new float[] // Left face
-                {
-                    0f, 0f, 0f,
-                    0f, 1f, 0f,
-                    0f, 1f, 1f,
-                    0f, 0f, 1f
-                },
-                new float[] // Right face
-                {
-                    1f, 0f, 1f,
-                    1f, 1f, 1f,
-                    1f, 1f, 0f,
-                    1f, 0f, 0f
-                },
-                new float[] // Bottom face
-                {
-                    0f, 0f, 0f,
-                    0f, 0f, 1f,
-                    1f, 0f, 1f,
-                    1f, 0f, 0f
-                },
-                new float[] // Top face
-                {
-                    0f, 1f, 1f,
-                    0f, 1f, 0f,
-                    1f, 1f, 0f,
-                    1f, 1f, 1f
-                }
-            };
-
-            sideNormals = new float[][]
-            {
-                new float[] // Front face
-                {
-                    0f, 0f, 1f
-                },
-                new float[] // Back face
-                {
-                    0f, 0f, -1f
-                },
-                new float[] // Left face
-                {
-                    -1f, 0f, 0f
-                },
-                new float[] // Right face
-                {
-                    1f, 0f, 0f
-                },
-                new float[] // Bottom face
-                {
-                    0f, -1f, 0f
-                },
-                new float[] // Top face
-                {
-                    0f, 1f, 0f
-                }
-            };
-
-            texIndices = new int[]
-            {
-                layout.Front,
-                layout.Back,
-                layout.Left,
-                layout.Right,
-                layout.Bottom,
-                layout.Top
-            };
-        }
-
         public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             float[] vert = sideVertices[(int)side];
-            float[] norms = sideNormals[(int)side];
-            int tex = texIndices[TranslateIndex(side, (Orientation)(data & 0b0_0011))];
 
             vertices = new float[]
             {
-                vert[0], vert[1],  vert[2], 0f, 0f, norms[0], norms[1], norms[2],
-                vert[3], vert[4],  vert[5], 0f, 1f, norms[0], norms[1], norms[2],
-                vert[6], vert[7],  vert[8], 1f, 1f, norms[0], norms[1], norms[2],
-                vert[9], vert[10], vert[11], 1f, 0f, norms[0], norms[1], norms[2]
+                vert[0], vert[1], vert[2], 0f, 0f, vert[5], vert[6], vert[7],
+                vert[8], vert[9], vert[10], 0f, 1f, vert[13], vert[14], vert[15],
+                vert[16], vert[17], vert[18], 1f, 1f, vert[21], vert[22], vert[23],
+                vert[24], vert[25], vert[26], 1f, 0f, vert[29], vert[30], vert[31]
             };
 
-            textureIndices = new int[] { tex, tex, tex, tex };
+            textureIndices = sideTextureIndices[TranslateIndex(side, (Orientation)(data & 0b0_0011))];
             indices = Array.Empty<uint>();
 
             tint = TintColor.None;
