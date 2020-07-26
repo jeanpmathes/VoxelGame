@@ -188,39 +188,31 @@ namespace VoxelGame.Logic.Blocks
                 {
                     case Orientation.North:
 
-                        if (Game.World.GetBlock(x, y, z - 1, out _) != fruit)
-                        {
-                            Game.World.SetBlock(this, (int)GrowthStage.First << 2, x, y, z);
-                        }
-
+                        CheckFruit(x, y, z - 1);
                         break;
 
                     case Orientation.East:
 
-                        if (Game.World.GetBlock(x + 1, y, z, out _) != fruit)
-                        {
-                            Game.World.SetBlock(this, (int)GrowthStage.First << 2, x, y, z);
-                        }
-
+                        CheckFruit(x + 1, y, z);
                         break;
 
                     case Orientation.South:
 
-                        if (Game.World.GetBlock(x, y, z + 1, out _) != fruit)
-                        {
-                            Game.World.SetBlock(this, (int)GrowthStage.First << 2, x, y, z);
-                        }
-
+                        CheckFruit(x, y, z + 1);
                         break;
 
                     case Orientation.West:
 
-                        if (Game.World.GetBlock(x - 1, y, z - 1, out _) != fruit)
-                        {
-                            Game.World.SetBlock(this, (int)GrowthStage.First << 2, x, y, z);
-                        }
-
+                        CheckFruit(x - 1, y, z);
                         break;
+                }
+            }
+
+            void CheckFruit(int fx, int fy, int fz)
+            {
+                if (Game.World.GetBlock(fx, fy, fz, out _) != fruit)
+                {
+                    Game.World.SetBlock(this, (int)GrowthStage.First << 2, x, y, z);
                 }
             }
         }
