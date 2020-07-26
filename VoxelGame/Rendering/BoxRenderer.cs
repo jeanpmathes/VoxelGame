@@ -81,11 +81,11 @@ namespace VoxelGame.Rendering
 
         private int BuildMeshData(BoundingBox boundingBox, out float[] vertices, out uint[] indices)
         {
-            int elements = BuildMeshData_NonRecursive(boundingBox, out vertices, out indices);
+            int points = BuildMeshData_NonRecursive(boundingBox, out vertices, out indices);
 
             if (boundingBox.ChildCount == 0)
             {
-                return elements;
+                return points;
             }
             else
             {
@@ -93,7 +93,7 @@ namespace VoxelGame.Rendering
                 {
                     int newElements = BuildMeshData(boundingBox[i], out float[] addVertices, out uint[] addIndices);
 
-                    uint offset = (uint)(elements / 3);
+                    uint offset = (uint)(points / 3);
                     for (int j = 0; j < addIndices.Length; j++)
                     {
                         addIndices[j] += offset;
@@ -111,10 +111,10 @@ namespace VoxelGame.Rendering
 
                     indices = combinedIndices;
 
-                    elements += newElements;
+                    points += newElements;
                 }
 
-                return elements;
+                return points;
             }
         }
 
