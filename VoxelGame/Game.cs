@@ -240,7 +240,6 @@ namespace VoxelGame
 
         #region WORLD SETUP
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "The characters '[' and ']' are not culture dependent.")]
         private static void WorldSetup(string worldsDirectory)
         {
             using (logger.BeginScope("WorldSetup"))
@@ -254,7 +253,7 @@ namespace VoxelGame
                 {
                     logger.LogInformation("Skipping new world prompt as no worlds are available to load.");
 
-                    newWorld = false;
+                    newWorld = true;
                 }
                 else
                 {
