@@ -37,8 +37,8 @@ namespace VoxelGame.Logic
         public static readonly Block Stone = new BasicBlock(Language.Stone, nameof(Stone), TextureLayout.Uniform("stone"));
         public static readonly Block Rubble = new ConstructionBlock(Language.Rubble, nameof(Rubble), TextureLayout.Uniform("rubble"));
         public static readonly Block Snow = new BasicBlock(Language.Snow, nameof(Snow), TextureLayout.Uniform("snow"));
-        public static readonly Block Log = new RotatedBlock(Language.Log, nameof(Log), TextureLayout.Column("log", 0, 1));
         public static readonly Block Leaves = new NaturalBlock(Language.Leaves, nameof(Leaves), TextureLayout.Uniform("leaves"), isOpaque: false);
+        public static readonly Block Log = new RotatedBlock(Language.Log, nameof(Log), TextureLayout.Column("log", 0, 1));
         public static readonly Block Wood = new OrganicConstructionBlock(Language.Wood, nameof(Wood), TextureLayout.Uniform("wood"));
         public static readonly Block Sand = new BasicBlock(Language.Sand, nameof(Sand), TextureLayout.Uniform("sand"));
         public static readonly Block Gravel = new BasicBlock(Language.Gravel, nameof(Gravel), TextureLayout.Uniform("gravel"));
