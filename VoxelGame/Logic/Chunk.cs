@@ -211,11 +211,13 @@ namespace VoxelGame.Logic
 
         public bool SetMeshDataStep(SectionMeshData[] sectionMeshes)
         {
-            for (int i = 0; i < maxMeshDataStep; i++)
+            hasMeshData = false;
+
+            for (int count = 0; count < maxMeshDataStep; count++)
             {
                 sections[meshDataIndex].SetMeshData(ref sectionMeshes[meshDataIndex]);
 
-                // The index has reached the end, all sections have received their mesh data
+                // The index has reached the end, all sections have received their mesh data.
                 if (meshDataIndex == ChunkHeight - 1)
                 {
                     hasMeshData = true;

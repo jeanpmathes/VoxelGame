@@ -550,18 +550,18 @@ namespace VoxelGame.Logic
         {
             if (chunksToSendMeshData.Count > 0)
             {
-                int i = 0;
-                for (int count = 0; count < maxMeshDataSends && i < chunksToSendMeshData.Count; count++)
+                int chunkIndex = 0;
+                for (int count = 0; count < maxMeshDataSends && chunkIndex < chunksToSendMeshData.Count; count++)
                 {
-                    (Chunk chunk, var chunkMeshingTask) = chunksToSendMeshData[i];
+                    (Chunk chunk, var chunkMeshingTask) = chunksToSendMeshData[chunkIndex];
 
                     if (chunk.SetMeshDataStep(chunkMeshingTask.Result))
                     {
-                        chunksToSendMeshData.RemoveAt(i);
+                        chunksToSendMeshData.RemoveAt(chunkIndex);
                     }
-                    else
+                    else if (chunksToSendMeshData.Count > 1)
                     {
-                        i++;
+                        chunkIndex++;
                     }
                 }
             }
