@@ -21,6 +21,7 @@ namespace VoxelGame.Logic
         public const int BlockMask = 0b0000_0000_0000_0000_0000_0111_1111_1111;
         public const int DataMask = 0b0000_0000_0000_0000_1111_1000_0000_0000;
 
+        // TODO: change to int[] or uint[]
         private readonly ushort[] blocks;
 
         [NonSerialized] private bool isEmpty;
