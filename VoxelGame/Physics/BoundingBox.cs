@@ -48,9 +48,14 @@ namespace VoxelGame.Physics
         }
 
         /// <summary>
-        /// Gets a <see cref="BoundingBox"/> with the size of a block.
+        /// Gets a <see cref="BoundingBox"/> with the size of a <see cref="Logic.Block"/>.
         /// </summary>
         public static BoundingBox Block => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.5f, 0.5f, 0.5f));
+
+        /// <summary>
+        /// Gets a <see cref="BoundingBox"/> with the size of a <see cref="Logic.Blocks.CrossBlock"/>.
+        /// </summary>
+        public static BoundingBox CrossBlock => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.355f, 0.5f, 0.355f));
 
         /// <summary>
         /// Returns a <see cref="BoundingBox"/> with the size of a block, translated to a specified position.

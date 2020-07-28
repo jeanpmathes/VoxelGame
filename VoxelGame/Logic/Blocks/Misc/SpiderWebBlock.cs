@@ -28,7 +28,7 @@ namespace VoxelGame.Logic.Blocks
             recieveCollisions: true,
             isTrigger: true,
             isReplaceable: false,
-            BoundingBox.Block)
+            BoundingBox.CrossBlock)
         {
             this.maxVelocity = maxVelocity;
         }

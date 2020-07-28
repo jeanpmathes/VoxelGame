@@ -30,10 +30,10 @@ namespace VoxelGame.Logic
         public static readonly Block GrassBurned = new CoveredDirtBlock(Language.AshCoveredDirt, nameof(GrassBurned), TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"), false);
         public static readonly Block Dirt = new DirtBlock(Language.Dirt, nameof(Dirt), TextureLayout.Uniform("dirt"));
         public static readonly Block Farmland = new CoveredDirtBlock(Language.Farmland, nameof(Farmland), TextureLayout.UnqiueTop("dirt", "farmland"), false);
-        public static readonly Block TallGrass = new CrossPlantBlock(Language.TallGrass, nameof(TallGrass), "tall_grass", true, BoundingBox.Block);
-        public static readonly Block VeryTallGrass = new DoubleCrossPlantBlock(Language.VeryTallGrass, nameof(VeryTallGrass), "very_tall_grass", 1, BoundingBox.Block);
-        public static readonly Block Flower = new CrossPlantBlock(Language.Flower, nameof(Flower), "flower", true, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
-        public static readonly Block TallFlower = new DoubleCrossPlantBlock(Language.TallFlower, nameof(TallFlower), "tall_flower", 1, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)));
+        public static readonly Block TallGrass = new CrossPlantBlock(Language.TallGrass, nameof(TallGrass), "tall_grass", true, BoundingBox.CrossBlock);
+        public static readonly Block VeryTallGrass = new DoubleCrossPlantBlock(Language.VeryTallGrass, nameof(VeryTallGrass), "very_tall_grass", 1, BoundingBox.CrossBlock);
+        public static readonly Block Flower = new CrossPlantBlock(Language.Flower, nameof(Flower), "flower", true, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.175f, 0.5f, 0.175f)));
+        public static readonly Block TallFlower = new DoubleCrossPlantBlock(Language.TallFlower, nameof(TallFlower), "tall_flower", 1, BoundingBox.CrossBlock);
         public static readonly Block Stone = new BasicBlock(Language.Stone, nameof(Stone), TextureLayout.Uniform("stone"));
         public static readonly Block Rubble = new ConstructionBlock(Language.Rubble, nameof(Rubble), TextureLayout.Uniform("rubble"));
         public static readonly Block Snow = new BasicBlock(Language.Snow, nameof(Snow), TextureLayout.Uniform("snow"));
