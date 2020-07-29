@@ -734,7 +734,7 @@ namespace VoxelGame.Logic
             {
                 uint val = chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
 
-                data = val >> 11;
+                data = val >> Section.DATASHIFT;
                 return Block.TranslateID(val & Section.BLOCKMASK);
             }
             else
@@ -760,7 +760,9 @@ namespace VoxelGame.Logic
                 return;
             }
 
-            chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = (data << 11) | (block ?? Block.Air).Id;
+            uint val = ((data << Section.DATASHIFT) & Section.DATAMASK) | ((block ?? Block.Air).Id & Section.BLOCKMASK);
+            chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
+
             sectionsToMesh.Add((chunk, y >> chunkHeightExp));
 
             // Block updates

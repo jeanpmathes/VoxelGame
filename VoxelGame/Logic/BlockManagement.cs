@@ -18,7 +18,7 @@ namespace VoxelGame.Logic
     {
         private static readonly ILogger logger = Program.CreateLogger<Block>();
 
-        public const int BlockLimit = 2048;
+        public const int BlockLimit = 1 << Section.DATASHIFT;
 
         private static readonly Dictionary<uint, Block> blockDictionary = new Dictionary<uint, Block>();
         private static readonly Dictionary<string, Block> namedBlockDictionary = new Dictionary<string, Block>();

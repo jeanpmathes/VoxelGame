@@ -18,6 +18,8 @@ namespace VoxelGame.Logic
         public const int SectionSize = 32;
         public const int TickBatchSize = 4;
 
+        public const int DATASHIFT = 11;
+
         public const uint BLOCKMASK = 0b0000_0000_0000_0000_0000_0111_1111_1111;
         public const uint DATAMASK = 0b0000_0000_0000_0000_1111_1000_0000_0000;
 
