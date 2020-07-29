@@ -371,6 +371,15 @@ namespace VoxelGame
 
         private static bool IsNameValid(string name)
         {
+            if (name.Length == 0)
+            {
+                logger.LogWarning("The input is too short.");
+
+                Console.WriteLine(Language.InputNotValid);
+
+                return false;
+            }
+
             if (name[^1] == ' ')
             {
                 logger.LogWarning("The input ends with a whitespace.");
