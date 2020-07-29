@@ -313,7 +313,7 @@ namespace VoxelGame.Entities
         {
             if (input.IsKeyDown(Key.KeypadPlus) && !hasPressedPlus)
             {
-                activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID((ushort)(activeBlock.Id + 1)) : Block.TranslateID(1);
+                activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID(activeBlock.Id + 1) : Block.TranslateID(1);
                 hasPressedPlus = true;
 
                 Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
@@ -325,7 +325,7 @@ namespace VoxelGame.Entities
 
             if (input.IsKeyDown(Key.KeypadMinus) && !hasPressedMinus)
             {
-                activeBlock = (activeBlock.Id != 1) ? Block.TranslateID((ushort)(activeBlock.Id - 1)) : Block.TranslateID((ushort)(Block.Count - 1));
+                activeBlock = (activeBlock.Id != 1) ? Block.TranslateID(activeBlock.Id - 1) : Block.TranslateID((uint)(Block.Count - 1));
                 hasPressedMinus = true;
 
                 Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);

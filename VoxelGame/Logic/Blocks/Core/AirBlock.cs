@@ -35,7 +35,7 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out Visuals.TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out Visuals.TintColor tint, out bool isAnimated)
         {
             vertices = Array.Empty<float>();
             textureIndices = Array.Empty<int>();
@@ -52,7 +52,7 @@ namespace VoxelGame.Logic.Blocks
             return false;
         }
 
-        protected override bool Destroy(Entities.PhysicsEntity? entity, int x, int y, int z, byte data)
+        protected override bool Destroy(Entities.PhysicsEntity? entity, int x, int y, int z, uint data)
         {
             return false;
         }

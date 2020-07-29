@@ -20,7 +20,7 @@ namespace VoxelGame.Logic
 
         public const int BlockLimit = 2048;
 
-        private static readonly Dictionary<ushort, Block> blockDictionary = new Dictionary<ushort, Block>();
+        private static readonly Dictionary<uint, Block> blockDictionary = new Dictionary<uint, Block>();
         private static readonly Dictionary<string, Block> namedBlockDictionary = new Dictionary<string, Block>();
 
         #region NATURAL BLOCKS
@@ -114,7 +114,7 @@ namespace VoxelGame.Logic
         /// </summary>
         /// <param name="id">The ID of the block to return.</param>
         /// <returns>The block with the ID or air if the ID is not valid.</returns>
-        public static Block TranslateID(ushort id)
+        public static Block TranslateID(uint id)
         {
             if (blockDictionary.TryGetValue(id, out Block? block))
             {

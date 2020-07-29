@@ -90,7 +90,7 @@ namespace VoxelGame.Logic.Blocks
             vertexCountBase = (uint)baseClosed.VertexCount;
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
             Orientation orientation = (Orientation)(data & 0b0_0011);
 
@@ -110,7 +110,7 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             Orientation orientation = (Orientation)(data & 0b0_0011);
             bool isBase = (data & 0b0_0100) == 0;
@@ -159,7 +159,7 @@ namespace VoxelGame.Logic.Blocks
             {
                 // Choose side according to neighboring doors to form a double door.
                 Block neighbour;
-                byte data;
+                uint data;
 
                 switch (orientation)
                 {
@@ -196,13 +196,13 @@ namespace VoxelGame.Logic.Blocks
                     (orientation == Orientation.West && side != BlockSide.Front);
             }
 
-            Game.World.SetBlock(this, (byte)((isLeftSided ? 0b0000 : 0b1000) | (int)orientation), x, y, z);
-            Game.World.SetBlock(this, (byte)((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int)orientation), x, y + 1, z);
+            Game.World.SetBlock(this, (uint)((isLeftSided ? 0b0000 : 0b1000) | (int)orientation), x, y, z);
+            Game.World.SetBlock(this, (uint)((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int)orientation), x, y + 1, z);
 
             return true;
         }
 
-        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, byte data)
+        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, uint data)
         {
             Game.World.SetBlock(Block.Air, 0, x, y, z);
             Game.World.SetBlock(Block.Air, 0, x, y + ((data & 0b0_0100) == 0 ? 1 : -1), z);
@@ -210,7 +210,7 @@ namespace VoxelGame.Logic.Blocks
             return true;
         }
 
-        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, byte data)
+        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
         {
             bool isBase = (data & 0b0_0100) == 0;
 
@@ -219,8 +219,8 @@ namespace VoxelGame.Logic.Blocks
                 return;
             }
 
-            Game.World.SetBlock(this, (byte)(data ^ 0b1_0000), x, y, z);
-            Game.World.SetBlock(this, (byte)(data ^ 0b1_0100), x, y + (isBase ? 1 : -1), z);
+            Game.World.SetBlock(this, data ^ 0b1_0000, x, y, z);
+            Game.World.SetBlock(this, data ^ 0b1_0100, x, y + (isBase ? 1 : -1), z);
 
             // Open a neighboring door, if available.
             switch (((data & 0b0_1000) == 0) ? ((Orientation)(data & 0b0_0011)).Invert() : (Orientation)(data & 0b0_0011))
@@ -248,7 +248,7 @@ namespace VoxelGame.Logic.Blocks
 
             void OpenNeighbour(int x, int y, int z)
             {
-                Block neighbour = Game.World.GetBlock(x, y, z, out byte neighbourData) ?? Block.Air;
+                Block neighbour = Game.World.GetBlock(x, y, z, out uint neighbourData) ?? Block.Air;
 
                 if (neighbour == this && (data & 0b1_1011) == ((neighbourData ^ 0b0_1000) & 0b1_1011))
                 {
@@ -257,7 +257,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
+        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom && (data & 0b0_0100) == 0 && Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
             {

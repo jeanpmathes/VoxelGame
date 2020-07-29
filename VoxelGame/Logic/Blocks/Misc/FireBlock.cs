@@ -180,7 +180,7 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
             if (data == 0)
             {
@@ -238,7 +238,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             if (data == 0)
             {
@@ -299,7 +299,7 @@ namespace VoxelGame.Logic.Blocks
             }
             else
             {
-                byte data = 0;
+                uint data = 0;
 
                 if (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull == true) data |= 0b1_0000; // North.
                 if (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b0_1000; // East.
@@ -320,7 +320,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
+        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
             switch (side)
             {
@@ -367,7 +367,7 @@ namespace VoxelGame.Logic.Blocks
                     break;
             }
 
-            void CheckNeighbour(int x, int y, int z, byte mask)
+            void CheckNeighbour(int x, int y, int z, uint mask)
             {
                 if ((data & mask) != 0 && Game.World.GetBlock(x, y, z, out _)?.IsSolidAndFull != true)
                 {
@@ -376,12 +376,12 @@ namespace VoxelGame.Logic.Blocks
                 }
             }
 
-            static byte AddNeighbour(int x, int y, int z, byte mask)
+            static uint AddNeighbour(int x, int y, int z, uint mask)
             {
-                return (Game.World.GetBlock(x, y, z, out _)?.IsSolidAndFull == true) ? mask : (byte)0;
+                return (Game.World.GetBlock(x, y, z, out _)?.IsSolidAndFull == true) ? mask : (uint)0;
             }
 
-            void SetData(byte data)
+            void SetData(uint data)
             {
                 if (data != 0)
                 {
@@ -394,7 +394,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        internal override void RandomUpdate(int x, int y, int z, byte data)
+        internal override void RandomUpdate(int x, int y, int z, uint data)
         {
             bool canBurn = false;
 

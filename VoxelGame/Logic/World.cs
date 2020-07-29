@@ -728,14 +728,14 @@ namespace VoxelGame.Logic
         /// <param name="data">The block data at the position.</param>
         /// <returns>The Block at x, y, z or null if the block was not found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Block? GetBlock(int x, int y, int z, out byte data)
+        public Block? GetBlock(int x, int y, int z, out uint data)
         {
             if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
             {
-                ushort val = chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
+                uint val = chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
 
-                data = (byte)(val >> 11);
-                return Block.TranslateID((ushort)(val & Section.BlockMask));
+                data = val >> 11;
+                return Block.TranslateID(val & Section.BLOCKMASK);
             }
             else
             {
@@ -753,14 +753,14 @@ namespace VoxelGame.Logic
         /// <param name="y">The y position of the block to set.</param>
         /// <param name="z">The z position of the block to set.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetBlock(Block block, byte data, int x, int y, int z)
+        public void SetBlock(Block block, uint data, int x, int y, int z)
         {
             if (!activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight * Section.SectionSize)
             {
                 return;
             }
 
-            chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = (ushort)((data << 11) | (block ?? Block.Air).Id);
+            chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = (data << 11) | (block ?? Block.Air).Id;
             sectionsToMesh.Add((chunk, y >> chunkHeightExp));
 
             // Block updates

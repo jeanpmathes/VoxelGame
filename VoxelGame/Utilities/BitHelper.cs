@@ -24,5 +24,23 @@ namespace VoxelGame.Utilities
 
             return count;
         }
+
+        /// <summary>
+        /// Counts how many bits are set in an unsigned integer.
+        /// </summary>
+        /// <param name="n">The unsigned integer in which to count the set bits.</param>
+        /// <returns>The number of set bits.</returns>
+        public static int CountSetBits(uint n)
+        {
+            int count = 0;
+
+            while (n != 0)
+            {
+                count++;
+                n &= n - 1;
+            }
+
+            return count;
+        }
     }
 }

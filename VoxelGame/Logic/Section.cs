@@ -18,18 +18,17 @@ namespace VoxelGame.Logic
         public const int SectionSize = 32;
         public const int TickBatchSize = 4;
 
-        public const int BlockMask = 0b0000_0000_0000_0000_0000_0111_1111_1111;
-        public const int DataMask = 0b0000_0000_0000_0000_1111_1000_0000_0000;
+        public const uint BLOCKMASK = 0b0000_0000_0000_0000_0000_0111_1111_1111;
+        public const uint DATAMASK = 0b0000_0000_0000_0000_1111_1000_0000_0000;
 
-        // TODO: change to int[] or uint[]
-        private readonly ushort[] blocks;
+        private readonly uint[] blocks;
 
         [NonSerialized] private bool isEmpty;
         [NonSerialized] private SectionRenderer? renderer;
 
         public Section()
         {
-            blocks = new ushort[SectionSize * SectionSize * SectionSize];
+            blocks = new uint[SectionSize * SectionSize * SectionSize];
 
             Setup();
         }
@@ -83,10 +82,10 @@ namespace VoxelGame.Logic
                 {
                     for (int z = 0; z < SectionSize; z++)
                     {
-                        ushort currentBlockData = blocks[(x << 10) + (y << 5) + z];
+                        uint currentBlockData = blocks[(x << 10) + (y << 5) + z];
 
-                        Block currentBlock = Block.TranslateID((ushort)(currentBlockData & BlockMask));
-                        byte currentData = (byte)((currentBlockData & DataMask) >> 11);
+                        Block currentBlock = Block.TranslateID(currentBlockData & BLOCKMASK);
+                        uint currentData = (currentBlockData & DATAMASK) >> 11;
 
                         if (currentBlock.TargetBuffer == TargetBuffer.Simple)
                         {
@@ -352,7 +351,7 @@ namespace VoxelGame.Logic
             for (int i = 0; i < TickBatchSize; i++)
             {
                 int index = Game.Random.Next(0, SectionSize * SectionSize * SectionSize);
-                ushort val = blocks[index];
+                uint val = blocks[index];
 
                 int z = index & 31;
                 index = (index - z) >> 5;
@@ -360,7 +359,7 @@ namespace VoxelGame.Logic
                 index = (index - y) >> 5;
                 int x = index;
 
-                Block.TranslateID((ushort)(val & BlockMask))?.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), (byte)((val & DataMask) >> 11));
+                Block.TranslateID(val & BLOCKMASK)?.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), (val & DATAMASK) >> 11);
             }
         }
 
@@ -371,7 +370,7 @@ namespace VoxelGame.Logic
         /// <param name="y">The y position of the block in this section.</param>
         /// <param name="z">The z position of the block in this section.</param>
         /// <returns>The block at the given position.</returns>
-        public ushort this[int x, int y, int z]
+        public uint this[int x, int y, int z]
         {
             get
             {
@@ -387,7 +386,7 @@ namespace VoxelGame.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Block GetBlock(int x, int y, int z)
         {
-            return Block.TranslateID((ushort)(this[x, y, z] & BlockMask));
+            return Block.TranslateID(this[x, y, z] & BLOCKMASK);
         }
 
         #region IDisposable Support

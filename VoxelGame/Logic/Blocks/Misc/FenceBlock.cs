@@ -30,7 +30,7 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
             bool north = (data & 0b0_1000) != 0;
             bool east = (data & 0b0_0100) != 0;

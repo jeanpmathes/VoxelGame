@@ -32,7 +32,7 @@ namespace VoxelGame.Logic.Blocks
             this.isAnimated = isAnimated;
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             tint = ((BlockColor)(0b0_1111 & data)).ToTintColor();
             isAnimated = this.isAnimated;
@@ -40,9 +40,9 @@ namespace VoxelGame.Logic.Blocks
             return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _, out _);
         }
 
-        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, byte data)
+        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
         {
-            Game.World.SetBlock(this, (byte)(data + 1 & 0b0_1111), x, y, z);
+            Game.World.SetBlock(this, data + 1 & 0b0_1111, x, y, z);
         }
     }
 }

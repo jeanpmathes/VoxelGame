@@ -111,7 +111,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             bool north = (data & 0b0_1000) != 0;
             bool east = (data & 0b0_0100) != 0;
@@ -161,7 +161,7 @@ namespace VoxelGame.Logic.Blocks
 
         protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
         {
-            byte data = 0;
+            uint data = 0;
             // Check the neighboring blocks
             if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))
                 data |= 0b0_1000;
@@ -177,9 +177,9 @@ namespace VoxelGame.Logic.Blocks
             return true;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
+        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
-            byte newData = data;
+            uint newData = data;
 
             switch (side)
             {
@@ -209,7 +209,7 @@ namespace VoxelGame.Logic.Blocks
                 Game.World.SetBlock(this, newData, x, y, z);
             }
 
-            static byte CheckNeighbour(int x, int y, int z, BlockSide side, byte mask, byte newData)
+            static uint CheckNeighbour(int x, int y, int z, BlockSide side, uint mask, uint newData)
             {
                 if (Game.World.GetBlock(x, y, z, out _) is IConnectable neighbour && neighbour.IsConnetable(side, x, y, z))
                 {
@@ -217,7 +217,7 @@ namespace VoxelGame.Logic.Blocks
                 }
                 else
                 {
-                    newData = (byte)(newData & ~mask);
+                    newData &= ~mask;
                 }
 
                 return newData;

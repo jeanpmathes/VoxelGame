@@ -29,7 +29,7 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             float[] vert = sideVertices[(int)side];
 
@@ -52,7 +52,7 @@ namespace VoxelGame.Logic.Blocks
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            Game.World.SetBlock(this, (byte)((entity?.LookingDirection.ToOrientation()) ?? Orientation.North), x, y, z);
+            Game.World.SetBlock(this, (uint)((entity?.LookingDirection.ToOrientation()) ?? Orientation.North), x, y, z);
 
             return true;
         }

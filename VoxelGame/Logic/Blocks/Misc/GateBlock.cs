@@ -79,7 +79,7 @@ namespace VoxelGame.Logic.Blocks
             vertexCountOpen = (uint)openModel.VertexCount;
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
             bool isClosed = (data & 0b0_0100) == 0;
 
@@ -148,7 +148,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             if ((data & 0b0_0100) == 0)
             {
@@ -200,12 +200,12 @@ namespace VoxelGame.Logic.Blocks
                 orientation = orientation.Rotate();
             }
 
-            Game.World.SetBlock(this, (byte)orientation, x, y, z);
+            Game.World.SetBlock(this, (uint)orientation, x, y, z);
 
             return true;
         }
 
-        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, byte data)
+        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
         {
             Orientation orientation = (Orientation)(data & 0b0_0011);
             bool isClosed = (data & 0b0_0100) == 0;
@@ -225,10 +225,10 @@ namespace VoxelGame.Logic.Blocks
                 return;
             }
 
-            Game.World.SetBlock(this, (byte)((isClosed ? 0b0_0100 : 0b0_0000) | (int)orientation.Invert()), x, y, z);
+            Game.World.SetBlock(this, (uint)((isClosed ? 0b0_0100 : 0b0_0000) | (int)orientation.Invert()), x, y, z);
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
+        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
             Orientation orientation = (Orientation)(data & 0b0_0011);
 
@@ -262,7 +262,7 @@ namespace VoxelGame.Logic.Blocks
 
         public virtual bool IsConnetable(BlockSide side, int x, int y, int z)
         {
-            if (Game.World.GetBlock(x, y, z, out byte data) == this)
+            if (Game.World.GetBlock(x, y, z, out uint data) == this)
             {
                 Orientation orientation = (Orientation)(data & 0b0_0011);
 

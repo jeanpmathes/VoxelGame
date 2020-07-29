@@ -48,7 +48,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
+        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom)
             {
@@ -61,13 +61,13 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        internal override void RandomUpdate(int x, int y, int z, byte data)
+        internal override void RandomUpdate(int x, int y, int z, uint data)
         {
-            int age = data & 0b0_0111;
+            int age = (int)(data & 0b0_0111);
 
             if (age < 7)
             {
-                Game.World.SetBlock(this, (byte)(age + 1), x, y, z);
+                Game.World.SetBlock(this, (uint)(age + 1), x, y, z);
             }
             else
             {

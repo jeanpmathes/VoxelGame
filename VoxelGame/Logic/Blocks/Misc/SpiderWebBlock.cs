@@ -33,7 +33,7 @@ namespace VoxelGame.Logic.Blocks
             this.maxVelocity = maxVelocity;
         }
 
-        protected override void EntityCollision(PhysicsEntity entity, int x, int y, int z, byte data)
+        protected override void EntityCollision(PhysicsEntity entity, int x, int y, int z, uint data)
         {
             entity.Velocity = VMath.Clamp(entity.Velocity, -1f, maxVelocity);
         }

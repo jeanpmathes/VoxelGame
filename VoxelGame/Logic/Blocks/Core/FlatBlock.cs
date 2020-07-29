@@ -122,7 +122,7 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
             return ((Orientation)(data & 0b0_0011)) switch
             {
@@ -134,7 +134,7 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             vertices = sideVertices[data & 0b0_0011];
             textureIndices = this.textureIndices;
@@ -152,28 +152,28 @@ namespace VoxelGame.Logic.Blocks
             {
                 if (orientation == Orientation.North && Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull == true)
                 {
-                    Game.World.SetBlock(this, (byte)orientation, x, y, z);
+                    Game.World.SetBlock(this, (uint)orientation, x, y, z);
 
                     return true;
                 }
 
                 if (orientation == Orientation.South && Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull == true)
                 {
-                    Game.World.SetBlock(this, (byte)orientation, x, y, z);
+                    Game.World.SetBlock(this, (uint)orientation, x, y, z);
 
                     return true;
                 }
 
                 if (orientation == Orientation.East && Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull == true)
                 {
-                    Game.World.SetBlock(this, (byte)orientation, x, y, z);
+                    Game.World.SetBlock(this, (uint)orientation, x, y, z);
 
                     return true;
                 }
 
                 if (orientation == Orientation.West && Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull == true)
                 {
-                    Game.World.SetBlock(this, (byte)orientation, x, y, z);
+                    Game.World.SetBlock(this, (uint)orientation, x, y, z);
 
                     return true;
                 }
@@ -186,7 +186,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        protected override void EntityCollision(PhysicsEntity entity, int x, int y, int z, byte data)
+        protected override void EntityCollision(PhysicsEntity entity, int x, int y, int z, uint data)
         {
             Vector3 forwardMovement = Vector3.Dot(entity.Movement, entity.Forward) * entity.Forward;
 
@@ -208,7 +208,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
+        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
             CheckBack(x, y, z, side, (Orientation)(data & 0b0_0011));
         }
