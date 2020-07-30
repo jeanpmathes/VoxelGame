@@ -12,7 +12,12 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A base class for blocks that connect to other blocks, like fences or walls.
+    /// Data bit usage: <c>--nesw</c>
     /// </summary>
+    // n = connected north
+    // e = connected east
+    // s = connected south
+    // w = connected west
     public abstract class ConnectingBlock : Block, IConnectable
     {
         private protected uint postVertCount;
@@ -111,12 +116,12 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
-            bool north = (data & 0b0_1000) != 0;
-            bool east = (data & 0b0_0100) != 0;
-            bool south = (data & 0b0_0010) != 0;
-            bool west = (data & 0b0_0001) != 0;
+            bool north = (data & 0b00_1000) != 0;
+            bool east = (data & 0b00_0100) != 0;
+            bool south = (data & 0b00_0010) != 0;
+            bool west = (data & 0b00_0001) != 0;
 
             int extensions = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
             uint vertCount = (uint)(postVertCount + (extensions * extensionVertCount));
@@ -161,46 +166,46 @@ namespace VoxelGame.Logic.Blocks
 
         protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
         {
-            byte data = 0;
+            uint data = 0;
             // Check the neighboring blocks
             if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnetable(BlockSide.Front, x, y, z - 1))
-                data |= 0b0_1000;
+                data |= 0b00_1000;
             if (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnetable(BlockSide.Left, x + 1, y, z))
-                data |= 0b0_0100;
+                data |= 0b00_0100;
             if (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnetable(BlockSide.Back, x, y, z + 1))
-                data |= 0b0_0010;
+                data |= 0b00_0010;
             if (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnetable(BlockSide.Right, x - 1, y, z))
-                data |= 0b0_0001;
+                data |= 0b00_0001;
 
             Game.World.SetBlock(this, data, x, y, z);
 
             return true;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
+        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
-            byte newData = data;
+            uint newData = data;
 
             switch (side)
             {
                 case BlockSide.Back:
 
-                    newData = CheckNeighbour(x, y, z - 1, BlockSide.Front, 0b0_1000, newData);
+                    newData = CheckNeighbour(x, y, z - 1, BlockSide.Front, 0b00_1000, newData);
                     break;
 
                 case BlockSide.Right:
 
-                    newData = CheckNeighbour(x + 1, y, z, BlockSide.Left, 0b0_0100, newData);
+                    newData = CheckNeighbour(x + 1, y, z, BlockSide.Left, 0b00_0100, newData);
                     break;
 
                 case BlockSide.Front:
 
-                    newData = CheckNeighbour(x, y, z + 1, BlockSide.Back, 0b0_0010, newData);
+                    newData = CheckNeighbour(x, y, z + 1, BlockSide.Back, 0b00_0010, newData);
                     break;
 
                 case BlockSide.Left:
 
-                    newData = CheckNeighbour(x - 1, y, z, BlockSide.Right, 0b0_0001, newData);
+                    newData = CheckNeighbour(x - 1, y, z, BlockSide.Right, 0b00_0001, newData);
                     break;
             }
 
@@ -209,7 +214,7 @@ namespace VoxelGame.Logic.Blocks
                 Game.World.SetBlock(this, newData, x, y, z);
             }
 
-            static byte CheckNeighbour(int x, int y, int z, BlockSide side, byte mask, byte newData)
+            static uint CheckNeighbour(int x, int y, int z, BlockSide side, uint mask, uint newData)
             {
                 if (Game.World.GetBlock(x, y, z, out _) is IConnectable neighbour && neighbour.IsConnetable(side, x, y, z))
                 {
@@ -217,7 +222,7 @@ namespace VoxelGame.Logic.Blocks
                 }
                 else
                 {
-                    newData = (byte)(newData & ~mask);
+                    newData &= ~mask;
                 }
 
                 return newData;

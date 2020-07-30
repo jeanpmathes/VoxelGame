@@ -16,7 +16,7 @@ namespace VoxelGame.Logic
         /// <summary>
         /// Gets the block id which can be any value from 0 to 4095.
         /// </summary>
-        public ushort Id { get; }
+        public uint Id { get; }
 
         /// <summary>
         /// Gets the localized name of the block.
@@ -105,10 +105,10 @@ namespace VoxelGame.Logic
 
             if (blockDictionary.Count < BlockLimit)
             {
-                blockDictionary.Add((ushort)blockDictionary.Count, this);
+                blockDictionary.Add((uint)blockDictionary.Count, this);
                 namedBlockDictionary.Add(namedId, this);
 
-                Id = (ushort)(blockDictionary.Count - 1);
+                Id = (uint)(blockDictionary.Count - 1);
             }
             else
             {
@@ -132,7 +132,7 @@ namespace VoxelGame.Logic
         /// <returns>The bounding box.</returns>
         public BoundingBox GetBoundingBox(int x, int y, int z)
         {
-            if (Game.World.GetBlock(x, y, z, out byte data) == this)
+            if (Game.World.GetBlock(x, y, z, out uint data) == this)
             {
                 return GetBoundingBox(x, y, z, data);
             }
@@ -142,7 +142,7 @@ namespace VoxelGame.Logic
             }
         }
 
-        protected virtual BoundingBox GetBoundingBox(int x, int y, int z, byte data)
+        protected virtual BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
             return boundingBox.Translated(x, y, z);
         }
@@ -155,7 +155,7 @@ namespace VoxelGame.Logic
         /// <param name="vertices">Vertices of the mesh. Every vertex is made up of 8 floats: XYZ, UV, NOP</param>
         /// <param name="indices">The indices of the mesh that determine how triangles are constructed.</param>
         /// <returns>The amount of vertices in the mesh.</returns>
-        public abstract uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated);
+        public abstract uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated);
 
         public bool Place(int x, int y, int z, Entities.PhysicsEntity? entity = null)
         {
@@ -171,7 +171,7 @@ namespace VoxelGame.Logic
 
         public bool Destroy(int x, int y, int z, Entities.PhysicsEntity? entity = null)
         {
-            if (Game.World.GetBlock(x, y, z, out byte data) == this)
+            if (Game.World.GetBlock(x, y, z, out uint data) == this)
             {
                 return Destroy(entity, x, y, z, data);
             }
@@ -181,7 +181,7 @@ namespace VoxelGame.Logic
             }
         }
 
-        protected virtual bool Destroy(Entities.PhysicsEntity? entity, int x, int y, int z, byte data)
+        protected virtual bool Destroy(Entities.PhysicsEntity? entity, int x, int y, int z, uint data)
         {
             Game.World.SetBlock(Block.Air, 0, x, y, z);
 
@@ -197,13 +197,13 @@ namespace VoxelGame.Logic
         /// <param name="z">The z position of the block the entity collided with.</param>
         public void EntityCollision(Entities.PhysicsEntity entity, int x, int y, int z)
         {
-            if (Game.World.GetBlock(x, y, z, out byte data) == this)
+            if (Game.World.GetBlock(x, y, z, out uint data) == this)
             {
                 EntityCollision(entity, x, y, z, data);
             }
         }
 
-        protected virtual void EntityCollision(Entities.PhysicsEntity entity, int x, int y, int z, byte data)
+        protected virtual void EntityCollision(Entities.PhysicsEntity entity, int x, int y, int z, uint data)
         {
         }
 
@@ -216,13 +216,13 @@ namespace VoxelGame.Logic
         /// <param name="z">The z position of the block.</param>
         public void EntityInteract(Entities.PhysicsEntity entity, int x, int y, int z)
         {
-            if (Game.World.GetBlock(x, y, z, out byte data) == this)
+            if (Game.World.GetBlock(x, y, z, out uint data) == this)
             {
                 EntityInteract(entity, x, y, z, data);
             }
         }
 
-        protected virtual void EntityInteract(Entities.PhysicsEntity entity, int x, int y, int z, byte data)
+        protected virtual void EntityInteract(Entities.PhysicsEntity entity, int x, int y, int z, uint data)
         {
         }
 
@@ -234,14 +234,14 @@ namespace VoxelGame.Logic
         /// <param name="z">The z position of the block next to the changed position.</param>
         /// <param name="data">The data of the block next to the changed position.</param>
         /// <param name="side">The side of the block where the change happened.</param>
-        internal virtual void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
+        internal virtual void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
         }
 
         /// <summary>
         /// This method is called randomly on some blocks every update.
         /// </summary>
-        internal virtual void RandomUpdate(int x, int y, int z, byte data)
+        internal virtual void RandomUpdate(int x, int y, int z, uint data)
         {
         }
 
@@ -257,7 +257,7 @@ namespace VoxelGame.Logic
 
         public sealed override int GetHashCode()
         {
-            return Id;
+            return (int)Id;
         }
     }
 }

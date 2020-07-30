@@ -11,7 +11,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// This class represents a block which connects to blocks with the <see cref="IConnectable"/> interface. The texture and indices of the BlockModels are ignored.
-    /// Data bit usage: <c>-nesw</c>
+    /// Data bit usage: <c>--nesw</c>
     /// </summary>
     // n = connected north
     // e = connected east
@@ -30,12 +30,12 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
-            bool north = (data & 0b0_1000) != 0;
-            bool east = (data & 0b0_0100) != 0;
-            bool south = (data & 0b0_0010) != 0;
-            bool west = (data & 0b0_0001) != 0;
+            bool north = (data & 0b00_1000) != 0;
+            bool east = (data & 0b00_0100) != 0;
+            bool south = (data & 0b00_0010) != 0;
+            bool west = (data & 0b00_0001) != 0;
 
             int extensions = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
 

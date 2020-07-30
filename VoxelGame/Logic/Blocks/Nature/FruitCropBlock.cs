@@ -15,7 +15,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block that places a fruit block when reaching the final growth stage.
-    /// Data bit usage: <c>ssscc</c>
+    /// Data bit usage: <c>-ssscc</c>
     /// </summary>
     // s = stage
     // c = connection (orientation)
@@ -117,7 +117,7 @@ namespace VoxelGame.Logic.Blocks
             }, 0, indicesConnected, 24, 12);
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
             GrowthStage stage = (GrowthStage)((data >> 2) & 0b111);
 
@@ -131,7 +131,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             GrowthStage stage = (GrowthStage)((data >> 2) & 0b111);
 
@@ -171,7 +171,7 @@ namespace VoxelGame.Logic.Blocks
             return true;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
+        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
             Orientation orientation = (Orientation)(data & 0b11);
 
@@ -217,7 +217,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        internal override void RandomUpdate(int x, int y, int z, byte data)
+        internal override void RandomUpdate(int x, int y, int z, uint data)
         {
             if (Game.World.GetBlock(x, y - 1, z, out _) != Block.Farmland)
             {
@@ -228,7 +228,7 @@ namespace VoxelGame.Logic.Blocks
 
             if (stage != GrowthStage.Dead && stage < GrowthStage.BeforeFruit)
             {
-                Game.World.SetBlock(this, (byte)((int)(stage + 1) << 2), x, y, z);
+                Game.World.SetBlock(this, (uint)((int)(stage + 1) << 2), x, y, z);
             }
             else if (stage == GrowthStage.BeforeFruit)
             {

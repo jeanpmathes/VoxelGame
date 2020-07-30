@@ -14,7 +14,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block which grows on farmland and has multiple growth stages, of which some are two blocks tall.
-    /// Data bit usage: <c>-hsss</c>
+    /// Data bit usage: <c>--hsss</c>
     /// </summary>
     // s = stage
     // h = height
@@ -141,12 +141,12 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
-            GrowthStage stage = (GrowthStage)(data & 0b0_0111);
+            GrowthStage stage = (GrowthStage)(data & 0b00_0111);
 
-            if (((data & 0b0_1000) == 0 && stage == GrowthStage.Initial) ||
-                ((data & 0b0_1000) != 0 && (stage == GrowthStage.Fourth || stage == GrowthStage.Fifth)))
+            if (((data & 0b00_1000) == 0 && stage == GrowthStage.Initial) ||
+                ((data & 0b00_1000) != 0 && (stage == GrowthStage.Fourth || stage == GrowthStage.Fifth)))
             {
                 return new BoundingBox(new Vector3(0.5f, 0.25f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.25f, 0.5f));
             }
@@ -156,14 +156,14 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             vertices = this.vertices;
             textureIndices = new int[24];
 
-            int tex = data & 0b0_0111;
+            int tex = (int)(data & 0b00_0111);
 
-            if ((data & 0b0_1000) == 0)
+            if ((data & 0b00_1000) == 0)
             {
                 for (int i = 0; i < 24; i++)
                 {
@@ -193,38 +193,38 @@ namespace VoxelGame.Logic.Blocks
                 return false;
             }
 
-            Game.World.SetBlock(this, (byte)GrowthStage.Initial, x, y, z);
+            Game.World.SetBlock(this, (uint)GrowthStage.Initial, x, y, z);
 
             return true;
         }
 
-        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, byte data)
+        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, uint data)
         {
             Game.World.SetBlock(Block.Air, 0, x, y, z);
 
-            if ((data & 0b0_0111) >= (int)GrowthStage.Fourth)
+            if ((data & 0b00_0111) >= (int)GrowthStage.Fourth)
             {
-                Game.World.SetBlock(Block.Air, 0, x, y + ((data & 0b0_1000) == 0 ? 1 : -1), z);
+                Game.World.SetBlock(Block.Air, 0, x, y + ((data & 0b00_1000) == 0 ? 1 : -1), z);
             }
 
             return true;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
+        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
-            if (side == BlockSide.Bottom && (data & 0b0_1000) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
+            if (side == BlockSide.Bottom && (data & 0b00_1000) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
             {
                 Destroy(x, y, z);
             }
         }
 
-        internal override void RandomUpdate(int x, int y, int z, byte data)
+        internal override void RandomUpdate(int x, int y, int z, uint data)
         {
-            GrowthStage stage = (GrowthStage)(data & 0b0_0111);
+            GrowthStage stage = (GrowthStage)(data & 0b00_0111);
 
             // If this block is the upper part or the block cannot grow more on this type of ground, the random update is ignored.
-            if ((data & 0b0_1000) != 0 || ((int)stage > 2 && Game.World.GetBlock(x, y - 1, z, out _) != Block.Farmland))
+            if ((data & 0b00_1000) != 0 || ((int)stage > 2 && Game.World.GetBlock(x, y - 1, z, out _) != Block.Farmland))
             {
                 return;
             }
@@ -237,13 +237,13 @@ namespace VoxelGame.Logic.Blocks
 
                     if ((above?.IsReplaceable ?? false) || above == this)
                     {
-                        Game.World.SetBlock(this, (byte)(stage + 1), x, y, z);
-                        Game.World.SetBlock(this, (byte)(0b0_1000 | (int)stage + 1), x, y + 1, z);
+                        Game.World.SetBlock(this, (uint)(stage + 1), x, y, z);
+                        Game.World.SetBlock(this, (uint)(0b00_1000 | (int)stage + 1), x, y + 1, z);
                     }
                 }
                 else
                 {
-                    Game.World.SetBlock(this, (byte)(stage + 1), x, y, z);
+                    Game.World.SetBlock(this, (uint)(stage + 1), x, y, z);
                 }
             }
         }

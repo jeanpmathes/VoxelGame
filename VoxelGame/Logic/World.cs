@@ -728,14 +728,14 @@ namespace VoxelGame.Logic
         /// <param name="data">The block data at the position.</param>
         /// <returns>The Block at x, y, z or null if the block was not found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Block? GetBlock(int x, int y, int z, out byte data)
+        public Block? GetBlock(int x, int y, int z, out uint data)
         {
             if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
             {
-                ushort val = chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
+                uint val = chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
 
-                data = (byte)(val >> 11);
-                return Block.TranslateID((ushort)(val & Section.BlockMask));
+                data = (val & Section.DATAMASK) >> Section.DATASHIFT;
+                return Block.TranslateID(val & Section.BLOCKMASK);
             }
             else
             {
@@ -753,17 +753,19 @@ namespace VoxelGame.Logic
         /// <param name="y">The y position of the block to set.</param>
         /// <param name="z">The z position of the block to set.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetBlock(Block block, byte data, int x, int y, int z)
+        public void SetBlock(Block block, uint data, int x, int y, int z)
         {
             if (!activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight * Section.SectionSize)
             {
                 return;
             }
 
-            chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = (ushort)((data << 11) | (block ?? Block.Air).Id);
+            uint val = ((data << Section.DATASHIFT) & Section.DATAMASK) | ((block ?? Block.Air).Id & Section.BLOCKMASK);
+            chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
+
             sectionsToMesh.Add((chunk, y >> chunkHeightExp));
 
-            // Block updates
+            // Block updates - Side is passed out of the perspective of the block recieving the block update.
             GetBlock(x, y, z + 1, out data)?.BlockUpdate(x, y, z + 1, data, BlockSide.Back);
             GetBlock(x, y, z - 1, out data)?.BlockUpdate(x, y, z - 1, data, BlockSide.Front);
             GetBlock(x - 1, y, z, out data)?.BlockUpdate(x - 1, y, z, data, BlockSide.Right);
@@ -771,9 +773,9 @@ namespace VoxelGame.Logic
             GetBlock(x, y - 1, z, out data)?.BlockUpdate(x, y - 1, z, data, BlockSide.Top);
             GetBlock(x, y + 1, z, out data)?.BlockUpdate(x, y + 1, z, data, BlockSide.Bottom);
 
-            // Check if sections next to this section have to be changed
+            // Check if sections next to this section have to be changed:
 
-            // Next on y axis
+            // Next on y axis.
             if ((y & (Section.SectionSize - 1)) == 0 && (y - 1 >> chunkHeightExp) >= 0)
             {
                 sectionsToMesh.Add((chunk, y - 1 >> chunkHeightExp));
@@ -783,7 +785,7 @@ namespace VoxelGame.Logic
                 sectionsToMesh.Add((chunk, y + 1 >> chunkHeightExp));
             }
 
-            // Next on x axis
+            // Next on x axis.
             if ((x & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x - 1 >> sectionSizeExp, z >> sectionSizeExp), out chunk))
             {
                 sectionsToMesh.Add((chunk, y >> chunkHeightExp));
@@ -793,7 +795,7 @@ namespace VoxelGame.Logic
                 sectionsToMesh.Add((chunk, y >> chunkHeightExp));
             }
 
-            // Next on z axis
+            // Next on z axis.
             if ((z & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x >> sectionSizeExp, z - 1 >> sectionSizeExp), out chunk))
             {
                 sectionsToMesh.Add((chunk, y >> chunkHeightExp));

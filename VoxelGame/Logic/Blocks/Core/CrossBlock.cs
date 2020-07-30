@@ -8,6 +8,10 @@ using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Blocks
 {
+    /// <summary>
+    /// A block with two crossed quads.
+    /// Data bit usage: <c>------</c>
+    /// </summary>
     public class CrossBlock : Block
     {
         private protected float[] vertices = null!;
@@ -18,7 +22,6 @@ namespace VoxelGame.Logic.Blocks
 
         /// <summary>
         /// Initializes a new instance of a cross block; a block made out of two intersecting planes.
-        /// Data bit usage: <c>-----</c>
         /// </summary>
         /// <param name="name">The name of this block and the texture file.</param>
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
@@ -79,7 +82,7 @@ namespace VoxelGame.Logic.Blocks
             textureIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             vertices = this.vertices;
             textureIndices = this.textureIndices;

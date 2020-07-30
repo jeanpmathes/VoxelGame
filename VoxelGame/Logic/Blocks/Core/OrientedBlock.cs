@@ -12,7 +12,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block which can be rotated on the y axis.
-    /// Data bit usage: <c>---oo</c>
+    /// Data bit usage: <c>----oo</c>
     /// </summary>
     // o = orientation
     public class OrientedBlock : BasicBlock
@@ -29,7 +29,7 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             float[] vert = sideVertices[(int)side];
 
@@ -41,7 +41,7 @@ namespace VoxelGame.Logic.Blocks
                 vert[24], vert[25], vert[26], 1f, 0f, vert[29], vert[30], vert[31]
             };
 
-            textureIndices = sideTextureIndices[TranslateIndex(side, (Orientation)(data & 0b0_0011))];
+            textureIndices = sideTextureIndices[TranslateIndex(side, (Orientation)(data & 0b00_0011))];
             indices = Array.Empty<uint>();
 
             tint = TintColor.None;
@@ -52,7 +52,7 @@ namespace VoxelGame.Logic.Blocks
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            Game.World.SetBlock(this, (byte)((entity?.LookingDirection.ToOrientation()) ?? Orientation.North), x, y, z);
+            Game.World.SetBlock(this, (uint)((entity?.LookingDirection.ToOrientation()) ?? Orientation.North), x, y, z);
 
             return true;
         }

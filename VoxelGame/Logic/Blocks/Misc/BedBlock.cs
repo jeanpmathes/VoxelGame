@@ -14,7 +14,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block that is two blocks long and allows setting the spawn point.
-    /// Data bit usage: <c>ccoop</c>
+    /// Data bit usage: <c>cccoop</c>
     /// </summary>
     // c = color
     // o = orientation
@@ -81,10 +81,10 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, byte data)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
             bool isBase = (data & 0b1) == 1;
-            Orientation orientation = (Orientation)((data & 0b0_0110) >> 1);
+            Orientation orientation = (Orientation)((data & 0b00_0110) >> 1);
 
             BoundingBox[] legs = new BoundingBox[2];
 
@@ -122,11 +122,11 @@ namespace VoxelGame.Logic.Blocks
             return new BoundingBox(new Vector3(0.5f, 0.3125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.125f, 0.5f), legs);
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             bool isHead = (data & 0b1) == 1;
-            int orientation = (data & 0b0_0110) >> 1;
-            BlockColor color = (BlockColor)((data & 0b1_1000) >> 3);
+            int orientation = (int)((data & 0b00_0110) >> 1);
+            BlockColor color = (BlockColor)((data & 0b11_1000) >> 3);
 
             if (isHead)
             {
@@ -222,11 +222,11 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, byte data)
+        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, uint data)
         {
             bool isHead = (data & 0b1) == 1;
 
-            switch ((Orientation)((data & 0b0_0110) >> 1))
+            switch ((Orientation)((data & 0b00_0110) >> 1))
             {
                 case Orientation.North:
 
@@ -261,43 +261,43 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, byte data)
+        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
         {
             bool isHead = (data & 0b1) == 1;
 
-            switch ((Orientation)((data & 0b0_0110) >> 1))
+            switch ((Orientation)((data & 0b00_0110) >> 1))
             {
                 case Orientation.North:
 
                     isHead = !isHead;
 
-                    Game.World.SetBlock(this, (byte)(data + 0b0_1000 & 0b1_1111), x, y, z);
-                    Game.World.SetBlock(this, (byte)((data + 0b0_1000 & 0b1_1111) ^ 0b0_0001), x, y, z - (isHead ? 1 : -1));
+                    Game.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
+                    Game.World.SetBlock(this, (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001, x, y, z - (isHead ? 1 : -1));
                     break;
 
                 case Orientation.East:
 
-                    Game.World.SetBlock(this, (byte)(data + 0b0_1000 & 0b1_1111), x, y, z);
-                    Game.World.SetBlock(this, (byte)((data + 0b0_1000 & 0b1_1111) ^ 0b0_0001), x - (isHead ? 1 : -1), y, z);
+                    Game.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
+                    Game.World.SetBlock(this, (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001, x - (isHead ? 1 : -1), y, z);
                     break;
 
                 case Orientation.South:
 
-                    Game.World.SetBlock(this, (byte)(data + 0b0_1000 & 0b1_1111), x, y, z);
-                    Game.World.SetBlock(this, (byte)((data + 0b0_1000 & 0b1_1111) ^ 0b0_0001), x, y, z - (isHead ? 1 : -1));
+                    Game.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
+                    Game.World.SetBlock(this, (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001, x, y, z - (isHead ? 1 : -1));
                     break;
 
                 case Orientation.West:
 
                     isHead = !isHead;
 
-                    Game.World.SetBlock(this, (byte)(data + 0b0_1000 & 0b1_1111), x, y, z);
-                    Game.World.SetBlock(this, (byte)((data + 0b0_1000 & 0b1_1111) ^ 0b0_0001), x - (isHead ? 1 : -1), y, z);
+                    Game.World.SetBlock(this, data + 0b00_1000 & 0b01_1111, x, y, z);
+                    Game.World.SetBlock(this, (data + 0b00_1000 & 0b01_1111) ^ 0b00_0001, x - (isHead ? 1 : -1), y, z);
                     break;
             }
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
+        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom && Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
             {

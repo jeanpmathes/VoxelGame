@@ -11,7 +11,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block that changes into dirt when something is placed on top of it. This block can use a neutral tint if specified in the constructor.
-    /// Data bit usage: <c>-----</c>
+    /// Data bit usage: <c>------</c>
     /// </summary>
     public class CoveredDirtBlock : BasicBlock, IPlantable
     {
@@ -30,7 +30,7 @@ namespace VoxelGame.Logic.Blocks
             this.hasNeutralTint = hasNeutralTint;
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             tint = (hasNeutralTint) ? TintColor.Neutral : TintColor.None;
 
@@ -51,7 +51,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
+        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
             if (side == BlockSide.Top && (Game.World.GetBlock(x, y + 1, z, out _) ?? Block.Air).IsSolidAndFull)
             {

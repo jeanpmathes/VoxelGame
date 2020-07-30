@@ -20,86 +20,55 @@ namespace VoxelGame.Rendering
 
         public int Count { get; }
 
-        public int HandleA { get; }
-        public int HandleB { get; }
-
-        private readonly TextureUnit unitA;
-        private readonly TextureUnit unitB;
+        private readonly int arrayCount;
+        private readonly TextureUnit[] textureUnits;
+        private readonly int[] handles;
 
         private readonly Dictionary<string, int> textureIndicies;
 
-        public ArrayTexture(string path, int resolution, bool useCustomMipmapGeneration, TextureUnit unitA, TextureUnit unitB)
+        public ArrayTexture(string path, int resolution, bool useCustomMipmapGeneration, params TextureUnit[] textureUnits)
         {
             if (resolution <= 0 || (resolution & (resolution - 1)) != 0)
             {
                 throw new ArgumentException($"The resolution '{resolution}' is either negative or not a power of two, which is not allowed.");
             }
 
-            this.unitA = unitA;
-            this.unitB = unitB;
+            arrayCount = textureUnits.Length;
 
-            HandleA = GL.GenTexture();
-            HandleB = GL.GenTexture();
+            this.textureUnits = textureUnits;
+            handles = new int[arrayCount];
+
+            GL.GenTextures(arrayCount, handles);
 
             string[] texturePaths = Directory.GetFiles(path, "*.png");
             List<Bitmap> textures = new List<Bitmap>();
             textureIndicies = new Dictionary<string, int>();
 
-            int currentIndex = 1;
-
             // Create fall back texture.
             Bitmap fallback = Texture.CreateFallback(resolution);
             textures.Add(fallback);
 
-            for (int i = 0; i < texturePaths.Length; i++) // Split all images into separate bitmaps and create a list
-            {
-                try
-                {
-                    using Bitmap bitmap = new Bitmap(texturePaths[i]);
-                    if ((bitmap.Width % resolution) == 0 && bitmap.Height == resolution) // Check if image consists of correctly sized textures
-                    {
-                        int textureCount = bitmap.Width / resolution;
-                        textureIndicies.Add(Path.GetFileNameWithoutExtension(texturePaths[i]), currentIndex);
-
-                        for (int j = 0; j < textureCount; j++)
-                        {
-                            textures.Add(bitmap.Clone(new Rectangle(j * resolution, 0, resolution, resolution), System.Drawing.Imaging.PixelFormat.Format32bppArgb));
-                            currentIndex++;
-                        }
-                    }
-                    else
-                    {
-                        logger.LogDebug("The size of the image did not match the specified resolution ({resolution}) and was not loaded: {path}", resolution, texturePaths[i]);
-                    }
-                }
-                catch (FileNotFoundException e)
-                {
-                    logger.LogError(e, "The image could not be loaded: {path}", texturePaths[i]);
-                }
-            }
+            // Split all images into separate bitmaps and create a list.
+            LoadBitmaps(resolution, texturePaths, ref textures);
 
             // Check if the arrays could hold all textures
-            if (textures.Count > 4096)
+            if (textures.Count > 2048 * handles.Length)
             {
                 throw new ArgumentException($"More than 4096 ({textures.Count}) textures were found; only 4096 textures can be stored in one {nameof(ArrayTexture)}!");
             }
 
             Count = textures.Count;
 
-            int countA, countB;
-            if (textures.Count > 2048)
-            {
-                countA = 2048;
-                countB = textures.Count - 2048;
-            }
-            else
-            {
-                countA = textures.Count;
-                countB = 0;
-            }
+            int loadedTextures = 0;
 
-            SetupArrayTexture(HandleA, unitA, resolution, textures, 0, countA, useCustomMipmapGeneration);
-            if (countB != 0) SetupArrayTexture(HandleB, unitB, resolution, textures, 2049, countB, useCustomMipmapGeneration);
+            for (int i = 0; loadedTextures < textures.Count; i++)
+            {
+                int remainingTextures = textures.Count - loadedTextures;
+
+                SetupArrayTexture(handles[i], textureUnits[i], resolution, textures, loadedTextures, loadedTextures + (remainingTextures < 2048 ? remainingTextures : 2048), useCustomMipmapGeneration);
+
+                loadedTextures += 2048;
+            }
 
             // Cleanup
             foreach (Bitmap bitmap in textures)
@@ -108,6 +77,38 @@ namespace VoxelGame.Rendering
             }
 
             logger.LogDebug("ArrayTexture with {count} textures loaded.", Count);
+        }
+
+        private void LoadBitmaps(int resolution, string[] paths, ref List<Bitmap> bitmaps)
+        {
+            int texIndex = 1;
+
+            for (int i = 0; i < paths.Length; i++)
+            {
+                try
+                {
+                    using Bitmap bitmap = new Bitmap(paths[i]);
+                    if ((bitmap.Width % resolution) == 0 && bitmap.Height == resolution) // Check if image consists of correctly sized textures
+                    {
+                        int textureCount = bitmap.Width / resolution;
+                        textureIndicies.Add(Path.GetFileNameWithoutExtension(paths[i]), texIndex);
+
+                        for (int j = 0; j < textureCount; j++)
+                        {
+                            bitmaps.Add(bitmap.Clone(new Rectangle(j * resolution, 0, resolution, resolution), System.Drawing.Imaging.PixelFormat.Format32bppArgb));
+                            texIndex++;
+                        }
+                    }
+                    else
+                    {
+                        logger.LogDebug("The size of the image did not match the specified resolution ({resolution}) and was not loaded: {path}", resolution, paths[i]);
+                    }
+                }
+                catch (FileNotFoundException e)
+                {
+                    logger.LogError(e, "The image could not be loaded: {path}", paths[i]);
+                }
+            }
         }
 
         private static void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures, int startIndex, int length, bool useCustomMipmapGeneration)
@@ -215,27 +216,20 @@ namespace VoxelGame.Rendering
 
         public void Use()
         {
-            // Bind A
-            GL.ActiveTexture(unitA);
-            GL.BindTexture(TextureTarget.Texture2DArray, HandleA);
-
-            // Bind B
-            GL.ActiveTexture(unitB);
-            GL.BindTexture(TextureTarget.Texture2DArray, HandleB);
+            for (int i = 0; i < arrayCount; i++)
+            {
+                GL.ActiveTexture(textureUnits[i]);
+                GL.BindTexture(TextureTarget.Texture2DArray, handles[i]);
+            }
         }
 
         internal void SetWrapMode(TextureWrapMode mode)
         {
-            GL.ActiveTexture(unitA);
-            GL.BindTexture(TextureTarget.Texture2DArray, HandleA);
-            SetMode(mode);
-
-            GL.ActiveTexture(unitB);
-            GL.BindTexture(TextureTarget.Texture2DArray, HandleB);
-            SetMode(mode);
-
-            static void SetMode(TextureWrapMode mode)
+            for (int i = 0; i < arrayCount; i++)
             {
+                GL.ActiveTexture(textureUnits[i]);
+                GL.BindTexture(TextureTarget.Texture2DArray, handles[i]);
+
                 GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapS, (int)mode);
                 GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapT, (int)mode);
             }
@@ -270,8 +264,10 @@ namespace VoxelGame.Rendering
             {
                 if (disposing)
                 {
-                    GL.DeleteTexture(HandleA);
-                    GL.DeleteTexture(HandleB);
+                    for (int i = 0; i < arrayCount; i++)
+                    {
+                        GL.DeleteTexture(handles[i]);
+                    }
                 }
 
                 logger.LogWarning(LoggingEvents.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");

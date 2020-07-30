@@ -9,7 +9,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A BasicBlock that can only be placed on top of blocks that are both solid and full.
-    /// Data bit usage: <c>-----</c>
+    /// Data bit usage: <c>------</c>
     /// </summary>
     public class GroundedBlock : BasicBlock
     {
@@ -39,7 +39,7 @@ namespace VoxelGame.Logic.Blocks
             }
         }
 
-        internal override void BlockUpdate(int x, int y, int z, byte data, BlockSide side)
+        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom && Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
             {

@@ -10,13 +10,16 @@ using VoxelGame.Utilities;
 
 namespace VoxelGame.Logic.Blocks
 {
+    /// <summary>
+    /// A block that slows down entities that collide with it.
+    /// Data bit usage: <c>------</c>
+    /// </summary>
     public class SpiderWebBlock : CrossBlock, IFlammable
     {
         private protected readonly float maxVelocity;
 
         /// <summary>
         /// Creates a SpiderWeb block, a block that slows down entities that collide with it.
-        /// Data bit usage: <c>-----</c>
         /// </summary>
         /// <param name="name">The name of the block.</param>
         /// <param name="maxVelocity">The maximum velocity of entities colliding with this block.</param>
@@ -33,7 +36,7 @@ namespace VoxelGame.Logic.Blocks
             this.maxVelocity = maxVelocity;
         }
 
-        protected override void EntityCollision(PhysicsEntity entity, int x, int y, int z, byte data)
+        protected override void EntityCollision(PhysicsEntity entity, int x, int y, int z, uint data)
         {
             entity.Velocity = VMath.Clamp(entity.Velocity, -1f, maxVelocity);
         }

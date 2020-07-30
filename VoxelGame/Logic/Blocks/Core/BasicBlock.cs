@@ -11,7 +11,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// This class represents a simple block that is completely filled. It is used for basic blocks with no functions that make up most of the world.
-    /// Data bit usage: <c>-----</c>
+    /// Data bit usage: <c>------</c>
     /// </summary>
     public class BasicBlock : Block
     {
@@ -115,7 +115,7 @@ namespace VoxelGame.Logic.Blocks
             };
         }
 
-        public override uint GetMesh(BlockSide side, byte data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             vertices = sideVertices[(int)side];
             textureIndices = sideTextureIndices[(int)side];

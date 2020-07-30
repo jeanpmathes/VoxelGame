@@ -9,7 +9,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A simple block which allows the spread of grass.
-    /// Data bit usage: <c>-----</c>
+    /// Data bit usage: <c>------</c>
     /// </summary>
     public class DirtBlock : BasicBlock, IPlantable
     {
@@ -25,7 +25,7 @@ namespace VoxelGame.Logic.Blocks
         {
         }
 
-        internal override void RandomUpdate(int x, int y, int z, byte data)
+        internal override void RandomUpdate(int x, int y, int z, uint data)
         {
             // Check if this block can be grass
             if ((Game.World.GetBlock(x, y + 1, z, out _) ?? Block.Air).IsSolidAndFull)

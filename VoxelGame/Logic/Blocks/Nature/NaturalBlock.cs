@@ -9,7 +9,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A natural block that can burn.
-    /// Data bit usage: <c>-----</c>
+    /// Data bit usage: <c>------</c>
     /// </summary>
     public class NaturalBlock : BasicBlock, IFlammable
     {

@@ -93,7 +93,7 @@ namespace VoxelGame
                 screen = new Screen();
 
                 // Texture setup.
-                BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2);
+                BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2, TextureUnit.Texture3, TextureUnit.Texture4);
 
                 logger.LogInformation("All block textures loaded.");
 
@@ -371,6 +371,15 @@ namespace VoxelGame
 
         private static bool IsNameValid(string name)
         {
+            if (name.Length == 0)
+            {
+                logger.LogWarning("The input is too short.");
+
+                Console.WriteLine(Language.InputNotValid);
+
+                return false;
+            }
+
             if (name[^1] == ' ')
             {
                 logger.LogWarning("The input ends with a whitespace.");
