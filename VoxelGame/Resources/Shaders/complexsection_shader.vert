@@ -27,7 +27,7 @@ void main()
     normal = (isnan(normal.x) || isnan(normal.y) || isnan(normal.z)) ? vec3(0.0, 0.0, 0.0) : normal;
 
     // Texture Index
-    texIndex = aData.y & 4095;
+    texIndex = aData.y & 8191;
 
     // Texture Coordinate
     texCoord = vec2(((aData.x >> 5) & 31) / 16.0, (aData.x & 31) / 16.0);

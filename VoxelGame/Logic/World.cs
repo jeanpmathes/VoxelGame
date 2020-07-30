@@ -734,7 +734,7 @@ namespace VoxelGame.Logic
             {
                 uint val = chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
 
-                data = val >> Section.DATASHIFT;
+                data = (val & Section.DATAMASK) >> Section.DATASHIFT;
                 return Block.TranslateID(val & Section.BLOCKMASK);
             }
             else
@@ -765,7 +765,7 @@ namespace VoxelGame.Logic
 
             sectionsToMesh.Add((chunk, y >> chunkHeightExp));
 
-            // Block updates
+            // Block updates - Side is passed out of the perspective of the block recieving the block update.
             GetBlock(x, y, z + 1, out data)?.BlockUpdate(x, y, z + 1, data, BlockSide.Back);
             GetBlock(x, y, z - 1, out data)?.BlockUpdate(x, y, z - 1, data, BlockSide.Front);
             GetBlock(x - 1, y, z, out data)?.BlockUpdate(x - 1, y, z, data, BlockSide.Right);
@@ -773,9 +773,9 @@ namespace VoxelGame.Logic
             GetBlock(x, y - 1, z, out data)?.BlockUpdate(x, y - 1, z, data, BlockSide.Top);
             GetBlock(x, y + 1, z, out data)?.BlockUpdate(x, y + 1, z, data, BlockSide.Bottom);
 
-            // Check if sections next to this section have to be changed
+            // Check if sections next to this section have to be changed:
 
-            // Next on y axis
+            // Next on y axis.
             if ((y & (Section.SectionSize - 1)) == 0 && (y - 1 >> chunkHeightExp) >= 0)
             {
                 sectionsToMesh.Add((chunk, y - 1 >> chunkHeightExp));
@@ -785,7 +785,7 @@ namespace VoxelGame.Logic
                 sectionsToMesh.Add((chunk, y + 1 >> chunkHeightExp));
             }
 
-            // Next on x axis
+            // Next on x axis.
             if ((x & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x - 1 >> sectionSizeExp, z >> sectionSizeExp), out chunk))
             {
                 sectionsToMesh.Add((chunk, y >> chunkHeightExp));
@@ -795,7 +795,7 @@ namespace VoxelGame.Logic
                 sectionsToMesh.Add((chunk, y >> chunkHeightExp));
             }
 
-            // Next on z axis
+            // Next on z axis.
             if ((z & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x >> sectionSizeExp, z - 1 >> sectionSizeExp), out chunk))
             {
                 sectionsToMesh.Add((chunk, y >> chunkHeightExp));

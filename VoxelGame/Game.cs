@@ -93,7 +93,7 @@ namespace VoxelGame
                 screen = new Screen();
 
                 // Texture setup.
-                BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2);
+                BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2, TextureUnit.Texture3, TextureUnit.Texture4);
 
                 logger.LogInformation("All block textures loaded.");
 

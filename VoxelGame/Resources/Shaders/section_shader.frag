@@ -10,8 +10,10 @@ in vec2 texCoord;
 in vec4 tint;
 flat in int anim;
 
-layout(binding = 1) uniform sampler2DArray lowerArrayTexture;
-layout(binding = 2) uniform sampler2DArray upperArrayTexture;
+layout(binding = 1) uniform sampler2DArray firstArrayTexture;
+layout(binding = 2) uniform sampler2DArray secondArrayTexture;
+layout(binding = 1) uniform sampler2DArray thirdArrayTexture;
+layout(binding = 2) uniform sampler2DArray fourthArrayTexture;
 
 uniform float time;
 
@@ -22,15 +24,29 @@ void main()
 	float quadID = -mod(gl_PrimitiveID, 2) + gl_PrimitiveID;
 	int animatedTexOffset = texIndex + int(mod(anim * time * 8 + anim * quadID * 0.125, 8));
 
-	if ((animatedTexOffset & 4096) == 0)
+	if ((animatedTexOffset & 8192) == 0)
 	{
-		color = texture(lowerArrayTexture, vec3(texCoord.xy, (animatedTexOffset & 2047)));
+		if ((animatedTexOffset & 4096) == 0)
+		{
+			color = texture(firstArrayTexture, vec3(texCoord.xy, (animatedTexOffset & 2047)));
+		}
+		else
+		{
+			color = texture(secondArrayTexture, vec3(texCoord.xy, (animatedTexOffset & 2047)));
+		}
 	}
 	else
 	{
-		color = texture(upperArrayTexture, vec3(texCoord.xy, (animatedTexOffset & 2047)));
+		if ((animatedTexOffset & 4096) == 0)
+		{
+			color = texture(thirdArrayTexture, vec3(texCoord.xy, (animatedTexOffset & 2047)));
+		}
+		else
+		{
+			color = texture(fourthArrayTexture, vec3(texCoord.xy, (animatedTexOffset & 2047)));
+		}
 	}
-	
+
 	if (color.a < 0.1)
 	{
 		discard;
