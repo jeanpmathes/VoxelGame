@@ -44,38 +44,12 @@ namespace VoxelGame.Rendering
             List<Bitmap> textures = new List<Bitmap>();
             textureIndicies = new Dictionary<string, int>();
 
-            int currentIndex = 1;
-
             // Create fall back texture.
             Bitmap fallback = Texture.CreateFallback(resolution);
             textures.Add(fallback);
 
-            for (int i = 0; i < texturePaths.Length; i++) // Split all images into separate bitmaps and create a list
-            {
-                try
-                {
-                    using Bitmap bitmap = new Bitmap(texturePaths[i]);
-                    if ((bitmap.Width % resolution) == 0 && bitmap.Height == resolution) // Check if image consists of correctly sized textures
-                    {
-                        int textureCount = bitmap.Width / resolution;
-                        textureIndicies.Add(Path.GetFileNameWithoutExtension(texturePaths[i]), currentIndex);
-
-                        for (int j = 0; j < textureCount; j++)
-                        {
-                            textures.Add(bitmap.Clone(new Rectangle(j * resolution, 0, resolution, resolution), System.Drawing.Imaging.PixelFormat.Format32bppArgb));
-                            currentIndex++;
-                        }
-                    }
-                    else
-                    {
-                        logger.LogDebug("The size of the image did not match the specified resolution ({resolution}) and was not loaded: {path}", resolution, texturePaths[i]);
-                    }
-                }
-                catch (FileNotFoundException e)
-                {
-                    logger.LogError(e, "The image could not be loaded: {path}", texturePaths[i]);
-                }
-            }
+            // Split all images into separate bitmaps and create a list.
+            LoadBitmaps(resolution, texturePaths, ref textures);
 
             // Check if the arrays could hold all textures
             if (textures.Count > 2048 * handles.Length)
@@ -103,6 +77,38 @@ namespace VoxelGame.Rendering
             }
 
             logger.LogDebug("ArrayTexture with {count} textures loaded.", Count);
+        }
+
+        private void LoadBitmaps(int resolution, string[] paths, ref List<Bitmap> bitmaps)
+        {
+            int texIndex = 1;
+
+            for (int i = 0; i < paths.Length; i++)
+            {
+                try
+                {
+                    using Bitmap bitmap = new Bitmap(paths[i]);
+                    if ((bitmap.Width % resolution) == 0 && bitmap.Height == resolution) // Check if image consists of correctly sized textures
+                    {
+                        int textureCount = bitmap.Width / resolution;
+                        textureIndicies.Add(Path.GetFileNameWithoutExtension(paths[i]), texIndex);
+
+                        for (int j = 0; j < textureCount; j++)
+                        {
+                            bitmaps.Add(bitmap.Clone(new Rectangle(j * resolution, 0, resolution, resolution), System.Drawing.Imaging.PixelFormat.Format32bppArgb));
+                            texIndex++;
+                        }
+                    }
+                    else
+                    {
+                        logger.LogDebug("The size of the image did not match the specified resolution ({resolution}) and was not loaded: {path}", resolution, paths[i]);
+                    }
+                }
+                catch (FileNotFoundException e)
+                {
+                    logger.LogError(e, "The image could not be loaded: {path}", paths[i]);
+                }
+            }
         }
 
         private static void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures, int startIndex, int length, bool useCustomMipmapGeneration)
