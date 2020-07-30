@@ -14,7 +14,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block that is two blocks long and allows setting the spawn point.
-    /// Data bit usage: <c>-ccoop</c>
+    /// Data bit usage: <c>cccoop</c>
     /// </summary>
     // c = color
     // o = orientation
@@ -126,7 +126,7 @@ namespace VoxelGame.Logic.Blocks
         {
             bool isHead = (data & 0b1) == 1;
             int orientation = (int)((data & 0b00_0110) >> 1);
-            BlockColor color = (BlockColor)((data & 0b1_1000) >> 3);
+            BlockColor color = (BlockColor)((data & 0b11_1000) >> 3);
 
             if (isHead)
             {
@@ -271,20 +271,20 @@ namespace VoxelGame.Logic.Blocks
 
                     isHead = !isHead;
 
-                    Game.World.SetBlock(this, data + 0b00_1000 & 0b01_1111, x, y, z);
-                    Game.World.SetBlock(this, (data + 0b00_1000 & 0b01_1111) ^ 0b00_0001, x, y, z - (isHead ? 1 : -1));
+                    Game.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
+                    Game.World.SetBlock(this, (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001, x, y, z - (isHead ? 1 : -1));
                     break;
 
                 case Orientation.East:
 
-                    Game.World.SetBlock(this, data + 0b00_1000 & 0b01_1111, x, y, z);
-                    Game.World.SetBlock(this, (data + 0b00_1000 & 0b01_1111) ^ 0b00_0001, x - (isHead ? 1 : -1), y, z);
+                    Game.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
+                    Game.World.SetBlock(this, (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001, x - (isHead ? 1 : -1), y, z);
                     break;
 
                 case Orientation.South:
 
-                    Game.World.SetBlock(this, data + 0b00_1000 & 0b01_1111, x, y, z);
-                    Game.World.SetBlock(this, (data + 0b00_1000 & 0b01_1111) ^ 0b00_0001, x, y, z - (isHead ? 1 : -1));
+                    Game.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
+                    Game.World.SetBlock(this, (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001, x, y, z - (isHead ? 1 : -1));
                     break;
 
                 case Orientation.West:
