@@ -13,7 +13,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// This class represents a block with a single face that sticks to other blocks.
-    /// Data bit usage: <c>---oo</c>
+    /// Data bit usage: <c>----oo</c>
     /// </summary>
     // o = orientation
     public class FlatBlock : Block
@@ -124,7 +124,7 @@ namespace VoxelGame.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
-            return ((Orientation)(data & 0b0_0011)) switch
+            return ((Orientation)(data & 0b00_0011)) switch
             {
                 Orientation.North => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.95f), new Vector3(0.45f, 0.5f, 0.05f)),
                 Orientation.South => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.05f), new Vector3(0.45f, 0.5f, 0.05f)),
@@ -136,7 +136,7 @@ namespace VoxelGame.Logic.Blocks
 
         public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
-            vertices = sideVertices[data & 0b0_0011];
+            vertices = sideVertices[data & 0b00_0011];
             textureIndices = this.textureIndices;
             indices = this.indices;
 
@@ -190,7 +190,7 @@ namespace VoxelGame.Logic.Blocks
         {
             Vector3 forwardMovement = Vector3.Dot(entity.Movement, entity.Forward) * entity.Forward;
 
-            if (forwardMovement.LengthSquared > 0.1f && (Orientation)(data & 0b0_0011) == (-forwardMovement).ToOrientation())
+            if (forwardMovement.LengthSquared > 0.1f && (Orientation)(data & 0b00_0011) == (-forwardMovement).ToOrientation())
             {
                 // Check if entity looks up or down
                 if (Vector3.CalculateAngle(entity.LookingDirection, Vector3.UnitY) < MathHelper.PiOver2)
@@ -210,7 +210,7 @@ namespace VoxelGame.Logic.Blocks
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
-            CheckBack(x, y, z, side, (Orientation)(data & 0b0_0011));
+            CheckBack(x, y, z, side, (Orientation)(data & 0b00_0011));
         }
 
         protected void CheckBack(int x, int y, int z, BlockSide side, Orientation blockOrientation)

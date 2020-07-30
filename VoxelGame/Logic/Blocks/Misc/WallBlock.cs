@@ -13,7 +13,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// This class represents a wall block which connects to blocks with the <see cref="IConnectable"/> interface. When connecting in a straight line, no post is used and indices are not ignored, else indices are ignored.
-    /// Data bit usage: <c>-nesw</c>
+    /// Data bit usage: <c>--nesw</c>
     /// </summary>
     // n = connected north
     // e = connected east
@@ -66,10 +66,10 @@ namespace VoxelGame.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
-            bool north = (data & 0b0_1000) != 0;
-            bool east = (data & 0b0_0100) != 0;
-            bool south = (data & 0b0_0010) != 0;
-            bool west = (data & 0b0_0001) != 0;
+            bool north = (data & 0b00_1000) != 0;
+            bool east = (data & 0b00_0100) != 0;
+            bool south = (data & 0b00_0010) != 0;
+            bool west = (data & 0b00_0001) != 0;
 
             bool straightZ = north && south && !east && !west;
             bool straightX = !north && !south && east && west;
@@ -118,10 +118,10 @@ namespace VoxelGame.Logic.Blocks
 
         public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
-            bool north = (data & 0b0_1000) != 0;
-            bool east = (data & 0b0_0100) != 0;
-            bool south = (data & 0b0_0010) != 0;
-            bool west = (data & 0b0_0001) != 0;
+            bool north = (data & 0b00_1000) != 0;
+            bool east = (data & 0b00_0100) != 0;
+            bool south = (data & 0b00_0010) != 0;
+            bool west = (data & 0b00_0001) != 0;
 
             bool straightZ = north && south && !east && !west;
             bool straightX = !north && !south && east && west;

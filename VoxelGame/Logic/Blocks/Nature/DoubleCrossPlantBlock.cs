@@ -12,7 +12,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// Similar to <see cref="CrossPlantBlock"/>, but is two blocks high.
-    /// Data bit usage: <c>----h</c>
+    /// Data bit usage: <c>-----h</c>
     /// </summary>
     // h = height
     public class DoubleCrossPlantBlock : Block, IFlammable

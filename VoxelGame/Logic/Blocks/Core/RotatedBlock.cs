@@ -12,7 +12,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block which can be rotated to be oriented on different axis. The y axis is the default orientation.
-    /// Data bit usage: <c>---aa</c>
+    /// Data bit usage: <c>----aa</c>
     /// </summary>
     // a = axis
     public class RotatedBlock : BasicBlock, IFlammable
@@ -105,7 +105,7 @@ namespace VoxelGame.Logic.Blocks
 
         protected static Axis ToAxis(uint data)
         {
-            return (Axis)(data & 0b0_0011);
+            return (Axis)(data & 0b00_0011);
         }
 
         protected static int TranslateIndex(BlockSide side, Axis axis)

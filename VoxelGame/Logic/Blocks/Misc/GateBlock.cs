@@ -14,7 +14,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A simple gate that can be used in fences and walls. It can be opened and closed.
-    /// Data bit usage: <c>--coo</c>
+    /// Data bit usage: <c>---coo</c>
     /// </summary>
     public class GateBlock : Block, IConnectable, IFlammable
     {
@@ -81,9 +81,9 @@ namespace VoxelGame.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
-            bool isClosed = (data & 0b0_0100) == 0;
+            bool isClosed = (data & 0b00_0100) == 0;
 
-            return ((Orientation)(data & 0b0_0011)) switch
+            return ((Orientation)(data & 0b00_0011)) switch
             {
                 Orientation.North => NorthSouth(0.375f),
                 Orientation.East => WestEast(0.625f),
@@ -150,9 +150,9 @@ namespace VoxelGame.Logic.Blocks
 
         public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
-            if ((data & 0b0_0100) == 0)
+            if ((data & 0b00_0100) == 0)
             {
-                vertices = verticesClosed[data & 0b0_0011];
+                vertices = verticesClosed[data & 0b00_0011];
                 textureIndices = texIndicesClosed;
                 indices = indicesClosed;
 
@@ -163,7 +163,7 @@ namespace VoxelGame.Logic.Blocks
             }
             else
             {
-                vertices = verticesOpen[data & 0b0_0011];
+                vertices = verticesOpen[data & 0b00_0011];
                 textureIndices = texIndicesOpen;
                 indices = indicesOpen;
 
@@ -207,8 +207,8 @@ namespace VoxelGame.Logic.Blocks
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
         {
-            Orientation orientation = (Orientation)(data & 0b0_0011);
-            bool isClosed = (data & 0b0_0100) == 0;
+            Orientation orientation = (Orientation)(data & 0b00_0011);
+            bool isClosed = (data & 0b00_0100) == 0;
 
             // Check if orientation has to be inverted.
             if (isClosed && Vector2.Dot(orientation.ToVector().Xz, entity.Position.Xz - new Vector2(x + 0.5f, z + 0.5f)) < 0)
@@ -225,12 +225,12 @@ namespace VoxelGame.Logic.Blocks
                 return;
             }
 
-            Game.World.SetBlock(this, (uint)((isClosed ? 0b0_0100 : 0b0_0000) | (int)orientation.Invert()), x, y, z);
+            Game.World.SetBlock(this, (uint)((isClosed ? 0b00_0100 : 0b00_0000) | (int)orientation.Invert()), x, y, z);
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
-            Orientation orientation = (Orientation)(data & 0b0_0011);
+            Orientation orientation = (Orientation)(data & 0b00_0011);
 
             switch (side)
             {
@@ -264,7 +264,7 @@ namespace VoxelGame.Logic.Blocks
         {
             if (Game.World.GetBlock(x, y, z, out uint data) == this)
             {
-                Orientation orientation = (Orientation)(data & 0b0_0011);
+                Orientation orientation = (Orientation)(data & 0b00_0011);
 
                 return orientation switch
                 {

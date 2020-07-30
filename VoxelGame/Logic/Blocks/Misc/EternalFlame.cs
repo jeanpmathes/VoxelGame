@@ -9,7 +9,7 @@ namespace VoxelGame.Logic.Blocks.Misc
 {
     /// <summary>
     /// A block that does not stop burning.
-    /// Data bit usage: <c>-----</c>
+    /// Data bit usage: <c>------</c>
     /// </summary>
     public class EternalFlame : BasicBlock, IFlammable
     {

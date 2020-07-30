@@ -11,7 +11,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block that grows downwards and can hang freely. This block is affected by neutral tint.
-    /// Data bit usage: <c>aaaoo</c>
+    /// Data bit usage: <c>-aaaoo</c>
     /// </summary>
     // o = orientation
     // a = age
@@ -36,10 +36,10 @@ namespace VoxelGame.Logic.Blocks
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
-            Orientation orientation = (Orientation)(data & 0b0_0011);
+            Orientation orientation = (Orientation)(data & 0b00_0011);
 
             // If another block of this type is above, no solid block is required to hold.
-            if ((Game.World.GetBlock(x, y + 1, z, out uint dataAbove) ?? Block.Air) == this && orientation == (Orientation)(dataAbove & 0b0_0011))
+            if ((Game.World.GetBlock(x, y + 1, z, out uint dataAbove) ?? Block.Air) == this && orientation == (Orientation)(dataAbove & 0b00_0011))
             {
                 return;
             }
@@ -53,7 +53,7 @@ namespace VoxelGame.Logic.Blocks
 
         internal override void RandomUpdate(int x, int y, int z, uint data)
         {
-            Orientation orientation = (Orientation)(data & 0b0_0011);
+            Orientation orientation = (Orientation)(data & 0b00_0011);
             int age = (int)((data & 0b1_1100) >> 2);
 
             if (age < 7)

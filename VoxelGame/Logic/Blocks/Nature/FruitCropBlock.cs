@@ -15,7 +15,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block that places a fruit block when reaching the final growth stage.
-    /// Data bit usage: <c>ssscc</c>
+    /// Data bit usage: <c>-ssscc</c>
     /// </summary>
     // s = stage
     // c = connection (orientation)

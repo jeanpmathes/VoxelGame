@@ -13,7 +13,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block which grows on farmland and has multiple growth stages.
-    /// Data bit usage: <c>--sss</c>
+    /// Data bit usage: <c>---sss</c>
     /// </summary>
     // s = stage
     public class CropBlock : Block, IFlammable
@@ -141,7 +141,7 @@ namespace VoxelGame.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
-            switch ((GrowthStage)(data & 0b0_0111))
+            switch ((GrowthStage)(data & 0b00_0111))
             {
                 case GrowthStage.Initial:
                 case GrowthStage.Dead:
@@ -176,7 +176,7 @@ namespace VoxelGame.Logic.Blocks
 
             for (int i = 0; i < 24; i++)
             {
-                textureIndices[i] = stageTexIndices[data & 0b0_0111];
+                textureIndices[i] = stageTexIndices[data & 0b00_0111];
             }
 
             indices = this.indices;
@@ -208,7 +208,7 @@ namespace VoxelGame.Logic.Blocks
 
         internal override void RandomUpdate(int x, int y, int z, uint data)
         {
-            GrowthStage stage = (GrowthStage)(data & 0b0_0111);
+            GrowthStage stage = (GrowthStage)(data & 0b00_0111);
 
             if ((int)stage > 2 && Game.World.GetBlock(x, y - 1, z, out _) != Block.Farmland)
             {

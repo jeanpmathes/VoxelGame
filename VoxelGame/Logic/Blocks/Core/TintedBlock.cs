@@ -12,7 +12,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block that has differently colored versions. Animation can be activated.
-    /// Data bit usage: <c>-cccc</c>
+    /// Data bit usage: <c>--cccc</c>
     /// </summary>
     // c = color
     public class TintedBlock : BasicBlock, IConnectable
@@ -34,7 +34,7 @@ namespace VoxelGame.Logic.Blocks
 
         public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
-            tint = ((BlockColor)(0b0_1111 & data)).ToTintColor();
+            tint = ((BlockColor)(0b00_1111 & data)).ToTintColor();
             isAnimated = this.isAnimated;
 
             return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _, out _);
@@ -42,7 +42,7 @@ namespace VoxelGame.Logic.Blocks
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
         {
-            Game.World.SetBlock(this, data + 1 & 0b0_1111, x, y, z);
+            Game.World.SetBlock(this, data + 1 & 0b00_1111, x, y, z);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// An animated block that attaches to sides.
-    /// Data bit usage: <c>neswt</c>
+    /// Data bit usage: <c>-neswt</c>
     /// </summary>
     // n = north
     // e = east
@@ -192,35 +192,35 @@ namespace VoxelGame.Logic.Blocks
             BoundingBox parent = new BoundingBox();
             BoundingBox[] children = new BoundingBox[count - 1];
 
-            if ((data & 0b1_0000) != 0)
+            if ((data & 0b01_0000) != 0)
             {
                 BoundingBox child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.1f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
 
                 IncludeChild(child);
             }
 
-            if ((data & 0b0_1000) != 0)
+            if ((data & 0b00_1000) != 0)
             {
                 BoundingBox child = new BoundingBox(new Vector3(0.9f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
 
                 IncludeChild(child);
             }
 
-            if ((data & 0b0_0100) != 0)
+            if ((data & 0b00_0100) != 0)
             {
                 BoundingBox child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.9f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
 
                 IncludeChild(child);
             }
 
-            if ((data & 0b0_0010) != 0)
+            if ((data & 0b00_0010) != 0)
             {
                 BoundingBox child = new BoundingBox(new Vector3(0.1f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
 
                 IncludeChild(child);
             }
 
-            if ((data & 0b0_0001) != 0)
+            if ((data & 0b00_0001) != 0)
             {
                 BoundingBox child = new BoundingBox(new Vector3(0.5f, 0.9f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.1f, 0.5f));
 
@@ -254,7 +254,7 @@ namespace VoxelGame.Logic.Blocks
 
             int faceCount = BitHelper.CountSetBits(data & 0b1_1111);
 
-            if ((data & 0b0_0001) != 0)
+            if ((data & 0b00_0001) != 0)
             {
                 faceCount++;
             }
@@ -301,11 +301,11 @@ namespace VoxelGame.Logic.Blocks
             {
                 uint data = 0;
 
-                if (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull == true) data |= 0b1_0000; // North.
-                if (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b0_1000; // East.
-                if (Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull == true) data |= 0b0_0100; // South.
-                if (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b0_0010; // West.
-                if (Game.World.GetBlock(x, y + 1, z, out _)?.IsSolidAndFull == true) data |= 0b0_0001; // Top.
+                if (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull == true) data |= 0b01_0000; // North.
+                if (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b00_1000; // East.
+                if (Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull == true) data |= 0b00_0100; // South.
+                if (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b00_0010; // West.
+                if (Game.World.GetBlock(x, y + 1, z, out _)?.IsSolidAndFull == true) data |= 0b00_0001; // Top.
 
                 if (data != 0)
                 {
@@ -326,27 +326,27 @@ namespace VoxelGame.Logic.Blocks
             {
                 case BlockSide.Back:
 
-                    CheckNeighbour(x, y, z - 1, 0b1_0000);
+                    CheckNeighbour(x, y, z - 1, 0b01_0000);
                     break;
 
                 case BlockSide.Right:
 
-                    CheckNeighbour(x + 1, y, z, 0b0_1000);
+                    CheckNeighbour(x + 1, y, z, 0b00_1000);
                     break;
 
                 case BlockSide.Front:
 
-                    CheckNeighbour(x, y, z + 1, 0b0_0100);
+                    CheckNeighbour(x, y, z + 1, 0b00_0100);
                     break;
 
                 case BlockSide.Left:
 
-                    CheckNeighbour(x - 1, y, z, 0b0_0010);
+                    CheckNeighbour(x - 1, y, z, 0b00_0010);
                     break;
 
                 case BlockSide.Top:
 
-                    CheckNeighbour(x, y + 1, z, 0b0_0001);
+                    CheckNeighbour(x, y + 1, z, 0b00_0001);
                     break;
 
                 case BlockSide.Bottom:
@@ -356,11 +356,11 @@ namespace VoxelGame.Logic.Blocks
                         break;
                     }
 
-                    data |= AddNeighbour(x, y, z - 1, 0b1_0000); // North.
-                    data |= AddNeighbour(x + 1, y, z, 0b0_1000); // East.
-                    data |= AddNeighbour(x, y, z + 1, 0b0_0100); // South.
-                    data |= AddNeighbour(x - 1, y, z, 0b0_0010); // West.
-                    data |= AddNeighbour(x, y + 1, z, 0b0_0001); // Top.
+                    data |= AddNeighbour(x, y, z - 1, 0b01_0000); // North.
+                    data |= AddNeighbour(x + 1, y, z, 0b00_1000); // East.
+                    data |= AddNeighbour(x, y, z + 1, 0b00_0100); // South.
+                    data |= AddNeighbour(x - 1, y, z, 0b00_0010); // West.
+                    data |= AddNeighbour(x, y + 1, z, 0b00_0001); // Top.
 
                     SetData(data);
 
@@ -405,11 +405,11 @@ namespace VoxelGame.Logic.Blocks
                 data = 0b1_1111;
             }
 
-            if ((data & 0b1_0000) != 0) canBurn |= BurnAt(x, y, z - 1); // North.
-            if ((data & 0b0_1000) != 0) canBurn |= BurnAt(x + 1, y, z); // East.
-            if ((data & 0b0_0100) != 0) canBurn |= BurnAt(x, y, z + 1); // South.
-            if ((data & 0b0_0010) != 0) canBurn |= BurnAt(x - 1, y, z); // West.
-            if ((data & 0b0_0001) != 0) canBurn |= BurnAt(x, y + 1, z); // Top.
+            if ((data & 0b01_0000) != 0) canBurn |= BurnAt(x, y, z - 1); // North.
+            if ((data & 0b00_1000) != 0) canBurn |= BurnAt(x + 1, y, z); // East.
+            if ((data & 0b00_0100) != 0) canBurn |= BurnAt(x, y, z + 1); // South.
+            if ((data & 0b00_0010) != 0) canBurn |= BurnAt(x - 1, y, z); // West.
+            if ((data & 0b00_0001) != 0) canBurn |= BurnAt(x, y + 1, z); // Top.
 
             if (!canBurn)
             {

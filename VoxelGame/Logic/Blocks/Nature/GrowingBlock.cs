@@ -10,7 +10,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block that grows upwards and is destroyed if a certain ground block is not given.
-    /// Data bit usage: <c>--aaa</c>
+    /// Data bit usage: <c>---aaa</c>
     /// </summary>
     // a = age
     public class GrowingBlock : BasicBlock, IFlammable
@@ -63,7 +63,7 @@ namespace VoxelGame.Logic.Blocks
 
         internal override void RandomUpdate(int x, int y, int z, uint data)
         {
-            int age = (int)(data & 0b0_0111);
+            int age = (int)(data & 0b00_0111);
 
             if (age < 7)
             {

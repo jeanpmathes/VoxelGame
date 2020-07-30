@@ -9,7 +9,7 @@ namespace VoxelGame.Logic.Blocks.Misc
 {
     /// <summary>
     /// A <see cref="TintedBlock"/> made out of organic, flammable materials.
-    /// Data bit usage: <c>-cccc</c>
+    /// Data bit usage: <c>--cccc</c>
     /// </summary>
     public class OrganicTintedBlock : TintedBlock, IFlammable
     {

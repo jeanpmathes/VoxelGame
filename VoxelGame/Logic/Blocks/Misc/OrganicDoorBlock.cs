@@ -9,7 +9,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A <see cref="DoorBlock"/> that is flammable.
-    /// Data bit usage: <c>csboo</c>
+    /// Data bit usage: <c>-csboo</c>
     /// </summary>
     public class OrganicDoorBlock : DoorBlock, IFlammable
     {

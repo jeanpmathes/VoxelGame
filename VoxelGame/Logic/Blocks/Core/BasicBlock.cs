@@ -11,7 +11,7 @@ namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// This class represents a simple block that is completely filled. It is used for basic blocks with no functions that make up most of the world.
-    /// Data bit usage: <c>-----</c>
+    /// Data bit usage: <c>------</c>
     /// </summary>
     public class BasicBlock : Block
     {
