@@ -109,6 +109,15 @@ namespace VoxelGame.Logic
 
         #endregion SPECIAL BLOCKS
 
+        #region NEW BLOCKS
+
+        public static readonly Block Ash = new BasicBlock(Language.Ash, nameof(Ash), TextureLayout.Uniform("ash"));
+        public static readonly Block GlassTiled = new BasicBlock(Language.TiledGlass, nameof(GlassTiled), TextureLayout.Uniform("glass_tiled"), isOpaque: false, renderFaceAtNonOpaques: false);
+        public static readonly Block WoolDecorated = new TintedBlock(Language.DecoratedWool, nameof(WoolDecorated), TextureLayout.Uniform("wool_decorated"));
+        public static readonly Block CarpetDecorated = new TintedCustomModelBlock(Language.DecoratedCarpet, nameof(CarpetDecorated), "carpet_decorated", new BoundingBox(new Vector3(0.5f, 0.03125f, 0.5f), new Vector3(0.5f, 0.03125f, 0.5f)));
+
+        #endregion NEW BLOCKS
+
         /// <summary>
         /// Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.
         /// </summary>
