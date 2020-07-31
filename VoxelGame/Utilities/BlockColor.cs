@@ -31,6 +31,23 @@ namespace VoxelGame.Utilities
         Olive = 0b1101,
         Brown = 0b1110,
         Navy = 0b1111,
+
+        Amaranth = 0b10000,
+        Amber = 0b10001,
+        Apricot = 0b10010,
+        Aquamarine = 0b10011,
+        Beige = 0b10100,
+        Coffee = 0b10101,
+        Coral = 0b10110,
+        Crimson = 0b10111,
+        Emerald = 0b11000,
+        Lilac = 0b11001,
+        Mauve = 0b11010,
+        Periwinkle = 0b11011,
+        PrussianBlue = 0b11100,
+        SlateGray = 0b11101,
+        Taupe = 0b11110,
+        Viridian = 0b11111,
     }
 
     public static class BlockColorExtensions
@@ -61,6 +78,23 @@ namespace VoxelGame.Utilities
                 BlockColor.Olive => TintColor.Olive,
                 BlockColor.Brown => TintColor.Brown,
                 BlockColor.Navy => TintColor.Navy,
+
+                BlockColor.Amaranth => TintColor.Amaranth,
+                BlockColor.Amber => TintColor.Amber,
+                BlockColor.Apricot => TintColor.Apricot,
+                BlockColor.Aquamarine => TintColor.Aquamarine,
+                BlockColor.Beige => TintColor.Beige,
+                BlockColor.Coffee => TintColor.Coffee,
+                BlockColor.Coral => TintColor.Coral,
+                BlockColor.Crimson => TintColor.Crimson,
+                BlockColor.Emerald => TintColor.Emerald,
+                BlockColor.Lilac => TintColor.Lilac,
+                BlockColor.Mauve => TintColor.Mauve,
+                BlockColor.Periwinkle => TintColor.Periwinkle,
+                BlockColor.PrussianBlue => TintColor.PrussianBlue,
+                BlockColor.SlateGray => TintColor.SlateGray,
+                BlockColor.Taupe => TintColor.Taupe,
+                BlockColor.Viridian => TintColor.Viridian,
 
                 _ => new TintColor(1f, 1f, 1f),
             };

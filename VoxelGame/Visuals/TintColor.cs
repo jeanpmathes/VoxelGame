@@ -121,6 +121,86 @@ namespace VoxelGame.Visuals
         /// </summary>
         public static TintColor Navy { get => new TintColor(0f, 0f, 0.5f); }
 
+        /// <summary>
+        /// Gets an amaranth color: <c>(0.9|0.2|0.3)</c>
+        /// </summary>
+        public static TintColor Amaranth { get => new TintColor(0.9f, 0.2f, 0.3f); }
+
+        /// <summary>
+        /// Gets an amber color: <c>(1|0.75|0)</c>
+        /// </summary>
+        public static TintColor Amber { get => new TintColor(1f, 0.75f, 0f); }
+
+        /// <summary>
+        /// Gets an apricot color: <c>(1|0.8|0.65)</c>
+        /// </summary>
+        public static TintColor Apricot { get => new TintColor(1f, 0.8f, 0.65f); }
+
+        /// <summary>
+        /// Gets an aquamarine color: <c>(0.5|1|0.85)</c>
+        /// </summary>
+        public static TintColor Aquamarine { get => new TintColor(0.5f, 1f, 0.85f); }
+
+        /// <summary>
+        /// Gets a beige color: <c>(0.9|0.9|0.8)</c>
+        /// </summary>
+        public static TintColor Beige { get => new TintColor(0.9f, 0.9f, 0.8f); }
+
+        /// <summary>
+        /// Gets a coffee color: <c>(0.45|0.3|0.2)</c>
+        /// </summary>
+        public static TintColor Coffee { get => new TintColor(0.45f, 0.3f, 0.2f); }
+
+        /// <summary>
+        /// Gets a coral color: <c>(1|0.5|0.3)</c>
+        /// </summary>
+        public static TintColor Coral { get => new TintColor(1f, 0.5f, 0.3f); }
+
+        /// <summary>
+        /// Gets a crimson color: <c>(0.9|0.15|0.3)</c>
+        /// </summary>
+        public static TintColor Crimson { get => new TintColor(0.9f, 0.15f, 0.3f); }
+
+        /// <summary>
+        /// Gets an emerald color: <c>(0.3|0.8|0.5)</c>
+        /// </summary>
+        public static TintColor Emerald { get => new TintColor(0.3f, 0.8f, 0.5f); }
+
+        /// <summary>
+        /// Gets a lilac color: <c>(0.8|0.6|0.8)</c>
+        /// </summary>
+        public static TintColor Lilac { get => new TintColor(0.8f, 0.6f, 0.8f); }
+
+        /// <summary>
+        /// Gets a mauve color: <c>(0.9|0.7|1)</c>
+        /// </summary>
+        public static TintColor Mauve { get => new TintColor(0.9f, 0.7f, 1f); }
+
+        /// <summary>
+        /// Gets a periwinkle color: <c>(0.8|0.8|1)</c>
+        /// </summary>
+        public static TintColor Periwinkle { get => new TintColor(0.8f, 0.8f, 1f); }
+
+        /// <summary>
+        /// Gets a Prussian blue color: <c>(0|0.2|0.32)</c>
+        /// </summary>
+        public static TintColor PrussianBlue { get => new TintColor(0f, 0.2f, 0.32f); }
+
+        /// <summary>
+        /// Gets a slate gray color: <c>(0.5|0.5|0.6)</c>
+        /// </summary>
+        public static TintColor SlateGray { get => new TintColor(0.5f, 0.5f, 0.6f); }
+
+        /// <summary>
+        /// Gets a taupe color: <c>(0.3|0.2|0.2)</c>
+        /// </summary>
+        public static TintColor Taupe { get => new TintColor(0.3f, 0.2f, 0.2f); }
+
+        /// <summary>
+        /// Gets a viridian color: <c>(0.3|0.5|0.45)</c>
+        /// </summary>
+        public static TintColor Viridian { get => new TintColor(0.3f, 0.5f, 0.45f); }
+
         #endregion PREDEFINED COLORS
 
         public int ToBits
