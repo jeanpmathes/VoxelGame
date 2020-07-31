@@ -123,6 +123,9 @@
   <data name="AllChunksSaving" xml:space="preserve">
     <value>Saving all active chunks of the world.</value>
   </data>
+  <data name="Ash" xml:space="preserve">
+    <value>Ash</value>
+  </data>
   <data name="AshCoveredDirt" xml:space="preserve">
     <value>Ash-covered Dirt</value>
   </data>
@@ -155,6 +158,12 @@
   </data>
   <data name="CurrentBlockIs" xml:space="preserve">
     <value>The current block is: </value>
+  </data>
+  <data name="DecoratedCarpet" xml:space="preserve">
+    <value>Decorated Carpet</value>
+  </data>
+  <data name="DecoratedWool" xml:space="preserve">
+    <value>Decorated Wool</value>
   </data>
   <data name="Dirt" xml:space="preserve">
     <value>Dirt</value>
@@ -284,6 +293,9 @@
   </data>
   <data name="TallGrass" xml:space="preserve">
     <value>Tall Grass</value>
+  </data>
+  <data name="TiledGlass" xml:space="preserve">
+    <value>Tiled Glass</value>
   </data>
   <data name="Vase" xml:space="preserve">
     <value>Vase</value>
