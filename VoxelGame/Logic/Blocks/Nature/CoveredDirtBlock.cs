@@ -53,7 +53,9 @@ namespace VoxelGame.Logic.Blocks
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
-            if (side == BlockSide.Top && (Game.World.GetBlock(x, y + 1, z, out _) ?? Block.Air).IsSolidAndFull)
+            Block above = Game.World.GetBlock(x, y + 1, z, out _) ?? Block.Air;
+
+            if (side == BlockSide.Top && above.IsSolidAndFull && above.IsOpaque)
             {
                 Game.World.SetBlock(Block.Dirt, 0, x, y, z);
             }
