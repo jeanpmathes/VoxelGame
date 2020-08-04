@@ -25,7 +25,7 @@ namespace VoxelGame.Logic
 
         public static readonly Block Air = new AirBlock(Language.Air, nameof(Air));
         public static readonly Block Grass = new GrassBlock(Language.Grass, nameof(Grass), TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"));
-        public static readonly Block GrassBurned = new CoveredDirtBlock(Language.AshCoveredDirt, nameof(GrassBurned), TextureLayout.UnqiueColumn("ash_side", "dirt", "ash"), false);
+        public static readonly Block GrassBurned = new CoveredGrassSpreadableBlock(Language.AshCoveredDirt, nameof(GrassBurned), TextureLayout.UnqiueColumn("ash_side", "dirt", "ash"), false);
         public static readonly Block Dirt = new DirtBlock(Language.Dirt, nameof(Dirt), TextureLayout.Uniform("dirt"));
         public static readonly Block Farmland = new CoveredDirtBlock(Language.Farmland, nameof(Farmland), TextureLayout.UnqiueTop("dirt", "farmland"), false);
         public static readonly Block TallGrass = new CrossPlantBlock(Language.TallGrass, nameof(TallGrass), "tall_grass", true, BoundingBox.CrossBlock);
