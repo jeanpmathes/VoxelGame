@@ -11,7 +11,7 @@ namespace VoxelGame.Logic.Blocks
     /// A simple block which allows the spread of grass.
     /// Data bit usage: <c>------</c>
     /// </summary>
-    public class DirtBlock : BasicBlock, IPlantable
+    public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable
     {
         public DirtBlock(string name, string namedId, TextureLayout layout) :
             base(
@@ -23,68 +23,6 @@ namespace VoxelGame.Logic.Blocks
                 isSolid: true,
                 isInteractable: false)
         {
-        }
-
-        internal override void RandomUpdate(int x, int y, int z, uint data)
-        {
-            // Check if this block can be grass
-            if ((Game.World.GetBlock(x, y + 1, z, out _) ?? Block.Air).IsSolidAndFull)
-            {
-                return;
-            }
-
-            // Check surrounding blocks for grass
-            // Same height:
-            if (Game.World.GetBlock(x + 1, y, z, out _) == Block.Grass)
-            {
-                Game.World.SetBlock(Block.Grass, 0, x, y, z);
-            }
-            else if (Game.World.GetBlock(x - 1, y, z, out _) == Block.Grass)
-            {
-                Game.World.SetBlock(Block.Grass, 0, x, y, z);
-            }
-            else if (Game.World.GetBlock(x, y, z + 1, out _) == Block.Grass)
-            {
-                Game.World.SetBlock(Block.Grass, 0, x, y, z);
-            }
-            else if (Game.World.GetBlock(x, y, z - 1, out _) == Block.Grass)
-            {
-                Game.World.SetBlock(Block.Grass, 0, x, y, z);
-            }
-            // One block up:
-            else if (Game.World.GetBlock(x + 1, y + 1, z, out _) == Block.Grass)
-            {
-                Game.World.SetBlock(Block.Grass, 0, x, y, z);
-            }
-            else if (Game.World.GetBlock(x - 1, y + 1, z, out _) == Block.Grass)
-            {
-                Game.World.SetBlock(Block.Grass, 0, x, y, z);
-            }
-            else if (Game.World.GetBlock(x, y + 1, z + 1, out _) == Block.Grass)
-            {
-                Game.World.SetBlock(Block.Grass, 0, x, y, z);
-            }
-            else if (Game.World.GetBlock(x, y + 1, z - 1, out _) == Block.Grass)
-            {
-                Game.World.SetBlock(Block.Grass, 0, x, y, z);
-            }
-            // One block down:
-            else if (Game.World.GetBlock(x + 1, y - 1, z, out _) == Block.Grass)
-            {
-                Game.World.SetBlock(Block.Grass, 0, x, y, z);
-            }
-            else if (Game.World.GetBlock(x - 1, y - 1, z, out _) == Block.Grass)
-            {
-                Game.World.SetBlock(Block.Grass, 0, x, y, z);
-            }
-            else if (Game.World.GetBlock(x, y - 1, z + 1, out _) == Block.Grass)
-            {
-                Game.World.SetBlock(Block.Grass, 0, x, y, z);
-            }
-            else if (Game.World.GetBlock(x, y - 1, z - 1, out _) == Block.Grass)
-            {
-                Game.World.SetBlock(Block.Grass, 0, x, y, z);
-            }
         }
     }
 }
