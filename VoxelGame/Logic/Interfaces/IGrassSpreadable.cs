@@ -5,6 +5,9 @@
 // <author>pershingthesecond</author>
 namespace VoxelGame.Logic.Interfaces
 {
+    /// <summary>
+    /// Marks a block as able to have grass spread on it.
+    /// </summary>
     internal interface IGrassSpreadable : IBlockBase
     {
         public bool SpreadGrass(int x, int y, int z, Block grass)

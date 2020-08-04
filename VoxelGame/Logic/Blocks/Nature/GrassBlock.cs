@@ -5,7 +5,7 @@
 // <author>pershingthesecond</author>
 using VoxelGame.Logic.Interfaces;
 
-namespace VoxelGame.Logic.Blocks.Nature
+namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// Dirt covered with flammable grass.

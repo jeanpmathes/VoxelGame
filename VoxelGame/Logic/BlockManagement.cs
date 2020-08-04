@@ -7,8 +7,6 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System.Collections.Generic;
 using VoxelGame.Logic.Blocks;
-using VoxelGame.Logic.Blocks.Misc;
-using VoxelGame.Logic.Blocks.Nature;
 using VoxelGame.Physics;
 using VoxelGame.Resources.Language;
 
