@@ -396,27 +396,33 @@ namespace VoxelGame.Logic.Blocks
 
         internal override void RandomUpdate(int x, int y, int z, uint data)
         {
+            uint oldData = data;
             bool canBurn = false;
 
             if (data == 0)
             {
-                canBurn |= BurnAt(x, y - 1, z); // Bottom.
+                canBurn |= BurnAt(x, y - 1, z, 0); // Bottom.
 
                 data = 0b1_1111;
             }
 
-            if ((data & 0b01_0000) != 0) canBurn |= BurnAt(x, y, z - 1); // North.
-            if ((data & 0b00_1000) != 0) canBurn |= BurnAt(x + 1, y, z); // East.
-            if ((data & 0b00_0100) != 0) canBurn |= BurnAt(x, y, z + 1); // South.
-            if ((data & 0b00_0010) != 0) canBurn |= BurnAt(x - 1, y, z); // West.
-            if ((data & 0b00_0001) != 0) canBurn |= BurnAt(x, y + 1, z); // Top.
+            if ((data & 0b01_0000) != 0) canBurn |= BurnAt(x, y, z - 1, 0b01_0000); // North.
+            if ((data & 0b00_1000) != 0) canBurn |= BurnAt(x + 1, y, z, 0b00_1000); // East.
+            if ((data & 0b00_0100) != 0) canBurn |= BurnAt(x, y, z + 1, 0b00_0100); // South.
+            if ((data & 0b00_0010) != 0) canBurn |= BurnAt(x - 1, y, z, 0b00_0010); // West.
+            if ((data & 0b00_0001) != 0) canBurn |= BurnAt(x, y + 1, z, 0b00_0001); // Top.
 
             if (!canBurn)
             {
                 Destroy(x, y, z);
             }
 
-            bool BurnAt(int x, int y, int z)
+            if (oldData != data)
+            {
+                Game.World.SetBlock(this, data, x, y, z);
+            }
+
+            bool BurnAt(int x, int y, int z, uint mask)
             {
                 if (Game.World.GetBlock(x, y, z, out _) is IFlammable block)
                 {
@@ -429,6 +435,8 @@ namespace VoxelGame.Logic.Blocks
                 }
                 else
                 {
+                    data ^= mask;
+
                     return false;
                 }
             }

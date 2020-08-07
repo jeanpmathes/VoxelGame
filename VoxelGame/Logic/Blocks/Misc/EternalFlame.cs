@@ -5,7 +5,7 @@
 // <author>pershingthesecond</author>
 using VoxelGame.Logic.Interfaces;
 
-namespace VoxelGame.Logic.Blocks.Misc
+namespace VoxelGame.Logic.Blocks
 {
     /// <summary>
     /// A block that does not stop burning.
