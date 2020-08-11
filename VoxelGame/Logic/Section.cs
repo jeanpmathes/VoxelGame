@@ -19,9 +19,15 @@ namespace VoxelGame.Logic
         public const int TickBatchSize = 4;
 
         public const int DATASHIFT = 12;
+        public const int LIQUIDSHIFT = 18;
+        public const int LEVELSHIFT = 23;
+        public const int STATICSHIFT = 24;
 
         public const uint BLOCKMASK = 0b0000_0000_0000_0000_0000_1111_1111_1111;
         public const uint DATAMASK = 0b0000_0000_0000_0011_1111_0000_0000_0000;
+        public const uint LIQUIDMASK = 0b0000_0000_0111_1100_0000_0000_0000_0000;
+        public const uint LEVELMASK = 0b0000_0011_1000_0000_0000_0000_0000_0000;
+        public const uint STATICMASK = 0b0000_0100_0000_0000_0000_0000_0000_0000;
 
         private readonly uint[] blocks;
 
@@ -77,6 +83,12 @@ namespace VoxelGame.Logic
 
             uint complexVertCount = 0;
 
+            PooledList<float> liquidVertices = new PooledList<float>();
+            PooledList<int> liquidTextureIndices = new PooledList<int>();
+            PooledList<uint> liquidIndices = new PooledList<uint>();
+
+            uint liquidVertCount = 0;
+
             // Loop through the section
             for (int x = 0; x < SectionSize; x++)
             {
@@ -84,10 +96,14 @@ namespace VoxelGame.Logic
                 {
                     for (int z = 0; z < SectionSize; z++)
                     {
-                        uint currentBlockData = blocks[(x << 10) + (y << 5) + z];
+                        uint val = blocks[(x << 10) + (y << 5) + z];
 
-                        Block currentBlock = Block.TranslateID(currentBlockData & BLOCKMASK);
-                        uint currentData = (currentBlockData & DATAMASK) >> DATASHIFT;
+                        Block currentBlock = Block.TranslateID(val & BLOCKMASK);
+                        uint data = (val & DATAMASK) >> DATASHIFT;
+
+                        Liquid currentLiquid = Liquid.TranslateID((val & Section.LIQUIDMASK) >> Section.LIQUIDSHIFT);
+                        LiquidLevel level = (LiquidLevel)((val & Section.LEVELMASK) >> Section.LEVELSHIFT);
+                        bool isStatic = (val & Section.STATICMASK) != 0;
 
                         if (currentBlock.TargetBuffer == TargetBuffer.Simple)
                         {
@@ -111,7 +127,7 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                currentBlock.GetMesh(BlockSide.Front, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                currentBlock.GetMesh(BlockSide.Front, data, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -141,7 +157,7 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                currentBlock.GetMesh(BlockSide.Back, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                currentBlock.GetMesh(BlockSide.Back, data, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -171,7 +187,7 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                currentBlock.GetMesh(BlockSide.Left, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                currentBlock.GetMesh(BlockSide.Left, data, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -201,7 +217,7 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                currentBlock.GetMesh(BlockSide.Right, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                currentBlock.GetMesh(BlockSide.Right, data, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -231,7 +247,7 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
                             {
-                                currentBlock.GetMesh(BlockSide.Bottom, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                currentBlock.GetMesh(BlockSide.Bottom, data, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -261,7 +277,7 @@ namespace VoxelGame.Logic
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
                             {
-                                currentBlock.GetMesh(BlockSide.Top, currentData, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                currentBlock.GetMesh(BlockSide.Top, data, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -277,7 +293,7 @@ namespace VoxelGame.Logic
                         }
                         else if (currentBlock.TargetBuffer == TargetBuffer.Complex)
                         {
-                            uint verts = currentBlock.GetMesh(BlockSide.All, currentData, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated);
+                            uint verts = currentBlock.GetMesh(BlockSide.All, data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated);
 
                             complexIndices.AddRange(indices);
 
@@ -309,6 +325,233 @@ namespace VoxelGame.Logic
 
                             complexVertCount += verts;
                         }
+
+                        if (currentLiquid.IsRendered)
+                        {
+                            Liquid? liquidToCheck;
+
+                            // Front.
+                            if (z + 1 >= SectionSize && frontNeighbour != null)
+                            {
+                                liquidToCheck = frontNeighbour.GetLiquid(x, y, 0);
+                            }
+                            else if (z + 1 >= SectionSize)
+                            {
+                                liquidToCheck = null;
+                            }
+                            else
+                            {
+                                liquidToCheck = GetLiquid(x, y, z + 1);
+                            }
+
+                            if (liquidToCheck != currentLiquid)
+                            {
+                                uint verts = currentLiquid.GetMesh(BlockSide.Front, level, isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out _);
+
+                                liquidVertices.AddRange(vertices);
+                                liquidTextureIndices.AddRange(textureIndices);
+                                liquidIndices.AddRange(indices);
+
+                                for (int i = 0; i < vertices.Length; i += 8)
+                                {
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 0] += x;
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 1] += y;
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 2] += z;
+                                }
+
+                                for (int i = 0; i < indices.Length; i++)
+                                {
+                                    liquidIndices[liquidIndices.Count - indices.Length + i] += liquidVertCount;
+                                }
+
+                                liquidVertCount += verts;
+                            }
+
+                            // Back.
+                            if (z - 1 < 0 && backNeighbour != null)
+                            {
+                                liquidToCheck = backNeighbour.GetLiquid(x, y, SectionSize - 1);
+                            }
+                            else if (z - 1 < 0)
+                            {
+                                liquidToCheck = null;
+                            }
+                            else
+                            {
+                                liquidToCheck = GetLiquid(x, y, z - 1);
+                            }
+
+                            if (liquidToCheck != currentLiquid)
+                            {
+                                uint verts = currentLiquid.GetMesh(BlockSide.Back, level, isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out _);
+
+                                liquidVertices.AddRange(vertices);
+                                liquidTextureIndices.AddRange(textureIndices);
+                                liquidIndices.AddRange(indices);
+
+                                for (int i = 0; i < vertices.Length; i += 8)
+                                {
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 0] += x;
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 1] += y;
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 2] += z;
+                                }
+
+                                for (int i = 0; i < indices.Length; i++)
+                                {
+                                    liquidIndices[liquidIndices.Count - indices.Length + i] += liquidVertCount;
+                                }
+
+                                liquidVertCount += verts;
+                            }
+
+                            // Left.
+                            if (x - 1 < 0 && leftNeighbour != null)
+                            {
+                                liquidToCheck = leftNeighbour.GetLiquid(SectionSize - 1, y, z);
+                            }
+                            else if (x - 1 < 0)
+                            {
+                                liquidToCheck = null;
+                            }
+                            else
+                            {
+                                liquidToCheck = GetLiquid(x - 1, y, z);
+                            }
+
+                            if (liquidToCheck != currentLiquid)
+                            {
+                                uint verts = currentLiquid.GetMesh(BlockSide.Left, level, isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out _);
+
+                                liquidVertices.AddRange(vertices);
+                                liquidTextureIndices.AddRange(textureIndices);
+                                liquidIndices.AddRange(indices);
+
+                                for (int i = 0; i < vertices.Length; i += 8)
+                                {
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 0] += x;
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 1] += y;
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 2] += z;
+                                }
+
+                                for (int i = 0; i < indices.Length; i++)
+                                {
+                                    liquidIndices[liquidIndices.Count - indices.Length + i] += liquidVertCount;
+                                }
+
+                                liquidVertCount += verts;
+                            }
+
+                            // Right.
+                            if (x + 1 >= SectionSize && rightNeighbour != null)
+                            {
+                                liquidToCheck = rightNeighbour.GetLiquid(0, y, z);
+                            }
+                            else if (x + 1 >= SectionSize)
+                            {
+                                liquidToCheck = null;
+                            }
+                            else
+                            {
+                                liquidToCheck = GetLiquid(x + 1, y, z);
+                            }
+
+                            if (liquidToCheck != currentLiquid)
+                            {
+                                uint verts = currentLiquid.GetMesh(BlockSide.Right, level, isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out _);
+
+                                liquidVertices.AddRange(vertices);
+                                liquidTextureIndices.AddRange(textureIndices);
+                                liquidIndices.AddRange(indices);
+
+                                for (int i = 0; i < vertices.Length; i += 8)
+                                {
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 0] += x;
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 1] += y;
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 2] += z;
+                                }
+
+                                for (int i = 0; i < indices.Length; i++)
+                                {
+                                    liquidIndices[liquidIndices.Count - indices.Length + i] += liquidVertCount;
+                                }
+
+                                liquidVertCount += verts;
+                            }
+
+                            // Bottom.
+                            if (y - 1 < 0 && bottomNeighbour != null)
+                            {
+                                liquidToCheck = bottomNeighbour.GetLiquid(x, SectionSize - 1, z);
+                            }
+                            else if (y - 1 < 0)
+                            {
+                                liquidToCheck = null;
+                            }
+                            else
+                            {
+                                liquidToCheck = GetLiquid(x, y - 1, z);
+                            }
+
+                            if (liquidToCheck != currentLiquid)
+                            {
+                                uint verts = currentLiquid.GetMesh(BlockSide.Bottom, level, isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out _);
+
+                                liquidVertices.AddRange(vertices);
+                                liquidTextureIndices.AddRange(textureIndices);
+                                liquidIndices.AddRange(indices);
+
+                                for (int i = 0; i < vertices.Length; i += 8)
+                                {
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 0] += x;
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 1] += y;
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 2] += z;
+                                }
+
+                                for (int i = 0; i < indices.Length; i++)
+                                {
+                                    liquidIndices[liquidIndices.Count - indices.Length + i] += liquidVertCount;
+                                }
+
+                                liquidVertCount += verts;
+                            }
+
+                            // Top.
+                            if (y + 1 >= SectionSize && topNeighbour != null)
+                            {
+                                liquidToCheck = topNeighbour.GetLiquid(x, 0, z);
+                            }
+                            else if (y + 1 >= SectionSize)
+                            {
+                                liquidToCheck = null;
+                            }
+                            else
+                            {
+                                liquidToCheck = GetLiquid(x, y + 1, z);
+                            }
+
+                            if (liquidToCheck != currentLiquid)
+                            {
+                                uint verts = currentLiquid.GetMesh(BlockSide.Top, level, isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out _);
+
+                                liquidVertices.AddRange(vertices);
+                                liquidTextureIndices.AddRange(textureIndices);
+                                liquidIndices.AddRange(indices);
+
+                                for (int i = 0; i < vertices.Length; i += 8)
+                                {
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 0] += x;
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 1] += y;
+                                    liquidVertices[((int)liquidVertCount * 8) + i + 2] += z;
+                                }
+
+                                for (int i = 0; i < indices.Length; i++)
+                                {
+                                    liquidIndices[liquidIndices.Count - indices.Length + i] += liquidVertCount;
+                                }
+
+                                liquidVertCount += verts;
+                            }
+                        }
                     }
                 }
             }
@@ -323,9 +566,9 @@ namespace VoxelGame.Logic
             simpleBottomFaceHolder.GenerateMesh(ref simpleVertexData);
             simpleTopFaceHolder.GenerateMesh(ref simpleVertexData);
 
-            isEmpty = complexVertexPositions.Count == 0 && simpleVertexData.Count == 0;
+            isEmpty = complexVertexPositions.Count == 0 && simpleVertexData.Count == 0 && liquidVertices.Count == 0;
 
-            meshData = new SectionMeshData(ref simpleVertexData, ref complexVertexPositions, ref complexVertexData, ref complexIndices);
+            meshData = new SectionMeshData(ref simpleVertexData, ref complexVertexPositions, ref complexVertexData, ref complexIndices, ref liquidVertices, ref liquidTextureIndices, ref liquidIndices);
 
             simpleFrontFaceHolder.ReturnToPool();
             simpleBackFaceHolder.ReturnToPool();
@@ -389,6 +632,12 @@ namespace VoxelGame.Logic
         private Block GetBlock(int x, int y, int z)
         {
             return Block.TranslateID(this[x, y, z] & BLOCKMASK);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private Liquid GetLiquid(int x, int y, int z)
+        {
+            return Liquid.TranslateID((this[x, y, z] & LIQUIDMASK) >> LIQUIDSHIFT);
         }
 
         #region IDisposable Support

@@ -25,11 +25,18 @@ namespace VoxelGame.Rendering
         private readonly int complexEBO;
         private readonly int complexVAO;
 
+        private readonly int liquidPositionVBO;
+        private readonly int liquidTextureVBO;
+        private readonly int liquidEBO;
+        private readonly int liquidVAO;
+
         private int simpleIndices;
         private int complexElements;
+        private int liquidElements;
 
         private bool hasSimpleData = false;
         private bool hasComplexData = false;
+        private bool hasLiquidData = false;
 
         public SectionRenderer()
         {
@@ -42,6 +49,12 @@ namespace VoxelGame.Rendering
             complexEBO = GL.GenBuffer();
 
             complexVAO = GL.GenVertexArray();
+
+            liquidPositionVBO = GL.GenBuffer();
+            liquidTextureVBO = GL.GenBuffer();
+            liquidEBO = GL.GenBuffer();
+
+            liquidVAO = GL.GenVertexArray();
         }
 
         public void SetData(ref SectionMeshData meshData)
@@ -115,7 +128,7 @@ namespace VoxelGame.Rendering
 
                 GL.BindBuffer(BufferTarget.ArrayBuffer, complexDataVBO);
                 GL.EnableVertexAttribArray(dataLocation);
-                GL.VertexAttribIPointer(dataLocation, 2, VertexAttribIntegerType.Int, 2 * sizeof(int), System.IntPtr.Zero);
+                GL.VertexAttribIPointer(dataLocation, 2, VertexAttribIntegerType.Int, 2 * sizeof(int), IntPtr.Zero);
 
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, complexEBO);
 
@@ -125,6 +138,61 @@ namespace VoxelGame.Rendering
             }
 
             #endregion COMPLEX BUFFER SETUP
+
+            #region LIQUID BUFFER SETUP
+
+            hasLiquidData = false;
+
+            liquidElements = meshData.liquidIndices.Count;
+
+            if (liquidElements != 0)
+            {
+                // Vertex Buffer Object
+                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidPositionVBO);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshData.liquidVertices.Count * sizeof(float), meshData.liquidVertices.ExposeArray(), BufferUsageHint.StaticDraw);
+
+                // Vertex Buffer Object
+                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidTextureVBO);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshData.liquidTextureIndices.Count * sizeof(int), meshData.liquidTextureIndices.ExposeArray(), BufferUsageHint.StaticDraw);
+
+                // Element Buffer Object
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, liquidEBO);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.liquidIndices.Count * sizeof(uint), meshData.liquidIndices.ExposeArray(), BufferUsageHint.StaticDraw);
+
+                int positionLocation = Game.LiquidSectionShader.GetAttribLocation("aPosition");
+                int textureCoordLocataion = Game.LiquidSectionShader.GetAttribLocation("aTexCoord");
+                int normalLocation = Game.LiquidSectionShader.GetAttribLocation("aNormal");
+                int textureLocation = Game.LiquidSectionShader.GetAttribLocation("aTexInd");
+
+                Game.LiquidSectionShader.Use();
+
+                // Vertex Array Object
+                GL.BindVertexArray(liquidVAO);
+
+                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidPositionVBO);
+                GL.EnableVertexAttribArray(positionLocation);
+                GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+
+                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidPositionVBO);
+                GL.EnableVertexAttribArray(textureCoordLocataion);
+                GL.VertexAttribPointer(textureCoordLocataion, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+
+                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidPositionVBO);
+                GL.EnableVertexAttribArray(normalLocation);
+                GL.VertexAttribPointer(normalLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 5 * sizeof(float));
+
+                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidTextureVBO);
+                GL.EnableVertexAttribArray(textureLocation);
+                GL.VertexAttribIPointer(textureLocation, 2, VertexAttribIntegerType.Int, 2 * sizeof(int), IntPtr.Zero);
+
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, liquidEBO);
+
+                GL.BindVertexArray(0);
+
+                hasLiquidData = true;
+            }
+
+            #endregion LIQUID BUFFER SETUP
 
             meshData.ReturnPooled();
         }
@@ -178,6 +246,23 @@ namespace VoxelGame.Rendering
 
                 #endregion RENDERING COMPLEX
 
+                #region RENDERING LIQUID
+
+                if (hasLiquidData)
+                {
+                    GL.BindVertexArray(liquidVAO);
+
+                    Game.LiquidSectionShader.Use();
+
+                    Game.LiquidSectionShader.SetMatrix4("model", model);
+                    Game.LiquidSectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
+                    Game.LiquidSectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
+
+                    GL.DrawElements(PrimitiveType.Triangles, liquidElements, DrawElementsType.UnsignedInt, 0);
+                }
+
+                #endregion RENDERING LIQUID
+
                 GL.BindVertexArray(0);
                 GL.UseProgram(0);
             }
@@ -203,6 +288,12 @@ namespace VoxelGame.Rendering
                 GL.DeleteBuffer(complexEBO);
 
                 GL.DeleteVertexArray(complexVAO);
+
+                GL.DeleteBuffer(liquidPositionVBO);
+                GL.DeleteBuffer(liquidTextureVBO);
+                GL.DeleteBuffer(liquidEBO);
+
+                GL.DeleteVertexArray(liquidVAO);
             }
             else
             {
