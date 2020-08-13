@@ -8,7 +8,7 @@ using System;
 namespace VoxelGame.Logic
 {
     /// <summary>
-    /// Provides functionality to define the textures of a default six-sided block.
+    /// Provides functionality to define the textures of a default six-sided block or a liquid.
     /// </summary>
     public struct TextureLayout : IEquatable<TextureLayout>
     {
@@ -107,6 +107,17 @@ namespace VoxelGame.Logic
             int restIndex = Game.BlockTextureArray.GetTextureIndex(rest);
 
             return new TextureLayout(restIndex, restIndex, restIndex, restIndex, restIndex, topIndex);
+        }
+
+        /// <summary>
+        /// Returns a texture layout using liquid textures. The layout itself is similar to <see cref="TextureLayout.Column(string, string)"/>.
+        /// </summary>
+        public static TextureLayout Liquid(string sides, string ends)
+        {
+            int sideIndex = Game.LiquidTextureArray.GetTextureIndex(sides);
+            int endIndex = Game.LiquidTextureArray.GetTextureIndex(ends);
+
+            return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, endIndex, endIndex);
         }
 
         public override int GetHashCode()

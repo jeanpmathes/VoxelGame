@@ -183,7 +183,7 @@ namespace VoxelGame.Rendering
 
                 GL.BindBuffer(BufferTarget.ArrayBuffer, liquidTextureVBO);
                 GL.EnableVertexAttribArray(textureLocation);
-                GL.VertexAttribIPointer(textureLocation, 2, VertexAttribIntegerType.Int, 2 * sizeof(int), IntPtr.Zero);
+                GL.VertexAttribIPointer(textureLocation, 1, VertexAttribIntegerType.Int, 1 * sizeof(int), IntPtr.Zero);
 
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, liquidEBO);
 
