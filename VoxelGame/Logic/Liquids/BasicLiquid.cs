@@ -118,8 +118,9 @@ namespace VoxelGame.Logic.Liquids
             }
         }
 
-        public override uint GetMesh(BlockSide side, LiquidLevel level, bool isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(LiquidLevel level, BlockSide side, int sideHeight, bool isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
+            float start = (sideHeight + 1) * 0.125f;
             float height = ((int)level + 1) * 0.125f;
 
             switch (side)
@@ -131,6 +132,7 @@ namespace VoxelGame.Logic.Liquids
 
                     vertices = new float[32];
                     Array.Copy(BasicLiquid.vertices[(int)side], vertices, 32);
+                    vertices[1] = vertices[25] = vertices[4] = vertices[28] = start;
                     vertices[9] = vertices[12] = vertices[17] = vertices[20] = height;
 
                     break;
