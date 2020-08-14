@@ -490,7 +490,7 @@ namespace VoxelGame.Logic
                             // Bottom.
                             if (y - 1 < 0 && bottomNeighbour != null)
                             {
-                                liquidToCheck = bottomNeighbour.GetLiquid(x, SectionSize - 1, z, out sideHeight);
+                                liquidToCheck = bottomNeighbour.GetLiquid(x, SectionSize - 1, z, out _);
                             }
                             else if (y - 1 < 0)
                             {
@@ -498,7 +498,7 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                liquidToCheck = GetLiquid(x, y - 1, z, out sideHeight);
+                                liquidToCheck = GetLiquid(x, y - 1, z, out _);
                             }
 
                             sideHeight = -1;
@@ -529,7 +529,7 @@ namespace VoxelGame.Logic
                             // Top.
                             if (y + 1 >= SectionSize && topNeighbour != null)
                             {
-                                liquidToCheck = topNeighbour.GetLiquid(x, 0, z, out sideHeight);
+                                liquidToCheck = topNeighbour.GetLiquid(x, 0, z, out _);
                             }
                             else if (y + 1 >= SectionSize)
                             {
@@ -537,7 +537,7 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                liquidToCheck = GetLiquid(x, y + 1, z, out sideHeight);
+                                liquidToCheck = GetLiquid(x, y + 1, z, out _);
                             }
 
                             sideHeight = -1;
