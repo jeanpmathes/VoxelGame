@@ -11,51 +11,7 @@ namespace VoxelGame.Logic.Liquids
 {
     public class BasicLiquid : Liquid
     {
-        protected readonly static float[][] vertices = new float[][]
-        {
-            new float[] // Front face
-            {
-                0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f,
-                0f, 1f, 1f, 0f, 1f, 0f, 0f, 1f,
-                1f, 1f, 1f, 1f, 1f, 0f, 0f, 1f,
-                1f, 0f, 1f, 1f, 0f, 0f, 0f, 1f
-            },
-            new float[] // Back face
-            {
-                1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f,
-                1f, 1f, 0f, 0f, 1f, 0f, 0f, -1f,
-                0f, 1f, 0f, 1f, 1f, 0f, 0f, -1f,
-                0f, 0f, 0f, 1f, 0f, 0f, 0f, -1f
-            },
-            new float[] // Left face
-            {
-                0f, 0f, 0f, 0f, 0f, -1f, 0f, 0f,
-                0f, 1f, 0f, 0f, 1f, -1f, 0f, 0f,
-                0f, 1f, 1f, 1f, 1f, -1f, 0f, 0f,
-                0f, 0f, 1f, 1f, 0f, -1f, 0f, 0f
-            },
-            new float[] // Right face
-            {
-                1f, 0f, 1f, 0f, 0f, 1f, 0f, 0f,
-                1f, 1f, 1f, 0f, 1f, 1f, 0f, 0f,
-                1f, 1f, 0f, 1f, 1f, 1f, 0f, 0f,
-                1f, 0f, 0f, 1f, 0f, 1f, 0f, 0f
-            },
-            new float[] // Bottom face
-            {
-                0f, 0f, 0f, 0f, 0f, 0f, -1f, 0f,
-                0f, 0f, 1f, 0f, 1f, 0f, -1f, 0f,
-                1f, 0f, 1f, 1f, 1f, 0f, -1f, 0f,
-                1f, 0f, 0f, 1f, 0f, 0f, -1f, 0f
-            },
-            new float[] // Top face
-            {
-                0f, 1f, 1f, 0f, 0f, 0f, 1f, 0f,
-                0f, 1f, 0f, 0f, 1f, 0f, 1f, 0f,
-                1f, 1f, 0f, 1f, 1f, 0f, 1f, 0f,
-                1f, 1f, 1f, 1f, 0f, 0f, 1f, 0f
-            }
-        };
+        protected readonly static float[][] vertices = BlockModel.CubeVertices();
 
         private protected TextureLayout movingLayout;
         private protected TextureLayout staticLayout;
@@ -85,39 +41,8 @@ namespace VoxelGame.Logic.Liquids
                 0, 2, 3
             };
 
-            movingTex = SetupTex(movingLayout);
-            staticTex = SetupTex(staticLayout);
-
-            static int[][] SetupTex(TextureLayout layout)
-            {
-                return new int[][]
-                {
-                    new int[]
-                    {
-                        layout.Front, layout.Front, layout.Front, layout.Front
-                    },
-                    new int[]
-                    {
-                        layout.Back, layout.Back, layout.Back, layout.Back
-                    },
-                    new int[]
-                    {
-                        layout.Left, layout.Left, layout.Left, layout.Left
-                    },
-                    new int[]
-                    {
-                        layout.Right, layout.Right, layout.Right, layout.Right
-                    },
-                    new int[]
-                    {
-                        layout.Bottom, layout.Bottom, layout.Bottom, layout.Bottom
-                    },
-                    new int[]
-                    {
-                        layout.Top, layout.Top, layout.Top, layout.Top
-                    }
-                };
-            }
+            movingTex = movingLayout.GetTexIndexArrays();
+            staticTex = staticLayout.GetTexIndexArrays();
         }
 
         public override uint GetMesh(LiquidLevel level, BlockSide side, int sideHeight, bool isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)

@@ -236,34 +236,33 @@ namespace VoxelGame.Entities
 
         private void PlaceInteract(KeyboardState input, MouseState mouse, Block target)
         {
+            if (timer < interactionCooldown || mouse.IsButtonUp(MouseButton.Right)) return;
+
             int placePositionX = selectedX;
             int placePositionY = selectedY;
             int placePositionZ = selectedZ;
 
-            if (timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Right))
+            if (input.IsKeyDown(Key.ControlLeft) || !target.IsInteractable)
             {
-                if (input.IsKeyDown(Key.ControlLeft) || !target.IsInteractable)
+                if (!target.IsReplaceable)
                 {
-                    if (!target.IsReplaceable)
-                    {
-                        OffsetSelection();
-                    }
-
-                    // Prevent block placement if the block would intersect the player.
-                    if (!blockMode || !activeBlock.IsSolid || !BoundingBox.Intersects(activeBlock.GetBoundingBox(placePositionX, placePositionY, placePositionZ)))
-                    {
-                        if (blockMode) activeBlock.Place(placePositionX, placePositionY, placePositionZ, this);
-                        else activeLiquid.Fill(placePositionX, placePositionY, placePositionZ, LiquidLevel.One, out _);
-
-                        timer = 0;
-                    }
+                    OffsetSelection();
                 }
-                else if (target.IsInteractable)
+
+                // Prevent block placement if the block would intersect the player.
+                if (!blockMode || !activeBlock.IsSolid || !BoundingBox.Intersects(activeBlock.GetBoundingBox(placePositionX, placePositionY, placePositionZ)))
                 {
-                    target.EntityInteract(this, selectedX, selectedY, selectedZ);
+                    if (blockMode) activeBlock.Place(placePositionX, placePositionY, placePositionZ, this);
+                    else activeLiquid.Fill(placePositionX, placePositionY, placePositionZ, LiquidLevel.One, out _);
 
                     timer = 0;
                 }
+            }
+            else if (target.IsInteractable)
+            {
+                target.EntityInteract(this, selectedX, selectedY, selectedZ);
+
+                timer = 0;
             }
 
             void OffsetSelection()

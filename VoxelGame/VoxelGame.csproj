@@ -44,6 +44,7 @@
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>VoxelGame Key File.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
+    <CodeAnalysisRuleSet>..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PlatformTarget>x64</PlatformTarget>
@@ -54,6 +55,7 @@
     <DefineConstants>DEBUG</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <AdditionalFiles Include="..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml" />
     <Content Include="Resources\Shaders\selection_shader.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

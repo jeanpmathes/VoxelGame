@@ -120,6 +120,37 @@ namespace VoxelGame.Logic
             return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, endIndex, endIndex);
         }
 
+        public int[][] GetTexIndexArrays()
+        {
+            return new int[][]
+                {
+                new int[]
+                {
+                    Front, Front, Front, Front
+                },
+                new int[]
+                {
+                    Back, Back, Back, Back
+                },
+                new int[]
+                {
+                    Left, Left, Left, Left
+                },
+                new int[]
+                {
+                    Right, Right, Right, Right
+                },
+                new int[]
+                {
+                    Bottom, Bottom, Bottom, Bottom
+                },
+                new int[]
+                {
+                    Top, Top, Top, Top
+                }
+            };
+        }
+
         public override int GetHashCode()
         {
             return HashCode.Combine(Front, Back, Left, Right, Bottom, Top);
