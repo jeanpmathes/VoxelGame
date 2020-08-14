@@ -203,6 +203,55 @@ namespace VoxelGame.Visuals
             }
         }
 
+        public static float[][] CubeVertices()
+        {
+            return new float[][]
+            {
+                new float[] // Front face
+                {
+                    0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f,
+                    0f, 1f, 1f, 0f, 1f, 0f, 0f, 1f,
+                    1f, 1f, 1f, 1f, 1f, 0f, 0f, 1f,
+                    1f, 0f, 1f, 1f, 0f, 0f, 0f, 1f
+                },
+                new float[] // Back face
+                {
+                    1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f,
+                    1f, 1f, 0f, 0f, 1f, 0f, 0f, -1f,
+                    0f, 1f, 0f, 1f, 1f, 0f, 0f, -1f,
+                    0f, 0f, 0f, 1f, 0f, 0f, 0f, -1f
+                },
+                new float[] // Left face
+                {
+                    0f, 0f, 0f, 0f, 0f, -1f, 0f, 0f,
+                    0f, 1f, 0f, 0f, 1f, -1f, 0f, 0f,
+                    0f, 1f, 1f, 1f, 1f, -1f, 0f, 0f,
+                    0f, 0f, 1f, 1f, 0f, -1f, 0f, 0f
+                },
+                new float[] // Right face
+                {
+                    1f, 0f, 1f, 0f, 0f, 1f, 0f, 0f,
+                    1f, 1f, 1f, 0f, 1f, 1f, 0f, 0f,
+                    1f, 1f, 0f, 1f, 1f, 1f, 0f, 0f,
+                    1f, 0f, 0f, 1f, 0f, 1f, 0f, 0f
+                },
+                new float[] // Bottom face
+                {
+                    0f, 0f, 0f, 0f, 0f, 0f, -1f, 0f,
+                    0f, 0f, 1f, 0f, 1f, 0f, -1f, 0f,
+                    1f, 0f, 1f, 1f, 1f, 0f, -1f, 0f,
+                    1f, 0f, 0f, 1f, 0f, 0f, -1f, 0f
+                },
+                new float[] // Top face
+                {
+                    0f, 1f, 1f, 0f, 0f, 0f, 1f, 0f,
+                    0f, 1f, 0f, 0f, 1f, 0f, 1f, 0f,
+                    1f, 1f, 0f, 1f, 1f, 0f, 1f, 0f,
+                    1f, 1f, 1f, 1f, 0f, 0f, 1f, 0f
+                }
+            };
+        }
+
         private static BlockModel CreateFallback()
         {
             return new BlockModel

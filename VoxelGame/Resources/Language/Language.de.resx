@@ -159,6 +159,9 @@
   <data name="CurrentBlockIs" xml:space="preserve">
     <value>Der derzeit ausgewählte Block ist: </value>
   </data>
+  <data name="CurrentLiquidIs" xml:space="preserve">
+    <value>Die derzeit ausgewählte Flüssigkeit ist: </value>
+  </data>
   <data name="DecoratedCarpet" xml:space="preserve">
     <value>Geschmückter Teppich</value>
   </data>
@@ -233,6 +236,9 @@
   </data>
   <data name="NewWorldPrompt" xml:space="preserve">
     <value>Möchten sie eine neue Welt erstellen?</value>
+  </data>
+  <data name="NoLiquid" xml:space="preserve">
+    <value>Keine Flüssigkeit</value>
   </data>
   <data name="Onions" xml:space="preserve">
     <value>Zwiebeln</value>
@@ -311,6 +317,9 @@
   </data>
   <data name="VoxelGame" xml:space="preserve">
     <value>VolumenelementSpiel</value>
+  </data>
+  <data name="Water" xml:space="preserve">
+    <value>Wasser</value>
   </data>
   <data name="Wheat" xml:space="preserve">
     <value>Weizen</value>

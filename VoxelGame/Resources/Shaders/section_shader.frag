@@ -12,8 +12,8 @@ flat in int anim;
 
 layout(binding = 1) uniform sampler2DArray firstArrayTexture;
 layout(binding = 2) uniform sampler2DArray secondArrayTexture;
-layout(binding = 1) uniform sampler2DArray thirdArrayTexture;
-layout(binding = 2) uniform sampler2DArray fourthArrayTexture;
+layout(binding = 3) uniform sampler2DArray thirdArrayTexture;
+layout(binding = 4) uniform sampler2DArray fourthArrayTexture;
 
 uniform float time;
 

@@ -730,18 +730,57 @@ namespace VoxelGame.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Block? GetBlock(int x, int y, int z, out uint data)
         {
+            return GetBlock(x, y, z, out data, out _, out _, out _);
+        }
+
+        /// <summary>
+        /// Returns the block at a given position in block coordinates. The block is only searched in active chunks.
+        /// </summary>
+        /// <param name="x">The x position in block coordinates.</param>
+        /// <param name="y">The y position in block coordinates.</param>
+        /// <param name="z">The z position in block coordinates.</param>
+        /// <param name="data">The block data at the position.</param>
+        /// <param name="liquid">The liquid id of the position.</param>
+        /// <param name="level">The liquid level of the position.</param>
+        /// <param name="isStatic">If the liquid at that position is static.</param>
+        /// <returns>The Block at x, y, z or null if the block was not found.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Block? GetBlock(int x, int y, int z, out uint data, out uint liquid, out LiquidLevel level, out bool isStatic)
+        {
             if (activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
             {
                 uint val = chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
 
                 data = (val & Section.DATAMASK) >> Section.DATASHIFT;
+                liquid = (val & Section.LIQUIDMASK) >> Section.LIQUIDSHIFT;
+                level = (LiquidLevel)((val & Section.LEVELMASK) >> Section.LEVELSHIFT);
+                isStatic = (val & Section.STATICMASK) != 0;
+
                 return Block.TranslateID(val & Section.BLOCKMASK);
             }
             else
             {
                 data = 0;
+                liquid = 0;
+                level = 0;
+                isStatic = false;
+
                 return null;
             }
+        }
+
+        public Liquid? GetLiquid(int x, int y, int z, out LiquidLevel level, out bool isStatic)
+        {
+            return GetPosition(x, y, z, out _, out level, out isStatic).liquid;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public (Block? block, Liquid? liquid) GetPosition(int x, int y, int z, out uint data, out LiquidLevel level, out bool isStatic)
+        {
+            Block? block = GetBlock(x, y, z, out data, out uint liquidId, out level, out isStatic);
+            Liquid? liquid = Liquid.TranslateID(liquidId);
+
+            return (block, liquid);
         }
 
         /// <summary>
@@ -755,17 +794,31 @@ namespace VoxelGame.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetBlock(Block block, uint data, int x, int y, int z)
         {
+            Liquid liquid = GetPosition(x, y, z, out _, out LiquidLevel level, out bool isStatic).liquid ?? Liquid.None;
+            SetPosition(block, data, liquid, level, isStatic, x, y, z);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetLiquid(Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z)
+        {
+            Block block = GetBlock(x, y, z, out uint data, out _, out _, out _) ?? Block.Air;
+            SetPosition(block, data, liquid, level, isStatic, x, y, z);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z)
+        {
             if (!activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight * Section.SectionSize)
             {
                 return;
             }
 
-            uint val = ((data << Section.DATASHIFT) & Section.DATAMASK) | ((block ?? Block.Air).Id & Section.BLOCKMASK);
+            uint val = (uint)((((isStatic ? 1 : 0) << Section.STATICSHIFT) & Section.STATICMASK) | (((uint)level << Section.LEVELSHIFT) & Section.LEVELMASK) | ((liquid.Id << Section.LIQUIDSHIFT) & Section.LIQUIDMASK) | ((data << Section.DATASHIFT) & Section.DATAMASK) | (block.Id & Section.BLOCKMASK));
             chunk.GetSection(y >> chunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
 
             sectionsToMesh.Add((chunk, y >> chunkHeightExp));
 
-            // Block updates - Side is passed out of the perspective of the block recieving the block update.
+            // Block updates - Side is passed out of the perspective of the block receiving the block update.
             GetBlock(x, y, z + 1, out data)?.BlockUpdate(x, y, z + 1, data, BlockSide.Back);
             GetBlock(x, y, z - 1, out data)?.BlockUpdate(x, y, z - 1, data, BlockSide.Front);
             GetBlock(x - 1, y, z, out data)?.BlockUpdate(x - 1, y, z, data, BlockSide.Right);

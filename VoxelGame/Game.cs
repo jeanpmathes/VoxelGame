@@ -30,12 +30,18 @@ namespace VoxelGame
         public static Game Instance { get; private set; } = null!;
 
         /// <summary>
-        /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1 and 2;
+        /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
         /// </summary>
         public static ArrayTexture BlockTextureArray { get; private set; } = null!;
 
+        /// <summary>
+        /// Gets the <see cref="ArrayTexture"/> that contains all liquid textures. It is bound to unit 5.
+        /// </summary>
+        public static ArrayTexture LiquidTextureArray { get; private set; } = null!;
+
         public static Shader SimpleSectionShader { get; private set; } = null!;
         public static Shader ComplexSectionShader { get; private set; } = null!;
+        public static Shader LiquidSectionShader { get; private set; } = null!;
         public static Shader SelectionShader { get; private set; } = null!;
         public static Shader ScreenElementShader { get; private set; } = null!;
 
@@ -94,14 +100,17 @@ namespace VoxelGame
 
                 // Texture setup.
                 BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2, TextureUnit.Texture3, TextureUnit.Texture4);
-
                 logger.LogInformation("All block textures loaded.");
+
+                LiquidTextureArray = new ArrayTexture("Resources/Textures/Liquids", 16, false, TextureUnit.Texture5);
+                logger.LogInformation("All liquid textures loaded.");
 
                 // Shader setup.
                 using (logger.BeginScope("Shader setup"))
                 {
                     SimpleSectionShader = new Shader("Resources/Shaders/simplesection_shader.vert", "Resources/Shaders/section_shader.frag");
                     ComplexSectionShader = new Shader("Resources/Shaders/complexsection_shader.vert", "Resources/Shaders/section_shader.frag");
+                    LiquidSectionShader = new Shader("Resources/Shaders/liquidsection_shader.vert", "Resources/Shaders/liquidsection_shader.frag");
                     SelectionShader = new Shader("Resources/Shaders/selection_shader.vert", "Resources/Shaders/selection_shader.frag");
                     ScreenElementShader = new Shader("Resources/Shaders/screenelement_shader.vert", "Resources/Shaders/screenelement_shader.frag");
 
@@ -112,8 +121,10 @@ namespace VoxelGame
 
                 // Block setup.
                 Block.LoadBlocks();
-
                 logger.LogDebug("Texture/Block ratio: {ratio:F02}", BlockTextureArray.Count / (float)Block.Count);
+
+                // Liquid setup.
+                Liquid.LoadLiquids();
 
                 // Create required folders in %appdata% directory
                 string worldsDirectory = Path.Combine(appDataDirectory, "Worlds");

@@ -159,6 +159,9 @@
   <data name="CurrentBlockIs" xml:space="preserve">
     <value>The current block is: </value>
   </data>
+  <data name="CurrentLiquidIs" xml:space="preserve">
+    <value>The current liquid is: </value>
+  </data>
   <data name="DecoratedCarpet" xml:space="preserve">
     <value>Decorated Carpet</value>
   </data>
@@ -233,6 +236,9 @@
   </data>
   <data name="NewWorldPrompt" xml:space="preserve">
     <value>Do you want to create a new world?</value>
+  </data>
+  <data name="NoLiquid" xml:space="preserve">
+    <value>No Liquid</value>
   </data>
   <data name="Onions" xml:space="preserve">
     <value>Onions</value>
@@ -311,6 +317,9 @@
   </data>
   <data name="VoxelGame" xml:space="preserve">
     <value>VoxelGame</value>
+  </data>
+  <data name="Water" xml:space="preserve">
+    <value>Water</value>
   </data>
   <data name="Wheat" xml:space="preserve">
     <value>Wheat</value>

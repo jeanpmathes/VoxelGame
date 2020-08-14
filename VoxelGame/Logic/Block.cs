@@ -117,7 +117,7 @@ namespace VoxelGame.Logic
         }
 
         /// <summary>
-        /// Called by the base block constructor, meant to setup vertex data, indices etc.
+        /// Called when loading blocks, meant to setup vertex data, indices etc.
         /// </summary>
         protected virtual void Setup()
         {

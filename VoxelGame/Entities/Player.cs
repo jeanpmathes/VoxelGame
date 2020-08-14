@@ -66,6 +66,7 @@ namespace VoxelGame.Entities
             crosshairRenderer.SetColor(crosshairColor);
 
             activeBlock = Block.Grass;
+            activeLiquid = Liquid.Water;
 
             // Request chunks around current position
             ChunkX = (int)Math.Floor(Position.X) >> sectionSizeExp;
@@ -152,7 +153,7 @@ namespace VoxelGame.Entities
                 MovementInput(input);
                 MouseChange();
 
-                BlockSelection(input);
+                BlockLiquidSelection(input);
 
                 WorldInteraction(input, mouse);
             }
@@ -235,33 +236,33 @@ namespace VoxelGame.Entities
 
         private void PlaceInteract(KeyboardState input, MouseState mouse, Block target)
         {
+            if (timer < interactionCooldown || mouse.IsButtonUp(MouseButton.Right)) return;
+
             int placePositionX = selectedX;
             int placePositionY = selectedY;
             int placePositionZ = selectedZ;
 
-            if (timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Right))
+            if (input.IsKeyDown(Key.ControlLeft) || !target.IsInteractable)
             {
-                if (input.IsKeyDown(Key.ControlLeft) || !target.IsInteractable)
+                if (!target.IsReplaceable)
                 {
-                    if (!target.IsReplaceable)
-                    {
-                        OffsetSelection();
-                    }
-
-                    // Prevent block placement if the block would intersect the player.
-                    if (!activeBlock.IsSolid || !BoundingBox.Intersects(activeBlock.GetBoundingBox(placePositionX, placePositionY, placePositionZ)))
-                    {
-                        activeBlock.Place(placePositionX, placePositionY, placePositionZ, this);
-
-                        timer = 0;
-                    }
+                    OffsetSelection();
                 }
-                else if (target.IsInteractable)
+
+                // Prevent block placement if the block would intersect the player.
+                if (!blockMode || !activeBlock.IsSolid || !BoundingBox.Intersects(activeBlock.GetBoundingBox(placePositionX, placePositionY, placePositionZ)))
                 {
-                    target.EntityInteract(this, selectedX, selectedY, selectedZ);
+                    if (blockMode) activeBlock.Place(placePositionX, placePositionY, placePositionZ, this);
+                    else activeLiquid.Fill(placePositionX, placePositionY, placePositionZ, LiquidLevel.One, out _);
 
                     timer = 0;
                 }
+            }
+            else if (target.IsInteractable)
+            {
+                target.EntityInteract(this, selectedX, selectedY, selectedZ);
+
+                timer = 0;
             }
 
             void OffsetSelection()
@@ -299,24 +300,81 @@ namespace VoxelGame.Entities
         {
             if (timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Left))
             {
-                target.Destroy(selectedX, selectedY, selectedZ, this);
+                if (blockMode) target.Destroy(selectedX, selectedY, selectedZ, this);
+                else TakeLiquid(selectedX, selectedY, selectedZ);
 
                 timer = 0;
+            }
+
+            void TakeLiquid(int x, int y, int z)
+            {
+                LiquidLevel level = LiquidLevel.One;
+
+                if (!target.IsReplaceable)
+                {
+                    switch (selectedSide)
+                    {
+                        case BlockSide.Front:
+                            z++;
+                            break;
+
+                        case BlockSide.Back:
+                            z--;
+                            break;
+
+                        case BlockSide.Left:
+                            x--;
+                            break;
+
+                        case BlockSide.Right:
+                            x++;
+                            break;
+
+                        case BlockSide.Bottom:
+                            y--;
+                            break;
+
+                        case BlockSide.Top:
+                            y++;
+                            break;
+                    }
+                }
+
+                Game.World.GetLiquid(x, y, z, out _, out _)?.Take(x, y, z, ref level);
             }
         }
 
         private Block activeBlock;
+        private Liquid activeLiquid;
+
+        private bool blockMode = true;
+
         private bool hasPressedPlus;
         private bool hasPressedMinus;
+        private bool hasSwitchedMode;
 
-        private void BlockSelection(KeyboardState input)
+        private void BlockLiquidSelection(KeyboardState input)
         {
+            if (input.IsKeyDown(Key.R) && !hasSwitchedMode)
+            {
+                blockMode = !blockMode;
+                hasSwitchedMode = true;
+
+                Console.WriteLine(blockMode ? Language.CurrentBlockIs + activeBlock.Name : Language.CurrentLiquidIs + activeLiquid.Name);
+            }
+            else if (input.IsKeyUp(Key.R))
+            {
+                hasSwitchedMode = false;
+            }
+
             if (input.IsKeyDown(Key.KeypadPlus) && !hasPressedPlus)
             {
-                activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID(activeBlock.Id + 1) : Block.TranslateID(1);
+                if (blockMode) activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID(activeBlock.Id + 1) : Block.TranslateID(1);
+                else activeLiquid = (activeLiquid.Id != Liquid.Count - 1) ? Liquid.TranslateID(activeLiquid.Id + 1) : Liquid.TranslateID(1);
+
                 hasPressedPlus = true;
 
-                Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
+                Console.WriteLine(blockMode ? Language.CurrentBlockIs + activeBlock.Name : Language.CurrentLiquidIs + activeLiquid.Name);
             }
             else if (input.IsKeyUp(Key.KeypadPlus))
             {
@@ -328,7 +386,7 @@ namespace VoxelGame.Entities
                 activeBlock = (activeBlock.Id != 1) ? Block.TranslateID(activeBlock.Id - 1) : Block.TranslateID((uint)(Block.Count - 1));
                 hasPressedMinus = true;
 
-                Console.WriteLine(Language.CurrentBlockIs + activeBlock.Name);
+                Console.WriteLine(blockMode ? Language.CurrentBlockIs + activeBlock.Name : Language.CurrentLiquidIs + activeLiquid.Name);
             }
             else if (input.IsKeyUp(Key.KeypadMinus))
             {
