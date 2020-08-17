@@ -21,7 +21,7 @@ namespace VoxelGame.Logic
         public const int DATASHIFT = 12;
         public const int LIQUIDSHIFT = 18;
         public const int LEVELSHIFT = 23;
-        public const int STATICSHIFT = 24;
+        public const int STATICSHIFT = 26;
 
         public const uint BLOCKMASK = 0b0000_0000_0000_0000_0000_1111_1111_1111;
         public const uint DATAMASK = 0b0000_0000_0000_0011_1111_0000_0000_0000;
@@ -618,6 +618,8 @@ namespace VoxelGame.Logic
                 int x = index;
 
                 Block.TranslateID(val & BLOCKMASK)?.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), (val & DATAMASK) >> DATASHIFT);
+
+                Liquid.TranslateID((val & LIQUIDMASK) >> LIQUIDSHIFT)?.LiquidUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), (LiquidLevel)((val & LEVELMASK) >> LEVELSHIFT), ((val & STATICMASK) >> STATICSHIFT) != 0);
             }
         }
 

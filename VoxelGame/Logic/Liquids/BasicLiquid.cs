@@ -89,5 +89,35 @@ namespace VoxelGame.Logic.Liquids
 
             return 4;
         }
+
+        internal override void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
+        {
+            (Block? blockDown, Liquid? liquidDown) = Game.World.GetPosition(x, y - 1, z, out _, out LiquidLevel levelDown, out _);
+
+            if (blockDown != Block.Air)
+            {
+                Game.World.SetLiquid(this, level, true, x, y, z);
+                return;
+            }
+
+            if (liquidDown == Liquid.None)
+            {
+                Game.World.SetLiquid(this, LiquidLevel.One, false, x, y - 1, z);
+
+                bool remaining = level != LiquidLevel.One;
+                Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, x, y, z);
+            }
+            else if (liquidDown == this && levelDown != LiquidLevel.Eight)
+            {
+                Game.World.SetLiquid(this, levelDown + 1, false, x, y - 1, z);
+
+                bool remaining = level != LiquidLevel.One;
+                Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, x, y, z);
+            }
+            else
+            {
+                Game.World.SetLiquid(this, level, true, x, y, z);
+            }
+        }
     }
 }

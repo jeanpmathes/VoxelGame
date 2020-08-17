@@ -31,5 +31,9 @@ namespace VoxelGame.Logic.Liquids
 
             return 4;
         }
+
+        internal override void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
+        {
+        }
     }
 }

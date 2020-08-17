@@ -123,6 +123,8 @@ namespace VoxelGame.Logic
             }
         }
 
+        internal abstract void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic);
+
         public sealed override string ToString()
         {
             return NamedId;
