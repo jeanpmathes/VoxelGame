@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using System;
 using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic
@@ -27,14 +28,24 @@ namespace VoxelGame.Logic
         public string NamedId { get; }
 
         /// <summary>
+        /// Gets the density of this liquid.
+        /// </summary>
+        public float Density { get; }
+
+        protected int Direction { get; }
+
+        /// <summary>
         /// Gets whether this liquid is rendered.
         /// </summary>
         public bool IsRendered { get; }
 
-        protected Liquid(string name, string namedId, bool isRendered)
+        protected Liquid(string name, string namedId, float density, bool isRendered)
         {
             Name = name;
             NamedId = namedId;
+
+            Density = density;
+            Direction = Math.Sign(density);
 
             IsRendered = isRendered;
 
@@ -47,7 +58,7 @@ namespace VoxelGame.Logic
             }
             else
             {
-                throw new System.InvalidOperationException($"Not more than {LiquidLimit} liquids are allowed.");
+                throw new InvalidOperationException($"Not more than {LiquidLimit} liquids are allowed.");
             }
         }
 

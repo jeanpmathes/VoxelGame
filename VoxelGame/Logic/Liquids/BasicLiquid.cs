@@ -21,10 +21,11 @@ namespace VoxelGame.Logic.Liquids
 
         private protected uint[] indices = null!;
 
-        public BasicLiquid(string name, string namedId, TextureLayout movingLayout, TextureLayout staticLayout) :
+        public BasicLiquid(string name, string namedId, float density, TextureLayout movingLayout, TextureLayout staticLayout) :
             base(
                 name,
                 namedId,
+                density,
                 isRendered: true)
         {
             this.movingLayout = movingLayout;
@@ -92,27 +93,27 @@ namespace VoxelGame.Logic.Liquids
 
         internal override void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
         {
-            (Block? blockDown, Liquid? liquidDown) = Game.World.GetPosition(x, y - 1, z, out _, out LiquidLevel levelDown, out _);
+            (Block? blockVertical, Liquid? liquidVertical) = Game.World.GetPosition(x, y - Direction, z, out _, out LiquidLevel levelVertical, out _);
 
-            if (blockDown != Block.Air)
+            if (blockVertical != Block.Air)
             {
                 Game.World.SetLiquid(this, level, true, x, y, z);
                 return;
             }
 
-            if (liquidDown == Liquid.None)
+            if (liquidVertical == Liquid.None)
             {
-                Game.World.SetLiquid(this, LiquidLevel.One, false, x, y - 1, z);
+                Game.World.SetLiquid(this, LiquidLevel.One, false, x, y - Direction, z);
 
                 bool remaining = level != LiquidLevel.One;
-                Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, x, y, z);
+                Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - Direction : LiquidLevel.Eight, !remaining, x, y, z);
             }
-            else if (liquidDown == this && levelDown != LiquidLevel.Eight)
+            else if (liquidVertical == this && levelVertical != LiquidLevel.Eight)
             {
-                Game.World.SetLiquid(this, levelDown + 1, false, x, y - 1, z);
+                Game.World.SetLiquid(this, levelVertical + 1, false, x, y - Direction, z);
 
                 bool remaining = level != LiquidLevel.One;
-                Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, x, y, z);
+                Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - Direction : LiquidLevel.Eight, !remaining, x, y, z);
             }
             else
             {

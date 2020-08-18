@@ -17,6 +17,7 @@ namespace VoxelGame.Logic.Liquids
             base(
                 name,
                 namedId,
+                0f,
                 isRendered: false)
         {
         }
