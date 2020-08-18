@@ -32,7 +32,10 @@ namespace VoxelGame.Logic
         /// </summary>
         public float Density { get; }
 
-        protected int Direction { get; }
+        /// <summary>
+        /// Gets the flowing direction of this liquid.
+        /// </summary>
+        public int Direction { get; }
 
         /// <summary>
         /// Gets whether this liquid is rendered.
@@ -69,7 +72,7 @@ namespace VoxelGame.Logic
         {
         }
 
-        public abstract uint GetMesh(LiquidLevel level, BlockSide side, int sideHeight, bool isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
+        public abstract uint GetMesh(LiquidLevel level, BlockSide side, int sideHeight, int sideDirection, bool isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
         /// <summary>
         /// Tries to fill a position with the specified amount of liquid. The remaining liquid is specified, it can be converted to <see cref="LiquidLevel"/> using <c>remaining - 1</c>.

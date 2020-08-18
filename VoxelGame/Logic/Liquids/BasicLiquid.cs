@@ -46,10 +46,21 @@ namespace VoxelGame.Logic.Liquids
             staticTex = staticLayout.GetTexIndexArrays();
         }
 
-        public override uint GetMesh(LiquidLevel level, BlockSide side, int sideHeight, bool isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(LiquidLevel level, BlockSide side, int sideHeight, int sideDirection, bool isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
             float start = (sideHeight + 1) * 0.125f;
             float height = ((int)level + 1) * 0.125f;
+
+            //if (Direction > 0)
+            //{
+            //    start = (sideHeight + 1) * 0.125f;
+            //    height = ((int)level + 1) * 0.125f;
+            //}
+            //else
+            //{
+            //    start = 0f;
+            //    height = 0f;
+            //}
 
             switch (side)
             {
