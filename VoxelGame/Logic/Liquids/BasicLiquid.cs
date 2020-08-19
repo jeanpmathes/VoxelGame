@@ -119,14 +119,14 @@ namespace VoxelGame.Logic.Liquids
                 Game.World.SetLiquid(this, LiquidLevel.One, false, x, y - Direction, z);
 
                 bool remaining = level != LiquidLevel.One;
-                Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - Direction : LiquidLevel.Eight, !remaining, x, y, z);
+                Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, x, y, z);
             }
             else if (liquidVertical == this && levelVertical != LiquidLevel.Eight)
             {
                 Game.World.SetLiquid(this, levelVertical + 1, false, x, y - Direction, z);
 
                 bool remaining = level != LiquidLevel.One;
-                Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - Direction : LiquidLevel.Eight, !remaining, x, y, z);
+                Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, x, y, z);
             }
             else
             {
