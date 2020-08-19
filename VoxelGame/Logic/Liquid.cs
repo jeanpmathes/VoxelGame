@@ -126,7 +126,7 @@ namespace VoxelGame.Logic
                 }
                 else
                 {
-                    Game.World.SetLiquid(this, (LiquidLevel)((int)available - (int)level - 1), true, x, y, z);
+                    Game.World.SetLiquid(this, (LiquidLevel)((int)available - (int)level - 1), false, x, y, z);
                 }
 
                 return true;
