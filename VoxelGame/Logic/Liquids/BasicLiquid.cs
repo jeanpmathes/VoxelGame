@@ -46,21 +46,21 @@ namespace VoxelGame.Logic.Liquids
             staticTex = staticLayout.GetTexIndexArrays();
         }
 
-        public override uint GetMesh(LiquidLevel level, BlockSide side, int sideHeight, int sideDirection, bool isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(LiquidLevel level, BlockSide side, int sideHeight, bool isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
         {
-            float start = (sideHeight + 1) * 0.125f;
-            float height = ((int)level + 1) * 0.125f;
+            float upperBound;
+            float lowerBound;
 
-            //if (Direction > 0)
-            //{
-            //    start = (sideHeight + 1) * 0.125f;
-            //    height = ((int)level + 1) * 0.125f;
-            //}
-            //else
-            //{
-            //    start = 0f;
-            //    height = 0f;
-            //}
+            if (Direction > 0)
+            {
+                upperBound = ((int)level + 1) * 0.125f;
+                lowerBound = (sideHeight + 1) * 0.125f;
+            }
+            else
+            {
+                upperBound = (7 - sideHeight) * 0.125f;
+                lowerBound = (7 - (int)level) * 0.125f;
+            }
 
             switch (side)
             {
@@ -71,14 +71,16 @@ namespace VoxelGame.Logic.Liquids
 
                     vertices = new float[32];
                     Array.Copy(BasicLiquid.vertices[(int)side], vertices, 32);
-                    vertices[1] = vertices[25] = vertices[4] = vertices[28] = start;
-                    vertices[9] = vertices[12] = vertices[17] = vertices[20] = height;
+                    vertices[9] = vertices[12] = vertices[17] = vertices[20] = upperBound;
+                    vertices[1] = vertices[25] = vertices[4] = vertices[28] = lowerBound;
 
                     break;
 
                 case BlockSide.Bottom:
 
-                    vertices = BasicLiquid.vertices[4];
+                    vertices = new float[32];
+                    Array.Copy(BasicLiquid.vertices[4], vertices, 32);
+                    if (Direction < 0) vertices[1] = vertices[9] = vertices[17] = vertices[25] = lowerBound;
 
                     break;
 
@@ -86,7 +88,7 @@ namespace VoxelGame.Logic.Liquids
 
                     vertices = new float[32];
                     Array.Copy(BasicLiquid.vertices[5], vertices, 32);
-                    vertices[1] = vertices[9] = vertices[17] = vertices[25] = height;
+                    if (Direction > 0) vertices[1] = vertices[9] = vertices[17] = vertices[25] = upperBound;
 
                     break;
 
