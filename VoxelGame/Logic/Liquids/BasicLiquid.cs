@@ -106,18 +106,25 @@ namespace VoxelGame.Logic.Liquids
 
         internal override void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
         {
+            if (FlowHorizontal(x, y, z, level)) return;
+
+            if (level != LiquidLevel.One && FlowVertical(x, y, z, level)) return;
+
+            Game.World.SetLiquid(this, level, true, x, y, z);
+        }
+
+        protected bool FlowHorizontal(int x, int y, int z, LiquidLevel level)
+        {
             (Block? blockVertical, Liquid? liquidVertical) = Game.World.GetPosition(x, y - Direction, z, out _, out LiquidLevel levelVertical, out _);
 
-            if (blockVertical != Block.Air)
-            {
-                Game.World.SetLiquid(this, level, true, x, y, z);
-                return;
-            }
+            if (blockVertical != Block.Air) return false;
 
             if (liquidVertical == Liquid.None)
             {
                 Game.World.SetLiquid(this, level, false, x, y - Direction, z);
                 Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
+
+                return true;
             }
             else if (liquidVertical == this && levelVertical != LiquidLevel.Eight)
             {
@@ -133,10 +140,58 @@ namespace VoxelGame.Logic.Liquids
                     Game.World.SetLiquid(this, LiquidLevel.Eight, false, x, y - Direction, z);
                     Game.World.SetLiquid(this, level - volume - 1, false, x, y, z);
                 }
+
+                return true;
             }
-            else
+
+            return false;
+        }
+
+        protected bool FlowVertical(int x, int y, int z, LiquidLevel level)
+        {
+            int horX = x, horZ = z;
+            LiquidLevel levelHorizontal = LiquidLevel.Eight;
+
+            if (CheckNeighbor(x, y, z - 1)) return true; // North.
+            if (CheckNeighbor(x + 1, y, z)) return true; // East.
+            if (CheckNeighbor(x, y, z + 1)) return true; // South.
+            if (CheckNeighbor(x - 1, y, z)) return true; // West.
+
+            if (horX != x || horZ != z)
             {
-                Game.World.SetLiquid(this, level, true, x, y, z);
+                Game.World.SetLiquid(this, levelHorizontal + 1, false, horX, y, horZ);
+
+                bool remaining = level != LiquidLevel.One;
+                Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, x, y, z);
+
+                return true;
+            }
+
+            return false;
+
+            bool CheckNeighbor(int nx, int ny, int nz)
+            {
+                (Block? blockNeighbor, Liquid? liquidNeighbor) = Game.World.GetPosition(nx, ny, nz, out _, out LiquidLevel levelNeighbor, out _);
+
+                if (blockNeighbor != Block.Air) return false;
+
+                if (liquidNeighbor == Liquid.None)
+                {
+                    Game.World.SetLiquid(this, LiquidLevel.One, false, nx, ny, nz);
+
+                    bool remaining = level != LiquidLevel.One;
+                    Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, x, y, z);
+
+                    return true;
+                }
+                else if (liquidNeighbor == this && level > levelNeighbor && levelNeighbor < levelHorizontal)
+                {
+                    levelHorizontal = levelNeighbor;
+                    horX = nx;
+                    horZ = nz;
+                }
+
+                return false;
             }
         }
     }
