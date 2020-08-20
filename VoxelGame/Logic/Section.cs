@@ -21,7 +21,7 @@ namespace VoxelGame.Logic
         public const int DATASHIFT = 12;
         public const int LIQUIDSHIFT = 18;
         public const int LEVELSHIFT = 23;
-        public const int STATICSHIFT = 24;
+        public const int STATICSHIFT = 26;
 
         public const uint BLOCKMASK = 0b0000_0000_0000_0000_0000_1111_1111_1111;
         public const uint DATAMASK = 0b0000_0000_0000_0011_1111_0000_0000_0000;
@@ -490,7 +490,7 @@ namespace VoxelGame.Logic
                             // Bottom.
                             if (y - 1 < 0 && bottomNeighbour != null)
                             {
-                                liquidToCheck = bottomNeighbour.GetLiquid(x, SectionSize - 1, z, out _);
+                                liquidToCheck = bottomNeighbour.GetLiquid(x, SectionSize - 1, z, out sideHeight);
                             }
                             else if (y - 1 < 0)
                             {
@@ -498,12 +498,12 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                liquidToCheck = GetLiquid(x, y - 1, z, out _);
+                                liquidToCheck = GetLiquid(x, y - 1, z, out sideHeight);
                             }
 
-                            sideHeight = -1;
+                            if (liquidToCheck != currentLiquid) sideHeight = -1;
 
-                            if (liquidToCheck != currentLiquid)
+                            if ((currentLiquid.Direction > 0 && sideHeight != 7) || (currentLiquid.Direction < 0 && (level != LiquidLevel.Eight || liquidToCheck != currentLiquid)))
                             {
                                 uint verts = currentLiquid.GetMesh(level, BlockSide.Bottom, sideHeight, isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out _);
 
@@ -529,7 +529,7 @@ namespace VoxelGame.Logic
                             // Top.
                             if (y + 1 >= SectionSize && topNeighbour != null)
                             {
-                                liquidToCheck = topNeighbour.GetLiquid(x, 0, z, out _);
+                                liquidToCheck = topNeighbour.GetLiquid(x, 0, z, out sideHeight);
                             }
                             else if (y + 1 >= SectionSize)
                             {
@@ -537,12 +537,12 @@ namespace VoxelGame.Logic
                             }
                             else
                             {
-                                liquidToCheck = GetLiquid(x, y + 1, z, out _);
+                                liquidToCheck = GetLiquid(x, y + 1, z, out sideHeight);
                             }
 
-                            sideHeight = -1;
+                            if (liquidToCheck != currentLiquid) sideHeight = -1;
 
-                            if (liquidToCheck != currentLiquid)
+                            if ((currentLiquid.Direction < 0 && sideHeight != 7) || (currentLiquid.Direction > 0 && (level != LiquidLevel.Eight || liquidToCheck != currentLiquid)))
                             {
                                 uint verts = currentLiquid.GetMesh(level, BlockSide.Top, sideHeight, isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out _);
 
@@ -618,6 +618,8 @@ namespace VoxelGame.Logic
                 int x = index;
 
                 Block.TranslateID(val & BLOCKMASK)?.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), (val & DATAMASK) >> DATASHIFT);
+
+                Liquid.TranslateID((val & LIQUIDMASK) >> LIQUIDSHIFT)?.LiquidUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), (LiquidLevel)((val & LEVELMASK) >> LEVELSHIFT), ((val & STATICMASK) >> STATICSHIFT) != 0);
             }
         }
 

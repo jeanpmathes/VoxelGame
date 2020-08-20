@@ -17,6 +17,7 @@ namespace VoxelGame.Logic.Liquids
             base(
                 name,
                 namedId,
+                0f,
                 isRendered: false)
         {
         }
@@ -30,6 +31,10 @@ namespace VoxelGame.Logic.Liquids
             tint = TintColor.None;
 
             return 4;
+        }
+
+        internal override void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
+        {
         }
     }
 }

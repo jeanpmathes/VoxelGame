@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using System;
 using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic
@@ -27,14 +28,27 @@ namespace VoxelGame.Logic
         public string NamedId { get; }
 
         /// <summary>
+        /// Gets the density of this liquid.
+        /// </summary>
+        public float Density { get; }
+
+        /// <summary>
+        /// Gets the flowing direction of this liquid.
+        /// </summary>
+        public int Direction { get; }
+
+        /// <summary>
         /// Gets whether this liquid is rendered.
         /// </summary>
         public bool IsRendered { get; }
 
-        protected Liquid(string name, string namedId, bool isRendered)
+        protected Liquid(string name, string namedId, float density, bool isRendered)
         {
             Name = name;
             NamedId = namedId;
+
+            Density = density;
+            Direction = Math.Sign(density);
 
             IsRendered = isRendered;
 
@@ -47,7 +61,7 @@ namespace VoxelGame.Logic
             }
             else
             {
-                throw new System.InvalidOperationException($"Not more than {LiquidLimit} liquids are allowed.");
+                throw new InvalidOperationException($"Not more than {LiquidLimit} liquids are allowed.");
             }
         }
 
@@ -112,7 +126,7 @@ namespace VoxelGame.Logic
                 }
                 else
                 {
-                    Game.World.SetLiquid(this, (LiquidLevel)((int)available - (int)level - 1), true, x, y, z);
+                    Game.World.SetLiquid(this, (LiquidLevel)((int)available - (int)level - 1), false, x, y, z);
                 }
 
                 return true;
@@ -122,6 +136,8 @@ namespace VoxelGame.Logic
                 return false;
             }
         }
+
+        internal abstract void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic);
 
         public sealed override string ToString()
         {
