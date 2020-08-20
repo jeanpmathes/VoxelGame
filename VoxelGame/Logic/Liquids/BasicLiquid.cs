@@ -116,17 +116,23 @@ namespace VoxelGame.Logic.Liquids
 
             if (liquidVertical == Liquid.None)
             {
-                Game.World.SetLiquid(this, LiquidLevel.One, false, x, y - Direction, z);
-
-                bool remaining = level != LiquidLevel.One;
-                Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, x, y, z);
+                Game.World.SetLiquid(this, level, false, x, y - Direction, z);
+                Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
             }
             else if (liquidVertical == this && levelVertical != LiquidLevel.Eight)
             {
-                Game.World.SetLiquid(this, levelVertical + 1, false, x, y - Direction, z);
+                int volume = LiquidLevel.Eight - levelVertical - 1;
 
-                bool remaining = level != LiquidLevel.One;
-                Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, x, y, z);
+                if (volume >= (int)level)
+                {
+                    Game.World.SetLiquid(this, levelVertical + (int)level + 1, false, x, y - Direction, z);
+                    Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, false, x, y, z);
+                }
+                else
+                {
+                    Game.World.SetLiquid(this, LiquidLevel.Eight, false, x, y - Direction, z);
+                    Game.World.SetLiquid(this, level - volume - 1, false, x, y, z);
+                }
             }
             else
             {
