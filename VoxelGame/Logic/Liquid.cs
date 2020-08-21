@@ -75,15 +75,15 @@ namespace VoxelGame.Logic
         public abstract uint GetMesh(LiquidLevel level, BlockSide side, int sideHeight, bool isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
         /// <summary>
-        /// Tries to fill a position with the specified amount of liquid. The remaining liquid is specified, it can be converted to <see cref="LiquidLevel"/> using <c>remaining - 1</c>.
+        /// Tries to fill a position with the specified amount of liquid. The remaining liquid is specified, it can be converted to <see cref="LiquidLevel"/> if it is not <c>-1</c>.
         /// </summary>
         public bool Fill(int x, int y, int z, LiquidLevel level, out int remaining)
         {
             (Block? block, Liquid? target) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel current, out _);
 
-            if (block?.IsReplaceable != true)
+            if (block != Block.Air)
             {
-                remaining = (int)level + 1;
+                remaining = (int)level;
                 return false;
             }
 
@@ -95,8 +95,6 @@ namespace VoxelGame.Logic
                 Game.World.SetLiquid(this, (LiquidLevel)remaining, false, x, y, z);
 
                 remaining = (int)level - remaining - (int)current;
-                remaining = remaining < 0 ? 0 : remaining;
-
                 return true;
             }
             else if (target == Liquid.None)
@@ -108,7 +106,7 @@ namespace VoxelGame.Logic
             }
             else
             {
-                remaining = (int)level + 1;
+                remaining = (int)level;
                 return false;
             }
         }
