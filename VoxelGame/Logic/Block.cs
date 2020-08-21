@@ -29,12 +29,12 @@ namespace VoxelGame.Logic
         public string NamedId { get; }
 
         /// <summary>
-        /// Gets whether this block completely fills a 1x1x1 volume or not.
+        /// Gets whether this block completely fills a 1x1x1 volume or not. If a block is not full, it cannot be opaque.
         /// </summary>
         public bool IsFull { get; }
 
         /// <summary>
-        /// Gets whether it is possible to see through this block. This will affect the rendering of this block and the blocks around him.
+        /// Gets whether it is possible to see through this block. This will affect the rendering of this block and the blocks around it.
         /// </summary>
         public bool IsOpaque { get; }
 
@@ -101,6 +101,11 @@ namespace VoxelGame.Logic
             if (targetBuffer == TargetBuffer.Simple && !isFull)
             {
                 throw new System.ArgumentException($"TargetBuffer '{nameof(TargetBuffer.Simple)}' requires {nameof(isFull)} to be {!isFull}.", nameof(targetBuffer));
+            }
+
+            if (!isFull && isOpaque)
+            {
+                throw new System.ArgumentException("A block that is not full cannot be opaque.", nameof(isOpaque));
             }
 
             if (blockDictionary.Count < BlockLimit)
