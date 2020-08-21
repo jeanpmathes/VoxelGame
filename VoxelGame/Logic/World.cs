@@ -222,7 +222,7 @@ namespace VoxelGame.Logic
             positionsToActivate.Add((0, 0));
         }
 
-        public void FrameRender()
+        public void Render()
         {
             if (IsReady)
             {
@@ -243,7 +243,7 @@ namespace VoxelGame.Logic
             }
         }
 
-        public void FrameUpdate(float deltaTime)
+        public void Update(float deltaTime)
         {
             StartActivatingChunks();
 

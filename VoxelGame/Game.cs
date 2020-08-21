@@ -154,7 +154,7 @@ namespace VoxelGame
 
                 screen.Clear();
 
-                World.FrameRender();
+                World.Render();
 
                 screen.Draw();
 
@@ -168,7 +168,7 @@ namespace VoxelGame
             {
                 float deltaTime = (float)MathHelper.Clamp(e.Time, 0f, 1f);
 
-                World.FrameUpdate(deltaTime);
+                World.Update(deltaTime);
 
                 if (!IsFocused) // check to see if the window is focused
                 {
