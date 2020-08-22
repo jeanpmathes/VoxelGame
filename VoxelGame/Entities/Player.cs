@@ -383,7 +383,9 @@ namespace VoxelGame.Entities
 
             if (input.IsKeyDown(Key.KeypadMinus) && !hasPressedMinus)
             {
-                activeBlock = (activeBlock.Id != 1) ? Block.TranslateID(activeBlock.Id - 1) : Block.TranslateID((uint)(Block.Count - 1));
+                if (blockMode) activeBlock = (activeBlock.Id != 1) ? Block.TranslateID(activeBlock.Id - 1) : Block.TranslateID((uint)(Block.Count - 1));
+                else activeLiquid = (activeLiquid.Id != 1) ? Liquid.TranslateID(activeLiquid.Id - 1) : Liquid.TranslateID((uint)(Liquid.Count - 1));
+
                 hasPressedMinus = true;
 
                 Console.WriteLine(blockMode ? Language.CurrentBlockIs + activeBlock.Name : Language.CurrentLiquidIs + activeLiquid.Name);
