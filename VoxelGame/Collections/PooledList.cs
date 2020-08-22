@@ -172,6 +172,28 @@ namespace VoxelGame.Collections
         }
 
         /// <summary>
+        /// Adds the elements of the specified array to the end of the <see cref="PooledList{T}"/>.
+        /// </summary>
+        /// <param name="array">The array whose elements should be added to the end of the <see cref="PooledList{T}"/>. The array itself cannot be <c>null</c>, but it can contain elements that are <c>null</c>, if type <c>T</c> is a reference type.</param>
+        /// <param name="add">The amount of elements to add.</param>
+        public void AddRange(T[] array, int count)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException(nameof(array));
+            }
+
+            if (count > 0)
+            {
+                EnsureCapacity(size + count);
+
+                Array.Copy(array, 0, items, size, count);
+
+                size += count;
+            }
+        }
+
+        /// <summary>
         /// Adds the elements of another <see cref="PooledList{T}"/> to the end of this <see cref="PooledList{T}"/>.
         /// </summary>
         /// <param name="pooledList">The <see cref="PooledList{T}"/> whose elements should be added to the end of the <see cref="PooledList{T}"/>. It is not allowed to be null or equal to the list it should be added to.</param>

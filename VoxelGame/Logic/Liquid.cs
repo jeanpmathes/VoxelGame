@@ -33,7 +33,7 @@ namespace VoxelGame.Logic
         public float Density { get; }
 
         /// <summary>
-        /// Gets the flowing direction of this liquid.
+        /// Gets the flowing direction of this liquid. Positive means down, negative means up.
         /// </summary>
         public int Direction { get; }
 
