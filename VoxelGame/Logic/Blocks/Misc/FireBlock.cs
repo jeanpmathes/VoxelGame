@@ -38,7 +38,7 @@ namespace VoxelGame.Logic.Blocks
                 name,
                 namedId,
                 isFull: false,
-                isOpaque: true,
+                isOpaque: false,
                 renderFaceAtNonOpaques: true,
                 isSolid: false,
                 recieveCollisions: false,
