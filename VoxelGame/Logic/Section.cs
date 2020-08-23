@@ -47,6 +47,9 @@ namespace VoxelGame.Logic
         public void Setup()
         {
             renderer = new SectionRenderer();
+
+            isEmpty = false;
+            disposed = false;
         }
 
         public static Vector3 Extents { get => new Vector3(SectionSize / 2f, SectionSize / 2f, SectionSize / 2f); }
@@ -691,7 +694,7 @@ namespace VoxelGame.Logic
 
         #region IDisposable Support
 
-        [NonSerialized] private bool disposed = false;
+        [NonSerialized] private bool disposed;
 
         protected virtual void Dispose(bool disposing)
         {

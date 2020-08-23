@@ -41,7 +41,7 @@ namespace VoxelGame.Logic
         /// <summary>
         /// Gets whether this world is ready for physics ticking and rendering.
         /// </summary>
-        public bool IsReady { get; private set; } = false;
+        public bool IsReady { get; private set; }
 
         private readonly IWorldGenerator generator;
 
@@ -932,11 +932,11 @@ namespace VoxelGame.Logic
 
         #region IDisposable Support
 
-        private bool disposedValue = false;
+        private bool disposed;
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!disposed)
             {
                 if (disposing)
                 {
@@ -956,7 +956,7 @@ namespace VoxelGame.Logic
                     }
                 }
 
-                disposedValue = true;
+                disposed = true;
             }
         }
 

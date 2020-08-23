@@ -34,9 +34,9 @@ namespace VoxelGame.Rendering
         private int complexElements;
         private int liquidElements;
 
-        private bool hasSimpleData = false;
-        private bool hasComplexData = false;
-        private bool hasLiquidData = false;
+        private bool hasSimpleData;
+        private bool hasComplexData;
+        private bool hasLiquidData;
 
         public SectionRenderer()
         {
@@ -270,7 +270,7 @@ namespace VoxelGame.Rendering
 
         #region IDisposable Support
 
-        private bool disposed = false;
+        private bool disposed;
 
         protected override void Dispose(bool disposing)
         {
