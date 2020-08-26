@@ -59,7 +59,7 @@ namespace VoxelGame
 
         private Screen screen = null!;
 
-        private bool wireframeMode = false;
+        private bool wireframeMode;
         private bool hasReleasesWireframeKey = true;
 
         private bool hasReleasedScreenshotKey = true;

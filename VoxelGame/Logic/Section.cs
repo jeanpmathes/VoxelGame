@@ -31,7 +31,7 @@ namespace VoxelGame.Logic
 
         private readonly uint[] blocks;
 
-        [NonSerialized] private bool isEmpty;
+        [NonSerialized] private bool hasMesh;
         [NonSerialized] private SectionRenderer? renderer;
 
         public Section()
@@ -48,7 +48,7 @@ namespace VoxelGame.Logic
         {
             renderer = new SectionRenderer();
 
-            isEmpty = false;
+            hasMesh = false;
             disposed = false;
         }
 
@@ -613,7 +613,7 @@ namespace VoxelGame.Logic
             simpleBottomFaceHolder.GenerateMesh(ref simpleVertexData);
             simpleTopFaceHolder.GenerateMesh(ref simpleVertexData);
 
-            isEmpty = complexVertexPositions.Count == 0 && simpleVertexData.Count == 0 && liquidVertices.Count == 0;
+            hasMesh = complexVertexPositions.Count == 0 && simpleVertexData.Count == 0 && liquidVertices.Count == 0;
 
             meshData = new SectionMeshData(ref simpleVertexData, ref complexVertexPositions, ref complexVertexData, ref complexIndices, ref liquidVertices, ref liquidTextureIndices, ref liquidIndices);
 
@@ -632,7 +632,7 @@ namespace VoxelGame.Logic
 
         public void Render(Vector3 position)
         {
-            if (!isEmpty)
+            if (!hasMesh)
             {
                 renderer?.Draw(position);
             }
