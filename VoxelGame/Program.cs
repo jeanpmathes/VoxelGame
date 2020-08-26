@@ -61,8 +61,11 @@ namespace VoxelGame
             };
 
             NativeWindowSettings nativeWindowSettings = NativeWindowSettings.Default;
+            nativeWindowSettings.APIVersion = new Version(4, 6);
+            nativeWindowSettings.WindowBorder = OpenToolkit.Windowing.Common.WindowBorder.Hidden;
             nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
-            nativeWindowSettings.Size = new Vector2i(800, 450);
+            nativeWindowSettings.Size = Config.GetVector2i("screenSize", new Vector2i(800, 450));
+            nativeWindowSettings.StartFocused = false;
 
             logger.LogInformation("Starting game on version: {Version}", Version);
 

@@ -6,6 +6,7 @@
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
+using OpenToolkit.Windowing.Common;
 using System;
 using System.Drawing;
 using System.IO;
@@ -27,7 +28,7 @@ namespace VoxelGame.Rendering
         /// <summary>
         /// Gets the window size. The value is equal to the value retrieved from <see cref="Game.Instance"/>.
         /// </summary>
-        public static Vector2i Size { get => Game.Instance.Size; }
+        public static Vector2i Size { get => Game.Instance.Size; set { Game.Instance.Size = value; } }
 
         /// <summary>
         /// Gets the aspect ratio <c>x/y</c>.
@@ -50,6 +51,8 @@ namespace VoxelGame.Rendering
         public Screen()
         {
             Instance = this;
+
+            Game.Instance.Resize += OnResize;
 
             #region MULTISAMPLED FBO
 
@@ -125,7 +128,7 @@ namespace VoxelGame.Rendering
             GL.BlitFramebuffer(0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
         }
 
-        public void Resize()
+        private void OnResize(ResizeEventArgs e)
         {
             GL.Viewport(0, 0, Size.X, Size.Y);
 
@@ -148,6 +151,10 @@ namespace VoxelGame.Rendering
             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
 
             #endregion SCREENSHOT FBO
+
+            Game.ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
+
+            logger.LogDebug("Window has been resized to: {size}", e.Size);
         }
 
         #region PUBLIC STATIC METHODS

@@ -54,6 +54,19 @@ namespace VoxelGame.Utilities
         }
 
         /// <summary>
+        /// Retrieves a <see cref="Vector2i"/> value from the configuration file.
+        /// </summary>
+        /// <param name="key">The key of the value to retrieve.</param>
+        /// <param name="fallback">The fallback to use in case of failed retrieval.</param>
+        /// <returns>The retrieved value.</returns>
+        public static Vector2i GetVector2i(string key, Vector2i fallback = default)
+        {
+            string[] r = ConfigurationManager.AppSettings[key]?.Split(';') ?? Array.Empty<string>();
+
+            return r.Length == 2 && int.TryParse(r[0], out int x) && int.TryParse(r[1], out int y) ? new Vector2i(x, y) : fallback;
+        }
+
+        /// <summary>
         /// Retrieves a <see cref="Vector3"/> value from the configuration file.
         /// </summary>
         /// <param name="key">The key of the value to retrieve.</param>

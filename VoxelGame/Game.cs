@@ -77,7 +77,6 @@ namespace VoxelGame
             UpdateFrame += OnUpdateFrame;
             UpdateFrame += MouseUpdate;
 
-            Resize += OnResize;
             Closed += OnClosed;
 
             MouseMove += OnMouseMove;
@@ -219,15 +218,6 @@ namespace VoxelGame
                     Close();
                 }
             }
-        }
-
-        new protected void OnResize(ResizeEventArgs e)
-        {
-            screen.Resize();
-
-            ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
-
-            logger.LogDebug("Window has been resized to: {size}", e.Size);
         }
 
         new protected void OnClosed()
