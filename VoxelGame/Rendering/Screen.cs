@@ -6,6 +6,8 @@
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
+using OpenToolkit.Windowing.Common;
+using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Drawing;
 using System.IO;
@@ -27,7 +29,7 @@ namespace VoxelGame.Rendering
         /// <summary>
         /// Gets the window size. The value is equal to the value retrieved from <see cref="Game.Instance"/>.
         /// </summary>
-        public static Vector2i Size { get => Game.Instance.Size; }
+        public static Vector2i Size { get => Game.Instance.Size; set { Game.Instance.Size = value; } }
 
         /// <summary>
         /// Gets the aspect ratio <c>x/y</c>.
@@ -51,10 +53,13 @@ namespace VoxelGame.Rendering
         {
             Instance = this;
 
+            Game.Instance.Resize += OnResize;
+
             #region MULTISAMPLED FBO
 
-            samples = Config.GetInt("sampleCount", min: 1, max: GL.GetInteger(GetPName.MaxSamples));
-            logger.LogDebug("Sample count: {samples}", samples);
+            int maxSamples = GL.GetInteger(GetPName.MaxSamples);
+            samples = Config.GetInt("sampleCount", min: 1, max: maxSamples);
+            logger.LogDebug("Set sample count to {samples}, of maximum {max} possible samples.", samples, maxSamples);
 
             GL.ClearColor(0.5f, 0.8f, 0.9f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
@@ -125,7 +130,7 @@ namespace VoxelGame.Rendering
             GL.BlitFramebuffer(0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
         }
 
-        public void Resize()
+        private void OnResize(ResizeEventArgs e)
         {
             GL.Viewport(0, 0, Size.X, Size.Y);
 
@@ -148,9 +153,42 @@ namespace VoxelGame.Rendering
             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
 
             #endregion SCREENSHOT FBO
+
+            Game.ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
+
+            logger.LogDebug("Window has been resized to: {size}", e.Size);
         }
 
         #region PUBLIC STATIC METHODS
+
+        private static Vector2i previousScreenSize;
+        private static Vector2i previousScreenLocation;
+
+        /// <summary>
+        /// Set if the screen should be in fullscreen.
+        /// </summary>
+        /// <param name="fullscreen">If fullscreen should be active.</param>
+        public static void SetFullscreen(bool fullscreen)
+        {
+            if (fullscreen == Game.Instance.IsFullscreen) return;
+
+            if (fullscreen)
+            {
+                previousScreenSize = Game.Instance.Size;
+                previousScreenLocation = Game.Instance.Location;
+
+                Game.Instance.WindowState = WindowState.Fullscreen;
+                Game.Instance.IsFullscreen = true;
+                logger.LogDebug("Fullscreen: Switched to fullscreen mode.");
+            }
+            else
+            {
+                unsafe { GLFW.SetWindowMonitor(Game.Instance.WindowPointer, null, previousScreenLocation.X, previousScreenLocation.Y, previousScreenSize.X, previousScreenSize.Y, (int)Game.Instance.RenderFrequency); }
+                Game.Instance.IsFullscreen = false;
+
+                logger.LogDebug("Fullscreen: Switched to normal mode.");
+            }
+        }
 
         /// <summary>
         /// Takes a screenshot and saves it to the specified directory.

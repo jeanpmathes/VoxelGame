@@ -9,6 +9,7 @@ using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Common.Input;
 using OpenToolkit.Windowing.Desktop;
+using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -54,19 +55,25 @@ namespace VoxelGame
 
         #endregion STATIC PROPERTIES
 
+        public unsafe Window* WindowPointer { get; }
+
         private readonly string appDataDirectory;
         private readonly string screenshotDirectory;
 
         private Screen screen = null!;
 
-        private bool wireframeMode = false;
+        private bool wireframeMode;
         private bool hasReleasesWireframeKey = true;
 
         private bool hasReleasedScreenshotKey = true;
 
+        private bool hasReleasedFullscreenKey = true;
+
         public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, string appDataDirectory, string screenshotDirectory) : base(gameWindowSettings, nativeWindowSettings)
         {
             Instance = this;
+
+            unsafe { WindowPointer = WindowPtr; }
 
             this.appDataDirectory = appDataDirectory;
             this.screenshotDirectory = screenshotDirectory;
@@ -77,7 +84,6 @@ namespace VoxelGame
             UpdateFrame += OnUpdateFrame;
             UpdateFrame += MouseUpdate;
 
-            Resize += OnResize;
             Closed += OnClosed;
 
             MouseMove += OnMouseMove;
@@ -214,20 +220,22 @@ namespace VoxelGame
                     hasReleasedScreenshotKey = true;
                 }
 
+                if (hasReleasedFullscreenKey && input.IsKeyDown(Key.F11))
+                {
+                    hasReleasedFullscreenKey = false;
+
+                    Screen.SetFullscreen(!IsFullscreen);
+                }
+                else if (input.IsKeyUp(Key.F11))
+                {
+                    hasReleasedFullscreenKey = true;
+                }
+
                 if (input.IsKeyDown(Key.Escape))
                 {
                     Close();
                 }
             }
-        }
-
-        new protected void OnResize(ResizeEventArgs e)
-        {
-            screen.Resize();
-
-            ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
-
-            logger.LogDebug("Window has been resized to: {size}", e.Size);
         }
 
         new protected void OnClosed()

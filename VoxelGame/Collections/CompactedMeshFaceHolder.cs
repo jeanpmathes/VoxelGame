@@ -126,13 +126,13 @@ namespace VoxelGame.Collections
 
                     if (lastCombinationRowFace == null)
                     {
-                        lastFaces[layer][row - 1]?.Return();
                         lastFaces[layer][row - 1] = combinationRowFace.previousFace;
+                        combinationRowFace.Return();
                     }
                     else
                     {
-                        lastCombinationRowFace.previousFace?.Return();
                         lastCombinationRowFace.previousFace = combinationRowFace.previousFace;
+                        combinationRowFace.Return();
                     }
 
                     count--;
@@ -187,8 +187,9 @@ namespace VoxelGame.Collections
                         meshData.Add(vertTexRepetition | currentFace.vert_1_1);
                         meshData.Add(currentFace.vertData);
 
+                        MeshFace? next = currentFace.previousFace;
                         currentFace.Return();
-                        currentFace = currentFace.previousFace;
+                        currentFace = next;
                     }
                 }
             }
@@ -225,6 +226,8 @@ namespace VoxelGame.Collections
             public int position;
             public int length;
             public int height;
+
+            private MeshFace() { }
 
             public bool IsExtendable(MeshFace extension)
             {

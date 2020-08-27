@@ -180,7 +180,7 @@ namespace VoxelGame.Rendering
 
         #region IDisposable Support
 
-        private bool disposed = false;
+        private bool disposed;
 
         protected override void Dispose(bool disposing)
         {
