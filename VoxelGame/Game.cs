@@ -9,6 +9,7 @@ using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Common.Input;
 using OpenToolkit.Windowing.Desktop;
+using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -54,6 +55,8 @@ namespace VoxelGame
 
         #endregion STATIC PROPERTIES
 
+        public unsafe Window* WindowPointer { get; }
+
         private readonly string appDataDirectory;
         private readonly string screenshotDirectory;
 
@@ -64,9 +67,13 @@ namespace VoxelGame
 
         private bool hasReleasedScreenshotKey = true;
 
+        private bool hasReleasedFullscreenKey = true;
+
         public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, string appDataDirectory, string screenshotDirectory) : base(gameWindowSettings, nativeWindowSettings)
         {
             Instance = this;
+
+            unsafe { WindowPointer = WindowPtr; }
 
             this.appDataDirectory = appDataDirectory;
             this.screenshotDirectory = screenshotDirectory;
@@ -211,6 +218,17 @@ namespace VoxelGame
                 else if (input.IsKeyUp(Key.F12))
                 {
                     hasReleasedScreenshotKey = true;
+                }
+
+                if (hasReleasedFullscreenKey && input.IsKeyDown(Key.F11))
+                {
+                    hasReleasedFullscreenKey = false;
+
+                    Screen.SetFullscreen(!IsFullscreen);
+                }
+                else if (input.IsKeyUp(Key.F11))
+                {
+                    hasReleasedFullscreenKey = true;
                 }
 
                 if (input.IsKeyDown(Key.Escape))
