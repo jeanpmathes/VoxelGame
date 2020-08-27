@@ -57,8 +57,9 @@ namespace VoxelGame.Rendering
 
             #region MULTISAMPLED FBO
 
-            samples = Config.GetInt("sampleCount", min: 1, max: GL.GetInteger(GetPName.MaxSamples));
-            logger.LogDebug("Sample count: {samples}", samples);
+            int maxSamples = GL.GetInteger(GetPName.MaxSamples);
+            samples = Config.GetInt("sampleCount", min: 1, max: maxSamples);
+            logger.LogDebug("Set sample count to {samples}, of maximum {max} possible samples.", samples, maxSamples);
 
             GL.ClearColor(0.5f, 0.8f, 0.9f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
