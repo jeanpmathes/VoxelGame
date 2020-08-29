@@ -186,6 +186,8 @@ namespace VoxelGame.Rendering
             if (hasSimpleData || hasComplexData || hasLiquidData)
             {
                 Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
+                Matrix4 view = Game.Player.GetViewMatrix();
+                Matrix4 projection = Game.Player.GetProjectionMatrix();
 
                 #region RENDERING SIMPLE
 
@@ -198,8 +200,8 @@ namespace VoxelGame.Rendering
                     Game.SimpleSectionShader.Use();
 
                     Game.SimpleSectionShader.SetMatrix4("model", model);
-                    Game.SimpleSectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
-                    Game.SimpleSectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
+                    Game.SimpleSectionShader.SetMatrix4("view", view);
+                    Game.SimpleSectionShader.SetMatrix4("projection", projection);
 
                     GL.DrawArrays(PrimitiveType.Triangles, 0, simpleIndices);
                 }
@@ -217,8 +219,8 @@ namespace VoxelGame.Rendering
                     Game.ComplexSectionShader.Use();
 
                     Game.ComplexSectionShader.SetMatrix4("model", model);
-                    Game.ComplexSectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
-                    Game.ComplexSectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
+                    Game.ComplexSectionShader.SetMatrix4("view", view);
+                    Game.ComplexSectionShader.SetMatrix4("projection", projection);
 
                     GL.DrawElements(PrimitiveType.Triangles, complexElements, DrawElementsType.UnsignedInt, 0);
                 }
@@ -234,8 +236,8 @@ namespace VoxelGame.Rendering
                     Game.LiquidSectionShader.Use();
 
                     Game.LiquidSectionShader.SetMatrix4("model", model);
-                    Game.LiquidSectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
-                    Game.LiquidSectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
+                    Game.LiquidSectionShader.SetMatrix4("view", view);
+                    Game.LiquidSectionShader.SetMatrix4("projection", projection);
 
                     GL.DrawElements(PrimitiveType.Triangles, liquidElements, DrawElementsType.UnsignedInt, 0);
                 }
