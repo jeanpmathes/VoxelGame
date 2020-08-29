@@ -113,6 +113,15 @@ namespace VoxelGame
 
         #endregion BLOCKS
 
+        #region LIQUIDS
+
+        /// <summary>
+        /// Occurs when loading a liquid.
+        /// </summary>
+        public const int LiquidLoad = 2500;
+
+        #endregion LIQUIDS
+
         #region RENDERING AND VISUALS
 
         /// <summary>
