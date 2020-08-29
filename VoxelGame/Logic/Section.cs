@@ -355,7 +355,7 @@ namespace VoxelGame.Logic
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Front, sideHeight, isStatic, out _, out int[] textureIndices, out uint[] indices, out _);
+                                uint verts = currentLiquid.GetMesh(level, BlockSide.Front, isStatic, out int[] textureIndices, out uint[] indices, out _);
 
                                 int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
 
@@ -408,7 +408,7 @@ namespace VoxelGame.Logic
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Back, sideHeight, isStatic, out _, out int[] textureIndices, out uint[] indices, out _);
+                                uint verts = currentLiquid.GetMesh(level, BlockSide.Back, isStatic, out int[] textureIndices, out uint[] indices, out _);
 
                                 int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
 
@@ -461,7 +461,7 @@ namespace VoxelGame.Logic
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Left, sideHeight, isStatic, out _, out int[] textureIndices, out uint[] indices, out _);
+                                uint verts = currentLiquid.GetMesh(level, BlockSide.Left, isStatic, out int[] textureIndices, out uint[] indices, out _);
 
                                 int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
 
@@ -514,7 +514,7 @@ namespace VoxelGame.Logic
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Right, sideHeight, isStatic, out _, out int[] textureIndices, out uint[] indices, out _);
+                                uint verts = currentLiquid.GetMesh(level, BlockSide.Right, isStatic, out int[] textureIndices, out uint[] indices, out _);
 
                                 int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
 
@@ -567,7 +567,7 @@ namespace VoxelGame.Logic
 
                             if ((currentLiquid.Direction > 0 && sideHeight != 7 && blockToCheck?.IsOpaque != true) || (currentLiquid.Direction < 0 && (level != LiquidLevel.Eight || (liquidToCheck != currentLiquid && blockToCheck?.IsOpaque != true))))
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Bottom, sideHeight, isStatic, out _, out int[] textureIndices, out uint[] indices, out _);
+                                uint verts = currentLiquid.GetMesh(level, BlockSide.Bottom, isStatic, out int[] textureIndices, out uint[] indices, out _);
 
                                 int ind = ((currentLiquid.Direction > 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
 
@@ -620,7 +620,7 @@ namespace VoxelGame.Logic
 
                             if ((currentLiquid.Direction < 0 && sideHeight != 7 && blockToCheck?.IsOpaque != true) || (currentLiquid.Direction > 0 && (level != LiquidLevel.Eight || (liquidToCheck != currentLiquid && blockToCheck?.IsOpaque != true))))
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Top, sideHeight, isStatic, out _, out int[] textureIndices, out uint[] indices, out _);
+                                uint verts = currentLiquid.GetMesh(level, BlockSide.Top, isStatic, out int[] textureIndices, out uint[] indices, out _);
 
                                 int ind = ((currentLiquid.Direction < 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
 

@@ -72,7 +72,7 @@ namespace VoxelGame.Logic
         {
         }
 
-        public abstract uint GetMesh(LiquidLevel level, BlockSide side, int sideHeight, bool isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint);
+        public abstract uint GetMesh(LiquidLevel level, BlockSide side, bool isStatic, out int[] textureIndices, out uint[] indices, out TintColor tint);
 
         /// <summary>
         /// Tries to fill a position with the specified amount of liquid. The remaining liquid is specified, it can be converted to <see cref="LiquidLevel"/> if it is not <c>-1</c>.
