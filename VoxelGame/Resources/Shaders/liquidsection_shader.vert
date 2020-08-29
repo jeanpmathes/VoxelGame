@@ -42,7 +42,7 @@ void main()
     {
         position.y += (direction < 0) ? lowerBound : 0;
     }
-    if (n == 5) // Side: Top
+    else if (n == 5) // Side: Top
     {
         position.y += (direction > 0) ? upperBound : 1;
     }
