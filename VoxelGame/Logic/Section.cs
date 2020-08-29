@@ -355,7 +355,7 @@ namespace VoxelGame.Logic
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Front, isStatic, out int[] textureIndices, out uint[] indices, out _);
+                                uint verts = currentLiquid.GetMesh(level, BlockSide.Front, isStatic, out int textureIndex, out uint[] indices, out _);
 
                                 int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
 
@@ -368,7 +368,7 @@ namespace VoxelGame.Logic
                                 int upperDataD = (1 << 31) | (0 << 30) | (x + 1 << 12) | (0 << 11) | (y << 6) | (z + 1);
 
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-                                int lowerData = ((int)BlockSide.Front << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | (textureIndices[0] & 0b0111_1111);
+                                int lowerData = ((int)BlockSide.Front << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | (textureIndex & 0b0111_1111);
 
                                 liquidVertexData.Add(upperDataA);
                                 liquidVertexData.Add(lowerData);
@@ -408,7 +408,7 @@ namespace VoxelGame.Logic
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Back, isStatic, out int[] textureIndices, out uint[] indices, out _);
+                                uint verts = currentLiquid.GetMesh(level, BlockSide.Back, isStatic, out int textureIndex, out uint[] indices, out _);
 
                                 int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
 
@@ -421,7 +421,7 @@ namespace VoxelGame.Logic
                                 int upperDataD = (1 << 31) | (0 << 30) | (x + 0 << 12) | (0 << 11) | (y << 6) | (z + 0);
 
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-                                int lowerData = ((int)BlockSide.Back << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | (textureIndices[0] & 0b0111_1111);
+                                int lowerData = ((int)BlockSide.Back << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | (textureIndex & 0b0111_1111);
 
                                 liquidVertexData.Add(upperDataA);
                                 liquidVertexData.Add(lowerData);
@@ -461,7 +461,7 @@ namespace VoxelGame.Logic
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Left, isStatic, out int[] textureIndices, out uint[] indices, out _);
+                                uint verts = currentLiquid.GetMesh(level, BlockSide.Left, isStatic, out int textureIndex, out uint[] indices, out _);
 
                                 int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
 
@@ -474,7 +474,7 @@ namespace VoxelGame.Logic
                                 int upperDataD = (1 << 31) | (0 << 30) | (x + 0 << 12) | (0 << 11) | (y << 6) | (z + 1);
 
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-                                int lowerData = ((int)BlockSide.Left << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | (textureIndices[0] & 0b0111_1111);
+                                int lowerData = ((int)BlockSide.Left << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | (textureIndex & 0b0111_1111);
 
                                 liquidVertexData.Add(upperDataA);
                                 liquidVertexData.Add(lowerData);
@@ -514,7 +514,7 @@ namespace VoxelGame.Logic
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Right, isStatic, out int[] textureIndices, out uint[] indices, out _);
+                                uint verts = currentLiquid.GetMesh(level, BlockSide.Right, isStatic, out int textureIndex, out uint[] indices, out _);
 
                                 int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
 
@@ -527,7 +527,7 @@ namespace VoxelGame.Logic
                                 int upperDataD = (1 << 31) | (0 << 30) | (x + 1 << 12) | (0 << 11) | (y << 6) | (z + 0);
 
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-                                int lowerData = ((int)BlockSide.Right << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | (textureIndices[0] & 0b0111_1111);
+                                int lowerData = ((int)BlockSide.Right << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | (textureIndex & 0b0111_1111);
 
                                 liquidVertexData.Add(upperDataA);
                                 liquidVertexData.Add(lowerData);
@@ -567,7 +567,7 @@ namespace VoxelGame.Logic
 
                             if ((currentLiquid.Direction > 0 && sideHeight != 7 && blockToCheck?.IsOpaque != true) || (currentLiquid.Direction < 0 && (level != LiquidLevel.Eight || (liquidToCheck != currentLiquid && blockToCheck?.IsOpaque != true))))
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Bottom, isStatic, out int[] textureIndices, out uint[] indices, out _);
+                                uint verts = currentLiquid.GetMesh(level, BlockSide.Bottom, isStatic, out int textureIndex, out uint[] indices, out _);
 
                                 int ind = ((currentLiquid.Direction > 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
 
@@ -580,7 +580,7 @@ namespace VoxelGame.Logic
                                 int upperDataD = (1 << 31) | (0 << 30) | (x + 1 << 12) | (0 << 11) | (y << 6) | (z + 0);
 
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-                                int lowerData = ((int)BlockSide.Bottom << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | (textureIndices[0] & 0b0111_1111);
+                                int lowerData = ((int)BlockSide.Bottom << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | (textureIndex & 0b0111_1111);
 
                                 liquidVertexData.Add(upperDataA);
                                 liquidVertexData.Add(lowerData);
@@ -620,7 +620,7 @@ namespace VoxelGame.Logic
 
                             if ((currentLiquid.Direction < 0 && sideHeight != 7 && blockToCheck?.IsOpaque != true) || (currentLiquid.Direction > 0 && (level != LiquidLevel.Eight || (liquidToCheck != currentLiquid && blockToCheck?.IsOpaque != true))))
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Top, isStatic, out int[] textureIndices, out uint[] indices, out _);
+                                uint verts = currentLiquid.GetMesh(level, BlockSide.Top, isStatic, out int textureIndex, out uint[] indices, out _);
 
                                 int ind = ((currentLiquid.Direction < 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
 
@@ -633,7 +633,7 @@ namespace VoxelGame.Logic
                                 int upperDataD = (1 << 31) | (0 << 30) | (x + 1 << 12) | (1 << 11) | (y << 6) | (z + 1);
 
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-                                int lowerData = ((int)BlockSide.Top << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | (textureIndices[0] & 0b0111_1111);
+                                int lowerData = ((int)BlockSide.Top << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | (textureIndex & 0b0111_1111);
 
                                 liquidVertexData.Add(upperDataA);
                                 liquidVertexData.Add(lowerData);

@@ -16,8 +16,8 @@ namespace VoxelGame.Logic.Liquids
         private protected TextureLayout movingLayout;
         private protected TextureLayout staticLayout;
 
-        private protected int[][] movingTex = null!;
-        private protected int[][] staticTex = null!;
+        private protected int[] movingTex = null!;
+        private protected int[] staticTex = null!;
 
         private protected uint[] indices = null!;
 
@@ -42,13 +42,13 @@ namespace VoxelGame.Logic.Liquids
                 0, 2, 3
             };
 
-            movingTex = movingLayout.GetTexIndexArrays();
-            staticTex = staticLayout.GetTexIndexArrays();
+            movingTex = movingLayout.GetTexIndexArray();
+            staticTex = staticLayout.GetTexIndexArray();
         }
 
-        public override uint GetMesh(LiquidLevel level, BlockSide side, bool isStatic, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override uint GetMesh(LiquidLevel level, BlockSide side, bool isStatic, out int textureIndex, out uint[] indices, out TintColor tint)
         {
-            textureIndices = isStatic ? staticTex[(int)side] : movingTex[(int)side];
+            textureIndex = isStatic ? staticTex[(int)side] : movingTex[(int)side];
 
             indices = this.indices;
             tint = TintColor.None;
