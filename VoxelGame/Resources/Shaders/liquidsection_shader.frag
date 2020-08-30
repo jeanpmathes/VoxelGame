@@ -7,6 +7,8 @@ in vec3 normal;
 flat in int texIndex;
 in vec2 texCoord;
 
+in vec4 tint;
+
 layout(binding = 5) uniform sampler2DArray arrayTexture;
 
 void main()
@@ -18,6 +20,7 @@ void main()
 	float brightness = clamp((dot(normal, normalize(vec3(0.3, 0.8, 0.5))) + 1.7) / 2.5, 0.0, 1.0);
 	brightness = (length(normal) < 0.1) ? 1.0 : brightness;
 
+	color *= tint;
 	color *= brightness;
 
 	outputColor = color;

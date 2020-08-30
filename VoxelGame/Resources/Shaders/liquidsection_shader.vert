@@ -7,6 +7,8 @@ out vec3 normal;
 flat out int texIndex;
 out vec2 texCoord;
 
+out vec4 tint;
+
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
@@ -33,6 +35,9 @@ void main()
 
     // Texture Coordinate
     texCoord = vec2((aData.x >> 31) & 1, (aData.x >> 30) & 1);
+
+    // Tint
+    tint = vec4(((aData.y >> 29) & 7) / 7.0, ((aData.y >> 26) & 7) / 7.0, ((aData.y >> 23) & 7) / 7.0, 1.0);
 
     // Position and Texture
     int end = (aData.x >> 11) & 1;

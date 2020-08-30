@@ -11,7 +11,7 @@ namespace VoxelGame.Logic.Liquids
 {
     public class BasicLiquid : Liquid
     {
-        protected readonly static float[][] vertices = BlockModel.CubeVertices();
+        private protected bool neutralTint;
 
         private protected TextureLayout movingLayout;
         private protected TextureLayout staticLayout;
@@ -21,13 +21,15 @@ namespace VoxelGame.Logic.Liquids
 
         private protected uint[] indices = null!;
 
-        public BasicLiquid(string name, string namedId, float density, TextureLayout movingLayout, TextureLayout staticLayout) :
+        public BasicLiquid(string name, string namedId, float density, bool neutralTint, TextureLayout movingLayout, TextureLayout staticLayout) :
             base(
                 name,
                 namedId,
                 density,
                 isRendered: true)
         {
+            this.neutralTint = neutralTint;
+
             this.movingLayout = movingLayout;
             this.staticLayout = staticLayout;
         }
@@ -51,7 +53,7 @@ namespace VoxelGame.Logic.Liquids
             textureIndex = isStatic ? staticTex[(int)side] : movingTex[(int)side];
 
             indices = this.indices;
-            tint = TintColor.None;
+            tint = neutralTint ? TintColor.Neutral : TintColor.None;
 
             return 4;
         }
