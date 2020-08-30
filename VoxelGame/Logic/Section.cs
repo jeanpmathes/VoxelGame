@@ -357,7 +357,7 @@ namespace VoxelGame.Logic
                             {
                                 uint verts = currentLiquid.GetMesh(level, BlockSide.Front, isStatic, out int textureIndex, out uint[] indices, out _);
 
-                                int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
+                                int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true) ? indices.Length / 2 : indices.Length;
 
                                 liquidIndices.AddRange(indices, ind);
 
@@ -410,7 +410,7 @@ namespace VoxelGame.Logic
                             {
                                 uint verts = currentLiquid.GetMesh(level, BlockSide.Back, isStatic, out int textureIndex, out uint[] indices, out _);
 
-                                int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
+                                int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true) ? indices.Length / 2 : indices.Length;
 
                                 liquidIndices.AddRange(indices, ind);
 
@@ -463,8 +463,8 @@ namespace VoxelGame.Logic
                             {
                                 uint verts = currentLiquid.GetMesh(level, BlockSide.Left, isStatic, out int textureIndex, out uint[] indices, out _);
 
-                                int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
-
+                                int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true) ? indices.Length / 2 : indices.Length;
+                                
                                 liquidIndices.AddRange(indices, ind);
 
                                 // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
@@ -516,7 +516,7 @@ namespace VoxelGame.Logic
                             {
                                 uint verts = currentLiquid.GetMesh(level, BlockSide.Right, isStatic, out int textureIndex, out uint[] indices, out _);
 
-                                int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
+                                int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true) ? indices.Length / 2 : indices.Length;
 
                                 liquidIndices.AddRange(indices, ind);
 
@@ -569,7 +569,7 @@ namespace VoxelGame.Logic
                             {
                                 uint verts = currentLiquid.GetMesh(level, BlockSide.Bottom, isStatic, out int textureIndex, out uint[] indices, out _);
 
-                                int ind = ((currentLiquid.Direction > 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
+                                int ind = ((currentLiquid.Direction > 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true) ? indices.Length / 2 : indices.Length;
 
                                 liquidIndices.AddRange(indices, ind);
 
@@ -622,7 +622,7 @@ namespace VoxelGame.Logic
                             {
                                 uint verts = currentLiquid.GetMesh(level, BlockSide.Top, isStatic, out int textureIndex, out uint[] indices, out _);
 
-                                int ind = ((currentLiquid.Direction < 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) ? indices.Length / 2 : indices.Length;
+                                int ind = ((currentLiquid.Direction < 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true) ? indices.Length / 2 : indices.Length;
 
                                 liquidIndices.AddRange(indices, ind);
 
