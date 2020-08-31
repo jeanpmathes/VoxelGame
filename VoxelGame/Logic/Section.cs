@@ -74,12 +74,12 @@ namespace VoxelGame.Logic
             Section? bottomNeighbour = Game.World.GetSection(sectionX, sectionY - 1, sectionZ);
             Section? topNeighbour = Game.World.GetSection(sectionX, sectionY + 1, sectionZ);
 
-            CompactedMeshFaceHolder simpleFrontFaceHolder = new CompactedMeshFaceHolder(BlockSide.Front);
-            CompactedMeshFaceHolder simpleBackFaceHolder = new CompactedMeshFaceHolder(BlockSide.Back);
-            CompactedMeshFaceHolder simpleLeftFaceHolder = new CompactedMeshFaceHolder(BlockSide.Left);
-            CompactedMeshFaceHolder simpleRightFaceHolder = new CompactedMeshFaceHolder(BlockSide.Right);
-            CompactedMeshFaceHolder simpleBottomFaceHolder = new CompactedMeshFaceHolder(BlockSide.Bottom);
-            CompactedMeshFaceHolder simpleTopFaceHolder = new CompactedMeshFaceHolder(BlockSide.Top);
+            BlockMeshFaceHolder simpleFrontFaceHolder = new BlockMeshFaceHolder(BlockSide.Front);
+            BlockMeshFaceHolder simpleBackFaceHolder = new BlockMeshFaceHolder(BlockSide.Back);
+            BlockMeshFaceHolder simpleLeftFaceHolder = new BlockMeshFaceHolder(BlockSide.Left);
+            BlockMeshFaceHolder simpleRightFaceHolder = new BlockMeshFaceHolder(BlockSide.Right);
+            BlockMeshFaceHolder simpleBottomFaceHolder = new BlockMeshFaceHolder(BlockSide.Bottom);
+            BlockMeshFaceHolder simpleTopFaceHolder = new BlockMeshFaceHolder(BlockSide.Top);
 
             PooledList<float> complexVertexPositions = new PooledList<float>(64);
             PooledList<int> complexVertexData = new PooledList<int>(32);

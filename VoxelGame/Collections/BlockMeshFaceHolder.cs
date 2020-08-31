@@ -13,7 +13,7 @@ namespace VoxelGame.Collections
     /// <summary>
     /// A specialized class used to compact faces when meshing.
     /// </summary>
-    public class CompactedMeshFaceHolder
+    public class BlockMeshFaceHolder
     {
         private static readonly ArrayPool<MeshFace[]> layerPool = ArrayPool<MeshFace[]>.Create(Section.SectionSize, 64);
         private static readonly ArrayPool<MeshFace> rowPool = ArrayPool<MeshFace>.Create(Section.SectionSize, 256);
@@ -23,7 +23,7 @@ namespace VoxelGame.Collections
 
         private int count;
 
-        public CompactedMeshFaceHolder(BlockSide side)
+        public BlockMeshFaceHolder(BlockSide side)
         {
             this.side = side;
 
