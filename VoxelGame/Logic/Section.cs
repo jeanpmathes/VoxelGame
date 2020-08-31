@@ -87,10 +87,12 @@ namespace VoxelGame.Logic
 
             uint complexVertCount = 0;
 
-            PooledList<int> liquidVertexData = new PooledList<int>();
-            PooledList<uint> liquidIndices = new PooledList<uint>();
-
-            uint liquidVertCount = 0;
+            LiquidMeshFaceHolder liquidFrontFaceHolder = new LiquidMeshFaceHolder(BlockSide.Front);
+            LiquidMeshFaceHolder liquidBackFaceHolder = new LiquidMeshFaceHolder(BlockSide.Back);
+            LiquidMeshFaceHolder liquidLeftFaceHolder = new LiquidMeshFaceHolder(BlockSide.Left);
+            LiquidMeshFaceHolder liquidRightFaceHolder = new LiquidMeshFaceHolder(BlockSide.Right);
+            LiquidMeshFaceHolder liquidBottomFaceHolder = new LiquidMeshFaceHolder(BlockSide.Bottom);
+            LiquidMeshFaceHolder liquidTopFaceHolder = new LiquidMeshFaceHolder(BlockSide.Top);
 
             // Loop through the section
             for (int x = 0; x < SectionSize; x++)
@@ -356,11 +358,9 @@ namespace VoxelGame.Logic
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Front, isStatic, out int textureIndex, out uint[] indices, out TintColor tint);
+                                currentLiquid.GetMesh(level, BlockSide.Front, isStatic, out int textureIndex, out TintColor tint);
 
-                                int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true) ? indices.Length / 2 : indices.Length;
-
-                                liquidIndices.AddRange(indices, ind);
+                                bool singleSided = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true);
 
                                 // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
                                 int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 12) | (0 << 11) | (y << 6) | (z + 1);
@@ -371,21 +371,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? liquidTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Front << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((textureIndex - 1) >> 3) + 1) & 0b0111_1111);
 
-                                liquidVertexData.Add(upperDataA);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataB);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataC);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataD);
-                                liquidVertexData.Add(lowerData);
-
-                                for (int i = 0; i < ind; i++)
-                                {
-                                    liquidIndices[liquidIndices.Count - ind + i] += liquidVertCount;
-                                }
-
-                                liquidVertCount += verts;
+                                liquidFrontFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided);
                             }
 
                             // Back.
@@ -409,11 +395,9 @@ namespace VoxelGame.Logic
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Back, isStatic, out int textureIndex, out uint[] indices, out TintColor tint);
+                                currentLiquid.GetMesh(level, BlockSide.Back, isStatic, out int textureIndex, out TintColor tint);
 
-                                int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true) ? indices.Length / 2 : indices.Length;
-
-                                liquidIndices.AddRange(indices, ind);
+                                bool singleSided = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true);
 
                                 // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
                                 int upperDataA = (0 << 31) | (0 << 30) | (x + 1 << 12) | (0 << 11) | (y << 6) | (z + 0);
@@ -424,21 +408,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? liquidTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Back << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((textureIndex - 1) >> 3) + 1) & 0b0111_1111);
 
-                                liquidVertexData.Add(upperDataA);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataB);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataC);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataD);
-                                liquidVertexData.Add(lowerData);
-
-                                for (int i = 0; i < ind; i++)
-                                {
-                                    liquidIndices[liquidIndices.Count - ind + i] += liquidVertCount;
-                                }
-
-                                liquidVertCount += verts;
+                                liquidBackFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided);
                             }
 
                             // Left.
@@ -462,11 +432,9 @@ namespace VoxelGame.Logic
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Left, isStatic, out int textureIndex, out uint[] indices, out TintColor tint);
+                                currentLiquid.GetMesh(level, BlockSide.Left, isStatic, out int textureIndex, out TintColor tint);
 
-                                int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true) ? indices.Length / 2 : indices.Length;
-
-                                liquidIndices.AddRange(indices, ind);
+                                bool singleSided = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true);
 
                                 // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
                                 int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 12) | (0 << 11) | (y << 6) | (z + 0);
@@ -477,21 +445,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? liquidTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Left << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((textureIndex - 1) >> 3) + 1) & 0b0111_1111);
 
-                                liquidVertexData.Add(upperDataA);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataB);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataC);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataD);
-                                liquidVertexData.Add(lowerData);
-
-                                for (int i = 0; i < ind; i++)
-                                {
-                                    liquidIndices[liquidIndices.Count - ind + i] += liquidVertCount;
-                                }
-
-                                liquidVertCount += verts;
+                                liquidLeftFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided);
                             }
 
                             // Right.
@@ -515,11 +469,9 @@ namespace VoxelGame.Logic
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Right, isStatic, out int textureIndex, out uint[] indices, out TintColor tint);
+                                currentLiquid.GetMesh(level, BlockSide.Right, isStatic, out int textureIndex, out TintColor tint);
 
-                                int ind = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true) ? indices.Length / 2 : indices.Length;
-
-                                liquidIndices.AddRange(indices, ind);
+                                bool singleSided = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true);
 
                                 // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
                                 int upperDataA = (0 << 31) | (0 << 30) | (x + 1 << 12) | (0 << 11) | (y << 6) | (z + 1);
@@ -530,21 +482,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? liquidTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Right << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((textureIndex - 1) >> 3) + 1) & 0b0111_1111);
 
-                                liquidVertexData.Add(upperDataA);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataB);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataC);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataD);
-                                liquidVertexData.Add(lowerData);
-
-                                for (int i = 0; i < ind; i++)
-                                {
-                                    liquidIndices[liquidIndices.Count - ind + i] += liquidVertCount;
-                                }
-
-                                liquidVertCount += verts;
+                                liquidRightFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided);
                             }
 
                             // Bottom.
@@ -568,11 +506,9 @@ namespace VoxelGame.Logic
 
                             if ((currentLiquid.Direction > 0 && sideHeight != 7 && blockToCheck?.IsOpaque != true) || (currentLiquid.Direction < 0 && (level != LiquidLevel.Eight || (liquidToCheck != currentLiquid && blockToCheck?.IsOpaque != true))))
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Bottom, isStatic, out int textureIndex, out uint[] indices, out TintColor tint);
+                                currentLiquid.GetMesh(level, BlockSide.Bottom, isStatic, out int textureIndex, out TintColor tint);
 
-                                int ind = ((currentLiquid.Direction > 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true) ? indices.Length / 2 : indices.Length;
-
-                                liquidIndices.AddRange(indices, ind);
+                                bool singleSided = ((currentLiquid.Direction > 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true);
 
                                 // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
                                 int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 12) | (0 << 11) | (y << 6) | (z + 0);
@@ -583,21 +519,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? liquidTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Bottom << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((textureIndex - 1) >> 3) + 1) & 0b0111_1111);
 
-                                liquidVertexData.Add(upperDataA);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataB);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataC);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataD);
-                                liquidVertexData.Add(lowerData);
-
-                                for (int i = 0; i < ind; i++)
-                                {
-                                    liquidIndices[liquidIndices.Count - ind + i] += liquidVertCount;
-                                }
-
-                                liquidVertCount += verts;
+                                liquidBottomFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided);
                             }
 
                             // Top.
@@ -621,11 +543,9 @@ namespace VoxelGame.Logic
 
                             if ((currentLiquid.Direction < 0 && sideHeight != 7 && blockToCheck?.IsOpaque != true) || (currentLiquid.Direction > 0 && (level != LiquidLevel.Eight || (liquidToCheck != currentLiquid && blockToCheck?.IsOpaque != true))))
                             {
-                                uint verts = currentLiquid.GetMesh(level, BlockSide.Top, isStatic, out int textureIndex, out uint[] indices, out TintColor tint);
+                                currentLiquid.GetMesh(level, BlockSide.Top, isStatic, out int textureIndex, out TintColor tint);
 
-                                int ind = ((currentLiquid.Direction < 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true) ? indices.Length / 2 : indices.Length;
-
-                                liquidIndices.AddRange(indices, ind);
+                                bool singleSided = ((currentLiquid.Direction < 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true);
 
                                 // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
                                 int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 12) | (1 << 11) | (y << 6) | (z + 1);
@@ -636,28 +556,14 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? liquidTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Top << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((textureIndex - 1) >> 3) + 1) & 0b0111_1111);
 
-                                liquidVertexData.Add(upperDataA);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataB);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataC);
-                                liquidVertexData.Add(lowerData);
-                                liquidVertexData.Add(upperDataD);
-                                liquidVertexData.Add(lowerData);
-
-                                for (int i = 0; i < ind; i++)
-                                {
-                                    liquidIndices[liquidIndices.Count - ind + i] += liquidVertCount;
-                                }
-
-                                liquidVertCount += verts;
+                                liquidTopFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided);
                             }
                         }
                     }
                 }
             }
 
-            // Build the simple mesh data
+            // Build the simple mesh data.
             PooledList<int> simpleVertexData = new PooledList<int>(4096);
 
             simpleFrontFaceHolder.GenerateMesh(ref simpleVertexData);
@@ -667,7 +573,19 @@ namespace VoxelGame.Logic
             simpleBottomFaceHolder.GenerateMesh(ref simpleVertexData);
             simpleTopFaceHolder.GenerateMesh(ref simpleVertexData);
 
-            hasMesh = complexVertexPositions.Count == 0 && simpleVertexData.Count == 0 && liquidVertexData.Count == 0;
+            // Build the liquid mesh data.
+            PooledList<int> liquidVertexData = new PooledList<int>();
+            PooledList<uint> liquidIndices = new PooledList<uint>();
+            uint liquidVertCount = 0;
+
+            liquidFrontFaceHolder.GenerateMesh(ref liquidVertexData, ref liquidVertCount, ref liquidIndices);
+            liquidBackFaceHolder.GenerateMesh(ref liquidVertexData, ref liquidVertCount, ref liquidIndices);
+            liquidLeftFaceHolder.GenerateMesh(ref liquidVertexData, ref liquidVertCount, ref liquidIndices);
+            liquidRightFaceHolder.GenerateMesh(ref liquidVertexData, ref liquidVertCount, ref liquidIndices);
+            liquidBottomFaceHolder.GenerateMesh(ref liquidVertexData, ref liquidVertCount, ref liquidIndices);
+            liquidTopFaceHolder.GenerateMesh(ref liquidVertexData, ref liquidVertCount, ref liquidIndices);
+
+            hasMesh = complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 || liquidVertexData.Count != 0;
 
             meshData = new SectionMeshData(ref simpleVertexData, ref complexVertexPositions, ref complexVertexData, ref complexIndices, ref liquidVertexData, ref liquidIndices);
 
@@ -677,6 +595,13 @@ namespace VoxelGame.Logic
             simpleRightFaceHolder.ReturnToPool();
             simpleBottomFaceHolder.ReturnToPool();
             simpleTopFaceHolder.ReturnToPool();
+
+            liquidFrontFaceHolder.ReturnToPool();
+            liquidBackFaceHolder.ReturnToPool();
+            liquidLeftFaceHolder.ReturnToPool();
+            liquidRightFaceHolder.ReturnToPool();
+            liquidBottomFaceHolder.ReturnToPool();
+            liquidTopFaceHolder.ReturnToPool();
         }
 
         public void SetMeshData(ref SectionMeshData meshData)
@@ -686,7 +611,7 @@ namespace VoxelGame.Logic
 
         public void Render(Vector3 position)
         {
-            if (!hasMesh)
+            if (hasMesh)
             {
                 renderer?.Draw(position);
             }

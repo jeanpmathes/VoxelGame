@@ -1,4 +1,4 @@
-﻿// <copyright file="CompactedMeshFaceHolder.cs" company="VoxelGame">
+﻿// <copyright file="LiquidMeshFaceHolder.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -10,9 +10,9 @@ using VoxelGame.Logic;
 namespace VoxelGame.Collections
 {
     /// <summary>
-    /// A specialized class used to compact block faces when meshing.
+    /// A specialized class used to compact liquid faces while meshing.
     /// </summary>
-    public class BlockMeshFaceHolder
+    public class LiquidMeshFaceHolder
     {
         private static readonly ArrayPool<MeshFace[]> layerPool = ArrayPool<MeshFace[]>.Create(Section.SectionSize, 64);
         private static readonly ArrayPool<MeshFace> rowPool = ArrayPool<MeshFace>.Create(Section.SectionSize, 256);
@@ -22,7 +22,7 @@ namespace VoxelGame.Collections
 
         private int count;
 
-        public BlockMeshFaceHolder(BlockSide side)
+        public LiquidMeshFaceHolder(BlockSide side)
         {
             this.side = side;
 
@@ -41,10 +41,10 @@ namespace VoxelGame.Collections
             }
         }
 
-        public void AddFace(int layer, int row, int position, int vertData, (int vertA, int vertB, int vertC, int vertD) vertices)
+        public void AddFace(int layer, int row, int position, int vertData, (int vertA, int vertB, int vertC, int vertD) vertices, bool isSingleSided)
         {
             // Build current face.
-            MeshFace currentFace = MeshFace.Get(vertices.vertA, vertices.vertB, vertices.vertC, vertices.vertD, vertData, (int)((uint)vertices.vertC >> 30) != 0b11, position);
+            MeshFace currentFace = MeshFace.Get(vertices.vertA, vertices.vertB, vertices.vertC, vertices.vertD, vertData, position, isSingleSided);
 
             // Check if an already existing face can be extended.
             if (lastFaces[layer][row]?.IsExtendable(currentFace) ?? false)
@@ -144,7 +144,15 @@ namespace VoxelGame.Collections
             }
         }
 
-        public void GenerateMesh(ref PooledList<int> meshData)
+        private static readonly uint[] indices = new uint[]
+        {
+            0, 2, 1,
+            0, 3, 2,
+            0, 1, 2,
+            0, 2, 3
+        };
+
+        public void GenerateMesh(ref PooledList<int> meshData, ref uint vertexCount, ref PooledList<uint> meshIndices)
         {
             if (count == 0)
             {
@@ -161,30 +169,29 @@ namespace VoxelGame.Collections
 
                     while (currentFace != null)
                     {
-                        if (side == BlockSide.Left || side == BlockSide.Right)
+                        int vertexTexRepetition = !(side == BlockSide.Left || side == BlockSide.Right) ? ((currentFace.height << 25) | (currentFace.length << 20)) : ((currentFace.length << 25) | (currentFace.height << 20));
+
+                        meshData.Add(vertexTexRepetition | currentFace.vert_0_0);
+                        meshData.Add(currentFace.vertData);
+
+                        meshData.Add(vertexTexRepetition | currentFace.vert_0_1);
+                        meshData.Add(currentFace.vertData);
+
+                        meshData.Add(vertexTexRepetition | currentFace.vert_1_1);
+                        meshData.Add(currentFace.vertData);
+
+                        meshData.Add(vertexTexRepetition | currentFace.vert_1_0);
+                        meshData.Add(currentFace.vertData);
+
+                        int newIndices = currentFace.isSingleSided ? 6 : 12;
+                        meshIndices.AddRange(indices, newIndices);
+
+                        for (int i = 0; i < newIndices; i++)
                         {
-                            currentFace.isRotated = !currentFace.isRotated;
+                            meshIndices[meshIndices.Count - newIndices + i] += vertexCount;
                         }
 
-                        int vertTexRepetition = BuildVertexTexRepetitionMask(currentFace.isRotated, currentFace.height, currentFace.length);
-
-                        meshData.Add(vertTexRepetition | currentFace.vert_0_0);
-                        meshData.Add(currentFace.vertData);
-
-                        meshData.Add(vertTexRepetition | currentFace.vert_1_1);
-                        meshData.Add(currentFace.vertData);
-
-                        meshData.Add(vertTexRepetition | currentFace.vert_0_1);
-                        meshData.Add(currentFace.vertData);
-
-                        meshData.Add(vertTexRepetition | currentFace.vert_0_0);
-                        meshData.Add(currentFace.vertData);
-
-                        meshData.Add(vertTexRepetition | currentFace.vert_1_0);
-                        meshData.Add(currentFace.vertData);
-
-                        meshData.Add(vertTexRepetition | currentFace.vert_1_1);
-                        meshData.Add(currentFace.vertData);
+                        vertexCount += 4;
 
                         MeshFace? next = currentFace.previousFace;
                         currentFace.Return();
@@ -192,11 +199,6 @@ namespace VoxelGame.Collections
                     }
                 }
             }
-        }
-
-        private static int BuildVertexTexRepetitionMask(bool isRotated, int height, int length)
-        {
-            return !isRotated ? ((height << 25) | (length << 20)) : ((length << 25) | (height << 20));
         }
 
         public void ReturnToPool()
@@ -220,11 +222,11 @@ namespace VoxelGame.Collections
 
             public int vertData;
 
-            public bool isRotated;
-
             public int position;
             public int length;
             public int height;
+
+            public bool isSingleSided;
 
             private MeshFace() { }
 
@@ -232,23 +234,23 @@ namespace VoxelGame.Collections
             {
                 return this.position + this.length + 1 == extension.position &&
                     this.height == extension.height &&
-                    this.isRotated == extension.isRotated &&
-                    this.vertData == extension.vertData;
+                    this.vertData == extension.vertData &&
+                    this.isSingleSided == extension.isSingleSided;
             }
 
             public bool IsCombineable(MeshFace addition)
             {
                 return this.position == addition.position &&
                     this.length == addition.length &&
-                    this.isRotated == addition.isRotated &&
-                    this.vertData == addition.vertData;
+                    this.vertData == addition.vertData &&
+                    this.isSingleSided == addition.isSingleSided;
             }
 
             #region POOLING
 
             private readonly static ConcurrentBag<MeshFace> objects = new ConcurrentBag<MeshFace>();
 
-            public static MeshFace Get(int vert_0_0, int vert_0_1, int vert_1_1, int vert_1_0, int vertData, bool isRotated, int position)
+            public static MeshFace Get(int vert_0_0, int vert_0_1, int vert_1_1, int vert_1_0, int vertData, int position, bool isSingleSided)
             {
                 MeshFace instance = objects.TryTake(out instance!) ? instance : new MeshFace();
 
@@ -261,11 +263,11 @@ namespace VoxelGame.Collections
 
                 instance.vertData = vertData;
 
-                instance.isRotated = isRotated;
-
                 instance.position = position;
                 instance.length = 0;
                 instance.height = 0;
+
+                instance.isSingleSided = isSingleSided;
 
                 return instance;
             }

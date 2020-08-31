@@ -36,6 +36,10 @@ void main()
     // Texture Coordinate
     texCoord = vec2((aData.x >> 31) & 1, (aData.x >> 30) & 1);
 
+    // Texture Repetition
+    texCoord.x *= ((aData.x >> 25) & 31) + 1;
+    texCoord.y *= ((aData.x >> 20) & 31) + 1;
+
     // Tint
     tint = vec4(((aData.y >> 29) & 7) / 7.0, ((aData.y >> 26) & 7) / 7.0, ((aData.y >> 23) & 7) / 7.0, 1.0);
 

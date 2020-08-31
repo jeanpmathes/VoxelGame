@@ -22,14 +22,10 @@ namespace VoxelGame.Logic.Liquids
         {
         }
 
-        public override uint GetMesh(LiquidLevel level, BlockSide side, bool isStatic, out int textureIndex, out uint[] indices, out TintColor tint)
+        public override void GetMesh(LiquidLevel level, BlockSide side, bool isStatic, out int textureIndex, out TintColor tint)
         {
             textureIndex = 0;
-            indices = Array.Empty<uint>();
-
             tint = TintColor.None;
-
-            return 4;
         }
 
         internal override void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)

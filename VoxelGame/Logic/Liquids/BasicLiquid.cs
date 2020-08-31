@@ -18,8 +18,6 @@ namespace VoxelGame.Logic.Liquids
         private protected int[] movingTex = null!;
         private protected int[] staticTex = null!;
 
-        private protected uint[] indices = null!;
-
         public BasicLiquid(string name, string namedId, float density, bool neutralTint, TextureLayout movingLayout, TextureLayout staticLayout) :
             base(
                 name,
@@ -35,26 +33,14 @@ namespace VoxelGame.Logic.Liquids
 
         protected override void Setup()
         {
-            indices = new uint[]
-            {
-                0, 2, 1,
-                0, 3, 2,
-                0, 1, 2,
-                0, 2, 3
-            };
-
             movingTex = movingLayout.GetTexIndexArray();
             staticTex = staticLayout.GetTexIndexArray();
         }
 
-        public override uint GetMesh(LiquidLevel level, BlockSide side, bool isStatic, out int textureIndex, out uint[] indices, out TintColor tint)
+        public override void GetMesh(LiquidLevel level, BlockSide side, bool isStatic, out int textureIndex, out TintColor tint)
         {
             textureIndex = isStatic ? staticTex[(int)side] : movingTex[(int)side];
-
-            indices = this.indices;
             tint = neutralTint ? TintColor.Neutral : TintColor.None;
-
-            return 4;
         }
 
         internal override void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
