@@ -169,7 +169,7 @@ namespace VoxelGame.Collections
 
                     while (currentFace != null)
                     {
-                        int vertexTexRepetition = !(side == BlockSide.Left || side == BlockSide.Right) ? ((currentFace.height << 25) | (currentFace.length << 20)) : ((currentFace.length << 25) | (currentFace.height << 20));
+                        int vertexTexRepetition = BuildVertexTextureRepetition(currentFace.height, currentFace.length);
 
                         meshData.Add(vertexTexRepetition | currentFace.vert_0_0);
                         meshData.Add(currentFace.vertData);
@@ -199,6 +199,11 @@ namespace VoxelGame.Collections
                     }
                 }
             }
+        }
+
+        private int BuildVertexTextureRepetition(int height, int length)
+        {
+            return !(side == BlockSide.Left || side == BlockSide.Right) ? ((height << 25) | (length << 20)) : ((length << 25) | (height << 20));
         }
 
         public void ReturnToPool()
