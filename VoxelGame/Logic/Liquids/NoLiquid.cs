@@ -3,7 +3,6 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
 using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Liquids
@@ -22,15 +21,10 @@ namespace VoxelGame.Logic.Liquids
         {
         }
 
-        public override uint GetMesh(LiquidLevel level, BlockSide side, int sideHeight, bool isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override void GetMesh(LiquidLevel level, BlockSide side, bool isStatic, out int textureIndex, out TintColor tint)
         {
-            vertices = Array.Empty<float>();
-            textureIndices = Array.Empty<int>();
-            indices = Array.Empty<uint>();
-
+            textureIndex = 0;
             tint = TintColor.None;
-
-            return 4;
         }
 
         internal override void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)

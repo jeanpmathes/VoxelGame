@@ -25,8 +25,7 @@ namespace VoxelGame.Rendering
         private readonly int complexEBO;
         private readonly int complexVAO;
 
-        private readonly int liquidPositionVBO;
-        private readonly int liquidTextureVBO;
+        private readonly int liquidDataVBO;
         private readonly int liquidEBO;
         private readonly int liquidVAO;
 
@@ -50,8 +49,7 @@ namespace VoxelGame.Rendering
 
             complexVAO = GL.GenVertexArray();
 
-            liquidPositionVBO = GL.GenBuffer();
-            liquidTextureVBO = GL.GenBuffer();
+            liquidDataVBO = GL.GenBuffer();
             liquidEBO = GL.GenBuffer();
 
             liquidVAO = GL.GenVertexArray();
@@ -148,42 +146,23 @@ namespace VoxelGame.Rendering
             if (liquidElements != 0)
             {
                 // Vertex Buffer Object
-                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidPositionVBO);
-                GL.BufferData(BufferTarget.ArrayBuffer, meshData.liquidVertices.Count * sizeof(float), meshData.liquidVertices.ExposeArray(), BufferUsageHint.StaticDraw);
-
-                // Vertex Buffer Object
-                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidTextureVBO);
-                GL.BufferData(BufferTarget.ArrayBuffer, meshData.liquidTextureIndices.Count * sizeof(int), meshData.liquidTextureIndices.ExposeArray(), BufferUsageHint.StaticDraw);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidDataVBO);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshData.liquidVertexData.Count * sizeof(int), meshData.liquidVertexData.ExposeArray(), BufferUsageHint.StaticDraw);
 
                 // Element Buffer Object
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, liquidEBO);
                 GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.liquidIndices.Count * sizeof(uint), meshData.liquidIndices.ExposeArray(), BufferUsageHint.StaticDraw);
 
-                int positionLocation = Game.LiquidSectionShader.GetAttribLocation("aPosition");
-                int textureCoordLocataion = Game.LiquidSectionShader.GetAttribLocation("aTexCoord");
-                int normalLocation = Game.LiquidSectionShader.GetAttribLocation("aNormal");
-                int textureLocation = Game.LiquidSectionShader.GetAttribLocation("aTexInd");
+                int dataLocation = Game.LiquidSectionShader.GetAttribLocation("aData");
 
                 Game.LiquidSectionShader.Use();
 
                 // Vertex Array Object
                 GL.BindVertexArray(liquidVAO);
 
-                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidPositionVBO);
-                GL.EnableVertexAttribArray(positionLocation);
-                GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
-
-                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidPositionVBO);
-                GL.EnableVertexAttribArray(textureCoordLocataion);
-                GL.VertexAttribPointer(textureCoordLocataion, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
-
-                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidPositionVBO);
-                GL.EnableVertexAttribArray(normalLocation);
-                GL.VertexAttribPointer(normalLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 5 * sizeof(float));
-
-                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidTextureVBO);
-                GL.EnableVertexAttribArray(textureLocation);
-                GL.VertexAttribIPointer(textureLocation, 1, VertexAttribIntegerType.Int, 1 * sizeof(int), IntPtr.Zero);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidDataVBO);
+                GL.EnableVertexAttribArray(dataLocation);
+                GL.VertexAttribIPointer(dataLocation, 2, VertexAttribIntegerType.Int, 2 * sizeof(int), IntPtr.Zero);
 
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, liquidEBO);
 
@@ -204,9 +183,11 @@ namespace VoxelGame.Rendering
                 return;
             }
 
-            if (hasSimpleData || hasComplexData)
+            if (hasSimpleData || hasComplexData || hasLiquidData)
             {
                 Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
+                Matrix4 view = Game.Player.GetViewMatrix();
+                Matrix4 projection = Game.Player.GetProjectionMatrix();
 
                 #region RENDERING SIMPLE
 
@@ -219,8 +200,8 @@ namespace VoxelGame.Rendering
                     Game.SimpleSectionShader.Use();
 
                     Game.SimpleSectionShader.SetMatrix4("model", model);
-                    Game.SimpleSectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
-                    Game.SimpleSectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
+                    Game.SimpleSectionShader.SetMatrix4("view", view);
+                    Game.SimpleSectionShader.SetMatrix4("projection", projection);
 
                     GL.DrawArrays(PrimitiveType.Triangles, 0, simpleIndices);
                 }
@@ -238,8 +219,8 @@ namespace VoxelGame.Rendering
                     Game.ComplexSectionShader.Use();
 
                     Game.ComplexSectionShader.SetMatrix4("model", model);
-                    Game.ComplexSectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
-                    Game.ComplexSectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
+                    Game.ComplexSectionShader.SetMatrix4("view", view);
+                    Game.ComplexSectionShader.SetMatrix4("projection", projection);
 
                     GL.DrawElements(PrimitiveType.Triangles, complexElements, DrawElementsType.UnsignedInt, 0);
                 }
@@ -255,8 +236,8 @@ namespace VoxelGame.Rendering
                     Game.LiquidSectionShader.Use();
 
                     Game.LiquidSectionShader.SetMatrix4("model", model);
-                    Game.LiquidSectionShader.SetMatrix4("view", Game.Player.GetViewMatrix());
-                    Game.LiquidSectionShader.SetMatrix4("projection", Game.Player.GetProjectionMatrix());
+                    Game.LiquidSectionShader.SetMatrix4("view", view);
+                    Game.LiquidSectionShader.SetMatrix4("projection", projection);
 
                     GL.DrawElements(PrimitiveType.Triangles, liquidElements, DrawElementsType.UnsignedInt, 0);
                 }
@@ -289,8 +270,7 @@ namespace VoxelGame.Rendering
 
                 GL.DeleteVertexArray(complexVAO);
 
-                GL.DeleteBuffer(liquidPositionVBO);
-                GL.DeleteBuffer(liquidTextureVBO);
+                GL.DeleteBuffer(liquidDataVBO);
                 GL.DeleteBuffer(liquidEBO);
 
                 GL.DeleteVertexArray(liquidVAO);

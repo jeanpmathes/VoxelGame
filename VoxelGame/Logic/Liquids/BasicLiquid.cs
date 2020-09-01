@@ -4,104 +4,43 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using VoxelGame.Visuals;
 
 namespace VoxelGame.Logic.Liquids
 {
     public class BasicLiquid : Liquid
     {
-        protected readonly static float[][] vertices = BlockModel.CubeVertices();
+        private protected bool neutralTint;
 
         private protected TextureLayout movingLayout;
         private protected TextureLayout staticLayout;
 
-        private protected int[][] movingTex = null!;
-        private protected int[][] staticTex = null!;
+        private protected int[] movingTex = null!;
+        private protected int[] staticTex = null!;
 
-        private protected uint[] indices = null!;
-
-        public BasicLiquid(string name, string namedId, float density, TextureLayout movingLayout, TextureLayout staticLayout) :
+        public BasicLiquid(string name, string namedId, float density, bool neutralTint, TextureLayout movingLayout, TextureLayout staticLayout) :
             base(
                 name,
                 namedId,
                 density,
                 isRendered: true)
         {
+            this.neutralTint = neutralTint;
+
             this.movingLayout = movingLayout;
             this.staticLayout = staticLayout;
         }
 
         protected override void Setup()
         {
-            indices = new uint[]
-            {
-                0, 2, 1,
-                0, 3, 2,
-                0, 1, 2,
-                0, 2, 3
-            };
-
-            movingTex = movingLayout.GetTexIndexArrays();
-            staticTex = staticLayout.GetTexIndexArrays();
+            movingTex = movingLayout.GetTexIndexArray();
+            staticTex = staticLayout.GetTexIndexArray();
         }
 
-        public override uint GetMesh(LiquidLevel level, BlockSide side, int sideHeight, bool isStatic, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint)
+        public override void GetMesh(LiquidLevel level, BlockSide side, bool isStatic, out int textureIndex, out TintColor tint)
         {
-            float upperBound;
-            float lowerBound;
-
-            if (Direction > 0)
-            {
-                upperBound = ((int)level + 1) * 0.125f;
-                lowerBound = (sideHeight + 1) * 0.125f;
-            }
-            else
-            {
-                upperBound = (7 - sideHeight) * 0.125f;
-                lowerBound = (7 - (int)level) * 0.125f;
-            }
-
-            switch (side)
-            {
-                case BlockSide.Front:
-                case BlockSide.Back:
-                case BlockSide.Left:
-                case BlockSide.Right:
-
-                    vertices = new float[32];
-                    Array.Copy(BasicLiquid.vertices[(int)side], vertices, 32);
-                    vertices[9] = vertices[12] = vertices[17] = vertices[20] = upperBound;
-                    vertices[1] = vertices[25] = vertices[4] = vertices[28] = lowerBound;
-
-                    break;
-
-                case BlockSide.Bottom:
-
-                    vertices = new float[32];
-                    Array.Copy(BasicLiquid.vertices[4], vertices, 32);
-                    if (Direction < 0) vertices[1] = vertices[9] = vertices[17] = vertices[25] = lowerBound;
-
-                    break;
-
-                case BlockSide.Top:
-
-                    vertices = new float[32];
-                    Array.Copy(BasicLiquid.vertices[5], vertices, 32);
-                    if (Direction > 0) vertices[1] = vertices[9] = vertices[17] = vertices[25] = upperBound;
-
-                    break;
-
-                default:
-                    throw new ArgumentException("Only the six sides are valid arguments.", nameof(side));
-            }
-
-            textureIndices = isStatic ? staticTex[(int)side] : movingTex[(int)side];
-
-            indices = this.indices;
-            tint = TintColor.None;
-
-            return 4;
+            textureIndex = isStatic ? staticTex[(int)side] : movingTex[(int)side];
+            tint = neutralTint ? TintColor.Neutral : TintColor.None;
         }
 
         internal override void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)

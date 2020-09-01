@@ -151,6 +151,19 @@ namespace VoxelGame.Logic
             };
         }
 
+        public int[] GetTexIndexArray()
+        {
+            return new int[]
+            {
+                Front,
+                Back,
+                Left,
+                Right,
+                Bottom,
+                Top
+            };
+        }
+
         public override int GetHashCode()
         {
             return HashCode.Combine(Front, Back, Left, Right, Bottom, Top);

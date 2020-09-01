@@ -15,11 +15,10 @@ namespace VoxelGame.Rendering
         internal PooledList<int> complexVertexData;
         internal PooledList<uint> complexIndices;
 
-        internal PooledList<float> liquidVertices;
-        internal PooledList<int> liquidTextureIndices;
+        internal PooledList<int> liquidVertexData;
         internal PooledList<uint> liquidIndices;
 
-        public SectionMeshData(ref PooledList<int> simpleVertexData, ref PooledList<float> complexVertexPositions, ref PooledList<int> complexVertexData, ref PooledList<uint> complexIndices, ref PooledList<float> liquidVertices, ref PooledList<int> liquidTextureIndices, ref PooledList<uint> liquidIndices)
+        public SectionMeshData(ref PooledList<int> simpleVertexData, ref PooledList<float> complexVertexPositions, ref PooledList<int> complexVertexData, ref PooledList<uint> complexIndices, ref PooledList<int> liquidVertexData, ref PooledList<uint> liquidIndices)
         {
             this.simpleVertexData = simpleVertexData;
 
@@ -27,8 +26,7 @@ namespace VoxelGame.Rendering
             this.complexVertexData = complexVertexData;
             this.complexIndices = complexIndices;
 
-            this.liquidVertices = liquidVertices;
-            this.liquidTextureIndices = liquidTextureIndices;
+            this.liquidVertexData = liquidVertexData;
             this.liquidIndices = liquidIndices;
         }
 
@@ -40,8 +38,7 @@ namespace VoxelGame.Rendering
             complexVertexData.ReturnToPool();
             complexIndices.ReturnToPool();
 
-            liquidVertices.ReturnToPool();
-            liquidTextureIndices.ReturnToPool();
+            liquidVertexData.ReturnToPool();
             liquidIndices.ReturnToPool();
         }
     }
