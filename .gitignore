@@ -273,3 +273,4 @@ __pycache__/
 /VoxelGame/VoxelGame.csproj.old
 /VoxelGame/GlobalSuppressions.cs
 /.sonarlint
+/Publish-linux
