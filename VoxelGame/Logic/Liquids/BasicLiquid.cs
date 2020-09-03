@@ -18,11 +18,12 @@ namespace VoxelGame.Logic.Liquids
         private protected int[] movingTex = null!;
         private protected int[] staticTex = null!;
 
-        public BasicLiquid(string name, string namedId, float density, bool neutralTint, TextureLayout movingLayout, TextureLayout staticLayout) :
+        public BasicLiquid(string name, string namedId, float density, int viscosity, bool neutralTint, TextureLayout movingLayout, TextureLayout staticLayout) :
             base(
                 name,
                 namedId,
                 density,
+                viscosity,
                 isRendered: true)
         {
             this.neutralTint = neutralTint;
@@ -43,7 +44,7 @@ namespace VoxelGame.Logic.Liquids
             tint = neutralTint ? TintColor.Neutral : TintColor.None;
         }
 
-        internal override void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
+        protected override void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
         {
             if (FlowHorizontal(x, y, z, level)) return;
 
@@ -63,6 +64,8 @@ namespace VoxelGame.Logic.Liquids
                 Game.World.SetLiquid(this, level, false, x, y - Direction, z);
                 Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
 
+                ScheduleTick(x, y - Direction, z);
+
                 return true;
             }
             else if (liquidVertical == this && levelVertical != LiquidLevel.Eight)
@@ -78,7 +81,11 @@ namespace VoxelGame.Logic.Liquids
                 {
                     Game.World.SetLiquid(this, LiquidLevel.Eight, false, x, y - Direction, z);
                     Game.World.SetLiquid(this, level - volume - 1, false, x, y, z);
+
+                    ScheduleTick(x, y, z);
                 }
+
+                ScheduleTick(x, y - Direction, z);
 
                 return true;
             }
@@ -100,8 +107,12 @@ namespace VoxelGame.Logic.Liquids
             {
                 Game.World.SetLiquid(this, levelHorizontal + 1, false, horX, y, horZ);
 
+                ScheduleTick(horX, y, horZ);
+
                 bool remaining = level != LiquidLevel.One;
                 Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, x, y, z);
+
+                if (remaining) ScheduleTick(x, y, z);
 
                 return true;
             }
@@ -118,8 +129,12 @@ namespace VoxelGame.Logic.Liquids
                 {
                     Game.World.SetLiquid(this, LiquidLevel.One, false, nx, ny, nz);
 
+                    ScheduleTick(nx, ny, nz);
+
                     bool remaining = level != LiquidLevel.One;
                     Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, x, y, z);
+
+                    if (remaining) ScheduleTick(x, y, z);
 
                     return true;
                 }

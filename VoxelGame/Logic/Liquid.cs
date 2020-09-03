@@ -10,8 +10,6 @@ namespace VoxelGame.Logic
 {
     public abstract partial class Liquid
     {
-        public const int maxLevel = 8;
-
         /// <summary>
         /// Gets the liquid id which can be any value from 0 to 31.
         /// </summary>
@@ -38,17 +36,24 @@ namespace VoxelGame.Logic
         public int Direction { get; }
 
         /// <summary>
+        /// Gets the viscosity of this liquid, meaning the tick offset between two updates.
+        /// </summary>
+        public int Viscosity { get; }
+
+        /// <summary>
         /// Gets whether this liquid is rendered.
         /// </summary>
         public bool IsRendered { get; }
 
-        protected Liquid(string name, string namedId, float density, bool isRendered)
+        protected Liquid(string name, string namedId, float density, int viscosity, bool isRendered)
         {
             Name = name;
             NamedId = namedId;
 
             Density = density;
             Direction = Math.Sign(density);
+
+            Viscosity = viscosity;
 
             IsRendered = isRendered;
 
@@ -93,6 +98,7 @@ namespace VoxelGame.Logic
                 remaining = remaining > 7 ? 7 : remaining;
 
                 Game.World.SetLiquid(this, (LiquidLevel)remaining, false, x, y, z);
+                ScheduleTick(x, y, z);
 
                 remaining = (int)level - remaining - (int)current;
                 return true;
@@ -100,6 +106,7 @@ namespace VoxelGame.Logic
             else if (target == Liquid.None)
             {
                 Game.World.SetLiquid(this, level, false, x, y, z);
+                ScheduleTick(x, y, z);
 
                 remaining = 0;
                 return true;
@@ -135,7 +142,7 @@ namespace VoxelGame.Logic
             }
         }
 
-        internal abstract void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic);
+        protected abstract void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic);
 
         public sealed override string ToString()
         {

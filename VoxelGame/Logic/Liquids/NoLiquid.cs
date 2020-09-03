@@ -17,6 +17,7 @@ namespace VoxelGame.Logic.Liquids
                 name,
                 namedId,
                 0f,
+                1,
                 isRendered: false)
         {
         }
@@ -27,7 +28,7 @@ namespace VoxelGame.Logic.Liquids
             tint = TintColor.None;
         }
 
-        internal override void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
+        protected override void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
         {
         }
     }

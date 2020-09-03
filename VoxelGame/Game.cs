@@ -31,6 +31,11 @@ namespace VoxelGame
         public static Game Instance { get; private set; } = null!;
 
         /// <summary>
+        /// The number of the current update cycle. It is incremented every time a new cycle begins.
+        /// </summary>
+        public static long CurrentUpdate { get; private set; }
+
+        /// <summary>
         /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
         /// </summary>
         public static ArrayTexture BlockTextureArray { get; private set; } = null!;
@@ -171,6 +176,8 @@ namespace VoxelGame
 
         new protected void OnUpdateFrame(FrameEventArgs e)
         {
+            CurrentUpdate++;
+
             using (logger.BeginScope("UpdateFrame"))
             {
                 float deltaTime = (float)MathHelper.Clamp(e.Time, 0f, 1f);

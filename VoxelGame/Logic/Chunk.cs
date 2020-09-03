@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using VoxelGame.Rendering;
 using VoxelGame.WorldGeneration;
 using VoxelGame.Physics;
+using VoxelGame.Collections;
 
 namespace VoxelGame.Logic
 {
@@ -44,6 +45,8 @@ namespace VoxelGame.Logic
 
         private readonly Section[] sections = new Section[ChunkHeight];
 
+        private readonly ScheduledTickManager<Liquid.LiquidTick> liquidTickManager;
+
         [NonSerialized] private bool hasMeshData = false;
         [NonSerialized] private int meshDataIndex = 0;
 
@@ -56,6 +59,8 @@ namespace VoxelGame.Logic
             {
                 sections[y] = new Section();
             }
+
+            liquidTickManager = new ScheduledTickManager<Liquid.LiquidTick>(Liquid.MaxLiquidTicksPerFrameAndChunk);
         }
 
         /// <summary>
@@ -63,6 +68,8 @@ namespace VoxelGame.Logic
         /// </summary>
         public void Setup()
         {
+            liquidTickManager.Load();
+
             for (int y = 0; y < ChunkHeight; y++)
             {
                 sections[y].Setup();
@@ -119,6 +126,8 @@ namespace VoxelGame.Logic
         /// <param name="path">The path of the directory where this chunk should be saved.</param>
         public void Save(string path)
         {
+            liquidTickManager.Unload();
+
             string chunkFile = path + $@"\x{X}z{Z}.chunk";
 
             logger.LogDebug("Saving the chunk ({x}|{z}) to: {path}", X, Z, chunkFile);
@@ -126,6 +135,8 @@ namespace VoxelGame.Logic
             using Stream stream = new FileStream(chunkFile, FileMode.Create, FileAccess.Write, FileShare.Read);
             IFormatter formatter = new BinaryFormatter();
             formatter.Serialize(stream, this);
+
+            liquidTickManager.Load();
         }
 
         /// <summary>
@@ -285,8 +296,15 @@ namespace VoxelGame.Logic
             }
         }
 
+        internal void ScheduleLiquidTick(Liquid.LiquidTick tick, int tickOffset)
+        {
+            liquidTickManager.Add(tick, tickOffset);
+        }
+
         public void Tick()
         {
+            liquidTickManager.Process();
+
             for (int y = 0; y < ChunkHeight; y++)
             {
                 sections[y].Tick(X, y, Z);

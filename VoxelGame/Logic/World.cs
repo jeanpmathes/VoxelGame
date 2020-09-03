@@ -571,15 +571,15 @@ namespace VoxelGame.Logic
         {
             if (chunkSavingTasks.Count > 0)
             {
-                for (int i2 = chunkSavingTasks.Count - 1; i2 >= 0; i2--)
+                for (int i = chunkSavingTasks.Count - 1; i >= 0; i--)
                 {
-                    if (chunkSavingTasks[i2].IsCompleted)
+                    if (chunkSavingTasks[i].IsCompleted)
                     {
-                        Task completed2 = chunkSavingTasks[i2];
-                        Chunk completedChunk = chunksSaving[completed2.Id];
+                        Task completed = chunkSavingTasks[i];
+                        Chunk completedChunk = chunksSaving[completed.Id];
 
-                        chunkSavingTasks.RemoveAt(i2);
-                        chunksSaving.Remove(completed2.Id);
+                        chunkSavingTasks.RemoveAt(i);
+                        chunksSaving.Remove(completed.Id);
                         positionsSaving.Remove((completedChunk.X, completedChunk.Z));
 
                         // Check if the chunk should be activated and is not active and not requested to be released on activation; if true, the chunk will not be disposed
@@ -599,31 +599,31 @@ namespace VoxelGame.Logic
                             chunksToMesh.Enqueue(completedChunk);
 
                             // Schedule to mesh the chunks around this chunk
-                            if (activeChunks.TryGetValue((completedChunk.X + 1, completedChunk.Z), out Chunk? neighbor2))
+                            if (activeChunks.TryGetValue((completedChunk.X + 1, completedChunk.Z), out Chunk? neighbor))
                             {
-                                chunksToMesh.Enqueue(neighbor2);
+                                chunksToMesh.Enqueue(neighbor);
                             }
 
-                            if (activeChunks.TryGetValue((completedChunk.X - 1, completedChunk.Z), out neighbor2))
+                            if (activeChunks.TryGetValue((completedChunk.X - 1, completedChunk.Z), out neighbor))
                             {
-                                chunksToMesh.Enqueue(neighbor2);
+                                chunksToMesh.Enqueue(neighbor);
                             }
 
-                            if (activeChunks.TryGetValue((completedChunk.X, completedChunk.Z + 1), out neighbor2))
+                            if (activeChunks.TryGetValue((completedChunk.X, completedChunk.Z + 1), out neighbor))
                             {
-                                chunksToMesh.Enqueue(neighbor2);
+                                chunksToMesh.Enqueue(neighbor);
                             }
 
-                            if (activeChunks.TryGetValue((completedChunk.X, completedChunk.Z - 1), out neighbor2))
+                            if (activeChunks.TryGetValue((completedChunk.X, completedChunk.Z - 1), out neighbor))
                             {
-                                chunksToMesh.Enqueue(neighbor2);
+                                chunksToMesh.Enqueue(neighbor);
                             }
                         }
                         else
                         {
-                            if (completed2.IsFaulted)
+                            if (completed.IsFaulted)
                             {
-                                logger.LogError(LoggingEvents.ChunkSavingError, completed2.Exception!.GetBaseException(), "An exception occurred when saving chunk ({x}|{z}). " +
+                                logger.LogError(LoggingEvents.ChunkSavingError, completed.Exception!.GetBaseException(), "An exception occurred when saving chunk ({x}|{z}). " +
                                     "The chunk will be disposed without saving.", completedChunk.X, completedChunk.Z);
                             }
 
@@ -769,6 +769,7 @@ namespace VoxelGame.Logic
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Liquid? GetLiquid(int x, int y, int z, out LiquidLevel level, out bool isStatic)
         {
             return GetPosition(x, y, z, out _, out level, out isStatic).liquid;
@@ -868,6 +869,19 @@ namespace VoxelGame.Logic
         public Chunk? GetChunk(int x, int z)
         {
             activeChunks.TryGetValue((x, z), out Chunk? chunk);
+            return chunk;
+        }
+
+        /// <summary>
+        /// Gets the chunk that contains the specified position. If the chunk is not active, null is returned.
+        /// </summary>
+        /// <param name="x">The x position.</param>
+        /// <param name="z">The y position.</param>
+        /// <returns>The chunk if it exists, null if not.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Chunk? GetChunkOfPosition(int x, int z)
+        {
+            activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk? chunk);
             return chunk;
         }
 
