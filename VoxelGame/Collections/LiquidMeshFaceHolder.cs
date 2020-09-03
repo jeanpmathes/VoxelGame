@@ -41,13 +41,16 @@ namespace VoxelGame.Collections
             }
         }
 
-        public void AddFace(int layer, int row, int position, int vertData, (int vertA, int vertB, int vertC, int vertD) vertices, bool isSingleSided)
+        public void AddFace(int layer, int row, int position, int vertData, (int vertA, int vertB, int vertC, int vertD) vertices, bool isSingleSided, bool isFull)
         {
             // Build current face.
             MeshFace currentFace = MeshFace.Get(vertices.vertA, vertices.vertB, vertices.vertC, vertices.vertD, vertData, position, isSingleSided);
 
+            // Front and Back faces cannot be extended (along the y axis) when the liquid is not all full level.
+            bool levelPermitsExtending = !((side == BlockSide.Front || side == BlockSide.Back) && !isFull);
+
             // Check if an already existing face can be extended.
-            if (lastFaces[layer][row]?.IsExtendable(currentFace) ?? false)
+            if (levelPermitsExtending && (lastFaces[layer][row]?.IsExtendable(currentFace) ?? false))
             {
                 currentFace.Return();
                 currentFace = lastFaces[layer][row]!;
@@ -94,6 +97,9 @@ namespace VoxelGame.Collections
 
             MeshFace? combinationRowFace = lastFaces[layer][row - 1];
             MeshFace? lastCombinationRowFace = null;
+
+            // Left and right faces cannot be combined (along the y axis) when the liquid is not all full level.
+            if ((side == BlockSide.Left || side == BlockSide.Right) && !isFull) return;
 
             // Check if the current face can be combined with a face in the previous row.
             while (combinationRowFace != null)

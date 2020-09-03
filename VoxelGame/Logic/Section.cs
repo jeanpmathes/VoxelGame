@@ -109,6 +109,7 @@ namespace VoxelGame.Logic
                         Liquid currentLiquid = Liquid.TranslateID((val & Section.LIQUIDMASK) >> Section.LIQUIDSHIFT);
                         LiquidLevel level = (LiquidLevel)((val & Section.LEVELMASK) >> Section.LEVELSHIFT);
                         bool isStatic = (val & Section.STATICMASK) != 0;
+                        bool isFull = level == LiquidLevel.Eight;
 
                         if (currentBlock.TargetBuffer == TargetBuffer.Simple)
                         {
@@ -371,7 +372,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? liquidTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Front << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((textureIndex - 1) >> 3) + 1) & 0b0111_1111);
 
-                                liquidFrontFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided);
+                                liquidFrontFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
                             }
 
                             // Back.
@@ -408,7 +409,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? liquidTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Back << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((textureIndex - 1) >> 3) + 1) & 0b0111_1111);
 
-                                liquidBackFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided);
+                                liquidBackFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
                             }
 
                             // Left.
@@ -445,7 +446,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? liquidTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Left << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((textureIndex - 1) >> 3) + 1) & 0b0111_1111);
 
-                                liquidLeftFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided);
+                                liquidLeftFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
                             }
 
                             // Right.
@@ -482,7 +483,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? liquidTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Right << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((textureIndex - 1) >> 3) + 1) & 0b0111_1111);
 
-                                liquidRightFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided);
+                                liquidRightFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
                             }
 
                             // Bottom.
@@ -519,7 +520,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? liquidTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Bottom << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((textureIndex - 1) >> 3) + 1) & 0b0111_1111);
 
-                                liquidBottomFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided);
+                                liquidBottomFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
                             }
 
                             // Top.
@@ -556,7 +557,7 @@ namespace VoxelGame.Logic
                                 // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
                                 int lowerData = (((tint.IsNeutral) ? liquidTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Top << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((textureIndex - 1) >> 3) + 1) & 0b0111_1111);
 
-                                liquidTopFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided);
+                                liquidTopFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
                             }
                         }
                     }
