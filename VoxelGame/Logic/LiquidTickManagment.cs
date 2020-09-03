@@ -12,10 +12,10 @@ namespace VoxelGame.Logic
     {
         public const int MaxLiquidTicksPerFrameAndChunk = 1024;
 
-        protected void ScheduleTick(int x, int y, int z, int tickOffset)
+        protected void ScheduleTick(int x, int y, int z)
         {
             Chunk? chunk = Game.World.GetChunkOfPosition(x, z);
-            chunk?.ScheduleLiquidTick(new LiquidTick(x, y, z, this), tickOffset);
+            chunk?.ScheduleLiquidTick(new LiquidTick(x, y, z, this), Viscosity);
         }
 
         [Serializable]
