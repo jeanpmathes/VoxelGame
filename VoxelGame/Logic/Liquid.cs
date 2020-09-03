@@ -10,8 +10,6 @@ namespace VoxelGame.Logic
 {
     public abstract partial class Liquid
     {
-        public const int maxLevel = 8;
-
         /// <summary>
         /// Gets the liquid id which can be any value from 0 to 31.
         /// </summary>
@@ -93,6 +91,7 @@ namespace VoxelGame.Logic
                 remaining = remaining > 7 ? 7 : remaining;
 
                 Game.World.SetLiquid(this, (LiquidLevel)remaining, false, x, y, z);
+                ScheduleTick(x, y, z, 1);
 
                 remaining = (int)level - remaining - (int)current;
                 return true;
@@ -100,6 +99,7 @@ namespace VoxelGame.Logic
             else if (target == Liquid.None)
             {
                 Game.World.SetLiquid(this, level, false, x, y, z);
+                ScheduleTick(x, y, z, 1);
 
                 remaining = 0;
                 return true;
@@ -135,7 +135,7 @@ namespace VoxelGame.Logic
             }
         }
 
-        internal abstract void LiquidUpdate(int x, int y, int z, LiquidLevel level, bool isStatic);
+        protected abstract void ScheduledTick(int x, int y, int z, LiquidLevel level, bool isStatic);
 
         public sealed override string ToString()
         {

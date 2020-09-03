@@ -631,8 +631,6 @@ namespace VoxelGame.Logic
                 int x = index;
 
                 Block.TranslateID(val & BLOCKMASK)?.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), (val & DATAMASK) >> DATASHIFT);
-
-                Liquid.TranslateID((val & LIQUIDMASK) >> LIQUIDSHIFT)?.LiquidUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), (LiquidLevel)((val & LEVELMASK) >> LEVELSHIFT), ((val & STATICMASK) >> STATICSHIFT) != 0);
             }
         }
 

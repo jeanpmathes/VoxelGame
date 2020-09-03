@@ -769,6 +769,7 @@ namespace VoxelGame.Logic
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Liquid? GetLiquid(int x, int y, int z, out LiquidLevel level, out bool isStatic)
         {
             return GetPosition(x, y, z, out _, out level, out isStatic).liquid;
@@ -868,6 +869,19 @@ namespace VoxelGame.Logic
         public Chunk? GetChunk(int x, int z)
         {
             activeChunks.TryGetValue((x, z), out Chunk? chunk);
+            return chunk;
+        }
+
+        /// <summary>
+        /// Gets the chunk that contains the specified position. If the chunk is not active, null is returned.
+        /// </summary>
+        /// <param name="x">The x position.</param>
+        /// <param name="z">The y position.</param>
+        /// <returns>The chunk if it exists, null if not.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Chunk? GetChunkOfPosition(int x, int z)
+        {
+            activeChunks.TryGetValue((x >> sectionSizeExp, z >> sectionSizeExp), out Chunk? chunk);
             return chunk;
         }
 
