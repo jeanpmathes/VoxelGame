@@ -41,7 +41,7 @@ namespace VoxelGame.Logic
 
                 if (liquid?.Id == target)
                 {
-                    liquid.ScheduledTick(x, y, z, level, isStatic);
+                    liquid.ScheduledUpdate(x, y, z, level, isStatic);
                 }
             }
         }

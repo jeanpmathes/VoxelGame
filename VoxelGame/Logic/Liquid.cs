@@ -142,7 +142,7 @@ namespace VoxelGame.Logic
             }
         }
 
-        protected abstract void ScheduledTick(int x, int y, int z, LiquidLevel level, bool isStatic);
+        protected abstract void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic);
 
         public sealed override string ToString()
         {

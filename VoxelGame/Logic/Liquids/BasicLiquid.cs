@@ -44,7 +44,7 @@ namespace VoxelGame.Logic.Liquids
             tint = neutralTint ? TintColor.Neutral : TintColor.None;
         }
 
-        protected override void ScheduledTick(int x, int y, int z, LiquidLevel level, bool isStatic)
+        protected override void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
         {
             if (FlowHorizontal(x, y, z, level)) return;
 
