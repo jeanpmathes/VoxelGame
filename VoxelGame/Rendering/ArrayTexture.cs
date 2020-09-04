@@ -40,7 +40,18 @@ namespace VoxelGame.Rendering
 
             GL.GenTextures(arrayCount, handles);
 
-            string[] texturePaths = Directory.GetFiles(path, "*.png");
+            string[] texturePaths;
+
+            try
+            {
+                texturePaths = Directory.GetFiles(path, "*.png");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                texturePaths = Array.Empty<string>();
+                logger.LogWarning("A texture directory has not been found: {path}", path);
+            }
+
             List<Bitmap> textures = new List<Bitmap>();
             textureIndicies = new Dictionary<string, int>();
 
@@ -54,7 +65,13 @@ namespace VoxelGame.Rendering
             // Check if the arrays could hold all textures
             if (textures.Count > 2048 * handles.Length)
             {
-                throw new ArgumentException($"More than 4096 ({textures.Count}) textures were found; only 4096 textures can be stored in one {nameof(ArrayTexture)}!");
+                logger.LogCritical(
+                    "The number of textures found ({count}) is higher than the number of textures ({max}) that are allowed for an ArrayTexture using {units} units.",
+                    textures.Count,
+                    2048 * handles.Length,
+                    textureUnits.Length);
+
+                throw new ArgumentException("Too many textures in directory for this ArrayTexture!");
             }
 
             Count = textures.Count;
@@ -81,6 +98,8 @@ namespace VoxelGame.Rendering
 
         private void LoadBitmaps(int resolution, string[] paths, ref List<Bitmap> bitmaps)
         {
+            if (paths.Length == 0) return;
+
             int texIndex = 1;
 
             for (int i = 0; i < paths.Length; i++)
