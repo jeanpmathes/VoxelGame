@@ -128,7 +128,7 @@ namespace VoxelGame.Logic
         {
             liquidTickManager.Unload();
 
-            string chunkFile = path + $@"\x{X}z{Z}.chunk";
+            string chunkFile = path + $"/x{X}z{Z}.chunk";
 
             logger.LogDebug("Saving the chunk ({x}|{z}) to: {path}", X, Z, chunkFile);
 
