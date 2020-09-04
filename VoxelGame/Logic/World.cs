@@ -158,7 +158,7 @@ namespace VoxelGame.Logic
                     Version = Program.Version
                 },
                 worldDirectory: path,
-                chunkDirectory: path + @"\Chunks",
+                chunkDirectory: path + "/Chunks",
                 new ComplexGenerator(seed))
         {
             Information.Save(Path.Combine(worldDirectory, "meta.json"));
@@ -173,7 +173,7 @@ namespace VoxelGame.Logic
             this(
                 information,
                 worldDirectory: path,
-                chunkDirectory: path + @"\Chunks",
+                chunkDirectory: path + "/Chunks",
                 new ComplexGenerator(information.Seed))
         {
             logger.LogInformation("Loaded an existing world.");
