@@ -42,12 +42,12 @@ namespace VoxelGame.Rendering
 
         private readonly int samples;
 
-        private readonly int multisampledTexture;
-        private readonly int multisampledFrameBufferObject;
-        private readonly int multisampledRenderBufferObject;
+        private readonly int msTex;
+        private readonly int msFBO;
+        private readonly int msRBO;
 
-        private readonly int screenshotFrameBufferObject;
-        private readonly int screenshotRenderBufferObject;
+        private readonly int screenshotFBO;
+        private readonly int screenshotRBO;
 
         public Screen()
         {
@@ -61,56 +61,53 @@ namespace VoxelGame.Rendering
             samples = Config.GetInt("sampleCount", min: 1, max: maxSamples);
             logger.LogDebug("Set sample count to {samples}, of maximum {max} possible samples.", samples, maxSamples);
 
-            GL.ClearColor(0.5f, 0.8f, 0.9f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
             GL.Enable(EnableCap.Multisample);
 
-            multisampledTexture = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2DMultisample, multisampledTexture);
-            GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, samples, PixelInternalFormat.Rgba8, Game.Instance.Size.X, Size.Y, true);
+            msTex = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2DMultisample, msTex);
+            GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, samples, PixelInternalFormat.Rgba8, Size.X, Size.Y, true);
             GL.BindTexture(TextureTarget.Texture2DMultisample, 0);
 
-            multisampledFrameBufferObject = GL.GenFramebuffer();
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, multisampledFrameBufferObject);
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2DMultisample, multisampledTexture, 0);
+            GL.CreateFramebuffers(1, out msFBO);
+            GL.NamedFramebufferTexture(msFBO, FramebufferAttachment.ColorAttachment0, msTex, 0);
 
-            FramebufferErrorCode multisampledFboStatus = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            FramebufferStatus multisampledFboStatus = GL.CheckNamedFramebufferStatus(msFBO, FramebufferTarget.Framebuffer);
 
-            while (multisampledFboStatus != FramebufferErrorCode.FramebufferComplete)
+            while (multisampledFboStatus != FramebufferStatus.FramebufferComplete)
             {
                 logger.LogWarning("Multi-sampled FBO not complete [{status}], waiting...", multisampledFboStatus);
                 Thread.Sleep(100);
 
-                multisampledFboStatus = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+                multisampledFboStatus = GL.CheckNamedFramebufferStatus(msFBO, FramebufferTarget.Framebuffer);
             }
 
-            multisampledRenderBufferObject = GL.GenRenderbuffer();
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, multisampledRenderBufferObject);
-            GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
-            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, multisampledRenderBufferObject);
+            GL.CreateRenderbuffers(1, out msRBO);
+            GL.NamedRenderbufferStorageMultisample(msRBO, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
+            GL.NamedFramebufferRenderbuffer(msFBO, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, msRBO);
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, msFBO);
+            GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
 
             #endregion MULTISAMPLED FBO
 
             #region SCREENSHOT FBO
 
-            screenshotFrameBufferObject = GL.GenFramebuffer();
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, screenshotFrameBufferObject);
+            GL.CreateFramebuffers(1, out screenshotFBO);
 
-            screenshotRenderBufferObject = GL.GenRenderbuffer();
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, screenshotRenderBufferObject);
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Rgba8, Size.X, Size.Y);
-            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, RenderbufferTarget.Renderbuffer, screenshotRenderBufferObject);
+            GL.CreateRenderbuffers(1, out screenshotRBO);
+            GL.NamedRenderbufferStorage(screenshotRBO, RenderbufferStorage.Rgba8, Size.X, Size.Y);
+            GL.NamedFramebufferRenderbuffer(screenshotFBO, FramebufferAttachment.ColorAttachment0, RenderbufferTarget.Renderbuffer, screenshotRBO);
 
-            FramebufferErrorCode screenshotFboStatus = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            FramebufferStatus screenshotFboStatus = GL.CheckNamedFramebufferStatus(screenshotFBO, FramebufferTarget.Framebuffer);
 
-            while (screenshotFboStatus != FramebufferErrorCode.FramebufferComplete)
+            while (screenshotFboStatus != FramebufferStatus.FramebufferComplete)
             {
                 logger.LogWarning("Screenshot FBO not complete [{status}], waiting...", screenshotFboStatus);
                 Thread.Sleep(100);
 
-                screenshotFboStatus = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+                screenshotFboStatus = GL.CheckNamedFramebufferStatus(screenshotFBO, FramebufferTarget.Framebuffer);
             }
 
             #endregion SCREENSHOT FBO
@@ -118,16 +115,13 @@ namespace VoxelGame.Rendering
 
         public void Clear()
         {
-            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, multisampledFrameBufferObject);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Color, 0, new float[] { 0.5f, 0.8f, 0.9f, 1.0f });
+            GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, 0, new float[] { 1f });
         }
 
         public void Draw()
         {
-            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
-            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, multisampledFrameBufferObject);
-            GL.DrawBuffer(DrawBufferMode.Back);
-            GL.BlitFramebuffer(0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
+            GL.BlitNamedFramebuffer(msFBO, 0, 0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
         }
 
         private void OnResize(ResizeEventArgs e)
@@ -136,21 +130,17 @@ namespace VoxelGame.Rendering
 
             #region MULTISAMPLED FBO
 
-            GL.BindTexture(TextureTarget.Texture2DMultisample, multisampledTexture);
+            GL.BindTexture(TextureTarget.Texture2DMultisample, msTex);
             GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, samples, PixelInternalFormat.Rgba8, Size.X, Size.Y, true);
             GL.BindTexture(TextureTarget.Texture2DMultisample, 0);
 
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, multisampledRenderBufferObject);
-            GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
+            GL.NamedRenderbufferStorageMultisample(msRBO, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
 
             #endregion MULTISAMPLED FBO
 
             #region SCREENSHOT FBO
 
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, screenshotRenderBufferObject);
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Rgba8, Size.X, Size.Y);
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
+            GL.NamedRenderbufferStorage(screenshotRBO, RenderbufferStorage.Rgba8, Size.X, Size.Y);
 
             #endregion SCREENSHOT FBO
 
@@ -198,12 +188,12 @@ namespace VoxelGame.Rendering
         {
             IntPtr data = Marshal.AllocHGlobal(Size.X * Size.Y * 4);
 
-            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, Instance.multisampledFrameBufferObject);
-            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, Instance.screenshotFrameBufferObject);
-            GL.BlitFramebuffer(0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+            GL.BlitNamedFramebuffer(Instance.msFBO, Instance.screenshotFBO, 0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
 
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, Instance.screenshotFrameBufferObject);
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, Instance.screenshotFBO);
             GL.ReadPixels(0, 0, Size.X, Size.Y, PixelFormat.Bgra, PixelType.UnsignedByte, data);
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, Instance.msFBO);
 
             using Bitmap screenshot = new Bitmap(Size.X, Size.Y, 4 * Size.X, System.Drawing.Imaging.PixelFormat.Format32bppArgb, data);
             screenshot.RotateFlip(RotateFlipType.RotateNoneFlipY);

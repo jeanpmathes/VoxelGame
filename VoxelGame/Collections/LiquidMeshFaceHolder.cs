@@ -60,23 +60,23 @@ namespace VoxelGame.Collections
                     case BlockSide.Front:
                     case BlockSide.Back:
                     case BlockSide.Bottom:
-                        currentFace.vert_0_1 = vertices.vertB;
-                        currentFace.vert_1_1 = vertices.vertC;
+                        currentFace.vertB = vertices.vertB;
+                        currentFace.vertC = vertices.vertC;
                         break;
 
                     case BlockSide.Left:
-                        currentFace.vert_1_1 = vertices.vertC;
-                        currentFace.vert_1_0 = vertices.vertD;
+                        currentFace.vertC = vertices.vertC;
+                        currentFace.vertD = vertices.vertD;
                         break;
 
                     case BlockSide.Right:
-                        currentFace.vert_0_0 = vertices.vertA;
-                        currentFace.vert_0_1 = vertices.vertB;
+                        currentFace.vertA = vertices.vertA;
+                        currentFace.vertB = vertices.vertB;
                         break;
 
                     case BlockSide.Top:
-                        currentFace.vert_0_0 = vertices.vertA;
-                        currentFace.vert_1_0 = vertices.vertD;
+                        currentFace.vertA = vertices.vertA;
+                        currentFace.vertD = vertices.vertD;
                         break;
                 }
 
@@ -111,19 +111,19 @@ namespace VoxelGame.Collections
                         case BlockSide.Front:
                         case BlockSide.Bottom:
                         case BlockSide.Top:
-                            currentFace.vert_0_0 = combinationRowFace.vert_0_0;
-                            currentFace.vert_0_1 = combinationRowFace.vert_0_1;
+                            currentFace.vertA = combinationRowFace.vertA;
+                            currentFace.vertB = combinationRowFace.vertB;
                             break;
 
                         case BlockSide.Back:
-                            currentFace.vert_1_1 = combinationRowFace.vert_1_1;
-                            currentFace.vert_1_0 = combinationRowFace.vert_1_0;
+                            currentFace.vertC = combinationRowFace.vertC;
+                            currentFace.vertD = combinationRowFace.vertD;
                             break;
 
                         case BlockSide.Left:
                         case BlockSide.Right:
-                            currentFace.vert_0_0 = combinationRowFace.vert_0_0;
-                            currentFace.vert_1_0 = combinationRowFace.vert_1_0;
+                            currentFace.vertA = combinationRowFace.vertA;
+                            currentFace.vertD = combinationRowFace.vertD;
                             break;
                     }
 
@@ -177,16 +177,16 @@ namespace VoxelGame.Collections
                     {
                         int vertexTexRepetition = BuildVertexTextureRepetition(currentFace.height, currentFace.length);
 
-                        meshData.Add(vertexTexRepetition | currentFace.vert_0_0);
+                        meshData.Add(vertexTexRepetition | currentFace.vertA);
                         meshData.Add(currentFace.vertData);
 
-                        meshData.Add(vertexTexRepetition | currentFace.vert_0_1);
+                        meshData.Add(vertexTexRepetition | currentFace.vertB);
                         meshData.Add(currentFace.vertData);
 
-                        meshData.Add(vertexTexRepetition | currentFace.vert_1_1);
+                        meshData.Add(vertexTexRepetition | currentFace.vertC);
                         meshData.Add(currentFace.vertData);
 
-                        meshData.Add(vertexTexRepetition | currentFace.vert_1_0);
+                        meshData.Add(vertexTexRepetition | currentFace.vertD);
                         meshData.Add(currentFace.vertData);
 
                         int newIndices = currentFace.isSingleSided ? 6 : 12;
@@ -226,10 +226,10 @@ namespace VoxelGame.Collections
         {
             public MeshFace? previousFace;
 
-            public int vert_0_0;
-            public int vert_0_1;
-            public int vert_1_1;
-            public int vert_1_0;
+            public int vertA;
+            public int vertB;
+            public int vertC;
+            public int vertD;
 
             public int vertData;
 
@@ -267,10 +267,10 @@ namespace VoxelGame.Collections
 
                 instance.previousFace = null;
 
-                instance.vert_0_0 = vert_0_0;
-                instance.vert_0_1 = vert_0_1;
-                instance.vert_1_1 = vert_1_1;
-                instance.vert_1_0 = vert_1_0;
+                instance.vertA = vert_0_0;
+                instance.vertB = vert_0_1;
+                instance.vertC = vert_1_1;
+                instance.vertD = vert_1_0;
 
                 instance.vertData = vertData;
 

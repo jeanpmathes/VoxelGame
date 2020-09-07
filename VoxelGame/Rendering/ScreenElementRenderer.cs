@@ -6,6 +6,7 @@
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
+using System;
 
 namespace VoxelGame.Rendering
 {
@@ -13,18 +14,16 @@ namespace VoxelGame.Rendering
     {
         private static readonly ILogger logger = Program.CreateLogger<ScreenElementRenderer>();
 
-        private readonly int vertexBufferObject;
-        private readonly int elementBufferObject;
-        private readonly int vertexArrayObject;
+        private readonly int vbo;
+        private readonly int ebo;
+        private readonly int vao;
 
         private int texUnit;
         private Vector3 color;
 
         public ScreenElementRenderer()
         {
-            vertexBufferObject = GL.GenBuffer();
-            elementBufferObject = GL.GenBuffer();
-            vertexArrayObject = GL.GenVertexArray();
+            vao = GL.GenVertexArray();
 
             float[] vertices = new float[]
             {
@@ -41,29 +40,32 @@ namespace VoxelGame.Rendering
             };
 
             // Vertex Buffer Object
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
+            GL.CreateBuffers(1, out vbo);
+            GL.NamedBufferStorage(vbo, vertices.Length * sizeof(float), vertices, BufferStorageFlags.DynamicStorageBit);
 
             // Element Buffer Object
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
+            GL.CreateBuffers(1, out ebo);
+            GL.NamedBufferStorage(ebo, indices.Length * sizeof(uint), indices, BufferStorageFlags.DynamicStorageBit);
 
             Game.ScreenElementShader.Use();
 
             // Vertex Array Object
-            GL.BindVertexArray(vertexArrayObject);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
+            GL.CreateVertexArrays(1, out vao);
+
+            GL.VertexArrayVertexBuffer(vao, 0, vbo, IntPtr.Zero, 5 * sizeof(float));
+            GL.VertexArrayElementBuffer(vao, ebo);
 
             int vertexLocation = Game.ScreenElementShader.GetAttribLocation("aPosition");
-            GL.EnableVertexAttribArray(vertexLocation);
-            GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
             int texCordLocation = Game.ScreenElementShader.GetAttribLocation("aTexCoord");
-            GL.EnableVertexAttribArray(texCordLocation);
-            GL.VertexAttribPointer(texCordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
 
-            GL.BindVertexArray(0);
+            GL.EnableVertexArrayAttrib(vao, vertexLocation);
+            GL.EnableVertexArrayAttrib(vao, texCordLocation);
+
+            GL.VertexArrayAttribFormat(vao, vertexLocation, 3, VertexAttribType.Float, false, 0 * sizeof(float));
+            GL.VertexArrayAttribFormat(vao, texCordLocation, 2, VertexAttribType.Float, false, 3 * sizeof(float));
+
+            GL.VertexArrayAttribBinding(vao, vertexLocation, 0);
+            GL.VertexArrayAttribBinding(vao, texCordLocation, 0);
         }
 
         public void SetTexture(Texture texture)
@@ -99,7 +101,7 @@ namespace VoxelGame.Rendering
 
             Matrix4 model = Matrix4.Identity * Matrix4.CreateScale(scale) * Matrix4.CreateTranslation(translate);
 
-            GL.BindVertexArray(vertexArrayObject);
+            GL.BindVertexArray(vao);
 
             Game.ScreenElementShader.Use();
 
@@ -124,9 +126,9 @@ namespace VoxelGame.Rendering
 
             if (disposing)
             {
-                GL.DeleteBuffer(vertexBufferObject);
-                GL.DeleteBuffer(elementBufferObject);
-                GL.DeleteVertexArray(vertexArrayObject);
+                GL.DeleteBuffer(vbo);
+                GL.DeleteBuffer(ebo);
+                GL.DeleteVertexArray(vao);
             }
             else
             {

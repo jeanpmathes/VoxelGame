@@ -21,7 +21,8 @@ namespace VoxelGame.Rendering
 
         public Texture(string path, int fallbackResolution = 16)
         {
-            Handle = GL.GenTexture();
+            GL.CreateTextures(TextureTarget.Texture2D, 1, out int handle);
+            Handle = handle;
 
             Use();
 
@@ -40,19 +41,17 @@ namespace VoxelGame.Rendering
                 logger.LogWarning(LoggingEvents.MissingRessource, exception, "The texture could not be loaded and a fallback was used instead because the file was not found: {path}", path);
             }
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            GL.TextureParameter(Handle, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TextureParameter(Handle, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            GL.TextureParameter(Handle, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TextureParameter(Handle, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
 
-            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+            GL.GenerateTextureMipmap(Handle);
         }
 
         private void SetupTexture(Bitmap bitmap)
         {
-            Use();
-
             bitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
 
             BitmapData data = bitmap.LockBits(
@@ -60,22 +59,13 @@ namespace VoxelGame.Rendering
                 ImageLockMode.ReadOnly,
                 System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-            GL.TexImage2D(TextureTarget.Texture2D,
-                0,
-                PixelInternalFormat.Rgba,
-                bitmap.Width,
-                bitmap.Height,
-                0,
-                PixelFormat.Bgra,
-                PixelType.UnsignedByte,
-                data.Scan0);
+            GL.TextureStorage2D(Handle, 1, SizedInternalFormat.Rgba8, bitmap.Width, bitmap.Height);
+            GL.TextureSubImage2D(Handle, 0, 0, 0, bitmap.Width, bitmap.Height, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
         }
 
         public void Use(TextureUnit unit = TextureUnit.Texture0)
         {
-            GL.ActiveTexture(unit);
-            GL.BindTexture(TextureTarget.Texture2D, Handle);
-
+            GL.BindTextureUnit(unit - TextureUnit.Texture0, Handle);
             TextureUnit = unit;
         }
 
