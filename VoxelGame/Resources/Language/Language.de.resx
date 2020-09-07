@@ -234,6 +234,9 @@
   <data name="MelonPlant" xml:space="preserve">
     <value>Melonenpflanze</value>
   </data>
+  <data name="Milk" xml:space="preserve">
+    <value>Milch</value>
+  </data>
   <data name="NewWorldPrompt" xml:space="preserve">
     <value>Möchten sie eine neue Welt erstellen?</value>
   </data>
