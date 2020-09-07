@@ -18,9 +18,9 @@ namespace VoxelGame.Rendering
     {
         private static readonly ILogger logger = Program.CreateLogger<BoxRenderer>();
 
-        private readonly int vertexBufferObject;
-        private readonly int elementBufferObject;
-        private readonly int vertexArrayObject;
+        private readonly int vbo;
+        private readonly int ebo;
+        private readonly int vao;
 
         private BoundingBox currentBoundingBox;
 
@@ -28,9 +28,9 @@ namespace VoxelGame.Rendering
 
         public BoxRenderer()
         {
-            vertexBufferObject = GL.GenBuffer();
-            elementBufferObject = GL.GenBuffer();
-            vertexArrayObject = GL.GenVertexArray();
+            GL.CreateBuffers(1, out vbo);
+            GL.CreateBuffers(1, out ebo);
+            GL.CreateVertexArrays(1, out vao);
         }
 
         private int BuildMeshData_NonRecursive(BoundingBox boundingBox, out float[] vertices, out uint[] indices)
@@ -135,25 +135,22 @@ namespace VoxelGame.Rendering
             elements = BuildMeshData(boundingBox, out float[] vertices, out uint[] indices);
 
             // Vertex Buffer Object
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.DynamicDraw);
+            GL.NamedBufferData(vbo, vertices.Length * sizeof(float), vertices, BufferUsageHint.DynamicDraw);
 
             // Element Buffer Object
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.DynamicDraw);
+            GL.NamedBufferData(ebo, indices.Length * sizeof(uint), indices, BufferUsageHint.DynamicDraw);
 
             Game.SelectionShader.Use();
 
             // Vertex Array Object
-            GL.BindVertexArray(vertexArrayObject);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
+            GL.VertexArrayVertexBuffer(vao, 0, vbo, IntPtr.Zero, 3 * sizeof(float));
+            GL.VertexArrayElementBuffer(vbo, ebo);
 
             int vertexLocation = Game.SelectionShader.GetAttribLocation("aPosition");
-            GL.EnableVertexAttribArray(vertexLocation);
-            GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
 
-            GL.BindVertexArray(0);
+            GL.EnableVertexArrayAttrib(vao, vertexLocation);
+            GL.VertexArrayAttribFormat(vao, vertexLocation, 3, VertexAttribType.Float, false, 0 * sizeof(float));
+            GL.VertexArrayAttribBinding(vao, vertexLocation, 0);
         }
 
         public override void Draw(Vector3 position)
@@ -163,7 +160,7 @@ namespace VoxelGame.Rendering
                 return;
             }
 
-            GL.BindVertexArray(vertexArrayObject);
+            GL.BindVertexArray(vao);
 
             Game.SelectionShader.Use();
 
@@ -189,9 +186,9 @@ namespace VoxelGame.Rendering
 
             if (disposing)
             {
-                GL.DeleteBuffer(vertexBufferObject);
-                GL.DeleteBuffer(elementBufferObject);
-                GL.DeleteVertexArray(vertexArrayObject);
+                GL.DeleteBuffer(vbo);
+                GL.DeleteBuffer(ebo);
+                GL.DeleteVertexArray(vao);
             }
             else
             {
