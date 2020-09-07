@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using System;
-using System.Runtime.Intrinsics.X86;
 
 namespace VoxelGame.Rendering
 {
