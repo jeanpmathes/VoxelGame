@@ -108,6 +108,8 @@ namespace VoxelGame.Logic.Liquids
 
             if (horX != x || horZ != z)
             {
+                if (levelHorizontal == level - 1) return false;
+
                 Game.World.SetLiquid(this, levelHorizontal + 1, false, horX, y, horZ);
 
                 if (isHorStatic) ScheduleTick(horX, y, horZ);
