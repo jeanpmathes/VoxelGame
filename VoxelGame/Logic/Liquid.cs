@@ -84,7 +84,7 @@ namespace VoxelGame.Logic
         /// </summary>
         public bool Fill(int x, int y, int z, LiquidLevel level, out int remaining)
         {
-            (Block? block, Liquid? target) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel current, out _);
+            (Block? block, Liquid? target) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel current, out bool isStatic);
 
             if (block != Block.Air)
             {
@@ -92,13 +92,13 @@ namespace VoxelGame.Logic
                 return false;
             }
 
-            if (target == this)
+            if (target == this && current != LiquidLevel.Eight)
             {
                 remaining = (int)current + (int)level + 1;
                 remaining = remaining > 7 ? 7 : remaining;
 
                 Game.World.SetLiquid(this, (LiquidLevel)remaining, false, x, y, z);
-                ScheduleTick(x, y, z);
+                if (isStatic) ScheduleTick(x, y, z);
 
                 remaining = (int)level - remaining - (int)current;
                 return true;
@@ -106,7 +106,7 @@ namespace VoxelGame.Logic
             else if (target == Liquid.None)
             {
                 Game.World.SetLiquid(this, level, false, x, y, z);
-                ScheduleTick(x, y, z);
+                if (isStatic) ScheduleTick(x, y, z);
 
                 remaining = 0;
                 return true;
@@ -123,7 +123,7 @@ namespace VoxelGame.Logic
         /// </summary>
         public bool Take(int x, int y, int z, ref LiquidLevel level)
         {
-            if (Game.World.GetLiquid(x, y, z, out LiquidLevel available, out _) == this)
+            if (Game.World.GetLiquid(x, y, z, out LiquidLevel available, out bool isStatic) == this)
             {
                 if (level >= available)
                 {
@@ -132,7 +132,7 @@ namespace VoxelGame.Logic
                 else
                 {
                     Game.World.SetLiquid(this, (LiquidLevel)((int)available - (int)level - 1), false, x, y, z);
-                    ScheduleTick(x, y, z);
+                    if (isStatic) ScheduleTick(x, y, z);
                 }
 
                 return true;
