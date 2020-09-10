@@ -37,7 +37,9 @@ namespace VoxelGame.Core.Logic
             blocks = new uint[SectionSize * SectionSize * SectionSize];
 
 #pragma warning disable S1699 // Constructors should only call non-overridable methods
+#pragma warning disable CA2214 // Do not call overridable methods in constructors
             Setup();
+#pragma warning restore CA2214 // Do not call overridable methods in constructors
 #pragma warning restore S1699 // Constructors should only call non-overridable methods
         }
 

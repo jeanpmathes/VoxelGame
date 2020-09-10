@@ -279,3 +279,4 @@ __pycache__/
 /core/GlobalSuppressions.cs
 /client/client.licenseheader
 /client/GlobalSuppressions.cs
+*.licenseheader

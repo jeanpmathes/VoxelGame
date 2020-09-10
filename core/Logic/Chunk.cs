@@ -54,7 +54,9 @@ namespace VoxelGame.Core.Logic
             for (int y = 0; y < ChunkHeight; y++)
             {
 #pragma warning disable S1699 // Constructors should only call non-overridable methods
+#pragma warning disable CA2214 // Do not call overridable methods in constructors
                 sections[y] = CreateSection();
+#pragma warning restore CA2214 // Do not call overridable methods in constructors
 #pragma warning restore S1699 // Constructors should only call non-overridable methods
             }
 

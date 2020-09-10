@@ -66,6 +66,8 @@ namespace VoxelGame.Client.Entities
         /// </summary>
         public Frustum Frustum { get => camera.Frustum; }
 
+        public override Vector3 Movement { get => movement; }
+
         private readonly BoxRenderer selectionRenderer;
 
         private readonly Texture crosshair;
@@ -98,8 +100,12 @@ namespace VoxelGame.Client.Entities
             crosshairRenderer.Draw(crosshairPositionScale);
         }
 
+        private Vector3 movement;
+
         protected override void OnUpdate(float deltaTime)
         {
+            movement = Vector3.Zero;
+
             camera.Position = Position + cameraOffset;
 
             Ray ray = new Ray(camera.Position, camera.Front, 6f);

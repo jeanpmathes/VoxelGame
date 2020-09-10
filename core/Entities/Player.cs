@@ -35,10 +35,6 @@ namespace VoxelGame.Core.Entities
         /// </summary>
         public int ChunkZ { get; private set; }
 
-        protected Vector3 movement;
-
-        public override Vector3 Movement { get => movement; }
-
         private static readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
 
         protected Player(float mass, float drag, BoundingBox boundingBox) : base(mass, drag, boundingBox)
@@ -60,8 +56,6 @@ namespace VoxelGame.Core.Entities
 
         protected sealed override void Update(float deltaTime)
         {
-            this.movement = Vector3.Zero;
-
             OnUpdate(deltaTime);
 
             // Check if the current chunk has changed and request new chunks if needed / release unneeded chunks.

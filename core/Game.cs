@@ -67,6 +67,7 @@ namespace VoxelGame.Core
         /// </summary>
         public static long CurrentUpdate { get; private set; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Limit access.")]
         public void Update(float deltaTime)
         {
             CurrentUpdate++;

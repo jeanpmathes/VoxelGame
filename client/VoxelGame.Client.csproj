@@ -8,6 +8,7 @@
     <FileVersion>1.2.0.0</FileVersion>
     <Version>1.2.0</Version>
     <Platforms>AnyCPU;x64</Platforms>
+    <ApplicationIcon>vg_icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
