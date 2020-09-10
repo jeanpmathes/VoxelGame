@@ -3,13 +3,9 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenToolkit.Mathematics;
-using OpenToolkit.Windowing.Common.Input;
 using System;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Resources.Language;
-using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Entities
 {
