@@ -113,7 +113,7 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <StronglyTypedFileName>Resources\Language\Language.Designer.cs</StronglyTypedFileName>
       <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
-      <StronglyTypedNamespace>VoxelGame.Resources.Language</StronglyTypedNamespace>
+      <StronglyTypedNamespace>VoxelGame.Core.Resources.Language</StronglyTypedNamespace>
       <StronglyTypedClassName>Language</StronglyTypedClassName>
       <LastGenOutput>Language.Designer.cs</LastGenOutput>
     </EmbeddedResource>
@@ -128,8 +128,8 @@
   </ItemGroup>
   <Target Name="FixAL1703Warning" BeforeTargets="GenerateSatelliteAssemblies" Condition="'$(PlatformTarget)' == 'x64'">
     <Message Text="Adjusting SDK tools directory to use x64 version of AL.EXE" />
-      <PropertyGroup>
-        <TargetFrameworkSDKToolsDirectory>$(TargetFrameworkSDKToolsDirectory)\$(PlatformTarget)\</TargetFrameworkSDKToolsDirectory>
-      </PropertyGroup>
-    </Target>
+    <PropertyGroup>
+      <TargetFrameworkSDKToolsDirectory>$(TargetFrameworkSDKToolsDirectory)\$(PlatformTarget)\</TargetFrameworkSDKToolsDirectory>
+    </PropertyGroup>
+  </Target>
 </Project>
