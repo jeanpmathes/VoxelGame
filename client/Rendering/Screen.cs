@@ -22,7 +22,7 @@ namespace VoxelGame.Client.Rendering
     /// </summary>
     public class Screen
     {
-        private static readonly ILogger logger = Logging.CreateLogger<Screen>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
 
         #region PUBLIC STATIC PROPERTIES
 

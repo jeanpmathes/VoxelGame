@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Collections
     [Serializable]
     public class ScheduledTickManager<T> where T : ITickable
     {
-        private static readonly ILogger logger = Logging.CreateLogger<ScheduledTickManager<T>>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<ScheduledTickManager<T>>();
 
         private readonly int maxTicks;
         private TicksHolder? nextTicks;

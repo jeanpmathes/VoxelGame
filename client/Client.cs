@@ -28,7 +28,7 @@ namespace VoxelGame.Client
 {
     internal class Client : GameWindow
     {
-        private static readonly ILogger logger = Logging.CreateLogger<Client>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
         #region STATIC PROPERTIES
 

@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic
 {
     public abstract class World : IDisposable
     {
-        private static readonly ILogger logger = Logging.CreateLogger<World>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
         public const int ChunkExtents = 5;
 

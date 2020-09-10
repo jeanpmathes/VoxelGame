@@ -7,9 +7,10 @@ using System;
 using OpenToolkit.Mathematics;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core;
-using VoxelGame.Core.Collections;
+using VoxelGame.Client.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Collections;
 
 namespace VoxelGame.Client.Logic
 {

@@ -16,7 +16,7 @@ namespace VoxelGame.Client.Rendering
 {
     public class Texture : IDisposable
     {
-        private static readonly ILogger logger = Logging.CreateLogger<Texture>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Texture>();
 
         public int Handle { get; }
         public TextureUnit TextureUnit { get; private set; }

@@ -19,7 +19,7 @@ namespace VoxelGame.Client.Rendering
 {
     public class ArrayTexture : IDisposable, ITextureIndexProvider
     {
-        private static readonly ILogger logger = Logging.CreateLogger<ArrayTexture>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<ArrayTexture>();
 
         public int Count { get; }
 

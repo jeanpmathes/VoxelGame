@@ -14,7 +14,7 @@ namespace VoxelGame.Client.Rendering
 {
     public class ScreenElementRenderer : Renderer
     {
-        private static readonly ILogger logger = Logging.CreateLogger<ScreenElementRenderer>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<ScreenElementRenderer>();
 
         private readonly int vbo;
         private readonly int ebo;

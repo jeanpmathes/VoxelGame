@@ -40,7 +40,7 @@ namespace VoxelGame.Client
             logDebug = args.Length > 0 && args[0] == "-logDebug";
 #endif
 
-            ILogger logger = Logging.SetupLogging(nameof(Program), logDebug, appDataDirectory);
+            ILogger logger = LoggingHelper.SetupLogging(nameof(Program), logDebug, appDataDirectory);
 
 #if !DEBUG
             logger.LogInformation(logDebug ? "Debug will be logged." : "Debug will not be logged. Use '-logDebug' to log debug messages.");

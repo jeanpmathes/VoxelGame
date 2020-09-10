@@ -19,7 +19,7 @@ namespace VoxelGame.Client.Logic
 {
     public class ClientWorld : Core.Logic.World
     {
-        private static readonly ILogger logger = Logging.CreateLogger<ClientWorld>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<ClientWorld>();
 
         protected int MaxMeshingTasks { get; } = Config.GetInt("maxMeshingTasks", 5);
         protected int MaxMeshDataSends { get; } = Config.GetInt("maxMeshDataSends", 2);

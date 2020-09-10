@@ -10,7 +10,7 @@ using System.IO;
 
 namespace VoxelGame.Core.Utilities
 {
-    public static class Logging
+    public static class LoggingHelper
     {
         private static ILoggerFactory LoggerFactory { get; set; } = null!;
 

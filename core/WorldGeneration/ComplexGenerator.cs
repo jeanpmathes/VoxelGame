@@ -13,7 +13,7 @@ namespace VoxelGame.Core.WorldGeneration
 {
     public class ComplexGenerator : IWorldGenerator
     {
-        private static readonly ILogger logger = Logging.CreateLogger<ComplexGenerator>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<ComplexGenerator>();
 
         private readonly FastNoise noise;
         private readonly int halfHeight = Section.SectionSize * Chunk.ChunkHeight / 2;

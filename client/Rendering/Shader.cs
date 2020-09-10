@@ -16,7 +16,7 @@ namespace VoxelGame.Client.Rendering
 {
     public class Shader
     {
-        private static readonly ILogger logger = Logging.CreateLogger<Shader>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Shader>();
 
         private readonly Dictionary<string, int> uniformLocations;
 

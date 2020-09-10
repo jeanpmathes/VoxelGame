@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Visuals
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = "This class is meant for data storage.")]
     public class BlockModel
     {
-        private static readonly ILogger logger = Logging.CreateLogger<BlockModel>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
 
         private static readonly string path = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Models");
 

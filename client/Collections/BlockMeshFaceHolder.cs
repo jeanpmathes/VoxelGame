@@ -5,9 +5,10 @@
 // <author>pershingthesecond</author>
 using System.Buffers;
 using System.Collections.Concurrent;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 
-namespace VoxelGame.Core.Collections
+namespace VoxelGame.Client.Collections
 {
     /// <summary>
     /// A specialized class used to compact block faces when meshing.

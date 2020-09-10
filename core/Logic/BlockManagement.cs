@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic
 {
     public abstract partial class Block : IBlockBase
     {
-        private static readonly ILogger logger = Logging.CreateLogger<Block>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Block>();
 
         public const int BlockLimit = 1 << Section.DATASHIFT;
 

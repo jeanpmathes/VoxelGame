@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Logic
 {
     public abstract partial class Liquid
     {
-        private static readonly ILogger logger = Logging.CreateLogger<Liquid>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Liquid>();
 
         public const int LiquidLimit = 32;
 

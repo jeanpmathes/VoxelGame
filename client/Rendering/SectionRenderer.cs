@@ -17,7 +17,7 @@ namespace VoxelGame.Client.Rendering
     /// </summary>
     public class SectionRenderer : Renderer
     {
-        private static readonly ILogger logger = Logging.CreateLogger<SectionRenderer>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
 
         private readonly int simpleDataVBO;
         private readonly int simpleVAO;
