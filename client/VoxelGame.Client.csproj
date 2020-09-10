@@ -9,6 +9,7 @@
     <Version>1.2.0</Version>
     <Platforms>AnyCPU;x64</Platforms>
     <ApplicationIcon>vg_icon.ico</ApplicationIcon>
+    <CodeAnalysisRuleSet>..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -45,6 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml" />
     <Content Include="Resources\Shaders\section_shader.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
