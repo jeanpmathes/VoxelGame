@@ -332,7 +332,7 @@ namespace VoxelGame.Logic
                             complexVertCount += verts;
                         }
 
-                        if (currentLiquid.IsRendered)
+                        if (currentLiquid.IsRendered && !currentBlock.IsSolidAndFull)
                         {
                             Liquid? liquidToCheck;
                             Block? blockToCheck;
