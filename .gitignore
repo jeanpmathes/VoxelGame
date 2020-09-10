@@ -274,3 +274,8 @@ __pycache__/
 /VoxelGame/GlobalSuppressions.cs
 /.sonarlint
 /Publish-linux
+/core/Properties/PublishProfiles
+/core/VoxelGame.licenseheader
+/core/GlobalSuppressions.cs
+/client/client.licenseheader
+/client/GlobalSuppressions.cs
