@@ -106,7 +106,7 @@ namespace VoxelGame.Core.Logic
             else if (target == Liquid.None)
             {
                 Game.World.SetLiquid(this, level, false, x, y, z);
-                if (isStatic) ScheduleTick(x, y, z);
+                ScheduleTick(x, y, z);
 
                 remaining = 0;
                 return true;

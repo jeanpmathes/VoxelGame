@@ -61,8 +61,6 @@ namespace VoxelGame.Core.Logic.Liquids
 
             if (liquidVertical == Liquid.None)
             {
-                isStatic = true;
-
                 Game.World.SetLiquid(this, level, false, x, y - Direction, z);
                 Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
 
