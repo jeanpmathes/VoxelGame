@@ -13,7 +13,6 @@ using VoxelGame.Core;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.WorldGeneration;
 
 namespace VoxelGame.Client.Logic
 {
