@@ -21,8 +21,8 @@ namespace VoxelGame.Client.Logic
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<ClientWorld>();
 
-        protected int MaxMeshingTasks { get; } = Config.GetInt("maxMeshingTasks", 5);
-        protected int MaxMeshDataSends { get; } = Config.GetInt("maxMeshDataSends", 2);
+        protected int MaxMeshingTasks { get; } = Properties.client.Default.MaxMeshingTasks;
+        protected int MaxMeshDataSends { get; } = Properties.client.Default.MaxMeshDataSends;
 
         /// <summary>
         /// A queue with chunks that have to be meshed completely, mainly new chunks.

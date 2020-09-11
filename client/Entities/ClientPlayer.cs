@@ -23,7 +23,7 @@ namespace VoxelGame.Client.Entities
         private readonly Camera camera;
         private readonly Vector3 cameraOffset = new Vector3(0f, 0.65f, 0f);
 
-        private readonly float mouseSensitivity = Config.GetFloat("mouseSensitivity", 0.3f);
+        private readonly float mouseSensitivity = Properties.client.Default.MouseSensitivity;
 
         public ClientPlayer(float mass, float drag, Camera camera, BoundingBox boundingBox) : base(mass, drag, boundingBox)
         {
@@ -73,8 +73,8 @@ namespace VoxelGame.Client.Entities
         private readonly Texture crosshair;
         private readonly ScreenElementRenderer crosshairRenderer;
 
-        private readonly Vector3 crosshairPositionScale = new Vector3(0.5f, 0.5f, Config.GetFloat("crosshairScale", 0.0225f));
-        private readonly Vector3 crosshairColor = Config.GetVector3("crosshairColor", Vector3.One);
+        private readonly Vector3 crosshairPositionScale = new Vector3(0.5f, 0.5f, Properties.client.Default.CrosshairScale);
+        private readonly Vector3 crosshairColor = Properties.client.Default.CrosshairColor.ToVector3();
 
         public void Render()
         {

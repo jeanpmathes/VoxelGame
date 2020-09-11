@@ -25,9 +25,10 @@ namespace VoxelGame.Core.Logic
 
         public WorldInformation Information { get; }
 
-        protected int MaxGenerationTasks { get; } = Config.GetInt("maxGenerationTasks", 15);
-        protected int MaxLoadingTasks { get; } = Config.GetInt("maxLoadingTasks", 15);
-        protected int MaxSavingTasks { get; } = Config.GetInt("maxSavingTasks", 15);
+        protected int MaxGenerationTasks { get; } = Properties.core.Default.MaxGenerationTasks;
+        protected int MaxLoadingTasks { get; } = Properties.core.Default.MaxLoadingTasks;
+
+        protected int MaxSavingTasks { get; } = Properties.core.Default.MaxSavingTasks;
 
         protected string WorldDirectory { get; }
         protected string ChunkDirectory { get; }

@@ -85,6 +85,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="client.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>client.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="client.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>client.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Properties</CustomToolNamespace>
+    </None>
     <None Update="Resources\Models\bed.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -281,3 +281,6 @@ __pycache__/
 /client/GlobalSuppressions.cs
 *.licenseheader
 /core/Resources/Language/Language.Designer.cs
+/client/client.Designer.cs
+/core/core.Designer.cs
+/client/Properties/PublishProfiles

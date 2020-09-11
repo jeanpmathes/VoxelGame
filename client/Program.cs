@@ -56,7 +56,7 @@ namespace VoxelGame.Client
             GameWindowSettings gameWindowSettings = new GameWindowSettings
             {
                 IsMultiThreaded = false,
-                RenderFrequency = Config.GetDouble("maxFps", fallback: 60.0, min: 0.0),
+                RenderFrequency = Properties.client.Default.MaxFPS,
                 UpdateFrequency = 60.0
             };
 
@@ -65,7 +65,7 @@ namespace VoxelGame.Client
             nativeWindowSettings.Profile = OpenToolkit.Windowing.Common.ContextProfile.Core;
             nativeWindowSettings.APIVersion = new Version(4, 6);
             nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
-            nativeWindowSettings.Size = Config.GetVector2i("screenSize", new Vector2i(800, 450));
+            nativeWindowSettings.Size = Properties.client.Default.ScreenSize.ToVector2i();
             nativeWindowSettings.StartFocused = false;
 
             logger.LogInformation("Starting game on version: {Version}", Version);
