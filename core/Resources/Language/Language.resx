@@ -172,7 +172,7 @@
     <value>Dirt</value>
   </data>
   <data name="EnterIndexOfWorld" xml:space="preserve">
-    <value>Enter the number of the world to load:</value>
+    <value>Enter the index of the world to load:</value>
   </data>
   <data name="EnterNameOfWorld" xml:space="preserve">
     <value>Enter the name of the world to create:</value>

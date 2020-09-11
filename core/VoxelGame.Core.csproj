@@ -99,16 +99,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Resources\Language\Language.Designer.cs" Condition=" '$(BuildingInsideVisualStudio)' == 'true' ">
+    <Compile Update="Resources\Language\Language.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Language.resx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="Resources\Language\Language.de.resx">
-      <Generator></Generator>
-    </EmbeddedResource>
     <EmbeddedResource Update="Resources\Language\Language.resx" Condition=" '$(BuildingInsideVisualStudio)' != 'true' ">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <StronglyTypedFileName>Resources\Language\Language.Designer.cs</StronglyTypedFileName>

@@ -280,3 +280,4 @@ __pycache__/
 /client/client.licenseheader
 /client/GlobalSuppressions.cs
 *.licenseheader
+/core/Resources/Language/Language.Designer.cs
