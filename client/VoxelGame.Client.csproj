@@ -93,11 +93,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="client.settings">
+    <EmbeddedResource Update="core.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>client.Designer.cs</LastGenOutput>
+      <LastGenOutput>core.Designer.cs</LastGenOutput>
       <CustomToolNamespace>Properties</CustomToolNamespace>
-    </None>
+    </EmbeddedResource>
     <None Update="Resources\Models\bed.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -366,5 +366,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
 </Project>
