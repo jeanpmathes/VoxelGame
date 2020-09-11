@@ -110,7 +110,7 @@
       <Generator></Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Resources\Language\Language.resx" Condition=" '$(BuildingInsideVisualStudio)' != 'true' ">
-      <Generator>PublicResXFileCodeGenerator</Generator>
+      <Generator>GlobalResXFileCodeGenerator</Generator>
       <StronglyTypedFileName>Resources\Language\Language.Designer.cs</StronglyTypedFileName>
       <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
       <StronglyTypedNamespace>VoxelGame.Core.Resources.Language</StronglyTypedNamespace>
@@ -118,7 +118,7 @@
       <LastGenOutput>Language.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="Resources\Language\Language.resx" Condition=" '$(BuildingInsideVisualStudio)' != 'true' ">
-      <Generator>PublicResXFileCodeGenerator</Generator>
+      <Generator>GlobalResXFileCodeGenerator</Generator>
       <LastGenOutput>Language.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
