@@ -3,7 +3,6 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Desktop;
 using System;
 using Microsoft.Extensions.Logging;
