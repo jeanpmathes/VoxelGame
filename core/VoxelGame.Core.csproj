@@ -98,7 +98,7 @@
       <Version>4.7.2</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup Condition=" '$(BuildingInsideVisualStudio)' == 'true' ">
+  <ItemGroup>
     <Compile Update="Resources\Language\Language.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -117,11 +117,7 @@
       <StronglyTypedClassName>Language</StronglyTypedClassName>
       <LastGenOutput>Language.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Update="Resources\Language\Language.resx" Condition=" '$(BuildingInsideVisualStudio)' != 'true' ">
-      <Generator>GlobalResXFileCodeGenerator</Generator>
-      <LastGenOutput>Language.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Resources\Language\Language.resx">
+    <EmbeddedResource Update="Resources\Language\Language.resx" Condition=" '$(BuildingInsideVisualStudio)' == 'true' ">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Language.Designer.cs</LastGenOutput>
     </EmbeddedResource>
