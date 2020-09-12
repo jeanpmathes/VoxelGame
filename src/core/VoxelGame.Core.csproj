@@ -44,7 +44,7 @@
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>VoxelGame Key File.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
-    <CodeAnalysisRuleSet>..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>VoxelGame.Core.ruleset</CodeAnalysisRuleSet>
     <StartupObject></StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -68,7 +68,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <AdditionalFiles Include="..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+    <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="core.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>core.Designer.cs</LastGenOutput>
