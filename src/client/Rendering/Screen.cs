@@ -13,14 +13,16 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using VoxelGame.Core;
 using VoxelGame.Core.Utilities;
+using VoxelGame.UI;
 
 namespace VoxelGame.Client.Rendering
 {
     /// <summary>
     /// Common functionality associated with the screen.
     /// </summary>
-    public class Screen
+    public class Screen : IDisposable
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
 
@@ -39,6 +41,8 @@ namespace VoxelGame.Client.Rendering
         #endregion PUBLIC STATIC PROPERTIES
 
         private static Screen Instance { get; set; } = null!;
+
+        private readonly GameUI ui;
 
         private readonly int samples;
 
@@ -111,6 +115,9 @@ namespace VoxelGame.Client.Rendering
             }
 
             #endregion SCREENSHOT FBO
+
+            ui = new GameUI(Client.Instance);
+            ui.Load();
         }
 
         public void Clear()
@@ -121,6 +128,8 @@ namespace VoxelGame.Client.Rendering
 
         public void Draw()
         {
+            ui.Render();
+
             GL.BlitNamedFramebuffer(msFBO, 0, 0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
         }
 
@@ -143,6 +152,8 @@ namespace VoxelGame.Client.Rendering
             GL.NamedRenderbufferStorage(screenshotRBO, RenderbufferStorage.Rgba8, Size.X, Size.Y);
 
             #endregion SCREENSHOT FBO
+
+            ui.Resize(e.Size);
 
             Client.ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
 
@@ -207,5 +218,44 @@ namespace VoxelGame.Client.Rendering
         }
 
         #endregion PUBLIC STATIC METHODS
+
+        #region IDisposable Support
+
+        private bool disposed;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    ui.Dispose();
+
+                    GL.DeleteTexture(msTex);
+                    GL.DeleteFramebuffer(msFBO);
+                    GL.DeleteRenderbuffer(msRBO);
+
+                    GL.DeleteFramebuffer(screenshotFBO);
+                    GL.DeleteRenderbuffer(screenshotRBO);
+                }
+
+                logger.LogWarning(LoggingEvents.UndeletedGlObjects, "A screen object has been destroyed without disposing it.");
+
+                disposed = true;
+            }
+        }
+
+        ~Screen()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion IDisposable Support
     }
 }

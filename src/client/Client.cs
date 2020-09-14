@@ -23,6 +23,7 @@ using VoxelGame.Core;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Utilities;
+using VoxelGame.UI;
 
 namespace VoxelGame.Client
 {
@@ -102,6 +103,7 @@ namespace VoxelGame.Client
             {
                 // GL debug setup.
                 GL.Enable(EnableCap.DebugOutput);
+                GL.Enable(EnableCap.Multisample);
 
                 debugCallbackDelegate = new DebugProc(DebugCallback);
                 GL.DebugMessageCallback(debugCallbackDelegate, IntPtr.Zero);

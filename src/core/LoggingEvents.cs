@@ -130,14 +130,19 @@ namespace VoxelGame.Core
         public const int ShaderError = 3000;
 
         /// <summary>
+        /// Occurs when objects are incorrectly disposed and their OpenGL objects are not deleted. This causes memory leak.
+        /// </summary>
+        public const int UndeletedGlObjects = 3010;
+
+        /// <summary>
         /// Occurs when rendering objects are incorrectly disposed and their buffers are not deleted. This causes memory leaks.
         /// </summary>
-        public const int UndeletedBuffers = 3010;
+        public const int UndeletedBuffers = 3011;
 
         /// <summary>
         /// Occurs when textures are incorrectly disposed and their storage is not deleted. This causes memory leak.
         /// </summary>
-        public const int UndeletedTexture = 3011;
+        public const int UndeletedTexture = 3012;
 
         /// <summary>
         /// Occurs when a texture or model that is requested could not be loaded and a fallback is used.

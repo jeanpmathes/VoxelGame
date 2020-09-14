@@ -44,7 +44,7 @@
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>VoxelGame Key File.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
-    <CodeAnalysisRuleSet>VoxelGame.Core.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
     <StartupObject></StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
