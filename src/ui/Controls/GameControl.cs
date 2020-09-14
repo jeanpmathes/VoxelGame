@@ -5,14 +5,15 @@
 // <author>pershingthesecond</author>
 using Gwen.Net.Control;
 using Gwen.Net;
+using VoxelGame.Core;
 
-namespace VoxelGame.UI
+namespace VoxelGame.UI.Controls
 {
-    internal class GameControl : ControlBase
+    public class GameControl : ControlBase
     {
         private readonly Label label;
 
-        internal GameControl(ControlBase parent) : base(parent)
+        public GameControl(UserInterface parent) : base(parent.Root)
         {
             Dock = Dock.Fill;
 
@@ -20,7 +21,7 @@ namespace VoxelGame.UI
             label.Dock = Dock.Top;
             label.VerticalAlignment = VerticalAlignment.Stretch;
             label.Alignment = Alignment.Top | Alignment.CenterH;
-            label.Text = "Hello World!";
+            label.Text = $"VoxelGame {Game.Version}";
         }
 
         public override void Dispose()

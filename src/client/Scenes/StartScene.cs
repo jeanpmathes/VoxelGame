@@ -15,6 +15,8 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using VoxelGame.Client.Logic;
+using VoxelGame.UI;
+using VoxelGame.UI.Controls;
 
 namespace VoxelGame.Client.Scenes
 {
@@ -22,12 +24,17 @@ namespace VoxelGame.Client.Scenes
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<StartScene>();
 
+        private readonly UserInterface ui;
+        private StartControl control = null!;
+
         private List<(WorldInformation information, string path)> worlds;
 
         private readonly string worldsDirectory;
 
         public StartScene(string worldsDirectory)
         {
+            ui = new UserInterface(Client.Instance, true);
+
             this.worldsDirectory = worldsDirectory;
 
             worlds = new List<(WorldInformation information, string path)>();
@@ -37,26 +44,50 @@ namespace VoxelGame.Client.Scenes
         {
             Screen.SetCursor(visible: true);
 
+            ui.Load();
+            ui.Resize(Client.Instance.Size);
+
+            control = new StartControl(ui);
+            control.Start += Control_Start;
+            control.Exit += Control_Exit;
+
             LookupWorlds(worldsDirectory);
         }
 
         public void Update(float deltaTime)
         {
-            ListWorlds(worlds);
-            Client.LoadGameScene(WorldSetup(worldsDirectory));
+            // Method intentionally left empty.
         }
 
         public void OnResize(Vector2i size)
         {
+            ui.Resize(size);
         }
 
         public void Render(float deltaTime)
         {
+            ui.Render();
         }
 
         public void Unload()
         {
+            // Method intentionally left empty.
         }
+
+        #region EVENTS
+
+        private void Control_Start()
+        {
+            ListWorlds(worlds);
+            Client.LoadGameScene(WorldSetup(worldsDirectory));
+        }
+
+        private void Control_Exit()
+        {
+            Client.Instance.Close();
+        }
+
+        #endregion EVENTS
 
         #region WORLD SETUP
 
@@ -313,6 +344,7 @@ namespace VoxelGame.Client.Scenes
             {
                 if (disposing)
                 {
+                    ui.Dispose();
                 }
 
                 disposed = true;

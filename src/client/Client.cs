@@ -166,6 +166,8 @@ namespace VoxelGame.Client
             }
         }
 
+        private bool hasReleasedFullscreenKey = true;
+
         new protected void OnUpdateFrame(FrameEventArgs e)
         {
             using (logger.BeginScope("UpdateFrame"))
@@ -173,6 +175,22 @@ namespace VoxelGame.Client
                 float deltaTime = (float)MathHelper.Clamp(e.Time, 0f, 1f);
 
                 Scene.Update(deltaTime);
+
+                if (IsFocused)
+                {
+                    KeyboardState input = Client.Instance.LastKeyboardState;
+
+                    if (hasReleasedFullscreenKey && input.IsKeyDown(Key.F11))
+                    {
+                        hasReleasedFullscreenKey = false;
+
+                        Screen.SetFullscreen(!Client.Instance.IsFullscreen);
+                    }
+                    else if (input.IsKeyUp(Key.F11))
+                    {
+                        hasReleasedFullscreenKey = true;
+                    }
+                }
             }
         }
 
@@ -200,6 +218,18 @@ namespace VoxelGame.Client
 
             Instance.Scene = Instance.startScene;
             Instance.Scene.Load();
+        }
+
+        public static void InvalidateWorld()
+        {
+            World = null!;
+            Game.SetWorld(null!);
+        }
+
+        public static void InvalidatePlayer()
+        {
+            Player = null!;
+            Game.SetPlayer(null!);
         }
 
         #endregion SCENE MANAGEMENT

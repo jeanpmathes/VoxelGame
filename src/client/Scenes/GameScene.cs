@@ -15,6 +15,7 @@ using OpenToolkit.Graphics.OpenGL4;
 using VoxelGame.Client.Rendering;
 using OpenToolkit.Mathematics;
 using System;
+using VoxelGame.UI.Controls;
 
 namespace VoxelGame.Client.Scenes
 {
@@ -22,7 +23,9 @@ namespace VoxelGame.Client.Scenes
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
 
-        private readonly GameUI ui;
+        private readonly UserInterface ui;
+        private GameControl control = null!;
+
         private readonly string screenshotDirectory;
 
         public ClientWorld World { get; private set; } = null!;
@@ -33,13 +36,12 @@ namespace VoxelGame.Client.Scenes
 
         private bool hasReleasedScreenshotKey = true;
 
-        private bool hasReleasedFullscreenKey = true;
-
         public GameScene(ClientWorld world, string screenshotDirectory)
         {
             Screen.SetCursor(visible: false, tracked: true);
 
-            ui = new GameUI(Client.Instance);
+            ui = new UserInterface(Client.Instance, false);
+
             this.screenshotDirectory = screenshotDirectory;
 
             World = world;
@@ -55,6 +57,9 @@ namespace VoxelGame.Client.Scenes
             Game.SetPlayer(Player);
 
             ui.Load();
+            ui.Resize(Client.Instance.Size);
+
+            control = new GameControl(ui);
 
             Game.ResetUpdate();
 
@@ -128,17 +133,6 @@ namespace VoxelGame.Client.Scenes
                     hasReleasedScreenshotKey = true;
                 }
 
-                if (hasReleasedFullscreenKey && input.IsKeyDown(Key.F11))
-                {
-                    hasReleasedFullscreenKey = false;
-
-                    Screen.SetFullscreen(!Client.Instance.IsFullscreen);
-                }
-                else if (input.IsKeyUp(Key.F11))
-                {
-                    hasReleasedFullscreenKey = true;
-                }
-
                 if (input.IsKeyDown(Key.Escape))
                 {
                     Client.LoadStartScene();
@@ -161,6 +155,12 @@ namespace VoxelGame.Client.Scenes
 
             World.Dispose();
             Player.Dispose();
+
+            World = null!;
+            Player = null!;
+
+            Client.InvalidateWorld();
+            Client.InvalidatePlayer();
         }
 
         #region IDisposable Support.

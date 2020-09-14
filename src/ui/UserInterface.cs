@@ -1,8 +1,10 @@
-﻿// <copyright file="GameUI.cs" company="VoxelGame">
+﻿// <copyright file="UserInterface.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
+using Gwen.Net.Control;
 using Gwen.Net.OpenTk;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
@@ -11,26 +13,28 @@ using System;
 
 namespace VoxelGame.UI
 {
-    public class GameUI : IDisposable
+    public class UserInterface : IDisposable
     {
+        public ControlBase Root { get => gui.Root; }
+
         private readonly IGwenGui gui;
+        private readonly bool drawBackground;
 
-        private GameControl control = null!;
-
-        public GameUI(GameWindow window)
+        public UserInterface(GameWindow window, bool drawBackground)
         {
             gui = GwenGuiFactory.CreateFromGame(window, GwenGuiSettings.Default.From((settings) =>
             {
                 settings.SkinFile = new System.IO.FileInfo("DefaultSkin2.png");
-                settings.DrawBackground = false;
+                settings.DrawBackground = drawBackground;
             }));
+
+            this.drawBackground = drawBackground;
         }
 
         public void Load()
         {
             gui.Load();
-            gui.Root.ShouldDrawBackground = false;
-            control = new GameControl(gui.Root);
+            gui.Root.ShouldDrawBackground = drawBackground;
         }
 
         public void Render()
@@ -58,7 +62,6 @@ namespace VoxelGame.UI
                 if (disposing)
                 {
                     gui.Dispose();
-                    control.Dispose();
                 }
 
                 disposed = true;
