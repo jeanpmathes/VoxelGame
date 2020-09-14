@@ -42,8 +42,6 @@ namespace VoxelGame.Client.Rendering
 
         private static Screen Instance { get; set; } = null!;
 
-        private readonly GameUI ui;
-
         private readonly int samples;
 
         private readonly int msTex;
@@ -115,9 +113,6 @@ namespace VoxelGame.Client.Rendering
             }
 
             #endregion SCREENSHOT FBO
-
-            ui = new GameUI(Client.Instance);
-            ui.Load();
         }
 
         public void Clear()
@@ -128,8 +123,6 @@ namespace VoxelGame.Client.Rendering
 
         public void Draw()
         {
-            ui.Render();
-
             GL.BlitNamedFramebuffer(msFBO, 0, 0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
         }
 
@@ -153,7 +146,7 @@ namespace VoxelGame.Client.Rendering
 
             #endregion SCREENSHOT FBO
 
-            ui.Resize(e.Size);
+            Client.Instance.Scene.OnResize(Size);
 
             Client.ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
 
@@ -229,8 +222,6 @@ namespace VoxelGame.Client.Rendering
             {
                 if (disposing)
                 {
-                    ui.Dispose();
-
                     GL.DeleteTexture(msTex);
                     GL.DeleteFramebuffer(msFBO);
                     GL.DeleteRenderbuffer(msRBO);

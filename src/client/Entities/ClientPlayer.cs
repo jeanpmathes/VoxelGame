@@ -80,7 +80,7 @@ namespace VoxelGame.Client.Entities
         {
             if (selectedY >= 0)
             {
-                Block selectedBlock = Client.World.GetBlock(selectedX, selectedY, selectedZ, out _) ?? Block.Air;
+                Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _) ?? Block.Air;
 
 #if DEBUG
                 if (selectedBlock != Block.Air)

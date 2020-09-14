@@ -6,7 +6,7 @@ using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core
 {
-    public class Game
+    public static class Game
     {
         #region GENRAL STATIC PROPERTIES
 
@@ -67,12 +67,14 @@ namespace VoxelGame.Core
         /// </summary>
         public static long CurrentUpdate { get; private set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Limit access.")]
-        public void Update(float deltaTime)
+        public static void IncrementUpdate()
         {
             CurrentUpdate++;
+        }
 
-            World.Update(deltaTime);
+        public static void ResetUpdate()
+        {
+            CurrentUpdate = 0;
         }
 
         #endregion TICK MANAGMENT
