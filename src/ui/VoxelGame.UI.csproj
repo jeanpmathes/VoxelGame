@@ -30,6 +30,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="lib\**" />
+    <EmbeddedResource Remove="lib\**" />
+    <None Remove="lib\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml" />
   </ItemGroup>
 
@@ -57,10 +63,12 @@
 
   <ItemGroup>
     <Reference Include="Gwen.Net">
-      <HintPath>..\..\..\..\..\source\repos\Geinome\Gwen.Net\Gwen.Net\bin\Release\netstandard2.0\Gwen.Net.dll</HintPath>
+      <HintPath>..\..\lib\Gwen.Net\Gwen.Net.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="Gwen.Net.OpenTk">
-      <HintPath>..\..\..\..\..\source\repos\Geinome\Gwen.Net\Gwen.Net.OpenTk\bin\Release\netcoreapp3.1\Gwen.Net.OpenTk.dll</HintPath>
+      <HintPath>..\..\lib\Gwen.Net\Gwen.Net.OpenTk.dll</HintPath>
+      <Private>true</Private>
     </Reference>
   </ItemGroup>
 

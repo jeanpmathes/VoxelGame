@@ -14,7 +14,6 @@ namespace VoxelGame.UI
     public class GameUI : IDisposable
     {
         private readonly IGwenGui gui;
-        private bool disposedValue;
 
         private GameControl control = null!;
 
@@ -50,9 +49,11 @@ namespace VoxelGame.UI
 
         #region IDisposable Support
 
+        private bool disposed;
+
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!disposed)
             {
                 if (disposing)
                 {
@@ -60,7 +61,7 @@ namespace VoxelGame.UI
                     control.Dispose();
                 }
 
-                disposedValue = true;
+                disposed = true;
             }
         }
 
