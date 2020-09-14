@@ -18,8 +18,10 @@ namespace VoxelGame.Client.Scenes
 
         void Update(float deltaTime);
 
+        void OnResize(Vector2i size);
+
         void Render(float deltaTime);
 
-        void OnResize(Vector2i size);
+        void Unload();
     }
 }

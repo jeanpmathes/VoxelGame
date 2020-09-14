@@ -155,6 +155,13 @@ namespace VoxelGame.Client.Rendering
 
         #region PUBLIC STATIC METHODS
 
+        public static void SetCursor(bool visible, bool tracked = false, bool grabbed = false)
+        {
+            Client.Instance.CursorVisible = visible;
+            Client.Instance.DoMouseTracking = tracked;
+            Client.Instance.CursorGrabbed = grabbed;
+        }
+
         private static Vector2i previousScreenSize;
         private static Vector2i previousScreenLocation;
 

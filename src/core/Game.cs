@@ -14,7 +14,6 @@ namespace VoxelGame.Core
 
         public static void SetPlayer(Player player)
         {
-            Debug.Assert(Player == null);
             Player = player;
         }
 
@@ -22,7 +21,6 @@ namespace VoxelGame.Core
 
         public static void SetWorld(World world)
         {
-            Debug.Assert(World == null);
             World = world;
         }
 
@@ -30,7 +28,6 @@ namespace VoxelGame.Core
 
         public static void SetRandom(Random random)
         {
-            Debug.Assert(Random == null);
             Random = random;
         }
 
@@ -38,7 +35,6 @@ namespace VoxelGame.Core
 
         public static void SetVersion(string version)
         {
-            Debug.Assert(Version == null);
             Version = version;
         }
 
@@ -46,7 +42,6 @@ namespace VoxelGame.Core
 
         public static void SetBlockTextures(ITextureIndexProvider blockTextures)
         {
-            Debug.Assert(BlockTextures == null);
             BlockTextures = blockTextures;
         }
 
@@ -54,7 +49,6 @@ namespace VoxelGame.Core
 
         public static void SetLiquidTextures(ITextureIndexProvider liquidTextures)
         {
-            Debug.Assert(LiquidTextures == null);
             LiquidTextures = liquidTextures;
         }
 

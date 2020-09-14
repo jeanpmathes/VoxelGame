@@ -56,10 +56,12 @@ namespace VoxelGame.Client
         #endregion STATIC PROPERTIES
 
         public IScene Scene { get; private set; } = null!;
+        private StartScene startScene = null!;
 
         public unsafe Window* WindowPointer { get; }
 
         private readonly string appDataDirectory;
+        private readonly string worldsDirectory;
         private readonly string screenshotDirectory;
 
         private Screen screen = null!;
@@ -73,6 +75,9 @@ namespace VoxelGame.Client
             this.appDataDirectory = appDataDirectory;
             this.screenshotDirectory = screenshotDirectory;
 
+            worldsDirectory = Path.Combine(appDataDirectory, "Worlds");
+            Directory.CreateDirectory(worldsDirectory);
+
             Load += OnLoad;
 
             RenderFrame += OnRenderFrame;
@@ -82,8 +87,6 @@ namespace VoxelGame.Client
             Closed += OnClosed;
 
             MouseMove += OnMouseMove;
-
-            CursorVisible = false;
         }
 
         new protected void OnLoad()
@@ -130,17 +133,10 @@ namespace VoxelGame.Client
                 // Liquid setup.
                 Liquid.LoadLiquids();
 
-                // Create required folders in %appdata% directory
-                string worldsDirectory = Path.Combine(appDataDirectory, "Worlds");
-                Directory.CreateDirectory(worldsDirectory);
-
-                //Scene setup.
-                GameScene gameScene = new GameScene(worldsDirectory, screenshotDirectory);
-                Scene = gameScene;
+                // Scene setup.
+                startScene = new StartScene(worldsDirectory);
+                Scene = startScene;
                 Scene.Load();
-
-                World = gameScene.World;
-                Player = gameScene.Player;
 
                 // Other object setup.
                 Random = new Random();
@@ -177,38 +173,41 @@ namespace VoxelGame.Client
                 float deltaTime = (float)MathHelper.Clamp(e.Time, 0f, 1f);
 
                 Scene.Update(deltaTime);
-
-                KeyboardState input = Client.Instance.LastKeyboardState;
-
-                if (input.IsKeyDown(Key.Escape))
-                {
-                    Close();
-                }
             }
         }
 
         new protected void OnClosed()
         {
-            logger.LogInformation("{method} has been called.", nameof(OnClosed));
-
-            try
-            {
-                World.Save().Wait();
-            }
-            catch (AggregateException exception)
-            {
-                logger.LogCritical(LoggingEvents.WorldSavingError, exception.GetBaseException(), "An exception was thrown when saving the world.");
-            }
-
-            World.Dispose();
-            Player.Dispose();
-
             logger.LogInformation("Closing window.");
         }
+
+        #region SCENE MANAGEMENT
+
+        public static void LoadGameScene(ClientWorld world)
+        {
+            GameScene gameScene = new GameScene(world, Instance.screenshotDirectory);
+            Instance.Scene = gameScene;
+            Instance.Scene.Load();
+
+            World = gameScene.World;
+            Player = gameScene.Player;
+        }
+
+        public static void LoadStartScene()
+        {
+            Instance.Scene?.Unload();
+            Instance.Scene?.Dispose();
+
+            Instance.Scene = Instance.startScene;
+            Instance.Scene.Load();
+        }
+
+        #endregion SCENE MANAGEMENT
 
         #region MOUSE MOVE
 
         public static Vector2 SmoothMouseDelta { get; private set; }
+        public bool DoMouseTracking { get; set; }
 
         private Vector2 lastMouseDelta;
         private Vector2 rawMouseDelta;
@@ -219,6 +218,8 @@ namespace VoxelGame.Client
 
         new protected void OnMouseMove(MouseMoveEventArgs e)
         {
+            if (!DoMouseTracking) return;
+
             mouseHasMoved = true;
 
             Vector2 center = new Vector2(Size.X / 2f, Size.Y / 2f);
@@ -231,6 +232,8 @@ namespace VoxelGame.Client
 
         private void MouseUpdate(FrameEventArgs e)
         {
+            if (!DoMouseTracking) return;
+
             if (!mouseHasMoved)
             {
                 mouseDelta = Vector2.Zero;
