@@ -271,3 +271,4 @@ __pycache__/
 *.licenseheader
 /client/Properties/PublishProfiles
 /src/ui/GlobalSuppressions.cs
+/src/core/GlobalSuppressions.cs
