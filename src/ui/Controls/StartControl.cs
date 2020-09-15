@@ -6,16 +6,17 @@
 using Gwen.Net.Control;
 using Gwen.Net;
 using Gwen.Net.Control.Layout;
-using System;
 
 namespace VoxelGame.UI.Controls
 {
     public class StartControl : ControlBase
     {
+#pragma warning disable S1450
         private readonly VerticalLayout layout;
 
         private readonly Button start;
         private readonly Button exit;
+#pragma warning restore S1450
 
         public delegate void Click();
 

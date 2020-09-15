@@ -15,7 +15,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using VoxelGame.Core;
 using VoxelGame.Core.Utilities;
-using VoxelGame.UI;
 
 namespace VoxelGame.Client.Rendering
 {

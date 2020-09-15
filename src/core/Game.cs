@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;

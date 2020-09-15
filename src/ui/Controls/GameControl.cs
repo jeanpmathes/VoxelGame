@@ -6,13 +6,14 @@
 using Gwen.Net.Control;
 using Gwen.Net;
 using VoxelGame.Core;
-using System;
 
 namespace VoxelGame.UI.Controls
 {
     public class GameControl : ControlBase
     {
+#pragma warning disable S1450
         private readonly Label label;
+#pragma warning restore S1450
 
         public GameControl(UserInterface parent) : base(parent.Root)
         {
