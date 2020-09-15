@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Diagnostics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core
 {
-    public class Game
+    public static class Game
     {
         #region GENRAL STATIC PROPERTIES
 
@@ -14,7 +13,6 @@ namespace VoxelGame.Core
 
         public static void SetPlayer(Player player)
         {
-            Debug.Assert(Player == null);
             Player = player;
         }
 
@@ -22,7 +20,6 @@ namespace VoxelGame.Core
 
         public static void SetWorld(World world)
         {
-            Debug.Assert(World == null);
             World = world;
         }
 
@@ -30,7 +27,6 @@ namespace VoxelGame.Core
 
         public static void SetRandom(Random random)
         {
-            Debug.Assert(Random == null);
             Random = random;
         }
 
@@ -38,7 +34,6 @@ namespace VoxelGame.Core
 
         public static void SetVersion(string version)
         {
-            Debug.Assert(Version == null);
             Version = version;
         }
 
@@ -46,7 +41,6 @@ namespace VoxelGame.Core
 
         public static void SetBlockTextures(ITextureIndexProvider blockTextures)
         {
-            Debug.Assert(BlockTextures == null);
             BlockTextures = blockTextures;
         }
 
@@ -54,7 +48,6 @@ namespace VoxelGame.Core
 
         public static void SetLiquidTextures(ITextureIndexProvider liquidTextures)
         {
-            Debug.Assert(LiquidTextures == null);
             LiquidTextures = liquidTextures;
         }
 
@@ -67,12 +60,14 @@ namespace VoxelGame.Core
         /// </summary>
         public static long CurrentUpdate { get; private set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Limit access.")]
-        public void Update(float deltaTime)
+        public static void IncrementUpdate()
         {
             CurrentUpdate++;
+        }
 
-            World.Update(deltaTime);
+        public static void ResetUpdate()
+        {
+            CurrentUpdate = 0;
         }
 
         #endregion TICK MANAGMENT

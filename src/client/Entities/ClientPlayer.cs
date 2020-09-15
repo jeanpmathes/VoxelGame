@@ -80,7 +80,7 @@ namespace VoxelGame.Client.Entities
         {
             if (selectedY >= 0)
             {
-                Block selectedBlock = Client.World.GetBlock(selectedX, selectedY, selectedZ, out _) ?? Block.Air;
+                Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _) ?? Block.Air;
 
 #if DEBUG
                 if (selectedBlock != Block.Air)
@@ -112,10 +112,10 @@ namespace VoxelGame.Client.Entities
             Raycast.CastWorld(ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
 
             // Do input handling.
-            if (Client.Instance.IsFocused)
+            if (Screen.IsFocused)
             {
-                KeyboardState input = Client.Instance.KeyboardState;
-                MouseState mouse = Client.Instance.MouseState;
+                KeyboardState input = Client.Keyboard;
+                MouseState mouse = Client.Mouse;
 
                 MovementInput(input);
                 MouseChange();
@@ -180,7 +180,7 @@ namespace VoxelGame.Client.Entities
 
         private readonly float interactionCooldown = 0.25f;
 
-        private int selectedX, selectedY, selectedZ;
+        private int selectedX, selectedY = -1, selectedZ;
         private BlockSide selectedSide;
 
         private float timer;

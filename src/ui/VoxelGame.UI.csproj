@@ -5,8 +5,9 @@
     <Nullable>enable</Nullable>
     <Version>1.2.0</Version>
     <Platforms>AnyCPU;x64</Platforms>
-    <CodeAnalysisRuleSet>VoxelGame.UI.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
     <ApplicationIcon>vg_icon.ico</ApplicationIcon>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -28,6 +29,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <WarningsAsErrors>nullable</WarningsAsErrors>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="lib\**" />
+    <EmbeddedResource Remove="lib\**" />
+    <None Remove="lib\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml" />
@@ -55,4 +62,20 @@
     <ProjectReference Include="..\core\VoxelGame.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Gwen.Net">
+      <HintPath>..\..\lib\Gwen.Net\Gwen.Net.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Gwen.Net.OpenTk">
+      <HintPath>..\..\lib\Gwen.Net\Gwen.Net.OpenTk.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="DefaultSkin2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

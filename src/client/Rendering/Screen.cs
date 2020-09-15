@@ -13,6 +13,7 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using VoxelGame.Core;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Rendering
@@ -20,7 +21,7 @@ namespace VoxelGame.Client.Rendering
     /// <summary>
     /// Common functionality associated with the screen.
     /// </summary>
-    public class Screen
+    public class Screen : IDisposable
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
 
@@ -29,16 +30,28 @@ namespace VoxelGame.Client.Rendering
         /// <summary>
         /// Gets the window size. The value is equal to the value retrieved from <see cref="Client.Instance"/>.
         /// </summary>
-        public static Vector2i Size { get => Client.Instance.Size; set { Client.Instance.Size = value; } }
+        public static Vector2i Size { get => Instance.client.Size; set { Instance.client.Size = value; } }
 
         /// <summary>
         /// Gets the aspect ratio <c>x/y</c>.
         /// </summary>
         public static float AspectRatio { get => Size.X / (float)Size.Y; }
 
+        /// <summary>
+        /// Gets whether the screen is in fullscreen.
+        /// </summary>
+        public static bool IsFullscreen { get => Instance.client.IsFullscreen; }
+
+        /// <summary>
+        /// Gets whether the screen is focused.
+        /// </summary>
+        public static bool IsFocused { get => Instance.client.IsFocused; }
+
         #endregion PUBLIC STATIC PROPERTIES
 
         private static Screen Instance { get; set; } = null!;
+
+        private readonly Client client;
 
         private readonly int samples;
 
@@ -49,11 +62,13 @@ namespace VoxelGame.Client.Rendering
         private readonly int screenshotFBO;
         private readonly int screenshotRBO;
 
-        public Screen()
+        internal Screen(Client client)
         {
             Instance = this;
 
-            Client.Instance.Resize += OnResize;
+            this.client = client;
+
+            client.Resize += OnResize;
 
             #region MULTISAMPLED FBO
 
@@ -144,12 +159,21 @@ namespace VoxelGame.Client.Rendering
 
             #endregion SCREENSHOT FBO
 
+            client.Scene.OnResize(Size);
+
             Client.ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
 
             logger.LogDebug("Window has been resized to: {size}", e.Size);
         }
 
         #region PUBLIC STATIC METHODS
+
+        public static void SetCursor(bool visible, bool tracked = false, bool grabbed = false)
+        {
+            Instance.client.CursorVisible = visible;
+            Instance.client.DoMouseTracking = tracked;
+            Instance.client.CursorGrabbed = grabbed;
+        }
 
         private static Vector2i previousScreenSize;
         private static Vector2i previousScreenLocation;
@@ -160,21 +184,21 @@ namespace VoxelGame.Client.Rendering
         /// <param name="fullscreen">If fullscreen should be active.</param>
         public static void SetFullscreen(bool fullscreen)
         {
-            if (fullscreen == Client.Instance.IsFullscreen) return;
+            if (fullscreen == Instance.client.IsFullscreen) return;
 
             if (fullscreen)
             {
-                previousScreenSize = Client.Instance.Size;
-                previousScreenLocation = Client.Instance.Location;
+                previousScreenSize = Instance.client.Size;
+                previousScreenLocation = Instance.client.Location;
 
-                Client.Instance.WindowState = WindowState.Fullscreen;
-                Client.Instance.IsFullscreen = true;
+                Instance.client.WindowState = WindowState.Fullscreen;
+                Instance.client.IsFullscreen = true;
                 logger.LogDebug("Fullscreen: Switched to fullscreen mode.");
             }
             else
             {
-                unsafe { GLFW.SetWindowMonitor(Client.Instance.WindowPointer, null, previousScreenLocation.X, previousScreenLocation.Y, previousScreenSize.X, previousScreenSize.Y, (int)Client.Instance.RenderFrequency); }
-                Client.Instance.IsFullscreen = false;
+                unsafe { GLFW.SetWindowMonitor(Instance.client.WindowPointer, null, previousScreenLocation.X, previousScreenLocation.Y, previousScreenSize.X, previousScreenSize.Y, (int)Instance.client.RenderFrequency); }
+                Instance.client.IsFullscreen = false;
 
                 logger.LogDebug("Fullscreen: Switched to normal mode.");
             }
@@ -207,5 +231,42 @@ namespace VoxelGame.Client.Rendering
         }
 
         #endregion PUBLIC STATIC METHODS
+
+        #region IDisposable Support
+
+        private bool disposed;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    GL.DeleteTexture(msTex);
+                    GL.DeleteFramebuffer(msFBO);
+                    GL.DeleteRenderbuffer(msRBO);
+
+                    GL.DeleteFramebuffer(screenshotFBO);
+                    GL.DeleteRenderbuffer(screenshotRBO);
+                }
+
+                logger.LogWarning(LoggingEvents.UndeletedGlObjects, "A screen object has been destroyed without disposing it.");
+
+                disposed = true;
+            }
+        }
+
+        ~Screen()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion IDisposable Support
     }
 }
