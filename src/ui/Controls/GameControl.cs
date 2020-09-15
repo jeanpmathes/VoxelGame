@@ -6,6 +6,7 @@
 using Gwen.Net.Control;
 using Gwen.Net;
 using VoxelGame.Core;
+using System;
 
 namespace VoxelGame.UI.Controls
 {
@@ -22,13 +23,6 @@ namespace VoxelGame.UI.Controls
             label.VerticalAlignment = VerticalAlignment.Stretch;
             label.Alignment = Alignment.Top | Alignment.CenterH;
             label.Text = $"VoxelGame {Game.Version}";
-        }
-
-        public override void Dispose()
-        {
-            label.Dispose();
-
-            base.Dispose();
         }
     }
 }

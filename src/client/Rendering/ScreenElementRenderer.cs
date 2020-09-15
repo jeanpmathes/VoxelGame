@@ -25,8 +25,6 @@ namespace VoxelGame.Client.Rendering
 
         public ScreenElementRenderer()
         {
-            vao = GL.GenVertexArray();
-
             float[] vertices = new float[]
             {
                 -0.5f, -0.5f, 0.0f, 0f, 0f,
@@ -97,7 +95,7 @@ namespace VoxelGame.Client.Rendering
                 return;
             }
 
-            Vector2 screenSize = Client.Instance.Size.ToVector2();
+            Vector2 screenSize = Screen.Size.ToVector2();
             Vector3 scale = new Vector3(position.Z, position.Z, 1f) * screenSize.Length;
             Vector3 translate = new Vector3((position.Xy - new Vector2(0.5f, 0.5f)) * screenSize);
 

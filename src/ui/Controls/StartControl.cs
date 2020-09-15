@@ -6,6 +6,7 @@
 using Gwen.Net.Control;
 using Gwen.Net;
 using Gwen.Net.Control.Layout;
+using System;
 
 namespace VoxelGame.UI.Controls
 {
@@ -25,26 +26,16 @@ namespace VoxelGame.UI.Controls
             layout = new VerticalLayout(this);
 
             start = new Button(layout);
-            start.Clicked += new GwenEventHandler<ClickedEventArgs>((_, __) => Start?.Invoke());
+            start.Clicked += new GwenEventHandler<ClickedEventArgs>((_, _) => Start?.Invoke());
             start.Text = "START";
 
             exit = new Button(layout);
-            exit.Clicked += new GwenEventHandler<ClickedEventArgs>((_, __) => Exit?.Invoke());
+            exit.Clicked += new GwenEventHandler<ClickedEventArgs>((_, _) => Exit?.Invoke());
             exit.Text = "EXIT";
         }
 
         public event Click? Start;
 
         public event Click? Exit;
-
-        public override void Dispose()
-        {
-            layout.Dispose();
-
-            start.Dispose();
-            exit.Dispose();
-
-            base.Dispose();
-        }
     }
 }

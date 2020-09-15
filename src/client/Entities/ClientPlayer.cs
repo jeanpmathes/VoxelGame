@@ -112,10 +112,10 @@ namespace VoxelGame.Client.Entities
             Raycast.CastWorld(ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
 
             // Do input handling.
-            if (Client.Instance.IsFocused)
+            if (Screen.IsFocused)
             {
-                KeyboardState input = Client.Instance.KeyboardState;
-                MouseState mouse = Client.Instance.MouseState;
+                KeyboardState input = Client.Keyboard;
+                MouseState mouse = Client.Mouse;
 
                 MovementInput(input);
                 MouseChange();
@@ -180,7 +180,7 @@ namespace VoxelGame.Client.Entities
 
         private readonly float interactionCooldown = 0.25f;
 
-        private int selectedX, selectedY, selectedZ;
+        private int selectedX, selectedY = -1, selectedZ;
         private BlockSide selectedSide;
 
         private float timer;

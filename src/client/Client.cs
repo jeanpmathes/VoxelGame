@@ -25,10 +25,13 @@ namespace VoxelGame.Client
     internal class Client : GameWindow
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
+        private static Client Instance { get; set; } = null!;
 
         #region STATIC PROPERTIES
 
-        public static Client Instance { get; private set; } = null!;
+        public static KeyboardState Keyboard { get => Instance.KeyboardState; }
+
+        public static MouseState Mouse { get => Instance.MouseState; }
 
         /// <summary>
         /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
@@ -60,9 +63,9 @@ namespace VoxelGame.Client
 
         public unsafe Window* WindowPointer { get; }
 
-        private readonly string appDataDirectory;
-        private readonly string worldsDirectory;
-        private readonly string screenshotDirectory;
+        public readonly string AppDataDirectory;
+        public readonly string WorldsDirectory;
+        public readonly string ScreenshotDirectory;
 
         private Screen screen = null!;
 
@@ -72,11 +75,11 @@ namespace VoxelGame.Client
 
             unsafe { WindowPointer = WindowPtr; }
 
-            this.appDataDirectory = appDataDirectory;
-            this.screenshotDirectory = screenshotDirectory;
+            this.AppDataDirectory = appDataDirectory;
+            this.ScreenshotDirectory = screenshotDirectory;
 
-            worldsDirectory = Path.Combine(appDataDirectory, "Worlds");
-            Directory.CreateDirectory(worldsDirectory);
+            WorldsDirectory = Path.Combine(appDataDirectory, "Worlds");
+            Directory.CreateDirectory(WorldsDirectory);
 
             Load += OnLoad;
 
@@ -101,7 +104,7 @@ namespace VoxelGame.Client
                 GL.DebugMessageCallback(debugCallbackDelegate, IntPtr.Zero);
 
                 // Screen setup.
-                screen = new Screen();
+                screen = new Screen(this);
 
                 // Texture setup.
                 BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2, TextureUnit.Texture3, TextureUnit.Texture4);
@@ -134,7 +137,7 @@ namespace VoxelGame.Client
                 Liquid.LoadLiquids();
 
                 // Scene setup.
-                startScene = new StartScene(worldsDirectory);
+                startScene = new StartScene(this);
                 Scene = startScene;
                 Scene.Load();
 
@@ -203,7 +206,10 @@ namespace VoxelGame.Client
 
         public static void LoadGameScene(ClientWorld world)
         {
-            GameScene gameScene = new GameScene(world, Instance.screenshotDirectory);
+            Instance.Scene?.Unload();
+            Instance.Scene?.Dispose();
+
+            GameScene gameScene = new GameScene(Instance, world);
             Instance.Scene = gameScene;
             Instance.Scene.Load();
 

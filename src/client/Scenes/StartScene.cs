@@ -29,13 +29,13 @@ namespace VoxelGame.Client.Scenes
 
         private List<(WorldInformation information, string path)> worlds;
 
-        private readonly string worldsDirectory;
+        private readonly Client client;
 
-        public StartScene(string worldsDirectory)
+        internal StartScene(Client client)
         {
-            ui = new UserInterface(Client.Instance, true);
+            this.client = client;
 
-            this.worldsDirectory = worldsDirectory;
+            ui = new UserInterface(client, true);
 
             worlds = new List<(WorldInformation information, string path)>();
         }
@@ -45,13 +45,14 @@ namespace VoxelGame.Client.Scenes
             Screen.SetCursor(visible: true);
 
             ui.Load();
-            ui.Resize(Client.Instance.Size);
+            ui.Resize(Screen.Size);
 
+            UI.UI.DisposeControl(control);
             control = new StartControl(ui);
             control.Start += Control_Start;
             control.Exit += Control_Exit;
 
-            LookupWorlds(worldsDirectory);
+            LookupWorlds(client.WorldsDirectory);
         }
 
         public void Update(float deltaTime)
@@ -79,12 +80,12 @@ namespace VoxelGame.Client.Scenes
         private void Control_Start()
         {
             ListWorlds(worlds);
-            Client.LoadGameScene(WorldSetup(worldsDirectory));
+            Client.LoadGameScene(WorldSetup(client.WorldsDirectory));
         }
 
         private void Control_Exit()
         {
-            Client.Instance.Close();
+            client.Close();
         }
 
         #endregion EVENTS
@@ -186,7 +187,7 @@ namespace VoxelGame.Client.Scenes
             return input == "Y" || input == "YES";
         }
 
-        private ClientWorld CreateNewWorld(string worldsDirectory)
+        private static ClientWorld CreateNewWorld(string worldsDirectory)
         {
             Console.WriteLine(Language.EnterNameOfWorld);
 
@@ -298,7 +299,7 @@ namespace VoxelGame.Client.Scenes
             }
         }
 
-        private ClientWorld LoadExistingWorld(List<(WorldInformation information, string path)> worlds)
+        private static ClientWorld LoadExistingWorld(List<(WorldInformation information, string path)> worlds)
         {
             while (true)
             {
@@ -345,6 +346,7 @@ namespace VoxelGame.Client.Scenes
                 if (disposing)
                 {
                     ui.Dispose();
+                    UI.UI.DisposeControl(control);
                 }
 
                 disposed = true;

@@ -26,9 +26,9 @@ namespace VoxelGame.Client.Scenes
         private readonly UserInterface ui;
         private GameControl control = null!;
 
-        private readonly string screenshotDirectory;
+        private readonly Client client;
 
-        public ClientWorld World { get; private set; } = null!;
+        public ClientWorld World { get; private set; }
         public ClientPlayer Player { get; private set; } = null!;
 
         private bool wireframeMode;
@@ -36,13 +36,13 @@ namespace VoxelGame.Client.Scenes
 
         private bool hasReleasedScreenshotKey = true;
 
-        public GameScene(ClientWorld world, string screenshotDirectory)
+        internal GameScene(Client client, ClientWorld world)
         {
+            this.client = client;
+
             Screen.SetCursor(visible: false, tracked: true);
 
-            ui = new UserInterface(Client.Instance, false);
-
-            this.screenshotDirectory = screenshotDirectory;
+            ui = new UserInterface(client, false);
 
             World = world;
         }
@@ -57,8 +57,9 @@ namespace VoxelGame.Client.Scenes
             Game.SetPlayer(Player);
 
             ui.Load();
-            ui.Resize(Client.Instance.Size);
+            ui.Resize(Screen.Size);
 
+            UI.UI.DisposeControl(control);
             control = new GameControl(ui);
 
             Game.ResetUpdate();
@@ -89,12 +90,12 @@ namespace VoxelGame.Client.Scenes
 
                 World.Update(deltaTime);
 
-                if (!Client.Instance.IsFocused) // check to see if the window is focused
+                if (!Screen.IsFocused) // check to see if the window is focused
                 {
                     return;
                 }
 
-                KeyboardState input = Client.Instance.LastKeyboardState;
+                KeyboardState input = Client.Keyboard;
 
                 if (hasReleasesWireframeKey && input.IsKeyDown(Key.K))
                 {
@@ -126,7 +127,7 @@ namespace VoxelGame.Client.Scenes
                 {
                     hasReleasedScreenshotKey = false;
 
-                    Screen.TakeScreenshot(screenshotDirectory);
+                    Screen.TakeScreenshot(client.ScreenshotDirectory);
                 }
                 else if (input.IsKeyUp(Key.F12))
                 {
@@ -174,6 +175,7 @@ namespace VoxelGame.Client.Scenes
                 if (disposing)
                 {
                     ui.Dispose();
+                    UI.UI.DisposeControl(control);
                 }
 
                 disposed = true;
@@ -183,7 +185,7 @@ namespace VoxelGame.Client.Scenes
         public void Dispose()
         {
             Dispose(disposing: true);
-            System.GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);
         }
 
         #endregion IDisposable Support.

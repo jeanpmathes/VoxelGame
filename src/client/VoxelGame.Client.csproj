@@ -10,6 +10,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <ApplicationIcon>vg_icon.ico</ApplicationIcon>
     <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
