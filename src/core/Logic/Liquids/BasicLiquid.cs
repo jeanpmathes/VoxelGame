@@ -50,7 +50,7 @@ namespace VoxelGame.Core.Logic.Liquids
 
             if (level != LiquidLevel.One && FlowVertical(x, y, z, level)) return;
 
-            Game.World.SetLiquid(this, level, true, x, y, z);
+            Game.World.ModifyLiquid(true, x, y, z);
         }
 
         protected bool FlowHorizontal(int x, int y, int z, LiquidLevel level)
