@@ -579,14 +579,14 @@ namespace VoxelGame.Core.Logic
         public void SetBlock(Block block, uint data, int x, int y, int z)
         {
             Liquid liquid = GetPosition(x, y, z, out _, out LiquidLevel level, out bool isStatic).liquid ?? Liquid.None;
-            SetPosition(block, data, liquid, level, isStatic, x, y, z);
+            SetPosition(block, data, liquid, level, isStatic, x, y, z, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetLiquid(Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z)
         {
             Block block = GetBlock(x, y, z, out uint data, out _, out _, out _) ?? Block.Air;
-            SetPosition(block, data, liquid, level, isStatic, x, y, z);
+            SetPosition(block, data, liquid, level, isStatic, x, y, z, false);
         }
 
         /// <summary>
@@ -603,7 +603,7 @@ namespace VoxelGame.Core.Logic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z)
+        public void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z, bool tickLiquid)
         {
             if (!activeChunks.TryGetValue((x >> SectionSizeExp, z >> SectionSizeExp), out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight * Section.SectionSize)
             {
@@ -612,6 +612,8 @@ namespace VoxelGame.Core.Logic
 
             uint val = (uint)((((isStatic ? 1 : 0) << Section.STATICSHIFT) & Section.STATICMASK) | (((uint)level << Section.LEVELSHIFT) & Section.LEVELMASK) | ((liquid.Id << Section.LIQUIDSHIFT) & Section.LIQUIDMASK) | ((data << Section.DATASHIFT) & Section.DATAMASK) | (block.Id & Section.BLOCKMASK));
             chunk.GetSection(y >> ChunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
+
+            if (tickLiquid) liquid.TickNow(x, y, z, level, isStatic);
 
             // Block updates - Side is passed out of the perspective of the block receiving the block update.
 

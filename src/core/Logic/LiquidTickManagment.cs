@@ -32,6 +32,13 @@ namespace VoxelGame.Core.Logic
             ScheduleTick(x, y, z);
         }
 
+        internal void TickNow(int x, int y, int z, LiquidLevel level, bool isStatic)
+        {
+            if (this == Liquid.None) return;
+
+            ScheduledUpdate(x, y, z, level, isStatic);
+        }
+
         [Serializable]
 #pragma warning disable CA1815 // Override equals and operator equals on value types
         internal struct LiquidTick : ITickable

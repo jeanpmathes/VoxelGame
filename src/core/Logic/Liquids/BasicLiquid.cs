@@ -46,25 +46,30 @@ namespace VoxelGame.Core.Logic.Liquids
 
         protected override void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
         {
-            if (FlowHorizontal(x, y, z, level)) return;
+            Block block = Game.World.GetBlock(x, y, z, out _) ?? Block.Air;
+            bool invalidLocation = (block != Block.Air);
 
-            if (level != LiquidLevel.One && FlowVertical(x, y, z, level)) return;
+            if (invalidLocation && FlowVertical(x, y, z, level, -Direction)) return;
+
+            if (FlowVertical(x, y, z, level, Direction)) return;
+
+            if (level != LiquidLevel.One && FlowHorizontal(x, y, z, level)) return;
 
             Game.World.ModifyLiquid(true, x, y, z);
         }
 
-        protected bool FlowHorizontal(int x, int y, int z, LiquidLevel level)
+        protected bool FlowVertical(int x, int y, int z, LiquidLevel level, int direction)
         {
-            (Block? blockVertical, Liquid? liquidVertical) = Game.World.GetPosition(x, y - Direction, z, out _, out LiquidLevel levelVertical, out bool isStatic);
+            (Block? blockVertical, Liquid? liquidVertical) = Game.World.GetPosition(x, y - direction, z, out _, out LiquidLevel levelVertical, out bool isStatic);
 
             if (blockVertical != Block.Air) return false;
 
             if (liquidVertical == Liquid.None)
             {
-                Game.World.SetLiquid(this, level, false, x, y - Direction, z);
+                Game.World.SetLiquid(this, level, false, x, y - direction, z);
                 Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
 
-                ScheduleTick(x, y - Direction, z);
+                ScheduleTick(x, y - direction, z);
 
                 return true;
             }
@@ -74,18 +79,18 @@ namespace VoxelGame.Core.Logic.Liquids
 
                 if (volume >= (int)level)
                 {
-                    Game.World.SetLiquid(this, levelVertical + (int)level + 1, false, x, y - Direction, z);
+                    Game.World.SetLiquid(this, levelVertical + (int)level + 1, false, x, y - direction, z);
                     Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, false, x, y, z);
                 }
                 else
                 {
-                    Game.World.SetLiquid(this, LiquidLevel.Eight, false, x, y - Direction, z);
+                    Game.World.SetLiquid(this, LiquidLevel.Eight, false, x, y - direction, z);
                     Game.World.SetLiquid(this, level - volume - 1, false, x, y, z);
 
                     ScheduleTick(x, y, z);
                 }
 
-                if (isStatic) ScheduleTick(x, y - Direction, z);
+                if (isStatic) ScheduleTick(x, y - direction, z);
 
                 return true;
             }
@@ -93,7 +98,7 @@ namespace VoxelGame.Core.Logic.Liquids
             return false;
         }
 
-        protected bool FlowVertical(int x, int y, int z, LiquidLevel level)
+        protected bool FlowHorizontal(int x, int y, int z, LiquidLevel level)
         {
             int horX = x, horZ = z;
             bool isHorStatic = false;
