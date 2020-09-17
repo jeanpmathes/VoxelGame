@@ -133,7 +133,7 @@ namespace VoxelGame.Core.Logic.Liquids
 
             if (horX != x || horZ != z)
             {
-                if (levelHorizontal == level - 1) return false;
+                if (levelHorizontal == level - 1 && !HasNeighborWithLevel(level - 2, horX, y, horZ)) return false;
 
                 Game.World.SetLiquid(this, levelHorizontal + 1, false, horX, y, horZ);
 
