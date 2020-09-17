@@ -123,7 +123,7 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public bool Take(int x, int y, int z, ref LiquidLevel level)
         {
-            if (Game.World.GetLiquid(x, y, z, out LiquidLevel available, out bool isStatic) == this)
+            if (Game.World.GetLiquid(x, y, z, out LiquidLevel available, out bool isStatic) == this && this != Liquid.None)
             {
                 if (level >= available)
                 {
