@@ -53,7 +53,7 @@ namespace VoxelGame.Core.Logic.Liquids
 
             if (FlowVertical(x, y, z, level, Direction)) return;
 
-            if (level != LiquidLevel.One && FlowHorizontal(x, y, z, level)) return;
+            if ((level != LiquidLevel.One || invalidLocation) && FlowHorizontal(x, y, z, level, invalidLocation)) return;
 
             Game.World.ModifyLiquid(true, x, y, z);
         }
@@ -80,7 +80,7 @@ namespace VoxelGame.Core.Logic.Liquids
                 if (volume >= (int)level)
                 {
                     Game.World.SetLiquid(this, levelVertical + (int)level + 1, false, x, y - direction, z);
-                    Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, false, x, y, z);
+                    Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
                 }
                 else
                 {
@@ -98,7 +98,7 @@ namespace VoxelGame.Core.Logic.Liquids
             return false;
         }
 
-        protected bool FlowHorizontal(int x, int y, int z, LiquidLevel level)
+        protected bool FlowHorizontal(int x, int y, int z, LiquidLevel level, bool flowUnlimited)
         {
             int horX = x, horZ = z;
             bool isHorStatic = false;
@@ -135,16 +135,29 @@ namespace VoxelGame.Core.Logic.Liquids
 
                 if (liquidNeighbor == Liquid.None)
                 {
-                    isStatic = true;
+                    if (flowUnlimited)
+                    {
+                        isStatic = true;
 
-                    Game.World.SetLiquid(this, LiquidLevel.One, false, nx, ny, nz);
+                        Game.World.SetLiquid(this, level, false, nx, ny, nz);
 
-                    if (isStatic) ScheduleTick(nx, ny, nz);
+                        if (isStatic) ScheduleTick(nx, ny, nz);
 
-                    bool remaining = level != LiquidLevel.One;
-                    Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, x, y, z);
+                        Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
+                    }
+                    else
+                    {
+                        isStatic = true;
 
-                    if (remaining) ScheduleTick(x, y, z);
+                        Game.World.SetLiquid(this, LiquidLevel.One, false, nx, ny, nz);
+
+                        if (isStatic) ScheduleTick(nx, ny, nz);
+
+                        bool remaining = level != LiquidLevel.One;
+                        Game.World.SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, x, y, z);
+
+                        if (remaining) ScheduleTick(x, y, z);
+                    }
 
                     return true;
                 }
