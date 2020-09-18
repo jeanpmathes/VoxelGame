@@ -147,14 +147,15 @@ namespace VoxelGame.Core.Logic
         protected abstract void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic);
 
         /// <summary>
-        /// Check if a liquid has a neighbor of the same liquid and this neighbor has a specified level. If the specified level is <c>-1</c>, the method searches for empty space instead.
+        /// Check if a liquid has a neighbor of the same liquid and this neighbor has a specified level. If the specified level is <c>-1</c>, false is directly returned.
         /// </summary>
         protected bool HasNeighborWithLevel(LiquidLevel level, int x, int y, int z)
         {
             return ((int)level != -1)
-                ? CheckNeighborForLevel(x, z - 1) || CheckNeighborForLevel(x + 1, z) || CheckNeighborForLevel(x, z + 1) || CheckNeighborForLevel(x - 1, z)
-                : CheckNeighborForEmpty(x, z - 1) || CheckNeighborForEmpty(x + 1, z) || CheckNeighborForEmpty(x, z + 1) || CheckNeighborForEmpty(x - 1, z)
-                ;
+                && CheckNeighborForLevel(x, z - 1)
+                || CheckNeighborForLevel(x + 1, z)
+                || CheckNeighborForLevel(x, z + 1)
+                || CheckNeighborForLevel(x - 1, z);
 
             bool CheckNeighborForLevel(int nx, int nz)
             {
@@ -166,11 +167,6 @@ namespace VoxelGame.Core.Logic
                 {
                     return false;
                 }
-            }
-
-            bool CheckNeighborForEmpty(int nx, int nz)
-            {
-                return Game.World.GetLiquid(nx, y, nz, out LiquidLevel _, out _) == Liquid.None;
             }
         }
 
