@@ -61,7 +61,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 if (FlowVertical(x, y, z, level, Direction, out _)) return;
 
-                if (level != LiquidLevel.One && FlowHorizontal(x, y, z, level)) return;
+                if (level != LiquidLevel.One ? FlowHorizontal(x, y, z, level) : TryPuddleFlow(x, y, z)) return;
 
                 Game.World.ModifyLiquid(true, x, y, z);
             }
@@ -118,6 +118,42 @@ namespace VoxelGame.Core.Logic.Liquids
             remaining = (int)level;
 
             return false;
+        }
+
+        protected bool TryPuddleFlow(int x, int y, int z)
+        {
+            if (TryFlow(x, z - 1)) return true;
+            if (TryFlow(x + 1, z)) return true;
+            if (TryFlow(x, z + 1)) return true;
+            if (TryFlow(x - 1, z)) return true;
+
+            return false;
+
+            bool TryFlow(int px, int pz)
+            {
+                (Block? block, Liquid? liquid) = Game.World.GetPosition(px, y, pz, out _, out _, out _);
+
+                if (block == Block.Air && liquid == Liquid.None && CheckLowerPosition(px, pz))
+                {
+                    Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
+                    Game.World.SetLiquid(this, LiquidLevel.One, false, px, y, pz);
+
+                    ScheduleTick(px, y, pz);
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            bool CheckLowerPosition(int px, int pz)
+            {
+                (Block? lowerBlock, Liquid? lowerLiquid) = Game.World.GetPosition(px, y - Direction, pz, out _, out LiquidLevel level, out _);
+
+                return lowerBlock == Block.Air && ((lowerLiquid == this && level != LiquidLevel.Eight) || lowerLiquid == Liquid.None);
+            }
         }
 
         protected bool FlowHorizontal(int x, int y, int z, LiquidLevel level)
