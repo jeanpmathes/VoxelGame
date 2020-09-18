@@ -579,18 +579,31 @@ namespace VoxelGame.Core.Logic
         public void SetBlock(Block block, uint data, int x, int y, int z)
         {
             Liquid liquid = GetPosition(x, y, z, out _, out LiquidLevel level, out bool isStatic).liquid ?? Liquid.None;
-            SetPosition(block, data, liquid, level, isStatic, x, y, z);
+            SetPosition(block, data, liquid, level, isStatic, x, y, z, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetLiquid(Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z)
         {
             Block block = GetBlock(x, y, z, out uint data, out _, out _, out _) ?? Block.Air;
-            SetPosition(block, data, liquid, level, isStatic, x, y, z);
+            SetPosition(block, data, liquid, level, isStatic, x, y, z, false);
+        }
+
+        /// <summary>
+        /// Set the <c>isStatic</c> flag of a liquid without causing any updates around this liquid.
+        /// </summary>
+        /// <param name="isStatic"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ModifyLiquid(bool isStatic, int x, int y, int z)
+        {
+            ModifyWorldData(x, y, z, ~Section.STATICMASK, isStatic ? Section.STATICMASK : 0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z)
+        public void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z, bool tickLiquid)
         {
             if (!activeChunks.TryGetValue((x >> SectionSizeExp, z >> SectionSizeExp), out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight * Section.SectionSize)
             {
@@ -600,18 +613,59 @@ namespace VoxelGame.Core.Logic
             uint val = (uint)((((isStatic ? 1 : 0) << Section.STATICSHIFT) & Section.STATICMASK) | (((uint)level << Section.LEVELSHIFT) & Section.LEVELMASK) | ((liquid.Id << Section.LIQUIDSHIFT) & Section.LIQUIDMASK) | ((data << Section.DATASHIFT) & Section.DATAMASK) | (block.Id & Section.BLOCKMASK));
             chunk.GetSection(y >> ChunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
 
+            if (tickLiquid) liquid.TickNow(x, y, z, level, isStatic);
+
             // Block updates - Side is passed out of the perspective of the block receiving the block update.
-            GetBlock(x, y, z + 1, out data)?.BlockUpdate(x, y, z + 1, data, BlockSide.Back);
-            GetBlock(x, y, z - 1, out data)?.BlockUpdate(x, y, z - 1, data, BlockSide.Front);
-            GetBlock(x - 1, y, z, out data)?.BlockUpdate(x - 1, y, z, data, BlockSide.Right);
-            GetBlock(x + 1, y, z, out data)?.BlockUpdate(x + 1, y, z, data, BlockSide.Left);
-            GetBlock(x, y - 1, z, out data)?.BlockUpdate(x, y - 1, z, data, BlockSide.Top);
-            GetBlock(x, y + 1, z, out data)?.BlockUpdate(x, y + 1, z, data, BlockSide.Bottom);
+
+            (Block? blockNeighbour, Liquid? liquidNeighbour) = GetPosition(x, y, z + 1, out data, out _, out isStatic);
+            blockNeighbour?.BlockUpdate(x, y, z + 1, data, BlockSide.Back);
+            liquidNeighbour?.TickSoon(x, y, z + 1, isStatic);
+
+            (blockNeighbour, liquidNeighbour) = GetPosition(x, y, z - 1, out data, out _, out isStatic);
+            blockNeighbour?.BlockUpdate(x, y, z - 1, data, BlockSide.Front);
+            liquidNeighbour?.TickSoon(x, y, z - 1, isStatic);
+
+            (blockNeighbour, liquidNeighbour) = GetPosition(x - 1, y, z, out data, out _, out isStatic);
+            blockNeighbour?.BlockUpdate(x - 1, y, z, data, BlockSide.Right);
+            liquidNeighbour?.TickSoon(x - 1, y, z, isStatic);
+
+            (blockNeighbour, liquidNeighbour) = GetPosition(x + 1, y, z, out data, out _, out isStatic);
+            blockNeighbour?.BlockUpdate(x + 1, y, z, data, BlockSide.Left);
+            liquidNeighbour?.TickSoon(x + 1, y, z, isStatic);
+
+            (blockNeighbour, liquidNeighbour) = GetPosition(x, y - 1, z, out data, out _, out isStatic);
+            blockNeighbour?.BlockUpdate(x, y - 1, z, data, BlockSide.Top);
+            liquidNeighbour?.TickSoon(x, y - 1, z, isStatic);
+
+            (blockNeighbour, liquidNeighbour) = GetPosition(x, y + 1, z, out data, out _, out isStatic);
+            blockNeighbour?.BlockUpdate(x, y + 1, z, data, BlockSide.Bottom);
+            liquidNeighbour?.TickSoon(x, y + 1, z, isStatic);
 
             ProcessChangedSection(chunk, x, y, z);
         }
 
         protected abstract void ProcessChangedSection(Chunk chunk, int x, int y, int z);
+
+        /// <summary>
+        /// Modify the data of a position, without causing any updates.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ModifyWorldData(int x, int y, int z, uint clearMask, uint addMask)
+        {
+            if (!activeChunks.TryGetValue((x >> SectionSizeExp, z >> SectionSizeExp), out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight * Section.SectionSize)
+            {
+                return;
+            }
+
+            uint val = chunk.GetSection(y >> ChunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
+
+            val &= clearMask;
+            val |= addMask;
+
+            chunk.GetSection(y >> ChunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
+
+            ProcessChangedSection(chunk, x, y, z);
+        }
 
         /// <summary>
         /// Gets an active chunk.

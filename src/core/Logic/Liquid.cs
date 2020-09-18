@@ -86,6 +86,7 @@ namespace VoxelGame.Core.Logic
         {
             (Block? block, Liquid? target) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel current, out bool isStatic);
 
+            // ! Liquid flow check, has to be replaced with interface check when available.
             if (block != Block.Air)
             {
                 remaining = (int)level;
@@ -123,7 +124,7 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public bool Take(int x, int y, int z, ref LiquidLevel level)
         {
-            if (Game.World.GetLiquid(x, y, z, out LiquidLevel available, out bool isStatic) == this)
+            if (Game.World.GetLiquid(x, y, z, out LiquidLevel available, out bool isStatic) == this && this != Liquid.None)
             {
                 if (level >= available)
                 {
@@ -144,6 +145,34 @@ namespace VoxelGame.Core.Logic
         }
 
         protected abstract void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic);
+
+        /// <summary>
+        /// Check if a liquid has a neighbor of the same liquid and this neighbor has a specified level. If the specified level is <c>-1</c>, the method searches for empty space instead.
+        /// </summary>
+        protected bool HasNeighborWithLevel(LiquidLevel level, int x, int y, int z)
+        {
+            return ((int)level != -1)
+                ? CheckNeighborForLevel(x, z - 1) || CheckNeighborForLevel(x + 1, z) || CheckNeighborForLevel(x, z + 1) || CheckNeighborForLevel(x - 1, z)
+                : CheckNeighborForEmpty(x, z - 1) || CheckNeighborForEmpty(x + 1, z) || CheckNeighborForEmpty(x, z + 1) || CheckNeighborForEmpty(x - 1, z)
+                ;
+
+            bool CheckNeighborForLevel(int nx, int nz)
+            {
+                if (Game.World.GetLiquid(nx, y, nz, out LiquidLevel neighborLevel, out _) == this)
+                {
+                    return neighborLevel == level;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            bool CheckNeighborForEmpty(int nx, int nz)
+            {
+                return Game.World.GetLiquid(nx, y, nz, out LiquidLevel _, out _) == Liquid.None;
+            }
+        }
 
         public sealed override string ToString()
         {

@@ -12,10 +12,31 @@ namespace VoxelGame.Core.Logic
     {
         public const int MaxLiquidTicksPerFrameAndChunk = 1024;
 
+        /// <summary>
+        /// Schedules a tick according to the viscosity.
+        /// </summary>
         protected void ScheduleTick(int x, int y, int z)
         {
             Chunk? chunk = Game.World.GetChunkOfPosition(x, z);
             chunk?.ScheduleLiquidTick(new LiquidTick(x, y, z, this), Viscosity);
+        }
+
+        /// <summary>
+        /// Will schedule a tick for a liquid according to the viscosity.
+        /// </summary>
+        internal void TickSoon(int x, int y, int z, bool isStatic)
+        {
+            if (!isStatic || this == Liquid.None) return;
+
+            Game.World.ModifyLiquid(false, x, y, z);
+            ScheduleTick(x, y, z);
+        }
+
+        internal void TickNow(int x, int y, int z, LiquidLevel level, bool isStatic)
+        {
+            if (this == Liquid.None) return;
+
+            ScheduledUpdate(x, y, z, level, isStatic);
         }
 
         [Serializable]

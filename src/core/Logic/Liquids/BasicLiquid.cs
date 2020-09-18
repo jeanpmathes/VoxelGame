@@ -46,25 +46,48 @@ namespace VoxelGame.Core.Logic.Liquids
 
         protected override void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
         {
-            if (FlowHorizontal(x, y, z, level)) return;
+            Block block = Game.World.GetBlock(x, y, z, out _) ?? Block.Air;
+            // ! Liquid flow check, has to be replaced with interface check when available.
+            bool invalidLocation = (block != Block.Air);
 
-            if (level != LiquidLevel.One && FlowVertical(x, y, z, level)) return;
+            if (invalidLocation)
+            {
+                if (FlowVertical(x, y, z, level, -Direction, out int remaining) && remaining == -1) return;
 
-            Game.World.SetLiquid(this, level, true, x, y, z);
+                if (FlowVertical(x, y, z, (LiquidLevel)remaining, Direction, out remaining) && remaining == -1) return;
+
+                SpreadOrDestroyLiquid(x, y, z, (LiquidLevel)remaining);
+            }
+            else
+            {
+                if (FlowVertical(x, y, z, level, Direction, out _)) return;
+
+                if (level != LiquidLevel.One ? FlowHorizontal(x, y, z, level) : TryPuddleFlow(x, y, z)) return;
+
+                Game.World.ModifyLiquid(true, x, y, z);
+            }
         }
 
-        protected bool FlowHorizontal(int x, int y, int z, LiquidLevel level)
+        protected bool FlowVertical(int x, int y, int z, LiquidLevel level, int direction, out int remaining)
         {
-            (Block? blockVertical, Liquid? liquidVertical) = Game.World.GetPosition(x, y - Direction, z, out _, out LiquidLevel levelVertical, out bool isStatic);
+            (Block? blockVertical, Liquid? liquidVertical) = Game.World.GetPosition(x, y - direction, z, out _, out LiquidLevel levelVertical, out bool isStatic);
 
-            if (blockVertical != Block.Air) return false;
+            // ! Liquid flow check, has to be replaced with interface check when available.
+            if (blockVertical != Block.Air)
+            {
+                remaining = (int)level;
+
+                return false;
+            }
 
             if (liquidVertical == Liquid.None)
             {
-                Game.World.SetLiquid(this, level, false, x, y - Direction, z);
+                Game.World.SetLiquid(this, level, false, x, y - direction, z);
                 Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
 
-                ScheduleTick(x, y - Direction, z);
+                ScheduleTick(x, y - direction, z);
+
+                remaining = -1;
 
                 return true;
             }
@@ -74,26 +97,70 @@ namespace VoxelGame.Core.Logic.Liquids
 
                 if (volume >= (int)level)
                 {
-                    Game.World.SetLiquid(this, levelVertical + (int)level + 1, false, x, y - Direction, z);
-                    Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, false, x, y, z);
+                    Game.World.SetLiquid(this, levelVertical + (int)level + 1, false, x, y - direction, z);
+                    Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
+
+                    remaining = -1;
                 }
                 else
                 {
-                    Game.World.SetLiquid(this, LiquidLevel.Eight, false, x, y - Direction, z);
+                    Game.World.SetLiquid(this, LiquidLevel.Eight, false, x, y - direction, z);
                     Game.World.SetLiquid(this, level - volume - 1, false, x, y, z);
+
+                    remaining = (int)(level - volume - 1);
 
                     ScheduleTick(x, y, z);
                 }
 
-                if (isStatic) ScheduleTick(x, y - Direction, z);
+                if (isStatic) ScheduleTick(x, y - direction, z);
 
                 return true;
             }
 
+            remaining = (int)level;
+
             return false;
         }
 
-        protected bool FlowVertical(int x, int y, int z, LiquidLevel level)
+        protected bool TryPuddleFlow(int x, int y, int z)
+        {
+            if (TryFlow(x, z - 1)) return true;
+            if (TryFlow(x + 1, z)) return true;
+            if (TryFlow(x, z + 1)) return true;
+            if (TryFlow(x - 1, z)) return true;
+
+            return false;
+
+            bool TryFlow(int px, int pz)
+            {
+                (Block? block, Liquid? liquid) = Game.World.GetPosition(px, y, pz, out _, out _, out _);
+
+                // ! Liquid flow check, has to be replaced with interface check when available.
+                if (block == Block.Air && liquid == Liquid.None && CheckLowerPosition(px, pz))
+                {
+                    Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
+                    Game.World.SetLiquid(this, LiquidLevel.One, false, px, y, pz);
+
+                    ScheduleTick(px, y, pz);
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            bool CheckLowerPosition(int px, int pz)
+            {
+                (Block? lowerBlock, Liquid? lowerLiquid) = Game.World.GetPosition(px, y - Direction, pz, out _, out LiquidLevel level, out _);
+
+                // ! Liquid flow check, has to be replaced with interface check when available.
+                return lowerBlock == Block.Air && ((lowerLiquid == this && level != LiquidLevel.Eight) || lowerLiquid == Liquid.None);
+            }
+        }
+
+        protected bool FlowHorizontal(int x, int y, int z, LiquidLevel level)
         {
             int horX = x, horZ = z;
             bool isHorStatic = false;
@@ -106,7 +173,7 @@ namespace VoxelGame.Core.Logic.Liquids
 
             if (horX != x || horZ != z)
             {
-                if (levelHorizontal == level - 1) return false;
+                if (levelHorizontal == level - 1 && !HasNeighborWithLevel(level - 2, horX, y, horZ)) return false;
 
                 Game.World.SetLiquid(this, levelHorizontal + 1, false, horX, y, horZ);
 
@@ -126,6 +193,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? blockNeighbor, Liquid? liquidNeighbor) = Game.World.GetPosition(nx, ny, nz, out _, out LiquidLevel levelNeighbor, out bool isStatic);
 
+                // ! Liquid flow check, has to be replaced with interface check when available.
                 if (blockNeighbor != Block.Air) return false;
 
                 if (liquidNeighbor == Liquid.None)
@@ -152,6 +220,63 @@ namespace VoxelGame.Core.Logic.Liquids
                 }
 
                 return false;
+            }
+        }
+
+        protected void SpreadOrDestroyLiquid(int x, int y, int z, LiquidLevel level)
+        {
+            int remaining = (int)level;
+
+            SpreadLiquid();
+
+            Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
+
+            void SpreadLiquid()
+            {
+                if (FillNeighbor(x, y, z - 1) == -1) return; // North.
+                if (FillNeighbor(x + 1, y, z) == -1) return; // East.
+                if (FillNeighbor(x, y, z + 1) == -1) return; // South.
+                FillNeighbor(x - 1, y, z); // West.
+            }
+
+            int FillNeighbor(int nx, int ny, int nz)
+            {
+                (Block? blockNeighbor, Liquid? liquidNeighbor) = Game.World.GetPosition(nx, ny, nz, out _, out LiquidLevel levelNeighbor, out bool isStatic);
+
+                // ! Liquid flow check, has to be replaced with interface check when available.
+                if (blockNeighbor != Block.Air) return remaining;
+
+                if (liquidNeighbor == Liquid.None)
+                {
+                    isStatic = true;
+
+                    Game.World.SetLiquid(this, (LiquidLevel)remaining, false, nx, ny, nz);
+
+                    remaining = -1;
+
+                    if (isStatic) ScheduleTick(nx, ny, nz);
+                }
+                else if (liquidNeighbor == this)
+                {
+                    int volume = LiquidLevel.Eight - levelNeighbor - 1;
+
+                    if (volume >= remaining)
+                    {
+                        Game.World.SetLiquid(this, levelNeighbor + remaining + 1, false, nx, ny, nz);
+
+                        remaining = -1;
+                    }
+                    else
+                    {
+                        Game.World.SetLiquid(this, LiquidLevel.Eight, false, nx, ny, nz);
+
+                        remaining = remaining - volume - 1;
+                    }
+
+                    if (isStatic) ScheduleTick(nx, ny, nz);
+                }
+
+                return remaining;
             }
         }
     }
