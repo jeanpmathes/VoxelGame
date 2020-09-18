@@ -47,6 +47,7 @@ namespace VoxelGame.Core.Logic.Liquids
         protected override void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
         {
             Block block = Game.World.GetBlock(x, y, z, out _) ?? Block.Air;
+            // ! Liquid flow check, has to be replaced with interface check when available.
             bool invalidLocation = (block != Block.Air);
 
             if (invalidLocation)
@@ -71,6 +72,7 @@ namespace VoxelGame.Core.Logic.Liquids
         {
             (Block? blockVertical, Liquid? liquidVertical) = Game.World.GetPosition(x, y - direction, z, out _, out LiquidLevel levelVertical, out bool isStatic);
 
+            // ! Liquid flow check, has to be replaced with interface check when available.
             if (blockVertical != Block.Air)
             {
                 remaining = (int)level;
@@ -133,6 +135,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? block, Liquid? liquid) = Game.World.GetPosition(px, y, pz, out _, out _, out _);
 
+                // ! Liquid flow check, has to be replaced with interface check when available.
                 if (block == Block.Air && liquid == Liquid.None && CheckLowerPosition(px, pz))
                 {
                     Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
@@ -152,6 +155,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? lowerBlock, Liquid? lowerLiquid) = Game.World.GetPosition(px, y - Direction, pz, out _, out LiquidLevel level, out _);
 
+                // ! Liquid flow check, has to be replaced with interface check when available.
                 return lowerBlock == Block.Air && ((lowerLiquid == this && level != LiquidLevel.Eight) || lowerLiquid == Liquid.None);
             }
         }
@@ -189,6 +193,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? blockNeighbor, Liquid? liquidNeighbor) = Game.World.GetPosition(nx, ny, nz, out _, out LiquidLevel levelNeighbor, out bool isStatic);
 
+                // ! Liquid flow check, has to be replaced with interface check when available.
                 if (blockNeighbor != Block.Air) return false;
 
                 if (liquidNeighbor == Liquid.None)
@@ -238,6 +243,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? blockNeighbor, Liquid? liquidNeighbor) = Game.World.GetPosition(nx, ny, nz, out _, out LiquidLevel levelNeighbor, out bool isStatic);
 
+                // ! Liquid flow check, has to be replaced with interface check when available.
                 if (blockNeighbor != Block.Air) return remaining;
 
                 if (liquidNeighbor == Liquid.None)

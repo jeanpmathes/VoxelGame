@@ -86,6 +86,7 @@ namespace VoxelGame.Core.Logic
         {
             (Block? block, Liquid? target) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel current, out bool isStatic);
 
+            // ! Liquid flow check, has to be replaced with interface check when available.
             if (block != Block.Air)
             {
                 remaining = (int)level;
