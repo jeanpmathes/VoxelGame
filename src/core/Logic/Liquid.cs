@@ -88,6 +88,18 @@ namespace VoxelGame.Core.Logic
             return new BoundingBox(new Vector3(x, y + halfHeight, z), new Vector3(0.5f, halfHeight, 0.5f));
         }
 
+        public void EntityContact(PhysicsEntity entity, int x, int y, int z)
+        {
+            if (Game.World.GetLiquid(x, y, z, out LiquidLevel level, out bool isStatic) == this)
+            {
+                EntityContact(entity, x, y, z, level, isStatic);
+            }
+        }
+
+        protected virtual void EntityContact(PhysicsEntity entity, int x, int y, int z, LiquidLevel level, bool isStatic)
+        {
+        }
+
         /// <summary>
         /// Tries to fill a position with the specified amount of liquid. The remaining liquid is specified, it can be converted to <see cref="LiquidLevel"/> if it is not <c>-1</c>.
         /// </summary>
