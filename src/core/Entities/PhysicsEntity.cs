@@ -114,19 +114,25 @@ namespace VoxelGame.Core.Entities
             Vector3 movement = Velocity * deltaTime;
             movement *= 1f / physicsIterations;
 
-            HashSet<(int x, int y, int z, Logic.Block block)> intersections = new HashSet<(int x, int y, int z, Logic.Block block)>();
+            HashSet<(int x, int y, int z, Logic.Block block)> blockIntersections = new HashSet<(int x, int y, int z, Logic.Block block)>();
+            HashSet<(int x, int y, int z, Logic.Liquid liquid)> liquidIntersections = new HashSet<(int x, int y, int z, Logic.Liquid liquid)>();
 
             for (int i = 0; i < physicsIterations; i++)
             {
-                DoPhysicsStep(ref movement, ref intersections);
+                DoPhysicsStep(ref movement, ref blockIntersections, ref liquidIntersections);
             }
 
-            foreach ((int x, int y, int z, Logic.Block block) in intersections)
+            foreach ((int x, int y, int z, Logic.Block block) in blockIntersections)
             {
                 if (block.RecieveCollisions)
                 {
                     block.EntityCollision(this, x, y, z);
                 }
+            }
+
+            foreach ((int x, int y, int z, Logic.Liquid liquid) in liquidIntersections)
+            {
+                liquid.EntityContact(this, x, y, z);
             }
 
             boundingBox.Center = Position;
@@ -136,11 +142,11 @@ namespace VoxelGame.Core.Entities
             Update(deltaTime);
         }
 
-        private void DoPhysicsStep(ref Vector3 movement, ref HashSet<(int x, int y, int z, Logic.Block block)> intersections)
+        private void DoPhysicsStep(ref Vector3 movement, ref HashSet<(int x, int y, int z, Logic.Block block)> blockIntersections, ref HashSet<(int x, int y, int z, Logic.Liquid liquid)> liquidIntersections)
         {
             boundingBox.Center += movement;
 
-            if (BoundingBox.IntersectsTerrain(ref intersections, out bool xCollision, out bool yCollision, out bool zCollision))
+            if (BoundingBox.IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision, ref blockIntersections, ref liquidIntersections))
             {
                 if (yCollision)
                 {

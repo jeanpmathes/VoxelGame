@@ -18,7 +18,8 @@ namespace VoxelGame.Core.Logic.Liquids
                 namedId,
                 0f,
                 1,
-                isRendered: false)
+                isRendered: false,
+                isTrigger: false)
         {
         }
 

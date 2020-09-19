@@ -48,7 +48,12 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public bool IsRendered { get; }
 
-        protected Liquid(string name, string namedId, float density, int viscosity, bool isRendered)
+        /// <summary>
+        /// Gets whether this liquid receives entity contacts.
+        /// </summary>
+        public bool IsTrigger { get; }
+
+        protected Liquid(string name, string namedId, float density, int viscosity, bool isRendered, bool isTrigger)
         {
             Name = name;
             NamedId = namedId;
@@ -59,6 +64,7 @@ namespace VoxelGame.Core.Logic
             Viscosity = viscosity;
 
             IsRendered = isRendered;
+            IsTrigger = isTrigger;
 
             if (liquidDictionary.Count < LiquidLimit)
             {
@@ -173,10 +179,10 @@ namespace VoxelGame.Core.Logic
         protected bool HasNeighborWithLevel(LiquidLevel level, int x, int y, int z)
         {
             return ((int)level != -1)
-                && CheckNeighborForLevel(x, z - 1)
+                && (CheckNeighborForLevel(x, z - 1)
                 || CheckNeighborForLevel(x + 1, z)
                 || CheckNeighborForLevel(x, z + 1)
-                || CheckNeighborForLevel(x - 1, z);
+                || CheckNeighborForLevel(x - 1, z));
 
             bool CheckNeighborForLevel(int nx, int nz)
             {
