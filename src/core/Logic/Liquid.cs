@@ -4,6 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using System;
+using OpenToolkit.Mathematics;
+using VoxelGame.Core.Entities;
+using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic
@@ -78,6 +81,12 @@ namespace VoxelGame.Core.Logic
         }
 
         public abstract void GetMesh(LiquidLevel level, BlockSide side, bool isStatic, out int textureIndex, out TintColor tint);
+
+        public static BoundingBox GetBoundingBox(int x, int y, int z, LiquidLevel level)
+        {
+            float halfHeight = ((int)level + 1) * 0.125f;
+            return new BoundingBox(new Vector3(x, y + halfHeight, z), new Vector3(0.5f, halfHeight, 0.5f));
+        }
 
         /// <summary>
         /// Tries to fill a position with the specified amount of liquid. The remaining liquid is specified, it can be converted to <see cref="LiquidLevel"/> if it is not <c>-1</c>.
