@@ -49,11 +49,16 @@ namespace VoxelGame.Core.Logic
         public bool IsRendered { get; }
 
         /// <summary>
+        /// Gets whether entity contacts have to be checked.
+        /// </summary>
+        public bool CheckContact { get; }
+
+        /// <summary>
         /// Gets whether this liquid receives entity contacts.
         /// </summary>
-        public bool IsTrigger { get; }
+        public bool ReceiveContact { get; }
 
-        protected Liquid(string name, string namedId, float density, int viscosity, bool isRendered, bool isTrigger)
+        protected Liquid(string name, string namedId, float density, int viscosity, bool isRendered, bool checkContact, bool receiveContact)
         {
             Name = name;
             NamedId = namedId;
@@ -64,7 +69,9 @@ namespace VoxelGame.Core.Logic
             Viscosity = viscosity;
 
             IsRendered = isRendered;
-            IsTrigger = isTrigger;
+
+            CheckContact = checkContact;
+            ReceiveContact = receiveContact;
 
             if (liquidDictionary.Count < LiquidLimit)
             {
@@ -90,7 +97,7 @@ namespace VoxelGame.Core.Logic
 
         public static BoundingBox GetBoundingBox(int x, int y, int z, LiquidLevel level)
         {
-            float halfHeight = ((int)level + 1) * 0.125f;
+            float halfHeight = ((int)level + 1) * 0.0625f;
             return new BoundingBox(new Vector3(x, y + halfHeight, z), new Vector3(0.5f, halfHeight, 0.5f));
         }
 

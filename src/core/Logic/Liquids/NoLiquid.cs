@@ -19,7 +19,8 @@ namespace VoxelGame.Core.Logic.Liquids
                 0f,
                 1,
                 isRendered: false,
-                isTrigger: false)
+                checkContact: false,
+                receiveContact: false)
         {
         }
 

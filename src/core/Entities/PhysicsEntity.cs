@@ -6,6 +6,7 @@
 using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 
@@ -40,6 +41,7 @@ namespace VoxelGame.Core.Entities
         public Quaternion Rotation { get; set; }
 
         public bool IsGrounded { get; private set; }
+        public bool IsSwimming { get; private set; }
 
         public Vector3 Forward
         {
@@ -107,6 +109,7 @@ namespace VoxelGame.Core.Entities
         public void Tick(float deltaTime)
         {
             IsGrounded = false;
+            IsSwimming = false;
 
             force -= Velocity.Sign() * (Velocity * Velocity) * Drag;
             Velocity += force / Mass * deltaTime;
@@ -114,8 +117,8 @@ namespace VoxelGame.Core.Entities
             Vector3 movement = Velocity * deltaTime;
             movement *= 1f / physicsIterations;
 
-            HashSet<(int x, int y, int z, Logic.Block block)> blockIntersections = new HashSet<(int x, int y, int z, Logic.Block block)>();
-            HashSet<(int x, int y, int z, Logic.Liquid liquid)> liquidIntersections = new HashSet<(int x, int y, int z, Logic.Liquid liquid)>();
+            HashSet<(int x, int y, int z, Block block)> blockIntersections = new HashSet<(int x, int y, int z, Block block)>();
+            HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections = new HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)>();
 
             for (int i = 0; i < physicsIterations; i++)
             {
@@ -130,19 +133,36 @@ namespace VoxelGame.Core.Entities
                 }
             }
 
-            foreach ((int x, int y, int z, Logic.Liquid liquid) in liquidIntersections)
+            Vector3 liquidDrag = Vector3.Zero;
+
+            if (liquidIntersections.Count != 0)
             {
-                liquid.EntityContact(this, x, y, z);
+                float density = 0f;
+                int maxLevel = -1;
+
+                foreach ((int x, int y, int z, Liquid liquid, LiquidLevel level) in liquidIntersections)
+                {
+                    if (liquid.ReceiveContact) liquid.EntityContact(this, x, y, z);
+
+                    if ((int)level > maxLevel || (maxLevel == 7 && liquid.Density > density))
+                    {
+                        density = liquid.Density;
+                        maxLevel = (int)level;
+                    }
+                }
+
+                liquidDrag = 0.5f * density * Velocity.Sign() * (Velocity * Velocity) * ((maxLevel + 1) / 8f);
             }
 
             boundingBox.Center = Position;
 
             force = new Vector3(0f, Gravity * Mass, 0f);
+            force -= liquidDrag;
 
             Update(deltaTime);
         }
 
-        private void DoPhysicsStep(ref Vector3 movement, ref HashSet<(int x, int y, int z, Logic.Block block)> blockIntersections, ref HashSet<(int x, int y, int z, Logic.Liquid liquid)> liquidIntersections)
+        private void DoPhysicsStep(ref Vector3 movement, ref HashSet<(int x, int y, int z, Block block)> blockIntersections, ref HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections)
         {
             boundingBox.Center += movement;
 

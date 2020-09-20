@@ -297,7 +297,7 @@ namespace VoxelGame.Core.Physics
             }
         }
 
-        private bool IntersectsTerrain_NonRecursive(out bool xCollision, out bool yCollision, out bool zCollision, ref HashSet<(int x, int y, int z, Block block)> blockIntersections, ref HashSet<(int x, int y, int z, Liquid liquid)> liquidIntersections)
+        private bool IntersectsTerrain_NonRecursive(out bool xCollision, out bool yCollision, out bool zCollision, ref HashSet<(int x, int y, int z, Block block)> blockIntersections, ref HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections)
         {
             bool intersects = false;
 
@@ -351,13 +351,13 @@ namespace VoxelGame.Core.Physics
                             }
                         }
 
-                        if (currentLiquid?.IsTrigger == true)
+                        if (currentLiquid?.CheckContact == true)
                         {
                             BoundingBox currentBoundingBox = Liquid.GetBoundingBox(x + xPos, y + yPos, z + zPos, level);
 
                             if (Intersects(currentBoundingBox))
                             {
-                                liquidIntersections.Add((x + xPos, y + yPos, z + zPos, currentLiquid));
+                                liquidIntersections.Add((x + xPos, y + yPos, z + zPos, currentLiquid, level));
                             }
                         }
                     }
@@ -370,7 +370,7 @@ namespace VoxelGame.Core.Physics
         /// <summary>
         /// Calculate all intersections of a <see cref="BoundingBox"/> with the terrain.
         /// </summary>
-        public bool IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision, ref HashSet<(int x, int y, int z, Block block)> blockIntersections, ref HashSet<(int x, int y, int z, Liquid liquid)> liquidIntersections)
+        public bool IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision, ref HashSet<(int x, int y, int z, Block block)> blockIntersections, ref HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections)
         {
             bool isIntersecting = IntersectsTerrain_NonRecursive(out xCollision, out yCollision, out zCollision, ref blockIntersections, ref liquidIntersections);
 

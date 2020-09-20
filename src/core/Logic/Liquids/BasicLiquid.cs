@@ -25,7 +25,8 @@ namespace VoxelGame.Core.Logic.Liquids
                 density,
                 viscosity,
                 isRendered: true,
-                isTrigger: true)
+                checkContact: true,
+                receiveContact: false)
         {
             this.neutralTint = neutralTint;
 
