@@ -152,6 +152,8 @@ namespace VoxelGame.Core.Entities
                 }
 
                 liquidDrag = 0.5f * density * Velocity.Sign() * (Velocity * Velocity) * ((maxLevel + 1) / 8f);
+
+                if (!IsGrounded) IsSwimming = true;
             }
 
             boundingBox.Center = Position;
