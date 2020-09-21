@@ -6,6 +6,7 @@
 using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 
@@ -40,6 +41,7 @@ namespace VoxelGame.Core.Entities
         public Quaternion Rotation { get; set; }
 
         public bool IsGrounded { get; private set; }
+        public bool IsSwimming { get; private set; }
 
         public Vector3 Forward
         {
@@ -94,19 +96,21 @@ namespace VoxelGame.Core.Entities
         /// <summary>
         /// Tries to move the entity in a certain direction using forces, but never using more force than specified.
         /// </summary>
-        /// <param name="movement">The target movement, can be null to try to stop moving.</param>
+        /// <param name="movement">The target movement, can be zero to try to stop moving.</param>
         /// <param name="maxForce">The maximum allowed force to use.</param>
         public void Move(Vector3 movement, Vector3 maxForce)
         {
             maxForce = maxForce.Absolute();
 
             Vector3 requiredForce = (movement - Velocity) * Mass;
+            requiredForce -= force;
             AddForce(VMath.ClampComponents(requiredForce, -maxForce, maxForce));
         }
 
         public void Tick(float deltaTime)
         {
             IsGrounded = false;
+            IsSwimming = false;
 
             force -= Velocity.Sign() * (Velocity * Velocity) * Drag;
             Velocity += force / Mass * deltaTime;
@@ -114,14 +118,15 @@ namespace VoxelGame.Core.Entities
             Vector3 movement = Velocity * deltaTime;
             movement *= 1f / physicsIterations;
 
-            HashSet<(int x, int y, int z, Logic.Block block)> intersections = new HashSet<(int x, int y, int z, Logic.Block block)>();
+            HashSet<(int x, int y, int z, Block block)> blockIntersections = new HashSet<(int x, int y, int z, Block block)>();
+            HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections = new HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)>();
 
             for (int i = 0; i < physicsIterations; i++)
             {
-                DoPhysicsStep(ref movement, ref intersections);
+                DoPhysicsStep(ref movement, ref blockIntersections, ref liquidIntersections);
             }
 
-            foreach ((int x, int y, int z, Logic.Block block) in intersections)
+            foreach ((int x, int y, int z, Logic.Block block) in blockIntersections)
             {
                 if (block.RecieveCollisions)
                 {
@@ -129,18 +134,42 @@ namespace VoxelGame.Core.Entities
                 }
             }
 
+            Vector3 liquidDrag = Vector3.Zero;
+
+            if (liquidIntersections.Count != 0)
+            {
+                float density = 0f;
+                int maxLevel = -1;
+
+                foreach ((int x, int y, int z, Liquid liquid, LiquidLevel level) in liquidIntersections)
+                {
+                    if (liquid.ReceiveContact) liquid.EntityContact(this, x, y, z);
+
+                    if ((int)level > maxLevel || (maxLevel == 7 && liquid.Density > density))
+                    {
+                        density = liquid.Density;
+                        maxLevel = (int)level;
+                    }
+                }
+
+                liquidDrag = 0.5f * density * Velocity.Sign() * (Velocity * Velocity) * ((maxLevel + 1) / 8f) * 0.25f;
+
+                if (!IsGrounded) IsSwimming = true;
+            }
+
             boundingBox.Center = Position;
 
             force = new Vector3(0f, Gravity * Mass, 0f);
+            force -= liquidDrag;
 
             Update(deltaTime);
         }
 
-        private void DoPhysicsStep(ref Vector3 movement, ref HashSet<(int x, int y, int z, Logic.Block block)> intersections)
+        private void DoPhysicsStep(ref Vector3 movement, ref HashSet<(int x, int y, int z, Block block)> blockIntersections, ref HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections)
         {
             boundingBox.Center += movement;
 
-            if (BoundingBox.IntersectsTerrain(ref intersections, out bool xCollision, out bool yCollision, out bool zCollision))
+            if (BoundingBox.IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision, ref blockIntersections, ref liquidIntersections))
             {
                 if (yCollision)
                 {

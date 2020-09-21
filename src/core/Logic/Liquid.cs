@@ -4,6 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using System;
+using OpenToolkit.Mathematics;
+using VoxelGame.Core.Entities;
+using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic
@@ -45,7 +48,17 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public bool IsRendered { get; }
 
-        protected Liquid(string name, string namedId, float density, int viscosity, bool isRendered)
+        /// <summary>
+        /// Gets whether entity contacts have to be checked.
+        /// </summary>
+        public bool CheckContact { get; }
+
+        /// <summary>
+        /// Gets whether this liquid receives entity contacts.
+        /// </summary>
+        public bool ReceiveContact { get; }
+
+        protected Liquid(string name, string namedId, float density, int viscosity, bool isRendered, bool checkContact, bool receiveContact)
         {
             Name = name;
             NamedId = namedId;
@@ -56,6 +69,9 @@ namespace VoxelGame.Core.Logic
             Viscosity = viscosity;
 
             IsRendered = isRendered;
+
+            CheckContact = checkContact;
+            ReceiveContact = receiveContact;
 
             if (liquidDictionary.Count < LiquidLimit)
             {
@@ -78,6 +94,24 @@ namespace VoxelGame.Core.Logic
         }
 
         public abstract void GetMesh(LiquidLevel level, BlockSide side, bool isStatic, out int textureIndex, out TintColor tint);
+
+        public static BoundingBox GetBoundingBox(int x, int y, int z, LiquidLevel level)
+        {
+            float halfHeight = ((int)level + 1) * 0.0625f;
+            return new BoundingBox(new Vector3(x, y + halfHeight, z), new Vector3(0.5f, halfHeight, 0.5f));
+        }
+
+        public void EntityContact(PhysicsEntity entity, int x, int y, int z)
+        {
+            if (Game.World.GetLiquid(x, y, z, out LiquidLevel level, out bool isStatic) == this)
+            {
+                EntityContact(entity, x, y, z, level, isStatic);
+            }
+        }
+
+        protected virtual void EntityContact(PhysicsEntity entity, int x, int y, int z, LiquidLevel level, bool isStatic)
+        {
+        }
 
         /// <summary>
         /// Tries to fill a position with the specified amount of liquid. The remaining liquid is specified, it can be converted to <see cref="LiquidLevel"/> if it is not <c>-1</c>.
@@ -147,14 +181,15 @@ namespace VoxelGame.Core.Logic
         protected abstract void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic);
 
         /// <summary>
-        /// Check if a liquid has a neighbor of the same liquid and this neighbor has a specified level. If the specified level is <c>-1</c>, the method searches for empty space instead.
+        /// Check if a liquid has a neighbor of the same liquid and this neighbor has a specified level. If the specified level is <c>-1</c>, false is directly returned.
         /// </summary>
         protected bool HasNeighborWithLevel(LiquidLevel level, int x, int y, int z)
         {
             return ((int)level != -1)
-                ? CheckNeighborForLevel(x, z - 1) || CheckNeighborForLevel(x + 1, z) || CheckNeighborForLevel(x, z + 1) || CheckNeighborForLevel(x - 1, z)
-                : CheckNeighborForEmpty(x, z - 1) || CheckNeighborForEmpty(x + 1, z) || CheckNeighborForEmpty(x, z + 1) || CheckNeighborForEmpty(x - 1, z)
-                ;
+                && (CheckNeighborForLevel(x, z - 1)
+                || CheckNeighborForLevel(x + 1, z)
+                || CheckNeighborForLevel(x, z + 1)
+                || CheckNeighborForLevel(x - 1, z));
 
             bool CheckNeighborForLevel(int nx, int nz)
             {
@@ -166,11 +201,6 @@ namespace VoxelGame.Core.Logic
                 {
                     return false;
                 }
-            }
-
-            bool CheckNeighborForEmpty(int nx, int nz)
-            {
-                return Game.World.GetLiquid(nx, y, nz, out LiquidLevel _, out _) == Liquid.None;
             }
         }
 

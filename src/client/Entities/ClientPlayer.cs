@@ -109,7 +109,7 @@ namespace VoxelGame.Client.Entities
             camera.Position = Position + cameraOffset;
 
             Ray ray = new Ray(camera.Position, camera.Front, 6f);
-            Raycast.CastWorld(ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
+            Raycast.CastBlock(ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
 
             // Do input handling.
             if (Screen.IsFocused)
@@ -130,7 +130,9 @@ namespace VoxelGame.Client.Entities
 
         private readonly float speed = 4f;
         private readonly float sprintSpeed = 6f;
-        private readonly Vector3 maxForce = new Vector3(5000f, 0f, 5000f);
+        private readonly Vector3 maxForce = new Vector3(500f, 0f, 500f);
+        private readonly float swimSpeed = 4f;
+        private readonly Vector3 maxSwimForce = new Vector3(0f, 2500f, 0f);
         private readonly float jumpForce = 25000f;
 
         private void MovementInput(KeyboardState input)
@@ -163,9 +165,16 @@ namespace VoxelGame.Client.Entities
 
             Move(movement, maxForce);
 
-            if (input.IsKeyDown(Key.Space) && IsGrounded) // Jump
+            if (input.IsKeyDown(Key.Space))
             {
-                AddForce(new Vector3(0f, jumpForce, 0f));
+                if (IsGrounded)
+                {
+                    AddForce(new Vector3(0f, jumpForce, 0f));
+                }
+                else if (IsSwimming)
+                {
+                    Move(Vector3.UnitY * swimSpeed, maxSwimForce);
+                }
             }
         }
 
