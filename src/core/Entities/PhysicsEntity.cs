@@ -96,13 +96,14 @@ namespace VoxelGame.Core.Entities
         /// <summary>
         /// Tries to move the entity in a certain direction using forces, but never using more force than specified.
         /// </summary>
-        /// <param name="movement">The target movement, can be null to try to stop moving.</param>
+        /// <param name="movement">The target movement, can be zero to try to stop moving.</param>
         /// <param name="maxForce">The maximum allowed force to use.</param>
         public void Move(Vector3 movement, Vector3 maxForce)
         {
             maxForce = maxForce.Absolute();
 
             Vector3 requiredForce = (movement - Velocity) * Mass;
+            requiredForce -= force;
             AddForce(VMath.ClampComponents(requiredForce, -maxForce, maxForce));
         }
 
@@ -151,7 +152,7 @@ namespace VoxelGame.Core.Entities
                     }
                 }
 
-                liquidDrag = 0.5f * density * Velocity.Sign() * (Velocity * Velocity) * ((maxLevel + 1) / 8f);
+                liquidDrag = 0.5f * density * Velocity.Sign() * (Velocity * Velocity) * ((maxLevel + 1) / 8f) * 0.25f;
 
                 if (!IsGrounded) IsSwimming = true;
             }
