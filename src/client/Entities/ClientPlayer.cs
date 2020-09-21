@@ -109,7 +109,7 @@ namespace VoxelGame.Client.Entities
             camera.Position = Position + cameraOffset;
 
             Ray ray = new Ray(camera.Position, camera.Front, 6f);
-            Raycast.CastWorld(ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
+            Raycast.CastBlock(ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
 
             // Do input handling.
             if (Screen.IsFocused)
