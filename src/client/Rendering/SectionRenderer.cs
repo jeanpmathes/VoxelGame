@@ -165,74 +165,82 @@ namespace VoxelGame.Client.Rendering
 
         public override void Draw(Vector3 position)
         {
+            DrawStage(0, position);
+            DrawStage(1, position);
+            DrawStage(2, position);
+
+            GL.BindVertexArray(0);
+            GL.UseProgram(0);
+        }
+
+        public void DrawStage(int stage, Vector3 position)
+        {
             if (disposed)
             {
                 return;
             }
 
-            if (hasSimpleData || hasComplexData || hasLiquidData)
+            Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
+            Matrix4 view = Client.Player.GetViewMatrix();
+            Matrix4 projection = Client.Player.GetProjectionMatrix();
+
+            switch (stage)
             {
-                Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
-                Matrix4 view = Client.Player.GetViewMatrix();
-                Matrix4 projection = Client.Player.GetProjectionMatrix();
+                case 0: DrawSimpleBuffer(model, view, projection); break;
+                case 1: DrawComplexBuffer(model, view, projection); break;
+                case 2: DrawLiquidBuffer(model, view, projection); break;
+            }
+        }
 
-                #region RENDERING SIMPLE
+        private void DrawSimpleBuffer(Matrix4 model, Matrix4 view, Matrix4 projection)
+        {
+            if (hasSimpleData)
+            {
+                GL.BindVertexArray(simpleVAO);
 
-                if (hasSimpleData)
-                {
-                    GL.BindVertexArray(simpleVAO);
+                Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-                    Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+                Client.SimpleSectionShader.Use();
 
-                    Client.SimpleSectionShader.Use();
+                Client.SimpleSectionShader.SetMatrix4("model", model);
+                Client.SimpleSectionShader.SetMatrix4("view", view);
+                Client.SimpleSectionShader.SetMatrix4("projection", projection);
 
-                    Client.SimpleSectionShader.SetMatrix4("model", model);
-                    Client.SimpleSectionShader.SetMatrix4("view", view);
-                    Client.SimpleSectionShader.SetMatrix4("projection", projection);
+                GL.DrawArrays(PrimitiveType.Triangles, 0, simpleIndices);
+            }
+        }
 
-                    GL.DrawArrays(PrimitiveType.Triangles, 0, simpleIndices);
-                }
+        private void DrawComplexBuffer(Matrix4 model, Matrix4 view, Matrix4 projection)
+        {
+            if (hasComplexData)
+            {
+                GL.BindVertexArray(complexVAO);
 
-                #endregion RENDERING SIMPLE
+                Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
-                #region RENDERING COMPLEX
+                Client.ComplexSectionShader.Use();
 
-                if (hasComplexData)
-                {
-                    GL.BindVertexArray(complexVAO);
+                Client.ComplexSectionShader.SetMatrix4("model", model);
+                Client.ComplexSectionShader.SetMatrix4("view", view);
+                Client.ComplexSectionShader.SetMatrix4("projection", projection);
 
-                    Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
+                GL.DrawElements(PrimitiveType.Triangles, complexElements, DrawElementsType.UnsignedInt, 0);
+            }
+        }
 
-                    Client.ComplexSectionShader.Use();
+        private void DrawLiquidBuffer(Matrix4 model, Matrix4 view, Matrix4 projection)
+        {
+            if (hasLiquidData)
+            {
+                GL.BindVertexArray(liquidVAO);
 
-                    Client.ComplexSectionShader.SetMatrix4("model", model);
-                    Client.ComplexSectionShader.SetMatrix4("view", view);
-                    Client.ComplexSectionShader.SetMatrix4("projection", projection);
+                Client.LiquidSectionShader.Use();
 
-                    GL.DrawElements(PrimitiveType.Triangles, complexElements, DrawElementsType.UnsignedInt, 0);
-                }
+                Client.LiquidSectionShader.SetMatrix4("model", model);
+                Client.LiquidSectionShader.SetMatrix4("view", view);
+                Client.LiquidSectionShader.SetMatrix4("projection", projection);
 
-                #endregion RENDERING COMPLEX
-
-                #region RENDERING LIQUID
-
-                if (hasLiquidData)
-                {
-                    GL.BindVertexArray(liquidVAO);
-
-                    Client.LiquidSectionShader.Use();
-
-                    Client.LiquidSectionShader.SetMatrix4("model", model);
-                    Client.LiquidSectionShader.SetMatrix4("view", view);
-                    Client.LiquidSectionShader.SetMatrix4("projection", projection);
-
-                    GL.DrawElements(PrimitiveType.Triangles, liquidElements, DrawElementsType.UnsignedInt, 0);
-                }
-
-                #endregion RENDERING LIQUID
-
-                GL.BindVertexArray(0);
-                GL.UseProgram(0);
+                GL.DrawElements(PrimitiveType.Triangles, liquidElements, DrawElementsType.UnsignedInt, 0);
             }
         }
 
