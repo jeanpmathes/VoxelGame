@@ -309,7 +309,7 @@ namespace VoxelGame.Client.Logic
                             complexVertCount += verts;
                         }
 
-                        if (currentLiquid.IsRendered && !currentBlock.IsSolidAndFull)
+                        if (currentLiquid.RenderType != RenderType.NotRendered && !currentBlock.IsSolidAndFull)
                         {
                             Liquid? liquidToCheck;
                             Block? blockToCheck;
@@ -338,7 +338,7 @@ namespace VoxelGame.Client.Logic
                             {
                                 currentLiquid.GetMesh(level, BlockSide.Front, isStatic, out int textureIndex, out TintColor tint);
 
-                                bool singleSided = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true);
+                                bool singleSided = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && (liquidToCheck?.RenderType ?? RenderType.NotRendered) != RenderType.NotRendered);
 
                                 // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
                                 int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 12) | (0 << 11) | (y << 6) | (z + 1);
@@ -375,7 +375,7 @@ namespace VoxelGame.Client.Logic
                             {
                                 currentLiquid.GetMesh(level, BlockSide.Back, isStatic, out int textureIndex, out TintColor tint);
 
-                                bool singleSided = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true);
+                                bool singleSided = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && (liquidToCheck?.RenderType ?? RenderType.NotRendered) != RenderType.NotRendered);
 
                                 // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
                                 int upperDataA = (0 << 31) | (0 << 30) | (x + 1 << 12) | (0 << 11) | (y << 6) | (z + 0);
@@ -412,7 +412,7 @@ namespace VoxelGame.Client.Logic
                             {
                                 currentLiquid.GetMesh(level, BlockSide.Left, isStatic, out int textureIndex, out TintColor tint);
 
-                                bool singleSided = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true);
+                                bool singleSided = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && (liquidToCheck?.RenderType ?? RenderType.NotRendered) != RenderType.NotRendered);
 
                                 // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
                                 int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 12) | (0 << 11) | (y << 6) | (z + 0);
@@ -449,7 +449,7 @@ namespace VoxelGame.Client.Logic
                             {
                                 currentLiquid.GetMesh(level, BlockSide.Right, isStatic, out int textureIndex, out TintColor tint);
 
-                                bool singleSided = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true);
+                                bool singleSided = (blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && (liquidToCheck?.RenderType ?? RenderType.NotRendered) != RenderType.NotRendered);
 
                                 // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
                                 int upperDataA = (0 << 31) | (0 << 30) | (x + 1 << 12) | (0 << 11) | (y << 6) | (z + 1);
@@ -486,7 +486,7 @@ namespace VoxelGame.Client.Logic
                             {
                                 currentLiquid.GetMesh(level, BlockSide.Bottom, isStatic, out int textureIndex, out TintColor tint);
 
-                                bool singleSided = ((currentLiquid.Direction > 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true);
+                                bool singleSided = ((currentLiquid.Direction > 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && (liquidToCheck?.RenderType ?? RenderType.NotRendered) != RenderType.NotRendered);
 
                                 // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
                                 int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 12) | (0 << 11) | (y << 6) | (z + 0);
@@ -523,7 +523,7 @@ namespace VoxelGame.Client.Logic
                             {
                                 currentLiquid.GetMesh(level, BlockSide.Top, isStatic, out int textureIndex, out TintColor tint);
 
-                                bool singleSided = ((currentLiquid.Direction < 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && liquidToCheck?.IsRendered == true);
+                                bool singleSided = ((currentLiquid.Direction < 0 || level == LiquidLevel.Eight) && blockToCheck?.IsOpaque == false && blockToCheck?.IsSolidAndFull == true) || (liquidToCheck != currentLiquid && (liquidToCheck?.RenderType ?? RenderType.NotRendered) != RenderType.NotRendered);
 
                                 // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
                                 int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 12) | (1 << 11) | (y << 6) | (z + 1);

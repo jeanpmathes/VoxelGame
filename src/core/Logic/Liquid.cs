@@ -44,11 +44,6 @@ namespace VoxelGame.Core.Logic
         public int Viscosity { get; }
 
         /// <summary>
-        /// Gets whether this liquid is rendered.
-        /// </summary>
-        public bool IsRendered { get; }
-
-        /// <summary>
         /// Gets whether entity contacts have to be checked.
         /// </summary>
         public bool CheckContact { get; }
@@ -58,7 +53,12 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public bool ReceiveContact { get; }
 
-        protected Liquid(string name, string namedId, float density, int viscosity, bool isRendered, bool checkContact, bool receiveContact)
+        /// <summary>
+        /// Gets the <see cref="Visuals.RenderType"/> of this liquid.
+        /// </summary>
+        public RenderType RenderType { get; }
+
+        protected Liquid(string name, string namedId, float density, int viscosity, bool checkContact, bool receiveContact, RenderType renderType)
         {
             Name = name;
             NamedId = namedId;
@@ -68,10 +68,10 @@ namespace VoxelGame.Core.Logic
 
             Viscosity = viscosity;
 
-            IsRendered = isRendered;
-
             CheckContact = checkContact;
             ReceiveContact = receiveContact;
+
+            RenderType = renderType;
 
             if (liquidDictionary.Count < LiquidLimit)
             {

@@ -23,8 +23,8 @@ namespace VoxelGame.Core.Logic
         private const int mPas = 15;
 
         public static readonly Liquid None = new NoLiquid(Language.NoLiquid, nameof(None));
-        public static readonly Liquid Water = new BasicLiquid(Language.Water, nameof(Water), 997f, 1 * mPas, false, TextureLayout.Liquid("water_moving_side", "water_moving"), TextureLayout.Liquid("water_static_side", "water_static"));
-        public static readonly Liquid Milk = new BasicLiquid(Language.Milk, nameof(Milk), 1033f, 2 * mPas, false, TextureLayout.Liquid("milk_moving_side", "milk_moving"), TextureLayout.Liquid("milk_static_side", "milk_static"));
+        public static readonly Liquid Water = new BasicLiquid(Language.Water, nameof(Water), 997f, 1 * mPas, false, TextureLayout.Liquid("water_moving_side", "water_moving"), TextureLayout.Liquid("water_static_side", "water_static"), Visuals.RenderType.Transparent);
+        public static readonly Liquid Milk = new BasicLiquid(Language.Milk, nameof(Milk), 1033f, 2 * mPas, false, TextureLayout.Liquid("milk_moving_side", "milk_moving"), TextureLayout.Liquid("milk_static_side", "milk_static"), Visuals.RenderType.Opaque);
 
         /// <summary>
         /// Translates a liquid ID to a reference to the liquid that has that ID. If the ID is not valid, none is returned.
