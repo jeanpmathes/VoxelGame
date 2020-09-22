@@ -31,7 +31,7 @@ void main()
     normal = normalize(normal);
 
     // Texture Index
-    texIndex = (((aData.y & 127) - 1) << 3) + 1;
+    texIndex = (((aData.y & 127) - 1) << 4) + 1;
 
     // Texture Coordinate
     texCoord = vec2((aData.x >> 31) & 1, (aData.x >> 30) & 1);
