@@ -93,6 +93,8 @@ namespace VoxelGame.Client.Logic
 
                 for (int stage = 0; stage < 3; stage++)
                 {
+                    SectionRenderer.PrepareStage(stage);
+
                     for (int i = 0; i < renderList.Count; i++)
                     {
                         renderList[i].section.Render(stage, renderList[i].position);

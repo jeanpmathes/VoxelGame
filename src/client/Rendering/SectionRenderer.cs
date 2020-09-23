@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using System;
+using System.Diagnostics;
 using VoxelGame.Core;
 using VoxelGame.Core.Utilities;
 
@@ -165,8 +166,15 @@ namespace VoxelGame.Client.Rendering
 
         public override void Draw(Vector3 position)
         {
+            Debug.Fail("Sections should be drawn using DrawStage.");
+
+            PrepareStage(0);
             DrawStage(0, position);
+
+            PrepareStage(1);
             DrawStage(1, position);
+
+            PrepareStage(2);
             DrawStage(2, position);
 
             GL.BindVertexArray(0);
@@ -181,64 +189,89 @@ namespace VoxelGame.Client.Rendering
             }
 
             Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
+
+            switch (stage)
+            {
+                case 0: DrawSimpleBuffer(model); break;
+                case 1: DrawComplexBuffer(model); break;
+                case 2: DrawLiquidBuffer(model); break;
+            }
+        }
+
+        public static void PrepareStage(int stage)
+        {
             Matrix4 view = Client.Player.GetViewMatrix();
             Matrix4 projection = Client.Player.GetProjectionMatrix();
 
             switch (stage)
             {
-                case 0: DrawSimpleBuffer(model, view, projection); break;
-                case 1: DrawComplexBuffer(model, view, projection); break;
-                case 2: DrawLiquidBuffer(model, view, projection); break;
+                case 0: PrepareSimpleBuffer(view, projection); break;
+                case 1: PrepareComplexBuffer(view, projection); break;
+                case 2: PrepareLiquidBuffer(view, projection); break;
             }
         }
 
-        private void DrawSimpleBuffer(Matrix4 model, Matrix4 view, Matrix4 projection)
+        private static void PrepareSimpleBuffer(Matrix4 view, Matrix4 projection)
+        {
+            Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+
+            Client.SimpleSectionShader.Use();
+
+            Client.SimpleSectionShader.SetMatrix4("view", view);
+            Client.SimpleSectionShader.SetMatrix4("projection", projection);
+        }
+
+        private void DrawSimpleBuffer(Matrix4 model)
         {
             if (hasSimpleData)
             {
                 GL.BindVertexArray(simpleVAO);
 
-                Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
-
-                Client.SimpleSectionShader.Use();
-
                 Client.SimpleSectionShader.SetMatrix4("model", model);
-                Client.SimpleSectionShader.SetMatrix4("view", view);
-                Client.SimpleSectionShader.SetMatrix4("projection", projection);
 
                 GL.DrawArrays(PrimitiveType.Triangles, 0, simpleIndices);
             }
         }
 
-        private void DrawComplexBuffer(Matrix4 model, Matrix4 view, Matrix4 projection)
+        private static void PrepareComplexBuffer(Matrix4 view, Matrix4 projection)
+        {
+            Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
+
+            Client.ComplexSectionShader.Use();
+
+            Client.ComplexSectionShader.SetMatrix4("view", view);
+            Client.ComplexSectionShader.SetMatrix4("projection", projection);
+        }
+
+        private void DrawComplexBuffer(Matrix4 model)
         {
             if (hasComplexData)
             {
                 GL.BindVertexArray(complexVAO);
 
-                Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
-
-                Client.ComplexSectionShader.Use();
-
                 Client.ComplexSectionShader.SetMatrix4("model", model);
-                Client.ComplexSectionShader.SetMatrix4("view", view);
-                Client.ComplexSectionShader.SetMatrix4("projection", projection);
 
                 GL.DrawElements(PrimitiveType.Triangles, complexElements, DrawElementsType.UnsignedInt, 0);
             }
         }
 
-        private void DrawLiquidBuffer(Matrix4 model, Matrix4 view, Matrix4 projection)
+        private static void PrepareLiquidBuffer(Matrix4 view, Matrix4 projection)
+        {
+            Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+
+            Client.LiquidSectionShader.Use();
+
+            Client.LiquidSectionShader.SetMatrix4("view", view);
+            Client.LiquidSectionShader.SetMatrix4("projection", projection);
+        }
+
+        private void DrawLiquidBuffer(Matrix4 model)
         {
             if (hasLiquidData)
             {
                 GL.BindVertexArray(liquidVAO);
 
-                Client.LiquidSectionShader.Use();
-
                 Client.LiquidSectionShader.SetMatrix4("model", model);
-                Client.LiquidSectionShader.SetMatrix4("view", view);
-                Client.LiquidSectionShader.SetMatrix4("projection", projection);
 
                 GL.DrawElements(PrimitiveType.Triangles, liquidElements, DrawElementsType.UnsignedInt, 0);
             }
