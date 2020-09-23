@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
@@ -101,24 +102,11 @@ namespace VoxelGame.Client.Logic
         }
 
         /// <summary>
-        /// Renders all sections of this chunk.
+        /// Adds all sections inside of the frustum to the render list.
         /// </summary>
-        [Obsolete("Use RenderCulled instead.")]
-        public void Render()
-        {
-            if (hasMeshData)
-            {
-                for (int y = 0; y < ChunkHeight; y++)
-                {
-                    ((ClientSection)sections[y]).Render(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Renders only the sections that are inside the given <see cref="Frustum"/>.
-        /// </summary>
-        public void RenderCulled(Frustum frustum)
+        /// <param name="frustum"></param>
+        /// <param name="renderList"></param>
+        public void AddCulledToRenderList(Frustum frustum, ref List<(ClientSection section, Vector3 position)> renderList)
         {
             if (hasMeshData && frustum.BoxInFrustrum(new BoundingBox(ChunkPoint, ChunkExtents)))
             {
@@ -146,7 +134,7 @@ namespace VoxelGame.Client.Logic
 
                 for (int y = start; y <= end; y++)
                 {
-                    ((ClientSection)sections[y]).Render(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize));
+                    renderList.Add(((ClientSection)sections[y], new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize)));
                 }
             }
         }

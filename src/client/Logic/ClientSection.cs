@@ -587,11 +587,11 @@ namespace VoxelGame.Client.Logic
             renderer?.SetData(ref meshData);
         }
 
-        public void Render(Vector3 position)
+        public void Render(int stage, Vector3 position)
         {
             if (hasMesh)
             {
-                renderer?.Draw(position);
+                renderer?.DrawStage(stage, position);
             }
         }
 
