@@ -215,6 +215,8 @@ namespace VoxelGame.Client.Rendering
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
+            GL.Disable(EnableCap.Blend);
+
             Client.SimpleSectionShader.Use();
 
             Client.SimpleSectionShader.SetMatrix4("view", view);
@@ -237,6 +239,8 @@ namespace VoxelGame.Client.Rendering
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
+            GL.Disable(EnableCap.Blend);
+
             Client.ComplexSectionShader.Use();
 
             Client.ComplexSectionShader.SetMatrix4("view", view);
@@ -258,6 +262,9 @@ namespace VoxelGame.Client.Rendering
         private static void PrepareLiquidBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             Client.LiquidSectionShader.Use();
 
