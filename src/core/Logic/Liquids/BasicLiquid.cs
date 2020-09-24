@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Liquids
         private protected int[] movingTex = null!;
         private protected int[] staticTex = null!;
 
-        public BasicLiquid(string name, string namedId, float density, int viscosity, bool neutralTint, TextureLayout movingLayout, TextureLayout staticLayout, RenderType renderType) :
+        public BasicLiquid(string name, string namedId, float density, int viscosity, bool neutralTint, TextureLayout movingLayout, TextureLayout staticLayout, RenderType renderType = RenderType.Transparent) :
             base(
                 name,
                 namedId,
