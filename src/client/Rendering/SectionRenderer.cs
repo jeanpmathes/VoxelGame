@@ -168,17 +168,28 @@ namespace VoxelGame.Client.Rendering
         {
             Debug.Fail("Sections should be drawn using DrawStage.");
 
-            PrepareStage(0);
-            DrawStage(0, position);
-
-            PrepareStage(1);
-            DrawStage(1, position);
-
-            PrepareStage(2);
-            DrawStage(2, position);
+            for (int stage = 0; stage < 3; stage++)
+            {
+                PrepareStage(0);
+                DrawStage(0, position);
+                FinishStage(0);
+            }
 
             GL.BindVertexArray(0);
             GL.UseProgram(0);
+        }
+
+        public static void PrepareStage(int stage)
+        {
+            Matrix4 view = Client.Player.GetViewMatrix();
+            Matrix4 projection = Client.Player.GetProjectionMatrix();
+
+            switch (stage)
+            {
+                case 0: PrepareSimpleBuffer(view, projection); break;
+                case 1: PrepareComplexBuffer(view, projection); break;
+                case 2: PrepareLiquidBuffer(view, projection); break;
+            }
         }
 
         public void DrawStage(int stage, Vector3 position)
@@ -198,24 +209,19 @@ namespace VoxelGame.Client.Rendering
             }
         }
 
-        public static void PrepareStage(int stage)
+        public static void FinishStage(int stage)
         {
-            Matrix4 view = Client.Player.GetViewMatrix();
-            Matrix4 projection = Client.Player.GetProjectionMatrix();
-
             switch (stage)
             {
-                case 0: PrepareSimpleBuffer(view, projection); break;
-                case 1: PrepareComplexBuffer(view, projection); break;
-                case 2: PrepareLiquidBuffer(view, projection); break;
+                // case 2:
+                // case 1:
+                case 2: FinishLiqduiBuffer(); break;
             }
         }
 
         private static void PrepareSimpleBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
-
-            GL.Disable(EnableCap.Blend);
 
             Client.SimpleSectionShader.Use();
 
@@ -238,8 +244,6 @@ namespace VoxelGame.Client.Rendering
         private static void PrepareComplexBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
-
-            GL.Disable(EnableCap.Blend);
 
             Client.ComplexSectionShader.Use();
 
@@ -264,6 +268,7 @@ namespace VoxelGame.Client.Rendering
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
             GL.Enable(EnableCap.Blend);
+            GL.DepthMask(false);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             Client.LiquidSectionShader.Use();
@@ -282,6 +287,12 @@ namespace VoxelGame.Client.Rendering
 
                 GL.DrawElements(PrimitiveType.Triangles, liquidElements, DrawElementsType.UnsignedInt, 0);
             }
+        }
+
+        private static void FinishLiqduiBuffer()
+        {
+            GL.Disable(EnableCap.Blend);
+            GL.DepthMask(true);
         }
 
         #region IDisposable Support

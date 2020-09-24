@@ -99,6 +99,8 @@ namespace VoxelGame.Client.Logic
                     {
                         renderList[i].section.Render(stage, renderList[i].position);
                     }
+
+                    SectionRenderer.FinishStage(stage);
                 }
 
                 // Render the player
