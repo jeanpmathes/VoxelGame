@@ -11,7 +11,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
     {
         internal override Rendering.ArrayTexture CreateArrayTexture(string path, int resolution, bool useCustomMipmapGeneration, params TextureUnit[] textureUnits)
         {
-            return null!;
+            return new ArrayTexture(path, resolution, useCustomMipmapGeneration, textureUnits);
         }
     }
 
@@ -19,7 +19,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
     {
         internal override Rendering.BoxRenderer CreateBoxRenderer()
         {
-            return null!;
+            return new BoxRenderer();
         }
     }
 
@@ -27,7 +27,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
     {
         internal override Rendering.Screen CreateScreen(Client client)
         {
-            return null!;
+            return new Screen(client);
         }
     }
 
@@ -35,7 +35,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
     {
         internal override Rendering.ScreenElementRenderer CreateScreenElementRenderer()
         {
-            return null!;
+            return new ScreenElementRenderer();
         }
     }
 
@@ -43,7 +43,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
     {
         internal override Rendering.SectionRenderer CreateSectionRenderer()
         {
-            return null!;
+            return new SectionRenderer();
         }
     }
 
@@ -51,7 +51,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
     {
         internal override Rendering.Texture CreateTexture(string path, int fallbackResolution = 16)
         {
-            return null!;
+            return new Texture(path, fallbackResolution);
         }
     }
 }

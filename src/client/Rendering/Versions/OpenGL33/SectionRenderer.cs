@@ -16,7 +16,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
     /// <summary>
     /// A renderer for <see cref="Logic.Section"/>.
     /// </summary>
-    public class SectionRenderer : Renderer
+    public class SectionRenderer : Rendering.SectionRenderer
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
 
@@ -55,7 +55,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             GL.CreateVertexArrays(1, out liquidVAO);
         }
 
-        public void SetData(ref SectionMeshData meshData)
+        public override void SetData(ref SectionMeshData meshData)
         {
             if (disposed)
             {
@@ -179,7 +179,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             GL.UseProgram(0);
         }
 
-        public static void PrepareStage(int stage)
+        public override void PrepareStage(int stage)
         {
             Matrix4 view = Client.Player.GetViewMatrix();
             Matrix4 projection = Client.Player.GetProjectionMatrix();
@@ -192,7 +192,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             }
         }
 
-        public void DrawStage(int stage, Vector3 position)
+        public override void DrawStage(int stage, Vector3 position)
         {
             if (disposed)
             {
@@ -209,7 +209,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             }
         }
 
-        public static void FinishStage(int stage)
+        public override void FinishStage(int stage)
         {
             switch (stage)
             {

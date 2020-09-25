@@ -16,7 +16,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
     /// <summary>
     /// A renderer that renders instances of the <see cref="BoundingBox"/> struct.
     /// </summary>
-    public class BoxRenderer : Renderer
+    public class BoxRenderer : Rendering.BoxRenderer
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<BoxRenderer>();
 
@@ -120,7 +120,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             }
         }
 
-        public void SetBoundingBox(BoundingBox boundingBox)
+        public override void SetBoundingBox(BoundingBox boundingBox)
         {
             if (disposed)
             {

@@ -14,12 +14,11 @@ using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
 
 namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 {
-    public class Texture : IDisposable
+    public class Texture : Rendering.Texture
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Texture>();
 
-        public int Handle { get; }
-        public TextureUnit TextureUnit { get; private set; }
+        public override int Handle { get; }
 
         public Texture(string path, int fallbackResolution = 16)
         {
@@ -65,7 +64,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             GL.TextureSubImage2D(Handle, 0, 0, 0, bitmap.Width, bitmap.Height, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
         }
 
-        public void Use(TextureUnit unit = TextureUnit.Texture0)
+        public override void Use(TextureUnit unit = TextureUnit.Texture0)
         {
             GL.BindTextureUnit(unit - TextureUnit.Texture0, Handle);
             TextureUnit = unit;
@@ -75,7 +74,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
         private bool disposed;
 
-        protected virtual void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -92,42 +91,6 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             }
         }
 
-        ~Texture()
-        {
-            Dispose(disposing: false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
         #endregion IDisposable Support
-
-        internal static Bitmap CreateFallback(int resolution)
-        {
-            Bitmap fallback = new Bitmap(resolution, resolution, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-            Color magenta = Color.FromArgb(64, 255, 0, 255);
-            Color black = Color.FromArgb(64, 0, 0, 0);
-
-            for (int x = 0; x < fallback.Width; x++)
-            {
-                for (int y = 0; y < fallback.Height; y++)
-                {
-                    if (x % 2 == 0 ^ y % 2 == 0)
-                    {
-                        fallback.SetPixel(x, y, magenta);
-                    }
-                    else
-                    {
-                        fallback.SetPixel(x, y, black);
-                    }
-                }
-            }
-
-            return fallback;
-        }
     }
 }

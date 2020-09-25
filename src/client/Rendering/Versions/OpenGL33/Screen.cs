@@ -21,37 +21,11 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
     /// <summary>
     /// Common functionality associated with the screen.
     /// </summary>
-    public class Screen : IDisposable
+    public class Screen : Rendering.Screen
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
 
-        #region PUBLIC STATIC PROPERTIES
-
-        /// <summary>
-        /// Gets the window size. The value is equal to the value retrieved from <see cref="Client.Instance"/>.
-        /// </summary>
-        public static Vector2i Size { get => Instance.client.Size; set { Instance.client.Size = value; } }
-
-        /// <summary>
-        /// Gets the aspect ratio <c>x/y</c>.
-        /// </summary>
-        public static float AspectRatio { get => Size.X / (float)Size.Y; }
-
-        /// <summary>
-        /// Gets whether the screen is in fullscreen.
-        /// </summary>
-        public static bool IsFullscreen { get => Instance.client.IsFullscreen; }
-
-        /// <summary>
-        /// Gets whether the screen is focused.
-        /// </summary>
-        public static bool IsFocused { get => Instance.client.IsFocused; }
-
-        #endregion PUBLIC STATIC PROPERTIES
-
-        private static Screen Instance { get; set; } = null!;
-
-        private readonly Client client;
+        private protected override Client Client { get; set; }
 
         private readonly int samples;
 
@@ -66,7 +40,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
         {
             Instance = this;
 
-            this.client = client;
+            Client = client;
 
             client.Resize += OnResize;
 
@@ -128,13 +102,13 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             #endregion SCREENSHOT FBO
         }
 
-        public void Clear()
+        public override void Clear()
         {
             GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Color, 0, new float[] { 0.5f, 0.8f, 0.9f, 1.0f });
             GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, 0, new float[] { 1f });
         }
 
-        public void Draw()
+        public override void Draw()
         {
             GL.BlitNamedFramebuffer(msFBO, 0, 0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
         }
@@ -159,7 +133,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
             #endregion SCREENSHOT FBO
 
-            client.Scene.OnResize(Size);
+            Client.Scene.OnResize(Size);
 
             Client.ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
 
@@ -168,56 +142,48 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
         #region PUBLIC STATIC METHODS
 
-        public static void SetCursor(bool visible, bool tracked = false, bool grabbed = false)
+        private protected override void SetCursor_Implementation(bool visible, bool tracked = false, bool grabbed = false)
         {
-            Instance.client.CursorVisible = visible;
-            Instance.client.DoMouseTracking = tracked;
-            Instance.client.CursorGrabbed = grabbed;
+            Client.CursorVisible = visible;
+            Client.DoMouseTracking = tracked;
+            Client.CursorGrabbed = grabbed;
         }
 
         private static Vector2i previousScreenSize;
         private static Vector2i previousScreenLocation;
 
-        /// <summary>
-        /// Set if the screen should be in fullscreen.
-        /// </summary>
-        /// <param name="fullscreen">If fullscreen should be active.</param>
-        public static void SetFullscreen(bool fullscreen)
+        private protected override void SetFullscreen_Implementation(bool fullscreen)
         {
-            if (fullscreen == Instance.client.IsFullscreen) return;
+            if (fullscreen == Client.IsFullscreen) return;
 
             if (fullscreen)
             {
-                previousScreenSize = Instance.client.Size;
-                previousScreenLocation = Instance.client.Location;
+                previousScreenSize = Client.Size;
+                previousScreenLocation = Client.Location;
 
-                Instance.client.WindowState = WindowState.Fullscreen;
-                Instance.client.IsFullscreen = true;
+                Client.WindowState = WindowState.Fullscreen;
+                Client.IsFullscreen = true;
                 logger.LogDebug("Fullscreen: Switched to fullscreen mode.");
             }
             else
             {
-                unsafe { GLFW.SetWindowMonitor(Instance.client.WindowPointer, null, previousScreenLocation.X, previousScreenLocation.Y, previousScreenSize.X, previousScreenSize.Y, (int)Instance.client.RenderFrequency); }
-                Instance.client.IsFullscreen = false;
+                unsafe { GLFW.SetWindowMonitor(Client.WindowPointer, null, previousScreenLocation.X, previousScreenLocation.Y, previousScreenSize.X, previousScreenSize.Y, (int)Client.RenderFrequency); }
+                Client.IsFullscreen = false;
 
                 logger.LogDebug("Fullscreen: Switched to normal mode.");
             }
         }
 
-        /// <summary>
-        /// Takes a screenshot and saves it to the specified directory.
-        /// </summary>
-        /// <param name="directory">The directory in which the screenshot should be saved.</param>
-        public static void TakeScreenshot(string directory)
+        private protected override void TakeScreenshot_Implementation(string directory)
         {
             IntPtr data = Marshal.AllocHGlobal(Size.X * Size.Y * 4);
 
-            GL.BlitNamedFramebuffer(Instance.msFBO, Instance.screenshotFBO, 0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+            GL.BlitNamedFramebuffer(msFBO, screenshotFBO, 0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
 
-            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, Instance.screenshotFBO);
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, screenshotFBO);
             GL.ReadPixels(0, 0, Size.X, Size.Y, PixelFormat.Bgra, PixelType.UnsignedByte, data);
 
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, Instance.msFBO);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, msFBO);
 
             using Bitmap screenshot = new Bitmap(Size.X, Size.Y, 4 * Size.X, System.Drawing.Imaging.PixelFormat.Format32bppArgb, data);
             screenshot.RotateFlip(RotateFlipType.RotateNoneFlipY);
@@ -236,7 +202,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
         private bool disposed;
 
-        protected virtual void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -254,17 +220,6 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
                 disposed = true;
             }
-        }
-
-        ~Screen()
-        {
-            Dispose(disposing: false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion IDisposable Support

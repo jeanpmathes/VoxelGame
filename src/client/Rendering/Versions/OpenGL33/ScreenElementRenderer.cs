@@ -12,7 +12,7 @@ using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 {
-    public class ScreenElementRenderer : Renderer
+    public class ScreenElementRenderer : Rendering.ScreenElementRenderer
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<ScreenElementRenderer>();
 
@@ -68,7 +68,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             GL.VertexArrayAttribBinding(vao, texCordLocation, 0);
         }
 
-        public void SetTexture(Texture texture)
+        public override void SetTexture(Rendering.Texture texture)
         {
             if (disposed)
             {
@@ -78,7 +78,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             texUnit = texture.TextureUnit - TextureUnit.Texture0;
         }
 
-        public void SetColor(Vector3 color)
+        public override void SetColor(Vector3 color)
         {
             if (disposed)
             {

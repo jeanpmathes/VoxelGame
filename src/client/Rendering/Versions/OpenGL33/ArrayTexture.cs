@@ -17,11 +17,11 @@ using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
 
 namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 {
-    public class ArrayTexture : IDisposable, ITextureIndexProvider
+    public class ArrayTexture : Rendering.ArrayTexture
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<ArrayTexture>();
 
-        public int Count { get; }
+        public override int Count { get; }
 
         private readonly int arrayCount;
         private readonly TextureUnit[] textureUnits;
@@ -235,7 +235,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             }
         }
 
-        public void Use()
+        public override void Use()
         {
             for (int i = 0; i < arrayCount; i++)
             {
@@ -243,7 +243,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             }
         }
 
-        internal void SetWrapMode(TextureWrapMode mode)
+        internal override void SetWrapMode(TextureWrapMode mode)
         {
             for (int i = 0; i < arrayCount; i++)
             {
@@ -254,7 +254,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             }
         }
 
-        public int GetTextureIndex(string name)
+        public override int GetTextureIndex(string name)
         {
             if (name == "missing_texture")
             {
@@ -277,7 +277,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
         private bool disposed;
 
-        protected virtual void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -293,17 +293,6 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
                 disposed = true;
             }
-        }
-
-        ~ArrayTexture()
-        {
-            Dispose(disposing: false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion IDisposalbe Support

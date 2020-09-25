@@ -35,6 +35,8 @@ namespace VoxelGame.Client.Rendering
 
         public static Version Version { get; private set; } = null!;
 
+        public static string ShaderPath { get; private set; } = null!;
+
         private static void InitializeOpenGL33()
         {
             Version = new Version(3, 3);
@@ -45,6 +47,8 @@ namespace VoxelGame.Client.Rendering
             ScreenElementRendererFactory = new Versions.OpenGL33.ScreenElementRendererFactory();
             SectionRendererFactory = new Versions.OpenGL33.SectionRendererFactory();
             TextureFactory = new Versions.OpenGL33.TextureFactory();
+
+            ShaderPath = "Resources/Shaders/gl33";
 
             logger.LogInformation("Initialized rendering for OpenGL 3.3");
         }
@@ -59,6 +63,8 @@ namespace VoxelGame.Client.Rendering
             ScreenElementRendererFactory = new Versions.OpenGL46.ScreenElementRendererFactory();
             SectionRendererFactory = new Versions.OpenGL46.SectionRendererFactory();
             TextureFactory = new Versions.OpenGL46.TextureFactory();
+
+            ShaderPath = "Resources/Shaders/gl46";
 
             logger.LogInformation("Initialized rendering for OpenGL 4.6");
         }

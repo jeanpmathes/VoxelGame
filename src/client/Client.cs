@@ -118,11 +118,11 @@ namespace VoxelGame.Client
                 // Shader setup.
                 using (logger.BeginScope("Shader setup"))
                 {
-                    SimpleSectionShader = new Shader("Resources/Shaders/simplesection_shader.vert", "Resources/Shaders/section_shader.frag");
-                    ComplexSectionShader = new Shader("Resources/Shaders/complexsection_shader.vert", "Resources/Shaders/section_shader.frag");
-                    LiquidSectionShader = new Shader("Resources/Shaders/liquidsection_shader.vert", "Resources/Shaders/liquidsection_shader.frag");
-                    SelectionShader = new Shader("Resources/Shaders/selection_shader.vert", "Resources/Shaders/selection_shader.frag");
-                    ScreenElementShader = new Shader("Resources/Shaders/screenelement_shader.vert", "Resources/Shaders/screenelement_shader.frag");
+                    SimpleSectionShader = new Shader("simplesection_shader.vert", "section_shader.frag");
+                    ComplexSectionShader = new Shader("complexsection_shader.vert", "section_shader.frag");
+                    LiquidSectionShader = new Shader("liquidsection_shader.vert", "liquidsection_shader.frag");
+                    SelectionShader = new Shader("selection_shader.vert", "selection_shader.frag");
+                    ScreenElementShader = new Shader("screenelement_shader.vert", "screenelement_shader.frag");
 
                     ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
 
