@@ -422,9 +422,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Rendering\Versions\OpenGL33\" />
-    <Folder Include="Rendering\Versions\OpenGL46\" />
-  </ItemGroup>
 </Project>
