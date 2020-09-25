@@ -96,6 +96,13 @@ namespace VoxelGame.Client
         {
             using (logger.BeginScope("Client OnLoad"))
             {
+                // GL version setup.
+                int version = GL.GetInteger(GetPName.MajorVersion) * 10 + GL.GetInteger(GetPName.MinorVersion);
+#if GL33
+                version = 33;
+#endif
+                GLManager.Initialize(version);
+
                 // GL debug setup.
                 GL.Enable(EnableCap.DebugOutput);
                 GL.Enable(EnableCap.Multisample);

@@ -20,12 +20,14 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
 
         public override int Handle { get; }
 
-        public Texture(string path, int fallbackResolution = 16)
+        public Texture(string path, TextureUnit unit, int fallbackResolution = 16)
         {
+            TextureUnit = unit;
+
             GL.CreateTextures(TextureTarget.Texture2D, 1, out int handle);
             Handle = handle;
 
-            Use();
+            Use(TextureUnit);
 
             try
             {

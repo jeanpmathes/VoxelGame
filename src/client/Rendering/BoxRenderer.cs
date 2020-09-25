@@ -3,13 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
-using OpenToolkit.Mathematics;
-using System;
-using VoxelGame.Core;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Rendering
 {

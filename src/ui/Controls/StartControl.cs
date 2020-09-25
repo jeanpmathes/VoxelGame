@@ -27,11 +27,11 @@ namespace VoxelGame.UI.Controls
             layout = new VerticalLayout(this);
 
             start = new Button(layout);
-            start.Clicked += new GwenEventHandler<ClickedEventArgs>((_, _) => Start?.Invoke());
+            start.Clicked += new GwenEventHandler<ClickedEventArgs>((ControlBase __, ClickedEventArgs _) => Start?.Invoke());
             start.Text = "START";
 
             exit = new Button(layout);
-            exit.Clicked += new GwenEventHandler<ClickedEventArgs>((_, _) => Exit?.Invoke());
+            exit.Clicked += new GwenEventHandler<ClickedEventArgs>((ControlBase __, ClickedEventArgs _) => Exit?.Invoke());
             exit.Text = "EXIT";
         }
 

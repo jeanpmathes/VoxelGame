@@ -49,9 +49,9 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
     internal class TextureFactory : Versions.TextureFactory
     {
-        internal override Rendering.Texture CreateTexture(string path, int fallbackResolution = 16)
+        internal override Rendering.Texture CreateTexture(string path, TextureUnit unit, int fallbackResolution = 16)
         {
-            return new Texture(path, fallbackResolution);
+            return new Texture(path, unit, fallbackResolution);
         }
     }
 }

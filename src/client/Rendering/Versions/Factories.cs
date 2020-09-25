@@ -34,6 +34,6 @@ namespace VoxelGame.Client.Rendering.Versions
 
     internal abstract class TextureFactory
     {
-        internal abstract Texture CreateTexture(string path, int fallbackResolution = 16);
+        internal abstract Texture CreateTexture(string path, TextureUnit unit, int fallbackResolution = 16);
     }
 }

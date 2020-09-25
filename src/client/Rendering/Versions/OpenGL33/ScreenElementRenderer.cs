@@ -6,7 +6,6 @@
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
-using System;
 using VoxelGame.Core;
 using VoxelGame.Core.Utilities;
 
@@ -20,7 +19,9 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
         private readonly int ebo;
         private readonly int vao;
 
-        private int texUnit;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "This class does not own this texture.")]
+        private Rendering.Texture texture = null!;
+
         private Vector3 color;
 
         public ScreenElementRenderer()
@@ -75,7 +76,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
                 return;
             }
 
-            texUnit = texture.TextureUnit - TextureUnit.Texture0;
+            this.texture = texture;
         }
 
         public override void SetColor(Vector3 color)
@@ -105,14 +106,15 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
             Client.ScreenElementShader.Use();
 
+            texture.Use(texture.TextureUnit);
+
             Client.ScreenElementShader.SetMatrix4("model", model);
             Client.ScreenElementShader.SetVector3("color", color);
-            Client.ScreenElementShader.SetInt("tex", texUnit);
+            Client.ScreenElementShader.SetInt("tex", texture.TextureUnit - TextureUnit.Texture0);
 
             GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
 
             GL.BindVertexArray(0);
-            GL.UseProgram(0);
         }
 
         #region IDisposable Support

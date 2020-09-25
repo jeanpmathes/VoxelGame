@@ -20,11 +20,13 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
         public override int Handle { get; }
 
-        public Texture(string path, int fallbackResolution = 16)
+        public Texture(string path, TextureUnit unit, int fallbackResolution = 16)
         {
+            TextureUnit = unit;
+
             Handle = GL.GenTexture();
 
-            Use();
+            Use(TextureUnit);
 
             try
             {
@@ -52,7 +54,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
         private void SetupTexture(Bitmap bitmap)
         {
-            Use();
+            Use(TextureUnit);
 
             bitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
 

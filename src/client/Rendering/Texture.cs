@@ -2,12 +2,9 @@
 //     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
 // <author>pershingthesecond</author>
-using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using System;
 using System.Drawing;
-using VoxelGame.Core;
-using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Rendering
 {

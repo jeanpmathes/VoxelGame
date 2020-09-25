@@ -59,12 +59,8 @@ namespace VoxelGame.Client
                 UpdateFrequency = 60.0
             };
 
-            const int version = 33;
-            Rendering.GLManager.Initialize(version);
-
             NativeWindowSettings nativeWindowSettings = NativeWindowSettings.Default;
             nativeWindowSettings.WindowBorder = OpenToolkit.Windowing.Common.WindowBorder.Hidden;
-            nativeWindowSettings.APIVersion = Rendering.GLManager.Version;
             nativeWindowSettings.Profile = OpenToolkit.Windowing.Common.ContextProfile.Compatability;
             nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
             nativeWindowSettings.Size = Properties.client.Default.ScreenSize.ToVector2i();
@@ -72,9 +68,9 @@ namespace VoxelGame.Client
 
             logger.LogInformation("Starting game on version: {Version}", Version);
 
-            using (Client game = new Client(gameWindowSettings, nativeWindowSettings, appDataDirectory, screenshotDirectory))
+            using (Client client = new Client(gameWindowSettings, nativeWindowSettings, appDataDirectory, screenshotDirectory))
             {
-                game.Run();
+                client.Run();
             }
 
             Thread.Sleep(100);

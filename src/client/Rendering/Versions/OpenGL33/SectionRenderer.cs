@@ -255,6 +255,8 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
                 Client.SimpleSectionShader.SetMatrix4("model", model);
 
                 GL.DrawArrays(PrimitiveType.Triangles, 0, simpleIndices);
+
+                GL.BindVertexArray(0);
             }
         }
 
@@ -282,6 +284,8 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
                 Client.ComplexSectionShader.SetMatrix4("model", model);
 
                 GL.DrawElements(PrimitiveType.Triangles, complexElements, DrawElementsType.UnsignedInt, 0);
+
+                GL.BindVertexArray(0);
             }
         }
 
@@ -310,6 +314,8 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
                 Client.LiquidSectionShader.SetMatrix4("model", model);
 
                 GL.DrawElements(PrimitiveType.Triangles, liquidElements, DrawElementsType.UnsignedInt, 0);
+
+                GL.BindVertexArray(0);
             }
         }
 
