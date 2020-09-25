@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using Microsoft.Extensions.Logging;
+using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -76,16 +77,30 @@ namespace VoxelGame.Client.Logic
         {
             if (IsReady)
             {
-                // Collect all chunks to render
+                List<(ClientSection section, Vector3 position)> renderList = new List<(ClientSection section, Vector3 position)>();
+
+                // Fill the render list.
                 for (int x = -Client.Player.LoadDistance; x <= Client.Player.LoadDistance; x++)
                 {
                     for (int z = -Client.Player.LoadDistance; z <= Client.Player.LoadDistance; z++)
                     {
                         if (activeChunks.TryGetValue((Client.Player.ChunkX + x, Client.Player.ChunkZ + z), out Chunk? chunk))
                         {
-                            ((ClientChunk)chunk).RenderCulled(Client.Player.Frustum);
+                            ((ClientChunk)chunk).AddCulledToRenderList(Client.Player.Frustum, ref renderList);
                         }
                     }
+                }
+
+                for (int stage = 0; stage < 3; stage++)
+                {
+                    SectionRenderer.PrepareStage(stage);
+
+                    for (int i = 0; i < renderList.Count; i++)
+                    {
+                        renderList[i].section.Render(stage, renderList[i].position);
+                    }
+
+                    SectionRenderer.FinishStage(stage);
                 }
 
                 // Render the player

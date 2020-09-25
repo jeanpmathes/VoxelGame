@@ -18,9 +18,9 @@ namespace VoxelGame.Core.Logic.Liquids
                 namedId,
                 0f,
                 1,
-                isRendered: false,
                 checkContact: false,
-                receiveContact: false)
+                receiveContact: false,
+                RenderType.NotRendered)
         {
         }
 

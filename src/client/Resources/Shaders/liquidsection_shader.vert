@@ -2,7 +2,7 @@
 
 in ivec2 aData;
 
-out vec3 normal;
+//out vec3 normal;
 
 flat out int texIndex;
 out vec2 texCoord;
@@ -24,14 +24,14 @@ void main()
     float lowerBound = ((direction > 0) ? (sideHeight + 1) : (7 - level)) * 0.125;
 
 	// Normal
-    int n = (aData.y >> 16) & 7;
-    normal = vec3(0.0, 0.0, 0.0);
-    normal[((n >> 1) + 3 & 2) | (n >> 2)] = -1.0 + (2 * (n & 1));
-    normal.z *= -1.0;
-    normal = normalize(normal);
+      int n = (aData.y >> 16) & 7;
+//    normal = vec3(0.0, 0.0, 0.0);
+//    normal[((n >> 1) + 3 & 2) | (n >> 2)] = -1.0 + (2 * (n & 1));
+//    normal.z *= -1.0;
+//    normal = normalize(normal);
 
     // Texture Index
-    texIndex = (((aData.y & 127) - 1) << 3) + 1;
+    texIndex = (((aData.y & 127) - 1) << 4) + 1;
 
     // Texture Coordinate
     texCoord = vec2((aData.x >> 31) & 1, (aData.x >> 30) & 1);
@@ -41,7 +41,7 @@ void main()
 
     // Position and Texture
     int end = (aData.x >> 11) & 1;
-    vec3 position = new vec3((aData.x >> 12) & 63, (aData.x >> 6) & 31, aData.x & 63);
+    vec3 position = vec3((aData.x >> 12) & 63, (aData.x >> 6) & 31, aData.x & 63);
 
     if (n == 4) // Side: Bottom
     {

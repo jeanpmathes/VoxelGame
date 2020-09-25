@@ -18,15 +18,15 @@ namespace VoxelGame.Core.Logic.Liquids
         private protected int[] movingTex = null!;
         private protected int[] staticTex = null!;
 
-        public BasicLiquid(string name, string namedId, float density, int viscosity, bool neutralTint, TextureLayout movingLayout, TextureLayout staticLayout) :
+        public BasicLiquid(string name, string namedId, float density, int viscosity, bool neutralTint, TextureLayout movingLayout, TextureLayout staticLayout, RenderType renderType = RenderType.Transparent) :
             base(
                 name,
                 namedId,
                 density,
                 viscosity,
-                isRendered: true,
                 checkContact: true,
-                receiveContact: false)
+                receiveContact: false,
+                renderType)
         {
             this.neutralTint = neutralTint;
 
