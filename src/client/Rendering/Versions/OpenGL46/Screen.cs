@@ -142,15 +142,15 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
 
         #region PUBLIC STATIC METHODS
 
-        private protected override void SetCursor_Implementation(bool visible, bool tracked = false, bool grabbed = false)
+        private protected override void SetCursor_Implementation(bool visible, bool tracked, bool grabbed)
         {
             Client.CursorVisible = visible;
             Client.DoMouseTracking = tracked;
             Client.CursorGrabbed = grabbed;
         }
 
-        private static Vector2i previousScreenSize;
-        private static Vector2i previousScreenLocation;
+        private Vector2i previousScreenSize;
+        private Vector2i previousScreenLocation;
 
         private protected override void SetFullscreen_Implementation(bool fullscreen)
         {

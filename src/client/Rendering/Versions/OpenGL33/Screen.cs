@@ -160,8 +160,8 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             Client.CursorGrabbed = grabbed;
         }
 
-        private static Vector2i previousScreenSize;
-        private static Vector2i previousScreenLocation;
+        private Vector2i previousScreenSize;
+        private Vector2i previousScreenLocation;
 
         private protected override void SetFullscreen_Implementation(bool fullscreen)
         {
