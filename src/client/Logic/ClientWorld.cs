@@ -93,14 +93,16 @@ namespace VoxelGame.Client.Logic
 
                 for (int stage = 0; stage < 3; stage++)
                 {
-                    SectionRenderer.PrepareStage(stage);
+                    if (renderList.Count == 0) break;
+
+                    renderList[0].section.PrepareRender(stage);
 
                     for (int i = 0; i < renderList.Count; i++)
                     {
                         renderList[i].section.Render(stage, renderList[i].position);
                     }
 
-                    SectionRenderer.FinishStage(stage);
+                    renderList[0].section.FinishRender(stage);
                 }
 
                 // Render the player

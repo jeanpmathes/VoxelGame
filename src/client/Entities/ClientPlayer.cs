@@ -30,12 +30,12 @@ namespace VoxelGame.Client.Entities
             this.camera = camera;
             camera.Position = Position;
 
-            selectionRenderer = new BoxRenderer();
+            selectionRenderer = GLManager.BoxRendererFactory.CreateBoxRenderer();
 
-            crosshair = new Texture("Resources/Textures/UI/crosshair.png", fallbackResolution: 32);
+            crosshair = GLManager.TextureFactory.CreateTexture("Resources/Textures/UI/crosshair.png", fallbackResolution: 32);
             crosshair.Use(OpenToolkit.Graphics.OpenGL4.TextureUnit.Texture6);
 
-            crosshairRenderer = new ScreenElementRenderer();
+            crosshairRenderer = GLManager.ScreenElementRendererFactory.CreateScreenElementRenderer();
             crosshairRenderer.SetTexture(crosshair);
             crosshairRenderer.SetColor(crosshairColor);
 

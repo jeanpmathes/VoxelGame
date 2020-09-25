@@ -104,14 +104,14 @@ namespace VoxelGame.Client
                 GL.DebugMessageCallback(debugCallbackDelegate, IntPtr.Zero);
 
                 // Screen setup.
-                screen = new Screen(this);
+                screen = GLManager.ScreenFactory.CreateScreen(this);
 
                 // Texture setup.
-                BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2, TextureUnit.Texture3, TextureUnit.Texture4);
+                BlockTextureArray = GLManager.ArrayTextureFactory.CreateArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2, TextureUnit.Texture3, TextureUnit.Texture4);
                 Game.SetBlockTextures(BlockTextureArray);
                 logger.LogInformation("All block textures loaded.");
 
-                LiquidTextureArray = new ArrayTexture("Resources/Textures/Liquids", 16, false, TextureUnit.Texture5);
+                LiquidTextureArray = GLManager.ArrayTextureFactory.CreateArrayTexture("Resources/Textures/Liquids", 16, false, TextureUnit.Texture5);
                 Game.SetLiquidTextures(LiquidTextureArray);
                 logger.LogInformation("All liquid textures loaded.");
 

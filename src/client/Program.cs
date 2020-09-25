@@ -59,10 +59,13 @@ namespace VoxelGame.Client
                 UpdateFrequency = 60.0
             };
 
+            const int version = 46;
+            Rendering.GLManager.Initialize(version);
+
             NativeWindowSettings nativeWindowSettings = NativeWindowSettings.Default;
             nativeWindowSettings.WindowBorder = OpenToolkit.Windowing.Common.WindowBorder.Hidden;
+            nativeWindowSettings.APIVersion = Rendering.GLManager.Version;
             nativeWindowSettings.Profile = OpenToolkit.Windowing.Common.ContextProfile.Compatability;
-            nativeWindowSettings.APIVersion = new Version(4, 6);
             nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
             nativeWindowSettings.Size = Properties.client.Default.ScreenSize.ToVector2i();
             nativeWindowSettings.StartFocused = false;
