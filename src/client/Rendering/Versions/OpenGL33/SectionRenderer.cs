@@ -227,6 +227,11 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
             Client.SimpleSectionShader.SetMatrix4("view", view);
             Client.SimpleSectionShader.SetMatrix4("projection", projection);
+
+            Client.SimpleSectionShader.SetInt("firstArrayTexture", 1);
+            Client.SimpleSectionShader.SetInt("secondArrayTexture", 2);
+            Client.SimpleSectionShader.SetInt("thirdArrayTexture", 3);
+            Client.SimpleSectionShader.SetInt("fourthArrayTexture", 4);
         }
 
         private void DrawSimpleBuffer(Matrix4 model)
@@ -249,6 +254,11 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
             Client.ComplexSectionShader.SetMatrix4("view", view);
             Client.ComplexSectionShader.SetMatrix4("projection", projection);
+
+            Client.ComplexSectionShader.SetInt("firstArrayTexture", 1);
+            Client.ComplexSectionShader.SetInt("secondArrayTexture", 2);
+            Client.ComplexSectionShader.SetInt("thirdArrayTexture", 3);
+            Client.ComplexSectionShader.SetInt("fourthArrayTexture", 4);
         }
 
         private void DrawComplexBuffer(Matrix4 model)
@@ -275,6 +285,8 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
             Client.LiquidSectionShader.SetMatrix4("view", view);
             Client.LiquidSectionShader.SetMatrix4("projection", projection);
+
+            Client.LiquidSectionShader.SetInt("arrayTexture", 5);
         }
 
         private void DrawLiquidBuffer(Matrix4 model)

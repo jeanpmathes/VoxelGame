@@ -10,9 +10,15 @@ using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Rendering
 {
-    public class GLManager
+    public sealed class GLManager
     {
+        private GLManager()
+        {
+        }
+
         private static ILogger logger = LoggingHelper.CreateLogger<GLManager>();
+
+        #region INITIALIZATION
 
         public static void Initialize(int version)
         {
@@ -68,6 +74,8 @@ namespace VoxelGame.Client.Rendering
 
             logger.LogInformation("Initialized rendering for OpenGL 4.6");
         }
+
+        #endregion INITIALIZATION
 
         #region FACTORIES
 

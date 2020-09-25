@@ -1,4 +1,4 @@
-﻿#version 430
+﻿#version 330
 
 out vec4 outputColor;
 
@@ -9,7 +9,8 @@ in vec2 texCoord;
 
 in vec4 tint;
 
-layout(binding = 5) uniform sampler2DArray arrayTexture;
+// binding 5
+uniform sampler2DArray arrayTexture;
 
 uniform float time;
 

@@ -59,7 +59,7 @@ namespace VoxelGame.Client
                 UpdateFrequency = 60.0
             };
 
-            const int version = 46;
+            const int version = 33;
             Rendering.GLManager.Initialize(version);
 
             NativeWindowSettings nativeWindowSettings = NativeWindowSettings.Default;
