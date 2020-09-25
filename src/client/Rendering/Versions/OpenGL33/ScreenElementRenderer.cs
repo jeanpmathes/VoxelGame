@@ -40,32 +40,32 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             };
 
             // Vertex Buffer Object
-            GL.CreateBuffers(1, out vbo);
-            GL.NamedBufferStorage(vbo, vertices.Length * sizeof(float), vertices, BufferStorageFlags.DynamicStorageBit);
+            vbo = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
 
             // Element Buffer Object
-            GL.CreateBuffers(1, out ebo);
-            GL.NamedBufferStorage(ebo, indices.Length * sizeof(uint), indices, BufferStorageFlags.DynamicStorageBit);
+            ebo = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
 
             Client.ScreenElementShader.Use();
 
             // Vertex Array Object
-            GL.CreateVertexArrays(1, out vao);
-
-            GL.VertexArrayVertexBuffer(vao, 0, vbo, IntPtr.Zero, 5 * sizeof(float));
-            GL.VertexArrayElementBuffer(vao, ebo);
+            vao = GL.GenVertexArray();
+            GL.BindVertexArray(vao);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
 
             int vertexLocation = Client.ScreenElementShader.GetAttribLocation("aPosition");
+            GL.EnableVertexAttribArray(vertexLocation);
+            GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+
             int texCordLocation = Client.ScreenElementShader.GetAttribLocation("aTexCoord");
+            GL.EnableVertexAttribArray(texCordLocation);
+            GL.VertexAttribPointer(texCordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
 
-            GL.EnableVertexArrayAttrib(vao, vertexLocation);
-            GL.EnableVertexArrayAttrib(vao, texCordLocation);
-
-            GL.VertexArrayAttribFormat(vao, vertexLocation, 3, VertexAttribType.Float, false, 0 * sizeof(float));
-            GL.VertexArrayAttribFormat(vao, texCordLocation, 2, VertexAttribType.Float, false, 3 * sizeof(float));
-
-            GL.VertexArrayAttribBinding(vao, vertexLocation, 0);
-            GL.VertexArrayAttribBinding(vao, texCordLocation, 0);
+            GL.BindVertexArray(0);
         }
 
         public override void SetTexture(Rendering.Texture texture)

@@ -42,17 +42,17 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
         public SectionRenderer()
         {
-            GL.CreateBuffers(1, out simpleDataVBO);
-            GL.CreateVertexArrays(1, out simpleVAO);
+            simpleDataVBO = GL.GenBuffer();
+            simpleVAO = GL.GenVertexArray();
 
-            GL.CreateBuffers(1, out complexPositionVBO);
-            GL.CreateBuffers(1, out complexDataVBO);
-            GL.CreateBuffers(1, out complexEBO);
-            GL.CreateVertexArrays(1, out complexVAO);
+            complexPositionVBO = GL.GenBuffer();
+            complexDataVBO = GL.GenBuffer();
+            complexEBO = GL.GenBuffer();
+            complexVAO = GL.GenVertexArray();
 
-            GL.CreateBuffers(1, out liquidDataVBO);
-            GL.CreateBuffers(1, out liquidEBO);
-            GL.CreateVertexArrays(1, out liquidVAO);
+            liquidDataVBO = GL.GenBuffer();
+            liquidEBO = GL.GenBuffer();
+            liquidVAO = GL.GenVertexArray();
         }
 
         public override void SetData(ref SectionMeshData meshData)
@@ -71,18 +71,21 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             if (simpleIndices != 0)
             {
                 // Vertex Buffer Object
-                GL.NamedBufferData(simpleDataVBO, meshData.simpleVertexData.Count * sizeof(int), meshData.simpleVertexData.ExposeArray(), BufferUsageHint.DynamicDraw);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, simpleDataVBO);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshData.simpleVertexData.Count * sizeof(int), meshData.simpleVertexData.ExposeArray(), BufferUsageHint.StaticDraw);
 
                 int dataLocation = Client.SimpleSectionShader.GetAttribLocation("aData");
 
                 Client.SimpleSectionShader.Use();
 
                 // Vertex Array Object
-                GL.VertexArrayVertexBuffer(simpleVAO, 0, simpleDataVBO, IntPtr.Zero, 2 * sizeof(int));
+                GL.BindVertexArray(simpleVAO);
 
-                GL.EnableVertexArrayAttrib(simpleVAO, dataLocation);
-                GL.VertexArrayAttribIFormat(simpleVAO, dataLocation, 2, VertexAttribType.Int, 0 * sizeof(int));
-                GL.VertexArrayAttribBinding(simpleVAO, dataLocation, 0);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, simpleDataVBO);
+                GL.EnableVertexAttribArray(dataLocation);
+                GL.VertexAttribIPointer(dataLocation, 2, VertexAttribIntegerType.Int, 2 * sizeof(int), IntPtr.Zero);
+
+                GL.BindVertexArray(0);
 
                 hasSimpleData = true;
             }
@@ -98,13 +101,16 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             if (complexElements != 0)
             {
                 // Vertex Buffer Object
-                GL.NamedBufferData(complexPositionVBO, meshData.complexVertexPositions.Count * sizeof(float), meshData.complexVertexPositions.ExposeArray(), BufferUsageHint.DynamicDraw);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, complexPositionVBO);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshData.complexVertexPositions.Count * sizeof(float), meshData.complexVertexPositions.ExposeArray(), BufferUsageHint.StaticDraw);
 
                 // Vertex Buffer Object
-                GL.NamedBufferData(complexDataVBO, meshData.complexVertexData.Count * sizeof(int), meshData.complexVertexData.ExposeArray(), BufferUsageHint.DynamicDraw);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, complexDataVBO);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshData.complexVertexData.Count * sizeof(int), meshData.complexVertexData.ExposeArray(), BufferUsageHint.StaticDraw);
 
                 // Element Buffer Object
-                GL.NamedBufferData(complexEBO, meshData.complexIndices.Count * sizeof(uint), meshData.complexIndices.ExposeArray(), BufferUsageHint.DynamicDraw);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, complexEBO);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.complexIndices.Count * sizeof(uint), meshData.complexIndices.ExposeArray(), BufferUsageHint.StaticDraw);
 
                 int positionLocation = Client.ComplexSectionShader.GetAttribLocation("aPosition");
                 int dataLocation = Client.ComplexSectionShader.GetAttribLocation("aData");
@@ -112,18 +118,19 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
                 Client.ComplexSectionShader.Use();
 
                 // Vertex Array Object
-                GL.VertexArrayVertexBuffer(complexVAO, 0, complexPositionVBO, IntPtr.Zero, 3 * sizeof(float));
-                GL.VertexArrayVertexBuffer(complexVAO, 1, complexDataVBO, IntPtr.Zero, 2 * sizeof(int));
-                GL.VertexArrayElementBuffer(complexVAO, complexEBO);
+                GL.BindVertexArray(complexVAO);
 
-                GL.EnableVertexArrayAttrib(complexVAO, positionLocation);
-                GL.EnableVertexArrayAttrib(complexVAO, dataLocation);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, complexPositionVBO);
+                GL.EnableVertexAttribArray(positionLocation);
+                GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
 
-                GL.VertexArrayAttribFormat(complexVAO, positionLocation, 3, VertexAttribType.Float, false, 0 * sizeof(float));
-                GL.VertexArrayAttribIFormat(complexVAO, dataLocation, 2, VertexAttribType.Int, 0 * sizeof(int));
+                GL.BindBuffer(BufferTarget.ArrayBuffer, complexDataVBO);
+                GL.EnableVertexAttribArray(dataLocation);
+                GL.VertexAttribIPointer(dataLocation, 2, VertexAttribIntegerType.Int, 2 * sizeof(int), IntPtr.Zero);
 
-                GL.VertexArrayAttribBinding(complexVAO, positionLocation, 0);
-                GL.VertexArrayAttribBinding(complexVAO, dataLocation, 1);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, complexEBO);
+
+                GL.BindVertexArray(0);
 
                 hasComplexData = true;
             }
@@ -139,22 +146,27 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             if (liquidElements != 0)
             {
                 // Vertex Buffer Object
-                GL.NamedBufferData(liquidDataVBO, meshData.liquidVertexData.Count * sizeof(int), meshData.liquidVertexData.ExposeArray(), BufferUsageHint.DynamicDraw);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidDataVBO);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshData.liquidVertexData.Count * sizeof(int), meshData.liquidVertexData.ExposeArray(), BufferUsageHint.StaticDraw);
 
                 // Element Buffer Object
-                GL.NamedBufferData(liquidEBO, meshData.liquidIndices.Count * sizeof(uint), meshData.liquidIndices.ExposeArray(), BufferUsageHint.DynamicDraw);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, liquidEBO);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.liquidIndices.Count * sizeof(uint), meshData.liquidIndices.ExposeArray(), BufferUsageHint.StaticDraw);
 
                 int dataLocation = Client.LiquidSectionShader.GetAttribLocation("aData");
 
                 Client.LiquidSectionShader.Use();
 
                 // Vertex Array Object
-                GL.VertexArrayVertexBuffer(liquidVAO, 0, liquidDataVBO, IntPtr.Zero, 2 * sizeof(int));
-                GL.VertexArrayElementBuffer(liquidVAO, liquidEBO);
+                GL.BindVertexArray(liquidVAO);
 
-                GL.EnableVertexArrayAttrib(liquidVAO, dataLocation);
-                GL.VertexArrayAttribIFormat(liquidVAO, dataLocation, 2, VertexAttribType.Int, 0 * sizeof(int));
-                GL.VertexArrayAttribBinding(liquidVAO, dataLocation, 0);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidDataVBO);
+                GL.EnableVertexAttribArray(dataLocation);
+                GL.VertexAttribIPointer(dataLocation, 2, VertexAttribIntegerType.Int, 2 * sizeof(int), IntPtr.Zero);
+
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, liquidEBO);
+
+                GL.BindVertexArray(0);
 
                 hasLiquidData = true;
             }

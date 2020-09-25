@@ -41,7 +41,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             this.textureUnits = textureUnits;
             handles = new int[arrayCount];
 
-            GL.CreateTextures(TextureTarget.Texture2DArray, arrayCount, handles);
+            GL.GenTextures(arrayCount, handles);
 
             string[] texturePaths;
 
@@ -137,10 +137,11 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
         {
             int levels = (int)Math.Log(resolution, 2);
 
-            GL.BindTextureUnit(unit - TextureUnit.Texture0, handle);
+            GL.ActiveTexture(unit);
+            GL.BindTexture(TextureTarget.Texture2DArray, handle);
 
             // Allocate storage for array
-            GL.TextureStorage3D(handle, levels, SizedInternalFormat.Rgba8, resolution, resolution, length);
+            GL.TexStorage3D(TextureTarget3d.Texture2DArray, levels, SizedInternalFormat.Rgba8, resolution, resolution, length);
 
             using Bitmap container = new Bitmap(resolution, resolution * length);
             using (Graphics canvas = Graphics.FromImage(container))
@@ -157,29 +158,29 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
             // Upload pixel data to array
             BitmapData data = container.LockBits(new Rectangle(0, 0, container.Width, container.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            GL.TextureSubImage3D(handle, 0, 0, 0, 0, resolution, resolution, length, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+            GL.TexSubImage3D(TextureTarget.Texture2DArray, 0, 0, 0, 0, resolution, resolution, length, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
 
             container.UnlockBits(data);
 
             // Generate mipmaps for array
             if (!useCustomMipmapGeneration)
             {
-                GL.GenerateTextureMipmap(handle);
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2DArray);
             }
             else
             {
-                GenerateMipmapWithoutTransparencyMixing(handle, container, levels, length);
+                GenerateMipmapWithoutTransparencyMixing(container, levels, length);
             }
 
             // Set texture parameters for array
-            GL.TextureParameter(handle, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
-            GL.TextureParameter(handle, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
+            GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
-            GL.TextureParameter(handle, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-            GL.TextureParameter(handle, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
         }
 
-        private static void GenerateMipmapWithoutTransparencyMixing(int handle, Bitmap baseLevel, int levels, int length)
+        private static void GenerateMipmapWithoutTransparencyMixing(Bitmap baseLevel, int levels, int length)
         {
             Bitmap upperLevel = baseLevel;
 
@@ -217,7 +218,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
                 // Upload pixel data to array
                 BitmapData data = lowerLevel.LockBits(new Rectangle(0, 0, lowerLevel.Width, lowerLevel.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                GL.TextureSubImage3D(handle, lod, 0, 0, 0, lowerLevel.Width, lowerLevel.Width, length, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+                GL.TexSubImage3D(TextureTarget.Texture2DArray, lod, 0, 0, 0, lowerLevel.Width, lowerLevel.Width, length, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
 
                 lowerLevel.UnlockBits(data);
 
@@ -247,7 +248,8 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
         {
             for (int i = 0; i < arrayCount; i++)
             {
-                GL.BindTextureUnit(textureUnits[i] - TextureUnit.Texture0, handles[i]);
+                GL.ActiveTexture(textureUnits[i]);
+                GL.BindTexture(TextureTarget.Texture2DArray, handles[i]);
 
                 GL.TextureParameter(handles[i], TextureParameterName.TextureWrapS, (int)mode);
                 GL.TextureParameter(handles[i], TextureParameterName.TextureWrapT, (int)mode);

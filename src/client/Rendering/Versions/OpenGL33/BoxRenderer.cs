@@ -30,9 +30,9 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
         public BoxRenderer()
         {
-            GL.CreateBuffers(1, out vbo);
-            GL.CreateBuffers(1, out ebo);
-            GL.CreateVertexArrays(1, out vao);
+            vbo = GL.GenBuffer();
+            ebo = GL.GenBuffer();
+            vao = GL.GenVertexArray();
         }
 
         private int BuildMeshData_NonRecursive(BoundingBox boundingBox, out float[] vertices, out uint[] indices)
@@ -137,22 +137,26 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             elements = BuildMeshData(boundingBox, out float[] vertices, out uint[] indices);
 
             // Vertex Buffer Object
-            GL.NamedBufferData(vbo, vertices.Length * sizeof(float), vertices, BufferUsageHint.DynamicDraw);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.DynamicDraw);
 
             // Element Buffer Object
-            GL.NamedBufferData(ebo, indices.Length * sizeof(uint), indices, BufferUsageHint.DynamicDraw);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.DynamicDraw);
 
             Client.SelectionShader.Use();
 
             // Vertex Array Object
-            GL.VertexArrayVertexBuffer(vao, 0, vbo, IntPtr.Zero, 3 * sizeof(float));
-            GL.VertexArrayElementBuffer(vbo, ebo);
+            GL.BindVertexArray(vao);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
 
             int vertexLocation = Client.SelectionShader.GetAttribLocation("aPosition");
 
-            GL.EnableVertexArrayAttrib(vao, vertexLocation);
-            GL.VertexArrayAttribFormat(vao, vertexLocation, 3, VertexAttribType.Float, false, 0 * sizeof(float));
-            GL.VertexArrayAttribBinding(vao, vertexLocation, 0);
+            GL.EnableVertexAttribArray(vertexLocation);
+            GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+
+            GL.BindVertexArray(0);
         }
 
         public override void Draw(Vector3 position)
