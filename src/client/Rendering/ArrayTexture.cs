@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using VoxelGame.Core;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
@@ -25,8 +26,6 @@ namespace VoxelGame.Client.Rendering
         public abstract void Use();
 
         internal abstract void SetWrapMode(TextureWrapMode mode);
-
-        public abstract int GetTextureIndex(string name);
 
         private protected int arrayCount;
         private protected TextureUnit[] textureUnits = null!;
@@ -145,6 +144,38 @@ namespace VoxelGame.Client.Rendering
             }
         }
 
+        protected void GenerateMipmapWithoutTransparencyMixing(int handle, Bitmap baseLevel, int levels, int length)
+        {
+            Bitmap upperLevel = baseLevel;
+
+            for (int lod = 1; lod < levels; lod++)
+            {
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                Bitmap lowerLevel = new Bitmap(upperLevel.Width / 2, upperLevel.Height / 2);
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
+                // Create the lower level by averaging the upper level
+                CreateLowerLevel(ref upperLevel, ref lowerLevel);
+
+                // Upload pixel data to array
+                UploadPixelData(handle, lowerLevel, lod, length);
+
+                if (!upperLevel.Equals(baseLevel))
+                {
+                    upperLevel?.Dispose();
+                }
+
+                upperLevel = lowerLevel;
+            }
+
+            if (!upperLevel.Equals(baseLevel))
+            {
+                upperLevel?.Dispose();
+            }
+        }
+
+        protected abstract void UploadPixelData(int handle, Bitmap bitmap, int lod, int length);
+
         /// <summary>
         /// Method used in generating a custom mipmap.
         /// </summary>
@@ -175,6 +206,25 @@ namespace VoxelGame.Client.Rendering
 
                     lowerLevel.SetPixel(w, h, average);
                 }
+            }
+        }
+
+        public int GetTextureIndex(string name)
+        {
+            if (name == "missing_texture")
+            {
+                return 0;
+            }
+
+            if (textureIndicies.TryGetValue(name, out int value))
+            {
+                return value;
+            }
+            else
+            {
+                logger.LogWarning(LoggingEvents.MissingRessource, "The texture '{name}' is not available, fallback is used.", name);
+
+                return 0;
             }
         }
 

@@ -77,37 +77,12 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             GL.TextureParameter(handle, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
         }
 
-        private static void GenerateMipmapWithoutTransparencyMixing(int handle, Bitmap baseLevel, int levels, int length)
+        protected override void UploadPixelData(int handle, Bitmap bitmap, int lod, int length)
         {
-            Bitmap upperLevel = baseLevel;
+            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            GL.TextureSubImage3D(handle, lod, 0, 0, 0, bitmap.Width, bitmap.Width, length, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
 
-            for (int lod = 1; lod < levels; lod++)
-            {
-#pragma warning disable CA2000 // Dispose objects before losing scope
-                Bitmap lowerLevel = new Bitmap(upperLevel.Width / 2, upperLevel.Height / 2);
-#pragma warning restore CA2000 // Dispose objects before losing scope
-
-                // Create the lower level by averaging the upper level
-                CreateLowerLevel(ref upperLevel, ref lowerLevel);
-
-                // Upload pixel data to array
-                BitmapData data = lowerLevel.LockBits(new Rectangle(0, 0, lowerLevel.Width, lowerLevel.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                GL.TextureSubImage3D(handle, lod, 0, 0, 0, lowerLevel.Width, lowerLevel.Width, length, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
-
-                lowerLevel.UnlockBits(data);
-
-                if (!upperLevel.Equals(baseLevel))
-                {
-                    upperLevel?.Dispose();
-                }
-
-                upperLevel = lowerLevel;
-            }
-
-            if (!upperLevel.Equals(baseLevel))
-            {
-                upperLevel?.Dispose();
-            }
+            bitmap.UnlockBits(data);
         }
 
         public override void Use()
@@ -126,25 +101,6 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
 
                 GL.TextureParameter(handles[i], TextureParameterName.TextureWrapS, (int)mode);
                 GL.TextureParameter(handles[i], TextureParameterName.TextureWrapT, (int)mode);
-            }
-        }
-
-        public override int GetTextureIndex(string name)
-        {
-            if (name == "missing_texture")
-            {
-                return 0;
-            }
-
-            if (textureIndicies.TryGetValue(name, out int value))
-            {
-                return value;
-            }
-            else
-            {
-                logger.LogWarning(LoggingEvents.MissingRessource, "The texture '{name}' is not available, fallback is used.", name);
-
-                return 0;
             }
         }
 
