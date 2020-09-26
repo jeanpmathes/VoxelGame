@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using System;
-using System.Diagnostics;
 using VoxelGame.Core;
 using VoxelGame.Core.Utilities;
 
