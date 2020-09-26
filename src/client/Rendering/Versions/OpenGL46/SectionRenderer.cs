@@ -164,62 +164,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             meshData.ReturnPooled();
         }
 
-        public override void Draw(Vector3 position)
-        {
-            Debug.Fail("Sections should be drawn using DrawStage.");
-
-            for (int stage = 0; stage < 3; stage++)
-            {
-                PrepareStage(0);
-                DrawStage(0, position);
-                FinishStage(0);
-            }
-
-            GL.BindVertexArray(0);
-            GL.UseProgram(0);
-        }
-
-        public override void PrepareStage(int stage)
-        {
-            Matrix4 view = Client.Player.GetViewMatrix();
-            Matrix4 projection = Client.Player.GetProjectionMatrix();
-
-            switch (stage)
-            {
-                case 0: PrepareSimpleBuffer(view, projection); break;
-                case 1: PrepareComplexBuffer(view, projection); break;
-                case 2: PrepareLiquidBuffer(view, projection); break;
-            }
-        }
-
-        public override void DrawStage(int stage, Vector3 position)
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
-
-            switch (stage)
-            {
-                case 0: DrawSimpleBuffer(model); break;
-                case 1: DrawComplexBuffer(model); break;
-                case 2: DrawLiquidBuffer(model); break;
-            }
-        }
-
-        public override void FinishStage(int stage)
-        {
-            switch (stage)
-            {
-                // case 2:
-                // case 1:
-                case 2: FinishLiqduiBuffer(); break;
-            }
-        }
-
-        private static void PrepareSimpleBuffer(Matrix4 view, Matrix4 projection)
+        protected override void PrepareSimpleBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
@@ -229,7 +174,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             Client.SimpleSectionShader.SetMatrix4("projection", projection);
         }
 
-        private void DrawSimpleBuffer(Matrix4 model)
+        protected override void DrawSimpleBuffer(Matrix4 model)
         {
             if (hasSimpleData)
             {
@@ -241,7 +186,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             }
         }
 
-        private static void PrepareComplexBuffer(Matrix4 view, Matrix4 projection)
+        protected override void PrepareComplexBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
@@ -251,7 +196,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             Client.ComplexSectionShader.SetMatrix4("projection", projection);
         }
 
-        private void DrawComplexBuffer(Matrix4 model)
+        protected override void DrawComplexBuffer(Matrix4 model)
         {
             if (hasComplexData)
             {
@@ -263,7 +208,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             }
         }
 
-        private static void PrepareLiquidBuffer(Matrix4 view, Matrix4 projection)
+        protected override void PrepareLiquidBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
@@ -277,7 +222,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             Client.LiquidSectionShader.SetMatrix4("projection", projection);
         }
 
-        private void DrawLiquidBuffer(Matrix4 model)
+        protected override void DrawLiquidBuffer(Matrix4 model)
         {
             if (hasLiquidData)
             {
@@ -289,15 +234,13 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             }
         }
 
-        private static void FinishLiqduiBuffer()
+        protected override void FinishLiqduiBuffer()
         {
             GL.Disable(EnableCap.Blend);
             GL.DepthMask(true);
         }
 
         #region IDisposable Support
-
-        private bool disposed;
 
         protected override void Dispose(bool disposing)
         {
