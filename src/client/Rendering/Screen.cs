@@ -3,8 +3,12 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
+using OpenToolkit.Windowing.Common;
+using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using System;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Rendering
 {
@@ -13,6 +17,8 @@ namespace VoxelGame.Client.Rendering
     /// </summary>
     public abstract class Screen : IDisposable
     {
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
+
         #region PUBLIC STATIC PROPERTIES
 
         /// <summary>
@@ -46,14 +52,15 @@ namespace VoxelGame.Client.Rendering
 
         #region PUBLIC STATIC METHODS
 
-        private protected abstract void SetCursor_Implementation(bool visible, bool tracked, bool grabbed);
-
         public static void SetCursor(bool visible, bool tracked = false, bool grabbed = false)
         {
-            Instance.SetCursor_Implementation(visible, tracked, grabbed);
+            Instance.Client.CursorVisible = visible;
+            Instance.Client.DoMouseTracking = tracked;
+            Instance.Client.CursorGrabbed = grabbed;
         }
 
-        private protected abstract void SetFullscreen_Implementation(bool fullscreen);
+        private static Vector2i previousScreenSize;
+        private static Vector2i previousScreenLocation;
 
         /// <summary>
         /// Set if the screen should be in fullscreen.
@@ -61,10 +68,25 @@ namespace VoxelGame.Client.Rendering
         /// <param name="fullscreen">If fullscreen should be active.</param>
         public static void SetFullscreen(bool fullscreen)
         {
-            Instance.SetFullscreen_Implementation(fullscreen);
-        }
+            if (fullscreen == Instance.Client.IsFullscreen) return;
 
-        private protected abstract void TakeScreenshot_Implementation(string directory);
+            if (fullscreen)
+            {
+                previousScreenSize = Instance.Client.Size;
+                previousScreenLocation = Instance.Client.Location;
+
+                Instance.Client.WindowState = WindowState.Fullscreen;
+                Instance.Client.IsFullscreen = true;
+                logger.LogDebug("Fullscreen: Switched to fullscreen mode.");
+            }
+            else
+            {
+                unsafe { GLFW.SetWindowMonitor(Instance.Client.WindowPointer, null, previousScreenLocation.X, previousScreenLocation.Y, previousScreenSize.X, previousScreenSize.Y, (int)Instance.Client.RenderFrequency); }
+                Instance.Client.IsFullscreen = false;
+
+                logger.LogDebug("Fullscreen: Switched to normal mode.");
+            }
+        }
 
         /// <summary>
         /// Takes a screenshot and saves it to the specified directory.
@@ -74,6 +96,8 @@ namespace VoxelGame.Client.Rendering
         {
             Instance.TakeScreenshot_Implementation(directory);
         }
+
+        private protected abstract void TakeScreenshot_Implementation(string directory);
 
         #endregion PUBLIC STATIC METHODS
 

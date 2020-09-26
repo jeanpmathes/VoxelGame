@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
-using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Drawing;
 using System.IO;
@@ -152,38 +151,6 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
         }
 
         #region PUBLIC STATIC METHODS
-
-        private protected override void SetCursor_Implementation(bool visible, bool tracked, bool grabbed)
-        {
-            Client.CursorVisible = visible;
-            Client.DoMouseTracking = tracked;
-            Client.CursorGrabbed = grabbed;
-        }
-
-        private Vector2i previousScreenSize;
-        private Vector2i previousScreenLocation;
-
-        private protected override void SetFullscreen_Implementation(bool fullscreen)
-        {
-            if (fullscreen == Client.IsFullscreen) return;
-
-            if (fullscreen)
-            {
-                previousScreenSize = Client.Size;
-                previousScreenLocation = Client.Location;
-
-                Client.WindowState = WindowState.Fullscreen;
-                Client.IsFullscreen = true;
-                logger.LogDebug("Fullscreen: Switched to fullscreen mode.");
-            }
-            else
-            {
-                unsafe { GLFW.SetWindowMonitor(Client.WindowPointer, null, previousScreenLocation.X, previousScreenLocation.Y, previousScreenSize.X, previousScreenSize.Y, (int)Client.RenderFrequency); }
-                Client.IsFullscreen = false;
-
-                logger.LogDebug("Fullscreen: Switched to normal mode.");
-            }
-        }
 
         private protected override void TakeScreenshot_Implementation(string directory)
         {
