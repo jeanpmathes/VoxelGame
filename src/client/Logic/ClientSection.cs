@@ -25,7 +25,7 @@ namespace VoxelGame.Client.Logic
         /// </summary>
         public override void Setup()
         {
-            renderer = new SectionRenderer();
+            renderer = GLManager.SectionRendererFactory.CreateSectionRenderer();
 
             hasMesh = false;
             disposed = false;
@@ -585,6 +585,16 @@ namespace VoxelGame.Client.Logic
         public void SetMeshData(ref SectionMeshData meshData)
         {
             renderer?.SetData(ref meshData);
+        }
+
+        public void PrepareRender(int stage)
+        {
+            renderer?.PrepareStage(stage);
+        }
+
+        public void FinishRender(int stage)
+        {
+            renderer?.FinishStage(stage);
         }
 
         public void Render(int stage, Vector3 position)

@@ -96,6 +96,13 @@ namespace VoxelGame.Client
         {
             using (logger.BeginScope("Client OnLoad"))
             {
+                // GL version setup.
+                int version = GL.GetInteger(GetPName.MajorVersion) * 10 + GL.GetInteger(GetPName.MinorVersion);
+#if GL33
+                version = 33;
+#endif
+                GLManager.Initialize(version);
+
                 // GL debug setup.
                 GL.Enable(EnableCap.DebugOutput);
                 GL.Enable(EnableCap.Multisample);
@@ -104,25 +111,25 @@ namespace VoxelGame.Client
                 GL.DebugMessageCallback(debugCallbackDelegate, IntPtr.Zero);
 
                 // Screen setup.
-                screen = new Screen(this);
+                screen = GLManager.ScreenFactory.CreateScreen(this);
 
                 // Texture setup.
-                BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2, TextureUnit.Texture3, TextureUnit.Texture4);
+                BlockTextureArray = GLManager.ArrayTextureFactory.CreateArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2, TextureUnit.Texture3, TextureUnit.Texture4);
                 Game.SetBlockTextures(BlockTextureArray);
                 logger.LogInformation("All block textures loaded.");
 
-                LiquidTextureArray = new ArrayTexture("Resources/Textures/Liquids", 16, false, TextureUnit.Texture5);
+                LiquidTextureArray = GLManager.ArrayTextureFactory.CreateArrayTexture("Resources/Textures/Liquids", 16, false, TextureUnit.Texture5);
                 Game.SetLiquidTextures(LiquidTextureArray);
                 logger.LogInformation("All liquid textures loaded.");
 
                 // Shader setup.
                 using (logger.BeginScope("Shader setup"))
                 {
-                    SimpleSectionShader = new Shader("Resources/Shaders/simplesection_shader.vert", "Resources/Shaders/section_shader.frag");
-                    ComplexSectionShader = new Shader("Resources/Shaders/complexsection_shader.vert", "Resources/Shaders/section_shader.frag");
-                    LiquidSectionShader = new Shader("Resources/Shaders/liquidsection_shader.vert", "Resources/Shaders/liquidsection_shader.frag");
-                    SelectionShader = new Shader("Resources/Shaders/selection_shader.vert", "Resources/Shaders/selection_shader.frag");
-                    ScreenElementShader = new Shader("Resources/Shaders/screenelement_shader.vert", "Resources/Shaders/screenelement_shader.frag");
+                    SimpleSectionShader = new Shader("simplesection_shader.vert", "section_shader.frag");
+                    ComplexSectionShader = new Shader("complexsection_shader.vert", "section_shader.frag");
+                    LiquidSectionShader = new Shader("liquidsection_shader.vert", "liquidsection_shader.frag");
+                    SelectionShader = new Shader("selection_shader.vert", "selection_shader.frag");
+                    ScreenElementShader = new Shader("screenelement_shader.vert", "screenelement_shader.frag");
 
                     ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
 
