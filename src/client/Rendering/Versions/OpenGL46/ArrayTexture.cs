@@ -20,119 +20,19 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<ArrayTexture>();
 
-        public override int Count { get; }
-
-        private readonly int arrayCount;
-        private readonly TextureUnit[] textureUnits;
-        private readonly int[] handles;
-
-        private readonly Dictionary<string, int> textureIndicies;
+        public override int Count { get; protected set; }
 
         public ArrayTexture(string path, int resolution, bool useCustomMipmapGeneration, params TextureUnit[] textureUnits)
         {
-            if (resolution <= 0 || (resolution & (resolution - 1)) != 0)
-            {
-                throw new ArgumentException($"The resolution '{resolution}' is either negative or not a power of two, which is not allowed.");
-            }
-
-            arrayCount = textureUnits.Length;
-
-            this.textureUnits = textureUnits;
-            handles = new int[arrayCount];
-
-            GL.CreateTextures(TextureTarget.Texture2DArray, arrayCount, handles);
-
-            string[] texturePaths;
-
-            try
-            {
-                texturePaths = Directory.GetFiles(path, "*.png");
-            }
-            catch (DirectoryNotFoundException)
-            {
-                texturePaths = Array.Empty<string>();
-                logger.LogWarning("A texture directory has not been found: {path}", path);
-            }
-
-            List<Bitmap> textures = new List<Bitmap>();
-            textureIndicies = new Dictionary<string, int>();
-
-            // Create fall back texture.
-            Bitmap fallback = Texture.CreateFallback(resolution);
-            textures.Add(fallback);
-
-            // Split all images into separate bitmaps and create a list.
-            LoadBitmaps(resolution, texturePaths, ref textures);
-
-            // Check if the arrays could hold all textures
-            if (textures.Count > 2048 * handles.Length)
-            {
-                logger.LogCritical(
-                    "The number of textures found ({count}) is higher than the number of textures ({max}) that are allowed for an ArrayTexture using {units} units.",
-                    textures.Count,
-                    2048 * handles.Length,
-                    textureUnits.Length);
-
-                throw new ArgumentException("Too many textures in directory for this ArrayTexture!");
-            }
-
-            Count = textures.Count;
-
-            int loadedTextures = 0;
-
-            for (int i = 0; loadedTextures < textures.Count; i++)
-            {
-                int remainingTextures = textures.Count - loadedTextures;
-
-                SetupArrayTexture(handles[i], textureUnits[i], resolution, textures, loadedTextures, loadedTextures + (remainingTextures < 2048 ? remainingTextures : 2048), useCustomMipmapGeneration);
-
-                loadedTextures += 2048;
-            }
-
-            // Cleanup
-            foreach (Bitmap bitmap in textures)
-            {
-                bitmap.Dispose();
-            }
-
-            logger.LogDebug("ArrayTexture with {count} textures loaded.", Count);
+            Initialize(path, resolution, useCustomMipmapGeneration, textureUnits);
         }
 
-        private void LoadBitmaps(int resolution, string[] paths, ref List<Bitmap> bitmaps)
+        protected override void GetHandles(int[] arr)
         {
-            if (paths.Length == 0) return;
-
-            int texIndex = 1;
-
-            for (int i = 0; i < paths.Length; i++)
-            {
-                try
-                {
-                    using Bitmap bitmap = new Bitmap(paths[i]);
-                    if ((bitmap.Width % resolution) == 0 && bitmap.Height == resolution) // Check if image consists of correctly sized textures
-                    {
-                        int textureCount = bitmap.Width / resolution;
-                        textureIndicies.Add(Path.GetFileNameWithoutExtension(paths[i]), texIndex);
-
-                        for (int j = 0; j < textureCount; j++)
-                        {
-                            bitmaps.Add(bitmap.Clone(new Rectangle(j * resolution, 0, resolution, resolution), System.Drawing.Imaging.PixelFormat.Format32bppArgb));
-                            texIndex++;
-                        }
-                    }
-                    else
-                    {
-                        logger.LogDebug("The size of the image did not match the specified resolution ({resolution}) and was not loaded: {path}", resolution, paths[i]);
-                    }
-                }
-                catch (FileNotFoundException e)
-                {
-                    logger.LogError(e, "The image could not be loaded: {path}", paths[i]);
-                }
-            }
+            GL.CreateTextures(TextureTarget.Texture2DArray, arrayCount, handles);
         }
 
-        private static void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures, int startIndex, int length, bool useCustomMipmapGeneration)
+        protected override void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures, int startIndex, int length, bool useCustomMipmapGeneration)
         {
             int levels = (int)Math.Log(resolution, 2);
 

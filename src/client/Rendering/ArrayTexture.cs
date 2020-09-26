@@ -3,22 +3,147 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Rendering
 {
     public abstract class ArrayTexture : IDisposable, ITextureIndexProvider
     {
-        public abstract int Count { get; }
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<ArrayTexture>();
+
+        private protected readonly Dictionary<string, int> textureIndicies = new Dictionary<string, int>();
+
+        public abstract int Count { get; protected set; }
 
         public abstract void Use();
 
         internal abstract void SetWrapMode(TextureWrapMode mode);
 
         public abstract int GetTextureIndex(string name);
+
+        private protected int arrayCount;
+        private protected TextureUnit[] textureUnits = null!;
+        private protected int[] handles = null!;
+
+        protected void Initialize(string path, int resolution, bool useCustomMipmapGeneration, params TextureUnit[] textureUnits)
+        {
+            if (resolution <= 0 || (resolution & (resolution - 1)) != 0)
+            {
+                throw new ArgumentException($"The resolution '{resolution}' is either negative or not a power of two, which is not allowed.");
+            }
+
+            arrayCount = textureUnits.Length;
+
+            this.textureUnits = textureUnits;
+            handles = new int[arrayCount];
+
+            GetHandles(handles);
+
+            string[] texturePaths;
+
+            try
+            {
+                texturePaths = Directory.GetFiles(path, "*.png");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                texturePaths = Array.Empty<string>();
+                logger.LogWarning("A texture directory has not been found: {path}", path);
+            }
+
+            List<Bitmap> textures = new List<Bitmap>();
+
+            // Create fall back texture.
+            Bitmap fallback = Texture.CreateFallback(resolution);
+            textures.Add(fallback);
+
+            // Split all images into separate bitmaps and create a list.
+            LoadBitmaps(resolution, texturePaths, ref textures);
+
+            // Check if the arrays could hold all textures
+            if (textures.Count > 2048 * handles.Length)
+            {
+                logger.LogCritical(
+                    "The number of textures found ({count}) is higher than the number of textures ({max}) that are allowed for an ArrayTexture using {units} units.",
+                    textures.Count,
+                    2048 * handles.Length,
+                    textureUnits.Length);
+
+                throw new ArgumentException("Too many textures in directory for this ArrayTexture!");
+            }
+
+            Count = textures.Count;
+
+            int loadedTextures = 0;
+
+            for (int i = 0; loadedTextures < textures.Count; i++)
+            {
+                int remainingTextures = textures.Count - loadedTextures;
+
+                SetupArrayTexture(handles[i], textureUnits[i], resolution, textures, loadedTextures, loadedTextures + (remainingTextures < 2048 ? remainingTextures : 2048), useCustomMipmapGeneration);
+
+                loadedTextures += 2048;
+            }
+
+            // Cleanup
+            foreach (Bitmap bitmap in textures)
+            {
+                bitmap.Dispose();
+            }
+
+            logger.LogDebug("ArrayTexture with {count} textures loaded.", Count);
+        }
+
+        protected abstract void GetHandles(int[] arr);
+
+        protected abstract void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures, int startIndex, int length, bool useCustomMipmapGeneration);
+
+        /// <summary>
+        /// Loads all bitmaps specified by the paths into the list. The bitmaps are split into smaller parts that are all sized according to the resolution.
+        /// </summary>
+        /// <remarks>
+        /// Textures provided have to have the height given by the resolution, and the width must be a multiple of it.
+        /// </remarks>
+        protected void LoadBitmaps(int resolution, string[] paths, ref List<Bitmap> bitmaps)
+        {
+            if (paths.Length == 0) return;
+
+            int texIndex = 1;
+
+            for (int i = 0; i < paths.Length; i++)
+            {
+                try
+                {
+                    using Bitmap bitmap = new Bitmap(paths[i]);
+                    if ((bitmap.Width % resolution) == 0 && bitmap.Height == resolution) // Check if image consists of correctly sized textures
+                    {
+                        int textureCount = bitmap.Width / resolution;
+                        textureIndicies.Add(Path.GetFileNameWithoutExtension(paths[i]), texIndex);
+
+                        for (int j = 0; j < textureCount; j++)
+                        {
+                            bitmaps.Add(bitmap.Clone(new Rectangle(j * resolution, 0, resolution, resolution), System.Drawing.Imaging.PixelFormat.Format32bppArgb));
+                            texIndex++;
+                        }
+                    }
+                    else
+                    {
+                        logger.LogDebug("The size of the image did not match the specified resolution ({resolution}) and was not loaded: {path}", resolution, paths[i]);
+                    }
+                }
+                catch (FileNotFoundException e)
+                {
+                    logger.LogError(e, "The image could not be loaded: {path}", paths[i]);
+                }
+            }
+        }
 
         /// <summary>
         /// Method used in generating a custom mipmap.
