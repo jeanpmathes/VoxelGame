@@ -140,6 +140,7 @@ namespace VoxelGame.Core.Entities
             {
                 float density = 0f;
                 int maxLevel = -1;
+                bool noGas = false;
 
                 foreach ((int x, int y, int z, Liquid liquid, LiquidLevel level) in liquidIntersections)
                 {
@@ -149,12 +150,13 @@ namespace VoxelGame.Core.Entities
                     {
                         density = liquid.Density;
                         maxLevel = (int)level;
+                        noGas = liquid.Direction > 0;
                     }
                 }
 
                 liquidDrag = 0.5f * density * Velocity.Sign() * (Velocity * Velocity) * ((maxLevel + 1) / 8f) * 0.25f;
 
-                if (!IsGrounded) IsSwimming = true;
+                if (!IsGrounded && noGas) IsSwimming = true;
             }
 
             boundingBox.Center = Position;
