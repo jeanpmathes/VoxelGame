@@ -204,6 +204,14 @@ namespace VoxelGame.Core.Logic
             }
         }
 
+        /// <summary>
+        /// Check if there is a liquid of the same type above this position or a gas of the same type below.
+        /// </summary>
+        protected bool IsAtSurface(int x, int y, int z)
+        {
+            return Game.World.GetLiquid(x, y + Direction, z, out _, out _) != this;
+        }
+
         public sealed override string ToString()
         {
             return NamedId;
