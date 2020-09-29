@@ -285,6 +285,9 @@
   <data name="StartingGame" xml:space="preserve">
     <value>Starting game...</value>
   </data>
+  <data name="Steam" xml:space="preserve">
+    <value>Steam</value>
+  </data>
   <data name="Steel" xml:space="preserve">
     <value>Steel</value>
   </data>

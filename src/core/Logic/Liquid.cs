@@ -63,7 +63,7 @@ namespace VoxelGame.Core.Logic
             Name = name;
             NamedId = namedId;
 
-            Density = density;
+            Density = Math.Abs(density);
             Direction = Math.Sign(density);
 
             Viscosity = viscosity;

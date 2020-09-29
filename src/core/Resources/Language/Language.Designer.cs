@@ -565,6 +565,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Steam.
+        /// </summary>
+        public static string Steam {
+            get {
+                return ResourceManager.GetString("Steam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Steel.
         /// </summary>
         public static string Steel {
