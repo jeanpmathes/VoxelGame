@@ -48,15 +48,16 @@ namespace VoxelGame.Core.Logic.Liquids
 
         protected override void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
         {
+            if (CheckVerticalWorldBounds(x, y, z)) return;
+
             Block block = Game.World.GetBlock(x, y, z, out _) ?? Block.Air;
             // ! Liquid flow check, has to be replaced with interface check when available.
             bool invalidLocation = (block != Block.Air);
 
             if (invalidLocation)
             {
-                if (FlowVertical(x, y, z, level, -Direction, out int remaining) && remaining == -1) return;
-
-                if (FlowVertical(x, y, z, (LiquidLevel)remaining, Direction, out remaining) && remaining == -1) return;
+                if ((FlowVertical(x, y, z, level, -Direction, out int remaining) && remaining == -1) ||
+                    (FlowVertical(x, y, z, (LiquidLevel)remaining, Direction, out remaining) && remaining == -1)) return;
 
                 SpreadOrDestroyLiquid(x, y, z, (LiquidLevel)remaining);
             }
@@ -67,6 +68,20 @@ namespace VoxelGame.Core.Logic.Liquids
                 if (level != LiquidLevel.One ? FlowHorizontal(x, y, z, level) : TryPuddleFlow(x, y, z)) return;
 
                 Game.World.ModifyLiquid(true, x, y, z);
+            }
+        }
+
+        protected bool CheckVerticalWorldBounds(int x, int y, int z)
+        {
+            if ((y == 0 && Direction > 0) || (y == Section.SectionSize * Chunk.ChunkHeight - 1 && Direction < 0))
+            {
+                Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
