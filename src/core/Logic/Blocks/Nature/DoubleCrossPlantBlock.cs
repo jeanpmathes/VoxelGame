@@ -48,19 +48,19 @@ namespace VoxelGame.Core.Logic.Blocks
         protected override void Setup()
         {
             vertices = new float[]
-            {
+           {
                 // Two sides: /
-                0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f,
-                0f, 1f, 1f, 0f, 1f, 0f, 0f, 0f,
-                1f, 1f, 0f, 1f, 1f, 0f, 0f, 0f,
-                1f, 0f, 0f, 1f, 0f, 0f, 0f, 0f,
+                0.145f, 0f, 0.855f, 0f, 0f, 0f, 0f, 0f,
+                0.145f, 1f, 0.855f, 0f, 1f, 0f, 0f, 0f,
+                0.855f, 1f, 0.145f, 1f, 1f, 0f, 0f, 0f,
+                0.855f, 0f, 0.145f, 1f, 0f, 0f, 0f, 0f,
 
                 // Two sides: \
-                0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
-                0f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
-                1f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
-                1f, 0f, 1f, 1f, 0f, 0f, 0f, 0f
-            };
+                0.145f, 0f, 0.145f, 0f, 0f, 0f, 0f, 0f,
+                0.145f, 1f, 0.145f, 0f, 1f, 0f, 0f, 0f,
+                0.855f, 1f, 0.855f, 1f, 1f, 0f, 0f, 0f,
+                0.855f, 0f, 0.855f, 1f, 0f, 0f, 0f, 0f
+           };
 
             int tex = Game.BlockTextures.GetTextureIndex(bottomTexture);
             bottomTexIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
