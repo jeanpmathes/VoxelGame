@@ -6,6 +6,7 @@
 using System;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
+using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 
@@ -120,8 +121,7 @@ namespace VoxelGame.Core.Logic
         {
             (Block? block, Liquid? target) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel current, out bool isStatic);
 
-            // ! Liquid flow check, has to be replaced with interface check when available.
-            if (block != Block.Air)
+            if (block is not IFillable fillable || !fillable.IsFillable(x, y, z, this))
             {
                 remaining = (int)level;
                 return false;
