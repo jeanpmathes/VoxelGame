@@ -5,8 +5,10 @@
 // <author>pershingthesecond</author>
 namespace VoxelGame.Core.Logic.Interfaces
 {
-    public interface IFillable
+    public interface IFillable : IBlockBase
     {
+        bool RenderLiquid { get => !IsSolidAndFull; }
+
         bool IsFillable(int x, int y, int z, Liquid liquid)
         {
             return true;

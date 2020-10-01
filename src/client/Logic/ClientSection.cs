@@ -11,6 +11,7 @@ using VoxelGame.Client.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic.Interfaces;
 
 namespace VoxelGame.Client.Logic
 {
@@ -309,7 +310,7 @@ namespace VoxelGame.Client.Logic
                             complexVertCount += verts;
                         }
 
-                        if (currentLiquid.RenderType != RenderType.NotRendered && !currentBlock.IsSolidAndFull)
+                        if (currentLiquid.RenderType != RenderType.NotRendered && ((currentBlock is IFillable fillable && fillable.RenderLiquid) || (currentBlock is not IFillable && !currentBlock.IsSolidAndFull)))
                         {
                             Liquid? liquidToCheck;
                             Block? blockToCheck;
