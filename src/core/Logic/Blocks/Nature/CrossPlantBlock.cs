@@ -9,7 +9,7 @@ using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
-    public class CrossPlantBlock : CrossBlock, IFlammable
+    public class CrossPlantBlock : CrossBlock
     {
         /// <summary>
         /// Initializes a new instance of a cross plant; a plant made out of two intersecting planes. It is using a neutral tint.

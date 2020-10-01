@@ -7,6 +7,9 @@ namespace VoxelGame.Core.Logic.Interfaces
 {
     public interface IFillable
     {
-        bool IsFillable(int x, int y, int z, Liquid liquid);
+        bool IsFillable(int x, int y, int z, Liquid liquid)
+        {
+            return true;
+        }
     }
 }

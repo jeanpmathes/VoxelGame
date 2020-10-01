@@ -57,10 +57,5 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             return false;
         }
-
-        public bool IsFillable(int x, int y, int z, Liquid liquid)
-        {
-            return true;
-        }
     }
 }

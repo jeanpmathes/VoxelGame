@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// Data bit usage: <c>-----h</c>
     /// </summary>
     // h = height
-    public class DoubleCrossPlantBlock : Block, IFlammable
+    public class DoubleCrossPlantBlock : Block, IFlammable, IFillable
     {
         private protected float[] vertices = null!;
         private protected int[] bottomTexIndices = null!;

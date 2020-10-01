@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 
@@ -12,7 +13,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// A block with two crossed quads.
     /// Data bit usage: <c>------</c>
     /// </summary>
-    public class CrossBlock : Block
+    public class CrossBlock : Block, IFillable
     {
         private protected float[] vertices = null!;
         private protected int[] textureIndices = null!;

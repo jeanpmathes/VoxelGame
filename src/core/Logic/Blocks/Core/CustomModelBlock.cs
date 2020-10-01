@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using VoxelGame.Core.Entities;
+using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
@@ -12,7 +13,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// A block that loads its complete model from a file. The block can only be placed on top of solid and full blocks.
     /// Data bit usage: <c>------</c>
     /// </summary>
-    public class CustomModelBlock : Block
+    public class CustomModelBlock : Block, IFillable
     {
         private protected float[] vertices = null!;
         private protected int[] texIndices = null!;

@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
+using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -16,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// Data bit usage: <c>----oo</c>
     /// </summary>
     // o = orientation
-    public class FlatBlock : Block
+    public class FlatBlock : Block, IFillable
     {
         private protected readonly float climbingVelocity;
         private protected readonly float slidingVelocity;
