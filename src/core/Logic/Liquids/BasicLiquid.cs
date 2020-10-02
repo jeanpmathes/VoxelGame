@@ -56,19 +56,29 @@ namespace VoxelGame.Core.Logic.Liquids
 
             if (invalidLocation)
             {
-                if ((FlowVertical(x, y, z, level, -Direction, out int remaining) && remaining == -1) ||
-                    (FlowVertical(x, y, z, (LiquidLevel)remaining, Direction, out remaining) && remaining == -1)) return;
-
-                SpreadOrDestroyLiquid(x, y, z, (LiquidLevel)remaining);
+                InvalidLocationFlow(x, y, z, level);
             }
             else
             {
-                if (FlowVertical(x, y, z, level, Direction, out _)) return;
-
-                if (level != LiquidLevel.One ? FlowHorizontal(x, y, z, level) : TryPuddleFlow(x, y, z)) return;
-
-                Game.World.ModifyLiquid(true, x, y, z);
+                ValidLocationFlow(x, y, z, level);
             }
+        }
+
+        protected void InvalidLocationFlow(int x, int y, int z, LiquidLevel level)
+        {
+            if ((FlowVertical(x, y, z, level, -Direction, out int remaining) && remaining == -1) ||
+                    (FlowVertical(x, y, z, (LiquidLevel)remaining, Direction, out remaining) && remaining == -1)) return;
+
+            SpreadOrDestroyLiquid(x, y, z, (LiquidLevel)remaining);
+        }
+
+        protected void ValidLocationFlow(int x, int y, int z, LiquidLevel level)
+        {
+            if (FlowVertical(x, y, z, level, Direction, out _)) return;
+
+            if (level != LiquidLevel.One ? FlowHorizontal(x, y, z, level) : TryPuddleFlow(x, y, z)) return;
+
+            Game.World.ModifyLiquid(true, x, y, z);
         }
 
         protected bool CheckVerticalWorldBounds(int x, int y, int z)
