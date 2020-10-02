@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     // s = stage
     // h = height
-    public class DoubeCropBlock : Block, IFlammable
+    public class DoubeCropBlock : Block, IFlammable, IFillable
     {
         private protected float[] vertices = null!;
 

@@ -55,7 +55,7 @@ namespace VoxelGame.Client.Rendering
             }
         }
 
-        private int BuildMeshData_NonRecursive(BoundingBox currentBoundingBox, BoundingBox boundingBox, out float[] vertices, out uint[] indices)
+        private static int BuildMeshData_NonRecursive(BoundingBox currentBoundingBox, BoundingBox boundingBox, out float[] vertices, out uint[] indices)
         {
             Vector3 offset = boundingBox.Center - currentBoundingBox.Center;
 

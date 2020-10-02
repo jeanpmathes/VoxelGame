@@ -22,7 +22,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // s = south
     // w = west
     // t = top
-    public class FireBlock : Block
+    public class FireBlock : Block, IFillable
     {
         private protected float[] completeVertices = null!;
         private protected uint[] completeIndices = null!;

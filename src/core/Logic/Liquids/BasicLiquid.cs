@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Liquids
@@ -51,24 +52,33 @@ namespace VoxelGame.Core.Logic.Liquids
             if (CheckVerticalWorldBounds(x, y, z)) return;
 
             Block block = Game.World.GetBlock(x, y, z, out _) ?? Block.Air;
-            // ! Liquid flow check, has to be replaced with interface check when available.
-            bool invalidLocation = (block != Block.Air);
+            bool invalidLocation = block is not IFillable fillable || !fillable.IsFillable(x, y, z, this);
 
             if (invalidLocation)
             {
-                if ((FlowVertical(x, y, z, level, -Direction, out int remaining) && remaining == -1) ||
-                    (FlowVertical(x, y, z, (LiquidLevel)remaining, Direction, out remaining) && remaining == -1)) return;
-
-                SpreadOrDestroyLiquid(x, y, z, (LiquidLevel)remaining);
+                InvalidLocationFlow(x, y, z, level);
             }
             else
             {
-                if (FlowVertical(x, y, z, level, Direction, out _)) return;
-
-                if (level != LiquidLevel.One ? FlowHorizontal(x, y, z, level) : TryPuddleFlow(x, y, z)) return;
-
-                Game.World.ModifyLiquid(true, x, y, z);
+                ValidLocationFlow(x, y, z, level);
             }
+        }
+
+        protected void InvalidLocationFlow(int x, int y, int z, LiquidLevel level)
+        {
+            if ((FlowVertical(x, y, z, level, -Direction, out int remaining) && remaining == -1) ||
+                    (FlowVertical(x, y, z, (LiquidLevel)remaining, Direction, out remaining) && remaining == -1)) return;
+
+            SpreadOrDestroyLiquid(x, y, z, (LiquidLevel)remaining);
+        }
+
+        protected void ValidLocationFlow(int x, int y, int z, LiquidLevel level)
+        {
+            if (FlowVertical(x, y, z, level, Direction, out _)) return;
+
+            if (level != LiquidLevel.One ? FlowHorizontal(x, y, z, level) : TryPuddleFlow(x, y, z)) return;
+
+            Game.World.ModifyLiquid(true, x, y, z);
         }
 
         protected bool CheckVerticalWorldBounds(int x, int y, int z)
@@ -89,8 +99,7 @@ namespace VoxelGame.Core.Logic.Liquids
         {
             (Block? blockVertical, Liquid? liquidVertical) = Game.World.GetPosition(x, y - direction, z, out _, out LiquidLevel levelVertical, out bool isStatic);
 
-            // ! Liquid flow check, has to be replaced with interface check when available.
-            if (blockVertical != Block.Air)
+            if (blockVertical is not IFillable fillable || !fillable.IsFillable(x, y - direction, z, this))
             {
                 remaining = (int)level;
 
@@ -152,8 +161,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? block, Liquid? liquid) = Game.World.GetPosition(px, y, pz, out _, out _, out _);
 
-                // ! Liquid flow check, has to be replaced with interface check when available.
-                if (block == Block.Air && liquid == Liquid.None && CheckLowerPosition(px, pz))
+                if (block is IFillable fillable && fillable.IsFillable(px, y, pz, this) && liquid == Liquid.None && CheckLowerPosition(px, pz))
                 {
                     Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
                     Game.World.SetLiquid(this, LiquidLevel.One, false, px, y, pz);
@@ -172,8 +180,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? lowerBlock, Liquid? lowerLiquid) = Game.World.GetPosition(px, y - Direction, pz, out _, out LiquidLevel level, out _);
 
-                // ! Liquid flow check, has to be replaced with interface check when available.
-                return lowerBlock == Block.Air && ((lowerLiquid == this && level != LiquidLevel.Eight) || lowerLiquid == Liquid.None);
+                return lowerBlock is IFillable fillable && fillable.IsFillable(px, y - Direction, pz, this) && ((lowerLiquid == this && level != LiquidLevel.Eight) || lowerLiquid == Liquid.None);
             }
         }
 
@@ -190,7 +197,9 @@ namespace VoxelGame.Core.Logic.Liquids
 
             if (horX != x || horZ != z)
             {
-                if (levelHorizontal == level - 1 && !HasNeighborWithLevel(level - 2, horX, y, horZ)) return false;
+                if (levelHorizontal == level - 1
+                    && (IsAtSurface(x, y, z) || !IsAtSurface(horX, y, horZ)) // To fix "bubbles" when a liquid is next to a liquid under a block.
+                    && !HasNeighborWithLevel(level - 2, horX, y, horZ)) return false;
 
                 Game.World.SetLiquid(this, levelHorizontal + 1, false, horX, y, horZ);
 
@@ -210,8 +219,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? blockNeighbor, Liquid? liquidNeighbor) = Game.World.GetPosition(nx, ny, nz, out _, out LiquidLevel levelNeighbor, out bool isStatic);
 
-                // ! Liquid flow check, has to be replaced with interface check when available.
-                if (blockNeighbor != Block.Air) return false;
+                if (blockNeighbor is not IFillable fillable || !fillable.IsFillable(nx, ny, nz, this)) return false;
 
                 if (liquidNeighbor == Liquid.None)
                 {
@@ -260,8 +268,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? blockNeighbor, Liquid? liquidNeighbor) = Game.World.GetPosition(nx, ny, nz, out _, out LiquidLevel levelNeighbor, out bool isStatic);
 
-                // ! Liquid flow check, has to be replaced with interface check when available.
-                if (blockNeighbor != Block.Air) return remaining;
+                if (blockNeighbor is not IFillable fillable || !fillable.IsFillable(nx, ny, nz, this)) return remaining;
 
                 if (liquidNeighbor == Liquid.None)
                 {

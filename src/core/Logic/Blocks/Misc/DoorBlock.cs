@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
+using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -19,7 +20,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // s = side
     // b = base
     // o = orientation
-    public class DoorBlock : Block
+    public class DoorBlock : Block, IFillable
     {
         private protected float[][] verticesTop = new float[8][];
         private protected float[][] verticesBase = new float[8][];

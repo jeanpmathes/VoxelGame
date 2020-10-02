@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // e = connected east
     // s = connected south
     // w = connected west
-    public abstract class ConnectingBlock : Block, IConnectable
+    public abstract class ConnectingBlock : Block, IConnectable, IFillable
     {
         private protected uint postVertCount;
         private protected uint extensionVertCount;

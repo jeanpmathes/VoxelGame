@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using System;
+using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 
 namespace VoxelGame.Core.Logic.Blocks
@@ -12,7 +13,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// AirBlocks are blocks that have no collision and are not rendered. They are used for the air block that stands for the absence of other blocks.
     /// Data bit usage: <c>------</c>
     /// </summary>
-    public class AirBlock : Block
+    public class AirBlock : Block, IFillable
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AirBlock"/> class.

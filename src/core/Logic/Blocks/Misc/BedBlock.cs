@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // c = color
     // o = orientation
     // p = position
-    public class BedBlock : Block, IFlammable
+    public class BedBlock : Block, IFlammable, IFillable
     {
         private protected float[][] verticesHead = new float[4][];
         private protected float[][] verticesEnd = new float[4][];

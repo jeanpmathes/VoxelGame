@@ -39,8 +39,8 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Leaves = new NaturalBlock(Language.Leaves, nameof(Leaves), TextureLayout.Uniform("leaves"), isOpaque: false);
         public static readonly Block Log = new RotatedBlock(Language.Log, nameof(Log), TextureLayout.Column("log", 0, 1));
         public static readonly Block Wood = new OrganicConstructionBlock(Language.Wood, nameof(Wood), TextureLayout.Uniform("wood"));
-        public static readonly Block Sand = new BasicBlock(Language.Sand, nameof(Sand), TextureLayout.Uniform("sand"));
-        public static readonly Block Gravel = new BasicBlock(Language.Gravel, nameof(Gravel), TextureLayout.Uniform("gravel"));
+        public static readonly Block Sand = new PermeableBlock(Language.Sand, nameof(Sand), TextureLayout.Uniform("sand"));
+        public static readonly Block Gravel = new PermeableBlock(Language.Gravel, nameof(Gravel), TextureLayout.Uniform("gravel"));
         public static readonly Block OreCoal = new BasicBlock(Language.CoalOre, nameof(OreCoal), TextureLayout.Uniform("ore_coal"));
         public static readonly Block OreIron = new BasicBlock(Language.IronOre, nameof(OreIron), TextureLayout.Uniform("ore_iron"));
         public static readonly Block OreGold = new BasicBlock(Language.GoldOre, nameof(OreGold), TextureLayout.Uniform("ore_gold"));
@@ -114,6 +114,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block GlassTiled = new BasicBlock(Language.TiledGlass, nameof(GlassTiled), TextureLayout.Uniform("glass_tiled"), isOpaque: false, renderFaceAtNonOpaques: false);
         public static readonly Block WoolDecorated = new TintedBlock(Language.DecoratedWool, nameof(WoolDecorated), TextureLayout.Uniform("wool_decorated"));
         public static readonly Block CarpetDecorated = new TintedCustomModelBlock(Language.DecoratedCarpet, nameof(CarpetDecorated), "carpet_decorated", new BoundingBox(new Vector3(0.5f, 0.03125f, 0.5f), new Vector3(0.5f, 0.03125f, 0.5f)));
+        public static readonly Block LiquidBarrier = new LiquidBarrierBlock("Barrier", nameof(LiquidBarrier), TextureLayout.Uniform("liquid_barrier_closed"), TextureLayout.Uniform("liquid_barrier_open"));
 
         #endregion NEW BLOCKS
 
