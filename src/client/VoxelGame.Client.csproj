@@ -292,6 +292,12 @@
     <None Update="Resources\Textures\Blocks\leaves.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Textures\Blocks\liquid_barrier_closed.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Textures\Blocks\liquid_barrier_open.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\Textures\Blocks\log.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

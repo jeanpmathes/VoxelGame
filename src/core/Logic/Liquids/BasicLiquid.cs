@@ -89,7 +89,7 @@ namespace VoxelGame.Core.Logic.Liquids
         {
             (Block? blockVertical, Liquid? liquidVertical) = Game.World.GetPosition(x, y - direction, z, out _, out LiquidLevel levelVertical, out bool isStatic);
 
-            if (blockVertical is not IFillable fillable || !fillable.IsFillable(x, y, z, this))
+            if (blockVertical is not IFillable fillable || !fillable.IsFillable(x, y - direction, z, this))
             {
                 remaining = (int)level;
 
@@ -151,7 +151,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? block, Liquid? liquid) = Game.World.GetPosition(px, y, pz, out _, out _, out _);
 
-                if (block is IFillable fillable && fillable.IsFillable(x, y, z, this) && liquid == Liquid.None && CheckLowerPosition(px, pz))
+                if (block is IFillable fillable && fillable.IsFillable(px, y, pz, this) && liquid == Liquid.None && CheckLowerPosition(px, pz))
                 {
                     Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
                     Game.World.SetLiquid(this, LiquidLevel.One, false, px, y, pz);
@@ -170,7 +170,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? lowerBlock, Liquid? lowerLiquid) = Game.World.GetPosition(px, y - Direction, pz, out _, out LiquidLevel level, out _);
 
-                return lowerBlock is IFillable fillable && fillable.IsFillable(x, y, z, this) && ((lowerLiquid == this && level != LiquidLevel.Eight) || lowerLiquid == Liquid.None);
+                return lowerBlock is IFillable fillable && fillable.IsFillable(px, y - Direction, pz, this) && ((lowerLiquid == this && level != LiquidLevel.Eight) || lowerLiquid == Liquid.None);
             }
         }
 
@@ -209,7 +209,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? blockNeighbor, Liquid? liquidNeighbor) = Game.World.GetPosition(nx, ny, nz, out _, out LiquidLevel levelNeighbor, out bool isStatic);
 
-                if (blockNeighbor is not IFillable fillable || !fillable.IsFillable(x, y, z, this)) return false;
+                if (blockNeighbor is not IFillable fillable || !fillable.IsFillable(nx, ny, nz, this)) return false;
 
                 if (liquidNeighbor == Liquid.None)
                 {
@@ -258,7 +258,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? blockNeighbor, Liquid? liquidNeighbor) = Game.World.GetPosition(nx, ny, nz, out _, out LiquidLevel levelNeighbor, out bool isStatic);
 
-                if (blockNeighbor is not IFillable fillable || !fillable.IsFillable(x, y, z, this)) return remaining;
+                if (blockNeighbor is not IFillable fillable || !fillable.IsFillable(nx, ny, nz, this)) return remaining;
 
                 if (liquidNeighbor == Liquid.None)
                 {
