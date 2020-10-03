@@ -121,30 +121,32 @@ namespace VoxelGame.Core.Logic
         {
             (Block? block, Liquid? target) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel current, out bool isStatic);
 
-            if (block is not IFillable fillable || !fillable.IsFillable(x, y, z, this))
+            if (block is IFillable fillable && fillable.IsFillable(x, y, z, this))
             {
-                remaining = (int)level;
-                return false;
-            }
+                if (target == this && current != LiquidLevel.Eight)
+                {
+                    remaining = (int)current + (int)level + 1;
+                    remaining = remaining > 7 ? 7 : remaining;
 
-            if (target == this && current != LiquidLevel.Eight)
-            {
-                remaining = (int)current + (int)level + 1;
-                remaining = remaining > 7 ? 7 : remaining;
+                    SetLiquid(this, (LiquidLevel)remaining, false, fillable, x, y, z);
+                    if (isStatic) ScheduleTick(x, y, z);
 
-                Game.World.SetLiquid(this, (LiquidLevel)remaining, false, x, y, z);
-                if (isStatic) ScheduleTick(x, y, z);
+                    remaining = (int)level - remaining - (int)current;
+                    return true;
+                }
+                else if (target == Liquid.None)
+                {
+                    SetLiquid(this, level, false, fillable, x, y, z);
+                    ScheduleTick(x, y, z);
 
-                remaining = (int)level - remaining - (int)current;
-                return true;
-            }
-            else if (target == Liquid.None)
-            {
-                Game.World.SetLiquid(this, level, false, x, y, z);
-                ScheduleTick(x, y, z);
-
-                remaining = 0;
-                return true;
+                    remaining = 0;
+                    return true;
+                }
+                else
+                {
+                    remaining = (int)level;
+                    return false;
+                }
             }
             else
             {
@@ -158,15 +160,17 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public bool Take(int x, int y, int z, ref LiquidLevel level)
         {
-            if (Game.World.GetLiquid(x, y, z, out LiquidLevel available, out bool isStatic) == this && this != Liquid.None)
+            (Block? block, Liquid? liquid) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel available, out bool isStatic);
+
+            if (liquid == this && this != Liquid.None)
             {
                 if (level >= available)
                 {
-                    Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
+                    SetLiquid(Liquid.None, LiquidLevel.Eight, true, block as IFillable, x, y, z);
                 }
                 else
                 {
-                    Game.World.SetLiquid(this, (LiquidLevel)((int)available - (int)level - 1), false, x, y, z);
+                    SetLiquid(this, (LiquidLevel)((int)available - (int)level - 1), false, block as IFillable, x, y, z);
                     if (isStatic) ScheduleTick(x, y, z);
                 }
 
@@ -179,6 +183,12 @@ namespace VoxelGame.Core.Logic
         }
 
         protected abstract void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic);
+
+        protected static void SetLiquid(Liquid liquid, LiquidLevel level, bool isStatic, IFillable? fillable, int x, int y, int z)
+        {
+            Game.World.SetLiquid(liquid, level, isStatic, x, y, z);
+            fillable?.LiquidChange(x, y, z, liquid, level);
+        }
 
         /// <summary>
         /// Check if a liquid has a neighbor of the same liquid and this neighbor has a specified level. If the specified level is <c>-1</c>, false is directly returned.
