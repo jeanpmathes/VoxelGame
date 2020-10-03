@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// A block that slows down entities that collide with it.
     /// Data bit usage: <c>------</c>
     /// </summary>
-    public class SpiderWebBlock : CrossBlock, IFlammable
+    public class SpiderWebBlock : CrossBlock, IFlammable, IFillable
     {
         private protected readonly float maxVelocity;
 
@@ -39,6 +39,11 @@ namespace VoxelGame.Core.Logic.Blocks
         protected override void EntityCollision(PhysicsEntity entity, int x, int y, int z, uint data)
         {
             entity.Velocity = VMath.Clamp(entity.Velocity, -1f, maxVelocity);
+        }
+
+        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0) Destroy(x, y, z);
         }
     }
 }
