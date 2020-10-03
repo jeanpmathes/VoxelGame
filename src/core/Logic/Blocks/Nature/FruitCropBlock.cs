@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     // s = stage
     // c = connection (orientation)
-    public class FruitCropBlock : CrossBlock, IFlammable
+    public class FruitCropBlock : CrossBlock, IFlammable, IFillable
     {
         private protected float[][] verticesConnected = null!;
 
@@ -249,6 +249,11 @@ namespace VoxelGame.Core.Logic.Blocks
                     Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.West, x, y, z);
                 }
             }
+        }
+
+        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0 && level > LiquidLevel.Three) Destroy(x, y, z);
         }
 
         protected enum GrowthStage

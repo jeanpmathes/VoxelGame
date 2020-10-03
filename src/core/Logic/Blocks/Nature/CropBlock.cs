@@ -221,6 +221,11 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
+        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0 && level > LiquidLevel.Three) Destroy(x, y, z);
+        }
+
         protected enum GrowthStage
         {
             Initial,
