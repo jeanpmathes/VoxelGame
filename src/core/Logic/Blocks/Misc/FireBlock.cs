@@ -441,5 +441,10 @@ namespace VoxelGame.Core.Logic.Blocks
                 }
             }
         }
+
+        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid != Liquid.None) Destroy(x, y, z);
+        }
     }
 }
