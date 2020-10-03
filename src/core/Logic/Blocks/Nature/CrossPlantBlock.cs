@@ -9,7 +9,7 @@ using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
-    public class CrossPlantBlock : CrossBlock
+    public class CrossPlantBlock : CrossBlock, IFillable
     {
         /// <summary>
         /// Initializes a new instance of a cross plant; a plant made out of two intersecting planes. It is using a neutral tint.
@@ -60,6 +60,11 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 Destroy(x, y, z);
             }
+        }
+
+        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0 && level > LiquidLevel.Four) Destroy(x, y, z);
         }
     }
 }
