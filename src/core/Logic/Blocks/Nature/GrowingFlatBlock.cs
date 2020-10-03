@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     // o = orientation
     // a = age
-    public class GrowingFlatBlock : FlatBlock, IFlammable
+    public class GrowingFlatBlock : FlatBlock, IFlammable, IFillable
     {
         public GrowingFlatBlock(string name, string namedId, string texture, float climbingVelocity, float slidingVelocity) :
             base(
@@ -64,6 +64,11 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 Game.World.SetBlock(this, (uint)orientation, x, y - 1, z);
             }
+        }
+
+        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0 && level > LiquidLevel.Two) Destroy(x, y, z);
         }
     }
 }
