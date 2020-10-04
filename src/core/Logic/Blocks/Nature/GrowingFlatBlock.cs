@@ -27,11 +27,11 @@ namespace VoxelGame.Core.Logic.Blocks
         {
         }
 
-        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             tint = TintColor.Neutral;
 
-            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _, out isAnimated);
+            return base.GetMesh(side, data, TODO, out vertices, out textureIndices, out indices, out _, out isAnimated);
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)

@@ -111,7 +111,7 @@ namespace VoxelGame.Client.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                currentBlock.GetMesh(BlockSide.Front, data, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                currentBlock.GetMesh(BlockSide.Front, data, currentLiquid, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -141,7 +141,7 @@ namespace VoxelGame.Client.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                currentBlock.GetMesh(BlockSide.Back, data, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                currentBlock.GetMesh(BlockSide.Back, data, currentLiquid, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -171,7 +171,7 @@ namespace VoxelGame.Client.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                currentBlock.GetMesh(BlockSide.Left, data, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                currentBlock.GetMesh(BlockSide.Left, data, currentLiquid, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -201,7 +201,7 @@ namespace VoxelGame.Client.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                currentBlock.GetMesh(BlockSide.Right, data, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                currentBlock.GetMesh(BlockSide.Right, data, currentLiquid, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -231,7 +231,7 @@ namespace VoxelGame.Client.Logic
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
                             {
-                                currentBlock.GetMesh(BlockSide.Bottom, data, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                currentBlock.GetMesh(BlockSide.Bottom, data, currentLiquid, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -261,7 +261,7 @@ namespace VoxelGame.Client.Logic
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
                             {
-                                currentBlock.GetMesh(BlockSide.Top, data, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                currentBlock.GetMesh(BlockSide.Top, data, currentLiquid, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -277,7 +277,7 @@ namespace VoxelGame.Client.Logic
                         }
                         else if (currentBlock.TargetBuffer == TargetBuffer.Complex)
                         {
-                            uint verts = currentBlock.GetMesh(BlockSide.All, data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated);
+                            uint verts = currentBlock.GetMesh(BlockSide.All, data, currentLiquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated);
 
                             complexIndices.AddRange(indices);
 

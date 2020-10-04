@@ -45,7 +45,7 @@ namespace VoxelGame.Core.Logic.Blocks
             sideTextureIndices = layout.GetTexIndexArrays();
         }
 
-        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             vertices = sideVertices[(int)side];
             textureIndices = sideTextureIndices[(int)side];

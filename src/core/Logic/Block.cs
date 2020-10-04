@@ -161,7 +161,7 @@ namespace VoxelGame.Core.Logic
         /// <param name="vertices">Vertices of the mesh. Every vertex is made up of 8 floats: XYZ, UV, NOP</param>
         /// <param name="indices">The indices of the mesh that determine how triangles are constructed.</param>
         /// <returns>The amount of vertices in the mesh.</returns>
-        public abstract uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated);
+        public abstract uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated);
 
         public bool Place(int x, int y, int z, Entities.PhysicsEntity? entity = null)
         {
