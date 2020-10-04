@@ -137,7 +137,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 return straightVertCount;
             }
 
-            return base.GetMesh(side, data, TODO, out vertices, out textureIndices, out indices, out tint, out isAnimated);
+            return base.GetMesh(side, data, liquid, out vertices, out textureIndices, out indices, out tint, out isAnimated);
         }
     }
 }

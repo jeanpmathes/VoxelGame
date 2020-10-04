@@ -37,7 +37,7 @@ namespace VoxelGame.Core.Logic.Blocks
             tint = ((BlockColor)(0b01_1111 & data)).ToTintColor();
             isAnimated = this.isAnimated;
 
-            return base.GetMesh(side, data, TODO, out vertices, out textureIndices, out indices, out _, out _);
+            return base.GetMesh(side, data, liquid, out vertices, out textureIndices, out indices, out _, out _);
         }
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)

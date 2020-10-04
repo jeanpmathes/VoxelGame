@@ -34,7 +34,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             tint = TintColor.Neutral;
 
-            return base.GetMesh(side, data, TODO, out vertices, out textureIndices, out indices, out _, out isAnimated);
+            return base.GetMesh(side, data, liquid, out vertices, out textureIndices, out indices, out _, out isAnimated);
         }
 
         protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)

@@ -31,7 +31,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             tint = TintColor.Neutral;
 
-            return base.GetMesh(side, data, TODO, out vertices, out textureIndices, out indices, out _, out isAnimated);
+            return base.GetMesh(side, data, liquid, out vertices, out textureIndices, out indices, out _, out isAnimated);
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
