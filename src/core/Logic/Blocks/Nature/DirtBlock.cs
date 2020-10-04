@@ -11,7 +11,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// A simple block which allows the spread of grass.
     /// Data bit usage: <c>------</c>
     /// </summary>
-    public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable
+    public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     {
         public DirtBlock(string name, string namedId, TextureLayout layout) :
             base(

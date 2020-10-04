@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// A block that changes into dirt when something is placed on top of it. This block can use a neutral tint if specified in the constructor.
     /// Data bit usage: <c>------</c>
     /// </summary>
-    public class CoveredDirtBlock : BasicBlock, IPlantable
+    public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     {
         private protected readonly bool hasNeutralTint;
 
