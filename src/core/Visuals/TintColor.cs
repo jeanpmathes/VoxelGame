@@ -97,6 +97,11 @@ namespace VoxelGame.Core.Visuals
         public static TintColor Gray { get => new TintColor(0.15f, 0.15f, 0.15f); }
 
         /// <summary>
+        /// Gets a light color: <c>(0.8|0.8|0.8)</c>
+        /// </summary>
+        public static TintColor LightGray { get => new TintColor(0.8f, 0.8f, 0.8f); }
+
+        /// <summary>
         /// Gets an indigo color: <c>(0.5|1|0)</c>
         /// </summary>
         public static TintColor Indigo { get => new TintColor(0.5f, 1f, 0f); }
