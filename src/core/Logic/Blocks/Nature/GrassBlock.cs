@@ -25,6 +25,13 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void RandomUpdate(int x, int y, int z, uint data)
         {
+            Liquid? liquid = Game.World.GetLiquid(x, y, z, out LiquidLevel level, out _);
+
+            if (liquid == Liquid.Water && level == LiquidLevel.Eight)
+            {
+                Game.World.SetBlock(Block.Mud, 0, x, y, z);
+            }
+
             if (Game.World.GetBlock(x + 1, y, z, out _) is IGrassSpreadable a) a.SpreadGrass(x + 1, y, z, this);
             if (Game.World.GetBlock(x - 1, y, z, out _) is IGrassSpreadable b) b.SpreadGrass(x - 1, y, z, this);
             if (Game.World.GetBlock(x, y, z + 1, out _) is IGrassSpreadable c) c.SpreadGrass(x, y, z + 1, this);

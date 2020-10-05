@@ -26,6 +26,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 isOpaque: true,
                 renderFaceAtNonOpaques: true,
                 isSolid: true,
+                recieveCollisions: false,
+                isTrigger: false,
                 isInteractable: false)
         {
             this.wet = wet;
@@ -45,6 +47,16 @@ namespace VoxelGame.Core.Logic.Blocks
             if (liquid.Direction > 0) textureIndices = wetTextureIndices[(int)side];
 
             return verts;
+        }
+
+        internal override void RandomUpdate(int x, int y, int z, uint data)
+        {
+            Liquid? liquid = Game.World.GetLiquid(x, y, z, out LiquidLevel level, out _);
+
+            if (liquid == Liquid.Water && level == LiquidLevel.Eight)
+            {
+                Game.World.SetBlock(Block.Mud, 0, x, y, z);
+            }
         }
     }
 }

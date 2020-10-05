@@ -325,6 +325,9 @@
     <None Update="Resources\Textures\Blocks\melon_top.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Textures\Blocks\mud.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\Textures\Blocks\onion.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
