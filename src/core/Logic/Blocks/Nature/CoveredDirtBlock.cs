@@ -17,24 +17,40 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private protected readonly bool hasNeutralTint;
 
-        public CoveredDirtBlock(string name, string namedId, TextureLayout layout, bool hasNeutralTint) :
+        private protected int[][] wetTextureIndices = null!;
+        private protected TextureLayout wet;
+
+        public CoveredDirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet, bool hasNeutralTint) :
             base(
                 name,
                 namedId,
-                layout,
+                layout: normal,
                 isOpaque: true,
                 renderFaceAtNonOpaques: true,
                 isSolid: true,
                 isInteractable: false)
         {
             this.hasNeutralTint = hasNeutralTint;
+
+            this.wet = wet;
+        }
+
+        protected override void Setup()
+        {
+            base.Setup();
+
+            wetTextureIndices = wet.GetTexIndexArrays();
         }
 
         public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
+            uint verts = base.GetMesh(side, data, liquid, out vertices, out textureIndices, out indices, out _, out isAnimated);
+
             tint = (hasNeutralTint) ? TintColor.Neutral : TintColor.None;
 
-            return base.GetMesh(side, data, liquid, out vertices, out textureIndices, out indices, out _, out isAnimated);
+            if (liquid.Direction > 0) textureIndices = wetTextureIndices[(int)side];
+
+            return verts;
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
