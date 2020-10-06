@@ -210,7 +210,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             GrowthStage stage = (GrowthStage)(data & 0b00_0111);
 
-            if ((int)stage > 2 && Game.World.GetBlock(x, y - 1, z, out _) != Block.Farmland)
+            if ((int)stage > 2 && (Game.World.GetBlock(x, y - 1, z, out _) is not IPlantable plantable || !plantable.SupportsFullGrowth))
             {
                 return;
             }

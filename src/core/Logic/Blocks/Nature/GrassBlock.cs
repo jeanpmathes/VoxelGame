@@ -19,7 +19,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 namedId,
                 normal,
                 wet,
-                hasNeutralTint: true)
+                hasNeutralTint: true,
+                supportsFullGrowth: false)
         {
         }
 

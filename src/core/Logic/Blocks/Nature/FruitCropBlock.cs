@@ -219,7 +219,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void RandomUpdate(int x, int y, int z, uint data)
         {
-            if (Game.World.GetBlock(x, y - 1, z, out _) != Block.Farmland)
+            if (Game.World.GetBlock(x, y - 1, z, out _) is not IPlantable plantable || !plantable.SupportsFullGrowth)
             {
                 return;
             }

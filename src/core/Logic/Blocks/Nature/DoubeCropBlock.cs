@@ -223,7 +223,7 @@ namespace VoxelGame.Core.Logic.Blocks
             GrowthStage stage = (GrowthStage)(data & 0b00_0111);
 
             // If this block is the upper part or the block cannot grow more on this type of ground, the random update is ignored.
-            if ((data & 0b00_1000) != 0 || ((int)stage > 2 && Game.World.GetBlock(x, y - 1, z, out _) != Block.Farmland))
+            if ((data & 0b00_1000) != 0 || ((int)stage > 2 && (Game.World.GetBlock(x, y - 1, z, out _) is not IPlantable plantable || !plantable.SupportsFullGrowth)))
             {
                 return;
             }
