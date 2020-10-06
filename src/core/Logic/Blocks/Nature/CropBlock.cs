@@ -210,21 +210,21 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             GrowthStage stage = (GrowthStage)(data & 0b00_0111);
 
-            if (Game.World.GetBlock(x, y - 1, z, out _) is IPlantable plantable)
+            if (stage != GrowthStage.Final && stage != GrowthStage.Dead && Game.World.GetBlock(x, y - 1, z, out _) is IPlantable plantable)
             {
-                if ((int)stage > 2 && !plantable.SupportsFullGrowth) return;
-
-                if (stage != GrowthStage.Final && stage != GrowthStage.Dead)
+                if ((int)stage > 2)
                 {
-                    if (plantable.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.One))
-                    {
-                        Game.World.SetBlock(this, (uint)(stage + 1), x, y, z);
-                    }
-                    else
+                    if (!plantable.SupportsFullGrowth) return;
+
+                    if (!plantable.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.One))
                     {
                         // todo
+
+                        return;
                     }
                 }
+
+                Game.World.SetBlock(this, (uint)(stage + 1), x, y, z);
             }
         }
 

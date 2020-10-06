@@ -235,13 +235,18 @@ namespace VoxelGame.Core.Logic.Blocks
                     {
                         Block? above = Game.World.GetBlock(x, y + 1, z, out _);
 
-                        if (plantable.TryGrow(x, y - 1, z, Liquid.None, LiquidLevel.One) && ((above?.IsReplaceable ?? false) || above == this))
+                        if (plantable.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.One) && ((above?.IsReplaceable ?? false) || above == this))
                         {
                             Game.World.SetBlock(this, (uint)(stage + 1), x, y, z);
                             Game.World.SetBlock(this, (uint)(0b00_1000 | (int)stage + 1), x, y + 1, z);
                         }
+                        else
+                        {
+                            //todo
+                            // ! when the plant dies, the current stage has to be checked, if it is third only the lower block has to be set, in all other cases the higher block has to be set to air.
+                        }
                     }
-                    else if (plantable.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.One))
+                    else
                     {
                         Game.World.SetBlock(this, (uint)(stage + 1), x, y, z);
                     }

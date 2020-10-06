@@ -221,22 +221,15 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             IPlantable? ground = Game.World.GetBlock(x, y - 1, z, out _) as IPlantable;
 
-            if (ground == null || !ground.SupportsFullGrowth) return;
+            if (ground == null) return;
 
             GrowthStage stage = (GrowthStage)((data >> 2) & 0b111);
 
             if (stage != GrowthStage.Dead && stage < GrowthStage.BeforeFruit)
             {
-                if (ground.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.One))
-                {
-                    Game.World.SetBlock(this, (uint)((int)(stage + 1) << 2), x, y, z);
-                }
-                else
-                {
-                    // todo
-                }
+                Game.World.SetBlock(this, (uint)((int)(stage + 1) << 2), x, y, z);
             }
-            else if (stage == GrowthStage.BeforeFruit && ground.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.Two))
+            else if (stage == GrowthStage.BeforeFruit && ground.SupportsFullGrowth && ground.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.Two))
             {
                 if (fruit.Place(x, y, z - 1))
                 {
@@ -254,6 +247,10 @@ namespace VoxelGame.Core.Logic.Blocks
                 {
                     Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.West, x, y, z);
                 }
+            }
+            else if (stage != GrowthStage.Dead)
+            {
+                // todo
             }
         }
 
