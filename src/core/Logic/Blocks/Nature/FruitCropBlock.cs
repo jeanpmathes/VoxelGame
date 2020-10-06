@@ -219,18 +219,24 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void RandomUpdate(int x, int y, int z, uint data)
         {
-            if (Game.World.GetBlock(x, y - 1, z, out _) is not IPlantable plantable || !plantable.SupportsFullGrowth)
-            {
-                return;
-            }
+            IPlantable? ground = Game.World.GetBlock(x, y - 1, z, out _) as IPlantable;
+
+            if (ground == null || !ground.SupportsFullGrowth) return;
 
             GrowthStage stage = (GrowthStage)((data >> 2) & 0b111);
 
             if (stage != GrowthStage.Dead && stage < GrowthStage.BeforeFruit)
             {
-                Game.World.SetBlock(this, (uint)((int)(stage + 1) << 2), x, y, z);
+                if (ground.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.One))
+                {
+                    Game.World.SetBlock(this, (uint)((int)(stage + 1) << 2), x, y, z);
+                }
+                else
+                {
+                    // todo
+                }
             }
-            else if (stage == GrowthStage.BeforeFruit)
+            else if (stage == GrowthStage.BeforeFruit && ground.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.Two))
             {
                 if (fruit.Place(x, y, z - 1))
                 {

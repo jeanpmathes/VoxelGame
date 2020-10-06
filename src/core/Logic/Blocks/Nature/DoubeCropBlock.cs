@@ -222,27 +222,29 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             GrowthStage stage = (GrowthStage)(data & 0b00_0111);
 
-            // If this block is the upper part or the block cannot grow more on this type of ground, the random update is ignored.
-            if ((data & 0b00_1000) != 0 || ((int)stage > 2 && (Game.World.GetBlock(x, y - 1, z, out _) is not IPlantable plantable || !plantable.SupportsFullGrowth)))
-            {
-                return;
-            }
+            // If this block is the upper part, the random update is ignored.
+            if ((data & 0b00_1000) != 0) return;
 
-            if (stage != GrowthStage.Final && stage != GrowthStage.Dead)
+            if (Game.World.GetBlock(x, y - 1, z, out _) is IPlantable plantable)
             {
-                if (stage >= GrowthStage.Third)
+                if ((int)stage > 2 && !plantable.SupportsFullGrowth) return;
+
+                if (stage != GrowthStage.Final && stage != GrowthStage.Dead)
                 {
-                    Block? above = Game.World.GetBlock(x, y + 1, z, out _);
+                    if (stage >= GrowthStage.Third)
+                    {
+                        Block? above = Game.World.GetBlock(x, y + 1, z, out _);
 
-                    if ((above?.IsReplaceable ?? false) || above == this)
+                        if (plantable.TryGrow(x, y - 1, z, Liquid.None, LiquidLevel.One) && ((above?.IsReplaceable ?? false) || above == this))
+                        {
+                            Game.World.SetBlock(this, (uint)(stage + 1), x, y, z);
+                            Game.World.SetBlock(this, (uint)(0b00_1000 | (int)stage + 1), x, y + 1, z);
+                        }
+                    }
+                    else if (plantable.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.One))
                     {
                         Game.World.SetBlock(this, (uint)(stage + 1), x, y, z);
-                        Game.World.SetBlock(this, (uint)(0b00_1000 | (int)stage + 1), x, y + 1, z);
                     }
-                }
-                else
-                {
-                    Game.World.SetBlock(this, (uint)(stage + 1), x, y, z);
                 }
             }
         }

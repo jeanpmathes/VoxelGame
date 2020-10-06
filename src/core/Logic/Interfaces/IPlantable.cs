@@ -12,9 +12,9 @@ namespace VoxelGame.Core.Logic.Interfaces
     {
         bool SupportsFullGrowth { get => false; }
 
-        //public bool TryGrow(int x, int y, int z, Liquid liquid)
-        //{
-        //    liquid.Take(x, y, z, )
-        //}
+        public bool TryGrow(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            return liquid.TryTakeExact(x, y, z, level);
+        }
     }
 }

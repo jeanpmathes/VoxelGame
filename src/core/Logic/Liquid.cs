@@ -182,8 +182,35 @@ namespace VoxelGame.Core.Logic
             }
         }
 
+        public bool TryTakeExact(int x, int y, int z, LiquidLevel level)
+        {
+            (Block? block, Liquid? liquid) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel available, out bool isStatic);
+
+            if (liquid == this && this != Liquid.None && level <= available)
+            {
+                if (level == available)
+                {
+                    SetLiquid(Liquid.None, LiquidLevel.Eight, true, block as IFillable, x, y, z);
+                }
+                else
+                {
+                    SetLiquid(this, (LiquidLevel)((int)available - (int)level - 1), false, block as IFillable, x, y, z);
+                    if (isStatic) ScheduleTick(x, y, z);
+                }
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         protected abstract void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic);
 
+        /// <summary>
+        /// Sets the liquid at the position and calls the necessary methods on the <see cref="IFillable"/>.
+        /// </summary>
         protected static void SetLiquid(Liquid liquid, LiquidLevel level, bool isStatic, IFillable? fillable, int x, int y, int z)
         {
             Game.World.SetLiquid(liquid, level, isStatic, x, y, z);
