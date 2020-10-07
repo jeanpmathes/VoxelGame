@@ -242,8 +242,8 @@ namespace VoxelGame.Core.Logic.Blocks
                         }
                         else
                         {
-                            //todo
-                            // ! when the plant dies, the current stage has to be checked, if it is third only the lower block has to be set, in all other cases the higher block has to be set to air.
+                            Game.World.SetBlock(this, (uint)GrowthStage.Dead, x, y, z);
+                            if (stage != GrowthStage.Third) Game.World.SetBlock(Block.Air, 0, x, y + 1, z);
                         }
                     }
                     else

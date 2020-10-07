@@ -218,7 +218,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
                     if (!plantable.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.One))
                     {
-                        // todo
+                        Game.World.SetBlock(this, (uint)GrowthStage.Dead, x, y, z);
 
                         return;
                     }

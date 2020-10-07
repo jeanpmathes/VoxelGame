@@ -233,24 +233,24 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 if (fruit.Place(x, y, z - 1))
                 {
-                    Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.North, x, y, z);
+                    Game.World.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.North, x, y, z);
                 }
                 else if (fruit.Place(x + 1, y, z))
                 {
-                    Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.East, x, y, z);
+                    Game.World.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.East, x, y, z);
                 }
                 else if (fruit.Place(x, y, z + 1))
                 {
-                    Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.South, x, y, z);
+                    Game.World.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.South, x, y, z);
                 }
                 else if (fruit.Place(x - 1, y, z))
                 {
-                    Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.West, x, y, z);
+                    Game.World.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.West, x, y, z);
                 }
             }
-            else if (stage != GrowthStage.Dead)
+            else if (stage == GrowthStage.BeforeFruit && ground.SupportsFullGrowth)
             {
-                // todo
+                Game.World.SetBlock(this, (uint)GrowthStage.Dead << 2, x, y, z);
             }
         }
 
