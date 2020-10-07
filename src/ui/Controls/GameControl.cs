@@ -6,6 +6,7 @@
 using Gwen.Net.Control;
 using Gwen.Net;
 using VoxelGame.Core;
+using Gwen.Net.Control.Layout;
 
 namespace VoxelGame.UI.Controls
 {
@@ -13,17 +14,20 @@ namespace VoxelGame.UI.Controls
     {
 #pragma warning disable S1450
         private readonly Label label;
+        private readonly HorizontalLayout layout;
 #pragma warning restore S1450
 
         public GameControl(UserInterface parent) : base(parent.Root)
         {
             Dock = Dock.Fill;
 
-            label = new Label(this);
-            label.Dock = Dock.Top;
-            label.VerticalAlignment = VerticalAlignment.Stretch;
-            label.Alignment = Alignment.Top | Alignment.CenterH;
+            layout = new HorizontalLayout(this);
+            layout.VerticalAlignment = VerticalAlignment.Top;
+            layout.HorizontalAlignment = HorizontalAlignment.Center;
+
+            label = new Label(layout);
             label.Text = $"VoxelGame {Game.Version}";
+            label.TextPadding = Padding.Five;
         }
     }
 }

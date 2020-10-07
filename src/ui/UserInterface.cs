@@ -35,6 +35,7 @@ namespace VoxelGame.UI
         {
             gui.Load();
             gui.Root.ShouldDrawBackground = drawBackground;
+            gui.Root.Skin.DefaultFont.Size = 15;
         }
 
         public void Render()
