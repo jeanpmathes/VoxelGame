@@ -25,10 +25,10 @@ namespace VoxelGame.Core.Logic
         #region NATURAL BLOCKS
 
         public static readonly Block Air = new AirBlock(Language.Air, nameof(Air));
-        public static readonly Block Grass = new GrassBlock(Language.Grass, nameof(Grass), TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"));
+        public static readonly Block Grass = new GrassBlock(Language.Grass, nameof(Grass), TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"), TextureLayout.UnqiueColumn("grass_side_wet", "dirt_wet", "grass_wet"));
         public static readonly Block GrassBurned = new CoveredGrassSpreadableBlock(Language.AshCoveredDirt, nameof(GrassBurned), TextureLayout.UnqiueColumn("ash_side", "dirt", "ash"), false);
-        public static readonly Block Dirt = new DirtBlock(Language.Dirt, nameof(Dirt), TextureLayout.Uniform("dirt"));
-        public static readonly Block Farmland = new CoveredDirtBlock(Language.Farmland, nameof(Farmland), TextureLayout.UnqiueTop("dirt", "farmland"), false);
+        public static readonly Block Dirt = new DirtBlock(Language.Dirt, nameof(Dirt), TextureLayout.Uniform("dirt"), TextureLayout.Uniform("dirt_wet"));
+        public static readonly Block Farmland = new CoveredDirtBlock(Language.Farmland, nameof(Farmland), TextureLayout.UnqiueTop("dirt", "farmland"), TextureLayout.UnqiueTop("dirt_wet", "farmland_wet"), hasNeutralTint: false, supportsFullGrowth: true);
         public static readonly Block TallGrass = new CrossPlantBlock(Language.TallGrass, nameof(TallGrass), "tall_grass", true, BoundingBox.CrossBlock);
         public static readonly Block VeryTallGrass = new DoubleCrossPlantBlock(Language.VeryTallGrass, nameof(VeryTallGrass), "very_tall_grass", 1, BoundingBox.CrossBlock);
         public static readonly Block Flower = new CrossPlantBlock(Language.Flower, nameof(Flower), "flower", true, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.175f, 0.5f, 0.175f)));
@@ -114,7 +114,8 @@ namespace VoxelGame.Core.Logic
         public static readonly Block GlassTiled = new BasicBlock(Language.TiledGlass, nameof(GlassTiled), TextureLayout.Uniform("glass_tiled"), isOpaque: false, renderFaceAtNonOpaques: false);
         public static readonly Block WoolDecorated = new TintedBlock(Language.DecoratedWool, nameof(WoolDecorated), TextureLayout.Uniform("wool_decorated"));
         public static readonly Block CarpetDecorated = new TintedCustomModelBlock(Language.DecoratedCarpet, nameof(CarpetDecorated), "carpet_decorated", new BoundingBox(new Vector3(0.5f, 0.03125f, 0.5f), new Vector3(0.5f, 0.03125f, 0.5f)));
-        public static readonly Block LiquidBarrier = new LiquidBarrierBlock("Barrier", nameof(LiquidBarrier), TextureLayout.Uniform("liquid_barrier_closed"), TextureLayout.Uniform("liquid_barrier_open"));
+        public static readonly Block LiquidBarrier = new LiquidBarrierBlock(Language.Barrier, nameof(LiquidBarrier), TextureLayout.Uniform("liquid_barrier_closed"), TextureLayout.Uniform("liquid_barrier_open"));
+        public static readonly Block Mud = new MudBlock(Language.Mud, nameof(Mud), TextureLayout.Uniform("mud"), 0.1f);
 
         #endregion NEW BLOCKS
 

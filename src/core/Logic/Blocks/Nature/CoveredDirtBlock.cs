@@ -13,28 +13,50 @@ namespace VoxelGame.Core.Logic.Blocks
     /// A block that changes into dirt when something is placed on top of it. This block can use a neutral tint if specified in the constructor.
     /// Data bit usage: <c>------</c>
     /// </summary>
-    public class CoveredDirtBlock : BasicBlock, IPlantable
+    public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     {
         private protected readonly bool hasNeutralTint;
+        private protected readonly bool supportsFullGrowth;
 
-        public CoveredDirtBlock(string name, string namedId, TextureLayout layout, bool hasNeutralTint) :
+        private protected int[][] wetTextureIndices = null!;
+        private protected TextureLayout wet;
+
+        public bool SupportsFullGrowth { get => supportsFullGrowth; }
+
+        public CoveredDirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet, bool hasNeutralTint, bool supportsFullGrowth) :
             base(
                 name,
                 namedId,
-                layout,
+                layout: normal,
                 isOpaque: true,
                 renderFaceAtNonOpaques: true,
                 isSolid: true,
+                recieveCollisions: false,
+                isTrigger: false,
                 isInteractable: false)
         {
             this.hasNeutralTint = hasNeutralTint;
+            this.supportsFullGrowth = supportsFullGrowth;
+
+            this.wet = wet;
         }
 
-        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        protected override void Setup()
         {
+            base.Setup();
+
+            wetTextureIndices = wet.GetTexIndexArrays();
+        }
+
+        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        {
+            uint verts = base.GetMesh(side, data, liquid, out vertices, out textureIndices, out indices, out _, out isAnimated);
+
             tint = (hasNeutralTint) ? TintColor.Neutral : TintColor.None;
 
-            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _, out isAnimated);
+            if (liquid.Direction > 0) textureIndices = wetTextureIndices[(int)side];
+
+            return verts;
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)

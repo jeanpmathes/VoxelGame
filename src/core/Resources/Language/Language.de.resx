@@ -129,6 +129,9 @@
   <data name="AshCoveredDirt" xml:space="preserve">
     <value>Aschebedeckte Erde</value>
   </data>
+  <data name="Barrier" xml:space="preserve">
+    <value>Barriere</value>
+  </data>
   <data name="Bed" xml:space="preserve">
     <value>Bett</value>
   </data>
@@ -236,6 +239,9 @@
   </data>
   <data name="Milk" xml:space="preserve">
     <value>Milch</value>
+  </data>
+  <data name="Mud" xml:space="preserve">
+    <value>Schlamm</value>
   </data>
   <data name="NewWorldPrompt" xml:space="preserve">
     <value>Möchten sie eine neue Welt erstellen?</value>

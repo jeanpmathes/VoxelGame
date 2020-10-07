@@ -13,17 +13,26 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class GrassBlock : CoveredDirtBlock, IFlammable
     {
-        public GrassBlock(string name, string namedId, TextureLayout layout) :
+        public GrassBlock(string name, string namedId, TextureLayout normal, TextureLayout wet) :
             base(
                 name,
                 namedId,
-                layout,
-                hasNeutralTint: true)
+                normal,
+                wet,
+                hasNeutralTint: true,
+                supportsFullGrowth: false)
         {
         }
 
         internal override void RandomUpdate(int x, int y, int z, uint data)
         {
+            Liquid? liquid = Game.World.GetLiquid(x, y, z, out LiquidLevel level, out _);
+
+            if (liquid == Liquid.Water && level == LiquidLevel.Eight)
+            {
+                Game.World.SetBlock(Block.Mud, 0, x, y, z);
+            }
+
             if (Game.World.GetBlock(x + 1, y, z, out _) is IGrassSpreadable a) a.SpreadGrass(x + 1, y, z, this);
             if (Game.World.GetBlock(x - 1, y, z, out _) is IGrassSpreadable b) b.SpreadGrass(x - 1, y, z, this);
             if (Game.World.GetBlock(x, y, z + 1, out _) is IGrassSpreadable c) c.SpreadGrass(x, y, z + 1, this);

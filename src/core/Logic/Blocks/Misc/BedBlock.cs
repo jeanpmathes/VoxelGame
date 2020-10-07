@@ -122,7 +122,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BoundingBox(new Vector3(0.5f, 0.3125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.125f, 0.5f), legs);
         }
 
-        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             bool isHead = (data & 0b1) == 1;
             int orientation = (int)((data & 0b00_0110) >> 1);

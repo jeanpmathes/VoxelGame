@@ -27,17 +27,19 @@ namespace VoxelGame.Core.Logic.Blocks
                 isOpaque: true,
                 renderFaceAtNonOpaques: true,
                 isSolid: true,
+                recieveCollisions: false,
+                isTrigger: false,
                 isInteractable: true)
         {
             this.isAnimated = isAnimated;
         }
 
-        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             tint = ((BlockColor)(0b01_1111 & data)).ToTintColor();
             isAnimated = this.isAnimated;
 
-            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _, out _);
+            return base.GetMesh(side, data, liquid, out vertices, out textureIndices, out indices, out _, out _);
         }
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)

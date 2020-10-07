@@ -10,7 +10,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// This class represents a simple block that is completely filled. It is used for basic blocks with no functions that make up most of the world.
+    /// This class represents a simple block that is completely filled. <see cref="BasicBlock"/>s themselves do not have much function, but the class can be extended easily.
     /// Data bit usage: <c>------</c>
     /// </summary>
     public class BasicBlock : Block
@@ -20,7 +20,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private protected TextureLayout layout;
 
-        public BasicBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true, bool isInteractable = false) :
+        public BasicBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true, bool recieveCollisions = false, bool isTrigger = false, bool isInteractable = false) :
             base(
                 name,
                 namedId,
@@ -28,8 +28,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 isOpaque,
                 renderFaceAtNonOpaques,
                 isSolid,
-                recieveCollisions: false,
-                isTrigger: false,
+                recieveCollisions,
+                isTrigger,
                 isReplaceable: false,
                 isInteractable,
                 BoundingBox.Block,
@@ -45,7 +45,7 @@ namespace VoxelGame.Core.Logic.Blocks
             sideTextureIndices = layout.GetTexIndexArrays();
         }
 
-        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             vertices = sideVertices[(int)side];
             textureIndices = sideTextureIndices[(int)side];

@@ -169,7 +169,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f));
         }
 
-        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             vertices = this.vertices;
             textureIndices = new int[24];
@@ -210,15 +210,27 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             GrowthStage stage = (GrowthStage)(data & 0b00_0111);
 
-            if ((int)stage > 2 && Game.World.GetBlock(x, y - 1, z, out _) != Block.Farmland)
+            if (stage != GrowthStage.Final && stage != GrowthStage.Dead && Game.World.GetBlock(x, y - 1, z, out _) is IPlantable plantable)
             {
-                return;
-            }
+                if ((int)stage > 2)
+                {
+                    if (!plantable.SupportsFullGrowth) return;
 
-            if (stage != GrowthStage.Final && stage != GrowthStage.Dead)
-            {
+                    if (!plantable.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.One))
+                    {
+                        Game.World.SetBlock(this, (uint)GrowthStage.Dead, x, y, z);
+
+                        return;
+                    }
+                }
+
                 Game.World.SetBlock(this, (uint)(stage + 1), x, y, z);
             }
+        }
+
+        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0 && level > LiquidLevel.Three) Destroy(x, y, z);
         }
 
         protected enum GrowthStage

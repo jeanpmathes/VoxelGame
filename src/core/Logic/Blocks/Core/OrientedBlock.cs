@@ -25,11 +25,13 @@ namespace VoxelGame.Core.Logic.Blocks
                 isOpaque,
                 renderFaceAtNonOpaques,
                 isSolid,
+                recieveCollisions: false,
+                isTrigger: false,
                 isInteractable: false)
         {
         }
 
-        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             float[] vert = sideVertices[(int)side];
 

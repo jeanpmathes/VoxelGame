@@ -9,7 +9,7 @@ using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
-    public class CrossPlantBlock : CrossBlock
+    public class CrossPlantBlock : CrossBlock, IFillable
     {
         /// <summary>
         /// Initializes a new instance of a cross plant; a plant made out of two intersecting planes. It is using a neutral tint.
@@ -30,11 +30,11 @@ namespace VoxelGame.Core.Logic.Blocks
         {
         }
 
-        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             tint = TintColor.Neutral;
 
-            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _, out isAnimated);
+            return base.GetMesh(side, data, liquid, out vertices, out textureIndices, out indices, out _, out isAnimated);
         }
 
         protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
@@ -60,6 +60,11 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 Destroy(x, y, z);
             }
+        }
+
+        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0 && level > LiquidLevel.Four) Destroy(x, y, z);
         }
     }
 }

@@ -13,5 +13,14 @@ namespace VoxelGame.Core.Logic.Interfaces
         {
             return true;
         }
+
+        /// <summary>
+        /// Called when new liquid flows into or out of this block.
+        /// </summary>
+        void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            // Method intentionally left empty.
+            // IFillables do not have to react when the liquid amount changes.
+        }
     }
 }

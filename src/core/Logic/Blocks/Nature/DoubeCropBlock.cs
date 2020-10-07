@@ -155,7 +155,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             vertices = this.vertices;
             textureIndices = new int[24];
@@ -222,29 +222,41 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             GrowthStage stage = (GrowthStage)(data & 0b00_0111);
 
-            // If this block is the upper part or the block cannot grow more on this type of ground, the random update is ignored.
-            if ((data & 0b00_1000) != 0 || ((int)stage > 2 && Game.World.GetBlock(x, y - 1, z, out _) != Block.Farmland))
-            {
-                return;
-            }
+            // If this block is the upper part, the random update is ignored.
+            if ((data & 0b00_1000) != 0) return;
 
-            if (stage != GrowthStage.Final && stage != GrowthStage.Dead)
+            if (Game.World.GetBlock(x, y - 1, z, out _) is IPlantable plantable)
             {
-                if (stage >= GrowthStage.Third)
+                if ((int)stage > 2 && !plantable.SupportsFullGrowth) return;
+
+                if (stage != GrowthStage.Final && stage != GrowthStage.Dead)
                 {
-                    Block? above = Game.World.GetBlock(x, y + 1, z, out _);
+                    if (stage >= GrowthStage.Third)
+                    {
+                        Block? above = Game.World.GetBlock(x, y + 1, z, out _);
 
-                    if ((above?.IsReplaceable ?? false) || above == this)
+                        if (plantable.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.One) && ((above?.IsReplaceable ?? false) || above == this))
+                        {
+                            Game.World.SetBlock(this, (uint)(stage + 1), x, y, z);
+                            Game.World.SetBlock(this, (uint)(0b00_1000 | (int)stage + 1), x, y + 1, z);
+                        }
+                        else
+                        {
+                            Game.World.SetBlock(this, (uint)GrowthStage.Dead, x, y, z);
+                            if (stage != GrowthStage.Third) Game.World.SetBlock(Block.Air, 0, x, y + 1, z);
+                        }
+                    }
+                    else
                     {
                         Game.World.SetBlock(this, (uint)(stage + 1), x, y, z);
-                        Game.World.SetBlock(this, (uint)(0b00_1000 | (int)stage + 1), x, y + 1, z);
                     }
                 }
-                else
-                {
-                    Game.World.SetBlock(this, (uint)(stage + 1), x, y, z);
-                }
             }
+        }
+
+        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0 && level > LiquidLevel.Four) Destroy(x, y, z);
         }
 
         protected enum GrowthStage

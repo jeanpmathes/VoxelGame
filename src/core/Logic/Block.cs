@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 
@@ -160,11 +161,22 @@ namespace VoxelGame.Core.Logic
         /// <param name="vertices">Vertices of the mesh. Every vertex is made up of 8 floats: XYZ, UV, NOP</param>
         /// <param name="indices">The indices of the mesh that determine how triangles are constructed.</param>
         /// <returns>The amount of vertices in the mesh.</returns>
-        public abstract uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated);
+        public abstract uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated);
 
         public bool Place(int x, int y, int z, Entities.PhysicsEntity? entity = null)
         {
-            return Game.World.GetBlock(x, y, z, out _)?.IsReplaceable == true && Place(entity, x, y, z);
+            (Block? block, Liquid? liquid) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel level, out _);
+
+            bool placed = block?.IsReplaceable == true && Place(entity, x, y, z);
+
+            liquid ??= Liquid.None;
+
+            if (liquid != Liquid.None && this is IFillable fillable)
+            {
+                fillable.LiquidChange(x, y, z, liquid, level);
+            }
+
+            return placed;
         }
 
         protected virtual bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)

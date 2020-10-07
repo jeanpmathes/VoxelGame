@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     // o = orientation
     // a = age
-    public class GrowingFlatBlock : FlatBlock, IFlammable
+    public class GrowingFlatBlock : FlatBlock, IFlammable, IFillable
     {
         public GrowingFlatBlock(string name, string namedId, string texture, float climbingVelocity, float slidingVelocity) :
             base(
@@ -27,11 +27,11 @@ namespace VoxelGame.Core.Logic.Blocks
         {
         }
 
-        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             tint = TintColor.Neutral;
 
-            return base.GetMesh(side, data, out vertices, out textureIndices, out indices, out _, out isAnimated);
+            return base.GetMesh(side, data, liquid, out vertices, out textureIndices, out indices, out _, out isAnimated);
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
@@ -64,6 +64,11 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 Game.World.SetBlock(this, (uint)orientation, x, y - 1, z);
             }
+        }
+
+        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0 && level > LiquidLevel.Two) Destroy(x, y, z);
         }
     }
 }

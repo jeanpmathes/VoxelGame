@@ -86,7 +86,7 @@ namespace VoxelGame.Core.Logic.Blocks
             };
         }
 
-        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             vertices = this.vertices;
             textureIndices = ((data & 0b1) == 0) ? bottomTexIndices : topTexIndices;
@@ -127,6 +127,11 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 Destroy(x, y, z);
             }
+        }
+
+        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0 && level > LiquidLevel.Five) Destroy(x, y, z);
         }
     }
 }

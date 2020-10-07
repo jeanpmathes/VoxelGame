@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     // s = stage
     // c = connection (orientation)
-    public class FruitCropBlock : CrossBlock, IFlammable
+    public class FruitCropBlock : CrossBlock, IFlammable, IFillable
     {
         private protected float[][] verticesConnected = null!;
 
@@ -131,7 +131,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, uint data, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
         {
             GrowthStage stage = (GrowthStage)((data >> 2) & 0b111);
 
@@ -219,10 +219,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void RandomUpdate(int x, int y, int z, uint data)
         {
-            if (Game.World.GetBlock(x, y - 1, z, out _) != Block.Farmland)
-            {
-                return;
-            }
+            IPlantable? ground = Game.World.GetBlock(x, y - 1, z, out _) as IPlantable;
+
+            if (ground == null) return;
 
             GrowthStage stage = (GrowthStage)((data >> 2) & 0b111);
 
@@ -230,25 +229,34 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 Game.World.SetBlock(this, (uint)((int)(stage + 1) << 2), x, y, z);
             }
-            else if (stage == GrowthStage.BeforeFruit)
+            else if (stage == GrowthStage.BeforeFruit && ground.SupportsFullGrowth && ground.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.Two))
             {
                 if (fruit.Place(x, y, z - 1))
                 {
-                    Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.North, x, y, z);
+                    Game.World.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.North, x, y, z);
                 }
                 else if (fruit.Place(x + 1, y, z))
                 {
-                    Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.East, x, y, z);
+                    Game.World.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.East, x, y, z);
                 }
                 else if (fruit.Place(x, y, z + 1))
                 {
-                    Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.South, x, y, z);
+                    Game.World.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.South, x, y, z);
                 }
                 else if (fruit.Place(x - 1, y, z))
                 {
-                    Game.World.SetBlock(this, (int)GrowthStage.WithFruit << 2 | (int)Orientation.West, x, y, z);
+                    Game.World.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.West, x, y, z);
                 }
             }
+            else if (stage == GrowthStage.BeforeFruit && ground.SupportsFullGrowth)
+            {
+                Game.World.SetBlock(this, (uint)GrowthStage.Dead << 2, x, y, z);
+            }
+        }
+
+        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0 && level > LiquidLevel.Three) Destroy(x, y, z);
         }
 
         protected enum GrowthStage
