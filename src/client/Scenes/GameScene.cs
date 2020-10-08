@@ -16,6 +16,7 @@ using VoxelGame.Client.Rendering;
 using OpenToolkit.Mathematics;
 using System;
 using VoxelGame.UI.Controls;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes
 {
@@ -23,8 +24,7 @@ namespace VoxelGame.Client.Scenes
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
 
-        private readonly UserInterface ui;
-        private GameControl control = null!;
+        private readonly GameUserInterface ui;
 
         private readonly Client client;
 
@@ -42,7 +42,7 @@ namespace VoxelGame.Client.Scenes
 
             Screen.SetCursor(visible: false, tracked: true);
 
-            ui = new UserInterface(client, false);
+            ui = new GameUserInterface(client, false);
 
             World = world;
         }
@@ -59,8 +59,7 @@ namespace VoxelGame.Client.Scenes
             ui.Load();
             ui.Resize(Screen.Size);
 
-            UI.UI.DisposeControl(control);
-            control = new GameControl(ui);
+            ui.CreateControl();
 
             Game.ResetUpdate();
 
@@ -76,6 +75,8 @@ namespace VoxelGame.Client.Scenes
         {
             using (logger.BeginScope("GameScene Render"))
             {
+                ui.SetUpdateRate(client.RenderFrequency, client.UpdateFrequency);
+
                 World.Render();
 
                 ui.Render();
@@ -175,7 +176,6 @@ namespace VoxelGame.Client.Scenes
                 if (disposing)
                 {
                     ui.Dispose();
-                    UI.UI.DisposeControl(control);
                 }
 
                 disposed = true;

@@ -7,27 +7,45 @@ using Gwen.Net.Control;
 using Gwen.Net;
 using VoxelGame.Core;
 using Gwen.Net.Control.Layout;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.UI.Controls
 {
-    public class GameControl : ControlBase
+    internal class GameControl : ControlBase
     {
-#pragma warning disable S1450
-        private readonly Label label;
-        private readonly HorizontalLayout layout;
-#pragma warning restore S1450
+        private readonly GridLayout grid;
+        private readonly Label playerSelection;
+        private readonly Label version;
+        private readonly Label performance;
 
-        public GameControl(UserInterface parent) : base(parent.Root)
+        internal GameControl(GameUserInterface parent) : base(parent.Root)
         {
             Dock = Dock.Fill;
 
-            layout = new HorizontalLayout(this);
-            layout.VerticalAlignment = VerticalAlignment.Top;
-            layout.HorizontalAlignment = HorizontalAlignment.Center;
+            grid = new GridLayout(this);
+            grid.Dock = Dock.Fill;
+            grid.SetColumnWidths(0.33f, 0.33f, 0.33f);
+            grid.SetRowHeights(0.1f, 0.8f);
 
-            label = new Label(layout);
-            label.Text = $"VoxelGame {Game.Version}";
-            label.TextPadding = Padding.Five;
+            playerSelection = BuildLabel("");
+            version = BuildLabel($"VoxelGame {Game.Version}");
+            performance = BuildLabel("FPS/UPS: 000/000");
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("General", "RCS1130:Bitwise operation on enum without Flags attribute.", Justification = "Intended by Gwen.Net")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Critical Code Smell", "S3265:Non-flags enums should not be used in bitwise operations", Justification = "Intended by Gwen.Net")]
+        private Label BuildLabel(string text)
+        {
+            Label label = new Label(grid);
+            label.Alignment = Alignment.CenterV | Alignment.CenterH;
+            label.Text = text;
+
+            return label;
+        }
+
+        internal void SetUpdateRate(double fps, double ups)
+        {
+            performance.Text = $"FPS/UPS: {fps:000}/{ups:000}";
         }
     }
 }

@@ -6,10 +6,12 @@
 using Gwen.Net.Control;
 using Gwen.Net;
 using Gwen.Net.Control.Layout;
+using VoxelGame.UI.UserInterfaces;
+using System;
 
 namespace VoxelGame.UI.Controls
 {
-    public class StartControl : ControlBase
+    internal class StartControl : ControlBase
     {
 #pragma warning disable S1450
         private readonly VerticalLayout layout;
@@ -18,9 +20,7 @@ namespace VoxelGame.UI.Controls
         private readonly Button exit;
 #pragma warning restore S1450
 
-        public delegate void Click();
-
-        public StartControl(UserInterface parent) : base(parent.Root)
+        internal StartControl(StartUserInterface parent) : base(parent.Root)
         {
             Dock = Dock.Fill;
 
@@ -35,8 +35,8 @@ namespace VoxelGame.UI.Controls
             exit.Text = "EXIT";
         }
 
-        public event Click? Start;
+        public event Action? Start;
 
-        public event Click? Exit;
+        public event Action? Exit;
     }
 }

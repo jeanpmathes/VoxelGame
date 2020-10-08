@@ -13,14 +13,14 @@ using System;
 
 namespace VoxelGame.UI
 {
-    public class UserInterface : IDisposable
+    public abstract class UserInterface : IDisposable
     {
         public ControlBase Root { get => gui.Root; }
 
         private readonly IGwenGui gui;
         private readonly bool drawBackground;
 
-        public UserInterface(GameWindow window, bool drawBackground)
+        protected UserInterface(GameWindow window, bool drawBackground)
         {
             gui = GwenGuiFactory.CreateFromGame(window, GwenGuiSettings.Default.From((settings) =>
             {
@@ -37,6 +37,8 @@ namespace VoxelGame.UI
             gui.Root.ShouldDrawBackground = drawBackground;
             gui.Root.Skin.DefaultFont.Size = 15;
         }
+
+        public abstract void CreateControl();
 
         public void Render()
         {
