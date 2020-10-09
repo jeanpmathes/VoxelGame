@@ -10,12 +10,10 @@ using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core;
 using VoxelGame.Core.Utilities;
-using VoxelGame.UI;
 using OpenToolkit.Graphics.OpenGL4;
 using VoxelGame.Client.Rendering;
 using OpenToolkit.Mathematics;
 using System;
-using VoxelGame.UI.Controls;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes
@@ -75,7 +73,7 @@ namespace VoxelGame.Client.Scenes
         {
             using (logger.BeginScope("GameScene Render"))
             {
-                ui.SetUpdateRate(client.RenderFrequency, client.UpdateFrequency);
+                ui.SetUpdateRate(1 / Client.LastRenderDelta, 1 / Client.LastUpdateDelta);
 
                 World.Render();
 

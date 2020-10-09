@@ -56,6 +56,9 @@ namespace VoxelGame.Client
 
         public static double Time { get; private set; }
 
+        public static double LastUpdateDelta { get; private set; }
+        public static double LastRenderDelta { get; private set; }
+
         #endregion STATIC PROPERTIES
 
         public IScene Scene { get; private set; } = null!;
@@ -173,6 +176,8 @@ namespace VoxelGame.Client
                 screen.Draw();
 
                 SwapBuffers();
+
+                LastRenderDelta = e.Time;
             }
         }
 
@@ -201,6 +206,8 @@ namespace VoxelGame.Client
                         hasReleasedFullscreenKey = true;
                     }
                 }
+
+                LastUpdateDelta = e.Time;
             }
         }
 

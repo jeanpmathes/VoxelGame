@@ -37,7 +37,7 @@ namespace VoxelGame.UI.Controls
         private Label BuildLabel(string text)
         {
             Label label = new Label(grid);
-            label.Alignment = Alignment.CenterV | Alignment.CenterH;
+            label.Alignment = Alignment.Top | Alignment.CenterH;
             label.Text = text;
 
             return label;
