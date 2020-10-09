@@ -11,6 +11,8 @@ namespace VoxelGame.UI.UserInterfaces
     {
         private GameControl control = null!;
 
+        public bool IsHidden { get => control.IsHidden; set => control.IsHidden = value; }
+
         public GameUserInterface(OpenToolkit.Windowing.Desktop.GameWindow window, bool drawBackground) : base(window, drawBackground)
         {
         }

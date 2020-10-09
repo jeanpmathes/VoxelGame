@@ -34,6 +34,8 @@ namespace VoxelGame.Client.Scenes
 
         private bool hasReleasedScreenshotKey = true;
 
+        private bool hasReleasedUIKey = true;
+
         internal GameScene(Client client, ClientWorld world)
         {
             this.client = client;
@@ -96,6 +98,17 @@ namespace VoxelGame.Client.Scenes
 
                 KeyboardState input = Client.Keyboard;
 
+                if (hasReleasedScreenshotKey && input.IsKeyDown(Key.F12))
+                {
+                    hasReleasedScreenshotKey = false;
+
+                    Screen.TakeScreenshot(client.ScreenshotDirectory);
+                }
+                else if (input.IsKeyUp(Key.F12))
+                {
+                    hasReleasedScreenshotKey = true;
+                }
+
                 if (hasReleasesWireframeKey && input.IsKeyDown(Key.K))
                 {
                     hasReleasesWireframeKey = false;
@@ -122,15 +135,15 @@ namespace VoxelGame.Client.Scenes
                     hasReleasesWireframeKey = true;
                 }
 
-                if (hasReleasedScreenshotKey && input.IsKeyDown(Key.F12))
+                if (hasReleasedUIKey && input.IsKeyDown(Key.J))
                 {
-                    hasReleasedScreenshotKey = false;
+                    hasReleasedUIKey = false;
 
-                    Screen.TakeScreenshot(client.ScreenshotDirectory);
+                    ui.IsHidden = !ui.IsHidden;
                 }
-                else if (input.IsKeyUp(Key.F12))
+                else if (input.IsKeyUp(Key.J))
                 {
-                    hasReleasedScreenshotKey = true;
+                    hasReleasedUIKey = true;
                 }
 
                 if (input.IsKeyDown(Key.Escape))
