@@ -27,5 +27,10 @@ namespace VoxelGame.UI.UserInterfaces
         {
             control.SetUpdateRate(fps, ups);
         }
+
+        public void SetPlayerSelection(string category, string selection)
+        {
+            control.SetPlayerSelection($"{category}: {selection}");
+        }
     }
 }

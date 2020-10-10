@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Entities
 {
@@ -25,7 +26,9 @@ namespace VoxelGame.Client.Entities
 
         private readonly float mouseSensitivity = Properties.client.Default.MouseSensitivity;
 
-        public ClientPlayer(float mass, float drag, Camera camera, BoundingBox boundingBox) : base(mass, drag, boundingBox)
+        private readonly GameUserInterface ui;
+
+        public ClientPlayer(float mass, float drag, Camera camera, BoundingBox boundingBox, GameUserInterface ui) : base(mass, drag, boundingBox)
         {
             this.camera = camera;
             camera.Position = Position;
@@ -40,6 +43,8 @@ namespace VoxelGame.Client.Entities
 
             activeBlock = Block.Grass;
             activeLiquid = Liquid.Water;
+
+            this.ui = ui;
         }
 
         /// <summary>
@@ -327,12 +332,14 @@ namespace VoxelGame.Client.Entities
 
         private void BlockLiquidSelection(KeyboardState input)
         {
+            bool updateUI = false;
+
             if (input.IsKeyDown(Key.R) && !hasSwitchedMode)
             {
                 blockMode = !blockMode;
                 hasSwitchedMode = true;
 
-                Console.WriteLine(blockMode ? Language.CurrentBlockIs + activeBlock.Name : Language.CurrentLiquidIs + activeLiquid.Name);
+                updateUI = true;
             }
             else if (input.IsKeyUp(Key.R))
             {
@@ -346,7 +353,7 @@ namespace VoxelGame.Client.Entities
 
                 hasPressedPlus = true;
 
-                Console.WriteLine(blockMode ? Language.CurrentBlockIs + activeBlock.Name : Language.CurrentLiquidIs + activeLiquid.Name);
+                updateUI = true;
             }
             else if (input.IsKeyUp(Key.KeypadPlus))
             {
@@ -360,12 +367,26 @@ namespace VoxelGame.Client.Entities
 
                 hasPressedMinus = true;
 
-                Console.WriteLine(blockMode ? Language.CurrentBlockIs + activeBlock.Name : Language.CurrentLiquidIs + activeLiquid.Name);
+                updateUI = true;
             }
             else if (input.IsKeyUp(Key.KeypadMinus))
             {
                 hasPressedMinus = false;
             }
+
+            if (updateUI)
+            {
+                if (blockMode)
+                {
+                    ui.SetPlayerSelection("Block", activeBlock.Name);
+                }
+                else
+                {
+                    ui.SetPlayerSelection("Liquid", activeLiquid.Name);
+                }
+            }
+
+            //Console.WriteLine(blockMode ? Language.CurrentBlockIs + activeBlock.Name : Language.CurrentLiquidIs + activeLiquid.Name);
         }
 
         #region IDisposable Support

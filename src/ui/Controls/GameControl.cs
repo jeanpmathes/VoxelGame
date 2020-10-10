@@ -47,5 +47,10 @@ namespace VoxelGame.UI.Controls
         {
             performance.Text = $"FPS/UPS: {fps:000}/{ups:000}";
         }
+
+        internal void SetPlayerSelection(string text)
+        {
+            playerSelection.Text = text;
+        }
     }
 }
