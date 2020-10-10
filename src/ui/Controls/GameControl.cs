@@ -27,7 +27,7 @@ namespace VoxelGame.UI.Controls
             grid.SetColumnWidths(0.33f, 0.33f, 0.33f);
             grid.SetRowHeights(0.1f, 0.8f);
 
-            playerSelection = BuildLabel("");
+            playerSelection = BuildLabel("Block: _____");
             version = BuildLabel($"VoxelGame {Game.Version}");
             performance = BuildLabel("FPS/UPS: 000/000");
         }
