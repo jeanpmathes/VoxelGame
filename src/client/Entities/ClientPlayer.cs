@@ -106,6 +106,8 @@ namespace VoxelGame.Client.Entities
 
         private Vector3 movement;
 
+        private bool firstUpdate = true;
+
         protected override void OnUpdate(float deltaTime)
         {
             movement = Vector3.Zero;
@@ -124,9 +126,11 @@ namespace VoxelGame.Client.Entities
                 MovementInput(input);
                 MouseChange();
 
-                BlockLiquidSelection(input);
+                BlockLiquidSelection(input, firstUpdate);
 
                 WorldInteraction(input, mouse);
+
+                firstUpdate = false;
             }
 
             timer += deltaTime;
@@ -330,10 +334,8 @@ namespace VoxelGame.Client.Entities
         private bool hasPressedMinus;
         private bool hasSwitchedMode;
 
-        private void BlockLiquidSelection(KeyboardState input)
+        private void BlockLiquidSelection(KeyboardState input, bool updateUI)
         {
-            bool updateUI = false;
-
             if (input.IsKeyDown(Key.R) && !hasSwitchedMode)
             {
                 blockMode = !blockMode;
@@ -378,15 +380,13 @@ namespace VoxelGame.Client.Entities
             {
                 if (blockMode)
                 {
-                    ui.SetPlayerSelection("Block", activeBlock.Name);
+                    ui.SetPlayerSelection(Language.Block, activeBlock.Name);
                 }
                 else
                 {
-                    ui.SetPlayerSelection("Liquid", activeLiquid.Name);
+                    ui.SetPlayerSelection(Language.Liquid, activeLiquid.Name);
                 }
             }
-
-            //Console.WriteLine(blockMode ? Language.CurrentBlockIs + activeBlock.Name : Language.CurrentLiquidIs + activeLiquid.Name);
         }
 
         #region IDisposable Support

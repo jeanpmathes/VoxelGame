@@ -135,6 +135,9 @@
   <data name="Bed" xml:space="preserve">
     <value>Bett</value>
   </data>
+  <data name="Block" xml:space="preserve">
+    <value>Block</value>
+  </data>
   <data name="Bricks" xml:space="preserve">
     <value>Ziegelsteine</value>
   </data>
@@ -158,12 +161,6 @@
   </data>
   <data name="CreatedOn" xml:space="preserve">
     <value>Erstellt am</value>
-  </data>
-  <data name="CurrentBlockIs" xml:space="preserve">
-    <value>Der derzeit ausgewählte Block ist: </value>
-  </data>
-  <data name="CurrentLiquidIs" xml:space="preserve">
-    <value>Die derzeit ausgewählte Flüssigkeit ist: </value>
   </data>
   <data name="DecoratedCarpet" xml:space="preserve">
     <value>Geschmückter Teppich</value>
@@ -221,6 +218,9 @@
   </data>
   <data name="Leaves" xml:space="preserve">
     <value>Blätter</value>
+  </data>
+  <data name="Liquid" xml:space="preserve">
+    <value>Flüssigkeit</value>
   </data>
   <data name="ListingWorlds" xml:space="preserve">
     <value>Liste alle Welten auf: </value>

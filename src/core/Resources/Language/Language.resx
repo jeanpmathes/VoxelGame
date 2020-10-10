@@ -135,6 +135,9 @@
   <data name="Bed" xml:space="preserve">
     <value>Bed</value>
   </data>
+  <data name="Block" xml:space="preserve">
+    <value>Block</value>
+  </data>
   <data name="Bricks" xml:space="preserve">
     <value>Bricks</value>
   </data>
@@ -158,12 +161,6 @@
   </data>
   <data name="CreatedOn" xml:space="preserve">
     <value>Created on</value>
-  </data>
-  <data name="CurrentBlockIs" xml:space="preserve">
-    <value>The current block is: </value>
-  </data>
-  <data name="CurrentLiquidIs" xml:space="preserve">
-    <value>The current liquid is: </value>
   </data>
   <data name="DecoratedCarpet" xml:space="preserve">
     <value>Decorated Carpet</value>
@@ -221,6 +218,9 @@
   </data>
   <data name="Leaves" xml:space="preserve">
     <value>Leaves</value>
+  </data>
+  <data name="Liquid" xml:space="preserve">
+    <value>Liquid</value>
   </data>
   <data name="ListingWorlds" xml:space="preserve">
     <value>Listing all worlds: </value>
