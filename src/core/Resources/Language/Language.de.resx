@@ -216,6 +216,9 @@
   <data name="LargeTiles" xml:space="preserve">
     <value>Große Fliesen</value>
   </data>
+  <data name="Lava" xml:space="preserve">
+    <value>Lava</value>
+  </data>
   <data name="Leaves" xml:space="preserve">
     <value>Blätter</value>
   </data>

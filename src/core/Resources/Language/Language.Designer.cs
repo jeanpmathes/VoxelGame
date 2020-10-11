@@ -358,6 +358,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Lava.
+        /// </summary>
+        public static string Lava {
+            get {
+                return ResourceManager.GetString("Lava", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Leaves.
         /// </summary>
         public static string Leaves {
