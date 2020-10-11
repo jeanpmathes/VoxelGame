@@ -5,13 +5,13 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common.Input;
-using System;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Entities
 {
@@ -25,14 +25,16 @@ namespace VoxelGame.Client.Entities
 
         private readonly float mouseSensitivity = Properties.client.Default.MouseSensitivity;
 
-        public ClientPlayer(float mass, float drag, Camera camera, BoundingBox boundingBox) : base(mass, drag, boundingBox)
+        private readonly GameUserInterface ui;
+
+        public ClientPlayer(float mass, float drag, Camera camera, BoundingBox boundingBox, GameUserInterface ui) : base(mass, drag, boundingBox)
         {
             this.camera = camera;
             camera.Position = Position;
 
             selectionRenderer = GLManager.BoxRendererFactory.CreateBoxRenderer();
 
-            crosshair = GLManager.TextureFactory.CreateTexture("Resources/Textures/UI/crosshair.png", OpenToolkit.Graphics.OpenGL4.TextureUnit.Texture6, fallbackResolution: 32);
+            crosshair = GLManager.TextureFactory.CreateTexture("Resources/Textures/UI/crosshair.png", OpenToolkit.Graphics.OpenGL4.TextureUnit.Texture10, fallbackResolution: 32);
 
             crosshairRenderer = GLManager.ScreenElementRendererFactory.CreateScreenElementRenderer();
             crosshairRenderer.SetTexture(crosshair);
@@ -40,6 +42,8 @@ namespace VoxelGame.Client.Entities
 
             activeBlock = Block.Grass;
             activeLiquid = Liquid.Water;
+
+            this.ui = ui;
         }
 
         /// <summary>
@@ -101,6 +105,8 @@ namespace VoxelGame.Client.Entities
 
         private Vector3 movement;
 
+        private bool firstUpdate = true;
+
         protected override void OnUpdate(float deltaTime)
         {
             movement = Vector3.Zero;
@@ -119,9 +125,11 @@ namespace VoxelGame.Client.Entities
                 MovementInput(input);
                 MouseChange();
 
-                BlockLiquidSelection(input);
+                BlockLiquidSelection(input, firstUpdate);
 
                 WorldInteraction(input, mouse);
+
+                firstUpdate = false;
             }
 
             timer += deltaTime;
@@ -325,14 +333,14 @@ namespace VoxelGame.Client.Entities
         private bool hasPressedMinus;
         private bool hasSwitchedMode;
 
-        private void BlockLiquidSelection(KeyboardState input)
+        private void BlockLiquidSelection(KeyboardState input, bool updateUI)
         {
             if (input.IsKeyDown(Key.R) && !hasSwitchedMode)
             {
                 blockMode = !blockMode;
                 hasSwitchedMode = true;
 
-                Console.WriteLine(blockMode ? Language.CurrentBlockIs + activeBlock.Name : Language.CurrentLiquidIs + activeLiquid.Name);
+                updateUI = true;
             }
             else if (input.IsKeyUp(Key.R))
             {
@@ -346,7 +354,7 @@ namespace VoxelGame.Client.Entities
 
                 hasPressedPlus = true;
 
-                Console.WriteLine(blockMode ? Language.CurrentBlockIs + activeBlock.Name : Language.CurrentLiquidIs + activeLiquid.Name);
+                updateUI = true;
             }
             else if (input.IsKeyUp(Key.KeypadPlus))
             {
@@ -360,11 +368,23 @@ namespace VoxelGame.Client.Entities
 
                 hasPressedMinus = true;
 
-                Console.WriteLine(blockMode ? Language.CurrentBlockIs + activeBlock.Name : Language.CurrentLiquidIs + activeLiquid.Name);
+                updateUI = true;
             }
             else if (input.IsKeyUp(Key.KeypadMinus))
             {
                 hasPressedMinus = false;
+            }
+
+            if (updateUI)
+            {
+                if (blockMode)
+                {
+                    ui.SetPlayerSelection(Language.Block, activeBlock.Name);
+                }
+                else
+                {
+                    ui.SetPlayerSelection(Language.Liquid, activeLiquid.Name);
+                }
             }
         }
 

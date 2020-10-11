@@ -10,12 +10,11 @@ using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core;
 using VoxelGame.Core.Utilities;
-using VoxelGame.UI;
 using OpenToolkit.Graphics.OpenGL4;
 using VoxelGame.Client.Rendering;
 using OpenToolkit.Mathematics;
 using System;
-using VoxelGame.UI.Controls;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes
 {
@@ -23,8 +22,7 @@ namespace VoxelGame.Client.Scenes
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
 
-        private readonly UserInterface ui;
-        private GameControl control = null!;
+        private readonly GameUserInterface ui;
 
         private readonly Client client;
 
@@ -36,13 +34,15 @@ namespace VoxelGame.Client.Scenes
 
         private bool hasReleasedScreenshotKey = true;
 
+        private bool hasReleasedUIKey = true;
+
         internal GameScene(Client client, ClientWorld world)
         {
             this.client = client;
 
             Screen.SetCursor(visible: false, tracked: true);
 
-            ui = new UserInterface(client, false);
+            ui = new GameUserInterface(client, false);
 
             World = world;
         }
@@ -53,14 +53,13 @@ namespace VoxelGame.Client.Scenes
 
             // Player setup.
             Camera camera = new Camera(new Vector3());
-            Player = new ClientPlayer(70f, 0.25f, camera, new Core.Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)));
+            Player = new ClientPlayer(70f, 0.25f, camera, new Core.Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)), ui);
             Game.SetPlayer(Player);
 
             ui.Load();
             ui.Resize(Screen.Size);
 
-            UI.UI.DisposeControl(control);
-            control = new GameControl(ui);
+            ui.CreateControl();
 
             Game.ResetUpdate();
 
@@ -76,6 +75,8 @@ namespace VoxelGame.Client.Scenes
         {
             using (logger.BeginScope("GameScene Render"))
             {
+                ui.SetUpdateRate(1 / Client.LastRenderDelta, 1 / Client.LastUpdateDelta);
+
                 World.Render();
 
                 ui.Render();
@@ -96,6 +97,17 @@ namespace VoxelGame.Client.Scenes
                 }
 
                 KeyboardState input = Client.Keyboard;
+
+                if (hasReleasedScreenshotKey && input.IsKeyDown(Key.F12))
+                {
+                    hasReleasedScreenshotKey = false;
+
+                    Screen.TakeScreenshot(client.ScreenshotDirectory);
+                }
+                else if (input.IsKeyUp(Key.F12))
+                {
+                    hasReleasedScreenshotKey = true;
+                }
 
                 if (hasReleasesWireframeKey && input.IsKeyDown(Key.K))
                 {
@@ -123,15 +135,15 @@ namespace VoxelGame.Client.Scenes
                     hasReleasesWireframeKey = true;
                 }
 
-                if (hasReleasedScreenshotKey && input.IsKeyDown(Key.F12))
+                if (hasReleasedUIKey && input.IsKeyDown(Key.J))
                 {
-                    hasReleasedScreenshotKey = false;
+                    hasReleasedUIKey = false;
 
-                    Screen.TakeScreenshot(client.ScreenshotDirectory);
+                    ui.IsHidden = !ui.IsHidden;
                 }
-                else if (input.IsKeyUp(Key.F12))
+                else if (input.IsKeyUp(Key.J))
                 {
-                    hasReleasedScreenshotKey = true;
+                    hasReleasedUIKey = true;
                 }
 
                 if (input.IsKeyDown(Key.Escape))
@@ -175,7 +187,6 @@ namespace VoxelGame.Client.Scenes
                 if (disposing)
                 {
                     ui.Dispose();
-                    UI.UI.DisposeControl(control);
                 }
 
                 disposed = true;

@@ -15,8 +15,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using VoxelGame.Client.Logic;
-using VoxelGame.UI;
-using VoxelGame.UI.Controls;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes
 {
@@ -24,8 +23,7 @@ namespace VoxelGame.Client.Scenes
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<StartScene>();
 
-        private readonly UserInterface ui;
-        private StartControl control = null!;
+        private readonly StartUserInterface ui;
 
         private List<(WorldInformation information, string path)> worlds;
 
@@ -35,7 +33,7 @@ namespace VoxelGame.Client.Scenes
         {
             this.client = client;
 
-            ui = new UserInterface(client, true);
+            ui = new StartUserInterface(client, true);
 
             worlds = new List<(WorldInformation information, string path)>();
         }
@@ -47,10 +45,8 @@ namespace VoxelGame.Client.Scenes
             ui.Load();
             ui.Resize(Screen.Size);
 
-            UI.UI.DisposeControl(control);
-            control = new StartControl(ui);
-            control.Start += Control_Start;
-            control.Exit += Control_Exit;
+            ui.CreateControl();
+            ui.SetActions(Action_Start, Action_Exit);
 
             LookupWorlds(client.WorldsDirectory);
         }
@@ -75,20 +71,20 @@ namespace VoxelGame.Client.Scenes
             // Method intentionally left empty.
         }
 
-        #region EVENTS
+        #region ACTIONS
 
-        private void Control_Start()
+        private void Action_Start()
         {
             ListWorlds(worlds);
             Client.LoadGameScene(WorldSetup(client.WorldsDirectory));
         }
 
-        private void Control_Exit()
+        private void Action_Exit()
         {
             client.Close();
         }
 
-        #endregion EVENTS
+        #endregion ACTIONS
 
         #region WORLD SETUP
 
@@ -346,7 +342,6 @@ namespace VoxelGame.Client.Scenes
                 if (disposing)
                 {
                     ui.Dispose();
-                    UI.UI.DisposeControl(control);
                 }
 
                 disposed = true;

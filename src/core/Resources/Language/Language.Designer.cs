@@ -115,6 +115,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Block.
+        /// </summary>
+        public static string Block {
+            get {
+                return ResourceManager.GetString("Block", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Bricks.
         /// </summary>
         public static string Bricks {
@@ -183,24 +192,6 @@ namespace VoxelGame.Core.Resources.Language {
         public static string CreatedOn {
             get {
                 return ResourceManager.GetString("CreatedOn", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The current block is: .
-        /// </summary>
-        public static string CurrentBlockIs {
-            get {
-                return ResourceManager.GetString("CurrentBlockIs", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The current liquid is: .
-        /// </summary>
-        public static string CurrentLiquidIs {
-            get {
-                return ResourceManager.GetString("CurrentLiquidIs", resourceCulture);
             }
         }
         
@@ -372,6 +363,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Leaves {
             get {
                 return ResourceManager.GetString("Leaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Liquid.
+        /// </summary>
+        public static string Liquid {
+            get {
+                return ResourceManager.GetString("Liquid", resourceCulture);
             }
         }
         
