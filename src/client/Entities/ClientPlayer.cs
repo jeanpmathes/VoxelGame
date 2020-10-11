@@ -5,7 +5,6 @@
 // <author>pershingthesecond</author>
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common.Input;
-using System;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core;
 using VoxelGame.Core.Logic;

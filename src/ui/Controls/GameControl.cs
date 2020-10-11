@@ -13,10 +13,14 @@ namespace VoxelGame.UI.Controls
 {
     internal class GameControl : ControlBase
     {
+#pragma warning disable S4487 // Unread "private" fields should be removed
+#pragma warning disable IDE0052 // Remove unread private members
         private readonly GridLayout grid;
         private readonly Label playerSelection;
         private readonly Label version;
         private readonly Label performance;
+#pragma warning restore IDE0052 // Remove unread private members
+#pragma warning restore S4487 // Unread "private" fields should be removed
 
         internal GameControl(GameUserInterface parent) : base(parent.Root)
         {

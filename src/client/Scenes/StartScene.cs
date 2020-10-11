@@ -15,7 +15,6 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using VoxelGame.Client.Logic;
-using VoxelGame.UI.Controls;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes
