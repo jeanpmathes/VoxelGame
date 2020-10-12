@@ -249,6 +249,10 @@ namespace VoxelGame.Core.Logic
             return Game.World.GetLiquid(x, y + Direction, z, out _, out _) != this;
         }
 
+        internal virtual void RandomUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
+        {
+        }
+
         public sealed override string ToString()
         {
             return NamedId;
