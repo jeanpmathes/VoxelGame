@@ -196,6 +196,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Crude Oil.
+        /// </summary>
+        public static string CrudeOil {
+            get {
+                return ResourceManager.GetString("CrudeOil", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Decorated Carpet.
         /// </summary>
         public static string DecoratedCarpet {

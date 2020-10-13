@@ -162,6 +162,9 @@
   <data name="CreatedOn" xml:space="preserve">
     <value>Created on</value>
   </data>
+  <data name="CrudeOil" xml:space="preserve">
+    <value>Crude Oil</value>
+  </data>
   <data name="DecoratedCarpet" xml:space="preserve">
     <value>Decorated Carpet</value>
   </data>
