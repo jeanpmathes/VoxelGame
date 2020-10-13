@@ -249,6 +249,9 @@
   <data name="Mud" xml:space="preserve">
     <value>Schlamm</value>
   </data>
+  <data name="NaturalGas" xml:space="preserve">
+    <value>Erdgas</value>
+  </data>
   <data name="NewWorldPrompt" xml:space="preserve">
     <value>Möchten sie eine neue Welt erstellen?</value>
   </data>

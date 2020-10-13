@@ -28,6 +28,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Liquid Steam = new BasicLiquid(Language.Steam, nameof(Steam), -0.015f, (int)(0.25 * mPas), false, TextureLayout.Liquid("steam_moving_side", "steam_moving"), TextureLayout.Liquid("steam_static_side", "steam_static"));
         public static readonly Liquid Lava = new HotLiquid(Language.Lava, nameof(Lava), 3100f, 70 * mPas, false, TextureLayout.Liquid("lava_moving_side", "lava_moving"), TextureLayout.Liquid("lava_static_side", "lava_static"));
         public static readonly Liquid CrudeOil = new BasicLiquid(Language.CrudeOil, nameof(CrudeOil), 870f, 20 * mPas, false, TextureLayout.Liquid("oil_moving_side", "oil_moving"), TextureLayout.Liquid("oil_static_side", "oil_static"));
+        public static readonly Liquid NaturalGas = new BasicLiquid(Language.NaturalGas, nameof(NaturalGas), -0.8f, (int)(0.5 * mPas), false, TextureLayout.Liquid("gas_moving_side", "gas_moving"), TextureLayout.Liquid("gas_static_side", "gas_static"));
 
         /// <summary>
         /// Translates a liquid ID to a reference to the liquid that has that ID. If the ID is not valid, none is returned.

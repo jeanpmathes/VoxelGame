@@ -457,6 +457,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Natural Gas.
+        /// </summary>
+        public static string NaturalGas {
+            get {
+                return ResourceManager.GetString("NaturalGas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Do you want to create a new world?.
         /// </summary>
         public static string NewWorldPrompt {
