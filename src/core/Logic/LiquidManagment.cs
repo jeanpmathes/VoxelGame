@@ -26,8 +26,8 @@ namespace VoxelGame.Core.Logic
         public static readonly Liquid Water = new BasicLiquid(Language.Water, nameof(Water), 997f, 1 * mPas, false, TextureLayout.Liquid("water_moving_side", "water_moving"), TextureLayout.Liquid("water_static_side", "water_static"));
         public static readonly Liquid Milk = new BasicLiquid(Language.Milk, nameof(Milk), 1033f, 2 * mPas, false, TextureLayout.Liquid("milk_moving_side", "milk_moving"), TextureLayout.Liquid("milk_static_side", "milk_static"));
         public static readonly Liquid Steam = new BasicLiquid(Language.Steam, nameof(Steam), -0.015f, (int)(0.25 * mPas), false, TextureLayout.Liquid("steam_moving_side", "steam_moving"), TextureLayout.Liquid("steam_static_side", "steam_static"));
-        public static readonly Liquid Lava = new HotLiquid(Language.Lava, nameof(Lava), 3100f, 70 * mPas, false, TextureLayout.Liquid("lava_moving_side", "lava_moving"), TextureLayout.Liquid("lava_static_side", "lava_static"));
-        public static readonly Liquid CrudeOil = new BasicLiquid(Language.CrudeOil, nameof(CrudeOil), 870f, 20 * mPas, false, TextureLayout.Liquid("oil_moving_side", "oil_moving"), TextureLayout.Liquid("oil_static_side", "oil_static"));
+        public static readonly Liquid Lava = new HotLiquid(Language.Lava, nameof(Lava), 3100f, 15 * mPas, false, TextureLayout.Liquid("lava_moving_side", "lava_moving"), TextureLayout.Liquid("lava_static_side", "lava_static"));
+        public static readonly Liquid CrudeOil = new BasicLiquid(Language.CrudeOil, nameof(CrudeOil), 870f, 8 * mPas, false, TextureLayout.Liquid("oil_moving_side", "oil_moving"), TextureLayout.Liquid("oil_static_side", "oil_static"));
         public static readonly Liquid NaturalGas = new BasicLiquid(Language.NaturalGas, nameof(NaturalGas), -0.8f, (int)(0.5 * mPas), false, TextureLayout.Liquid("gas_moving_side", "gas_moving"), TextureLayout.Liquid("gas_static_side", "gas_static"));
 
         /// <summary>
