@@ -25,7 +25,19 @@ namespace VoxelGame.Core.Logic.Liquids
         {
         }
 
+        protected override void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
+        {
+            BurnAround(x, y, z);
+
+            base.ScheduledUpdate(x, y, z, level, isStatic);
+        }
+
         internal override void RandomUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
+        {
+            BurnAround(x, y, z);
+        }
+
+        protected static void BurnAround(int x, int y, int z)
         {
             BurnAt(x, y, z);
 
