@@ -20,9 +20,7 @@ namespace VoxelGame.Core.Logic.Interfaces
         /// <returns>true if the block was destroyed, false if not.</returns>
         public bool Burn(int x, int y, int z, Block fire)
         {
-            Destroy(x, y, z);
-
-            return true;
+            return Destroy(x, y, z);
         }
     }
 }

@@ -39,16 +39,14 @@ namespace VoxelGame.Core.Logic.Liquids
 
         protected static void BurnAround(int x, int y, int z)
         {
-            BurnAt(x, y, z);
+            BurnAndPlaceFire(x, y, z + 1); // Front.
+            BurnAndPlaceFire(x, y, z - 1); // Back.
+            BurnAndPlaceFire(x - 1, y, z); // Left.
+            BurnAndPlaceFire(x + 1, y, z); // Right.
+            BurnAndPlaceFire(x, y - 1, z); // Bottom.
+            BurnAndPlaceFire(x, y + 1, z); // Top.
 
-            BurnAt(x, y, z + 1); // Front.
-            BurnAt(x, y, z - 1); // Back.
-            BurnAt(x - 1, y, z); // Left.
-            BurnAt(x + 1, y, z); // Right.
-            BurnAt(x, y - 1, z); // Bottom.
-            BurnAt(x, y + 1, z); // Top.
-
-            void BurnAt(int x, int y, int z)
+            void BurnAndPlaceFire(int x, int y, int z)
             {
                 if (Game.World.GetBlock(x, y, z, out _) is IFlammable block && block.Burn(x, y, z, Block.Fire))
                 {
