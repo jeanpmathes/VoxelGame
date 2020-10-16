@@ -27,6 +27,8 @@ namespace VoxelGame.Core.Logic.Liquids
 
         protected override void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
         {
+            if (Game.World.GetBlock(x, y, z, out _) is IFlammable block) block.Burn(x, y, z, Block.Fire);
+
             BurnAround(x, y, z);
 
             base.ScheduledUpdate(x, y, z, level, isStatic);
