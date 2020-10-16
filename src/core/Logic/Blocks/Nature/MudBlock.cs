@@ -35,5 +35,10 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             entity.Velocity = VMath.Clamp(entity.Velocity, -1f, maxVelocity);
         }
+
+        public virtual bool IsFillable(int x, int y, int z, Liquid liquid)
+        {
+            return liquid.Viscosity < 200;
+        }
     }
 }
