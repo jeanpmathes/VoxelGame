@@ -162,6 +162,9 @@
   <data name="CreatedOn" xml:space="preserve">
     <value>Created on</value>
   </data>
+  <data name="CrudeOil" xml:space="preserve">
+    <value>Crude Oil</value>
+  </data>
   <data name="DecoratedCarpet" xml:space="preserve">
     <value>Decorated Carpet</value>
   </data>
@@ -216,6 +219,9 @@
   <data name="LargeTiles" xml:space="preserve">
     <value>Large Tiles</value>
   </data>
+  <data name="Lava" xml:space="preserve">
+    <value>Lava</value>
+  </data>
   <data name="Leaves" xml:space="preserve">
     <value>Leaves</value>
   </data>
@@ -242,6 +248,9 @@
   </data>
   <data name="Mud" xml:space="preserve">
     <value>Mud</value>
+  </data>
+  <data name="NaturalGas" xml:space="preserve">
+    <value>Natural Gas</value>
   </data>
   <data name="NewWorldPrompt" xml:space="preserve">
     <value>Do you want to create a new world?</value>

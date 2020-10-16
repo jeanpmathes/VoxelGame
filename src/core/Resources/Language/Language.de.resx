@@ -162,6 +162,9 @@
   <data name="CreatedOn" xml:space="preserve">
     <value>Erstellt am</value>
   </data>
+  <data name="CrudeOil" xml:space="preserve">
+    <value>Rohöl</value>
+  </data>
   <data name="DecoratedCarpet" xml:space="preserve">
     <value>Geschmückter Teppich</value>
   </data>
@@ -216,6 +219,9 @@
   <data name="LargeTiles" xml:space="preserve">
     <value>Große Fliesen</value>
   </data>
+  <data name="Lava" xml:space="preserve">
+    <value>Lava</value>
+  </data>
   <data name="Leaves" xml:space="preserve">
     <value>Blätter</value>
   </data>
@@ -242,6 +248,9 @@
   </data>
   <data name="Mud" xml:space="preserve">
     <value>Schlamm</value>
+  </data>
+  <data name="NaturalGas" xml:space="preserve">
+    <value>Erdgas</value>
   </data>
   <data name="NewWorldPrompt" xml:space="preserve">
     <value>Möchten sie eine neue Welt erstellen?</value>

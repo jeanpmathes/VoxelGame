@@ -52,16 +52,25 @@ namespace VoxelGame.Core.Logic
         {
             for (int i = 0; i < TickBatchSize; i++)
             {
+                uint val = GetPos(out int x, out int y, out int z);
+                Block.TranslateID(val & BLOCKMASK)?.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), (val & DATAMASK) >> DATASHIFT);
+
+                val = GetPos(out x, out y, out z);
+                Liquid.TranslateID((val & LIQUIDMASK) >> LIQUIDSHIFT)?.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), (LiquidLevel)((val & LEVELMASK) >> LEVELSHIFT), (val & STATICMASK) != 0);
+            }
+
+            uint GetPos(out int x, out int y, out int z)
+            {
                 int index = Game.Random.Next(0, SectionSize * SectionSize * SectionSize);
                 uint val = blocks[index];
 
-                int z = index & 31;
+                z = index & 31;
                 index = (index - z) >> 5;
-                int y = index & 31;
+                y = index & 31;
                 index = (index - y) >> 5;
-                int x = index;
+                x = index;
 
-                Block.TranslateID(val & BLOCKMASK)?.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), (val & DATAMASK) >> DATASHIFT);
+                return val;
             }
         }
 

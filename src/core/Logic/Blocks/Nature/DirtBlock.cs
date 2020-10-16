@@ -58,5 +58,10 @@ namespace VoxelGame.Core.Logic.Blocks
                 Game.World.SetBlock(Block.Mud, 0, x, y, z);
             }
         }
+
+        public virtual bool IsFillable(int x, int y, int z, Liquid liquid)
+        {
+            return liquid.Viscosity < 200;
+        }
     }
 }

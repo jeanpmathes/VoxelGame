@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// Data bit usage: <c>-----o</c>
     /// </summary>
     // o = open
-    public class LiquidBarrierBlock : BasicBlock, IFillable
+    public class LiquidBarrierBlock : BasicBlock, IFillable, IFlammable
     {
         private protected int[][] openTextureIndices = null!;
 

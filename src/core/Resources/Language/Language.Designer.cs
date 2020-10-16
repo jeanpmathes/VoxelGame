@@ -196,6 +196,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Crude Oil.
+        /// </summary>
+        public static string CrudeOil {
+            get {
+                return ResourceManager.GetString("CrudeOil", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Decorated Carpet.
         /// </summary>
         public static string DecoratedCarpet {
@@ -358,6 +367,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Lava.
+        /// </summary>
+        public static string Lava {
+            get {
+                return ResourceManager.GetString("Lava", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Leaves.
         /// </summary>
         public static string Leaves {
@@ -435,6 +453,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Mud {
             get {
                 return ResourceManager.GetString("Mud", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Natural Gas.
+        /// </summary>
+        public static string NaturalGas {
+            get {
+                return ResourceManager.GetString("NaturalGas", resourceCulture);
             }
         }
         
