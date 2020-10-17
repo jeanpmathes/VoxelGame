@@ -6,6 +6,7 @@
 
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Liquids
 {
@@ -192,10 +193,28 @@ namespace VoxelGame.Core.Logic.Liquids
             LiquidLevel levelHorizontal = LiquidLevel.Eight;
             IFillable? horizontalFillable = null;
 
-            if (CheckNeighbor(x, y, z - 1)) return true; // North.
-            if (CheckNeighbor(x + 1, y, z)) return true; // East.
-            if (CheckNeighbor(x, y, z + 1)) return true; // South.
-            if (CheckNeighbor(x - 1, y, z)) return true; // West.
+            int start = BlockUtilities.GetPositionDependantNumber(x, z, 4);
+            for (int i = start; i < start + 4; i++)
+            {
+                switch ((Orientation)(i % 4))
+                {
+                    case Orientation.North:
+                        if (CheckNeighbor(x, y, z - 1)) return true;
+                        break;
+
+                    case Orientation.East:
+                        if (CheckNeighbor(x + 1, y, z)) return true;
+                        break;
+
+                    case Orientation.South:
+                        if (CheckNeighbor(x, y, z + 1)) return true;
+                        break;
+
+                    case Orientation.West:
+                        if (CheckNeighbor(x - 1, y, z)) return true;
+                        break;
+                }
+            }
 
             if (horX != x || horZ != z)
             {
