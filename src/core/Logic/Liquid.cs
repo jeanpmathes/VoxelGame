@@ -241,6 +241,42 @@ namespace VoxelGame.Core.Logic
             }
         }
 
+        protected bool SearchLevel(int x, int y, int z, Vector2i direction, int range, LiquidLevel target, out Vector3i targetPosition)
+        {
+            targetPosition = (0, 0, 0);
+
+            Vector3i pos = new Vector3i(x, y, z);
+            Vector3i dir = new Vector3i(direction.X, 0, direction.Y);
+            Vector3i perpDir = new Vector3i(direction.Y, 0, -direction.X);
+
+            bool hasFoundInvalid = false;
+
+            for (int r = 0; r < range && !hasFoundInvalid; r++)
+            {
+                Vector3i line = (-r * perpDir) + ((1 + r) * dir) + pos;
+
+                for (int s = 0; s < 2 * (r + 1); s++)
+                {
+                    Vector3i current = (s * perpDir) + line;
+
+                    (Block? block, Liquid? liquid) = Game.World.GetPosition(current.X, current.Y, current.Z, out _, out LiquidLevel level, out _);
+
+                    if (liquid != this || block is not IFillable fillable || !fillable.IsFillable(x, y, z, this))
+                    {
+                        hasFoundInvalid = true;
+                    }
+                    else if (level <= target)
+                    {
+                        targetPosition = current;
+
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Check if there is a liquid of the same type above this position or a gas of the same type below.
         /// </summary>
