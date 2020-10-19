@@ -241,6 +241,21 @@ namespace VoxelGame.Core.Logic
             }
         }
 
+        protected bool HasNeighborWithEmpty(int x, int y, int z)
+        {
+            return CheckNeighborForEmpty(x, z - 1)
+                || CheckNeighborForEmpty(x + 1, z)
+                || CheckNeighborForEmpty(x, z + 1)
+                || CheckNeighborForEmpty(x - 1, z);
+
+            bool CheckNeighborForEmpty(int nx, int nz)
+            {
+                (Block? block, Liquid? liquid) = Game.World.GetPosition(nx, y, nz, out _, out _, out _);
+
+                return liquid == Liquid.None && block is IFillable fillable && fillable.IsFillable(nx, y, nz, this);
+            }
+        }
+
         protected bool SearchLevel(int x, int y, int z, Vector2i direction, int range, LiquidLevel target, out Vector3i targetPosition)
         {
             targetPosition = (0, 0, 0);

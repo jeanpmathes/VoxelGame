@@ -222,7 +222,8 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 if (levelHorizontal == level - 1
                     && (IsAtSurface(x, y, z) || !IsAtSurface(horX, y, horZ)) // To fix "bubbles" when a liquid is next to a liquid under a block.
-                    && !HasNeighborWithLevel(level - 2, horX, y, horZ)) return false;
+                    && !HasNeighborWithLevel(level - 2, horX, y, horZ)
+                    && !HasNeighborWithEmpty(horX, y, horZ)) return false;
 
                 SetLiquid(this, levelHorizontal + 1, false, horizontalFillable, horX, y, horZ);
 
