@@ -9,14 +9,14 @@ namespace VoxelGame.Core.Utilities
 {
     public static class BlockUtilities
     {
-        public static int GetPositionDependantNumber(int x, int z, int mod)
+        public static int GetPositionDependentNumber(int x, int z, int mod)
         {
-            return HashCode.Combine(x, z) % mod;
+            return Math.Abs(HashCode.Combine(x, z)) % mod;
         }
 
-        public static int GetPositionDependantNumber(int x, int y, int z, int mod)
+        public static int GetPositionDependentNumber(int x, int y, int z, int mod)
         {
-            return HashCode.Combine(x, y, z) % mod;
+            return Math.Abs(HashCode.Combine(x, y, z)) % mod;
         }
     }
 }

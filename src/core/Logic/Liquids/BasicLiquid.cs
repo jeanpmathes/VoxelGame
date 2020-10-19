@@ -8,6 +8,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Utilities;
 using OpenToolkit.Mathematics;
+using System.Diagnostics;
 
 namespace VoxelGame.Core.Logic.Liquids
 {
@@ -194,7 +195,7 @@ namespace VoxelGame.Core.Logic.Liquids
             LiquidLevel levelHorizontal = LiquidLevel.Eight;
             IFillable? horizontalFillable = null;
 
-            int start = BlockUtilities.GetPositionDependantNumber(x, z, 4);
+            int start = BlockUtilities.GetPositionDependentNumber(x, z, 4);
             for (int i = start; i < start + 4; i++)
             {
                 switch ((Orientation)(i % 4))
@@ -277,7 +278,7 @@ namespace VoxelGame.Core.Logic.Liquids
         {
             if (level < LiquidLevel.Three) return false;
 
-            int start = BlockUtilities.GetPositionDependantNumber(x, z, 4);
+            int start = BlockUtilities.GetPositionDependentNumber(x, z, 4);
             for (int i = start; i < start + 4; i++)
             {
                 switch ((Orientation)(i % 4))
