@@ -195,6 +195,8 @@ namespace VoxelGame.Core.Logic.Liquids
             LiquidLevel levelHorizontal = LiquidLevel.Eight;
             IFillable? horizontalFillable = null;
 
+            bool horAllowsFlow = true;
+
             int start = BlockUtilities.GetPositionDependentNumber(x, z, 4);
             for (int i = start; i < start + 4; i++)
             {
@@ -220,11 +222,6 @@ namespace VoxelGame.Core.Logic.Liquids
 
             if (horX != x || horZ != z)
             {
-                if (levelHorizontal == level - 1
-                    && (IsAtSurface(x, y, z) || !IsAtSurface(horX, y, horZ)) // To fix "bubbles" when a liquid is next to a liquid under a block.
-                    && !HasNeighborWithLevel(level - 2, horX, y, horZ)
-                    && !HasNeighborWithEmpty(horX, y, horZ)) return false;
-
                 SetLiquid(this, levelHorizontal + 1, false, horizontalFillable, horX, y, horZ);
 
                 if (isHorStatic) ScheduleTick(horX, y, horZ);
@@ -262,12 +259,17 @@ namespace VoxelGame.Core.Logic.Liquids
                     }
                     else if (liquidNeighbor == this && level > levelNeighbor && levelNeighbor < levelHorizontal)
                     {
-                        levelHorizontal = levelNeighbor;
-                        horX = nx;
-                        horZ = nz;
-                        isHorStatic = isStatic;
+                        bool allowsFlow = levelNeighbor != level - 1 || (!IsAtSurface(x, y, z) && IsAtSurface(nx, ny, nz)) || HasNeighborWithLevel(level - 2, nx, ny, nz) || HasNeighborWithEmpty(nx, ny, nz);
 
-                        horizontalFillable = neighborFillable;
+                        if (allowsFlow)
+                        {
+                            levelHorizontal = levelNeighbor;
+                            horX = nx;
+                            horZ = nz;
+                            isHorStatic = isStatic;
+
+                            horizontalFillable = neighborFillable;
+                        }
                     }
                 }
 
