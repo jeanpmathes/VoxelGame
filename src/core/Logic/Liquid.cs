@@ -264,21 +264,34 @@ namespace VoxelGame.Core.Logic
             Vector3i dir = new Vector3i(direction.X, 0, direction.Y);
             Vector3i perpDir = new Vector3i(direction.Y, 0, -direction.X);
 
-            bool hasFoundInvalid = false;
+            bool[] ignoreRows = new bool[range * 2];
 
-            for (int r = 0; r < range && !hasFoundInvalid; r++)
+            for (int r = 0; r < range; r++)
             {
                 Vector3i line = (-r * perpDir) + ((1 + r) * dir) + pos;
 
                 for (int s = 0; s < 2 * (r + 1); s++)
                 {
+                    int row = s + (range - r);
+
+                    if (ignoreRows[row - 1]) continue;
+
                     Vector3i current = (s * perpDir) + line;
 
                     (Block? block, Liquid? liquid) = Game.World.GetPosition(current.X, current.Y, current.Z, out _, out LiquidLevel level, out _);
 
                     if (liquid != this || block is not IFillable fillable || !fillable.IsFillable(current.X, current.Y, current.Z, this))
                     {
-                        hasFoundInvalid = true;
+                        ignoreRows[row - 1] = true;
+
+                        if (s == 0)
+                        {
+                            for (int i = 0; i < row - 1; i++) ignoreRows[i] = true;
+                        }
+                        else if (s == 2 * (r + 1) - 1)
+                        {
+                            for (int i = row; i < range * 2; i++) ignoreRows[i] = true;
+                        }
                     }
                     else if (level <= target)
                     {
