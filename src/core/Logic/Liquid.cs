@@ -241,6 +241,70 @@ namespace VoxelGame.Core.Logic
             }
         }
 
+        protected bool HasNeighborWithEmpty(int x, int y, int z)
+        {
+            return CheckNeighborForEmpty(x, z - 1)
+                || CheckNeighborForEmpty(x + 1, z)
+                || CheckNeighborForEmpty(x, z + 1)
+                || CheckNeighborForEmpty(x - 1, z);
+
+            bool CheckNeighborForEmpty(int nx, int nz)
+            {
+                (Block? block, Liquid? liquid) = Game.World.GetPosition(nx, y, nz, out _, out _, out _);
+
+                return liquid == Liquid.None && block is IFillable fillable && fillable.IsFillable(nx, y, nz, this);
+            }
+        }
+
+        protected bool SearchLevel(int x, int y, int z, Vector2i direction, int range, LiquidLevel target, out Vector3i targetPosition)
+        {
+            targetPosition = (0, 0, 0);
+
+            Vector3i pos = new Vector3i(x, y, z);
+            Vector3i dir = new Vector3i(direction.X, 0, direction.Y);
+            Vector3i perpDir = new Vector3i(direction.Y, 0, -direction.X);
+
+            bool[] ignoreRows = new bool[range * 2];
+
+            for (int r = 0; r < range; r++)
+            {
+                Vector3i line = (-r * perpDir) + ((1 + r) * dir) + pos;
+
+                for (int s = 0; s < 2 * (r + 1); s++)
+                {
+                    int row = s + (range - r);
+
+                    if (ignoreRows[row - 1]) continue;
+
+                    Vector3i current = (s * perpDir) + line;
+
+                    (Block? block, Liquid? liquid) = Game.World.GetPosition(current.X, current.Y, current.Z, out _, out LiquidLevel level, out _);
+
+                    if (liquid != this || block is not IFillable fillable || !fillable.IsFillable(current.X, current.Y, current.Z, this))
+                    {
+                        ignoreRows[row - 1] = true;
+
+                        if (s == 0)
+                        {
+                            for (int i = 0; i < row - 1; i++) ignoreRows[i] = true;
+                        }
+                        else if (s == 2 * (r + 1) - 1)
+                        {
+                            for (int i = row; i < range * 2; i++) ignoreRows[i] = true;
+                        }
+                    }
+                    else if (level <= target)
+                    {
+                        targetPosition = current;
+
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Check if there is a liquid of the same type above this position or a gas of the same type below.
         /// </summary>

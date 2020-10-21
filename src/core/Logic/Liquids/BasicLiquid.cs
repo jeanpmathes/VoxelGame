@@ -6,6 +6,8 @@
 
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Utilities;
+using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Core.Logic.Liquids
 {
@@ -75,7 +77,7 @@ namespace VoxelGame.Core.Logic.Liquids
         {
             if (FlowVertical(x, y, z, current, level, Direction, out _)) return;
 
-            if (level != LiquidLevel.One ? FlowHorizontal(x, y, z, level, current) : TryPuddleFlow(x, y, z, current)) return;
+            if (level != LiquidLevel.One ? (FlowHorizontal(x, y, z, level, current) || FarFlowHorizontal(x, y, z, level, current)) : TryPuddleFlow(x, y, z, current)) return;
 
             Game.World.ModifyLiquid(true, x, y, z);
         }
@@ -192,17 +194,31 @@ namespace VoxelGame.Core.Logic.Liquids
             LiquidLevel levelHorizontal = LiquidLevel.Eight;
             IFillable? horizontalFillable = null;
 
-            if (CheckNeighbor(x, y, z - 1)) return true; // North.
-            if (CheckNeighbor(x + 1, y, z)) return true; // East.
-            if (CheckNeighbor(x, y, z + 1)) return true; // South.
-            if (CheckNeighbor(x - 1, y, z)) return true; // West.
+            int start = BlockUtilities.GetPositionDependentNumber(x, z, 4);
+            for (int i = start; i < start + 4; i++)
+            {
+                switch ((Orientation)(i % 4))
+                {
+                    case Orientation.North:
+                        if (CheckNeighbor(x, y, z - 1)) return true;
+                        break;
+
+                    case Orientation.East:
+                        if (CheckNeighbor(x + 1, y, z)) return true;
+                        break;
+
+                    case Orientation.South:
+                        if (CheckNeighbor(x, y, z + 1)) return true;
+                        break;
+
+                    case Orientation.West:
+                        if (CheckNeighbor(x - 1, y, z)) return true;
+                        break;
+                }
+            }
 
             if (horX != x || horZ != z)
             {
-                if (levelHorizontal == level - 1
-                    && (IsAtSurface(x, y, z) || !IsAtSurface(horX, y, horZ)) // To fix "bubbles" when a liquid is next to a liquid under a block.
-                    && !HasNeighborWithLevel(level - 2, horX, y, horZ)) return false;
-
                 SetLiquid(this, levelHorizontal + 1, false, horizontalFillable, horX, y, horZ);
 
                 if (isHorStatic) ScheduleTick(horX, y, horZ);
@@ -227,25 +243,94 @@ namespace VoxelGame.Core.Logic.Liquids
                     {
                         isStatic = true;
 
-                        SetLiquid(this, LiquidLevel.One, false, neighborFillable, nx, ny, nz);
+                        (Block? belowNeighborBlock, Liquid? belowNeighborLiquid) = Game.World.GetPosition(nx, ny - 1, nz, out _, out _, out _);
 
-                        if (isStatic) ScheduleTick(nx, ny, nz);
+                        if (belowNeighborLiquid == Liquid.None && belowNeighborBlock is IFillable belowFillable && belowFillable.IsFillable(nx, ny - 1, nz, this))
+                        {
+                            SetLiquid(this, level, false, belowFillable, nx, ny - 1, nz);
 
-                        bool remaining = level != LiquidLevel.One;
-                        SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, currentFillable, x, y, z);
+                            ScheduleTick(nx, ny - 1, nz);
 
-                        if (remaining) ScheduleTick(x, y, z);
+                            SetLiquid(Liquid.None, LiquidLevel.Eight, true, currentFillable, x, y, z);
+                        }
+                        else
+                        {
+                            SetLiquid(this, LiquidLevel.One, false, neighborFillable, nx, ny, nz);
+
+                            if (isStatic) ScheduleTick(nx, ny, nz);
+
+                            bool remaining = level != LiquidLevel.One;
+                            SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, currentFillable, x, y, z);
+
+                            if (remaining) ScheduleTick(x, y, z);
+                        }
 
                         return true;
                     }
                     else if (liquidNeighbor == this && level > levelNeighbor && levelNeighbor < levelHorizontal)
                     {
-                        levelHorizontal = levelNeighbor;
-                        horX = nx;
-                        horZ = nz;
-                        isHorStatic = isStatic;
+                        bool allowsFlow = levelNeighbor != level - 1 || (!IsAtSurface(x, y, z) && IsAtSurface(nx, ny, nz)) || HasNeighborWithLevel(level - 2, nx, ny, nz) || HasNeighborWithEmpty(nx, ny, nz);
 
-                        horizontalFillable = neighborFillable;
+                        if (allowsFlow)
+                        {
+                            levelHorizontal = levelNeighbor;
+                            horX = nx;
+                            horZ = nz;
+                            isHorStatic = isStatic;
+
+                            horizontalFillable = neighborFillable;
+                        }
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        protected bool FarFlowHorizontal(int x, int y, int z, LiquidLevel level, IFillable currentFillable)
+        {
+            if (level < LiquidLevel.Three) return false;
+
+            int start = BlockUtilities.GetPositionDependentNumber(x, z, 4);
+            for (int i = start; i < start + 4; i++)
+            {
+                switch ((Orientation)(i % 4))
+                {
+                    case Orientation.North:
+                        if (CheckDirection((0, -1))) return true;
+                        break;
+
+                    case Orientation.East:
+                        if (CheckDirection((1, 0))) return true;
+                        break;
+
+                    case Orientation.South:
+                        if (CheckDirection((0, 1))) return true;
+                        break;
+
+                    case Orientation.West:
+                        if (CheckDirection((-1, 0))) return true;
+                        break;
+                }
+            }
+
+            return false;
+
+            bool CheckDirection(Vector2i dir)
+            {
+                if (SearchLevel(x, y, z, dir, 4, level - 2, out Vector3i pos))
+                {
+                    (Block? block, Liquid? liquid) = Game.World.GetPosition(pos.X, pos.Y, pos.Z, out _, out LiquidLevel target, out bool isStatic);
+
+                    if (block is IFillable targetFillable && targetFillable.IsFillable(pos.X, pos.Y, pos.Z, this) && liquid == this)
+                    {
+                        SetLiquid(this, target + 1, false, targetFillable, pos.X, pos.Y, pos.Z);
+                        if (isStatic) ScheduleTick(pos.X, pos.Y, pos.Z);
+
+                        SetLiquid(this, level - 1, false, currentFillable, x, y, z);
+                        ScheduleTick(x, y, z);
+
+                        return true;
                     }
                 }
 
