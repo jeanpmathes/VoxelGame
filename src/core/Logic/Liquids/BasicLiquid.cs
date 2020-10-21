@@ -8,7 +8,6 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Utilities;
 using OpenToolkit.Mathematics;
-using System.Diagnostics;
 
 namespace VoxelGame.Core.Logic.Liquids
 {
@@ -194,8 +193,6 @@ namespace VoxelGame.Core.Logic.Liquids
             bool isHorStatic = false;
             LiquidLevel levelHorizontal = LiquidLevel.Eight;
             IFillable? horizontalFillable = null;
-
-            bool horAllowsFlow = true;
 
             int start = BlockUtilities.GetPositionDependentNumber(x, z, 4);
             for (int i = start; i < start + 4; i++)
