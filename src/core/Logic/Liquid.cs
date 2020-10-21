@@ -276,7 +276,7 @@ namespace VoxelGame.Core.Logic
 
                     (Block? block, Liquid? liquid) = Game.World.GetPosition(current.X, current.Y, current.Z, out _, out LiquidLevel level, out _);
 
-                    if (liquid != this || block is not IFillable fillable || !fillable.IsFillable(x, y, z, this))
+                    if (liquid != this || block is not IFillable fillable || !fillable.IsFillable(current.X, current.Y, current.Z, this))
                     {
                         hasFoundInvalid = true;
                     }
