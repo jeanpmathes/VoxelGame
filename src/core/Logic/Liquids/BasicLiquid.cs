@@ -246,14 +246,27 @@ namespace VoxelGame.Core.Logic.Liquids
                     {
                         isStatic = true;
 
-                        SetLiquid(this, LiquidLevel.One, false, neighborFillable, nx, ny, nz);
+                        (Block? belowNeighborBlock, Liquid? belowNeighborLiquid) = Game.World.GetPosition(nx, ny - 1, nz, out _, out _, out _);
 
-                        if (isStatic) ScheduleTick(nx, ny, nz);
+                        if (belowNeighborLiquid == Liquid.None && belowNeighborBlock is IFillable belowFillable && belowFillable.IsFillable(nx, ny - 1, nz, this))
+                        {
+                            SetLiquid(this, level, false, belowFillable, nx, ny - 1, nz);
 
-                        bool remaining = level != LiquidLevel.One;
-                        SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, currentFillable, x, y, z);
+                            ScheduleTick(nx, ny - 1, nz);
 
-                        if (remaining) ScheduleTick(x, y, z);
+                            SetLiquid(Liquid.None, LiquidLevel.Eight, true, currentFillable, x, y, z);
+                        }
+                        else
+                        {
+                            SetLiquid(this, LiquidLevel.One, false, neighborFillable, nx, ny, nz);
+
+                            if (isStatic) ScheduleTick(nx, ny, nz);
+
+                            bool remaining = level != LiquidLevel.One;
+                            SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, currentFillable, x, y, z);
+
+                            if (remaining) ScheduleTick(x, y, z);
+                        }
 
                         return true;
                     }
