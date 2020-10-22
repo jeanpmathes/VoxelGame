@@ -67,15 +67,15 @@ namespace VoxelGame.Core.Logic.Liquids
 
         protected void InvalidLocationFlow(int x, int y, int z, LiquidLevel level)
         {
-            if ((FlowVertical(x, y, z, null, level, -Direction, out int remaining) && remaining == -1) ||
-                    (FlowVertical(x, y, z, null, (LiquidLevel)remaining, Direction, out remaining) && remaining == -1)) return;
+            if ((FlowVertical(x, y, z, null, level, -Direction, false, out int remaining) && remaining == -1) ||
+                    (FlowVertical(x, y, z, null, (LiquidLevel)remaining, Direction, false, out remaining) && remaining == -1)) return;
 
             SpreadOrDestroyLiquid(x, y, z, (LiquidLevel)remaining);
         }
 
         protected void ValidLocationFlow(int x, int y, int z, LiquidLevel level, IFillable current)
         {
-            if (FlowVertical(x, y, z, current, level, Direction, out _)) return;
+            if (FlowVertical(x, y, z, current, level, Direction, true, out _)) return;
 
             if (level != LiquidLevel.One ? (FlowHorizontal(x, y, z, level, current) || FarFlowHorizontal(x, y, z, level, current)) : TryPuddleFlow(x, y, z, current)) return;
 
@@ -96,7 +96,7 @@ namespace VoxelGame.Core.Logic.Liquids
             }
         }
 
-        protected bool FlowVertical(int x, int y, int z, IFillable? currentFillable, LiquidLevel level, int direction, out int remaining)
+        protected bool FlowVertical(int x, int y, int z, IFillable? currentFillable, LiquidLevel level, int direction, bool handleContact, out int remaining)
         {
             (Block? blockVertical, Liquid? liquidVertical) = Game.World.GetPosition(x, y - direction, z, out _, out LiquidLevel levelVertical, out bool isStatic);
 
@@ -137,6 +137,12 @@ namespace VoxelGame.Core.Logic.Liquids
                     if (isStatic) ScheduleTick(x, y - direction, z);
 
                     return true;
+                }
+                else if (handleContact && liquidVertical != null)
+                {
+                    remaining = (int)level;
+
+                    return LiquidContactManager.HandleContact(this, (x, y, z), liquidVertical, (x, y - Direction, z), isStatic);
                 }
 
                 remaining = (int)level;
@@ -266,6 +272,10 @@ namespace VoxelGame.Core.Logic.Liquids
                         }
 
                         return true;
+                    }
+                    else if (liquidNeighbor != null && liquidNeighbor != this)
+                    {
+                        if (LiquidContactManager.HandleContact(this, (x, y, z), liquidNeighbor, (nx, ny, nz), isStatic)) return true;
                     }
                     else if (liquidNeighbor == this && level > levelNeighbor && levelNeighbor < levelHorizontal)
                     {
