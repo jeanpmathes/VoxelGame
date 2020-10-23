@@ -142,7 +142,7 @@ namespace VoxelGame.Core.Logic.Liquids
                 {
                     remaining = (int)level;
 
-                    return LiquidContactManager.HandleContact(this, (x, y, z), liquidVertical, (x, y - Direction, z), isStatic);
+                    return LiquidContactManager.HandleContact(this, (x, y, z), level, liquidVertical, (x, y - Direction, z), levelVertical, isStatic);
                 }
 
                 remaining = (int)level;
@@ -275,7 +275,7 @@ namespace VoxelGame.Core.Logic.Liquids
                     }
                     else if (liquidNeighbor != null && liquidNeighbor != this)
                     {
-                        if (LiquidContactManager.HandleContact(this, (x, y, z), liquidNeighbor, (nx, ny, nz), isStatic)) return true;
+                        if (LiquidContactManager.HandleContact(this, (x, y, z), level, liquidNeighbor, (nx, ny, nz), levelNeighbor, isStatic)) return true;
                     }
                     else if (liquidNeighbor == this && level > levelNeighbor && levelNeighbor < levelHorizontal)
                     {
