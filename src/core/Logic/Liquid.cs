@@ -176,10 +176,8 @@ namespace VoxelGame.Core.Logic
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public bool TryTakeExact(int x, int y, int z, LiquidLevel level)
@@ -280,7 +278,7 @@ namespace VoxelGame.Core.Logic
 
                     (Block? block, Liquid? liquid) = Game.World.GetPosition(current.X, current.Y, current.Z, out _, out LiquidLevel level, out _);
 
-                    if (liquid != this || block is not IFillable fillable || !fillable.IsFillable(current.X, current.Y, current.Z, this))
+                    if (liquid != this || !(block is IFillable fillable) || !fillable.IsFillable(current.X, current.Y, current.Z, this))
                     {
                         ignoreRows[row - 1] = true;
 

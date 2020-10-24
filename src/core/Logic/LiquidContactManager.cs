@@ -20,20 +20,18 @@ namespace VoxelGame.Core.Logic
 
         private static bool DensitySwap(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB, bool isStaticB)
         {
-            if ((posA.Y > posB.Y && a.Density > b.Density) || (posA.Y < posB.Y && a.Density < b.Density))
-            {
-                Game.World.SetLiquid(a, levelA, false, posB.X, posB.Y, posB.Z);
+            if ((posA.Y <= posB.Y || !(a.Density > b.Density)) &&
+                (posA.Y >= posB.Y || !(a.Density < b.Density))) return false;
 
-                a.TickSoon(posB.X, posB.Y, posB.Z, isStaticB);
+            Game.World.SetLiquid(a, levelA, false, posB.X, posB.Y, posB.Z);
 
-                Game.World.SetLiquid(b, levelB, false, posA.X, posA.Y, posA.Z);
+            a.TickSoon(posB.X, posB.Y, posB.Z, isStaticB);
 
-                b.TickSoon(posA.X, posA.Y, posA.Z, true);
+            Game.World.SetLiquid(b, levelB, false, posA.X, posA.Y, posA.Z);
 
-                return true;
-            }
+            b.TickSoon(posA.X, posA.Y, posA.Z, true);
 
-            return false;
+            return true;
         }
     }
 }
