@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Diagnostics;
 using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Core.Logic
@@ -12,6 +13,8 @@ namespace VoxelGame.Core.Logic
     {
         public static bool HandleContact(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB, bool isStaticB)
         {
+            Debug.Assert(a != b);
+
             switch ((a.NamedId, b.NamedId))
             {
                 default: return DensitySwap(a, posA, levelA, b, posB, levelB, isStaticB);
