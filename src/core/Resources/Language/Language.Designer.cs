@@ -484,6 +484,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Obsidian.
+        /// </summary>
+        public static string Obsidian {
+            get {
+                return ResourceManager.GetString("Obsidian", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Onions.
         /// </summary>
         public static string Onions {
@@ -525,6 +534,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string PulsatingBlock {
             get {
                 return ResourceManager.GetString("PulsatingBlock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pumice.
+        /// </summary>
+        public static string Pumice {
+            get {
+                return ResourceManager.GetString("Pumice", resourceCulture);
             }
         }
         
