@@ -49,7 +49,12 @@ namespace VoxelGame.Core.Logic
                 tickCoolant = true;
             }
 
-            Game.World.SetPosition(Block.Pumice, 0, Liquid.None, LiquidLevel.Eight, true, lavaPos.X, lavaPos.Y, lavaPos.Z);
+            Block lavaBlock = Game.World.GetBlock(lavaPos.X, lavaPos.Y, lavaPos.Z, out _) ?? Block.Air;
+
+            if (lavaBlock.IsReplaceable || lavaBlock.Destroy(lavaPos.X, lavaPos.Y, lavaPos.Z))
+            {
+                Game.World.SetPosition(Block.Pumice, 0, Liquid.None, LiquidLevel.Eight, true, lavaPos.X, lavaPos.Y, lavaPos.Z);
+            }
 
             Game.World.SetLiquid(Liquid.Steam, coolantLevel, false, coolantPos.X, coolantPos.Y, coolantPos.Z);
 
