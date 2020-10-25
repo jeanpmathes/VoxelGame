@@ -267,11 +267,6 @@ namespace VoxelGame.Core.Logic
             return NamedId;
         }
 
-        public sealed override bool Equals(object? obj)
-        {
-            return ReferenceEquals(this, obj);
-        }
-
         public sealed override int GetHashCode()
         {
             return (int)Id;
