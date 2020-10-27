@@ -528,7 +528,7 @@ namespace VoxelGame.Core.Logic
         /// <param name="isStatic">If the liquid at that position is static.</param>
         /// <returns>The Block at x, y, z or null if the block was not found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Block? GetBlock(int x, int y, int z, out uint data, out uint liquid, out LiquidLevel level, out bool isStatic)
+        private Block? GetBlock(int x, int y, int z, out uint data, out uint liquid, out LiquidLevel level, out bool isStatic)
         {
             if (activeChunks.TryGetValue((x >> SectionSizeExp, z >> SectionSizeExp), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
             {

@@ -6,6 +6,7 @@
 
 using System.Diagnostics;
 using OpenToolkit.Mathematics;
+using VoxelGame.Core.Logic.Interfaces;
 
 namespace VoxelGame.Core.Logic
 {
@@ -94,6 +95,8 @@ namespace VoxelGame.Core.Logic
 
         private static bool DensitySwap(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB)
         {
+            if (posA.Y == posB.Y) return DensityLift(a, posA, levelA, b, posB, levelB);
+
             if ((posA.Y <= posB.Y || !(a.Density > b.Density)) &&
                 (posA.Y >= posB.Y || !(a.Density < b.Density))) return false;
 
@@ -106,6 +109,60 @@ namespace VoxelGame.Core.Logic
             b.TickSoon(posA.X, posA.Y, posA.Z, true);
 
             return true;
+        }
+
+        private static bool DensityLift(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB)
+        {
+            Liquid dense;
+            Vector3i densePos;
+            LiquidLevel denseLevel;
+            Liquid light;
+            Vector3i lightPos;
+            LiquidLevel lightLevel;
+
+            if (a.Density > b.Density)
+            {
+                dense = a;
+                light = b;
+
+                densePos = posA;
+                lightPos = posB;
+
+                denseLevel = levelA;
+                lightLevel = levelB;
+            }
+            else
+            {
+                dense = b;
+                light = a;
+
+                densePos = posB;
+                lightPos = posA;
+
+                denseLevel = levelB;
+                lightLevel = levelA;
+            }
+
+            if (denseLevel == LiquidLevel.One) return false;
+
+            (Block? aboveLightBlock, Liquid? aboveLightLiquid) = Game.World.GetPosition(lightPos.X, lightPos.Y + light.Direction, lightPos.Z, out _, out _, out _);
+
+            if (aboveLightBlock is IFillable fillable && fillable.IsFillable(lightPos.X, lightPos.Y + light.Direction, lightPos.Z, light)
+                                                      && aboveLightLiquid == Liquid.None)
+            {
+                Game.World.SetLiquid(light, lightLevel, false, lightPos.X, lightPos.Y + light.Direction, lightPos.Z);
+                light.TickSoon(lightPos.X, lightPos.Y - light.Direction, lightPos.Z, true);
+
+                Game.World.SetLiquid(dense, LiquidLevel.One, false, lightPos.X, lightPos.Y, lightPos.Z);
+                dense.TickSoon(lightPos.X, lightPos.Y, lightPos.Z, true);
+
+                Game.World.SetLiquid(dense, denseLevel - 1, false, densePos.X, densePos.Y, densePos.Z);
+                dense.TickSoon(densePos.X, densePos.Y, densePos.Z, true);
+
+                return true;
+            }
+
+            return false;
         }
     }
 }
