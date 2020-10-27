@@ -19,17 +19,17 @@ namespace VoxelGame.Core.Logic
             {
                 case (nameof(Liquid.Lava), nameof(Liquid.Water)) or (nameof(Liquid.Water), nameof(Liquid.Lava)):
                 case (nameof(Liquid.Milk), nameof(Liquid.Lava)) or (nameof(Liquid.Lava), nameof(Liquid.Milk)):
-                    return LavaCooling(a, posA, levelA, b, posB, levelB, isStaticB);
+                    return LavaCooling(a, posA, levelA, posB, levelB, isStaticB);
 
                 case (nameof(Liquid.Lava), nameof(Liquid.CrudeOil)) or (nameof(Liquid.CrudeOil), nameof(Liquid.Lava)):
                 case (nameof(Liquid.Lava), nameof(Liquid.NaturalGas)) or (nameof(Liquid.NaturalGas), nameof(Liquid.Lava)):
-                    return LavaBurn(a, posA, levelA, b, posB, levelB, isStaticB);
+                    return LavaBurn(a, posA, posB);
 
                 default: return DensitySwap(a, posA, levelA, b, posB, levelB, isStaticB);
             }
         }
 
-        private static bool LavaCooling(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB, bool isStaticB)
+        private static bool LavaCooling(Liquid a, Vector3i posA, LiquidLevel levelA, Vector3i posB, LiquidLevel levelB, bool isStaticB)
         {
             Vector3i lavaPos;
             Vector3i coolantPos;
@@ -45,8 +45,6 @@ namespace VoxelGame.Core.Logic
             }
             else
             {
-                Debug.Assert(b == Liquid.Lava);
-
                 lavaPos = posB;
                 coolantPos = posA;
                 coolantLevel = levelA;
@@ -67,18 +65,9 @@ namespace VoxelGame.Core.Logic
             return true;
         }
 
-        private static bool LavaBurn(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB, bool isStaticB)
+        private static bool LavaBurn(Liquid a, Vector3i posA, Vector3i posB)
         {
-            Vector3i burnedPos;
-
-            if (a == Liquid.Lava)
-            {
-                burnedPos = posB;
-            }
-            else
-            {
-                burnedPos = posA;
-            }
+            Vector3i burnedPos = a == Liquid.Lava ? posB : posA;
 
             Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, burnedPos.X, burnedPos.Y, burnedPos.Z);
             Block.Fire.Place(burnedPos.X, burnedPos.Y, burnedPos.Z);
