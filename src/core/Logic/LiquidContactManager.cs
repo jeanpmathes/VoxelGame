@@ -21,6 +21,10 @@ namespace VoxelGame.Core.Logic
                 case (nameof(Liquid.Milk), nameof(Liquid.Lava)) or (nameof(Liquid.Lava), nameof(Liquid.Milk)):
                     return LavaCooling(a, posA, levelA, b, posB, levelB, isStaticB);
 
+                case (nameof(Liquid.Lava), nameof(Liquid.CrudeOil)) or (nameof(Liquid.CrudeOil), nameof(Liquid.Lava)):
+                case (nameof(Liquid.Lava), nameof(Liquid.NaturalGas)) or (nameof(Liquid.NaturalGas), nameof(Liquid.Lava)):
+                    return LavaBurn(a, posA, levelA, b, posB, levelB, isStaticB);
+
                 default: return DensitySwap(a, posA, levelA, b, posB, levelB, isStaticB);
             }
         }
@@ -59,6 +63,25 @@ namespace VoxelGame.Core.Logic
             Game.World.SetLiquid(Liquid.Steam, coolantLevel, false, coolantPos.X, coolantPos.Y, coolantPos.Z);
 
             Liquid.Steam.TickSoon(coolantPos.X, coolantPos.Y, coolantPos.Z, tickCoolant);
+
+            return true;
+        }
+
+        private static bool LavaBurn(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB, bool isStaticB)
+        {
+            Vector3i burnedPos;
+
+            if (a == Liquid.Lava)
+            {
+                burnedPos = posB;
+            }
+            else
+            {
+                burnedPos = posA;
+            }
+
+            Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, burnedPos.X, burnedPos.Y, burnedPos.Z);
+            Block.Fire.Place(burnedPos.X, burnedPos.Y, burnedPos.Z);
 
             return true;
         }
