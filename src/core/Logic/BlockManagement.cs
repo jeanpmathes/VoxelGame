@@ -116,6 +116,8 @@ namespace VoxelGame.Core.Logic
         public static readonly Block CarpetDecorated = new TintedCustomModelBlock(Language.DecoratedCarpet, nameof(CarpetDecorated), "carpet_decorated", new BoundingBox(new Vector3(0.5f, 0.03125f, 0.5f), new Vector3(0.5f, 0.03125f, 0.5f)));
         public static readonly Block LiquidBarrier = new LiquidBarrierBlock(Language.Barrier, nameof(LiquidBarrier), TextureLayout.Uniform("liquid_barrier_closed"), TextureLayout.Uniform("liquid_barrier_open"));
         public static readonly Block Mud = new MudBlock(Language.Mud, nameof(Mud), TextureLayout.Uniform("mud"), 0.1f);
+        public static readonly Block Pumice = new BasicBlock(Language.Pumice, nameof(Pumice), TextureLayout.Uniform("pumice"));
+        public static readonly Block Obsidian = new BasicBlock(Language.Obsidian, nameof(Obsidian), TextureLayout.Uniform("obsidian"));
 
         #endregion NEW BLOCKS
 

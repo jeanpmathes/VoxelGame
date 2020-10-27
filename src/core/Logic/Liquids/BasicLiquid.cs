@@ -67,15 +67,15 @@ namespace VoxelGame.Core.Logic.Liquids
 
         protected void InvalidLocationFlow(int x, int y, int z, LiquidLevel level)
         {
-            if ((FlowVertical(x, y, z, null, level, -Direction, out int remaining) && remaining == -1) ||
-                    (FlowVertical(x, y, z, null, (LiquidLevel)remaining, Direction, out remaining) && remaining == -1)) return;
+            if ((FlowVertical(x, y, z, null, level, -Direction, false, out int remaining) && remaining == -1) ||
+                    (FlowVertical(x, y, z, null, (LiquidLevel)remaining, Direction, false, out remaining) && remaining == -1)) return;
 
             SpreadOrDestroyLiquid(x, y, z, (LiquidLevel)remaining);
         }
 
         protected void ValidLocationFlow(int x, int y, int z, LiquidLevel level, IFillable current)
         {
-            if (FlowVertical(x, y, z, current, level, Direction, out _)) return;
+            if (FlowVertical(x, y, z, current, level, Direction, true, out _)) return;
 
             if (level != LiquidLevel.One ? (FlowHorizontal(x, y, z, level, current) || FarFlowHorizontal(x, y, z, level, current)) : TryPuddleFlow(x, y, z, current)) return;
 
@@ -96,7 +96,7 @@ namespace VoxelGame.Core.Logic.Liquids
             }
         }
 
-        protected bool FlowVertical(int x, int y, int z, IFillable? currentFillable, LiquidLevel level, int direction, out int remaining)
+        protected bool FlowVertical(int x, int y, int z, IFillable? currentFillable, LiquidLevel level, int direction, bool handleContact, out int remaining)
         {
             (Block? blockVertical, Liquid? liquidVertical) = Game.World.GetPosition(x, y - direction, z, out _, out LiquidLevel levelVertical, out bool isStatic);
 
@@ -113,8 +113,16 @@ namespace VoxelGame.Core.Logic.Liquids
 
                     return true;
                 }
-                else if (liquidVertical == this && levelVertical != LiquidLevel.Eight)
+
+                if (liquidVertical == this)
                 {
+                    if (levelVertical == LiquidLevel.Eight)
+                    {
+                        remaining = (int)level;
+
+                        return false;
+                    }
+
                     int volume = LiquidLevel.Eight - levelVertical - 1;
 
                     if (volume >= (int)level)
@@ -139,6 +147,13 @@ namespace VoxelGame.Core.Logic.Liquids
                     return true;
                 }
 
+                if (handleContact && liquidVertical != null)
+                {
+                    remaining = (int)level;
+
+                    return LiquidContactManager.HandleContact(this, (x, y, z), level, liquidVertical, (x, y - Direction, z), levelVertical, isStatic);
+                }
+
                 remaining = (int)level;
 
                 return false;
@@ -153,6 +168,8 @@ namespace VoxelGame.Core.Logic.Liquids
 
         protected bool TryPuddleFlow(int x, int y, int z, IFillable currentFillable)
         {
+            bool liquidBelowIsNone = Game.World.GetLiquid(x, y - Direction, z, out _, out _) == Liquid.None;
+
             if (TryFlow(x, z - 1)) return true;
             if (TryFlow(x + 1, z)) return true;
             if (TryFlow(x, z + 1)) return true;
@@ -183,7 +200,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? lowerBlock, Liquid? lowerLiquid) = Game.World.GetPosition(px, y - Direction, pz, out _, out LiquidLevel level, out _);
 
-                return lowerBlock is IFillable fillable && fillable.IsFillable(px, y - Direction, pz, this) && ((lowerLiquid == this && level != LiquidLevel.Eight) || lowerLiquid == Liquid.None);
+                return lowerBlock is IFillable fillable && fillable.IsFillable(px, y - Direction, pz, this) && ((lowerLiquid == this && level != LiquidLevel.Eight) || (liquidBelowIsNone && lowerLiquid != this));
             }
         }
 
@@ -243,13 +260,13 @@ namespace VoxelGame.Core.Logic.Liquids
                     {
                         isStatic = true;
 
-                        (Block? belowNeighborBlock, Liquid? belowNeighborLiquid) = Game.World.GetPosition(nx, ny - 1, nz, out _, out _, out _);
+                        (Block? belowNeighborBlock, Liquid? belowNeighborLiquid) = Game.World.GetPosition(nx, ny - Direction, nz, out _, out _, out _);
 
-                        if (belowNeighborLiquid == Liquid.None && belowNeighborBlock is IFillable belowFillable && belowFillable.IsFillable(nx, ny - 1, nz, this))
+                        if (belowNeighborLiquid == Liquid.None && belowNeighborBlock is IFillable belowFillable && belowFillable.IsFillable(nx, ny - Direction, nz, this))
                         {
-                            SetLiquid(this, level, false, belowFillable, nx, ny - 1, nz);
+                            SetLiquid(this, level, false, belowFillable, nx, ny - Direction, nz);
 
-                            ScheduleTick(nx, ny - 1, nz);
+                            ScheduleTick(nx, ny - Direction, nz);
 
                             SetLiquid(Liquid.None, LiquidLevel.Eight, true, currentFillable, x, y, z);
                         }
@@ -266,6 +283,10 @@ namespace VoxelGame.Core.Logic.Liquids
                         }
 
                         return true;
+                    }
+                    else if (liquidNeighbor != null && liquidNeighbor != this)
+                    {
+                        if (LiquidContactManager.HandleContact(this, (x, y, z), level, liquidNeighbor, (nx, ny, nz), levelNeighbor, isStatic)) return true;
                     }
                     else if (liquidNeighbor == this && level > levelNeighbor && levelNeighbor < levelHorizontal)
                     {

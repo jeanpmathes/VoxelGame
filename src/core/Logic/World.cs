@@ -528,7 +528,7 @@ namespace VoxelGame.Core.Logic
         /// <param name="isStatic">If the liquid at that position is static.</param>
         /// <returns>The Block at x, y, z or null if the block was not found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Block? GetBlock(int x, int y, int z, out uint data, out uint liquid, out LiquidLevel level, out bool isStatic)
+        private Block? GetBlock(int x, int y, int z, out uint data, out uint liquid, out LiquidLevel level, out bool isStatic)
         {
             if (activeChunks.TryGetValue((x >> SectionSizeExp, z >> SectionSizeExp), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
             {
@@ -603,7 +603,7 @@ namespace VoxelGame.Core.Logic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z, bool tickLiquid)
+        private void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z, bool tickLiquid)
         {
             if (!activeChunks.TryGetValue((x >> SectionSizeExp, z >> SectionSizeExp), out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight * Section.SectionSize)
             {
@@ -642,6 +642,12 @@ namespace VoxelGame.Core.Logic
             liquidNeighbour?.TickSoon(x, y + 1, z, isStatic);
 
             ProcessChangedSection(chunk, x, y, z);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z)
+        {
+            SetPosition(block, data, liquid, level, isStatic, x, y, z, true);
         }
 
         protected abstract void ProcessChangedSection(Chunk chunk, int x, int y, int z);

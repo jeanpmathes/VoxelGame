@@ -258,6 +258,9 @@
   <data name="NoLiquid" xml:space="preserve">
     <value>No Liquid</value>
   </data>
+  <data name="Obsidian" xml:space="preserve">
+    <value>Obsidian</value>
+  </data>
   <data name="Onions" xml:space="preserve">
     <value>Onions</value>
   </data>
@@ -272,6 +275,9 @@
   </data>
   <data name="PulsatingBlock" xml:space="preserve">
     <value>Pulsating Block</value>
+  </data>
+  <data name="Pumice" xml:space="preserve">
+    <value>Pumice</value>
   </data>
   <data name="Pumpkin" xml:space="preserve">
     <value>Pumpkin</value>
