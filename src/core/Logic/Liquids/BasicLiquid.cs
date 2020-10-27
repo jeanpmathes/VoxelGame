@@ -114,8 +114,15 @@ namespace VoxelGame.Core.Logic.Liquids
                     return true;
                 }
 
-                if (liquidVertical == this && levelVertical != LiquidLevel.Eight)
+                if (liquidVertical == this)
                 {
+                    if (levelVertical == LiquidLevel.Eight)
+                    {
+                        remaining = (int)level;
+
+                        return false;
+                    }
+
                     int volume = LiquidLevel.Eight - levelVertical - 1;
 
                     if (volume >= (int)level)
