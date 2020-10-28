@@ -73,12 +73,6 @@ namespace VoxelGame.Client
                 client.Run();
             }
 
-            Thread.Sleep(100);
-
-            Console.WriteLine();
-            Console.WriteLine(Language.PressAnyKeyToExit);
-            Console.ReadKey(true);
-
             logger.LogInformation("Exiting game.");
         }
     }

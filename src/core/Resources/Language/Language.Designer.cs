@@ -520,15 +520,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Press any key to exit....
-        /// </summary>
-        public static string PressAnyKeyToExit {
-            get {
-                return ResourceManager.GetString("PressAnyKeyToExit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Pulsating Block.
         /// </summary>
         public static string PulsatingBlock {
