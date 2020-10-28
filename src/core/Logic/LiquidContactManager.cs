@@ -151,7 +151,7 @@ namespace VoxelGame.Core.Logic
                                                       && aboveLightLiquid == Liquid.None)
             {
                 Game.World.SetLiquid(light, lightLevel, false, lightPos.X, lightPos.Y + light.Direction, lightPos.Z);
-                light.TickSoon(lightPos.X, lightPos.Y - light.Direction, lightPos.Z, true);
+                light.TickSoon(lightPos.X, lightPos.Y + light.Direction, lightPos.Z, true);
 
                 Game.World.SetLiquid(dense, LiquidLevel.One, false, lightPos.X, lightPos.Y, lightPos.Z);
                 dense.TickSoon(lightPos.X, lightPos.Y, lightPos.Z, true);
