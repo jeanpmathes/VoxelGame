@@ -8,7 +8,6 @@ using System;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Resources.Language;
 using System.IO;
-using System.Threading;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core;
 

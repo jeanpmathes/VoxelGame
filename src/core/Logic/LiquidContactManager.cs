@@ -97,8 +97,8 @@ namespace VoxelGame.Core.Logic
         {
             if (posA.Y == posB.Y) return DensityLift(a, posA, levelA, b, posB, levelB);
 
-            if ((posA.Y <= posB.Y || !(a.Density > b.Density)) &&
-                (posA.Y >= posB.Y || !(a.Density < b.Density))) return false;
+            if ((posA.Y <= posB.Y || a.Density <= b.Density) &&
+                (posA.Y >= posB.Y || a.Density >= b.Density)) return false;
 
             Game.World.SetLiquid(a, levelA, false, posB.X, posB.Y, posB.Z);
 
