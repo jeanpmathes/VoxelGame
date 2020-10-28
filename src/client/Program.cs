@@ -8,7 +8,6 @@ using System;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Resources.Language;
 using System.IO;
-using System.Threading;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core;
 
@@ -72,12 +71,6 @@ namespace VoxelGame.Client
             {
                 client.Run();
             }
-
-            Thread.Sleep(100);
-
-            Console.WriteLine();
-            Console.WriteLine(Language.PressAnyKeyToExit);
-            Console.ReadKey(true);
 
             logger.LogInformation("Exiting game.");
         }

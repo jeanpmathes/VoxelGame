@@ -270,9 +270,6 @@
   <data name="Potatoes" xml:space="preserve">
     <value>Kartoffeln</value>
   </data>
-  <data name="PressAnyKeyToExit" xml:space="preserve">
-    <value>Beliebige Taste zum Verlassen drücken...</value>
-  </data>
   <data name="PulsatingBlock" xml:space="preserve">
     <value>Pulsierender Block</value>
   </data>

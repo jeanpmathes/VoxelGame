@@ -319,10 +319,5 @@ namespace VoxelGame.Core.Logic
         {
             return NamedId;
         }
-
-        public sealed override int GetHashCode()
-        {
-            return (int)Id;
-        }
     }
 }
