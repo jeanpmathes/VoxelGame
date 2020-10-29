@@ -65,12 +65,19 @@ namespace VoxelGame.Client.Logic
 
             uint complexVertCount = 0;
 
-            LiquidMeshFaceHolder liquidFrontFaceHolder = new LiquidMeshFaceHolder(BlockSide.Front);
-            LiquidMeshFaceHolder liquidBackFaceHolder = new LiquidMeshFaceHolder(BlockSide.Back);
-            LiquidMeshFaceHolder liquidLeftFaceHolder = new LiquidMeshFaceHolder(BlockSide.Left);
-            LiquidMeshFaceHolder liquidRightFaceHolder = new LiquidMeshFaceHolder(BlockSide.Right);
-            LiquidMeshFaceHolder liquidBottomFaceHolder = new LiquidMeshFaceHolder(BlockSide.Bottom);
-            LiquidMeshFaceHolder liquidTopFaceHolder = new LiquidMeshFaceHolder(BlockSide.Top);
+            LiquidMeshFaceHolder opaqueLiquidFrontFaceHolder = new LiquidMeshFaceHolder(BlockSide.Front);
+            LiquidMeshFaceHolder opaqueLiquidBackFaceHolder = new LiquidMeshFaceHolder(BlockSide.Back);
+            LiquidMeshFaceHolder opaqueLiquidLeftFaceHolder = new LiquidMeshFaceHolder(BlockSide.Left);
+            LiquidMeshFaceHolder opaqueLiquidRightFaceHolder = new LiquidMeshFaceHolder(BlockSide.Right);
+            LiquidMeshFaceHolder opaqueLiquidBottomFaceHolder = new LiquidMeshFaceHolder(BlockSide.Bottom);
+            LiquidMeshFaceHolder opaqueLiquidTopFaceHolder = new LiquidMeshFaceHolder(BlockSide.Top);
+
+            LiquidMeshFaceHolder transparentLiquidFrontFaceHolder = new LiquidMeshFaceHolder(BlockSide.Front);
+            LiquidMeshFaceHolder transparentLiquidBackFaceHolder = new LiquidMeshFaceHolder(BlockSide.Back);
+            LiquidMeshFaceHolder transparentLiquidLeftFaceHolder = new LiquidMeshFaceHolder(BlockSide.Left);
+            LiquidMeshFaceHolder transparentLiquidRightFaceHolder = new LiquidMeshFaceHolder(BlockSide.Right);
+            LiquidMeshFaceHolder transparentLiquidBottomFaceHolder = new LiquidMeshFaceHolder(BlockSide.Bottom);
+            LiquidMeshFaceHolder transparentLiquidTopFaceHolder = new LiquidMeshFaceHolder(BlockSide.Top);
 
             // Loop through the section
             for (int x = 0; x < SectionSize; x++)
@@ -312,6 +319,32 @@ namespace VoxelGame.Client.Logic
 
                         if (currentLiquid.RenderType != RenderType.NotRendered && ((currentBlock is IFillable fillable && fillable.RenderLiquid) || (currentBlock is not IFillable && !currentBlock.IsSolidAndFull)))
                         {
+                            LiquidMeshFaceHolder liquidFrontFaceHolder;
+                            LiquidMeshFaceHolder liquidBackFaceHolder;
+                            LiquidMeshFaceHolder liquidLeftFaceHolder;
+                            LiquidMeshFaceHolder liquidRightFaceHolder;
+                            LiquidMeshFaceHolder liquidBottomFaceHolder;
+                            LiquidMeshFaceHolder liquidTopFaceHolder;
+
+                            if (currentLiquid.RenderType == RenderType.Opaque)
+                            {
+                                liquidFrontFaceHolder = opaqueLiquidFrontFaceHolder;
+                                liquidBackFaceHolder = opaqueLiquidBackFaceHolder;
+                                liquidLeftFaceHolder = opaqueLiquidLeftFaceHolder;
+                                liquidRightFaceHolder = opaqueLiquidRightFaceHolder;
+                                liquidBottomFaceHolder = opaqueLiquidBottomFaceHolder;
+                                liquidTopFaceHolder = opaqueLiquidTopFaceHolder;
+                            }
+                            else // RenderType.Opaque
+                            {
+                                liquidFrontFaceHolder = transparentLiquidFrontFaceHolder;
+                                liquidBackFaceHolder = transparentLiquidBackFaceHolder;
+                                liquidLeftFaceHolder = transparentLiquidLeftFaceHolder;
+                                liquidRightFaceHolder = transparentLiquidRightFaceHolder;
+                                liquidBottomFaceHolder = transparentLiquidBottomFaceHolder;
+                                liquidTopFaceHolder = transparentLiquidTopFaceHolder;
+                            }
+
                             Liquid? liquidToCheck;
                             Block? blockToCheck;
                             int sideHeight = -1;
@@ -553,20 +586,31 @@ namespace VoxelGame.Client.Logic
             simpleTopFaceHolder.GenerateMesh(ref simpleVertexData);
 
             // Build the liquid mesh data.
-            PooledList<int> liquidVertexData = new PooledList<int>();
-            PooledList<uint> liquidIndices = new PooledList<uint>();
-            uint liquidVertCount = 0;
+            PooledList<int> opaqueLiquidVertexData = new PooledList<int>();
+            PooledList<uint> opaqueLiquidIndices = new PooledList<uint>();
+            uint opaqueLiquidVertCount = 0;
 
-            liquidFrontFaceHolder.GenerateMesh(ref liquidVertexData, ref liquidVertCount, ref liquidIndices);
-            liquidBackFaceHolder.GenerateMesh(ref liquidVertexData, ref liquidVertCount, ref liquidIndices);
-            liquidLeftFaceHolder.GenerateMesh(ref liquidVertexData, ref liquidVertCount, ref liquidIndices);
-            liquidRightFaceHolder.GenerateMesh(ref liquidVertexData, ref liquidVertCount, ref liquidIndices);
-            liquidBottomFaceHolder.GenerateMesh(ref liquidVertexData, ref liquidVertCount, ref liquidIndices);
-            liquidTopFaceHolder.GenerateMesh(ref liquidVertexData, ref liquidVertCount, ref liquidIndices);
+            opaqueLiquidFrontFaceHolder.GenerateMesh(ref opaqueLiquidVertexData, ref opaqueLiquidVertCount, ref opaqueLiquidIndices);
+            opaqueLiquidBackFaceHolder.GenerateMesh(ref opaqueLiquidVertexData, ref opaqueLiquidVertCount, ref opaqueLiquidIndices);
+            opaqueLiquidLeftFaceHolder.GenerateMesh(ref opaqueLiquidVertexData, ref opaqueLiquidVertCount, ref opaqueLiquidIndices);
+            opaqueLiquidRightFaceHolder.GenerateMesh(ref opaqueLiquidVertexData, ref opaqueLiquidVertCount, ref opaqueLiquidIndices);
+            opaqueLiquidBottomFaceHolder.GenerateMesh(ref opaqueLiquidVertexData, ref opaqueLiquidVertCount, ref opaqueLiquidIndices);
+            opaqueLiquidTopFaceHolder.GenerateMesh(ref opaqueLiquidVertexData, ref opaqueLiquidVertCount, ref opaqueLiquidIndices);
 
-            hasMesh = complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 || liquidVertexData.Count != 0;
+            PooledList<int> transparentLiquidVertexData = new PooledList<int>();
+            PooledList<uint> transparentLiquidIndices = new PooledList<uint>();
+            uint transparentLiquidVertCount = 0;
 
-            meshData = new SectionMeshData(ref simpleVertexData, ref complexVertexPositions, ref complexVertexData, ref complexIndices, ref liquidVertexData, ref liquidIndices);
+            transparentLiquidFrontFaceHolder.GenerateMesh(ref transparentLiquidVertexData, ref transparentLiquidVertCount, ref transparentLiquidIndices);
+            transparentLiquidBackFaceHolder.GenerateMesh(ref transparentLiquidVertexData, ref transparentLiquidVertCount, ref transparentLiquidIndices);
+            transparentLiquidLeftFaceHolder.GenerateMesh(ref transparentLiquidVertexData, ref transparentLiquidVertCount, ref transparentLiquidIndices);
+            transparentLiquidRightFaceHolder.GenerateMesh(ref transparentLiquidVertexData, ref transparentLiquidVertCount, ref transparentLiquidIndices);
+            transparentLiquidBottomFaceHolder.GenerateMesh(ref transparentLiquidVertexData, ref transparentLiquidVertCount, ref transparentLiquidIndices);
+            transparentLiquidTopFaceHolder.GenerateMesh(ref transparentLiquidVertexData, ref transparentLiquidVertCount, ref transparentLiquidIndices);
+
+            hasMesh = complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 || transparentLiquidVertexData.Count != 0;
+
+            meshData = new SectionMeshData(ref simpleVertexData, ref complexVertexPositions, ref complexVertexData, ref complexIndices, ref opaqueLiquidVertexData, ref opaqueLiquidIndices, ref transparentLiquidVertexData, ref transparentLiquidIndices);
 
             simpleFrontFaceHolder.ReturnToPool();
             simpleBackFaceHolder.ReturnToPool();
@@ -575,12 +619,19 @@ namespace VoxelGame.Client.Logic
             simpleBottomFaceHolder.ReturnToPool();
             simpleTopFaceHolder.ReturnToPool();
 
-            liquidFrontFaceHolder.ReturnToPool();
-            liquidBackFaceHolder.ReturnToPool();
-            liquidLeftFaceHolder.ReturnToPool();
-            liquidRightFaceHolder.ReturnToPool();
-            liquidBottomFaceHolder.ReturnToPool();
-            liquidTopFaceHolder.ReturnToPool();
+            opaqueLiquidFrontFaceHolder.ReturnToPool();
+            opaqueLiquidBackFaceHolder.ReturnToPool();
+            opaqueLiquidLeftFaceHolder.ReturnToPool();
+            opaqueLiquidRightFaceHolder.ReturnToPool();
+            opaqueLiquidBottomFaceHolder.ReturnToPool();
+            opaqueLiquidTopFaceHolder.ReturnToPool();
+
+            transparentLiquidFrontFaceHolder.ReturnToPool();
+            transparentLiquidBackFaceHolder.ReturnToPool();
+            transparentLiquidLeftFaceHolder.ReturnToPool();
+            transparentLiquidRightFaceHolder.ReturnToPool();
+            transparentLiquidBottomFaceHolder.ReturnToPool();
+            transparentLiquidTopFaceHolder.ReturnToPool();
         }
 
         public void SetMeshData(ref SectionMeshData meshData)

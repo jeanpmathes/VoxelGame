@@ -26,7 +26,8 @@ namespace VoxelGame.Client.Rendering
             {
                 case 0: PrepareSimpleBuffer(view, projection); break;
                 case 1: PrepareComplexBuffer(view, projection); break;
-                case 2: PrepareLiquidBuffer(view, projection); break;
+                case 2: PrepareOpaqueLiquidBuffer(view, projection); break;
+                case 3: PrepareTransparentLiquidBuffer(view, projection); break;
             }
         }
 
@@ -34,7 +35,9 @@ namespace VoxelGame.Client.Rendering
 
         protected abstract void PrepareComplexBuffer(Matrix4 view, Matrix4 projection);
 
-        protected abstract void PrepareLiquidBuffer(Matrix4 view, Matrix4 projection);
+        protected abstract void PrepareOpaqueLiquidBuffer(Matrix4 view, Matrix4 projection);
+
+        protected abstract void PrepareTransparentLiquidBuffer(Matrix4 view, Matrix4 projection);
 
         public void DrawStage(int stage, Vector3 position)
         {
@@ -49,7 +52,8 @@ namespace VoxelGame.Client.Rendering
             {
                 case 0: DrawSimpleBuffer(model); break;
                 case 1: DrawComplexBuffer(model); break;
-                case 2: DrawLiquidBuffer(model); break;
+                case 2: DrawOpaqueLiquidBuffer(model); break;
+                case 3: DrawTransparentLiquidBuffer(model); break;
             }
         }
 
@@ -57,7 +61,9 @@ namespace VoxelGame.Client.Rendering
 
         protected abstract void DrawComplexBuffer(Matrix4 model);
 
-        protected abstract void DrawLiquidBuffer(Matrix4 model);
+        protected abstract void DrawOpaqueLiquidBuffer(Matrix4 model);
+
+        protected abstract void DrawTransparentLiquidBuffer(Matrix4 model);
 
         public void FinishStage(int stage)
         {
@@ -65,11 +71,11 @@ namespace VoxelGame.Client.Rendering
             {
                 // case 2:
                 // case 1:
-                case 2: FinishLiqduiBuffer(); break;
+                case 3: FinishTransparentLiquidBuffer(); break;
             }
         }
 
-        protected abstract void FinishLiqduiBuffer();
+        protected abstract void FinishTransparentLiquidBuffer();
 
         public override void Draw(Vector3 position)
         {
