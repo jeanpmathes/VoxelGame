@@ -2,8 +2,6 @@
 
 in ivec2 aData;
 
-//out vec3 normal;
-
 flat out int texIndex;
 out vec2 texCoord;
 
@@ -24,11 +22,11 @@ void main()
     float lowerBound = ((direction > 0) ? (sideHeight + 1) : (7 - level)) * 0.125;
 
 	// Normal
-      int n = (aData.y >> 16) & 7;
-//    normal = vec3(0.0, 0.0, 0.0);
-//    normal[((n >> 1) + 3 & 2) | (n >> 2)] = -1.0 + (2 * (n & 1));
-//    normal.z *= -1.0;
-//    normal = normalize(normal);
+    int n = (aData.y >> 16) & 7;
+    vec3 normal = vec3(0.0, 0.0, 0.0);
+    normal[((n >> 1) + 3 & 2) | (n >> 2)] = -1.0 + (2 * (n & 1));
+    normal.z *= -1.0;
+    normal = normalize(normal);
 
     // Texture Index
     texIndex = (((aData.y & 127) - 1) << 4) + 1;
@@ -61,5 +59,5 @@ void main()
     texCoord.x *= ((aData.x >> 25) & 31) + 1;
     texCoord.y *= ((aData.x >> 20) & 31) + 1;
 
-	gl_Position = vec4(position, 1.0) * model * view * projection;
+	gl_Position = vec4(position - (normal * 0.001), 1.0) * model * view * projection;
 }
