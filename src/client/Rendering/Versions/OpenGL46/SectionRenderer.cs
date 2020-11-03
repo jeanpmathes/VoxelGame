@@ -153,9 +153,9 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
                 // Element Buffer Object
                 GL.NamedBufferData(opaqueLiquidEBO, meshData.opaqueLiquidIndices.Count * sizeof(uint), meshData.opaqueLiquidIndices.ExposeArray(), BufferUsageHint.DynamicDraw);
 
-                int dataLocation = Client.LiquidSectionShader.GetAttribLocation("aData");
+                int dataLocation = Client.OpaqueLiquidSectionShader.GetAttribLocation("aData");
 
-                Client.LiquidSectionShader.Use();
+                Client.OpaqueLiquidSectionShader.Use();
 
                 // Vertex Array Object
                 GL.VertexArrayVertexBuffer(opaqueLiquidVAO, 0, opaqueLiquidDataVBO, IntPtr.Zero, 2 * sizeof(int));
@@ -180,9 +180,9 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
                 // Element Buffer Object
                 GL.NamedBufferData(transparentLiquidEBO, meshData.transparentLiquidIndices.Count * sizeof(uint), meshData.transparentLiquidIndices.ExposeArray(), BufferUsageHint.DynamicDraw);
 
-                int dataLocation = Client.LiquidSectionShader.GetAttribLocation("aData");
+                int dataLocation = Client.TransparentLiquidSectionShader.GetAttribLocation("aData");
 
-                Client.LiquidSectionShader.Use();
+                Client.TransparentLiquidSectionShader.Use();
 
                 // Vertex Array Object
                 GL.VertexArrayVertexBuffer(transparentLiquidVAO, 0, transparentLiquidDataVBO, IntPtr.Zero, 2 * sizeof(int));
@@ -248,10 +248,10 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-            Client.LiquidSectionShader.Use();
+            Client.OpaqueLiquidSectionShader.Use();
 
-            Client.LiquidSectionShader.SetMatrix4("view", view);
-            Client.LiquidSectionShader.SetMatrix4("projection", projection);
+            Client.OpaqueLiquidSectionShader.SetMatrix4("view", view);
+            Client.OpaqueLiquidSectionShader.SetMatrix4("projection", projection);
         }
 
         protected override void DrawOpaqueLiquidBuffer(Matrix4 model)
@@ -260,7 +260,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             {
                 GL.BindVertexArray(opaqueLiquidVAO);
 
-                Client.LiquidSectionShader.SetMatrix4("model", model);
+                Client.OpaqueLiquidSectionShader.SetMatrix4("model", model);
 
                 GL.DrawElements(PrimitiveType.Triangles, opaqueLiquidElements, DrawElementsType.UnsignedInt, 0);
             }
@@ -274,10 +274,10 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             GL.DepthMask(false);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-            Client.LiquidSectionShader.Use();
+            Client.TransparentLiquidSectionShader.Use();
 
-            Client.LiquidSectionShader.SetMatrix4("view", view);
-            Client.LiquidSectionShader.SetMatrix4("projection", projection);
+            Client.TransparentLiquidSectionShader.SetMatrix4("view", view);
+            Client.TransparentLiquidSectionShader.SetMatrix4("projection", projection);
         }
 
         protected override void DrawTransparentLiquidBuffer(Matrix4 model)
@@ -286,7 +286,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             {
                 GL.BindVertexArray(transparentLiquidVAO);
 
-                Client.LiquidSectionShader.SetMatrix4("model", model);
+                Client.TransparentLiquidSectionShader.SetMatrix4("model", model);
 
                 GL.DrawElements(PrimitiveType.Triangles, transparentLiquidElements, DrawElementsType.UnsignedInt, 0);
             }
