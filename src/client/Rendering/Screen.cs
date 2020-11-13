@@ -99,6 +99,13 @@ namespace VoxelGame.Client.Rendering
 
         private protected abstract void TakeScreenshot_Implementation(string directory);
 
+        public static void FillDepthTexture()
+        {
+            Instance.FillDepthTexture_Implementation();
+        }
+
+        private protected abstract void FillDepthTexture_Implementation();
+
         #endregion PUBLIC STATIC METHODS
 
         #region IDisposable Support

@@ -268,6 +268,8 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
 
         protected override void PrepareTransparentLiquidBuffer(Matrix4 view, Matrix4 projection)
         {
+            Rendering.Screen.FillDepthTexture();
+
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
             GL.Enable(EnableCap.Blend);

@@ -176,6 +176,11 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             Marshal.FreeHGlobal(data);
         }
 
+        private protected override void FillDepthTexture_Implementation()
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion PUBLIC STATIC METHODS
 
         #region IDisposable Support

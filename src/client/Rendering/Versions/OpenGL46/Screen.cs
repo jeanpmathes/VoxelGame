@@ -32,6 +32,9 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
         private readonly int msFBO;
         private readonly int msRBO;
 
+        private readonly int depthTex;
+        private readonly int depthFBO;
+
         private readonly int screenshotFBO;
         private readonly int screenshotRBO;
 
@@ -80,6 +83,34 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
 
             #endregion MULTISAMPLED FBO
 
+            #region DEPTH TEXTURE
+
+            depthTex = GL.GenTexture();
+            GL.ActiveTexture(TextureUnit.Texture20);
+            GL.BindTexture(TextureTarget.Texture2D, depthTex);
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent, Size.X, Size.Y, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+
+            GL.CreateFramebuffers(1, out depthFBO);
+            GL.NamedFramebufferTexture(depthFBO, FramebufferAttachment.DepthAttachment, depthTex, 0);
+
+            FramebufferStatus depthFboStatus = GL.CheckNamedFramebufferStatus(depthFBO, FramebufferTarget.Framebuffer);
+
+            while (depthFboStatus != FramebufferStatus.FramebufferComplete)
+            {
+                logger.LogWarning("Depth FBO not complete [{status}], waiting...", depthFboStatus);
+                Thread.Sleep(100);
+
+                depthFboStatus = GL.CheckNamedFramebufferStatus(depthFBO, FramebufferTarget.Framebuffer);
+            }
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+
+            #endregion DEPTH TEXTURE
+
             #region SCREENSHOT FBO
 
             GL.CreateFramebuffers(1, out screenshotFBO);
@@ -126,6 +157,17 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
 
             #endregion MULTISAMPLED FBO
 
+            #region DEPTH TEXTURE
+
+            GL.ActiveTexture(TextureUnit.Texture20);
+            GL.BindTexture(TextureTarget.Texture2D, depthTex);
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent, Size.X, Size.Y, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+
+            #endregion DEPTH TEXTURE
+
             #region SCREENSHOT FBO
 
             GL.NamedRenderbufferStorage(screenshotRBO, RenderbufferStorage.Rgba8, Size.X, Size.Y);
@@ -163,6 +205,17 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             Marshal.FreeHGlobal(data);
         }
 
+        private protected override void FillDepthTexture_Implementation()
+        {
+            GL.ActiveTexture(TextureUnit.Texture20);
+            GL.BindTexture(TextureTarget.Texture2D, depthTex);
+
+            GL.ClearNamedFramebuffer(depthFBO, ClearBuffer.Depth, 0, new float[] { 1f });
+            GL.BlitNamedFramebuffer(msFBO, depthFBO, 0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+        }
+
         #endregion PUBLIC STATIC METHODS
 
         #region IDisposable Support
@@ -178,6 +231,9 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
                     GL.DeleteTexture(msTex);
                     GL.DeleteFramebuffer(msFBO);
                     GL.DeleteRenderbuffer(msRBO);
+
+                    GL.DeleteTexture(depthTex);
+                    GL.DeleteFramebuffer(depthFBO);
 
                     GL.DeleteFramebuffer(screenshotFBO);
                     GL.DeleteRenderbuffer(screenshotRBO);
