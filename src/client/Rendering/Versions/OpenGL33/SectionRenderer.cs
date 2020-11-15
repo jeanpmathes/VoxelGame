@@ -317,6 +317,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             Client.TransparentLiquidSectionShader.SetMatrix4("projection", projection);
 
             Client.TransparentLiquidSectionShader.SetInt("arrayTexture", 5);
+            Client.TransparentLiquidSectionShader.SetInt("depthTex", 20);
         }
 
         protected override void DrawTransparentLiquidBuffer(Matrix4 model)
