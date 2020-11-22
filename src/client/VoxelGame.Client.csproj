@@ -151,7 +151,7 @@
     <None Update="Resources\Shaders\gl33\complexsection_shader.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\gl33\liquidsection_shader.frag">
+    <None Update="Resources\Shaders\gl33\opaqueliquidsection_shader.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Shaders\gl33\liquidsection_shader.vert">
@@ -175,6 +175,9 @@
     <None Update="Resources\Shaders\gl33\simplesection_shader.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Shaders\gl33\transparentliquidsection_shader.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\Shaders\gl46\complexsection_shader.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -182,6 +185,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Shaders\gl46\liquidsection_shader.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Shaders\gl46\opaqueliquidsection_shader.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Shaders\gl46\screenelement_shader.frag">
@@ -200,6 +206,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Shaders\gl46\simplesection_shader.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Shaders\gl46\transparentliquidsection_shader.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Shaders\liquidsection_shader.frag">

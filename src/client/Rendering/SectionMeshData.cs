@@ -15,10 +15,16 @@ namespace VoxelGame.Client.Rendering
         internal PooledList<int> complexVertexData;
         internal PooledList<uint> complexIndices;
 
-        internal PooledList<int> liquidVertexData;
-        internal PooledList<uint> liquidIndices;
+        internal PooledList<int> opaqueLiquidVertexData;
+        internal PooledList<uint> opaqueLiquidIndices;
 
-        public SectionMeshData(ref PooledList<int> simpleVertexData, ref PooledList<float> complexVertexPositions, ref PooledList<int> complexVertexData, ref PooledList<uint> complexIndices, ref PooledList<int> liquidVertexData, ref PooledList<uint> liquidIndices)
+        internal PooledList<int> transparentLiquidVertexData;
+        internal PooledList<uint> transparentLiquidIndices;
+
+        public SectionMeshData(ref PooledList<int> simpleVertexData,
+            ref PooledList<float> complexVertexPositions, ref PooledList<int> complexVertexData, ref PooledList<uint> complexIndices,
+            ref PooledList<int> opaqueLiquidVertexData, ref PooledList<uint> opaqueLiquidIndices,
+            ref PooledList<int> transparentLiquidVertexData, ref PooledList<uint> transparentLiquidIndices)
         {
             this.simpleVertexData = simpleVertexData;
 
@@ -26,8 +32,11 @@ namespace VoxelGame.Client.Rendering
             this.complexVertexData = complexVertexData;
             this.complexIndices = complexIndices;
 
-            this.liquidVertexData = liquidVertexData;
-            this.liquidIndices = liquidIndices;
+            this.opaqueLiquidVertexData = opaqueLiquidVertexData;
+            this.opaqueLiquidIndices = opaqueLiquidIndices;
+
+            this.transparentLiquidVertexData = transparentLiquidVertexData;
+            this.transparentLiquidIndices = transparentLiquidIndices;
         }
 
         public void ReturnPooled()
@@ -38,8 +47,11 @@ namespace VoxelGame.Client.Rendering
             complexVertexData.ReturnToPool();
             complexIndices.ReturnToPool();
 
-            liquidVertexData.ReturnToPool();
-            liquidIndices.ReturnToPool();
+            opaqueLiquidVertexData.ReturnToPool();
+            opaqueLiquidIndices.ReturnToPool();
+
+            transparentLiquidVertexData.ReturnToPool();
+            transparentLiquidIndices.ReturnToPool();
         }
     }
 }

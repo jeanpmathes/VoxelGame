@@ -12,7 +12,7 @@ namespace VoxelGame.Core.Logic.Liquids
     /// </summary>
     public class HotLiquid : BasicLiquid
     {
-        public HotLiquid(string name, string namedId, float density, int viscosity, bool neutralTint, TextureLayout movingLayout, TextureLayout staticLayout, Visuals.RenderType renderType = Visuals.RenderType.Transparent) :
+        public HotLiquid(string name, string namedId, float density, int viscosity, bool neutralTint, TextureLayout movingLayout, TextureLayout staticLayout, Visuals.RenderType renderType = Visuals.RenderType.Opaque) :
             base(
                 name,
                 namedId,

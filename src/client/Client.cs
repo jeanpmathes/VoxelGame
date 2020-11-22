@@ -45,7 +45,8 @@ namespace VoxelGame.Client
 
         public static Shader SimpleSectionShader { get; private set; } = null!;
         public static Shader ComplexSectionShader { get; private set; } = null!;
-        public static Shader LiquidSectionShader { get; private set; } = null!;
+        public static Shader OpaqueLiquidSectionShader { get; private set; } = null!;
+        public static Shader TransparentLiquidSectionShader { get; private set; } = null!;
         public static Shader SelectionShader { get; private set; } = null!;
         public static Shader ScreenElementShader { get; private set; } = null!;
 
@@ -130,7 +131,8 @@ namespace VoxelGame.Client
                 {
                     SimpleSectionShader = new Shader("simplesection_shader.vert", "section_shader.frag");
                     ComplexSectionShader = new Shader("complexsection_shader.vert", "section_shader.frag");
-                    LiquidSectionShader = new Shader("liquidsection_shader.vert", "liquidsection_shader.frag");
+                    OpaqueLiquidSectionShader = new Shader("liquidsection_shader.vert", "opaqueliquidsection_shader.frag");
+                    TransparentLiquidSectionShader = new Shader("liquidsection_shader.vert", "transparentliquidsection_shader.frag");
                     SelectionShader = new Shader("selection_shader.vert", "selection_shader.frag");
                     ScreenElementShader = new Shader("screenelement_shader.vert", "screenelement_shader.frag");
 
@@ -167,7 +169,8 @@ namespace VoxelGame.Client
 
                 SimpleSectionShader.SetFloat("time", (float)Time);
                 ComplexSectionShader.SetFloat("time", (float)Time);
-                LiquidSectionShader.SetFloat("time", (float)Time);
+                OpaqueLiquidSectionShader.SetFloat("time", (float)Time);
+                TransparentLiquidSectionShader.SetFloat("time", (float)Time);
 
                 screen.Clear();
 

@@ -27,17 +27,23 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
         private readonly int complexEBO;
         private readonly int complexVAO;
 
-        private readonly int liquidDataVBO;
-        private readonly int liquidEBO;
-        private readonly int liquidVAO;
+        private readonly int opaqueLiquidDataVBO;
+        private readonly int opaqueLiquidEBO;
+        private readonly int opaqueLiquidVAO;
+
+        private readonly int transparentLiquidDataVBO;
+        private readonly int transparentLiquidEBO;
+        private readonly int transparentLiquidVAO;
 
         private int simpleIndices;
         private int complexElements;
-        private int liquidElements;
+        private int opaqueLiquidElements;
+        private int transparentLiquidElements;
 
         private bool hasSimpleData;
         private bool hasComplexData;
-        private bool hasLiquidData;
+        private bool hasOpaqueLiquidData;
+        private bool hasTransparentLiquidData;
 
         public SectionRenderer()
         {
@@ -49,9 +55,13 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             complexEBO = GL.GenBuffer();
             complexVAO = GL.GenVertexArray();
 
-            liquidDataVBO = GL.GenBuffer();
-            liquidEBO = GL.GenBuffer();
-            liquidVAO = GL.GenVertexArray();
+            opaqueLiquidDataVBO = GL.GenBuffer();
+            opaqueLiquidEBO = GL.GenBuffer();
+            opaqueLiquidVAO = GL.GenVertexArray();
+
+            transparentLiquidDataVBO = GL.GenBuffer();
+            transparentLiquidEBO = GL.GenBuffer();
+            transparentLiquidVAO = GL.GenVertexArray();
         }
 
         public override void SetData(ref SectionMeshData meshData)
@@ -136,41 +146,73 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
             #endregion COMPLEX BUFFER SETUP
 
-            #region LIQUID BUFFER SETUP
+            #region LIQUID BUFFERS SETUP
 
-            hasLiquidData = false;
+            hasOpaqueLiquidData = false;
 
-            liquidElements = meshData.liquidIndices.Count;
+            opaqueLiquidElements = meshData.opaqueLiquidIndices.Count;
 
-            if (liquidElements != 0)
+            if (opaqueLiquidElements != 0)
             {
                 // Vertex Buffer Object
-                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidDataVBO);
-                GL.BufferData(BufferTarget.ArrayBuffer, meshData.liquidVertexData.Count * sizeof(int), meshData.liquidVertexData.ExposeArray(), BufferUsageHint.StaticDraw);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, opaqueLiquidDataVBO);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshData.opaqueLiquidVertexData.Count * sizeof(int), meshData.opaqueLiquidVertexData.ExposeArray(), BufferUsageHint.StaticDraw);
 
                 // Element Buffer Object
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, liquidEBO);
-                GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.liquidIndices.Count * sizeof(uint), meshData.liquidIndices.ExposeArray(), BufferUsageHint.StaticDraw);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, opaqueLiquidEBO);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.opaqueLiquidIndices.Count * sizeof(uint), meshData.opaqueLiquidIndices.ExposeArray(), BufferUsageHint.StaticDraw);
 
-                int dataLocation = Client.LiquidSectionShader.GetAttribLocation("aData");
+                int dataLocation = Client.OpaqueLiquidSectionShader.GetAttribLocation("aData");
 
-                Client.LiquidSectionShader.Use();
+                Client.OpaqueLiquidSectionShader.Use();
 
                 // Vertex Array Object
-                GL.BindVertexArray(liquidVAO);
+                GL.BindVertexArray(opaqueLiquidVAO);
 
-                GL.BindBuffer(BufferTarget.ArrayBuffer, liquidDataVBO);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, opaqueLiquidDataVBO);
                 GL.EnableVertexAttribArray(dataLocation);
                 GL.VertexAttribIPointer(dataLocation, 2, VertexAttribIntegerType.Int, 2 * sizeof(int), IntPtr.Zero);
 
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, liquidEBO);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, opaqueLiquidEBO);
 
                 GL.BindVertexArray(0);
 
-                hasLiquidData = true;
+                hasOpaqueLiquidData = true;
             }
 
-            #endregion LIQUID BUFFER SETUP
+            hasTransparentLiquidData = false;
+
+            transparentLiquidElements = meshData.transparentLiquidIndices.Count;
+
+            if (transparentLiquidElements != 0)
+            {
+                // Vertex Buffer Object
+                GL.BindBuffer(BufferTarget.ArrayBuffer, transparentLiquidDataVBO);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshData.transparentLiquidVertexData.Count * sizeof(int), meshData.transparentLiquidVertexData.ExposeArray(), BufferUsageHint.StaticDraw);
+
+                // Element Buffer Object
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, transparentLiquidEBO);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.transparentLiquidIndices.Count * sizeof(uint), meshData.transparentLiquidIndices.ExposeArray(), BufferUsageHint.StaticDraw);
+
+                int dataLocation = Client.TransparentLiquidSectionShader.GetAttribLocation("aData");
+
+                Client.TransparentLiquidSectionShader.Use();
+
+                // Vertex Array Object
+                GL.BindVertexArray(transparentLiquidVAO);
+
+                GL.BindBuffer(BufferTarget.ArrayBuffer, transparentLiquidDataVBO);
+                GL.EnableVertexAttribArray(dataLocation);
+                GL.VertexAttribIPointer(dataLocation, 2, VertexAttribIntegerType.Int, 2 * sizeof(int), IntPtr.Zero);
+
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, transparentLiquidEBO);
+
+                GL.BindVertexArray(0);
+
+                hasTransparentLiquidData = true;
+            }
+
+            #endregion LIQUID BUFFERS SETUP
 
             meshData.ReturnPooled();
         }
@@ -233,37 +275,66 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             }
         }
 
-        protected override void PrepareLiquidBuffer(Matrix4 view, Matrix4 projection)
+        protected override void PrepareOpaqueLiquidBuffer(Matrix4 view, Matrix4 projection)
         {
+            Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+
+            Client.OpaqueLiquidSectionShader.Use();
+
+            Client.OpaqueLiquidSectionShader.SetMatrix4("view", view);
+            Client.OpaqueLiquidSectionShader.SetMatrix4("projection", projection);
+
+            Client.OpaqueLiquidSectionShader.SetInt("arrayTexture", 5);
+        }
+
+        protected override void DrawOpaqueLiquidBuffer(Matrix4 model)
+        {
+            if (hasOpaqueLiquidData)
+            {
+                GL.BindVertexArray(opaqueLiquidVAO);
+
+                Client.OpaqueLiquidSectionShader.SetMatrix4("model", model);
+
+                GL.DrawElements(PrimitiveType.Triangles, opaqueLiquidElements, DrawElementsType.UnsignedInt, 0);
+
+                GL.BindVertexArray(0);
+            }
+        }
+
+        protected override void PrepareTransparentLiquidBuffer(Matrix4 view, Matrix4 projection)
+        {
+            Rendering.Screen.FillDepthTexture();
+
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
             GL.Enable(EnableCap.Blend);
             GL.DepthMask(false);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-            Client.LiquidSectionShader.Use();
+            Client.TransparentLiquidSectionShader.Use();
 
-            Client.LiquidSectionShader.SetMatrix4("view", view);
-            Client.LiquidSectionShader.SetMatrix4("projection", projection);
+            Client.TransparentLiquidSectionShader.SetMatrix4("view", view);
+            Client.TransparentLiquidSectionShader.SetMatrix4("projection", projection);
 
-            Client.LiquidSectionShader.SetInt("arrayTexture", 5);
+            Client.TransparentLiquidSectionShader.SetInt("arrayTexture", 5);
+            Client.TransparentLiquidSectionShader.SetInt("depthTex", 20);
         }
 
-        protected override void DrawLiquidBuffer(Matrix4 model)
+        protected override void DrawTransparentLiquidBuffer(Matrix4 model)
         {
-            if (hasLiquidData)
+            if (hasTransparentLiquidData)
             {
-                GL.BindVertexArray(liquidVAO);
+                GL.BindVertexArray(transparentLiquidVAO);
 
-                Client.LiquidSectionShader.SetMatrix4("model", model);
+                Client.TransparentLiquidSectionShader.SetMatrix4("model", model);
 
-                GL.DrawElements(PrimitiveType.Triangles, liquidElements, DrawElementsType.UnsignedInt, 0);
+                GL.DrawElements(PrimitiveType.Triangles, transparentLiquidElements, DrawElementsType.UnsignedInt, 0);
 
                 GL.BindVertexArray(0);
             }
         }
 
-        protected override void FinishLiqduiBuffer()
+        protected override void FinishTransparentLiquidBuffer()
         {
             GL.Disable(EnableCap.Blend);
             GL.DepthMask(true);
@@ -286,9 +357,13 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
                 GL.DeleteBuffer(complexEBO);
                 GL.DeleteVertexArray(complexVAO);
 
-                GL.DeleteBuffer(liquidDataVBO);
-                GL.DeleteBuffer(liquidEBO);
-                GL.DeleteVertexArray(liquidVAO);
+                GL.DeleteBuffer(opaqueLiquidDataVBO);
+                GL.DeleteBuffer(opaqueLiquidEBO);
+                GL.DeleteVertexArray(opaqueLiquidVAO);
+
+                GL.DeleteBuffer(transparentLiquidDataVBO);
+                GL.DeleteBuffer(transparentLiquidEBO);
+                GL.DeleteVertexArray(transparentLiquidVAO);
             }
             else
             {

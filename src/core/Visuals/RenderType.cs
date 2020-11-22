@@ -8,6 +8,7 @@ namespace VoxelGame.Core.Visuals
     public enum RenderType
     {
         NotRendered,
+        Opaque,
         Transparent
     }
 }
