@@ -49,6 +49,7 @@ namespace VoxelGame.Client.Rendering
 
             ArrayTextureFactory = new Versions.OpenGL33.ArrayTextureFactory();
             BoxRendererFactory = new Versions.OpenGL33.BoxRendererFactory();
+            OverlayRendererFactory = new Versions.OpenGL33.OverlayRendererFactory();
             ScreenFactory = new Versions.OpenGL33.ScreenFactory();
             ScreenElementRendererFactory = new Versions.OpenGL33.ScreenElementRendererFactory();
             SectionRendererFactory = new Versions.OpenGL33.SectionRendererFactory();
@@ -65,6 +66,7 @@ namespace VoxelGame.Client.Rendering
 
             ArrayTextureFactory = new Versions.OpenGL46.ArrayTextureFactory();
             BoxRendererFactory = new Versions.OpenGL46.BoxRendererFactory();
+            OverlayRendererFactory = new Versions.OpenGL46.OverlayRendererFactory();
             ScreenFactory = new Versions.OpenGL46.ScreenFactory();
             ScreenElementRendererFactory = new Versions.OpenGL46.ScreenElementRendererFactory();
             SectionRendererFactory = new Versions.OpenGL46.SectionRendererFactory();
@@ -82,6 +84,8 @@ namespace VoxelGame.Client.Rendering
         internal static ArrayTextureFactory ArrayTextureFactory { get; private set; } = null!;
 
         internal static BoxRendererFactory BoxRendererFactory { get; private set; } = null!;
+
+        internal static OverlayRendererFactory OverlayRendererFactory { get; private set; } = null!;
 
         internal static ScreenFactory ScreenFactory { get; private set; } = null!;
 

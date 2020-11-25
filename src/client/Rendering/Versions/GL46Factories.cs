@@ -23,6 +23,14 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
         }
     }
 
+    internal class OverlayRendererFactory : Versions.OverlayRendererFactory
+    {
+        internal override Rendering.OverlayRenderer CreateOverlayRenderer()
+        {
+            return new OpenGL46.OverlayRenderer();
+        }
+    }
+
     internal class ScreenFactory : Versions.ScreenFactory
     {
         internal override Rendering.Screen CreateScreen(Client client)
