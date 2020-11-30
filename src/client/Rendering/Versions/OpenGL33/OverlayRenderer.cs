@@ -7,6 +7,11 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
     {
         public override void Draw(Vector3 position)
         {
+            Draw();
+        }
+
+        public override void Draw()
+        {
             throw new NotImplementedException();
         }
 

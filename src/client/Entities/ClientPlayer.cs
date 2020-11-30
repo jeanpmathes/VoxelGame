@@ -34,6 +34,8 @@ namespace VoxelGame.Client.Entities
 
             selectionRenderer = GLManager.BoxRendererFactory.CreateBoxRenderer();
 
+            overlay = GLManager.OverlayRendererFactory.CreateOverlayRenderer();
+
             crosshair = GLManager.TextureFactory.CreateTexture("Resources/Textures/UI/crosshair.png", OpenToolkit.Graphics.OpenGL4.TextureUnit.Texture10, fallbackResolution: 32);
 
             crosshairRenderer = GLManager.ScreenElementRendererFactory.CreateScreenElementRenderer();
@@ -73,6 +75,8 @@ namespace VoxelGame.Client.Entities
 
         private readonly BoxRenderer selectionRenderer;
 
+        private readonly OverlayRenderer overlay;
+
         private readonly Texture crosshair;
         private readonly ScreenElementRenderer crosshairRenderer;
 
@@ -99,6 +103,8 @@ namespace VoxelGame.Client.Entities
                     selectionRenderer.Draw(selectedBox.Center);
                 }
             }
+
+            overlay.Draw();
 
             crosshairRenderer.Draw(crosshairPositionScale);
         }
