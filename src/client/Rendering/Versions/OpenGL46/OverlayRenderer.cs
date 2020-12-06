@@ -15,6 +15,9 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
         private readonly int ebo;
         private readonly int vao;
 
+        private int textureId;
+        private int samplerId;
+
         public OverlayRenderer()
         {
             float[] vertices = new float[]
@@ -65,6 +68,12 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             Draw();
         }
 
+        public override void SetTexture(int number)
+        {
+            samplerId = (number / 2048) + 1;
+            textureId = number % 2048;
+        }
+
         public override void Draw()
         {
             if (disposed)
@@ -75,6 +84,9 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             GL.BindVertexArray(vao);
 
             Client.OverlayShader.Use();
+
+            Client.OverlayShader.SetInt("texId", textureId);
+            Client.OverlayShader.SetInt("tex", samplerId);
 
             GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
 

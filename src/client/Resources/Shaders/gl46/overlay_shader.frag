@@ -4,9 +4,10 @@ out vec4 outputColor;
 
 in vec2 texCoord;
 
-layout(binding = 1) uniform sampler2DArray tex;
+uniform int texId;
+uniform sampler2DArray tex;
 
 void main()
 {
-	outputColor = texture(tex, vec3(texCoord, 6));
+	outputColor = texture(tex, vec3(texCoord, texId));
 }
