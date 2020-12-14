@@ -13,6 +13,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Entities
@@ -78,6 +79,7 @@ namespace VoxelGame.Client.Entities
         private readonly BoxRenderer selectionRenderer;
 
         private readonly OverlayRenderer overlay;
+        private IOverlayTextureProvider? overlayTextureProvider;
 
         private readonly Texture crosshair;
         private readonly ScreenElementRenderer crosshairRenderer;
@@ -106,7 +108,12 @@ namespace VoxelGame.Client.Entities
                 }
             }
 
-            overlay.Draw();
+            if (overlayTextureProvider != null)
+            {
+                overlay.SetTexture(overlayTextureProvider.TextureIdentifier);
+
+                overlay.Draw();
+            }
 
             crosshairRenderer.Draw(crosshairPositionScale);
         }
@@ -136,6 +143,12 @@ namespace VoxelGame.Client.Entities
                 BlockLiquidSelection(input, firstUpdate);
 
                 WorldInteraction(input, mouse);
+
+                int headX = (int)Math.Floor(camera.Position.X);
+                int headY = (int)Math.Floor(camera.Position.Y);
+                int headZ = (int)Math.Floor(camera.Position.Z);
+
+                overlayTextureProvider = Game.World.GetBlock(headX, headY, headZ, out _) as IOverlayTextureProvider;
 
                 firstUpdate = false;
             }
