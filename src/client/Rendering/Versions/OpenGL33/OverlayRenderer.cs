@@ -10,7 +10,12 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             Draw();
         }
 
-        public override void SetTexture(int number)
+        public override void SetBlockTexture(int number)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetLiquidTexture(int number)
         {
             throw new NotImplementedException();
         }

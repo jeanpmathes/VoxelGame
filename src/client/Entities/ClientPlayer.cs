@@ -79,7 +79,8 @@ namespace VoxelGame.Client.Entities
         private readonly BoxRenderer selectionRenderer;
 
         private readonly OverlayRenderer overlay;
-        private IOverlayTextureProvider? overlayTextureProvider;
+
+        private bool renderOverlay;
 
         private readonly Texture crosshair;
         private readonly ScreenElementRenderer crosshairRenderer;
@@ -108,10 +109,8 @@ namespace VoxelGame.Client.Entities
                 }
             }
 
-            if (overlayTextureProvider != null)
+            if (renderOverlay)
             {
-                overlay.SetTexture(overlayTextureProvider.TextureIdentifier);
-
                 overlay.Draw();
             }
 
@@ -148,7 +147,20 @@ namespace VoxelGame.Client.Entities
                 int headY = (int)Math.Floor(camera.Position.Y);
                 int headZ = (int)Math.Floor(camera.Position.Z);
 
-                overlayTextureProvider = Game.World.GetBlock(headX, headY, headZ, out _) as IOverlayTextureProvider;
+                if (Game.World.GetBlock(headX, headY, headZ, out _) is IOverlayTextureProvider overlayBlockTextureProvider)
+                {
+                    overlay.SetBlockTexture(overlayBlockTextureProvider.TextureIdentifier);
+                    renderOverlay = true;
+                }
+                else if (Game.World.GetLiquid(headX, headY, headZ, out _, out _) is IOverlayTextureProvider overlayLiquidTextureProvider)
+                {
+                    overlay.SetLiquidTexture(overlayLiquidTextureProvider.TextureIdentifier);
+                    renderOverlay = true;
+                }
+                else
+                {
+                    renderOverlay = false;
+                }
 
                 firstUpdate = false;
             }

@@ -11,7 +11,7 @@ using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Core.Logic.Liquids
 {
-    public class BasicLiquid : Liquid
+    public class BasicLiquid : Liquid, IOverlayTextureProvider
     {
         private protected bool neutralTint;
 
@@ -20,6 +20,8 @@ namespace VoxelGame.Core.Logic.Liquids
 
         private protected int[] movingTex = null!;
         private protected int[] staticTex = null!;
+
+        public int TextureIdentifier => staticLayout.Front;
 
         public BasicLiquid(string name, string namedId, float density, int viscosity, bool neutralTint, TextureLayout movingLayout, TextureLayout staticLayout, RenderType renderType = RenderType.Opaque) :
             base(
