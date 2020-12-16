@@ -68,18 +68,6 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             Draw();
         }
 
-        public override void SetBlockTexture(int number)
-        {
-            samplerId = (number / 2048) + 1;
-            textureId = number % 2048;
-        }
-
-        public override void SetLiquidTexture(int number)
-        {
-            samplerId = 5;
-            textureId = number;
-        }
-
         public override void Draw()
         {
             if (disposed)
@@ -98,6 +86,18 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
 
             GL.BindVertexArray(0);
             GL.UseProgram(0);
+        }
+
+        public override void SetBlockTexture(int number)
+        {
+            samplerId = (number / 2048) + 1;
+            textureId = number % 2048;
+        }
+
+        public override void SetLiquidTexture(int number)
+        {
+            samplerId = 5;
+            textureId = number;
         }
 
         #region IDisposable Support
