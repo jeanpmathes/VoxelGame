@@ -75,6 +75,8 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
                 return;
             }
 
+            GL.Enable(EnableCap.Blend);
+
             GL.BindVertexArray(vao);
 
             Client.OverlayShader.Use();
@@ -86,6 +88,8 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
 
             GL.BindVertexArray(0);
             GL.UseProgram(0);
+
+            GL.Disable(EnableCap.Blend);
         }
 
         public override void SetBlockTexture(int number)
