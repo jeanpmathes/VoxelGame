@@ -15,9 +15,6 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
         private readonly int ebo;
         private readonly int vao;
 
-        private int textureId;
-        private int samplerId;
-
         public OverlayRenderer()
         {
             float[] vertices = new float[]
@@ -90,18 +87,6 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             GL.UseProgram(0);
 
             GL.Disable(EnableCap.Blend);
-        }
-
-        public override void SetBlockTexture(int number)
-        {
-            samplerId = (number / 2048) + 1;
-            textureId = number % 2048;
-        }
-
-        public override void SetLiquidTexture(int number)
-        {
-            samplerId = 5;
-            textureId = number;
         }
 
         #region IDisposable Support

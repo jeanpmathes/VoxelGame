@@ -2,9 +2,20 @@
 {
     public abstract class OverlayRenderer : Renderer
     {
-        public abstract void SetBlockTexture(int number);
+        private protected int textureId;
+        private protected int samplerId;
 
-        public abstract void SetLiquidTexture(int number);
+        public void SetBlockTexture(int number)
+        {
+            samplerId = (number / 2048) + 1;
+            textureId = number % 2048;
+        }
+
+        public void SetLiquidTexture(int number)
+        {
+            samplerId = 5;
+            textureId = number;
+        }
 
         public abstract void Draw();
     }
