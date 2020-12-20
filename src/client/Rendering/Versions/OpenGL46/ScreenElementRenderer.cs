@@ -9,6 +9,7 @@ using OpenToolkit.Mathematics;
 using System;
 using VoxelGame.Core;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Rendering.Versions.OpenGL46
 {
@@ -25,19 +26,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
 
         public ScreenElementRenderer()
         {
-            float[] vertices = new float[]
-            {
-                -0.5f, -0.5f, 0.0f, 0f, 0f,
-                -0.5f,  0.5f, 0.0f, 0f, 1f,
-                 0.5f,  0.5f, 0.0f, 1f, 1f,
-                 0.5f, -0.5f, 0.0f, 1f, 0f
-            };
-
-            uint[] indices = new uint[]
-            {
-                0, 2, 1,
-                0, 3, 2
-            };
+            BlockModel.CreatePlaneModel(out float[] vertices, out uint[] indices);
 
             // Vertex Buffer Object
             GL.CreateBuffers(1, out vbo);

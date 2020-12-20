@@ -252,6 +252,23 @@ namespace VoxelGame.Core.Visuals
             };
         }
 
+        public static void CreatePlaneModel(out float[] vertices, out uint[] indices)
+        {
+            vertices = new float[]
+            {
+                -0.5f, -0.5f, 0.0f, 0f, 0f,
+                -0.5f,  0.5f, 0.0f, 0f, 1f,
+                0.5f,  0.5f, 0.0f, 1f, 1f,
+                0.5f, -0.5f, 0.0f, 1f, 0f
+            };
+
+            indices = new uint[]
+            {
+                0, 2, 1,
+                0, 3, 2
+            };
+        }
+
         private static BlockModel CreateFallback()
         {
             return new BlockModel
