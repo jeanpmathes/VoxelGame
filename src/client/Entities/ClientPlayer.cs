@@ -3,6 +3,8 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
+using System;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common.Input;
 using VoxelGame.Client.Rendering;
@@ -11,6 +13,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Entities
@@ -33,6 +36,8 @@ namespace VoxelGame.Client.Entities
             camera.Position = Position;
 
             selectionRenderer = GLManager.BoxRendererFactory.CreateBoxRenderer();
+
+            overlay = GLManager.OverlayRendererFactory.CreateOverlayRenderer();
 
             crosshair = GLManager.TextureFactory.CreateTexture("Resources/Textures/UI/crosshair.png", OpenToolkit.Graphics.OpenGL4.TextureUnit.Texture10, fallbackResolution: 32);
 
@@ -73,6 +78,10 @@ namespace VoxelGame.Client.Entities
 
         private readonly BoxRenderer selectionRenderer;
 
+        private readonly OverlayRenderer overlay;
+
+        private bool renderOverlay;
+
         private readonly Texture crosshair;
         private readonly ScreenElementRenderer crosshairRenderer;
 
@@ -98,6 +107,11 @@ namespace VoxelGame.Client.Entities
                     selectionRenderer.SetBoundingBox(selectedBox);
                     selectionRenderer.Draw(selectedBox.Center);
                 }
+            }
+
+            if (renderOverlay)
+            {
+                overlay.Draw();
             }
 
             crosshairRenderer.Draw(crosshairPositionScale);
@@ -128,6 +142,25 @@ namespace VoxelGame.Client.Entities
                 BlockLiquidSelection(input, firstUpdate);
 
                 WorldInteraction(input, mouse);
+
+                int headX = (int)Math.Floor(camera.Position.X);
+                int headY = (int)Math.Floor(camera.Position.Y);
+                int headZ = (int)Math.Floor(camera.Position.Z);
+
+                if (Game.World.GetBlock(headX, headY, headZ, out _) is IOverlayTextureProvider overlayBlockTextureProvider)
+                {
+                    overlay.SetBlockTexture(overlayBlockTextureProvider.TextureIdentifier);
+                    renderOverlay = true;
+                }
+                else if (Game.World.GetLiquid(headX, headY, headZ, out _, out _) is IOverlayTextureProvider overlayLiquidTextureProvider)
+                {
+                    overlay.SetLiquidTexture(overlayLiquidTextureProvider.TextureIdentifier);
+                    renderOverlay = true;
+                }
+                else
+                {
+                    renderOverlay = false;
+                }
 
                 firstUpdate = false;
             }

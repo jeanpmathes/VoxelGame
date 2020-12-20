@@ -47,6 +47,7 @@ namespace VoxelGame.Client
         public static Shader ComplexSectionShader { get; private set; } = null!;
         public static Shader OpaqueLiquidSectionShader { get; private set; } = null!;
         public static Shader TransparentLiquidSectionShader { get; private set; } = null!;
+        public static Shader OverlayShader { get; private set; } = null!;
         public static Shader SelectionShader { get; private set; } = null!;
         public static Shader ScreenElementShader { get; private set; } = null!;
 
@@ -133,9 +134,11 @@ namespace VoxelGame.Client
                     ComplexSectionShader = new Shader("complexsection_shader.vert", "section_shader.frag");
                     OpaqueLiquidSectionShader = new Shader("liquidsection_shader.vert", "opaqueliquidsection_shader.frag");
                     TransparentLiquidSectionShader = new Shader("liquidsection_shader.vert", "transparentliquidsection_shader.frag");
+                    OverlayShader = new Shader("overlay_shader.vert", "overlay_shader.frag");
                     SelectionShader = new Shader("selection_shader.vert", "selection_shader.frag");
                     ScreenElementShader = new Shader("screenelement_shader.vert", "screenelement_shader.frag");
 
+                    OverlayShader.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
                     ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
 
                     logger.LogInformation("Shader setup complete.");

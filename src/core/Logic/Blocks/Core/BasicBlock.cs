@@ -13,12 +13,14 @@ namespace VoxelGame.Core.Logic.Blocks
     /// This class represents a simple block that is completely filled. <see cref="BasicBlock"/>s themselves do not have much function, but the class can be extended easily.
     /// Data bit usage: <c>------</c>
     /// </summary>
-    public class BasicBlock : Block
+    public class BasicBlock : Block, IOverlayTextureProvider
     {
         private protected float[][] sideVertices = null!;
         private protected int[][] sideTextureIndices = null!;
 
         private protected TextureLayout layout;
+
+        public virtual int TextureIdentifier => layout.Bottom;
 
         public BasicBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true, bool recieveCollisions = false, bool isTrigger = false, bool isInteractable = false) :
             base(

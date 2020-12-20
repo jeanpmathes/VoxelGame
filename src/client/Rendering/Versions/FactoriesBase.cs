@@ -17,6 +17,11 @@ namespace VoxelGame.Client.Rendering.Versions
         internal abstract BoxRenderer CreateBoxRenderer();
     }
 
+    internal abstract class OverlayRendererFactory
+    {
+        internal abstract OverlayRenderer CreateOverlayRenderer();
+    }
+
     internal abstract class ScreenFactory
     {
         internal abstract Screen CreateScreen(Client client);
