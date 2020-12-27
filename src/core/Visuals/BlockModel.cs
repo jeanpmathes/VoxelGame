@@ -7,8 +7,10 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Text.Json;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Visuals
@@ -20,10 +22,24 @@ namespace VoxelGame.Core.Visuals
 
         private static readonly string path = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Models");
 
-        public string[] TextureNames { get; set; } = Array.Empty<string>();
+        private string[] TextureNames { get; set; } = Array.Empty<string>();
         public Quad[] Quads { get; set; } = Array.Empty<Quad>();
 
         public int VertexCount { get => Quads.Length * 4; }
+
+        private BlockModel()
+        {
+        }
+
+        /// <summary>
+        /// Copy-constructor.
+        /// </summary>
+        /// <param name="original">The original model to copy.</param>
+        private BlockModel(BlockModel original)
+        {
+            this.TextureNames = (string[])original.TextureNames.Clone();
+            this.Quads = (Quad[])original.Quads.Clone();
+        }
 
         /// <summary>
         /// Splits the BlockModel into two parts, using a given plane to sort all faces.
@@ -93,6 +109,73 @@ namespace VoxelGame.Core.Visuals
             for (int i = 0; i < Quads.Length; i++)
             {
                 Quads[i] = Quads[i].ApplyRotationMatrixY(xyz, nop, rotations);
+            }
+        }
+
+        /// <summary>
+        /// Creates six models, one for each block side, from a north oriented model.
+        /// </summary>
+        /// <returns> The six models.</returns>
+        public (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) CreateAllSides()
+        {
+            (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) result;
+
+            result.front = this;
+
+            result.back = CreateSideModel(BlockSide.Back);
+            result.left = CreateSideModel(BlockSide.Left);
+            result.right = CreateSideModel(BlockSide.Right);
+            result.bottom = CreateSideModel(BlockSide.Bottom);
+            result.top = CreateSideModel(BlockSide.Top);
+
+            return result;
+        }
+
+        private BlockModel CreateSideModel(BlockSide side)
+        {
+            BlockModel copy = new BlockModel(this);
+            Matrix4 rotation;
+
+            switch (side)
+            {
+                case BlockSide.Front:
+                    return copy;
+
+                case BlockSide.Back:
+                    rotation = Matrix4.CreateRotationY(180f);
+                    break;
+
+                case BlockSide.Left:
+                    rotation = Matrix4.CreateRotationY(90f);
+                    break;
+
+                case BlockSide.Right:
+                    rotation = Matrix4.CreateRotationY(270f);
+                    break;
+
+                case BlockSide.Bottom:
+                    rotation = Matrix4.CreateRotationX(90f);
+                    break;
+
+                case BlockSide.Top:
+                    rotation = Matrix4.CreateRotationY(270f);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(side));
+            }
+
+            Matrix4 xyz = Matrix4.CreateTranslation(-0.5f, -0.5f, -0.5f) * rotation * Matrix4.CreateTranslation(0.5f, 0.5f, 0.5f);
+            copy.ApplyMatrix(xyz, Matrix4.Identity);
+
+            return copy;
+        }
+
+        private void ApplyMatrix(Matrix4 xyz, Matrix4 nop)
+        {
+            for (int i = 0; i < Quads.Length; i++)
+            {
+                Quads[i] = Quads[i].ApplyMatrix(xyz, nop);
             }
         }
 
@@ -183,6 +266,8 @@ namespace VoxelGame.Core.Visuals
             string json = JsonSerializer.Serialize(this, options);
             File.WriteAllText(Path.Combine(path, name + ".json"), json);
         }
+
+        #region STATIC METHODS
 
         public static BlockModel Load(string name)
         {
@@ -309,6 +394,8 @@ namespace VoxelGame.Core.Visuals
                 }
             };
         }
+
+        #endregion STATIC METHODS
     }
 
 #pragma warning disable CA1815 // Override equals and operator equals on value types
@@ -325,6 +412,11 @@ namespace VoxelGame.Core.Visuals
 
         public Vector3 Center => (Vert0.Position + Vert1.Position + Vert2.Position + Vert3.Position) / 4;
 
+        /// <summary>
+        /// Apply a matrix only affecting the xyz values.
+        /// </summary>
+        /// <param name="xyz">The matrix to apply.</param>
+        /// <returns>The new quad.</returns>
         public Quad ApplyTranslationMatrix(Matrix4 xyz)
         {
             Vert0 = Vert0.ApplyTranslationMatrix(xyz);
@@ -335,13 +427,23 @@ namespace VoxelGame.Core.Visuals
             return this;
         }
 
+        public Quad ApplyMatrix(Matrix4 xyz, Matrix4 nop)
+        {
+            Vert0 = Vert0.ApplyMatrix(xyz, nop);
+            Vert1 = Vert1.ApplyMatrix(xyz, nop);
+            Vert2 = Vert2.ApplyMatrix(xyz, nop);
+            Vert3 = Vert3.ApplyMatrix(xyz, nop);
+
+            return this;
+        }
+
         public Quad ApplyRotationMatrixY(Matrix4 xyz, Matrix4 nop, int rotations)
         {
             // Rotate positions and normals.
-            Vert0 = Vert0.ApplyRotationMatrix(xyz, nop);
-            Vert1 = Vert1.ApplyRotationMatrix(xyz, nop);
-            Vert2 = Vert2.ApplyRotationMatrix(xyz, nop);
-            Vert3 = Vert3.ApplyRotationMatrix(xyz, nop);
+            Vert0 = Vert0.ApplyMatrix(xyz, nop);
+            Vert1 = Vert1.ApplyMatrix(xyz, nop);
+            Vert2 = Vert2.ApplyMatrix(xyz, nop);
+            Vert3 = Vert3.ApplyMatrix(xyz, nop);
 
             // Rotate UVs for top and bottom sides.
             if (new Vector3(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(2) == Vector3.UnitY)
@@ -388,7 +490,7 @@ namespace VoxelGame.Core.Visuals
             return this;
         }
 
-        public Vertex ApplyRotationMatrix(Matrix4 xyz, Matrix4 nop)
+        public Vertex ApplyMatrix(Matrix4 xyz, Matrix4 nop)
         {
             Vector4 position = new Vector4(X, Y, Z, 1f) * xyz;
             Vector4 normal = new Vector4(N, O, P, 1f) * nop;
