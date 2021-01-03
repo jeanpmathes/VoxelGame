@@ -22,7 +22,10 @@ namespace VoxelGame.Core.Visuals
 
         private static readonly string path = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Models");
 
-        private string[] TextureNames { get; set; } = Array.Empty<string>();
+        // ReSharper disable once MemberCanBePrivate.Global
+        // Has to be public for serialization.
+        public string[] TextureNames { get; set; } = Array.Empty<string>();
+
         public Quad[] Quads { get; set; } = Array.Empty<Quad>();
 
         public int VertexCount { get => Quads.Length * 4; }
@@ -165,8 +168,8 @@ namespace VoxelGame.Core.Visuals
                     throw new ArgumentOutOfRangeException(nameof(side));
             }
 
-            Matrix4 xyz = Matrix4.CreateTranslation(-0.5f, -0.5f, -0.5f) * rotation * Matrix4.CreateTranslation(0.5f, 0.5f, 0.5f);
-            copy.ApplyMatrix(xyz, Matrix4.Identity);
+            Matrix4 matrix = Matrix4.CreateTranslation(-0.5f, -0.5f, -0.5f) * rotation * Matrix4.CreateTranslation(0.5f, 0.5f, 0.5f);
+            copy.ApplyMatrix(matrix, matrix);
 
             return copy;
         }
@@ -393,6 +396,35 @@ namespace VoxelGame.Core.Visuals
                     }
                 }
             };
+        }
+
+        public static (float[] vertices, int[] textureIndices, uint[] indices) CombineData(out uint vertexCount, params BlockModel[] models)
+        {
+            vertexCount = 0;
+
+            List<float> vertices = new List<float>();
+            List<int> textureIndices = new List<int>();
+            List<uint> indices = new List<uint>();
+
+            foreach (BlockModel model in models)
+            {
+                model.ToData(out float[] modelVertices, out int[] modelTextureIndices, out uint[] modelIndices);
+
+                int firstNewIndex = indices.Count;
+
+                vertices.AddRange(modelVertices);
+                textureIndices.AddRange(modelTextureIndices);
+                indices.AddRange(modelIndices);
+
+                for (int i = firstNewIndex; i < indices.Count; i++)
+                {
+                    indices[i] += vertexCount;
+                }
+
+                vertexCount += (uint)model.VertexCount;
+            }
+
+            return (vertices.ToArray(), textureIndices.ToArray(), indices.ToArray());
         }
 
         #endregion STATIC METHODS
