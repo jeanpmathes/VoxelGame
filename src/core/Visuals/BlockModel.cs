@@ -145,23 +145,23 @@ namespace VoxelGame.Core.Visuals
                     return copy;
 
                 case BlockSide.Back:
-                    rotation = Matrix4.CreateRotationY(180f);
+                    rotation = Matrix4.CreateRotationY(MathHelper.Pi);
                     break;
 
                 case BlockSide.Left:
-                    rotation = Matrix4.CreateRotationY(90f);
+                    rotation = Matrix4.CreateRotationY(MathHelper.ThreePiOver2);
                     break;
 
                 case BlockSide.Right:
-                    rotation = Matrix4.CreateRotationY(270f);
+                    rotation = Matrix4.CreateRotationY(MathHelper.PiOver2);
                     break;
 
                 case BlockSide.Bottom:
-                    rotation = Matrix4.CreateRotationX(90f);
+                    rotation = Matrix4.CreateRotationX(MathHelper.PiOver2);
                     break;
 
                 case BlockSide.Top:
-                    rotation = Matrix4.CreateRotationY(270f);
+                    rotation = Matrix4.CreateRotationX(MathHelper.ThreePiOver2);
                     break;
 
                 default:
@@ -169,7 +169,7 @@ namespace VoxelGame.Core.Visuals
             }
 
             Matrix4 matrix = Matrix4.CreateTranslation(-0.5f, -0.5f, -0.5f) * rotation * Matrix4.CreateTranslation(0.5f, 0.5f, 0.5f);
-            copy.ApplyMatrix(matrix, matrix);
+            copy.ApplyMatrix(matrix, rotation);
 
             return copy;
         }
