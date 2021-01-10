@@ -2,6 +2,7 @@
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
@@ -64,6 +65,28 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
+            uint data = GetConnectionData(x, y, z);
+
+            OpenOpposingSide(ref data);
+
+            Game.World.SetBlock(this, data, x, y, z);
+
+            return true;
+        }
+
+        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        {
+            uint updatedData = GetConnectionData(x, y, z);
+            OpenOpposingSide(ref updatedData);
+
+            if (updatedData != data)
+            {
+                Game.World.SetBlock(this, updatedData, x, y, z);
+            }
+        }
+
+        private uint GetConnectionData(int x, int y, int z)
+        {
             uint data = 0;
 
             if (Game.World.GetBlock(x, y, z + 1, out _) == this) data |= 0b10_0000;
@@ -73,51 +96,29 @@ namespace VoxelGame.Core.Logic.Blocks
             if (Game.World.GetBlock(x, y - 1, z, out _) == this) data |= 0b00_0010;
             if (Game.World.GetBlock(x, y + 1, z, out _) == this) data |= 0b00_0001;
 
-            Game.World.SetBlock(this, data, x, y, z);
-
-            return true;
+            return data;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        private static void OpenOpposingSide(ref uint data)
         {
-            uint updatedData = data;
+            if (BitHelper.CountSetBits(data) != 1) return;
 
-            switch (side)
+            switch (data)
             {
-                case BlockSide.Front:
-                    if (Game.World.GetBlock(x, y, z + 1, out _) == this) updatedData |= 0b10_0000;
-                    else updatedData &= 0b01_1111;
+                case 0b10_0000:
+                case 0b01_0000:
+                    data = 0b11_0000;
                     break;
 
-                case BlockSide.Back:
-                    if (Game.World.GetBlock(x, y, z - 1, out _) == this) updatedData |= 0b01_0000;
-                    else updatedData &= 0b10_1111;
+                case 0b00_1000:
+                case 0b00_0100:
+                    data = 0b00_1100;
                     break;
 
-                case BlockSide.Left:
-                    if (Game.World.GetBlock(x - 1, y, z, out _) == this) updatedData |= 0b00_1000;
-                    else updatedData &= 0b11_0111;
+                case 0b00_0010:
+                case 0b00_0001:
+                    data = 0b00_0011;
                     break;
-
-                case BlockSide.Right:
-                    if (Game.World.GetBlock(x + 1, y, z, out _) == this) updatedData |= 0b00_0100;
-                    else updatedData &= 0b11_1011;
-                    break;
-
-                case BlockSide.Bottom:
-                    if (Game.World.GetBlock(x, y - 1, z, out _) == this) updatedData |= 0b00_0010;
-                    else updatedData &= 0b11_1101;
-                    break;
-
-                case BlockSide.Top:
-                    if (Game.World.GetBlock(x, y + 1, z, out _) == this) updatedData |= 0b00_0001;
-                    else updatedData &= 0b11_1110;
-                    break;
-            }
-
-            if (updatedData != data)
-            {
-                Game.World.SetBlock(this, updatedData, x, y, z);
             }
         }
     }
