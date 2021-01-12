@@ -45,6 +45,10 @@ namespace VoxelGame.Core.Logic.Blocks
 
             connector = frontConnector.CreateAllSides();
             surface = frontSurface.CreateAllSides();
+
+            center.Lock();
+            connector.Lock();
+            surface.Lock();
         }
 
         public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)

@@ -7,8 +7,8 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Drawing2D;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
@@ -18,6 +18,8 @@ namespace VoxelGame.Core.Visuals
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = "This class is meant for data storage.")]
     public class BlockModel
     {
+        private const string BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
+
         private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
 
         private static readonly string path = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Models");
@@ -28,7 +30,13 @@ namespace VoxelGame.Core.Visuals
 
         public Quad[] Quads { get; set; } = Array.Empty<Quad>();
 
-        public int VertexCount { get => Quads.Length * 4; }
+        public int VertexCount => Quads.Length * 4;
+
+        private bool isLocked;
+
+        private float[] lockedVertices = null!;
+        private int[] lockedTextureIndices = null!;
+        private uint[] lockedIndices = null!;
 
         private BlockModel()
         {
@@ -53,6 +61,8 @@ namespace VoxelGame.Core.Visuals
         /// <param name="b">The second model.</param>
         public void PlaneSplit(Vector3 position, Vector3 normal, out BlockModel a, out BlockModel b)
         {
+            if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+
             normal = normal.Normalized();
             List<Quad> quadsA = new List<Quad>();
             List<Quad> quadsB = new List<Quad>();
@@ -82,6 +92,8 @@ namespace VoxelGame.Core.Visuals
         /// <param name="movement"></param>
         public void Move(Vector3 movement)
         {
+            if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+
             Matrix4 xyz = Matrix4.CreateTranslation(movement);
 
             for (int i = 0; i < Quads.Length; i++)
@@ -97,6 +109,8 @@ namespace VoxelGame.Core.Visuals
         /// <param name="rotateTopAndBottomTexture">Whether the top and bottom texture should be rotated.</param>
         public void RotateY(int rotations, bool rotateTopAndBottomTexture = true)
         {
+            if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+
             if (rotations == 0)
             {
                 return;
@@ -121,6 +135,8 @@ namespace VoxelGame.Core.Visuals
         /// <returns> The six models.</returns>
         public (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) CreateAllSides()
         {
+            if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+
             (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) result;
 
             result.front = this;
@@ -136,6 +152,8 @@ namespace VoxelGame.Core.Visuals
 
         private BlockModel CreateSideModel(BlockSide side)
         {
+            if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+
             BlockModel copy = new BlockModel(this);
             Matrix4 rotation;
 
@@ -176,6 +194,8 @@ namespace VoxelGame.Core.Visuals
 
         private void ApplyMatrix(Matrix4 xyz, Matrix4 nop)
         {
+            if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+
             for (int i = 0; i < Quads.Length; i++)
             {
                 Quads[i] = Quads[i].ApplyMatrix(xyz, nop);
@@ -184,6 +204,15 @@ namespace VoxelGame.Core.Visuals
 
         public void ToData(out float[] vertices, out int[] textureIndices, out uint[] indices)
         {
+            if (isLocked)
+            {
+                vertices = lockedVertices;
+                textureIndices = lockedTextureIndices;
+                indices = lockedIndices;
+
+                return;
+            }
+
             int[] texIndexLookup = new int[TextureNames.Length];
 
             for (int i = 0; i < TextureNames.Length; i++)
@@ -262,8 +291,19 @@ namespace VoxelGame.Core.Visuals
             }
         }
 
+        public void Lock()
+        {
+            if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+
+            ToData(out lockedVertices, out lockedTextureIndices, out lockedIndices);
+
+            isLocked = true;
+        }
+
         public void Save(string name)
         {
+            if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+
             JsonSerializerOptions options = new JsonSerializerOptions { IgnoreReadOnlyProperties = true, WriteIndented = true };
 
             string json = JsonSerializer.Serialize(this, options);
@@ -402,29 +442,68 @@ namespace VoxelGame.Core.Visuals
         {
             vertexCount = 0;
 
-            List<float> vertices = new List<float>();
-            List<int> textureIndices = new List<int>();
-            List<uint> indices = new List<uint>();
+            bool locked = models.Aggregate(true, (current, model) => current && model.isLocked);
 
-            foreach (BlockModel model in models)
+            if (locked)
             {
-                model.ToData(out float[] modelVertices, out int[] modelTextureIndices, out uint[] modelIndices);
+                int vertexArrayLength = models.Sum(model => model.lockedVertices.Length);
+                int textureIndicesArrayLength = models.Sum(model => model.lockedTextureIndices.Length);
+                int indicesArrayLength = models.Sum(model => model.lockedIndices.Length);
 
-                int firstNewIndex = indices.Count;
+                float[] vertices = new float[vertexArrayLength];
+                int[] textureIndices = new int[textureIndicesArrayLength];
+                uint[] indices = new uint[indicesArrayLength];
 
-                vertices.AddRange(modelVertices);
-                textureIndices.AddRange(modelTextureIndices);
-                indices.AddRange(modelIndices);
+                int copiedVertices = 0;
+                int copiedTextureIndices = 0;
+                int copiedIndices = 0;
 
-                for (int i = firstNewIndex; i < indices.Count; i++)
+                foreach (var model in models)
                 {
-                    indices[i] += vertexCount;
+                    Array.Copy(model.lockedVertices, 0, vertices, copiedVertices, model.lockedVertices.Length);
+                    Array.Copy(model.lockedTextureIndices, 0, textureIndices, copiedTextureIndices, model.lockedTextureIndices.Length);
+                    Array.Copy(model.lockedIndices, 0, indices, copiedIndices, model.lockedIndices.Length);
+
+                    for (int i = copiedIndices; i < copiedIndices + model.lockedIndices.Length; i++)
+                    {
+                        indices[i] += vertexCount;
+                    }
+
+                    copiedVertices += model.lockedVertices.Length;
+                    copiedTextureIndices += model.lockedTextureIndices.Length;
+                    copiedIndices += model.lockedIndices.Length;
+
+                    vertexCount += (uint)model.VertexCount;
                 }
 
-                vertexCount += (uint)model.VertexCount;
+                return (vertices, textureIndices, indices);
             }
+            else
+            {
+                List<float> vertices = new List<float>();
+                List<int> textureIndices = new List<int>();
+                List<uint> indices = new List<uint>();
 
-            return (vertices.ToArray(), textureIndices.ToArray(), indices.ToArray());
+                foreach (BlockModel model in models)
+                {
+                    model.ToData(out float[] modelVertices, out int[] modelTextureIndices, out uint[] modelIndices);
+
+                    int firstNewIndex = indices.Count;
+
+                    vertices.AddRange(modelVertices);
+                    textureIndices.AddRange(modelTextureIndices);
+                    indices.AddRange(modelIndices);
+
+                    for (int i = firstNewIndex; i < indices.Count; i++)
+                    {
+                        indices[i] += vertexCount;
+                    }
+
+                    vertexCount += (uint)model.VertexCount;
+                }
+
+                return (vertices.ToArray(), textureIndices.ToArray(), indices.ToArray());
+            }
         }
 
         #endregion STATIC METHODS
@@ -546,6 +625,19 @@ namespace VoxelGame.Core.Visuals
             V = Math.Abs(old.U - 1f);
 
             return this;
+        }
+    }
+
+    public static class BlockModelExtensions
+    {
+        public static void Lock(this (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) group)
+        {
+            group.front.Lock();
+            group.back.Lock();
+            group.left.Lock();
+            group.right.Lock();
+            group.bottom.Lock();
+            group.top.Lock();
         }
     }
 }
