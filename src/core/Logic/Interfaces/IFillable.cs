@@ -7,7 +7,7 @@ namespace VoxelGame.Core.Logic.Interfaces
 {
     public interface IFillable : IBlockBase
     {
-        bool RenderLiquid { get => !IsSolidAndFull; }
+        bool RenderLiquid => !IsSolidAndFull;
 
         /// <summary>
         /// Check whether a given block at a given location allows inflow trough a certain side.

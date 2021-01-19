@@ -24,6 +24,8 @@ namespace VoxelGame.Core.Logic.Blocks
         private protected readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) connector;
         private protected readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) surface;
 
+        public bool RenderLiquid => false;
+
         public PipeBlock(string name, string namedId, string centerModel, string connectorModel, string surfaceModel) :
             base(
                 name,
