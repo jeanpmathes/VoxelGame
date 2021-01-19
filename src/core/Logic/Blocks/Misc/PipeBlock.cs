@@ -127,7 +127,17 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
+        public bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
+        {
+            return IsSideOpen(x, y, z, side);
+        }
+
         public bool AllowOutflow(int x, int y, int z, BlockSide side)
+        {
+            return IsSideOpen(x, y, z, side);
+        }
+
+        private static bool IsSideOpen(int x, int y, int z, BlockSide side)
         {
             Game.World.GetBlock(x, y, z, out uint data);
 

@@ -185,7 +185,10 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? block, Liquid? liquid) = Game.World.GetPosition(px, y, pz, out _, out _, out _);
 
-                if (block is IFillable puddleFillable && puddleFillable.AllowInflow(px, y, pz, side, this) && liquid == Liquid.None && CheckLowerPosition(px, pz))
+                if (block is IFillable puddleFillable
+                    && puddleFillable.AllowInflow(px, y, pz, side, this)
+                    && puddleFillable.AllowOutflow(px, y, pz, Direction > 0 ? BlockSide.Bottom : BlockSide.Top)
+                    && liquid == Liquid.None && CheckLowerPosition(px, pz))
                 {
                     SetLiquid(this, LiquidLevel.One, false, puddleFillable, px, y, pz);
                     SetLiquid(Liquid.None, LiquidLevel.Eight, true, currentFillable, x, y, z);
