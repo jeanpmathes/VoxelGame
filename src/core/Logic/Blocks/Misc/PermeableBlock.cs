@@ -35,7 +35,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return base.GetMesh(side, data, liquid, out vertices, out textureIndices, out indices, out _, out isAnimated);
         }
 
-        public virtual bool IsFillable(int x, int y, int z, Liquid liquid)
+        public virtual bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
         {
             return liquid.Viscosity < 200;
         }

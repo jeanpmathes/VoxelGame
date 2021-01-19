@@ -121,7 +121,7 @@ namespace VoxelGame.Core.Logic
         {
             (Block? block, Liquid? target) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel current, out bool isStatic);
 
-            if (block is IFillable fillable && fillable.IsFillable(x, y, z, this))
+            if (block is IFillable fillable && fillable.AllowInflow(x, y, z, BlockSide.Top, this))
             {
                 if (target == this && current != LiquidLevel.Eight)
                 {
@@ -241,16 +241,16 @@ namespace VoxelGame.Core.Logic
 
         protected bool HasNeighborWithEmpty(int x, int y, int z)
         {
-            return CheckNeighborForEmpty(x, z - 1)
-                || CheckNeighborForEmpty(x + 1, z)
-                || CheckNeighborForEmpty(x, z + 1)
-                || CheckNeighborForEmpty(x - 1, z);
+            return CheckNeighborForEmpty(x, z - 1, BlockSide.Back)
+                || CheckNeighborForEmpty(x + 1, z, BlockSide.Left)
+                || CheckNeighborForEmpty(x, z + 1, BlockSide.Front)
+                || CheckNeighborForEmpty(x - 1, z, BlockSide.Right);
 
-            bool CheckNeighborForEmpty(int nx, int nz)
+            bool CheckNeighborForEmpty(int nx, int nz, BlockSide side)
             {
                 (Block? block, Liquid? liquid) = Game.World.GetPosition(nx, y, nz, out _, out _, out _);
 
-                return liquid == Liquid.None && block is IFillable fillable && fillable.IsFillable(nx, y, nz, this);
+                return liquid == Liquid.None && block is IFillable fillable && fillable.AllowInflow(nx, y, nz, side, this);
             }
         }
 
@@ -278,7 +278,7 @@ namespace VoxelGame.Core.Logic
 
                     (Block? block, Liquid? liquid) = Game.World.GetPosition(current.X, current.Y, current.Z, out _, out LiquidLevel level, out _);
 
-                    if (liquid != this || !(block is IFillable fillable) || !fillable.IsFillable(current.X, current.Y, current.Z, this))
+                    if (liquid != this || !(block is IFillable fillable) || !fillable.AllowInflow(current.X, current.Y, current.Z, BlockSide.Top, this))
                     {
                         ignoreRows[row - 1] = true;
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
+using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -17,7 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // r: right
     // d: bottom
     // t: top
-    internal class PipeBlock : Block
+    internal class PipeBlock : Block, IFillable
     {
         private protected readonly BlockModel center;
         private protected readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) connector;
@@ -124,6 +125,22 @@ namespace VoxelGame.Core.Logic.Blocks
                     data = 0b00_0011;
                     break;
             }
+        }
+
+        public bool AllowOutflow(int x, int y, int z, BlockSide side)
+        {
+            Game.World.GetBlock(x, y, z, out uint data);
+
+            return side switch
+            {
+                BlockSide.Front => (data & 0b10_0000) != 0,
+                BlockSide.Back => (data & 0b01_0000) != 0,
+                BlockSide.Left => (data & 0b00_1000) != 0,
+                BlockSide.Right => (data & 0b00_0100) != 0,
+                BlockSide.Bottom => (data & 0b00_0010) != 0,
+                BlockSide.Top => (data & 0b00_0001) != 0,
+                _ => true
+            };
         }
     }
 }

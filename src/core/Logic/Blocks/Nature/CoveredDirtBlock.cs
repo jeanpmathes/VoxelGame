@@ -83,7 +83,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        public virtual bool IsFillable(int x, int y, int z, Liquid liquid)
+        public virtual bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
         {
             return liquid.Viscosity < 200;
         }

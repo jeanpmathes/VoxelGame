@@ -56,7 +56,7 @@ namespace VoxelGame.Core.Logic.Blocks
             Game.World.SetBlock(this, data ^ 0b00_0001, x, y, z);
         }
 
-        public bool IsFillable(int x, int y, int z, Liquid liquid)
+        public bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
         {
             Game.World.GetBlock(x, y, z, out uint data);
             return (data & 0b00_0001) == 1;

@@ -9,7 +9,16 @@ namespace VoxelGame.Core.Logic.Interfaces
     {
         bool RenderLiquid { get => !IsSolidAndFull; }
 
-        bool IsFillable(int x, int y, int z, Liquid liquid)
+        /// <summary>
+        /// Check whether a given block at a given location allows inflow trough a certain side.
+        /// </summary>
+        /// <param name="x">The x position of the block.</param>
+        /// <param name="y">The y position of the block.</param>
+        /// <param name="z">The z position of the block.</param>
+        /// <param name="side">The side through which water would flow in.</param>
+        /// <param name="liquid">The liquid that flows in.</param>
+        /// <returns>Whether the liquid is allowed to flow in.</returns>
+        bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
         {
             return true;
         }

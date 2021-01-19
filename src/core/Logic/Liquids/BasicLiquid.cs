@@ -57,7 +57,7 @@ namespace VoxelGame.Core.Logic.Liquids
 
             Block block = Game.World.GetBlock(x, y, z, out _) ?? Block.Air;
 
-            if (block is IFillable fillable && fillable.IsFillable(x, y, z, this))
+            if (block is IFillable fillable)
             {
                 ValidLocationFlow(x, y, z, level, fillable);
             }
@@ -103,7 +103,7 @@ namespace VoxelGame.Core.Logic.Liquids
             (Block? blockVertical, Liquid? liquidVertical) = Game.World.GetPosition(x, y - direction, z, out _, out LiquidLevel levelVertical, out bool isStatic);
 
             if (blockVertical is IFillable verticalFillable
-                && verticalFillable.IsFillable(x, y - direction, z, this)
+                && verticalFillable.AllowInflow(x, y - direction, z, direction > 0 ? BlockSide.Top : BlockSide.Bottom, this)
                 && (currentFillable?.AllowOutflow(x, y, z, direction > 0 ? BlockSide.Bottom : BlockSide.Top) ?? true))
             {
                 if (liquidVertical == Liquid.None)
@@ -174,18 +174,18 @@ namespace VoxelGame.Core.Logic.Liquids
         {
             bool liquidBelowIsNone = Game.World.GetLiquid(x, y - Direction, z, out _, out _) == Liquid.None;
 
-            if (currentFillable.AllowOutflow(x, y, z, BlockSide.Back) && TryFlow(x, z - 1)) return true;
-            if (currentFillable.AllowOutflow(x, y, z, BlockSide.Right) && TryFlow(x + 1, z)) return true;
-            if (currentFillable.AllowOutflow(x, y, z, BlockSide.Front) && TryFlow(x, z + 1)) return true;
-            if (currentFillable.AllowOutflow(x, y, z, BlockSide.Left) && TryFlow(x - 1, z)) return true;
+            if (currentFillable.AllowOutflow(x, y, z, BlockSide.Back) && TryFlow(x, z - 1, BlockSide.Front)) return true;
+            if (currentFillable.AllowOutflow(x, y, z, BlockSide.Right) && TryFlow(x + 1, z, BlockSide.Left)) return true;
+            if (currentFillable.AllowOutflow(x, y, z, BlockSide.Front) && TryFlow(x, z + 1, BlockSide.Back)) return true;
+            if (currentFillable.AllowOutflow(x, y, z, BlockSide.Left) && TryFlow(x - 1, z, BlockSide.Right)) return true;
 
             return false;
 
-            bool TryFlow(int px, int pz)
+            bool TryFlow(int px, int pz, BlockSide side)
             {
                 (Block? block, Liquid? liquid) = Game.World.GetPosition(px, y, pz, out _, out _, out _);
 
-                if (block is IFillable puddleFillable && puddleFillable.IsFillable(px, y, pz, this) && liquid == Liquid.None && CheckLowerPosition(px, pz))
+                if (block is IFillable puddleFillable && puddleFillable.AllowInflow(px, y, pz, side, this) && liquid == Liquid.None && CheckLowerPosition(px, pz))
                 {
                     SetLiquid(this, LiquidLevel.One, false, puddleFillable, px, y, pz);
                     SetLiquid(Liquid.None, LiquidLevel.Eight, true, currentFillable, x, y, z);
@@ -204,7 +204,9 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? lowerBlock, Liquid? lowerLiquid) = Game.World.GetPosition(px, y - Direction, pz, out _, out LiquidLevel level, out _);
 
-                return lowerBlock is IFillable fillable && fillable.IsFillable(px, y - Direction, pz, this) && ((lowerLiquid == this && level != LiquidLevel.Eight) || (liquidBelowIsNone && lowerLiquid != this));
+                return lowerBlock is IFillable fillable
+                       && fillable.AllowInflow(px, y - Direction, pz, Direction > 0 ? BlockSide.Top : BlockSide.Bottom, this)
+                       && ((lowerLiquid == this && level != LiquidLevel.Eight) || (liquidBelowIsNone && lowerLiquid != this));
             }
         }
 
@@ -221,19 +223,23 @@ namespace VoxelGame.Core.Logic.Liquids
                 switch ((Orientation)(i % 4))
                 {
                     case Orientation.North:
-                        if (CheckNeighbor(currentFillable.AllowOutflow(x, y, z, Orientation.North.ToBlockSide()), x, y, z - 1)) return true;
+                        if (CheckNeighbor(currentFillable.AllowOutflow(x, y, z, Orientation.North.ToBlockSide()),
+                            x, y, z - 1, Orientation.North.Invert().ToBlockSide())) return true;
                         break;
 
                     case Orientation.East:
-                        if (CheckNeighbor(currentFillable.AllowOutflow(x, y, z, Orientation.East.ToBlockSide()), x + 1, y, z)) return true;
+                        if (CheckNeighbor(currentFillable.AllowOutflow(x, y, z, Orientation.East.ToBlockSide()),
+                            x + 1, y, z, Orientation.East.Invert().ToBlockSide())) return true;
                         break;
 
                     case Orientation.South:
-                        if (CheckNeighbor(currentFillable.AllowOutflow(x, y, z, Orientation.South.ToBlockSide()), x, y, z + 1)) return true;
+                        if (CheckNeighbor(currentFillable.AllowOutflow(x, y, z, Orientation.South.ToBlockSide()),
+                            x, y, z + 1, Orientation.South.Invert().ToBlockSide())) return true;
                         break;
 
                     case Orientation.West:
-                        if (CheckNeighbor(currentFillable.AllowOutflow(x, y, z, Orientation.West.ToBlockSide()), x - 1, y, z)) return true;
+                        if (CheckNeighbor(currentFillable.AllowOutflow(x, y, z, Orientation.West.ToBlockSide()),
+                            x - 1, y, z, Orientation.West.Invert().ToBlockSide())) return true;
                         break;
                 }
             }
@@ -254,11 +260,11 @@ namespace VoxelGame.Core.Logic.Liquids
 
             return false;
 
-            bool CheckNeighbor(bool outflowAllowed, int nx, int ny, int nz)
+            bool CheckNeighbor(bool outflowAllowed, int nx, int ny, int nz, BlockSide side)
             {
                 (Block? blockNeighbor, Liquid? liquidNeighbor) = Game.World.GetPosition(nx, ny, nz, out _, out LiquidLevel levelNeighbor, out bool isStatic);
 
-                if (blockNeighbor is IFillable neighborFillable && neighborFillable.IsFillable(nx, ny, nz, this) && outflowAllowed)
+                if (blockNeighbor is IFillable neighborFillable && neighborFillable.AllowInflow(nx, ny, nz, side, this) && outflowAllowed)
                 {
                     if (liquidNeighbor == Liquid.None)
                     {
@@ -266,7 +272,9 @@ namespace VoxelGame.Core.Logic.Liquids
 
                         (Block? belowNeighborBlock, Liquid? belowNeighborLiquid) = Game.World.GetPosition(nx, ny - Direction, nz, out _, out _, out _);
 
-                        if (belowNeighborLiquid == Liquid.None && belowNeighborBlock is IFillable belowFillable && belowFillable.IsFillable(nx, ny - Direction, nz, this))
+                        if (belowNeighborLiquid == Liquid.None
+                            && belowNeighborBlock is IFillable belowFillable
+                            && belowFillable.AllowInflow(nx, ny - Direction, nz, Direction > 0 ? BlockSide.Top : BlockSide.Bottom, this))
                         {
                             SetLiquid(this, level, false, belowFillable, nx, ny - Direction, nz);
 
@@ -322,32 +330,36 @@ namespace VoxelGame.Core.Logic.Liquids
                 switch ((Orientation)(i % 4))
                 {
                     case Orientation.North:
-                        if (currentFillable.AllowOutflow(x, y, z, Orientation.North.ToBlockSide()) && CheckDirection((0, -1))) return true;
+                        if (currentFillable.AllowOutflow(x, y, z, Orientation.North.ToBlockSide())
+                            && CheckDirection((0, -1), Orientation.North.Invert().ToBlockSide())) return true;
                         break;
 
                     case Orientation.East:
-                        if (currentFillable.AllowOutflow(x, y, z, Orientation.East.ToBlockSide()) && CheckDirection((1, 0))) return true;
+                        if (currentFillable.AllowOutflow(x, y, z, Orientation.East.ToBlockSide())
+                            && CheckDirection((1, 0), Orientation.East.Invert().ToBlockSide())) return true;
                         break;
 
                     case Orientation.South:
-                        if (currentFillable.AllowOutflow(x, y, z, Orientation.South.ToBlockSide()) && CheckDirection((0, 1))) return true;
+                        if (currentFillable.AllowOutflow(x, y, z, Orientation.South.ToBlockSide())
+                            && CheckDirection((0, 1), Orientation.South.Invert().ToBlockSide())) return true;
                         break;
 
                     case Orientation.West:
-                        if (currentFillable.AllowOutflow(x, y, z, Orientation.West.ToBlockSide()) && CheckDirection((-1, 0))) return true;
+                        if (currentFillable.AllowOutflow(x, y, z, Orientation.West.ToBlockSide())
+                            && CheckDirection((-1, 0), Orientation.West.Invert().ToBlockSide())) return true;
                         break;
                 }
             }
 
             return false;
 
-            bool CheckDirection(Vector2i dir)
+            bool CheckDirection(Vector2i dir, BlockSide side)
             {
                 if (SearchLevel(x, y, z, dir, 4, level - 2, out Vector3i pos))
                 {
                     (Block? block, Liquid? liquid) = Game.World.GetPosition(pos.X, pos.Y, pos.Z, out _, out LiquidLevel target, out bool isStatic);
 
-                    if (block is IFillable targetFillable && targetFillable.IsFillable(pos.X, pos.Y, pos.Z, this) && liquid == this)
+                    if (block is IFillable targetFillable && targetFillable.AllowInflow(pos.X, pos.Y, pos.Z, side, this) && liquid == this)
                     {
                         SetLiquid(this, target + 1, false, targetFillable, pos.X, pos.Y, pos.Z);
                         if (isStatic) ScheduleTick(pos.X, pos.Y, pos.Z);
@@ -373,17 +385,17 @@ namespace VoxelGame.Core.Logic.Liquids
 
             void SpreadLiquid()
             {
-                if (FillNeighbor(x, y, z - 1) == -1) return; // North.
-                if (FillNeighbor(x + 1, y, z) == -1) return; // East.
-                if (FillNeighbor(x, y, z + 1) == -1) return; // South.
-                FillNeighbor(x - 1, y, z); // West.
+                if (FillNeighbor(x, y, z - 1, BlockSide.Front) == -1) return; // North.
+                if (FillNeighbor(x + 1, y, z, BlockSide.Left) == -1) return; // East.
+                if (FillNeighbor(x, y, z + 1, BlockSide.Back) == -1) return; // South.
+                FillNeighbor(x - 1, y, z, BlockSide.Right); // West.
             }
 
-            int FillNeighbor(int nx, int ny, int nz)
+            int FillNeighbor(int nx, int ny, int nz, BlockSide side)
             {
                 (Block? blockNeighbor, Liquid? liquidNeighbor) = Game.World.GetPosition(nx, ny, nz, out _, out LiquidLevel levelNeighbor, out bool isStatic);
 
-                if (blockNeighbor is IFillable neighborFillable && neighborFillable.IsFillable(nx, ny, nz, this))
+                if (blockNeighbor is IFillable neighborFillable && neighborFillable.AllowInflow(nx, ny, nz, side, this))
                 {
                     if (liquidNeighbor == Liquid.None)
                     {
