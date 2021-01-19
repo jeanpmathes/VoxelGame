@@ -312,6 +312,9 @@
   <data name="SteelDoor" xml:space="preserve">
     <value>Stahltür</value>
   </data>
+  <data name="SteelPipe" xml:space="preserve">
+    <value>Stahlrohr</value>
+  </data>
   <data name="Stone" xml:space="preserve">
     <value>Stein</value>
   </data>

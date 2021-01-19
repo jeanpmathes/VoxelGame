@@ -118,7 +118,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Mud = new MudBlock(Language.Mud, nameof(Mud), TextureLayout.Uniform("mud"), 0.1f);
         public static readonly Block Pumice = new BasicBlock(Language.Pumice, nameof(Pumice), TextureLayout.Uniform("pumice"));
         public static readonly Block Obsidian = new BasicBlock(Language.Obsidian, nameof(Obsidian), TextureLayout.Uniform("obsidian"));
-        public static readonly Block Pipe = new PipeBlock("Pipe", nameof(Pipe), "pipe_center", "pipe_connector", "pipe_surface");
+        public static readonly Block Pipe = new PipeBlock(Language.SteelPipe, nameof(Pipe), "pipe_center", "pipe_connector", "pipe_surface");
 
         #endregion NEW BLOCKS
 
