@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -52,6 +52,20 @@ namespace VoxelGame.Core.Logic.Blocks
             center.Lock();
             connector.Lock();
             surface.Lock();
+        }
+
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        {
+            List<BoundingBox> connectors = new List<BoundingBox>(BitHelper.CountSetBits(data));
+
+            if ((data & 0b10_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 0.9375f + z), new Vector3(0.375f, 0.375f, 0.0625f)));
+            if ((data & 0b01_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 0.0625f + z), new Vector3(0.375f, 0.375f, 0.0625f)));
+            if ((data & 0b00_1000) != 0) connectors.Add(new BoundingBox(new Vector3(0.0625f + x, 0.5f + y, 0.5f + z), new Vector3(0.0625f, 0.375f, 0.375f)));
+            if ((data & 0b00_0100) != 0) connectors.Add(new BoundingBox(new Vector3(0.9375f + x, 0.5f + y, 0.5f + z), new Vector3(0.0625f, 0.375f, 0.375f)));
+            if ((data & 0b00_0010) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.0625f + y, 0.5f + z), new Vector3(0.375f, 0.0625f, 0.375f)));
+            if ((data & 0b00_0001) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.9375f + y, 0.5f + z), new Vector3(0.375f, 0.0625f, 0.375f)));
+
+            return new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 0.5f + z), new Vector3(0.375f, 0.375f, 0.375f), connectors.ToArray());
         }
 
         public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
