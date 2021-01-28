@@ -376,6 +376,9 @@
     <None Update="Resources\Textures\Blocks\paving_stone.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Textures\Blocks\pipe_hole.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\Textures\Blocks\potato.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
