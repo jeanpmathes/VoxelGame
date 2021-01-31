@@ -133,13 +133,13 @@
     <None Update="Resources\Models\gate_wood_open.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Models\pipe_center.json">
+    <None Update="Resources\Models\steel_pipe_center.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Models\pipe_connector.json">
+    <None Update="Resources\Models\steel_pipe_connector.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Models\pipe_surface.json">
+    <None Update="Resources\Models\steel_pipe_surface.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Models\vase.json">
