@@ -799,6 +799,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Wooden Pipe.
+        /// </summary>
+        public static string WoodenPipe {
+            get {
+                return ResourceManager.GetString("WoodenPipe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Wool.
         /// </summary>
         public static string Wool {

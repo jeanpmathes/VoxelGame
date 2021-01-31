@@ -363,6 +363,9 @@
   <data name="WoodenGate" xml:space="preserve">
     <value>Holztor</value>
   </data>
+  <data name="WoodenPipe" xml:space="preserve">
+    <value>Hölzernes Rohr</value>
+  </data>
   <data name="Wool" xml:space="preserve">
     <value>Wolle</value>
   </data>

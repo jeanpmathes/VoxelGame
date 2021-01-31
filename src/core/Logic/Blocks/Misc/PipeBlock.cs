@@ -24,9 +24,11 @@ namespace VoxelGame.Core.Logic.Blocks
         private protected readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) connector;
         private protected readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) surface;
 
+        private protected readonly float diameter;
+
         public bool RenderLiquid => false;
 
-        public PipeBlock(string name, string namedId, string centerModel, string connectorModel, string surfaceModel) :
+        public PipeBlock(string name, string namedId, float diameter, string centerModel, string connectorModel, string surfaceModel) :
             base(
                 name,
                 namedId,
@@ -41,6 +43,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 boundingBox: new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.375f, 0.375f, 0.375f)),
                 targetBuffer: TargetBuffer.Complex)
         {
+            this.diameter = diameter;
+
             center = BlockModel.Load(centerModel);
 
             BlockModel frontConnector = BlockModel.Load(connectorModel);
@@ -58,14 +62,14 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             List<BoundingBox> connectors = new List<BoundingBox>(BitHelper.CountSetBits(data));
 
-            if ((data & 0b10_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 0.9375f + z), new Vector3(0.375f, 0.375f, 0.0625f)));
-            if ((data & 0b01_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 0.0625f + z), new Vector3(0.375f, 0.375f, 0.0625f)));
-            if ((data & 0b00_1000) != 0) connectors.Add(new BoundingBox(new Vector3(0.0625f + x, 0.5f + y, 0.5f + z), new Vector3(0.0625f, 0.375f, 0.375f)));
-            if ((data & 0b00_0100) != 0) connectors.Add(new BoundingBox(new Vector3(0.9375f + x, 0.5f + y, 0.5f + z), new Vector3(0.0625f, 0.375f, 0.375f)));
-            if ((data & 0b00_0010) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.0625f + y, 0.5f + z), new Vector3(0.375f, 0.0625f, 0.375f)));
-            if ((data & 0b00_0001) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.9375f + y, 0.5f + z), new Vector3(0.375f, 0.0625f, 0.375f)));
+            if ((data & 0b10_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 0.9375f + z), new Vector3(diameter, diameter, 0.0625f)));
+            if ((data & 0b01_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 0.0625f + z), new Vector3(diameter, diameter, 0.0625f)));
+            if ((data & 0b00_1000) != 0) connectors.Add(new BoundingBox(new Vector3(0.0625f + x, 0.5f + y, 0.5f + z), new Vector3(0.0625f, diameter, diameter)));
+            if ((data & 0b00_0100) != 0) connectors.Add(new BoundingBox(new Vector3(0.9375f + x, 0.5f + y, 0.5f + z), new Vector3(0.0625f, diameter, diameter)));
+            if ((data & 0b00_0010) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.0625f + y, 0.5f + z), new Vector3(diameter, 0.0625f, diameter)));
+            if ((data & 0b00_0001) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.9375f + y, 0.5f + z), new Vector3(diameter, 0.0625f, diameter)));
 
-            return new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 0.5f + z), new Vector3(0.375f, 0.375f, 0.375f), connectors.ToArray());
+            return new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 0.5f + z), new Vector3(diameter, diameter, diameter), connectors.ToArray());
         }
 
         public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)

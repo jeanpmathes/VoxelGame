@@ -436,6 +436,7 @@ namespace VoxelGame.Client.Entities
 
                 selectionRenderer.Dispose();
                 crosshairRenderer.Dispose();
+                overlay.Dispose();
             }
 
             disposed = true;
