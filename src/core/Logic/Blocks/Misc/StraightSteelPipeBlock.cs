@@ -1,20 +1,135 @@
 ﻿using System;
+using OpenToolkit.Mathematics;
+using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Blocks.Misc
+namespace VoxelGame.Core.Logic.Blocks
 {
+    /// <summary>
+    /// A block that only connects to steel pipes at specific sides.
+    /// Data bit usage: <c>----aa</c>
+    /// </summary>
+    // aa = axis
     internal class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectable
     {
-        public StraightSteelPipeBlock(string name, string namedId, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool receiveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable, BoundingBox boundingBox, TargetBuffer targetBuffer) : base(name, namedId, isFull, isOpaque, renderFaceAtNonOpaques, isSolid, receiveCollisions, isTrigger, isReplaceable, isInteractable, boundingBox, targetBuffer)
+        private readonly (BlockModel x, BlockModel y, BlockModel z) models;
+
+        private readonly float diameter;
+
+        public bool RenderLiquid => false;
+
+        public StraightSteelPipeBlock(string name, string namedId, float diameter, string model) :
+            base(
+                name,
+                namedId,
+                isFull: false,
+                isOpaque: false,
+                renderFaceAtNonOpaques: true,
+                isSolid: true,
+                receiveCollisions: false,
+                isTrigger: false,
+                isReplaceable: false,
+                isInteractable: false,
+                boundingBox: new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(diameter, diameter, 0.5f)),
+                targetBuffer: TargetBuffer.Complex)
         {
+            BlockModel initial = BlockModel.Load(model);
+
+            models = initial.CreateAllAxis();
+
+            this.diameter = diameter;
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices,
-            out uint[] indices, out TintColor tint, out bool isAnimated)
+        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
-            throw new NotImplementedException();
+            return (Axis)data switch
+            {
+                Axis.X => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f), new Vector3(0.5f, diameter, diameter)),
+                Axis.Y => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f), new Vector3(diameter, 0.5f, diameter)),
+                Axis.Z => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f), new Vector3(diameter, diameter, 0.5f)),
+                _ => throw new NotSupportedException()
+            };
+        }
+
+        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        {
+            tint = TintColor.None;
+            isAnimated = false;
+
+            switch ((Axis)data)
+            {
+                case Axis.X:
+                    models.x.ToData(out vertices, out textureIndices, out indices);
+                    return (uint)models.x.VertexCount;
+
+                case Axis.Y:
+                    models.y.ToData(out vertices, out textureIndices, out indices);
+                    return (uint)models.y.VertexCount;
+
+                case Axis.Z:
+                    models.z.ToData(out vertices, out textureIndices, out indices);
+                    return (uint)models.z.VertexCount;
+
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
+        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        {
+            Game.World.SetBlock(this, (uint)ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
+            return true;
+        }
+
+        public bool IsConnectable(BlockSide side, int x, int y, int z)
+        {
+            return IsSideOpen(x, y, z, side);
+        }
+
+        public bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
+        {
+            return IsSideOpen(x, y, z, side);
+        }
+
+        public bool AllowOutflow(int x, int y, int z, BlockSide side)
+        {
+            return IsSideOpen(x, y, z, side);
+        }
+
+        private static bool IsSideOpen(int x, int y, int z, BlockSide side)
+        {
+            Game.World.GetBlock(x, y, z, out uint data);
+            return ToAxis(side) == (Axis)data;
+        }
+
+        private enum Axis
+        {
+            X = 0b00,
+            Y = 0b01,
+            Z = 0b10,
+        }
+
+        private static Axis ToAxis(BlockSide side)
+        {
+            switch (side)
+            {
+                case BlockSide.Front:
+                case BlockSide.Back:
+                    return Axis.Z;
+
+                case BlockSide.Left:
+                case BlockSide.Right:
+                    return Axis.X;
+
+                case BlockSide.Bottom:
+                case BlockSide.Top:
+                    return Axis.Y;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(side));
+            }
         }
     }
 }

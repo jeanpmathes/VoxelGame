@@ -139,6 +139,9 @@
     <None Update="Resources\Models\steel_pipe_connector.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Models\steel_pipe_straight.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\Models\steel_pipe_surface.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

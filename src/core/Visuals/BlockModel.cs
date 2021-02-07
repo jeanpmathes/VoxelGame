@@ -150,6 +150,18 @@ namespace VoxelGame.Core.Visuals
             return result;
         }
 
+        public (BlockModel x, BlockModel y, BlockModel z) CreateAllAxis()
+        {
+            (BlockModel x, BlockModel y, BlockModel z) result;
+
+            result.z = this;
+
+            result.x = CreateSideModel(BlockSide.Left);
+            result.y = CreateSideModel(BlockSide.Bottom);
+
+            return result;
+        }
+
         private BlockModel CreateSideModel(BlockSide side)
         {
             if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
@@ -210,7 +222,7 @@ namespace VoxelGame.Core.Visuals
         {
             if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
-            for (int i = 0; i < Quads.Length; i++)
+            for (var i = 0; i < Quads.Length; i++)
             {
                 Quads[i] = Quads[i].ApplyMatrix(xyz, nop);
             }
@@ -220,7 +232,7 @@ namespace VoxelGame.Core.Visuals
         {
             if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
-            for (int i = 0; i < Quads.Length; i++)
+            for (var i = 0; i < Quads.Length; i++)
             {
                 Quads[i] = Quads[i].RotateTextureCoordinates(axis, rotations);
             }

@@ -315,6 +315,9 @@
   <data name="SteelPipe" xml:space="preserve">
     <value>Stahlrohr</value>
   </data>
+  <data name="SteelPipeStraight" xml:space="preserve">
+    <value>Gerades Stahlrohr</value>
+  </data>
   <data name="Stone" xml:space="preserve">
     <value>Stein</value>
   </data>

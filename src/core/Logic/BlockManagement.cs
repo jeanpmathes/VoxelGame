@@ -121,6 +121,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Obsidian = new BasicBlock(Language.Obsidian, nameof(Obsidian), TextureLayout.Uniform("obsidian"));
         public static readonly Block SteelPipe = new PipeBlock<IIndustrialPipeConnectable>(Language.SteelPipe, nameof(SteelPipe), 0.375f, "steel_pipe_center", "steel_pipe_connector", "steel_pipe_surface");
         public static readonly Block WoodenPipe = new PipeBlock<IPrimitivePipeConnectable>(Language.WoodenPipe, nameof(WoodenPipe), 0.3125f, "wood_pipe_center", "wood_pipe_connector", "wood_pipe_surface");
+        public static readonly Block StraightSteelPipe = new StraightSteelPipeBlock(Language.SteelPipeStraight, nameof(StraightSteelPipe), 0.375f, "steel_pipe_straight");
 
         #endregion NEW BLOCKS
 

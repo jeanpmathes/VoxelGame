@@ -20,11 +20,11 @@ namespace VoxelGame.Core.Logic.Blocks
     // t: top
     internal class PipeBlock<TConnect> : Block, IFillable where TConnect : IPipeConnectable
     {
-        private protected readonly BlockModel center;
-        private protected readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) connector;
-        private protected readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) surface;
+        private readonly BlockModel center;
+        private readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) connector;
+        private readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) surface;
 
-        private protected readonly float diameter;
+        private readonly float diameter;
 
         public bool RenderLiquid => false;
 
@@ -40,7 +40,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isTrigger: false,
                 isReplaceable: false,
                 isInteractable: false,
-                boundingBox: new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.375f, 0.375f, 0.375f)),
+                boundingBox: new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(diameter, diameter, diameter)),
                 targetBuffer: TargetBuffer.Complex)
         {
             this.diameter = diameter;
