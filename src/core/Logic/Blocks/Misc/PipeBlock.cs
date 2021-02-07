@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // r: right
     // d: bottom
     // t: top
-    internal class PipeBlock : Block, IFillable
+    internal class PipeBlock<TConnect> : Block, IFillable where TConnect : IPipeConnectable
     {
         private protected readonly BlockModel center;
         private protected readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) connector;
@@ -36,7 +36,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isOpaque: false,
                 renderFaceAtNonOpaques: true,
                 isSolid: true,
-                recieveCollisions: false,
+                receiveCollisions: false,
                 isTrigger: false,
                 isReplaceable: false,
                 isInteractable: false,
@@ -114,14 +114,21 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             uint data = 0;
 
-            if (Game.World.GetBlock(x, y, z + 1, out _) == this) data |= 0b10_0000;
-            if (Game.World.GetBlock(x, y, z - 1, out _) == this) data |= 0b01_0000;
-            if (Game.World.GetBlock(x - 1, y, z, out _) == this) data |= 0b00_1000;
-            if (Game.World.GetBlock(x + 1, y, z, out _) == this) data |= 0b00_0100;
-            if (Game.World.GetBlock(x, y - 1, z, out _) == this) data |= 0b00_0010;
-            if (Game.World.GetBlock(x, y + 1, z, out _) == this) data |= 0b00_0001;
+            if (IsConnectable(BlockSide.Front, x, y, z + 1)) data |= 0b10_0000;
+            if (IsConnectable(BlockSide.Back, x, y, z - 1)) data |= 0b01_0000;
+            if (IsConnectable(BlockSide.Left, x - 1, y, z)) data |= 0b00_1000;
+            if (IsConnectable(BlockSide.Right, x + 1, y, z)) data |= 0b00_0100;
+            if (IsConnectable(BlockSide.Bottom, x, y - 1, z)) data |= 0b00_0010;
+            if (IsConnectable(BlockSide.Top, x, y + 1, z)) data |= 0b00_0001;
 
             return data;
+
+            bool IsConnectable(BlockSide side, int x, int y, int z)
+            {
+                Block? block = Game.World.GetBlock(x, y, z, out _);
+
+                return block == this || (block is TConnect connectable && connectable.IsConnectable(side, x, y, z));
+            }
         }
 
         private static void OpenOpposingSide(ref uint data)

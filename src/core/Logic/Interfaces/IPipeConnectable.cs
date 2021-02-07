@@ -1,14 +1,6 @@
-﻿// <copyright file="IFenceConnectable.cs" company="VoxelGame">
-//     MIT License
-//	   For full license see the repository.
-// </copyright>
-// <author>pershingthesecond</author>
-namespace VoxelGame.Core.Logic.Interfaces
+﻿namespace VoxelGame.Core.Logic.Interfaces
 {
-    /// <summary>
-    /// Marks a block as able to be connected to by other blocks. Currently the bottom and top side do not have to be defined.
-    /// </summary>
-    public interface IConnectable : IBlockBase
+    internal interface IPipeConnectable : IBlockBase
     {
         /// <summary>
         /// Checks if this block supports connection at a specific side.

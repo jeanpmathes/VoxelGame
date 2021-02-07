@@ -36,7 +36,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 texture,
-                recieveCollisions: false,
+                receiveCollisions: false,
                 isTrigger: false,
                 isReplaceable: false,
                 new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.175f, 0.5f, 0.175f)))

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System.Collections.Generic;
 using VoxelGame.Core.Logic.Blocks;
+using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
@@ -118,8 +119,8 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Mud = new MudBlock(Language.Mud, nameof(Mud), TextureLayout.Uniform("mud"), 0.1f);
         public static readonly Block Pumice = new BasicBlock(Language.Pumice, nameof(Pumice), TextureLayout.Uniform("pumice"));
         public static readonly Block Obsidian = new BasicBlock(Language.Obsidian, nameof(Obsidian), TextureLayout.Uniform("obsidian"));
-        public static readonly Block SteelPipe = new PipeBlock(Language.SteelPipe, nameof(SteelPipe), 0.375f, "steel_pipe_center", "steel_pipe_connector", "steel_pipe_surface");
-        public static readonly Block WoodenPipe = new PipeBlock(Language.WoodenPipe, nameof(WoodenPipe), 0.3125f, "wood_pipe_center", "wood_pipe_connector", "wood_pipe_surface");
+        public static readonly Block SteelPipe = new PipeBlock<IIndustrialPipeConnectable>(Language.SteelPipe, nameof(SteelPipe), 0.375f, "steel_pipe_center", "steel_pipe_connector", "steel_pipe_surface");
+        public static readonly Block WoodenPipe = new PipeBlock<IPrimitivePipeConnectable>(Language.WoodenPipe, nameof(WoodenPipe), 0.3125f, "wood_pipe_center", "wood_pipe_connector", "wood_pipe_surface");
 
         #endregion NEW BLOCKS
 
