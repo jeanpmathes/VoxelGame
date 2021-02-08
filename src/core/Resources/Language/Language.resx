@@ -282,6 +282,9 @@
   <data name="PumpkinPlant" xml:space="preserve">
     <value>Pumpkin Plant</value>
   </data>
+  <data name="RedPlastic" xml:space="preserve">
+    <value>Red Plastic</value>
+  </data>
   <data name="Rubble" xml:space="preserve">
     <value>Rubble</value>
   </data>

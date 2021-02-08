@@ -556,6 +556,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Red Plastic.
+        /// </summary>
+        public static string RedPlastic {
+            get {
+                return ResourceManager.GetString("RedPlastic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Rubble.
         /// </summary>
         public static string Rubble {

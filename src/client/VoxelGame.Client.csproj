@@ -409,6 +409,9 @@
     <None Update="Resources\Textures\Blocks\pumpkin_top.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Textures\Blocks\red_plastic.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\Textures\Blocks\rubble.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -282,6 +282,9 @@
   <data name="PumpkinPlant" xml:space="preserve">
     <value>Kürbispflanze</value>
   </data>
+  <data name="RedPlastic" xml:space="preserve">
+    <value>Roter Plastik</value>
+  </data>
   <data name="Rubble" xml:space="preserve">
     <value>Bruchstein</value>
   </data>
