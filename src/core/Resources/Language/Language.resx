@@ -336,6 +336,9 @@
   <data name="TiledGlass" xml:space="preserve">
     <value>Tiled Glass</value>
   </data>
+  <data name="ValvePipe" xml:space="preserve">
+    <value>Valve Pipe</value>
+  </data>
   <data name="Vase" xml:space="preserve">
     <value>Vase</value>
   </data>

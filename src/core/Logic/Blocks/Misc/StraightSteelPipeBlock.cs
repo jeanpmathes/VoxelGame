@@ -14,13 +14,15 @@ namespace VoxelGame.Core.Logic.Blocks
     // aa = axis
     internal class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectable
     {
-        private readonly (BlockModel x, BlockModel y, BlockModel z) models;
+        private protected const uint AxisDataMask = 0b00_0011;
+
+        private protected readonly (BlockModel x, BlockModel y, BlockModel z) models;
 
         private readonly float diameter;
 
         public bool RenderLiquid => false;
 
-        public StraightSteelPipeBlock(string name, string namedId, float diameter, string model) :
+        public StraightSteelPipeBlock(string name, string namedId, float diameter, string model, bool isInteractable = false) :
             base(
                 name,
                 namedId,
@@ -31,7 +33,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 receiveCollisions: false,
                 isTrigger: false,
                 isReplaceable: false,
-                isInteractable: false,
+                isInteractable,
                 boundingBox: new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(diameter, diameter, 0.5f)),
                 targetBuffer: TargetBuffer.Complex)
         {
@@ -44,7 +46,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
-            return (Axis)data switch
+            return (Axis)(data & AxisDataMask) switch
             {
                 Axis.X => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f), new Vector3(0.5f, diameter, diameter)),
                 Axis.Y => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f), new Vector3(diameter, 0.5f, diameter)),
@@ -58,19 +60,25 @@ namespace VoxelGame.Core.Logic.Blocks
             tint = TintColor.None;
             isAnimated = false;
 
-            switch ((Axis)data)
+            return SelectModel(models, (Axis)(data & AxisDataMask), out vertices, out textureIndices, out indices);
+        }
+
+        protected static uint SelectModel((BlockModel x, BlockModel y, BlockModel z) modelTuple, Axis axis, out float[] vertices, out int[] textureIndices, out uint[] indices)
+        {
+            var (x, y, z) = modelTuple;
+            switch (axis)
             {
                 case Axis.X:
-                    models.x.ToData(out vertices, out textureIndices, out indices);
-                    return (uint)models.x.VertexCount;
+                    x.ToData(out vertices, out textureIndices, out indices);
+                    return (uint)x.VertexCount;
 
                 case Axis.Y:
-                    models.y.ToData(out vertices, out textureIndices, out indices);
-                    return (uint)models.y.VertexCount;
+                    y.ToData(out vertices, out textureIndices, out indices);
+                    return (uint)y.VertexCount;
 
                 case Axis.Z:
-                    models.z.ToData(out vertices, out textureIndices, out indices);
-                    return (uint)models.z.VertexCount;
+                    z.ToData(out vertices, out textureIndices, out indices);
+                    return (uint)z.VertexCount;
 
                 default:
                     throw new NotSupportedException();
@@ -83,7 +91,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return true;
         }
 
-        public bool IsConnectable(BlockSide side, int x, int y, int z)
+        public virtual bool IsConnectable(BlockSide side, int x, int y, int z)
         {
             return IsSideOpen(x, y, z, side);
         }
@@ -98,20 +106,20 @@ namespace VoxelGame.Core.Logic.Blocks
             return IsSideOpen(x, y, z, side);
         }
 
-        private static bool IsSideOpen(int x, int y, int z, BlockSide side)
+        protected virtual bool IsSideOpen(int x, int y, int z, BlockSide side)
         {
             Game.World.GetBlock(x, y, z, out uint data);
-            return ToAxis(side) == (Axis)data;
+            return ToAxis(side) == (Axis)(data & AxisDataMask);
         }
 
-        private enum Axis
+        protected enum Axis
         {
             X = 0b00,
             Y = 0b01,
             Z = 0b10,
         }
 
-        private static Axis ToAxis(BlockSide side)
+        protected static Axis ToAxis(BlockSide side)
         {
             switch (side)
             {

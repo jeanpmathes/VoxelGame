@@ -122,6 +122,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block SteelPipe = new PipeBlock<IIndustrialPipeConnectable>(Language.SteelPipe, nameof(SteelPipe), 0.375f, "steel_pipe_center", "steel_pipe_connector", "steel_pipe_surface");
         public static readonly Block WoodenPipe = new PipeBlock<IPrimitivePipeConnectable>(Language.WoodenPipe, nameof(WoodenPipe), 0.3125f, "wood_pipe_center", "wood_pipe_connector", "wood_pipe_surface");
         public static readonly Block StraightSteelPipe = new StraightSteelPipeBlock(Language.SteelPipeStraight, nameof(StraightSteelPipe), 0.375f, "steel_pipe_straight");
+        public static readonly Block PipeValve = new SteelPipeValveBlock(Language.ValvePipe, nameof(PipeValve), 0.375f, "steel_pipe_valve_open", "steel_pipe_valve_closed");
         public static readonly Block RedPlastic = new ConstructionBlock(Language.RedPlastic, nameof(RedPlastic), TextureLayout.Uniform("red_plastic"));
 
         #endregion NEW BLOCKS

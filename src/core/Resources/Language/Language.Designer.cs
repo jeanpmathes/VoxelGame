@@ -718,6 +718,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Valve Pipe.
+        /// </summary>
+        public static string ValvePipe {
+            get {
+                return ResourceManager.GetString("ValvePipe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Vase.
         /// </summary>
         public static string Vase {
