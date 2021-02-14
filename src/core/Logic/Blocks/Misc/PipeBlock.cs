@@ -26,7 +26,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private readonly float diameter;
 
-        public bool RenderLiquid => false;
+        // public bool RenderLiquid => false;
 
         public PipeBlock(string name, string namedId, float diameter, string centerModel, string connectorModel, string surfaceModel) :
             base(
@@ -114,20 +114,20 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             uint data = 0;
 
-            if (IsConnectable(BlockSide.Front, x, y, z + 1)) data |= 0b10_0000;
-            if (IsConnectable(BlockSide.Back, x, y, z - 1)) data |= 0b01_0000;
-            if (IsConnectable(BlockSide.Left, x - 1, y, z)) data |= 0b00_1000;
-            if (IsConnectable(BlockSide.Right, x + 1, y, z)) data |= 0b00_0100;
-            if (IsConnectable(BlockSide.Bottom, x, y - 1, z)) data |= 0b00_0010;
-            if (IsConnectable(BlockSide.Top, x, y + 1, z)) data |= 0b00_0001;
+            if (IsConnectable(BlockSide.Back, x, y, z + 1)) data |= 0b10_0000;
+            if (IsConnectable(BlockSide.Front, x, y, z - 1)) data |= 0b01_0000;
+            if (IsConnectable(BlockSide.Right, x - 1, y, z)) data |= 0b00_1000;
+            if (IsConnectable(BlockSide.Left, x + 1, y, z)) data |= 0b00_0100;
+            if (IsConnectable(BlockSide.Top, x, y - 1, z)) data |= 0b00_0010;
+            if (IsConnectable(BlockSide.Bottom, x, y + 1, z)) data |= 0b00_0001;
 
             return data;
 
-            bool IsConnectable(BlockSide side, int x, int y, int z)
+            bool IsConnectable(BlockSide side, int cx, int cy, int cz)
             {
-                Block? block = Game.World.GetBlock(x, y, z, out _);
+                Block? block = Game.World.GetBlock(cx, cy, cz, out _);
 
-                return block == this || (block is TConnect connectable && connectable.IsConnectable(side, x, y, z));
+                return block == this || (block is TConnect connectable && connectable.IsConnectable(side, cx, cy, cz));
             }
         }
 

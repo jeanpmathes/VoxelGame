@@ -67,7 +67,7 @@ namespace VoxelGame.Core.Logic.Liquids
             }
         }
 
-        protected void InvalidLocationFlow(int x, int y, int z, LiquidLevel level)
+        private void InvalidLocationFlow(int x, int y, int z, LiquidLevel level)
         {
             if ((FlowVertical(x, y, z, null, level, -Direction, false, out int remaining) && remaining == -1) ||
                     (FlowVertical(x, y, z, null, (LiquidLevel)remaining, Direction, false, out remaining) && remaining == -1)) return;
@@ -75,7 +75,7 @@ namespace VoxelGame.Core.Logic.Liquids
             SpreadOrDestroyLiquid(x, y, z, (LiquidLevel)remaining);
         }
 
-        protected void ValidLocationFlow(int x, int y, int z, LiquidLevel level, IFillable current)
+        private void ValidLocationFlow(int x, int y, int z, LiquidLevel level, IFillable current)
         {
             if (FlowVertical(x, y, z, current, level, Direction, true, out _)) return;
 
@@ -84,7 +84,7 @@ namespace VoxelGame.Core.Logic.Liquids
             Game.World.ModifyLiquid(true, x, y, z);
         }
 
-        protected bool CheckVerticalWorldBounds(int x, int y, int z)
+        private bool CheckVerticalWorldBounds(int x, int y, int z)
         {
             if ((y == 0 && Direction > 0) || (y == Section.SectionSize * Chunk.ChunkHeight - 1 && Direction < 0))
             {
@@ -98,7 +98,7 @@ namespace VoxelGame.Core.Logic.Liquids
             }
         }
 
-        protected bool FlowVertical(int x, int y, int z, IFillable? currentFillable, LiquidLevel level, int direction, bool handleContact, out int remaining)
+        private bool FlowVertical(int x, int y, int z, IFillable? currentFillable, LiquidLevel level, int direction, bool handleContact, out int remaining)
         {
             (Block? blockVertical, Liquid? liquidVertical) = Game.World.GetPosition(x, y - direction, z, out _, out LiquidLevel levelVertical, out bool isStatic);
 
@@ -170,7 +170,7 @@ namespace VoxelGame.Core.Logic.Liquids
             }
         }
 
-        protected bool TryPuddleFlow(int x, int y, int z, IFillable currentFillable)
+        private bool TryPuddleFlow(int x, int y, int z, IFillable currentFillable)
         {
             bool liquidBelowIsNone = Game.World.GetLiquid(x, y - Direction, z, out _, out _) == Liquid.None;
 
@@ -213,7 +213,7 @@ namespace VoxelGame.Core.Logic.Liquids
             }
         }
 
-        protected bool FlowHorizontal(int x, int y, int z, LiquidLevel level, IFillable currentFillable)
+        private bool FlowHorizontal(int x, int y, int z, LiquidLevel level, IFillable currentFillable)
         {
             int horX = x, horZ = z;
             bool isHorStatic = false;
@@ -277,7 +277,8 @@ namespace VoxelGame.Core.Logic.Liquids
 
                         if (belowNeighborLiquid == Liquid.None
                             && belowNeighborBlock is IFillable belowFillable
-                            && belowFillable.AllowInflow(nx, ny - Direction, nz, Direction > 0 ? BlockSide.Top : BlockSide.Bottom, this))
+                            && belowFillable.AllowInflow(nx, ny - Direction, nz, Direction > 0 ? BlockSide.Top : BlockSide.Bottom, this)
+                            && neighborFillable.AllowOutflow(nx, ny, nz, Direction > 0 ? BlockSide.Bottom : BlockSide.Top))
                         {
                             SetLiquid(this, level, false, belowFillable, nx, ny - Direction, nz);
 
@@ -323,7 +324,7 @@ namespace VoxelGame.Core.Logic.Liquids
             }
         }
 
-        protected bool FarFlowHorizontal(int x, int y, int z, LiquidLevel level, IFillable currentFillable)
+        private bool FarFlowHorizontal(int x, int y, int z, LiquidLevel level, IFillable currentFillable)
         {
             if (level < LiquidLevel.Three) return false;
 
@@ -378,7 +379,7 @@ namespace VoxelGame.Core.Logic.Liquids
             }
         }
 
-        protected void SpreadOrDestroyLiquid(int x, int y, int z, LiquidLevel level)
+        private void SpreadOrDestroyLiquid(int x, int y, int z, LiquidLevel level)
         {
             int remaining = (int)level;
 
