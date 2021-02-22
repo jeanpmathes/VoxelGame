@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Utilities;
@@ -227,41 +228,57 @@ namespace VoxelGame.Core.Logic.Liquids
                 {
                     case Orientation.North:
                         if (CheckNeighbor(currentFillable.AllowOutflow(x, y, z, Orientation.North.ToBlockSide()),
-                            x, y, z - 1, Orientation.North.Invert().ToBlockSide())) return true;
+                            x, y, z - 1, Orientation.North.Invert().ToBlockSide()))
+                        {
+                            return true;
+                        }
+
                         break;
 
                     case Orientation.East:
                         if (CheckNeighbor(currentFillable.AllowOutflow(x, y, z, Orientation.East.ToBlockSide()),
-                            x + 1, y, z, Orientation.East.Invert().ToBlockSide())) return true;
+                            x + 1, y, z, Orientation.East.Invert().ToBlockSide()))
+                        {
+                            return true;
+                        }
+
                         break;
 
                     case Orientation.South:
                         if (CheckNeighbor(currentFillable.AllowOutflow(x, y, z, Orientation.South.ToBlockSide()),
-                            x, y, z + 1, Orientation.South.Invert().ToBlockSide())) return true;
+                            x, y, z + 1, Orientation.South.Invert().ToBlockSide()))
+                        {
+                            return true;
+                        }
+
                         break;
 
                     case Orientation.West:
                         if (CheckNeighbor(currentFillable.AllowOutflow(x, y, z, Orientation.West.ToBlockSide()),
-                            x - 1, y, z, Orientation.West.Invert().ToBlockSide())) return true;
+                            x - 1, y, z, Orientation.West.Invert().ToBlockSide()))
+                        {
+                            return true;
+                        }
+
                         break;
+
+                    default:
+                        throw new NotSupportedException();
                 }
             }
 
-            if (horX != x || horZ != z)
-            {
-                SetLiquid(this, levelHorizontal + 1, false, horizontalFillable, horX, y, horZ);
+            if (horX == x && horZ == z) return false;
 
-                if (isHorStatic) ScheduleTick(horX, y, horZ);
+            SetLiquid(this, levelHorizontal + 1, false, horizontalFillable, horX, y, horZ);
 
-                bool remaining = level != LiquidLevel.One;
-                SetLiquid(remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, currentFillable, x, y, z);
+            if (isHorStatic) ScheduleTick(horX, y, horZ);
 
-                if (remaining) ScheduleTick(x, y, z);
+            bool hasRemaining = level != LiquidLevel.One;
+            SetLiquid(hasRemaining ? this : Liquid.None, hasRemaining ? level - 1 : LiquidLevel.Eight, !hasRemaining, currentFillable, x, y, z);
 
-                return true;
-            }
+            if (hasRemaining) ScheduleTick(x, y, z);
 
-            return false;
+            return true;
 
             bool CheckNeighbor(bool outflowAllowed, int nx, int ny, int nz, BlockSide side)
             {
@@ -300,7 +317,8 @@ namespace VoxelGame.Core.Logic.Liquids
 
                         return true;
                     }
-                    else if (liquidNeighbor != null && liquidNeighbor != this)
+
+                    if (liquidNeighbor != null && liquidNeighbor != this)
                     {
                         if (LiquidContactManager.HandleContact(this, (x, y, z), level, liquidNeighbor, (nx, ny, nz), levelNeighbor, isStatic)) return true;
                     }

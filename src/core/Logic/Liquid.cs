@@ -220,37 +220,39 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         protected bool HasNeighborWithLevel(LiquidLevel level, int x, int y, int z)
         {
-            return ((int)level != -1)
-                && (CheckNeighborForLevel(x, z - 1)
-                || CheckNeighborForLevel(x + 1, z)
-                || CheckNeighborForLevel(x, z + 1)
-                || CheckNeighborForLevel(x - 1, z));
+            return (int)level != -1
+                   && Game.World.GetBlock(x, y, z, out _) is IFillable currentFillable
+                   && (CheckNeighborForLevel(x, z - 1, BlockSide.Front)
+                       || CheckNeighborForLevel(x + 1, z, BlockSide.Right)
+                       || CheckNeighborForLevel(x, z + 1, BlockSide.Back)
+                       || CheckNeighborForLevel(x - 1, z, BlockSide.Left));
 
-            bool CheckNeighborForLevel(int nx, int nz)
+            bool CheckNeighborForLevel(int nx, int nz, BlockSide side)
             {
-                if (Game.World.GetLiquid(nx, y, nz, out LiquidLevel neighborLevel, out _) == this)
-                {
-                    return neighborLevel == level;
-                }
-                else
-                {
-                    return false;
-                }
+                (Block? block, Liquid? liquid) = Game.World.GetPosition(nx, y, nz, out _, out LiquidLevel neighborLevel, out _);
+
+                return liquid == this && level == neighborLevel
+                       && block is IFillable neighborFillable
+                       && neighborFillable.AllowInflow(nx, y, nz, side.Opposite(), this)
+                       && currentFillable.AllowOutflow(x, y, z, side);
             }
         }
 
         protected bool HasNeighborWithEmpty(int x, int y, int z)
         {
-            return CheckNeighborForEmpty(x, z - 1, BlockSide.Back)
-                || CheckNeighborForEmpty(x + 1, z, BlockSide.Left)
-                || CheckNeighborForEmpty(x, z + 1, BlockSide.Front)
-                || CheckNeighborForEmpty(x - 1, z, BlockSide.Right);
+            return Game.World.GetBlock(x, y, z, out _) is IFillable currentFillable
+                   && (CheckNeighborForEmpty(x, z - 1, BlockSide.Front)
+                       || CheckNeighborForEmpty(x + 1, z, BlockSide.Right)
+                       || CheckNeighborForEmpty(x, z + 1, BlockSide.Back)
+                       || CheckNeighborForEmpty(x - 1, z, BlockSide.Left));
 
             bool CheckNeighborForEmpty(int nx, int nz, BlockSide side)
             {
                 (Block? block, Liquid? liquid) = Game.World.GetPosition(nx, y, nz, out _, out _, out _);
 
-                return liquid == Liquid.None && block is IFillable fillable && fillable.AllowInflow(nx, y, nz, side, this);
+                return liquid == Liquid.None && block is IFillable neighborFillable
+                                             && neighborFillable.AllowInflow(nx, y, nz, side.Opposite(), this)
+                                             && currentFillable.AllowOutflow(x, y, z, side);
             }
         }
 
