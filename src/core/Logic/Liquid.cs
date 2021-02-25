@@ -134,7 +134,8 @@ namespace VoxelGame.Core.Logic
                     remaining = (int)level - remaining - (int)current;
                     return true;
                 }
-                else if (target == Liquid.None)
+
+                if (target == Liquid.None)
                 {
                     SetLiquid(this, level, false, fillable, x, y, z);
                     ScheduleTick(x, y, z);
@@ -142,17 +143,10 @@ namespace VoxelGame.Core.Logic
                     remaining = 0;
                     return true;
                 }
-                else
-                {
-                    remaining = (int)level;
-                    return false;
-                }
             }
-            else
-            {
-                remaining = (int)level;
-                return false;
-            }
+
+            remaining = (int)level;
+            return false;
         }
 
         /// <summary>
@@ -222,9 +216,9 @@ namespace VoxelGame.Core.Logic
         {
             return (int)level != -1
                    && Game.World.GetBlock(x, y, z, out _) is IFillable currentFillable
-                   && (CheckNeighborForLevel(x, z - 1, BlockSide.Front)
+                   && (CheckNeighborForLevel(x, z - 1, BlockSide.Back)
                        || CheckNeighborForLevel(x + 1, z, BlockSide.Right)
-                       || CheckNeighborForLevel(x, z + 1, BlockSide.Back)
+                       || CheckNeighborForLevel(x, z + 1, BlockSide.Front)
                        || CheckNeighborForLevel(x - 1, z, BlockSide.Left));
 
             bool CheckNeighborForLevel(int nx, int nz, BlockSide side)
@@ -241,9 +235,9 @@ namespace VoxelGame.Core.Logic
         protected bool HasNeighborWithEmpty(int x, int y, int z)
         {
             return Game.World.GetBlock(x, y, z, out _) is IFillable currentFillable
-                   && (CheckNeighborForEmpty(x, z - 1, BlockSide.Front)
+                   && (CheckNeighborForEmpty(x, z - 1, BlockSide.Back)
                        || CheckNeighborForEmpty(x + 1, z, BlockSide.Right)
-                       || CheckNeighborForEmpty(x, z + 1, BlockSide.Back)
+                       || CheckNeighborForEmpty(x, z + 1, BlockSide.Front)
                        || CheckNeighborForEmpty(x - 1, z, BlockSide.Left));
 
             bool CheckNeighborForEmpty(int nx, int nz, BlockSide side)

@@ -158,17 +158,11 @@ namespace VoxelGame.Core.Logic.Liquids
 
                     return LiquidContactManager.HandleContact(this, (x, y, z), level, liquidVertical, (x, y - Direction, z), levelVertical, isStatic);
                 }
-
-                remaining = (int)level;
-
-                return false;
             }
-            else
-            {
-                remaining = (int)level;
 
-                return false;
-            }
+            remaining = (int)level;
+
+            return false;
         }
 
         private bool TryPuddleFlow(int x, int y, int z, IFillable currentFillable)
@@ -324,17 +318,19 @@ namespace VoxelGame.Core.Logic.Liquids
                     }
                     else if (liquidNeighbor == this && level > levelNeighbor && levelNeighbor < levelHorizontal)
                     {
-                        bool allowsFlow = levelNeighbor != level - 1 || (!IsAtSurface(x, y, z) && IsAtSurface(nx, ny, nz)) || HasNeighborWithLevel(level - 2, nx, ny, nz) || HasNeighborWithEmpty(nx, ny, nz);
+                        bool allowsFlow = levelNeighbor != level - 1
+                                          || (level == LiquidLevel.Eight && !IsAtSurface(x, y, z) && IsAtSurface(nx, ny, nz))
+                                          || HasNeighborWithLevel(level - 2, nx, ny, nz)
+                                          || HasNeighborWithEmpty(nx, ny, nz);
 
-                        if (allowsFlow)
-                        {
-                            levelHorizontal = levelNeighbor;
-                            horX = nx;
-                            horZ = nz;
-                            isHorStatic = isStatic;
+                        if (!allowsFlow) return false;
 
-                            horizontalFillable = neighborFillable;
-                        }
+                        levelHorizontal = levelNeighbor;
+                        horX = nx;
+                        horZ = nz;
+                        isHorStatic = isStatic;
+
+                        horizontalFillable = neighborFillable;
                     }
                 }
 
