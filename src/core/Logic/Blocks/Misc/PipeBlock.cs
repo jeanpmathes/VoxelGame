@@ -26,7 +26,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private readonly float diameter;
 
-        // public bool RenderLiquid => false;
+        public bool RenderLiquid => false;
 
         public PipeBlock(string name, string namedId, float diameter, string centerModel, string connectorModel, string surfaceModel) :
             base(
