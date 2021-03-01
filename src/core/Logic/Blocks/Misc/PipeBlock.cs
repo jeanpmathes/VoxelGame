@@ -62,12 +62,14 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             List<BoundingBox> connectors = new List<BoundingBox>(BitHelper.CountSetBits(data));
 
-            if ((data & 0b10_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 0.9375f + z), new Vector3(diameter, diameter, 0.0625f)));
-            if ((data & 0b01_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 0.0625f + z), new Vector3(diameter, diameter, 0.0625f)));
-            if ((data & 0b00_1000) != 0) connectors.Add(new BoundingBox(new Vector3(0.0625f + x, 0.5f + y, 0.5f + z), new Vector3(0.0625f, diameter, diameter)));
-            if ((data & 0b00_0100) != 0) connectors.Add(new BoundingBox(new Vector3(0.9375f + x, 0.5f + y, 0.5f + z), new Vector3(0.0625f, diameter, diameter)));
-            if ((data & 0b00_0010) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.0625f + y, 0.5f + z), new Vector3(diameter, 0.0625f, diameter)));
-            if ((data & 0b00_0001) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.9375f + y, 0.5f + z), new Vector3(diameter, 0.0625f, diameter)));
+            float connectorWidth = (0.5f - diameter) / 2f;
+
+            if ((data & 0b10_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 1f - connectorWidth + z), new Vector3(diameter, diameter, connectorWidth)));
+            if ((data & 0b01_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.5f + y, connectorWidth + z), new Vector3(diameter, diameter, connectorWidth)));
+            if ((data & 0b00_1000) != 0) connectors.Add(new BoundingBox(new Vector3(connectorWidth + x, 0.5f + y, 0.5f + z), new Vector3(connectorWidth, diameter, diameter)));
+            if ((data & 0b00_0100) != 0) connectors.Add(new BoundingBox(new Vector3(1f - connectorWidth + x, 0.5f + y, 0.5f + z), new Vector3(connectorWidth, diameter, diameter)));
+            if ((data & 0b00_0010) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, connectorWidth + y, 0.5f + z), new Vector3(diameter, connectorWidth, diameter)));
+            if ((data & 0b00_0001) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 1f - connectorWidth + y, 0.5f + z), new Vector3(diameter, connectorWidth, diameter)));
 
             return new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 0.5f + z), new Vector3(diameter, diameter, diameter), connectors.ToArray());
         }
