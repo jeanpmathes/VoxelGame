@@ -8,8 +8,7 @@ import math
 import json
 from json import JSONEncoder
 
-PATH = os.path.expanduser("~\Desktop\\VoxelGameTextures\\Models\\")
-NAME = "name"
+PATH = os.path.expanduser("~\Desktop\\")
 
 class Vertex:
     def __init__(self, co, uv, nm):
@@ -72,6 +71,6 @@ for face in mesh.polygons:
 model = Model(tex_names, quads)
 json = json.dumps(model, indent=4, cls=ModelEncoder)
 
-file = open(PATH + NAME + ".json", "w+")
+file = open(PATH + obj.name + ".json", "w+")
 file.write(json)
 file.close()

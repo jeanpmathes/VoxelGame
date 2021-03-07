@@ -348,6 +348,7 @@ namespace VoxelGame.Client.Logic
                             Liquid? liquidToCheck;
                             Block? blockToCheck;
                             int sideHeight = -1;
+                            bool isNeighbourLiquidMeshed;
 
                             // Front.
                             if (z + 1 >= SectionSize && frontNeighbour != null)
@@ -366,7 +367,9 @@ namespace VoxelGame.Client.Logic
                                 blockToCheck = GetBlock(x, y, z + 1);
                             }
 
-                            if (liquidToCheck != currentLiquid) sideHeight = -1;
+                            isNeighbourLiquidMeshed = blockToCheck is IFillable frontFillable && frontFillable.RenderLiquid;
+
+                            if (liquidToCheck != currentLiquid || !isNeighbourLiquidMeshed) sideHeight = -1;
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
@@ -404,7 +407,9 @@ namespace VoxelGame.Client.Logic
                                 blockToCheck = GetBlock(x, y, z - 1);
                             }
 
-                            if (liquidToCheck != currentLiquid) sideHeight = -1;
+                            isNeighbourLiquidMeshed = blockToCheck is IFillable backFillable && backFillable.RenderLiquid;
+
+                            if (liquidToCheck != currentLiquid || !isNeighbourLiquidMeshed) sideHeight = -1;
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
@@ -442,7 +447,9 @@ namespace VoxelGame.Client.Logic
                                 blockToCheck = GetBlock(x - 1, y, z);
                             }
 
-                            if (liquidToCheck != currentLiquid) sideHeight = -1;
+                            isNeighbourLiquidMeshed = blockToCheck is IFillable leftFillable && leftFillable.RenderLiquid;
+
+                            if (liquidToCheck != currentLiquid || !isNeighbourLiquidMeshed) sideHeight = -1;
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
@@ -480,7 +487,9 @@ namespace VoxelGame.Client.Logic
                                 blockToCheck = GetBlock(x + 1, y, z);
                             }
 
-                            if (liquidToCheck != currentLiquid) sideHeight = -1;
+                            isNeighbourLiquidMeshed = blockToCheck is IFillable rightFillable && rightFillable.RenderLiquid;
+
+                            if (liquidToCheck != currentLiquid || !isNeighbourLiquidMeshed) sideHeight = -1;
 
                             if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
                             {
@@ -518,7 +527,9 @@ namespace VoxelGame.Client.Logic
                                 blockToCheck = GetBlock(x, y - 1, z);
                             }
 
-                            if (liquidToCheck != currentLiquid) sideHeight = -1;
+                            isNeighbourLiquidMeshed = blockToCheck is IFillable bottomFillable && bottomFillable.RenderLiquid;
+
+                            if (liquidToCheck != currentLiquid || !isNeighbourLiquidMeshed) sideHeight = -1;
 
                             if ((currentLiquid.Direction > 0 && sideHeight != 7 && blockToCheck?.IsOpaque != true) || (currentLiquid.Direction < 0 && (level != LiquidLevel.Eight || (liquidToCheck != currentLiquid && blockToCheck?.IsOpaque != true))))
                             {
@@ -557,7 +568,9 @@ namespace VoxelGame.Client.Logic
                                 blockToCheck = GetBlock(x, y + 1, z);
                             }
 
-                            if (liquidToCheck != currentLiquid) sideHeight = -1;
+                            isNeighbourLiquidMeshed = blockToCheck is IFillable topFillable && topFillable.RenderLiquid;
+
+                            if (liquidToCheck != currentLiquid || !isNeighbourLiquidMeshed) sideHeight = -1;
 
                             if ((currentLiquid.Direction < 0 && sideHeight != 7 && blockToCheck?.IsOpaque != true) || (currentLiquid.Direction > 0 && (level != LiquidLevel.Eight || (liquidToCheck != currentLiquid && blockToCheck?.IsOpaque != true))))
                             {

@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Logic.Liquids;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
@@ -85,6 +86,36 @@ namespace VoxelGame.Core.Logic
 
                 logger.LogInformation("Liquid setup complete. A total of {count} liquids have been loaded.", Count);
             }
+        }
+
+        public static void Elevate(int x, int y, int z, int pumpDistance)
+        {
+            (Block? start, Liquid? toElevate) =
+                Game.World.GetPosition(x, y, z, out _, out LiquidLevel initialLevel, out _);
+
+            if (start == null || toElevate == null) return;
+
+            if (toElevate == Liquid.None || toElevate.IsGas) return;
+
+            var currentLevel = (int)initialLevel;
+
+            if (!(start is IFillable startFillable) || !startFillable.AllowOutflow(x, y, z, BlockSide.Top)) return;
+
+            for (var offset = 1; offset <= pumpDistance && currentLevel > -1; offset++)
+            {
+                int currentY = y + offset;
+
+                var currentBlock = Game.World.GetBlock(x, currentY, z, out _) as IFillable;
+
+                if (currentBlock?.AllowInflow(x, currentY, z, BlockSide.Bottom, toElevate) != true) break;
+
+                toElevate.Fill(x, currentY, z, (LiquidLevel)currentLevel, out currentLevel);
+
+                if (!currentBlock.AllowOutflow(x, currentY, z, BlockSide.Top)) break;
+            }
+
+            LiquidLevel elevated = initialLevel - (currentLevel + 1);
+            toElevate.Take(x, y, z, ref elevated);
         }
     }
 }

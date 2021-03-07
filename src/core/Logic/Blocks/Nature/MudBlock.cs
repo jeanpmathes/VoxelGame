@@ -24,7 +24,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isOpaque: true,
                 renderFaceAtNonOpaques: true,
                 isSolid: true,
-                recieveCollisions: true,
+                receiveCollisions: true,
                 isTrigger: false,
                 isInteractable: false)
         {
@@ -36,7 +36,7 @@ namespace VoxelGame.Core.Logic.Blocks
             entity.Velocity = VMath.Clamp(entity.Velocity, -1f, maxVelocity);
         }
 
-        public virtual bool IsFillable(int x, int y, int z, Liquid liquid)
+        public virtual bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
         {
             return liquid.Viscosity < 200;
         }

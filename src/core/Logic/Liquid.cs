@@ -59,6 +59,16 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public RenderType RenderType { get; }
 
+        /// <summary>
+        /// Get whether this liquid is a fluid that flows down.
+        /// </summary>
+        public bool IsFluid => Direction > 0;
+
+        /// <summary>
+        /// Get whether this liquid is a gas that flows up.
+        /// </summary>
+        public bool IsGas => Direction < 0;
+
         protected Liquid(string name, string namedId, float density, int viscosity, bool checkContact, bool receiveContact, RenderType renderType)
         {
             Name = name;
@@ -121,38 +131,32 @@ namespace VoxelGame.Core.Logic
         {
             (Block? block, Liquid? target) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel current, out bool isStatic);
 
-            if (block is IFillable fillable && fillable.IsFillable(x, y, z, this))
+            if (block is IFillable fillable && fillable.AllowInflow(x, y, z, BlockSide.Top, this))
             {
                 if (target == this && current != LiquidLevel.Eight)
                 {
-                    remaining = (int)current + (int)level + 1;
-                    remaining = remaining > 7 ? 7 : remaining;
+                    int filled = (int)current + (int)level + 1;
+                    filled = filled > 7 ? 7 : filled;
 
-                    SetLiquid(this, (LiquidLevel)remaining, false, fillable, x, y, z);
+                    SetLiquid(this, (LiquidLevel)filled, false, fillable, x, y, z);
                     if (isStatic) ScheduleTick(x, y, z);
 
-                    remaining = (int)level - remaining - (int)current;
+                    remaining = (int)level - (filled - (int)current);
                     return true;
                 }
-                else if (target == Liquid.None)
+
+                if (target == Liquid.None)
                 {
                     SetLiquid(this, level, false, fillable, x, y, z);
                     ScheduleTick(x, y, z);
 
-                    remaining = 0;
+                    remaining = -1;
                     return true;
                 }
-                else
-                {
-                    remaining = (int)level;
-                    return false;
-                }
             }
-            else
-            {
-                remaining = (int)level;
-                return false;
-            }
+
+            remaining = (int)level;
+            return false;
         }
 
         /// <summary>
@@ -220,37 +224,39 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         protected bool HasNeighborWithLevel(LiquidLevel level, int x, int y, int z)
         {
-            return ((int)level != -1)
-                && (CheckNeighborForLevel(x, z - 1)
-                || CheckNeighborForLevel(x + 1, z)
-                || CheckNeighborForLevel(x, z + 1)
-                || CheckNeighborForLevel(x - 1, z));
+            return (int)level != -1
+                   && Game.World.GetBlock(x, y, z, out _) is IFillable currentFillable
+                   && (CheckNeighborForLevel(x, z - 1, BlockSide.Back)
+                       || CheckNeighborForLevel(x + 1, z, BlockSide.Right)
+                       || CheckNeighborForLevel(x, z + 1, BlockSide.Front)
+                       || CheckNeighborForLevel(x - 1, z, BlockSide.Left));
 
-            bool CheckNeighborForLevel(int nx, int nz)
+            bool CheckNeighborForLevel(int nx, int nz, BlockSide side)
             {
-                if (Game.World.GetLiquid(nx, y, nz, out LiquidLevel neighborLevel, out _) == this)
-                {
-                    return neighborLevel == level;
-                }
-                else
-                {
-                    return false;
-                }
+                (Block? block, Liquid? liquid) = Game.World.GetPosition(nx, y, nz, out _, out LiquidLevel neighborLevel, out _);
+
+                return liquid == this && level == neighborLevel
+                       && block is IFillable neighborFillable
+                       && neighborFillable.AllowInflow(nx, y, nz, side.Opposite(), this)
+                       && currentFillable.AllowOutflow(x, y, z, side);
             }
         }
 
         protected bool HasNeighborWithEmpty(int x, int y, int z)
         {
-            return CheckNeighborForEmpty(x, z - 1)
-                || CheckNeighborForEmpty(x + 1, z)
-                || CheckNeighborForEmpty(x, z + 1)
-                || CheckNeighborForEmpty(x - 1, z);
+            return Game.World.GetBlock(x, y, z, out _) is IFillable currentFillable
+                   && (CheckNeighborForEmpty(x, z - 1, BlockSide.Back)
+                       || CheckNeighborForEmpty(x + 1, z, BlockSide.Right)
+                       || CheckNeighborForEmpty(x, z + 1, BlockSide.Front)
+                       || CheckNeighborForEmpty(x - 1, z, BlockSide.Left));
 
-            bool CheckNeighborForEmpty(int nx, int nz)
+            bool CheckNeighborForEmpty(int nx, int nz, BlockSide side)
             {
                 (Block? block, Liquid? liquid) = Game.World.GetPosition(nx, y, nz, out _, out _, out _);
 
-                return liquid == Liquid.None && block is IFillable fillable && fillable.IsFillable(nx, y, nz, this);
+                return liquid == Liquid.None && block is IFillable neighborFillable
+                                             && neighborFillable.AllowInflow(nx, y, nz, side.Opposite(), this)
+                                             && currentFillable.AllowOutflow(x, y, z, side);
             }
         }
 
@@ -278,7 +284,7 @@ namespace VoxelGame.Core.Logic
 
                     (Block? block, Liquid? liquid) = Game.World.GetPosition(current.X, current.Y, current.Z, out _, out LiquidLevel level, out _);
 
-                    if (liquid != this || !(block is IFillable fillable) || !fillable.IsFillable(current.X, current.Y, current.Z, this))
+                    if (liquid != this || !(block is IFillable fillable) || !fillable.AllowInflow(current.X, current.Y, current.Z, BlockSide.Top, this))
                     {
                         ignoreRows[row - 1] = true;
 

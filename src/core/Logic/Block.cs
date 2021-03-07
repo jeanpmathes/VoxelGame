@@ -52,7 +52,7 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Gets whether the collision method should be called in case of a collision with an entity.
         /// </summary>
-        public bool RecieveCollisions { get; }
+        public bool ReceiveCollisions { get; }
 
         /// <summary>
         /// Gets whether this block should be checked in collision calculations even if it is not solid.
@@ -81,7 +81,7 @@ namespace VoxelGame.Core.Logic
 
         private BoundingBox boundingBox;
 
-        protected Block(string name, string namedId, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool recieveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable, BoundingBox boundingBox, TargetBuffer targetBuffer)
+        protected Block(string name, string namedId, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool receiveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable, BoundingBox boundingBox, TargetBuffer targetBuffer)
         {
             Name = name;
             NamedId = namedId;
@@ -90,7 +90,7 @@ namespace VoxelGame.Core.Logic
             IsOpaque = isOpaque;
             RenderFaceAtNonOpaques = renderFaceAtNonOpaques;
             IsSolid = isSolid;
-            RecieveCollisions = recieveCollisions;
+            ReceiveCollisions = receiveCollisions;
             IsTrigger = isTrigger;
             IsReplaceable = isReplaceable;
             IsInteractable = isInteractable;

@@ -538,6 +538,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pump.
+        /// </summary>
+        public static string Pump {
+            get {
+                return ResourceManager.GetString("Pump", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Pumpkin.
         /// </summary>
         public static string Pumpkin {
@@ -552,6 +561,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string PumpkinPlant {
             get {
                 return ResourceManager.GetString("PumpkinPlant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Red Plastic.
+        /// </summary>
+        public static string RedPlastic {
+            get {
+                return ResourceManager.GetString("RedPlastic", resourceCulture);
             }
         }
         
@@ -646,6 +664,24 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Steel Pipe.
+        /// </summary>
+        public static string SteelPipe {
+            get {
+                return ResourceManager.GetString("SteelPipe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Straight Steelpipe.
+        /// </summary>
+        public static string SteelPipeStraight {
+            get {
+                return ResourceManager.GetString("SteelPipeStraight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Stone.
         /// </summary>
         public static string Stone {
@@ -687,6 +723,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string TiledGlass {
             get {
                 return ResourceManager.GetString("TiledGlass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Valve Pipe.
+        /// </summary>
+        public static string ValvePipe {
+            get {
+                return ResourceManager.GetString("ValvePipe", resourceCulture);
             }
         }
         
@@ -786,6 +831,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string WoodenGate {
             get {
                 return ResourceManager.GetString("WoodenGate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wooden Pipe.
+        /// </summary>
+        public static string WoodenPipe {
+            get {
+                return ResourceManager.GetString("WoodenPipe", resourceCulture);
             }
         }
         

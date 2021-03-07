@@ -276,11 +276,17 @@
   <data name="Pumice" xml:space="preserve">
     <value>Pumice</value>
   </data>
+  <data name="Pump" xml:space="preserve">
+    <value>Pump</value>
+  </data>
   <data name="Pumpkin" xml:space="preserve">
     <value>Pumpkin</value>
   </data>
   <data name="PumpkinPlant" xml:space="preserve">
     <value>Pumpkin Plant</value>
+  </data>
+  <data name="RedPlastic" xml:space="preserve">
+    <value>Red Plastic</value>
   </data>
   <data name="Rubble" xml:space="preserve">
     <value>Rubble</value>
@@ -312,6 +318,12 @@
   <data name="SteelDoor" xml:space="preserve">
     <value>Steel Door</value>
   </data>
+  <data name="SteelPipe" xml:space="preserve">
+    <value>Steel Pipe</value>
+  </data>
+  <data name="SteelPipeStraight" xml:space="preserve">
+    <value>Straight Steelpipe</value>
+  </data>
   <data name="Stone" xml:space="preserve">
     <value>Stone</value>
   </data>
@@ -326,6 +338,9 @@
   </data>
   <data name="TiledGlass" xml:space="preserve">
     <value>Tiled Glass</value>
+  </data>
+  <data name="ValvePipe" xml:space="preserve">
+    <value>Valve Pipe</value>
   </data>
   <data name="Vase" xml:space="preserve">
     <value>Vase</value>
@@ -359,6 +374,9 @@
   </data>
   <data name="WoodenGate" xml:space="preserve">
     <value>Wooden Gate</value>
+  </data>
+  <data name="WoodenPipe" xml:space="preserve">
+    <value>Wooden Pipe</value>
   </data>
   <data name="Wool" xml:space="preserve">
     <value>Wool</value>

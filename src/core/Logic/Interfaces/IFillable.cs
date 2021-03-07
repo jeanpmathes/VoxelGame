@@ -7,9 +7,31 @@ namespace VoxelGame.Core.Logic.Interfaces
 {
     public interface IFillable : IBlockBase
     {
-        bool RenderLiquid { get => !IsSolidAndFull; }
+        bool RenderLiquid => !IsSolidAndFull;
 
-        bool IsFillable(int x, int y, int z, Liquid liquid)
+        /// <summary>
+        /// Check whether a given block at a given location allows inflow trough a certain side.
+        /// </summary>
+        /// <param name="x">The x position of the block.</param>
+        /// <param name="y">The y position of the block.</param>
+        /// <param name="z">The z position of the block.</param>
+        /// <param name="side">The side through which water would flow in.</param>
+        /// <param name="liquid">The liquid that flows in.</param>
+        /// <returns>Whether the liquid is allowed to flow in.</returns>
+        bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Check whether a given block at a given position allows outflow through a certain side.
+        /// </summary>
+        /// <param name="x">The x position of the block.</param>
+        /// <param name="y">The y position of the block.</param>
+        /// <param name="z">The z position of the block.</param>
+        /// <param name="side">The side through which the liquid wants to flow.</param>
+        /// <returns>true if outflow is allowed.</returns>
+        bool AllowOutflow(int x, int y, int z, BlockSide side)
         {
             return true;
         }
@@ -20,7 +42,7 @@ namespace VoxelGame.Core.Logic.Interfaces
         void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
             // Method intentionally left empty.
-            // IFillables do not have to react when the liquid amount changes.
+            // Fillable blocks do not have to react when the liquid amount changes.
         }
     }
 }

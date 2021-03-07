@@ -147,7 +147,7 @@ namespace VoxelGame.Core.Logic
 
             (Block? aboveLightBlock, Liquid? aboveLightLiquid) = Game.World.GetPosition(lightPos.X, lightPos.Y + light.Direction, lightPos.Z, out _, out _, out _);
 
-            if (aboveLightBlock is IFillable fillable && fillable.IsFillable(lightPos.X, lightPos.Y + light.Direction, lightPos.Z, light)
+            if (aboveLightBlock is IFillable fillable && fillable.AllowInflow(lightPos.X, lightPos.Y + light.Direction, lightPos.Z, light.Direction > 0 ? BlockSide.Bottom : BlockSide.Top, light)
                                                       && aboveLightLiquid == Liquid.None)
             {
                 Game.World.SetLiquid(light, lightLevel, false, lightPos.X, lightPos.Y + light.Direction, lightPos.Z);

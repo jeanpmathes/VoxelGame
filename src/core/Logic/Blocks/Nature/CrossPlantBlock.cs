@@ -23,7 +23,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 texture,
-                recieveCollisions: false,
+                receiveCollisions: false,
                 isTrigger: false,
                 isReplaceable,
                 boundingBox)

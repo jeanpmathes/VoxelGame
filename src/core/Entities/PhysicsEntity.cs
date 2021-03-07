@@ -128,7 +128,7 @@ namespace VoxelGame.Core.Entities
 
             foreach ((int x, int y, int z, Logic.Block block) in blockIntersections)
             {
-                if (block.RecieveCollisions)
+                if (block.ReceiveCollisions)
                 {
                     block.EntityCollision(this, x, y, z);
                 }
