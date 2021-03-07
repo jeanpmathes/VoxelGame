@@ -8,8 +8,8 @@ using VoxelGame.Core.Logic.Interfaces;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    ///Blocks that are used in constructing structures.
-    ///Data bit usage: <c>------</c>
+    /// Blocks that are used in constructing structures.
+    /// Data bit usage: <c>------</c>
     /// </summary>
     public class ConstructionBlock : BasicBlock, IConnectable
     {

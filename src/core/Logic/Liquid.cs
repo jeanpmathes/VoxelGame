@@ -59,6 +59,16 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public RenderType RenderType { get; }
 
+        /// <summary>
+        /// Get whether this liquid is a fluid that flows down.
+        /// </summary>
+        public bool IsFluid => Direction > 0;
+
+        /// <summary>
+        /// Get whether this liquid is a gas that flows up.
+        /// </summary>
+        public bool IsGas => Direction < 0;
+
         protected Liquid(string name, string namedId, float density, int viscosity, bool checkContact, bool receiveContact, RenderType renderType)
         {
             Name = name;
@@ -125,13 +135,13 @@ namespace VoxelGame.Core.Logic
             {
                 if (target == this && current != LiquidLevel.Eight)
                 {
-                    remaining = (int)current + (int)level + 1;
-                    remaining = remaining > 7 ? 7 : remaining;
+                    int filled = (int)current + (int)level + 1;
+                    filled = filled > 7 ? 7 : filled;
 
-                    SetLiquid(this, (LiquidLevel)remaining, false, fillable, x, y, z);
+                    SetLiquid(this, (LiquidLevel)filled, false, fillable, x, y, z);
                     if (isStatic) ScheduleTick(x, y, z);
 
-                    remaining = (int)level - remaining - (int)current;
+                    remaining = (int)level - (filled - (int)current);
                     return true;
                 }
 
@@ -140,7 +150,7 @@ namespace VoxelGame.Core.Logic
                     SetLiquid(this, level, false, fillable, x, y, z);
                     ScheduleTick(x, y, z);
 
-                    remaining = 0;
+                    remaining = -1;
                     return true;
                 }
             }

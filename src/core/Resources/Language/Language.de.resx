@@ -276,6 +276,9 @@
   <data name="Pumice" xml:space="preserve">
     <value>Bimsstein</value>
   </data>
+  <data name="Pump" xml:space="preserve">
+    <value>Pumpe</value>
+  </data>
   <data name="Pumpkin" xml:space="preserve">
     <value>Kürbis</value>
   </data>

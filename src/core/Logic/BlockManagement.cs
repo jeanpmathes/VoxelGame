@@ -124,6 +124,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block StraightSteelPipe = new StraightSteelPipeBlock(Language.SteelPipeStraight, nameof(StraightSteelPipe), 0.375f, "steel_pipe_straight");
         public static readonly Block PipeValve = new SteelPipeValveBlock(Language.ValvePipe, nameof(PipeValve), 0.375f, "steel_pipe_valve_open", "steel_pipe_valve_closed");
         public static readonly Block RedPlastic = new ConstructionBlock(Language.RedPlastic, nameof(RedPlastic), TextureLayout.Uniform("red_plastic"));
+        public static readonly Block Pump = new PumpBlock(Language.Pump, nameof(Pump), 16, TextureLayout.Uniform("pump"));
 
         #endregion NEW BLOCKS
 
