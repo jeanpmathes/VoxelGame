@@ -104,7 +104,7 @@ namespace VoxelGame.Core.Logic
         {
         }
 
-        public abstract void GetMesh(LiquidLevel level, BlockSide side, bool isStatic, out int textureIndex, out TintColor tint);
+        public abstract LiquidMeshData GetMesh(LiquidMeshInfo info);
 
         public static BoundingBox GetBoundingBox(int x, int y, int z, LiquidLevel level)
         {
