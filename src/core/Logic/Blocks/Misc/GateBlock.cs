@@ -148,30 +148,11 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            if ((data & 0b00_0100) == 0)
-            {
-                vertices = verticesClosed[data & 0b00_0011];
-                textureIndices = texIndicesClosed;
-                indices = indicesClosed;
-
-                tint = TintColor.None;
-                isAnimated = false;
-
-                return vertexCountClosed;
-            }
-            else
-            {
-                vertices = verticesOpen[data & 0b00_0011];
-                textureIndices = texIndicesOpen;
-                indices = indicesOpen;
-
-                tint = TintColor.None;
-                isAnimated = false;
-
-                return vertexCountOpen;
-            }
+            return (info.Data & 0b00_0100) == 0
+                ? new BlockMeshData(vertexCountClosed, verticesClosed[info.Data & 0b00_0011], texIndicesClosed, indicesClosed) // Open.
+                : new BlockMeshData(vertexCountOpen, verticesOpen[info.Data & 0b00_0011], texIndicesOpen, indicesOpen); // Closed.
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)

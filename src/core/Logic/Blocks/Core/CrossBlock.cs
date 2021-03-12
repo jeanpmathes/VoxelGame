@@ -83,16 +83,9 @@ namespace VoxelGame.Core.Logic.Blocks
             textureIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            vertices = this.vertices;
-            textureIndices = this.textureIndices;
-            indices = this.indices;
-
-            tint = TintColor.None;
-            isAnimated = false;
-
-            return 8;
+            return new BlockMeshData(8, vertices, textureIndices, indices);
         }
     }
 }

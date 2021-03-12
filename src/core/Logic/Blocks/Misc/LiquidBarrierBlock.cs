@@ -42,13 +42,14 @@ namespace VoxelGame.Core.Logic.Blocks
             openTextureIndices = open.GetTexIndexArrays();
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            uint verts = base.GetMesh(side, data, liquid, out vertices, out textureIndices, out indices, out tint, out isAnimated);
+            BlockMeshData mesh = base.GetMesh(info);
 
-            if ((data & 0b00_0001) == 1) textureIndices = openTextureIndices[(int)side];
+            if ((info.Data & 0b00_0001) == 1)
+                mesh = mesh.SwapTextureIndices(openTextureIndices[(int)info.Side]);
 
-            return verts;
+            return mesh;
         }
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)

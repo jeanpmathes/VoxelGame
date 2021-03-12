@@ -115,29 +115,22 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            bool north = (data & 0b00_1000) != 0;
-            bool east = (data & 0b00_0100) != 0;
-            bool south = (data & 0b00_0010) != 0;
-            bool west = (data & 0b00_0001) != 0;
+            bool north = (info.Data & 0b00_1000) != 0;
+            bool east = (info.Data & 0b00_0100) != 0;
+            bool south = (info.Data & 0b00_0010) != 0;
+            bool west = (info.Data & 0b00_0001) != 0;
 
             bool straightZ = north && south && !east && !west;
             bool straightX = !north && !south && east && west;
 
             if (straightZ || straightX)
             {
-                vertices = straightZ ? extensionStraightZVertices : extensionStraightXVertices;
-                textureIndices = texIndicesStraight;
-                indices = indicesStraight;
-
-                tint = TintColor.None;
-                isAnimated = false;
-
-                return straightVertCount;
+                return new BlockMeshData(straightVertCount, straightZ ? extensionStraightZVertices : extensionStraightXVertices, texIndicesStraight, indicesStraight);
             }
 
-            return base.GetMesh(side, data, liquid, out vertices, out textureIndices, out indices, out tint, out isAnimated);
+            return base.GetMesh(info);
         }
     }
 }

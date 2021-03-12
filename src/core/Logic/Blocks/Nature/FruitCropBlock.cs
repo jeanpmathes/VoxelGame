@@ -131,31 +131,18 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            GrowthStage stage = (GrowthStage)((data >> 2) & 0b111);
+            GrowthStage stage = (GrowthStage)((info.Data >> 2) & 0b111);
 
             if (stage != GrowthStage.WithFruit)
             {
-                vertices = this.vertices;
-                textureIndices = texIndices[stage < GrowthStage.Second ? (int)stage : 2];
-                indices = this.indices;
-                tint = TintColor.None;
-                isAnimated = false;
-
-                return 8;
+                return new BlockMeshData(8, vertices, texIndices[stage < GrowthStage.Second ? (int)stage : 2], indices);
             }
             else
             {
-                Orientation orientation = (Orientation)(data & 0b11);
-
-                vertices = verticesConnected[(int)orientation];
-                textureIndices = texIndices[3];
-                indices = indicesConnected;
-                tint = TintColor.None;
-                isAnimated = false;
-
-                return 12;
+                Orientation orientation = (Orientation)(info.Data & 0b11);
+                return new BlockMeshData(12, verticesConnected[(int)orientation], texIndices[3], indicesConnected);
             }
         }
 

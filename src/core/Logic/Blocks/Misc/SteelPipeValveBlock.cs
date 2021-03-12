@@ -26,12 +26,12 @@ namespace VoxelGame.Core.Logic.Blocks
             closedModels = initial.CreateAllAxis();
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            tint = TintColor.None;
-            isAnimated = false;
+            uint vertexCount = SelectModel((info.Data & 0b00_0100) == 0 ? models : closedModels,
+                (Axis)(info.Data & AxisDataMask), out float[] vertices, out int[] textureIndices, out uint[] indices);
 
-            return SelectModel((data & 0b00_0100) == 0 ? models : closedModels, (Axis)(data & AxisDataMask), out vertices, out textureIndices, out indices);
+            return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
         }
 
         public override bool IsConnectable(BlockSide side, int x, int y, int z)

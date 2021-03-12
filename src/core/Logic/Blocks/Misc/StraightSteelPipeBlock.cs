@@ -55,12 +55,10 @@ namespace VoxelGame.Core.Logic.Blocks
             };
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            tint = TintColor.None;
-            isAnimated = false;
-
-            return SelectModel(models, (Axis)(data & AxisDataMask), out vertices, out textureIndices, out indices);
+            uint vertexCount = SelectModel(models, (Axis)(info.Data & AxisDataMask), out float[] vertices, out int[] textureIndices, out uint[] indices);
+            return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
         }
 
         protected static uint SelectModel((BlockModel x, BlockModel y, BlockModel z) modelTuple, Axis axis, out float[] vertices, out int[] textureIndices, out uint[] indices)

@@ -118,7 +118,9 @@ namespace VoxelGame.Client.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                currentBlock.GetMesh(BlockSide.Front, data, currentLiquid, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Front, data, currentLiquid));
+                                float[] vertices = mesh.Vertices;
+                                int textureIndex = mesh.TextureIndices[0];
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -127,7 +129,7 @@ namespace VoxelGame.Client.Logic
                                 int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
                                 // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (((tint.IsNeutral) ? blockTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Front << 18) | (isAnimated && textureIndices[0] != 0 ? (1 << 16) : 0) | textureIndices[0];
+                                int lowerData = (((mesh.Tint.IsNeutral) ? blockTint.ToBits : mesh.Tint.ToBits) << 23) | ((int)BlockSide.Front << 18) | (mesh.IsAnimated && textureIndex != 0 ? (1 << 16) : 0) | textureIndex;
 
                                 simpleFrontFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
@@ -148,7 +150,9 @@ namespace VoxelGame.Client.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                currentBlock.GetMesh(BlockSide.Back, data, currentLiquid, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Back, data, currentLiquid));
+                                float[] vertices = mesh.Vertices;
+                                int textureIndex = mesh.TextureIndices[0];
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -157,7 +161,7 @@ namespace VoxelGame.Client.Logic
                                 int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
                                 // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (((tint.IsNeutral) ? blockTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Back << 18) | (isAnimated && textureIndices[0] != 0 ? (1 << 16) : 0) | textureIndices[0];
+                                int lowerData = (((mesh.Tint.IsNeutral) ? blockTint.ToBits : mesh.Tint.ToBits) << 23) | ((int)BlockSide.Back << 18) | (mesh.IsAnimated && textureIndex != 0 ? (1 << 16) : 0) | textureIndex;
 
                                 simpleBackFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
@@ -178,7 +182,9 @@ namespace VoxelGame.Client.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                currentBlock.GetMesh(BlockSide.Left, data, currentLiquid, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Left, data, currentLiquid));
+                                float[] vertices = mesh.Vertices;
+                                int textureIndex = mesh.TextureIndices[0];
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -187,7 +193,7 @@ namespace VoxelGame.Client.Logic
                                 int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
                                 // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (((tint.IsNeutral) ? blockTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Left << 18) | (isAnimated && textureIndices[0] != 0 ? (1 << 16) : 0) | textureIndices[0];
+                                int lowerData = (((mesh.Tint.IsNeutral) ? blockTint.ToBits : mesh.Tint.ToBits) << 23) | ((int)BlockSide.Left << 18) | (mesh.IsAnimated && textureIndex != 0 ? (1 << 16) : 0) | textureIndex;
 
                                 simpleLeftFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
@@ -208,7 +214,9 @@ namespace VoxelGame.Client.Logic
 
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
-                                currentBlock.GetMesh(BlockSide.Right, data, currentLiquid, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Right, data, currentLiquid));
+                                float[] vertices = mesh.Vertices;
+                                int textureIndex = mesh.TextureIndices[0];
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -217,7 +225,7 @@ namespace VoxelGame.Client.Logic
                                 int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
                                 // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (((tint.IsNeutral) ? blockTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Right << 18) | (isAnimated && textureIndices[0] != 0 ? (1 << 16) : 0) | textureIndices[0];
+                                int lowerData = (((mesh.Tint.IsNeutral) ? blockTint.ToBits : mesh.Tint.ToBits) << 23) | ((int)BlockSide.Right << 18) | (mesh.IsAnimated && textureIndex != 0 ? (1 << 16) : 0) | textureIndex;
 
                                 simpleRightFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
@@ -238,7 +246,9 @@ namespace VoxelGame.Client.Logic
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
                             {
-                                currentBlock.GetMesh(BlockSide.Bottom, data, currentLiquid, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Bottom, data, currentLiquid));
+                                float[] vertices = mesh.Vertices;
+                                int textureIndex = mesh.TextureIndices[0];
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -247,7 +257,7 @@ namespace VoxelGame.Client.Logic
                                 int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
                                 // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (((tint.IsNeutral) ? blockTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Bottom << 18) | (isAnimated && textureIndices[0] != 0 ? (1 << 16) : 0) | textureIndices[0];
+                                int lowerData = (((mesh.Tint.IsNeutral) ? blockTint.ToBits : mesh.Tint.ToBits) << 23) | ((int)BlockSide.Bottom << 18) | (mesh.IsAnimated && textureIndex != 0 ? (1 << 16) : 0) | textureIndex;
 
                                 simpleBottomFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
@@ -268,7 +278,9 @@ namespace VoxelGame.Client.Logic
 
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
                             {
-                                currentBlock.GetMesh(BlockSide.Top, data, currentLiquid, out float[] vertices, out int[] textureIndices, out _, out TintColor tint, out bool isAnimated);
+                                BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Top, data, currentLiquid));
+                                float[] vertices = mesh.Vertices;
+                                int textureIndex = mesh.TextureIndices[0];
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -277,18 +289,21 @@ namespace VoxelGame.Client.Logic
                                 int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
                                 // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (((tint.IsNeutral) ? blockTint.ToBits : tint.ToBits) << 23) | ((int)BlockSide.Top << 18) | (isAnimated && textureIndices[0] != 0 ? (1 << 16) : 0) | textureIndices[0];
+                                int lowerData = (((mesh.Tint.IsNeutral) ? blockTint.ToBits : mesh.Tint.ToBits) << 23) | ((int)BlockSide.Top << 18) | (mesh.IsAnimated && textureIndex != 0 ? (1 << 16) : 0) | textureIndex;
 
                                 simpleTopFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
                         }
                         else if (currentBlock.TargetBuffer == TargetBuffer.Complex)
                         {
-                            uint verts = currentBlock.GetMesh(BlockSide.All, data, currentLiquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated);
+                            BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.All, data, currentLiquid));
+                            float[] vertices = mesh.Vertices;
+                            int[] textureIndices = mesh.TextureIndices;
+                            uint[] indices = mesh.Indices;
 
                             complexIndices.AddRange(indices);
 
-                            for (int i = 0; i < verts; i++)
+                            for (int i = 0; i < mesh.VertexCount; i++)
                             {
                                 complexVertexPositions.Add(vertices[(i * 8) + 0] + x);
                                 complexVertexPositions.Add(vertices[(i * 8) + 1] + y);
@@ -305,7 +320,7 @@ namespace VoxelGame.Client.Logic
                                 complexVertexData.Add(upperData);
 
                                 // int: tttt tttt t--- ---a ---i iiii iiii iiii(t: tint; a: animated; i: texture index)
-                                int lowerData = (((tint.IsNeutral) ? blockTint.ToBits : tint.ToBits) << 23) | (isAnimated && textureIndices[i] != 0 ? (1 << 16) : 0) | textureIndices[i];
+                                int lowerData = (((mesh.Tint.IsNeutral) ? blockTint.ToBits : mesh.Tint.ToBits) << 23) | (mesh.IsAnimated && textureIndices[i] != 0 ? (1 << 16) : 0) | textureIndices[i];
                                 complexVertexData.Add(lowerData);
                             }
 
@@ -314,7 +329,7 @@ namespace VoxelGame.Client.Logic
                                 complexIndices[i] += complexVertCount;
                             }
 
-                            complexVertCount += verts;
+                            complexVertCount += mesh.VertexCount;
                         }
 
                         if (currentLiquid.RenderType != RenderType.NotRendered && ((currentBlock is IFillable fillable && fillable.RenderLiquid) || (currentBlock is not IFillable && !currentBlock.IsSolidAndFull)))

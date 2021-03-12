@@ -238,55 +238,44 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            if (data == 0)
+            if (info.Data == 0)
             {
-                vertices = completeVertices;
-                textureIndices = completeTexIndices;
-                indices = completeIndices;
-
-                tint = TintColor.None;
-                isAnimated = true;
-
-                return 24;
+                return new BlockMeshData(24, completeVertices, completeTexIndices, completeIndices, true);
             }
 
-            int faceCount = BitHelper.CountSetBits(data & 0b1_1111);
+            int faceCount = BitHelper.CountSetBits(info.Data & 0b1_1111);
 
-            if ((data & 0b00_0001) != 0)
+            if ((info.Data & 0b00_0001) != 0)
             {
                 faceCount++;
             }
 
-            vertices = new float[faceCount * 32];
+            float[] vertices = new float[faceCount * 32];
 
             int vi = 0;
 
             for (int i = 0; i < 5; i++)
             {
-                if ((data & (0b1_0000 >> i)) != 0)
+                if ((info.Data & (0b1_0000 >> i)) != 0)
                 {
                     Array.Copy(attachedVertices[i], 0, vertices, vi, attachedVertices[i].Length);
                     vi += attachedVertices[i].Length;
                 }
             }
 
-            textureIndices = new int[faceCount * 4];
+            int[] textureIndices = new int[faceCount * 4];
 
             for (int i = 0; i < textureIndices.Length; i++)
             {
                 textureIndices[i] = texIndex;
             }
 
-            indices = new uint[faceCount * 12];
-
+            uint[] indices = new uint[faceCount * 12];
             Array.Copy(completeIndices, indices, indices.Length);
 
-            tint = TintColor.None;
-            isAnimated = true;
-
-            return (uint)(faceCount * 4);
+            return new BlockMeshData((uint)(faceCount * 4), vertices, textureIndices, indices, true);
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)

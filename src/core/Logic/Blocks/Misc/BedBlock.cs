@@ -122,34 +122,15 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BoundingBox(new Vector3(0.5f, 0.3125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.125f, 0.5f), legs);
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            bool isHead = (data & 0b1) == 1;
-            int orientation = (int)((data & 0b00_0110) >> 1);
-            BlockColor color = (BlockColor)((data & 0b11_1000) >> 3);
+            bool isHead = (info.Data & 0b1) == 1;
+            int orientation = (int)((info.Data & 0b00_0110) >> 1);
+            BlockColor color = (BlockColor)((info.Data & 0b11_1000) >> 3);
 
-            if (isHead)
-            {
-                vertices = verticesHead[orientation];
-                textureIndices = texIndicesHead;
-                indices = indicesHead;
-
-                tint = color.ToTintColor();
-                isAnimated = false;
-
-                return vertexCountHead;
-            }
-            else
-            {
-                vertices = verticesEnd[orientation];
-                textureIndices = texIndicesEnd;
-                indices = indicesEnd;
-
-                tint = color.ToTintColor();
-                isAnimated = false;
-
-                return vertexCountEnd;
-            }
+            return isHead
+                ? new BlockMeshData(vertexCountHead, verticesHead[orientation], texIndicesHead, indicesHead, color.ToTintColor())
+                : new BlockMeshData(vertexCountEnd, verticesEnd[orientation], texIndicesEnd, indicesEnd, color.ToTintColor());
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)

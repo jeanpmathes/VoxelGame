@@ -6,6 +6,7 @@
 using System;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
@@ -36,16 +37,9 @@ namespace VoxelGame.Core.Logic.Blocks
         {
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out Visuals.TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            vertices = Array.Empty<float>();
-            textureIndices = Array.Empty<int>();
-            indices = Array.Empty<uint>();
-
-            tint = Visuals.TintColor.None;
-            isAnimated = false;
-
-            return 0;
+            return BlockMeshData.Empty();
         }
 
         protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)

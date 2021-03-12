@@ -116,19 +116,19 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            bool north = (data & 0b00_1000) != 0;
-            bool east = (data & 0b00_0100) != 0;
-            bool south = (data & 0b00_0010) != 0;
-            bool west = (data & 0b00_0001) != 0;
+            bool north = (info.Data & 0b00_1000) != 0;
+            bool east = (info.Data & 0b00_0100) != 0;
+            bool south = (info.Data & 0b00_0010) != 0;
+            bool west = (info.Data & 0b00_0001) != 0;
 
             int extensions = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
-            uint vertCount = (uint)(postVertCount + (extensions * extensionVertCount));
+            uint vertexCount = (uint)(postVertCount + (extensions * extensionVertCount));
 
-            vertices = new float[vertCount * 8];
-            textureIndices = this.textureIndices[extensions];
-            indices = this.indices[extensions];
+            float[] vertices = new float[vertexCount * 8];
+            int[] textureIndices = this.textureIndices[extensions];
+            uint[] indices = this.indices[extensions];
 
             // Combine the required vertices into one array
             int position = 0;
@@ -158,10 +158,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 Array.Copy(westVertices, 0, vertices, position, westVertices.Length);
             }
 
-            tint = TintColor.None;
-            isAnimated = false;
-
-            return vertCount;
+            return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
         }
 
         protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)

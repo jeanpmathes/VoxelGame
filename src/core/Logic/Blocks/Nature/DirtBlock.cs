@@ -40,13 +40,14 @@ namespace VoxelGame.Core.Logic.Blocks
             wetTextureIndices = wet.GetTexIndexArrays();
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            uint verts = base.GetMesh(side, data, liquid, out vertices, out textureIndices, out indices, out tint, out isAnimated);
+            BlockMeshData mesh = base.GetMesh(info);
 
-            if (liquid.Direction > 0) textureIndices = wetTextureIndices[(int)side];
+            if (info.Liquid.Direction > 0)
+                mesh = mesh.SwapTextureIndices(wetTextureIndices[(int)info.Side]);
 
-            return verts;
+            return mesh;
         }
 
         internal override void RandomUpdate(int x, int y, int z, uint data)
