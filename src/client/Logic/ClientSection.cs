@@ -45,12 +45,12 @@ namespace VoxelGame.Client.Logic
             TintColor liquidTint = TintColor.Blue;
 
             // Get the sections next to this section.
-            ClientSection? frontNeighbour = Game.World.GetSection(sectionX, sectionY, sectionZ + 1) as ClientSection;
-            ClientSection? backNeighbour = Game.World.GetSection(sectionX, sectionY, sectionZ - 1) as ClientSection;
-            ClientSection? leftNeighbour = Game.World.GetSection(sectionX - 1, sectionY, sectionZ) as ClientSection;
-            ClientSection? rightNeighbour = Game.World.GetSection(sectionX + 1, sectionY, sectionZ) as ClientSection;
-            ClientSection? bottomNeighbour = Game.World.GetSection(sectionX, sectionY - 1, sectionZ) as ClientSection;
-            ClientSection? topNeighbour = Game.World.GetSection(sectionX, sectionY + 1, sectionZ) as ClientSection;
+            var frontNeighbor = Game.World.GetSection(sectionX, sectionY, sectionZ + 1) as ClientSection;
+            var backNeighbor = Game.World.GetSection(sectionX, sectionY, sectionZ - 1) as ClientSection;
+            var leftNeighbor = Game.World.GetSection(sectionX - 1, sectionY, sectionZ) as ClientSection;
+            var rightNeighbor = Game.World.GetSection(sectionX + 1, sectionY, sectionZ) as ClientSection;
+            var bottomNeighbor = Game.World.GetSection(sectionX, sectionY - 1, sectionZ) as ClientSection;
+            var topNeighbor = Game.World.GetSection(sectionX, sectionY + 1, sectionZ) as ClientSection;
 
             BlockMeshFaceHolder simpleFrontFaceHolder = new BlockMeshFaceHolder(BlockSide.Front);
             BlockMeshFaceHolder simpleBackFaceHolder = new BlockMeshFaceHolder(BlockSide.Back);
@@ -63,7 +63,7 @@ namespace VoxelGame.Client.Logic
             PooledList<int> complexVertexData = new PooledList<int>(32);
             PooledList<uint> complexIndices = new PooledList<uint>(16);
 
-            uint complexVertCount = 0;
+            uint complexVertexCount = 0;
 
             LiquidMeshFaceHolder opaqueLiquidFrontFaceHolder = new LiquidMeshFaceHolder(BlockSide.Front);
             LiquidMeshFaceHolder opaqueLiquidBackFaceHolder = new LiquidMeshFaceHolder(BlockSide.Back);
@@ -103,9 +103,9 @@ namespace VoxelGame.Client.Logic
                             // Check all six sides of this block
 
                             // Front
-                            if (z + 1 >= SectionSize && frontNeighbour != null)
+                            if (z + 1 >= SectionSize && frontNeighbor != null)
                             {
-                                blockToCheck = frontNeighbour.GetBlock(x, y, 0);
+                                blockToCheck = frontNeighbor.GetBlock(x, y, 0);
                             }
                             else if (z + 1 >= SectionSize)
                             {
@@ -134,9 +134,9 @@ namespace VoxelGame.Client.Logic
                             }
 
                             // Back
-                            if (z - 1 < 0 && backNeighbour != null)
+                            if (z - 1 < 0 && backNeighbor != null)
                             {
-                                blockToCheck = backNeighbour.GetBlock(x, y, SectionSize - 1);
+                                blockToCheck = backNeighbor.GetBlock(x, y, SectionSize - 1);
                             }
                             else if (z - 1 < 0)
                             {
@@ -165,9 +165,9 @@ namespace VoxelGame.Client.Logic
                             }
 
                             // Left
-                            if (x - 1 < 0 && leftNeighbour != null)
+                            if (x - 1 < 0 && leftNeighbor != null)
                             {
-                                blockToCheck = leftNeighbour.GetBlock(SectionSize - 1, y, z);
+                                blockToCheck = leftNeighbor.GetBlock(SectionSize - 1, y, z);
                             }
                             else if (x - 1 < 0)
                             {
@@ -196,9 +196,9 @@ namespace VoxelGame.Client.Logic
                             }
 
                             // Right
-                            if (x + 1 >= SectionSize && rightNeighbour != null)
+                            if (x + 1 >= SectionSize && rightNeighbor != null)
                             {
-                                blockToCheck = rightNeighbour.GetBlock(0, y, z);
+                                blockToCheck = rightNeighbor.GetBlock(0, y, z);
                             }
                             else if (x + 1 >= SectionSize)
                             {
@@ -227,9 +227,9 @@ namespace VoxelGame.Client.Logic
                             }
 
                             // Bottom
-                            if (y - 1 < 0 && bottomNeighbour != null)
+                            if (y - 1 < 0 && bottomNeighbor != null)
                             {
-                                blockToCheck = bottomNeighbour.GetBlock(x, SectionSize - 1, z);
+                                blockToCheck = bottomNeighbor.GetBlock(x, SectionSize - 1, z);
                             }
                             else if (y - 1 < 0)
                             {
@@ -258,9 +258,9 @@ namespace VoxelGame.Client.Logic
                             }
 
                             // Top
-                            if (y + 1 >= SectionSize && topNeighbour != null)
+                            if (y + 1 >= SectionSize && topNeighbor != null)
                             {
-                                blockToCheck = topNeighbour.GetBlock(x, 0, z);
+                                blockToCheck = topNeighbor.GetBlock(x, 0, z);
                             }
                             else if (y + 1 >= SectionSize)
                             {
@@ -320,10 +320,10 @@ namespace VoxelGame.Client.Logic
 
                             for (int i = complexIndices.Count - indices.Length; i < complexIndices.Count; i++)
                             {
-                                complexIndices[i] += complexVertCount;
+                                complexIndices[i] += complexVertexCount;
                             }
 
-                            complexVertCount += mesh.VertexCount;
+                            complexVertexCount += mesh.VertexCount;
                         }
 
                         if (currentLiquid.RenderType != RenderType.NotRendered && ((currentBlock is IFillable fillable && fillable.RenderLiquid) || (currentBlock is not IFillable && !currentBlock.IsSolidAndFull)))
@@ -360,10 +360,10 @@ namespace VoxelGame.Client.Logic
                             bool isNeighbourLiquidMeshed;
 
                             // Front.
-                            if (z + 1 >= SectionSize && frontNeighbour != null)
+                            if (z + 1 >= SectionSize && frontNeighbor != null)
                             {
-                                liquidToCheck = frontNeighbour.GetLiquid(x, y, 0, out sideHeight);
-                                blockToCheck = frontNeighbour.GetBlock(x, y, 0);
+                                liquidToCheck = frontNeighbor.GetLiquid(x, y, 0, out sideHeight);
+                                blockToCheck = frontNeighbor.GetBlock(x, y, 0);
                             }
                             else if (z + 1 >= SectionSize)
                             {
@@ -400,10 +400,10 @@ namespace VoxelGame.Client.Logic
                             }
 
                             // Back.
-                            if (z - 1 < 0 && backNeighbour != null)
+                            if (z - 1 < 0 && backNeighbor != null)
                             {
-                                liquidToCheck = backNeighbour.GetLiquid(x, y, SectionSize - 1, out sideHeight);
-                                blockToCheck = backNeighbour.GetBlock(x, y, SectionSize - 1);
+                                liquidToCheck = backNeighbor.GetLiquid(x, y, SectionSize - 1, out sideHeight);
+                                blockToCheck = backNeighbor.GetBlock(x, y, SectionSize - 1);
                             }
                             else if (z - 1 < 0)
                             {
@@ -440,10 +440,10 @@ namespace VoxelGame.Client.Logic
                             }
 
                             // Left.
-                            if (x - 1 < 0 && leftNeighbour != null)
+                            if (x - 1 < 0 && leftNeighbor != null)
                             {
-                                liquidToCheck = leftNeighbour.GetLiquid(SectionSize - 1, y, z, out sideHeight);
-                                blockToCheck = leftNeighbour.GetBlock(SectionSize - 1, y, z);
+                                liquidToCheck = leftNeighbor.GetLiquid(SectionSize - 1, y, z, out sideHeight);
+                                blockToCheck = leftNeighbor.GetBlock(SectionSize - 1, y, z);
                             }
                             else if (x - 1 < 0)
                             {
@@ -480,10 +480,10 @@ namespace VoxelGame.Client.Logic
                             }
 
                             // Right.
-                            if (x + 1 >= SectionSize && rightNeighbour != null)
+                            if (x + 1 >= SectionSize && rightNeighbor != null)
                             {
-                                liquidToCheck = rightNeighbour.GetLiquid(0, y, z, out sideHeight);
-                                blockToCheck = rightNeighbour.GetBlock(0, y, z);
+                                liquidToCheck = rightNeighbor.GetLiquid(0, y, z, out sideHeight);
+                                blockToCheck = rightNeighbor.GetBlock(0, y, z);
                             }
                             else if (x + 1 >= SectionSize)
                             {
@@ -520,10 +520,10 @@ namespace VoxelGame.Client.Logic
                             }
 
                             // Bottom.
-                            if (y - 1 < 0 && bottomNeighbour != null)
+                            if (y - 1 < 0 && bottomNeighbor != null)
                             {
-                                liquidToCheck = bottomNeighbour.GetLiquid(x, SectionSize - 1, z, out sideHeight);
-                                blockToCheck = bottomNeighbour.GetBlock(x, SectionSize - 1, z);
+                                liquidToCheck = bottomNeighbor.GetLiquid(x, SectionSize - 1, z, out sideHeight);
+                                blockToCheck = bottomNeighbor.GetBlock(x, SectionSize - 1, z);
                             }
                             else if (y - 1 < 0)
                             {
@@ -561,10 +561,10 @@ namespace VoxelGame.Client.Logic
                             }
 
                             // Top.
-                            if (y + 1 >= SectionSize && topNeighbour != null)
+                            if (y + 1 >= SectionSize && topNeighbor != null)
                             {
-                                liquidToCheck = topNeighbour.GetLiquid(x, 0, z, out sideHeight);
-                                blockToCheck = topNeighbour.GetBlock(x, 0, z);
+                                liquidToCheck = topNeighbor.GetLiquid(x, 0, z, out sideHeight);
+                                blockToCheck = topNeighbor.GetBlock(x, 0, z);
                             }
                             else if (y + 1 >= SectionSize)
                             {
