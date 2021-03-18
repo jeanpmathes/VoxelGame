@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // o = open
     public class LiquidBarrierBlock : BasicBlock, IFillable, IFlammable
     {
-        private protected int[][] openTextureIndices = null!;
+        private protected int[] openTextureIndices = null!;
 
         private protected TextureLayout open;
 
@@ -39,7 +39,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             base.Setup();
 
-            openTextureIndices = open.GetTexIndexArrays();
+            openTextureIndices = open.GetTexIndexArray();
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
@@ -47,7 +47,7 @@ namespace VoxelGame.Core.Logic.Blocks
             BlockMeshData mesh = base.GetMesh(info);
 
             if ((info.Data & 0b00_0001) == 1)
-                mesh = mesh.SwapTextureIndices(openTextureIndices[(int)info.Side]);
+                mesh = mesh.SwapTextureIndex(openTextureIndices[(int)info.Side]);
 
             return mesh;
         }

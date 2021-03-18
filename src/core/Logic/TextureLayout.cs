@@ -122,29 +122,29 @@ namespace VoxelGame.Core.Logic
 
         public int[][] GetTexIndexArrays()
         {
-            return new int[][]
-                {
-                new int[]
+            return new[]
+            {
+                new[]
                 {
                     Front, Front, Front, Front
                 },
-                new int[]
+                new[]
                 {
                     Back, Back, Back, Back
                 },
-                new int[]
+                new[]
                 {
                     Left, Left, Left, Left
                 },
-                new int[]
+                new[]
                 {
                     Right, Right, Right, Right
                 },
-                new int[]
+                new[]
                 {
                     Bottom, Bottom, Bottom, Bottom
                 },
-                new int[]
+                new[]
                 {
                     Top, Top, Top, Top
                 }
@@ -153,7 +153,7 @@ namespace VoxelGame.Core.Logic
 
         public int[] GetTexIndexArray()
         {
-            return new int[]
+            return new[]
             {
                 Front,
                 Back,

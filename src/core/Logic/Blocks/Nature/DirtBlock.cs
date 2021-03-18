@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     {
-        private protected int[][] wetTextureIndices = null!;
+        private protected int[] wetTextureIndices = null!;
 
         private protected TextureLayout wet;
 
@@ -37,7 +37,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             base.Setup();
 
-            wetTextureIndices = wet.GetTexIndexArrays();
+            wetTextureIndices = wet.GetTexIndexArray();
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
@@ -45,7 +45,7 @@ namespace VoxelGame.Core.Logic.Blocks
             BlockMeshData mesh = base.GetMesh(info);
 
             if (info.Liquid.Direction > 0)
-                mesh = mesh.SwapTextureIndices(wetTextureIndices[(int)info.Side]);
+                mesh = mesh.SwapTextureIndex(wetTextureIndices[(int)info.Side]);
 
             return mesh;
         }

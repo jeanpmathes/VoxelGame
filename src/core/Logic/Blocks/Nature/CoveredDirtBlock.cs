@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private protected readonly bool hasNeutralTint;
         private protected readonly bool supportsFullGrowth;
 
-        private protected int[][] wetTextureIndices = null!;
+        private protected int[] wetTextureIndices = null!;
         private protected TextureLayout wet;
 
         public bool SupportsFullGrowth { get => supportsFullGrowth; }
@@ -45,7 +45,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             base.Setup();
 
-            wetTextureIndices = wet.GetTexIndexArrays();
+            wetTextureIndices = wet.GetTexIndexArray();
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
@@ -54,7 +54,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             mesh = mesh.Modified((hasNeutralTint) ? TintColor.Neutral : TintColor.None);
 
-            if (info.Liquid.Direction > 0) mesh = mesh.SwapTextureIndices(wetTextureIndices[(int)info.Side]);
+            if (info.Liquid.Direction > 0) mesh = mesh.SwapTextureIndex(wetTextureIndices[(int)info.Side]);
 
             return mesh;
         }

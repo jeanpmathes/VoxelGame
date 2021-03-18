@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Blocks
     public class BasicBlock : Block, IOverlayTextureProvider
     {
         private protected float[][] sideVertices = null!;
-        private protected int[][] sideTextureIndices = null!;
+        private protected int[] sideTextureIndices = null!;
 
         private protected TextureLayout layout;
 
@@ -44,7 +44,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             sideVertices = BlockModel.CubeVertices();
 
-            sideTextureIndices = layout.GetTexIndexArrays();
+            sideTextureIndices = layout.GetTexIndexArray();
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)

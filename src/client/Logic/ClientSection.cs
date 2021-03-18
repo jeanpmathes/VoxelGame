@@ -119,8 +119,7 @@ namespace VoxelGame.Client.Logic
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
                                 BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Front, data, currentLiquid));
-                                float[] vertices = mesh.Vertices;
-                                int textureIndex = mesh.TextureIndices[0];
+                                float[] vertices = mesh.GetVertices();
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -129,7 +128,7 @@ namespace VoxelGame.Client.Logic
                                 int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
                                 // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Front << 18) | (mesh.IsAnimated && textureIndex != 0 ? (1 << 16) : 0) | textureIndex;
+                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Front << 18) | (mesh.IsAnimated && mesh.TextureIndex != 0 ? (1 << 16) : 0) | mesh.TextureIndex;
 
                                 simpleFrontFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
@@ -151,8 +150,7 @@ namespace VoxelGame.Client.Logic
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
                                 BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Back, data, currentLiquid));
-                                float[] vertices = mesh.Vertices;
-                                int textureIndex = mesh.TextureIndices[0];
+                                float[] vertices = mesh.GetVertices();
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -161,7 +159,7 @@ namespace VoxelGame.Client.Logic
                                 int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
                                 // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Back << 18) | (mesh.IsAnimated && textureIndex != 0 ? (1 << 16) : 0) | textureIndex;
+                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Back << 18) | (mesh.IsAnimated && mesh.TextureIndex != 0 ? (1 << 16) : 0) | mesh.TextureIndex;
 
                                 simpleBackFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
@@ -183,8 +181,7 @@ namespace VoxelGame.Client.Logic
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
                                 BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Left, data, currentLiquid));
-                                float[] vertices = mesh.Vertices;
-                                int textureIndex = mesh.TextureIndices[0];
+                                float[] vertices = mesh.GetVertices();
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -193,7 +190,7 @@ namespace VoxelGame.Client.Logic
                                 int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
                                 // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Left << 18) | (mesh.IsAnimated && textureIndex != 0 ? (1 << 16) : 0) | textureIndex;
+                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Left << 18) | (mesh.IsAnimated && mesh.TextureIndex != 0 ? (1 << 16) : 0) | mesh.TextureIndex;
 
                                 simpleLeftFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
@@ -215,8 +212,7 @@ namespace VoxelGame.Client.Logic
                             if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                             {
                                 BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Right, data, currentLiquid));
-                                float[] vertices = mesh.Vertices;
-                                int textureIndex = mesh.TextureIndices[0];
+                                float[] vertices = mesh.GetVertices();
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -225,7 +221,7 @@ namespace VoxelGame.Client.Logic
                                 int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
                                 // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Right << 18) | (mesh.IsAnimated && textureIndex != 0 ? (1 << 16) : 0) | textureIndex;
+                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Right << 18) | (mesh.IsAnimated && mesh.TextureIndex != 0 ? (1 << 16) : 0) | mesh.TextureIndex;
 
                                 simpleRightFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
@@ -247,8 +243,7 @@ namespace VoxelGame.Client.Logic
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
                             {
                                 BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Bottom, data, currentLiquid));
-                                float[] vertices = mesh.Vertices;
-                                int textureIndex = mesh.TextureIndices[0];
+                                float[] vertices = mesh.GetVertices();
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -257,7 +252,7 @@ namespace VoxelGame.Client.Logic
                                 int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
                                 // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Bottom << 18) | (mesh.IsAnimated && textureIndex != 0 ? (1 << 16) : 0) | textureIndex;
+                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Bottom << 18) | (mesh.IsAnimated && mesh.TextureIndex != 0 ? (1 << 16) : 0) | mesh.TextureIndex;
 
                                 simpleBottomFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
@@ -279,8 +274,7 @@ namespace VoxelGame.Client.Logic
                             if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
                             {
                                 BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Top, data, currentLiquid));
-                                float[] vertices = mesh.Vertices;
-                                int textureIndex = mesh.TextureIndices[0];
+                                float[] vertices = mesh.GetVertices();
 
                                 // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
                                 int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
@@ -289,7 +283,7 @@ namespace VoxelGame.Client.Logic
                                 int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
                                 // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Top << 18) | (mesh.IsAnimated && textureIndex != 0 ? (1 << 16) : 0) | textureIndex;
+                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Top << 18) | (mesh.IsAnimated && mesh.TextureIndex != 0 ? (1 << 16) : 0) | mesh.TextureIndex;
 
                                 simpleTopFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
                             }
@@ -297,9 +291,9 @@ namespace VoxelGame.Client.Logic
                         else if (currentBlock.TargetBuffer == TargetBuffer.Complex)
                         {
                             BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.All, data, currentLiquid));
-                            float[] vertices = mesh.Vertices;
-                            int[] textureIndices = mesh.TextureIndices;
-                            uint[] indices = mesh.Indices;
+                            float[] vertices = mesh.GetVertices();
+                            int[] textureIndices = mesh.GetTextureIndices();
+                            uint[] indices = mesh.GetIndices();
 
                             complexIndices.AddRange(indices);
 
