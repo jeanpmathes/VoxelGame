@@ -48,6 +48,16 @@ namespace VoxelGame.Core.Visuals
 
         public uint[] GetIndices() => indices;
 
+        public int GetAnimationBit(int texture, int shift)
+        {
+            return IsAnimated && textureIndices[texture] != 0 ? (1 << shift) : 0;
+        }
+
+        public int GetAnimationBit(int shift)
+        {
+            return IsAnimated && TextureIndex != 0 ? (1 << shift) : 0;
+        }
+
         public BlockMeshData Modified(TintColor tint)
         {
             return new BlockMeshData(this.VertexCount, this.GetVertices(), this.GetTextureIndices(), this.GetIndices(), this.TextureIndex, tint, this.IsAnimated);
