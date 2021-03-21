@@ -44,13 +44,15 @@ namespace VoxelGame.Client.Logic
             TintColor blockTint = TintColor.Green;
             TintColor liquidTint = TintColor.Blue;
 
+            Vector3i sectionPosition = (sectionX, sectionY, sectionZ);
+
             // Get the sections next to this section.
-            var frontNeighbor = Game.World.GetSection(sectionX, sectionY, sectionZ + 1) as ClientSection;
-            var backNeighbor = Game.World.GetSection(sectionX, sectionY, sectionZ - 1) as ClientSection;
-            var leftNeighbor = Game.World.GetSection(sectionX - 1, sectionY, sectionZ) as ClientSection;
-            var rightNeighbor = Game.World.GetSection(sectionX + 1, sectionY, sectionZ) as ClientSection;
-            var bottomNeighbor = Game.World.GetSection(sectionX, sectionY - 1, sectionZ) as ClientSection;
-            var topNeighbor = Game.World.GetSection(sectionX, sectionY + 1, sectionZ) as ClientSection;
+            var frontNeighbor = Game.World.GetSection(BlockSide.Front.Offset(sectionPosition)) as ClientSection;
+            var backNeighbor = Game.World.GetSection(BlockSide.Back.Offset(sectionPosition)) as ClientSection;
+            var leftNeighbor = Game.World.GetSection(BlockSide.Left.Offset(sectionPosition)) as ClientSection;
+            var rightNeighbor = Game.World.GetSection(BlockSide.Right.Offset(sectionPosition)) as ClientSection;
+            var bottomNeighbor = Game.World.GetSection(BlockSide.Bottom.Offset(sectionPosition)) as ClientSection;
+            var topNeighbor = Game.World.GetSection(BlockSide.Top.Offset(sectionPosition)) as ClientSection;
 
             BlockMeshFaceHolder simpleFrontFaceHolder = new BlockMeshFaceHolder(BlockSide.Front);
             BlockMeshFaceHolder simpleBackFaceHolder = new BlockMeshFaceHolder(BlockSide.Back);

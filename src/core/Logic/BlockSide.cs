@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Core.Logic
 {
@@ -37,6 +38,26 @@ namespace VoxelGame.Core.Logic
                 BlockSide.Top => BlockSide.Bottom,
                 _ => throw new ArgumentOutOfRangeException(nameof(side), side, null)
             };
+        }
+
+        public static Vector3i Direction(this BlockSide side)
+        {
+            return side switch
+            {
+                BlockSide.All => (0, 0, 0),
+                BlockSide.Front => (0, 0, 1),
+                BlockSide.Back => (0, 0, -1),
+                BlockSide.Left => (-1, 0, 0),
+                BlockSide.Right => (1, 0, 0),
+                BlockSide.Bottom => (0, -1, 0),
+                BlockSide.Top => (0, 1, 0),
+                _ => throw new ArgumentOutOfRangeException(nameof(side), side, null)
+            };
+        }
+
+        public static Vector3i Offset(this BlockSide side, Vector3i v)
+        {
+            return v + side.Direction();
         }
     }
 }

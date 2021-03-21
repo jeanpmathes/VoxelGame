@@ -701,13 +701,12 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Gets a section of an active chunk.
         /// </summary>
-        /// <param name="x">The x position of the section in chunk coordinates.</param>
-        /// <param name="y">The y position of the section in chunk coordinates.</param>
-        /// <param name="z">The z position of the section in chunk coordinates.</param>
+        /// <param name="chunkPosition">The position of the section, in chunk coordinates.</param>
         /// <returns>The section at the given position or null if no section was found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Section? GetSection(int x, int y, int z)
+        public Section? GetSection(Vector3i chunkPosition)
         {
+            (int x, int y, int z) = chunkPosition;
             if (activeChunks.TryGetValue((x, z), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight)
             {
                 return chunk.GetSection(y);
