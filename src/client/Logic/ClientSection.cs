@@ -80,11 +80,11 @@ namespace VoxelGame.Client.Logic
             LiquidMeshFaceHolder transparentLiquidTopFaceHolder = new LiquidMeshFaceHolder(BlockSide.Top);
 
             // Loop through the section
-            for (int x = 0; x < SectionSize; x++)
+            for (var x = 0; x < SectionSize; x++)
             {
-                for (int y = 0; y < SectionSize; y++)
+                for (var y = 0; y < SectionSize; y++)
                 {
-                    for (int z = 0; z < SectionSize; z++)
+                    for (var z = 0; z < SectionSize; z++)
                     {
                         uint val = blocks[(x << 10) + (y << 5) + z];
 
@@ -96,234 +96,240 @@ namespace VoxelGame.Client.Logic
                         bool isStatic = (val & Section.STATICMASK) != 0;
                         bool isFull = level == LiquidLevel.Eight;
 
-                        if (currentBlock.TargetBuffer == TargetBuffer.Simple)
+                        switch (currentBlock.TargetBuffer)
                         {
-                            Block? blockToCheck;
+                            case TargetBuffer.Simple:
+                                {
+                                    Block? blockToCheck;
 
-                            // Check all six sides of this block
+                                    // Check all six sides of this block
 
-                            // Front
-                            if (z + 1 >= SectionSize && frontNeighbor != null)
-                            {
-                                blockToCheck = frontNeighbor.GetBlock(x, y, 0);
-                            }
-                            else if (z + 1 >= SectionSize)
-                            {
-                                blockToCheck = null;
-                            }
-                            else
-                            {
-                                blockToCheck = GetBlock(x, y, z + 1);
-                            }
+                                    // Front
+                                    if (z + 1 >= SectionSize && frontNeighbor != null)
+                                    {
+                                        blockToCheck = frontNeighbor.GetBlock(x, y, 0);
+                                    }
+                                    else if (z + 1 >= SectionSize)
+                                    {
+                                        blockToCheck = null;
+                                    }
+                                    else
+                                    {
+                                        blockToCheck = GetBlock(x, y, z + 1);
+                                    }
 
-                            if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
-                            {
-                                BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Front, data, currentLiquid));
-                                float[] vertices = mesh.GetVertices();
+                                    if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
+                                    {
+                                        BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Front, data, currentLiquid));
+                                        float[] vertices = mesh.GetVertices();
 
-                                // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
-                                int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
-                                int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
-                                int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
+                                        // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
+                                        int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
+                                        int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
+                                        int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
+                                        int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
-                                // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Front << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
+                                        // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
+                                        int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Front << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
 
-                                simpleFrontFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
-                            }
+                                        simpleFrontFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
+                                    }
 
-                            // Back
-                            if (z - 1 < 0 && backNeighbor != null)
-                            {
-                                blockToCheck = backNeighbor.GetBlock(x, y, SectionSize - 1);
-                            }
-                            else if (z - 1 < 0)
-                            {
-                                blockToCheck = null;
-                            }
-                            else
-                            {
-                                blockToCheck = GetBlock(x, y, z - 1);
-                            }
+                                    // Back
+                                    if (z - 1 < 0 && backNeighbor != null)
+                                    {
+                                        blockToCheck = backNeighbor.GetBlock(x, y, SectionSize - 1);
+                                    }
+                                    else if (z - 1 < 0)
+                                    {
+                                        blockToCheck = null;
+                                    }
+                                    else
+                                    {
+                                        blockToCheck = GetBlock(x, y, z - 1);
+                                    }
 
-                            if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
-                            {
-                                BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Back, data, currentLiquid));
-                                float[] vertices = mesh.GetVertices();
+                                    if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
+                                    {
+                                        BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Back, data, currentLiquid));
+                                        float[] vertices = mesh.GetVertices();
 
-                                // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
-                                int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
-                                int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
-                                int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
+                                        // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
+                                        int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
+                                        int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
+                                        int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
+                                        int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
-                                // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Back << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
+                                        // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
+                                        int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Back << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
 
-                                simpleBackFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
-                            }
+                                        simpleBackFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
+                                    }
 
-                            // Left
-                            if (x - 1 < 0 && leftNeighbor != null)
-                            {
-                                blockToCheck = leftNeighbor.GetBlock(SectionSize - 1, y, z);
-                            }
-                            else if (x - 1 < 0)
-                            {
-                                blockToCheck = null;
-                            }
-                            else
-                            {
-                                blockToCheck = GetBlock(x - 1, y, z);
-                            }
+                                    // Left
+                                    if (x - 1 < 0 && leftNeighbor != null)
+                                    {
+                                        blockToCheck = leftNeighbor.GetBlock(SectionSize - 1, y, z);
+                                    }
+                                    else if (x - 1 < 0)
+                                    {
+                                        blockToCheck = null;
+                                    }
+                                    else
+                                    {
+                                        blockToCheck = GetBlock(x - 1, y, z);
+                                    }
 
-                            if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
-                            {
-                                BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Left, data, currentLiquid));
-                                float[] vertices = mesh.GetVertices();
+                                    if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
+                                    {
+                                        BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Left, data, currentLiquid));
+                                        float[] vertices = mesh.GetVertices();
 
-                                // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
-                                int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
-                                int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
-                                int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
+                                        // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
+                                        int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
+                                        int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
+                                        int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
+                                        int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
-                                // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Left << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
+                                        // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
+                                        int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Left << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
 
-                                simpleLeftFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
-                            }
+                                        simpleLeftFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
+                                    }
 
-                            // Right
-                            if (x + 1 >= SectionSize && rightNeighbor != null)
-                            {
-                                blockToCheck = rightNeighbor.GetBlock(0, y, z);
-                            }
-                            else if (x + 1 >= SectionSize)
-                            {
-                                blockToCheck = null;
-                            }
-                            else
-                            {
-                                blockToCheck = GetBlock(x + 1, y, z);
-                            }
+                                    // Right
+                                    if (x + 1 >= SectionSize && rightNeighbor != null)
+                                    {
+                                        blockToCheck = rightNeighbor.GetBlock(0, y, z);
+                                    }
+                                    else if (x + 1 >= SectionSize)
+                                    {
+                                        blockToCheck = null;
+                                    }
+                                    else
+                                    {
+                                        blockToCheck = GetBlock(x + 1, y, z);
+                                    }
 
-                            if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
-                            {
-                                BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Right, data, currentLiquid));
-                                float[] vertices = mesh.GetVertices();
+                                    if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
+                                    {
+                                        BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Right, data, currentLiquid));
+                                        float[] vertices = mesh.GetVertices();
 
-                                // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
-                                int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
-                                int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
-                                int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
+                                        // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
+                                        int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
+                                        int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
+                                        int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
+                                        int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
-                                // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Right << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
+                                        // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
+                                        int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Right << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
 
-                                simpleRightFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
-                            }
+                                        simpleRightFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
+                                    }
 
-                            // Bottom
-                            if (y - 1 < 0 && bottomNeighbor != null)
-                            {
-                                blockToCheck = bottomNeighbor.GetBlock(x, SectionSize - 1, z);
-                            }
-                            else if (y - 1 < 0)
-                            {
-                                blockToCheck = null;
-                            }
-                            else
-                            {
-                                blockToCheck = GetBlock(x, y - 1, z);
-                            }
+                                    // Bottom
+                                    if (y - 1 < 0 && bottomNeighbor != null)
+                                    {
+                                        blockToCheck = bottomNeighbor.GetBlock(x, SectionSize - 1, z);
+                                    }
+                                    else if (y - 1 < 0)
+                                    {
+                                        blockToCheck = null;
+                                    }
+                                    else
+                                    {
+                                        blockToCheck = GetBlock(x, y - 1, z);
+                                    }
 
-                            if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
-                            {
-                                BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Bottom, data, currentLiquid));
-                                float[] vertices = mesh.GetVertices();
+                                    if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
+                                    {
+                                        BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Bottom, data, currentLiquid));
+                                        float[] vertices = mesh.GetVertices();
 
-                                // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
-                                int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
-                                int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
-                                int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
+                                        // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
+                                        int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
+                                        int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
+                                        int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
+                                        int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
-                                // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Bottom << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
+                                        // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
+                                        int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Bottom << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
 
-                                simpleBottomFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
-                            }
+                                        simpleBottomFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
+                                    }
 
-                            // Top
-                            if (y + 1 >= SectionSize && topNeighbor != null)
-                            {
-                                blockToCheck = topNeighbor.GetBlock(x, 0, z);
-                            }
-                            else if (y + 1 >= SectionSize)
-                            {
-                                blockToCheck = null;
-                            }
-                            else
-                            {
-                                blockToCheck = GetBlock(x, y + 1, z);
-                            }
+                                    // Top
+                                    if (y + 1 >= SectionSize && topNeighbor != null)
+                                    {
+                                        blockToCheck = topNeighbor.GetBlock(x, 0, z);
+                                    }
+                                    else if (y + 1 >= SectionSize)
+                                    {
+                                        blockToCheck = null;
+                                    }
+                                    else
+                                    {
+                                        blockToCheck = GetBlock(x, y + 1, z);
+                                    }
 
-                            if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
-                            {
-                                BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Top, data, currentLiquid));
-                                float[] vertices = mesh.GetVertices();
+                                    if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
+                                    {
+                                        BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Top, data, currentLiquid));
+                                        float[] vertices = mesh.GetVertices();
 
-                                // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
-                                int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
-                                int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
-                                int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
+                                        // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
+                                        int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
+                                        int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
+                                        int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
+                                        int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
-                                // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Top << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
+                                        // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
+                                        int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Top << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
 
-                                simpleTopFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
-                            }
-                        }
-                        else if (currentBlock.TargetBuffer == TargetBuffer.Complex)
-                        {
-                            BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.All, data, currentLiquid));
-                            float[] vertices = mesh.GetVertices();
-                            int[] textureIndices = mesh.GetTextureIndices();
-                            uint[] indices = mesh.GetIndices();
+                                        simpleTopFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
+                                    }
 
-                            complexIndices.AddRange(indices);
+                                    break;
+                                }
+                            case TargetBuffer.Complex:
+                                {
+                                    BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.All, data, currentLiquid));
+                                    float[] vertices = mesh.GetVertices();
+                                    int[] textureIndices = mesh.GetTextureIndices();
+                                    uint[] indices = mesh.GetIndices();
 
-                            for (int i = 0; i < mesh.VertexCount; i++)
-                            {
-                                complexVertexPositions.Add(vertices[(i * 8) + 0] + x);
-                                complexVertexPositions.Add(vertices[(i * 8) + 1] + y);
-                                complexVertexPositions.Add(vertices[(i * 8) + 2] + z);
+                                    complexIndices.AddRange(indices);
 
-                                // int: nnnn nooo oopp ppp- ---- --uu uuuv vvvv (nop: normal; uv: texture coords)
-                                int upperData =
-                                    (((vertices[(i * 8) + 5] < 0f) ? (0b1_0000 | (int)(vertices[(i * 8) + 5] * -15f)) : (int)(vertices[(i * 8) + 5] * 15f)) << 27) |
-                                    (((vertices[(i * 8) + 6] < 0f) ? (0b1_0000 | (int)(vertices[(i * 8) + 6] * -15f)) : (int)(vertices[(i * 8) + 6] * 15f)) << 22) |
-                                    (((vertices[(i * 8) + 7] < 0f) ? (0b1_0000 | (int)(vertices[(i * 8) + 7] * -15f)) : (int)(vertices[(i * 8) + 7] * 15f)) << 17) |
-                                    ((int)(vertices[(i * 8) + 3] * 16f) << 5) |
-                                    ((int)(vertices[(i * 8) + 4] * 16f));
+                                    for (int i = 0; i < mesh.VertexCount; i++)
+                                    {
+                                        complexVertexPositions.Add(vertices[(i * 8) + 0] + x);
+                                        complexVertexPositions.Add(vertices[(i * 8) + 1] + y);
+                                        complexVertexPositions.Add(vertices[(i * 8) + 2] + z);
 
-                                complexVertexData.Add(upperData);
+                                        // int: nnnn nooo oopp ppp- ---- --uu uuuv vvvv (nop: normal; uv: texture coords)
+                                        int upperData =
+                                            (((vertices[(i * 8) + 5] < 0f) ? (0b1_0000 | (int)(vertices[(i * 8) + 5] * -15f)) : (int)(vertices[(i * 8) + 5] * 15f)) << 27) |
+                                            (((vertices[(i * 8) + 6] < 0f) ? (0b1_0000 | (int)(vertices[(i * 8) + 6] * -15f)) : (int)(vertices[(i * 8) + 6] * 15f)) << 22) |
+                                            (((vertices[(i * 8) + 7] < 0f) ? (0b1_0000 | (int)(vertices[(i * 8) + 7] * -15f)) : (int)(vertices[(i * 8) + 7] * 15f)) << 17) |
+                                            ((int)(vertices[(i * 8) + 3] * 16f) << 5) |
+                                            ((int)(vertices[(i * 8) + 4] * 16f));
 
-                                // int: tttt tttt t--- ---a ---i iiii iiii iiii(t: tint; a: animated; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | mesh.GetAnimationBit(i, 16) | textureIndices[i];
-                                complexVertexData.Add(lowerData);
-                            }
+                                        complexVertexData.Add(upperData);
 
-                            for (int i = complexIndices.Count - indices.Length; i < complexIndices.Count; i++)
-                            {
-                                complexIndices[i] += complexVertexCount;
-                            }
+                                        // int: tttt tttt t--- ---a ---i iiii iiii iiii(t: tint; a: animated; i: texture index)
+                                        int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | mesh.GetAnimationBit(i, 16) | textureIndices[i];
+                                        complexVertexData.Add(lowerData);
+                                    }
 
-                            complexVertexCount += mesh.VertexCount;
+                                    for (int i = complexIndices.Count - indices.Length; i < complexIndices.Count; i++)
+                                    {
+                                        complexIndices[i] += complexVertexCount;
+                                    }
+
+                                    complexVertexCount += mesh.VertexCount;
+                                    break;
+                                }
                         }
 
                         if (currentLiquid.RenderType != RenderType.NotRendered && ((currentBlock is IFillable fillable && fillable.RenderLiquid) || (currentBlock is not IFillable && !currentBlock.IsSolidAndFull)))
