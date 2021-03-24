@@ -3,8 +3,11 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
+using System;
 using System.Buffers;
 using System.Collections.Concurrent;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 
@@ -42,10 +45,12 @@ namespace VoxelGame.Client.Collections
             }
         }
 
-        public void AddFace(int layer, int row, int position, int vertData, (int vertA, int vertB, int vertC, int vertD) vertices)
+        public void AddFace(Vector3i pos, int vertexData, (int vertA, int vertB, int vertC, int vertD) vertices)
         {
+            ExtractIndices(pos, out int layer, out int row, out int position);
+
             // Build current face.
-            MeshFace currentFace = MeshFace.Get(vertices.vertA, vertices.vertB, vertices.vertC, vertices.vertD, vertData, (int)((uint)vertices.vertC >> 30) != 0b11, position);
+            MeshFace currentFace = MeshFace.Get(vertices.vertA, vertices.vertB, vertices.vertC, vertices.vertD, vertexData, (int)((uint)vertices.vertC >> 30) != 0b11, position);
 
             // Check if an already existing face can be extended.
             if (lastFaces[layer][row]?.IsExtendable(currentFace) ?? false)
@@ -142,6 +147,36 @@ namespace VoxelGame.Client.Collections
 
                 lastCombinationRowFace = combinationRowFace;
                 combinationRowFace = combinationRowFace.previousFace;
+            }
+        }
+
+        private void ExtractIndices(Vector3i pos, out int layer, out int row, out int position)
+        {
+            switch (side)
+            {
+                case BlockSide.Front:
+                case BlockSide.Back:
+                    layer = pos.Z;
+                    row = pos.X;
+                    position = pos.Y;
+                    break;
+
+                case BlockSide.Left:
+                case BlockSide.Right:
+                    layer = pos.X;
+                    row = pos.Y;
+                    position = pos.Z;
+                    break;
+
+                case BlockSide.Bottom:
+                case BlockSide.Top:
+                    layer = pos.Y;
+                    row = pos.X;
+                    position = pos.Z;
+                    break;
+
+                default:
+                    throw new InvalidOperationException();
             }
         }
 

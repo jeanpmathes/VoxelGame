@@ -3,15 +3,16 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
 using OpenToolkit.Mathematics;
+using System;
+using VoxelGame.Client.Collections;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core;
-using VoxelGame.Client.Collections;
-using VoxelGame.Core.Logic;
-using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Logic
 {
@@ -47,19 +48,9 @@ namespace VoxelGame.Client.Logic
             Vector3i sectionPosition = (sectionX, sectionY, sectionZ);
 
             // Get the sections next to this section.
-            var frontNeighbor = Game.World.GetSection(BlockSide.Front.Offset(sectionPosition)) as ClientSection;
-            var backNeighbor = Game.World.GetSection(BlockSide.Back.Offset(sectionPosition)) as ClientSection;
-            var leftNeighbor = Game.World.GetSection(BlockSide.Left.Offset(sectionPosition)) as ClientSection;
-            var rightNeighbor = Game.World.GetSection(BlockSide.Right.Offset(sectionPosition)) as ClientSection;
-            var bottomNeighbor = Game.World.GetSection(BlockSide.Bottom.Offset(sectionPosition)) as ClientSection;
-            var topNeighbor = Game.World.GetSection(BlockSide.Top.Offset(sectionPosition)) as ClientSection;
+            ClientSection?[] neighbors = GetNeighborSections(sectionPosition);
 
-            BlockMeshFaceHolder simpleFrontFaceHolder = new BlockMeshFaceHolder(BlockSide.Front);
-            BlockMeshFaceHolder simpleBackFaceHolder = new BlockMeshFaceHolder(BlockSide.Back);
-            BlockMeshFaceHolder simpleLeftFaceHolder = new BlockMeshFaceHolder(BlockSide.Left);
-            BlockMeshFaceHolder simpleRightFaceHolder = new BlockMeshFaceHolder(BlockSide.Right);
-            BlockMeshFaceHolder simpleBottomFaceHolder = new BlockMeshFaceHolder(BlockSide.Bottom);
-            BlockMeshFaceHolder simpleTopFaceHolder = new BlockMeshFaceHolder(BlockSide.Top);
+            BlockMeshFaceHolder[] blockMeshFaceHolders = CreateBlockMeshFaceHolders();
 
             PooledList<float> complexVertexPositions = new PooledList<float>(64);
             PooledList<int> complexVertexData = new PooledList<int>(32);
@@ -67,19 +58,8 @@ namespace VoxelGame.Client.Logic
 
             uint complexVertexCount = 0;
 
-            LiquidMeshFaceHolder opaqueLiquidFrontFaceHolder = new LiquidMeshFaceHolder(BlockSide.Front);
-            LiquidMeshFaceHolder opaqueLiquidBackFaceHolder = new LiquidMeshFaceHolder(BlockSide.Back);
-            LiquidMeshFaceHolder opaqueLiquidLeftFaceHolder = new LiquidMeshFaceHolder(BlockSide.Left);
-            LiquidMeshFaceHolder opaqueLiquidRightFaceHolder = new LiquidMeshFaceHolder(BlockSide.Right);
-            LiquidMeshFaceHolder opaqueLiquidBottomFaceHolder = new LiquidMeshFaceHolder(BlockSide.Bottom);
-            LiquidMeshFaceHolder opaqueLiquidTopFaceHolder = new LiquidMeshFaceHolder(BlockSide.Top);
-
-            LiquidMeshFaceHolder transparentLiquidFrontFaceHolder = new LiquidMeshFaceHolder(BlockSide.Front);
-            LiquidMeshFaceHolder transparentLiquidBackFaceHolder = new LiquidMeshFaceHolder(BlockSide.Back);
-            LiquidMeshFaceHolder transparentLiquidLeftFaceHolder = new LiquidMeshFaceHolder(BlockSide.Left);
-            LiquidMeshFaceHolder transparentLiquidRightFaceHolder = new LiquidMeshFaceHolder(BlockSide.Right);
-            LiquidMeshFaceHolder transparentLiquidBottomFaceHolder = new LiquidMeshFaceHolder(BlockSide.Bottom);
-            LiquidMeshFaceHolder transparentLiquidTopFaceHolder = new LiquidMeshFaceHolder(BlockSide.Top);
+            LiquidMeshFaceHolder[] opaqueLiquidMeshFaceHolders = CreateLiquidMeshFaceHolders();
+            LiquidMeshFaceHolder[] transparentLiquidMeshFaceHolders = CreateLiquidMeshFaceHolders();
 
             // Loop through the section
             for (var x = 0; x < SectionSize; x++)
@@ -88,6 +68,7 @@ namespace VoxelGame.Client.Logic
                 {
                     for (var z = 0; z < SectionSize; z++)
                     {
+                        Vector3i pos = (x, y, z);
                         uint val = blocks[(x << 10) + (y << 5) + z];
 
                         Block currentBlock = Block.TranslateID(val & BLOCKMASK);
@@ -102,194 +83,50 @@ namespace VoxelGame.Client.Logic
                         {
                             case TargetBuffer.Simple:
                                 {
-                                    Block? blockToCheck;
-
                                     // Check all six sides of this block
 
-                                    // Front
-                                    if (z + 1 >= SectionSize && frontNeighbor != null)
+                                    MeshSimpleSide(BlockSide.Front);
+                                    MeshSimpleSide(BlockSide.Back);
+                                    MeshSimpleSide(BlockSide.Left);
+                                    MeshSimpleSide(BlockSide.Right);
+                                    MeshSimpleSide(BlockSide.Bottom);
+                                    MeshSimpleSide(BlockSide.Top);
+
+                                    void MeshSimpleSide(BlockSide side)
                                     {
-                                        blockToCheck = frontNeighbor.GetBlock(x, y, 0);
-                                    }
-                                    else if (z + 1 >= SectionSize)
-                                    {
-                                        blockToCheck = null;
-                                    }
-                                    else
-                                    {
-                                        blockToCheck = GetBlock(x, y, z + 1);
-                                    }
+                                        ClientSection? neighbor = neighbors[(int)side];
+                                        Block? blockToCheck;
 
-                                    if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
-                                    {
-                                        BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Front, data, currentLiquid));
-                                        float[] vertices = mesh.GetVertices();
+                                        Vector3i checkPos = side.Offset(pos);
 
-                                        // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                        int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
-                                        int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
-                                        int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
-                                        int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
+                                        if (IsPositionOutOfSection(checkPos))
+                                        {
+                                            checkPos = checkPos.Mod(SectionSize);
 
-                                        // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                        int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Front << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
+                                            bool atEnd = side == BlockSide.Top || side == BlockSide.Bottom;
+                                            blockToCheck = neighbor?.GetBlock(checkPos) ?? (atEnd ? Block.Air : null);
+                                        }
+                                        else
+                                        {
+                                            blockToCheck = GetBlock(checkPos);
+                                        }
 
-                                        simpleFrontFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
-                                    }
+                                        if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
+                                        {
+                                            BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(side, data, currentLiquid));
+                                            float[] vertices = mesh.GetVertices();
 
-                                    // Back
-                                    if (z - 1 < 0 && backNeighbor != null)
-                                    {
-                                        blockToCheck = backNeighbor.GetBlock(x, y, SectionSize - 1);
-                                    }
-                                    else if (z - 1 < 0)
-                                    {
-                                        blockToCheck = null;
-                                    }
-                                    else
-                                    {
-                                        blockToCheck = GetBlock(x, y, z - 1);
-                                    }
+                                            // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
+                                            int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
+                                            int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
+                                            int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
+                                            int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
 
-                                    if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
-                                    {
-                                        BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Back, data, currentLiquid));
-                                        float[] vertices = mesh.GetVertices();
+                                            // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
+                                            int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)side << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
 
-                                        // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                        int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
-                                        int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
-                                        int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
-                                        int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
-
-                                        // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                        int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Back << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
-
-                                        simpleBackFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
-                                    }
-
-                                    // Left
-                                    if (x - 1 < 0 && leftNeighbor != null)
-                                    {
-                                        blockToCheck = leftNeighbor.GetBlock(SectionSize - 1, y, z);
-                                    }
-                                    else if (x - 1 < 0)
-                                    {
-                                        blockToCheck = null;
-                                    }
-                                    else
-                                    {
-                                        blockToCheck = GetBlock(x - 1, y, z);
-                                    }
-
-                                    if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
-                                    {
-                                        BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Left, data, currentLiquid));
-                                        float[] vertices = mesh.GetVertices();
-
-                                        // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                        int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
-                                        int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
-                                        int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
-                                        int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
-
-                                        // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                        int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Left << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
-
-                                        simpleLeftFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
-                                    }
-
-                                    // Right
-                                    if (x + 1 >= SectionSize && rightNeighbor != null)
-                                    {
-                                        blockToCheck = rightNeighbor.GetBlock(0, y, z);
-                                    }
-                                    else if (x + 1 >= SectionSize)
-                                    {
-                                        blockToCheck = null;
-                                    }
-                                    else
-                                    {
-                                        blockToCheck = GetBlock(x + 1, y, z);
-                                    }
-
-                                    if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
-                                    {
-                                        BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Right, data, currentLiquid));
-                                        float[] vertices = mesh.GetVertices();
-
-                                        // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                        int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
-                                        int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
-                                        int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
-                                        int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
-
-                                        // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                        int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Right << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
-
-                                        simpleRightFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
-                                    }
-
-                                    // Bottom
-                                    if (y - 1 < 0 && bottomNeighbor != null)
-                                    {
-                                        blockToCheck = bottomNeighbor.GetBlock(x, SectionSize - 1, z);
-                                    }
-                                    else if (y - 1 < 0)
-                                    {
-                                        blockToCheck = null;
-                                    }
-                                    else
-                                    {
-                                        blockToCheck = GetBlock(x, y - 1, z);
-                                    }
-
-                                    if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
-                                    {
-                                        BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Bottom, data, currentLiquid));
-                                        float[] vertices = mesh.GetVertices();
-
-                                        // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                        int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
-                                        int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
-                                        int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
-                                        int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
-
-                                        // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                        int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Bottom << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
-
-                                        simpleBottomFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
-                                    }
-
-                                    // Top
-                                    if (y + 1 >= SectionSize && topNeighbor != null)
-                                    {
-                                        blockToCheck = topNeighbor.GetBlock(x, 0, z);
-                                    }
-                                    else if (y + 1 >= SectionSize)
-                                    {
-                                        blockToCheck = null;
-                                    }
-                                    else
-                                    {
-                                        blockToCheck = GetBlock(x, y + 1, z);
-                                    }
-
-                                    if (blockToCheck?.IsFull != true || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques)))
-                                    {
-                                        BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.Top, data, currentLiquid));
-                                        float[] vertices = mesh.GetVertices();
-
-                                        // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                        int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
-                                        int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
-                                        int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
-                                        int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
-
-                                        // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                        int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)BlockSide.Top << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
-
-                                        simpleTopFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
+                                            blockMeshFaceHolders[(int)side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
+                                        }
                                     }
 
                                     break;
@@ -303,7 +140,7 @@ namespace VoxelGame.Client.Logic
 
                                     complexIndices.AddRange(indices);
 
-                                    for (int i = 0; i < mesh.VertexCount; i++)
+                                    for (var i = 0; i < mesh.VertexCount; i++)
                                     {
                                         complexVertexPositions.Add(vertices[(i * 8) + 0] + x);
                                         complexVertexPositions.Add(vertices[(i * 8) + 1] + y);
@@ -336,277 +173,73 @@ namespace VoxelGame.Client.Logic
 
                         if (currentLiquid.RenderType != RenderType.NotRendered && ((currentBlock is IFillable fillable && fillable.RenderLiquid) || (currentBlock is not IFillable && !currentBlock.IsSolidAndFull)))
                         {
-                            LiquidMeshFaceHolder liquidFrontFaceHolder;
-                            LiquidMeshFaceHolder liquidBackFaceHolder;
-                            LiquidMeshFaceHolder liquidLeftFaceHolder;
-                            LiquidMeshFaceHolder liquidRightFaceHolder;
-                            LiquidMeshFaceHolder liquidBottomFaceHolder;
-                            LiquidMeshFaceHolder liquidTopFaceHolder;
+                            LiquidMeshFaceHolder[] liquidMeshFaceHolders = currentLiquid.RenderType == RenderType.Opaque ?
+                                opaqueLiquidMeshFaceHolders : transparentLiquidMeshFaceHolders;
 
-                            if (currentLiquid.RenderType == RenderType.Opaque)
+                            MeshLiquidSide(BlockSide.Front);
+                            MeshLiquidSide(BlockSide.Back);
+                            MeshLiquidSide(BlockSide.Left);
+                            MeshLiquidSide(BlockSide.Right);
+                            MeshLiquidSide(BlockSide.Bottom);
+                            MeshLiquidSide(BlockSide.Top);
+
+                            void MeshLiquidSide(BlockSide side)
                             {
-                                liquidFrontFaceHolder = opaqueLiquidFrontFaceHolder;
-                                liquidBackFaceHolder = opaqueLiquidBackFaceHolder;
-                                liquidLeftFaceHolder = opaqueLiquidLeftFaceHolder;
-                                liquidRightFaceHolder = opaqueLiquidRightFaceHolder;
-                                liquidBottomFaceHolder = opaqueLiquidBottomFaceHolder;
-                                liquidTopFaceHolder = opaqueLiquidTopFaceHolder;
-                            }
-                            else // RenderType.Opaque
-                            {
-                                liquidFrontFaceHolder = transparentLiquidFrontFaceHolder;
-                                liquidBackFaceHolder = transparentLiquidBackFaceHolder;
-                                liquidLeftFaceHolder = transparentLiquidLeftFaceHolder;
-                                liquidRightFaceHolder = transparentLiquidRightFaceHolder;
-                                liquidBottomFaceHolder = transparentLiquidBottomFaceHolder;
-                                liquidTopFaceHolder = transparentLiquidTopFaceHolder;
-                            }
+                                ClientSection? neighbor = neighbors[(int)side];
 
-                            Liquid? liquidToCheck;
-                            Block? blockToCheck;
-                            int sideHeight = -1;
-                            bool isNeighbourLiquidMeshed;
+                                Liquid? liquidToCheck;
+                                Block? blockToCheck;
 
-                            // Front.
-                            if (z + 1 >= SectionSize && frontNeighbor != null)
-                            {
-                                liquidToCheck = frontNeighbor.GetLiquid(x, y, 0, out sideHeight);
-                                blockToCheck = frontNeighbor.GetBlock(x, y, 0);
-                            }
-                            else if (z + 1 >= SectionSize)
-                            {
-                                liquidToCheck = null;
-                                blockToCheck = null;
-                            }
-                            else
-                            {
-                                liquidToCheck = GetLiquid(x, y, z + 1, out sideHeight);
-                                blockToCheck = GetBlock(x, y, z + 1);
-                            }
+                                Vector3i checkPos = side.Offset(pos);
 
-                            isNeighbourLiquidMeshed = blockToCheck is IFillable frontFillable && frontFillable.RenderLiquid;
+                                int sideHeight = -1;
+                                bool atEnd = side == BlockSide.Top || side == BlockSide.Bottom;
 
-                            if (liquidToCheck != currentLiquid || !isNeighbourLiquidMeshed) sideHeight = -1;
+                                if (IsPositionOutOfSection(checkPos))
+                                {
+                                    checkPos = checkPos.Mod(SectionSize);
 
-                            if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
-                            {
-                                LiquidMeshData mesh = currentLiquid.GetMesh(new LiquidMeshInfo(level, BlockSide.Front, isStatic));
+                                    liquidToCheck = neighbor?.GetLiquid(checkPos, out sideHeight) ?? (atEnd ? Liquid.None : null);
+                                    blockToCheck = neighbor?.GetBlock(checkPos) ?? (atEnd ? Block.Air : null);
+                                }
+                                else
+                                {
+                                    liquidToCheck = GetLiquid(checkPos, out sideHeight);
+                                    blockToCheck = GetBlock(checkPos);
+                                }
 
-                                bool singleSided = (blockToCheck?.IsOpaque == false &&
-                                                    blockToCheck?.IsSolidAndFull == true);
+                                bool isNeighborLiquidMeshed = blockToCheck is IFillable frontFillable && frontFillable.RenderLiquid;
 
-                                // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
-                                int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 12) | (0 << 11) | (y << 6) | (z + 1);
-                                int upperDataB = (0 << 31) | (1 << 30) | (x + 0 << 12) | (1 << 11) | (y << 6) | (z + 1);
-                                int upperDataC = (1 << 31) | (1 << 30) | (x + 1 << 12) | (1 << 11) | (y << 6) | (z + 1);
-                                int upperDataD = (1 << 31) | (0 << 30) | (x + 1 << 12) | (0 << 11) | (y << 6) | (z + 1);
+                                if (liquidToCheck != currentLiquid || !isNeighborLiquidMeshed) sideHeight = -1;
 
-                                // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(liquidTint) << 23) | ((int)BlockSide.Front << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((mesh.TextureIndex - 1) >> 4) + 1) & 0b0111_1111);
+                                bool flowsTowardsFace = side == BlockSide.Top
+                                    ? currentLiquid.Direction < 0
+                                    : currentLiquid.Direction > 0;
 
-                                liquidFrontFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
-                            }
+                                bool meshAtNormal = (int)level > sideHeight && blockToCheck?.IsOpaque != true;
+                                bool meshAtEnd = ((flowsTowardsFace && sideHeight != 7 && blockToCheck?.IsOpaque != true)
+                                                  || (!flowsTowardsFace && (level != LiquidLevel.Eight || (liquidToCheck != currentLiquid && blockToCheck?.IsOpaque != true))));
 
-                            // Back.
-                            if (z - 1 < 0 && backNeighbor != null)
-                            {
-                                liquidToCheck = backNeighbor.GetLiquid(x, y, SectionSize - 1, out sideHeight);
-                                blockToCheck = backNeighbor.GetBlock(x, y, SectionSize - 1);
-                            }
-                            else if (z - 1 < 0)
-                            {
-                                liquidToCheck = null;
-                                blockToCheck = null;
-                            }
-                            else
-                            {
-                                liquidToCheck = GetLiquid(x, y, z - 1, out sideHeight);
-                                blockToCheck = GetBlock(x, y, z - 1);
-                            }
+                                if (atEnd ? meshAtEnd : meshAtNormal)
+                                {
+                                    LiquidMeshData mesh = currentLiquid.GetMesh(new LiquidMeshInfo(level, side, isStatic));
 
-                            isNeighbourLiquidMeshed = blockToCheck is IFillable backFillable && backFillable.RenderLiquid;
+                                    bool singleSided = (blockToCheck?.IsOpaque == false &&
+                                                        blockToCheck?.IsSolidAndFull == true);
 
-                            if (liquidToCheck != currentLiquid || !isNeighbourLiquidMeshed) sideHeight = -1;
+                                    side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
 
-                            if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
-                            {
-                                LiquidMeshData mesh = currentLiquid.GetMesh(new LiquidMeshInfo(level, BlockSide.Back, isStatic));
+                                    // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
+                                    int upperDataA = (0 << 31) | (0 << 30) | (x + a[0] << 12) | (a[1] << 11) | (y << 6) | (z + a[2]);
+                                    int upperDataB = (0 << 31) | (1 << 30) | (x + b[0] << 12) | (b[1] << 11) | (y << 6) | (z + b[2]);
+                                    int upperDataC = (1 << 31) | (1 << 30) | (x + c[0] << 12) | (c[1] << 11) | (y << 6) | (z + c[2]);
+                                    int upperDataD = (1 << 31) | (0 << 30) | (x + d[0] << 12) | (d[1] << 11) | (y << 6) | (z + d[2]);
 
-                                bool singleSided = (blockToCheck?.IsOpaque == false &&
-                                                    blockToCheck?.IsSolidAndFull == true);
+                                    // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
+                                    int lowerData = (mesh.Tint.GetBits(liquidTint) << 23) | ((int)side << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((mesh.TextureIndex - 1) >> 4) + 1) & 0b0111_1111);
 
-                                // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
-                                int upperDataA = (0 << 31) | (0 << 30) | (x + 1 << 12) | (0 << 11) | (y << 6) | (z + 0);
-                                int upperDataB = (0 << 31) | (1 << 30) | (x + 1 << 12) | (1 << 11) | (y << 6) | (z + 0);
-                                int upperDataC = (1 << 31) | (1 << 30) | (x + 0 << 12) | (1 << 11) | (y << 6) | (z + 0);
-                                int upperDataD = (1 << 31) | (0 << 30) | (x + 0 << 12) | (0 << 11) | (y << 6) | (z + 0);
-
-                                // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(liquidTint) << 23) | ((int)BlockSide.Back << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((mesh.TextureIndex - 1) >> 4) + 1) & 0b0111_1111);
-
-                                liquidBackFaceHolder.AddFace(z, x, y, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
-                            }
-
-                            // Left.
-                            if (x - 1 < 0 && leftNeighbor != null)
-                            {
-                                liquidToCheck = leftNeighbor.GetLiquid(SectionSize - 1, y, z, out sideHeight);
-                                blockToCheck = leftNeighbor.GetBlock(SectionSize - 1, y, z);
-                            }
-                            else if (x - 1 < 0)
-                            {
-                                liquidToCheck = null;
-                                blockToCheck = null;
-                            }
-                            else
-                            {
-                                liquidToCheck = GetLiquid(x - 1, y, z, out sideHeight);
-                                blockToCheck = GetBlock(x - 1, y, z);
-                            }
-
-                            isNeighbourLiquidMeshed = blockToCheck is IFillable leftFillable && leftFillable.RenderLiquid;
-
-                            if (liquidToCheck != currentLiquid || !isNeighbourLiquidMeshed) sideHeight = -1;
-
-                            if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
-                            {
-                                LiquidMeshData mesh = currentLiquid.GetMesh(new LiquidMeshInfo(level, BlockSide.Left, isStatic));
-
-                                bool singleSided = (blockToCheck?.IsOpaque == false &&
-                                                    blockToCheck?.IsSolidAndFull == true);
-
-                                // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
-                                int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 12) | (0 << 11) | (y << 6) | (z + 0);
-                                int upperDataB = (0 << 31) | (1 << 30) | (x + 0 << 12) | (1 << 11) | (y << 6) | (z + 0);
-                                int upperDataC = (1 << 31) | (1 << 30) | (x + 0 << 12) | (1 << 11) | (y << 6) | (z + 1);
-                                int upperDataD = (1 << 31) | (0 << 30) | (x + 0 << 12) | (0 << 11) | (y << 6) | (z + 1);
-
-                                // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(liquidTint) << 23) | ((int)BlockSide.Left << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((mesh.TextureIndex - 1) >> 4) + 1) & 0b0111_1111);
-
-                                liquidLeftFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
-                            }
-
-                            // Right.
-                            if (x + 1 >= SectionSize && rightNeighbor != null)
-                            {
-                                liquidToCheck = rightNeighbor.GetLiquid(0, y, z, out sideHeight);
-                                blockToCheck = rightNeighbor.GetBlock(0, y, z);
-                            }
-                            else if (x + 1 >= SectionSize)
-                            {
-                                liquidToCheck = null;
-                                blockToCheck = null;
-                            }
-                            else
-                            {
-                                liquidToCheck = GetLiquid(x + 1, y, z, out sideHeight);
-                                blockToCheck = GetBlock(x + 1, y, z);
-                            }
-
-                            isNeighbourLiquidMeshed = blockToCheck is IFillable rightFillable && rightFillable.RenderLiquid;
-
-                            if (liquidToCheck != currentLiquid || !isNeighbourLiquidMeshed) sideHeight = -1;
-
-                            if ((int)level > sideHeight && blockToCheck?.IsOpaque != true)
-                            {
-                                LiquidMeshData mesh = currentLiquid.GetMesh(new LiquidMeshInfo(level, BlockSide.Right, isStatic));
-
-                                bool singleSided = (blockToCheck?.IsOpaque == false &&
-                                                    blockToCheck?.IsSolidAndFull == true);
-
-                                // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
-                                int upperDataA = (0 << 31) | (0 << 30) | (x + 1 << 12) | (0 << 11) | (y << 6) | (z + 1);
-                                int upperDataB = (0 << 31) | (1 << 30) | (x + 1 << 12) | (1 << 11) | (y << 6) | (z + 1);
-                                int upperDataC = (1 << 31) | (1 << 30) | (x + 1 << 12) | (1 << 11) | (y << 6) | (z + 0);
-                                int upperDataD = (1 << 31) | (0 << 30) | (x + 1 << 12) | (0 << 11) | (y << 6) | (z + 0);
-
-                                // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(liquidTint) << 23) | ((int)BlockSide.Right << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((mesh.TextureIndex - 1) >> 4) + 1) & 0b0111_1111);
-
-                                liquidRightFaceHolder.AddFace(x, y, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
-                            }
-
-                            // Bottom.
-                            if (y - 1 < 0 && bottomNeighbor != null)
-                            {
-                                liquidToCheck = bottomNeighbor.GetLiquid(x, SectionSize - 1, z, out sideHeight);
-                                blockToCheck = bottomNeighbor.GetBlock(x, SectionSize - 1, z);
-                            }
-                            else if (y - 1 < 0)
-                            {
-                                liquidToCheck = null;
-                                blockToCheck = null;
-                            }
-                            else
-                            {
-                                liquidToCheck = GetLiquid(x, y - 1, z, out sideHeight);
-                                blockToCheck = GetBlock(x, y - 1, z);
-                            }
-
-                            isNeighbourLiquidMeshed = blockToCheck is IFillable bottomFillable && bottomFillable.RenderLiquid;
-
-                            if (liquidToCheck != currentLiquid || !isNeighbourLiquidMeshed) sideHeight = -1;
-
-                            if ((currentLiquid.Direction > 0 && sideHeight != 7 && blockToCheck?.IsOpaque != true) || (currentLiquid.Direction < 0 && (level != LiquidLevel.Eight || (liquidToCheck != currentLiquid && blockToCheck?.IsOpaque != true))))
-                            {
-                                LiquidMeshData mesh = currentLiquid.GetMesh(new LiquidMeshInfo(level, BlockSide.Bottom, isStatic));
-
-                                bool singleSided = ((currentLiquid.Direction > 0 || level == LiquidLevel.Eight) &&
-                                                    blockToCheck?.IsOpaque == false &&
-                                                    blockToCheck?.IsSolidAndFull == true);
-
-                                // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
-                                int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 12) | (0 << 11) | (y << 6) | (z + 0);
-                                int upperDataB = (0 << 31) | (1 << 30) | (x + 0 << 12) | (0 << 11) | (y << 6) | (z + 1);
-                                int upperDataC = (1 << 31) | (1 << 30) | (x + 1 << 12) | (0 << 11) | (y << 6) | (z + 1);
-                                int upperDataD = (1 << 31) | (0 << 30) | (x + 1 << 12) | (0 << 11) | (y << 6) | (z + 0);
-
-                                // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(liquidTint) << 23) | ((int)BlockSide.Bottom << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((mesh.TextureIndex - 1) >> 4) + 1) & 0b0111_1111);
-
-                                liquidBottomFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
-                            }
-
-                            // Top.
-                            if (y + 1 >= SectionSize && topNeighbor != null)
-                            {
-                                liquidToCheck = topNeighbor.GetLiquid(x, 0, z, out sideHeight);
-                                blockToCheck = topNeighbor.GetBlock(x, 0, z);
-                            }
-                            else if (y + 1 >= SectionSize)
-                            {
-                                liquidToCheck = null;
-                                blockToCheck = null;
-                            }
-                            else
-                            {
-                                liquidToCheck = GetLiquid(x, y + 1, z, out sideHeight);
-                                blockToCheck = GetBlock(x, y + 1, z);
-                            }
-
-                            isNeighbourLiquidMeshed = blockToCheck is IFillable topFillable && topFillable.RenderLiquid;
-
-                            if (liquidToCheck != currentLiquid || !isNeighbourLiquidMeshed) sideHeight = -1;
-
-                            if ((currentLiquid.Direction < 0 && sideHeight != 7 && blockToCheck?.IsOpaque != true) || (currentLiquid.Direction > 0 && (level != LiquidLevel.Eight || (liquidToCheck != currentLiquid && blockToCheck?.IsOpaque != true))))
-                            {
-                                LiquidMeshData mesh = currentLiquid.GetMesh(new LiquidMeshInfo(level, BlockSide.Top, isStatic));
-
-                                bool singleSided = ((currentLiquid.Direction < 0 || level == LiquidLevel.Eight) &&
-                                                    blockToCheck?.IsOpaque == false &&
-                                                    blockToCheck?.IsSolidAndFull == true);
-
-                                // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
-                                int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 12) | (1 << 11) | (y << 6) | (z + 1);
-                                int upperDataB = (0 << 31) | (1 << 30) | (x + 0 << 12) | (1 << 11) | (y << 6) | (z + 0);
-                                int upperDataC = (1 << 31) | (1 << 30) | (x + 1 << 12) | (1 << 11) | (y << 6) | (z + 0);
-                                int upperDataD = (1 << 31) | (0 << 30) | (x + 1 << 12) | (1 << 11) | (y << 6) | (z + 1);
-
-                                // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-                                int lowerData = (mesh.Tint.GetBits(liquidTint) << 23) | ((int)BlockSide.Top << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((mesh.TextureIndex - 1) >> 4) + 1) & 0b0111_1111);
-
-                                liquidTopFaceHolder.AddFace(y, x, z, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
+                                    liquidMeshFaceHolders[(int)side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
+                                }
                             }
                         }
                     }
@@ -615,61 +248,109 @@ namespace VoxelGame.Client.Logic
 
             // Build the simple mesh data.
             PooledList<int> simpleVertexData = new PooledList<int>(4096);
-
-            simpleFrontFaceHolder.GenerateMesh(ref simpleVertexData);
-            simpleBackFaceHolder.GenerateMesh(ref simpleVertexData);
-            simpleLeftFaceHolder.GenerateMesh(ref simpleVertexData);
-            simpleRightFaceHolder.GenerateMesh(ref simpleVertexData);
-            simpleBottomFaceHolder.GenerateMesh(ref simpleVertexData);
-            simpleTopFaceHolder.GenerateMesh(ref simpleVertexData);
+            GenerateMesh(blockMeshFaceHolders, ref simpleVertexData);
 
             // Build the liquid mesh data.
             PooledList<int> opaqueLiquidVertexData = new PooledList<int>();
             PooledList<uint> opaqueLiquidIndices = new PooledList<uint>();
-            uint opaqueLiquidVertCount = 0;
+            uint opaqueLiquidVertexCount = 0;
 
-            opaqueLiquidFrontFaceHolder.GenerateMesh(ref opaqueLiquidVertexData, ref opaqueLiquidVertCount, ref opaqueLiquidIndices);
-            opaqueLiquidBackFaceHolder.GenerateMesh(ref opaqueLiquidVertexData, ref opaqueLiquidVertCount, ref opaqueLiquidIndices);
-            opaqueLiquidLeftFaceHolder.GenerateMesh(ref opaqueLiquidVertexData, ref opaqueLiquidVertCount, ref opaqueLiquidIndices);
-            opaqueLiquidRightFaceHolder.GenerateMesh(ref opaqueLiquidVertexData, ref opaqueLiquidVertCount, ref opaqueLiquidIndices);
-            opaqueLiquidBottomFaceHolder.GenerateMesh(ref opaqueLiquidVertexData, ref opaqueLiquidVertCount, ref opaqueLiquidIndices);
-            opaqueLiquidTopFaceHolder.GenerateMesh(ref opaqueLiquidVertexData, ref opaqueLiquidVertCount, ref opaqueLiquidIndices);
+            GenerateMesh(opaqueLiquidMeshFaceHolders, ref opaqueLiquidVertexData, ref opaqueLiquidVertexCount, ref opaqueLiquidIndices);
 
             PooledList<int> transparentLiquidVertexData = new PooledList<int>();
             PooledList<uint> transparentLiquidIndices = new PooledList<uint>();
-            uint transparentLiquidVertCount = 0;
+            uint transparentLiquidVertexCount = 0;
 
-            transparentLiquidFrontFaceHolder.GenerateMesh(ref transparentLiquidVertexData, ref transparentLiquidVertCount, ref transparentLiquidIndices);
-            transparentLiquidBackFaceHolder.GenerateMesh(ref transparentLiquidVertexData, ref transparentLiquidVertCount, ref transparentLiquidIndices);
-            transparentLiquidLeftFaceHolder.GenerateMesh(ref transparentLiquidVertexData, ref transparentLiquidVertCount, ref transparentLiquidIndices);
-            transparentLiquidRightFaceHolder.GenerateMesh(ref transparentLiquidVertexData, ref transparentLiquidVertCount, ref transparentLiquidIndices);
-            transparentLiquidBottomFaceHolder.GenerateMesh(ref transparentLiquidVertexData, ref transparentLiquidVertCount, ref transparentLiquidIndices);
-            transparentLiquidTopFaceHolder.GenerateMesh(ref transparentLiquidVertexData, ref transparentLiquidVertCount, ref transparentLiquidIndices);
+            GenerateMesh(transparentLiquidMeshFaceHolders, ref transparentLiquidVertexData, ref transparentLiquidVertexCount, ref transparentLiquidIndices);
 
             hasMesh = complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 || transparentLiquidVertexData.Count != 0;
 
             meshData = new SectionMeshData(ref simpleVertexData, ref complexVertexPositions, ref complexVertexData, ref complexIndices, ref opaqueLiquidVertexData, ref opaqueLiquidIndices, ref transparentLiquidVertexData, ref transparentLiquidIndices);
 
-            simpleFrontFaceHolder.ReturnToPool();
-            simpleBackFaceHolder.ReturnToPool();
-            simpleLeftFaceHolder.ReturnToPool();
-            simpleRightFaceHolder.ReturnToPool();
-            simpleBottomFaceHolder.ReturnToPool();
-            simpleTopFaceHolder.ReturnToPool();
+            ReturnToPool(blockMeshFaceHolders);
+            ReturnToPool(opaqueLiquidMeshFaceHolders);
+            ReturnToPool(transparentLiquidMeshFaceHolders);
+        }
 
-            opaqueLiquidFrontFaceHolder.ReturnToPool();
-            opaqueLiquidBackFaceHolder.ReturnToPool();
-            opaqueLiquidLeftFaceHolder.ReturnToPool();
-            opaqueLiquidRightFaceHolder.ReturnToPool();
-            opaqueLiquidBottomFaceHolder.ReturnToPool();
-            opaqueLiquidTopFaceHolder.ReturnToPool();
+        private static ClientSection?[] GetNeighborSections(Vector3i sectionPosition)
+        {
+            ClientSection?[] neighbors = new ClientSection?[6];
 
-            transparentLiquidFrontFaceHolder.ReturnToPool();
-            transparentLiquidBackFaceHolder.ReturnToPool();
-            transparentLiquidLeftFaceHolder.ReturnToPool();
-            transparentLiquidRightFaceHolder.ReturnToPool();
-            transparentLiquidBottomFaceHolder.ReturnToPool();
-            transparentLiquidTopFaceHolder.ReturnToPool();
+            neighbors[(int)BlockSide.Front] = Game.World.GetSection(BlockSide.Front.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int)BlockSide.Back] = Game.World.GetSection(BlockSide.Back.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int)BlockSide.Left] = Game.World.GetSection(BlockSide.Left.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int)BlockSide.Right] = Game.World.GetSection(BlockSide.Right.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int)BlockSide.Bottom] = Game.World.GetSection(BlockSide.Bottom.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int)BlockSide.Top] = Game.World.GetSection(BlockSide.Top.Offset(sectionPosition)) as ClientSection;
+
+            return neighbors;
+        }
+
+        private static BlockMeshFaceHolder[] CreateBlockMeshFaceHolders()
+        {
+            BlockMeshFaceHolder[] holders = new BlockMeshFaceHolder[6];
+
+            holders[(int)BlockSide.Front] = new BlockMeshFaceHolder(BlockSide.Front);
+            holders[(int)BlockSide.Back] = new BlockMeshFaceHolder(BlockSide.Back);
+            holders[(int)BlockSide.Left] = new BlockMeshFaceHolder(BlockSide.Left);
+            holders[(int)BlockSide.Right] = new BlockMeshFaceHolder(BlockSide.Right);
+            holders[(int)BlockSide.Bottom] = new BlockMeshFaceHolder(BlockSide.Bottom);
+            holders[(int)BlockSide.Top] = new BlockMeshFaceHolder(BlockSide.Top);
+
+            return holders;
+        }
+
+        private static LiquidMeshFaceHolder[] CreateLiquidMeshFaceHolders()
+        {
+            LiquidMeshFaceHolder[] holders = new LiquidMeshFaceHolder[6];
+
+            holders[(int)BlockSide.Front] = new LiquidMeshFaceHolder(BlockSide.Front);
+            holders[(int)BlockSide.Back] = new LiquidMeshFaceHolder(BlockSide.Back);
+            holders[(int)BlockSide.Left] = new LiquidMeshFaceHolder(BlockSide.Left);
+            holders[(int)BlockSide.Right] = new LiquidMeshFaceHolder(BlockSide.Right);
+            holders[(int)BlockSide.Bottom] = new LiquidMeshFaceHolder(BlockSide.Bottom);
+            holders[(int)BlockSide.Top] = new LiquidMeshFaceHolder(BlockSide.Top);
+
+            return holders;
+        }
+
+        private static void GenerateMesh(BlockMeshFaceHolder[] holders, ref PooledList<int> data)
+        {
+            foreach (BlockMeshFaceHolder holder in holders)
+            {
+                holder.GenerateMesh(ref data);
+            }
+        }
+
+        private static void GenerateMesh(LiquidMeshFaceHolder[] holders, ref PooledList<int> vertexData, ref uint vertexCount, ref PooledList<uint> indexData)
+        {
+            foreach (LiquidMeshFaceHolder holder in holders)
+            {
+                holder.GenerateMesh(ref vertexData, ref vertexCount, ref indexData);
+            }
+        }
+
+        private static void ReturnToPool(BlockMeshFaceHolder[] holders)
+        {
+            foreach (BlockMeshFaceHolder holder in holders)
+            {
+                holder.ReturnToPool();
+            }
+        }
+
+        private static void ReturnToPool(LiquidMeshFaceHolder[] holders)
+        {
+            foreach (LiquidMeshFaceHolder holder in holders)
+            {
+                holder.ReturnToPool();
+            }
+        }
+
+        private static bool IsPositionOutOfSection(Vector3i position)
+        {
+            return (position.X < 0 || position.X >= SectionSize)
+                   || (position.Y < 0 || position.Y >= SectionSize)
+                   || (position.Z < 0 || position.Z >= SectionSize);
         }
 
         public void SetMeshData(ref SectionMeshData meshData)

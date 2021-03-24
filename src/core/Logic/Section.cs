@@ -83,27 +83,20 @@ namespace VoxelGame.Core.Logic
         /// <returns>The block at the given position.</returns>
         public uint this[int x, int y, int z]
         {
-            get
-            {
-                return blocks[(x << 10) + (y << 5) + z];
-            }
-
-            set
-            {
-                blocks[(x << 10) + (y << 5) + z] = value;
-            }
+            get => blocks[(x << 10) + (y << 5) + z];
+            set => blocks[(x << 10) + (y << 5) + z] = value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected Block GetBlock(int x, int y, int z)
+        protected Block GetBlock(Vector3i position)
         {
-            return Block.TranslateID(this[x, y, z] & BLOCKMASK);
+            return Block.TranslateID(this[position.X, position.Y, position.Z] & BLOCKMASK);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected Liquid GetLiquid(int x, int y, int z, out int level)
+        protected Liquid GetLiquid(Vector3i position, out int level)
         {
-            uint val = this[x, y, z];
+            uint val = this[position.X, position.Y, position.Z];
 
             level = (int)((val & LEVELMASK) >> LEVELSHIFT);
             return Liquid.TranslateID((val & LIQUIDMASK) >> LIQUIDSHIFT);
