@@ -88,6 +88,26 @@ namespace VoxelGame.Core.Logic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Decode(uint val, out Block block, out uint data, out Liquid liquid, out LiquidLevel level, out bool isStatic)
+        {
+            block = Block.TranslateID(val & BLOCKMASK);
+            data = (val & DATAMASK) >> DATASHIFT;
+            liquid = Liquid.TranslateID((val & LIQUIDMASK) >> LIQUIDSHIFT);
+            level = (LiquidLevel)((val & LEVELMASK) >> LEVELSHIFT);
+            isStatic = (val & STATICMASK) != 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint Encode(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic)
+        {
+            return (uint)((((isStatic ? 1 : 0) << Section.STATICSHIFT) & Section.STATICMASK)
+                           | (((uint)level << Section.LEVELSHIFT) & Section.LEVELMASK)
+                           | ((liquid.Id << Section.LIQUIDSHIFT) & Section.LIQUIDMASK)
+                           | ((data << Section.DATASHIFT) & Section.DATAMASK)
+                           | (block.Id & Section.BLOCKMASK));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected Block GetBlock(Vector3i position)
         {
             return Block.TranslateID(this[position.X, position.Y, position.Z] & BLOCKMASK);

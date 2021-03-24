@@ -71,12 +71,8 @@ namespace VoxelGame.Client.Logic
                         Vector3i pos = (x, y, z);
                         uint val = blocks[(x << 10) + (y << 5) + z];
 
-                        Block currentBlock = Block.TranslateID(val & BLOCKMASK);
-                        uint data = (val & DATAMASK) >> DATASHIFT;
+                        Section.Decode(val, out Block currentBlock, out uint data, out Liquid currentLiquid, out LiquidLevel level, out bool isStatic);
 
-                        Liquid currentLiquid = Liquid.TranslateID((val & Section.LIQUIDMASK) >> Section.LIQUIDSHIFT);
-                        LiquidLevel level = (LiquidLevel)((val & Section.LEVELMASK) >> Section.LEVELSHIFT);
-                        bool isStatic = (val & Section.STATICMASK) != 0;
                         bool isFull = level == LiquidLevel.Eight;
 
                         switch (currentBlock.TargetBuffer)
