@@ -113,7 +113,7 @@ namespace VoxelGame.Client.Logic
 
                                         if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                                         {
-                                            BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(side, data, currentLiquid));
+                                            BlockMeshData mesh = currentBlock.GetMesh(BlockMeshInfo.Simple(side, data, currentLiquid));
                                             float[] vertices = mesh.GetVertices();
 
                                             // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
@@ -133,7 +133,7 @@ namespace VoxelGame.Client.Logic
                                 }
                             case TargetBuffer.Complex:
                                 {
-                                    BlockMeshData mesh = currentBlock.GetMesh(new BlockMeshInfo(BlockSide.All, data, currentLiquid));
+                                    BlockMeshData mesh = currentBlock.GetMesh(BlockMeshInfo.Complex(data, currentLiquid));
                                     float[] vertices = mesh.GetVertices();
                                     int[] textureIndices = mesh.GetTextureIndices();
                                     uint[] indices = mesh.GetIndices();
