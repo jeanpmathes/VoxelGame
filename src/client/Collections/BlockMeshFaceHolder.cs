@@ -16,20 +16,17 @@ namespace VoxelGame.Client.Collections
     /// <summary>
     /// A specialized class used to compact block faces when meshing.
     /// </summary>
-    public class BlockMeshFaceHolder
+    public class BlockMeshFaceHolder : MeshFaceHolder
     {
         private static readonly ArrayPool<MeshFace[]> layerPool = ArrayPool<MeshFace[]>.Create(Section.SectionSize, 64);
         private static readonly ArrayPool<MeshFace> rowPool = ArrayPool<MeshFace>.Create(Section.SectionSize, 256);
 
-        private readonly BlockSide side;
         private readonly MeshFace?[][] lastFaces;
 
         private int count;
 
-        public BlockMeshFaceHolder(BlockSide side)
+        public BlockMeshFaceHolder(BlockSide side) : base(side)
         {
-            this.side = side;
-
             // Initialize layers.
             lastFaces = layerPool.Rent(Section.SectionSize);
 
@@ -63,23 +60,23 @@ namespace VoxelGame.Client.Collections
                     case BlockSide.Front:
                     case BlockSide.Back:
                     case BlockSide.Bottom:
-                        currentFace.vert_0_1 = vertices.vertB;
-                        currentFace.vert_1_1 = vertices.vertC;
+                        currentFace.vertex01 = vertices.vertB;
+                        currentFace.vertex11 = vertices.vertC;
                         break;
 
                     case BlockSide.Left:
-                        currentFace.vert_1_1 = vertices.vertC;
-                        currentFace.vert_1_0 = vertices.vertD;
+                        currentFace.vertex11 = vertices.vertC;
+                        currentFace.vertex10 = vertices.vertD;
                         break;
 
                     case BlockSide.Right:
-                        currentFace.vert_0_0 = vertices.vertA;
-                        currentFace.vert_0_1 = vertices.vertB;
+                        currentFace.vertex00 = vertices.vertA;
+                        currentFace.vertex01 = vertices.vertB;
                         break;
 
                     case BlockSide.Top:
-                        currentFace.vert_0_0 = vertices.vertA;
-                        currentFace.vert_1_0 = vertices.vertD;
+                        currentFace.vertex00 = vertices.vertA;
+                        currentFace.vertex10 = vertices.vertD;
                         break;
                 }
 
@@ -111,19 +108,19 @@ namespace VoxelGame.Client.Collections
                         case BlockSide.Front:
                         case BlockSide.Bottom:
                         case BlockSide.Top:
-                            currentFace.vert_0_0 = combinationRowFace.vert_0_0;
-                            currentFace.vert_0_1 = combinationRowFace.vert_0_1;
+                            currentFace.vertex00 = combinationRowFace.vertex00;
+                            currentFace.vertex01 = combinationRowFace.vertex01;
                             break;
 
                         case BlockSide.Back:
-                            currentFace.vert_1_1 = combinationRowFace.vert_1_1;
-                            currentFace.vert_1_0 = combinationRowFace.vert_1_0;
+                            currentFace.vertex11 = combinationRowFace.vertex11;
+                            currentFace.vertex10 = combinationRowFace.vertex10;
                             break;
 
                         case BlockSide.Left:
                         case BlockSide.Right:
-                            currentFace.vert_0_0 = combinationRowFace.vert_0_0;
-                            currentFace.vert_1_0 = combinationRowFace.vert_1_0;
+                            currentFace.vertex00 = combinationRowFace.vertex00;
+                            currentFace.vertex10 = combinationRowFace.vertex10;
                             break;
                     }
 
@@ -150,36 +147,6 @@ namespace VoxelGame.Client.Collections
             }
         }
 
-        private void ExtractIndices(Vector3i pos, out int layer, out int row, out int position)
-        {
-            switch (side)
-            {
-                case BlockSide.Front:
-                case BlockSide.Back:
-                    layer = pos.Z;
-                    row = pos.X;
-                    position = pos.Y;
-                    break;
-
-                case BlockSide.Left:
-                case BlockSide.Right:
-                    layer = pos.X;
-                    row = pos.Y;
-                    position = pos.Z;
-                    break;
-
-                case BlockSide.Bottom:
-                case BlockSide.Top:
-                    layer = pos.Y;
-                    row = pos.X;
-                    position = pos.Z;
-                    break;
-
-                default:
-                    throw new InvalidOperationException();
-            }
-        }
-
         public void GenerateMesh(ref PooledList<int> meshData)
         {
             if (count == 0)
@@ -189,9 +156,9 @@ namespace VoxelGame.Client.Collections
 
             meshData.Capacity += count;
 
-            for (int l = 0; l < Section.SectionSize; l++)
+            for (var l = 0; l < Section.SectionSize; l++)
             {
-                for (int r = 0; r < Section.SectionSize; r++)
+                for (var r = 0; r < Section.SectionSize; r++)
                 {
                     MeshFace? currentFace = lastFaces[l][r];
 
@@ -204,22 +171,22 @@ namespace VoxelGame.Client.Collections
 
                         int vertTexRepetition = BuildVertexTexRepetitionMask(currentFace.isRotated, currentFace.height, currentFace.length);
 
-                        meshData.Add(vertTexRepetition | currentFace.vert_0_0);
+                        meshData.Add(vertTexRepetition | currentFace.vertex00);
                         meshData.Add(currentFace.vertData);
 
-                        meshData.Add(vertTexRepetition | currentFace.vert_1_1);
+                        meshData.Add(vertTexRepetition | currentFace.vertex11);
                         meshData.Add(currentFace.vertData);
 
-                        meshData.Add(vertTexRepetition | currentFace.vert_0_1);
+                        meshData.Add(vertTexRepetition | currentFace.vertex01);
                         meshData.Add(currentFace.vertData);
 
-                        meshData.Add(vertTexRepetition | currentFace.vert_0_0);
+                        meshData.Add(vertTexRepetition | currentFace.vertex00);
                         meshData.Add(currentFace.vertData);
 
-                        meshData.Add(vertTexRepetition | currentFace.vert_1_0);
+                        meshData.Add(vertTexRepetition | currentFace.vertex10);
                         meshData.Add(currentFace.vertData);
 
-                        meshData.Add(vertTexRepetition | currentFace.vert_1_1);
+                        meshData.Add(vertTexRepetition | currentFace.vertex11);
                         meshData.Add(currentFace.vertData);
 
                         MeshFace? next = currentFace.previousFace;
@@ -249,10 +216,10 @@ namespace VoxelGame.Client.Collections
         {
             public MeshFace? previousFace;
 
-            public int vert_0_0;
-            public int vert_0_1;
-            public int vert_1_1;
-            public int vert_1_0;
+            public int vertex00;
+            public int vertex01;
+            public int vertex11;
+            public int vertex10;
 
             public int vertData;
 
@@ -292,10 +259,10 @@ namespace VoxelGame.Client.Collections
 
                 instance.previousFace = null;
 
-                instance.vert_0_0 = vert_0_0;
-                instance.vert_0_1 = vert_0_1;
-                instance.vert_1_1 = vert_1_1;
-                instance.vert_1_0 = vert_1_0;
+                instance.vertex00 = vert_0_0;
+                instance.vertex01 = vert_0_1;
+                instance.vertex11 = vert_1_1;
+                instance.vertex10 = vert_1_0;
 
                 instance.vertData = vertData;
 
