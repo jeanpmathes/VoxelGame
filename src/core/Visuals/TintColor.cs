@@ -10,13 +10,13 @@ namespace VoxelGame.Core.Visuals
     /// <summary>
     /// A tint that can be applied to blocks.
     /// </summary>
-    public struct TintColor : IEquatable<TintColor>
+    public readonly struct TintColor : IEquatable<TintColor>
     {
         private readonly float r;
         private readonly float g;
         private readonly float b;
 
-        public bool IsNeutral { get; set; }
+        public bool IsNeutral { get; }
 
         public TintColor(float r, float g, float b)
         {
@@ -214,6 +214,11 @@ namespace VoxelGame.Core.Visuals
             {
                 return ((int)(r * 7f) << 6) | ((int)(g * 7f) << 3) | (int)(b * 7f);
             }
+        }
+
+        public int GetBits(TintColor neutral)
+        {
+            return IsNeutral ? neutral.ToBits : this.ToBits;
         }
 
         public override bool Equals(object? obj)

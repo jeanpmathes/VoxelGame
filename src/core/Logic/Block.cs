@@ -154,14 +154,11 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Returns the mesh of a block side at a certain position.
+        /// Returns the mesh of a block side at given conditions.
         /// </summary>
-        /// <param name="side">The side of the block that is required.</param>
-        /// <param name="data">The block data of the block at the position.</param>
-        /// <param name="vertices">Vertices of the mesh. Every vertex is made up of 8 floats: XYZ, UV, NOP</param>
-        /// <param name="indices">The indices of the mesh that determine how triangles are constructed.</param>
-        /// <returns>The amount of vertices in the mesh.</returns>
-        public abstract uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated);
+        /// <param name="info">Information about the conditions the mesh should be created in.</param>
+        /// <returns>The mesh data.</returns>
+        public abstract BlockMeshData GetMesh(BlockMeshInfo info);
 
         public bool Place(int x, int y, int z, Entities.PhysicsEntity? entity = null)
         {

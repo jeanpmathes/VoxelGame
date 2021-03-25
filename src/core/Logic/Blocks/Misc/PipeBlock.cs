@@ -74,20 +74,17 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 0.5f + z), new Vector3(diameter, diameter, diameter), connectors.ToArray());
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            (vertices, textureIndices, indices) = BlockModel.CombineData(out uint vertexCount, center,
-                (data & 0b10_0000) == 0 ? surface.front : connector.front,
-                (data & 0b01_0000) == 0 ? surface.back : connector.back,
-                (data & 0b00_1000) == 0 ? surface.left : connector.left,
-                (data & 0b00_0100) == 0 ? surface.right : connector.right,
-                (data & 0b00_0010) == 0 ? surface.bottom : connector.bottom,
-                (data & 0b00_0001) == 0 ? surface.top : connector.top);
+            (float[] vertices, int[] textureIndices, uint[] indices) = BlockModel.CombineData(out uint vertexCount, center,
+                (info.Data & 0b10_0000) == 0 ? surface.front : connector.front,
+                (info.Data & 0b01_0000) == 0 ? surface.back : connector.back,
+                (info.Data & 0b00_1000) == 0 ? surface.left : connector.left,
+                (info.Data & 0b00_0100) == 0 ? surface.right : connector.right,
+                (info.Data & 0b00_0010) == 0 ? surface.bottom : connector.bottom,
+                (info.Data & 0b00_0001) == 0 ? surface.top : connector.top);
 
-            tint = TintColor.None;
-            isAnimated = false;
-
-            return vertexCount;
+            return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)

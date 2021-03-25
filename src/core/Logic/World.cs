@@ -523,28 +523,24 @@ namespace VoxelGame.Core.Logic
         /// <param name="y">The y position in block coordinates.</param>
         /// <param name="z">The z position in block coordinates.</param>
         /// <param name="data">The block data at the position.</param>
-        /// <param name="liquid">The liquid id of the position.</param>
+        /// <param name="liquid">The liquid at the position.</param>
         /// <param name="level">The liquid level of the position.</param>
         /// <param name="isStatic">If the liquid at that position is static.</param>
         /// <returns>The Block at x, y, z or null if the block was not found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Block? GetBlock(int x, int y, int z, out uint data, out uint liquid, out LiquidLevel level, out bool isStatic)
+        private Block? GetBlock(int x, int y, int z, out uint data, out Liquid? liquid, out LiquidLevel level, out bool isStatic)
         {
             if (activeChunks.TryGetValue((x >> SectionSizeExp, z >> SectionSizeExp), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
             {
                 uint val = chunk.GetSection(y >> ChunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
+                Section.Decode(val, out Block block, out data, out liquid, out level, out isStatic);
 
-                data = (val & Section.DATAMASK) >> Section.DATASHIFT;
-                liquid = (val & Section.LIQUIDMASK) >> Section.LIQUIDSHIFT;
-                level = (LiquidLevel)((val & Section.LEVELMASK) >> Section.LEVELSHIFT);
-                isStatic = (val & Section.STATICMASK) != 0;
-
-                return Block.TranslateID(val & Section.BLOCKMASK);
+                return block;
             }
             else
             {
                 data = 0;
-                liquid = 0;
+                liquid = null;
                 level = 0;
                 isStatic = false;
 
@@ -561,9 +557,7 @@ namespace VoxelGame.Core.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (Block? block, Liquid? liquid) GetPosition(int x, int y, int z, out uint data, out LiquidLevel level, out bool isStatic)
         {
-            Block? block = GetBlock(x, y, z, out data, out uint liquidId, out level, out isStatic);
-            Liquid? liquid = Liquid.TranslateID(liquidId);
-
+            Block? block = GetBlock(x, y, z, out data, out Liquid? liquid, out level, out isStatic);
             return (block, liquid);
         }
 
@@ -610,7 +604,7 @@ namespace VoxelGame.Core.Logic
                 return;
             }
 
-            uint val = (uint)((((isStatic ? 1 : 0) << Section.STATICSHIFT) & Section.STATICMASK) | (((uint)level << Section.LEVELSHIFT) & Section.LEVELMASK) | ((liquid.Id << Section.LIQUIDSHIFT) & Section.LIQUIDMASK) | ((data << Section.DATASHIFT) & Section.DATAMASK) | (block.Id & Section.BLOCKMASK));
+            uint val = Section.Encode(block, data, liquid, level, isStatic);
             chunk.GetSection(y >> ChunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
 
             if (tickLiquid) liquid.TickNow(x, y, z, level, isStatic);
@@ -701,13 +695,12 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Gets a section of an active chunk.
         /// </summary>
-        /// <param name="x">The x position of the section in chunk coordinates.</param>
-        /// <param name="y">The y position of the section in chunk coordinates.</param>
-        /// <param name="z">The z position of the section in chunk coordinates.</param>
+        /// <param name="chunkPosition">The position of the section, in chunk coordinates.</param>
         /// <returns>The section at the given position or null if no section was found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Section? GetSection(int x, int y, int z)
+        public Section? GetSection(Vector3i chunkPosition)
         {
+            (int x, int y, int z) = chunkPosition;
             if (activeChunks.TryGetValue((x, z), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight)
             {
                 return chunk.GetSection(y);

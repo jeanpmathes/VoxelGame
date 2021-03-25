@@ -111,37 +111,20 @@ namespace VoxelGame.Core.Logic.Blocks
             };
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            Orientation orientation = (Orientation)(data & 0b00_0011);
-            bool isBase = (data & 0b00_0100) == 0;
-            bool isLeftSided = (data & 0b00_1000) == 0;
-            bool isClosed = (data & 0b01_0000) == 0;
+            Orientation orientation = (Orientation)(info.Data & 0b00_0011);
+            bool isBase = (info.Data & 0b00_0100) == 0;
+            bool isLeftSided = (info.Data & 0b00_1000) == 0;
+            bool isClosed = (info.Data & 0b01_0000) == 0;
 
             Orientation openOrientation = isLeftSided ? orientation.Invert() : orientation;
 
-            if (isBase)
-            {
-                vertices = verticesBase[isClosed ? (int)orientation : 4 + (int)openOrientation];
+            int index = isClosed ? (int)orientation : 4 + (int)openOrientation;
 
-                textureIndices = texIndicesBase;
-                indices = indicesBase;
-                tint = TintColor.None;
-                isAnimated = false;
-
-                return vertexCountBase;
-            }
-            else
-            {
-                vertices = verticesTop[isClosed ? (int)orientation : 4 + (int)openOrientation];
-
-                textureIndices = texIndicesTop;
-                indices = indicesTop;
-                tint = TintColor.None;
-                isAnimated = false;
-
-                return vertexCountTop;
-            }
+            return isBase
+                ? new BlockMeshData(vertexCountBase, verticesBase[index], texIndicesBase, indicesBase)
+                : new BlockMeshData(vertexCountTop, verticesTop[index], texIndicesTop, indicesTop);
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)

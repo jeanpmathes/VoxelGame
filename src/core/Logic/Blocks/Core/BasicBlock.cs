@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Blocks
     public class BasicBlock : Block, IOverlayTextureProvider
     {
         private protected float[][] sideVertices = null!;
-        private protected int[][] sideTextureIndices = null!;
+        private protected int[] sideTextureIndices = null!;
 
         private protected TextureLayout layout;
 
@@ -44,19 +44,12 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             sideVertices = BlockModel.CubeVertices();
 
-            sideTextureIndices = layout.GetTexIndexArrays();
+            sideTextureIndices = layout.GetTexIndexArray();
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            vertices = sideVertices[(int)side];
-            textureIndices = sideTextureIndices[(int)side];
-            indices = Array.Empty<uint>();
-
-            tint = TintColor.None;
-            isAnimated = false;
-
-            return 4;
+            return BlockMeshData.Basic(sideVertices[(int)info.Side], sideTextureIndices[(int)info.Side]);
         }
     }
 }

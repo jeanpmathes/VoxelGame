@@ -86,15 +86,9 @@ namespace VoxelGame.Core.Logic.Blocks
             };
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            vertices = this.vertices;
-            textureIndices = ((data & 0b1) == 0) ? bottomTexIndices : topTexIndices;
-            indices = this.indices;
-            tint = TintColor.Neutral;
-            isAnimated = false;
-
-            return 8;
+            return new BlockMeshData(8, vertices, ((info.Data & 0b1) == 0) ? bottomTexIndices : topTexIndices, indices, TintColor.Neutral);
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)

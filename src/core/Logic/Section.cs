@@ -83,27 +83,40 @@ namespace VoxelGame.Core.Logic
         /// <returns>The block at the given position.</returns>
         public uint this[int x, int y, int z]
         {
-            get
-            {
-                return blocks[(x << 10) + (y << 5) + z];
-            }
-
-            set
-            {
-                blocks[(x << 10) + (y << 5) + z] = value;
-            }
+            get => blocks[(x << 10) + (y << 5) + z];
+            set => blocks[(x << 10) + (y << 5) + z] = value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected Block GetBlock(int x, int y, int z)
+        public static void Decode(uint val, out Block block, out uint data, out Liquid liquid, out LiquidLevel level, out bool isStatic)
         {
-            return Block.TranslateID(this[x, y, z] & BLOCKMASK);
+            block = Block.TranslateID(val & BLOCKMASK);
+            data = (val & DATAMASK) >> DATASHIFT;
+            liquid = Liquid.TranslateID((val & LIQUIDMASK) >> LIQUIDSHIFT);
+            level = (LiquidLevel)((val & LEVELMASK) >> LEVELSHIFT);
+            isStatic = (val & STATICMASK) != 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected Liquid GetLiquid(int x, int y, int z, out int level)
+        public static uint Encode(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic)
         {
-            uint val = this[x, y, z];
+            return (uint)((((isStatic ? 1 : 0) << Section.STATICSHIFT) & Section.STATICMASK)
+                           | (((uint)level << Section.LEVELSHIFT) & Section.LEVELMASK)
+                           | ((liquid.Id << Section.LIQUIDSHIFT) & Section.LIQUIDMASK)
+                           | ((data << Section.DATASHIFT) & Section.DATAMASK)
+                           | (block.Id & Section.BLOCKMASK));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected Block GetBlock(Vector3i position)
+        {
+            return Block.TranslateID(this[position.X, position.Y, position.Z] & BLOCKMASK);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected Liquid GetLiquid(Vector3i position, out int level)
+        {
+            uint val = this[position.X, position.Y, position.Z];
 
             level = (int)((val & LEVELMASK) >> LEVELSHIFT);
             return Liquid.TranslateID((val & LIQUIDMASK) >> LIQUIDSHIFT);

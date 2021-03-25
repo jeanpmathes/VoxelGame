@@ -169,21 +169,16 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f));
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            vertices = this.vertices;
-            textureIndices = new int[24];
+            int[] textureIndices = new int[24];
 
             for (int i = 0; i < 24; i++)
             {
-                textureIndices[i] = stageTexIndices[data & 0b00_0111];
+                textureIndices[i] = stageTexIndices[info.Data & 0b00_0111];
             }
 
-            indices = this.indices;
-            tint = TintColor.None;
-            isAnimated = false;
-
-            return 24;
+            return new BlockMeshData(24, vertices, textureIndices, indices);
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)

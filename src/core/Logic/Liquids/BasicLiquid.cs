@@ -46,10 +46,9 @@ namespace VoxelGame.Core.Logic.Liquids
             staticTex = staticLayout.GetTexIndexArray();
         }
 
-        public override void GetMesh(LiquidLevel level, BlockSide side, bool isStatic, out int textureIndex, out TintColor tint)
+        public override LiquidMeshData GetMesh(LiquidMeshInfo info)
         {
-            textureIndex = isStatic ? staticTex[(int)side] : movingTex[(int)side];
-            tint = neutralTint ? TintColor.Neutral : TintColor.None;
+            return new LiquidMeshData(info.IsStatic ? staticTex[(int)info.Side] : movingTex[(int)info.Side], neutralTint ? TintColor.Neutral : TintColor.None);
         }
 
         protected override void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)

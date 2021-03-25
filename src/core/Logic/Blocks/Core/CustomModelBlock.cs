@@ -49,16 +49,9 @@ namespace VoxelGame.Core.Logic.Blocks
             vertCount = (uint)(blockModel.VertexCount);
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            vertices = this.vertices;
-            textureIndices = texIndices;
-            indices = this.indices;
-
-            tint = TintColor.None;
-            isAnimated = false;
-
-            return vertCount;
+            return new BlockMeshData(vertCount, vertices, texIndices, indices);
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)

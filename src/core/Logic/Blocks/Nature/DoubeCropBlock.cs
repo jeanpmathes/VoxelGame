@@ -155,14 +155,13 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            vertices = this.vertices;
-            textureIndices = new int[24];
+            int[] textureIndices = new int[24];
 
-            int tex = (int)(data & 0b00_0111);
+            int tex = (int)(info.Data & 0b00_0111);
 
-            if ((data & 0b00_1000) == 0)
+            if ((info.Data & 0b00_1000) == 0)
             {
                 for (int i = 0; i < 24; i++)
                 {
@@ -177,12 +176,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 }
             }
 
-            indices = this.indices;
-
-            tint = TintColor.None;
-            isAnimated = false;
-
-            return 16;
+            return new BlockMeshData(16, vertices, textureIndices, indices);
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)

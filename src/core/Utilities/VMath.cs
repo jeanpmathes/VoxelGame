@@ -78,5 +78,16 @@ namespace VoxelGame.Core.Utilities
         {
             return new Vector3(Math.Sign(vector.X), Math.Sign(vector.Y), Math.Sign(vector.Z));
         }
+
+        /// <summary>
+        /// Returns a vector where every component is the modulo of mod.
+        /// </summary>
+        /// <param name="vector">The vector to use.</param>
+        /// <param name="mod">The number dividing.</param>
+        /// <returns>The modulo vector.</returns>
+        public static Vector3i Mod(this Vector3i vector, int mod)
+        {
+            return new Vector3i((vector.X % mod + mod) % mod, (vector.Y % mod + mod) % mod, (vector.Z % mod + mod) % mod);
+        }
     }
 }

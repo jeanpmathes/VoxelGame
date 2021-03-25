@@ -31,22 +31,23 @@ namespace VoxelGame.Core.Logic.Blocks
         {
         }
 
-        public override uint GetMesh(BlockSide side, uint data, Liquid liquid, out float[] vertices, out int[] textureIndices, out uint[] indices, out TintColor tint, out bool isAnimated)
+        public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            Axis axis = ToAxis(data);
+            Axis axis = ToAxis(info.Data);
 
-            float[] vert = sideVertices[(int)side];
+            float[] v = sideVertices[(int)info.Side];
+            float[] vertices;
 
             // Check if the texture has to be rotated.
-            if ((axis == Axis.X && (side != BlockSide.Left && side != BlockSide.Right)) || (axis == Axis.Z && (side == BlockSide.Left || side == BlockSide.Right)))
+            if ((axis == Axis.X && (info.Side != BlockSide.Left && info.Side != BlockSide.Right)) || (axis == Axis.Z && (info.Side == BlockSide.Left || info.Side == BlockSide.Right)))
             {
                 // Texture rotation.
                 vertices = new float[]
                 {
-                    vert[0], vert[1], vert[2], 0f, 1f, vert[5], vert[6], vert[7],
-                    vert[8], vert[9], vert[10], 1f, 1f, vert[13], vert[14], vert[15],
-                    vert[16], vert[17], vert[18], 1f, 0f, vert[21], vert[22], vert[23],
-                    vert[24], vert[25], vert[26], 0f, 0f, vert[29], vert[30], vert[31]
+                    v[0], v[1], v[2], 0f, 1f, v[5], v[6], v[7],
+                    v[8], v[9], v[10], 1f, 1f, v[13], v[14], v[15],
+                    v[16], v[17], v[18], 1f, 0f, v[21], v[22], v[23],
+                    v[24], v[25], v[26], 0f, 0f, v[29], v[30], v[31]
                 };
             }
             else
@@ -54,20 +55,14 @@ namespace VoxelGame.Core.Logic.Blocks
                 // No texture rotation.
                 vertices = new float[]
                 {
-                    vert[0], vert[1], vert[2], 0f, 0f, vert[5], vert[6], vert[7],
-                    vert[8], vert[9], vert[10], 0f, 1f, vert[13], vert[14], vert[15],
-                    vert[16], vert[17], vert[18], 1f, 1f, vert[21], vert[22], vert[23],
-                    vert[24], vert[25], vert[26], 1f, 0f, vert[29], vert[30], vert[31]
+                    v[0], v[1], v[2], 0f, 0f, v[5], v[6], v[7],
+                    v[8], v[9], v[10], 0f, 1f, v[13], v[14], v[15],
+                    v[16], v[17], v[18], 1f, 1f, v[21], v[22], v[23],
+                    v[24], v[25], v[26], 1f, 0f, v[29], v[30], v[31]
                 };
             }
 
-            textureIndices = sideTextureIndices[TranslateIndex(side, axis)];
-            indices = Array.Empty<uint>();
-
-            tint = TintColor.None;
-            isAnimated = false;
-
-            return 4;
+            return BlockMeshData.Basic(vertices, sideTextureIndices[TranslateIndex(info.Side, axis)]);
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)

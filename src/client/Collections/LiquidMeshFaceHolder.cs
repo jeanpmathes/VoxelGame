@@ -3,8 +3,11 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
+using System;
 using System.Buffers;
 using System.Collections.Concurrent;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 
@@ -13,39 +16,38 @@ namespace VoxelGame.Client.Collections
     /// <summary>
     /// A specialized class used to compact liquid faces while meshing.
     /// </summary>
-    public class LiquidMeshFaceHolder
+    public class LiquidMeshFaceHolder : MeshFaceHolder
     {
         private static readonly ArrayPool<MeshFace[]> layerPool = ArrayPool<MeshFace[]>.Create(Section.SectionSize, 64);
         private static readonly ArrayPool<MeshFace> rowPool = ArrayPool<MeshFace>.Create(Section.SectionSize, 256);
 
-        private readonly BlockSide side;
         private readonly MeshFace?[][] lastFaces;
 
         private int count;
 
-        public LiquidMeshFaceHolder(BlockSide side)
+        public LiquidMeshFaceHolder(BlockSide side) : base(side)
         {
-            this.side = side;
-
             // Initialize layers.
             lastFaces = layerPool.Rent(Section.SectionSize);
 
             // Initialize rows.
-            for (int i = 0; i < Section.SectionSize; i++)
+            for (var i = 0; i < Section.SectionSize; i++)
             {
                 lastFaces[i] = rowPool.Rent(Section.SectionSize);
 
-                for (int j = 0; j < Section.SectionSize; j++)
+                for (var j = 0; j < Section.SectionSize; j++)
                 {
                     lastFaces[i][j] = null;
                 }
             }
         }
 
-        public void AddFace(int layer, int row, int position, int vertData, (int vertA, int vertB, int vertC, int vertD) vertices, bool isSingleSided, bool isFull)
+        public void AddFace(Vector3i pos, int vertexData, (int vertA, int vertB, int vertC, int vertD) vertices, bool isSingleSided, bool isFull)
         {
+            ExtractIndices(pos, out int layer, out int row, out int position);
+
             // Build current face.
-            MeshFace currentFace = MeshFace.Get(vertices.vertA, vertices.vertB, vertices.vertC, vertices.vertD, vertData, position, isSingleSided);
+            MeshFace currentFace = MeshFace.Get(vertices.vertA, vertices.vertB, vertices.vertC, vertices.vertD, vertexData, position, isSingleSided);
 
             // Front and Back faces cannot be extended (along the y axis) when the liquid is not all full level.
             bool levelPermitsExtending = !((side == BlockSide.Front || side == BlockSide.Back) && !isFull);
@@ -61,23 +63,23 @@ namespace VoxelGame.Client.Collections
                     case BlockSide.Front:
                     case BlockSide.Back:
                     case BlockSide.Bottom:
-                        currentFace.vertB = vertices.vertB;
-                        currentFace.vertC = vertices.vertC;
+                        currentFace.vertexB = vertices.vertB;
+                        currentFace.vertexC = vertices.vertC;
                         break;
 
                     case BlockSide.Left:
-                        currentFace.vertC = vertices.vertC;
-                        currentFace.vertD = vertices.vertD;
+                        currentFace.vertexC = vertices.vertC;
+                        currentFace.vertexD = vertices.vertD;
                         break;
 
                     case BlockSide.Right:
-                        currentFace.vertA = vertices.vertA;
-                        currentFace.vertB = vertices.vertB;
+                        currentFace.vertexA = vertices.vertA;
+                        currentFace.vertexB = vertices.vertB;
                         break;
 
                     case BlockSide.Top:
-                        currentFace.vertA = vertices.vertA;
-                        currentFace.vertD = vertices.vertD;
+                        currentFace.vertexA = vertices.vertA;
+                        currentFace.vertexD = vertices.vertD;
                         break;
                 }
 
@@ -112,19 +114,19 @@ namespace VoxelGame.Client.Collections
                         case BlockSide.Front:
                         case BlockSide.Bottom:
                         case BlockSide.Top:
-                            currentFace.vertA = combinationRowFace.vertA;
-                            currentFace.vertB = combinationRowFace.vertB;
+                            currentFace.vertexA = combinationRowFace.vertexA;
+                            currentFace.vertexB = combinationRowFace.vertexB;
                             break;
 
                         case BlockSide.Back:
-                            currentFace.vertC = combinationRowFace.vertC;
-                            currentFace.vertD = combinationRowFace.vertD;
+                            currentFace.vertexC = combinationRowFace.vertexC;
+                            currentFace.vertexD = combinationRowFace.vertexD;
                             break;
 
                         case BlockSide.Left:
                         case BlockSide.Right:
-                            currentFace.vertA = combinationRowFace.vertA;
-                            currentFace.vertD = combinationRowFace.vertD;
+                            currentFace.vertexA = combinationRowFace.vertexA;
+                            currentFace.vertexD = combinationRowFace.vertexD;
                             break;
                     }
 
@@ -168,9 +170,9 @@ namespace VoxelGame.Client.Collections
 
             meshData.Capacity += count;
 
-            for (int l = 0; l < Section.SectionSize; l++)
+            for (var l = 0; l < Section.SectionSize; l++)
             {
-                for (int r = 0; r < Section.SectionSize; r++)
+                for (var r = 0; r < Section.SectionSize; r++)
                 {
                     MeshFace? currentFace = lastFaces[l][r];
 
@@ -178,17 +180,17 @@ namespace VoxelGame.Client.Collections
                     {
                         int vertexTexRepetition = BuildVertexTextureRepetition(currentFace.height, currentFace.length);
 
-                        meshData.Add(vertexTexRepetition | currentFace.vertA);
-                        meshData.Add(currentFace.vertData);
+                        meshData.Add(vertexTexRepetition | currentFace.vertexA);
+                        meshData.Add(currentFace.vertexData);
 
-                        meshData.Add(vertexTexRepetition | currentFace.vertB);
-                        meshData.Add(currentFace.vertData);
+                        meshData.Add(vertexTexRepetition | currentFace.vertexB);
+                        meshData.Add(currentFace.vertexData);
 
-                        meshData.Add(vertexTexRepetition | currentFace.vertC);
-                        meshData.Add(currentFace.vertData);
+                        meshData.Add(vertexTexRepetition | currentFace.vertexC);
+                        meshData.Add(currentFace.vertexData);
 
-                        meshData.Add(vertexTexRepetition | currentFace.vertD);
-                        meshData.Add(currentFace.vertData);
+                        meshData.Add(vertexTexRepetition | currentFace.vertexD);
+                        meshData.Add(currentFace.vertexData);
 
                         int newIndices = currentFace.isSingleSided ? 6 : 12;
                         meshIndices.AddRange(indices, newIndices);
@@ -215,7 +217,7 @@ namespace VoxelGame.Client.Collections
 
         public void ReturnToPool()
         {
-            for (int i = 0; i < Section.SectionSize; i++)
+            for (var i = 0; i < Section.SectionSize; i++)
             {
                 rowPool.Return(lastFaces[i]!);
             }
@@ -227,12 +229,12 @@ namespace VoxelGame.Client.Collections
         {
             public MeshFace? previousFace;
 
-            public int vertA;
-            public int vertB;
-            public int vertC;
-            public int vertD;
+            public int vertexA;
+            public int vertexB;
+            public int vertexC;
+            public int vertexD;
 
-            public int vertData;
+            public int vertexData;
 
             public int position;
             public int length;
@@ -248,7 +250,7 @@ namespace VoxelGame.Client.Collections
             {
                 return this.position + this.length + 1 == extension.position &&
                     this.height == extension.height &&
-                    this.vertData == extension.vertData &&
+                    this.vertexData == extension.vertexData &&
                     this.isSingleSided == extension.isSingleSided;
             }
 
@@ -256,7 +258,7 @@ namespace VoxelGame.Client.Collections
             {
                 return this.position == addition.position &&
                     this.length == addition.length &&
-                    this.vertData == addition.vertData &&
+                    this.vertexData == addition.vertexData &&
                     this.isSingleSided == addition.isSingleSided;
             }
 
@@ -270,12 +272,12 @@ namespace VoxelGame.Client.Collections
 
                 instance.previousFace = null;
 
-                instance.vertA = vert_0_0;
-                instance.vertB = vert_0_1;
-                instance.vertC = vert_1_1;
-                instance.vertD = vert_1_0;
+                instance.vertexA = vert_0_0;
+                instance.vertexB = vert_0_1;
+                instance.vertexC = vert_1_1;
+                instance.vertexD = vert_1_0;
 
-                instance.vertData = vertData;
+                instance.vertexData = vertData;
 
                 instance.position = position;
                 instance.length = 0;
