@@ -91,7 +91,7 @@ namespace VoxelGame.Client.Logic
                     }
                 }
 
-                for (int stage = 0; stage < 4; stage++)
+                for (int stage = 0; stage < SectionRenderer.DrawStageCount; stage++)
                 {
                     if (renderList.Count == 0) break;
 

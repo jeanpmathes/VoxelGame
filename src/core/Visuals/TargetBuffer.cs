@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Visuals
 
         /// <summary>
         /// Blocks have to accept <see cref="Logic.BlockSide.Front"/> to <see cref="Logic.BlockSide.Top"/>. Blocks that target this buffer have to be full.
-        /// GetMesh has to return exactly 4 vertices that make up one face. Only UVs and positions can vary between the vertices.
+        /// GetMesh has to return exactly 4 vertices that make up one face. Only UVs can vary between the vertices.
         /// Indices are ignored, so the counter-clockwise order <c>{(0, 2, 1), (0, 3, 2)}</c> has to be followed, starting at the bottom left.
         /// The UVs may only be rotated counter-clockwise once.
         /// </summary>
@@ -23,6 +23,12 @@ namespace VoxelGame.Core.Visuals
         /// <summary>
         /// Blocks have to accept <see cref="Logic.BlockSide.All"/>.
         /// </summary>
-        Complex
+        Complex,
+
+        /// <summary>
+        /// Blocks have to accept <see cref="Logic.BlockSide.Front"/> to <see cref="Logic.BlockSide.Top"/>.
+        /// Blocks that target this buffer have to implement <see cref="Logic.Interfaces.IHeightVariable"/>.
+        /// </summary>
+        VaryingHeight
     }
 }

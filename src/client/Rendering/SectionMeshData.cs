@@ -15,6 +15,9 @@ namespace VoxelGame.Client.Rendering
         internal PooledList<int> complexVertexData;
         internal PooledList<uint> complexIndices;
 
+        internal PooledList<int> varyingHeightVertexData;
+        internal PooledList<uint> varyingHeightIndices;
+
         internal PooledList<int> opaqueLiquidVertexData;
         internal PooledList<uint> opaqueLiquidIndices;
 
@@ -23,6 +26,7 @@ namespace VoxelGame.Client.Rendering
 
         public SectionMeshData(ref PooledList<int> simpleVertexData,
             ref PooledList<float> complexVertexPositions, ref PooledList<int> complexVertexData, ref PooledList<uint> complexIndices,
+            ref PooledList<int> varyingHeightVertexData, ref PooledList<uint> varyingHeightIndices,
             ref PooledList<int> opaqueLiquidVertexData, ref PooledList<uint> opaqueLiquidIndices,
             ref PooledList<int> transparentLiquidVertexData, ref PooledList<uint> transparentLiquidIndices)
         {
@@ -31,6 +35,9 @@ namespace VoxelGame.Client.Rendering
             this.complexVertexPositions = complexVertexPositions;
             this.complexVertexData = complexVertexData;
             this.complexIndices = complexIndices;
+
+            this.varyingHeightVertexData = varyingHeightVertexData;
+            this.varyingHeightIndices = varyingHeightIndices;
 
             this.opaqueLiquidVertexData = opaqueLiquidVertexData;
             this.opaqueLiquidIndices = opaqueLiquidIndices;
@@ -46,6 +53,9 @@ namespace VoxelGame.Client.Rendering
             complexVertexPositions.ReturnToPool();
             complexVertexData.ReturnToPool();
             complexIndices.ReturnToPool();
+
+            varyingHeightVertexData.ReturnToPool();
+            varyingHeightIndices.ReturnToPool();
 
             opaqueLiquidVertexData.ReturnToPool();
             opaqueLiquidIndices.ReturnToPool();

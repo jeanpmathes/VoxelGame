@@ -54,7 +54,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             vertices = new float[]
             {
-                //X----Y---Z---U---V---N---O---P
+                //   X   Y    Z   U    V   N    O   P
                 0.25f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
                 0.25f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
                 0.25f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,

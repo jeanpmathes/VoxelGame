@@ -1,4 +1,9 @@
-﻿using System;
+﻿// <copyright file="MeshFaceHolder.cs" company="VoxelGame">
+//     MIT License
+//	   For full license see the repository.
+// </copyright>
+// <author>pershingthesecond</author>
+using System;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic;
 

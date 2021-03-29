@@ -113,6 +113,14 @@ namespace VoxelGame.Core.Logic
             return Block.TranslateID(this[position.X, position.Y, position.Z] & BLOCKMASK);
         }
 
+        protected Block GetBlock(Vector3i position, out uint data)
+        {
+            uint val = this[position.X, position.Y, position.Z];
+
+            data = (val << DATASHIFT) & DATAMASK;
+            return Block.TranslateID(val & BLOCKMASK);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected Liquid GetLiquid(Vector3i position, out int level)
         {

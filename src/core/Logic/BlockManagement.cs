@@ -36,7 +36,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block TallFlower = new DoubleCrossPlantBlock(Language.TallFlower, nameof(TallFlower), "tall_flower", 1, BoundingBox.CrossBlock);
         public static readonly Block Stone = new BasicBlock(Language.Stone, nameof(Stone), TextureLayout.Uniform("stone"));
         public static readonly Block Rubble = new ConstructionBlock(Language.Rubble, nameof(Rubble), TextureLayout.Uniform("rubble"));
-        public static readonly Block Snow = new BasicBlock(Language.Snow, nameof(Snow), TextureLayout.Uniform("snow"));
+        public static readonly Block Snow = new ModifiableHeightBlock(Language.Snow, nameof(Snow), TextureLayout.Uniform("snow"));
         public static readonly Block Leaves = new NaturalBlock(Language.Leaves, nameof(Leaves), TextureLayout.Uniform("leaves"), isOpaque: false);
         public static readonly Block Log = new RotatedBlock(Language.Log, nameof(Log), TextureLayout.Column("log", 0, 1));
         public static readonly Block Wood = new OrganicConstructionBlock(Language.Wood, nameof(Wood), TextureLayout.Uniform("wood"));

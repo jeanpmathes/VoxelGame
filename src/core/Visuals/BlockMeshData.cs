@@ -83,6 +83,11 @@ namespace VoxelGame.Core.Visuals
             return new BlockMeshData(4, vertices, Array.Empty<int>(), Array.Empty<uint>(), textureIndex, TintColor.None, false);
         }
 
+        public static BlockMeshData VaryingHeight(int textureIndex, TintColor tint)
+        {
+            return new BlockMeshData(4, Array.Empty<float>(), Array.Empty<int>(), Array.Empty<uint>(), textureIndex, tint, false);
+        }
+
         public static BlockMeshData Empty()
         {
             return new BlockMeshData(0, Array.Empty<float>(), Array.Empty<int>(), Array.Empty<uint>());

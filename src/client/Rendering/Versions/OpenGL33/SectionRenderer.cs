@@ -146,6 +146,12 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
             #endregion COMPLEX BUFFER SETUP
 
+            #region VARYING HEIGHT BUFFER SETUP
+
+            // todo
+
+            #endregion VARYING HEIGHT BUFFER SETUP
+
             #region LIQUID BUFFERS SETUP
 
             hasOpaqueLiquidData = false;
@@ -273,6 +279,16 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
                 GL.BindVertexArray(0);
             }
+        }
+
+        protected override void PrepareVaryingHeightBuffer(Matrix4 view, Matrix4 projection)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void DrawVaryingHeightBuffer(Matrix4 model)
+        {
+            throw new NotImplementedException();
         }
 
         protected override void PrepareOpaqueLiquidBuffer(Matrix4 view, Matrix4 projection)
