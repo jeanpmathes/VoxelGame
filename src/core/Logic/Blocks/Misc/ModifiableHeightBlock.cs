@@ -30,7 +30,7 @@ namespace VoxelGame.Core.Logic.Blocks
             uint height = data & 0b00_1111;
             height++;
 
-            if (height < IHeightVariable.MaximumHeight)
+            if (height <= IHeightVariable.MaximumHeight)
             {
                 Game.World.SetBlock(this, height, x, y, z);
             }
