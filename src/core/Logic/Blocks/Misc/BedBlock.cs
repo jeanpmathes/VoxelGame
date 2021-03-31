@@ -144,7 +144,7 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 case Orientation.North:
 
-                    if (Game.World.GetBlock(x, y, z - 1, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y - 1, z - 1, out _)?.IsSolidAndFull != true)
+                    if (Game.World.GetBlock(x, y, z - 1, out _)?.IsReplaceable != true || !Game.World.HasSolidGround(x, y, z - 1))
                     {
                         return false;
                     }
@@ -158,7 +158,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 case Orientation.East:
 
-                    if (Game.World.GetBlock(x + 1, y, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x + 1, y - 1, z, out _)?.IsSolidAndFull != true)
+                    if (Game.World.GetBlock(x + 1, y, z, out _)?.IsReplaceable != true || !Game.World.HasSolidGround(x + 1, y, z))
                     {
                         return false;
                     }
@@ -172,7 +172,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 case Orientation.South:
 
-                    if (Game.World.GetBlock(x, y, z + 1, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y - 1, z + 1, out _)?.IsSolidAndFull != true)
+                    if (Game.World.GetBlock(x, y, z + 1, out _)?.IsReplaceable != true || !Game.World.HasSolidGround(x, y, z + 1))
                     {
                         return false;
                     }
@@ -186,7 +186,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 case Orientation.West:
 
-                    if (Game.World.GetBlock(x - 1, y, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x - 1, y - 1, z, out _)?.IsSolidAndFull != true)
+                    if (Game.World.GetBlock(x - 1, y, z, out _)?.IsReplaceable != true || !Game.World.HasSolidGround(x - 1, y, z))
                     {
                         return false;
                     }
@@ -280,7 +280,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
+            if (side == BlockSide.Bottom && !Game.World.HasSolidGround(x, y, z))
             {
                 Destroy(x, y, z);
             }

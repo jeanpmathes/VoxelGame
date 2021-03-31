@@ -129,7 +129,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            if (Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable != true || Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
+            if (Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable != true || !Game.World.HasSolidGround(x, y, z))
             {
                 return false;
             }
@@ -243,7 +243,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && (data & 0b00_0100) == 0 && Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull != true)
+            if (side == BlockSide.Bottom && (data & 0b00_0100) == 0 && !Game.World.HasSolidGround(x, y, z))
             {
                 Destroy(x, y, z);
             }
