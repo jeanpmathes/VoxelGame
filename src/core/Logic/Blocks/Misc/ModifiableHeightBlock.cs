@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
@@ -23,6 +24,21 @@ namespace VoxelGame.Core.Logic.Blocks
                 isReplaceable: false,
                 isInteractable: true)
         {
+        }
+
+        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        {
+            if (!Game.World.HasSolidGround(x, y, z)) return false;
+
+            return base.Place(entity, x, y, z);
+        }
+
+        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        {
+            if (side == BlockSide.Bottom && !Game.World.HasSolidGround(x, y, z))
+            {
+                Destroy(x, y, z);
+            }
         }
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
