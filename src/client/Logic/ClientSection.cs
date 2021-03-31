@@ -209,7 +209,7 @@ namespace VoxelGame.Client.Logic
                                                 // Mesh similar to liquids.
 
                                                 int height = ((IHeightVariable)currentBlock).GetHeight(data);
-                                                if (blockToCheck is IHeightVariable toCheck && toCheck.GetHeight(blockToCheckData) == height) return;
+                                                if (side != BlockSide.Top && blockToCheck is IHeightVariable toCheck && toCheck.GetHeight(blockToCheckData) == height) return;
 
                                                 // int: uvll lllh hhhh --xx xxxx eyyy yyzz zzzz (uv: texture coords; hl: texture repetition; xyz: position; e: lower/upper end)
                                                 int upperDataA = (0 << 31) | (0 << 30) | (x + a[0] << 12) | (a[1] << 11) | (y << 6) | (z + a[2]);
