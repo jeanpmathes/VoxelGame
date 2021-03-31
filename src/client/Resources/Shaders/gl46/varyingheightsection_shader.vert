@@ -21,7 +21,7 @@ void main()
 
 	// Normal
     int n = (aData.y >> 20) & 7;
-    vec3 normal = vec3(0.0, 0.0, 0.0);
+    normal = vec3(0.0, 0.0, 0.0);
     normal[((n >> 1) + 3 & 2) | (n >> 2)] = -1.0 + (2 * (n & 1));
     normal.z *= -1.0;
     normal = normalize(normal);
