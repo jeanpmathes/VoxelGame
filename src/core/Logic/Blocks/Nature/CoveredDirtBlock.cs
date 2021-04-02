@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private protected int[] wetTextureIndices = null!;
         private protected TextureLayout wet;
 
-        public bool SupportsFullGrowth { get => supportsFullGrowth; }
+        public bool SupportsFullGrowth => supportsFullGrowth;
 
         public CoveredDirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet, bool hasNeutralTint, bool supportsFullGrowth) :
             base(
