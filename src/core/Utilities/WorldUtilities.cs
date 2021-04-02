@@ -18,5 +18,21 @@ namespace VoxelGame.Core.Utilities
             return ground.IsSolidAndFull
                    || (ground is IHeightVariable varHeight && varHeight.GetHeight(data) == IHeightVariable.MaximumHeight);
         }
+
+        public static bool HasSolidTop(this World world, int x, int y, int z)
+        {
+            Block top = world.GetBlock(x, y + 1, z, out uint data) ?? Block.Air;
+
+            return top.IsSolidAndFull
+                   || (top is IHeightVariable varHeight && varHeight.GetHeight(data) == IHeightVariable.MaximumHeight);
+        }
+
+        public static bool HasOpaqueTop(this World world, int x, int y, int z)
+        {
+            Block top = world.GetBlock(x, y + 1, z, out _) ?? Block.Air;
+
+            return (top.IsSolidAndFull && top.IsOpaque)
+                   || top is IHeightVariable;
+        }
     }
 }

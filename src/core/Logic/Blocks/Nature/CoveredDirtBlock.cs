@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
@@ -61,7 +62,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            if ((Game.World.GetBlock(x, y + 1, z, out _) ?? Block.Air).IsSolidAndFull)
+            if (Game.World.HasSolidTop(x, y, z))
             {
                 return Block.Dirt.Place(x, y, z, entity);
             }
@@ -75,9 +76,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
-            Block above = Game.World.GetBlock(x, y + 1, z, out _) ?? Block.Air;
-
-            if (side == BlockSide.Top && above.IsSolidAndFull && above.IsOpaque)
+            if (side == BlockSide.Top && Game.World.HasOpaqueTop(x, y, z))
             {
                 Game.World.SetBlock(Block.Dirt, 0, x, y, z);
             }
