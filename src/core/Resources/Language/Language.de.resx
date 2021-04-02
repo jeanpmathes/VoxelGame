@@ -264,6 +264,9 @@
   <data name="Onions" xml:space="preserve">
     <value>Zwiebeln</value>
   </data>
+  <data name="Path" xml:space="preserve">
+    <value>Pfad</value>
+  </data>
   <data name="PavingStone" xml:space="preserve">
     <value>Pflasterstein</value>
   </data>

@@ -29,7 +29,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Grass = new GrassBlock(Language.Grass, nameof(Grass), TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"), TextureLayout.UnqiueColumn("grass_side_wet", "dirt_wet", "grass_wet"));
         public static readonly Block GrassBurned = new CoveredGrassSpreadableBlock(Language.AshCoveredDirt, nameof(GrassBurned), TextureLayout.UnqiueColumn("ash_side", "dirt", "ash"), false);
         public static readonly Block Dirt = new DirtBlock(Language.Dirt, nameof(Dirt), TextureLayout.Uniform("dirt"), TextureLayout.Uniform("dirt_wet"));
-        public static readonly Block Farmland = new InsetDirtBlock(Language.Farmland, nameof(Farmland), TextureLayout.UnqiueTop("dirt", "farmland"), TextureLayout.UnqiueTop("dirt_wet", "farmland_wet"));
+        public static readonly Block Farmland = new InsetDirtBlock(Language.Farmland, nameof(Farmland), TextureLayout.UnqiueTop("dirt", "farmland"), TextureLayout.UnqiueTop("dirt_wet", "farmland_wet"), true);
         public static readonly Block TallGrass = new CrossPlantBlock(Language.TallGrass, nameof(TallGrass), "tall_grass", true, BoundingBox.CrossBlock);
         public static readonly Block VeryTallGrass = new DoubleCrossPlantBlock(Language.VeryTallGrass, nameof(VeryTallGrass), "very_tall_grass", 1, BoundingBox.CrossBlock);
         public static readonly Block Flower = new CrossPlantBlock(Language.Flower, nameof(Flower), "flower", true, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.175f, 0.5f, 0.175f)));
@@ -125,6 +125,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block PipeValve = new SteelPipeValveBlock(Language.ValvePipe, nameof(PipeValve), 0.375f, "steel_pipe_valve_open", "steel_pipe_valve_closed");
         public static readonly Block RedPlastic = new ConstructionBlock(Language.RedPlastic, nameof(RedPlastic), TextureLayout.Uniform("red_plastic"));
         public static readonly Block Pump = new PumpBlock(Language.Pump, nameof(Pump), 16, TextureLayout.Uniform("pump"));
+        public static readonly Block Path = new InsetDirtBlock(Language.Path, nameof(Path), TextureLayout.Uniform("dirt"), TextureLayout.Uniform("dirt"), false);
 
         #endregion NEW BLOCKS
 

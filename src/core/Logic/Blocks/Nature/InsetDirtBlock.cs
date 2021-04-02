@@ -20,9 +20,9 @@ namespace VoxelGame.Core.Logic.Blocks
         private int[] dryTextureIndices = null!;
         private int[] wetTextureIndices = null!;
 
-        public bool SupportsFullGrowth => true;
+        public bool SupportsFullGrowth { get; }
 
-        public InsetDirtBlock(string name, string namedId, TextureLayout dry, TextureLayout wet) :
+        public InsetDirtBlock(string name, string namedId, TextureLayout dry, TextureLayout wet, bool supportsFullGrowth) :
             base(
                 name,
                 namedId,
@@ -39,6 +39,8 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             this.dryLayout = dry;
             this.wetLayout = wet;
+
+            SupportsFullGrowth = supportsFullGrowth;
         }
 
         protected override void Setup()
