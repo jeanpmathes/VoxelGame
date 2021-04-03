@@ -21,15 +21,15 @@ namespace VoxelGame.Core.Logic.Blocks
     // c = connection (orientation)
     public class FruitCropBlock : CrossBlock, IFlammable, IFillable
     {
-        private protected float[][] verticesConnected = null!;
+        private float[][] verticesConnected = null!;
 
-        private protected int[][] texIndices = null!;
+        private int[][] texIndices = null!;
 
-        private protected uint[] indicesConnected = null!;
+        private uint[] indicesConnected = null!;
 
-        private protected readonly Block fruit;
+        private readonly Block fruit;
 
-        private protected int dead, initial, noFruit, withFruit, connector;
+        private int dead, initial, noFruit, withFruit, connector;
 
         public FruitCropBlock(string name, string namedId, string texture, int dead, int initial, int noFruit, int withFruit, int connector, Block fruit) :
             base(
@@ -246,7 +246,7 @@ namespace VoxelGame.Core.Logic.Blocks
             if (liquid.Direction > 0 && level > LiquidLevel.Three) Destroy(x, y, z);
         }
 
-        protected enum GrowthStage
+        private enum GrowthStage
         {
             Dead,
             Young,

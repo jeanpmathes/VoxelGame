@@ -29,14 +29,14 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Grass = new GrassBlock(Language.Grass, nameof(Grass), TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"), TextureLayout.UnqiueColumn("grass_side_wet", "dirt_wet", "grass_wet"));
         public static readonly Block GrassBurned = new CoveredGrassSpreadableBlock(Language.AshCoveredDirt, nameof(GrassBurned), TextureLayout.UnqiueColumn("ash_side", "dirt", "ash"), false);
         public static readonly Block Dirt = new DirtBlock(Language.Dirt, nameof(Dirt), TextureLayout.Uniform("dirt"), TextureLayout.Uniform("dirt_wet"));
-        public static readonly Block Farmland = new CoveredDirtBlock(Language.Farmland, nameof(Farmland), TextureLayout.UnqiueTop("dirt", "farmland"), TextureLayout.UnqiueTop("dirt_wet", "farmland_wet"), hasNeutralTint: false, supportsFullGrowth: true);
+        public static readonly Block Farmland = new InsetDirtBlock(Language.Farmland, nameof(Farmland), TextureLayout.UnqiueTop("dirt", "farmland"), TextureLayout.UnqiueTop("dirt_wet", "farmland_wet"), true);
         public static readonly Block TallGrass = new CrossPlantBlock(Language.TallGrass, nameof(TallGrass), "tall_grass", true, BoundingBox.CrossBlock);
         public static readonly Block VeryTallGrass = new DoubleCrossPlantBlock(Language.VeryTallGrass, nameof(VeryTallGrass), "very_tall_grass", 1, BoundingBox.CrossBlock);
         public static readonly Block Flower = new CrossPlantBlock(Language.Flower, nameof(Flower), "flower", true, new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.175f, 0.5f, 0.175f)));
         public static readonly Block TallFlower = new DoubleCrossPlantBlock(Language.TallFlower, nameof(TallFlower), "tall_flower", 1, BoundingBox.CrossBlock);
         public static readonly Block Stone = new BasicBlock(Language.Stone, nameof(Stone), TextureLayout.Uniform("stone"));
         public static readonly Block Rubble = new ConstructionBlock(Language.Rubble, nameof(Rubble), TextureLayout.Uniform("rubble"));
-        public static readonly Block Snow = new BasicBlock(Language.Snow, nameof(Snow), TextureLayout.Uniform("snow"));
+        public static readonly Block Snow = new ModifiableHeightBlock(Language.Snow, nameof(Snow), TextureLayout.Uniform("snow"));
         public static readonly Block Leaves = new NaturalBlock(Language.Leaves, nameof(Leaves), TextureLayout.Uniform("leaves"), isOpaque: false);
         public static readonly Block Log = new RotatedBlock(Language.Log, nameof(Log), TextureLayout.Column("log", 0, 1));
         public static readonly Block Wood = new OrganicConstructionBlock(Language.Wood, nameof(Wood), TextureLayout.Uniform("wood"));
@@ -59,7 +59,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Potatoes = new CropBlock(Language.Potatoes, nameof(Potatoes), "potato", 1, 1, 2, 2, 3, 4, 5);
         public static readonly Block Onions = new CropBlock(Language.Onions, nameof(Onions), "onion", 0, 1, 1, 2, 2, 3, 4);
         public static readonly Block Wheat = new CropBlock(Language.Wheat, nameof(Wheat), "wheat", 0, 1, 1, 2, 2, 3, 4);
-        public static readonly Block Maize = new DoubeCropBlock(Language.Maize, nameof(Maize), "maize", 0, 1, 2, 2, (3, 6), (3, 6), (4, 7), (5, 8));
+        public static readonly Block Maize = new DoubleCropBlock(Language.Maize, nameof(Maize), "maize", 0, 1, 2, 2, (3, 6), (3, 6), (4, 7), (5, 8));
         public static readonly Block PumpkinPlant = new FruitCropBlock(Language.PumpkinPlant, nameof(PumpkinPlant), "pumpkin_plant", 0, 1, 2, 3, 4, Pumpkin);
         public static readonly Block MelonPlant = new FruitCropBlock(Language.MelonPlant, nameof(MelonPlant), "melon_plant", 0, 1, 2, 3, 4, Melon);
 
@@ -125,6 +125,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block PipeValve = new SteelPipeValveBlock(Language.ValvePipe, nameof(PipeValve), 0.375f, "steel_pipe_valve_open", "steel_pipe_valve_closed");
         public static readonly Block RedPlastic = new ConstructionBlock(Language.RedPlastic, nameof(RedPlastic), TextureLayout.Uniform("red_plastic"));
         public static readonly Block Pump = new PumpBlock(Language.Pump, nameof(Pump), 16, TextureLayout.Uniform("pump"));
+        public static readonly Block Path = new InsetDirtBlock(Language.Path, nameof(Path), TextureLayout.Uniform("dirt"), TextureLayout.Uniform("dirt"), false);
 
         #endregion NEW BLOCKS
 

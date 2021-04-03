@@ -14,9 +14,9 @@ using VoxelGame.Core.Logic;
 namespace VoxelGame.Client.Collections
 {
     /// <summary>
-    /// A specialized class used to compact liquid faces while meshing.
+    /// A specialized class used to compact varying height block faces and liquid faces while meshing.
     /// </summary>
-    public class LiquidMeshFaceHolder : MeshFaceHolder
+    public class VaryingHeightMeshFaceHolder : MeshFaceHolder
     {
         private static readonly ArrayPool<MeshFace[]> layerPool = ArrayPool<MeshFace[]>.Create(Section.SectionSize, 64);
         private static readonly ArrayPool<MeshFace> rowPool = ArrayPool<MeshFace>.Create(Section.SectionSize, 256);
@@ -25,7 +25,7 @@ namespace VoxelGame.Client.Collections
 
         private int count;
 
-        public LiquidMeshFaceHolder(BlockSide side) : base(side)
+        public VaryingHeightMeshFaceHolder(BlockSide side) : base(side)
         {
             // Initialize layers.
             lastFaces = layerPool.Rent(Section.SectionSize);
@@ -264,7 +264,7 @@ namespace VoxelGame.Client.Collections
 
             #region POOLING
 
-            private readonly static ConcurrentBag<MeshFace> objects = new ConcurrentBag<MeshFace>();
+            private static readonly ConcurrentBag<MeshFace> objects = new ConcurrentBag<MeshFace>();
 
             public static MeshFace Get(int vert_0_0, int vert_0_1, int vert_1_1, int vert_1_0, int vertData, int position, bool isSingleSided)
             {

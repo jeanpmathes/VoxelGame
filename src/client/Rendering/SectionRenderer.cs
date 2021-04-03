@@ -13,6 +13,8 @@ namespace VoxelGame.Client.Rendering
     /// </summary>
     public abstract class SectionRenderer : Renderer
     {
+        public const int DrawStageCount = 5;
+
         private protected bool disposed;
 
         public abstract void SetData(ref SectionMeshData meshData);
@@ -26,14 +28,17 @@ namespace VoxelGame.Client.Rendering
             {
                 case 0: PrepareSimpleBuffer(view, projection); break;
                 case 1: PrepareComplexBuffer(view, projection); break;
-                case 2: PrepareOpaqueLiquidBuffer(view, projection); break;
-                case 3: PrepareTransparentLiquidBuffer(view, projection); break;
+                case 2: PrepareVaryingHeightBuffer(view, projection); break;
+                case 3: PrepareOpaqueLiquidBuffer(view, projection); break;
+                case 4: PrepareTransparentLiquidBuffer(view, projection); break;
             }
         }
 
         protected abstract void PrepareSimpleBuffer(Matrix4 view, Matrix4 projection);
 
         protected abstract void PrepareComplexBuffer(Matrix4 view, Matrix4 projection);
+
+        protected abstract void PrepareVaryingHeightBuffer(Matrix4 view, Matrix4 projection);
 
         protected abstract void PrepareOpaqueLiquidBuffer(Matrix4 view, Matrix4 projection);
 
@@ -52,14 +57,17 @@ namespace VoxelGame.Client.Rendering
             {
                 case 0: DrawSimpleBuffer(model); break;
                 case 1: DrawComplexBuffer(model); break;
-                case 2: DrawOpaqueLiquidBuffer(model); break;
-                case 3: DrawTransparentLiquidBuffer(model); break;
+                case 2: DrawVaryingHeightBuffer(model); break;
+                case 3: DrawOpaqueLiquidBuffer(model); break;
+                case 4: DrawTransparentLiquidBuffer(model); break;
             }
         }
 
         protected abstract void DrawSimpleBuffer(Matrix4 model);
 
         protected abstract void DrawComplexBuffer(Matrix4 model);
+
+        protected abstract void DrawVaryingHeightBuffer(Matrix4 model);
 
         protected abstract void DrawOpaqueLiquidBuffer(Matrix4 model);
 
@@ -69,9 +77,7 @@ namespace VoxelGame.Client.Rendering
         {
             switch (stage)
             {
-                // case 2:
-                // case 1:
-                case 3: FinishTransparentLiquidBuffer(); break;
+                case 4: FinishTransparentLiquidBuffer(); break;
             }
         }
 
@@ -81,7 +87,7 @@ namespace VoxelGame.Client.Rendering
         {
             Debug.Fail("Sections should be drawn using DrawStage.");
 
-            for (int stage = 0; stage < 3; stage++)
+            for (int stage = 0; stage < DrawStageCount; stage++)
             {
                 PrepareStage(stage);
                 DrawStage(stage, position);

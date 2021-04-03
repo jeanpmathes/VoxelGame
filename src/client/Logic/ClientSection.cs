@@ -58,8 +58,10 @@ namespace VoxelGame.Client.Logic
 
             uint complexVertexCount = 0;
 
-            LiquidMeshFaceHolder[] opaqueLiquidMeshFaceHolders = CreateLiquidMeshFaceHolders();
-            LiquidMeshFaceHolder[] transparentLiquidMeshFaceHolders = CreateLiquidMeshFaceHolders();
+            VaryingHeightMeshFaceHolder[] varyingHeightMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
+
+            VaryingHeightMeshFaceHolder[] opaqueLiquidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
+            VaryingHeightMeshFaceHolder[] transparentLiquidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
 
             // Loop through the section
             for (var x = 0; x < SectionSize; x++)
@@ -165,11 +167,86 @@ namespace VoxelGame.Client.Logic
                                     complexVertexCount += mesh.VertexCount;
                                     break;
                                 }
+                            case TargetBuffer.VaryingHeight:
+                                {
+                                    MeshVaryingHeightSide(BlockSide.Front);
+                                    MeshVaryingHeightSide(BlockSide.Back);
+                                    MeshVaryingHeightSide(BlockSide.Left);
+                                    MeshVaryingHeightSide(BlockSide.Right);
+                                    MeshVaryingHeightSide(BlockSide.Bottom);
+                                    MeshVaryingHeightSide(BlockSide.Top);
+
+                                    void MeshVaryingHeightSide(BlockSide side)
+                                    {
+                                        ClientSection? neighbor = neighbors[(int)side];
+                                        Block? blockToCheck;
+                                        uint blockToCheckData = default;
+
+                                        Vector3i checkPos = side.Offset(pos);
+
+                                        if (IsPositionOutOfSection(checkPos))
+                                        {
+                                            checkPos = checkPos.Mod(SectionSize);
+
+                                            bool atEnd = side == BlockSide.Top || side == BlockSide.Bottom;
+                                            blockToCheck = neighbor?.GetBlock(checkPos, out blockToCheckData) ?? (atEnd ? Block.Air : null);
+                                        }
+                                        else
+                                        {
+                                            blockToCheck = GetBlock(checkPos, out blockToCheckData);
+                                        }
+
+                                        if (blockToCheck != null && (!blockToCheck.IsFull || !blockToCheck.IsOpaque))
+                                        {
+                                            bool isModified = side != BlockSide.Bottom &&
+                                                              ((IHeightVariable)currentBlock).GetHeight(data) != IHeightVariable.MaximumHeight;
+
+                                            BlockMeshData mesh = currentBlock.GetMesh(BlockMeshInfo.Simple(side, data, currentLiquid));
+                                            side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
+
+                                            if (isModified)
+                                            {
+                                                // Mesh similar to liquids.
+
+                                                int height = ((IHeightVariable)currentBlock).GetHeight(data);
+                                                if (side != BlockSide.Top && blockToCheck is IHeightVariable toCheck && toCheck.GetHeight(blockToCheckData) == height) return;
+
+                                                // int: uvll lllh hhhh --xx xxxx eyyy yyzz zzzz (uv: texture coords; hl: texture repetition; xyz: position; e: lower/upper end)
+                                                int upperDataA = (0 << 31) | (0 << 30) | (x + a[0] << 12) | (a[1] << 11) | (y << 6) | (z + a[2]);
+                                                int upperDataB = (0 << 31) | (1 << 30) | (x + b[0] << 12) | (b[1] << 11) | (y << 6) | (z + b[2]);
+                                                int upperDataC = (1 << 31) | (1 << 30) | (x + c[0] << 12) | (c[1] << 11) | (y << 6) | (z + c[2]);
+                                                int upperDataD = (1 << 31) | (0 << 30) | (x + d[0] << 12) | (d[1] << 11) | (y << 6) | (z + d[2]);
+
+                                                // int: tttt tttt tnnn hhhh ---i iiii iiii iiii (t: tint; n: normal; h: height; i: texture index)
+                                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)side << 20) | (height << 16) | mesh.TextureIndex;
+
+                                                varyingHeightMeshFaceHolders[(int)side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), true, false);
+                                            }
+                                            else
+                                            {
+                                                // Mesh into the simple buffer.
+
+                                                // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
+                                                int upperDataA = (0 << 31) | (0 << 30) | ((a[0] + x) << 12) | ((a[1] + y) << 6) | (a[2] + z);
+                                                int upperDataB = (0 << 31) | (1 << 30) | ((b[0] + x) << 12) | ((b[1] + y) << 6) | (b[2] + z);
+                                                int upperDataC = (1 << 31) | (1 << 30) | ((c[0] + x) << 12) | ((c[1] + y) << 6) | (c[2] + z);
+                                                int upperDataD = (1 << 31) | (0 << 30) | ((d[0] + x) << 12) | ((d[1] + y) << 6) | (d[2] + z);
+
+                                                // int: tttt tttt t--n nn-_ ---i iiii iiii iiii (t: tint; n: normal; i: texture index, _: used for simple blocks but not here)
+                                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)side << 18) | mesh.TextureIndex;
+
+                                                blockMeshFaceHolders[(int)side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
+                                            }
+                                        }
+                                    }
+
+                                    break;
+                                }
                         }
 
                         if (currentLiquid.RenderType != RenderType.NotRendered && ((currentBlock is IFillable fillable && fillable.RenderLiquid) || (currentBlock is not IFillable && !currentBlock.IsSolidAndFull)))
                         {
-                            LiquidMeshFaceHolder[] liquidMeshFaceHolders = currentLiquid.RenderType == RenderType.Opaque ?
+                            VaryingHeightMeshFaceHolder[] liquidMeshFaceHolders = currentLiquid.RenderType == RenderType.Opaque ?
                                 opaqueLiquidMeshFaceHolders : transparentLiquidMeshFaceHolders;
 
                             MeshLiquidSide(BlockSide.Front);
@@ -242,9 +319,18 @@ namespace VoxelGame.Client.Logic
                 }
             }
 
+            // Complex mesh data is already built at this point.
+
             // Build the simple mesh data.
             PooledList<int> simpleVertexData = new PooledList<int>(4096);
             GenerateMesh(blockMeshFaceHolders, ref simpleVertexData);
+
+            // Build the varying height mesh data.
+            PooledList<int> varyingHeightVertexData = new PooledList<int>();
+            PooledList<uint> varyingHeightIndices = new PooledList<uint>();
+            uint varyingHeightVertexCount = 0;
+
+            GenerateMesh(varyingHeightMeshFaceHolders, ref varyingHeightVertexData, ref varyingHeightVertexCount, ref varyingHeightIndices);
 
             // Build the liquid mesh data.
             PooledList<int> opaqueLiquidVertexData = new PooledList<int>();
@@ -259,11 +345,18 @@ namespace VoxelGame.Client.Logic
 
             GenerateMesh(transparentLiquidMeshFaceHolders, ref transparentLiquidVertexData, ref transparentLiquidVertexCount, ref transparentLiquidIndices);
 
-            hasMesh = complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 || transparentLiquidVertexData.Count != 0;
+            // Finish up.
+            hasMesh = complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 || varyingHeightVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 || transparentLiquidVertexData.Count != 0;
 
-            meshData = new SectionMeshData(ref simpleVertexData, ref complexVertexPositions, ref complexVertexData, ref complexIndices, ref opaqueLiquidVertexData, ref opaqueLiquidIndices, ref transparentLiquidVertexData, ref transparentLiquidIndices);
+            meshData = new SectionMeshData(ref simpleVertexData,
+                ref complexVertexPositions, ref complexVertexData, ref complexIndices,
+                ref varyingHeightVertexData, ref varyingHeightIndices,
+                ref opaqueLiquidVertexData, ref opaqueLiquidIndices,
+                ref transparentLiquidVertexData, ref transparentLiquidIndices);
 
+            // Cleanup.
             ReturnToPool(blockMeshFaceHolders);
+            ReturnToPool(varyingHeightMeshFaceHolders);
             ReturnToPool(opaqueLiquidMeshFaceHolders);
             ReturnToPool(transparentLiquidMeshFaceHolders);
         }
@@ -296,16 +389,16 @@ namespace VoxelGame.Client.Logic
             return holders;
         }
 
-        private static LiquidMeshFaceHolder[] CreateLiquidMeshFaceHolders()
+        private static VaryingHeightMeshFaceHolder[] CreateVaryingHeightMeshFaceHolders()
         {
-            LiquidMeshFaceHolder[] holders = new LiquidMeshFaceHolder[6];
+            VaryingHeightMeshFaceHolder[] holders = new VaryingHeightMeshFaceHolder[6];
 
-            holders[(int)BlockSide.Front] = new LiquidMeshFaceHolder(BlockSide.Front);
-            holders[(int)BlockSide.Back] = new LiquidMeshFaceHolder(BlockSide.Back);
-            holders[(int)BlockSide.Left] = new LiquidMeshFaceHolder(BlockSide.Left);
-            holders[(int)BlockSide.Right] = new LiquidMeshFaceHolder(BlockSide.Right);
-            holders[(int)BlockSide.Bottom] = new LiquidMeshFaceHolder(BlockSide.Bottom);
-            holders[(int)BlockSide.Top] = new LiquidMeshFaceHolder(BlockSide.Top);
+            holders[(int)BlockSide.Front] = new VaryingHeightMeshFaceHolder(BlockSide.Front);
+            holders[(int)BlockSide.Back] = new VaryingHeightMeshFaceHolder(BlockSide.Back);
+            holders[(int)BlockSide.Left] = new VaryingHeightMeshFaceHolder(BlockSide.Left);
+            holders[(int)BlockSide.Right] = new VaryingHeightMeshFaceHolder(BlockSide.Right);
+            holders[(int)BlockSide.Bottom] = new VaryingHeightMeshFaceHolder(BlockSide.Bottom);
+            holders[(int)BlockSide.Top] = new VaryingHeightMeshFaceHolder(BlockSide.Top);
 
             return holders;
         }
@@ -318,9 +411,9 @@ namespace VoxelGame.Client.Logic
             }
         }
 
-        private static void GenerateMesh(LiquidMeshFaceHolder[] holders, ref PooledList<int> vertexData, ref uint vertexCount, ref PooledList<uint> indexData)
+        private static void GenerateMesh(VaryingHeightMeshFaceHolder[] holders, ref PooledList<int> vertexData, ref uint vertexCount, ref PooledList<uint> indexData)
         {
-            foreach (LiquidMeshFaceHolder holder in holders)
+            foreach (VaryingHeightMeshFaceHolder holder in holders)
             {
                 holder.GenerateMesh(ref vertexData, ref vertexCount, ref indexData);
             }
@@ -334,9 +427,9 @@ namespace VoxelGame.Client.Logic
             }
         }
 
-        private static void ReturnToPool(LiquidMeshFaceHolder[] holders)
+        private static void ReturnToPool(VaryingHeightMeshFaceHolder[] holders)
         {
-            foreach (LiquidMeshFaceHolder holder in holders)
+            foreach (VaryingHeightMeshFaceHolder holder in holders)
             {
                 holder.ReturnToPool();
             }

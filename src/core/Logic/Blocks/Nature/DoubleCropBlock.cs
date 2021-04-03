@@ -17,20 +17,20 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     // s = stage
     // h = height
-    public class DoubeCropBlock : Block, IFlammable, IFillable
+    public class DoubleCropBlock : Block, IFlammable, IFillable
     {
-        private protected float[] vertices = null!;
+        private float[] vertices = null!;
 
-        private protected int[] stageTexIndicesLow = null!;
-        private protected int[] stageTexIndicesTop = null!;
+        private int[] stageTexIndicesLow = null!;
+        private int[] stageTexIndicesTop = null!;
 
-        private protected uint[] indices = null!;
+        private uint[] indices = null!;
 
-        private protected string texture;
-        private protected int dead, first, second, third;
-        private protected (int low, int top) fourth, fifth, sixth, final;
+        private readonly string texture;
+        private int dead, first, second, third;
+        private (int low, int top) fourth, fifth, sixth, final;
 
-        public DoubeCropBlock(string name, string namedId, string texture, int dead, int first, int second, int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final) :
+        public DoubleCropBlock(string name, string namedId, string texture, int dead, int first, int second, int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final) :
             base(
                 name,
                 namedId,
@@ -142,16 +142,16 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
-            GrowthStage stage = (GrowthStage)(data & 0b00_0111);
+            var stage = (GrowthStage)(data & 0b00_0111);
 
             if (((data & 0b00_1000) == 0 && stage == GrowthStage.Initial) ||
                 ((data & 0b00_1000) != 0 && (stage == GrowthStage.Fourth || stage == GrowthStage.Fifth)))
             {
-                return new BoundingBox(new Vector3(0.5f, 0.25f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.25f, 0.5f));
+                return BoundingBox.BlockAt(7, x, y, z);
             }
             else
             {
-                return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f));
+                return BoundingBox.BlockAt(15, x, y, z);
             }
         }
 

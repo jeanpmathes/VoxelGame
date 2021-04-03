@@ -27,6 +27,10 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
         private readonly int complexEBO;
         private readonly int complexVAO;
 
+        private readonly int varyingHeightDataVBO;
+        private readonly int varyingHeightEBO;
+        private readonly int varyingHeightVAO;
+
         private readonly int opaqueLiquidDataVBO;
         private readonly int opaqueLiquidEBO;
         private readonly int opaqueLiquidVAO;
@@ -37,11 +41,13 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
         private int simpleIndices;
         private int complexElements;
+        private int varyingHeightElements;
         private int opaqueLiquidElements;
         private int transparentLiquidElements;
 
         private bool hasSimpleData;
         private bool hasComplexData;
+        private bool hasVaryingHeightData;
         private bool hasOpaqueLiquidData;
         private bool hasTransparentLiquidData;
 
@@ -54,6 +60,10 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             complexDataVBO = GL.GenBuffer();
             complexEBO = GL.GenBuffer();
             complexVAO = GL.GenVertexArray();
+
+            varyingHeightDataVBO = GL.GenBuffer();
+            varyingHeightEBO = GL.GenBuffer();
+            varyingHeightVAO = GL.GenVertexArray();
 
             opaqueLiquidDataVBO = GL.GenBuffer();
             opaqueLiquidEBO = GL.GenBuffer();
@@ -145,6 +155,42 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             }
 
             #endregion COMPLEX BUFFER SETUP
+
+            #region VARYING HEIGHT BUFFER SETUP
+
+            hasVaryingHeightData = false;
+
+            varyingHeightElements = meshData.varyingHeightIndices.Count;
+
+            if (varyingHeightElements != 0)
+            {
+                // Vertex Buffer Object
+                GL.BindBuffer(BufferTarget.ArrayBuffer, varyingHeightDataVBO);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshData.varyingHeightVertexData.Count * sizeof(int), meshData.varyingHeightVertexData.ExposeArray(), BufferUsageHint.StaticDraw);
+
+                // Element Buffer Object
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, varyingHeightEBO);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.varyingHeightIndices.Count * sizeof(uint), meshData.varyingHeightIndices.ExposeArray(), BufferUsageHint.StaticDraw);
+
+                int dataLocation = Client.VaryingHeightShader.GetAttribLocation("aData");
+
+                Client.VaryingHeightShader.Use();
+
+                // Vertex Array Object
+                GL.BindVertexArray(varyingHeightVAO);
+
+                GL.BindBuffer(BufferTarget.ArrayBuffer, varyingHeightDataVBO);
+                GL.EnableVertexAttribArray(dataLocation);
+                GL.VertexAttribIPointer(dataLocation, 2, VertexAttribIntegerType.Int, 2 * sizeof(int), IntPtr.Zero);
+
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, varyingHeightEBO);
+
+                GL.BindVertexArray(0);
+
+                hasVaryingHeightData = true;
+            }
+
+            #endregion VARYING HEIGHT BUFFER SETUP
 
             #region LIQUID BUFFERS SETUP
 
@@ -275,9 +321,38 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             }
         }
 
-        protected override void PrepareOpaqueLiquidBuffer(Matrix4 view, Matrix4 projection)
+        protected override void PrepareVaryingHeightBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+
+            Client.VaryingHeightShader.Use();
+
+            Client.VaryingHeightShader.SetMatrix4("view", view);
+            Client.VaryingHeightShader.SetMatrix4("projection", projection);
+
+            Client.VaryingHeightShader.SetInt("firstArrayTexture", 1);
+            Client.VaryingHeightShader.SetInt("secondArrayTexture", 2);
+            Client.VaryingHeightShader.SetInt("thirdArrayTexture", 3);
+            Client.VaryingHeightShader.SetInt("fourthArrayTexture", 4);
+        }
+
+        protected override void DrawVaryingHeightBuffer(Matrix4 model)
+        {
+            if (hasVaryingHeightData)
+            {
+                GL.BindVertexArray(varyingHeightVAO);
+
+                Client.VaryingHeightShader.SetMatrix4("model", model);
+
+                GL.DrawElements(PrimitiveType.Triangles, varyingHeightElements, DrawElementsType.UnsignedInt, 0);
+
+                GL.BindVertexArray(0);
+            }
+        }
+
+        protected override void PrepareOpaqueLiquidBuffer(Matrix4 view, Matrix4 projection)
+        {
+            Client.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
             Client.OpaqueLiquidSectionShader.Use();
 
@@ -305,7 +380,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
         {
             Rendering.Screen.FillDepthTexture();
 
-            Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+            Client.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
             GL.Enable(EnableCap.Blend);
             GL.DepthMask(false);

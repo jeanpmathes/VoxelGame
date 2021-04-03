@@ -109,6 +109,13 @@ namespace VoxelGame.Core.Logic
                 throw new System.ArgumentException("A block that is not full cannot be opaque.", nameof(isOpaque));
             }
 
+#pragma warning disable S3060 // "is" should not be used with "this"
+            if ((targetBuffer == TargetBuffer.VaryingHeight) != (this is IHeightVariable))
+#pragma warning restore S3060 // "is" should not be used with "this"
+            {
+                throw new System.ArgumentException($"The target buffer should be {nameof(TargetBuffer.VaryingHeight)} if and only if the block implements {nameof(IHeightVariable)}.");
+            }
+
             if (blockDictionary.Count < BlockLimit)
             {
                 blockDictionary.Add((uint)blockDictionary.Count, this);

@@ -151,7 +151,7 @@ namespace VoxelGame.Core.Logic
             };
         }
 
-        public int[] GetTexIndexArray()
+        public readonly int[] GetTexIndexArray()
         {
             return new[]
             {

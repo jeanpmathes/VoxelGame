@@ -18,12 +18,12 @@ namespace VoxelGame.Core.Logic.Blocks
     // s = stage
     public class CropBlock : Block, IFlammable, IFillable
     {
-        private protected float[] vertices = null!;
-        private protected int[] stageTexIndices = null!;
-        private protected uint[] indices = null!;
+        private float[] vertices = null!;
+        private int[] stageTexIndices = null!;
+        private uint[] indices = null!;
 
-        private protected string texture;
-        private protected int second, third, fourth, fifth, sixth, final, dead;
+        private readonly string texture;
+        private int second, third, fourth, fifth, sixth, final, dead;
 
         public CropBlock(string name, string namedId, string texture, int second, int third, int fourth, int fifth, int sixth, int final, int dead) :
             base(
@@ -54,7 +54,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             vertices = new float[]
             {
-                //X----Y---Z---U---V---N---O---P
+                //   X   Y    Z   U    V   N    O   P
                 0.25f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
                 0.25f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
                 0.25f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
@@ -145,35 +145,35 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 case GrowthStage.Initial:
                 case GrowthStage.Dead:
-                    return new BoundingBox(new Vector3(0.5f, 0.125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.125f, 0.5f));
+                    return BoundingBox.BlockAt(3, x, y, z);
 
                 case GrowthStage.Second:
-                    return new BoundingBox(new Vector3(0.5f, 0.1875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.1875f, 0.5f));
+                    return BoundingBox.BlockAt(5, x, y, z);
 
                 case GrowthStage.Third:
-                    return new BoundingBox(new Vector3(0.5f, 0.25f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.25f, 0.5f));
+                    return BoundingBox.BlockAt(7, x, y, z);
 
                 case GrowthStage.Fourth:
-                    return new BoundingBox(new Vector3(0.5f, 0.3125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.3125f, 0.5f));
+                    return BoundingBox.BlockAt(9, x, y, z);
 
                 case GrowthStage.Fifth:
-                    return new BoundingBox(new Vector3(0.5f, 0.375f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.375f, 0.5f));
+                    return BoundingBox.BlockAt(11, x, y, z);
 
                 case GrowthStage.Sixth:
-                    return new BoundingBox(new Vector3(0.5f, 0.4375f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.4375f, 0.5f));
+                    return BoundingBox.BlockAt(13, x, y, z);
 
                 case GrowthStage.Final:
-                    return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f));
+                    return BoundingBox.BlockAt(15, x, y, z);
             }
 
-            return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f));
+            return BoundingBox.BlockAt(x, y, z);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             int[] textureIndices = new int[24];
 
-            for (int i = 0; i < 24; i++)
+            for (var i = 0; i < 24; i++)
             {
                 textureIndices[i] = stageTexIndices[info.Data & 0b00_0111];
             }
@@ -203,7 +203,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void RandomUpdate(int x, int y, int z, uint data)
         {
-            GrowthStage stage = (GrowthStage)(data & 0b00_0111);
+            var stage = (GrowthStage)(data & 0b00_0111);
 
             if (stage != GrowthStage.Final && stage != GrowthStage.Dead && Game.World.GetBlock(x, y - 1, z, out _) is IPlantable plantable)
             {
@@ -228,7 +228,7 @@ namespace VoxelGame.Core.Logic.Blocks
             if (liquid.Direction > 0 && level > LiquidLevel.Three) Destroy(x, y, z);
         }
 
-        protected enum GrowthStage
+        private enum GrowthStage
         {
             Initial,
             Second,
