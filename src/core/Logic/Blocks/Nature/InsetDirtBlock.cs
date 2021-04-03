@@ -1,4 +1,9 @@
-﻿using VoxelGame.Core.Entities;
+﻿// <copyright file="InsetDirtBlock.cs" company="VoxelGame">
+//     MIT License
+//	   For full license see the repository.
+// </copyright>
+// <author>pershingthesecond</author>
+using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
