@@ -50,13 +50,15 @@ namespace VoxelGame.Core.Logic
 
         public void Tick(int sectionX, int sectionY, int sectionZ)
         {
-            for (int i = 0; i < TickBatchSize; i++)
+            for (var i = 0; i < TickBatchSize; i++)
             {
                 uint val = GetPos(out int x, out int y, out int z);
-                Block.TranslateID(val & BLOCKMASK)?.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), (val & DATAMASK) >> DATASHIFT);
+                Decode(val, out Block block, out uint data, out _, out _, out _);
+                block.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), data);
 
                 val = GetPos(out x, out y, out z);
-                Liquid.TranslateID((val & LIQUIDMASK) >> LIQUIDSHIFT)?.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), (LiquidLevel)((val & LEVELMASK) >> LEVELSHIFT), (val & STATICMASK) != 0);
+                Decode(val, out _, out _, out Liquid liquid, out LiquidLevel level, out bool isStatic);
+                liquid.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), level, isStatic);
             }
 
             uint GetPos(out int x, out int y, out int z)

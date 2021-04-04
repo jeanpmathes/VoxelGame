@@ -39,7 +39,7 @@ namespace VoxelGame.Core.Logic.Liquids
             BurnAround(x, y, z);
         }
 
-        protected static void BurnAround(int x, int y, int z)
+        private static void BurnAround(int x, int y, int z)
         {
             BurnAndPlaceFire(x, y, z + 1); // Front.
             BurnAndPlaceFire(x, y, z - 1); // Back.
