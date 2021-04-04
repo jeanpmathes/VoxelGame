@@ -187,6 +187,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Concrete.
+        /// </summary>
+        public static string Concrete {
+            get {
+                return ResourceManager.GetString("Concrete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Created on.
         /// </summary>
         public static string CreatedOn {
