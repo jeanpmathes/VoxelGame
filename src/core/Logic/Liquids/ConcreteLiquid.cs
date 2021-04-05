@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using VoxelGame.Core.Logic.Blocks;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Liquids
@@ -27,7 +28,8 @@ namespace VoxelGame.Core.Logic.Liquids
         {
             if (isStatic)
             {
-                // todo
+                Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
+                Block.Specials.Concrete.Place(level, x, y, z);
             }
         }
     }
