@@ -11,7 +11,7 @@ namespace VoxelGame.Client.Collections
 {
     public abstract class MeshFaceHolder
     {
-        protected readonly BlockSide side;
+        private protected readonly BlockSide side;
 
         protected MeshFaceHolder(BlockSide side)
         {
