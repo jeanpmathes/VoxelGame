@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     // c = color
     // h = height
-    public class ConcreteBlock : Block, IHeightVariable
+    public class ConcreteBlock : Block, IHeightVariable, IConnectable
     {
         private readonly TextureLayout layout;
         private int[] textures = null!;
@@ -97,6 +97,12 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             Decode(data, out _, out int height);
             return height;
+        }
+
+        public bool IsConnectable(BlockSide side, int x, int y, int z)
+        {
+            Game.World.GetBlock(x, y, z, out uint data);
+            return GetHeight(data) == IHeightVariable.MaximumHeight;
         }
     }
 }
