@@ -14,13 +14,13 @@ namespace VoxelGame.Core.Logic.Liquids
 {
     public class BasicLiquid : Liquid, IOverlayTextureProvider
     {
-        private protected bool neutralTint;
+        private readonly bool neutralTint;
 
-        private protected TextureLayout movingLayout;
-        private protected TextureLayout staticLayout;
+        private readonly TextureLayout movingLayout;
+        private readonly TextureLayout staticLayout;
 
-        private protected int[] movingTex = null!;
-        private protected int[] staticTex = null!;
+        private int[] movingTex = null!;
+        private int[] staticTex = null!;
 
         public int TextureIdentifier => staticLayout.Front;
 

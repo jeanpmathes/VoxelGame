@@ -6,6 +6,7 @@
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Core.Logic.Blocks;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -126,8 +127,16 @@ namespace VoxelGame.Core.Logic
         public static readonly Block RedPlastic = new ConstructionBlock(Language.RedPlastic, nameof(RedPlastic), TextureLayout.Uniform("red_plastic"));
         public static readonly Block Pump = new PumpBlock(Language.Pump, nameof(Pump), 16, TextureLayout.Uniform("pump"));
         public static readonly Block Path = new InsetDirtBlock(Language.Path, nameof(Path), TextureLayout.Uniform("dirt"), TextureLayout.Uniform("dirt"), false);
+        public static readonly Block Concrete = new ConcreteBlock(Language.Concrete, nameof(Concrete), TextureLayout.Uniform("concrete"));
 
         #endregion NEW BLOCKS
+
+        internal static class Specials
+        {
+#pragma warning disable S3218 // Inner class members should not shadow outer class "static" or type members
+            public static readonly ConcreteBlock Concrete = (ConcreteBlock)Block.Concrete;
+#pragma warning restore S3218 // Inner class members should not shadow outer class "static" or type members
+        }
 
         /// <summary>
         /// Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.

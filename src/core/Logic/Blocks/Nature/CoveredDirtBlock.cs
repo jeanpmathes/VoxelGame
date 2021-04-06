@@ -84,7 +84,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public virtual bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
         {
-            return liquid.Viscosity < 200;
+            return liquid.Viscosity < 100;
         }
     }
 }

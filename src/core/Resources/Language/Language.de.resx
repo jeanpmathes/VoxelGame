@@ -159,6 +159,9 @@
   <data name="CoalOre" xml:space="preserve">
     <value>Kohleerz</value>
   </data>
+  <data name="Concrete" xml:space="preserve">
+    <value>Beton</value>
+  </data>
   <data name="CreatedOn" xml:space="preserve">
     <value>Erstellt am</value>
   </data>

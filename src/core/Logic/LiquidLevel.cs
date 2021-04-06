@@ -16,4 +16,12 @@ namespace VoxelGame.Core.Logic
         Seven = 6,
         Eight = 7
     }
+
+    public static class LiquidLevelExtensions
+    {
+        public static int GetBlockHeight(this LiquidLevel level)
+        {
+            return ((int)level * 2) + 1;
+        }
+    }
 }
