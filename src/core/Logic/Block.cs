@@ -266,6 +266,10 @@ namespace VoxelGame.Core.Logic
         {
         }
 
+        protected virtual void ScheduledUpdate(int x, int y, int z, uint data)
+        {
+        }
+
         public sealed override string ToString()
         {
             return NamedId;
