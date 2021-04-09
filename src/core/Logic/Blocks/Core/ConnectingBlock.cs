@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using System;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -20,21 +21,23 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public abstract class ConnectingBlock : Block, IConnectable, IFillable
     {
-        private protected uint postVertCount;
-        private protected uint extensionVertCount;
+        private uint postVertexCount;
+        private uint extensionVertexCount;
 
-        private protected float[] postVertices = null!;
+        private float[] postVertices = null!;
 
-        private protected float[] northVertices = null!;
-        private protected float[] eastVertices = null!;
-        private protected float[] southVertices = null!;
-        private protected float[] westVertices = null!;
+        private float[] northVertices = null!;
+        private float[] eastVertices = null!;
+        private float[] southVertices = null!;
+        private float[] westVertices = null!;
 
-        private protected int[][] textureIndices = null!;
+        private int[][] textureIndices = null!;
 
-        private protected uint[][] indices = null!;
+        private uint[][] indices = null!;
 
-        private protected string texture, post, extension;
+        private protected readonly string texture;
+        private readonly string post;
+        private readonly string extension;
 
         protected ConnectingBlock(string name, string namedId, string texture, string post, string extension, BoundingBox boundingBox) :
             base(
@@ -61,8 +64,8 @@ namespace VoxelGame.Core.Logic.Blocks
             BlockModel postModel = BlockModel.Load(this.post);
             BlockModel extensionModel = BlockModel.Load(this.extension);
 
-            postVertCount = (uint)postModel.VertexCount;
-            extensionVertCount = (uint)extensionModel.VertexCount;
+            postVertexCount = (uint)postModel.VertexCount;
+            extensionVertexCount = (uint)extensionModel.VertexCount;
 
             postModel.ToData(out postVertices, out _, out _);
 
@@ -82,11 +85,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
             textureIndices = new int[5][];
 
-            for (int i = 0; i < 5; i++)
+            for (var i = 0; i < 5; i++)
             {
                 int[] texInd = new int[postModel.VertexCount + (i * extensionModel.VertexCount)];
 
-                for (int v = 0; v < texInd.Length; v++)
+                for (var v = 0; v < texInd.Length; v++)
                 {
                     texInd[v] = tex;
                 }
@@ -96,13 +99,13 @@ namespace VoxelGame.Core.Logic.Blocks
 
             indices = new uint[5][];
 
-            for (int i = 0; i < 5; i++)
+            for (var i = 0; i < 5; i++)
             {
                 uint[] ind = new uint[(postModel.Quads.Length * 6) + (i * extensionModel.Quads.Length * 6)];
 
-                for (int f = 0; f < postModel.Quads.Length + (i * extensionModel.Quads.Length); f++)
+                for (var f = 0; f < postModel.Quads.Length + (i * extensionModel.Quads.Length); f++)
                 {
-                    uint offset = (uint)(f * 4);
+                    var offset = (uint)(f * 4);
 
                     ind[(f * 6) + 0] = 0 + offset;
                     ind[(f * 6) + 1] = 2 + offset;
@@ -124,14 +127,14 @@ namespace VoxelGame.Core.Logic.Blocks
             bool west = (info.Data & 0b00_0001) != 0;
 
             int extensions = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
-            uint vertexCount = (uint)(postVertCount + (extensions * extensionVertCount));
+            var vertexCount = (uint)(postVertexCount + (extensions * extensionVertexCount));
 
             float[] vertices = new float[vertexCount * 8];
-            int[] textureIndices = this.textureIndices[extensions];
-            uint[] indices = this.indices[extensions];
+            int[] currentTextureIndices = this.textureIndices[extensions];
+            uint[] currentIndices = this.indices[extensions];
 
             // Combine the required vertices into one array
-            int position = 0;
+            var position = 0;
             Array.Copy(postVertices, 0, vertices, 0, postVertices.Length);
             position += postVertices.Length;
 
@@ -158,7 +161,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 Array.Copy(westVertices, 0, vertices, position, westVertices.Length);
             }
 
-            return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
+            return new BlockMeshData(vertexCount, vertices, currentTextureIndices, currentIndices);
         }
 
         protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
@@ -183,37 +186,23 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             uint newData = data;
 
-            switch (side)
+            newData = side switch
             {
-                case BlockSide.Back:
-
-                    newData = CheckNeighbour(x, y, z - 1, BlockSide.Front, 0b00_1000, newData);
-                    break;
-
-                case BlockSide.Right:
-
-                    newData = CheckNeighbour(x + 1, y, z, BlockSide.Left, 0b00_0100, newData);
-                    break;
-
-                case BlockSide.Front:
-
-                    newData = CheckNeighbour(x, y, z + 1, BlockSide.Back, 0b00_0010, newData);
-                    break;
-
-                case BlockSide.Left:
-
-                    newData = CheckNeighbour(x - 1, y, z, BlockSide.Right, 0b00_0001, newData);
-                    break;
-            }
+                BlockSide.Back => CheckNeighbor(x, y, z - 1, BlockSide.Front, 0b00_1000, newData),
+                BlockSide.Right => CheckNeighbor(x + 1, y, z, BlockSide.Left, 0b00_0100, newData),
+                BlockSide.Front => CheckNeighbor(x, y, z + 1, BlockSide.Back, 0b00_0010, newData),
+                BlockSide.Left => CheckNeighbor(x - 1, y, z, BlockSide.Right, 0b00_0001, newData),
+                _ => newData
+            };
 
             if (newData != data)
             {
                 Game.World.SetBlock(this, newData, x, y, z);
             }
 
-            static uint CheckNeighbour(int x, int y, int z, BlockSide side, uint mask, uint newData)
+            static uint CheckNeighbor(int x, int y, int z, BlockSide side, uint mask, uint newData)
             {
-                if (Game.World.GetBlock(x, y, z, out _) is IConnectable neighbour && neighbour.IsConnectable(side, x, y, z))
+                if (Game.World.GetBlock(x, y, z, out _) is IConnectable neighbor && neighbor.IsConnectable(side, x, y, z))
                 {
                     newData |= mask;
                 }

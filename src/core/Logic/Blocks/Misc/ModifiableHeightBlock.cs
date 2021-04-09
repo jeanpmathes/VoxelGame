@@ -1,6 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿// <copyright file="ModifiableHeightBlock.cs" company="VoxelGame">
+//     MIT License
+//	   For full license see the repository.
+// </copyright>
+// <author>pershingthesecond</author>
+
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -37,7 +40,10 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             if (side == BlockSide.Bottom && !Game.World.HasSolidGround(x, y, z))
             {
-                Destroy(x, y, z);
+                if (GetHeight(data) == IHeightVariable.MaximumHeight)
+                    ScheduleDestroy(x, y, z);
+                else
+                    Destroy(x, y, z);
             }
         }
 

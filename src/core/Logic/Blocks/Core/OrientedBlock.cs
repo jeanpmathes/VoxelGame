@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using System;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Utilities;
@@ -35,7 +36,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             float[] v = sideVertices[(int)info.Side];
 
-            float[] vertices = new float[]
+            float[] vertices =
             {
                 v[0], v[1], v[2], 0f, 0f, v[5], v[6], v[7],
                 v[8], v[9], v[10], 0f, 1f, v[13], v[14], v[15],
@@ -48,14 +49,14 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
         {
-            Game.World.SetBlock(this, (uint)((entity?.LookingDirection.ToOrientation()) ?? Orientation.North), x, y, z);
+            Game.World.SetBlock(this, (uint)(entity?.LookingDirection.ToOrientation() ?? Orientation.North), x, y, z);
 
             return true;
         }
 
-        protected static int TranslateIndex(BlockSide side, Orientation orientation)
+        private static int TranslateIndex(BlockSide side, Orientation orientation)
         {
-            int index = (int)side;
+            var index = (int)side;
 
             if (index < 0 || index > 5)
             {

@@ -16,9 +16,9 @@ namespace VoxelGame.Core.Logic.Blocks
     // o = open
     public class LiquidBarrierBlock : BasicBlock, IFillable, IFlammable
     {
-        private protected int[] openTextureIndices = null!;
+        private int[] openTextureIndices = null!;
 
-        private protected TextureLayout open;
+        private readonly TextureLayout open;
 
         public LiquidBarrierBlock(string name, string namedId, TextureLayout closed, TextureLayout open) :
             base(

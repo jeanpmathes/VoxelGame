@@ -44,6 +44,7 @@ namespace VoxelGame.Core.Logic
         protected readonly Section[] sections = new Section[ChunkHeight];
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
+        private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
         private readonly ScheduledTickManager<Liquid.LiquidTick> liquidTickManager;
 
         protected Chunk(int x, int z)
@@ -60,6 +61,7 @@ namespace VoxelGame.Core.Logic
 #pragma warning restore S1699 // Constructors should only call non-overridable methods
             }
 
+            blockTickManager = new ScheduledTickManager<Block.BlockTick>(Block.MaxLiquidTicksPerFrameAndChunk);
             liquidTickManager = new ScheduledTickManager<Liquid.LiquidTick>(Liquid.MaxLiquidTicksPerFrameAndChunk);
         }
 
@@ -70,6 +72,7 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public void Setup()
         {
+            blockTickManager.Load();
             liquidTickManager.Load();
 
             for (int y = 0; y < ChunkHeight; y++)
@@ -128,6 +131,7 @@ namespace VoxelGame.Core.Logic
         /// <param name="path">The path of the directory where this chunk should be saved.</param>
         public void Save(string path)
         {
+            blockTickManager.Unload();
             liquidTickManager.Unload();
 
             string chunkFile = path + $"/x{X}z{Z}.chunk";
@@ -138,6 +142,7 @@ namespace VoxelGame.Core.Logic
             IFormatter formatter = new BinaryFormatter();
             formatter.Serialize(stream, this);
 
+            blockTickManager.Load();
             liquidTickManager.Load();
         }
 
@@ -176,6 +181,11 @@ namespace VoxelGame.Core.Logic
             return Task.Run(() => Generate(generator));
         }
 
+        internal void ScheduleBlockTick(Block.BlockTick tick, int tickOffset)
+        {
+            blockTickManager.Add(tick, tickOffset);
+        }
+
         internal void ScheduleLiquidTick(Liquid.LiquidTick tick, int tickOffset)
         {
             liquidTickManager.Add(tick, tickOffset);
@@ -183,6 +193,7 @@ namespace VoxelGame.Core.Logic
 
         public void Tick()
         {
+            blockTickManager.Process();
             liquidTickManager.Process();
 
             for (int y = 0; y < ChunkHeight; y++)

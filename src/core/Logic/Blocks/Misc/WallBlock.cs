@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -20,15 +21,15 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public class WallBlock : ConnectingBlock
     {
-        private protected uint straightVertCount;
+        private uint straightVertexCount;
 
-        private protected float[] extensionStraightZVertices = null!;
-        private protected float[] extensionStraightXVertices = null!;
+        private float[] extensionStraightZVertices = null!;
+        private float[] extensionStraightXVertices = null!;
 
-        private protected int[] texIndicesStraight = null!;
-        private protected uint[] indicesStraight = null!;
+        private int[] texIndicesStraight = null!;
+        private uint[] indicesStraight = null!;
 
-        private protected string extensionStraight;
+        private readonly string extensionStraight;
 
         public WallBlock(string name, string namedId, string texture, string post, string extension, string extensionStraight) :
             base(
@@ -47,7 +48,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base.Setup();
 
             BlockModel extensionStraightModel = BlockModel.Load(this.extensionStraight);
-            straightVertCount = (uint)extensionStraightModel.VertexCount;
+            straightVertexCount = (uint)extensionStraightModel.VertexCount;
 
             extensionStraightModel.RotateY(0, false);
             extensionStraightModel.ToData(out extensionStraightZVertices, out texIndicesStraight, out indicesStraight);
@@ -57,7 +58,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             int tex = Game.BlockTextures.GetTextureIndex(texture);
 
-            for (int i = 0; i < texIndicesStraight.Length; i++)
+            for (var i = 0; i < texIndicesStraight.Length; i++)
             {
                 texIndicesStraight[i] = tex;
             }
@@ -127,7 +128,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if (straightZ || straightX)
             {
-                return new BlockMeshData(straightVertCount, straightZ ? extensionStraightZVertices : extensionStraightXVertices, texIndicesStraight, indicesStraight);
+                return new BlockMeshData(straightVertexCount, straightZ ? extensionStraightZVertices : extensionStraightXVertices, texIndicesStraight, indicesStraight);
             }
 
             return base.GetMesh(info);

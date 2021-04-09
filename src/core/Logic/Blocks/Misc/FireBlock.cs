@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Entities;
@@ -24,14 +25,16 @@ namespace VoxelGame.Core.Logic.Blocks
     // t = top
     public class FireBlock : Block, IFillable
     {
-        private protected float[] completeVertices = null!;
-        private protected uint[] completeIndices = null!;
-        private protected int[] completeTexIndices = null!;
+        private const int TickOffset = 150;
 
-        private protected float[][] attachedVertices = null!;
-        private protected int texIndex;
+        private float[] completeVertices = null!;
+        private uint[] completeIndices = null!;
+        private int[] completeTexIndices = null!;
 
-        private protected string texture;
+        private float[][] attachedVertices = null!;
+        private int texIndex;
+
+        private readonly string texture;
 
         public FireBlock(string name, string namedId, string texture) :
             base(
@@ -55,7 +58,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             texIndex = Game.BlockTextures.GetTextureIndex(texture);
 
-            completeVertices = new float[]
+            completeVertices = new[]
             {
                 // North:
                 1f, 0f, 0.001f, 0f, 0f, 0f, 0f, 0f,
@@ -95,7 +98,7 @@ namespace VoxelGame.Core.Logic.Blocks
             };
 
             completeTexIndices = new int[24];
-            for (int i = 0; i < completeTexIndices.Length; i++) completeTexIndices[i] = texIndex;
+            for (var i = 0; i < completeTexIndices.Length; i++) completeTexIndices[i] = texIndex;
 
             completeIndices = new uint[]
             {
@@ -130,10 +133,10 @@ namespace VoxelGame.Core.Logic.Blocks
                 20, 22, 23
             };
 
-            attachedVertices = new float[][]
+            attachedVertices = new[]
             {
                 // North:
-                new float[]
+                new[]
                 {
                     1f, 0f, 0.001f, 0f, 0f, 0f, 0f, 0f,
                     1f, 1f, 0.1f, 0f, 1f, 0f, 0f, 0f,
@@ -141,7 +144,7 @@ namespace VoxelGame.Core.Logic.Blocks
                     0f, 0f, 0.001f, 1f, 0f, 0f, 0f, 0f
                 },
                 // East:
-                new float[]
+                new[]
                 {
                     0.999f, 0f, 1f, 0f, 0f, 0f, 0f, 0f,
                     0.9f, 1f, 1f, 0f, 1f, 0f, 0f, 0f,
@@ -149,7 +152,7 @@ namespace VoxelGame.Core.Logic.Blocks
                     0.999f, 0f, 0f, 1f, 0f, 0f, 0f, 0f
                 },
                 // South:
-                new float[]
+                new[]
                 {
                     0f, 0f, 0.999f, 0f, 0f, 0f, 0f, 0f,
                     0f, 1f, 0.9f, 0f, 1f, 0f, 0f, 0f,
@@ -157,7 +160,7 @@ namespace VoxelGame.Core.Logic.Blocks
                     1f, 0f, 0.999f, 1f, 0f, 0f, 0f, 0f
                 },
                 // West:
-                new float[]
+                new[]
                 {
                     0.001f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
                     0.1f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
@@ -165,7 +168,7 @@ namespace VoxelGame.Core.Logic.Blocks
                     0.001f, 0f, 1f, 1f, 0f, 0f, 0f, 0f
                 },
                 // Top:
-                new float[]
+                new[]
                 {
                     0f, 0.999f, 1f, 0f, 0f, 0f, 0f, 0f,
                     0f, 0.8f, 0f, 0f, 1f, 0f, 0f, 0f,
@@ -189,40 +192,40 @@ namespace VoxelGame.Core.Logic.Blocks
 
             int count = BitHelper.CountSetBits(data);
 
-            BoundingBox parent = new BoundingBox();
-            BoundingBox[] children = new BoundingBox[count - 1];
+            var parent = new BoundingBox();
+            var children = new BoundingBox[count - 1];
 
             if ((data & 0b01_0000) != 0)
             {
-                BoundingBox child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.1f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
+                var child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.1f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
 
                 IncludeChild(child);
             }
 
             if ((data & 0b00_1000) != 0)
             {
-                BoundingBox child = new BoundingBox(new Vector3(0.9f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
+                var child = new BoundingBox(new Vector3(0.9f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
 
                 IncludeChild(child);
             }
 
             if ((data & 0b00_0100) != 0)
             {
-                BoundingBox child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.9f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
+                var child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.9f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
 
                 IncludeChild(child);
             }
 
             if ((data & 0b00_0010) != 0)
             {
-                BoundingBox child = new BoundingBox(new Vector3(0.1f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
+                var child = new BoundingBox(new Vector3(0.1f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
 
                 IncludeChild(child);
             }
 
             if ((data & 0b00_0001) != 0)
             {
-                BoundingBox child = new BoundingBox(new Vector3(0.5f, 0.9f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.1f, 0.5f));
+                var child = new BoundingBox(new Vector3(0.5f, 0.9f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.1f, 0.5f));
 
                 IncludeChild(child);
             }
@@ -254,9 +257,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
             float[] vertices = new float[faceCount * 32];
 
-            int vi = 0;
+            var vi = 0;
 
-            for (int i = 0; i < 5; i++)
+            for (var i = 0; i < 5; i++)
             {
                 if ((info.Data & (0b1_0000 >> i)) != 0)
                 {
@@ -267,7 +270,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             int[] textureIndices = new int[faceCount * 4];
 
-            for (int i = 0; i < textureIndices.Length; i++)
+            for (var i = 0; i < textureIndices.Length; i++)
             {
                 textureIndices[i] = texIndex;
             }
@@ -283,6 +286,7 @@ namespace VoxelGame.Core.Logic.Blocks
             if (Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull == true)
             {
                 Game.World.SetBlock(this, 0, x, y, z);
+                ScheduleTick(x, y, z, TickOffset);
 
                 return true;
             }
@@ -299,6 +303,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 if (data != 0)
                 {
                     Game.World.SetBlock(this, data, x, y, z);
+                    ScheduleTick(x, y, z, TickOffset);
 
                     return true;
                 }
@@ -315,27 +320,27 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 case BlockSide.Back:
 
-                    CheckNeighbour(x, y, z - 1, 0b01_0000);
+                    CheckNeighbor(x, y, z - 1, 0b01_0000);
                     break;
 
                 case BlockSide.Right:
 
-                    CheckNeighbour(x + 1, y, z, 0b00_1000);
+                    CheckNeighbor(x + 1, y, z, 0b00_1000);
                     break;
 
                 case BlockSide.Front:
 
-                    CheckNeighbour(x, y, z + 1, 0b00_0100);
+                    CheckNeighbor(x, y, z + 1, 0b00_0100);
                     break;
 
                 case BlockSide.Left:
 
-                    CheckNeighbour(x - 1, y, z, 0b00_0010);
+                    CheckNeighbor(x - 1, y, z, 0b00_0010);
                     break;
 
                 case BlockSide.Top:
 
-                    CheckNeighbour(x, y + 1, z, 0b00_0001);
+                    CheckNeighbor(x, y + 1, z, 0b00_0001);
                     break;
 
                 case BlockSide.Bottom:
@@ -345,18 +350,18 @@ namespace VoxelGame.Core.Logic.Blocks
                         break;
                     }
 
-                    data |= AddNeighbour(x, y, z - 1, 0b01_0000); // North.
-                    data |= AddNeighbour(x + 1, y, z, 0b00_1000); // East.
-                    data |= AddNeighbour(x, y, z + 1, 0b00_0100); // South.
-                    data |= AddNeighbour(x - 1, y, z, 0b00_0010); // West.
-                    data |= AddNeighbour(x, y + 1, z, 0b00_0001); // Top.
+                    data |= AddNeighbor(x, y, z - 1, 0b01_0000); // North.
+                    data |= AddNeighbor(x + 1, y, z, 0b00_1000); // East.
+                    data |= AddNeighbor(x, y, z + 1, 0b00_0100); // South.
+                    data |= AddNeighbor(x - 1, y, z, 0b00_0010); // West.
+                    data |= AddNeighbor(x, y + 1, z, 0b00_0001); // Top.
 
                     SetData(data);
 
                     break;
             }
 
-            void CheckNeighbour(int x, int y, int z, uint mask)
+            void CheckNeighbor(int x, int y, int z, uint mask)
             {
                 if ((data & mask) != 0 && Game.World.GetBlock(x, y, z, out _)?.IsSolidAndFull != true)
                 {
@@ -365,7 +370,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 }
             }
 
-            static uint AddNeighbour(int x, int y, int z, uint mask)
+            static uint AddNeighbor(int x, int y, int z, uint mask)
             {
                 return (Game.World.GetBlock(x, y, z, out _)?.IsSolidAndFull == true) ? mask : (uint)0;
             }
@@ -383,9 +388,9 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        internal override void RandomUpdate(int x, int y, int z, uint data)
+        protected override void ScheduledUpdate(int x, int y, int z, uint data)
         {
-            bool canBurn = false;
+            var canBurn = false;
 
             if (data == 0)
             {
@@ -404,6 +409,8 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 Destroy(x, y, z);
             }
+
+            ScheduleTick(x, y, z, TickOffset);
 
             bool BurnAt(int x, int y, int z)
             {

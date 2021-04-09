@@ -42,7 +42,7 @@ namespace VoxelGame.Core.Logic.Blocks
             if ((axis == Axis.X && (info.Side != BlockSide.Left && info.Side != BlockSide.Right)) || (axis == Axis.Z && (info.Side == BlockSide.Left || info.Side == BlockSide.Right)))
             {
                 // Texture rotation.
-                vertices = new float[]
+                vertices = new[]
                 {
                     v[0], v[1], v[2], 0f, 1f, v[5], v[6], v[7],
                     v[8], v[9], v[10], 1f, 1f, v[13], v[14], v[15],
@@ -53,7 +53,7 @@ namespace VoxelGame.Core.Logic.Blocks
             else
             {
                 // No texture rotation.
-                vertices = new float[]
+                vertices = new[]
                 {
                     v[0], v[1], v[2], 0f, 0f, v[5], v[6], v[7],
                     v[8], v[9], v[10], 0f, 1f, v[13], v[14], v[15],
@@ -107,7 +107,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected static int TranslateIndex(BlockSide side, Axis axis)
         {
-            int index = (int)side;
+            var index = (int)side;
 
             if (axis == Axis.X && side != BlockSide.Front && side != BlockSide.Back)
             {

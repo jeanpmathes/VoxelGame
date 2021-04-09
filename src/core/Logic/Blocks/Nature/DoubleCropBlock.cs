@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenToolkit.Mathematics;
+
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -60,7 +60,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void Setup()
         {
-            vertices = new float[]
+            vertices = new[]
             {
                 //X----Y---Z---U---V---N---O---P
                 0.25f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
@@ -92,7 +92,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 fourth = fifth = sixth = final = (0, 0);
             }
 
-            stageTexIndicesLow = new int[]
+            stageTexIndicesLow = new[]
             {
                 baseIndex + dead,
                 baseIndex + first,
@@ -104,7 +104,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 baseIndex + final.low,
             };
 
-            stageTexIndicesTop = new int[]
+            stageTexIndicesTop = new[]
             {
                 0,
                 0,
@@ -159,18 +159,18 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             int[] textureIndices = new int[24];
 
-            int tex = (int)(info.Data & 0b00_0111);
+            var tex = (int)(info.Data & 0b00_0111);
 
             if ((info.Data & 0b00_1000) == 0)
             {
-                for (int i = 0; i < 24; i++)
+                for (var i = 0; i < 24; i++)
                 {
                     textureIndices[i] = stageTexIndicesLow[tex];
                 }
             }
             else
             {
-                for (int i = 0; i < 24; i++)
+                for (var i = 0; i < 24; i++)
                 {
                     textureIndices[i] = stageTexIndicesTop[tex];
                 }
@@ -214,7 +214,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void RandomUpdate(int x, int y, int z, uint data)
         {
-            GrowthStage stage = (GrowthStage)(data & 0b00_0111);
+            var stage = (GrowthStage)(data & 0b00_0111);
 
             // If this block is the upper part, the random update is ignored.
             if ((data & 0b00_1000) != 0) return;
@@ -250,10 +250,10 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0 && level > LiquidLevel.Four) Destroy(x, y, z);
+            if (liquid.Direction > 0 && level > LiquidLevel.Four) ScheduleDestroy(x, y, z);
         }
 
-        protected enum GrowthStage
+        private enum GrowthStage
         {
             /// <summary>
             /// One Block tall.

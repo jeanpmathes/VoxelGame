@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -15,7 +16,9 @@ namespace VoxelGame.Core.Logic.Blocks
         /// Initializes a new instance of a cross plant; a plant made out of two intersecting planes. It is using a neutral tint.
         /// Data bit usage: <c>------</c>
         /// </summary>
-        /// <param name="name">The name of this block and the texture file.</param>
+        /// <param name="name">The name of this block.</param>
+        /// <param name="namedId">The unique and unlocalized name of this block.</param>
+        /// <param name="texture">The name of the texture of this block.</param>
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
         /// <param name="boundingBox">The bounding box of this block.</param>
         public CrossPlantBlock(string name, string namedId, string texture, bool isReplaceable, BoundingBox boundingBox) :

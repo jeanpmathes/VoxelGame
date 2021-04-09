@@ -21,19 +21,19 @@ namespace VoxelGame.Core.Logic.Blocks
     // p = position
     public class BedBlock : Block, IFlammable, IFillable
     {
-        private protected float[][] verticesHead = new float[4][];
-        private protected float[][] verticesEnd = new float[4][];
+        private readonly float[][] verticesHead = new float[4][];
+        private readonly float[][] verticesEnd = new float[4][];
 
-        private protected int[] texIndicesHead = null!;
-        private protected int[] texIndicesEnd = null!;
+        private int[] texIndicesHead = null!;
+        private int[] texIndicesEnd = null!;
 
-        private protected uint[] indicesHead = null!;
-        private protected uint[] indicesEnd = null!;
+        private uint[] indicesHead = null!;
+        private uint[] indicesEnd = null!;
 
-        private protected uint vertexCountHead;
-        private protected uint vertexCountEnd;
+        private uint vertexCountHead;
+        private uint vertexCountEnd;
 
-        private protected string model;
+        private readonly string model;
 
         public BedBlock(string name, string namedId, string model) :
             base(

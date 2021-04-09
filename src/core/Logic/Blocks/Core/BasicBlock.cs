@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
+
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 
@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private protected float[][] sideVertices = null!;
         private protected int[] sideTextureIndices = null!;
 
-        private protected TextureLayout layout;
+        private readonly TextureLayout layout;
 
         public virtual int TextureIdentifier => layout.Bottom;
 

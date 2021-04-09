@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -17,7 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class InsetDirtBlock : Block, IHeightVariable, IFillable, IPlantable
     {
-        private const int height = IHeightVariable.MaximumHeight - 1;
+        private const int Height = IHeightVariable.MaximumHeight - 1;
 
         private readonly TextureLayout dryLayout;
         private readonly TextureLayout wetLayout;
@@ -56,7 +57,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
         {
-            return BoundingBox.BlockAt(height, x, y, z);
+            return BoundingBox.BlockAt(Height, x, y, z);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
@@ -92,7 +93,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public int GetHeight(uint data)
         {
-            return height;
+            return Height;
         }
     }
 }

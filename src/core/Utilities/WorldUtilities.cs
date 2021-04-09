@@ -11,20 +11,22 @@ namespace VoxelGame.Core.Utilities
 {
     public static class WorldExtensions
     {
-        public static bool HasSolidGround(this World world, int x, int y, int z)
+        public static bool IsSolid(this World world, int x, int y, int z)
         {
-            Block ground = world.GetBlock(x, y - 1, z, out uint data) ?? Block.Air;
+            Block ground = world.GetBlock(x, y, z, out uint data) ?? Block.Air;
 
             return ground.IsSolidAndFull
                    || (ground is IHeightVariable varHeight && varHeight.GetHeight(data) == IHeightVariable.MaximumHeight);
         }
 
+        public static bool HasSolidGround(this World world, int x, int y, int z)
+        {
+            return world.IsSolid(x, y - 1, z);
+        }
+
         public static bool HasSolidTop(this World world, int x, int y, int z)
         {
-            Block top = world.GetBlock(x, y + 1, z, out uint data) ?? Block.Air;
-
-            return top.IsSolidAndFull
-                   || (top is IHeightVariable varHeight && varHeight.GetHeight(data) == IHeightVariable.MaximumHeight);
+            return world.IsSolid(x, y + 1, z);
         }
 
         public static bool HasOpaqueTop(this World world, int x, int y, int z)

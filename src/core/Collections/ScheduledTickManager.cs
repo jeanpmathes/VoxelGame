@@ -25,11 +25,12 @@ namespace VoxelGame.Core.Collections
 
         public void Add(T tick, int tickOffset)
         {
-            TicksHolder ticks = FindOrCreateTargetTick(Game.CurrentUpdate + tickOffset);
+            long targetUpdate = Game.CurrentUpdate + tickOffset;
+            TicksHolder ticks = FindOrCreateTargetTick(targetUpdate);
 
             if (ticks.tickables.Count >= maxTicks)
             {
-                logger.LogWarning("For update {update} a tick was scheduled although the limit for this update is already reached. It has been scheduled for the following update.");
+                logger.LogWarning("For update {update} a tick was scheduled although the limit for this update is already reached. It has been scheduled for the following update.", targetUpdate);
                 Add(tick, tickOffset + 1);
             }
             else

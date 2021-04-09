@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
+
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -19,7 +19,8 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <summary>
         /// Initializes a new instance of the <see cref="AirBlock"/> class.
         /// </summary>
-        /// <param name="name">The unique name of this block</param>
+        /// <param name="name">The name of this block</param>
+        /// <param name="namedId">The unique and unlocalized name of this block.</param>
         public AirBlock(string name, string namedId) :
             base(
                 name: name,
@@ -33,7 +34,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isReplaceable: true,
                 isInteractable: false,
                 BoundingBox.Block,
-                Visuals.TargetBuffer.NotRendered)
+                TargetBuffer.NotRendered)
         {
         }
 
