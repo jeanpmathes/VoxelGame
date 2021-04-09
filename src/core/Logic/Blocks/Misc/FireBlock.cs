@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Entities;
@@ -24,6 +25,8 @@ namespace VoxelGame.Core.Logic.Blocks
     // t = top
     public class FireBlock : Block, IFillable
     {
+        private const int TickOffset = 150;
+
         private float[] completeVertices = null!;
         private uint[] completeIndices = null!;
         private int[] completeTexIndices = null!;
@@ -283,6 +286,7 @@ namespace VoxelGame.Core.Logic.Blocks
             if (Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull == true)
             {
                 Game.World.SetBlock(this, 0, x, y, z);
+                ScheduleTick(x, y, z, TickOffset);
 
                 return true;
             }
@@ -299,6 +303,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 if (data != 0)
                 {
                     Game.World.SetBlock(this, data, x, y, z);
+                    ScheduleTick(x, y, z, TickOffset);
 
                     return true;
                 }
@@ -383,7 +388,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        internal override void RandomUpdate(int x, int y, int z, uint data)
+        protected override void ScheduledUpdate(int x, int y, int z, uint data)
         {
             var canBurn = false;
 
@@ -404,6 +409,8 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 Destroy(x, y, z);
             }
+
+            ScheduleTick(x, y, z, TickOffset);
 
             bool BurnAt(int x, int y, int z)
             {
