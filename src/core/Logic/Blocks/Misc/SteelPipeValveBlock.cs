@@ -1,4 +1,10 @@
-﻿using VoxelGame.Core.Entities;
+﻿// <copyright file="SteelPipeValveBlock.cs" company="VoxelGame">
+//     MIT License
+//	   For full license see the repository.
+// </copyright>
+// <author>pershingthesecond</author>
+
+using VoxelGame.Core.Entities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks

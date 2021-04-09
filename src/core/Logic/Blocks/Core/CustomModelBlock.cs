@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -16,13 +17,13 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class CustomModelBlock : Block, IFillable
     {
-        private protected float[] vertices = null!;
-        private protected int[] texIndices = null!;
-        private protected uint[] indices = null!;
+        private float[] vertices = null!;
+        private int[] texIndices = null!;
+        private uint[] indices = null!;
 
-        private protected uint vertCount;
+        private uint vertexCount;
 
-        private protected string model;
+        private readonly string model;
 
         public CustomModelBlock(string name, string namedId, string modelName, Physics.BoundingBox boundingBox, bool isSolid = true, bool isInteractable = false) :
             base(
@@ -47,12 +48,12 @@ namespace VoxelGame.Core.Logic.Blocks
             BlockModel blockModel = BlockModel.Load(this.model);
 
             blockModel.ToData(out vertices, out texIndices, out indices);
-            vertCount = (uint)(blockModel.VertexCount);
+            vertexCount = (uint)(blockModel.VertexCount);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return new BlockMeshData(vertCount, vertices, texIndices, indices);
+            return new BlockMeshData(vertexCount, vertices, texIndices, indices);
         }
 
         protected override bool Place(PhysicsEntity? entity, int x, int y, int z)

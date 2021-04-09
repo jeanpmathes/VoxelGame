@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -14,7 +15,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class MudBlock : BasicBlock, IFillable
     {
-        private protected float maxVelocity;
+        private readonly float maxVelocity;
 
         public MudBlock(string name, string namedId, TextureLayout layout, float maxVelocity) :
             base(

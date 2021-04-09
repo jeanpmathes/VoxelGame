@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -19,20 +20,21 @@ namespace VoxelGame.Core.Logic.Blocks
     // o = orientation
     public class FlatBlock : Block, IFillable
     {
-        private protected readonly float climbingVelocity;
-        private protected readonly float slidingVelocity;
+        private readonly float climbingVelocity;
+        private readonly float slidingVelocity;
 
-        private protected float[][] sideVertices = null!;
-        private protected int[] textureIndices = null!;
+        private float[][] sideVertices = null!;
+        private int[] textureIndices = null!;
 
-        private protected uint[] indices = null!;
+        private uint[] indices = null!;
 
-        private protected string texture;
+        private readonly string texture;
 
         /// <summary>
         /// Creates a FlatBlock, a block with a single face that sticks to other blocks. It allows entities to climb and can use neutral tints.
         /// </summary>
         /// <param name="name">The name of the block.</param>
+        /// <param name="namedId">The unique and unlocalized name of this block.</param>
         /// <param name="texture">The texture to use for the block.</param>
         /// <param name="climbingVelocity"></param>
         /// <param name="slidingVelocity"></param>
@@ -59,9 +61,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void Setup()
         {
-            sideVertices = new float[][]
+            sideVertices = new[]
             {
-                new float[] // North
+                new[] // North
                 {
                     1f, 0f, 0.99f, 1f, 0f, 0f, 0f, -1f,
                     1f, 1f, 0.99f, 1f, 1f, 0f, 0f, -1f,
@@ -73,7 +75,7 @@ namespace VoxelGame.Core.Logic.Blocks
                     1f, 1f, 0.99f, 1f, 1f, 0f, 0f, 1f,
                     1f, 0f, 0.99f, 1f, 0f, 0f, 0f, 1f
                 },
-                new float[] // East
+                new[] // East
                 {
                     0.01f, 0f, 1f, 1f, 0f, 1f, 0f, 0f,
                     0.01f, 1f, 1f, 1f, 1f, 1f, 0f, 0f,
@@ -85,7 +87,7 @@ namespace VoxelGame.Core.Logic.Blocks
                     0.01f, 1f, 1f, 1f, 1f, -1f, 0f, 0f,
                     0.01f, 0f, 1f, 1f, 0f, -1f, 0f, 0f
                 },
-                new float[] // South
+                new[] // South
                 {
                     0f, 0f, 0.01f, 0f, 0f, 0f, 0f, 1f,
                     0f, 1f, 0.01f, 0f, 1f, 0f, 0f, 1f,
@@ -97,7 +99,7 @@ namespace VoxelGame.Core.Logic.Blocks
                     0f, 1f, 0.01f, 0f, 1f, 0f, 0f, -1f,
                     0f, 0f, 0.01f, 0f, 0f, 0f, 0f, -1f
                 },
-                new float[] // West
+                new[] // West
                 {
                     0.99f, 0f, 0f, 1f, 0f, -1f, 0f, 0f,
                     0.99f, 1f, 0f, 1f, 1f, -1f, 0f, 0f,
@@ -112,7 +114,7 @@ namespace VoxelGame.Core.Logic.Blocks
             };
 
             int tex = Game.BlockTextures.GetTextureIndex(texture);
-            textureIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
+            textureIndices = new[] { tex, tex, tex, tex, tex, tex, tex, tex };
 
             indices = new uint[]
             {
@@ -144,28 +146,28 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             if (SideToOrientation(entity?.TargetSide ?? BlockSide.Front, out Orientation orientation))
             {
-                if (orientation == Orientation.North && Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull == true)
+                if (orientation == Orientation.North && Game.World.IsSolid(x, y, z + 1))
                 {
                     Game.World.SetBlock(this, (uint)orientation, x, y, z);
 
                     return true;
                 }
 
-                if (orientation == Orientation.South && Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull == true)
+                if (orientation == Orientation.South && Game.World.IsSolid(x, y, z - 1))
                 {
                     Game.World.SetBlock(this, (uint)orientation, x, y, z);
 
                     return true;
                 }
 
-                if (orientation == Orientation.East && Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull == true)
+                if (orientation == Orientation.East && Game.World.IsSolid(x - 1, y, z))
                 {
                     Game.World.SetBlock(this, (uint)orientation, x, y, z);
 
                     return true;
                 }
 
-                if (orientation == Orientation.West && Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull == true)
+                if (orientation == Orientation.West && Game.World.IsSolid(x + 1, y, z))
                 {
                     Game.World.SetBlock(this, (uint)orientation, x, y, z);
 
@@ -204,44 +206,45 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
-            CheckBack(x, y, z, side, (Orientation)(data & 0b00_0011));
+            CheckBack(x, y, z, side, (Orientation)(data & 0b00_0011), schedule: false);
         }
 
-        protected void CheckBack(int x, int y, int z, BlockSide side, Orientation blockOrientation)
+        protected void CheckBack(int x, int y, int z, BlockSide side, Orientation blockOrientation, bool schedule)
         {
             switch (side)
             {
                 case BlockSide.Front:
 
-                    CheckBack(x, y, z + 1, Orientation.North);
+                    Check(x, y, z + 1, Orientation.North);
                     break;
 
                 case BlockSide.Back:
 
-                    CheckBack(x, y, z - 1, Orientation.South);
+                    Check(x, y, z - 1, Orientation.South);
                     break;
 
                 case BlockSide.Left:
 
-                    CheckBack(x - 1, y, z, Orientation.East);
+                    Check(x - 1, y, z, Orientation.East);
                     break;
 
                 case BlockSide.Right:
 
-                    CheckBack(x + 1, y, z, Orientation.West);
+                    Check(x + 1, y, z, Orientation.West);
                     break;
             }
 
-            void CheckBack(int bx, int by, int bz, Orientation orientation)
+            void Check(int bx, int by, int bz, Orientation orientation)
             {
-                if (blockOrientation == orientation && (Game.World.GetBlock(bx, by, bz, out _)?.IsSolidAndFull != true))
+                if (blockOrientation == orientation && !Game.World.IsSolid(bx, by, bz))
                 {
-                    Destroy(x, y, z);
+                    if (schedule) ScheduleDestroy(x, y, z);
+                    else Destroy(x, y, z);
                 }
             }
         }
 
-        protected static bool SideToOrientation(BlockSide side, out Orientation orientation)
+        private static bool SideToOrientation(BlockSide side, out Orientation orientation)
         {
             switch (side)
             {

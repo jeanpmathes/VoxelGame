@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Logic.Interfaces;
 
 namespace VoxelGame.Core.Logic.Blocks

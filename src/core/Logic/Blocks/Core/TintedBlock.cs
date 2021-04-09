@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // c = color
     public class TintedBlock : BasicBlock, IConnectable
     {
-        private protected readonly bool isAnimated;
+        private readonly bool isAnimated;
 
         public TintedBlock(string name, string namedId, TextureLayout layout, bool isAnimated = false) :
             base(

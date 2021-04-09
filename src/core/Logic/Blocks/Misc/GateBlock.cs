@@ -18,19 +18,20 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class GateBlock : Block, IConnectable, IFlammable, IFillable
     {
-        private protected float[][] verticesClosed = null!;
-        private protected float[][] verticesOpen = null!;
+        private float[][] verticesClosed = null!;
+        private float[][] verticesOpen = null!;
 
-        private protected int[] texIndicesClosed = null!;
-        private protected int[] texIndicesOpen = null!;
+        private int[] texIndicesClosed = null!;
+        private int[] texIndicesOpen = null!;
 
-        private protected uint[] indicesClosed = null!;
-        private protected uint[] indicesOpen = null!;
+        private uint[] indicesClosed = null!;
+        private uint[] indicesOpen = null!;
 
-        private protected uint vertexCountClosed;
-        private protected uint vertexCountOpen;
+        private uint vertexCountClosed;
+        private uint vertexCountOpen;
 
-        private protected string closed, open;
+        private readonly string closed;
+        private readonly string open;
 
         public GateBlock(string name, string namedId, string closed, string open) :
         base(
@@ -59,7 +60,7 @@ namespace VoxelGame.Core.Logic.Blocks
             BlockModel closedModel = BlockModel.Load(this.closed);
             BlockModel openModel = BlockModel.Load(this.open);
 
-            for (int i = 0; i < 4; i++)
+            for (var i = 0; i < 4; i++)
             {
                 if (i == 0)
                 {
@@ -91,7 +92,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 Orientation.West => WestEast(0.375f),
                 _ => NorthSouth(0.375f),
             };
-            BoundingBox NorthSouth(float offst)
+            BoundingBox NorthSouth(float offset)
             {
                 if (isClosed)
                 {
@@ -112,14 +113,14 @@ namespace VoxelGame.Core.Logic.Blocks
                     new BoundingBox(new Vector3(0.03125f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
                     new BoundingBox(new Vector3(0.03125f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
                     // Moving parts.
-                    new BoundingBox(new Vector3(0.875f, 0.71875f, offst) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.875f, 0.28125f, offst) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.125f, 0.71875f, offst) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.125f, 0.28125f, offst) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)));
+                    new BoundingBox(new Vector3(0.875f, 0.71875f, offset) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.875f, 0.28125f, offset) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.125f, 0.71875f, offset) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.125f, 0.28125f, offset) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)));
                 }
             }
 
-            BoundingBox WestEast(float offst)
+            BoundingBox WestEast(float offset)
             {
                 if (isClosed)
                 {
@@ -140,10 +141,10 @@ namespace VoxelGame.Core.Logic.Blocks
                     new BoundingBox(new Vector3(0.5f, 0.71875f, 0.03125f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
                     new BoundingBox(new Vector3(0.5f, 0.28125f, 0.03125f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
                     // Moving parts.
-                    new BoundingBox(new Vector3(offst, 0.71875f, 0.875f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(offst, 0.28125f, 0.875f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(offst, 0.71875f, 0.125f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(offst, 0.28125f, 0.125f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)));
+                    new BoundingBox(new Vector3(offset, 0.71875f, 0.875f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(offset, 0.28125f, 0.875f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(offset, 0.71875f, 0.125f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(offset, 0.28125f, 0.125f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)));
                 }
             }
         }
@@ -211,7 +212,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
-            Orientation orientation = (Orientation)(data & 0b00_0011);
+            var orientation = (Orientation)(data & 0b00_0011);
 
             switch (side)
             {
@@ -245,7 +246,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             if (Game.World.GetBlock(x, y, z, out uint data) == this)
             {
-                Orientation orientation = (Orientation)(data & 0b00_0011);
+                var orientation = (Orientation)(data & 0b00_0011);
 
                 return orientation switch
                 {

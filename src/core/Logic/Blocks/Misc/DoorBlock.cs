@@ -22,19 +22,20 @@ namespace VoxelGame.Core.Logic.Blocks
     // o = orientation
     public class DoorBlock : Block, IFillable
     {
-        private protected float[][] verticesTop = new float[8][];
-        private protected float[][] verticesBase = new float[8][];
+        private readonly float[][] verticesTop = new float[8][];
+        private readonly float[][] verticesBase = new float[8][];
 
-        private protected int[] texIndicesTop = null!;
-        private protected int[] texIndicesBase = null!;
+        private int[] texIndicesTop = null!;
+        private int[] texIndicesBase = null!;
 
-        private protected uint[] indicesTop = null!;
-        private protected uint[] indicesBase = null!;
+        private uint[] indicesTop = null!;
+        private uint[] indicesBase = null!;
 
-        private protected uint vertexCountTop;
-        private protected uint vertexCountBase;
+        private uint vertexCountTop;
+        private uint vertexCountBase;
 
-        private protected string closed, open;
+        private readonly string closed;
+        private readonly string open;
 
         public DoorBlock(string name, string namedId, string closed, string open) :
             base(
@@ -142,34 +143,34 @@ namespace VoxelGame.Core.Logic.Blocks
             if (side == BlockSide.Top)
             {
                 // Choose side according to neighboring doors to form a double door.
-                Block neighbour;
+                Block neighbor;
                 uint data;
 
                 switch (orientation)
                 {
                     case Orientation.North:
-                        neighbour = Game.World.GetBlock(x - 1, y, z, out data) ?? Block.Air;
+                        neighbor = Game.World.GetBlock(x - 1, y, z, out data) ?? Block.Air;
                         break;
 
                     case Orientation.East:
-                        neighbour = Game.World.GetBlock(x, y, z - 1, out data) ?? Block.Air;
+                        neighbor = Game.World.GetBlock(x, y, z - 1, out data) ?? Block.Air;
                         break;
 
                     case Orientation.South:
-                        neighbour = Game.World.GetBlock(x + 1, y, z, out data) ?? Block.Air;
+                        neighbor = Game.World.GetBlock(x + 1, y, z, out data) ?? Block.Air;
                         break;
 
                     case Orientation.West:
-                        neighbour = Game.World.GetBlock(x, y, z + 1, out data) ?? Block.Air;
+                        neighbor = Game.World.GetBlock(x, y, z + 1, out data) ?? Block.Air;
                         break;
 
                     default:
-                        neighbour = Block.Air;
+                        neighbor = Block.Air;
                         data = 0;
                         break;
                 }
 
-                isLeftSided = neighbour != this || (data & 0b00_1011) != (int)orientation;
+                isLeftSided = neighbor != this || (data & 0b00_1011) != (int)orientation;
             }
             else
             {
@@ -211,32 +212,32 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 case Orientation.North:
 
-                    OpenNeighbour(x - 1, y, z);
+                    OpenNeighbor(x - 1, y, z);
                     break;
 
                 case Orientation.East:
 
-                    OpenNeighbour(x, y, z - 1);
+                    OpenNeighbor(x, y, z - 1);
                     break;
 
                 case Orientation.South:
 
-                    OpenNeighbour(x + 1, y, z);
+                    OpenNeighbor(x + 1, y, z);
                     break;
 
                 case Orientation.West:
 
-                    OpenNeighbour(x, y, z + 1);
+                    OpenNeighbor(x, y, z + 1);
                     break;
             }
 
-            void OpenNeighbour(int x, int y, int z)
+            void OpenNeighbor(int x, int y, int z)
             {
-                Block neighbour = Game.World.GetBlock(x, y, z, out uint neighbourData) ?? Block.Air;
+                Block neighbor = Game.World.GetBlock(x, y, z, out uint neighborData) ?? Block.Air;
 
-                if (neighbour == this && (data & 0b01_1011) == ((neighbourData ^ 0b00_1000) & 0b01_1011))
+                if (neighbor == this && (data & 0b01_1011) == ((neighborData ^ 0b00_1000) & 0b01_1011))
                 {
-                    neighbour.EntityInteract(entity, x, y, z);
+                    neighbor.EntityInteract(entity, x, y, z);
                 }
             }
         }

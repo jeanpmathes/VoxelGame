@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenToolkit.Mathematics;
+
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -52,7 +52,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void Setup()
         {
-            vertices = new float[]
+            vertices = new[]
             {
                 //   X   Y    Z   U    V   N    O   P
                 0.25f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
@@ -93,7 +93,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 second = third = fourth = fifth = sixth = final = dead = 0;
             }
 
-            stageTexIndices = new int[]
+            stageTexIndices = new[]
             {
                 baseIndex,
                 baseIndex + second,
@@ -225,7 +225,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0 && level > LiquidLevel.Three) Destroy(x, y, z);
+            if (liquid.Direction > 0 && level > LiquidLevel.Three) ScheduleDestroy(x, y, z);
         }
 
         private enum GrowthStage

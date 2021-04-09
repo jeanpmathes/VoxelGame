@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -17,14 +18,14 @@ namespace VoxelGame.Core.Logic.Blocks
     // h = height
     public class DoubleCrossPlantBlock : Block, IFlammable, IFillable
     {
-        private protected float[] vertices = null!;
-        private protected int[] bottomTexIndices = null!;
-        private protected int[] topTexIndices = null!;
+        private float[] vertices = null!;
+        private int[] bottomTexIndices = null!;
+        private int[] topTexIndices = null!;
 
-        private protected uint[] indices = null!;
+        private uint[] indices = null!;
 
-        private protected string bottomTexture;
-        private protected int topTexOffset;
+        private readonly string bottomTexture;
+        private readonly int topTexOffset;
 
         public DoubleCrossPlantBlock(string name, string namedId, string bottomTexture, int topTexOffset, BoundingBox boundingBox) :
             base(
@@ -47,7 +48,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void Setup()
         {
-            vertices = new float[]
+            vertices = new[]
            {
                 // Two sides: /
                 0.145f, 0f, 0.855f, 0f, 0f, 0f, 0f, 0f,
@@ -63,10 +64,10 @@ namespace VoxelGame.Core.Logic.Blocks
            };
 
             int tex = Game.BlockTextures.GetTextureIndex(bottomTexture);
-            bottomTexIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
+            bottomTexIndices = new[] { tex, tex, tex, tex, tex, tex, tex, tex };
 
             tex += topTexOffset;
-            topTexIndices = new int[] { tex, tex, tex, tex, tex, tex, tex, tex };
+            topTexIndices = new[] { tex, tex, tex, tex, tex, tex, tex, tex };
 
             indices = new uint[]
             {
@@ -125,7 +126,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0 && level > LiquidLevel.Five) Destroy(x, y, z);
+            if (liquid.Direction > 0 && level > LiquidLevel.Five) ScheduleDestroy(x, y, z);
         }
     }
 }

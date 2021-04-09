@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 
@@ -14,9 +15,9 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     {
-        private protected int[] wetTextureIndices = null!;
+        private int[] wetTextureIndices = null!;
 
-        private protected TextureLayout wet;
+        private readonly TextureLayout wet;
 
         public DirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet) :
             base(

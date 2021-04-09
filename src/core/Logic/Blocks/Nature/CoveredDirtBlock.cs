@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -16,15 +17,15 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     {
-        private protected readonly bool hasNeutralTint;
-        private protected readonly bool supportsFullGrowth;
+        private readonly bool hasNeutralTint;
+        private readonly bool supportsFullGrowth;
 
-        private protected int[] wetTextureIndices = null!;
-        private protected TextureLayout wet;
+        private int[] wetTextureIndices = null!;
+        private readonly TextureLayout wet;
 
         public bool SupportsFullGrowth => supportsFullGrowth;
 
-        public CoveredDirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet, bool hasNeutralTint, bool supportsFullGrowth) :
+        protected CoveredDirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet, bool hasNeutralTint, bool supportsFullGrowth) :
             base(
                 name,
                 namedId,

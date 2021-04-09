@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Physics;
 using OpenToolkit.Mathematics;
 using System;
@@ -58,7 +59,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             verticesConnected[0] = new float[96];
             Array.Copy(vertices, verticesConnected[0], vertices.Length);
-            Array.Copy(new float[] {
+            Array.Copy(new[] {
                 0.5f, 0f, 1f, 0f, 0f, 0f, 0f, 0f,
                 0.5f, 1f, 1f, 0f, 1f, 0f, 0f, 0f,
                 0.5f, 1f, 0f, 1f, 1f, 0f, 0f, 0f,
@@ -67,7 +68,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             verticesConnected[1] = new float[96];
             Array.Copy(vertices, verticesConnected[1], vertices.Length);
-            Array.Copy(new float[] {
+            Array.Copy(new[] {
                 0f, 0f, 0.5f, 0f, 0f, 0f, 0f, 0f,
                 0f, 1f, 0.5f, 0f, 1f, 0f, 0f, 0f,
                 1f, 1f, 0.5f, 1f, 1f, 0f, 0f, 0f,
@@ -76,7 +77,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             verticesConnected[2] = new float[96];
             Array.Copy(vertices, verticesConnected[2], vertices.Length);
-            Array.Copy(new float[] {
+            Array.Copy(new[] {
                 0.5f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
                 0.5f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
                 0.5f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
@@ -85,7 +86,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             verticesConnected[3] = new float[96];
             Array.Copy(vertices, verticesConnected[3], vertices.Length);
-            Array.Copy(new float[] {
+            Array.Copy(new[] {
                 0f, 0f, 0.5f, 1f, 0f, 0f, 0f, 0f,
                 0f, 1f, 0.5f, 1f, 1f, 0f, 0f, 0f,
                 1f, 1f, 0.5f, 0f, 1f, 0f, 0f, 0f,
@@ -99,12 +100,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 dead = initial = noFruit = withFruit = connector = 0;
             }
 
-            texIndices = new int[][]
+            texIndices = new[]
             {
-                new int[] {tex + dead, tex + dead, tex + dead, tex + dead, tex + dead, tex + dead, tex + dead, tex + dead},
-                new int[] {tex + initial, tex + initial, tex + initial, tex + initial, tex + initial, tex + initial, tex + initial, tex + initial},
-                new int[] {tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit},
-                new int[] {tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + connector, tex + connector, tex + connector, tex + connector},
+                new[] {tex + dead, tex + dead, tex + dead, tex + dead, tex + dead, tex + dead, tex + dead, tex + dead},
+                new[] {tex + initial, tex + initial, tex + initial, tex + initial, tex + initial, tex + initial, tex + initial, tex + initial},
+                new[] {tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit},
+                new[] {tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + connector, tex + connector, tex + connector, tex + connector},
             };
 
             indicesConnected = new uint[36];
@@ -133,7 +134,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            GrowthStage stage = (GrowthStage)((info.Data >> 2) & 0b111);
+            var stage = (GrowthStage)((info.Data >> 2) & 0b111);
 
             if (stage != GrowthStage.WithFruit)
             {
@@ -160,7 +161,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
         {
-            Orientation orientation = (Orientation)(data & 0b11);
+            var orientation = (Orientation)(data & 0b11);
 
             if (side == BlockSide.Bottom)
             {
@@ -206,11 +207,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void RandomUpdate(int x, int y, int z, uint data)
         {
-            IPlantable? ground = Game.World.GetBlock(x, y - 1, z, out _) as IPlantable;
+            if (!(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable ground)) return;
 
-            if (ground == null) return;
-
-            GrowthStage stage = (GrowthStage)((data >> 2) & 0b111);
+            var stage = (GrowthStage)((data >> 2) & 0b111);
 
             if (stage != GrowthStage.Dead && stage < GrowthStage.BeforeFruit)
             {
@@ -243,7 +242,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0 && level > LiquidLevel.Three) Destroy(x, y, z);
+            if (liquid.Direction > 0 && level > LiquidLevel.Three) ScheduleDestroy(x, y, z);
         }
 
         private enum GrowthStage

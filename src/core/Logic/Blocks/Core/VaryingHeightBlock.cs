@@ -19,9 +19,9 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private int[] textureIndices = null!;
 
-        private TextureLayout layout;
+        private readonly TextureLayout layout;
 
-        public VaryingHeightBlock(string name, string namedId, TextureLayout layout, bool isSolid, bool receiveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable) :
+        protected VaryingHeightBlock(string name, string namedId, TextureLayout layout, bool isSolid, bool receiveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable) :
             base(
                 name,
                 namedId,

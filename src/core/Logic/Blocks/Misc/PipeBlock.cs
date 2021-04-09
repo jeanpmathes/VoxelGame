@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+﻿// <copyright file="PipeBlock.cs" company="VoxelGame">
+//     MIT License
+//	   For full license see the repository.
+// </copyright>
+// <author>pershingthesecond</author>
+
+using System.Collections.Generic;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;

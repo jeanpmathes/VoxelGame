@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -16,12 +17,14 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class SpiderWebBlock : CrossBlock, IFlammable, IFillable
     {
-        private protected readonly float maxVelocity;
+        private readonly float maxVelocity;
 
         /// <summary>
         /// Creates a SpiderWeb block, a block that slows down entities that collide with it.
         /// </summary>
         /// <param name="name">The name of the block.</param>
+        /// <param name="namedId">The unique and unlocalized name of this block.</param>
+        /// <param name="texture">The texture of this block.</param>
         /// <param name="maxVelocity">The maximum velocity of entities colliding with this block.</param>
         public SpiderWebBlock(string name, string namedId, string texture, float maxVelocity) :
         base(
@@ -43,7 +46,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0) Destroy(x, y, z);
+            if (liquid.Direction > 0) ScheduleDestroy(x, y, z);
         }
     }
 }
