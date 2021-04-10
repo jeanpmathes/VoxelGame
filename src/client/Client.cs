@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
@@ -29,9 +30,9 @@ namespace VoxelGame.Client
 
         #region STATIC PROPERTIES
 
-        public static KeyboardState Keyboard { get => Instance.KeyboardState; }
+        public static KeyboardState Keyboard => Instance.KeyboardState;
 
-        public static MouseState Mouse { get => Instance.MouseState; }
+        public static MouseState Mouse => Instance.MouseState;
 
         /// <summary>
         /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1, 2, 3, and 4.

@@ -8,6 +8,7 @@ using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using System;
+using OpenToolkit.Graphics.OpenGL4;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Rendering
@@ -85,6 +86,24 @@ namespace VoxelGame.Client.Rendering
                 Instance.Client.IsFullscreen = false;
 
                 logger.LogDebug("Fullscreen: Switched to normal mode.");
+            }
+        }
+
+        /// <summary>
+        /// Set the wire-frame mode.
+        /// </summary>
+        /// <param name="wireframe">True to activate wireframe, false to deactivate it.</param>
+        public static void SetWireFrame(bool wireframe)
+        {
+            if (wireframe)
+            {
+                GL.LineWidth(5f);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            }
+            else
+            {
+                GL.LineWidth(1f);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             }
         }
 
