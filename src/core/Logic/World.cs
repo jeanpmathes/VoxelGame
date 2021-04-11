@@ -21,8 +21,6 @@ namespace VoxelGame.Core.Logic
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
-        public const int ChunkExtents = 5;
-
         public WorldInformation Information { get; }
 
         protected int MaxGenerationTasks { get; } = Properties.core.Default.MaxGenerationTasks;
@@ -748,6 +746,27 @@ namespace VoxelGame.Core.Logic
             savingTasks.Add(Task.Run(() => Information.Save(Path.Combine(WorldDirectory, "meta.json"))));
 
             return Task.WhenAll(savingTasks);
+        }
+
+        /// <summary>
+        /// Wait for all world tasks to finish.
+        /// </summary>
+        /// <returns>A task that is finished when all world tasks are finished.</returns>
+        public Task FinishAll()
+        {
+            // This method is just a quick hack to fix a possible cause of crashes.
+            // It would be better to also process the finished tasks.
+
+            List<Task> tasks = new List<Task>();
+            AddAllTasks(ref tasks);
+            return Task.WhenAll(tasks);
+        }
+
+        protected virtual void AddAllTasks(ref List<Task> tasks)
+        {
+            tasks.AddRange(chunkGenerateTasks);
+            tasks.AddRange(chunkLoadingTasks);
+            tasks.AddRange(chunkSavingTasks);
         }
 
         #region IDisposable Support

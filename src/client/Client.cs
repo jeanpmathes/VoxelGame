@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
@@ -12,6 +13,7 @@ using OpenToolkit.Windowing.Desktop;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using System;
 using System.IO;
+using VoxelGame.Client.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core;
@@ -29,9 +31,9 @@ namespace VoxelGame.Client
 
         #region STATIC PROPERTIES
 
-        public static KeyboardState Keyboard { get => Instance.KeyboardState; }
+        public static KeyboardState Keyboard => Instance.KeyboardState;
 
-        public static MouseState Mouse { get => Instance.MouseState; }
+        public static MouseState Mouse => Instance.MouseState;
 
         /// <summary>
         /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
@@ -59,8 +61,8 @@ namespace VoxelGame.Client
 
         public static double Time { get; private set; }
 
-        public static double LastUpdateDelta { get; private set; }
-        public static double LastRenderDelta { get; private set; }
+        public static double Fps => 1.0 / Instance.renderDeltaBuffer.Average;
+        public static double Ups => 1.0 / Instance.updateDeltaBuffer.Average;
 
         #endregion STATIC PROPERTIES
 
@@ -72,6 +74,10 @@ namespace VoxelGame.Client
         public readonly string AppDataDirectory;
         public readonly string WorldsDirectory;
         public readonly string ScreenshotDirectory;
+
+        private const int deltaBufferCapacity = 30;
+        private readonly CircularTimeBuffer renderDeltaBuffer = new CircularTimeBuffer(deltaBufferCapacity);
+        private readonly CircularTimeBuffer updateDeltaBuffer = new CircularTimeBuffer(deltaBufferCapacity);
 
         private Screen screen = null!;
 
@@ -185,7 +191,7 @@ namespace VoxelGame.Client
 
                 SwapBuffers();
 
-                LastRenderDelta = e.Time;
+                renderDeltaBuffer.Write(e.Time);
             }
         }
 
@@ -215,7 +221,7 @@ namespace VoxelGame.Client
                     }
                 }
 
-                LastUpdateDelta = e.Time;
+                updateDeltaBuffer.Write(e.Time);
             }
         }
 

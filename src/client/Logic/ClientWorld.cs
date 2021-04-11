@@ -291,5 +291,11 @@ namespace VoxelGame.Client.Logic
                 sectionsToMesh.Add(((ClientChunk)neighbor, y >> ChunkHeightExp));
             }
         }
+
+        protected override void AddAllTasks(ref List<Task> tasks)
+        {
+            base.AddAllTasks(ref tasks);
+            tasks.AddRange(chunkMeshingTasks);
+        }
     }
 }

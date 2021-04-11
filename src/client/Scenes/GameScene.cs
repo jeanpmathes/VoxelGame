@@ -75,7 +75,7 @@ namespace VoxelGame.Client.Scenes
         {
             using (logger.BeginScope("GameScene Render"))
             {
-                ui.SetUpdateRate(1 / Client.LastRenderDelta, 1 / Client.LastUpdateDelta);
+                ui.SetUpdateRate(Client.Fps, Client.Ups);
 
                 World.Render();
 
@@ -115,19 +115,17 @@ namespace VoxelGame.Client.Scenes
 
                     if (wireframeMode)
                     {
-                        GL.LineWidth(1f);
-                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                        Screen.SetWireFrame(false);
                         wireframeMode = false;
 
-                        logger.LogInformation("Disabled wireframe mode.");
+                        logger.LogInformation("Disabled wire-frame mode.");
                     }
                     else
                     {
-                        GL.LineWidth(5f);
-                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                        Screen.SetWireFrame(true);
                         wireframeMode = true;
 
-                        logger.LogInformation("Enabled wireframe mode.");
+                        logger.LogInformation("Enabled wire-frame mode.");
                     }
                 }
                 else if (input.IsKeyUp(Key.K))
@@ -159,6 +157,7 @@ namespace VoxelGame.Client.Scenes
 
             try
             {
+                World.FinishAll().Wait();
                 World.Save().Wait();
             }
             catch (AggregateException exception)
