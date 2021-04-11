@@ -75,7 +75,7 @@ namespace VoxelGame.Client.Scenes
         {
             using (logger.BeginScope("GameScene Render"))
             {
-                ui.SetUpdateRate(1 / Client.LastRenderDelta, 1 / Client.LastUpdateDelta);
+                ui.SetUpdateRate(Client.Fps, Client.Ups);
 
                 World.Render();
 

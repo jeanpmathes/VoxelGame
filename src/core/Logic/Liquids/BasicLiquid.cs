@@ -210,8 +210,8 @@ namespace VoxelGame.Core.Logic.Liquids
         private bool FlowHorizontal(int x, int y, int z, LiquidLevel level, IFillable currentFillable)
         {
             int horX = x, horZ = z;
-            bool isHorStatic = false;
-            LiquidLevel levelHorizontal = LiquidLevel.Eight;
+            var isHorStatic = false;
+            var levelHorizontal = LiquidLevel.Eight;
             IFillable? horizontalFillable = null;
 
             int start = BlockUtilities.GetPositionDependentNumber(x, z, 4);
@@ -394,7 +394,7 @@ namespace VoxelGame.Core.Logic.Liquids
 
         private void SpreadOrDestroyLiquid(int x, int y, int z, LiquidLevel level)
         {
-            int remaining = (int)level;
+            var remaining = (int)level;
 
             SpreadLiquid();
 
