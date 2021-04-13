@@ -213,28 +213,28 @@ namespace VoxelGame.Core.Logic.Blocks
 
                     isHead = !isHead;
 
-                    Game.World.SetBlock(Block.Air, 0, x, y, z);
-                    Game.World.SetBlock(Block.Air, 0, x, y, z - (isHead ? 1 : -1));
+                    Game.World.SetDefaultBlock(x, y, z);
+                    Game.World.SetDefaultBlock(x, y, z - (isHead ? 1 : -1));
                     return true;
 
                 case Orientation.East:
 
-                    Game.World.SetBlock(Block.Air, 0, x, y, z);
-                    Game.World.SetBlock(Block.Air, 0, x - (isHead ? 1 : -1), y, z);
+                    Game.World.SetDefaultBlock(x, y, z);
+                    Game.World.SetDefaultBlock(x - (isHead ? 1 : -1), y, z);
                     return true;
 
                 case Orientation.South:
 
-                    Game.World.SetBlock(Block.Air, 0, x, y, z);
-                    Game.World.SetBlock(Block.Air, 0, x, y, z - (isHead ? 1 : -1));
+                    Game.World.SetDefaultBlock(x, y, z);
+                    Game.World.SetDefaultBlock(x, y, z - (isHead ? 1 : -1));
                     return true;
 
                 case Orientation.West:
 
                     isHead = !isHead;
 
-                    Game.World.SetBlock(Block.Air, 0, x, y, z);
-                    Game.World.SetBlock(Block.Air, 0, x - (isHead ? 1 : -1), y, z);
+                    Game.World.SetDefaultBlock(x, y, z);
+                    Game.World.SetDefaultBlock(x - (isHead ? 1 : -1), y, z);
                     return true;
 
                 default:

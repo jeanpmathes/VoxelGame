@@ -189,8 +189,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, uint data)
         {
-            Game.World.SetBlock(Block.Air, 0, x, y, z);
-            Game.World.SetBlock(Block.Air, 0, x, y + ((data & 0b00_0100) == 0 ? 1 : -1), z);
+            Game.World.SetDefaultBlock(x, y, z);
+            Game.World.SetDefaultBlock(x, y + ((data & 0b00_0100) == 0 ? 1 : -1), z);
 
             return true;
         }

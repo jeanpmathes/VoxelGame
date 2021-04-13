@@ -109,8 +109,8 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             bool isBase = (data & 0b1) == 0;
 
-            Game.World.SetBlock(Block.Air, 0, x, y, z);
-            Game.World.SetBlock(Block.Air, 0, x, y + (isBase ? 1 : -1), z);
+            Game.World.SetDefaultBlock(x, y, z);
+            Game.World.SetDefaultBlock(x, y + (isBase ? 1 : -1), z);
 
             return true;
         }

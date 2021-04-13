@@ -92,7 +92,7 @@ namespace VoxelGame.Core.Logic
 
             lava.TickSoon(lavaPos.X, lavaPos.Y, lavaPos.Z, tickLava);
 
-            Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, burnedPos.X, burnedPos.Y, burnedPos.Z);
+            Game.World.SetDefaultLiquid(burnedPos.X, burnedPos.Y, burnedPos.Z);
             Block.Fire.Place(burnedPos.X, burnedPos.Y, burnedPos.Z);
 
             return true;

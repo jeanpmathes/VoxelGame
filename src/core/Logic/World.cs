@@ -665,6 +665,16 @@ namespace VoxelGame.Core.Logic
             ProcessChangedSection(chunk, x, y, z);
         }
 
+        public void SetDefaultBlock(int x, int y, int z)
+        {
+            SetBlock(Block.Air, 0, x, y, z);
+        }
+
+        public void SetDefaultLiquid(int x, int y, int z)
+        {
+            SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
+        }
+
         /// <summary>
         /// Gets an active chunk.
         /// </summary>

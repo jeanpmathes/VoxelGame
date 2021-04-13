@@ -88,7 +88,7 @@ namespace VoxelGame.Core.Logic.Liquids
         {
             if ((y == 0 && Direction > 0) || (y == Section.SectionSize * Chunk.ChunkHeight - 1 && Direction < 0))
             {
-                Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
+                Game.World.SetDefaultLiquid(x, y, z);
 
                 return true;
             }
@@ -398,7 +398,7 @@ namespace VoxelGame.Core.Logic.Liquids
 
             SpreadLiquid();
 
-            Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
+            Game.World.SetDefaultLiquid(x, y, z);
 
             void SpreadLiquid()
             {
