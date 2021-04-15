@@ -93,15 +93,13 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
         {
             uint data = GetConnectionData(x, y, z);
 
             OpenOpposingSide(ref data);
 
             Game.World.SetBlock(this, data, x, y, z);
-
-            return true;
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)

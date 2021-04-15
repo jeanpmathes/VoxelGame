@@ -29,11 +29,9 @@ namespace VoxelGame.Core.Logic.Blocks
         {
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
         {
-            if (!Game.World.HasSolidGround(x, y, z)) return false;
-
-            return base.Place(entity, x, y, z);
+            return Game.World.HasSolidGround(x, y, z);
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)

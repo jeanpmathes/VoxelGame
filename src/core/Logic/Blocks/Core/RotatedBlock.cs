@@ -65,11 +65,9 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.Basic(vertices, sideTextureIndices[TranslateIndex(info.Side, axis)]);
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
         {
             Game.World.SetBlock(this, (uint)ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
-
-            return true;
         }
 
         protected enum Axis

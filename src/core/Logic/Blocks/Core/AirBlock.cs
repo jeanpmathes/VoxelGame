@@ -43,7 +43,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.Empty();
         }
 
-        protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
             return false;
         }

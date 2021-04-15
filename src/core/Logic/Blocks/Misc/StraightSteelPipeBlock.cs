@@ -89,10 +89,9 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
         {
             Game.World.SetBlock(this, (uint)ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
-            return true;
         }
 
         public virtual bool IsConnectable(BlockSide side, int x, int y, int z)

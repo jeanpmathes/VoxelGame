@@ -171,7 +171,12 @@ namespace VoxelGame.Core.Logic
         {
             (Block? block, Liquid? liquid) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel level, out _);
 
-            bool placed = block?.IsReplaceable == true && Place(entity, x, y, z);
+            bool canPlace = block?.IsReplaceable == true && CanPlace(x, y, z, entity);
+
+            if (canPlace)
+            {
+                DoPlace(x, y, z, entity);
+            }
 
             liquid ??= Liquid.None;
 
@@ -180,14 +185,17 @@ namespace VoxelGame.Core.Logic
                 fillable.LiquidChange(x, y, z, liquid, level);
             }
 
-            return placed;
+            return canPlace;
         }
 
-        protected virtual bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
+        internal virtual bool CanPlace(int x, int y, int z, Entities.PhysicsEntity? entity)
+        {
+            return true;
+        }
+
+        protected virtual void DoPlace(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
             Game.World.SetBlock(this, 0, x, y, z);
-
-            return true;
         }
 
         public bool Destroy(int x, int y, int z, Entities.PhysicsEntity? entity = null)

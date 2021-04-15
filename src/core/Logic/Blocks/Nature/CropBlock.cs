@@ -181,16 +181,14 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData(24, vertices, textureIndices, indices);
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
         {
-            if (!(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
-            {
-                return false;
-            }
+            return Game.World.GetBlock(x, y - 1, z, out _) is IPlantable;
+        }
 
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        {
             Game.World.SetBlock(this, (uint)GrowthStage.Initial, x, y, z);
-
-            return true;
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)

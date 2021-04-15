@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -164,9 +165,10 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData(vertexCount, vertices, currentTextureIndices, currentIndices);
         }
 
-        protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
         {
             uint data = 0;
+
             // Check the neighboring blocks
             if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnectable(BlockSide.Front, x, y, z - 1))
                 data |= 0b00_1000;
@@ -178,8 +180,6 @@ namespace VoxelGame.Core.Logic.Blocks
                 data |= 0b00_0001;
 
             Game.World.SetBlock(this, data, x, y, z);
-
-            return true;
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)

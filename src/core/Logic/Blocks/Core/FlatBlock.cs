@@ -4,6 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
+using System.Diagnostics;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -142,43 +144,43 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData(8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
         {
             if (SideToOrientation(entity?.TargetSide ?? BlockSide.Front, out Orientation orientation))
             {
-                if (orientation == Orientation.North && Game.World.IsSolid(x, y, z + 1))
+                switch (orientation)
                 {
-                    Game.World.SetBlock(this, (uint)orientation, x, y, z);
+                    case Orientation.North:
+                        return Game.World.IsSolid(x, y, z + 1);
 
-                    return true;
+                    case Orientation.East:
+                        return Game.World.IsSolid(x - 1, y, z);
+
+                    case Orientation.South:
+                        return Game.World.IsSolid(x, y, z - 1);
+
+                    case Orientation.West:
+                        return Game.World.IsSolid(x + 1, y, z);
+
+                    default:
+                        return false;
                 }
-
-                if (orientation == Orientation.South && Game.World.IsSolid(x, y, z - 1))
-                {
-                    Game.World.SetBlock(this, (uint)orientation, x, y, z);
-
-                    return true;
-                }
-
-                if (orientation == Orientation.East && Game.World.IsSolid(x - 1, y, z))
-                {
-                    Game.World.SetBlock(this, (uint)orientation, x, y, z);
-
-                    return true;
-                }
-
-                if (orientation == Orientation.West && Game.World.IsSolid(x + 1, y, z))
-                {
-                    Game.World.SetBlock(this, (uint)orientation, x, y, z);
-
-                    return true;
-                }
-
-                return false;
             }
             else
             {
                 return false;
+            }
+        }
+
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        {
+            if (SideToOrientation(entity?.TargetSide ?? BlockSide.Front, out Orientation orientation))
+            {
+                Game.World.SetBlock(this, (uint)orientation, x, y, z);
+            }
+            else
+            {
+                Debug.Fail("Should be able to place.");
             }
         }
 

@@ -58,10 +58,9 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.VaryingHeight(textures[(int)info.Side], color.ToTintColor());
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
         {
             Game.World.SetBlock(this, Encode(BlockColor.Default, IHeightVariable.MaximumHeight), x, y, z);
-            return true;
         }
 
         public void Place(LiquidLevel level, int x, int y, int z)

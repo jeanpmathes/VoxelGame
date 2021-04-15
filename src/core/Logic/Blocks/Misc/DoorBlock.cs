@@ -128,13 +128,13 @@ namespace VoxelGame.Core.Logic.Blocks
                 : new BlockMeshData(vertexCountTop, verticesTop[index], texIndicesTop, indicesTop);
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
         {
-            if (Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable != true || !Game.World.HasSolidGround(x, y, z))
-            {
-                return false;
-            }
+            return Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true && Game.World.HasSolidGround(x, y, z);
+        }
 
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        {
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
             BlockSide side = entity?.TargetSide ?? BlockSide.Top;
 
@@ -143,6 +143,7 @@ namespace VoxelGame.Core.Logic.Blocks
             if (side == BlockSide.Top)
             {
                 // Choose side according to neighboring doors to form a double door.
+
                 Block neighbor;
                 uint data;
 
@@ -183,8 +184,6 @@ namespace VoxelGame.Core.Logic.Blocks
 
             Game.World.SetBlock(this, (uint)((isLeftSided ? 0b0000 : 0b1000) | (int)orientation), x, y, z);
             Game.World.SetBlock(this, (uint)((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int)orientation), x, y + 1, z);
-
-            return true;
         }
 
         protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, uint data)

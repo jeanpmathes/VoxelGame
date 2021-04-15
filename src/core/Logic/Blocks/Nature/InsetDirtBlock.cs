@@ -69,17 +69,20 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.VaryingHeight(texture, TintColor.None);
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
+        {
+            return !Game.World.HasOpaqueTop(x, y, z) || Block.Dirt.CanPlace(x, y, z, entity);
+        }
+
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
         {
             if (Game.World.HasOpaqueTop(x, y, z))
             {
-                return Block.Dirt.Place(x, y, z, entity);
+                Block.Dirt.Place(x, y, z, entity);
             }
             else
             {
                 Game.World.SetBlock(this, 0, x, y, z);
-
-                return true;
             }
         }
 
