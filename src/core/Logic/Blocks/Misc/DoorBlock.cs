@@ -186,12 +186,10 @@ namespace VoxelGame.Core.Logic.Blocks
             Game.World.SetBlock(this, (uint)((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int)orientation), x, y + 1, z);
         }
 
-        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, uint data)
+        internal override void DoDestroy(int x, int y, int z, uint data, PhysicsEntity? entity)
         {
             Game.World.SetDefaultBlock(x, y, z);
             Game.World.SetDefaultBlock(x, y + ((data & 0b00_0100) == 0 ? 1 : -1), z);
-
-            return true;
         }
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)

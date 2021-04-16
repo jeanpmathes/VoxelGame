@@ -194,7 +194,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, uint data)
+        internal override void DoDestroy(int x, int y, int z, uint data, PhysicsEntity? entity)
         {
             bool isHead = (data & 0b1) == 1;
 
@@ -206,19 +206,19 @@ namespace VoxelGame.Core.Logic.Blocks
 
                     Game.World.SetDefaultBlock(x, y, z);
                     Game.World.SetDefaultBlock(x, y, z - (isHead ? 1 : -1));
-                    return true;
+                    break;
 
                 case Orientation.East:
 
                     Game.World.SetDefaultBlock(x, y, z);
                     Game.World.SetDefaultBlock(x - (isHead ? 1 : -1), y, z);
-                    return true;
+                    break;
 
                 case Orientation.South:
 
                     Game.World.SetDefaultBlock(x, y, z);
                     Game.World.SetDefaultBlock(x, y, z - (isHead ? 1 : -1));
-                    return true;
+                    break;
 
                 case Orientation.West:
 
@@ -226,10 +226,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
                     Game.World.SetDefaultBlock(x, y, z);
                     Game.World.SetDefaultBlock(x - (isHead ? 1 : -1), y, z);
-                    return true;
-
-                default:
-                    return false;
+                    break;
             }
         }
 

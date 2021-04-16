@@ -103,14 +103,12 @@ namespace VoxelGame.Core.Logic.Blocks
             Game.World.SetBlock(this, 1, x, y + 1, z);
         }
 
-        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, uint data)
+        internal override void DoDestroy(int x, int y, int z, uint data, PhysicsEntity? entity)
         {
             bool isBase = (data & 0b1) == 0;
 
             Game.World.SetDefaultBlock(x, y, z);
             Game.World.SetDefaultBlock(x, y + (isBase ? 1 : -1), z);
-
-            return true;
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)

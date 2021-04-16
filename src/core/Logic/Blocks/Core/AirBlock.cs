@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -48,7 +49,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return false;
         }
 
-        protected override bool Destroy(Entities.PhysicsEntity? entity, int x, int y, int z, uint data)
+        internal override bool CanDestroy(int x, int y, int z, uint data, PhysicsEntity? entity)
         {
             return false;
         }

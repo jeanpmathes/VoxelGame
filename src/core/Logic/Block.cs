@@ -200,9 +200,10 @@ namespace VoxelGame.Core.Logic
 
         public bool Destroy(int x, int y, int z, Entities.PhysicsEntity? entity = null)
         {
-            if (Game.World.GetBlock(x, y, z, out uint data) == this)
+            if (Game.World.GetBlock(x, y, z, out uint data) == this && CanDestroy(x, y, z, data, entity))
             {
-                return Destroy(entity, x, y, z, data);
+                DoDestroy(x, y, z, data, entity);
+                return true;
             }
             else
             {
@@ -210,11 +211,14 @@ namespace VoxelGame.Core.Logic
             }
         }
 
-        protected virtual bool Destroy(Entities.PhysicsEntity? entity, int x, int y, int z, uint data)
+        internal virtual bool CanDestroy(int x, int y, int z, uint data, Entities.PhysicsEntity? entity)
+        {
+            return true;
+        }
+
+        internal virtual void DoDestroy(int x, int y, int z, uint data, Entities.PhysicsEntity? entity)
         {
             Game.World.SetDefaultBlock(x, y, z);
-
-            return true;
         }
 
         /// <summary>
