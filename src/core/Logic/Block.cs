@@ -3,6 +3,8 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
+using System.Diagnostics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -99,22 +101,11 @@ namespace VoxelGame.Core.Logic
 
             TargetBuffer = targetBuffer;
 
-            if (targetBuffer == TargetBuffer.Simple && !isFull)
-            {
-                throw new System.ArgumentException($"TargetBuffer '{nameof(TargetBuffer.Simple)}' requires {nameof(isFull)} to be {!isFull}.", nameof(targetBuffer));
-            }
-
-            if (!isFull && isOpaque)
-            {
-                throw new System.ArgumentException("A block that is not full cannot be opaque.", nameof(isOpaque));
-            }
-
+            Debug.Assert(targetBuffer != TargetBuffer.Simple || isFull, $"TargetBuffer '{nameof(TargetBuffer.Simple)}' requires {nameof(isFull)} to be {!isFull}.");
+            Debug.Assert(isFull || !isOpaque, "A block that is not full cannot be opaque.");
 #pragma warning disable S3060 // "is" should not be used with "this"
-            if ((targetBuffer == TargetBuffer.VaryingHeight) != (this is IHeightVariable))
+            Debug.Assert((targetBuffer == TargetBuffer.VaryingHeight) == (this is IHeightVariable), $"The target buffer should be {nameof(TargetBuffer.VaryingHeight)} if and only if the block implements {nameof(IHeightVariable)}.");
 #pragma warning restore S3060 // "is" should not be used with "this"
-            {
-                throw new System.ArgumentException($"The target buffer should be {nameof(TargetBuffer.VaryingHeight)} if and only if the block implements {nameof(IHeightVariable)}.");
-            }
 
             if (blockDictionary.Count < BlockLimit)
             {
@@ -125,7 +116,7 @@ namespace VoxelGame.Core.Logic
             }
             else
             {
-                throw new System.InvalidOperationException($"Not more than {BlockLimit} blocks are allowed.");
+                Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
             }
         }
 
