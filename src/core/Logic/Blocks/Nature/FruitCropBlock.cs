@@ -32,7 +32,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private int dead, initial, noFruit, withFruit, connector;
 
-        public FruitCropBlock(string name, string namedId, string texture, int dead, int initial, int noFruit, int withFruit, int connector, Block fruit) :
+        internal FruitCropBlock(string name, string namedId, string texture, int dead, int initial, int noFruit, int withFruit, int connector, Block fruit) :
             base(
                 name,
                 namedId,

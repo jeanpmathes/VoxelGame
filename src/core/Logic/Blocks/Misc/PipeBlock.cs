@@ -34,7 +34,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public bool RenderLiquid => false;
 
-        public PipeBlock(string name, string namedId, float diameter, string centerModel, string connectorModel, string surfaceModel) :
+        internal PipeBlock(string name, string namedId, float diameter, string centerModel, string connectorModel, string surfaceModel) :
             base(
                 name,
                 namedId,

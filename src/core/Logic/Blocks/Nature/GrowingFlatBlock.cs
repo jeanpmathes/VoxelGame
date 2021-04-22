@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // a = age
     public class GrowingFlatBlock : FlatBlock, IFlammable, IFillable
     {
-        public GrowingFlatBlock(string name, string namedId, string texture, float climbingVelocity, float slidingVelocity) :
+        internal GrowingFlatBlock(string name, string namedId, string texture, float climbingVelocity, float slidingVelocity) :
             base(
                 name,
                 namedId,

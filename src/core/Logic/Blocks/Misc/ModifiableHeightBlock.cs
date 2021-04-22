@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class ModifiableHeightBlock : VaryingHeightBlock
     {
-        public ModifiableHeightBlock(string name, string namedId, TextureLayout layout) :
+        internal ModifiableHeightBlock(string name, string namedId, TextureLayout layout) :
             base(
                 name,
                 namedId,

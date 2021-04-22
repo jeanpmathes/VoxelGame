@@ -25,7 +25,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly string texture;
         private int second, third, fourth, fifth, sixth, final, dead;
 
-        public CropBlock(string name, string namedId, string texture, int second, int third, int fourth, int fifth, int sixth, int final, int dead) :
+        internal CropBlock(string name, string namedId, string texture, int second, int third, int fourth, int fifth, int sixth, int final, int dead) :
             base(
                 name,
                 namedId,

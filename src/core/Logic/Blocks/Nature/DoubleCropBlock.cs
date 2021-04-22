@@ -30,7 +30,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private int dead, first, second, third;
         private (int low, int top) fourth, fifth, sixth, final;
 
-        public DoubleCropBlock(string name, string namedId, string texture, int dead, int first, int second, int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final) :
+        internal DoubleCropBlock(string name, string namedId, string texture, int dead, int first, int second, int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final) :
             base(
                 name,
                 namedId,

@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class GroundedBlock : BasicBlock, IFlammable
     {
-        public GroundedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true, bool isInteractable = false) :
+        internal GroundedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true, bool isInteractable = false) :
             base(
                 name,
                 namedId,

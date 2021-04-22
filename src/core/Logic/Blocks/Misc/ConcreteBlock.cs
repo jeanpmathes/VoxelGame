@@ -23,7 +23,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly TextureLayout layout;
         private int[] textures = null!;
 
-        public ConcreteBlock(string name, string namedId, TextureLayout layout) :
+        internal ConcreteBlock(string name, string namedId, TextureLayout layout) :
             base(
                 name,
                 namedId,

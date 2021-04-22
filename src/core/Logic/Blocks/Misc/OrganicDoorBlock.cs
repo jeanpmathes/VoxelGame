@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class OrganicDoorBlock : DoorBlock, IFlammable
     {
-        public OrganicDoorBlock(string name, string namedId, string closed, string open) :
+        internal OrganicDoorBlock(string name, string namedId, string closed, string open) :
             base(
                 name,
                 namedId,

@@ -22,7 +22,7 @@ namespace VoxelGame.Core.Logic.Blocks
         /// </summary>
         /// <param name="name">The name of this block</param>
         /// <param name="namedId">The unique and unlocalized name of this block.</param>
-        public AirBlock(string name, string namedId) :
+        internal AirBlock(string name, string namedId) :
             base(
                 name: name,
                 namedId,

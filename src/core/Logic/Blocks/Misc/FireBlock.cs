@@ -36,7 +36,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private readonly string texture;
 
-        public FireBlock(string name, string namedId, string texture) :
+        internal FireBlock(string name, string namedId, string texture) :
             base(
                 name,
                 namedId,

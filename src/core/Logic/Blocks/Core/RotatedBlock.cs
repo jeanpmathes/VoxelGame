@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // a = axis
     public class RotatedBlock : BasicBlock, IFlammable
     {
-        public RotatedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
+        internal RotatedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
             base(
                 name,
                 namedId,

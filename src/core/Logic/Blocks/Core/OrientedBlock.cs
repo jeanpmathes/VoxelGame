@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // o = orientation
     public class OrientedBlock : BasicBlock
     {
-        public OrientedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
+        internal OrientedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
             base(
                 name,
                 namedId,

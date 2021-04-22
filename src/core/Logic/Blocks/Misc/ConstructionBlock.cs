@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class ConstructionBlock : BasicBlock, IConnectable
     {
-        public ConstructionBlock(string name, string namedId, TextureLayout layout) :
+        internal ConstructionBlock(string name, string namedId, TextureLayout layout) :
             base(
                 name,
                 namedId,

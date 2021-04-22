@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class GrassBlock : CoveredDirtBlock, IFlammable
     {
-        public GrassBlock(string name, string namedId, TextureLayout normal, TextureLayout wet) :
+        internal GrassBlock(string name, string namedId, TextureLayout normal, TextureLayout wet) :
             base(
                 name,
                 namedId,

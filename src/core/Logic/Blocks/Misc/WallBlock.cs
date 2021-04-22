@@ -31,7 +31,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private readonly string extensionStraight;
 
-        public WallBlock(string name, string namedId, string texture, string post, string extension, string extensionStraight) :
+        internal WallBlock(string name, string namedId, string texture, string post, string extension, string extensionStraight) :
             base(
                 name: name,
                 namedId,

@@ -22,7 +22,7 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <param name="texture">The name of the texture of this block.</param>
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
         /// <param name="boundingBox">The bounding box of this block.</param>
-        public CrossPlantBlock(string name, string namedId, string texture, bool isReplaceable, BoundingBox boundingBox) :
+        internal CrossPlantBlock(string name, string namedId, string texture, bool isReplaceable, BoundingBox boundingBox) :
             base(
                 name,
                 namedId,

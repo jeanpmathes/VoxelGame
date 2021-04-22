@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private readonly TextureLayout wet;
 
-        public DirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet) :
+        internal DirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet) :
             base(
                 name,
                 namedId,

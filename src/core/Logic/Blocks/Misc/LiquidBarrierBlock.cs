@@ -20,7 +20,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private readonly TextureLayout open;
 
-        public LiquidBarrierBlock(string name, string namedId, TextureLayout closed, TextureLayout open) :
+        internal LiquidBarrierBlock(string name, string namedId, TextureLayout closed, TextureLayout open) :
             base(
                 name,
                 namedId,

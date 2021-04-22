@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private readonly (BlockModel x, BlockModel y, BlockModel z) closedModels;
 
-        public SteelPipeValveBlock(string name, string namedId, float diameter, string openModel, string closedModel) :
+        internal SteelPipeValveBlock(string name, string namedId, float diameter, string openModel, string closedModel) :
             base(
                 name,
                 namedId,

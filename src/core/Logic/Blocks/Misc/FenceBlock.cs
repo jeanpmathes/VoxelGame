@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public class FenceBlock : ConnectingBlock, IFlammable
     {
-        public FenceBlock(string name, string namedId, string texture, string post, string extension) :
+        internal FenceBlock(string name, string namedId, string texture, string post, string extension) :
             base(
                 name,
                 namedId,

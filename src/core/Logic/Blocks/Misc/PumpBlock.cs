@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private readonly int pumpDistance;
 
-        public PumpBlock(string name, string namedId, int pumpDistance, TextureLayout layout) :
+        internal PumpBlock(string name, string namedId, int pumpDistance, TextureLayout layout) :
             base(
                 name,
                 namedId,

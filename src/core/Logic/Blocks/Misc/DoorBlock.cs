@@ -37,7 +37,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly string closed;
         private readonly string open;
 
-        public DoorBlock(string name, string namedId, string closed, string open) :
+        internal DoorBlock(string name, string namedId, string closed, string open) :
             base(
                 name,
                 namedId,

@@ -37,7 +37,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private readonly string model;
 
-        public BedBlock(string name, string namedId, string model) :
+        internal BedBlock(string name, string namedId, string model) :
             base(
                 name,
                 namedId,

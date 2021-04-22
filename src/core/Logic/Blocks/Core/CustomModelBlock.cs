@@ -25,7 +25,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private readonly string model;
 
-        public CustomModelBlock(string name, string namedId, string modelName, Physics.BoundingBox boundingBox, bool isSolid = true, bool isInteractable = false) :
+        internal CustomModelBlock(string name, string namedId, string modelName, Physics.BoundingBox boundingBox, bool isSolid = true, bool isInteractable = false) :
             base(
                 name,
                 namedId,

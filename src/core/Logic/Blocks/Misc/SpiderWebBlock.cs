@@ -26,15 +26,15 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <param name="namedId">The unique and unlocalized name of this block.</param>
         /// <param name="texture">The texture of this block.</param>
         /// <param name="maxVelocity">The maximum velocity of entities colliding with this block.</param>
-        public SpiderWebBlock(string name, string namedId, string texture, float maxVelocity) :
-        base(
-            name,
-            namedId,
-            texture,
-            receiveCollisions: true,
-            isTrigger: true,
-            isReplaceable: false,
-            BoundingBox.CrossBlock)
+        internal SpiderWebBlock(string name, string namedId, string texture, float maxVelocity) :
+            base(
+                name,
+                namedId,
+                texture,
+                receiveCollisions: true,
+                isTrigger: true,
+                isReplaceable: false,
+                BoundingBox.CrossBlock)
         {
             this.maxVelocity = maxVelocity;
         }

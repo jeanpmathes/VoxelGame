@@ -28,7 +28,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public bool RenderLiquid => false;
 
-        public StraightSteelPipeBlock(string name, string namedId, float diameter, string model, bool isInteractable = false) :
+        internal StraightSteelPipeBlock(string name, string namedId, float diameter, string model, bool isInteractable = false) :
             base(
                 name,
                 namedId,

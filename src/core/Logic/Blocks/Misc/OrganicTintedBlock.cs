@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class OrganicTintedBlock : TintedBlock, IFlammable
     {
-        public OrganicTintedBlock(string name, string namedId, TextureLayout layout) :
+        internal OrganicTintedBlock(string name, string namedId, TextureLayout layout) :
             base(
                 name,
                 namedId,

@@ -33,20 +33,20 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly string closed;
         private readonly string open;
 
-        public GateBlock(string name, string namedId, string closed, string open) :
-        base(
-            name,
-            namedId,
-            isFull: false,
-            isOpaque: false,
-            renderFaceAtNonOpaques: true,
-            isSolid: true,
-            receiveCollisions: false,
-            isTrigger: false,
-            isReplaceable: false,
-            isInteractable: true,
-            BoundingBox.Block,
-            TargetBuffer.Complex)
+        internal GateBlock(string name, string namedId, string closed, string open) :
+            base(
+                name,
+                namedId,
+                isFull: false,
+                isOpaque: false,
+                renderFaceAtNonOpaques: true,
+                isSolid: true,
+                receiveCollisions: false,
+                isTrigger: false,
+                isReplaceable: false,
+                isInteractable: true,
+                BoundingBox.Block,
+                TargetBuffer.Complex)
         {
             this.closed = closed;
             this.open = open;

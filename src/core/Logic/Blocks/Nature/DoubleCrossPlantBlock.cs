@@ -27,7 +27,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly string bottomTexture;
         private readonly int topTexOffset;
 
-        public DoubleCrossPlantBlock(string name, string namedId, string bottomTexture, int topTexOffset, BoundingBox boundingBox) :
+        internal DoubleCrossPlantBlock(string name, string namedId, string bottomTexture, int topTexOffset, BoundingBox boundingBox) :
             base(
                 name,
                 namedId,
