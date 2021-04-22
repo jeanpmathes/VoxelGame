@@ -101,7 +101,7 @@ namespace VoxelGame.Core.Logic
 
             TargetBuffer = targetBuffer;
 
-            Debug.Assert(targetBuffer != TargetBuffer.Simple || isFull, $"TargetBuffer '{nameof(TargetBuffer.Simple)}' requires {nameof(isFull)} to be {!isFull}.");
+            Debug.Assert(targetBuffer != TargetBuffer.Simple ^ isFull, $"TargetBuffer '{nameof(TargetBuffer.Simple)}' requires {nameof(isFull)} to be {!isFull}, all other target buffers cannot be full.");
             Debug.Assert(isFull || !isOpaque, "A block that is not full cannot be opaque.");
 #pragma warning disable S3060 // "is" should not be used with "this"
             Debug.Assert((targetBuffer == TargetBuffer.VaryingHeight) == (this is IHeightVariable), $"The target buffer should be {nameof(TargetBuffer.VaryingHeight)} if and only if the block implements {nameof(IHeightVariable)}.");
