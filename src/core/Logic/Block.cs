@@ -136,19 +136,12 @@ namespace VoxelGame.Core.Logic
         /// <returns>The bounding box.</returns>
         public BoundingBox GetBoundingBox(int x, int y, int z)
         {
-            if (Game.World.GetBlock(x, y, z, out uint data) == this)
-            {
-                return GetBoundingBox(x, y, z, data);
-            }
-            else
-            {
-                return boundingBox.Translated(x, y, z);
-            }
+            return (Game.World.GetBlock(x, y, z, out uint data) == this ? GetBoundingBox(data) : boundingBox).Translated(x, y, z);
         }
 
-        protected virtual BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected virtual BoundingBox GetBoundingBox(uint data)
         {
-            return boundingBox.Translated(x, y, z);
+            return boundingBox;
         }
 
         /// <summary>

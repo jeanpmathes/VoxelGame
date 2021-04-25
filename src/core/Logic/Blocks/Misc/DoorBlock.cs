@@ -92,7 +92,7 @@ namespace VoxelGame.Core.Logic.Blocks
             vertexCountBase = (uint)baseClosed.VertexCount;
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected override BoundingBox GetBoundingBox(uint data)
         {
             Orientation orientation = (Orientation)(data & 0b00_0011);
 
@@ -104,11 +104,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
             return orientation switch
             {
-                Orientation.North => new BoundingBox(new Vector3(0.5f, 0.5f, 0.9375f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.0625f)),
-                Orientation.East => new BoundingBox(new Vector3(0.0625f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.5f, 0.5f)),
-                Orientation.South => new BoundingBox(new Vector3(0.5f, 0.5f, 0.0625f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.0625f)),
-                Orientation.West => new BoundingBox(new Vector3(0.9375f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.5f, 0.5f)),
-                _ => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f))
+                Orientation.North => new BoundingBox(new Vector3(0.5f, 0.5f, 0.9375f), new Vector3(0.5f, 0.5f, 0.0625f)),
+                Orientation.East => new BoundingBox(new Vector3(0.0625f, 0.5f, 0.5f), new Vector3(0.0625f, 0.5f, 0.5f)),
+                Orientation.South => new BoundingBox(new Vector3(0.5f, 0.5f, 0.0625f), new Vector3(0.5f, 0.5f, 0.0625f)),
+                Orientation.West => new BoundingBox(new Vector3(0.9375f, 0.5f, 0.5f), new Vector3(0.0625f, 0.5f, 0.5f)),
+                _ => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.5f, 0.5f, 0.5f))
             };
         }
 

@@ -140,18 +140,18 @@ namespace VoxelGame.Core.Logic.Blocks
             };
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected override BoundingBox GetBoundingBox(uint data)
         {
             var stage = (GrowthStage)(data & 0b00_0111);
 
             if (((data & 0b00_1000) == 0 && stage == GrowthStage.Initial) ||
                 ((data & 0b00_1000) != 0 && (stage == GrowthStage.Fourth || stage == GrowthStage.Fifth)))
             {
-                return BoundingBox.BlockAt(7, x, y, z);
+                return BoundingBox.BlockWithHeight(7);
             }
             else
             {
-                return BoundingBox.BlockAt(15, x, y, z);
+                return BoundingBox.BlockWithHeight(15);
             }
         }
 

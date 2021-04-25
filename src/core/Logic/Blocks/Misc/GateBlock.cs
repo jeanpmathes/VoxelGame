@@ -80,7 +80,7 @@ namespace VoxelGame.Core.Logic.Blocks
             vertexCountOpen = (uint)openModel.VertexCount;
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected override BoundingBox GetBoundingBox(uint data)
         {
             bool isClosed = (data & 0b00_0100) == 0;
 
@@ -96,27 +96,27 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 if (isClosed)
                 {
-                    return new BoundingBox(new Vector3(0.96875f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f),
-                    new BoundingBox(new Vector3(0.96875f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                    new BoundingBox(new Vector3(0.03125f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                    new BoundingBox(new Vector3(0.03125f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                    return new BoundingBox(new Vector3(0.96875f, 0.71875f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f),
+                    new BoundingBox(new Vector3(0.96875f, 0.28125f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                    new BoundingBox(new Vector3(0.03125f, 0.71875f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                    new BoundingBox(new Vector3(0.03125f, 0.28125f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
                     // Moving parts.
-                    new BoundingBox(new Vector3(0.75f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(0.75f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(0.25f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(0.25f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)));
+                    new BoundingBox(new Vector3(0.75f, 0.71875f, 0.5f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(0.75f, 0.28125f, 0.5f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(0.25f, 0.71875f, 0.5f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(0.25f, 0.28125f, 0.5f), new Vector3(0.1875f, 0.09375f, 0.0625f)));
                 }
                 else
                 {
-                    return new BoundingBox(new Vector3(0.96875f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f),
-                    new BoundingBox(new Vector3(0.96875f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                    new BoundingBox(new Vector3(0.03125f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                    new BoundingBox(new Vector3(0.03125f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                    return new BoundingBox(new Vector3(0.96875f, 0.71875f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f),
+                    new BoundingBox(new Vector3(0.96875f, 0.28125f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                    new BoundingBox(new Vector3(0.03125f, 0.71875f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                    new BoundingBox(new Vector3(0.03125f, 0.28125f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
                     // Moving parts.
-                    new BoundingBox(new Vector3(0.875f, 0.71875f, offset) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.875f, 0.28125f, offset) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.125f, 0.71875f, offset) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.125f, 0.28125f, offset) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)));
+                    new BoundingBox(new Vector3(0.875f, 0.71875f, offset), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.875f, 0.28125f, offset), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.125f, 0.71875f, offset), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.125f, 0.28125f, offset), new Vector3(0.0625f, 0.09375f, 0.1875f)));
                 }
             }
 
@@ -124,27 +124,27 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 if (isClosed)
                 {
-                    return new BoundingBox(new Vector3(0.5f, 0.71875f, 0.96875f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f),
-                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.96875f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.03125f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.03125f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                    return new BoundingBox(new Vector3(0.5f, 0.71875f, 0.96875f), new Vector3(0.125f, 0.15625f, 0.03125f),
+                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.96875f), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.03125f), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.03125f), new Vector3(0.125f, 0.15625f, 0.03125f)),
                     // Moving parts.
-                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.75f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.75f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.25f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.25f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.09375f, 0.1875f)));
+                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.75f), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.75f), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.25f), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.25f), new Vector3(0.0625f, 0.09375f, 0.1875f)));
                 }
                 else
                 {
-                    return new BoundingBox(new Vector3(0.5f, 0.71875f, 0.96875f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f),
-                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.96875f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.03125f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.03125f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                    return new BoundingBox(new Vector3(0.5f, 0.71875f, 0.96875f), new Vector3(0.125f, 0.15625f, 0.03125f),
+                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.96875f), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.03125f), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.03125f), new Vector3(0.125f, 0.15625f, 0.03125f)),
                     // Moving parts.
-                    new BoundingBox(new Vector3(offset, 0.71875f, 0.875f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(offset, 0.28125f, 0.875f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(offset, 0.71875f, 0.125f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(offset, 0.28125f, 0.125f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.09375f, 0.0625f)));
+                    new BoundingBox(new Vector3(offset, 0.71875f, 0.875f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(offset, 0.28125f, 0.875f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(offset, 0.71875f, 0.125f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                    new BoundingBox(new Vector3(offset, 0.28125f, 0.125f), new Vector3(0.1875f, 0.09375f, 0.0625f)));
                 }
             }
         }

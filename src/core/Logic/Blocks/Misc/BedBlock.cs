@@ -83,7 +83,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected override BoundingBox GetBoundingBox(uint data)
         {
             bool isBase = (data & 0b1) == 1;
             Orientation orientation = (Orientation)((data & 0b00_0110) >> 1);
@@ -94,34 +94,34 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 case Orientation.North:
 
-                    legs[0] = new BoundingBox(new Vector3(0.09375f, 0.09375f, 0.09375f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
-                    legs[1] = new BoundingBox(new Vector3(0.90625f, 0.09375f, 0.09375f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
+                    legs[0] = new BoundingBox(new Vector3(0.09375f, 0.09375f, 0.09375f), new Vector3(0.09375f, 0.09375f, 0.09375f));
+                    legs[1] = new BoundingBox(new Vector3(0.90625f, 0.09375f, 0.09375f), new Vector3(0.09375f, 0.09375f, 0.09375f));
 
                     break;
 
                 case Orientation.East:
 
-                    legs[0] = new BoundingBox(new Vector3(0.90625f, 0.09375f, 0.09375f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
-                    legs[1] = new BoundingBox(new Vector3(0.90625f, 0.09375f, 0.90625f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
+                    legs[0] = new BoundingBox(new Vector3(0.90625f, 0.09375f, 0.09375f), new Vector3(0.09375f, 0.09375f, 0.09375f));
+                    legs[1] = new BoundingBox(new Vector3(0.90625f, 0.09375f, 0.90625f), new Vector3(0.09375f, 0.09375f, 0.09375f));
 
                     break;
 
                 case Orientation.South:
 
-                    legs[0] = new BoundingBox(new Vector3(0.09375f, 0.09375f, 0.90625f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
-                    legs[1] = new BoundingBox(new Vector3(0.90625f, 0.09375f, 0.90625f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
+                    legs[0] = new BoundingBox(new Vector3(0.09375f, 0.09375f, 0.90625f), new Vector3(0.09375f, 0.09375f, 0.09375f));
+                    legs[1] = new BoundingBox(new Vector3(0.90625f, 0.09375f, 0.90625f), new Vector3(0.09375f, 0.09375f, 0.09375f));
 
                     break;
 
                 case Orientation.West:
 
-                    legs[0] = new BoundingBox(new Vector3(0.09375f, 0.09375f, 0.09375f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
-                    legs[1] = new BoundingBox(new Vector3(0.09375f, 0.09375f, 0.90625f) + new Vector3(x, y, z), new Vector3(0.09375f, 0.09375f, 0.09375f));
+                    legs[0] = new BoundingBox(new Vector3(0.09375f, 0.09375f, 0.09375f), new Vector3(0.09375f, 0.09375f, 0.09375f));
+                    legs[1] = new BoundingBox(new Vector3(0.09375f, 0.09375f, 0.90625f), new Vector3(0.09375f, 0.09375f, 0.09375f));
 
                     break;
             }
 
-            return new BoundingBox(new Vector3(0.5f, 0.3125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.125f, 0.5f), legs);
+            return new BoundingBox(new Vector3(0.5f, 0.3125f, 0.5f), new Vector3(0.5f, 0.125f, 0.5f), legs);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)

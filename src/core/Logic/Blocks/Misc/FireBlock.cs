@@ -183,11 +183,11 @@ namespace VoxelGame.Core.Logic.Blocks
             };
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected override BoundingBox GetBoundingBox(uint data)
         {
             if (data == 0)
             {
-                return BoundingBox.BlockAt(x, y, z);
+                return BoundingBox.Block;
             }
 
             int count = BitHelper.CountSetBits(data);
@@ -197,35 +197,35 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if ((data & 0b01_0000) != 0)
             {
-                var child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.1f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
+                var child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.1f), new Vector3(0.5f, 0.5f, 0.1f));
 
                 IncludeChild(child);
             }
 
             if ((data & 0b00_1000) != 0)
             {
-                var child = new BoundingBox(new Vector3(0.9f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
+                var child = new BoundingBox(new Vector3(0.9f, 0.5f, 0.5f), new Vector3(0.1f, 0.5f, 0.5f));
 
                 IncludeChild(child);
             }
 
             if ((data & 0b00_0100) != 0)
             {
-                var child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.9f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
+                var child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.9f), new Vector3(0.5f, 0.5f, 0.1f));
 
                 IncludeChild(child);
             }
 
             if ((data & 0b00_0010) != 0)
             {
-                var child = new BoundingBox(new Vector3(0.1f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
+                var child = new BoundingBox(new Vector3(0.1f, 0.5f, 0.5f), new Vector3(0.1f, 0.5f, 0.5f));
 
                 IncludeChild(child);
             }
 
             if ((data & 0b00_0001) != 0)
             {
-                var child = new BoundingBox(new Vector3(0.5f, 0.9f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.1f, 0.5f));
+                var child = new BoundingBox(new Vector3(0.5f, 0.9f, 0.5f), new Vector3(0.5f, 0.1f, 0.5f));
 
                 IncludeChild(child);
             }

@@ -50,13 +50,13 @@ namespace VoxelGame.Core.Logic.Blocks
             this.diameter = diameter;
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected override BoundingBox GetBoundingBox(uint data)
         {
             return (Axis)(data & AxisDataMask) switch
             {
-                Axis.X => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f), new Vector3(0.5f, diameter, diameter)),
-                Axis.Y => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f), new Vector3(diameter, 0.5f, diameter)),
-                Axis.Z => new BoundingBox(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f), new Vector3(diameter, diameter, 0.5f)),
+                Axis.X => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.5f, diameter, diameter)),
+                Axis.Y => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(diameter, 0.5f, diameter)),
+                Axis.Z => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(diameter, diameter, 0.5f)),
                 _ => throw new NotSupportedException()
             };
         }
