@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -21,7 +22,7 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <param name="texture">The name of the texture of this block.</param>
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
         /// <param name="boundingBox">The bounding box of this block.</param>
-        public CrossPlantBlock(string name, string namedId, string texture, bool isReplaceable, BoundingBox boundingBox) :
+        internal CrossPlantBlock(string name, string namedId, string texture, bool isReplaceable, BoundingBox boundingBox) :
             base(
                 name,
                 namedId,
@@ -38,21 +39,11 @@ namespace VoxelGame.Core.Logic.Blocks
             return base.GetMesh(info).Modified(TintColor.Neutral);
         }
 
-        protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
         {
             // Check the block under the placement position.
             Block ground = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air;
-
-            if (ground is IPlantable)
-            {
-                Game.World.SetBlock(this, 0, x, y, z);
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return ground is IPlantable;
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)

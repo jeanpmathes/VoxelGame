@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -21,7 +22,7 @@ namespace VoxelGame.Core.Logic.Blocks
         /// </summary>
         /// <param name="name">The name of this block</param>
         /// <param name="namedId">The unique and unlocalized name of this block.</param>
-        public AirBlock(string name, string namedId) :
+        internal AirBlock(string name, string namedId) :
             base(
                 name: name,
                 namedId,
@@ -43,12 +44,12 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.Empty();
         }
 
-        protected override bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
             return false;
         }
 
-        protected override bool Destroy(Entities.PhysicsEntity? entity, int x, int y, int z, uint data)
+        internal override bool CanDestroy(int x, int y, int z, uint data, PhysicsEntity? entity)
         {
             return false;
         }

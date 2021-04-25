@@ -44,9 +44,9 @@ namespace VoxelGame.Core.Logic.Blocks
             textureIndices = layout.GetTexIndexArray();
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected override BoundingBox GetBoundingBox(uint data)
         {
-            return BoundingBox.BlockAt(GetHeight(data), x, y, z);
+            return BoundingBox.BlockWithHeight(GetHeight(data));
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)

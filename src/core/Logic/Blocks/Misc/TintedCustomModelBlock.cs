@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // c = color
     public class TintedCustomModelBlock : CustomModelBlock, IFlammable
     {
-        public TintedCustomModelBlock(string name, string namedId, string modelName, Physics.BoundingBox boundingBox, bool isSolid = true) :
+        internal TintedCustomModelBlock(string name, string namedId, string modelName, Physics.BoundingBox boundingBox, bool isSolid = true) :
             base(
                 name,
                 namedId,

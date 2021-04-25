@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private readonly bool isAnimated;
 
-        public TintedBlock(string name, string namedId, TextureLayout layout, bool isAnimated = false) :
+        internal TintedBlock(string name, string namedId, TextureLayout layout, bool isAnimated = false) :
             base(
                 name,
                 namedId,

@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class EternalFlame : BasicBlock, IFlammable
     {
-        public EternalFlame(string name, string namedId, TextureLayout layout) :
+        internal EternalFlame(string name, string namedId, TextureLayout layout) :
             base(
                 name,
                 namedId,

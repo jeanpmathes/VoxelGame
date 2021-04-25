@@ -28,7 +28,7 @@ namespace VoxelGame.Core.Logic.Liquids
         {
             if (isStatic)
             {
-                Game.World.SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
+                Game.World.SetDefaultLiquid(x, y, z);
                 Block.Specials.Concrete.Place(level, x, y, z);
             }
         }

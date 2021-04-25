@@ -36,7 +36,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private readonly string texture;
 
-        public FireBlock(string name, string namedId, string texture) :
+        internal FireBlock(string name, string namedId, string texture) :
             base(
                 name,
                 namedId,
@@ -183,11 +183,11 @@ namespace VoxelGame.Core.Logic.Blocks
             };
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected override BoundingBox GetBoundingBox(uint data)
         {
             if (data == 0)
             {
-                return BoundingBox.BlockAt(x, y, z);
+                return BoundingBox.Block;
             }
 
             int count = BitHelper.CountSetBits(data);
@@ -197,35 +197,35 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if ((data & 0b01_0000) != 0)
             {
-                var child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.1f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
+                var child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.1f), new Vector3(0.5f, 0.5f, 0.1f));
 
                 IncludeChild(child);
             }
 
             if ((data & 0b00_1000) != 0)
             {
-                var child = new BoundingBox(new Vector3(0.9f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
+                var child = new BoundingBox(new Vector3(0.9f, 0.5f, 0.5f), new Vector3(0.1f, 0.5f, 0.5f));
 
                 IncludeChild(child);
             }
 
             if ((data & 0b00_0100) != 0)
             {
-                var child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.9f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.1f));
+                var child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.9f), new Vector3(0.5f, 0.5f, 0.1f));
 
                 IncludeChild(child);
             }
 
             if ((data & 0b00_0010) != 0)
             {
-                var child = new BoundingBox(new Vector3(0.1f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1f, 0.5f, 0.5f));
+                var child = new BoundingBox(new Vector3(0.1f, 0.5f, 0.5f), new Vector3(0.1f, 0.5f, 0.5f));
 
                 IncludeChild(child);
             }
 
             if ((data & 0b00_0001) != 0)
             {
-                var child = new BoundingBox(new Vector3(0.5f, 0.9f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.1f, 0.5f));
+                var child = new BoundingBox(new Vector3(0.5f, 0.9f, 0.5f), new Vector3(0.5f, 0.1f, 0.5f));
 
                 IncludeChild(child);
             }
@@ -281,37 +281,43 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData((uint)(faceCount * 4), vertices, textureIndices, indices, true);
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
+        {
+            if (Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull == true)
+            {
+                return true;
+            }
+            else
+            {
+                return GetData(x, y, z) != 0;
+            }
+        }
+
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
         {
             if (Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull == true)
             {
                 Game.World.SetBlock(this, 0, x, y, z);
                 ScheduleTick(x, y, z, TickOffset);
-
-                return true;
             }
             else
             {
-                uint data = 0;
-
-                if (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull == true) data |= 0b01_0000; // North.
-                if (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b00_1000; // East.
-                if (Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull == true) data |= 0b00_0100; // South.
-                if (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b00_0010; // West.
-                if (Game.World.GetBlock(x, y + 1, z, out _)?.IsSolidAndFull == true) data |= 0b00_0001; // Top.
-
-                if (data != 0)
-                {
-                    Game.World.SetBlock(this, data, x, y, z);
-                    ScheduleTick(x, y, z, TickOffset);
-
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                Game.World.SetBlock(this, GetData(x, y, z), x, y, z);
+                ScheduleTick(x, y, z, TickOffset);
             }
+        }
+
+        private static uint GetData(int x, int y, int z)
+        {
+            uint data = 0;
+
+            if (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull == true) data |= 0b01_0000; // North.
+            if (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b00_1000; // East.
+            if (Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull == true) data |= 0b00_0100; // South.
+            if (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b00_0010; // West.
+            if (Game.World.GetBlock(x, y + 1, z, out _)?.IsSolidAndFull == true) data |= 0b00_0001; // Top.
+
+            return data;
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)

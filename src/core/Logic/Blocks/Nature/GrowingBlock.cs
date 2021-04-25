@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly Block requiredGround;
         private readonly int maxHeight;
 
-        public GrowingBlock(string name, string namedId, TextureLayout layout, Block ground, int maxHeight) :
+        internal GrowingBlock(string name, string namedId, TextureLayout layout, Block ground, int maxHeight) :
             base(
                 name,
                 namedId,
@@ -35,20 +35,10 @@ namespace VoxelGame.Core.Logic.Blocks
             this.maxHeight = maxHeight;
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
         {
             Block down = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air;
-
-            if (down == requiredGround || down == this)
-            {
-                Game.World.SetBlock(this, 0, x, y, z);
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return down == requiredGround || down == this;
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)

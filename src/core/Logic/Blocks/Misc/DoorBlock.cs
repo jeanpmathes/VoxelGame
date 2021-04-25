@@ -37,7 +37,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly string closed;
         private readonly string open;
 
-        public DoorBlock(string name, string namedId, string closed, string open) :
+        internal DoorBlock(string name, string namedId, string closed, string open) :
             base(
                 name,
                 namedId,
@@ -92,7 +92,7 @@ namespace VoxelGame.Core.Logic.Blocks
             vertexCountBase = (uint)baseClosed.VertexCount;
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected override BoundingBox GetBoundingBox(uint data)
         {
             Orientation orientation = (Orientation)(data & 0b00_0011);
 
@@ -104,11 +104,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
             return orientation switch
             {
-                Orientation.North => new BoundingBox(new Vector3(0.5f, 0.5f, 0.9375f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.0625f)),
-                Orientation.East => new BoundingBox(new Vector3(0.0625f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.5f, 0.5f)),
-                Orientation.South => new BoundingBox(new Vector3(0.5f, 0.5f, 0.0625f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.0625f)),
-                Orientation.West => new BoundingBox(new Vector3(0.9375f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.0625f, 0.5f, 0.5f)),
-                _ => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.5f, 0.5f, 0.5f))
+                Orientation.North => new BoundingBox(new Vector3(0.5f, 0.5f, 0.9375f), new Vector3(0.5f, 0.5f, 0.0625f)),
+                Orientation.East => new BoundingBox(new Vector3(0.0625f, 0.5f, 0.5f), new Vector3(0.0625f, 0.5f, 0.5f)),
+                Orientation.South => new BoundingBox(new Vector3(0.5f, 0.5f, 0.0625f), new Vector3(0.5f, 0.5f, 0.0625f)),
+                Orientation.West => new BoundingBox(new Vector3(0.9375f, 0.5f, 0.5f), new Vector3(0.0625f, 0.5f, 0.5f)),
+                _ => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.5f, 0.5f, 0.5f))
             };
         }
 
@@ -128,13 +128,13 @@ namespace VoxelGame.Core.Logic.Blocks
                 : new BlockMeshData(vertexCountTop, verticesTop[index], texIndicesTop, indicesTop);
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
         {
-            if (Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable != true || !Game.World.HasSolidGround(x, y, z))
-            {
-                return false;
-            }
+            return Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true && Game.World.HasSolidGround(x, y, z);
+        }
 
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        {
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
             BlockSide side = entity?.TargetSide ?? BlockSide.Top;
 
@@ -143,6 +143,7 @@ namespace VoxelGame.Core.Logic.Blocks
             if (side == BlockSide.Top)
             {
                 // Choose side according to neighboring doors to form a double door.
+
                 Block neighbor;
                 uint data;
 
@@ -183,16 +184,12 @@ namespace VoxelGame.Core.Logic.Blocks
 
             Game.World.SetBlock(this, (uint)((isLeftSided ? 0b0000 : 0b1000) | (int)orientation), x, y, z);
             Game.World.SetBlock(this, (uint)((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int)orientation), x, y + 1, z);
-
-            return true;
         }
 
-        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, uint data)
+        internal override void DoDestroy(int x, int y, int z, uint data, PhysicsEntity? entity)
         {
-            Game.World.SetBlock(Block.Air, 0, x, y, z);
-            Game.World.SetBlock(Block.Air, 0, x, y + ((data & 0b00_0100) == 0 ? 1 : -1), z);
-
-            return true;
+            Game.World.SetDefaultBlock(x, y, z);
+            Game.World.SetDefaultBlock(x, y + ((data & 0b00_0100) == 0 ? 1 : -1), z);
         }
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)

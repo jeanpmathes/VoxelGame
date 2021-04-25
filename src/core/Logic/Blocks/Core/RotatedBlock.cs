@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // a = axis
     public class RotatedBlock : BasicBlock, IFlammable
     {
-        public RotatedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
+        internal RotatedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
             base(
                 name,
                 namedId,
@@ -65,11 +65,9 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.Basic(vertices, sideTextureIndices[TranslateIndex(info.Side, axis)]);
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
         {
             Game.World.SetBlock(this, (uint)ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
-
-            return true;
         }
 
         protected enum Axis

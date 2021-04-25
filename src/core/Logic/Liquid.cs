@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 using System;
+using System.Diagnostics;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -93,7 +94,7 @@ namespace VoxelGame.Core.Logic
             }
             else
             {
-                throw new InvalidOperationException($"Not more than {LiquidLimit} liquids are allowed.");
+                Debug.Fail($"Not more than {LiquidLimit} liquids are allowed.");
             }
         }
 

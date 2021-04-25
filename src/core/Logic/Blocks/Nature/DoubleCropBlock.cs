@@ -30,7 +30,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private int dead, first, second, third;
         private (int low, int top) fourth, fifth, sixth, final;
 
-        public DoubleCropBlock(string name, string namedId, string texture, int dead, int first, int second, int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final) :
+        internal DoubleCropBlock(string name, string namedId, string texture, int dead, int first, int second, int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final) :
             base(
                 name,
                 namedId,
@@ -140,18 +140,18 @@ namespace VoxelGame.Core.Logic.Blocks
             };
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected override BoundingBox GetBoundingBox(uint data)
         {
             var stage = (GrowthStage)(data & 0b00_0111);
 
             if (((data & 0b00_1000) == 0 && stage == GrowthStage.Initial) ||
                 ((data & 0b00_1000) != 0 && (stage == GrowthStage.Fourth || stage == GrowthStage.Fifth)))
             {
-                return BoundingBox.BlockAt(7, x, y, z);
+                return BoundingBox.BlockWithHeight(7);
             }
             else
             {
-                return BoundingBox.BlockAt(15, x, y, z);
+                return BoundingBox.BlockWithHeight(15);
             }
         }
 
@@ -179,28 +179,24 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData(16, vertices, textureIndices, indices);
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
         {
-            if (!(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
-            {
-                return false;
-            }
-
-            Game.World.SetBlock(this, (uint)GrowthStage.Initial, x, y, z);
-
-            return true;
+            return Game.World.GetBlock(x, y - 1, z, out _) is IPlantable;
         }
 
-        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, uint data)
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
         {
-            Game.World.SetBlock(Block.Air, 0, x, y, z);
+            Game.World.SetBlock(this, (uint)GrowthStage.Initial, x, y, z);
+        }
+
+        internal override void DoDestroy(int x, int y, int z, uint data, PhysicsEntity? entity)
+        {
+            Game.World.SetDefaultBlock(x, y, z);
 
             if ((data & 0b00_0111) >= (int)GrowthStage.Fourth)
             {
-                Game.World.SetBlock(Block.Air, 0, x, y + ((data & 0b00_1000) == 0 ? 1 : -1), z);
+                Game.World.SetDefaultBlock(x, y + ((data & 0b00_1000) == 0 ? 1 : -1), z);
             }
-
-            return true;
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
@@ -237,7 +233,7 @@ namespace VoxelGame.Core.Logic.Blocks
                         else
                         {
                             Game.World.SetBlock(this, (uint)GrowthStage.Dead, x, y, z);
-                            if (stage != GrowthStage.Third) Game.World.SetBlock(Block.Air, 0, x, y + 1, z);
+                            if (stage != GrowthStage.Third) Game.World.SetDefaultBlock(x, y + 1, z);
                         }
                     }
                     else

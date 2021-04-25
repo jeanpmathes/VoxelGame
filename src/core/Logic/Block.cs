@@ -3,6 +3,8 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
+using System.Diagnostics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -99,22 +101,11 @@ namespace VoxelGame.Core.Logic
 
             TargetBuffer = targetBuffer;
 
-            if (targetBuffer == TargetBuffer.Simple && !isFull)
-            {
-                throw new System.ArgumentException($"TargetBuffer '{nameof(TargetBuffer.Simple)}' requires {nameof(isFull)} to be {!isFull}.", nameof(targetBuffer));
-            }
-
-            if (!isFull && isOpaque)
-            {
-                throw new System.ArgumentException("A block that is not full cannot be opaque.", nameof(isOpaque));
-            }
-
+            Debug.Assert(targetBuffer != TargetBuffer.Simple ^ isFull, $"TargetBuffer '{nameof(TargetBuffer.Simple)}' requires {nameof(isFull)} to be {!isFull}, all other target buffers cannot be full.");
+            Debug.Assert(isFull || !isOpaque, "A block that is not full cannot be opaque.");
 #pragma warning disable S3060 // "is" should not be used with "this"
-            if ((targetBuffer == TargetBuffer.VaryingHeight) != (this is IHeightVariable))
+            Debug.Assert((targetBuffer == TargetBuffer.VaryingHeight) == (this is IHeightVariable), $"The target buffer should be {nameof(TargetBuffer.VaryingHeight)} if and only if the block implements {nameof(IHeightVariable)}.");
 #pragma warning restore S3060 // "is" should not be used with "this"
-            {
-                throw new System.ArgumentException($"The target buffer should be {nameof(TargetBuffer.VaryingHeight)} if and only if the block implements {nameof(IHeightVariable)}.");
-            }
 
             if (blockDictionary.Count < BlockLimit)
             {
@@ -125,7 +116,7 @@ namespace VoxelGame.Core.Logic
             }
             else
             {
-                throw new System.InvalidOperationException($"Not more than {BlockLimit} blocks are allowed.");
+                Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
             }
         }
 
@@ -145,19 +136,12 @@ namespace VoxelGame.Core.Logic
         /// <returns>The bounding box.</returns>
         public BoundingBox GetBoundingBox(int x, int y, int z)
         {
-            if (Game.World.GetBlock(x, y, z, out uint data) == this)
-            {
-                return GetBoundingBox(x, y, z, data);
-            }
-            else
-            {
-                return boundingBox.Translated(x, y, z);
-            }
+            return (Game.World.GetBlock(x, y, z, out uint data) == this ? GetBoundingBox(data) : boundingBox).Translated(x, y, z);
         }
 
-        protected virtual BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected virtual BoundingBox GetBoundingBox(uint data)
         {
-            return boundingBox.Translated(x, y, z);
+            return boundingBox;
         }
 
         /// <summary>
@@ -171,7 +155,12 @@ namespace VoxelGame.Core.Logic
         {
             (Block? block, Liquid? liquid) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel level, out _);
 
-            bool placed = block?.IsReplaceable == true && Place(entity, x, y, z);
+            bool canPlace = block?.IsReplaceable == true && CanPlace(x, y, z, entity);
+
+            if (canPlace)
+            {
+                DoPlace(x, y, z, entity);
+            }
 
             liquid ??= Liquid.None;
 
@@ -180,21 +169,25 @@ namespace VoxelGame.Core.Logic
                 fillable.LiquidChange(x, y, z, liquid, level);
             }
 
-            return placed;
+            return canPlace;
         }
 
-        protected virtual bool Place(Entities.PhysicsEntity? entity, int x, int y, int z)
+        internal virtual bool CanPlace(int x, int y, int z, Entities.PhysicsEntity? entity)
+        {
+            return true;
+        }
+
+        protected virtual void DoPlace(int x, int y, int z, Entities.PhysicsEntity? entity)
         {
             Game.World.SetBlock(this, 0, x, y, z);
-
-            return true;
         }
 
         public bool Destroy(int x, int y, int z, Entities.PhysicsEntity? entity = null)
         {
-            if (Game.World.GetBlock(x, y, z, out uint data) == this)
+            if (Game.World.GetBlock(x, y, z, out uint data) == this && CanDestroy(x, y, z, data, entity))
             {
-                return Destroy(entity, x, y, z, data);
+                DoDestroy(x, y, z, data, entity);
+                return true;
             }
             else
             {
@@ -202,11 +195,14 @@ namespace VoxelGame.Core.Logic
             }
         }
 
-        protected virtual bool Destroy(Entities.PhysicsEntity? entity, int x, int y, int z, uint data)
+        internal virtual bool CanDestroy(int x, int y, int z, uint data, Entities.PhysicsEntity? entity)
         {
-            Game.World.SetBlock(Block.Air, 0, x, y, z);
-
             return true;
+        }
+
+        internal virtual void DoDestroy(int x, int y, int z, uint data, Entities.PhysicsEntity? entity)
+        {
+            Game.World.SetDefaultBlock(x, y, z);
         }
 
         /// <summary>

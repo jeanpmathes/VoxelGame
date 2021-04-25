@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class GroundedBlock : BasicBlock, IFlammable
     {
-        public GroundedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true, bool isInteractable = false) :
+        internal GroundedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true, bool isInteractable = false) :
             base(
                 name,
                 namedId,
@@ -29,18 +29,9 @@ namespace VoxelGame.Core.Logic.Blocks
         {
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
         {
-            if (Game.World.HasSolidGround(x, y, z))
-            {
-                Game.World.SetBlock(this, 0, x, y, z);
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return Game.World.HasSolidGround(x, y, z);
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)

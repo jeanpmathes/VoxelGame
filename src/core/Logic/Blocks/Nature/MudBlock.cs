@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private readonly float maxVelocity;
 
-        public MudBlock(string name, string namedId, TextureLayout layout, float maxVelocity) :
+        internal MudBlock(string name, string namedId, TextureLayout layout, float maxVelocity) :
             base(
                 name,
                 namedId,

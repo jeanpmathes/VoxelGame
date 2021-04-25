@@ -34,7 +34,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public bool RenderLiquid => false;
 
-        public PipeBlock(string name, string namedId, float diameter, string centerModel, string connectorModel, string surfaceModel) :
+        internal PipeBlock(string name, string namedId, float diameter, string centerModel, string connectorModel, string surfaceModel) :
             base(
                 name,
                 namedId,
@@ -64,20 +64,20 @@ namespace VoxelGame.Core.Logic.Blocks
             surface.Lock();
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected override BoundingBox GetBoundingBox(uint data)
         {
             List<BoundingBox> connectors = new List<BoundingBox>(BitHelper.CountSetBits(data));
 
             float connectorWidth = (0.5f - diameter) / 2f;
 
-            if ((data & 0b10_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 1f - connectorWidth + z), new Vector3(diameter, diameter, connectorWidth)));
-            if ((data & 0b01_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 0.5f + y, connectorWidth + z), new Vector3(diameter, diameter, connectorWidth)));
-            if ((data & 0b00_1000) != 0) connectors.Add(new BoundingBox(new Vector3(connectorWidth + x, 0.5f + y, 0.5f + z), new Vector3(connectorWidth, diameter, diameter)));
-            if ((data & 0b00_0100) != 0) connectors.Add(new BoundingBox(new Vector3(1f - connectorWidth + x, 0.5f + y, 0.5f + z), new Vector3(connectorWidth, diameter, diameter)));
-            if ((data & 0b00_0010) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, connectorWidth + y, 0.5f + z), new Vector3(diameter, connectorWidth, diameter)));
-            if ((data & 0b00_0001) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f + x, 1f - connectorWidth + y, 0.5f + z), new Vector3(diameter, connectorWidth, diameter)));
+            if ((data & 0b10_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f, 0.5f, 1f - connectorWidth), new Vector3(diameter, diameter, connectorWidth)));
+            if ((data & 0b01_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f, 0.5f, connectorWidth), new Vector3(diameter, diameter, connectorWidth)));
+            if ((data & 0b00_1000) != 0) connectors.Add(new BoundingBox(new Vector3(connectorWidth, 0.5f, 0.5f), new Vector3(connectorWidth, diameter, diameter)));
+            if ((data & 0b00_0100) != 0) connectors.Add(new BoundingBox(new Vector3(1f - connectorWidth, 0.5f, 0.5f), new Vector3(connectorWidth, diameter, diameter)));
+            if ((data & 0b00_0010) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f, connectorWidth, 0.5f), new Vector3(diameter, connectorWidth, diameter)));
+            if ((data & 0b00_0001) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f, 1f - connectorWidth, 0.5f), new Vector3(diameter, connectorWidth, diameter)));
 
-            return new BoundingBox(new Vector3(0.5f + x, 0.5f + y, 0.5f + z), new Vector3(diameter, diameter, diameter), connectors.ToArray());
+            return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(diameter, diameter, diameter), connectors.ToArray());
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
@@ -93,15 +93,13 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
         {
             uint data = GetConnectionData(x, y, z);
 
             OpenOpposingSide(ref data);
 
             Game.World.SetBlock(this, data, x, y, z);
-
-            return true;
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)

@@ -25,7 +25,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly string texture;
         private int second, third, fourth, fifth, sixth, final, dead;
 
-        public CropBlock(string name, string namedId, string texture, int second, int third, int fourth, int fifth, int sixth, int final, int dead) :
+        internal CropBlock(string name, string namedId, string texture, int second, int third, int fourth, int fifth, int sixth, int final, int dead) :
             base(
                 name,
                 namedId,
@@ -139,34 +139,34 @@ namespace VoxelGame.Core.Logic.Blocks
             };
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected override BoundingBox GetBoundingBox(uint data)
         {
             switch ((GrowthStage)(data & 0b00_0111))
             {
                 case GrowthStage.Initial:
                 case GrowthStage.Dead:
-                    return BoundingBox.BlockAt(3, x, y, z);
+                    return BoundingBox.BlockWithHeight(3);
 
                 case GrowthStage.Second:
-                    return BoundingBox.BlockAt(5, x, y, z);
+                    return BoundingBox.BlockWithHeight(5);
 
                 case GrowthStage.Third:
-                    return BoundingBox.BlockAt(7, x, y, z);
+                    return BoundingBox.BlockWithHeight(7);
 
                 case GrowthStage.Fourth:
-                    return BoundingBox.BlockAt(9, x, y, z);
+                    return BoundingBox.BlockWithHeight(9);
 
                 case GrowthStage.Fifth:
-                    return BoundingBox.BlockAt(11, x, y, z);
+                    return BoundingBox.BlockWithHeight(11);
 
                 case GrowthStage.Sixth:
-                    return BoundingBox.BlockAt(13, x, y, z);
+                    return BoundingBox.BlockWithHeight(13);
 
                 case GrowthStage.Final:
-                    return BoundingBox.BlockAt(15, x, y, z);
+                    return BoundingBox.BlockWithHeight(15);
             }
 
-            return BoundingBox.BlockAt(x, y, z);
+            return BoundingBox.Block;
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
@@ -181,16 +181,14 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData(24, vertices, textureIndices, indices);
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
         {
-            if (!(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
-            {
-                return false;
-            }
+            return Game.World.GetBlock(x, y - 1, z, out _) is IPlantable;
+        }
 
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        {
             Game.World.SetBlock(this, (uint)GrowthStage.Initial, x, y, z);
-
-            return true;
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)

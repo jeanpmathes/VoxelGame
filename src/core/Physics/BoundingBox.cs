@@ -83,6 +83,17 @@ namespace VoxelGame.Core.Physics
         }
 
         /// <summary>
+        /// Get a <see cref="BoundingBox"/> with a set height.
+        /// </summary>
+        /// <param name="height">The height of the bounding box, should be a value between 0 and 15.</param>
+        /// <returns>The bounding box.</returns>
+        public static BoundingBox BlockWithHeight(int height)
+        {
+            float halfHeight = (height + 1) * 0.03125f;
+            return new BoundingBox(new Vector3(0.5f, halfHeight, 0.5f), new Vector3(0.5f, halfHeight, 0.5f));
+        }
+
+        /// <summary>
         /// Returns a translated copy of this <see cref="BoundingBox"/>.
         /// </summary>
         /// <param name="x">The x position.</param>

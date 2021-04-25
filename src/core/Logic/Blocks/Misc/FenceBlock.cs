@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public class FenceBlock : ConnectingBlock, IFlammable
     {
-        public FenceBlock(string name, string namedId, string texture, string post, string extension) :
+        internal FenceBlock(string name, string namedId, string texture, string post, string extension) :
             base(
                 name,
                 namedId,
@@ -30,7 +30,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
         }
 
-        protected override BoundingBox GetBoundingBox(int x, int y, int z, uint data)
+        protected override BoundingBox GetBoundingBox(uint data)
         {
             bool north = (data & 0b00_1000) != 0;
             bool east = (data & 0b00_0100) != 0;
@@ -44,32 +44,32 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if (north)
             {
-                children[extensions] = new BoundingBox(new Vector3(0.5f, 0.28125f, 0.15625f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.15625f));
-                children[extensions + 1] = new BoundingBox(new Vector3(0.5f, 0.71875f, 0.15625f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.15625f));
+                children[extensions] = new BoundingBox(new Vector3(0.5f, 0.28125f, 0.15625f), new Vector3(0.125f, 0.15625f, 0.15625f));
+                children[extensions + 1] = new BoundingBox(new Vector3(0.5f, 0.71875f, 0.15625f), new Vector3(0.125f, 0.15625f, 0.15625f));
                 extensions += 2;
             }
 
             if (east)
             {
-                children[extensions] = new BoundingBox(new Vector3(0.84375f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.15625f, 0.15625f, 0.125f));
-                children[extensions + 1] = new BoundingBox(new Vector3(0.84375f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.15625f, 0.15625f, 0.125f));
+                children[extensions] = new BoundingBox(new Vector3(0.84375f, 0.28125f, 0.5f), new Vector3(0.15625f, 0.15625f, 0.125f));
+                children[extensions + 1] = new BoundingBox(new Vector3(0.84375f, 0.71875f, 0.5f), new Vector3(0.15625f, 0.15625f, 0.125f));
                 extensions += 2;
             }
 
             if (south)
             {
-                children[extensions] = new BoundingBox(new Vector3(0.5f, 0.28125f, 0.84375f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.15625f));
-                children[extensions + 1] = new BoundingBox(new Vector3(0.5f, 0.71875f, 0.84375f) + new Vector3(x, y, z), new Vector3(0.125f, 0.15625f, 0.15625f));
+                children[extensions] = new BoundingBox(new Vector3(0.5f, 0.28125f, 0.84375f), new Vector3(0.125f, 0.15625f, 0.15625f));
+                children[extensions + 1] = new BoundingBox(new Vector3(0.5f, 0.71875f, 0.84375f), new Vector3(0.125f, 0.15625f, 0.15625f));
                 extensions += 2;
             }
 
             if (west)
             {
-                children[extensions] = new BoundingBox(new Vector3(0.15625f, 0.28125f, 0.5f) + new Vector3(x, y, z), new Vector3(0.15625f, 0.15625f, 0.125f));
-                children[extensions + 1] = new BoundingBox(new Vector3(0.15625f, 0.71875f, 0.5f) + new Vector3(x, y, z), new Vector3(0.15625f, 0.15625f, 0.125f));
+                children[extensions] = new BoundingBox(new Vector3(0.15625f, 0.28125f, 0.5f), new Vector3(0.15625f, 0.15625f, 0.125f));
+                children[extensions + 1] = new BoundingBox(new Vector3(0.15625f, 0.71875f, 0.5f), new Vector3(0.15625f, 0.15625f, 0.125f));
             }
 
-            return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f) + new Vector3(x, y, z), new Vector3(0.1875f, 0.5f, 0.1875f), children);
+            return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.1875f, 0.5f, 0.1875f), children);
         }
     }
 }

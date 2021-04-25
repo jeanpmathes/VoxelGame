@@ -27,7 +27,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly string bottomTexture;
         private readonly int topTexOffset;
 
-        public DoubleCrossPlantBlock(string name, string namedId, string bottomTexture, int topTexOffset, BoundingBox boundingBox) :
+        internal DoubleCrossPlantBlock(string name, string namedId, string bottomTexture, int topTexOffset, BoundingBox boundingBox) :
             base(
                 name,
                 namedId,
@@ -92,27 +92,23 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData(8, vertices, ((info.Data & 0b1) == 0) ? bottomTexIndices : topTexIndices, indices, TintColor.Neutral);
         }
 
-        protected override bool Place(PhysicsEntity? entity, int x, int y, int z)
+        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
         {
-            if (Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable != true || !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
-            {
-                return false;
-            }
-
-            Game.World.SetBlock(this, 0, x, y, z);
-            Game.World.SetBlock(this, 1, x, y + 1, z);
-
-            return true;
+            return Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true && (Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable;
         }
 
-        protected override bool Destroy(PhysicsEntity? entity, int x, int y, int z, uint data)
+        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        {
+            Game.World.SetBlock(this, 0, x, y, z);
+            Game.World.SetBlock(this, 1, x, y + 1, z);
+        }
+
+        internal override void DoDestroy(int x, int y, int z, uint data, PhysicsEntity? entity)
         {
             bool isBase = (data & 0b1) == 0;
 
-            Game.World.SetBlock(Block.Air, 0, x, y, z);
-            Game.World.SetBlock(Block.Air, 0, x, y + (isBase ? 1 : -1), z);
-
-            return true;
+            Game.World.SetDefaultBlock(x, y, z);
+            Game.World.SetDefaultBlock(x, y + (isBase ? 1 : -1), z);
         }
 
         internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
