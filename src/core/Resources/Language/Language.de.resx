@@ -210,6 +210,9 @@
   <data name="Gravel" xml:space="preserve">
     <value>Kies</value>
   </data>
+  <data name="Honey" xml:space="preserve">
+    <value>Honig</value>
+  </data>
   <data name="InputNotValid" xml:space="preserve">
     <value>Eingabe nicht gültig!</value>
   </data>

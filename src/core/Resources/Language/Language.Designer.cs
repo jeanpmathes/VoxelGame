@@ -340,6 +340,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Honey.
+        /// </summary>
+        public static string Honey {
+            get {
+                return ResourceManager.GetString("Honey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Input not valid!.
         /// </summary>
         public static string InputNotValid {
