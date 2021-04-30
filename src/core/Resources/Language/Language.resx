@@ -276,6 +276,9 @@
   <data name="PavingStone" xml:space="preserve">
     <value>Paving Stone</value>
   </data>
+  <data name="Petrol" xml:space="preserve">
+    <value>Petrol</value>
+  </data>
   <data name="Potatoes" xml:space="preserve">
     <value>Potatoes</value>
   </data>

@@ -538,6 +538,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Petrol.
+        /// </summary>
+        public static string Petrol {
+            get {
+                return ResourceManager.GetString("Petrol", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Potatoes.
         /// </summary>
         public static string Potatoes {

@@ -276,6 +276,9 @@
   <data name="PavingStone" xml:space="preserve">
     <value>Pflasterstein</value>
   </data>
+  <data name="Petrol" xml:space="preserve">
+    <value>Benzin</value>
+  </data>
   <data name="Potatoes" xml:space="preserve">
     <value>Kartoffeln</value>
   </data>
