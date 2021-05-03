@@ -375,6 +375,9 @@
   <data name="Wheat" xml:space="preserve">
     <value>Weizen</value>
   </data>
+  <data name="Wine" xml:space="preserve">
+    <value>Wein</value>
+  </data>
   <data name="Wood" xml:space="preserve">
     <value>Holz</value>
   </data>
