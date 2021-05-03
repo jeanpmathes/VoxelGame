@@ -21,6 +21,9 @@ namespace VoxelGame.Core.Logic
                 case (nameof(Liquid.Lava), nameof(Liquid.Water)) or (nameof(Liquid.Water), nameof(Liquid.Lava)):
                 case (nameof(Liquid.Milk), nameof(Liquid.Lava)) or (nameof(Liquid.Lava), nameof(Liquid.Milk)):
                 case (nameof(Liquid.Lava), nameof(Liquid.Concrete)) or (nameof(Liquid.Concrete), nameof(Liquid.Lava)):
+                case (nameof(Liquid.Lava), nameof(Liquid.Beer)) or (nameof(Liquid.Beer), nameof(Liquid.Lava)):
+                case (nameof(Liquid.Lava), nameof(Liquid.Wine)) or (nameof(Liquid.Wine), nameof(Liquid.Lava)):
+                case (nameof(Liquid.Lava), nameof(Liquid.Honey)) or (nameof(Liquid.Honey), nameof(Liquid.Lava)):
                     return LavaCooling(a, posA, levelA, posB, levelB);
 
                 case (nameof(Liquid.Lava), nameof(Liquid.CrudeOil)) or (nameof(Liquid.CrudeOil), nameof(Liquid.Lava)):
@@ -29,6 +32,8 @@ namespace VoxelGame.Core.Logic
 
                 case (nameof(Liquid.Concrete), nameof(Liquid.Water)) or (nameof(Liquid.Water), nameof(Liquid.Concrete)):
                 case (nameof(Liquid.Milk), nameof(Liquid.Concrete)) or (nameof(Liquid.Concrete), nameof(Liquid.Milk)):
+                case (nameof(Liquid.Beer), nameof(Liquid.Concrete)) or (nameof(Liquid.Concrete), nameof(Liquid.Beer)):
+                case (nameof(Liquid.Wine), nameof(Liquid.Concrete)) or (nameof(Liquid.Concrete), nameof(Liquid.Wine)):
                     return ConcreteDissolve(a, posA, levelA, b, posB, levelB, isStaticB);
 
                 default: return DensitySwap(a, posA, levelA, b, posB, levelB);
