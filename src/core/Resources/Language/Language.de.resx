@@ -135,6 +135,9 @@
   <data name="Bed" xml:space="preserve">
     <value>Bett</value>
   </data>
+  <data name="Beer" xml:space="preserve">
+    <value>Bier</value>
+  </data>
   <data name="Block" xml:space="preserve">
     <value>Block</value>
   </data>

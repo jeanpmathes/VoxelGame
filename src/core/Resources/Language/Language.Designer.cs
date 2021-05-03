@@ -115,6 +115,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Beer.
+        /// </summary>
+        public static string Beer {
+            get {
+                return ResourceManager.GetString("Beer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Block.
         /// </summary>
         public static string Block {

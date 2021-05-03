@@ -35,6 +35,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Liquid Honey = new BasicLiquid(Language.Honey, nameof(Honey), 1450f, 20 * mPas, false, TextureLayout.Liquid("honey_moving_side", "honey_moving"), TextureLayout.Liquid("honey_static_side", "honey_static"), RenderType.Transparent);
         public static readonly Liquid Petrol = new BasicLiquid(Language.Petrol, nameof(Petrol), 740f, (int)(0.9 * mPas), false, TextureLayout.Liquid("petrol_moving_side", "petrol_moving"), TextureLayout.Liquid("petrol_static_side", "petrol_static"), RenderType.Transparent);
         public static readonly Liquid Wine = new BasicLiquid(Language.Wine, nameof(Wine), 1090f, (int)(1.4 * mPas), false, TextureLayout.Liquid("wine_moving_side", "wine_moving"), TextureLayout.Liquid("wine_static_side", "wine_static"), RenderType.Transparent);
+        public static readonly Liquid Beer = new BasicLiquid(Language.Beer, nameof(Beer), 1030f, (int)(1.5 * mPas), false, TextureLayout.Liquid("beer_moving_side", "beer_moving"), TextureLayout.Liquid("beer_static_side", "beer_static"), RenderType.Transparent);
 
         /// <summary>
         /// Translates a liquid ID to a reference to the liquid that has that ID. If the ID is not valid, none is returned.
