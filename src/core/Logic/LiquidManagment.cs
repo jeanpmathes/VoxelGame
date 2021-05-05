@@ -37,6 +37,8 @@ namespace VoxelGame.Core.Logic
         public static readonly Liquid Wine = new BasicLiquid(Language.Wine, nameof(Wine), 1090f, (int)(1.4 * mPas), false, TextureLayout.Liquid("wine_moving_side", "wine_moving"), TextureLayout.Liquid("wine_static_side", "wine_static"), RenderType.Transparent);
         public static readonly Liquid Beer = new BasicLiquid(Language.Beer, nameof(Beer), 1030f, (int)(1.5 * mPas), false, TextureLayout.Liquid("beer_moving_side", "beer_moving"), TextureLayout.Liquid("beer_static_side", "beer_static"), RenderType.Transparent);
 
+        protected static readonly LiquidContactManager ContactManager = new LiquidContactManager();
+
         /// <summary>
         /// Translates a liquid ID to a reference to the liquid that has that ID. If the ID is not valid, none is returned.
         /// </summary>

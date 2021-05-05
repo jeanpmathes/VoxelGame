@@ -10,9 +10,9 @@ using VoxelGame.Core.Logic.Interfaces;
 
 namespace VoxelGame.Core.Logic
 {
-    public static class LiquidContactManager
+    public class LiquidContactManager
     {
-        public static bool HandleContact(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB, bool isStaticB)
+        public bool HandleContact(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB, bool isStaticB)
         {
             Debug.Assert(a != b);
 
@@ -40,7 +40,7 @@ namespace VoxelGame.Core.Logic
             }
         }
 
-        private static bool LavaCooling(Liquid a, Vector3i posA, LiquidLevel levelA, Vector3i posB, LiquidLevel levelB)
+        private bool LavaCooling(Liquid a, Vector3i posA, LiquidLevel levelA, Vector3i posB, LiquidLevel levelB)
         {
             Vector3i lavaPos;
             Vector3i coolantPos;
@@ -73,7 +73,7 @@ namespace VoxelGame.Core.Logic
             return true;
         }
 
-        private static bool LavaBurn(Liquid a, Vector3i posA, Liquid b, Vector3i posB, bool isStaticB)
+        private bool LavaBurn(Liquid a, Vector3i posA, Liquid b, Vector3i posB, bool isStaticB)
         {
             Liquid lava;
             Vector3i lavaPos;
@@ -103,7 +103,7 @@ namespace VoxelGame.Core.Logic
             return true;
         }
 
-        private static bool DensitySwap(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB)
+        private bool DensitySwap(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB)
         {
             if (posA.Y == posB.Y) return DensityLift(a, posA, levelA, b, posB, levelB);
 
@@ -121,7 +121,7 @@ namespace VoxelGame.Core.Logic
             return true;
         }
 
-        private static bool DensityLift(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB)
+        private bool DensityLift(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB)
         {
             Liquid dense;
             Vector3i densePos;
@@ -175,7 +175,7 @@ namespace VoxelGame.Core.Logic
             return false;
         }
 
-        private static bool ConcreteDissolve(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB, bool isStaticB)
+        private bool ConcreteDissolve(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB, bool isStaticB)
         {
             LiquidLevel concreteLevel;
             Liquid other;
