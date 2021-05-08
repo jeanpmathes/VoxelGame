@@ -45,19 +45,7 @@ namespace VoxelGame.Core.Logic
 
         private bool LavaCooling(ContactInformation a, ContactInformation b)
         {
-            ContactInformation lava;
-            ContactInformation coolant;
-
-            if (a.liquid == Liquid.Lava)
-            {
-                lava = a;
-                coolant = b;
-            }
-            else
-            {
-                lava = b;
-                coolant = a;
-            }
+            Select(a, b, Liquid.Lava, out ContactInformation lava, out ContactInformation coolant);
 
             Block lavaBlock = Game.World.GetBlock(lava.position.X, lava.position.Y, lava.position.Z, out _) ?? Block.Air;
 
@@ -75,19 +63,7 @@ namespace VoxelGame.Core.Logic
 
         private bool LavaBurn(ContactInformation a, ContactInformation b)
         {
-            ContactInformation lava;
-            ContactInformation burned;
-
-            if (a.liquid == Liquid.Lava)
-            {
-                lava = a;
-                burned = b;
-            }
-            else
-            {
-                lava = b;
-                burned = a;
-            }
+            Select(a, b, Liquid.Lava, out ContactInformation lava, out ContactInformation burned);
 
             lava.liquid.TickSoon(lava.position.X, lava.position.Y, lava.position.Z, lava.isStatic);
 
@@ -155,19 +131,7 @@ namespace VoxelGame.Core.Logic
 
         private bool ConcreteDissolve(ContactInformation a, ContactInformation b)
         {
-            ContactInformation concrete;
-            ContactInformation other;
-
-            if (a.liquid == Liquid.Concrete)
-            {
-                concrete = a;
-                other = b;
-            }
-            else
-            {
-                concrete = b;
-                other = a;
-            }
+            Select(a, b, Liquid.Concrete, out ContactInformation concrete, out ContactInformation other);
 
             other.liquid.TickSoon(other.position.X, other.position.Y, other.position.Z, other.isStatic);
 
@@ -175,6 +139,20 @@ namespace VoxelGame.Core.Logic
             Liquid.Water.TickSoon(concrete.position.X, concrete.position.Y, concrete.position.Z, true);
 
             return true;
+        }
+
+        private static void Select(ContactInformation a, ContactInformation b, Liquid liquid, out ContactInformation selected, out ContactInformation other)
+        {
+            if (a.liquid == liquid)
+            {
+                selected = a;
+                other = b;
+            }
+            else
+            {
+                selected = b;
+                other = a;
+            }
         }
 
         private readonly struct ContactInformation
