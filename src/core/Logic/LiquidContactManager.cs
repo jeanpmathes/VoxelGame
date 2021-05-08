@@ -12,11 +12,14 @@ namespace VoxelGame.Core.Logic
 {
     public class LiquidContactManager
     {
-        public bool HandleContact(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB, bool isStaticB)
+        public bool HandleContact(Liquid liquidA, Vector3i posA, LiquidLevel levelA, Liquid liquidB, Vector3i posB, LiquidLevel levelB, bool isStaticB)
         {
-            Debug.Assert(a != b);
+            Debug.Assert(liquidA != liquidB);
 
-            switch ((a.NamedId, b.NamedId))
+            var a = new ContactInformation(liquidA, posA, levelA);
+            var b = new ContactInformation(liquidB, posB, levelB, isStaticB);
+
+            switch ((liquidA.NamedId, liquidB.NamedId))
             {
                 case (nameof(Liquid.Lava), nameof(Liquid.Water)) or (nameof(Liquid.Water), nameof(Liquid.Lava)):
                 case (nameof(Liquid.Milk), nameof(Liquid.Lava)) or (nameof(Liquid.Lava), nameof(Liquid.Milk)):
@@ -24,150 +27,125 @@ namespace VoxelGame.Core.Logic
                 case (nameof(Liquid.Lava), nameof(Liquid.Beer)) or (nameof(Liquid.Beer), nameof(Liquid.Lava)):
                 case (nameof(Liquid.Lava), nameof(Liquid.Wine)) or (nameof(Liquid.Wine), nameof(Liquid.Lava)):
                 case (nameof(Liquid.Lava), nameof(Liquid.Honey)) or (nameof(Liquid.Honey), nameof(Liquid.Lava)):
-                    return LavaCooling(a, posA, levelA, posB, levelB);
+                    return LavaCooling(a, b);
 
                 case (nameof(Liquid.Lava), nameof(Liquid.CrudeOil)) or (nameof(Liquid.CrudeOil), nameof(Liquid.Lava)):
                 case (nameof(Liquid.Lava), nameof(Liquid.NaturalGas)) or (nameof(Liquid.NaturalGas), nameof(Liquid.Lava)):
-                    return LavaBurn(a, posA, b, posB, isStaticB);
+                    return LavaBurn(a, b);
 
                 case (nameof(Liquid.Concrete), nameof(Liquid.Water)) or (nameof(Liquid.Water), nameof(Liquid.Concrete)):
                 case (nameof(Liquid.Milk), nameof(Liquid.Concrete)) or (nameof(Liquid.Concrete), nameof(Liquid.Milk)):
                 case (nameof(Liquid.Beer), nameof(Liquid.Concrete)) or (nameof(Liquid.Concrete), nameof(Liquid.Beer)):
                 case (nameof(Liquid.Wine), nameof(Liquid.Concrete)) or (nameof(Liquid.Concrete), nameof(Liquid.Wine)):
-                    return ConcreteDissolve(a, posA, levelA, b, posB, levelB, isStaticB);
+                    return ConcreteDissolve(a, b);
 
-                default: return DensitySwap(a, posA, levelA, b, posB, levelB);
+                default: return DensitySwap(a, b);
             }
         }
 
-        private bool LavaCooling(Liquid a, Vector3i posA, LiquidLevel levelA, Vector3i posB, LiquidLevel levelB)
+        private bool LavaCooling(ContactInformation a, ContactInformation b)
         {
-            Vector3i lavaPos;
-            Vector3i coolantPos;
-            LiquidLevel coolantLevel;
+            ContactInformation lava;
+            ContactInformation coolant;
 
-            if (a == Liquid.Lava)
-            {
-                lavaPos = posA;
-                coolantPos = posB;
-                coolantLevel = levelB;
-            }
-            else
-            {
-                lavaPos = posB;
-                coolantPos = posA;
-                coolantLevel = levelA;
-            }
-
-            Block lavaBlock = Game.World.GetBlock(lavaPos.X, lavaPos.Y, lavaPos.Z, out _) ?? Block.Air;
-
-            if (lavaBlock.IsReplaceable || lavaBlock.Destroy(lavaPos.X, lavaPos.Y, lavaPos.Z))
-            {
-                Game.World.SetPosition(Block.Pumice, 0, Liquid.None, LiquidLevel.Eight, true, lavaPos.X, lavaPos.Y, lavaPos.Z);
-            }
-
-            Game.World.SetLiquid(Liquid.Steam, coolantLevel, false, coolantPos.X, coolantPos.Y, coolantPos.Z);
-
-            Liquid.Steam.TickSoon(coolantPos.X, coolantPos.Y, coolantPos.Z, true);
-
-            return true;
-        }
-
-        private bool LavaBurn(Liquid a, Vector3i posA, Liquid b, Vector3i posB, bool isStaticB)
-        {
-            Liquid lava;
-            Vector3i lavaPos;
-            Vector3i burnedPos;
-            bool tickLava;
-
-            if (a == Liquid.Lava)
+            if (a.liquid == Liquid.Lava)
             {
                 lava = a;
-                lavaPos = posA;
-                burnedPos = posB;
-                tickLava = true;
+                coolant = b;
             }
             else
             {
                 lava = b;
-                lavaPos = posB;
-                burnedPos = posA;
-                tickLava = isStaticB;
+                coolant = a;
             }
 
-            lava.TickSoon(lavaPos.X, lavaPos.Y, lavaPos.Z, tickLava);
+            Block lavaBlock = Game.World.GetBlock(lava.position.X, lava.position.Y, lava.position.Z, out _) ?? Block.Air;
 
-            Game.World.SetDefaultLiquid(burnedPos.X, burnedPos.Y, burnedPos.Z);
-            Block.Fire.Place(burnedPos.X, burnedPos.Y, burnedPos.Z);
+            if (lavaBlock.IsReplaceable || lavaBlock.Destroy(lava.position.X, lava.position.Y, lava.position.Z))
+            {
+                Game.World.SetPosition(Block.Pumice, 0, Liquid.None, LiquidLevel.Eight, true, lava.position.X, lava.position.Y, lava.position.Z);
+            }
 
-            return true;
-        }
+            Game.World.SetLiquid(Liquid.Steam, coolant.level, false, coolant.position.X, coolant.position.Y, coolant.position.Z);
 
-        private bool DensitySwap(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB)
-        {
-            if (posA.Y == posB.Y) return DensityLift(a, posA, levelA, b, posB, levelB);
-
-            if ((posA.Y <= posB.Y || a.Density <= b.Density) &&
-                (posA.Y >= posB.Y || a.Density >= b.Density)) return false;
-
-            Game.World.SetLiquid(a, levelA, false, posB.X, posB.Y, posB.Z);
-
-            a.TickSoon(posB.X, posB.Y, posB.Z, true);
-
-            Game.World.SetLiquid(b, levelB, false, posA.X, posA.Y, posA.Z);
-
-            b.TickSoon(posA.X, posA.Y, posA.Z, true);
+            Liquid.Steam.TickSoon(coolant.position.X, coolant.position.Y, coolant.position.Z, true);
 
             return true;
         }
 
-        private bool DensityLift(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB)
+        private bool LavaBurn(ContactInformation a, ContactInformation b)
         {
-            Liquid dense;
-            Vector3i densePos;
-            LiquidLevel denseLevel;
-            Liquid light;
-            Vector3i lightPos;
-            LiquidLevel lightLevel;
+            ContactInformation lava;
+            ContactInformation burned;
 
-            if (a.Density > b.Density)
+            if (a.liquid == Liquid.Lava)
+            {
+                lava = a;
+                burned = b;
+            }
+            else
+            {
+                lava = b;
+                burned = a;
+            }
+
+            lava.liquid.TickSoon(lava.position.X, lava.position.Y, lava.position.Z, lava.isStatic);
+
+            Game.World.SetDefaultLiquid(burned.position.X, burned.position.Y, burned.position.Z);
+            Block.Fire.Place(burned.position.X, burned.position.Y, burned.position.Z);
+
+            return true;
+        }
+
+        private bool DensitySwap(ContactInformation a, ContactInformation b)
+        {
+            if (a.position.Y == b.position.Y) return DensityLift(a, b);
+
+            if ((a.position.Y <= b.position.Y || a.liquid.Density <= b.liquid.Density) &&
+                (a.position.Y >= b.position.Y || a.liquid.Density >= b.liquid.Density)) return false;
+
+            Game.World.SetLiquid(a.liquid, a.level, false, b.position.X, b.position.Y, b.position.Z);
+
+            a.liquid.TickSoon(b.position.X, b.position.Y, b.position.Z, true);
+
+            Game.World.SetLiquid(b.liquid, b.level, false, a.position.X, a.position.Y, a.position.Z);
+
+            b.liquid.TickSoon(a.position.X, a.position.Y, a.position.Z, true);
+
+            return true;
+        }
+
+        private bool DensityLift(ContactInformation a, ContactInformation b)
+        {
+            ContactInformation dense;
+            ContactInformation light;
+
+            if (a.liquid.Density > b.liquid.Density)
             {
                 dense = a;
                 light = b;
-
-                densePos = posA;
-                lightPos = posB;
-
-                denseLevel = levelA;
-                lightLevel = levelB;
             }
             else
             {
                 dense = b;
                 light = a;
-
-                densePos = posB;
-                lightPos = posA;
-
-                denseLevel = levelB;
-                lightLevel = levelA;
             }
 
-            if (denseLevel == LiquidLevel.One) return false;
+            if (dense.level == LiquidLevel.One) return false;
 
-            (Block? aboveLightBlock, Liquid? aboveLightLiquid) = Game.World.GetPosition(lightPos.X, lightPos.Y + light.Direction, lightPos.Z, out _, out _, out _);
+            (Block? aboveLightBlock, Liquid? aboveLightLiquid) = Game.World.GetPosition(light.position.X, light.position.Y + light.liquid.Direction, light.position.Z, out _, out _, out _);
 
-            if (aboveLightBlock is IFillable fillable && fillable.AllowInflow(lightPos.X, lightPos.Y + light.Direction, lightPos.Z, light.Direction > 0 ? BlockSide.Bottom : BlockSide.Top, light)
+            if (aboveLightBlock is IFillable fillable && fillable.AllowInflow(light.position.X, light.position.Y + light.liquid.Direction, light.position.Z, light.liquid.Direction > 0 ? BlockSide.Bottom : BlockSide.Top, light.liquid)
                                                       && aboveLightLiquid == Liquid.None)
             {
-                Game.World.SetLiquid(light, lightLevel, true, lightPos.X, lightPos.Y + light.Direction, lightPos.Z);
-                light.TickSoon(lightPos.X, lightPos.Y + light.Direction, lightPos.Z, true);
+                Game.World.SetLiquid(light.liquid, light.level, true, light.position.X, light.position.Y + light.liquid.Direction, light.position.Z);
+                light.liquid.TickSoon(light.position.X, light.position.Y + light.liquid.Direction, light.position.Z, true);
 
-                Game.World.SetLiquid(dense, LiquidLevel.One, true, lightPos.X, lightPos.Y, lightPos.Z);
-                dense.TickSoon(lightPos.X, lightPos.Y, lightPos.Z, true);
+                Game.World.SetLiquid(dense.liquid, LiquidLevel.One, true, light.position.X, light.position.Y, light.position.Z);
+                dense.liquid.TickSoon(light.position.X, light.position.Y, light.position.Z, true);
 
-                Game.World.SetLiquid(dense, denseLevel - 1, true, densePos.X, densePos.Y, densePos.Z);
-                dense.TickSoon(densePos.X, densePos.Y, densePos.Z, true);
+                Game.World.SetLiquid(dense.liquid, dense.level - 1, true, dense.position.X, dense.position.Y, dense.position.Z);
+                dense.liquid.TickSoon(dense.position.X, dense.position.Y, dense.position.Z, true);
 
                 return true;
             }
@@ -175,37 +153,44 @@ namespace VoxelGame.Core.Logic
             return false;
         }
 
-        private bool ConcreteDissolve(Liquid a, Vector3i posA, LiquidLevel levelA, Liquid b, Vector3i posB, LiquidLevel levelB, bool isStaticB)
+        private bool ConcreteDissolve(ContactInformation a, ContactInformation b)
         {
-            LiquidLevel concreteLevel;
-            Liquid other;
-            Vector3i concretePos;
-            Vector3i otherPos;
-            bool tickOther;
+            ContactInformation concrete;
+            ContactInformation other;
 
-            if (a == Liquid.Concrete)
+            if (a.liquid == Liquid.Concrete)
             {
-                concreteLevel = levelA;
+                concrete = a;
                 other = b;
-                concretePos = posA;
-                otherPos = posB;
-                tickOther = isStaticB;
             }
             else
             {
-                concreteLevel = levelB;
+                concrete = b;
                 other = a;
-                concretePos = posB;
-                otherPos = posA;
-                tickOther = true;
             }
 
-            other.TickSoon(otherPos.X, otherPos.Y, otherPos.Z, tickOther);
+            other.liquid.TickSoon(other.position.X, other.position.Y, other.position.Z, other.isStatic);
 
-            Game.World.SetLiquid(Liquid.Water, concreteLevel, true, concretePos.X, concretePos.Y, concretePos.Z);
-            Liquid.Water.TickSoon(concretePos.X, concretePos.Y, concretePos.Z, true);
+            Game.World.SetLiquid(Liquid.Water, concrete.level, true, concrete.position.X, concrete.position.Y, concrete.position.Z);
+            Liquid.Water.TickSoon(concrete.position.X, concrete.position.Y, concrete.position.Z, true);
 
             return true;
+        }
+
+        private readonly struct ContactInformation
+        {
+            public readonly Liquid liquid;
+            public readonly Vector3i position;
+            public readonly LiquidLevel level;
+            public readonly bool isStatic;
+
+            public ContactInformation(Liquid liquid, Vector3i position, LiquidLevel level, bool isStatic = true)
+            {
+                this.liquid = liquid;
+                this.position = position;
+                this.level = level;
+                this.isStatic = isStatic;
+            }
         }
     }
 }
