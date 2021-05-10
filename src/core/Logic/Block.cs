@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.Diagnostics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -14,7 +15,7 @@ namespace VoxelGame.Core.Logic
     /// <summary>
     /// The basic block class. Blocks are used to construct the world.
     /// </summary>
-    public abstract partial class Block : IBlockBase
+    public abstract partial class Block : IBlockBase, IIdentifiable<uint>, IIdentifiable<string>
     {
         /// <summary>
         /// Gets the block id which can be any value from 0 to 4095.
@@ -119,6 +120,9 @@ namespace VoxelGame.Core.Logic
                 Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
             }
         }
+
+        uint IIdentifiable<uint>.Id => Id;
+        string IIdentifiable<string>.Id => NamedId;
 
         /// <summary>
         /// Called when loading blocks, meant to setup vertex data, indices etc.
