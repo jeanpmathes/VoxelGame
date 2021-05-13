@@ -135,6 +135,9 @@
   <data name="Bed" xml:space="preserve">
     <value>Bed</value>
   </data>
+  <data name="Beer" xml:space="preserve">
+    <value>Beer</value>
+  </data>
   <data name="Block" xml:space="preserve">
     <value>Block</value>
   </data>
@@ -210,6 +213,9 @@
   <data name="Gravel" xml:space="preserve">
     <value>Gravel</value>
   </data>
+  <data name="Honey" xml:space="preserve">
+    <value>Honey</value>
+  </data>
   <data name="InputNotValid" xml:space="preserve">
     <value>Input not valid!</value>
   </data>
@@ -272,6 +278,9 @@
   </data>
   <data name="PavingStone" xml:space="preserve">
     <value>Paving Stone</value>
+  </data>
+  <data name="Petrol" xml:space="preserve">
+    <value>Petrol</value>
   </data>
   <data name="Potatoes" xml:space="preserve">
     <value>Potatoes</value>
@@ -368,6 +377,9 @@
   </data>
   <data name="Wheat" xml:space="preserve">
     <value>Wheat</value>
+  </data>
+  <data name="Wine" xml:space="preserve">
+    <value>Wine</value>
   </data>
   <data name="Wood" xml:space="preserve">
     <value>Wood</value>

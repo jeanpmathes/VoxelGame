@@ -115,6 +115,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Beer.
+        /// </summary>
+        public static string Beer {
+            get {
+                return ResourceManager.GetString("Beer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Block.
         /// </summary>
         public static string Block {
@@ -340,6 +349,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Honey.
+        /// </summary>
+        public static string Honey {
+            get {
+                return ResourceManager.GetString("Honey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Input not valid!.
         /// </summary>
         public static string InputNotValid {
@@ -525,6 +543,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string PavingStone {
             get {
                 return ResourceManager.GetString("PavingStone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Petrol.
+        /// </summary>
+        public static string Petrol {
+            get {
+                return ResourceManager.GetString("Petrol", resourceCulture);
             }
         }
         
@@ -813,6 +840,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Wheat {
             get {
                 return ResourceManager.GetString("Wheat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wine.
+        /// </summary>
+        public static string Wine {
+            get {
+                return ResourceManager.GetString("Wine", resourceCulture);
             }
         }
         

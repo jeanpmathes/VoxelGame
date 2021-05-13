@@ -3,9 +3,11 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using System;
 using System.Diagnostics;
 using OpenToolkit.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -13,7 +15,7 @@ using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic
 {
-    public abstract partial class Liquid
+    public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string>
     {
         /// <summary>
         /// Gets the liquid id which can be any value from 0 to 31.
@@ -97,6 +99,9 @@ namespace VoxelGame.Core.Logic
                 Debug.Fail($"Not more than {LiquidLimit} liquids are allowed.");
             }
         }
+
+        uint IIdentifiable<uint>.Id => Id;
+        string IIdentifiable<string>.Id => NamedId;
 
         /// <summary>
         /// Called when loading liquids, meant to setup vertex data, indices etc.
