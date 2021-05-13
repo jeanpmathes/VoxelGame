@@ -4,14 +4,26 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using OpenToolkit.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Interfaces;
 
 namespace VoxelGame.Core.Logic
 {
     public class LiquidContactManager
     {
+        private readonly CombinationMap<Liquid, ContactAction> map = new CombinationMap<Liquid, ContactAction>(Liquid.Count);
+
+        public LiquidContactManager()
+        {
+            map.AddCombination(Liquid.Lava, ContactAction.LavaCooling, Liquid.Water, Liquid.Milk, Liquid.Concrete, Liquid.Beer, Liquid.Wine, Liquid.Honey);
+            map.AddCombination(Liquid.Lava, ContactAction.LavaBurn, Liquid.CrudeOil, Liquid.NaturalGas);
+            map.AddCombination(Liquid.Concrete, ContactAction.ConcreteDissolve, Liquid.Water, Liquid.Milk, Liquid.Beer, Liquid.Wine);
+        }
+
         public bool HandleContact(Liquid liquidA, Vector3i posA, LiquidLevel levelA, Liquid liquidB, Vector3i posB, LiquidLevel levelB, bool isStaticB)
         {
             Debug.Assert(liquidA != liquidB);
@@ -19,28 +31,22 @@ namespace VoxelGame.Core.Logic
             var a = new ContactInformation(liquidA, posA, levelA);
             var b = new ContactInformation(liquidB, posB, levelB, isStaticB);
 
-            switch ((liquidA.NamedId, liquidB.NamedId))
+            return map.Resolve(a.liquid, b.liquid) switch
             {
-                case (nameof(Liquid.Lava), nameof(Liquid.Water)) or (nameof(Liquid.Water), nameof(Liquid.Lava)):
-                case (nameof(Liquid.Milk), nameof(Liquid.Lava)) or (nameof(Liquid.Lava), nameof(Liquid.Milk)):
-                case (nameof(Liquid.Lava), nameof(Liquid.Concrete)) or (nameof(Liquid.Concrete), nameof(Liquid.Lava)):
-                case (nameof(Liquid.Lava), nameof(Liquid.Beer)) or (nameof(Liquid.Beer), nameof(Liquid.Lava)):
-                case (nameof(Liquid.Lava), nameof(Liquid.Wine)) or (nameof(Liquid.Wine), nameof(Liquid.Lava)):
-                case (nameof(Liquid.Lava), nameof(Liquid.Honey)) or (nameof(Liquid.Honey), nameof(Liquid.Lava)):
-                    return LavaCooling(a, b);
+                ContactAction.Default => DensitySwap(a, b),
+                ContactAction.LavaCooling => LavaCooling(a, b),
+                ContactAction.LavaBurn => LavaBurn(a, b),
+                ContactAction.ConcreteDissolve => ConcreteDissolve(a, b),
+                _ => throw new NotSupportedException()
+            };
+        }
 
-                case (nameof(Liquid.Lava), nameof(Liquid.CrudeOil)) or (nameof(Liquid.CrudeOil), nameof(Liquid.Lava)):
-                case (nameof(Liquid.Lava), nameof(Liquid.NaturalGas)) or (nameof(Liquid.NaturalGas), nameof(Liquid.Lava)):
-                    return LavaBurn(a, b);
-
-                case (nameof(Liquid.Concrete), nameof(Liquid.Water)) or (nameof(Liquid.Water), nameof(Liquid.Concrete)):
-                case (nameof(Liquid.Milk), nameof(Liquid.Concrete)) or (nameof(Liquid.Concrete), nameof(Liquid.Milk)):
-                case (nameof(Liquid.Beer), nameof(Liquid.Concrete)) or (nameof(Liquid.Concrete), nameof(Liquid.Beer)):
-                case (nameof(Liquid.Wine), nameof(Liquid.Concrete)) or (nameof(Liquid.Concrete), nameof(Liquid.Wine)):
-                    return ConcreteDissolve(a, b);
-
-                default: return DensitySwap(a, b);
-            }
+        private enum ContactAction
+        {
+            Default,
+            LavaCooling,
+            LavaBurn,
+            ConcreteDissolve
         }
 
         private bool LavaCooling(ContactInformation a, ContactInformation b)
