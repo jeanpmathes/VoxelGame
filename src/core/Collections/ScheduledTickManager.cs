@@ -3,9 +3,11 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Collections
@@ -18,14 +20,24 @@ namespace VoxelGame.Core.Collections
         private readonly int maxTicks;
         private TicksHolder? nextTicks;
 
-        public ScheduledTickManager(int maxTicks)
+        [NonSerialized] private UpdateCounter updateCounter;
+
+        public ScheduledTickManager(int maxTicks, UpdateCounter updateCounter)
         {
             this.maxTicks = maxTicks;
+            this.updateCounter = updateCounter;
+        }
+
+        public void Setup(UpdateCounter counter)
+        {
+            updateCounter = counter;
+
+            Load();
         }
 
         public void Add(T tick, int tickOffset)
         {
-            long targetUpdate = Game.CurrentUpdate + tickOffset;
+            long targetUpdate = updateCounter.CurrentUpdate + tickOffset;
             TicksHolder ticks = FindOrCreateTargetTick(targetUpdate);
 
             if (ticks.tickables.Count >= maxTicks)
@@ -68,7 +80,7 @@ namespace VoxelGame.Core.Collections
                     }
                     else
                     {
-                        TicksHolder? newTicks = new TicksHolder(targetTick);
+                        var newTicks = new TicksHolder(targetTick);
                         last.next = newTicks;
                         newTicks.next = current;
 
@@ -80,7 +92,7 @@ namespace VoxelGame.Core.Collections
                 current = current.next;
             }
 
-            TicksHolder? newLastTicks = new TicksHolder(targetTick);
+            var newLastTicks = new TicksHolder(targetTick);
             last!.next = newLastTicks;
 
             return newLastTicks;
@@ -88,7 +100,7 @@ namespace VoxelGame.Core.Collections
 
         public void Process()
         {
-            if (nextTicks != null && nextTicks.targetUpdate <= Game.CurrentUpdate)
+            if (nextTicks != null && nextTicks.targetUpdate <= updateCounter.CurrentUpdate)
             {
                 foreach (T scheduledTick in nextTicks.tickables)
                 {
@@ -108,7 +120,7 @@ namespace VoxelGame.Core.Collections
 
             while (current != null)
             {
-                current.targetUpdate -= Game.CurrentUpdate;
+                current.targetUpdate -= updateCounter.CurrentUpdate;
                 current = current.next;
             }
         }
@@ -122,7 +134,7 @@ namespace VoxelGame.Core.Collections
 
             while (current != null)
             {
-                current.targetUpdate += Game.CurrentUpdate;
+                current.targetUpdate += updateCounter.CurrentUpdate;
                 current = current.next;
             }
         }

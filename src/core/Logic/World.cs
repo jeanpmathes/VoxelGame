@@ -12,6 +12,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.WorldGeneration;
 
@@ -22,6 +23,8 @@ namespace VoxelGame.Core.Logic
         private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
         public WorldInformation Information { get; }
+
+        public UpdateCounter UpdateCounter { get; }
 
         protected int MaxGenerationTasks { get; } = Properties.core.Default.MaxGenerationTasks;
         protected int MaxLoadingTasks { get; } = Properties.core.Default.MaxLoadingTasks;
@@ -181,6 +184,8 @@ namespace VoxelGame.Core.Logic
             ChunkDirectory = chunkDirectory;
             this.generator = generator;
 
+            UpdateCounter = new UpdateCounter();
+
             Setup();
         }
 
@@ -313,7 +318,7 @@ namespace VoxelGame.Core.Logic
                             {
                                 if (!positionsToReleaseOnActivation.Remove((loadedChunk.X, loadedChunk.Z)))
                                 {
-                                    loadedChunk.Setup();
+                                    loadedChunk.Setup(UpdateCounter);
                                     activeChunks.Add((x, z), loadedChunk);
 
                                     ProcessNewlyActivatedChunk(loadedChunk);

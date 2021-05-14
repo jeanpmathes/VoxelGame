@@ -52,24 +52,5 @@ namespace VoxelGame.Core
         }
 
         #endregion GENRAL STATIC PROPERTIES
-
-        #region TICK MANAGMENT
-
-        /// <summary>
-        /// The number of the current update cycle. It is incremented every time a new cycle begins.
-        /// </summary>
-        public static long CurrentUpdate { get; private set; }
-
-        public static void IncrementUpdate()
-        {
-            CurrentUpdate++;
-        }
-
-        public static void ResetUpdate()
-        {
-            CurrentUpdate = 0;
-        }
-
-        #endregion TICK MANAGMENT
     }
 }

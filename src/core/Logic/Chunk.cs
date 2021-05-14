@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.WorldGeneration;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic
@@ -47,12 +48,12 @@ namespace VoxelGame.Core.Logic
         private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
         private readonly ScheduledTickManager<Liquid.LiquidTick> liquidTickManager;
 
-        protected Chunk(int x, int z)
+        protected Chunk(int x, int z, UpdateCounter updateCounter)
         {
             X = x;
             Z = z;
 
-            for (int y = 0; y < ChunkHeight; y++)
+            for (var y = 0; y < ChunkHeight; y++)
             {
 #pragma warning disable S1699 // Constructors should only call non-overridable methods
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
@@ -61,8 +62,8 @@ namespace VoxelGame.Core.Logic
 #pragma warning restore S1699 // Constructors should only call non-overridable methods
             }
 
-            blockTickManager = new ScheduledTickManager<Block.BlockTick>(Block.MaxLiquidTicksPerFrameAndChunk);
-            liquidTickManager = new ScheduledTickManager<Liquid.LiquidTick>(Liquid.MaxLiquidTicksPerFrameAndChunk);
+            blockTickManager = new ScheduledTickManager<Block.BlockTick>(Block.MaxLiquidTicksPerFrameAndChunk, updateCounter);
+            liquidTickManager = new ScheduledTickManager<Liquid.LiquidTick>(Liquid.MaxLiquidTicksPerFrameAndChunk, updateCounter);
         }
 
         protected abstract Section CreateSection();
@@ -70,12 +71,12 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Calls setup on all sections. This is required after loading.
         /// </summary>
-        public void Setup()
+        public void Setup(UpdateCounter updateCounter)
         {
-            blockTickManager.Load();
-            liquidTickManager.Load();
+            blockTickManager.Setup(updateCounter);
+            liquidTickManager.Setup(updateCounter);
 
-            for (int y = 0; y < ChunkHeight; y++)
+            for (var y = 0; y < ChunkHeight; y++)
             {
                 sections[y].Setup();
             }

@@ -112,7 +112,7 @@ namespace VoxelGame.Client.Logic
 
         protected override Chunk CreateChunk(int x, int z)
         {
-            return new ClientChunk(x, z);
+            return new ClientChunk(x, z, UpdateCounter);
         }
 
         public override void Update(float deltaTime)
