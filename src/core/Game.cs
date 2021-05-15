@@ -3,7 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
+
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
 
@@ -18,13 +18,6 @@ namespace VoxelGame.Core
         public static void SetWorld(World world)
         {
             World = world;
-        }
-
-        public static Random Random { get; private set; } = null!;
-
-        public static void SetRandom(Random random)
-        {
-            Random = random;
         }
 
         public static string Version { get; private set; } = null!;

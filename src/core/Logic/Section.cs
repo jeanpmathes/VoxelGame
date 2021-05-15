@@ -6,6 +6,7 @@
 using OpenToolkit.Mathematics;
 using System;
 using System.Runtime.CompilerServices;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic
 {
@@ -63,7 +64,7 @@ namespace VoxelGame.Core.Logic
 
             uint GetPos(out int x, out int y, out int z)
             {
-                int index = Game.Random.Next(0, SectionSize * SectionSize * SectionSize);
+                int index = NumberGenerator.Random.Next(0, SectionSize * SectionSize * SectionSize);
                 uint val = blocks[index];
 
                 z = index & 31;

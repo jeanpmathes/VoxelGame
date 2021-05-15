@@ -164,10 +164,6 @@ namespace VoxelGame.Client
                 Scene = startScene;
                 Scene.Load();
 
-                // Other object setup.
-                Random = new Random();
-                Game.SetRandom(Random);
-
                 logger.LogInformation("Finished OnLoad");
             }
         }
