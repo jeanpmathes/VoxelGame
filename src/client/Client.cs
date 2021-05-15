@@ -21,6 +21,8 @@ using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Client.Scenes;
+using VoxelGame.Core.Visuals;
+using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
 namespace VoxelGame.Client
 {
@@ -127,12 +129,13 @@ namespace VoxelGame.Client
 
                 // Texture setup.
                 BlockTextureArray = GLManager.ArrayTextureFactory.CreateArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2, TextureUnit.Texture3, TextureUnit.Texture4);
-                Game.SetBlockTextures(BlockTextureArray);
                 logger.LogInformation("All block textures loaded.");
 
                 LiquidTextureArray = GLManager.ArrayTextureFactory.CreateArrayTexture("Resources/Textures/Liquids", 16, false, TextureUnit.Texture5);
-                Game.SetLiquidTextures(LiquidTextureArray);
                 logger.LogInformation("All liquid textures loaded.");
+
+                TextureLayout.SetProviders(BlockTextureArray, LiquidTextureArray);
+                BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
 
                 // Shader setup.
                 using (logger.BeginScope("Shader setup"))
@@ -153,11 +156,11 @@ namespace VoxelGame.Client
                 }
 
                 // Block setup.
-                Block.LoadBlocks();
+                Block.LoadBlocks(BlockTextureArray);
                 logger.LogDebug("Texture/Block ratio: {ratio:F02}", BlockTextureArray.Count / (float)Block.Count);
 
                 // Liquid setup.
-                Liquid.LoadLiquids();
+                Liquid.LoadLiquids(LiquidTextureArray);
 
                 // Scene setup.
                 startScene = new StartScene(this);

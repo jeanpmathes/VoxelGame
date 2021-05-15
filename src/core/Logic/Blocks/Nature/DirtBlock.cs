@@ -34,9 +34,9 @@ namespace VoxelGame.Core.Logic.Blocks
             this.wet = wet;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            base.Setup();
+            base.Setup(indexProvider);
 
             wetTextureIndices = wet.GetTexIndexArray();
         }

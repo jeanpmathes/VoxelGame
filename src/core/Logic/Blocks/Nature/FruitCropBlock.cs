@@ -51,9 +51,9 @@ namespace VoxelGame.Core.Logic.Blocks
             this.connector = connector;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            base.Setup();
+            base.Setup(indexProvider);
 
             verticesConnected = new float[4][];
 
@@ -93,7 +93,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 1f, 0f, 0.5f, 0f, 0f, 0f, 0f, 0f
             }, 0, verticesConnected[3], 64, 32);
 
-            int tex = Game.BlockTextures.GetTextureIndex(texture);
+            int tex = indexProvider.GetTextureIndex(texture);
 
             if (tex == 0)
             {

@@ -80,13 +80,13 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Calls the setup method on all blocks.
         /// </summary>
-        public static void LoadLiquids()
+        public static void LoadLiquids(ITextureIndexProvider indexProvider)
         {
             using (logger.BeginScope("Liquid Loading"))
             {
                 foreach (Liquid liquid in liquidDictionary.Values)
                 {
-                    liquid.Setup();
+                    liquid.Setup(indexProvider);
 
                     logger.LogDebug(LoggingEvents.LiquidLoad, "Loaded the liquid [{liquid}] with ID {id}.", liquid, liquid.Id);
                 }

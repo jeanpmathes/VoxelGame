@@ -16,13 +16,20 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Visuals
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = "This class is meant for data storage.")]
-    public class BlockModel
+    public sealed class BlockModel
     {
         private const string BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
 
         private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
 
         private static readonly string path = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Models");
+
+        private static ITextureIndexProvider _blockTextureIndexProvider = null!;
+
+        public static void SetBlockTextureIndexProvider(ITextureIndexProvider blockTextureIndexProvider)
+        {
+            _blockTextureIndexProvider = blockTextureIndexProvider;
+        }
 
         // ReSharper disable once MemberCanBePrivate.Global
         // Has to be public for serialization.
@@ -96,7 +103,7 @@ namespace VoxelGame.Core.Visuals
 
             Matrix4 xyz = Matrix4.CreateTranslation(movement);
 
-            for (int i = 0; i < Quads.Length; i++)
+            for (var i = 0; i < Quads.Length; i++)
             {
                 Quads[i] = Quads[i].ApplyTranslationMatrix(xyz);
             }
@@ -123,7 +130,7 @@ namespace VoxelGame.Core.Visuals
 
             rotations = rotateTopAndBottomTexture ? 0 : rotations;
 
-            for (int i = 0; i < Quads.Length; i++)
+            for (var i = 0; i < Quads.Length; i++)
             {
                 Quads[i] = Quads[i].ApplyRotationMatrixY(xyz, nop, rotations);
             }
@@ -251,15 +258,15 @@ namespace VoxelGame.Core.Visuals
 
             int[] texIndexLookup = new int[TextureNames.Length];
 
-            for (int i = 0; i < TextureNames.Length; i++)
+            for (var i = 0; i < TextureNames.Length; i++)
             {
-                texIndexLookup[i] = Game.BlockTextures.GetTextureIndex(TextureNames[i]);
+                texIndexLookup[i] = _blockTextureIndexProvider.GetTextureIndex(TextureNames[i]);
             }
 
             vertices = new float[Quads.Length * 32];
             textureIndices = new int[Quads.Length * 4];
 
-            for (int q = 0; q < Quads.Length; q++)
+            for (var q = 0; q < Quads.Length; q++)
             {
                 Quad quad = Quads[q];
 

@@ -56,7 +56,7 @@ namespace VoxelGame.Core.Logic.Blocks
             this.open = open;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             BlockModel.Load(closed).PlaneSplit(Vector3.UnitY, -Vector3.UnitY, out BlockModel baseClosed, out BlockModel topClosed);
             topClosed.Move(-Vector3.UnitY);

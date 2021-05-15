@@ -54,9 +54,9 @@ namespace VoxelGame.Core.Logic.Blocks
             this.texture = texture;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            texIndex = Game.BlockTextures.GetTextureIndex(texture);
+            texIndex = indexProvider.GetTextureIndex(texture);
 
             completeVertices = new[]
             {

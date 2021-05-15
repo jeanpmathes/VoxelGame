@@ -106,7 +106,8 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Called when loading liquids, meant to setup vertex data, indices etc.
         /// </summary>
-        protected virtual void Setup()
+        /// <param name="indexProvider"></param>
+        protected virtual void Setup(ITextureIndexProvider indexProvider)
         {
         }
 

@@ -50,7 +50,7 @@ namespace VoxelGame.Core.Logic.Blocks
             this.texture = texture;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             vertices = new[]
             {
@@ -84,7 +84,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 4, 6, 7
             };
 
-            int tex = Game.BlockTextures.GetTextureIndex(texture);
+            int tex = indexProvider.GetTextureIndex(texture);
             textureIndices = new[] { tex, tex, tex, tex, tex, tex, tex, tex };
         }
 

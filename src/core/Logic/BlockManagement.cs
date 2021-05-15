@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic
 {
@@ -179,13 +180,13 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Calls the setup method on all blocks.
         /// </summary>
-        public static void LoadBlocks()
+        public static void LoadBlocks(ITextureIndexProvider indexProvider)
         {
             using (logger.BeginScope("Block Loading"))
             {
                 foreach (Block block in blockDictionary.Values)
                 {
-                    block.Setup();
+                    block.Setup(indexProvider);
 
                     logger.LogDebug(LoggingEvents.BlockLoad, "Loaded the block [{block}] with ID {id}.", block, block.Id);
                 }

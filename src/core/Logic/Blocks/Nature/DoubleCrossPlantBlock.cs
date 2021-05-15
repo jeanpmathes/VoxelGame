@@ -46,7 +46,7 @@ namespace VoxelGame.Core.Logic.Blocks
             this.topTexOffset = topTexOffset;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             vertices = new[]
            {
@@ -63,7 +63,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 0.855f, 0f, 0.855f, 1f, 0f, 0f, 0f, 0f
            };
 
-            int tex = Game.BlockTextures.GetTextureIndex(bottomTexture);
+            int tex = indexProvider.GetTextureIndex(bottomTexture);
             bottomTexIndices = new[] { tex, tex, tex, tex, tex, tex, tex, tex };
 
             tex += topTexOffset;

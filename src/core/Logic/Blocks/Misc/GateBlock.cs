@@ -52,7 +52,7 @@ namespace VoxelGame.Core.Logic.Blocks
             this.open = open;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             verticesClosed = new float[4][];
             verticesOpen = new float[4][];

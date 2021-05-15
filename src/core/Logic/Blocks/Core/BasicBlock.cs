@@ -40,7 +40,7 @@ namespace VoxelGame.Core.Logic.Blocks
             this.layout = layout;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             sideVertices = BlockModel.CubeVertices();
 

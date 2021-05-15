@@ -60,7 +60,7 @@ namespace VoxelGame.Core.Logic.Blocks
             this.extension = extension;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             BlockModel postModel = BlockModel.Load(this.post);
             BlockModel extensionModel = BlockModel.Load(this.extension);
@@ -82,7 +82,7 @@ namespace VoxelGame.Core.Logic.Blocks
             extensionModel.RotateY(1, false);
             extensionModel.ToData(out westVertices, out _, out _);
 
-            int tex = Game.BlockTextures.GetTextureIndex(texture);
+            int tex = indexProvider.GetTextureIndex(texture);
 
             textureIndices = new int[5][];
 

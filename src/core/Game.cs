@@ -11,8 +11,6 @@ namespace VoxelGame.Core
 {
     public static class Game
     {
-        #region GENRAL STATIC PROPERTIES
-
         public static World World { get; private set; } = null!;
 
         public static void SetWorld(World world)
@@ -26,21 +24,5 @@ namespace VoxelGame.Core
         {
             Version = version;
         }
-
-        public static ITextureIndexProvider BlockTextures { get; private set; } = null!;
-
-        public static void SetBlockTextures(ITextureIndexProvider blockTextures)
-        {
-            BlockTextures = blockTextures;
-        }
-
-        public static ITextureIndexProvider LiquidTextures { get; private set; } = null!;
-
-        public static void SetLiquidTextures(ITextureIndexProvider liquidTextures)
-        {
-            LiquidTextures = liquidTextures;
-        }
-
-        #endregion GENRAL STATIC PROPERTIES
     }
 }

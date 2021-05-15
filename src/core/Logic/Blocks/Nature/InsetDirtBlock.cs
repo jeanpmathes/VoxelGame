@@ -49,7 +49,7 @@ namespace VoxelGame.Core.Logic.Blocks
             SupportsFullGrowth = supportsFullGrowth;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             dryTextureIndices = dryLayout.GetTexIndexArray();
             wetTextureIndices = wetLayout.GetTexIndexArray();

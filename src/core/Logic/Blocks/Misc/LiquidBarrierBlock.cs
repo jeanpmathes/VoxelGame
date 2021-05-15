@@ -35,9 +35,9 @@ namespace VoxelGame.Core.Logic.Blocks
             this.open = open;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            base.Setup();
+            base.Setup(indexProvider);
 
             openTextureIndices = open.GetTexIndexArray();
         }

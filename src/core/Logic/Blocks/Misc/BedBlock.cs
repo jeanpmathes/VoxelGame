@@ -55,7 +55,7 @@ namespace VoxelGame.Core.Logic.Blocks
             this.model = model;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             BlockModel blockModel = BlockModel.Load(this.model);
 

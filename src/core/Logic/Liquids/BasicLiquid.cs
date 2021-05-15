@@ -40,7 +40,7 @@ namespace VoxelGame.Core.Logic.Liquids
             this.staticLayout = staticLayout;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             movingTex = movingLayout.GetTexIndexArray();
             staticTex = staticLayout.GetTexIndexArray();
