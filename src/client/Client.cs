@@ -263,7 +263,6 @@ namespace VoxelGame.Client
         public static void InvalidatePlayer()
         {
             Player = null!;
-            Game.SetPlayer(null!);
         }
 
         #endregion SCENE MANAGEMENT

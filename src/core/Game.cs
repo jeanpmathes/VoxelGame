@@ -1,5 +1,9 @@
-﻿using System;
-using VoxelGame.Core.Entities;
+﻿// <copyright file="Game.cs" company="VoxelGame">
+//     MIT License
+//	   For full license see the repository.
+// </copyright>
+// <author>pershingthesecond</author>
+using System;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
 
@@ -8,13 +12,6 @@ namespace VoxelGame.Core
     public static class Game
     {
         #region GENRAL STATIC PROPERTIES
-
-        public static Player Player { get; private set; } = null!;
-
-        public static void SetPlayer(Player player)
-        {
-            Player = player;
-        }
 
         public static World World { get; private set; } = null!;
 
