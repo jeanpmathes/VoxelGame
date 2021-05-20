@@ -15,28 +15,28 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Schedules a tick according to the viscosity.
         /// </summary>
-        protected void ScheduleTick(int x, int y, int z)
+        protected void ScheduleTick(World world, int x, int y, int z)
         {
-            Chunk? chunk = Game.World.GetChunkOfPosition(x, z);
+            Chunk? chunk = world.GetChunkOfPosition(x, z);
             chunk?.ScheduleLiquidTick(new LiquidTick(x, y, z, this), Viscosity);
         }
 
         /// <summary>
         /// Will schedule a tick for a liquid according to the viscosity.
         /// </summary>
-        internal void TickSoon(int x, int y, int z, bool isStatic)
+        internal void TickSoon(World world, int x, int y, int z, bool isStatic)
         {
             if (!isStatic || this == Liquid.None) return;
 
-            Game.World.ModifyLiquid(false, x, y, z);
-            ScheduleTick(x, y, z);
+            world.ModifyLiquid(false, x, y, z);
+            ScheduleTick(world, x, y, z);
         }
 
-        internal void TickNow(int x, int y, int z, LiquidLevel level, bool isStatic)
+        internal void TickNow(World world, int x, int y, int z, LiquidLevel level, bool isStatic)
         {
             if (this == Liquid.None) return;
 
-            ScheduledUpdate(x, y, z, level, isStatic);
+            ScheduledUpdate(world, x, y, z, level, isStatic);
         }
 
         [Serializable]
@@ -56,13 +56,13 @@ namespace VoxelGame.Core.Logic
                 this.target = target.Id;
             }
 
-            public void Tick()
+            public void Tick(World world)
             {
-                Liquid? liquid = Game.World.GetLiquid(x, y, z, out LiquidLevel level, out bool isStatic);
+                Liquid? liquid = world.GetLiquid(x, y, z, out LiquidLevel level, out bool isStatic);
 
                 if (liquid?.Id == target)
                 {
-                    liquid.ScheduledUpdate(x, y, z, level, isStatic);
+                    liquid.ScheduledUpdate(world, x, y, z, level, isStatic);
                 }
             }
         }

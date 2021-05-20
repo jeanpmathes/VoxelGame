@@ -27,7 +27,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
         }
 
-        public virtual bool Burn(int x, int y, int z, Block fire)
+        public virtual bool Burn(World world, int x, int y, int z, Block fire)
         {
             return false;
         }

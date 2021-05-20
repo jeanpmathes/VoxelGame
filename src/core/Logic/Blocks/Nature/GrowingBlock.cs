@@ -35,41 +35,41 @@ namespace VoxelGame.Core.Logic.Blocks
             this.maxHeight = maxHeight;
         }
 
-        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            Block down = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air;
+            Block down = world.GetBlock(x, y - 1, z, out _) ?? Block.Air;
             return down == requiredGround || down == this;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom)
             {
-                Block below = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air;
+                Block below = world.GetBlock(x, y - 1, z, out _) ?? Block.Air;
 
                 if (below != requiredGround && below != this)
                 {
-                    ScheduleDestroy(x, y, z);
+                    ScheduleDestroy(world, x, y, z);
                 }
             }
         }
 
-        internal override void RandomUpdate(int x, int y, int z, uint data)
+        internal override void RandomUpdate(World world, int x, int y, int z, uint data)
         {
             var age = (int)(data & 0b00_0111);
 
             if (age < 7)
             {
-                Game.World.SetBlock(this, (uint)(age + 1), x, y, z);
+                world.SetBlock(this, (uint)(age + 1), x, y, z);
             }
             else
             {
-                if (Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable ?? false)
+                if (world.GetBlock(x, y + 1, z, out _)?.IsReplaceable ?? false)
                 {
                     var height = 0;
                     for (var o = 0; o < maxHeight; o++)
                     {
-                        if (Game.World.GetBlock(x, y - o, z, out _) == this)
+                        if (world.GetBlock(x, y - o, z, out _) == this)
                         {
                             height++;
                         }
@@ -81,7 +81,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
                     if (height < maxHeight)
                     {
-                        Place(x, y + 1, z);
+                        Place(world, x, y + 1, z);
                     }
                 }
             }

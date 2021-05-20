@@ -52,11 +52,9 @@ namespace VoxelGame.Client.Scenes
 
         public void Load()
         {
-            Game.SetWorld(World);
-
             // Player setup.
             Camera camera = new Camera(new Vector3());
-            Player = new ClientPlayer(70f, 0.25f, camera, new Core.Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)), ui);
+            Player = new ClientPlayer(World, 70f, 0.25f, camera, new Core.Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)), ui);
 
             ui.Load();
             ui.Resize(Screen.Size);

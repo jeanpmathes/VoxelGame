@@ -22,10 +22,11 @@ namespace VoxelGame.Client.Logic
         [NonSerialized] private bool hasMesh;
         [NonSerialized] private SectionRenderer? renderer;
 
-        /// <summary>
-        /// Sets up all non serialized members.
-        /// </summary>
-        public override void Setup()
+        public ClientSection(World world) : base(world)
+        {
+        }
+
+        protected override void Setup()
         {
             renderer = GLManager.SectionRendererFactory.CreateSectionRenderer();
 
@@ -361,16 +362,16 @@ namespace VoxelGame.Client.Logic
             ReturnToPool(transparentLiquidMeshFaceHolders);
         }
 
-        private static ClientSection?[] GetNeighborSections(Vector3i sectionPosition)
+        private ClientSection?[] GetNeighborSections(Vector3i sectionPosition)
         {
             ClientSection?[] neighbors = new ClientSection?[6];
 
-            neighbors[(int)BlockSide.Front] = Game.World.GetSection(BlockSide.Front.Offset(sectionPosition)) as ClientSection;
-            neighbors[(int)BlockSide.Back] = Game.World.GetSection(BlockSide.Back.Offset(sectionPosition)) as ClientSection;
-            neighbors[(int)BlockSide.Left] = Game.World.GetSection(BlockSide.Left.Offset(sectionPosition)) as ClientSection;
-            neighbors[(int)BlockSide.Right] = Game.World.GetSection(BlockSide.Right.Offset(sectionPosition)) as ClientSection;
-            neighbors[(int)BlockSide.Bottom] = Game.World.GetSection(BlockSide.Bottom.Offset(sectionPosition)) as ClientSection;
-            neighbors[(int)BlockSide.Top] = Game.World.GetSection(BlockSide.Top.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int)BlockSide.Front] = World.GetSection(BlockSide.Front.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int)BlockSide.Back] = World.GetSection(BlockSide.Back.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int)BlockSide.Left] = World.GetSection(BlockSide.Left.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int)BlockSide.Right] = World.GetSection(BlockSide.Right.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int)BlockSide.Bottom] = World.GetSection(BlockSide.Bottom.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int)BlockSide.Top] = World.GetSection(BlockSide.Top.Offset(sectionPosition)) as ClientSection;
 
             return neighbors;
         }

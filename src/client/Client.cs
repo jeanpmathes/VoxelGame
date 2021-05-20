@@ -256,7 +256,6 @@ namespace VoxelGame.Client
         public static void InvalidateWorld()
         {
             World = null!;
-            Game.SetWorld(null!);
         }
 
         public static void InvalidatePlayer()

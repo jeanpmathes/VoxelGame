@@ -32,12 +32,12 @@ namespace VoxelGame.Core.Logic.Blocks
             return base.GetMesh(info).Modified(TintColor.Neutral);
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
             var orientation = (Orientation)(data & 0b00_0011);
 
             // If another block of this type is above, no solid block is required to hold.
-            if ((Game.World.GetBlock(x, y + 1, z, out uint dataAbove) ?? Block.Air) == this && orientation == (Orientation)(dataAbove & 0b00_0011))
+            if ((world.GetBlock(x, y + 1, z, out uint dataAbove) ?? Block.Air) == this && orientation == (Orientation)(dataAbove & 0b00_0011))
             {
                 return;
             }
@@ -46,27 +46,27 @@ namespace VoxelGame.Core.Logic.Blocks
                 side = orientation.Invert().ToBlockSide();
             }
 
-            CheckBack(x, y, z, side, orientation, true);
+            CheckBack(world, x, y, z, side, orientation, true);
         }
 
-        internal override void RandomUpdate(int x, int y, int z, uint data)
+        internal override void RandomUpdate(World world, int x, int y, int z, uint data)
         {
             var orientation = (Orientation)(data & 0b00_0011);
             var age = (int)((data & 0b1_1100) >> 2);
 
             if (age < 7)
             {
-                Game.World.SetBlock(this, (uint)(((age + 1) << 2) | (int)orientation), x, y, z);
+                world.SetBlock(this, (uint)(((age + 1) << 2) | (int)orientation), x, y, z);
             }
-            else if (Game.World.GetBlock(x, y - 1, z, out _) == Block.Air)
+            else if (world.GetBlock(x, y - 1, z, out _) == Block.Air)
             {
-                Game.World.SetBlock(this, (uint)orientation, x, y - 1, z);
+                world.SetBlock(this, (uint)orientation, x, y - 1, z);
             }
         }
 
-        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0 && level > LiquidLevel.Two) ScheduleDestroy(x, y, z);
+            if (liquid.Direction > 0 && level > LiquidLevel.Two) ScheduleDestroy(world, x, y, z);
         }
     }
 }

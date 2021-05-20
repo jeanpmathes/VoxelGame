@@ -281,46 +281,46 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData((uint)(faceCount * 4), vertices, textureIndices, indices, true);
         }
 
-        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            if (Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull == true)
+            if (world.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull == true)
             {
                 return true;
             }
             else
             {
-                return GetData(x, y, z) != 0;
+                return GetData(world, x, y, z) != 0;
             }
         }
 
-        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            if (Game.World.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull == true)
+            if (world.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull == true)
             {
-                Game.World.SetBlock(this, 0, x, y, z);
-                ScheduleTick(x, y, z, TickOffset);
+                world.SetBlock(this, 0, x, y, z);
+                ScheduleTick(world, x, y, z, TickOffset);
             }
             else
             {
-                Game.World.SetBlock(this, GetData(x, y, z), x, y, z);
-                ScheduleTick(x, y, z, TickOffset);
+                world.SetBlock(this, GetData(world, x, y, z), x, y, z);
+                ScheduleTick(world, x, y, z, TickOffset);
             }
         }
 
-        private static uint GetData(int x, int y, int z)
+        private static uint GetData(World world, int x, int y, int z)
         {
             uint data = 0;
 
-            if (Game.World.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull == true) data |= 0b01_0000; // North.
-            if (Game.World.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b00_1000; // East.
-            if (Game.World.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull == true) data |= 0b00_0100; // South.
-            if (Game.World.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b00_0010; // West.
-            if (Game.World.GetBlock(x, y + 1, z, out _)?.IsSolidAndFull == true) data |= 0b00_0001; // Top.
+            if (world.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull == true) data |= 0b01_0000; // North.
+            if (world.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b00_1000; // East.
+            if (world.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull == true) data |= 0b00_0100; // South.
+            if (world.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b00_0010; // West.
+            if (world.GetBlock(x, y + 1, z, out _)?.IsSolidAndFull == true) data |= 0b00_0001; // Top.
 
             return data;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
             switch (side)
             {
@@ -369,32 +369,32 @@ namespace VoxelGame.Core.Logic.Blocks
 
             void CheckNeighbor(int x, int y, int z, uint mask)
             {
-                if ((data & mask) != 0 && Game.World.GetBlock(x, y, z, out _)?.IsSolidAndFull != true)
+                if ((data & mask) != 0 && world.GetBlock(x, y, z, out _)?.IsSolidAndFull != true)
                 {
                     data ^= mask;
                     SetData(data);
                 }
             }
 
-            static uint AddNeighbor(int x, int y, int z, uint mask)
+            uint AddNeighbor(int x, int y, int z, uint mask)
             {
-                return (Game.World.GetBlock(x, y, z, out _)?.IsSolidAndFull == true) ? mask : (uint)0;
+                return (world.GetBlock(x, y, z, out _)?.IsSolidAndFull == true) ? mask : (uint)0;
             }
 
             void SetData(uint data)
             {
                 if (data != 0)
                 {
-                    Game.World.SetBlock(this, data, x, y, z);
+                    world.SetBlock(this, data, x, y, z);
                 }
                 else
                 {
-                    Destroy(x, y, z);
+                    Destroy(world, x, y, z);
                 }
             }
         }
 
-        protected override void ScheduledUpdate(int x, int y, int z, uint data)
+        protected override void ScheduledUpdate(World world, int x, int y, int z, uint data)
         {
             var canBurn = false;
 
@@ -413,18 +413,18 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if (!canBurn)
             {
-                Destroy(x, y, z);
+                Destroy(world, x, y, z);
             }
 
-            ScheduleTick(x, y, z, TickOffset);
+            ScheduleTick(world, x, y, z, TickOffset);
 
             bool BurnAt(int x, int y, int z)
             {
-                if (Game.World.GetBlock(x, y, z, out _) is IFlammable block)
+                if (world.GetBlock(x, y, z, out _) is IFlammable block)
                 {
-                    if (block.Burn(x, y, z, this))
+                    if (block.Burn(world, x, y, z, this))
                     {
-                        Place(x, y, z);
+                        Place(world, x, y, z);
                     }
 
                     return true;
@@ -436,9 +436,9 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
-            if (liquid != Liquid.None) Destroy(x, y, z);
+            if (liquid != Liquid.None) Destroy(world, x, y, z);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return base.GetMesh(info).Modified((info.Liquid.Direction > 0) ? TintColor.LightGray : TintColor.None);
         }
 
-        public virtual bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
+        public virtual bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
         {
             return liquid.Viscosity < 100;
         }

@@ -24,9 +24,9 @@ namespace VoxelGame.Core.Logic.Blocks
         {
         }
 
-        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0) Game.World.SetBlock(Block.Dirt, 0, x, y, z);
+            if (liquid.Direction > 0) world.SetBlock(Block.Dirt, 0, x, y, z);
         }
     }
 }

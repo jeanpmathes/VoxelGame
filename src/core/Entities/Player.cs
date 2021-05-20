@@ -33,9 +33,9 @@ namespace VoxelGame.Core.Entities
 
         private static readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
 
-        protected Player(float mass, float drag, BoundingBox boundingBox) : base(mass, drag, boundingBox)
+        protected Player(World world, float mass, float drag, BoundingBox boundingBox) : base(world, mass, drag, boundingBox)
         {
-            Position = Game.World.Information.SpawnInformation.Position;
+            Position = World.Information.SpawnInformation.Position;
 
             // Request chunks around current position
             ChunkX = (int)Math.Floor(Position.X) >> sectionSizeExp;
@@ -45,7 +45,7 @@ namespace VoxelGame.Core.Entities
             {
                 for (int z = -LoadDistance; z <= LoadDistance; z++)
                 {
-                    Game.World.RequestChunk(ChunkX + x, ChunkZ + z);
+                    World.RequestChunk(ChunkX + x, ChunkZ + z);
                 }
             }
         }
@@ -85,8 +85,8 @@ namespace VoxelGame.Core.Entities
                 {
                     for (int z = -LoadDistance; z <= LoadDistance; z++)
                     {
-                        Game.World.ReleaseChunk(ChunkX + x, ChunkZ + z);
-                        Game.World.RequestChunk(currentChunkX + x, currentChunkZ + z);
+                        World.ReleaseChunk(ChunkX + x, ChunkZ + z);
+                        World.RequestChunk(currentChunkX + x, currentChunkZ + z);
                     }
                 }
             }
@@ -96,8 +96,8 @@ namespace VoxelGame.Core.Entities
                 {
                     for (int z = 0; z < (2 * LoadDistance) + 1; z++)
                     {
-                        Game.World.ReleaseChunk(ChunkX + ((LoadDistance - x) * -signX), ChunkZ + ((LoadDistance - z) * -signZ));
-                        Game.World.RequestChunk(currentChunkX + ((LoadDistance - x) * signX), currentChunkZ + ((LoadDistance - z) * signZ));
+                        World.ReleaseChunk(ChunkX + ((LoadDistance - x) * -signX), ChunkZ + ((LoadDistance - z) * -signZ));
+                        World.RequestChunk(currentChunkX + ((LoadDistance - x) * signX), currentChunkZ + ((LoadDistance - z) * signZ));
                     }
                 }
 
@@ -105,8 +105,8 @@ namespace VoxelGame.Core.Entities
                 {
                     for (int x = 0; x < (2 * LoadDistance) + 1; x++)
                     {
-                        Game.World.ReleaseChunk(ChunkX + ((LoadDistance - x) * -signX), ChunkZ + ((LoadDistance - z) * -signZ));
-                        Game.World.RequestChunk(currentChunkX + ((LoadDistance - x) * signX), currentChunkZ + ((LoadDistance - z) * signZ));
+                        World.ReleaseChunk(ChunkX + ((LoadDistance - x) * -signX), ChunkZ + ((LoadDistance - z) * -signZ));
+                        World.RequestChunk(currentChunkX + ((LoadDistance - x) * signX), currentChunkZ + ((LoadDistance - z) * signZ));
                     }
                 }
             }

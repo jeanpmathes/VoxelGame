@@ -144,23 +144,23 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData(8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
         }
 
-        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
             if (SideToOrientation(entity?.TargetSide ?? BlockSide.Front, out Orientation orientation))
             {
                 switch (orientation)
                 {
                     case Orientation.North:
-                        return Game.World.IsSolid(x, y, z + 1);
+                        return world.IsSolid(x, y, z + 1);
 
                     case Orientation.East:
-                        return Game.World.IsSolid(x - 1, y, z);
+                        return world.IsSolid(x - 1, y, z);
 
                     case Orientation.South:
-                        return Game.World.IsSolid(x, y, z - 1);
+                        return world.IsSolid(x, y, z - 1);
 
                     case Orientation.West:
-                        return Game.World.IsSolid(x + 1, y, z);
+                        return world.IsSolid(x + 1, y, z);
 
                     default:
                         return false;
@@ -172,11 +172,11 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
             if (SideToOrientation(entity?.TargetSide ?? BlockSide.Front, out Orientation orientation))
             {
-                Game.World.SetBlock(this, (uint)orientation, x, y, z);
+                world.SetBlock(this, (uint)orientation, x, y, z);
             }
             else
             {
@@ -206,12 +206,12 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
-            CheckBack(x, y, z, side, (Orientation)(data & 0b00_0011), schedule: false);
+            CheckBack(world, x, y, z, side, (Orientation)(data & 0b00_0011), schedule: false);
         }
 
-        protected void CheckBack(int x, int y, int z, BlockSide side, Orientation blockOrientation, bool schedule)
+        protected void CheckBack(World world, int x, int y, int z, BlockSide side, Orientation blockOrientation, bool schedule)
         {
             switch (side)
             {
@@ -238,10 +238,10 @@ namespace VoxelGame.Core.Logic.Blocks
 
             void Check(int bx, int by, int bz, Orientation orientation)
             {
-                if (blockOrientation == orientation && !Game.World.IsSolid(bx, by, bz))
+                if (blockOrientation == orientation && !world.IsSolid(bx, by, bz))
                 {
-                    if (schedule) ScheduleDestroy(x, y, z);
-                    else Destroy(x, y, z);
+                    if (schedule) ScheduleDestroy(world, x, y, z);
+                    else Destroy(world, x, y, z);
                 }
             }
         }

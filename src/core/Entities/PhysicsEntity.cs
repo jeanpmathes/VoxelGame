@@ -59,6 +59,8 @@ namespace VoxelGame.Core.Entities
             }
         }
 
+        public World World { get; }
+
         public abstract Vector3 Movement { get; }
         public abstract Vector3 LookingDirection { get; }
         public abstract Logic.BlockSide TargetSide { get; }
@@ -73,8 +75,10 @@ namespace VoxelGame.Core.Entities
             get => boundingBox;
         }
 
-        protected PhysicsEntity(float mass, float drag, BoundingBox boundingBox)
+        protected PhysicsEntity(World world, float mass, float drag, BoundingBox boundingBox)
         {
+            World = world;
+
             Rotation = Quaternion.Identity;
 
             Mass = mass;
@@ -171,7 +175,7 @@ namespace VoxelGame.Core.Entities
         {
             boundingBox.Center += movement;
 
-            if (BoundingBox.IntersectsTerrain(out bool xCollision, out bool yCollision, out bool zCollision, ref blockIntersections, ref liquidIntersections))
+            if (BoundingBox.IntersectsTerrain(World, out bool xCollision, out bool yCollision, out bool zCollision, ref blockIntersections, ref liquidIntersections))
             {
                 if (yCollision)
                 {
@@ -179,7 +183,7 @@ namespace VoxelGame.Core.Entities
                     int yPos = (int)Math.Floor(BoundingBox.Center.Y);
                     int zPos = (int)Math.Floor(BoundingBox.Center.Z);
 
-                    IsGrounded = !Game.World.GetBlock(xPos, yPos + (int)Math.Round(BoundingBox.Extents.Y), zPos, out _)?.IsSolid ?? true;
+                    IsGrounded = !World.GetBlock(xPos, yPos + (int)Math.Round(BoundingBox.Extents.Y), zPos, out _)?.IsSolid ?? true;
                 }
 
                 movement = new Vector3(

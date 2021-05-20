@@ -95,10 +95,10 @@ namespace VoxelGame.Core.Logic
             }
         }
 
-        public static void Elevate(int x, int y, int z, int pumpDistance)
+        public static void Elevate(World world, int x, int y, int z, int pumpDistance)
         {
             (Block? start, Liquid? toElevate) =
-                Game.World.GetPosition(x, y, z, out _, out LiquidLevel initialLevel, out _);
+                world.GetPosition(x, y, z, out _, out LiquidLevel initialLevel, out _);
 
             if (start == null || toElevate == null) return;
 
@@ -106,23 +106,23 @@ namespace VoxelGame.Core.Logic
 
             var currentLevel = (int)initialLevel;
 
-            if (!(start is IFillable startFillable) || !startFillable.AllowOutflow(x, y, z, BlockSide.Top)) return;
+            if (!(start is IFillable startFillable) || !startFillable.AllowOutflow(world, x, y, z, BlockSide.Top)) return;
 
             for (var offset = 1; offset <= pumpDistance && currentLevel > -1; offset++)
             {
                 int currentY = y + offset;
 
-                var currentBlock = Game.World.GetBlock(x, currentY, z, out _) as IFillable;
+                var currentBlock = world.GetBlock(x, currentY, z, out _) as IFillable;
 
-                if (currentBlock?.AllowInflow(x, currentY, z, BlockSide.Bottom, toElevate) != true) break;
+                if (currentBlock?.AllowInflow(world, x, currentY, z, BlockSide.Bottom, toElevate) != true) break;
 
-                toElevate.Fill(x, currentY, z, (LiquidLevel)currentLevel, out currentLevel);
+                toElevate.Fill(world, x, currentY, z, (LiquidLevel)currentLevel, out currentLevel);
 
-                if (!currentBlock.AllowOutflow(x, currentY, z, BlockSide.Top)) break;
+                if (!currentBlock.AllowOutflow(world, x, currentY, z, BlockSide.Top)) break;
             }
 
             LiquidLevel elevated = initialLevel - (currentLevel + 1);
-            toElevate.Take(x, y, z, ref elevated);
+            toElevate.Take(world, x, y, z, ref elevated);
         }
     }
 }

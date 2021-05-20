@@ -56,16 +56,16 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData(vertexCount, vertices, texIndices, indices);
         }
 
-        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            return Game.World.HasSolidGround(x, y, z);
+            return world.HasSolidGround(x, y, z);
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && !Game.World.HasSolidGround(x, y, z))
+            if (side == BlockSide.Bottom && !world.HasSolidGround(x, y, z))
             {
-                Destroy(x, y, z);
+                Destroy(world, x, y, z);
             }
         }
     }

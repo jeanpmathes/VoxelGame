@@ -93,27 +93,27 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
         }
 
-        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            uint data = GetConnectionData(x, y, z);
+            uint data = GetConnectionData(world, x, y, z);
 
             OpenOpposingSide(ref data);
 
-            Game.World.SetBlock(this, data, x, y, z);
+            world.SetBlock(this, data, x, y, z);
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
-            uint updatedData = GetConnectionData(x, y, z);
+            uint updatedData = GetConnectionData(world, x, y, z);
             OpenOpposingSide(ref updatedData);
 
             if (updatedData != data)
             {
-                Game.World.SetBlock(this, updatedData, x, y, z);
+                world.SetBlock(this, updatedData, x, y, z);
             }
         }
 
-        private uint GetConnectionData(int x, int y, int z)
+        private uint GetConnectionData(World world, int x, int y, int z)
         {
             uint data = 0;
 
@@ -128,9 +128,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
             bool IsConnectable(BlockSide side, int cx, int cy, int cz)
             {
-                Block? block = Game.World.GetBlock(cx, cy, cz, out _);
+                Block? block = world.GetBlock(cx, cy, cz, out _);
 
-                return block == this || (block is TConnect connectable && connectable.IsConnectable(side, cx, cy, cz));
+                return block == this || (block is TConnect connectable && connectable.IsConnectable(world, side, cx, cy, cz));
             }
         }
 
@@ -157,19 +157,19 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        public bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
+        public bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
         {
-            return IsSideOpen(x, y, z, side);
+            return IsSideOpen(world, x, y, z, side);
         }
 
-        public bool AllowOutflow(int x, int y, int z, BlockSide side)
+        public bool AllowOutflow(World world, int x, int y, int z, BlockSide side)
         {
-            return IsSideOpen(x, y, z, side);
+            return IsSideOpen(world, x, y, z, side);
         }
 
-        private static bool IsSideOpen(int x, int y, int z, BlockSide side)
+        private static bool IsSideOpen(World world, int x, int y, int z, BlockSide side)
         {
-            Game.World.GetBlock(x, y, z, out uint data);
+            world.GetBlock(x, y, z, out uint data);
 
             return side switch
             {

@@ -29,17 +29,19 @@ namespace VoxelGame.Core.Logic
 
         public static Vector3 Extents { get => new Vector3(SectionSize / 2f, SectionSize / 2f, SectionSize / 2f); }
 
+        [field: NonSerialized] protected World World { get; private set; } = null!;
+
 #pragma warning disable CA1051 // Do not declare visible instance fields
         protected readonly uint[] blocks;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-        protected Section()
+        protected Section(World world)
         {
             blocks = new uint[SectionSize * SectionSize * SectionSize];
 
 #pragma warning disable S1699 // Constructors should only call non-overridable methods
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
-            Setup();
+            Setup(world);
 #pragma warning restore CA2214 // Do not call overridable methods in constructors
 #pragma warning restore S1699 // Constructors should only call non-overridable methods
         }
@@ -47,7 +49,14 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Sets up all non serialized members.
         /// </summary>
-        public abstract void Setup();
+        public void Setup(World world)
+        {
+            World = world;
+
+            Setup();
+        }
+
+        protected abstract void Setup();
 
         public void Tick(int sectionX, int sectionY, int sectionZ)
         {
@@ -55,11 +64,11 @@ namespace VoxelGame.Core.Logic
             {
                 uint val = GetPos(out int x, out int y, out int z);
                 Decode(val, out Block block, out uint data, out _, out _, out _);
-                block.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), data);
+                block.RandomUpdate(World, x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), data);
 
                 val = GetPos(out x, out y, out z);
                 Decode(val, out _, out _, out Liquid liquid, out LiquidLevel level, out bool isStatic);
-                liquid.RandomUpdate(x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), level, isStatic);
+                liquid.RandomUpdate(World, x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), level, isStatic);
             }
 
             uint GetPos(out int x, out int y, out int z)

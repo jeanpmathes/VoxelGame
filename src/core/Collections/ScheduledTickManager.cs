@@ -7,6 +7,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 
@@ -98,13 +99,13 @@ namespace VoxelGame.Core.Collections
             return newLastTicks;
         }
 
-        public void Process()
+        public void Process(World world)
         {
             if (nextTicks != null && nextTicks.targetUpdate <= updateCounter.CurrentUpdate)
             {
                 foreach (T scheduledTick in nextTicks.tickables)
                 {
-                    scheduledTick.Tick();
+                    scheduledTick.Tick(world);
                 }
 
                 nextTicks = nextTicks.next;

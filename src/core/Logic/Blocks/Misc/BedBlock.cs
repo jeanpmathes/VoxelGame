@@ -135,66 +135,66 @@ namespace VoxelGame.Core.Logic.Blocks
                 : new BlockMeshData(vertexCountEnd, verticesEnd[orientation], texIndicesEnd, indicesEnd, color.ToTintColor());
         }
 
-        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            if (!Game.World.HasSolidGround(x, y, z))
+            if (!world.HasSolidGround(x, y, z))
             {
                 return false;
             }
 
             return (entity?.LookingDirection.ToOrientation() ?? Orientation.North) switch
             {
-                Orientation.North => Game.World.GetBlock(x, y, z - 1, out _)?.IsReplaceable == true && Game.World.HasSolidGround(x, y, z - 1),
-                Orientation.East => Game.World.GetBlock(x + 1, y, z, out _)?.IsReplaceable == true && Game.World.HasSolidGround(x + 1, y, z),
-                Orientation.South => Game.World.GetBlock(x, y, z + 1, out _)?.IsReplaceable == true && Game.World.HasSolidGround(x, y, z + 1),
-                Orientation.West => Game.World.GetBlock(x - 1, y, z, out _)?.IsReplaceable == true && Game.World.HasSolidGround(x - 1, y, z),
+                Orientation.North => world.GetBlock(x, y, z - 1, out _)?.IsReplaceable == true && world.HasSolidGround(x, y, z - 1),
+                Orientation.East => world.GetBlock(x + 1, y, z, out _)?.IsReplaceable == true && world.HasSolidGround(x + 1, y, z),
+                Orientation.South => world.GetBlock(x, y, z + 1, out _)?.IsReplaceable == true && world.HasSolidGround(x, y, z + 1),
+                Orientation.West => world.GetBlock(x - 1, y, z, out _)?.IsReplaceable == true && world.HasSolidGround(x - 1, y, z),
                 _ => false,
             };
         }
 
-        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
             switch (entity?.LookingDirection.ToOrientation() ?? Orientation.North)
             {
                 case Orientation.North:
 
-                    Game.World.SetBlock(this, (int)Orientation.North << 1, x, y, z);
-                    Game.World.SetBlock(this, ((int)Orientation.North << 1) | 1, x, y, z - 1);
+                    world.SetBlock(this, (int)Orientation.North << 1, x, y, z);
+                    world.SetBlock(this, ((int)Orientation.North << 1) | 1, x, y, z - 1);
 
-                    Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
+                    world.SetSpawnPosition(new Vector3(x, 1024f, z));
 
                     break;
 
                 case Orientation.East:
 
-                    Game.World.SetBlock(this, (int)Orientation.East << 1, x, y, z);
-                    Game.World.SetBlock(this, ((int)Orientation.East << 1) | 1, x + 1, y, z);
+                    world.SetBlock(this, (int)Orientation.East << 1, x, y, z);
+                    world.SetBlock(this, ((int)Orientation.East << 1) | 1, x + 1, y, z);
 
-                    Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
+                    world.SetSpawnPosition(new Vector3(x, 1024f, z));
 
                     break;
 
                 case Orientation.South:
 
-                    Game.World.SetBlock(this, (int)Orientation.South << 1, x, y, z);
-                    Game.World.SetBlock(this, ((int)Orientation.South << 1) | 1, x, y, z + 1);
+                    world.SetBlock(this, (int)Orientation.South << 1, x, y, z);
+                    world.SetBlock(this, ((int)Orientation.South << 1) | 1, x, y, z + 1);
 
-                    Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
+                    world.SetSpawnPosition(new Vector3(x, 1024f, z));
 
                     break;
 
                 case Orientation.West:
 
-                    Game.World.SetBlock(this, (int)Orientation.West << 1, x, y, z);
-                    Game.World.SetBlock(this, ((int)Orientation.West << 1) | 1, x - 1, y, z);
+                    world.SetBlock(this, (int)Orientation.West << 1, x, y, z);
+                    world.SetBlock(this, ((int)Orientation.West << 1) | 1, x - 1, y, z);
 
-                    Game.World.SetSpawnPosition(new Vector3(x, 1024f, z));
+                    world.SetSpawnPosition(new Vector3(x, 1024f, z));
 
                     break;
             }
         }
 
-        internal override void DoDestroy(int x, int y, int z, uint data, PhysicsEntity? entity)
+        internal override void DoDestroy(World world, int x, int y, int z, uint data, PhysicsEntity? entity)
         {
             bool isHead = (data & 0b1) == 1;
 
@@ -204,28 +204,28 @@ namespace VoxelGame.Core.Logic.Blocks
 
                     isHead = !isHead;
 
-                    Game.World.SetDefaultBlock(x, y, z);
-                    Game.World.SetDefaultBlock(x, y, z - (isHead ? 1 : -1));
+                    world.SetDefaultBlock(x, y, z);
+                    world.SetDefaultBlock(x, y, z - (isHead ? 1 : -1));
                     break;
 
                 case Orientation.East:
 
-                    Game.World.SetDefaultBlock(x, y, z);
-                    Game.World.SetDefaultBlock(x - (isHead ? 1 : -1), y, z);
+                    world.SetDefaultBlock(x, y, z);
+                    world.SetDefaultBlock(x - (isHead ? 1 : -1), y, z);
                     break;
 
                 case Orientation.South:
 
-                    Game.World.SetDefaultBlock(x, y, z);
-                    Game.World.SetDefaultBlock(x, y, z - (isHead ? 1 : -1));
+                    world.SetDefaultBlock(x, y, z);
+                    world.SetDefaultBlock(x, y, z - (isHead ? 1 : -1));
                     break;
 
                 case Orientation.West:
 
                     isHead = !isHead;
 
-                    Game.World.SetDefaultBlock(x, y, z);
-                    Game.World.SetDefaultBlock(x - (isHead ? 1 : -1), y, z);
+                    world.SetDefaultBlock(x, y, z);
+                    world.SetDefaultBlock(x - (isHead ? 1 : -1), y, z);
                     break;
             }
         }
@@ -240,37 +240,37 @@ namespace VoxelGame.Core.Logic.Blocks
 
                     isHead = !isHead;
 
-                    Game.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
-                    Game.World.SetBlock(this, (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001, x, y, z - (isHead ? 1 : -1));
+                    entity.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
+                    entity.World.SetBlock(this, (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001, x, y, z - (isHead ? 1 : -1));
                     break;
 
                 case Orientation.East:
 
-                    Game.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
-                    Game.World.SetBlock(this, (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001, x - (isHead ? 1 : -1), y, z);
+                    entity.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
+                    entity.World.SetBlock(this, (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001, x - (isHead ? 1 : -1), y, z);
                     break;
 
                 case Orientation.South:
 
-                    Game.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
-                    Game.World.SetBlock(this, (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001, x, y, z - (isHead ? 1 : -1));
+                    entity.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
+                    entity.World.SetBlock(this, (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001, x, y, z - (isHead ? 1 : -1));
                     break;
 
                 case Orientation.West:
 
                     isHead = !isHead;
 
-                    Game.World.SetBlock(this, data + 0b00_1000 & 0b01_1111, x, y, z);
-                    Game.World.SetBlock(this, (data + 0b00_1000 & 0b01_1111) ^ 0b00_0001, x - (isHead ? 1 : -1), y, z);
+                    entity.World.SetBlock(this, data + 0b00_1000 & 0b01_1111, x, y, z);
+                    entity.World.SetBlock(this, (data + 0b00_1000 & 0b01_1111) ^ 0b00_0001, x - (isHead ? 1 : -1), y, z);
                     break;
             }
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && !Game.World.HasSolidGround(x, y, z))
+            if (side == BlockSide.Bottom && !world.HasSolidGround(x, y, z))
             {
-                Destroy(x, y, z);
+                Destroy(world, x, y, z);
             }
         }
     }

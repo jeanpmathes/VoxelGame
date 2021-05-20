@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using System;
 using System.IO;
@@ -41,6 +42,8 @@ namespace VoxelGame.Core.Logic
 
         public static Vector3 ChunkExtents { get => new Vector3(Section.SectionSize / 2f, ChunkHeight * Section.SectionSize / 2f, Section.SectionSize / 2f); }
 
+        [field: NonSerialized] protected World World { get; private set; }
+
 #pragma warning disable CA1051 // Do not declare visible instance fields
         protected readonly Section[] sections = new Section[ChunkHeight];
 #pragma warning restore CA1051 // Do not declare visible instance fields
@@ -48,8 +51,10 @@ namespace VoxelGame.Core.Logic
         private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
         private readonly ScheduledTickManager<Liquid.LiquidTick> liquidTickManager;
 
-        protected Chunk(int x, int z, UpdateCounter updateCounter)
+        protected Chunk(World world, int x, int z, UpdateCounter updateCounter)
         {
+            World = world;
+
             X = x;
             Z = z;
 
@@ -71,14 +76,16 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Calls setup on all sections. This is required after loading.
         /// </summary>
-        public void Setup(UpdateCounter updateCounter)
+        public void Setup(World world, UpdateCounter updateCounter)
         {
+            World = world;
+
             blockTickManager.Setup(updateCounter);
             liquidTickManager.Setup(updateCounter);
 
             for (var y = 0; y < ChunkHeight; y++)
             {
-                sections[y].Setup();
+                sections[y].Setup(world);
             }
         }
 
@@ -194,8 +201,8 @@ namespace VoxelGame.Core.Logic
 
         public void Tick()
         {
-            blockTickManager.Process();
-            liquidTickManager.Process();
+            blockTickManager.Process(World);
+            liquidTickManager.Process(World);
 
             for (int y = 0; y < ChunkHeight; y++)
             {

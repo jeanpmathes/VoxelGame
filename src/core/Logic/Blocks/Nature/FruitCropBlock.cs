@@ -147,25 +147,25 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            return Game.World.GetBlock(x, y - 1, z, out _) is IPlantable;
+            return world.GetBlock(x, y - 1, z, out _) is IPlantable;
         }
 
-        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            Game.World.SetBlock(this, (int)GrowthStage.Young << 2, x, y, z);
+            world.SetBlock(this, (int)GrowthStage.Young << 2, x, y, z);
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
             var orientation = (Orientation)(data & 0b11);
 
             if (side == BlockSide.Bottom)
             {
-                if (!(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable))
+                if (!(world.GetBlock(x, y - 1, z, out _) is IPlantable))
                 {
-                    Destroy(x, y, z);
+                    Destroy(world, x, y, z);
                 }
             }
             else if (side == orientation.ToBlockSide() && (GrowthStage)((data >> 2) & 0b111) == GrowthStage.WithFruit)
@@ -196,51 +196,51 @@ namespace VoxelGame.Core.Logic.Blocks
 
             void CheckFruit(int fx, int fy, int fz)
             {
-                if (Game.World.GetBlock(fx, fy, fz, out _) != fruit)
+                if (world.GetBlock(fx, fy, fz, out _) != fruit)
                 {
-                    Game.World.SetBlock(this, (int)GrowthStage.First << 2, x, y, z);
+                    world.SetBlock(this, (int)GrowthStage.First << 2, x, y, z);
                 }
             }
         }
 
-        internal override void RandomUpdate(int x, int y, int z, uint data)
+        internal override void RandomUpdate(World world, int x, int y, int z, uint data)
         {
-            if (!(Game.World.GetBlock(x, y - 1, z, out _) is IPlantable ground)) return;
+            if (!(world.GetBlock(x, y - 1, z, out _) is IPlantable ground)) return;
 
             var stage = (GrowthStage)((data >> 2) & 0b111);
 
             if (stage != GrowthStage.Dead && stage < GrowthStage.BeforeFruit)
             {
-                Game.World.SetBlock(this, (uint)((int)(stage + 1) << 2), x, y, z);
+                world.SetBlock(this, (uint)((int)(stage + 1) << 2), x, y, z);
             }
-            else if (stage == GrowthStage.BeforeFruit && ground.SupportsFullGrowth && ground.TryGrow(x, y - 1, z, Liquid.Water, LiquidLevel.Two))
+            else if (stage == GrowthStage.BeforeFruit && ground.SupportsFullGrowth && ground.TryGrow(world, x, y - 1, z, Liquid.Water, LiquidLevel.Two))
             {
-                if (fruit.Place(x, y, z - 1))
+                if (fruit.Place(world, x, y, z - 1))
                 {
-                    Game.World.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.North, x, y, z);
+                    world.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.North, x, y, z);
                 }
-                else if (fruit.Place(x + 1, y, z))
+                else if (fruit.Place(world, x + 1, y, z))
                 {
-                    Game.World.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.East, x, y, z);
+                    world.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.East, x, y, z);
                 }
-                else if (fruit.Place(x, y, z + 1))
+                else if (fruit.Place(world, x, y, z + 1))
                 {
-                    Game.World.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.South, x, y, z);
+                    world.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.South, x, y, z);
                 }
-                else if (fruit.Place(x - 1, y, z))
+                else if (fruit.Place(world, x - 1, y, z))
                 {
-                    Game.World.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.West, x, y, z);
+                    world.SetBlock(this, (uint)GrowthStage.WithFruit << 2 | (uint)Orientation.West, x, y, z);
                 }
             }
             else if (stage == GrowthStage.BeforeFruit && ground.SupportsFullGrowth)
             {
-                Game.World.SetBlock(this, (uint)GrowthStage.Dead << 2, x, y, z);
+                world.SetBlock(this, (uint)GrowthStage.Dead << 2, x, y, z);
             }
         }
 
-        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0 && level > LiquidLevel.Three) ScheduleDestroy(x, y, z);
+            if (liquid.Direction > 0 && level > LiquidLevel.Three) ScheduleDestroy(world, x, y, z);
         }
 
         private enum GrowthStage

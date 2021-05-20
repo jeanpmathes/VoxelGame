@@ -51,17 +51,17 @@ namespace VoxelGame.Core.Logic.Blocks
             return mesh;
         }
 
-        internal override void RandomUpdate(int x, int y, int z, uint data)
+        internal override void RandomUpdate(World world, int x, int y, int z, uint data)
         {
-            Liquid? liquid = Game.World.GetLiquid(x, y, z, out LiquidLevel level, out _);
+            Liquid? liquid = world.GetLiquid(x, y, z, out LiquidLevel level, out _);
 
             if (liquid == Liquid.Water && level == LiquidLevel.Eight)
             {
-                Game.World.SetBlock(Block.Mud, 0, x, y, z);
+                world.SetBlock(Block.Mud, 0, x, y, z);
             }
         }
 
-        public virtual bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
+        public virtual bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
         {
             return liquid.Viscosity < 100;
         }

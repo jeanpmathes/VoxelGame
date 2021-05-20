@@ -128,12 +128,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 : new BlockMeshData(vertexCountTop, verticesTop[index], texIndicesTop, indicesTop);
         }
 
-        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            return Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true && Game.World.HasSolidGround(x, y, z);
+            return world.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true && world.HasSolidGround(x, y, z);
         }
 
-        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
             BlockSide side = entity?.TargetSide ?? BlockSide.Top;
@@ -150,19 +150,19 @@ namespace VoxelGame.Core.Logic.Blocks
                 switch (orientation)
                 {
                     case Orientation.North:
-                        neighbor = Game.World.GetBlock(x - 1, y, z, out data) ?? Block.Air;
+                        neighbor = world.GetBlock(x - 1, y, z, out data) ?? Block.Air;
                         break;
 
                     case Orientation.East:
-                        neighbor = Game.World.GetBlock(x, y, z - 1, out data) ?? Block.Air;
+                        neighbor = world.GetBlock(x, y, z - 1, out data) ?? Block.Air;
                         break;
 
                     case Orientation.South:
-                        neighbor = Game.World.GetBlock(x + 1, y, z, out data) ?? Block.Air;
+                        neighbor = world.GetBlock(x + 1, y, z, out data) ?? Block.Air;
                         break;
 
                     case Orientation.West:
-                        neighbor = Game.World.GetBlock(x, y, z + 1, out data) ?? Block.Air;
+                        neighbor = world.GetBlock(x, y, z + 1, out data) ?? Block.Air;
                         break;
 
                     default:
@@ -182,14 +182,14 @@ namespace VoxelGame.Core.Logic.Blocks
                     (orientation == Orientation.West && side != BlockSide.Front);
             }
 
-            Game.World.SetBlock(this, (uint)((isLeftSided ? 0b0000 : 0b1000) | (int)orientation), x, y, z);
-            Game.World.SetBlock(this, (uint)((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int)orientation), x, y + 1, z);
+            world.SetBlock(this, (uint)((isLeftSided ? 0b0000 : 0b1000) | (int)orientation), x, y, z);
+            world.SetBlock(this, (uint)((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int)orientation), x, y + 1, z);
         }
 
-        internal override void DoDestroy(int x, int y, int z, uint data, PhysicsEntity? entity)
+        internal override void DoDestroy(World world, int x, int y, int z, uint data, PhysicsEntity? entity)
         {
-            Game.World.SetDefaultBlock(x, y, z);
-            Game.World.SetDefaultBlock(x, y + ((data & 0b00_0100) == 0 ? 1 : -1), z);
+            world.SetDefaultBlock(x, y, z);
+            world.SetDefaultBlock(x, y + ((data & 0b00_0100) == 0 ? 1 : -1), z);
         }
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
@@ -201,8 +201,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 return;
             }
 
-            Game.World.SetBlock(this, data ^ 0b1_0000, x, y, z);
-            Game.World.SetBlock(this, data ^ 0b1_0100, x, y + (isBase ? 1 : -1), z);
+            entity.World.SetBlock(this, data ^ 0b1_0000, x, y, z);
+            entity.World.SetBlock(this, data ^ 0b1_0100, x, y + (isBase ? 1 : -1), z);
 
             // Open a neighboring door, if available.
             switch (((data & 0b00_1000) == 0) ? ((Orientation)(data & 0b00_0011)).Invert() : (Orientation)(data & 0b00_0011))
@@ -230,7 +230,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             void OpenNeighbor(int x, int y, int z)
             {
-                Block neighbor = Game.World.GetBlock(x, y, z, out uint neighborData) ?? Block.Air;
+                Block neighbor = entity.World.GetBlock(x, y, z, out uint neighborData) ?? Block.Air;
 
                 if (neighbor == this && (data & 0b01_1011) == ((neighborData ^ 0b00_1000) & 0b01_1011))
                 {
@@ -239,11 +239,11 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && (data & 0b00_0100) == 0 && !Game.World.HasSolidGround(x, y, z))
+            if (side == BlockSide.Bottom && (data & 0b00_0100) == 0 && !world.HasSolidGround(x, y, z))
             {
-                Destroy(x, y, z);
+                Destroy(world, x, y, z);
             }
         }
     }

@@ -22,13 +22,13 @@ namespace VoxelGame.Client.Logic
         [NonSerialized] private bool hasMeshData;
         [NonSerialized] private int meshDataIndex;
 
-        public ClientChunk(int x, int z, UpdateCounter updateCounter) : base(x, z, updateCounter)
+        public ClientChunk(World world, int x, int z, UpdateCounter updateCounter) : base(world, x, z, updateCounter)
         {
         }
 
         protected override Section CreateSection()
         {
-            return new ClientSection();
+            return new ClientSection(World);
         }
 
         public void CreateAndSetMesh()

@@ -44,9 +44,9 @@ namespace VoxelGame.Core.Logic.Blocks
             entity.Velocity = VMath.Clamp(entity.Velocity, -1f, maxVelocity);
         }
 
-        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0) ScheduleDestroy(x, y, z);
+            if (liquid.Direction > 0) ScheduleDestroy(world, x, y, z);
         }
     }
 }

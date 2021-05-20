@@ -318,7 +318,7 @@ namespace VoxelGame.Core.Logic
                             {
                                 if (!positionsToReleaseOnActivation.Remove((loadedChunk.X, loadedChunk.Z)))
                                 {
-                                    loadedChunk.Setup(UpdateCounter);
+                                    loadedChunk.Setup(this, UpdateCounter);
                                     activeChunks.Add((x, z), loadedChunk);
 
                                     ProcessNewlyActivatedChunk(loadedChunk);
@@ -610,33 +610,33 @@ namespace VoxelGame.Core.Logic
             uint val = Section.Encode(block, data, liquid, level, isStatic);
             chunk.GetSection(y >> ChunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
 
-            if (tickLiquid) liquid.TickNow(x, y, z, level, isStatic);
+            if (tickLiquid) liquid.TickNow(this, x, y, z, level, isStatic);
 
             // Block updates - Side is passed out of the perspective of the block receiving the block update.
 
             (Block? blockNeighbour, Liquid? liquidNeighbour) = GetPosition(x, y, z + 1, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(x, y, z + 1, data, BlockSide.Back);
-            liquidNeighbour?.TickSoon(x, y, z + 1, isStatic);
+            blockNeighbour?.BlockUpdate(this, x, y, z + 1, data, BlockSide.Back);
+            liquidNeighbour?.TickSoon(this, x, y, z + 1, isStatic);
 
             (blockNeighbour, liquidNeighbour) = GetPosition(x, y, z - 1, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(x, y, z - 1, data, BlockSide.Front);
-            liquidNeighbour?.TickSoon(x, y, z - 1, isStatic);
+            blockNeighbour?.BlockUpdate(this, x, y, z - 1, data, BlockSide.Front);
+            liquidNeighbour?.TickSoon(this, x, y, z - 1, isStatic);
 
             (blockNeighbour, liquidNeighbour) = GetPosition(x - 1, y, z, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(x - 1, y, z, data, BlockSide.Right);
-            liquidNeighbour?.TickSoon(x - 1, y, z, isStatic);
+            blockNeighbour?.BlockUpdate(this, x - 1, y, z, data, BlockSide.Right);
+            liquidNeighbour?.TickSoon(this, x - 1, y, z, isStatic);
 
             (blockNeighbour, liquidNeighbour) = GetPosition(x + 1, y, z, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(x + 1, y, z, data, BlockSide.Left);
-            liquidNeighbour?.TickSoon(x + 1, y, z, isStatic);
+            blockNeighbour?.BlockUpdate(this, x + 1, y, z, data, BlockSide.Left);
+            liquidNeighbour?.TickSoon(this, x + 1, y, z, isStatic);
 
             (blockNeighbour, liquidNeighbour) = GetPosition(x, y - 1, z, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(x, y - 1, z, data, BlockSide.Top);
-            liquidNeighbour?.TickSoon(x, y - 1, z, isStatic);
+            blockNeighbour?.BlockUpdate(this, x, y - 1, z, data, BlockSide.Top);
+            liquidNeighbour?.TickSoon(this, x, y - 1, z, isStatic);
 
             (blockNeighbour, liquidNeighbour) = GetPosition(x, y + 1, z, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(x, y + 1, z, data, BlockSide.Bottom);
-            liquidNeighbour?.TickSoon(x, y + 1, z, isStatic);
+            blockNeighbour?.BlockUpdate(this, x, y + 1, z, data, BlockSide.Bottom);
+            liquidNeighbour?.TickSoon(this, x, y + 1, z, isStatic);
 
             ProcessChangedSection(chunk, x, y, z);
         }
