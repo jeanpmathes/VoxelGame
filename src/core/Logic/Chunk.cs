@@ -67,8 +67,8 @@ namespace VoxelGame.Core.Logic
 #pragma warning restore S1699 // Constructors should only call non-overridable methods
             }
 
-            blockTickManager = new ScheduledTickManager<Block.BlockTick>(Block.MaxLiquidTicksPerFrameAndChunk, updateCounter);
-            liquidTickManager = new ScheduledTickManager<Liquid.LiquidTick>(Liquid.MaxLiquidTicksPerFrameAndChunk, updateCounter);
+            blockTickManager = new ScheduledTickManager<Block.BlockTick>(Block.MaxLiquidTicksPerFrameAndChunk, World, updateCounter);
+            liquidTickManager = new ScheduledTickManager<Liquid.LiquidTick>(Liquid.MaxLiquidTicksPerFrameAndChunk, World, updateCounter);
         }
 
         protected abstract Section CreateSection();
@@ -80,8 +80,8 @@ namespace VoxelGame.Core.Logic
         {
             World = world;
 
-            blockTickManager.Setup(updateCounter);
-            liquidTickManager.Setup(updateCounter);
+            blockTickManager.Setup(World, updateCounter);
+            liquidTickManager.Setup(World, updateCounter);
 
             for (var y = 0; y < ChunkHeight; y++)
             {
@@ -201,8 +201,8 @@ namespace VoxelGame.Core.Logic
 
         public void Tick()
         {
-            blockTickManager.Process(World);
-            liquidTickManager.Process(World);
+            blockTickManager.Process();
+            liquidTickManager.Process();
 
             for (int y = 0; y < ChunkHeight; y++)
             {

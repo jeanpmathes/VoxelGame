@@ -21,16 +21,20 @@ namespace VoxelGame.Core.Collections
         private readonly int maxTicks;
         private TicksHolder? nextTicks;
 
+        [NonSerialized] private World world;
         [NonSerialized] private UpdateCounter updateCounter;
 
-        public ScheduledTickManager(int maxTicks, UpdateCounter updateCounter)
+        public ScheduledTickManager(int maxTicks, World world, UpdateCounter updateCounter)
         {
             this.maxTicks = maxTicks;
+
+            this.world = world;
             this.updateCounter = updateCounter;
         }
 
-        public void Setup(UpdateCounter counter)
+        public void Setup(World containingWorld, UpdateCounter counter)
         {
+            world = containingWorld;
             updateCounter = counter;
 
             Load();
@@ -99,7 +103,7 @@ namespace VoxelGame.Core.Collections
             return newLastTicks;
         }
 
-        public void Process(World world)
+        public void Process()
         {
             if (nextTicks != null && nextTicks.targetUpdate <= updateCounter.CurrentUpdate)
             {
