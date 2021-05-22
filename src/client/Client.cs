@@ -59,8 +59,6 @@ namespace VoxelGame.Client
         public static ClientWorld World { get; private set; } = null!;
         public static ClientPlayer Player { get; private set; } = null!;
 
-        public static Random Random { get; private set; } = null!;
-
         public static double Time { get; private set; }
 
         public static double Fps => 1.0 / Instance.renderDeltaBuffer.Average;
