@@ -18,7 +18,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
     /// </summary>
     public class BoxRenderer : Rendering.BoxRenderer
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<BoxRenderer>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<BoxRenderer>();
 
         private readonly int vbo;
         private readonly int ebo;
@@ -109,7 +109,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             }
             else
             {
-                logger.LogWarning(LoggingEvents.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
+                Logger.LogWarning(LoggingEvents.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
             }
 
             disposed = true;

@@ -16,7 +16,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 {
     public class Texture : Rendering.Texture
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<Texture>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Texture>();
 
         public override int Handle { get; }
 
@@ -40,7 +40,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
                     SetupTexture(bitmap);
                 }
 
-                logger.LogWarning(LoggingEvents.MissingRessource, exception, "The texture could not be loaded and a fallback was used instead because the file was not found: {path}", path);
+                Logger.LogWarning(LoggingEvents.MissingRessource, exception, "The texture could not be loaded and a fallback was used instead because the file was not found: {path}", path);
             }
 
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
@@ -88,7 +88,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
                 }
                 else
                 {
-                    logger.LogWarning(LoggingEvents.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");
+                    Logger.LogWarning(LoggingEvents.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");
                 }
 
                 disposed = true;

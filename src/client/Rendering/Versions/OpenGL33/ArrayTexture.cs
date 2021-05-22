@@ -17,7 +17,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 {
     public class ArrayTexture : Rendering.ArrayTexture
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<ArrayTexture>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ArrayTexture>();
 
         public override int Count { get; protected set; }
 
@@ -122,7 +122,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
                     }
                 }
 
-                logger.LogWarning(LoggingEvents.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");
+                Logger.LogWarning(LoggingEvents.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");
 
                 disposed = true;
             }

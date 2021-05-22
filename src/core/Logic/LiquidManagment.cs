@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic
 {
     public abstract partial class Liquid
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<Liquid>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Liquid>();
 
         public const int LiquidLimit = 32;
 
@@ -52,7 +52,7 @@ namespace VoxelGame.Core.Logic
             }
             else
             {
-                logger.LogWarning("No Liquid with the ID {id} could be found, returning {fallback} instead.", id, nameof(Liquid.None));
+                Logger.LogWarning("No Liquid with the ID {id} could be found, returning {fallback} instead.", id, nameof(Liquid.None));
 
                 return Liquid.None;
             }
@@ -66,7 +66,7 @@ namespace VoxelGame.Core.Logic
             }
             else
             {
-                logger.LogWarning("No Liquid with the named ID {id} could be found, returning {fallback} instead.", namedId, nameof(Liquid.None));
+                Logger.LogWarning("No Liquid with the named ID {id} could be found, returning {fallback} instead.", namedId, nameof(Liquid.None));
 
                 return Liquid.None;
             }
@@ -82,16 +82,16 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public static void LoadLiquids(ITextureIndexProvider indexProvider)
         {
-            using (logger.BeginScope("Liquid Loading"))
+            using (Logger.BeginScope("Liquid Loading"))
             {
                 foreach (Liquid liquid in liquidDictionary.Values)
                 {
                     liquid.Setup(indexProvider);
 
-                    logger.LogDebug(LoggingEvents.LiquidLoad, "Loaded the liquid [{liquid}] with ID {id}.", liquid, liquid.Id);
+                    Logger.LogDebug(LoggingEvents.LiquidLoad, "Loaded the liquid [{liquid}] with ID {id}.", liquid, liquid.Id);
                 }
 
-                logger.LogInformation("Liquid setup complete. A total of {count} liquids have been loaded.", Count);
+                Logger.LogInformation("Liquid setup complete. A total of {count} liquids have been loaded.", Count);
             }
         }
 

@@ -20,7 +20,7 @@ namespace VoxelGame.Core.Visuals
     {
         private const string BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
 
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<BlockModel>();
 
         private static readonly string path = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Models");
 
@@ -362,13 +362,13 @@ namespace VoxelGame.Core.Visuals
                 string json = File.ReadAllText(Path.Combine(path, name + ".json"));
                 BlockModel model = JsonSerializer.Deserialize<BlockModel>(json) ?? new BlockModel();
 
-                logger.LogDebug("Loaded BlockModel: {name}", name);
+                Logger.LogDebug("Loaded BlockModel: {name}", name);
 
                 return model;
             }
             catch (Exception e) when (e is IOException || e is FileNotFoundException || e is JsonException)
             {
-                logger.LogWarning(LoggingEvents.MissingRessource, e, "Could not load the model '{name}' because an exception occurred, a fallback will be used instead.", name);
+                Logger.LogWarning(LoggingEvents.MissingRessource, e, "Could not load the model '{name}' because an exception occurred, a fallback will be used instead.", name);
 
                 return CreateFallback();
             }

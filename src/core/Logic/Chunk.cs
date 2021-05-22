@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic
     [Serializable]
     public abstract class Chunk : IDisposable
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Chunk>();
 
         public const int ChunkHeight = 32;
 
@@ -98,7 +98,7 @@ namespace VoxelGame.Core.Logic
         /// <returns>The loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
         public static Chunk? Load(string path, int x, int z)
         {
-            logger.LogDebug("Loading chunk for position: ({x}|{z})", x, z);
+            Logger.LogDebug("Loading chunk for position: ({x}|{z})", x, z);
 
             Chunk chunk;
 
@@ -115,7 +115,7 @@ namespace VoxelGame.Core.Logic
             }
             else
             {
-                logger.LogWarning("The file for the chunk at ({x}|{z}) was not valid as the position did not match.", x, z);
+                Logger.LogWarning("The file for the chunk at ({x}|{z}) was not valid as the position did not match.", x, z);
 
                 return null;
             }
@@ -144,7 +144,7 @@ namespace VoxelGame.Core.Logic
 
             string chunkFile = path + $"/x{X}z{Z}.chunk";
 
-            logger.LogDebug("Saving the chunk ({x}|{z}) to: {path}", X, Z, chunkFile);
+            Logger.LogDebug("Saving the chunk ({x}|{z}) to: {path}", X, Z, chunkFile);
 
             using Stream stream = new FileStream(chunkFile, FileMode.Create, FileAccess.Write, FileShare.Read);
             IFormatter formatter = new BinaryFormatter();
@@ -166,7 +166,7 @@ namespace VoxelGame.Core.Logic
 
         public void Generate(IWorldGenerator generator)
         {
-            logger.LogDebug("Generating the chunk ({x}|{z}) using the '{name}' generator.", X, Z, generator);
+            Logger.LogDebug("Generating the chunk ({x}|{z}) using the '{name}' generator.", X, Z, generator);
 
             for (int x = 0; x < Section.SectionSize; x++)
             {

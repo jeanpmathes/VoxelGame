@@ -21,7 +21,7 @@ namespace VoxelGame.Client.Scenes
 {
     public class StartScene : IScene
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<StartScene>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<StartScene>();
 
         private readonly StartUserInterface ui;
 
@@ -91,13 +91,13 @@ namespace VoxelGame.Client.Scenes
 
         private ClientWorld WorldSetup(string worldsDirectory)
         {
-            using (logger.BeginScope("WorldSetup"))
+            using (Logger.BeginScope("WorldSetup"))
             {
                 bool newWorld;
 
                 if (worlds.Count == 0)
                 {
-                    logger.LogInformation("Skipping new world prompt as no worlds are available to load.");
+                    Logger.LogInformation("Skipping new world prompt as no worlds are available to load.");
 
                     newWorld = true;
                 }
@@ -130,15 +130,15 @@ namespace VoxelGame.Client.Scenes
                     WorldInformation information = WorldInformation.Load(meta);
                     worlds.Add((information, directory));
 
-                    logger.LogDebug("Valid world directory found: {directory}", directory);
+                    Logger.LogDebug("Valid world directory found: {directory}", directory);
                 }
                 else
                 {
-                    logger.LogDebug("The directory has no meta file and is ignored: {directory}", directory);
+                    Logger.LogDebug("The directory has no meta file and is ignored: {directory}", directory);
                 }
             }
 
-            logger.LogInformation("Completed world lookup, {Count} valid directories have been found.", worlds.Count);
+            Logger.LogInformation("Completed world lookup, {Count} valid directories have been found.", worlds.Count);
         }
 
         private static void ListWorlds(List<(WorldInformation information, string path)> worlds)
@@ -217,7 +217,7 @@ namespace VoxelGame.Client.Scenes
         {
             if (name.Length == 0)
             {
-                logger.LogWarning("The input is too short.");
+                Logger.LogWarning("The input is too short.");
 
                 Console.WriteLine(Language.InputNotValid);
 
@@ -226,7 +226,7 @@ namespace VoxelGame.Client.Scenes
 
             if (name[^1] == ' ')
             {
-                logger.LogWarning("The input ends with a whitespace.");
+                Logger.LogWarning("The input ends with a whitespace.");
 
                 Console.WriteLine(Language.InputNotValid);
 
@@ -249,7 +249,7 @@ namespace VoxelGame.Client.Scenes
             {
                 if (name.Contains(c, StringComparison.Ordinal))
                 {
-                    logger.LogWarning("The input contains an invalid character.");
+                    Logger.LogWarning("The input contains an invalid character.");
 
                     Console.WriteLine(Language.InputNotValid);
 
@@ -316,14 +316,14 @@ namespace VoxelGame.Client.Scenes
                     }
                     else
                     {
-                        logger.LogWarning("The index ({i}) is too high or too low.", n);
+                        Logger.LogWarning("The index ({i}) is too high or too low.", n);
 
                         Console.WriteLine(Language.WorldNotFound);
                     }
                 }
                 else
                 {
-                    logger.LogWarning("The input ({input}) could not be parsed to an int value.", index);
+                    Logger.LogWarning("The input ({input}) could not be parsed to an int value.", index);
 
                     Console.WriteLine(Language.InputNotValid);
                 }

@@ -19,7 +19,7 @@ namespace VoxelGame.Client.Logic
 {
     public class ClientWorld : Core.Logic.World
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<ClientWorld>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ClientWorld>();
 
         protected int MaxMeshingTasks { get; } = Properties.client.Default.MaxMeshingTasks;
         protected int MaxMeshDataSends { get; } = Properties.client.Default.MaxMeshDataSends;
@@ -153,7 +153,7 @@ namespace VoxelGame.Client.Logic
                 {
                     IsReady = true;
 
-                    logger.LogInformation("The world is ready.");
+                    Logger.LogInformation("The world is ready.");
                 }
             }
 
@@ -202,7 +202,7 @@ namespace VoxelGame.Client.Logic
                         {
                             Exception e = completed.Exception?.GetBaseException() ?? new NullReferenceException();
 
-                            logger.LogCritical(LoggingEvents.ChunkMeshingError, e, "An exception occurred when meshing the chunk ({x}|{z}). The exception will be re-thrown.", meshedChunk.X, meshedChunk.Z);
+                            Logger.LogCritical(LoggingEvents.ChunkMeshingError, e, "An exception occurred when meshing the chunk ({x}|{z}). The exception will be re-thrown.", meshedChunk.X, meshedChunk.Z);
 
                             throw e;
                         }

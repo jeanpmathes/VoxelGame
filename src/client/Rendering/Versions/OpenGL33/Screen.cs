@@ -22,7 +22,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
     /// </summary>
     public class Screen : Rendering.Screen
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Screen>();
 
         private protected override Client Client { get; set; }
 
@@ -50,7 +50,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
             int maxSamples = GL.GetInteger(GetPName.MaxSamples);
             samples = Properties.client.Default.SampleCount;
-            logger.LogDebug("Set sample count to {samples}, of maximum {max} possible samples.", samples, maxSamples);
+            Logger.LogDebug("Set sample count to {samples}, of maximum {max} possible samples.", samples, maxSamples);
 
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
@@ -69,7 +69,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
             while (multisampledFboStatus != FramebufferErrorCode.FramebufferComplete)
             {
-                logger.LogWarning("Multi-sampled FBO not complete [{status}], waiting...", multisampledFboStatus);
+                Logger.LogWarning("Multi-sampled FBO not complete [{status}], waiting...", multisampledFboStatus);
                 Thread.Sleep(100);
 
                 multisampledFboStatus = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
@@ -102,7 +102,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
             while (depthFboStatus != FramebufferErrorCode.FramebufferComplete)
             {
-                logger.LogWarning("Depth FBO not complete [{status}], waiting...", depthFboStatus);
+                Logger.LogWarning("Depth FBO not complete [{status}], waiting...", depthFboStatus);
                 Thread.Sleep(100);
 
                 depthFboStatus = GL.CheckFramebufferStatus(FramebufferTarget.DrawFramebuffer);
@@ -127,7 +127,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 
             while (screenshotFboStatus != FramebufferErrorCode.FramebufferComplete)
             {
-                logger.LogWarning("Screenshot FBO not complete [{status}], waiting...", screenshotFboStatus);
+                Logger.LogWarning("Screenshot FBO not complete [{status}], waiting...", screenshotFboStatus);
                 Thread.Sleep(100);
 
                 screenshotFboStatus = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
@@ -192,7 +192,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             Client.OverlayShader.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
             Client.ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
 
-            logger.LogDebug("Window has been resized to: {size}", e.Size);
+            Logger.LogDebug("Window has been resized to: {size}", e.Size);
         }
 
         #region PUBLIC STATIC METHODS
@@ -216,7 +216,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             string path = Path.Combine(directory, $"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
 
             screenshot.Save(path);
-            logger.LogInformation("Saved a screenshot to: {path}", path);
+            Logger.LogInformation("Saved a screenshot to: {path}", path);
 
             Marshal.FreeHGlobal(data);
         }
@@ -262,7 +262,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
                     GL.DeleteRenderbuffer(screenshotRBO);
                 }
 
-                logger.LogWarning(LoggingEvents.UndeletedGlObjects, "A screen object has been destroyed without disposing it.");
+                Logger.LogWarning(LoggingEvents.UndeletedGlObjects, "A screen object has been destroyed without disposing it.");
 
                 disposed = true;
             }

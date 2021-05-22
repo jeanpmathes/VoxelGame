@@ -20,7 +20,7 @@ namespace VoxelGame.Client.Scenes
 {
     public class GameScene : IScene
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<GameScene>();
 
         private readonly GameUserInterface ui;
 
@@ -63,7 +63,7 @@ namespace VoxelGame.Client.Scenes
 
             counter.ResetUpdate();
 
-            logger.LogInformation("Loaded GameScene");
+            Logger.LogInformation("Loaded GameScene");
         }
 
         public void OnResize(Vector2i size)
@@ -73,7 +73,7 @@ namespace VoxelGame.Client.Scenes
 
         public void Render(float deltaTime)
         {
-            using (logger.BeginScope("GameScene Render"))
+            using (Logger.BeginScope("GameScene Render"))
             {
                 ui.SetUpdateRate(Client.Fps, Client.Ups);
 
@@ -85,7 +85,7 @@ namespace VoxelGame.Client.Scenes
 
         public void Update(float deltaTime)
         {
-            using (logger.BeginScope("GameScene Update"))
+            using (Logger.BeginScope("GameScene Update"))
             {
                 counter.IncrementUpdate();
 
@@ -118,14 +118,14 @@ namespace VoxelGame.Client.Scenes
                         Screen.SetWireFrame(false);
                         wireframeMode = false;
 
-                        logger.LogInformation("Disabled wire-frame mode.");
+                        Logger.LogInformation("Disabled wire-frame mode.");
                     }
                     else
                     {
                         Screen.SetWireFrame(true);
                         wireframeMode = true;
 
-                        logger.LogInformation("Enabled wire-frame mode.");
+                        Logger.LogInformation("Enabled wire-frame mode.");
                     }
                 }
                 else if (input.IsKeyUp(Key.K))
@@ -153,7 +153,7 @@ namespace VoxelGame.Client.Scenes
 
         public void Unload()
         {
-            logger.LogInformation("Unloading world.");
+            Logger.LogInformation("Unloading world.");
 
             try
             {
@@ -162,7 +162,7 @@ namespace VoxelGame.Client.Scenes
             }
             catch (AggregateException exception)
             {
-                logger.LogCritical(LoggingEvents.WorldSavingError, exception.GetBaseException(), "An exception was thrown when saving the world.");
+                Logger.LogCritical(LoggingEvents.WorldSavingError, exception.GetBaseException(), "An exception was thrown when saving the world.");
             }
 
             World.Dispose();
