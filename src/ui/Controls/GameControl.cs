@@ -32,7 +32,7 @@ namespace VoxelGame.UI.Controls
             grid.SetRowHeights(0.1f, 0.8f);
 
             playerSelection = BuildLabel("Block: _____");
-            version = BuildLabel($"VoxelGame {Game.Version}");
+            version = BuildLabel($"VoxelGame {GameInformation.Instance.Version}");
             performance = BuildLabel("FPS/UPS: 000/000");
         }
 

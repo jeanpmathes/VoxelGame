@@ -133,7 +133,7 @@ namespace VoxelGame.Core.Logic
                     Name = name,
                     Seed = seed,
                     Creation = DateTime.Now,
-                    Version = Game.Version
+                    Version = GameInformation.Instance.Version
                 },
                 worldDirectory: path,
                 chunkDirectory: path + "/Chunks",
@@ -756,7 +756,7 @@ namespace VoxelGame.Core.Logic
                 }
             }
 
-            Information.Version = Game.Version;
+            Information.Version = GameInformation.Instance.Version;
 
             savingTasks.Add(Task.Run(() => Information.Save(Path.Combine(WorldDirectory, "meta.json"))));
 
