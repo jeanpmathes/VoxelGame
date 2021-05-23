@@ -102,7 +102,7 @@ namespace VoxelGame.Client
             MouseMove += OnMouseMove;
         }
 
-        new protected void OnLoad()
+        private new void OnLoad()
         {
             using (Logger.BeginScope("Client OnLoad"))
             {
@@ -167,7 +167,7 @@ namespace VoxelGame.Client
             }
         }
 
-        new protected void OnRenderFrame(FrameEventArgs e)
+        private new void OnRenderFrame(FrameEventArgs e)
         {
             using (Logger.BeginScope("RenderFrame"))
             {
@@ -192,7 +192,7 @@ namespace VoxelGame.Client
 
         private bool hasReleasedFullscreenKey = true;
 
-        new protected void OnUpdateFrame(FrameEventArgs e)
+        private new void OnUpdateFrame(FrameEventArgs e)
         {
             using (Logger.BeginScope("UpdateFrame"))
             {
@@ -220,7 +220,7 @@ namespace VoxelGame.Client
             }
         }
 
-        new protected void OnClosed()
+        private new void OnClosed()
         {
             Logger.LogInformation("Closing window.");
         }
