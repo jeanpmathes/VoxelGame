@@ -56,10 +56,7 @@ namespace VoxelGame.Client
         public static Shader SelectionShader { get; private set; } = null!;
         public static Shader ScreenElementShader { get; private set; } = null!;
 
-        public static ClientWorld World { get; private set; } = null!;
         public static ClientPlayer Player { get; private set; } = null!;
-
-        public static double Time { get; private set; }
 
         public static double Fps => 1.0 / Instance.renderDeltaBuffer.Average;
         public static double Ups => 1.0 / Instance.updateDeltaBuffer.Average;
@@ -69,6 +66,7 @@ namespace VoxelGame.Client
         public IScene Scene { get; private set; } = null!;
         private StartScene startScene = null!;
 
+        private double Time { get; set; }
         public unsafe Window* WindowPointer { get; }
 
         public readonly string AppDataDirectory;
@@ -238,7 +236,6 @@ namespace VoxelGame.Client
             Instance.Scene = gameScene;
             Instance.Scene.Load();
 
-            World = gameScene.World;
             Player = gameScene.Player;
         }
 
@@ -249,15 +246,7 @@ namespace VoxelGame.Client
 
             Instance.Scene = Instance.startScene;
             Instance.Scene.Load();
-        }
 
-        public static void InvalidateWorld()
-        {
-            World = null!;
-        }
-
-        public static void InvalidatePlayer()
-        {
             Player = null!;
         }
 

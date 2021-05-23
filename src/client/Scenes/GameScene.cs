@@ -170,9 +170,6 @@ namespace VoxelGame.Client.Scenes
 
             World = null!;
             Player = null!;
-
-            Client.InvalidateWorld();
-            Client.InvalidatePlayer();
         }
 
         #region IDisposable Support.
