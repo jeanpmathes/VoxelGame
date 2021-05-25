@@ -277,60 +277,63 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? blockNeighbor, Liquid? liquidNeighbor) = world.GetPosition(nx, ny, nz, out _, out LiquidLevel levelNeighbor, out bool isStatic);
 
-                if (blockNeighbor is IFillable neighborFillable && neighborFillable.AllowInflow(world, nx, ny, nz, side, this) && outflowAllowed)
+                if (!(blockNeighbor is IFillable neighborFillable) ||
+                    !neighborFillable.AllowInflow(world, nx, ny, nz, side, this) || !outflowAllowed)
                 {
-                    if (liquidNeighbor == Liquid.None)
+                    return false;
+                }
+
+                if (liquidNeighbor == Liquid.None)
+                {
+                    isStatic = true;
+
+                    (Block? belowNeighborBlock, Liquid? belowNeighborLiquid) = world.GetPosition(nx, ny - Direction, nz, out _, out _, out _);
+
+                    if (belowNeighborLiquid == Liquid.None
+                        && belowNeighborBlock is IFillable belowFillable
+                        && belowFillable.AllowInflow(world, nx, ny - Direction, nz, Direction > 0 ? BlockSide.Top : BlockSide.Bottom, this)
+                        && neighborFillable.AllowOutflow(world, nx, ny, nz, Direction > 0 ? BlockSide.Bottom : BlockSide.Top))
                     {
-                        isStatic = true;
+                        SetLiquid(world, this, level, false, belowFillable, nx, ny - Direction, nz);
 
-                        (Block? belowNeighborBlock, Liquid? belowNeighborLiquid) = world.GetPosition(nx, ny - Direction, nz, out _, out _, out _);
+                        ScheduleTick(world, nx, ny - Direction, nz);
 
-                        if (belowNeighborLiquid == Liquid.None
-                            && belowNeighborBlock is IFillable belowFillable
-                            && belowFillable.AllowInflow(world, nx, ny - Direction, nz, Direction > 0 ? BlockSide.Top : BlockSide.Bottom, this)
-                            && neighborFillable.AllowOutflow(world, nx, ny, nz, Direction > 0 ? BlockSide.Bottom : BlockSide.Top))
-                        {
-                            SetLiquid(world, this, level, false, belowFillable, nx, ny - Direction, nz);
+                        SetLiquid(world, Liquid.None, LiquidLevel.Eight, true, currentFillable, x, y, z);
+                    }
+                    else
+                    {
+                        SetLiquid(world, this, LiquidLevel.One, false, neighborFillable, nx, ny, nz);
 
-                            ScheduleTick(world, nx, ny - Direction, nz);
+                        if (isStatic) ScheduleTick(world, nx, ny, nz);
 
-                            SetLiquid(world, Liquid.None, LiquidLevel.Eight, true, currentFillable, x, y, z);
-                        }
-                        else
-                        {
-                            SetLiquid(world, this, LiquidLevel.One, false, neighborFillable, nx, ny, nz);
+                        bool remaining = level != LiquidLevel.One;
+                        SetLiquid(world, remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, currentFillable, x, y, z);
 
-                            if (isStatic) ScheduleTick(world, nx, ny, nz);
-
-                            bool remaining = level != LiquidLevel.One;
-                            SetLiquid(world, remaining ? this : Liquid.None, remaining ? level - 1 : LiquidLevel.Eight, !remaining, currentFillable, x, y, z);
-
-                            if (remaining) ScheduleTick(world, x, y, z);
-                        }
-
-                        return true;
+                        if (remaining) ScheduleTick(world, x, y, z);
                     }
 
-                    if (liquidNeighbor != null && liquidNeighbor != this)
-                    {
-                        if (ContactManager.HandleContact(world, this, (x, y, z), level, liquidNeighbor, (nx, ny, nz), levelNeighbor, isStatic)) return true;
-                    }
-                    else if (liquidNeighbor == this && level > levelNeighbor && levelNeighbor < levelHorizontal)
-                    {
-                        bool allowsFlow = levelNeighbor != level - 1
-                                          || (level == LiquidLevel.Eight && !IsAtSurface(world, x, y, z) && IsAtSurface(world, nx, ny, nz))
-                                          || HasNeighborWithLevel(world, level - 2, nx, ny, nz)
-                                          || HasNeighborWithEmpty(world, nx, ny, nz);
+                    return true;
+                }
 
-                        if (!allowsFlow) return false;
+                if (liquidNeighbor != null && liquidNeighbor != this)
+                {
+                    if (ContactManager.HandleContact(world, this, (x, y, z), level, liquidNeighbor, (nx, ny, nz), levelNeighbor, isStatic)) return true;
+                }
+                else if (liquidNeighbor == this && level > levelNeighbor && levelNeighbor < levelHorizontal)
+                {
+                    bool allowsFlow = levelNeighbor != level - 1
+                                      || (level == LiquidLevel.Eight && !IsAtSurface(world, x, y, z) && IsAtSurface(world, nx, ny, nz))
+                                      || HasNeighborWithLevel(world, level - 2, nx, ny, nz)
+                                      || HasNeighborWithEmpty(world, nx, ny, nz);
 
-                        levelHorizontal = levelNeighbor;
-                        horX = nx;
-                        horZ = nz;
-                        isHorStatic = isStatic;
+                    if (!allowsFlow) return false;
 
-                        horizontalFillable = neighborFillable;
-                    }
+                    levelHorizontal = levelNeighbor;
+                    horX = nx;
+                    horZ = nz;
+                    isHorStatic = isStatic;
+
+                    horizontalFillable = neighborFillable;
                 }
 
                 return false;
@@ -372,23 +375,22 @@ namespace VoxelGame.Core.Logic.Liquids
 
             bool CheckDirection(Vector2i dir, BlockSide side)
             {
-                if (SearchLevel(world, x, y, z, dir, 4, level - 2, out Vector3i pos))
+                if (!SearchLevel(world, x, y, z, dir, 4, level - 2, out Vector3i pos)) return false;
+                (Block? block, Liquid? liquid) = world.GetPosition(pos.X, pos.Y, pos.Z, out _, out LiquidLevel target, out bool isStatic);
+
+                if (!(block is IFillable targetFillable) ||
+                    !targetFillable.AllowInflow(world, pos.X, pos.Y, pos.Z, side, this) || liquid != this)
                 {
-                    (Block? block, Liquid? liquid) = world.GetPosition(pos.X, pos.Y, pos.Z, out _, out LiquidLevel target, out bool isStatic);
-
-                    if (block is IFillable targetFillable && targetFillable.AllowInflow(world, pos.X, pos.Y, pos.Z, side, this) && liquid == this)
-                    {
-                        SetLiquid(world, this, target + 1, false, targetFillable, pos.X, pos.Y, pos.Z);
-                        if (isStatic) ScheduleTick(world, pos.X, pos.Y, pos.Z);
-
-                        SetLiquid(world, this, level - 1, false, currentFillable, x, y, z);
-                        ScheduleTick(world, x, y, z);
-
-                        return true;
-                    }
+                    return false;
                 }
 
-                return false;
+                SetLiquid(world, this, target + 1, false, targetFillable, pos.X, pos.Y, pos.Z);
+                if (isStatic) ScheduleTick(world, pos.X, pos.Y, pos.Z);
+
+                SetLiquid(world, this, level - 1, false, currentFillable, x, y, z);
+                ScheduleTick(world, x, y, z);
+
+                return true;
             }
         }
 
@@ -412,37 +414,40 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (Block? blockNeighbor, Liquid? liquidNeighbor) = world.GetPosition(nx, ny, nz, out _, out LiquidLevel levelNeighbor, out bool isStatic);
 
-                if (blockNeighbor is IFillable neighborFillable && neighborFillable.AllowInflow(world, nx, ny, nz, side, this))
+                if (!(blockNeighbor is IFillable neighborFillable) ||
+                    !neighborFillable.AllowInflow(world, nx, ny, nz, side, this))
                 {
-                    if (liquidNeighbor == Liquid.None)
-                    {
-                        isStatic = true;
+                    return remaining;
+                }
 
-                        SetLiquid(world, this, (LiquidLevel)remaining, false, neighborFillable, nx, ny, nz);
+                if (liquidNeighbor == Liquid.None)
+                {
+                    isStatic = true;
+
+                    SetLiquid(world, this, (LiquidLevel)remaining, false, neighborFillable, nx, ny, nz);
+
+                    remaining = -1;
+
+                    if (isStatic) ScheduleTick(world, nx, ny, nz);
+                }
+                else if (liquidNeighbor == this)
+                {
+                    int volume = LiquidLevel.Eight - levelNeighbor - 1;
+
+                    if (volume >= remaining)
+                    {
+                        SetLiquid(world, this, levelNeighbor + remaining + 1, false, neighborFillable, nx, ny, nz);
 
                         remaining = -1;
-
-                        if (isStatic) ScheduleTick(world, nx, ny, nz);
                     }
-                    else if (liquidNeighbor == this)
+                    else
                     {
-                        int volume = LiquidLevel.Eight - levelNeighbor - 1;
+                        SetLiquid(world, this, LiquidLevel.Eight, false, neighborFillable, nx, ny, nz);
 
-                        if (volume >= remaining)
-                        {
-                            SetLiquid(world, this, levelNeighbor + remaining + 1, false, neighborFillable, nx, ny, nz);
-
-                            remaining = -1;
-                        }
-                        else
-                        {
-                            SetLiquid(world, this, LiquidLevel.Eight, false, neighborFillable, nx, ny, nz);
-
-                            remaining = remaining - volume - 1;
-                        }
-
-                        if (isStatic) ScheduleTick(world, nx, ny, nz);
+                        remaining = remaining - volume - 1;
                     }
+
+                    if (isStatic) ScheduleTick(world, nx, ny, nz);
                 }
 
                 return remaining;
