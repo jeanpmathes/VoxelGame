@@ -173,22 +173,19 @@ namespace VoxelGame.Core.Logic
         {
             (Block? block, Liquid? liquid) = world.GetPosition(x, y, z, out _, out LiquidLevel available, out bool isStatic);
 
-            if (liquid == this && this != Liquid.None)
-            {
-                if (level >= available)
-                {
-                    SetLiquid(world, Liquid.None, LiquidLevel.Eight, true, block as IFillable, x, y, z);
-                }
-                else
-                {
-                    SetLiquid(world, this, (LiquidLevel)((int)available - (int)level - 1), false, block as IFillable, x, y, z);
-                    if (isStatic) ScheduleTick(world, x, y, z);
-                }
+            if (liquid != this || this == Liquid.None) return false;
 
-                return true;
+            if (level >= available)
+            {
+                SetLiquid(world, Liquid.None, LiquidLevel.Eight, true, block as IFillable, x, y, z);
+            }
+            else
+            {
+                SetLiquid(world, this, (LiquidLevel)((int)available - (int)level - 1), false, block as IFillable, x, y, z);
+                if (isStatic) ScheduleTick(world, x, y, z);
             }
 
-            return false;
+            return true;
         }
 
         public bool TryTakeExact(World world, int x, int y, int z, LiquidLevel level)
@@ -271,23 +268,23 @@ namespace VoxelGame.Core.Logic
         {
             targetPosition = (0, 0, 0);
 
-            Vector3i pos = new Vector3i(x, y, z);
-            Vector3i dir = new Vector3i(direction.X, 0, direction.Y);
-            Vector3i perpDir = new Vector3i(direction.Y, 0, -direction.X);
+            var pos = new Vector3i(x, y, z);
+            var dir = new Vector3i(direction.X, 0, direction.Y);
+            var perpendicularDir = new Vector3i(direction.Y, 0, -direction.X);
 
             bool[] ignoreRows = new bool[range * 2];
 
-            for (int r = 0; r < range; r++)
+            for (var r = 0; r < range; r++)
             {
-                Vector3i line = (-r * perpDir) + ((1 + r) * dir) + pos;
+                Vector3i line = (-r * perpendicularDir) + ((1 + r) * dir) + pos;
 
-                for (int s = 0; s < 2 * (r + 1); s++)
+                for (var s = 0; s < 2 * (r + 1); s++)
                 {
                     int row = s + (range - r);
 
                     if (ignoreRows[row - 1]) continue;
 
-                    Vector3i current = (s * perpDir) + line;
+                    Vector3i current = (s * perpendicularDir) + line;
 
                     (Block? block, Liquid? liquid) = world.GetPosition(current.X, current.Y, current.Z, out _, out LiquidLevel level, out _);
 
@@ -297,7 +294,7 @@ namespace VoxelGame.Core.Logic
 
                         if (s == 0)
                         {
-                            for (int i = 0; i < row - 1; i++) ignoreRows[i] = true;
+                            for (var i = 0; i < row - 1; i++) ignoreRows[i] = true;
                         }
                         else if (s == 2 * (r + 1) - 1)
                         {
