@@ -15,7 +15,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
 {
     public class ScreenElementRenderer : Rendering.ScreenElementRenderer
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<ScreenElementRenderer>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ScreenElementRenderer>();
 
         private readonly int vbo;
         private readonly int ebo;
@@ -121,7 +121,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             }
             else
             {
-                logger.LogWarning(LoggingEvents.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
+                Logger.LogWarning(LoggingEvents.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
             }
 
             disposed = true;

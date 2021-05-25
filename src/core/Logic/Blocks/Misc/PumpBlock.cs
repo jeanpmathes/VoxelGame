@@ -34,15 +34,15 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
         {
-            Liquid.Elevate(x, y, z, pumpDistance);
+            Liquid.Elevate(entity.World, x, y, z, pumpDistance);
         }
 
-        public bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
+        public bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
         {
             return side != BlockSide.Top;
         }
 
-        public bool AllowOutflow(int x, int y, int z, BlockSide side)
+        public bool AllowOutflow(World world, int x, int y, int z, BlockSide side)
         {
             return side == BlockSide.Top;
         }

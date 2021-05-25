@@ -52,7 +52,7 @@ namespace VoxelGame.Core.Logic.Blocks
             this.open = open;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             verticesClosed = new float[4][];
             verticesOpen = new float[4][];
@@ -156,12 +156,16 @@ namespace VoxelGame.Core.Logic.Blocks
                 : new BlockMeshData(vertexCountOpen, verticesOpen[info.Data & 0b00_0011], texIndicesOpen, indicesOpen); // Closed.
         }
 
-        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
 
-            bool connectX = (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnectable(BlockSide.Left, x + 1, y, z)) || (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnectable(BlockSide.Right, x - 1, y, z));
-            bool connectZ = (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnectable(BlockSide.Back, x, y, z + 1)) || (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnectable(BlockSide.Front, x, y, z - 1));
+            bool connectX =
+                (world.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
+                || (world.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z));
+            bool connectZ =
+                (world.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
+                || (world.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1));
 
             if (orientation.IsZ() && !connectX)
             {
@@ -175,12 +179,16 @@ namespace VoxelGame.Core.Logic.Blocks
             return true;
         }
 
-        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
 
-            bool connectX = (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnectable(BlockSide.Left, x + 1, y, z)) || (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnectable(BlockSide.Right, x - 1, y, z));
-            bool connectZ = (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnectable(BlockSide.Back, x, y, z + 1)) || (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnectable(BlockSide.Front, x, y, z - 1));
+            bool connectX =
+                (world.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
+                || (world.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z));
+            bool connectZ =
+                (world.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
+                || (world.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1));
 
             if (orientation.IsZ() && !connectX)
             {
@@ -191,7 +199,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 orientation = orientation.Rotate();
             }
 
-            Game.World.SetBlock(this, (uint)orientation, x, y, z);
+            world.SetBlock(this, (uint)orientation, x, y, z);
         }
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
@@ -214,10 +222,10 @@ namespace VoxelGame.Core.Logic.Blocks
                 return;
             }
 
-            Game.World.SetBlock(this, (uint)((isClosed ? 0b00_0100 : 0b00_0000) | (int)orientation.Invert()), x, y, z);
+            entity.World.SetBlock(this, (uint)((isClosed ? 0b00_0100 : 0b00_0000) | (int)orientation.Invert()), x, y, z);
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
             var orientation = (Orientation)(data & 0b00_0011);
 
@@ -227,10 +235,10 @@ namespace VoxelGame.Core.Logic.Blocks
                 case BlockSide.Right:
 
                     if (orientation.IsZ() &&
-                        !((Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnectable(BlockSide.Left, x + 1, y, z)) ||
-                        (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnectable(BlockSide.Right, x - 1, y, z))))
+                        !((world.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z)) ||
+                        (world.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z))))
                     {
-                        Destroy(x, y, z);
+                        Destroy(world, x, y, z);
                     }
 
                     break;
@@ -239,19 +247,19 @@ namespace VoxelGame.Core.Logic.Blocks
                 case BlockSide.Back:
 
                     if (orientation.IsX() &&
-                        !((Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnectable(BlockSide.Back, x, y, z + 1)) ||
-                        (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnectable(BlockSide.Front, x, y, z - 1))))
+                        !((world.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1)) ||
+                        (world.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1))))
                     {
-                        Destroy(x, y, z);
+                        Destroy(world, x, y, z);
                     }
 
                     break;
             }
         }
 
-        public virtual bool IsConnectable(BlockSide side, int x, int y, int z)
+        public virtual bool IsConnectable(World world, BlockSide side, int x, int y, int z)
         {
-            if (Game.World.GetBlock(x, y, z, out uint data) == this)
+            if (world.GetBlock(x, y, z, out uint data) == this)
             {
                 var orientation = (Orientation)(data & 0b00_0011);
 

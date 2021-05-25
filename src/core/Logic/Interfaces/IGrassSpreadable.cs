@@ -10,16 +10,16 @@ namespace VoxelGame.Core.Logic.Interfaces
     /// </summary>
     internal interface IGrassSpreadable : IBlockBase
     {
-        public bool SpreadGrass(int x, int y, int z, Block grass)
+        public bool SpreadGrass(World world, int x, int y, int z, Block grass)
         {
-            Block above = Game.World.GetBlock(x, y + 1, z, out _) ?? Block.Air;
+            Block above = world.GetBlock(x, y + 1, z, out _) ?? Block.Air;
 
-            if (Game.World.GetBlock(x, y, z, out _) != this || (above.IsSolidAndFull && above.IsOpaque))
+            if (world.GetBlock(x, y, z, out _) != this || (above.IsSolidAndFull && above.IsOpaque))
             {
                 return false;
             }
 
-            Game.World.SetBlock(grass, 0, x, y, z);
+            world.SetBlock(grass, 0, x, y, z);
 
             return false;
         }

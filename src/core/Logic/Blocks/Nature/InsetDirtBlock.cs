@@ -49,7 +49,7 @@ namespace VoxelGame.Core.Logic.Blocks
             SupportsFullGrowth = supportsFullGrowth;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             dryTextureIndices = dryLayout.GetTexIndexArray();
             wetTextureIndices = wetLayout.GetTexIndexArray();
@@ -69,28 +69,28 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.VaryingHeight(texture, TintColor.None);
         }
 
-        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            return !Game.World.HasOpaqueTop(x, y, z) || Block.Dirt.CanPlace(x, y, z, entity);
+            return !world.HasOpaqueTop(x, y, z) || Block.Dirt.CanPlace(world, x, y, z, entity);
         }
 
-        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            if (Game.World.HasOpaqueTop(x, y, z))
+            if (world.HasOpaqueTop(x, y, z))
             {
-                Block.Dirt.Place(x, y, z, entity);
+                Block.Dirt.Place(world, x, y, z, entity);
             }
             else
             {
-                Game.World.SetBlock(this, 0, x, y, z);
+                world.SetBlock(this, 0, x, y, z);
             }
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
-            if (side == BlockSide.Top && Game.World.HasOpaqueTop(x, y, z))
+            if (side == BlockSide.Top && world.HasOpaqueTop(x, y, z))
             {
-                Game.World.SetBlock(Block.Dirt, 0, x, y, z);
+                world.SetBlock(Block.Dirt, 0, x, y, z);
             }
         }
 

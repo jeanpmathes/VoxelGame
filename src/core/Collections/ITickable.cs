@@ -3,10 +3,13 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
+using VoxelGame.Core.Logic;
+
 namespace VoxelGame.Core.Collections
 {
     public interface ITickable
     {
-        void Tick();
+        void Tick(World world);
     }
 }

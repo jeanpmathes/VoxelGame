@@ -10,7 +10,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
 {
     public class OverlayRenderer : Rendering.OverlayRenderer
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<OpenGL46.OverlayRenderer>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<OpenGL46.OverlayRenderer>();
 
         private readonly int vbo;
         private readonly int ebo;
@@ -95,7 +95,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             }
             else
             {
-                logger.LogWarning(LoggingEvents.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
+                Logger.LogWarning(LoggingEvents.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
             }
 
             disposed = true;

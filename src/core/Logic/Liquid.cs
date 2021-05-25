@@ -106,13 +106,14 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Called when loading liquids, meant to setup vertex data, indices etc.
         /// </summary>
-        protected virtual void Setup()
+        /// <param name="indexProvider"></param>
+        protected virtual void Setup(ITextureIndexProvider indexProvider)
         {
         }
 
         public abstract LiquidMeshData GetMesh(LiquidMeshInfo info);
 
-        public static BoundingBox GetBoundingBox(int x, int y, int z, LiquidLevel level)
+        public static BoundingBox GetBoundingBox(World world, int x, int y, int z, LiquidLevel level)
         {
             float halfHeight = ((int)level + 1) * 0.0625f;
             return new BoundingBox(new Vector3(x, y + halfHeight, z), new Vector3(0.5f, halfHeight, 0.5f));
@@ -120,7 +121,7 @@ namespace VoxelGame.Core.Logic
 
         public void EntityContact(PhysicsEntity entity, int x, int y, int z)
         {
-            if (Game.World.GetLiquid(x, y, z, out LiquidLevel level, out bool isStatic) == this)
+            if (entity.World.GetLiquid(x, y, z, out LiquidLevel level, out bool isStatic) == this)
             {
                 EntityContact(entity, x, y, z, level, isStatic);
             }
@@ -133,19 +134,19 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Tries to fill a position with the specified amount of liquid. The remaining liquid is specified, it can be converted to <see cref="LiquidLevel"/> if it is not <c>-1</c>.
         /// </summary>
-        public bool Fill(int x, int y, int z, LiquidLevel level, out int remaining)
+        public bool Fill(World world, int x, int y, int z, LiquidLevel level, out int remaining)
         {
-            (Block? block, Liquid? target) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel current, out bool isStatic);
+            (Block? block, Liquid? target) = world.GetPosition(x, y, z, out _, out LiquidLevel current, out bool isStatic);
 
-            if (block is IFillable fillable && fillable.AllowInflow(x, y, z, BlockSide.Top, this))
+            if (block is IFillable fillable && fillable.AllowInflow(world, x, y, z, BlockSide.Top, this))
             {
                 if (target == this && current != LiquidLevel.Eight)
                 {
                     int filled = (int)current + (int)level + 1;
                     filled = filled > 7 ? 7 : filled;
 
-                    SetLiquid(this, (LiquidLevel)filled, false, fillable, x, y, z);
-                    if (isStatic) ScheduleTick(x, y, z);
+                    SetLiquid(world, this, (LiquidLevel)filled, false, fillable, x, y, z);
+                    if (isStatic) ScheduleTick(world, x, y, z);
 
                     remaining = (int)level - (filled - (int)current);
                     return true;
@@ -153,8 +154,8 @@ namespace VoxelGame.Core.Logic
 
                 if (target == Liquid.None)
                 {
-                    SetLiquid(this, level, false, fillable, x, y, z);
-                    ScheduleTick(x, y, z);
+                    SetLiquid(world, this, level, false, fillable, x, y, z);
+                    ScheduleTick(world, x, y, z);
 
                     remaining = -1;
                     return true;
@@ -168,42 +169,39 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Tries to take a certain amount of liquid from a position. The actually taken amount is given when finished.
         /// </summary>
-        public bool Take(int x, int y, int z, ref LiquidLevel level)
+        public bool Take(World world, int x, int y, int z, ref LiquidLevel level)
         {
-            (Block? block, Liquid? liquid) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel available, out bool isStatic);
+            (Block? block, Liquid? liquid) = world.GetPosition(x, y, z, out _, out LiquidLevel available, out bool isStatic);
 
-            if (liquid == this && this != Liquid.None)
+            if (liquid != this || this == Liquid.None) return false;
+
+            if (level >= available)
             {
-                if (level >= available)
-                {
-                    SetLiquid(Liquid.None, LiquidLevel.Eight, true, block as IFillable, x, y, z);
-                }
-                else
-                {
-                    SetLiquid(this, (LiquidLevel)((int)available - (int)level - 1), false, block as IFillable, x, y, z);
-                    if (isStatic) ScheduleTick(x, y, z);
-                }
-
-                return true;
+                SetLiquid(world, Liquid.None, LiquidLevel.Eight, true, block as IFillable, x, y, z);
+            }
+            else
+            {
+                SetLiquid(world, this, (LiquidLevel)((int)available - (int)level - 1), false, block as IFillable, x, y, z);
+                if (isStatic) ScheduleTick(world, x, y, z);
             }
 
-            return false;
+            return true;
         }
 
-        public bool TryTakeExact(int x, int y, int z, LiquidLevel level)
+        public bool TryTakeExact(World world, int x, int y, int z, LiquidLevel level)
         {
-            (Block? block, Liquid? liquid) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel available, out bool isStatic);
+            (Block? block, Liquid? liquid) = world.GetPosition(x, y, z, out _, out LiquidLevel available, out bool isStatic);
 
             if (liquid == this && this != Liquid.None && level <= available)
             {
                 if (level == available)
                 {
-                    SetLiquid(Liquid.None, LiquidLevel.Eight, true, block as IFillable, x, y, z);
+                    SetLiquid(world, Liquid.None, LiquidLevel.Eight, true, block as IFillable, x, y, z);
                 }
                 else
                 {
-                    SetLiquid(this, (LiquidLevel)((int)available - (int)level - 1), false, block as IFillable, x, y, z);
-                    if (isStatic) ScheduleTick(x, y, z);
+                    SetLiquid(world, this, (LiquidLevel)((int)available - (int)level - 1), false, block as IFillable, x, y, z);
+                    if (isStatic) ScheduleTick(world, x, y, z);
                 }
 
                 return true;
@@ -214,24 +212,24 @@ namespace VoxelGame.Core.Logic
             }
         }
 
-        protected abstract void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic);
+        protected abstract void ScheduledUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic);
 
         /// <summary>
         /// Sets the liquid at the position and calls the necessary methods on the <see cref="IFillable"/>.
         /// </summary>
-        protected static void SetLiquid(Liquid liquid, LiquidLevel level, bool isStatic, IFillable? fillable, int x, int y, int z)
+        protected static void SetLiquid(World world, Liquid liquid, LiquidLevel level, bool isStatic, IFillable? fillable, int x, int y, int z)
         {
-            Game.World.SetLiquid(liquid, level, isStatic, x, y, z);
-            fillable?.LiquidChange(x, y, z, liquid, level);
+            world.SetLiquid(liquid, level, isStatic, x, y, z);
+            fillable?.LiquidChange(world, x, y, z, liquid, level);
         }
 
         /// <summary>
         /// Check if a liquid has a neighbor of the same liquid and this neighbor has a specified level. If the specified level is <c>-1</c>, false is directly returned.
         /// </summary>
-        protected bool HasNeighborWithLevel(LiquidLevel level, int x, int y, int z)
+        protected bool HasNeighborWithLevel(World world, LiquidLevel level, int x, int y, int z)
         {
             return (int)level != -1
-                   && Game.World.GetBlock(x, y, z, out _) is IFillable currentFillable
+                   && world.GetBlock(x, y, z, out _) is IFillable currentFillable
                    && (CheckNeighborForLevel(x, z - 1, BlockSide.Back)
                        || CheckNeighborForLevel(x + 1, z, BlockSide.Right)
                        || CheckNeighborForLevel(x, z + 1, BlockSide.Front)
@@ -239,18 +237,18 @@ namespace VoxelGame.Core.Logic
 
             bool CheckNeighborForLevel(int nx, int nz, BlockSide side)
             {
-                (Block? block, Liquid? liquid) = Game.World.GetPosition(nx, y, nz, out _, out LiquidLevel neighborLevel, out _);
+                (Block? block, Liquid? liquid) = world.GetPosition(nx, y, nz, out _, out LiquidLevel neighborLevel, out _);
 
                 return liquid == this && level == neighborLevel
                        && block is IFillable neighborFillable
-                       && neighborFillable.AllowInflow(nx, y, nz, side.Opposite(), this)
-                       && currentFillable.AllowOutflow(x, y, z, side);
+                       && neighborFillable.AllowInflow(world, nx, y, nz, side.Opposite(), this)
+                       && currentFillable.AllowOutflow(world, x, y, z, side);
             }
         }
 
-        protected bool HasNeighborWithEmpty(int x, int y, int z)
+        protected bool HasNeighborWithEmpty(World world, int x, int y, int z)
         {
-            return Game.World.GetBlock(x, y, z, out _) is IFillable currentFillable
+            return world.GetBlock(x, y, z, out _) is IFillable currentFillable
                    && (CheckNeighborForEmpty(x, z - 1, BlockSide.Back)
                        || CheckNeighborForEmpty(x + 1, z, BlockSide.Right)
                        || CheckNeighborForEmpty(x, z + 1, BlockSide.Front)
@@ -258,45 +256,45 @@ namespace VoxelGame.Core.Logic
 
             bool CheckNeighborForEmpty(int nx, int nz, BlockSide side)
             {
-                (Block? block, Liquid? liquid) = Game.World.GetPosition(nx, y, nz, out _, out _, out _);
+                (Block? block, Liquid? liquid) = world.GetPosition(nx, y, nz, out _, out _, out _);
 
                 return liquid == Liquid.None && block is IFillable neighborFillable
-                                             && neighborFillable.AllowInflow(nx, y, nz, side.Opposite(), this)
-                                             && currentFillable.AllowOutflow(x, y, z, side);
+                                             && neighborFillable.AllowInflow(world, nx, y, nz, side.Opposite(), this)
+                                             && currentFillable.AllowOutflow(world, x, y, z, side);
             }
         }
 
-        protected bool SearchLevel(int x, int y, int z, Vector2i direction, int range, LiquidLevel target, out Vector3i targetPosition)
+        protected bool SearchLevel(World world, int x, int y, int z, Vector2i direction, int range, LiquidLevel target, out Vector3i targetPosition)
         {
             targetPosition = (0, 0, 0);
 
-            Vector3i pos = new Vector3i(x, y, z);
-            Vector3i dir = new Vector3i(direction.X, 0, direction.Y);
-            Vector3i perpDir = new Vector3i(direction.Y, 0, -direction.X);
+            var pos = new Vector3i(x, y, z);
+            var dir = new Vector3i(direction.X, 0, direction.Y);
+            var perpendicularDir = new Vector3i(direction.Y, 0, -direction.X);
 
             bool[] ignoreRows = new bool[range * 2];
 
-            for (int r = 0; r < range; r++)
+            for (var r = 0; r < range; r++)
             {
-                Vector3i line = (-r * perpDir) + ((1 + r) * dir) + pos;
+                Vector3i line = (-r * perpendicularDir) + ((1 + r) * dir) + pos;
 
-                for (int s = 0; s < 2 * (r + 1); s++)
+                for (var s = 0; s < 2 * (r + 1); s++)
                 {
                     int row = s + (range - r);
 
                     if (ignoreRows[row - 1]) continue;
 
-                    Vector3i current = (s * perpDir) + line;
+                    Vector3i current = (s * perpendicularDir) + line;
 
-                    (Block? block, Liquid? liquid) = Game.World.GetPosition(current.X, current.Y, current.Z, out _, out LiquidLevel level, out _);
+                    (Block? block, Liquid? liquid) = world.GetPosition(current.X, current.Y, current.Z, out _, out LiquidLevel level, out _);
 
-                    if (liquid != this || !(block is IFillable fillable) || !fillable.AllowInflow(current.X, current.Y, current.Z, BlockSide.Top, this))
+                    if (liquid != this || !(block is IFillable fillable) || !fillable.AllowInflow(world, current.X, current.Y, current.Z, BlockSide.Top, this))
                     {
                         ignoreRows[row - 1] = true;
 
                         if (s == 0)
                         {
-                            for (int i = 0; i < row - 1; i++) ignoreRows[i] = true;
+                            for (var i = 0; i < row - 1; i++) ignoreRows[i] = true;
                         }
                         else if (s == 2 * (r + 1) - 1)
                         {
@@ -318,12 +316,12 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Check if there is a liquid of the same type above this position or a gas of the same type below.
         /// </summary>
-        protected bool IsAtSurface(int x, int y, int z)
+        protected bool IsAtSurface(World world, int x, int y, int z)
         {
-            return Game.World.GetLiquid(x, y + Direction, z, out _, out _) != this;
+            return world.GetLiquid(x, y + Direction, z, out _, out _) != this;
         }
 
-        internal virtual void RandomUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
+        internal virtual void RandomUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic)
         {
         }
 

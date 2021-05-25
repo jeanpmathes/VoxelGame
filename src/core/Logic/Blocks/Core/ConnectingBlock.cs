@@ -60,7 +60,7 @@ namespace VoxelGame.Core.Logic.Blocks
             this.extension = extension;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             BlockModel postModel = BlockModel.Load(this.post);
             BlockModel extensionModel = BlockModel.Load(this.extension);
@@ -82,7 +82,7 @@ namespace VoxelGame.Core.Logic.Blocks
             extensionModel.RotateY(1, false);
             extensionModel.ToData(out westVertices, out _, out _);
 
-            int tex = Game.BlockTextures.GetTextureIndex(texture);
+            int tex = indexProvider.GetTextureIndex(texture);
 
             textureIndices = new int[5][];
 
@@ -165,24 +165,24 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData(vertexCount, vertices, currentTextureIndices, currentIndices);
         }
 
-        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
             uint data = 0;
 
             // Check the neighboring blocks
-            if (Game.World.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnectable(BlockSide.Front, x, y, z - 1))
+            if (world.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1))
                 data |= 0b00_1000;
-            if (Game.World.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnectable(BlockSide.Left, x + 1, y, z))
+            if (world.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
                 data |= 0b00_0100;
-            if (Game.World.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnectable(BlockSide.Back, x, y, z + 1))
+            if (world.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
                 data |= 0b00_0010;
-            if (Game.World.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnectable(BlockSide.Right, x - 1, y, z))
+            if (world.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z))
                 data |= 0b00_0001;
 
-            Game.World.SetBlock(this, data, x, y, z);
+            world.SetBlock(this, data, x, y, z);
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
             uint newData = data;
 
@@ -197,12 +197,12 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if (newData != data)
             {
-                Game.World.SetBlock(this, newData, x, y, z);
+                world.SetBlock(this, newData, x, y, z);
             }
 
-            static uint CheckNeighbor(int x, int y, int z, BlockSide side, uint mask, uint newData)
+            uint CheckNeighbor(int x, int y, int z, BlockSide side, uint mask, uint newData)
             {
-                if (Game.World.GetBlock(x, y, z, out _) is IConnectable neighbor && neighbor.IsConnectable(side, x, y, z))
+                if (world.GetBlock(x, y, z, out _) is IConnectable neighbor && neighbor.IsConnectable(world, side, x, y, z))
                 {
                     newData |= mask;
                 }

@@ -24,12 +24,12 @@ namespace VoxelGame.Core.Logic.Liquids
         {
         }
 
-        internal override void RandomUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
+        internal override void RandomUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic)
         {
             if (isStatic)
             {
-                Game.World.SetDefaultLiquid(x, y, z);
-                Block.Specials.Concrete.Place(level, x, y, z);
+                world.SetDefaultLiquid(x, y, z);
+                Block.Specials.Concrete.Place(world, level, x, y, z);
             }
         }
     }

@@ -43,9 +43,9 @@ namespace VoxelGame.Core.Logic.Blocks
             this.extensionStraight = extensionStraight;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            base.Setup();
+            base.Setup(indexProvider);
 
             BlockModel extensionStraightModel = BlockModel.Load(this.extensionStraight);
             straightVertexCount = (uint)extensionStraightModel.VertexCount;
@@ -56,7 +56,7 @@ namespace VoxelGame.Core.Logic.Blocks
             extensionStraightModel.RotateY(1, false);
             extensionStraightModel.ToData(out extensionStraightXVertices, out _, out _);
 
-            int tex = Game.BlockTextures.GetTextureIndex(texture);
+            int tex = indexProvider.GetTextureIndex(texture);
 
             for (var i = 0; i < texIndicesStraight.Length; i++)
             {

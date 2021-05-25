@@ -40,21 +40,21 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
         }
 
-        public override bool IsConnectable(BlockSide side, int x, int y, int z)
+        public override bool IsConnectable(World world, BlockSide side, int x, int y, int z)
         {
-            return base.IsSideOpen(x, y, z, side);
+            return base.IsSideOpen(world, x, y, z, side);
         }
 
-        protected override bool IsSideOpen(int x, int y, int z, BlockSide side)
+        protected override bool IsSideOpen(World world, int x, int y, int z, BlockSide side)
         {
-            Game.World.GetBlock(x, y, z, out uint data);
+            world.GetBlock(x, y, z, out uint data);
             if ((data & 0b00_0100) != 0) return false;
             return ToAxis(side) == (Axis)(data & AxisDataMask);
         }
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
         {
-            Game.World.SetBlock(this, data ^ 0b00_0100, x, y, z);
+            entity.World.SetBlock(this, data ^ 0b00_0100, x, y, z);
         }
     }
 }

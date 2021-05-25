@@ -16,7 +16,7 @@ namespace VoxelGame.Client.Rendering
 {
     public class Shader
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<Shader>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Shader>();
 
         private readonly Dictionary<string, int> uniformLocations;
 
@@ -69,13 +69,13 @@ namespace VoxelGame.Client.Rendering
             {
                 Exception e = new Exception($"Error occurred whilst compiling Shader({shader})");
 
-                logger.LogCritical(LoggingEvents.ShaderError, e, "Error occurred whilst compiling Shader({shader}): {info}", shader, GL.GetShaderInfoLog(shader));
+                Logger.LogCritical(LoggingEvents.ShaderError, e, "Error occurred whilst compiling Shader({shader}): {info}", shader, GL.GetShaderInfoLog(shader));
 
                 throw e;
             }
             else
             {
-                logger.LogDebug("Successfully compiled Shader({shader})", shader);
+                Logger.LogDebug("Successfully compiled Shader({shader})", shader);
             }
         }
 
@@ -90,13 +90,13 @@ namespace VoxelGame.Client.Rendering
             {
                 Exception e = new Exception($"Error occurred whilst linking Program({program})");
 
-                logger.LogCritical(LoggingEvents.ShaderError, e, "Error occurred whilst linking Program({program}): {info}", program, GL.GetProgramInfoLog(program));
+                Logger.LogCritical(LoggingEvents.ShaderError, e, "Error occurred whilst linking Program({program}): {info}", program, GL.GetProgramInfoLog(program));
 
                 throw e;
             }
             else
             {
-                logger.LogDebug("Successfully linked Program({program})", program);
+                Logger.LogDebug("Successfully linked Program({program})", program);
             }
         }
 

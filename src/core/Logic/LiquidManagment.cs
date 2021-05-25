@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic
 {
     public abstract partial class Liquid
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<Liquid>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Liquid>();
 
         public const int LiquidLimit = 32;
 
@@ -52,7 +52,7 @@ namespace VoxelGame.Core.Logic
             }
             else
             {
-                logger.LogWarning("No Liquid with the ID {id} could be found, returning {fallback} instead.", id, nameof(Liquid.None));
+                Logger.LogWarning("No Liquid with the ID {id} could be found, returning {fallback} instead.", id, nameof(Liquid.None));
 
                 return Liquid.None;
             }
@@ -66,7 +66,7 @@ namespace VoxelGame.Core.Logic
             }
             else
             {
-                logger.LogWarning("No Liquid with the named ID {id} could be found, returning {fallback} instead.", namedId, nameof(Liquid.None));
+                Logger.LogWarning("No Liquid with the named ID {id} could be found, returning {fallback} instead.", namedId, nameof(Liquid.None));
 
                 return Liquid.None;
             }
@@ -80,25 +80,25 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Calls the setup method on all blocks.
         /// </summary>
-        public static void LoadLiquids()
+        public static void LoadLiquids(ITextureIndexProvider indexProvider)
         {
-            using (logger.BeginScope("Liquid Loading"))
+            using (Logger.BeginScope("Liquid Loading"))
             {
                 foreach (Liquid liquid in liquidDictionary.Values)
                 {
-                    liquid.Setup();
+                    liquid.Setup(indexProvider);
 
-                    logger.LogDebug(LoggingEvents.LiquidLoad, "Loaded the liquid [{liquid}] with ID {id}.", liquid, liquid.Id);
+                    Logger.LogDebug(LoggingEvents.LiquidLoad, "Loaded the liquid [{liquid}] with ID {id}.", liquid, liquid.Id);
                 }
 
-                logger.LogInformation("Liquid setup complete. A total of {count} liquids have been loaded.", Count);
+                Logger.LogInformation("Liquid setup complete. A total of {count} liquids have been loaded.", Count);
             }
         }
 
-        public static void Elevate(int x, int y, int z, int pumpDistance)
+        public static void Elevate(World world, int x, int y, int z, int pumpDistance)
         {
             (Block? start, Liquid? toElevate) =
-                Game.World.GetPosition(x, y, z, out _, out LiquidLevel initialLevel, out _);
+                world.GetPosition(x, y, z, out _, out LiquidLevel initialLevel, out _);
 
             if (start == null || toElevate == null) return;
 
@@ -106,23 +106,23 @@ namespace VoxelGame.Core.Logic
 
             var currentLevel = (int)initialLevel;
 
-            if (!(start is IFillable startFillable) || !startFillable.AllowOutflow(x, y, z, BlockSide.Top)) return;
+            if (!(start is IFillable startFillable) || !startFillable.AllowOutflow(world, x, y, z, BlockSide.Top)) return;
 
             for (var offset = 1; offset <= pumpDistance && currentLevel > -1; offset++)
             {
                 int currentY = y + offset;
 
-                var currentBlock = Game.World.GetBlock(x, currentY, z, out _) as IFillable;
+                var currentBlock = world.GetBlock(x, currentY, z, out _) as IFillable;
 
-                if (currentBlock?.AllowInflow(x, currentY, z, BlockSide.Bottom, toElevate) != true) break;
+                if (currentBlock?.AllowInflow(world, x, currentY, z, BlockSide.Bottom, toElevate) != true) break;
 
-                toElevate.Fill(x, currentY, z, (LiquidLevel)currentLevel, out currentLevel);
+                toElevate.Fill(world, x, currentY, z, (LiquidLevel)currentLevel, out currentLevel);
 
-                if (!currentBlock.AllowOutflow(x, currentY, z, BlockSide.Top)) break;
+                if (!currentBlock.AllowOutflow(world, x, currentY, z, BlockSide.Top)) break;
             }
 
             LiquidLevel elevated = initialLevel - (currentLevel + 1);
-            toElevate.Take(x, y, z, ref elevated);
+            toElevate.Take(world, x, y, z, ref elevated);
         }
     }
 }

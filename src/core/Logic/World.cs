@@ -12,6 +12,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.WorldGeneration;
 
@@ -19,9 +20,11 @@ namespace VoxelGame.Core.Logic
 {
     public abstract class World : IDisposable
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<World>();
 
         public WorldInformation Information { get; }
+
+        public UpdateCounter UpdateCounter { get; }
 
         protected int MaxGenerationTasks { get; } = Properties.core.Default.MaxGenerationTasks;
         protected int MaxLoadingTasks { get; } = Properties.core.Default.MaxLoadingTasks;
@@ -130,7 +133,7 @@ namespace VoxelGame.Core.Logic
                     Name = name,
                     Seed = seed,
                     Creation = DateTime.Now,
-                    Version = Game.Version
+                    Version = GameInformation.Instance.Version
                 },
                 worldDirectory: path,
                 chunkDirectory: path + "/Chunks",
@@ -138,7 +141,7 @@ namespace VoxelGame.Core.Logic
         {
             Information.Save(Path.Combine(WorldDirectory, "meta.json"));
 
-            logger.LogInformation("Created a new world.");
+            Logger.LogInformation("Created a new world.");
         }
 
         /// <summary>
@@ -151,7 +154,7 @@ namespace VoxelGame.Core.Logic
                 chunkDirectory: path + "/Chunks",
                 new ComplexGenerator(information.Seed))
         {
-            logger.LogInformation("Loaded an existing world.");
+            Logger.LogInformation("Loaded an existing world.");
         }
 
         /// <summary>
@@ -180,6 +183,8 @@ namespace VoxelGame.Core.Logic
             WorldDirectory = worldDirectory;
             ChunkDirectory = chunkDirectory;
             this.generator = generator;
+
+            UpdateCounter = new UpdateCounter();
 
             Setup();
         }
@@ -294,7 +299,7 @@ namespace VoxelGame.Core.Logic
                         {
                             if (!positionsToReleaseOnActivation.Remove((x, z)) || !activeChunks.ContainsKey((x, z)))
                             {
-                                logger.LogError(LoggingEvents.ChunkLoadingError, completed.Exception!.GetBaseException(), "An exception occurred when loading the chunk ({x}|{z}). " +
+                                Logger.LogError(LoggingEvents.ChunkLoadingError, completed.Exception!.GetBaseException(), "An exception occurred when loading the chunk ({x}|{z}). " +
                                     "The chunk has been scheduled for generation", x, z);
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
@@ -313,7 +318,7 @@ namespace VoxelGame.Core.Logic
                             {
                                 if (!positionsToReleaseOnActivation.Remove((loadedChunk.X, loadedChunk.Z)))
                                 {
-                                    loadedChunk.Setup();
+                                    loadedChunk.Setup(this, UpdateCounter);
                                     activeChunks.Add((x, z), loadedChunk);
 
                                     ProcessNewlyActivatedChunk(loadedChunk);
@@ -325,7 +330,7 @@ namespace VoxelGame.Core.Logic
                             }
                             else
                             {
-                                logger.LogError(LoggingEvents.ChunkLoadingError, "The position of the loaded chunk file for position ({x}|{z}) did not match the requested position. " +
+                                Logger.LogError(LoggingEvents.ChunkLoadingError, "The position of the loaded chunk file for position ({x}|{z}) did not match the requested position. " +
                                     "This may be the result of a renamed chunk file. " +
                                     "The position will be scheduled for generation.", x, z);
 
@@ -402,7 +407,7 @@ namespace VoxelGame.Core.Logic
                         {
                             if (completed.IsFaulted)
                             {
-                                logger.LogError(LoggingEvents.ChunkSavingError, completed.Exception!.GetBaseException(), "An exception occurred when saving chunk ({x}|{z}). " +
+                                Logger.LogError(LoggingEvents.ChunkSavingError, completed.Exception!.GetBaseException(), "An exception occurred when saving chunk ({x}|{z}). " +
                                     "The chunk will be disposed without saving.", completedChunk.X, completedChunk.Z);
                             }
 
@@ -448,7 +453,7 @@ namespace VoxelGame.Core.Logic
             {
                 positionsToActivate.Add((x, z));
 
-                logger.LogDebug(LoggingEvents.ChunkRequest, "Chunk ({x}|{z}) has been requested successfully.", x, z);
+                Logger.LogDebug(LoggingEvents.ChunkRequest, "Chunk ({x}|{z}) has been requested successfully.", x, z);
             }
         }
 
@@ -474,7 +479,7 @@ namespace VoxelGame.Core.Logic
                 activeChunks.Remove((x, z));
                 chunksToSave.Enqueue(chunk);
 
-                logger.LogDebug(LoggingEvents.ChunkRelease, "Released chunk ({x}|{z}).", x, z);
+                Logger.LogDebug(LoggingEvents.ChunkRelease, "Released chunk ({x}|{z}).", x, z);
 
                 canRelease = true;
             }
@@ -483,7 +488,7 @@ namespace VoxelGame.Core.Logic
             {
                 positionsToReleaseOnActivation.Add((x, z));
 
-                logger.LogDebug(LoggingEvents.ChunkRelease, "Scheduled to release chunk ({x}|{z}) after activation.", x, z);
+                Logger.LogDebug(LoggingEvents.ChunkRelease, "Scheduled to release chunk ({x}|{z}) after activation.", x, z);
 
                 canRelease = true;
             }
@@ -492,7 +497,7 @@ namespace VoxelGame.Core.Logic
             {
                 positionsToActivate.Remove((x, z));
 
-                logger.LogDebug(LoggingEvents.ChunkRelease, "Chunk ({x}|{z}) has been removed from activation list.", x, z);
+                Logger.LogDebug(LoggingEvents.ChunkRelease, "Chunk ({x}|{z}) has been removed from activation list.", x, z);
 
                 canRelease = true;
             }
@@ -605,33 +610,33 @@ namespace VoxelGame.Core.Logic
             uint val = Section.Encode(block, data, liquid, level, isStatic);
             chunk.GetSection(y >> ChunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
 
-            if (tickLiquid) liquid.TickNow(x, y, z, level, isStatic);
+            if (tickLiquid) liquid.TickNow(this, x, y, z, level, isStatic);
 
             // Block updates - Side is passed out of the perspective of the block receiving the block update.
 
             (Block? blockNeighbour, Liquid? liquidNeighbour) = GetPosition(x, y, z + 1, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(x, y, z + 1, data, BlockSide.Back);
-            liquidNeighbour?.TickSoon(x, y, z + 1, isStatic);
+            blockNeighbour?.BlockUpdate(this, x, y, z + 1, data, BlockSide.Back);
+            liquidNeighbour?.TickSoon(this, x, y, z + 1, isStatic);
 
             (blockNeighbour, liquidNeighbour) = GetPosition(x, y, z - 1, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(x, y, z - 1, data, BlockSide.Front);
-            liquidNeighbour?.TickSoon(x, y, z - 1, isStatic);
+            blockNeighbour?.BlockUpdate(this, x, y, z - 1, data, BlockSide.Front);
+            liquidNeighbour?.TickSoon(this, x, y, z - 1, isStatic);
 
             (blockNeighbour, liquidNeighbour) = GetPosition(x - 1, y, z, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(x - 1, y, z, data, BlockSide.Right);
-            liquidNeighbour?.TickSoon(x - 1, y, z, isStatic);
+            blockNeighbour?.BlockUpdate(this, x - 1, y, z, data, BlockSide.Right);
+            liquidNeighbour?.TickSoon(this, x - 1, y, z, isStatic);
 
             (blockNeighbour, liquidNeighbour) = GetPosition(x + 1, y, z, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(x + 1, y, z, data, BlockSide.Left);
-            liquidNeighbour?.TickSoon(x + 1, y, z, isStatic);
+            blockNeighbour?.BlockUpdate(this, x + 1, y, z, data, BlockSide.Left);
+            liquidNeighbour?.TickSoon(this, x + 1, y, z, isStatic);
 
             (blockNeighbour, liquidNeighbour) = GetPosition(x, y - 1, z, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(x, y - 1, z, data, BlockSide.Top);
-            liquidNeighbour?.TickSoon(x, y - 1, z, isStatic);
+            blockNeighbour?.BlockUpdate(this, x, y - 1, z, data, BlockSide.Top);
+            liquidNeighbour?.TickSoon(this, x, y - 1, z, isStatic);
 
             (blockNeighbour, liquidNeighbour) = GetPosition(x, y + 1, z, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(x, y + 1, z, data, BlockSide.Bottom);
-            liquidNeighbour?.TickSoon(x, y + 1, z, isStatic);
+            blockNeighbour?.BlockUpdate(this, x, y + 1, z, data, BlockSide.Bottom);
+            liquidNeighbour?.TickSoon(this, x, y + 1, z, isStatic);
 
             ProcessChangedSection(chunk, x, y, z);
         }
@@ -727,7 +732,7 @@ namespace VoxelGame.Core.Logic
         {
             Information.SpawnInformation = new SpawnInformation(position);
 
-            logger.LogInformation("World spawn position has been set to: {position}", position);
+            Logger.LogInformation("World spawn position has been set to: {position}", position);
         }
 
         /// <summary>
@@ -739,7 +744,7 @@ namespace VoxelGame.Core.Logic
             Console.WriteLine(Language.AllChunksSaving);
             Console.WriteLine();
 
-            logger.LogInformation("Saving world.");
+            Logger.LogInformation("Saving world.");
 
             List<Task> savingTasks = new List<Task>(activeChunks.Count);
 
@@ -751,7 +756,7 @@ namespace VoxelGame.Core.Logic
                 }
             }
 
-            Information.Version = Game.Version;
+            Information.Version = GameInformation.Instance.Version;
 
             savingTasks.Add(Task.Run(() => Information.Save(Path.Combine(WorldDirectory, "meta.json"))));
 

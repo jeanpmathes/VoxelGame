@@ -44,12 +44,12 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.Empty();
         }
 
-        internal override bool CanPlace(int x, int y, int z, Entities.PhysicsEntity? entity)
+        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
             return false;
         }
 
-        internal override bool CanDestroy(int x, int y, int z, uint data, PhysicsEntity? entity)
+        internal override bool CanDestroy(World world, int x, int y, int z, uint data, PhysicsEntity? entity)
         {
             return false;
         }

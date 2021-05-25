@@ -41,7 +41,7 @@ namespace VoxelGame.Core.Logic.Blocks
             this.layout = layout;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             textures = layout.GetTexIndexArray();
         }
@@ -58,16 +58,16 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.VaryingHeight(textures[(int)info.Side], color.ToTintColor());
         }
 
-        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            Game.World.SetBlock(this, Encode(BlockColor.Default, IHeightVariable.MaximumHeight), x, y, z);
+            world.SetBlock(this, Encode(BlockColor.Default, IHeightVariable.MaximumHeight), x, y, z);
         }
 
-        public void Place(LiquidLevel level, int x, int y, int z)
+        public void Place(World world, LiquidLevel level, int x, int y, int z)
         {
-            if (Place(x, y, z))
+            if (base.Place(world, x, y, z))
             {
-                Game.World.SetBlock(this, Encode(BlockColor.Default, level.GetBlockHeight()), x, y, z);
+                world.SetBlock(this, Encode(BlockColor.Default, level.GetBlockHeight()), x, y, z);
             }
         }
 
@@ -75,7 +75,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             Decode(data, out BlockColor color, out int height);
             var next = (BlockColor)((int)color + 1);
-            Game.World.SetBlock(this, Encode(next, height), x, y, z);
+            entity.World.SetBlock(this, Encode(next, height), x, y, z);
         }
 
         private static uint Encode(BlockColor color, int height)
@@ -98,9 +98,9 @@ namespace VoxelGame.Core.Logic.Blocks
             return height;
         }
 
-        public bool IsConnectable(BlockSide side, int x, int y, int z)
+        public bool IsConnectable(World world, BlockSide side, int x, int y, int z)
         {
-            Game.World.GetBlock(x, y, z, out uint data);
+            world.GetBlock(x, y, z, out uint data);
             return GetHeight(data) == IHeightVariable.MaximumHeight;
         }
     }

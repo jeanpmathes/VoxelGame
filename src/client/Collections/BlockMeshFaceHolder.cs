@@ -253,16 +253,16 @@ namespace VoxelGame.Client.Collections
 
             private readonly static ConcurrentBag<MeshFace> objects = new ConcurrentBag<MeshFace>();
 
-            public static MeshFace Get(int vert_0_0, int vert_0_1, int vert_1_1, int vert_1_0, int vertData, bool isRotated, int position)
+            public static MeshFace Get(int vert_0_0, int vert01, int vert11, int vert10, int vertData, bool isRotated, int position)
             {
                 MeshFace instance = objects.TryTake(out instance!) ? instance : new MeshFace();
 
                 instance.previousFace = null;
 
                 instance.vertex00 = vert_0_0;
-                instance.vertex01 = vert_0_1;
-                instance.vertex11 = vert_1_1;
-                instance.vertex10 = vert_1_0;
+                instance.vertex01 = vert01;
+                instance.vertex11 = vert11;
+                instance.vertex10 = vert10;
 
                 instance.vertData = vertData;
 

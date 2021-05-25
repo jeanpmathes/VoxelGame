@@ -14,29 +14,31 @@ namespace VoxelGame.Core.Physics
         /// <summary>
         /// Checks if a ray intersects with a block that is not <see cref="Block.Air"/>.
         /// </summary>
+        /// <param name="world">The world in which to cast the ray.</param>
         /// <param name="ray">The ray.</param>
         /// <param name="hitX">The x position where the intersection happens.</param>
         /// <param name="hitY">The y position where the intersection happens.</param>
         /// <param name="hitZ">The z position where the intersection happens.</param>
         /// <param name="side">The side of the voxel which is hit first.</param>
         /// <returns>True if an intersection happens.</returns>
-        public static bool CastBlock(Ray ray, out int hitX, out int hitY, out int hitZ, out BlockSide side)
+        public static bool CastBlock(World world, Ray ray, out int hitX, out int hitY, out int hitZ, out BlockSide side)
         {
-            return CastVoxel(ray, out hitX, out hitY, out hitZ, out side, BlockIntersectionCheck);
+            return CastVoxel(ray, out hitX, out hitY, out hitZ, out side, (ray1, x, y, z) => BlockIntersectionCheck(world, ray1, x, y, z));
         }
 
         /// <summary>
         /// Checks if a ray intersects with a liquid that is not <see cref="Liquid.None"/>
         /// </summary>
+        /// <param name="world">The world in which to cast the ray.</param>
         /// <param name="ray">The ray.</param>
         /// <param name="hitX">The x position where the intersection happens.</param>
         /// <param name="hitY">The y position where the intersection happens.</param>
         /// <param name="hitZ">The z position where the intersection happens.</param>
         /// <param name="side">The side of the voxel which is hit first.</param>
         /// <returns>True if an intersection happens.</returns>
-        public static bool CastLiquid(Ray ray, out int hitX, out int hitY, out int hitZ, out BlockSide side)
+        public static bool CastLiquid(World world, Ray ray, out int hitX, out int hitY, out int hitZ, out BlockSide side)
         {
-            return CastVoxel(ray, out hitX, out hitY, out hitZ, out side, LiquidIntersectionCheck);
+            return CastVoxel(ray, out hitX, out hitY, out hitZ, out side, (ray1, x, y, z) => LiquidIntersectionCheck(world, ray1, x, y, z));
         }
 
         private static bool CastVoxel(Ray ray, out int hitX, out int hitY, out int hitZ, out BlockSide side, Func<Ray, int, int, int, bool> rayIntersectionCheck)
@@ -146,20 +148,20 @@ namespace VoxelGame.Core.Physics
             return false;
         }
 
-        private static bool BlockIntersectionCheck(Ray ray, int x, int y, int z)
+        private static bool BlockIntersectionCheck(World world, Ray ray, int x, int y, int z)
         {
-            Block? block = Game.World.GetBlock(x, y, z, out _);
+            Block? block = world.GetBlock(x, y, z, out _);
 
             // Check if the ray intersects the bounding box of the block.
-            return (block != null && block != Block.Air && block.GetBoundingBox(x, y, z).Intersects(ray));
+            return (block != null && block != Block.Air && block.GetBoundingBox(world, x, y, z).Intersects(ray));
         }
 
-        private static bool LiquidIntersectionCheck(Ray ray, int x, int y, int z)
+        private static bool LiquidIntersectionCheck(World world, Ray ray, int x, int y, int z)
         {
-            Liquid? liquid = Game.World.GetLiquid(x, y, z, out LiquidLevel level, out _);
+            Liquid? liquid = world.GetLiquid(x, y, z, out LiquidLevel level, out _);
 
             // Check if the ray intersects the bounding box of the liquid.
-            return (liquid != null && liquid != Liquid.None && Liquid.GetBoundingBox(x, y, z, level).Intersects(ray));
+            return (liquid != null && liquid != Liquid.None && Liquid.GetBoundingBox(world, x, y, z, level).Intersects(ray));
         }
     }
 }

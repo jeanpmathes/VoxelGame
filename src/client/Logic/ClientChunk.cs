@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Updates;
 
 namespace VoxelGame.Client.Logic
 {
@@ -21,13 +22,13 @@ namespace VoxelGame.Client.Logic
         [NonSerialized] private bool hasMeshData;
         [NonSerialized] private int meshDataIndex;
 
-        public ClientChunk(int x, int z) : base(x, z)
+        public ClientChunk(World world, int x, int z, UpdateCounter updateCounter) : base(world, x, z, updateCounter)
         {
         }
 
         protected override Section CreateSection()
         {
-            return new ClientSection();
+            return new ClientSection(World);
         }
 
         public void CreateAndSetMesh()

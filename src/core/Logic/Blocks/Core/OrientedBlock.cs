@@ -47,9 +47,9 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.Basic(vertices, sideTextureIndices[TranslateIndex(info.Side, (Orientation)(info.Data & 0b00_0011))]);
         }
 
-        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            Game.World.SetBlock(this, (uint)(entity?.LookingDirection.ToOrientation() ?? Orientation.North), x, y, z);
+            world.SetBlock(this, (uint)(entity?.LookingDirection.ToOrientation() ?? Orientation.North), x, y, z);
         }
 
         private static int TranslateIndex(BlockSide side, Orientation orientation)

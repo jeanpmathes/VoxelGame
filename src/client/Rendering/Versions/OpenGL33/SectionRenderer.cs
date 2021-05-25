@@ -17,7 +17,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
     /// </summary>
     public class SectionRenderer : Rendering.SectionRenderer
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<SectionRenderer>();
 
         private readonly int simpleDataVBO;
         private readonly int simpleVAO;
@@ -442,7 +442,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL33
             }
             else
             {
-                logger.LogWarning(LoggingEvents.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
+                Logger.LogWarning(LoggingEvents.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
             }
 
             disposed = true;

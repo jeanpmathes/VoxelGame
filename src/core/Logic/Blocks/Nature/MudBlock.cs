@@ -37,7 +37,7 @@ namespace VoxelGame.Core.Logic.Blocks
             entity.Velocity = VMath.Clamp(entity.Velocity, -1f, maxVelocity);
         }
 
-        public virtual bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
+        public virtual bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
         {
             return liquid.Viscosity < 200;
         }

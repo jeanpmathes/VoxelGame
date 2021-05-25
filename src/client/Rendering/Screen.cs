@@ -18,7 +18,7 @@ namespace VoxelGame.Client.Rendering
     /// </summary>
     public abstract class Screen : IDisposable
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Screen>();
 
         #region PUBLIC STATIC PROPERTIES
 
@@ -78,14 +78,14 @@ namespace VoxelGame.Client.Rendering
 
                 Instance.Client.WindowState = WindowState.Fullscreen;
                 Instance.Client.IsFullscreen = true;
-                logger.LogDebug("Fullscreen: Switched to fullscreen mode.");
+                Logger.LogDebug("Fullscreen: Switched to fullscreen mode.");
             }
             else
             {
                 unsafe { GLFW.SetWindowMonitor(Instance.Client.WindowPointer, null, previousScreenLocation.X, previousScreenLocation.Y, previousScreenSize.X, previousScreenSize.Y, (int)Instance.Client.RenderFrequency); }
                 Instance.Client.IsFullscreen = false;
 
-                logger.LogDebug("Fullscreen: Switched to normal mode.");
+                Logger.LogDebug("Fullscreen: Switched to normal mode.");
             }
         }
 

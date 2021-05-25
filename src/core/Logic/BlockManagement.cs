@@ -12,12 +12,13 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic
 {
     public abstract partial class Block : IBlockBase
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<Block>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Block>();
 
         public const int BlockLimit = 1 << Section.DATASHIFT;
 
@@ -151,7 +152,7 @@ namespace VoxelGame.Core.Logic
             }
             else
             {
-                logger.LogWarning("No Block with the ID {id} could be found, returning {fallback} instead.", id, nameof(Block.Air));
+                Logger.LogWarning("No Block with the ID {id} could be found, returning {fallback} instead.", id, nameof(Block.Air));
 
                 return Block.Air;
             }
@@ -165,7 +166,7 @@ namespace VoxelGame.Core.Logic
             }
             else
             {
-                logger.LogWarning("No Block with the named ID {id} could be found, returning {fallback} instead.", namedId, nameof(Block.Air));
+                Logger.LogWarning("No Block with the named ID {id} could be found, returning {fallback} instead.", namedId, nameof(Block.Air));
 
                 return Block.Air;
             }
@@ -179,18 +180,18 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Calls the setup method on all blocks.
         /// </summary>
-        public static void LoadBlocks()
+        public static void LoadBlocks(ITextureIndexProvider indexProvider)
         {
-            using (logger.BeginScope("Block Loading"))
+            using (Logger.BeginScope("Block Loading"))
             {
                 foreach (Block block in blockDictionary.Values)
                 {
-                    block.Setup();
+                    block.Setup(indexProvider);
 
-                    logger.LogDebug(LoggingEvents.BlockLoad, "Loaded the block [{block}] with ID {id}.", block, block.Id);
+                    Logger.LogDebug(LoggingEvents.BlockLoad, "Loaded the block [{block}] with ID {id}.", block, block.Id);
                 }
 
-                logger.LogInformation("Block setup complete. A total of {count} blocks have been loaded.", Count);
+                Logger.LogInformation("Block setup complete. A total of {count} blocks have been loaded.", Count);
             }
         }
     }

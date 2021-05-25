@@ -29,7 +29,7 @@ namespace VoxelGame.Core.Logic.Liquids
             return LiquidMeshData.Empty;
         }
 
-        protected override void ScheduledUpdate(int x, int y, int z, LiquidLevel level, bool isStatic)
+        protected override void ScheduledUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic)
         {
         }
     }

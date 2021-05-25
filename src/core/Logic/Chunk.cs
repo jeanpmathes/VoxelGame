@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using System;
 using System.IO;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.WorldGeneration;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic
@@ -19,7 +21,7 @@ namespace VoxelGame.Core.Logic
     [Serializable]
     public abstract class Chunk : IDisposable
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Chunk>();
 
         public const int ChunkHeight = 32;
 
@@ -40,6 +42,8 @@ namespace VoxelGame.Core.Logic
 
         public static Vector3 ChunkExtents { get => new Vector3(Section.SectionSize / 2f, ChunkHeight * Section.SectionSize / 2f, Section.SectionSize / 2f); }
 
+        [field: NonSerialized] protected World World { get; private set; }
+
 #pragma warning disable CA1051 // Do not declare visible instance fields
         protected readonly Section[] sections = new Section[ChunkHeight];
 #pragma warning restore CA1051 // Do not declare visible instance fields
@@ -47,12 +51,14 @@ namespace VoxelGame.Core.Logic
         private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
         private readonly ScheduledTickManager<Liquid.LiquidTick> liquidTickManager;
 
-        protected Chunk(int x, int z)
+        protected Chunk(World world, int x, int z, UpdateCounter updateCounter)
         {
+            World = world;
+
             X = x;
             Z = z;
 
-            for (int y = 0; y < ChunkHeight; y++)
+            for (var y = 0; y < ChunkHeight; y++)
             {
 #pragma warning disable S1699 // Constructors should only call non-overridable methods
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
@@ -61,8 +67,8 @@ namespace VoxelGame.Core.Logic
 #pragma warning restore S1699 // Constructors should only call non-overridable methods
             }
 
-            blockTickManager = new ScheduledTickManager<Block.BlockTick>(Block.MaxLiquidTicksPerFrameAndChunk);
-            liquidTickManager = new ScheduledTickManager<Liquid.LiquidTick>(Liquid.MaxLiquidTicksPerFrameAndChunk);
+            blockTickManager = new ScheduledTickManager<Block.BlockTick>(Block.MaxLiquidTicksPerFrameAndChunk, World, updateCounter);
+            liquidTickManager = new ScheduledTickManager<Liquid.LiquidTick>(Liquid.MaxLiquidTicksPerFrameAndChunk, World, updateCounter);
         }
 
         protected abstract Section CreateSection();
@@ -70,14 +76,16 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Calls setup on all sections. This is required after loading.
         /// </summary>
-        public void Setup()
+        public void Setup(World world, UpdateCounter updateCounter)
         {
-            blockTickManager.Load();
-            liquidTickManager.Load();
+            World = world;
 
-            for (int y = 0; y < ChunkHeight; y++)
+            blockTickManager.Setup(World, updateCounter);
+            liquidTickManager.Setup(World, updateCounter);
+
+            for (var y = 0; y < ChunkHeight; y++)
             {
-                sections[y].Setup();
+                sections[y].Setup(world);
             }
         }
 
@@ -90,7 +98,7 @@ namespace VoxelGame.Core.Logic
         /// <returns>The loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
         public static Chunk? Load(string path, int x, int z)
         {
-            logger.LogDebug("Loading chunk for position: ({x}|{z})", x, z);
+            Logger.LogDebug("Loading chunk for position: ({x}|{z})", x, z);
 
             Chunk chunk;
 
@@ -107,7 +115,7 @@ namespace VoxelGame.Core.Logic
             }
             else
             {
-                logger.LogWarning("The file for the chunk at ({x}|{z}) was not valid as the position did not match.", x, z);
+                Logger.LogWarning("The file for the chunk at ({x}|{z}) was not valid as the position did not match.", x, z);
 
                 return null;
             }
@@ -136,7 +144,7 @@ namespace VoxelGame.Core.Logic
 
             string chunkFile = path + $"/x{X}z{Z}.chunk";
 
-            logger.LogDebug("Saving the chunk ({x}|{z}) to: {path}", X, Z, chunkFile);
+            Logger.LogDebug("Saving the chunk ({x}|{z}) to: {path}", X, Z, chunkFile);
 
             using Stream stream = new FileStream(chunkFile, FileMode.Create, FileAccess.Write, FileShare.Read);
             IFormatter formatter = new BinaryFormatter();
@@ -158,7 +166,7 @@ namespace VoxelGame.Core.Logic
 
         public void Generate(IWorldGenerator generator)
         {
-            logger.LogDebug("Generating the chunk ({x}|{z}) using the '{name}' generator.", X, Z, generator);
+            Logger.LogDebug("Generating the chunk ({x}|{z}) using the '{name}' generator.", X, Z, generator);
 
             for (int x = 0; x < Section.SectionSize; x++)
             {

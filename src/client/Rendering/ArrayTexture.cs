@@ -17,7 +17,7 @@ namespace VoxelGame.Client.Rendering
 {
     public abstract class ArrayTexture : IDisposable, ITextureIndexProvider
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<ArrayTexture>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ArrayTexture>();
 
         private protected readonly Dictionary<string, int> textureIndicies = new Dictionary<string, int>();
 
@@ -54,7 +54,7 @@ namespace VoxelGame.Client.Rendering
             catch (DirectoryNotFoundException)
             {
                 texturePaths = Array.Empty<string>();
-                logger.LogWarning("A texture directory has not been found: {path}", path);
+                Logger.LogWarning("A texture directory has not been found: {path}", path);
             }
 
             List<Bitmap> textures = new List<Bitmap>();
@@ -69,7 +69,7 @@ namespace VoxelGame.Client.Rendering
             // Check if the arrays could hold all textures
             if (textures.Count > 2048 * handles.Length)
             {
-                logger.LogCritical(
+                Logger.LogCritical(
                     "The number of textures found ({count}) is higher than the number of textures ({max}) that are allowed for an ArrayTexture using {units} units.",
                     textures.Count,
                     2048 * handles.Length,
@@ -97,7 +97,7 @@ namespace VoxelGame.Client.Rendering
                 bitmap.Dispose();
             }
 
-            logger.LogDebug("ArrayTexture with {count} textures loaded.", Count);
+            Logger.LogDebug("ArrayTexture with {count} textures loaded.", Count);
         }
 
         protected abstract void GetHandles(int[] arr);
@@ -134,12 +134,12 @@ namespace VoxelGame.Client.Rendering
                     }
                     else
                     {
-                        logger.LogDebug("The size of the image did not match the specified resolution ({resolution}) and was not loaded: {path}", resolution, paths[i]);
+                        Logger.LogDebug("The size of the image did not match the specified resolution ({resolution}) and was not loaded: {path}", resolution, paths[i]);
                     }
                 }
                 catch (FileNotFoundException e)
                 {
-                    logger.LogError(e, "The image could not be loaded: {path}", paths[i]);
+                    Logger.LogError(e, "The image could not be loaded: {path}", paths[i]);
                 }
             }
         }
@@ -222,7 +222,7 @@ namespace VoxelGame.Client.Rendering
             }
             else
             {
-                logger.LogWarning(LoggingEvents.MissingRessource, "The texture '{name}' is not available, fallback is used.", name);
+                Logger.LogWarning(LoggingEvents.MissingRessource, "The texture '{name}' is not available, fallback is used.", name);
 
                 return 0;
             }

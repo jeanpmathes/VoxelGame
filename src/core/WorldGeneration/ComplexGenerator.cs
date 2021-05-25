@@ -13,7 +13,7 @@ namespace VoxelGame.Core.WorldGeneration
 {
     public class ComplexGenerator : IWorldGenerator
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<ComplexGenerator>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ComplexGenerator>();
 
         private readonly FastNoise noise;
         private readonly int halfHeight = Section.SectionSize * Chunk.ChunkHeight / 2;
@@ -40,7 +40,7 @@ namespace VoxelGame.Core.WorldGeneration
             noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Euclidean);
             noise.SetCellularJitter(0.4f);
 
-            logger.LogInformation("Created an IWorldGenerator of type Complex.");
+            Logger.LogInformation("Created an IWorldGenerator of type Complex.");
         }
 
         public IEnumerable<Block> GenerateColumn(int x, int z)

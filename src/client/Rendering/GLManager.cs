@@ -16,7 +16,7 @@ namespace VoxelGame.Client.Rendering
         {
         }
 
-        private static ILogger logger = LoggingHelper.CreateLogger<GLManager>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<GLManager>();
 
         #region INITIALIZATION
 
@@ -24,7 +24,7 @@ namespace VoxelGame.Client.Rendering
         {
             if (version < 33)
             {
-                logger.LogCritical("Versions below OpenGL 3.3 are not supported.");
+                Logger.LogCritical("Versions below OpenGL 3.3 are not supported.");
 
                 throw new NotSupportedException();
             }
@@ -57,7 +57,7 @@ namespace VoxelGame.Client.Rendering
 
             ShaderPath = "Resources/Shaders/gl33";
 
-            logger.LogInformation("Initialized rendering for OpenGL 3.3");
+            Logger.LogInformation("Initialized rendering for OpenGL 3.3");
         }
 
         private static void InitializeOpenGL46()
@@ -74,7 +74,7 @@ namespace VoxelGame.Client.Rendering
 
             ShaderPath = "Resources/Shaders/gl46";
 
-            logger.LogInformation("Initialized rendering for OpenGL 4.6");
+            Logger.LogInformation("Initialized rendering for OpenGL 4.6");
         }
 
         #endregion INITIALIZATION

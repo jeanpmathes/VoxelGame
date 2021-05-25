@@ -10,21 +10,23 @@ using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core;
 using VoxelGame.Core.Utilities;
-using OpenToolkit.Graphics.OpenGL4;
 using VoxelGame.Client.Rendering;
 using OpenToolkit.Mathematics;
 using System;
+using VoxelGame.Core.Updates;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes
 {
     public class GameScene : IScene
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<GameScene>();
 
         private readonly GameUserInterface ui;
 
         private readonly Client client;
+
+        private readonly UpdateCounter counter;
 
         public ClientWorld World { get; private set; }
         public ClientPlayer Player { get; private set; } = null!;
@@ -45,25 +47,23 @@ namespace VoxelGame.Client.Scenes
             ui = new GameUserInterface(client, false);
 
             World = world;
+            counter = world.UpdateCounter;
         }
 
         public void Load()
         {
-            Game.SetWorld(World);
-
             // Player setup.
             Camera camera = new Camera(new Vector3());
-            Player = new ClientPlayer(70f, 0.25f, camera, new Core.Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)), ui);
-            Game.SetPlayer(Player);
+            Player = new ClientPlayer(World, 70f, 0.25f, camera, new Core.Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)), ui);
 
             ui.Load();
             ui.Resize(Screen.Size);
 
             ui.CreateControl();
 
-            Game.ResetUpdate();
+            counter.ResetUpdate();
 
-            logger.LogInformation("Loaded GameScene");
+            Logger.LogInformation("Loaded GameScene");
         }
 
         public void OnResize(Vector2i size)
@@ -73,7 +73,7 @@ namespace VoxelGame.Client.Scenes
 
         public void Render(float deltaTime)
         {
-            using (logger.BeginScope("GameScene Render"))
+            using (Logger.BeginScope("GameScene Render"))
             {
                 ui.SetUpdateRate(Client.Fps, Client.Ups);
 
@@ -85,9 +85,9 @@ namespace VoxelGame.Client.Scenes
 
         public void Update(float deltaTime)
         {
-            using (logger.BeginScope("GameScene Update"))
+            using (Logger.BeginScope("GameScene Update"))
             {
-                Game.IncrementUpdate();
+                counter.IncrementUpdate();
 
                 World.Update(deltaTime);
 
@@ -118,14 +118,14 @@ namespace VoxelGame.Client.Scenes
                         Screen.SetWireFrame(false);
                         wireframeMode = false;
 
-                        logger.LogInformation("Disabled wire-frame mode.");
+                        Logger.LogInformation("Disabled wire-frame mode.");
                     }
                     else
                     {
                         Screen.SetWireFrame(true);
                         wireframeMode = true;
 
-                        logger.LogInformation("Enabled wire-frame mode.");
+                        Logger.LogInformation("Enabled wire-frame mode.");
                     }
                 }
                 else if (input.IsKeyUp(Key.K))
@@ -153,7 +153,7 @@ namespace VoxelGame.Client.Scenes
 
         public void Unload()
         {
-            logger.LogInformation("Unloading world.");
+            Logger.LogInformation("Unloading world.");
 
             try
             {
@@ -162,7 +162,7 @@ namespace VoxelGame.Client.Scenes
             }
             catch (AggregateException exception)
             {
-                logger.LogCritical(LoggingEvents.WorldSavingError, exception.GetBaseException(), "An exception was thrown when saving the world.");
+                Logger.LogCritical(LoggingEvents.WorldSavingError, exception.GetBaseException(), "An exception was thrown when saving the world.");
             }
 
             World.Dispose();
@@ -170,9 +170,6 @@ namespace VoxelGame.Client.Scenes
 
             World = null!;
             Player = null!;
-
-            Client.InvalidateWorld();
-            Client.InvalidatePlayer();
         }
 
         #region IDisposable Support.

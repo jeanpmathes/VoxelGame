@@ -39,24 +39,24 @@ namespace VoxelGame.Core.Logic.Blocks
             return base.GetMesh(info).Modified(TintColor.Neutral);
         }
 
-        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
             // Check the block under the placement position.
-            Block ground = Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air;
+            Block ground = world.GetBlock(x, y - 1, z, out _) ?? Block.Air;
             return ground is IPlantable;
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
+            if (side == BlockSide.Bottom && !((world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
             {
-                Destroy(x, y, z);
+                Destroy(world, x, y, z);
             }
         }
 
-        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0 && level > LiquidLevel.Four) Destroy(x, y, z);
+            if (liquid.Direction > 0 && level > LiquidLevel.Four) Destroy(world, x, y, z);
         }
     }
 }

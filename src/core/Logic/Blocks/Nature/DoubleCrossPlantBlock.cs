@@ -46,7 +46,7 @@ namespace VoxelGame.Core.Logic.Blocks
             this.topTexOffset = topTexOffset;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             vertices = new[]
            {
@@ -63,7 +63,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 0.855f, 0f, 0.855f, 1f, 0f, 0f, 0f, 0f
            };
 
-            int tex = Game.BlockTextures.GetTextureIndex(bottomTexture);
+            int tex = indexProvider.GetTextureIndex(bottomTexture);
             bottomTexIndices = new[] { tex, tex, tex, tex, tex, tex, tex, tex };
 
             tex += topTexOffset;
@@ -92,37 +92,37 @@ namespace VoxelGame.Core.Logic.Blocks
             return new BlockMeshData(8, vertices, ((info.Data & 0b1) == 0) ? bottomTexIndices : topTexIndices, indices, TintColor.Neutral);
         }
 
-        internal override bool CanPlace(int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            return Game.World.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true && (Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable;
+            return world.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true && (world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable;
         }
 
-        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            Game.World.SetBlock(this, 0, x, y, z);
-            Game.World.SetBlock(this, 1, x, y + 1, z);
+            world.SetBlock(this, 0, x, y, z);
+            world.SetBlock(this, 1, x, y + 1, z);
         }
 
-        internal override void DoDestroy(int x, int y, int z, uint data, PhysicsEntity? entity)
+        internal override void DoDestroy(World world, int x, int y, int z, uint data, PhysicsEntity? entity)
         {
             bool isBase = (data & 0b1) == 0;
 
-            Game.World.SetDefaultBlock(x, y, z);
-            Game.World.SetDefaultBlock(x, y + (isBase ? 1 : -1), z);
+            world.SetDefaultBlock(x, y, z);
+            world.SetDefaultBlock(x, y + (isBase ? 1 : -1), z);
         }
 
-        internal override void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
-            if (side == BlockSide.Bottom && (data & 0b1) == 0 && !((Game.World.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
+            if (side == BlockSide.Bottom && (data & 0b1) == 0 && !((world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
             {
-                Destroy(x, y, z);
+                Destroy(world, x, y, z);
             }
         }
 
-        public void LiquidChange(int x, int y, int z, Liquid liquid, LiquidLevel level)
+        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0 && level > LiquidLevel.Five) ScheduleDestroy(x, y, z);
+            if (liquid.Direction > 0 && level > LiquidLevel.Five) ScheduleDestroy(world, x, y, z);
         }
     }
 }

@@ -6,6 +6,7 @@
 
 using System.Diagnostics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -127,20 +128,22 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Called when loading blocks, meant to setup vertex data, indices etc.
         /// </summary>
-        protected virtual void Setup()
+        /// <param name="indexProvider"></param>
+        protected virtual void Setup(ITextureIndexProvider indexProvider)
         {
         }
 
         /// <summary>
         /// Returns the bounding box of this block if it would be at the given position.
         /// </summary>
+        /// <param name="world">The world in which the block is.</param>
         /// <param name="x">The x position.</param>
         /// <param name="y">The y position.</param>
         /// <param name="z">The z position.</param>
         /// <returns>The bounding box.</returns>
-        public BoundingBox GetBoundingBox(int x, int y, int z)
+        public BoundingBox GetBoundingBox(World world, int x, int y, int z)
         {
-            return (Game.World.GetBlock(x, y, z, out uint data) == this ? GetBoundingBox(data) : boundingBox).Translated(x, y, z);
+            return (world.GetBlock(x, y, z, out uint data) == this ? GetBoundingBox(data) : boundingBox).Translated(x, y, z);
         }
 
         protected virtual BoundingBox GetBoundingBox(uint data)
@@ -155,42 +158,42 @@ namespace VoxelGame.Core.Logic
         /// <returns>The mesh data.</returns>
         public abstract BlockMeshData GetMesh(BlockMeshInfo info);
 
-        public bool Place(int x, int y, int z, Entities.PhysicsEntity? entity = null)
+        public bool Place(World world, int x, int y, int z, Entities.PhysicsEntity? entity = null)
         {
-            (Block? block, Liquid? liquid) = Game.World.GetPosition(x, y, z, out _, out LiquidLevel level, out _);
+            (Block? block, Liquid? liquid) = world.GetPosition(x, y, z, out _, out LiquidLevel level, out _);
 
-            bool canPlace = block?.IsReplaceable == true && CanPlace(x, y, z, entity);
+            bool canPlace = block?.IsReplaceable == true && CanPlace(world, x, y, z, entity);
 
             if (canPlace)
             {
-                DoPlace(x, y, z, entity);
+                DoPlace(world, x, y, z, entity);
             }
 
             liquid ??= Liquid.None;
 
             if (liquid != Liquid.None && this is IFillable fillable)
             {
-                fillable.LiquidChange(x, y, z, liquid, level);
+                fillable.LiquidChange(world, x, y, z, liquid, level);
             }
 
             return canPlace;
         }
 
-        internal virtual bool CanPlace(int x, int y, int z, Entities.PhysicsEntity? entity)
+        internal virtual bool CanPlace(World world, int x, int y, int z, Entities.PhysicsEntity? entity)
         {
             return true;
         }
 
-        protected virtual void DoPlace(int x, int y, int z, Entities.PhysicsEntity? entity)
+        protected virtual void DoPlace(World world, int x, int y, int z, Entities.PhysicsEntity? entity)
         {
-            Game.World.SetBlock(this, 0, x, y, z);
+            world.SetBlock(this, 0, x, y, z);
         }
 
-        public bool Destroy(int x, int y, int z, Entities.PhysicsEntity? entity = null)
+        public bool Destroy(World world, int x, int y, int z, Entities.PhysicsEntity? entity = null)
         {
-            if (Game.World.GetBlock(x, y, z, out uint data) == this && CanDestroy(x, y, z, data, entity))
+            if (world.GetBlock(x, y, z, out uint data) == this && CanDestroy(world, x, y, z, data, entity))
             {
-                DoDestroy(x, y, z, data, entity);
+                DoDestroy(world, x, y, z, data, entity);
                 return true;
             }
             else
@@ -199,14 +202,14 @@ namespace VoxelGame.Core.Logic
             }
         }
 
-        internal virtual bool CanDestroy(int x, int y, int z, uint data, Entities.PhysicsEntity? entity)
+        internal virtual bool CanDestroy(World world, int x, int y, int z, uint data, Entities.PhysicsEntity? entity)
         {
             return true;
         }
 
-        internal virtual void DoDestroy(int x, int y, int z, uint data, Entities.PhysicsEntity? entity)
+        internal virtual void DoDestroy(World world, int x, int y, int z, uint data, Entities.PhysicsEntity? entity)
         {
-            Game.World.SetDefaultBlock(x, y, z);
+            world.SetDefaultBlock(x, y, z);
         }
 
         /// <summary>
@@ -218,7 +221,7 @@ namespace VoxelGame.Core.Logic
         /// <param name="z">The z position of the block the entity collided with.</param>
         public void EntityCollision(Entities.PhysicsEntity entity, int x, int y, int z)
         {
-            if (Game.World.GetBlock(x, y, z, out uint data) == this)
+            if (entity.World.GetBlock(x, y, z, out uint data) == this)
             {
                 EntityCollision(entity, x, y, z, data);
             }
@@ -237,7 +240,7 @@ namespace VoxelGame.Core.Logic
         /// <param name="z">The z position of the block.</param>
         public void EntityInteract(Entities.PhysicsEntity entity, int x, int y, int z)
         {
-            if (Game.World.GetBlock(x, y, z, out uint data) == this)
+            if (entity.World.GetBlock(x, y, z, out uint data) == this)
             {
                 EntityInteract(entity, x, y, z, data);
             }
@@ -250,23 +253,24 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// This method is called on blocks next to a position that was changed.
         /// </summary>
+        /// <param name="world"></param>
         /// <param name="x">The x position of the block next to the changed position.</param>
         /// <param name="y">The y position of the block next to the changed position.</param>
         /// <param name="z">The z position of the block next to the changed position.</param>
         /// <param name="data">The data of the block next to the changed position.</param>
         /// <param name="side">The side of the block where the change happened.</param>
-        internal virtual void BlockUpdate(int x, int y, int z, uint data, BlockSide side)
+        internal virtual void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
         }
 
         /// <summary>
         /// This method is called randomly on some blocks every update.
         /// </summary>
-        internal virtual void RandomUpdate(int x, int y, int z, uint data)
+        internal virtual void RandomUpdate(World world, int x, int y, int z, uint data)
         {
         }
 
-        protected virtual void ScheduledUpdate(int x, int y, int z, uint data)
+        protected virtual void ScheduledUpdate(World world, int x, int y, int z, uint data)
         {
         }
 

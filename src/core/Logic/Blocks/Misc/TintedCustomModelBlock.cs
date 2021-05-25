@@ -36,7 +36,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
         {
-            Game.World.SetBlock(this, data + 1 & 0b01_1111, x, y, z);
+            entity.World.SetBlock(this, data + 1 & 0b01_1111, x, y, z);
         }
     }
 }

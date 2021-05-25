@@ -21,12 +21,14 @@ using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Client.Scenes;
+using VoxelGame.Core.Visuals;
+using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
 namespace VoxelGame.Client
 {
     internal class Client : GameWindow
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Client>();
         private static Client Instance { get; set; } = null!;
 
         #region STATIC PROPERTIES
@@ -54,12 +56,7 @@ namespace VoxelGame.Client
         public static Shader SelectionShader { get; private set; } = null!;
         public static Shader ScreenElementShader { get; private set; } = null!;
 
-        public static ClientWorld World { get; private set; } = null!;
         public static ClientPlayer Player { get; private set; } = null!;
-
-        public static Random Random { get; private set; } = null!;
-
-        public static double Time { get; private set; }
 
         public static double Fps => 1.0 / Instance.renderDeltaBuffer.Average;
         public static double Ups => 1.0 / Instance.updateDeltaBuffer.Average;
@@ -69,6 +66,7 @@ namespace VoxelGame.Client
         public IScene Scene { get; private set; } = null!;
         private StartScene startScene = null!;
 
+        private double Time { get; set; }
         public unsafe Window* WindowPointer { get; }
 
         public readonly string AppDataDirectory;
@@ -104,9 +102,9 @@ namespace VoxelGame.Client
             MouseMove += OnMouseMove;
         }
 
-        new protected void OnLoad()
+        private new void OnLoad()
         {
-            using (logger.BeginScope("Client OnLoad"))
+            using (Logger.BeginScope("Client OnLoad"))
             {
                 // GL version setup.
                 int version = GL.GetInteger(GetPName.MajorVersion) * 10 + GL.GetInteger(GetPName.MinorVersion);
@@ -127,15 +125,16 @@ namespace VoxelGame.Client
 
                 // Texture setup.
                 BlockTextureArray = GLManager.ArrayTextureFactory.CreateArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2, TextureUnit.Texture3, TextureUnit.Texture4);
-                Game.SetBlockTextures(BlockTextureArray);
-                logger.LogInformation("All block textures loaded.");
+                Logger.LogInformation("All block textures loaded.");
 
                 LiquidTextureArray = GLManager.ArrayTextureFactory.CreateArrayTexture("Resources/Textures/Liquids", 16, false, TextureUnit.Texture5);
-                Game.SetLiquidTextures(LiquidTextureArray);
-                logger.LogInformation("All liquid textures loaded.");
+                Logger.LogInformation("All liquid textures loaded.");
+
+                TextureLayout.SetProviders(BlockTextureArray, LiquidTextureArray);
+                BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
 
                 // Shader setup.
-                using (logger.BeginScope("Shader setup"))
+                using (Logger.BeginScope("Shader setup"))
                 {
                     SimpleSectionShader = new Shader("simplesection_shader.vert", "section_shader.frag");
                     ComplexSectionShader = new Shader("complexsection_shader.vert", "section_shader.frag");
@@ -149,32 +148,28 @@ namespace VoxelGame.Client
                     OverlayShader.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
                     ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
 
-                    logger.LogInformation("Shader setup complete.");
+                    Logger.LogInformation("Shader setup complete.");
                 }
 
                 // Block setup.
-                Block.LoadBlocks();
-                logger.LogDebug("Texture/Block ratio: {ratio:F02}", BlockTextureArray.Count / (float)Block.Count);
+                Block.LoadBlocks(BlockTextureArray);
+                Logger.LogDebug("Texture/Block ratio: {ratio:F02}", BlockTextureArray.Count / (float)Block.Count);
 
                 // Liquid setup.
-                Liquid.LoadLiquids();
+                Liquid.LoadLiquids(LiquidTextureArray);
 
                 // Scene setup.
                 startScene = new StartScene(this);
                 Scene = startScene;
                 Scene.Load();
 
-                // Other object setup.
-                Random = new Random();
-                Game.SetRandom(Random);
-
-                logger.LogInformation("Finished OnLoad");
+                Logger.LogInformation("Finished OnLoad");
             }
         }
 
-        new protected void OnRenderFrame(FrameEventArgs e)
+        private new void OnRenderFrame(FrameEventArgs e)
         {
-            using (logger.BeginScope("RenderFrame"))
+            using (Logger.BeginScope("RenderFrame"))
             {
                 Time += e.Time;
 
@@ -197,9 +192,9 @@ namespace VoxelGame.Client
 
         private bool hasReleasedFullscreenKey = true;
 
-        new protected void OnUpdateFrame(FrameEventArgs e)
+        private new void OnUpdateFrame(FrameEventArgs e)
         {
-            using (logger.BeginScope("UpdateFrame"))
+            using (Logger.BeginScope("UpdateFrame"))
             {
                 float deltaTime = (float)MathHelper.Clamp(e.Time, 0f, 1f);
 
@@ -225,9 +220,9 @@ namespace VoxelGame.Client
             }
         }
 
-        new protected void OnClosed()
+        private new void OnClosed()
         {
-            logger.LogInformation("Closing window.");
+            Logger.LogInformation("Closing window.");
         }
 
         #region SCENE MANAGEMENT
@@ -241,7 +236,6 @@ namespace VoxelGame.Client
             Instance.Scene = gameScene;
             Instance.Scene.Load();
 
-            World = gameScene.World;
             Player = gameScene.Player;
         }
 
@@ -252,18 +246,8 @@ namespace VoxelGame.Client
 
             Instance.Scene = Instance.startScene;
             Instance.Scene.Load();
-        }
 
-        public static void InvalidateWorld()
-        {
-            World = null!;
-            Game.SetWorld(null!);
-        }
-
-        public static void InvalidatePlayer()
-        {
             Player = null!;
-            Game.SetPlayer(null!);
         }
 
         #endregion SCENE MANAGEMENT
@@ -445,27 +429,27 @@ namespace VoxelGame.Client
             switch (severity)
             {
                 case DebugSeverity.DebugSeverityNotification:
-                    logger.LogInformation(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                    Logger.LogInformation(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
                         "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
                     break;
 
                 case DebugSeverity.DebugSeverityLow:
-                    logger.LogWarning(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                    Logger.LogWarning(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
                         "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
                     break;
 
                 case DebugSeverity.DebugSeverityMedium:
-                    logger.LogError(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                    Logger.LogError(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
                         "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
                     break;
 
                 case DebugSeverity.DebugSeverityHigh:
-                    logger.LogCritical(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                    Logger.LogCritical(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
                         "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
                     break;
 
                 default:
-                    logger.LogInformation(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                    Logger.LogInformation(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
                         "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
                     break;
             }

@@ -89,29 +89,29 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        protected override void DoPlace(int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            Game.World.SetBlock(this, (uint)ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
+            world.SetBlock(this, (uint)ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
         }
 
-        public virtual bool IsConnectable(BlockSide side, int x, int y, int z)
+        public virtual bool IsConnectable(World world, BlockSide side, int x, int y, int z)
         {
-            return IsSideOpen(x, y, z, side);
+            return IsSideOpen(world, x, y, z, side);
         }
 
-        public bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
+        public bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
         {
-            return IsSideOpen(x, y, z, side);
+            return IsSideOpen(world, x, y, z, side);
         }
 
-        public bool AllowOutflow(int x, int y, int z, BlockSide side)
+        public bool AllowOutflow(World world, int x, int y, int z, BlockSide side)
         {
-            return IsSideOpen(x, y, z, side);
+            return IsSideOpen(world, x, y, z, side);
         }
 
-        protected virtual bool IsSideOpen(int x, int y, int z, BlockSide side)
+        protected virtual bool IsSideOpen(World world, int x, int y, int z, BlockSide side)
         {
-            Game.World.GetBlock(x, y, z, out uint data);
+            world.GetBlock(x, y, z, out uint data);
             return ToAxis(side) == (Axis)(data & AxisDataMask);
         }
 

@@ -35,9 +35,9 @@ namespace VoxelGame.Core.Logic.Blocks
             this.open = open;
         }
 
-        protected override void Setup()
+        protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            base.Setup();
+            base.Setup(indexProvider);
 
             openTextureIndices = open.GetTexIndexArray();
         }
@@ -54,12 +54,12 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
         {
-            Game.World.SetBlock(this, data ^ 0b00_0001, x, y, z);
+            entity.World.SetBlock(this, data ^ 0b00_0001, x, y, z);
         }
 
-        public bool AllowInflow(int x, int y, int z, BlockSide side, Liquid liquid)
+        public bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
         {
-            Game.World.GetBlock(x, y, z, out uint data);
+            world.GetBlock(x, y, z, out uint data);
             return (data & 0b00_0001) == 1;
         }
     }

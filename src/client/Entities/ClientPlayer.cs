@@ -30,7 +30,7 @@ namespace VoxelGame.Client.Entities
 
         private readonly GameUserInterface ui;
 
-        public ClientPlayer(float mass, float drag, Camera camera, BoundingBox boundingBox, GameUserInterface ui) : base(mass, drag, boundingBox)
+        public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingBox boundingBox, GameUserInterface ui) : base(world, mass, drag, boundingBox)
         {
             this.camera = camera;
             camera.Position = Position;
@@ -92,7 +92,7 @@ namespace VoxelGame.Client.Entities
         {
             if (selectedY >= 0)
             {
-                Block selectedBlock = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _) ?? Block.Air;
+                Block selectedBlock = World.GetBlock(selectedX, selectedY, selectedZ, out _) ?? Block.Air;
 
 #if DEBUG
                 if (selectedBlock != Block.Air)
@@ -100,7 +100,7 @@ namespace VoxelGame.Client.Entities
                 if (!selectedBlock.IsReplaceable)
 #endif
                 {
-                    BoundingBox selectedBox = selectedBlock.GetBoundingBox(selectedX, selectedY, selectedZ);
+                    BoundingBox selectedBox = selectedBlock.GetBoundingBox(World, selectedX, selectedY, selectedZ);
 
                     Client.SelectionShader.SetVector3("color", new Vector3(0.1f, 0.1f, 0.1f));
 
@@ -128,7 +128,7 @@ namespace VoxelGame.Client.Entities
             camera.Position = Position + cameraOffset;
 
             Ray ray = new Ray(camera.Position, camera.Front, 6f);
-            Raycast.CastBlock(ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
+            Raycast.CastBlock(World, ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
 
             // Do input handling.
             if (Screen.IsFocused)
@@ -147,12 +147,12 @@ namespace VoxelGame.Client.Entities
                 int headY = (int)Math.Floor(camera.Position.Y);
                 int headZ = (int)Math.Floor(camera.Position.Z);
 
-                if (Game.World.GetBlock(headX, headY, headZ, out _) is IOverlayTextureProvider overlayBlockTextureProvider)
+                if (World.GetBlock(headX, headY, headZ, out _) is IOverlayTextureProvider overlayBlockTextureProvider)
                 {
                     overlay.SetBlockTexture(overlayBlockTextureProvider.TextureIdentifier);
                     renderOverlay = true;
                 }
-                else if (Game.World.GetLiquid(headX, headY, headZ, out _, out _) is IOverlayTextureProvider overlayLiquidTextureProvider)
+                else if (World.GetLiquid(headX, headY, headZ, out _, out _) is IOverlayTextureProvider overlayLiquidTextureProvider)
                 {
                     overlay.SetLiquidTexture(overlayLiquidTextureProvider.TextureIdentifier);
                     renderOverlay = true;
@@ -236,7 +236,7 @@ namespace VoxelGame.Client.Entities
 
         private void WorldInteraction(KeyboardState input, MouseState mouse)
         {
-            Block? target = Game.World.GetBlock(selectedX, selectedY, selectedZ, out _);
+            Block? target = World.GetBlock(selectedX, selectedY, selectedZ, out _);
 
             if (target == null)
             {
@@ -263,10 +263,10 @@ namespace VoxelGame.Client.Entities
                 }
 
                 // Prevent block placement if the block would intersect the player.
-                if (!blockMode || !activeBlock.IsSolid || !BoundingBox.Intersects(activeBlock.GetBoundingBox(placePositionX, placePositionY, placePositionZ)))
+                if (!blockMode || !activeBlock.IsSolid || !BoundingBox.Intersects(activeBlock.GetBoundingBox(World, placePositionX, placePositionY, placePositionZ)))
                 {
-                    if (blockMode) activeBlock.Place(placePositionX, placePositionY, placePositionZ, this);
-                    else activeLiquid.Fill(placePositionX, placePositionY, placePositionZ, LiquidLevel.One, out _);
+                    if (blockMode) activeBlock.Place(World, placePositionX, placePositionY, placePositionZ, this);
+                    else activeLiquid.Fill(World, placePositionX, placePositionY, placePositionZ, LiquidLevel.One, out _);
 
                     timer = 0;
                 }
@@ -313,7 +313,7 @@ namespace VoxelGame.Client.Entities
         {
             if (timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Left))
             {
-                if (blockMode) target.Destroy(selectedX, selectedY, selectedZ, this);
+                if (blockMode) target.Destroy(World, selectedX, selectedY, selectedZ, this);
                 else TakeLiquid(selectedX, selectedY, selectedZ);
 
                 timer = 0;
@@ -353,7 +353,7 @@ namespace VoxelGame.Client.Entities
                     }
                 }
 
-                Game.World.GetLiquid(x, y, z, out _, out _)?.Take(x, y, z, ref level);
+                World.GetLiquid(x, y, z, out _, out _)?.Take(World, x, y, z, ref level);
             }
         }
 
