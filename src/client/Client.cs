@@ -222,6 +222,8 @@ namespace VoxelGame.Client
         private new void OnClosed()
         {
             Logger.LogInformation("Closing window.");
+
+            sceneManager.Unload();
         }
 
         #region SCENE MANAGEMENT
