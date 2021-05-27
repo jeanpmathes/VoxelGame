@@ -23,11 +23,10 @@ namespace VoxelGame.Client.Scenes
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<StartScene>();
 
+        private readonly Client client;
         private readonly StartUserInterface ui;
 
         private List<(WorldInformation information, string path)> worlds;
-
-        private readonly Client client;
 
         internal StartScene(Client client)
         {
