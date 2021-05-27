@@ -63,7 +63,7 @@ namespace VoxelGame.Client
 
         #endregion STATIC PROPERTIES
 
-        private SceneManager sceneManager;
+        private readonly SceneManager sceneManager;
 
         private double Time { get; set; }
         public unsafe Window* WindowPointer { get; }
@@ -226,20 +226,18 @@ namespace VoxelGame.Client
 
         #region SCENE MANAGEMENT
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "SceneManager is responsible for scene.")]
-        public static void LoadGameScene(ClientWorld world)
+        public void LoadGameScene(ClientWorld world)
         {
             GameScene gameScene = new GameScene(Instance, world);
 
-            Instance.sceneManager.Load(gameScene);
+            sceneManager.Load(gameScene);
 
             Player = gameScene.Player;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "SceneManager is responsible for scene.")]
-        public static void LoadStartScene()
+        public void LoadStartScene()
         {
-            Instance.sceneManager.Load(new StartScene(Instance));
+            sceneManager.Load(new StartScene(Instance));
 
             Player = null!;
         }

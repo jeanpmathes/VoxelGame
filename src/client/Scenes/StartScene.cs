@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using VoxelGame.Client.Rendering;
@@ -76,7 +77,7 @@ namespace VoxelGame.Client.Scenes
         private void Action_Start()
         {
             ListWorlds(worlds);
-            Client.LoadGameScene(WorldSetup(client.WorldsDirectory));
+            client.LoadGameScene(WorldSetup(client.WorldsDirectory));
         }
 
         private void Action_Exit()
