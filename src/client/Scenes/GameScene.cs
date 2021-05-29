@@ -146,7 +146,7 @@ namespace VoxelGame.Client.Scenes
 
                 if (input.IsKeyDown(Key.Escape))
                 {
-                    Client.LoadStartScene();
+                    client.LoadStartScene();
                 }
             }
         }

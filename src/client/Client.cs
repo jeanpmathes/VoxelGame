@@ -63,8 +63,7 @@ namespace VoxelGame.Client
 
         #endregion STATIC PROPERTIES
 
-        public IScene Scene { get; private set; } = null!;
-        private StartScene startScene = null!;
+        private readonly SceneManager sceneManager;
 
         private double Time { get; set; }
         public unsafe Window* WindowPointer { get; }
@@ -90,6 +89,8 @@ namespace VoxelGame.Client
 
             WorldsDirectory = Path.Combine(appDataDirectory, "Worlds");
             Directory.CreateDirectory(WorldsDirectory);
+
+            sceneManager = new SceneManager();
 
             Load += OnLoad;
 
@@ -159,9 +160,7 @@ namespace VoxelGame.Client
                 Liquid.LoadLiquids(LiquidTextureArray);
 
                 // Scene setup.
-                startScene = new StartScene(this);
-                Scene = startScene;
-                Scene.Load();
+                sceneManager.Load(new StartScene(this));
 
                 Logger.LogInformation("Finished OnLoad");
             }
@@ -180,7 +179,7 @@ namespace VoxelGame.Client
 
                 screen.Clear();
 
-                Scene.Render((float)e.Time);
+                sceneManager.Render((float)e.Time);
 
                 screen.Draw();
 
@@ -196,9 +195,9 @@ namespace VoxelGame.Client
         {
             using (Logger.BeginScope("UpdateFrame"))
             {
-                float deltaTime = (float)MathHelper.Clamp(e.Time, 0f, 1f);
+                var deltaTime = (float)MathHelper.Clamp(e.Time, 0f, 1f);
 
-                Scene.Update(deltaTime);
+                sceneManager.Update(deltaTime);
 
                 if (IsFocused)
                 {
@@ -223,31 +222,31 @@ namespace VoxelGame.Client
         private new void OnClosed()
         {
             Logger.LogInformation("Closing window.");
+
+            sceneManager.Unload();
         }
 
         #region SCENE MANAGEMENT
 
-        public static void LoadGameScene(ClientWorld world)
+        public void LoadGameScene(ClientWorld world)
         {
-            Instance.Scene?.Unload();
-            Instance.Scene?.Dispose();
-
             GameScene gameScene = new GameScene(Instance, world);
-            Instance.Scene = gameScene;
-            Instance.Scene.Load();
+
+            sceneManager.Load(gameScene);
 
             Player = gameScene.Player;
         }
 
-        public static void LoadStartScene()
+        public void LoadStartScene()
         {
-            Instance.Scene?.Unload();
-            Instance.Scene?.Dispose();
-
-            Instance.Scene = Instance.startScene;
-            Instance.Scene.Load();
+            sceneManager.Load(new StartScene(Instance));
 
             Player = null!;
+        }
+
+        public void OnResize(Vector2i size)
+        {
+            sceneManager.OnResize(size);
         }
 
         #endregion SCENE MANAGEMENT

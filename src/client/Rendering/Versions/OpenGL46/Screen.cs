@@ -174,7 +174,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
 
             #endregion SCREENSHOT FBO
 
-            Client.Scene.OnResize(Size);
+            Client.OnResize(Size);
 
             Client.OverlayShader.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
             Client.ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
