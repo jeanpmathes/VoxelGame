@@ -91,18 +91,18 @@ namespace VoxelGame.Client.Logic
                     }
                 }
 
-                for (int stage = 0; stage < SectionRenderer.DrawStageCount; stage++)
+                for (var stage = 0; stage < SectionRenderer.DrawStageCount; stage++)
                 {
                     if (renderList.Count == 0) break;
 
-                    renderList[0].section.PrepareRender(stage);
+                    SectionRenderer.PrepareStage(stage);
 
-                    for (int i = 0; i < renderList.Count; i++)
+                    for (var i = 0; i < renderList.Count; i++)
                     {
                         renderList[i].section.Render(stage, renderList[i].position);
                     }
 
-                    renderList[0].section.FinishRender(stage);
+                    SectionRenderer.FinishStage(stage);
                 }
 
                 // Render the player

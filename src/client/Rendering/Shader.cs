@@ -112,7 +112,7 @@ namespace VoxelGame.Client.Rendering
 
         private static string LoadSource(string name)
         {
-            using var sr = new StreamReader(Path.Combine(GLManager.ShaderPath, name), Encoding.UTF8);
+            using var sr = new StreamReader(Path.Combine("Resources/Shaders", name), Encoding.UTF8);
             return sr.ReadToEnd();
         }
 
