@@ -130,14 +130,14 @@ namespace VoxelGame.Client
                 // Shader setup.
                 using (Logger.BeginScope("Shader setup"))
                 {
-                    SimpleSectionShader = new Shader("simplesection_shader.vert", "section_shader.frag");
-                    ComplexSectionShader = new Shader("complexsection_shader.vert", "section_shader.frag");
-                    VaryingHeightShader = new Shader("varyingheightsection_shader.vert", "section_shader.frag");
-                    OpaqueLiquidSectionShader = new Shader("liquidsection_shader.vert", "opaqueliquidsection_shader.frag");
-                    TransparentLiquidSectionShader = new Shader("liquidsection_shader.vert", "transparentliquidsection_shader.frag");
-                    OverlayShader = new Shader("overlay_shader.vert", "overlay_shader.frag");
-                    SelectionShader = new Shader("selection_shader.vert", "selection_shader.frag");
-                    ScreenElementShader = new Shader("screenelement_shader.vert", "screenelement_shader.frag");
+                    SimpleSectionShader = new Shader("simple_section.vert", "section.frag");
+                    ComplexSectionShader = new Shader("complex_section.vert", "section.frag");
+                    VaryingHeightShader = new Shader("varying_height_section.vert", "section.frag");
+                    OpaqueLiquidSectionShader = new Shader("liquid_section.vert", "opaque_liquid_section.frag");
+                    TransparentLiquidSectionShader = new Shader("liquid_section.vert", "transparent_liquid_section.frag");
+                    OverlayShader = new Shader("overlay.vert", "overlay.frag");
+                    SelectionShader = new Shader("selection.vert", "selection.frag");
+                    ScreenElementShader = new Shader("screen_element.vert", "screen_element.frag");
 
                     OverlayShader.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
                     ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));

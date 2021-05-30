@@ -165,58 +165,58 @@
     <None Update="Resources\Models\wood_pipe_surface.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\complexsection_shader.vert">
+    <None Update="Resources\Shaders\complex_section.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\complexsection_shader.vert">
+    <None Update="Resources\Shaders\complex_section.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\liquidsection_shader.vert">
+    <None Update="Resources\Shaders\liquid_section.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\opaqueliquidsection_shader.frag">
+    <None Update="Resources\Shaders\opaque_liquid_section.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\overlay_shader.frag">
+    <None Update="Resources\Shaders\overlay.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\overlay_shader.vert">
+    <None Update="Resources\Shaders\overlay.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\screenelement_shader.frag">
+    <None Update="Resources\Shaders\screen_element.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\screenelement_shader.vert">
+    <None Update="Resources\Shaders\screen_element.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\section_shader.frag">
+    <None Update="Resources\Shaders\section.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\selection_shader.frag">
+    <None Update="Resources\Shaders\selection.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\selection_shader.vert">
+    <None Update="Resources\Shaders\selection.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\simplesection_shader.vert">
+    <None Update="Resources\Shaders\simple_section.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\transparentliquidsection_shader.frag">
+    <None Update="Resources\Shaders\transparent_liquid_section.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\varyingheightsection_shader.vert">
+    <None Update="Resources\Shaders\varying_height_section.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Shaders\liquidsection_shader.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\liquidsection_shader.vert">
+    <None Update="Resources\Shaders\liquid_section.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\screenelement_shader.frag">
+    <None Update="Resources\Shaders\screen_element.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\screenelement_shader.vert">
+    <None Update="Resources\Shaders\screen_element.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Textures\Blocks\ash.png">
