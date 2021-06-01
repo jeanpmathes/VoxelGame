@@ -330,7 +330,7 @@ namespace VoxelGame.Client.Rendering
                 GL.DeleteRenderbuffer(screenshotRBO);
             }
 
-            Logger.LogWarning(LoggingEvents.UndeletedGlObjects, "A screen object has been destroyed without disposing it.");
+            Logger.LogWarning(Events.UndeletedGlObjects, "A screen object has been destroyed without disposing it.");
 
             disposed = true;
         }

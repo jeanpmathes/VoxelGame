@@ -68,7 +68,7 @@ namespace VoxelGame.Client.Rendering
             {
                 Exception e = new Exception($"Error occurred whilst compiling Shader({shader})");
 
-                Logger.LogCritical(LoggingEvents.ShaderError, e, "Error occurred whilst compiling Shader({shader}): {info}", shader, GL.GetShaderInfoLog(shader));
+                Logger.LogCritical(Events.ShaderError, e, "Error occurred whilst compiling Shader({shader}): {info}", shader, GL.GetShaderInfoLog(shader));
 
                 throw e;
             }
@@ -89,7 +89,7 @@ namespace VoxelGame.Client.Rendering
             {
                 Exception e = new Exception($"Error occurred whilst linking Program({program})");
 
-                Logger.LogCritical(LoggingEvents.ShaderError, e, "Error occurred whilst linking Program({program}): {info}", program, GL.GetProgramInfoLog(program));
+                Logger.LogCritical(Events.ShaderError, e, "Error occurred whilst linking Program({program}): {info}", program, GL.GetProgramInfoLog(program));
 
                 throw e;
             }

@@ -88,7 +88,7 @@ namespace VoxelGame.Core.Logic
                 {
                     liquid.Setup(indexProvider);
 
-                    Logger.LogDebug(LoggingEvents.LiquidLoad, "Loaded the liquid [{liquid}] with ID {id}.", liquid, liquid.Id);
+                    Logger.LogDebug(Events.LiquidLoad, "Loaded the liquid [{liquid}] with ID {id}.", liquid, liquid.Id);
                 }
 
                 Logger.LogInformation("Liquid setup complete. A total of {count} liquids have been loaded.", Count);

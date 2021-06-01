@@ -297,7 +297,7 @@ namespace VoxelGame.Client.Rendering
             }
             else
             {
-                Logger.LogWarning(LoggingEvents.MissingResource, "The texture '{name}' is not available, fallback is used.", name);
+                Logger.LogWarning(Events.MissingResource, "The texture '{name}' is not available, fallback is used.", name);
 
                 return 0;
             }
@@ -319,7 +319,7 @@ namespace VoxelGame.Client.Rendering
                 }
             }
 
-            Logger.LogWarning(LoggingEvents.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");
+            Logger.LogWarning(Events.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");
 
             disposed = true;
         }

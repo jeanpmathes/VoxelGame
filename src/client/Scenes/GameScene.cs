@@ -161,7 +161,7 @@ namespace VoxelGame.Client.Scenes
             }
             catch (AggregateException exception)
             {
-                Logger.LogCritical(LoggingEvents.WorldSavingError, exception.GetBaseException(), "An exception was thrown when saving the world.");
+                Logger.LogCritical(Events.WorldSavingError, exception.GetBaseException(), "An exception was thrown when saving the world.");
             }
 
             World.Dispose();

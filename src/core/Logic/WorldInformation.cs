@@ -48,7 +48,7 @@ namespace VoxelGame.Core.Logic
             }
             catch (JsonException exception)
             {
-                Logger.LogError(LoggingEvents.WorldLoadingError, exception, "The meta file could not be loaded: {path}", path);
+                Logger.LogError(Events.WorldLoadingError, exception, "The meta file could not be loaded: {path}", path);
 
                 return new WorldInformation();
             }

@@ -187,7 +187,7 @@ namespace VoxelGame.Core.Logic
                 {
                     block.Setup(indexProvider);
 
-                    Logger.LogDebug(LoggingEvents.BlockLoad, "Loaded the block [{block}] with ID {id}.", block, block.Id);
+                    Logger.LogDebug(Events.BlockLoad, "Loaded the block [{block}] with ID {id}.", block, block.Id);
                 }
 
                 Logger.LogInformation("Block setup complete. A total of {count} blocks have been loaded.", Count);

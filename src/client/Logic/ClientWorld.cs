@@ -202,7 +202,7 @@ namespace VoxelGame.Client.Logic
                         {
                             Exception e = completed.Exception?.GetBaseException() ?? new NullReferenceException();
 
-                            Logger.LogCritical(LoggingEvents.ChunkMeshingError, e, "An exception occurred when meshing the chunk ({x}|{z}). The exception will be re-thrown.", meshedChunk.X, meshedChunk.Z);
+                            Logger.LogCritical(Events.ChunkMeshingError, e, "An exception occurred when meshing the chunk ({x}|{z}). The exception will be re-thrown.", meshedChunk.X, meshedChunk.Z);
 
                             throw e;
                         }

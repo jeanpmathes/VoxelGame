@@ -194,7 +194,7 @@ namespace VoxelGame.Client.Rendering
             }
             else
             {
-                Logger.LogWarning(LoggingEvents.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
+                Logger.LogWarning(Events.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
             }
 
             disposed = true;

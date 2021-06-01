@@ -378,42 +378,42 @@ namespace VoxelGame.Client
             {
                 case 0x500:
                     idResolved = "GL_INVALID_ENUM";
-                    eventId = LoggingEvents.GlInvalidEnum;
+                    eventId = Events.GlInvalidEnum;
                     break;
 
                 case 0x501:
                     idResolved = "GL_INVALID_VALUE";
-                    eventId = LoggingEvents.GlInvalidValue;
+                    eventId = Events.GlInvalidValue;
                     break;
 
                 case 0x502:
                     idResolved = "GL_INVALID_OPERATION";
-                    eventId = LoggingEvents.GlInvalidOperation;
+                    eventId = Events.GlInvalidOperation;
                     break;
 
                 case 0x503:
                     idResolved = "GL_STACK_OVERFLOW";
-                    eventId = LoggingEvents.GlStackOverflow;
+                    eventId = Events.GlStackOverflow;
                     break;
 
                 case 0x504:
                     idResolved = "GL_STACK_UNDERFLOW";
-                    eventId = LoggingEvents.GlStackUnderflow;
+                    eventId = Events.GlStackUnderflow;
                     break;
 
                 case 0x505:
                     idResolved = "GL_OUT_OF_MEMORY";
-                    eventId = LoggingEvents.GlOutOfMemory;
+                    eventId = Events.GlOutOfMemory;
                     break;
 
                 case 0x506:
                     idResolved = "GL_INVALID_FRAMEBUFFER_OPERATION";
-                    eventId = LoggingEvents.GlInvalidFramebufferOperation;
+                    eventId = Events.GlInvalidFramebufferOperation;
                     break;
 
                 case 0x507:
                     idResolved = "GL_CONTEXT_LOST";
-                    eventId = LoggingEvents.GlContextLost;
+                    eventId = Events.GlContextLost;
                     break;
             }
 

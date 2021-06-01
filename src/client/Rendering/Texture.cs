@@ -42,7 +42,7 @@ namespace VoxelGame.Client.Rendering
                     SetupTexture(bitmap);
                 }
 
-                Logger.LogWarning(LoggingEvents.MissingResource, exception, "The texture could not be loaded and a fallback was used instead because the file was not found: {path}", path);
+                Logger.LogWarning(Events.MissingResource, exception, "The texture could not be loaded and a fallback was used instead because the file was not found: {path}", path);
             }
 
             GL.TextureParameter(Handle, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
@@ -87,7 +87,7 @@ namespace VoxelGame.Client.Rendering
                 }
                 else
                 {
-                    Logger.LogWarning(LoggingEvents.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");
+                    Logger.LogWarning(Events.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");
                 }
 
                 disposed = true;

@@ -370,7 +370,7 @@ namespace VoxelGame.Core.Visuals
             }
             catch (Exception e) when (e is IOException || e is FileNotFoundException || e is JsonException)
             {
-                Logger.LogWarning(LoggingEvents.MissingResource, e, "Could not load the model '{name}' because an exception occurred, a fallback will be used instead.", name);
+                Logger.LogWarning(Events.MissingResource, e, "Could not load the model '{name}' because an exception occurred, a fallback will be used instead.", name);
 
                 return CreateFallback();
             }
