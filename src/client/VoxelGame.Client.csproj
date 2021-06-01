@@ -70,6 +70,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\VoxelGame.Graphics\VoxelGame.Graphics.csproj" />
     <ProjectReference Include="..\core\VoxelGame.Core.csproj" />
     <ProjectReference Include="..\ui\VoxelGame.UI.csproj" />
   </ItemGroup>
