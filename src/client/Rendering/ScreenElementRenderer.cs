@@ -8,9 +8,8 @@ using System;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
-using VoxelGame.Core;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
 {

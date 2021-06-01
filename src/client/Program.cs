@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Windowing.Desktop;
 using System;
 using Microsoft.Extensions.Logging;
@@ -10,6 +11,7 @@ using VoxelGame.Core.Resources.Language;
 using System.IO;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client
 {

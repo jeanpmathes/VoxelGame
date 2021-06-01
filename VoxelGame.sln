@@ -16,7 +16,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Core", "src\core\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.UI", "src\ui\VoxelGame.UI.csproj", "{9E30F44C-0376-4B55-988B-5C9FC6A9D26B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Graphics", "VoxelGame.Graphics\VoxelGame.Graphics.csproj", "{D46773B7-A07E-4CCE-A94A-39EEEA93CDEC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Logging", "src\logging\VoxelGame.Logging.csproj", "{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Graphics", "src\graphics\VoxelGame.Graphics.csproj", "{5179D32D-B43C-4E51-9319-1BF238103887}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,14 +56,22 @@ Global
 		{9E30F44C-0376-4B55-988B-5C9FC6A9D26B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9E30F44C-0376-4B55-988B-5C9FC6A9D26B}.Release|x64.ActiveCfg = Release|x64
 		{9E30F44C-0376-4B55-988B-5C9FC6A9D26B}.Release|x64.Build.0 = Release|x64
-		{D46773B7-A07E-4CCE-A94A-39EEEA93CDEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D46773B7-A07E-4CCE-A94A-39EEEA93CDEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D46773B7-A07E-4CCE-A94A-39EEEA93CDEC}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{D46773B7-A07E-4CCE-A94A-39EEEA93CDEC}.Debug|x64.Build.0 = Debug|Any CPU
-		{D46773B7-A07E-4CCE-A94A-39EEEA93CDEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D46773B7-A07E-4CCE-A94A-39EEEA93CDEC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D46773B7-A07E-4CCE-A94A-39EEEA93CDEC}.Release|x64.ActiveCfg = Release|Any CPU
-		{D46773B7-A07E-4CCE-A94A-39EEEA93CDEC}.Release|x64.Build.0 = Release|Any CPU
+		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Debug|x64.Build.0 = Debug|Any CPU
+		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Release|x64.ActiveCfg = Release|Any CPU
+		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Release|x64.Build.0 = Release|Any CPU
+		{5179D32D-B43C-4E51-9319-1BF238103887}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5179D32D-B43C-4E51-9319-1BF238103887}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5179D32D-B43C-4E51-9319-1BF238103887}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5179D32D-B43C-4E51-9319-1BF238103887}.Debug|x64.Build.0 = Debug|Any CPU
+		{5179D32D-B43C-4E51-9319-1BF238103887}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5179D32D-B43C-4E51-9319-1BF238103887}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5179D32D-B43C-4E51-9319-1BF238103887}.Release|x64.ActiveCfg = Release|Any CPU
+		{5179D32D-B43C-4E51-9319-1BF238103887}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

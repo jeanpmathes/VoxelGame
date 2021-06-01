@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System;
@@ -13,8 +14,8 @@ using System.Threading.Tasks;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.WorldGeneration;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic
 {

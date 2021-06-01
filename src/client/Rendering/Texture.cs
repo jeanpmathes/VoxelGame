@@ -9,8 +9,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Core;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
 
 namespace VoxelGame.Client.Rendering
@@ -43,7 +42,7 @@ namespace VoxelGame.Client.Rendering
                     SetupTexture(bitmap);
                 }
 
-                Logger.LogWarning(LoggingEvents.MissingRessource, exception, "The texture could not be loaded and a fallback was used instead because the file was not found: {path}", path);
+                Logger.LogWarning(LoggingEvents.MissingResource, exception, "The texture could not be loaded and a fallback was used instead because the file was not found: {path}", path);
             }
 
             GL.TextureParameter(Handle, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);

@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Collections
 {

@@ -3,11 +3,11 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.WorldGeneration
 {

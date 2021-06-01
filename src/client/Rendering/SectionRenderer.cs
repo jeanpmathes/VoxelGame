@@ -9,8 +9,7 @@ using OpenToolkit.Mathematics;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
-using VoxelGame.Core;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
 {

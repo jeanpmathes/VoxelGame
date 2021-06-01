@@ -6,13 +6,12 @@
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Core.Logic.Blocks;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic
 {

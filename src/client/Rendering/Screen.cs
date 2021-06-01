@@ -14,8 +14,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using OpenToolkit.Graphics.OpenGL4;
-using VoxelGame.Core;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace VoxelGame.Client.Rendering

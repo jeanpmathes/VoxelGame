@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 using VoxelGame.Core.WorldGeneration;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Updates;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic
 {

@@ -9,8 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using VoxelGame.Core;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
 {
