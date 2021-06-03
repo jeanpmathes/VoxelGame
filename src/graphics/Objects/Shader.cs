@@ -105,9 +105,9 @@ namespace VoxelGame.Graphics.Objects
             GL.UseProgram(Handle);
         }
 
-        public int GetAttribLocation(string attribName)
+        public int GetAttributeLocation(string attributeName)
         {
-            return GL.GetAttribLocation(Handle, attribName);
+            return GL.GetAttribLocation(Handle, attributeName);
         }
 
         private static string LoadSource(string path)

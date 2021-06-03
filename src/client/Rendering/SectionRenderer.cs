@@ -95,7 +95,7 @@ namespace VoxelGame.Client.Rendering
                 // Vertex Buffer Object
                 GL.NamedBufferData(simpleDataVBO, meshData.simpleVertexData.Count * sizeof(int), meshData.simpleVertexData.ExposeArray(), BufferUsageHint.DynamicDraw);
 
-                int dataLocation = Client.SimpleSectionShader.GetAttribLocation("aData");
+                int dataLocation = Client.SimpleSectionShader.GetAttributeLocation("aData");
 
                 Client.SimpleSectionShader.Use();
 
@@ -128,8 +128,8 @@ namespace VoxelGame.Client.Rendering
                 // Element Buffer Object
                 GL.NamedBufferData(complexEBO, meshData.complexIndices.Count * sizeof(uint), meshData.complexIndices.ExposeArray(), BufferUsageHint.DynamicDraw);
 
-                int positionLocation = Client.ComplexSectionShader.GetAttribLocation("aPosition");
-                int dataLocation = Client.ComplexSectionShader.GetAttribLocation("aData");
+                int positionLocation = Client.ComplexSectionShader.GetAttributeLocation("aPosition");
+                int dataLocation = Client.ComplexSectionShader.GetAttributeLocation("aData");
 
                 Client.ComplexSectionShader.Use();
 
@@ -166,7 +166,7 @@ namespace VoxelGame.Client.Rendering
                 // Element Buffer Object
                 GL.NamedBufferData(varyingHeightEBO, meshData.varyingHeightIndices.Count * sizeof(uint), meshData.varyingHeightIndices.ExposeArray(), BufferUsageHint.DynamicDraw);
 
-                int dataLocation = Client.VaryingHeightShader.GetAttribLocation("aData");
+                int dataLocation = Client.VaryingHeightShader.GetAttributeLocation("aData");
 
                 Client.VaryingHeightShader.Use();
 
@@ -197,7 +197,7 @@ namespace VoxelGame.Client.Rendering
                 // Element Buffer Object
                 GL.NamedBufferData(opaqueLiquidEBO, meshData.opaqueLiquidIndices.Count * sizeof(uint), meshData.opaqueLiquidIndices.ExposeArray(), BufferUsageHint.DynamicDraw);
 
-                int dataLocation = Client.OpaqueLiquidSectionShader.GetAttribLocation("aData");
+                int dataLocation = Client.OpaqueLiquidSectionShader.GetAttributeLocation("aData");
 
                 Client.OpaqueLiquidSectionShader.Use();
 
@@ -224,7 +224,7 @@ namespace VoxelGame.Client.Rendering
                 // Element Buffer Object
                 GL.NamedBufferData(transparentLiquidEBO, meshData.transparentLiquidIndices.Count * sizeof(uint), meshData.transparentLiquidIndices.ExposeArray(), BufferUsageHint.DynamicDraw);
 
-                int dataLocation = Client.TransparentLiquidSectionShader.GetAttribLocation("aData");
+                int dataLocation = Client.TransparentLiquidSectionShader.GetAttributeLocation("aData");
 
                 Client.TransparentLiquidSectionShader.Use();
 

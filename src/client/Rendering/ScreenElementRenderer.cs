@@ -44,8 +44,8 @@ namespace VoxelGame.Client.Rendering
             GL.VertexArrayVertexBuffer(vao, 0, vbo, IntPtr.Zero, 5 * sizeof(float));
             GL.VertexArrayElementBuffer(vao, ebo);
 
-            int vertexLocation = Client.ScreenElementShader.GetAttribLocation("aPosition");
-            int texCordLocation = Client.ScreenElementShader.GetAttribLocation("aTexCoord");
+            int vertexLocation = Client.ScreenElementShader.GetAttributeLocation("aPosition");
+            int texCordLocation = Client.ScreenElementShader.GetAttributeLocation("aTexCoord");
 
             GL.EnableVertexArrayAttrib(vao, vertexLocation);
             GL.EnableVertexArrayAttrib(vao, texCordLocation);

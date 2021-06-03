@@ -63,7 +63,7 @@ namespace VoxelGame.Client.Rendering
             GL.VertexArrayVertexBuffer(vao, 0, vbo, IntPtr.Zero, 3 * sizeof(float));
             GL.VertexArrayElementBuffer(vbo, ebo);
 
-            int vertexLocation = Client.SelectionShader.GetAttribLocation("aPosition");
+            int vertexLocation = Client.SelectionShader.GetAttributeLocation("aPosition");
 
             GL.EnableVertexArrayAttrib(vao, vertexLocation);
             GL.VertexArrayAttribFormat(vao, vertexLocation, 3, VertexAttribType.Float, false, 0 * sizeof(float));
