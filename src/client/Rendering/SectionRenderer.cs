@@ -16,7 +16,7 @@ namespace VoxelGame.Client.Rendering
     /// <summary>
     /// A renderer for <see cref="Logic.Section"/>.
     /// </summary>
-    public class SectionRenderer : Renderer
+    public class SectionRenderer : IDisposable
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<SectionRenderer>();
 
@@ -408,23 +408,11 @@ namespace VoxelGame.Client.Rendering
             GL.DepthMask(true);
         }
 
-        public override void Draw(Vector3 position)
-        {
-            Debug.Fail("Sections should be drawn using DrawStage.");
-
-            for (var stage = 0; stage < DrawStageCount; stage++)
-            {
-                PrepareStage(stage);
-                DrawStage(stage, position);
-                FinishStage(stage);
-            }
-        }
-
         #region IDisposable Support
 
         private bool disposed;
 
-        protected override void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (disposed)
                 return;
@@ -457,6 +445,17 @@ namespace VoxelGame.Client.Rendering
             }
 
             disposed = true;
+        }
+
+        ~SectionRenderer()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion IDisposable Support

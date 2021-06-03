@@ -13,7 +13,7 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
 {
-    public class OverlayRenderer : Renderer
+    public class OverlayRenderer : IDisposable
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<OverlayRenderer>();
 
@@ -69,11 +69,6 @@ namespace VoxelGame.Client.Rendering
             textureId = number;
         }
 
-        public override void Draw(Vector3 position)
-        {
-            Draw();
-        }
-
         public void Draw()
         {
             if (disposed)
@@ -102,7 +97,7 @@ namespace VoxelGame.Client.Rendering
 
         private bool disposed;
 
-        protected override void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (disposed)
                 return;
@@ -119,6 +114,17 @@ namespace VoxelGame.Client.Rendering
             }
 
             disposed = true;
+        }
+
+        ~OverlayRenderer()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion IDisposable Support

@@ -14,7 +14,7 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
 {
-    public class ScreenElementRenderer : Renderer
+    public class ScreenElementRenderer : IDisposable
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<ScreenElementRenderer>();
 
@@ -78,7 +78,7 @@ namespace VoxelGame.Client.Rendering
             this.color = color;
         }
 
-        public override void Draw(Vector3 position)
+        public void Draw(Vector3 position)
         {
             if (disposed)
             {
@@ -109,7 +109,7 @@ namespace VoxelGame.Client.Rendering
 
         private bool disposed;
 
-        protected override void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (disposed)
                 return;
@@ -126,6 +126,17 @@ namespace VoxelGame.Client.Rendering
             }
 
             disposed = true;
+        }
+
+        ~ScreenElementRenderer()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion IDisposable Support

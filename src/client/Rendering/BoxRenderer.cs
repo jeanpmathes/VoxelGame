@@ -16,7 +16,7 @@ namespace VoxelGame.Client.Rendering
     /// <summary>
     /// A renderer that renders instances of the <see cref="BoundingBox"/> struct.
     /// </summary>
-    public class BoxRenderer : Renderer
+    public class BoxRenderer : IDisposable
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<BoxRenderer>();
 
@@ -155,7 +155,7 @@ namespace VoxelGame.Client.Rendering
             return 24;
         }
 
-        public override void Draw(Vector3 position)
+        public void Draw(Vector3 position)
         {
             if (disposed)
             {
@@ -181,7 +181,7 @@ namespace VoxelGame.Client.Rendering
 
         private bool disposed;
 
-        protected override void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (disposed)
                 return;
@@ -198,6 +198,17 @@ namespace VoxelGame.Client.Rendering
             }
 
             disposed = true;
+        }
+
+        ~BoxRenderer()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion IDisposable Support
