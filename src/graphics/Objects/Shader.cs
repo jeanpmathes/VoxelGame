@@ -20,7 +20,7 @@ namespace VoxelGame.Graphics.Objects
 
         private readonly Dictionary<string, int> uniformLocations;
 
-        public int Handle { get; }
+        private int Handle { get; }
 
         public Shader(string vertPath, string fragPath)
         {
@@ -67,7 +67,7 @@ namespace VoxelGame.Graphics.Objects
 
             if (code != (int)All.True)
             {
-                Exception e = new Exception($"Error occurred whilst compiling Shader({shader})");
+                var e = new Exception($"Error occurred whilst compiling Shader({shader})");
 
                 Logger.LogCritical(Events.ShaderError, e, "Error occurred whilst compiling Shader({shader}): {info}", shader, GL.GetShaderInfoLog(shader));
 
@@ -88,7 +88,7 @@ namespace VoxelGame.Graphics.Objects
 
             if (code != (int)All.True)
             {
-                Exception e = new Exception($"Error occurred whilst linking Program({program})");
+                var e = new Exception($"Error occurred whilst linking Program({program})");
 
                 Logger.LogCritical(Events.ShaderError, e, "Error occurred whilst linking Program({program}): {info}", program, GL.GetProgramInfoLog(program));
 

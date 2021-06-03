@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
@@ -57,7 +58,7 @@ namespace VoxelGame.Client.Rendering
             GL.VertexArrayAttribBinding(vao, texCordLocation, 0);
         }
 
-        public void SetTexture(Rendering.Texture texture)
+        public void SetTexture(Texture texture)
         {
             if (disposed)
             {

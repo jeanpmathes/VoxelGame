@@ -12,6 +12,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
 

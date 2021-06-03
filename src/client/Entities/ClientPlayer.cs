@@ -8,12 +8,12 @@ using System;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common.Input;
 using VoxelGame.Client.Rendering;
-using VoxelGame.Core;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Graphics.Objects;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Entities

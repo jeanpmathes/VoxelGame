@@ -3,23 +3,24 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Graphics.OpenGL4;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using Microsoft.Extensions.Logging;
+using OpenToolkit.Graphics.OpenGL4;
 using VoxelGame.Logging;
 using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
 
-namespace VoxelGame.Client.Rendering
+namespace VoxelGame.Graphics.Objects
 {
     public class Texture : IDisposable
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<Texture>();
 
-        public int Handle { get; }
-        public TextureUnit TextureUnit { get; protected set; }
+        private int Handle { get; }
+
+        public TextureUnit TextureUnit { get; private set; }
 
         public Texture(string path, TextureUnit unit, int fallbackResolution = 16)
         {
@@ -32,7 +33,7 @@ namespace VoxelGame.Client.Rendering
 
             try
             {
-                using Bitmap bitmap = new Bitmap(path);
+                using var bitmap = new Bitmap(path);
                 SetupTexture(bitmap);
             }
             catch (Exception exception) when (exception is FileNotFoundException || exception is ArgumentException)
@@ -107,16 +108,16 @@ namespace VoxelGame.Client.Rendering
 
         #endregion IDisposable Support
 
-        internal static Bitmap CreateFallback(int resolution)
+        public static Bitmap CreateFallback(int resolution)
         {
-            Bitmap fallback = new Bitmap(resolution, resolution, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            var fallback = new Bitmap(resolution, resolution, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
             Color magenta = Color.FromArgb(64, 255, 0, 255);
             Color black = Color.FromArgb(64, 0, 0, 0);
 
-            for (int x = 0; x < fallback.Width; x++)
+            for (var x = 0; x < fallback.Width; x++)
             {
-                for (int y = 0; y < fallback.Height; y++)
+                for (var y = 0; y < fallback.Height; y++)
                 {
                     if (x % 2 == 0 ^ y % 2 == 0)
                     {
