@@ -22,14 +22,14 @@ namespace VoxelGame.Graphics.Objects
 
         public int Handle { get; }
 
-        public Shader(string vertName, string fragName)
+        public Shader(string vertPath, string fragPath)
         {
-            string shaderSource = LoadSource(vertName);
+            string shaderSource = LoadSource(vertPath);
             int vertexShader = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vertexShader, shaderSource);
             CompileShader(vertexShader);
 
-            shaderSource = LoadSource(fragName);
+            shaderSource = LoadSource(fragPath);
             int fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fragmentShader, shaderSource);
             CompileShader(fragmentShader);
@@ -110,9 +110,9 @@ namespace VoxelGame.Graphics.Objects
             return GL.GetAttribLocation(Handle, attribName);
         }
 
-        private static string LoadSource(string name)
+        private static string LoadSource(string path)
         {
-            using var sr = new StreamReader(Path.Combine("Resources/Shaders", name), Encoding.UTF8);
+            using var sr = new StreamReader(path, Encoding.UTF8);
             return sr.ReadToEnd();
         }
 

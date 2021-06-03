@@ -22,6 +22,7 @@ using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Graphics.Utility;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
 namespace VoxelGame.Client
@@ -130,14 +131,16 @@ namespace VoxelGame.Client
                 // Shader setup.
                 using (Logger.BeginScope("Shader setup"))
                 {
-                    SimpleSectionShader = new Shader("simple_section.vert", "section.frag");
-                    ComplexSectionShader = new Shader("complex_section.vert", "section.frag");
-                    VaryingHeightShader = new Shader("varying_height_section.vert", "section.frag");
-                    OpaqueLiquidSectionShader = new Shader("liquid_section.vert", "opaque_liquid_section.frag");
-                    TransparentLiquidSectionShader = new Shader("liquid_section.vert", "transparent_liquid_section.frag");
-                    OverlayShader = new Shader("overlay.vert", "overlay.frag");
-                    SelectionShader = new Shader("selection.vert", "selection.frag");
-                    ScreenElementShader = new Shader("screen_element.vert", "screen_element.frag");
+                    ShaderLoader loader = new ShaderLoader("Resources/Shaders");
+
+                    SimpleSectionShader = loader.Load("simple_section.vert", "section.frag");
+                    ComplexSectionShader = loader.Load("complex_section.vert", "section.frag");
+                    VaryingHeightShader = loader.Load("varying_height_section.vert", "section.frag");
+                    OpaqueLiquidSectionShader = loader.Load("liquid_section.vert", "opaque_liquid_section.frag");
+                    TransparentLiquidSectionShader = loader.Load("liquid_section.vert", "transparent_liquid_section.frag");
+                    OverlayShader = loader.Load("overlay.vert", "overlay.frag");
+                    SelectionShader = loader.Load("selection.vert", "selection.frag");
+                    ScreenElementShader = loader.Load("screen_element.vert", "screen_element.frag");
 
                     OverlayShader.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
                     ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
