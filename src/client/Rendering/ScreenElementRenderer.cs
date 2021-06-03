@@ -78,16 +78,16 @@ namespace VoxelGame.Client.Rendering
             this.color = color;
         }
 
-        public void Draw(Vector3 position)
+        public void Draw(Vector2 offset, float scaling)
         {
             if (disposed)
             {
                 return;
             }
 
-            Vector2 screenSize = Screen.Size.ToVector2();
-            Vector3 scale = new Vector3(position.Z, position.Z, 1f) * screenSize.Length;
-            Vector3 translate = new Vector3((position.Xy - new Vector2(0.5f, 0.5f)) * screenSize);
+            var screenSize = Screen.Size.ToVector2();
+            Vector3 scale = new Vector3(scaling, scaling, 1f) * screenSize.Length;
+            Vector3 translate = new Vector3((offset - new Vector2(0.5f, 0.5f)) * screenSize);
 
             Matrix4 model = Matrix4.Identity * Matrix4.CreateScale(scale) * Matrix4.CreateTranslation(translate);
 

@@ -85,7 +85,8 @@ namespace VoxelGame.Client.Entities
         private readonly Texture crosshair;
         private readonly ScreenElementRenderer crosshairRenderer;
 
-        private readonly Vector3 crosshairPositionScale = new Vector3(0.5f, 0.5f, Properties.client.Default.CrosshairScale);
+        private readonly Vector2 crosshairPosition = new Vector2(0.5f, 0.5f);
+        private readonly float crosshairScale = Properties.client.Default.CrosshairScale;
         private readonly Vector3 crosshairColor = Properties.client.Default.CrosshairColor.ToVector3();
 
         public void Render()
@@ -114,7 +115,7 @@ namespace VoxelGame.Client.Entities
                 overlay.Draw();
             }
 
-            crosshairRenderer.Draw(crosshairPositionScale);
+            crosshairRenderer.Draw(crosshairPosition, crosshairScale);
         }
 
         private Vector3 movement;
