@@ -137,7 +137,7 @@ namespace VoxelGame.Client.Rendering
             GL.TextureStorage3D(handle, levels, SizedInternalFormat.Rgba8, resolution, resolution, length);
 
             using Bitmap container = new Bitmap(resolution, resolution * length);
-            using (Graphics canvas = Graphics.FromImage(container))
+            using (System.Drawing.Graphics canvas = System.Drawing.Graphics.FromImage(container))
             {
                 // Combine all textures into one
                 for (int i = startIndex; i < length; i++)

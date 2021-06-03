@@ -21,6 +21,7 @@ using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Graphics.Objects;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
 namespace VoxelGame.Client

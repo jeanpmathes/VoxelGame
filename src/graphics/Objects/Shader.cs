@@ -2,16 +2,17 @@
 //     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
 // <author>pershingthesecond</author>
-using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
-using OpenToolkit.Mathematics;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Microsoft.Extensions.Logging;
+using OpenToolkit.Graphics.OpenGL4;
+using OpenToolkit.Mathematics;
 using VoxelGame.Logging;
 
-namespace VoxelGame.Client.Rendering
+namespace VoxelGame.Graphics.Objects
 {
     public class Shader
     {
