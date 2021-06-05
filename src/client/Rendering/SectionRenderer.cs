@@ -6,9 +6,9 @@
 
 using System;
 using OpenToolkit.Mathematics;
-using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
+using VoxelGame.Graphics.Groups;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
@@ -30,29 +30,15 @@ namespace VoxelGame.Client.Rendering
         private readonly int complexEBO;
         private readonly int complexVAO;
 
-        private readonly int varyingHeightDataVBO;
-        private readonly int varyingHeightEBO;
-        private readonly int varyingHeightVAO;
-
-        private readonly int opaqueLiquidDataVBO;
-        private readonly int opaqueLiquidEBO;
-        private readonly int opaqueLiquidVAO;
-
-        private readonly int transparentLiquidDataVBO;
-        private readonly int transparentLiquidEBO;
-        private readonly int transparentLiquidVAO;
+        private readonly ElementIDataDrawGroup varyingHeightDrawGroup;
+        private readonly ElementIDataDrawGroup opaqueLiquidDrawGroup;
+        private readonly ElementIDataDrawGroup transparentLiquidDrawGroup;
 
         private int simpleIndices;
         private int complexElements;
-        private int varyingHeightElements;
-        private int opaqueLiquidElements;
-        private int transparentLiquidElements;
 
         private bool hasSimpleData;
         private bool hasComplexData;
-        private bool hasVaryingHeightData;
-        private bool hasOpaqueLiquidData;
-        private bool hasTransparentLiquidData;
 
         public SectionRenderer()
         {
@@ -64,17 +50,9 @@ namespace VoxelGame.Client.Rendering
             GL.CreateBuffers(1, out complexEBO);
             GL.CreateVertexArrays(1, out complexVAO);
 
-            GL.CreateBuffers(1, out varyingHeightDataVBO);
-            GL.CreateBuffers(1, out varyingHeightEBO);
-            GL.CreateVertexArrays(1, out varyingHeightVAO);
-
-            GL.CreateBuffers(1, out opaqueLiquidDataVBO);
-            GL.CreateBuffers(1, out opaqueLiquidEBO);
-            GL.CreateVertexArrays(1, out opaqueLiquidVAO);
-
-            GL.CreateBuffers(1, out transparentLiquidDataVBO);
-            GL.CreateBuffers(1, out transparentLiquidEBO);
-            GL.CreateVertexArrays(1, out transparentLiquidVAO);
+            varyingHeightDrawGroup = ElementIDataDrawGroup.Create();
+            opaqueLiquidDrawGroup = ElementIDataDrawGroup.Create();
+            transparentLiquidDrawGroup = ElementIDataDrawGroup.Create();
         }
 
         public void SetData(ref SectionMeshData meshData)
@@ -154,92 +132,63 @@ namespace VoxelGame.Client.Rendering
 
             #region VARYING HEIGHT BUFFER SETUP
 
-            hasVaryingHeightData = false;
+            varyingHeightDrawGroup.SetData(
+                meshData.varyingHeightVertexData.Count, meshData.varyingHeightVertexData.ExposeArray(),
+                meshData.varyingHeightIndices.Count, meshData.varyingHeightIndices.ExposeArray());
 
-            varyingHeightElements = meshData.varyingHeightIndices.Count;
-
-            if (varyingHeightElements != 0)
+            if (varyingHeightDrawGroup.IsFilled)
             {
-                // Vertex Buffer Object
-                GL.NamedBufferData(varyingHeightDataVBO, meshData.varyingHeightVertexData.Count * sizeof(int), meshData.varyingHeightVertexData.ExposeArray(), BufferUsageHint.DynamicDraw);
+                const int size = 2;
 
-                // Element Buffer Object
-                GL.NamedBufferData(varyingHeightEBO, meshData.varyingHeightIndices.Count * sizeof(uint), meshData.varyingHeightIndices.ExposeArray(), BufferUsageHint.DynamicDraw);
+                varyingHeightDrawGroup.VertexArrayBindBuffer(size);
 
                 int dataLocation = Client.VaryingHeightShader.GetAttributeLocation("aData");
-
                 Client.VaryingHeightShader.Use();
 
-                // Vertex Array Object
-                GL.VertexArrayVertexBuffer(varyingHeightVAO, 0, varyingHeightDataVBO, IntPtr.Zero, 2 * sizeof(int));
-                GL.VertexArrayElementBuffer(varyingHeightVAO, varyingHeightEBO);
-
-                GL.EnableVertexArrayAttrib(varyingHeightVAO, dataLocation);
-                GL.VertexArrayAttribIFormat(varyingHeightVAO, dataLocation, 2, VertexAttribType.Int, 0 * sizeof(int));
-                GL.VertexArrayAttribBinding(varyingHeightVAO, dataLocation, 0);
-
-                hasVaryingHeightData = true;
+                varyingHeightDrawGroup.VertexArrayAttributeBinding(dataLocation, size);
             }
 
             #endregion VARYING HEIGHT BUFFER SETUP
 
-            #region LIQUID BUFFERS SETUP
+            #region OPAQUE LIQUID BUFFER SETUP
 
-            hasOpaqueLiquidData = false;
+            opaqueLiquidDrawGroup.SetData(
+                meshData.opaqueLiquidVertexData.Count, meshData.opaqueLiquidVertexData.ExposeArray(),
+                meshData.opaqueLiquidIndices.Count, meshData.opaqueLiquidIndices.ExposeArray());
 
-            opaqueLiquidElements = meshData.opaqueLiquidIndices.Count;
-
-            if (opaqueLiquidElements != 0)
+            if (opaqueLiquidDrawGroup.IsFilled)
             {
-                // Vertex Buffer Object
-                GL.NamedBufferData(opaqueLiquidDataVBO, meshData.opaqueLiquidVertexData.Count * sizeof(int), meshData.opaqueLiquidVertexData.ExposeArray(), BufferUsageHint.DynamicDraw);
+                const int size = 2;
 
-                // Element Buffer Object
-                GL.NamedBufferData(opaqueLiquidEBO, meshData.opaqueLiquidIndices.Count * sizeof(uint), meshData.opaqueLiquidIndices.ExposeArray(), BufferUsageHint.DynamicDraw);
+                opaqueLiquidDrawGroup.VertexArrayBindBuffer(size);
 
                 int dataLocation = Client.OpaqueLiquidSectionShader.GetAttributeLocation("aData");
-
                 Client.OpaqueLiquidSectionShader.Use();
 
-                // Vertex Array Object
-                GL.VertexArrayVertexBuffer(opaqueLiquidVAO, 0, opaqueLiquidDataVBO, IntPtr.Zero, 2 * sizeof(int));
-                GL.VertexArrayElementBuffer(opaqueLiquidVAO, opaqueLiquidEBO);
-
-                GL.EnableVertexArrayAttrib(opaqueLiquidVAO, dataLocation);
-                GL.VertexArrayAttribIFormat(opaqueLiquidVAO, dataLocation, 2, VertexAttribType.Int, 0 * sizeof(int));
-                GL.VertexArrayAttribBinding(opaqueLiquidVAO, dataLocation, 0);
-
-                hasOpaqueLiquidData = true;
+                opaqueLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation, size);
             }
 
-            hasTransparentLiquidData = false;
+            #endregion OPAQUE LIQUID BUFFER SETUP
 
-            transparentLiquidElements = meshData.transparentLiquidIndices.Count;
+            #region TRANSPARENT LIQUID BUFFER SETUP
 
-            if (transparentLiquidElements != 0)
+            transparentLiquidDrawGroup.SetData(
+                meshData.transparentLiquidVertexData.Count, meshData.transparentLiquidVertexData.ExposeArray(),
+                meshData.transparentLiquidIndices.Count, meshData.transparentLiquidIndices.ExposeArray());
+
+            if (transparentLiquidDrawGroup.IsFilled)
             {
-                // Vertex Buffer Object
-                GL.NamedBufferData(transparentLiquidDataVBO, meshData.transparentLiquidVertexData.Count * sizeof(int), meshData.transparentLiquidVertexData.ExposeArray(), BufferUsageHint.DynamicDraw);
+                const int size = 2;
 
-                // Element Buffer Object
-                GL.NamedBufferData(transparentLiquidEBO, meshData.transparentLiquidIndices.Count * sizeof(uint), meshData.transparentLiquidIndices.ExposeArray(), BufferUsageHint.DynamicDraw);
+                transparentLiquidDrawGroup.VertexArrayBindBuffer(size);
 
                 int dataLocation = Client.TransparentLiquidSectionShader.GetAttributeLocation("aData");
-
                 Client.TransparentLiquidSectionShader.Use();
 
-                // Vertex Array Object
-                GL.VertexArrayVertexBuffer(transparentLiquidVAO, 0, transparentLiquidDataVBO, IntPtr.Zero, 2 * sizeof(int));
-                GL.VertexArrayElementBuffer(transparentLiquidVAO, transparentLiquidEBO);
-
-                GL.EnableVertexArrayAttrib(transparentLiquidVAO, dataLocation);
-                GL.VertexArrayAttribIFormat(transparentLiquidVAO, dataLocation, 2, VertexAttribType.Int, 0 * sizeof(int));
-                GL.VertexArrayAttribBinding(transparentLiquidVAO, dataLocation, 0);
-
-                hasTransparentLiquidData = true;
+                transparentLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation, size);
             }
 
-            #endregion LIQUID BUFFERS SETUP
+            #endregion TRANSPARENT LIQUID BUFFER SETUP
 
             meshData.ReturnPooled();
         }
@@ -360,38 +309,29 @@ namespace VoxelGame.Client.Rendering
 
         private void DrawVaryingHeightBuffer(Matrix4 model)
         {
-            if (hasVaryingHeightData)
-            {
-                GL.BindVertexArray(varyingHeightVAO);
+            if (!varyingHeightDrawGroup.IsFilled) return;
 
-                Client.VaryingHeightShader.SetMatrix4("model", model);
-
-                GL.DrawElements(PrimitiveType.Triangles, varyingHeightElements, DrawElementsType.UnsignedInt, 0);
-            }
+            varyingHeightDrawGroup.BindVertexArray();
+            Client.VaryingHeightShader.SetMatrix4("model", model);
+            varyingHeightDrawGroup.DrawElements();
         }
 
         private void DrawOpaqueLiquidBuffer(Matrix4 model)
         {
-            if (hasOpaqueLiquidData)
-            {
-                GL.BindVertexArray(opaqueLiquidVAO);
+            if (!opaqueLiquidDrawGroup.IsFilled) return;
 
-                Client.OpaqueLiquidSectionShader.SetMatrix4("model", model);
-
-                GL.DrawElements(PrimitiveType.Triangles, opaqueLiquidElements, DrawElementsType.UnsignedInt, 0);
-            }
+            opaqueLiquidDrawGroup.BindVertexArray();
+            Client.OpaqueLiquidSectionShader.SetMatrix4("model", model);
+            opaqueLiquidDrawGroup.DrawElements();
         }
 
         private void DrawTransparentLiquidBuffer(Matrix4 model)
         {
-            if (hasTransparentLiquidData)
-            {
-                GL.BindVertexArray(transparentLiquidVAO);
+            if (!transparentLiquidDrawGroup.IsFilled) return;
 
-                Client.TransparentLiquidSectionShader.SetMatrix4("model", model);
-
-                GL.DrawElements(PrimitiveType.Triangles, transparentLiquidElements, DrawElementsType.UnsignedInt, 0);
-            }
+            transparentLiquidDrawGroup.BindVertexArray();
+            Client.TransparentLiquidSectionShader.SetMatrix4("model", model);
+            transparentLiquidDrawGroup.DrawElements();
         }
 
         public static void FinishStage(int stage)
@@ -427,17 +367,9 @@ namespace VoxelGame.Client.Rendering
                 GL.DeleteBuffer(complexEBO);
                 GL.DeleteVertexArray(complexVAO);
 
-                GL.DeleteBuffer(varyingHeightDataVBO);
-                GL.DeleteBuffer(varyingHeightEBO);
-                GL.DeleteVertexArray(varyingHeightVAO);
-
-                GL.DeleteBuffer(opaqueLiquidDataVBO);
-                GL.DeleteBuffer(opaqueLiquidEBO);
-                GL.DeleteVertexArray(opaqueLiquidVAO);
-
-                GL.DeleteBuffer(transparentLiquidDataVBO);
-                GL.DeleteBuffer(transparentLiquidEBO);
-                GL.DeleteVertexArray(transparentLiquidVAO);
+                varyingHeightDrawGroup.Delete();
+                opaqueLiquidDrawGroup.Delete();
+                transparentLiquidDrawGroup.Delete();
             }
             else
             {
