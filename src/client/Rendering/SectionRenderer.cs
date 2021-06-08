@@ -32,11 +32,11 @@ namespace VoxelGame.Client.Rendering
 
         public SectionRenderer()
         {
-            simpleDrawGroup = ArrayIDataDrawGroup.Create();
-            complexDrawGroup = ElementDrawGroup.Create();
-            varyingHeightDrawGroup = ElementIDataDrawGroup.Create();
-            opaqueLiquidDrawGroup = ElementIDataDrawGroup.Create();
-            transparentLiquidDrawGroup = ElementIDataDrawGroup.Create();
+            simpleDrawGroup = ArrayIDataDrawGroup.Create(2);
+            complexDrawGroup = ElementDrawGroup.Create(3, 2);
+            varyingHeightDrawGroup = ElementIDataDrawGroup.Create(2);
+            opaqueLiquidDrawGroup = ElementIDataDrawGroup.Create(2);
+            transparentLiquidDrawGroup = ElementIDataDrawGroup.Create(2);
         }
 
         public void SetData(ref SectionMeshData meshData)
@@ -48,16 +48,16 @@ namespace VoxelGame.Client.Rendering
 
             #region SIMPLE BUFFER SETUP
 
-            simpleDrawGroup.SetData(meshData.simpleVertexData.Count, meshData.simpleVertexData.ExposeArray(), 2);
+            simpleDrawGroup.SetData(meshData.simpleVertexData.Count, meshData.simpleVertexData.ExposeArray());
 
             if (simpleDrawGroup.IsFilled)
             {
-                simpleDrawGroup.VertexArrayBindBuffer(2);
+                simpleDrawGroup.VertexArrayBindBuffer();
 
                 int dataLocation = Client.SimpleSectionShader.GetAttributeLocation("aData");
                 Client.SimpleSectionShader.Use();
 
-                simpleDrawGroup.VertexArrayAttributeBinding(dataLocation, 2);
+                simpleDrawGroup.VertexArrayAttributeBinding(dataLocation);
             }
 
             #endregion SIMPLE BUFFER SETUP
@@ -70,14 +70,14 @@ namespace VoxelGame.Client.Rendering
 
             if (complexDrawGroup.IsFilled)
             {
-                complexDrawGroup.VertexArrayBindBuffer(3, 2);
+                complexDrawGroup.VertexArrayBindBuffer();
 
                 int positionLocation = Client.ComplexSectionShader.GetAttributeLocation("aPosition");
                 int dataLocation = Client.ComplexSectionShader.GetAttributeLocation("aData");
 
                 Client.ComplexSectionShader.Use();
 
-                complexDrawGroup.VertexArrayAttributeBinding(positionLocation, dataLocation, 3, 2);
+                complexDrawGroup.VertexArrayAttributeBinding(positionLocation, dataLocation);
             }
 
             #endregion COMPLEX BUFFER SETUP
@@ -90,14 +90,12 @@ namespace VoxelGame.Client.Rendering
 
             if (varyingHeightDrawGroup.IsFilled)
             {
-                const int size = 2;
-
-                varyingHeightDrawGroup.VertexArrayBindBuffer(size);
+                varyingHeightDrawGroup.VertexArrayBindBuffer();
 
                 int dataLocation = Client.VaryingHeightShader.GetAttributeLocation("aData");
                 Client.VaryingHeightShader.Use();
 
-                varyingHeightDrawGroup.VertexArrayAttributeBinding(dataLocation, size);
+                varyingHeightDrawGroup.VertexArrayAttributeBinding(dataLocation);
             }
 
             #endregion VARYING HEIGHT BUFFER SETUP
@@ -110,14 +108,12 @@ namespace VoxelGame.Client.Rendering
 
             if (opaqueLiquidDrawGroup.IsFilled)
             {
-                const int size = 2;
-
-                opaqueLiquidDrawGroup.VertexArrayBindBuffer(size);
+                opaqueLiquidDrawGroup.VertexArrayBindBuffer();
 
                 int dataLocation = Client.OpaqueLiquidSectionShader.GetAttributeLocation("aData");
                 Client.OpaqueLiquidSectionShader.Use();
 
-                opaqueLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation, size);
+                opaqueLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation);
             }
 
             #endregion OPAQUE LIQUID BUFFER SETUP
@@ -130,14 +126,12 @@ namespace VoxelGame.Client.Rendering
 
             if (transparentLiquidDrawGroup.IsFilled)
             {
-                const int size = 2;
-
-                transparentLiquidDrawGroup.VertexArrayBindBuffer(size);
+                transparentLiquidDrawGroup.VertexArrayBindBuffer();
 
                 int dataLocation = Client.TransparentLiquidSectionShader.GetAttributeLocation("aData");
                 Client.TransparentLiquidSectionShader.Use();
 
-                transparentLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation, size);
+                transparentLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation);
             }
 
             #endregion TRANSPARENT LIQUID BUFFER SETUP

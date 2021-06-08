@@ -11,25 +11,29 @@ namespace VoxelGame.Graphics.Groups
 {
     public class ArrayIDataDrawGroup
     {
+        private readonly int size;
+
         private readonly int vbo;
         private readonly int vao;
 
         private int vertexCount;
 
-        private ArrayIDataDrawGroup()
+        private ArrayIDataDrawGroup(int size)
         {
+            this.size = size;
+
             GL.CreateBuffers(1, out vbo);
             GL.CreateVertexArrays(1, out vao);
         }
 
-        public static ArrayIDataDrawGroup Create()
+        public static ArrayIDataDrawGroup Create(int size)
         {
-            return new ArrayIDataDrawGroup();
+            return new ArrayIDataDrawGroup(size);
         }
 
         public bool IsFilled { get; private set; }
 
-        public void SetData(int vertexDataCount, int[] vertexData, int size)
+        public void SetData(int vertexDataCount, int[] vertexData)
         {
             vertexCount = vertexDataCount / size;
 
@@ -44,12 +48,12 @@ namespace VoxelGame.Graphics.Groups
             GL.NamedBufferData(vbo, vertexDataCount * sizeof(int), vertexData, BufferUsageHint.DynamicDraw);
         }
 
-        public void VertexArrayBindBuffer(int size)
+        public void VertexArrayBindBuffer()
         {
             GL.VertexArrayVertexBuffer(vao, 0, vbo, IntPtr.Zero, size * sizeof(int));
         }
 
-        public void VertexArrayAttributeBinding(int attribute, int size)
+        public void VertexArrayAttributeBinding(int attribute)
         {
             GL.EnableVertexArrayAttrib(vao, attribute);
             GL.VertexArrayAttribIFormat(vao, attribute, size, VertexAttribType.Int, 0 * sizeof(int));

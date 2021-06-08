@@ -11,6 +11,9 @@ namespace VoxelGame.Graphics.Groups
 {
     public class ElementDrawGroup
     {
+        private readonly int positionSize;
+        private readonly int dataSize;
+
         private readonly int positionVbo;
         private readonly int dataVbo;
         private readonly int ebo;
@@ -18,17 +21,20 @@ namespace VoxelGame.Graphics.Groups
 
         private int elementCount;
 
-        private ElementDrawGroup()
+        private ElementDrawGroup(int positionSize, int dataSize)
         {
+            this.positionSize = positionSize;
+            this.dataSize = dataSize;
+
             GL.CreateBuffers(1, out positionVbo);
             GL.CreateBuffers(1, out dataVbo);
             GL.CreateBuffers(1, out ebo);
             GL.CreateVertexArrays(1, out vao);
         }
 
-        public static ElementDrawGroup Create()
+        public static ElementDrawGroup Create(int positionSize, int dataSize)
         {
-            return new ElementDrawGroup();
+            return new ElementDrawGroup(positionSize, dataSize);
         }
 
         public bool IsFilled { get; private set; }
@@ -50,14 +56,14 @@ namespace VoxelGame.Graphics.Groups
             GL.NamedBufferData(ebo, indexCount * sizeof(uint), indices, BufferUsageHint.DynamicDraw);
         }
 
-        public void VertexArrayBindBuffer(int positionSize, int dataSize)
+        public void VertexArrayBindBuffer()
         {
             GL.VertexArrayVertexBuffer(vao, 0, positionVbo, IntPtr.Zero, positionSize * sizeof(float));
             GL.VertexArrayVertexBuffer(vao, 1, dataVbo, IntPtr.Zero, dataSize * sizeof(int));
             GL.VertexArrayElementBuffer(vao, ebo);
         }
 
-        public void VertexArrayAttributeBinding(int positionAttribute, int dataAttribute, int positionSize, int dataSize)
+        public void VertexArrayAttributeBinding(int positionAttribute, int dataAttribute)
         {
             GL.EnableVertexArrayAttrib(vao, positionAttribute);
             GL.EnableVertexArrayAttrib(vao, dataAttribute);
