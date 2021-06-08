@@ -24,28 +24,16 @@ namespace VoxelGame.Client.Rendering
 
         private readonly ArrayIDataDrawGroup simpleDrawGroup;
 
-        private readonly int complexPositionVBO;
-        private readonly int complexDataVBO;
-        private readonly int complexEBO;
-        private readonly int complexVAO;
+        private readonly ElementDrawGroup complexDrawGroup;
 
         private readonly ElementIDataDrawGroup varyingHeightDrawGroup;
         private readonly ElementIDataDrawGroup opaqueLiquidDrawGroup;
         private readonly ElementIDataDrawGroup transparentLiquidDrawGroup;
 
-        private int complexElements;
-
-        private bool hasComplexData;
-
         public SectionRenderer()
         {
             simpleDrawGroup = ArrayIDataDrawGroup.Create();
-
-            GL.CreateBuffers(1, out complexPositionVBO);
-            GL.CreateBuffers(1, out complexDataVBO);
-            GL.CreateBuffers(1, out complexEBO);
-            GL.CreateVertexArrays(1, out complexVAO);
-
+            complexDrawGroup = ElementDrawGroup.Create();
             varyingHeightDrawGroup = ElementIDataDrawGroup.Create();
             opaqueLiquidDrawGroup = ElementIDataDrawGroup.Create();
             transparentLiquidDrawGroup = ElementIDataDrawGroup.Create();
@@ -76,41 +64,20 @@ namespace VoxelGame.Client.Rendering
 
             #region COMPLEX BUFFER SETUP
 
-            hasComplexData = false;
+            complexDrawGroup.SetData(meshData.complexVertexPositions.Count, meshData.complexVertexPositions.ExposeArray(),
+                meshData.complexVertexData.Count, meshData.complexVertexData.ExposeArray(),
+                meshData.complexIndices.Count, meshData.complexIndices.ExposeArray());
 
-            complexElements = meshData.complexIndices.Count;
-
-            if (complexElements != 0)
+            if (complexDrawGroup.IsFilled)
             {
-                // Vertex Buffer Object
-                GL.NamedBufferData(complexPositionVBO, meshData.complexVertexPositions.Count * sizeof(float), meshData.complexVertexPositions.ExposeArray(), BufferUsageHint.DynamicDraw);
-
-                // Vertex Buffer Object
-                GL.NamedBufferData(complexDataVBO, meshData.complexVertexData.Count * sizeof(int), meshData.complexVertexData.ExposeArray(), BufferUsageHint.DynamicDraw);
-
-                // Element Buffer Object
-                GL.NamedBufferData(complexEBO, meshData.complexIndices.Count * sizeof(uint), meshData.complexIndices.ExposeArray(), BufferUsageHint.DynamicDraw);
+                complexDrawGroup.VertexArrayBindBuffer(3, 2);
 
                 int positionLocation = Client.ComplexSectionShader.GetAttributeLocation("aPosition");
                 int dataLocation = Client.ComplexSectionShader.GetAttributeLocation("aData");
 
                 Client.ComplexSectionShader.Use();
 
-                // Vertex Array Object
-                GL.VertexArrayVertexBuffer(complexVAO, 0, complexPositionVBO, IntPtr.Zero, 3 * sizeof(float));
-                GL.VertexArrayVertexBuffer(complexVAO, 1, complexDataVBO, IntPtr.Zero, 2 * sizeof(int));
-                GL.VertexArrayElementBuffer(complexVAO, complexEBO);
-
-                GL.EnableVertexArrayAttrib(complexVAO, positionLocation);
-                GL.EnableVertexArrayAttrib(complexVAO, dataLocation);
-
-                GL.VertexArrayAttribFormat(complexVAO, positionLocation, 3, VertexAttribType.Float, false, 0 * sizeof(float));
-                GL.VertexArrayAttribIFormat(complexVAO, dataLocation, 2, VertexAttribType.Int, 0 * sizeof(int));
-
-                GL.VertexArrayAttribBinding(complexVAO, positionLocation, 0);
-                GL.VertexArrayAttribBinding(complexVAO, dataLocation, 1);
-
-                hasComplexData = true;
+                complexDrawGroup.VertexArrayAttributeBinding(positionLocation, dataLocation, 3, 2);
             }
 
             #endregion COMPLEX BUFFER SETUP
@@ -279,14 +246,11 @@ namespace VoxelGame.Client.Rendering
 
         private void DrawComplexBuffer(Matrix4 model)
         {
-            if (hasComplexData)
-            {
-                GL.BindVertexArray(complexVAO);
+            if (!complexDrawGroup.IsFilled) return;
 
-                Client.ComplexSectionShader.SetMatrix4("model", model);
-
-                GL.DrawElements(PrimitiveType.Triangles, complexElements, DrawElementsType.UnsignedInt, 0);
-            }
+            complexDrawGroup.BindVertexArray();
+            Client.ComplexSectionShader.SetMatrix4("model", model);
+            complexDrawGroup.DrawElements();
         }
 
         private void DrawVaryingHeightBuffer(Matrix4 model)
@@ -342,12 +306,7 @@ namespace VoxelGame.Client.Rendering
             if (disposing)
             {
                 simpleDrawGroup.Delete();
-
-                GL.DeleteBuffer(complexPositionVBO);
-                GL.DeleteBuffer(complexDataVBO);
-                GL.DeleteBuffer(complexEBO);
-                GL.DeleteVertexArray(complexVAO);
-
+                complexDrawGroup.Delete();
                 varyingHeightDrawGroup.Delete();
                 opaqueLiquidDrawGroup.Delete();
                 transparentLiquidDrawGroup.Delete();
