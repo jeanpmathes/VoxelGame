@@ -14,7 +14,7 @@ using VoxelGame.Logging;
 namespace VoxelGame.Client.Rendering
 {
     /// <summary>
-    /// A renderer for <see cref="Logic.Section"/>.
+    /// A renderer for <see cref="VoxelGame.Core.Logic.Section"/>.
     /// </summary>
     public class SectionRenderer : IDisposable
     {
@@ -22,8 +22,7 @@ namespace VoxelGame.Client.Rendering
 
         public const int DrawStageCount = 5;
 
-        private readonly int simpleDataVBO;
-        private readonly int simpleVAO;
+        private readonly ArrayIDataDrawGroup simpleDrawGroup;
 
         private readonly int complexPositionVBO;
         private readonly int complexDataVBO;
@@ -34,16 +33,13 @@ namespace VoxelGame.Client.Rendering
         private readonly ElementIDataDrawGroup opaqueLiquidDrawGroup;
         private readonly ElementIDataDrawGroup transparentLiquidDrawGroup;
 
-        private int simpleIndices;
         private int complexElements;
 
-        private bool hasSimpleData;
         private bool hasComplexData;
 
         public SectionRenderer()
         {
-            GL.CreateBuffers(1, out simpleDataVBO);
-            GL.CreateVertexArrays(1, out simpleVAO);
+            simpleDrawGroup = ArrayIDataDrawGroup.Create();
 
             GL.CreateBuffers(1, out complexPositionVBO);
             GL.CreateBuffers(1, out complexDataVBO);
@@ -64,27 +60,16 @@ namespace VoxelGame.Client.Rendering
 
             #region SIMPLE BUFFER SETUP
 
-            hasSimpleData = false;
+            simpleDrawGroup.SetData(meshData.simpleVertexData.Count, meshData.simpleVertexData.ExposeArray(), 2);
 
-            simpleIndices = meshData.simpleVertexData.Count / 2;
-
-            if (simpleIndices != 0)
+            if (simpleDrawGroup.IsFilled)
             {
-                // Vertex Buffer Object
-                GL.NamedBufferData(simpleDataVBO, meshData.simpleVertexData.Count * sizeof(int), meshData.simpleVertexData.ExposeArray(), BufferUsageHint.DynamicDraw);
+                simpleDrawGroup.VertexArrayBindBuffer(2);
 
                 int dataLocation = Client.SimpleSectionShader.GetAttributeLocation("aData");
-
                 Client.SimpleSectionShader.Use();
 
-                // Vertex Array Object
-                GL.VertexArrayVertexBuffer(simpleVAO, 0, simpleDataVBO, IntPtr.Zero, 2 * sizeof(int));
-
-                GL.EnableVertexArrayAttrib(simpleVAO, dataLocation);
-                GL.VertexArrayAttribIFormat(simpleVAO, dataLocation, 2, VertexAttribType.Int, 0 * sizeof(int));
-                GL.VertexArrayAttribBinding(simpleVAO, dataLocation, 0);
-
-                hasSimpleData = true;
+                simpleDrawGroup.VertexArrayAttributeBinding(dataLocation, 2);
             }
 
             #endregion SIMPLE BUFFER SETUP
@@ -285,14 +270,11 @@ namespace VoxelGame.Client.Rendering
 
         private void DrawSimpleBuffer(Matrix4 model)
         {
-            if (hasSimpleData)
-            {
-                GL.BindVertexArray(simpleVAO);
+            if (!simpleDrawGroup.IsFilled) return;
 
-                Client.SimpleSectionShader.SetMatrix4("model", model);
-
-                GL.DrawArrays(PrimitiveType.Triangles, 0, simpleIndices);
-            }
+            simpleDrawGroup.BindVertexArray();
+            Client.SimpleSectionShader.SetMatrix4("model", model);
+            simpleDrawGroup.DrawArrays();
         }
 
         private void DrawComplexBuffer(Matrix4 model)
@@ -359,8 +341,7 @@ namespace VoxelGame.Client.Rendering
 
             if (disposing)
             {
-                GL.DeleteBuffer(simpleDataVBO);
-                GL.DeleteVertexArray(simpleVAO);
+                simpleDrawGroup.Delete();
 
                 GL.DeleteBuffer(complexPositionVBO);
                 GL.DeleteBuffer(complexDataVBO);
