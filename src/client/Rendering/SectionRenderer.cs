@@ -24,7 +24,7 @@ namespace VoxelGame.Client.Rendering
 
         private readonly ArrayIDataDrawGroup simpleDrawGroup;
 
-        private readonly ElementDrawGroup complexDrawGroup;
+        private readonly ElementPositionDataDrawGroup complexDrawGroup;
 
         private readonly ElementIDataDrawGroup varyingHeightDrawGroup;
         private readonly ElementIDataDrawGroup opaqueLiquidDrawGroup;
@@ -33,7 +33,7 @@ namespace VoxelGame.Client.Rendering
         public SectionRenderer()
         {
             simpleDrawGroup = ArrayIDataDrawGroup.Create(2);
-            complexDrawGroup = ElementDrawGroup.Create(3, 2);
+            complexDrawGroup = ElementPositionDataDrawGroup.Create(3, 2);
             varyingHeightDrawGroup = ElementIDataDrawGroup.Create(2);
             opaqueLiquidDrawGroup = ElementIDataDrawGroup.Create(2);
             transparentLiquidDrawGroup = ElementIDataDrawGroup.Create(2);

@@ -9,7 +9,7 @@ using OpenToolkit.Graphics.OpenGL4;
 
 namespace VoxelGame.Graphics.Groups
 {
-    public class ElementDrawGroup
+    public class ElementPositionDataDrawGroup
     {
         private readonly int positionSize;
         private readonly int dataSize;
@@ -21,7 +21,7 @@ namespace VoxelGame.Graphics.Groups
 
         private int elementCount;
 
-        private ElementDrawGroup(int positionSize, int dataSize)
+        private ElementPositionDataDrawGroup(int positionSize, int dataSize)
         {
             this.positionSize = positionSize;
             this.dataSize = dataSize;
@@ -32,9 +32,9 @@ namespace VoxelGame.Graphics.Groups
             GL.CreateVertexArrays(1, out vao);
         }
 
-        public static ElementDrawGroup Create(int positionSize, int dataSize)
+        public static ElementPositionDataDrawGroup Create(int positionSize, int dataSize)
         {
-            return new ElementDrawGroup(positionSize, dataSize);
+            return new ElementPositionDataDrawGroup(positionSize, dataSize);
         }
 
         public bool IsFilled { get; private set; }
