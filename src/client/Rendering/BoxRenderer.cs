@@ -28,6 +28,13 @@ namespace VoxelGame.Client.Rendering
         public BoxRenderer()
         {
             drawGroup = ElementDrawGroup.Create();
+
+            Client.SelectionShader.Use();
+
+            drawGroup.VertexArrayBindBuffer(3);
+
+            int vertexLocation = Client.SelectionShader.GetAttributeLocation("aPosition");
+            drawGroup.VertexArrayBindAttribute(vertexLocation, 3, 0);
         }
 
         public void SetBoundingBox(BoundingBox boundingBox)
@@ -46,13 +53,6 @@ namespace VoxelGame.Client.Rendering
 
             int elementCount = BuildMeshData(currentBoundingBox, boundingBox, out float[] vertices, out uint[] indices);
             drawGroup.SetData(elementCount, vertices.Length, vertices, indices.Length, indices);
-
-            Client.SelectionShader.Use();
-
-            drawGroup.VertexArrayBindBuffer(3);
-
-            int vertexLocation = Client.SelectionShader.GetAttributeLocation("aPosition");
-            drawGroup.VertexArrayBindAttribute(vertexLocation, 3, 0);
         }
 
         protected int BuildMeshData(BoundingBox currentBoundingBox, BoundingBox boundingBox, out float[] vertices, out uint[] indices)
