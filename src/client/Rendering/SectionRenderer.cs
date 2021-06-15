@@ -42,8 +42,8 @@ namespace VoxelGame.Client.Rendering
 
             simpleDrawGroup.VertexArrayBindBuffer();
 
-            Client.SimpleSectionShader.Use();
-            int dataLocation = Client.SimpleSectionShader.GetAttributeLocation("aData");
+            Shaders.SimpleSectionShader.Use();
+            int dataLocation = Shaders.SimpleSectionShader.GetAttributeLocation("aData");
 
             simpleDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
@@ -53,9 +53,9 @@ namespace VoxelGame.Client.Rendering
 
             complexDrawGroup.VertexArrayBindBuffer();
 
-            Client.ComplexSectionShader.Use();
-            int positionLocation = Client.ComplexSectionShader.GetAttributeLocation("aPosition");
-            dataLocation = Client.ComplexSectionShader.GetAttributeLocation("aData");
+            Shaders.ComplexSectionShader.Use();
+            int positionLocation = Shaders.ComplexSectionShader.GetAttributeLocation("aPosition");
+            dataLocation = Shaders.ComplexSectionShader.GetAttributeLocation("aData");
 
             complexDrawGroup.VertexArrayAttributeBinding(positionLocation, dataLocation);
 
@@ -65,8 +65,8 @@ namespace VoxelGame.Client.Rendering
 
             varyingHeightDrawGroup.VertexArrayBindBuffer();
 
-            Client.VaryingHeightShader.Use();
-            dataLocation = Client.VaryingHeightShader.GetAttributeLocation("aData");
+            Shaders.VaryingHeightShader.Use();
+            dataLocation = Shaders.VaryingHeightShader.GetAttributeLocation("aData");
 
             varyingHeightDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
@@ -76,8 +76,8 @@ namespace VoxelGame.Client.Rendering
 
             opaqueLiquidDrawGroup.VertexArrayBindBuffer();
 
-            Client.OpaqueLiquidSectionShader.Use();
-            dataLocation = Client.OpaqueLiquidSectionShader.GetAttributeLocation("aData");
+            Shaders.OpaqueLiquidSectionShader.Use();
+            dataLocation = Shaders.OpaqueLiquidSectionShader.GetAttributeLocation("aData");
 
             opaqueLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
@@ -87,8 +87,8 @@ namespace VoxelGame.Client.Rendering
 
             transparentLiquidDrawGroup.VertexArrayBindBuffer();
 
-            Client.TransparentLiquidSectionShader.Use();
-            dataLocation = Client.TransparentLiquidSectionShader.GetAttributeLocation("aData");
+            Shaders.TransparentLiquidSectionShader.Use();
+            dataLocation = Shaders.TransparentLiquidSectionShader.GetAttributeLocation("aData");
 
             transparentLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
@@ -142,40 +142,40 @@ namespace VoxelGame.Client.Rendering
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-            Client.SimpleSectionShader.Use();
+            Shaders.SimpleSectionShader.Use();
 
-            Client.SimpleSectionShader.SetMatrix4("view", view);
-            Client.SimpleSectionShader.SetMatrix4("projection", projection);
+            Shaders.SimpleSectionShader.SetMatrix4("view", view);
+            Shaders.SimpleSectionShader.SetMatrix4("projection", projection);
         }
 
         private static void PrepareComplexBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
-            Client.ComplexSectionShader.Use();
+            Shaders.ComplexSectionShader.Use();
 
-            Client.ComplexSectionShader.SetMatrix4("view", view);
-            Client.ComplexSectionShader.SetMatrix4("projection", projection);
+            Shaders.ComplexSectionShader.SetMatrix4("view", view);
+            Shaders.ComplexSectionShader.SetMatrix4("projection", projection);
         }
 
         private static void PrepareVaryingHeightBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-            Client.VaryingHeightShader.Use();
+            Shaders.VaryingHeightShader.Use();
 
-            Client.VaryingHeightShader.SetMatrix4("view", view);
-            Client.VaryingHeightShader.SetMatrix4("projection", projection);
+            Shaders.VaryingHeightShader.SetMatrix4("view", view);
+            Shaders.VaryingHeightShader.SetMatrix4("projection", projection);
         }
 
         private static void PrepareOpaqueLiquidBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-            Client.OpaqueLiquidSectionShader.Use();
+            Shaders.OpaqueLiquidSectionShader.Use();
 
-            Client.OpaqueLiquidSectionShader.SetMatrix4("view", view);
-            Client.OpaqueLiquidSectionShader.SetMatrix4("projection", projection);
+            Shaders.OpaqueLiquidSectionShader.SetMatrix4("view", view);
+            Shaders.OpaqueLiquidSectionShader.SetMatrix4("projection", projection);
         }
 
         private static void PrepareTransparentLiquidBuffer(Matrix4 view, Matrix4 projection)
@@ -188,10 +188,10 @@ namespace VoxelGame.Client.Rendering
             GL.DepthMask(false);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-            Client.TransparentLiquidSectionShader.Use();
+            Shaders.TransparentLiquidSectionShader.Use();
 
-            Client.TransparentLiquidSectionShader.SetMatrix4("view", view);
-            Client.TransparentLiquidSectionShader.SetMatrix4("projection", projection);
+            Shaders.TransparentLiquidSectionShader.SetMatrix4("view", view);
+            Shaders.TransparentLiquidSectionShader.SetMatrix4("projection", projection);
         }
 
         public void DrawStage(int stage, Vector3 position)
@@ -218,7 +218,7 @@ namespace VoxelGame.Client.Rendering
             if (!simpleDrawGroup.IsFilled) return;
 
             simpleDrawGroup.BindVertexArray();
-            Client.SimpleSectionShader.SetMatrix4("model", model);
+            Shaders.SimpleSectionShader.SetMatrix4("model", model);
             simpleDrawGroup.DrawArrays();
         }
 
@@ -227,7 +227,7 @@ namespace VoxelGame.Client.Rendering
             if (!complexDrawGroup.IsFilled) return;
 
             complexDrawGroup.BindVertexArray();
-            Client.ComplexSectionShader.SetMatrix4("model", model);
+            Shaders.ComplexSectionShader.SetMatrix4("model", model);
             complexDrawGroup.DrawElements();
         }
 
@@ -236,7 +236,7 @@ namespace VoxelGame.Client.Rendering
             if (!varyingHeightDrawGroup.IsFilled) return;
 
             varyingHeightDrawGroup.BindVertexArray();
-            Client.VaryingHeightShader.SetMatrix4("model", model);
+            Shaders.VaryingHeightShader.SetMatrix4("model", model);
             varyingHeightDrawGroup.DrawElements();
         }
 
@@ -245,7 +245,7 @@ namespace VoxelGame.Client.Rendering
             if (!opaqueLiquidDrawGroup.IsFilled) return;
 
             opaqueLiquidDrawGroup.BindVertexArray();
-            Client.OpaqueLiquidSectionShader.SetMatrix4("model", model);
+            Shaders.OpaqueLiquidSectionShader.SetMatrix4("model", model);
             opaqueLiquidDrawGroup.DrawElements();
         }
 
@@ -254,7 +254,7 @@ namespace VoxelGame.Client.Rendering
             if (!transparentLiquidDrawGroup.IsFilled) return;
 
             transparentLiquidDrawGroup.BindVertexArray();
-            Client.TransparentLiquidSectionShader.SetMatrix4("model", model);
+            Shaders.TransparentLiquidSectionShader.SetMatrix4("model", model);
             transparentLiquidDrawGroup.DrawElements();
         }
 

@@ -29,11 +29,11 @@ namespace VoxelGame.Client.Rendering
         {
             drawGroup = ElementDrawGroup.Create();
 
-            Client.SelectionShader.Use();
+            Shaders.SelectionShader.Use();
 
             drawGroup.VertexArrayBindBuffer(3);
 
-            int vertexLocation = Client.SelectionShader.GetAttributeLocation("aPosition");
+            int vertexLocation = Shaders.SelectionShader.GetAttributeLocation("aPosition");
             drawGroup.VertexArrayBindAttribute(vertexLocation, 3, 0);
         }
 
@@ -149,12 +149,12 @@ namespace VoxelGame.Client.Rendering
 
             drawGroup.BindVertexArray();
 
-            Client.SelectionShader.Use();
+            Shaders.SelectionShader.Use();
 
             Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
-            Client.SelectionShader.SetMatrix4("model", model);
-            Client.SelectionShader.SetMatrix4("view", Client.Player.GetViewMatrix());
-            Client.SelectionShader.SetMatrix4("projection", Client.Player.GetProjectionMatrix());
+            Shaders.SelectionShader.SetMatrix4("model", model);
+            Shaders.SelectionShader.SetMatrix4("view", Client.Player.GetViewMatrix());
+            Shaders.SelectionShader.SetMatrix4("projection", Client.Player.GetProjectionMatrix());
 
             drawGroup.DrawElements(PrimitiveType.Lines);
 

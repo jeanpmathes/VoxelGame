@@ -21,8 +21,6 @@ using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Graphics.Objects;
-using VoxelGame.Graphics.Utility;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
 namespace VoxelGame.Client
@@ -47,15 +45,6 @@ namespace VoxelGame.Client
         /// Gets the <see cref="ArrayTexture"/> that contains all liquid textures. It is bound to unit 5.
         /// </summary>
         public static ArrayTexture LiquidTextureArray { get; private set; } = null!;
-
-        public static Shader SimpleSectionShader { get; private set; } = null!;
-        public static Shader ComplexSectionShader { get; private set; } = null!;
-        public static Shader VaryingHeightShader { get; private set; } = null!;
-        public static Shader OpaqueLiquidSectionShader { get; private set; } = null!;
-        public static Shader TransparentLiquidSectionShader { get; private set; } = null!;
-        public static Shader OverlayShader { get; private set; } = null!;
-        public static Shader SelectionShader { get; private set; } = null!;
-        public static Shader ScreenElementShader { get; private set; } = null!;
 
         public static ClientPlayer Player { get; private set; } = null!;
 
@@ -129,24 +118,7 @@ namespace VoxelGame.Client
                 BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
 
                 // Shader setup.
-                using (Logger.BeginScope("Shader setup"))
-                {
-                    ShaderLoader loader = new ShaderLoader("Resources/Shaders");
-
-                    SimpleSectionShader = loader.Load("simple_section.vert", "section.frag");
-                    ComplexSectionShader = loader.Load("complex_section.vert", "section.frag");
-                    VaryingHeightShader = loader.Load("varying_height_section.vert", "section.frag");
-                    OpaqueLiquidSectionShader = loader.Load("liquid_section.vert", "opaque_liquid_section.frag");
-                    TransparentLiquidSectionShader = loader.Load("liquid_section.vert", "transparent_liquid_section.frag");
-                    OverlayShader = loader.Load("overlay.vert", "overlay.frag");
-                    SelectionShader = loader.Load("selection.vert", "selection.frag");
-                    ScreenElementShader = loader.Load("screen_element.vert", "screen_element.frag");
-
-                    OverlayShader.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
-                    ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
-
-                    Logger.LogInformation("Shader setup complete.");
-                }
+                Shaders.Load("Resources/Shaders");
 
                 // Block setup.
                 Block.LoadBlocks(BlockTextureArray);
@@ -168,10 +140,10 @@ namespace VoxelGame.Client
             {
                 Time += e.Time;
 
-                SimpleSectionShader.SetFloat("time", (float)Time);
-                ComplexSectionShader.SetFloat("time", (float)Time);
-                OpaqueLiquidSectionShader.SetFloat("time", (float)Time);
-                TransparentLiquidSectionShader.SetFloat("time", (float)Time);
+                Shaders.SimpleSectionShader.SetFloat("time", (float)Time);
+                Shaders.ComplexSectionShader.SetFloat("time", (float)Time);
+                Shaders.OpaqueLiquidSectionShader.SetFloat("time", (float)Time);
+                Shaders.TransparentLiquidSectionShader.SetFloat("time", (float)Time);
 
                 screen.Clear();
 
