@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System;
@@ -13,8 +14,8 @@ using System.Threading.Tasks;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.WorldGeneration;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic
 {
@@ -299,7 +300,7 @@ namespace VoxelGame.Core.Logic
                         {
                             if (!positionsToReleaseOnActivation.Remove((x, z)) || !activeChunks.ContainsKey((x, z)))
                             {
-                                Logger.LogError(LoggingEvents.ChunkLoadingError, completed.Exception!.GetBaseException(), "An exception occurred when loading the chunk ({x}|{z}). " +
+                                Logger.LogError(Events.ChunkLoadingError, completed.Exception!.GetBaseException(), "An exception occurred when loading the chunk ({x}|{z}). " +
                                     "The chunk has been scheduled for generation", x, z);
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
@@ -330,7 +331,7 @@ namespace VoxelGame.Core.Logic
                             }
                             else
                             {
-                                Logger.LogError(LoggingEvents.ChunkLoadingError, "The position of the loaded chunk file for position ({x}|{z}) did not match the requested position. " +
+                                Logger.LogError(Events.ChunkLoadingError, "The position of the loaded chunk file for position ({x}|{z}) did not match the requested position. " +
                                     "This may be the result of a renamed chunk file. " +
                                     "The position will be scheduled for generation.", x, z);
 
@@ -407,7 +408,7 @@ namespace VoxelGame.Core.Logic
                         {
                             if (completed.IsFaulted)
                             {
-                                Logger.LogError(LoggingEvents.ChunkSavingError, completed.Exception!.GetBaseException(), "An exception occurred when saving chunk ({x}|{z}). " +
+                                Logger.LogError(Events.ChunkSavingError, completed.Exception!.GetBaseException(), "An exception occurred when saving chunk ({x}|{z}). " +
                                     "The chunk will be disposed without saving.", completedChunk.X, completedChunk.Z);
                             }
 
@@ -453,7 +454,7 @@ namespace VoxelGame.Core.Logic
             {
                 positionsToActivate.Add((x, z));
 
-                Logger.LogDebug(LoggingEvents.ChunkRequest, "Chunk ({x}|{z}) has been requested successfully.", x, z);
+                Logger.LogDebug(Events.ChunkRequest, "Chunk ({x}|{z}) has been requested successfully.", x, z);
             }
         }
 
@@ -479,7 +480,7 @@ namespace VoxelGame.Core.Logic
                 activeChunks.Remove((x, z));
                 chunksToSave.Enqueue(chunk);
 
-                Logger.LogDebug(LoggingEvents.ChunkRelease, "Released chunk ({x}|{z}).", x, z);
+                Logger.LogDebug(Events.ChunkRelease, "Released chunk ({x}|{z}).", x, z);
 
                 canRelease = true;
             }
@@ -488,7 +489,7 @@ namespace VoxelGame.Core.Logic
             {
                 positionsToReleaseOnActivation.Add((x, z));
 
-                Logger.LogDebug(LoggingEvents.ChunkRelease, "Scheduled to release chunk ({x}|{z}) after activation.", x, z);
+                Logger.LogDebug(Events.ChunkRelease, "Scheduled to release chunk ({x}|{z}) after activation.", x, z);
 
                 canRelease = true;
             }
@@ -497,7 +498,7 @@ namespace VoxelGame.Core.Logic
             {
                 positionsToActivate.Remove((x, z));
 
-                Logger.LogDebug(LoggingEvents.ChunkRelease, "Chunk ({x}|{z}) has been removed from activation list.", x, z);
+                Logger.LogDebug(Events.ChunkRelease, "Chunk ({x}|{z}) has been removed from activation list.", x, z);
 
                 canRelease = true;
             }

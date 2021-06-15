@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System;
@@ -12,6 +13,7 @@ using System.Linq;
 using System.Text.Json;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Visuals
 {
@@ -22,7 +24,7 @@ namespace VoxelGame.Core.Visuals
 
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<BlockModel>();
 
-        private static readonly string path = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Models");
+        private static readonly string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Models");
 
         private static ITextureIndexProvider _blockTextureIndexProvider = null!;
 
@@ -45,7 +47,7 @@ namespace VoxelGame.Core.Visuals
         private int[] lockedTextureIndices = null!;
         private uint[] lockedIndices = null!;
 
-        private BlockModel()
+        public BlockModel()
         {
         }
 
@@ -350,7 +352,7 @@ namespace VoxelGame.Core.Visuals
             JsonSerializerOptions options = new JsonSerializerOptions { IgnoreReadOnlyProperties = true, WriteIndented = true };
 
             string json = JsonSerializer.Serialize(this, options);
-            File.WriteAllText(Path.Combine(path, name + ".json"), json);
+            File.WriteAllText(System.IO.Path.Combine(Path, name + ".json"), json);
         }
 
         #region STATIC METHODS
@@ -359,7 +361,7 @@ namespace VoxelGame.Core.Visuals
         {
             try
             {
-                string json = File.ReadAllText(Path.Combine(path, name + ".json"));
+                string json = File.ReadAllText(System.IO.Path.Combine(Path, name + ".json"));
                 BlockModel model = JsonSerializer.Deserialize<BlockModel>(json) ?? new BlockModel();
 
                 Logger.LogDebug("Loaded BlockModel: {name}", name);
@@ -368,7 +370,7 @@ namespace VoxelGame.Core.Visuals
             }
             catch (Exception e) when (e is IOException || e is FileNotFoundException || e is JsonException)
             {
-                Logger.LogWarning(LoggingEvents.MissingRessource, e, "Could not load the model '{name}' because an exception occurred, a fallback will be used instead.", name);
+                Logger.LogWarning(Events.MissingResource, e, "Could not load the model '{name}' because an exception occurred, a fallback will be used instead.", name);
 
                 return CreateFallback();
             }

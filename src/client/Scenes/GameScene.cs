@@ -8,12 +8,11 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Windowing.Common.Input;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
-using VoxelGame.Core;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Client.Rendering;
 using OpenToolkit.Mathematics;
 using System;
 using VoxelGame.Core.Updates;
+using VoxelGame.Logging;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes
@@ -162,7 +161,7 @@ namespace VoxelGame.Client.Scenes
             }
             catch (AggregateException exception)
             {
-                Logger.LogCritical(LoggingEvents.WorldSavingError, exception.GetBaseException(), "An exception was thrown when saving the world.");
+                Logger.LogCritical(Events.WorldSavingError, exception.GetBaseException(), "An exception was thrown when saving the world.");
             }
 
             World.Dispose();

@@ -3,29 +3,52 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
-using VoxelGame.Core;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Graphics.Objects;
+using VoxelGame.Logging;
+using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
 
 namespace VoxelGame.Client.Rendering
 {
-    public abstract class ArrayTexture : IDisposable, ITextureIndexProvider
+    public class ArrayTexture : IDisposable, ITextureIndexProvider
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<ArrayTexture>();
 
-        private protected readonly Dictionary<string, int> textureIndicies = new Dictionary<string, int>();
+        private readonly Dictionary<string, int> textureIndices = new Dictionary<string, int>();
 
-        public abstract int Count { get; protected set; }
+        public int Count { get; private set; }
 
-        public abstract void Use();
+        public ArrayTexture(string path, int resolution, bool useCustomMipmapGeneration, params TextureUnit[] textureUnits)
+        {
+            Initialize(path, resolution, useCustomMipmapGeneration, textureUnits);
+        }
 
-        internal abstract void SetWrapMode(TextureWrapMode mode);
+        public void Use()
+        {
+            for (var i = 0; i < arrayCount; i++)
+            {
+                GL.BindTextureUnit(textureUnits[i] - TextureUnit.Texture0, handles[i]);
+            }
+        }
+
+        internal void SetWrapMode(TextureWrapMode mode)
+        {
+            for (var i = 0; i < arrayCount; i++)
+            {
+                GL.BindTextureUnit(textureUnits[i] - TextureUnit.Texture0, handles[i]);
+
+                GL.TextureParameter(handles[i], TextureParameterName.TextureWrapS, (int)mode);
+                GL.TextureParameter(handles[i], TextureParameterName.TextureWrapT, (int)mode);
+            }
+        }
 
         private protected int arrayCount;
         private protected TextureUnit[] textureUnits = null!;
@@ -100,9 +123,56 @@ namespace VoxelGame.Client.Rendering
             Logger.LogDebug("ArrayTexture with {count} textures loaded.", Count);
         }
 
-        protected abstract void GetHandles(int[] arr);
+        private void GetHandles(int[] arr)
+        {
+            GL.CreateTextures(TextureTarget.Texture2DArray, arrayCount, arr);
+        }
 
-        protected abstract void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures, int startIndex, int length, bool useCustomMipmapGeneration);
+        private void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures, int startIndex, int length, bool useCustomMipmapGeneration)
+        {
+            var levels = (int)Math.Log(resolution, 2);
+
+            GL.BindTextureUnit(unit - TextureUnit.Texture0, handle);
+
+            // Allocate storage for array
+            GL.TextureStorage3D(handle, levels, SizedInternalFormat.Rgba8, resolution, resolution, length);
+
+            using Bitmap container = new Bitmap(resolution, resolution * length);
+            using (System.Drawing.Graphics canvas = System.Drawing.Graphics.FromImage(container))
+            {
+                // Combine all textures into one
+                for (int i = startIndex; i < length; i++)
+                {
+                    textures[i].RotateFlip(RotateFlipType.RotateNoneFlipY);
+                    canvas.DrawImage(textures[i], 0, i * resolution, resolution, resolution);
+                }
+
+                canvas.Save();
+            }
+
+            // Upload pixel data to array
+            BitmapData data = container.LockBits(new Rectangle(0, 0, container.Width, container.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            GL.TextureSubImage3D(handle, 0, 0, 0, 0, resolution, resolution, length, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+
+            container.UnlockBits(data);
+
+            // Generate mipmaps for array
+            if (!useCustomMipmapGeneration)
+            {
+                GL.GenerateTextureMipmap(handle);
+            }
+            else
+            {
+                GenerateMipmapWithoutTransparencyMixing(handle, container, levels, length);
+            }
+
+            // Set texture parameters for array
+            GL.TextureParameter(handle, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
+            GL.TextureParameter(handle, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+
+            GL.TextureParameter(handle, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TextureParameter(handle, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+        }
 
         /// <summary>
         /// Loads all bitmaps specified by the paths into the list. The bitmaps are split into smaller parts that are all sized according to the resolution.
@@ -110,21 +180,21 @@ namespace VoxelGame.Client.Rendering
         /// <remarks>
         /// Textures provided have to have the height given by the resolution, and the width must be a multiple of it.
         /// </remarks>
-        protected void LoadBitmaps(int resolution, string[] paths, ref List<Bitmap> bitmaps)
+        private void LoadBitmaps(int resolution, IReadOnlyCollection<string> paths, ref List<Bitmap> bitmaps)
         {
-            if (paths.Length == 0) return;
+            if (paths.Count == 0) return;
 
-            int texIndex = 1;
+            var texIndex = 1;
 
-            for (int i = 0; i < paths.Length; i++)
+            foreach (string path in paths)
             {
                 try
                 {
-                    using Bitmap bitmap = new Bitmap(paths[i]);
+                    using Bitmap bitmap = new Bitmap(path);
                     if ((bitmap.Width % resolution) == 0 && bitmap.Height == resolution) // Check if image consists of correctly sized textures
                     {
                         int textureCount = bitmap.Width / resolution;
-                        textureIndicies.Add(Path.GetFileNameWithoutExtension(paths[i]), texIndex);
+                        textureIndices.Add(Path.GetFileNameWithoutExtension(path), texIndex);
 
                         for (int j = 0; j < textureCount; j++)
                         {
@@ -134,12 +204,12 @@ namespace VoxelGame.Client.Rendering
                     }
                     else
                     {
-                        Logger.LogDebug("The size of the image did not match the specified resolution ({resolution}) and was not loaded: {path}", resolution, paths[i]);
+                        Logger.LogDebug("The size of the image did not match the specified resolution ({resolution}) and was not loaded: {path}", resolution, path);
                     }
                 }
                 catch (FileNotFoundException e)
                 {
-                    Logger.LogError(e, "The image could not be loaded: {path}", paths[i]);
+                    Logger.LogError(e, "The image could not be loaded: {path}", path);
                 }
             }
         }
@@ -174,7 +244,13 @@ namespace VoxelGame.Client.Rendering
             }
         }
 
-        protected abstract void UploadPixelData(int handle, Bitmap bitmap, int lod, int length);
+        private void UploadPixelData(int handle, Bitmap bitmap, int lod, int length)
+        {
+            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            GL.TextureSubImage3D(handle, lod, 0, 0, 0, bitmap.Width, bitmap.Width, length, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+
+            bitmap.UnlockBits(data);
+        }
 
         /// <summary>
         /// Method used in generating a custom mipmap.
@@ -216,13 +292,13 @@ namespace VoxelGame.Client.Rendering
                 return 0;
             }
 
-            if (textureIndicies.TryGetValue(name, out int value))
+            if (textureIndices.TryGetValue(name, out int value))
             {
                 return value;
             }
             else
             {
-                Logger.LogWarning(LoggingEvents.MissingRessource, "The texture '{name}' is not available, fallback is used.", name);
+                Logger.LogWarning(Events.MissingResource, "The texture '{name}' is not available, fallback is used.", name);
 
                 return 0;
             }
@@ -230,7 +306,24 @@ namespace VoxelGame.Client.Rendering
 
         #region IDisposalbe Support
 
-        protected abstract void Dispose(bool disposing);
+        private bool disposed;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed) return;
+
+            if (disposing)
+            {
+                for (var i = 0; i < arrayCount; i++)
+                {
+                    GL.DeleteTexture(handles[i]);
+                }
+            }
+
+            Logger.LogWarning(Events.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");
+
+            disposed = true;
+        }
 
         ~ArrayTexture()
         {

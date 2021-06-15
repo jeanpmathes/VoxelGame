@@ -3,12 +3,13 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System;
 using System.IO;
 using System.Text.Json;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic
 {
@@ -47,7 +48,7 @@ namespace VoxelGame.Core.Logic
             }
             catch (JsonException exception)
             {
-                Logger.LogError(LoggingEvents.WorldLoadingError, exception, "The meta file could not be loaded: {path}", path);
+                Logger.LogError(Events.WorldLoadingError, exception, "The meta file could not be loaded: {path}", path);
 
                 return new WorldInformation();
             }

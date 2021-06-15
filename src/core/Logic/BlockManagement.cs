@@ -6,13 +6,12 @@
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Core.Logic.Blocks;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic
 {
@@ -188,7 +187,7 @@ namespace VoxelGame.Core.Logic
                 {
                     block.Setup(indexProvider);
 
-                    Logger.LogDebug(LoggingEvents.BlockLoad, "Loaded the block [{block}] with ID {id}.", block, block.Id);
+                    Logger.LogDebug(Events.BlockLoad, "Loaded the block [{block}] with ID {id}.", block, block.Id);
                 }
 
                 Logger.LogInformation("Block setup complete. A total of {count} blocks have been loaded.", Count);

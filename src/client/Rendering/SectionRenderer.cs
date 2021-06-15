@@ -3,23 +3,127 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
+using System;
 using OpenToolkit.Mathematics;
-using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using OpenToolkit.Graphics.OpenGL4;
+using VoxelGame.Graphics.Groups;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
 {
     /// <summary>
-    /// A renderer for <see cref="Logic.Section"/>.
+    /// A renderer for <see cref="VoxelGame.Core.Logic.Section"/>.
     /// </summary>
-    public abstract class SectionRenderer : Renderer
+    public class SectionRenderer : IDisposable
     {
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<SectionRenderer>();
+
         public const int DrawStageCount = 5;
 
-        private protected bool disposed;
+        private readonly ArrayIDataDrawGroup simpleDrawGroup;
 
-        public abstract void SetData(ref SectionMeshData meshData);
+        private readonly ElementPositionDataDrawGroup complexDrawGroup;
 
-        public void PrepareStage(int stage)
+        private readonly ElementIDataDrawGroup varyingHeightDrawGroup;
+        private readonly ElementIDataDrawGroup opaqueLiquidDrawGroup;
+        private readonly ElementIDataDrawGroup transparentLiquidDrawGroup;
+
+        public SectionRenderer()
+        {
+            simpleDrawGroup = ArrayIDataDrawGroup.Create(2);
+            complexDrawGroup = ElementPositionDataDrawGroup.Create(3, 2);
+            varyingHeightDrawGroup = ElementIDataDrawGroup.Create(2);
+            opaqueLiquidDrawGroup = ElementIDataDrawGroup.Create(2);
+            transparentLiquidDrawGroup = ElementIDataDrawGroup.Create(2);
+
+            #region SIMPLE BUFFER SETUP
+
+            simpleDrawGroup.VertexArrayBindBuffer();
+
+            Shaders.SimpleSectionShader.Use();
+            int dataLocation = Shaders.SimpleSectionShader.GetAttributeLocation("aData");
+
+            simpleDrawGroup.VertexArrayAttributeBinding(dataLocation);
+
+            #endregion SIMPLE BUFFER SETUP
+
+            #region COMPLEX BUFFER SETUP
+
+            complexDrawGroup.VertexArrayBindBuffer();
+
+            Shaders.ComplexSectionShader.Use();
+            int positionLocation = Shaders.ComplexSectionShader.GetAttributeLocation("aPosition");
+            dataLocation = Shaders.ComplexSectionShader.GetAttributeLocation("aData");
+
+            complexDrawGroup.VertexArrayAttributeBinding(positionLocation, dataLocation);
+
+            #endregion COMPLEX BUFFER SETUP
+
+            #region VARYING HEIGHT BUFFER SETUP
+
+            varyingHeightDrawGroup.VertexArrayBindBuffer();
+
+            Shaders.VaryingHeightShader.Use();
+            dataLocation = Shaders.VaryingHeightShader.GetAttributeLocation("aData");
+
+            varyingHeightDrawGroup.VertexArrayAttributeBinding(dataLocation);
+
+            #endregion VARYING HEIGHT BUFFER SETUP
+
+            #region OPAQUE LIQUID BUFFER SETUP
+
+            opaqueLiquidDrawGroup.VertexArrayBindBuffer();
+
+            Shaders.OpaqueLiquidSectionShader.Use();
+            dataLocation = Shaders.OpaqueLiquidSectionShader.GetAttributeLocation("aData");
+
+            opaqueLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation);
+
+            #endregion OPAQUE LIQUID BUFFER SETUP
+
+            #region TRANSPARENT LIQUID BUFFER SETUP
+
+            transparentLiquidDrawGroup.VertexArrayBindBuffer();
+
+            Shaders.TransparentLiquidSectionShader.Use();
+            dataLocation = Shaders.TransparentLiquidSectionShader.GetAttributeLocation("aData");
+
+            transparentLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation);
+
+            #endregion TRANSPARENT LIQUID BUFFER SETUP
+        }
+
+        public void SetData(ref SectionMeshData meshData)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            simpleDrawGroup.SetData(meshData.simpleVertexData.Count, meshData.simpleVertexData.ExposeArray());
+
+            complexDrawGroup.SetData(meshData.complexVertexPositions.Count, meshData.complexVertexPositions.ExposeArray(),
+                meshData.complexVertexData.Count, meshData.complexVertexData.ExposeArray(),
+                meshData.complexIndices.Count, meshData.complexIndices.ExposeArray());
+
+            varyingHeightDrawGroup.SetData(
+                meshData.varyingHeightVertexData.Count, meshData.varyingHeightVertexData.ExposeArray(),
+                meshData.varyingHeightIndices.Count, meshData.varyingHeightIndices.ExposeArray());
+
+            opaqueLiquidDrawGroup.SetData(
+                meshData.opaqueLiquidVertexData.Count, meshData.opaqueLiquidVertexData.ExposeArray(),
+                meshData.opaqueLiquidIndices.Count, meshData.opaqueLiquidIndices.ExposeArray());
+
+            transparentLiquidDrawGroup.SetData(
+                meshData.transparentLiquidVertexData.Count, meshData.transparentLiquidVertexData.ExposeArray(),
+                meshData.transparentLiquidIndices.Count, meshData.transparentLiquidIndices.ExposeArray());
+
+            meshData.ReturnPooled();
+        }
+
+        public static void PrepareStage(int stage)
         {
             Matrix4 view = Client.Player.GetViewMatrix();
             Matrix4 projection = Client.Player.GetProjectionMatrix();
@@ -34,15 +138,61 @@ namespace VoxelGame.Client.Rendering
             }
         }
 
-        protected abstract void PrepareSimpleBuffer(Matrix4 view, Matrix4 projection);
+        private static void PrepareSimpleBuffer(Matrix4 view, Matrix4 projection)
+        {
+            Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-        protected abstract void PrepareComplexBuffer(Matrix4 view, Matrix4 projection);
+            Shaders.SimpleSectionShader.Use();
 
-        protected abstract void PrepareVaryingHeightBuffer(Matrix4 view, Matrix4 projection);
+            Shaders.SimpleSectionShader.SetMatrix4("view", view);
+            Shaders.SimpleSectionShader.SetMatrix4("projection", projection);
+        }
 
-        protected abstract void PrepareOpaqueLiquidBuffer(Matrix4 view, Matrix4 projection);
+        private static void PrepareComplexBuffer(Matrix4 view, Matrix4 projection)
+        {
+            Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
-        protected abstract void PrepareTransparentLiquidBuffer(Matrix4 view, Matrix4 projection);
+            Shaders.ComplexSectionShader.Use();
+
+            Shaders.ComplexSectionShader.SetMatrix4("view", view);
+            Shaders.ComplexSectionShader.SetMatrix4("projection", projection);
+        }
+
+        private static void PrepareVaryingHeightBuffer(Matrix4 view, Matrix4 projection)
+        {
+            Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+
+            Shaders.VaryingHeightShader.Use();
+
+            Shaders.VaryingHeightShader.SetMatrix4("view", view);
+            Shaders.VaryingHeightShader.SetMatrix4("projection", projection);
+        }
+
+        private static void PrepareOpaqueLiquidBuffer(Matrix4 view, Matrix4 projection)
+        {
+            Client.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+
+            Shaders.OpaqueLiquidSectionShader.Use();
+
+            Shaders.OpaqueLiquidSectionShader.SetMatrix4("view", view);
+            Shaders.OpaqueLiquidSectionShader.SetMatrix4("projection", projection);
+        }
+
+        private static void PrepareTransparentLiquidBuffer(Matrix4 view, Matrix4 projection)
+        {
+            Screen.FillDepthTexture();
+
+            Client.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+
+            GL.Enable(EnableCap.Blend);
+            GL.DepthMask(false);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+            Shaders.TransparentLiquidSectionShader.Use();
+
+            Shaders.TransparentLiquidSectionShader.SetMatrix4("view", view);
+            Shaders.TransparentLiquidSectionShader.SetMatrix4("projection", projection);
+        }
 
         public void DrawStage(int stage, Vector3 position)
         {
@@ -63,17 +213,52 @@ namespace VoxelGame.Client.Rendering
             }
         }
 
-        protected abstract void DrawSimpleBuffer(Matrix4 model);
+        private void DrawSimpleBuffer(Matrix4 model)
+        {
+            if (!simpleDrawGroup.IsFilled) return;
 
-        protected abstract void DrawComplexBuffer(Matrix4 model);
+            simpleDrawGroup.BindVertexArray();
+            Shaders.SimpleSectionShader.SetMatrix4("model", model);
+            simpleDrawGroup.DrawArrays();
+        }
 
-        protected abstract void DrawVaryingHeightBuffer(Matrix4 model);
+        private void DrawComplexBuffer(Matrix4 model)
+        {
+            if (!complexDrawGroup.IsFilled) return;
 
-        protected abstract void DrawOpaqueLiquidBuffer(Matrix4 model);
+            complexDrawGroup.BindVertexArray();
+            Shaders.ComplexSectionShader.SetMatrix4("model", model);
+            complexDrawGroup.DrawElements();
+        }
 
-        protected abstract void DrawTransparentLiquidBuffer(Matrix4 model);
+        private void DrawVaryingHeightBuffer(Matrix4 model)
+        {
+            if (!varyingHeightDrawGroup.IsFilled) return;
 
-        public void FinishStage(int stage)
+            varyingHeightDrawGroup.BindVertexArray();
+            Shaders.VaryingHeightShader.SetMatrix4("model", model);
+            varyingHeightDrawGroup.DrawElements();
+        }
+
+        private void DrawOpaqueLiquidBuffer(Matrix4 model)
+        {
+            if (!opaqueLiquidDrawGroup.IsFilled) return;
+
+            opaqueLiquidDrawGroup.BindVertexArray();
+            Shaders.OpaqueLiquidSectionShader.SetMatrix4("model", model);
+            opaqueLiquidDrawGroup.DrawElements();
+        }
+
+        private void DrawTransparentLiquidBuffer(Matrix4 model)
+        {
+            if (!transparentLiquidDrawGroup.IsFilled) return;
+
+            transparentLiquidDrawGroup.BindVertexArray();
+            Shaders.TransparentLiquidSectionShader.SetMatrix4("model", model);
+            transparentLiquidDrawGroup.DrawElements();
+        }
+
+        public static void FinishStage(int stage)
         {
             switch (stage)
             {
@@ -81,18 +266,48 @@ namespace VoxelGame.Client.Rendering
             }
         }
 
-        protected abstract void FinishTransparentLiquidBuffer();
-
-        public override void Draw(Vector3 position)
+        private static void FinishTransparentLiquidBuffer()
         {
-            Debug.Fail("Sections should be drawn using DrawStage.");
-
-            for (int stage = 0; stage < DrawStageCount; stage++)
-            {
-                PrepareStage(stage);
-                DrawStage(stage, position);
-                FinishStage(stage);
-            }
+            GL.Disable(EnableCap.Blend);
+            GL.DepthMask(true);
         }
+
+        #region IDisposable Support
+
+        private bool disposed;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                simpleDrawGroup.Delete();
+                complexDrawGroup.Delete();
+                varyingHeightDrawGroup.Delete();
+                opaqueLiquidDrawGroup.Delete();
+                transparentLiquidDrawGroup.Delete();
+            }
+            else
+            {
+                Logger.LogWarning(Events.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
+            }
+
+            disposed = true;
+        }
+
+        ~SectionRenderer()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion IDisposable Support
     }
 }

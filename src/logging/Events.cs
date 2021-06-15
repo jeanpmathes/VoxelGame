@@ -6,12 +6,13 @@
 //
 // </copyright>
 // <author>pershingthesecond</author>
-namespace VoxelGame.Core
+
+namespace VoxelGame.Logging
 {
     /// <summary>
     /// Event IDs for important logging events.
     /// </summary>
-    public static class LoggingEvents
+    public static class Events
     {
         /// <summary>
         /// The default ID, which is also used if no ID is given.
@@ -147,7 +148,7 @@ namespace VoxelGame.Core
         /// <summary>
         /// Occurs when a texture or model that is requested could not be loaded and a fallback is used.
         /// </summary>
-        public const int MissingRessource = 3100;
+        public const int MissingResource = 3100;
 
         #endregion RENDERING AND VISUALS
     }

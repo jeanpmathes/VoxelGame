@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System;
@@ -10,10 +11,9 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using VoxelGame.Client.Rendering;
-using VoxelGame.Core;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Logic
 {
@@ -91,18 +91,18 @@ namespace VoxelGame.Client.Logic
                     }
                 }
 
-                for (int stage = 0; stage < SectionRenderer.DrawStageCount; stage++)
+                for (var stage = 0; stage < SectionRenderer.DrawStageCount; stage++)
                 {
                     if (renderList.Count == 0) break;
 
-                    renderList[0].section.PrepareRender(stage);
+                    SectionRenderer.PrepareStage(stage);
 
-                    for (int i = 0; i < renderList.Count; i++)
+                    for (var i = 0; i < renderList.Count; i++)
                     {
                         renderList[i].section.Render(stage, renderList[i].position);
                     }
 
-                    renderList[0].section.FinishRender(stage);
+                    SectionRenderer.FinishStage(stage);
                 }
 
                 // Render the player
@@ -202,7 +202,7 @@ namespace VoxelGame.Client.Logic
                         {
                             Exception e = completed.Exception?.GetBaseException() ?? new NullReferenceException();
 
-                            Logger.LogCritical(LoggingEvents.ChunkMeshingError, e, "An exception occurred when meshing the chunk ({x}|{z}). The exception will be re-thrown.", meshedChunk.X, meshedChunk.Z);
+                            Logger.LogCritical(Events.ChunkMeshingError, e, "An exception occurred when meshing the chunk ({x}|{z}). The exception will be re-thrown.", meshedChunk.X, meshedChunk.Z);
 
                             throw e;
                         }

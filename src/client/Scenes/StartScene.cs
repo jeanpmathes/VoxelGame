@@ -7,7 +7,6 @@
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using VoxelGame.Client.Rendering;
-using VoxelGame.Core.Utilities;
 using System;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Logic;
@@ -16,6 +15,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using VoxelGame.Client.Logic;
+using VoxelGame.Logging;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes

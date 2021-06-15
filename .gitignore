@@ -272,3 +272,5 @@ __pycache__/
 /client/Properties/PublishProfiles
 /src/ui/GlobalSuppressions.cs
 /src/core/GlobalSuppressions.cs
+/src/client/Properties/PublishProfiles
+*.DotSettings

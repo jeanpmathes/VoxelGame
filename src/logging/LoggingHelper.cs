@@ -3,12 +3,13 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace VoxelGame.Core.Utilities
+namespace VoxelGame.Logging
 {
     public static class LoggingHelper
     {
@@ -31,7 +32,7 @@ namespace VoxelGame.Core.Utilities
                     .AddFilter("Microsoft", LogLevel.Warning)
                     .AddFilter("System", LogLevel.Warning)
                     .AddFilter("VoxelGame", level)
-                    .AddConsole(options => options.IncludeScopes = true)
+                    .AddSimpleConsole(options => options.IncludeScopes = true)
                     .AddFile(Path.Combine(appDataDirectory, "Logs", $"voxel-log-{{Date}}{DateTime.Now:_HH-mm-ss}.log"), level);
             });
 

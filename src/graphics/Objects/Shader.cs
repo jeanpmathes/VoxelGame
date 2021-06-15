@@ -2,17 +2,17 @@
 //     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
 // <author>pershingthesecond</author>
-using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
-using OpenToolkit.Mathematics;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using VoxelGame.Core;
-using VoxelGame.Core.Utilities;
+using Microsoft.Extensions.Logging;
+using OpenToolkit.Graphics.OpenGL4;
+using OpenToolkit.Mathematics;
+using VoxelGame.Logging;
 
-namespace VoxelGame.Client.Rendering
+namespace VoxelGame.Graphics.Objects
 {
     public class Shader
     {
@@ -20,16 +20,16 @@ namespace VoxelGame.Client.Rendering
 
         private readonly Dictionary<string, int> uniformLocations;
 
-        public int Handle { get; }
+        private int Handle { get; }
 
-        public Shader(string vertName, string fragName)
+        public Shader(string vertPath, string fragPath)
         {
-            string shaderSource = LoadSource(vertName);
+            string shaderSource = LoadSource(vertPath);
             int vertexShader = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vertexShader, shaderSource);
             CompileShader(vertexShader);
 
-            shaderSource = LoadSource(fragName);
+            shaderSource = LoadSource(fragPath);
             int fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fragmentShader, shaderSource);
             CompileShader(fragmentShader);
@@ -67,9 +67,9 @@ namespace VoxelGame.Client.Rendering
 
             if (code != (int)All.True)
             {
-                Exception e = new Exception($"Error occurred whilst compiling Shader({shader})");
+                var e = new Exception($"Error occurred whilst compiling Shader({shader})");
 
-                Logger.LogCritical(LoggingEvents.ShaderError, e, "Error occurred whilst compiling Shader({shader}): {info}", shader, GL.GetShaderInfoLog(shader));
+                Logger.LogCritical(Events.ShaderError, e, "Error occurred whilst compiling Shader({shader}): {info}", shader, GL.GetShaderInfoLog(shader));
 
                 throw e;
             }
@@ -88,9 +88,9 @@ namespace VoxelGame.Client.Rendering
 
             if (code != (int)All.True)
             {
-                Exception e = new Exception($"Error occurred whilst linking Program({program})");
+                var e = new Exception($"Error occurred whilst linking Program({program})");
 
-                Logger.LogCritical(LoggingEvents.ShaderError, e, "Error occurred whilst linking Program({program}): {info}", program, GL.GetProgramInfoLog(program));
+                Logger.LogCritical(Events.ShaderError, e, "Error occurred whilst linking Program({program}): {info}", program, GL.GetProgramInfoLog(program));
 
                 throw e;
             }
@@ -105,14 +105,14 @@ namespace VoxelGame.Client.Rendering
             GL.UseProgram(Handle);
         }
 
-        public int GetAttribLocation(string attribName)
+        public int GetAttributeLocation(string attributeName)
         {
-            return GL.GetAttribLocation(Handle, attribName);
+            return GL.GetAttribLocation(Handle, attributeName);
         }
 
-        private static string LoadSource(string name)
+        private static string LoadSource(string path)
         {
-            using var sr = new StreamReader(Path.Combine(GLManager.ShaderPath, name), Encoding.UTF8);
+            using var sr = new StreamReader(path, Encoding.UTF8);
             return sr.ReadToEnd();
         }
 

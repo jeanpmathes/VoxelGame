@@ -11,15 +11,13 @@ using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Common.Input;
 using OpenToolkit.Windowing.Desktop;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
-using System;
 using System.IO;
 using VoxelGame.Client.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Client.Rendering;
-using VoxelGame.Core;
+using VoxelGame.Logging;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Visuals;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
@@ -47,15 +45,6 @@ namespace VoxelGame.Client
         /// </summary>
         public static ArrayTexture LiquidTextureArray { get; private set; } = null!;
 
-        public static Shader SimpleSectionShader { get; private set; } = null!;
-        public static Shader ComplexSectionShader { get; private set; } = null!;
-        public static Shader VaryingHeightShader { get; private set; } = null!;
-        public static Shader OpaqueLiquidSectionShader { get; private set; } = null!;
-        public static Shader TransparentLiquidSectionShader { get; private set; } = null!;
-        public static Shader OverlayShader { get; private set; } = null!;
-        public static Shader SelectionShader { get; private set; } = null!;
-        public static Shader ScreenElementShader { get; private set; } = null!;
-
         public static ClientPlayer Player { get; private set; } = null!;
 
         public static double Fps => 1.0 / Instance.renderDeltaBuffer.Average;
@@ -63,6 +52,7 @@ namespace VoxelGame.Client
 
         #endregion STATIC PROPERTIES
 
+        private readonly Graphics.Debug glDebug;
         private readonly SceneManager sceneManager;
 
         private double Time { get; set; }
@@ -83,6 +73,7 @@ namespace VoxelGame.Client
             Instance = this;
 
             unsafe { WindowPointer = WindowPtr; }
+            glDebug = new Graphics.Debug();
 
             this.AppDataDirectory = appDataDirectory;
             this.ScreenshotDirectory = screenshotDirectory;
@@ -107,50 +98,24 @@ namespace VoxelGame.Client
         {
             using (Logger.BeginScope("Client OnLoad"))
             {
-                // GL version setup.
-                int version = GL.GetInteger(GetPName.MajorVersion) * 10 + GL.GetInteger(GetPName.MinorVersion);
-#if GL33
-                version = 33;
-#endif
-                GLManager.Initialize(version);
-
                 // GL debug setup.
-                GL.Enable(EnableCap.DebugOutput);
-                GL.Enable(EnableCap.Multisample);
-
-                debugCallbackDelegate = new DebugProc(DebugCallback);
-                GL.DebugMessageCallback(debugCallbackDelegate, IntPtr.Zero);
+                glDebug.Enable();
 
                 // Screen setup.
-                screen = GLManager.ScreenFactory.CreateScreen(this);
+                screen = new Screen(this);
 
                 // Texture setup.
-                BlockTextureArray = GLManager.ArrayTextureFactory.CreateArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2, TextureUnit.Texture3, TextureUnit.Texture4);
+                BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2, TextureUnit.Texture3, TextureUnit.Texture4);
                 Logger.LogInformation("All block textures loaded.");
 
-                LiquidTextureArray = GLManager.ArrayTextureFactory.CreateArrayTexture("Resources/Textures/Liquids", 16, false, TextureUnit.Texture5);
+                LiquidTextureArray = new ArrayTexture("Resources/Textures/Liquids", 16, false, TextureUnit.Texture5);
                 Logger.LogInformation("All liquid textures loaded.");
 
                 TextureLayout.SetProviders(BlockTextureArray, LiquidTextureArray);
                 BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
 
                 // Shader setup.
-                using (Logger.BeginScope("Shader setup"))
-                {
-                    SimpleSectionShader = new Shader("simplesection_shader.vert", "section_shader.frag");
-                    ComplexSectionShader = new Shader("complexsection_shader.vert", "section_shader.frag");
-                    VaryingHeightShader = new Shader("varyingheightsection_shader.vert", "section_shader.frag");
-                    OpaqueLiquidSectionShader = new Shader("liquidsection_shader.vert", "opaqueliquidsection_shader.frag");
-                    TransparentLiquidSectionShader = new Shader("liquidsection_shader.vert", "transparentliquidsection_shader.frag");
-                    OverlayShader = new Shader("overlay_shader.vert", "overlay_shader.frag");
-                    SelectionShader = new Shader("selection_shader.vert", "selection_shader.frag");
-                    ScreenElementShader = new Shader("screenelement_shader.vert", "screenelement_shader.frag");
-
-                    OverlayShader.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
-                    ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
-
-                    Logger.LogInformation("Shader setup complete.");
-                }
+                Shaders.Load("Resources/Shaders");
 
                 // Block setup.
                 Block.LoadBlocks(BlockTextureArray);
@@ -172,10 +137,10 @@ namespace VoxelGame.Client
             {
                 Time += e.Time;
 
-                SimpleSectionShader.SetFloat("time", (float)Time);
-                ComplexSectionShader.SetFloat("time", (float)Time);
-                OpaqueLiquidSectionShader.SetFloat("time", (float)Time);
-                TransparentLiquidSectionShader.SetFloat("time", (float)Time);
+                Shaders.SimpleSectionShader.SetFloat("time", (float)Time);
+                Shaders.ComplexSectionShader.SetFloat("time", (float)Time);
+                Shaders.OpaqueLiquidSectionShader.SetFloat("time", (float)Time);
+                Shaders.TransparentLiquidSectionShader.SetFloat("time", (float)Time);
 
                 screen.Clear();
 
@@ -302,158 +267,5 @@ namespace VoxelGame.Client
         }
 
         #endregion MOUSE MOVE
-
-        #region GL DEBUG
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Minor Code Smell", "S1450:Private fields only used as local variables in methods should become local variables", Justification = "Has to be field to prevent GC collection.")]
-        private DebugProc debugCallbackDelegate = null!;
-
-        private void DebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
-        {
-            if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
-
-            string sourceShort = "NONE";
-            switch (source)
-            {
-                case DebugSource.DebugSourceApi:
-                    sourceShort = "API";
-                    break;
-
-                case DebugSource.DebugSourceApplication:
-                    sourceShort = "APPLICATION";
-                    break;
-
-                case DebugSource.DebugSourceOther:
-                    sourceShort = "OTHER";
-                    break;
-
-                case DebugSource.DebugSourceShaderCompiler:
-                    sourceShort = "SHADER COMPILER";
-                    break;
-
-                case DebugSource.DebugSourceThirdParty:
-                    sourceShort = "THIRD PARTY";
-                    break;
-
-                case DebugSource.DebugSourceWindowSystem:
-                    sourceShort = "WINDOWS SYSTEM";
-                    break;
-            }
-
-            string typeShort = "NONE";
-            switch (type)
-            {
-                case DebugType.DebugTypeDeprecatedBehavior:
-                    typeShort = "DEPRECATED BEHAVIOR";
-                    break;
-
-                case DebugType.DebugTypeError:
-                    typeShort = "ERROR";
-                    break;
-
-                case DebugType.DebugTypeMarker:
-                    typeShort = "MARKER";
-                    break;
-
-                case DebugType.DebugTypeOther:
-                    typeShort = "OTHER";
-                    break;
-
-                case DebugType.DebugTypePerformance:
-                    typeShort = "PERFORMANCE";
-                    break;
-
-                case DebugType.DebugTypePopGroup:
-                    typeShort = "POP GROUP";
-                    break;
-
-                case DebugType.DebugTypePortability:
-                    typeShort = "PORTABILITY";
-                    break;
-
-                case DebugType.DebugTypePushGroup:
-                    typeShort = "PUSH GROUP";
-                    break;
-
-                case DebugType.DebugTypeUndefinedBehavior:
-                    typeShort = "UNDEFINED BEHAVIOR";
-                    break;
-            }
-
-            string idResolved = "-";
-            int eventId = 0;
-            switch (id)
-            {
-                case 0x500:
-                    idResolved = "GL_INVALID_ENUM";
-                    eventId = LoggingEvents.GlInvalidEnum;
-                    break;
-
-                case 0x501:
-                    idResolved = "GL_INVALID_VALUE";
-                    eventId = LoggingEvents.GlInvalidValue;
-                    break;
-
-                case 0x502:
-                    idResolved = "GL_INVALID_OPERATION";
-                    eventId = LoggingEvents.GlInvalidOperation;
-                    break;
-
-                case 0x503:
-                    idResolved = "GL_STACK_OVERFLOW";
-                    eventId = LoggingEvents.GlStackOverflow;
-                    break;
-
-                case 0x504:
-                    idResolved = "GL_STACK_UNDERFLOW";
-                    eventId = LoggingEvents.GlStackUnderflow;
-                    break;
-
-                case 0x505:
-                    idResolved = "GL_OUT_OF_MEMORY";
-                    eventId = LoggingEvents.GlOutOfMemory;
-                    break;
-
-                case 0x506:
-                    idResolved = "GL_INVALID_FRAMEBUFFER_OPERATION";
-                    eventId = LoggingEvents.GlInvalidFramebufferOperation;
-                    break;
-
-                case 0x507:
-                    idResolved = "GL_CONTEXT_LOST";
-                    eventId = LoggingEvents.GlContextLost;
-                    break;
-            }
-
-            switch (severity)
-            {
-                case DebugSeverity.DebugSeverityNotification:
-                    Logger.LogInformation(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
-                    break;
-
-                case DebugSeverity.DebugSeverityLow:
-                    Logger.LogWarning(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
-                    break;
-
-                case DebugSeverity.DebugSeverityMedium:
-                    Logger.LogError(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
-                    break;
-
-                case DebugSeverity.DebugSeverityHigh:
-                    Logger.LogCritical(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
-                    break;
-
-                default:
-                    Logger.LogInformation(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
-                    break;
-            }
-        }
-
-        #endregion GL DEBUG
     }
 }

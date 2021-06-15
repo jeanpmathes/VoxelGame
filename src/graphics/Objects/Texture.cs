@@ -2,23 +2,25 @@
 //     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
 // <author>pershingthesecond</author>
-using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
+
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using VoxelGame.Core;
-using VoxelGame.Core.Utilities;
+using Microsoft.Extensions.Logging;
+using OpenToolkit.Graphics.OpenGL4;
+using VoxelGame.Logging;
 using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
 
-namespace VoxelGame.Client.Rendering.Versions.OpenGL46
+namespace VoxelGame.Graphics.Objects
 {
-    public class Texture : Rendering.Texture
+    public class Texture : IDisposable
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<Texture>();
 
-        public override int Handle { get; }
+        private int Handle { get; }
+
+        public TextureUnit TextureUnit { get; private set; }
 
         public Texture(string path, TextureUnit unit, int fallbackResolution = 16)
         {
@@ -31,7 +33,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
 
             try
             {
-                using Bitmap bitmap = new Bitmap(path);
+                using var bitmap = new Bitmap(path);
                 SetupTexture(bitmap);
             }
             catch (Exception exception) when (exception is FileNotFoundException || exception is ArgumentException)
@@ -41,7 +43,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
                     SetupTexture(bitmap);
                 }
 
-                Logger.LogWarning(LoggingEvents.MissingRessource, exception, "The texture could not be loaded and a fallback was used instead because the file was not found: {path}", path);
+                Logger.LogWarning(Events.MissingResource, exception, "The texture could not be loaded and a fallback was used instead because the file was not found: {path}", path);
             }
 
             GL.TextureParameter(Handle, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
@@ -66,7 +68,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
             GL.TextureSubImage2D(Handle, 0, 0, 0, bitmap.Width, bitmap.Height, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
         }
 
-        public override void Use(TextureUnit unit = TextureUnit.Texture0)
+        public void Use(TextureUnit unit = TextureUnit.Texture0)
         {
             GL.BindTextureUnit(unit - TextureUnit.Texture0, Handle);
             TextureUnit = unit;
@@ -76,7 +78,7 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
 
         private bool disposed;
 
-        protected override void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -86,13 +88,49 @@ namespace VoxelGame.Client.Rendering.Versions.OpenGL46
                 }
                 else
                 {
-                    Logger.LogWarning(LoggingEvents.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");
+                    Logger.LogWarning(Events.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");
                 }
 
                 disposed = true;
             }
         }
 
+        ~Texture()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
         #endregion IDisposable Support
+
+        public static Bitmap CreateFallback(int resolution)
+        {
+            var fallback = new Bitmap(resolution, resolution, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            Color magenta = Color.FromArgb(64, 255, 0, 255);
+            Color black = Color.FromArgb(64, 0, 0, 0);
+
+            for (var x = 0; x < fallback.Width; x++)
+            {
+                for (var y = 0; y < fallback.Height; y++)
+                {
+                    if (x % 2 == 0 ^ y % 2 == 0)
+                    {
+                        fallback.SetPixel(x, y, magenta);
+                    }
+                    else
+                    {
+                        fallback.SetPixel(x, y, black);
+                    }
+                }
+            }
+
+            return fallback;
+        }
     }
 }

@@ -3,18 +3,57 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using System;
+using Microsoft.Extensions.Logging;
+using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Physics;
+using VoxelGame.Graphics.Groups;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
 {
     /// <summary>
     /// A renderer that renders instances of the <see cref="BoundingBox"/> struct.
     /// </summary>
-    public abstract class BoxRenderer : Renderer
+    public class BoxRenderer : IDisposable
     {
-        public abstract void SetBoundingBox(BoundingBox boundingBox);
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<BoxRenderer>();
+
+        private readonly ElementDrawGroup drawGroup;
+
+        private BoundingBox currentBoundingBox;
+
+        public BoxRenderer()
+        {
+            drawGroup = ElementDrawGroup.Create();
+
+            Shaders.SelectionShader.Use();
+
+            drawGroup.VertexArrayBindBuffer(3);
+
+            int vertexLocation = Shaders.SelectionShader.GetAttributeLocation("aPosition");
+            drawGroup.VertexArrayBindAttribute(vertexLocation, 3, 0);
+        }
+
+        public void SetBoundingBox(BoundingBox boundingBox)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (currentBoundingBox == boundingBox)
+            {
+                return;
+            }
+
+            currentBoundingBox = boundingBox;
+
+            int elementCount = BuildMeshData(currentBoundingBox, boundingBox, out float[] vertices, out uint[] indices);
+            drawGroup.SetData(elementCount, vertices.Length, vertices, indices.Length, indices);
+        }
 
         protected int BuildMeshData(BoundingBox currentBoundingBox, BoundingBox boundingBox, out float[] vertices, out uint[] indices)
         {
@@ -100,5 +139,61 @@ namespace VoxelGame.Client.Rendering
 
             return 24;
         }
+
+        public void Draw(Vector3 position)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            drawGroup.BindVertexArray();
+
+            Shaders.SelectionShader.Use();
+
+            Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
+            Shaders.SelectionShader.SetMatrix4("model", model);
+            Shaders.SelectionShader.SetMatrix4("view", Client.Player.GetViewMatrix());
+            Shaders.SelectionShader.SetMatrix4("projection", Client.Player.GetProjectionMatrix());
+
+            drawGroup.DrawElements(PrimitiveType.Lines);
+
+            GL.BindVertexArray(0);
+            GL.UseProgram(0);
+        }
+
+        #region IDisposable Support
+
+        private bool disposed;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                drawGroup.Delete();
+            }
+            else
+            {
+                Logger.LogWarning(Events.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
+            }
+
+            disposed = true;
+        }
+
+        ~BoxRenderer()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion IDisposable Support
     }
 }

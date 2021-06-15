@@ -8,12 +8,12 @@ using System;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common.Input;
 using VoxelGame.Client.Rendering;
-using VoxelGame.Core;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Graphics.Objects;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Entities
@@ -35,13 +35,13 @@ namespace VoxelGame.Client.Entities
             this.camera = camera;
             camera.Position = Position;
 
-            selectionRenderer = GLManager.BoxRendererFactory.CreateBoxRenderer();
+            selectionRenderer = new BoxRenderer();
 
-            overlay = GLManager.OverlayRendererFactory.CreateOverlayRenderer();
+            overlay = new OverlayRenderer();
 
-            crosshair = GLManager.TextureFactory.CreateTexture("Resources/Textures/UI/crosshair.png", OpenToolkit.Graphics.OpenGL4.TextureUnit.Texture10, fallbackResolution: 32);
+            crosshair = new Texture("Resources/Textures/UI/crosshair.png", OpenToolkit.Graphics.OpenGL4.TextureUnit.Texture10, fallbackResolution: 32);
 
-            crosshairRenderer = GLManager.ScreenElementRendererFactory.CreateScreenElementRenderer();
+            crosshairRenderer = new ScreenElementRenderer();
             crosshairRenderer.SetTexture(crosshair);
             crosshairRenderer.SetColor(crosshairColor);
 
@@ -85,7 +85,8 @@ namespace VoxelGame.Client.Entities
         private readonly Texture crosshair;
         private readonly ScreenElementRenderer crosshairRenderer;
 
-        private readonly Vector3 crosshairPositionScale = new Vector3(0.5f, 0.5f, Properties.client.Default.CrosshairScale);
+        private readonly Vector2 crosshairPosition = new Vector2(0.5f, 0.5f);
+        private readonly float crosshairScale = Properties.client.Default.CrosshairScale;
         private readonly Vector3 crosshairColor = Properties.client.Default.CrosshairColor.ToVector3();
 
         public void Render()
@@ -102,7 +103,7 @@ namespace VoxelGame.Client.Entities
                 {
                     BoundingBox selectedBox = selectedBlock.GetBoundingBox(World, selectedX, selectedY, selectedZ);
 
-                    Client.SelectionShader.SetVector3("color", new Vector3(0.1f, 0.1f, 0.1f));
+                    Shaders.SelectionShader.SetVector3("color", new Vector3(0.1f, 0.1f, 0.1f));
 
                     selectionRenderer.SetBoundingBox(selectedBox);
                     selectionRenderer.Draw(selectedBox.Center);
@@ -114,7 +115,7 @@ namespace VoxelGame.Client.Entities
                 overlay.Draw();
             }
 
-            crosshairRenderer.Draw(crosshairPositionScale);
+            crosshairRenderer.Draw(crosshairPosition, crosshairScale);
         }
 
         private Vector3 movement;
