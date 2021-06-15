@@ -35,144 +35,70 @@ namespace VoxelGame.Graphics
         {
             if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
-            string sourceShort = "NONE";
-            switch (source)
+            string sourceShort = source switch
             {
-                case DebugSource.DebugSourceApi:
-                    sourceShort = "API";
-                    break;
+                DebugSource.DebugSourceApi => "API",
+                DebugSource.DebugSourceApplication => "APPLICATION",
+                DebugSource.DebugSourceOther => "OTHER",
+                DebugSource.DebugSourceShaderCompiler => "SHADER COMPILER",
+                DebugSource.DebugSourceThirdParty => "THIRD PARTY",
+                DebugSource.DebugSourceWindowSystem => "WINDOWS SYSTEM",
+                _ => "NONE"
+            };
 
-                case DebugSource.DebugSourceApplication:
-                    sourceShort = "APPLICATION";
-                    break;
-
-                case DebugSource.DebugSourceOther:
-                    sourceShort = "OTHER";
-                    break;
-
-                case DebugSource.DebugSourceShaderCompiler:
-                    sourceShort = "SHADER COMPILER";
-                    break;
-
-                case DebugSource.DebugSourceThirdParty:
-                    sourceShort = "THIRD PARTY";
-                    break;
-
-                case DebugSource.DebugSourceWindowSystem:
-                    sourceShort = "WINDOWS SYSTEM";
-                    break;
-            }
-
-            string typeShort = "NONE";
-            switch (type)
+            string typeShort = type switch
             {
-                case DebugType.DebugTypeDeprecatedBehavior:
-                    typeShort = "DEPRECATED BEHAVIOR";
-                    break;
+                DebugType.DebugTypeDeprecatedBehavior => "DEPRECATED BEHAVIOR",
+                DebugType.DebugTypeError => "ERROR",
+                DebugType.DebugTypeMarker => "MARKER",
+                DebugType.DebugTypeOther => "OTHER",
+                DebugType.DebugTypePerformance => "PERFORMANCE",
+                DebugType.DebugTypePopGroup => "POP GROUP",
+                DebugType.DebugTypePortability => "PORTABILITY",
+                DebugType.DebugTypePushGroup => "PUSH GROUP",
+                DebugType.DebugTypeUndefinedBehavior => "UNDEFINED BEHAVIOR",
+                _ => "NONE"
+            };
 
-                case DebugType.DebugTypeError:
-                    typeShort = "ERROR";
-                    break;
-
-                case DebugType.DebugTypeMarker:
-                    typeShort = "MARKER";
-                    break;
-
-                case DebugType.DebugTypeOther:
-                    typeShort = "OTHER";
-                    break;
-
-                case DebugType.DebugTypePerformance:
-                    typeShort = "PERFORMANCE";
-                    break;
-
-                case DebugType.DebugTypePopGroup:
-                    typeShort = "POP GROUP";
-                    break;
-
-                case DebugType.DebugTypePortability:
-                    typeShort = "PORTABILITY";
-                    break;
-
-                case DebugType.DebugTypePushGroup:
-                    typeShort = "PUSH GROUP";
-                    break;
-
-                case DebugType.DebugTypeUndefinedBehavior:
-                    typeShort = "UNDEFINED BEHAVIOR";
-                    break;
-            }
-
-            string idResolved = "-";
-            int eventId = 0;
-            switch (id)
+            (string idResolved, int eventId) = id switch
             {
-                case 0x500:
-                    idResolved = "GL_INVALID_ENUM";
-                    eventId = Events.GlInvalidEnum;
-                    break;
-
-                case 0x501:
-                    idResolved = "GL_INVALID_VALUE";
-                    eventId = Events.GlInvalidValue;
-                    break;
-
-                case 0x502:
-                    idResolved = "GL_INVALID_OPERATION";
-                    eventId = Events.GlInvalidOperation;
-                    break;
-
-                case 0x503:
-                    idResolved = "GL_STACK_OVERFLOW";
-                    eventId = Events.GlStackOverflow;
-                    break;
-
-                case 0x504:
-                    idResolved = "GL_STACK_UNDERFLOW";
-                    eventId = Events.GlStackUnderflow;
-                    break;
-
-                case 0x505:
-                    idResolved = "GL_OUT_OF_MEMORY";
-                    eventId = Events.GlOutOfMemory;
-                    break;
-
-                case 0x506:
-                    idResolved = "GL_INVALID_FRAMEBUFFER_OPERATION";
-                    eventId = Events.GlInvalidFramebufferOperation;
-                    break;
-
-                case 0x507:
-                    idResolved = "GL_CONTEXT_LOST";
-                    eventId = Events.GlContextLost;
-                    break;
-            }
+                0x500 => ("GL_INVALID_ENUM", Events.GlInvalidEnum),
+                0x501 => ("GL_INVALID_ENUM", Events.GlInvalidEnum),
+                0x502 => ("GL_INVALID_OPERATION", Events.GlInvalidOperation),
+                0x503 => ("GL_STACK_OVERFLOW", Events.GlStackOverflow),
+                0x504 => ("GL_STACK_UNDERFLOW", Events.GlStackUnderflow),
+                0x505 => ("GL_OUT_OF_MEMORY", Events.GlOutOfMemory),
+                0x506 => ("GL_INVALID_FRAMEBUFFER_OPERATION", Events.GlInvalidFramebufferOperation),
+                0x507 => ("GL_CONTEXT_LOST", Events.GlContextLost),
+                _ => ("-", 0)
+            };
 
             switch (severity)
             {
                 case DebugSeverity.DebugSeverityNotification:
+                case DebugSeverity.DontCare:
                     Logger.LogInformation(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
+                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
                     break;
 
                 case DebugSeverity.DebugSeverityLow:
                     Logger.LogWarning(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
+                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
                     break;
 
                 case DebugSeverity.DebugSeverityMedium:
                     Logger.LogError(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
+                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
                     break;
 
                 case DebugSeverity.DebugSeverityHigh:
                     Logger.LogCritical(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
+                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
                     break;
 
                 default:
                     Logger.LogInformation(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length) ?? "NONE");
+                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
                     break;
             }
         }
