@@ -42,7 +42,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            sideVertices = BlockModel.CubeVertices();
+            sideVertices = BlockModels.CubeVertices();
 
             sideTextureIndices = layout.GetTexIndexArray();
         }
