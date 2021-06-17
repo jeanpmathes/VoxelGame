@@ -4,6 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
+
 namespace VoxelGame.Core.Visuals
 {
     public static class BlockModels
@@ -72,6 +74,32 @@ namespace VoxelGame.Core.Visuals
                 0, 2, 1,
                 0, 3, 2
             };
+        }
+
+        public static int[] GenerateTextureDataArray(int tex, int length)
+        {
+            int[] data = new int[length];
+            Array.Fill(data, tex);
+            return data;
+        }
+
+        public static uint[] GenerateIndexDataArray(int faces)
+        {
+            uint[] indices = new uint[faces * 6];
+
+            for (var f = 0; f < faces; f++)
+            {
+                var offset = (uint)(f * 4);
+
+                indices[(f * 6) + 0] = 0 + offset;
+                indices[(f * 6) + 1] = 2 + offset;
+                indices[(f * 6) + 2] = 1 + offset;
+                indices[(f * 6) + 3] = 0 + offset;
+                indices[(f * 6) + 4] = 3 + offset;
+                indices[(f * 6) + 5] = 2 + offset;
+            }
+
+            return indices;
         }
     }
 }

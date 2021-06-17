@@ -88,35 +88,16 @@ namespace VoxelGame.Core.Logic.Blocks
 
             for (var i = 0; i < 5; i++)
             {
-                int[] texInd = new int[postModel.VertexCount + (i * extensionModel.VertexCount)];
-
-                for (var v = 0; v < texInd.Length; v++)
-                {
-                    texInd[v] = tex;
-                }
-
-                textureIndices[i] = texInd;
+                textureIndices[i] =
+                    BlockModels.GenerateTextureDataArray(tex, postModel.VertexCount + (i * extensionModel.VertexCount));
             }
 
             indices = new uint[5][];
 
             for (var i = 0; i < 5; i++)
             {
-                uint[] ind = new uint[(postModel.Quads.Length * 6) + (i * extensionModel.Quads.Length * 6)];
-
-                for (var f = 0; f < postModel.Quads.Length + (i * extensionModel.Quads.Length); f++)
-                {
-                    var offset = (uint)(f * 4);
-
-                    ind[(f * 6) + 0] = 0 + offset;
-                    ind[(f * 6) + 1] = 2 + offset;
-                    ind[(f * 6) + 2] = 1 + offset;
-                    ind[(f * 6) + 3] = 0 + offset;
-                    ind[(f * 6) + 4] = 3 + offset;
-                    ind[(f * 6) + 5] = 2 + offset;
-                }
-
-                indices[i] = ind;
+                indices[i] =
+                    BlockModels.GenerateIndexDataArray(postModel.Quads.Length + (i * extensionModel.Quads.Length));
             }
         }
 
