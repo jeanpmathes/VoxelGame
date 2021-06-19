@@ -204,6 +204,9 @@
   <data name="Glass" xml:space="preserve">
     <value>Glas</value>
   </data>
+  <data name="GlassPane" xml:space="preserve">
+    <value>Glasscheibe</value>
+  </data>
   <data name="GoldOre" xml:space="preserve">
     <value>Golderz</value>
   </data>

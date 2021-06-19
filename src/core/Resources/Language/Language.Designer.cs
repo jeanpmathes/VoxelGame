@@ -322,6 +322,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Glass Pane.
+        /// </summary>
+        public static string GlassPane {
+            get {
+                return ResourceManager.GetString("GlassPane", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Gold Ore.
         /// </summary>
         public static string GoldOre {
