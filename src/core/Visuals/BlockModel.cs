@@ -171,6 +171,22 @@ namespace VoxelGame.Core.Visuals
             return result;
         }
 
+        public (BlockModel north, BlockModel east, BlockModel south, BlockModel west) CreateAllDirections(bool rotateTopAndBottomTexture)
+        {
+            BlockModel north = this;
+
+            BlockModel east = new BlockModel(north);
+            east.RotateY(1, rotateTopAndBottomTexture);
+
+            BlockModel south = new BlockModel(east);
+            south.RotateY(1, rotateTopAndBottomTexture);
+
+            BlockModel west = new BlockModel(south);
+            west.RotateY(1, rotateTopAndBottomTexture);
+
+            return (north, east, south, west);
+        }
+
         private BlockModel CreateSideModel(BlockSide side)
         {
             if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
