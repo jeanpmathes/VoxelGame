@@ -148,19 +148,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            uint data = 0;
-
-            // Check the neighboring blocks
-            if (world.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1))
-                data |= 0b00_1000;
-            if (world.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
-                data |= 0b00_0100;
-            if (world.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
-                data |= 0b00_0010;
-            if (world.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z))
-                data |= 0b00_0001;
-
-            world.SetBlock(this, data, x, y, z);
+            world.SetBlock(this, IConnectable.GetConnectionData(world, x, y, z), x, y, z);
         }
 
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
@@ -181,18 +169,18 @@ namespace VoxelGame.Core.Logic.Blocks
                 world.SetBlock(this, newData, x, y, z);
             }
 
-            uint CheckNeighbor(int x, int y, int z, BlockSide side, uint mask, uint newData)
+            uint CheckNeighbor(int nx, int ny, int nz, BlockSide neighborSide, uint mask, uint oldData)
             {
-                if (world.GetBlock(x, y, z, out _) is IConnectable neighbor && neighbor.IsConnectable(world, side, x, y, z))
+                if (world.GetBlock(nx, ny, nz, out _) is IConnectable neighbor && neighbor.IsConnectable(world, neighborSide, nx, ny, nz))
                 {
-                    newData |= mask;
+                    oldData |= mask;
                 }
                 else
                 {
-                    newData &= ~mask;
+                    oldData &= ~mask;
                 }
 
-                return newData;
+                return oldData;
             }
         }
     }

@@ -23,5 +23,29 @@ namespace VoxelGame.Core.Logic.Interfaces
         {
             return true;
         }
+
+        /// <summary>
+        /// Get the data about connectables around a block. The data is packed in an uint using four bits.
+        /// </summary>
+        /// <param name="world">The world the block is in.</param>
+        /// <param name="x">The x position of the block.</param>
+        /// <param name="y">The y position of the block.</param>
+        /// <param name="z">The z position of the block.</param>
+        /// <returns></returns>
+        public static uint GetConnectionData(World world, int x, int y, int z)
+        {
+            uint data = 0;
+
+            if (world.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1))
+                data |= 0b00_1000;
+            if (world.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
+                data |= 0b00_0100;
+            if (world.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
+                data |= 0b00_0010;
+            if (world.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z))
+                data |= 0b00_0001;
+
+            return data;
+        }
     }
 }
