@@ -10,7 +10,7 @@ using VoxelGame.Core.Physics;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// This class represents a block which connects to blocks with the <see cref="IConnectable"/> interface. The texture and indices of the BlockModels are ignored.
+    /// This class represents a block which connects to blocks with the <see cref="IWideConnectable"/> interface. The texture and indices of the BlockModels are ignored.
     /// Data bit usage: <c>--nesw</c>
     /// </summary>
     // n = connected north

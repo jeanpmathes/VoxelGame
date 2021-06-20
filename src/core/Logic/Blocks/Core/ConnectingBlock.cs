@@ -20,7 +20,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // e = connected east
     // s = connected south
     // w = connected west
-    public abstract class ConnectingBlock : Block, IConnectable, IFillable
+    public abstract class ConnectingBlock : Block, IWideConnectable, IFillable
     {
         private uint postVertexCount;
         private uint extensionVertexCount;
@@ -148,7 +148,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            world.SetBlock(this, IConnectable.GetConnectionData(world, x, y, z), x, y, z);
+            world.SetBlock(this, IConnectable.GetConnectionData<IWideConnectable>(world, x, y, z), x, y, z);
         }
 
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
@@ -171,7 +171,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             uint CheckNeighbor(int nx, int ny, int nz, BlockSide neighborSide, uint mask, uint oldData)
             {
-                if (world.GetBlock(nx, ny, nz, out _) is IConnectable neighbor && neighbor.IsConnectable(world, neighborSide, nx, ny, nz))
+                if (world.GetBlock(nx, ny, nz, out _) is IWideConnectable neighbor && neighbor.IsConnectable(world, neighborSide, nx, ny, nz))
                 {
                     oldData |= mask;
                 }
