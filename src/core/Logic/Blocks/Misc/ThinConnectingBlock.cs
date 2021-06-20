@@ -19,7 +19,8 @@ namespace VoxelGame.Core.Logic.Blocks
     // n = connected north
     // e = connected east
     // s = connected south
-    public class ThinConnectingBlock : Block, IThinConnectable, IFillable
+    // w = connected west
+    public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConnectable
     {
         private readonly BlockModel post;
         private readonly (BlockModel north, BlockModel east, BlockModel south, BlockModel west) sides;
@@ -54,44 +55,6 @@ namespace VoxelGame.Core.Logic.Blocks
                 (info.Data & 0b00_0001) == 0 ? sides.west : extensions.west);
 
             return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
-        }
-
-        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
-        {
-            world.SetBlock(this, IConnectable.GetConnectionData<IThinConnectable>(world, x, y, z), x, y, z);
-        }
-
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
-        {
-            uint newData = data;
-
-            newData = side switch
-            {
-                BlockSide.Back => CheckNeighbor(x, y, z - 1, BlockSide.Front, 0b00_1000, newData),
-                BlockSide.Right => CheckNeighbor(x + 1, y, z, BlockSide.Left, 0b00_0100, newData),
-                BlockSide.Front => CheckNeighbor(x, y, z + 1, BlockSide.Back, 0b00_0010, newData),
-                BlockSide.Left => CheckNeighbor(x - 1, y, z, BlockSide.Right, 0b00_0001, newData),
-                _ => newData
-            };
-
-            if (newData != data)
-            {
-                world.SetBlock(this, newData, x, y, z);
-            }
-
-            uint CheckNeighbor(int nx, int ny, int nz, BlockSide neighborSide, uint mask, uint oldData)
-            {
-                if (world.GetBlock(nx, ny, nz, out _) is IThinConnectable neighbor && neighbor.IsConnectable(world, neighborSide, nx, ny, nz))
-                {
-                    oldData |= mask;
-                }
-                else
-                {
-                    oldData &= ~mask;
-                }
-
-                return oldData;
-            }
         }
     }
 }

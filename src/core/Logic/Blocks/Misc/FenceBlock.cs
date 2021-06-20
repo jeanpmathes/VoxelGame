@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // e = connected east
     // s = connected south
     // w = connected west
-    public class FenceBlock : ConnectingBlock, IFlammable
+    public class FenceBlock : WideConnectingBlock, IFlammable
     {
         internal FenceBlock(string name, string namedId, string texture, string post, string extension) :
             base(

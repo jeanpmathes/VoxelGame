@@ -30,17 +30,17 @@ namespace VoxelGame.Core.Logic.Interfaces
         /// <param name="y">The y position of the block.</param>
         /// <param name="z">The z position of the block.</param>
         /// <returns></returns>
-        public static uint GetConnectionData<T>(World world, int x, int y, int z) where T : IConnectable
+        public static uint GetConnectionData<TConnectable>(World world, int x, int y, int z) where TConnectable : IConnectable
         {
             uint data = 0;
 
-            if (world.GetBlock(x, y, z - 1, out _) is T north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1))
+            if (world.GetBlock(x, y, z - 1, out _) is TConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1))
                 data |= 0b00_1000;
-            if (world.GetBlock(x + 1, y, z, out _) is T east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
+            if (world.GetBlock(x + 1, y, z, out _) is TConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
                 data |= 0b00_0100;
-            if (world.GetBlock(x, y, z + 1, out _) is T south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
+            if (world.GetBlock(x, y, z + 1, out _) is TConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
                 data |= 0b00_0010;
-            if (world.GetBlock(x - 1, y, z, out _) is T west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z))
+            if (world.GetBlock(x - 1, y, z, out _) is TConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z))
                 data |= 0b00_0001;
 
             return data;
