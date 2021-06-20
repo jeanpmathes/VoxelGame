@@ -128,6 +128,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Pump = new PumpBlock(Language.Pump, nameof(Pump), 16, TextureLayout.Uniform("pump"));
         public static readonly Block Path = new InsetDirtBlock(Language.Path, nameof(Path), TextureLayout.Uniform("dirt"), TextureLayout.Uniform("dirt"), false);
         public static readonly Block Concrete = new ConcreteBlock(Language.Concrete, nameof(Concrete), TextureLayout.Uniform("concrete"));
+        public static readonly Block GlassPane = new ThinConnectingBlock(Language.GlassPane, nameof(GlassPane), "pane_glass_post", "pane_glass_side", "pane_glass_extension");
 
         #endregion NEW BLOCKS
 
