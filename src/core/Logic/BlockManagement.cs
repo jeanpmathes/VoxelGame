@@ -68,7 +68,7 @@ namespace VoxelGame.Core.Logic
 
         #region BUILDING BLOCKS
 
-        public static readonly Block Glass = new BasicBlock(Language.Glass, nameof(Glass), TextureLayout.Uniform("glass"), isOpaque: false, renderFaceAtNonOpaques: false);
+        public static readonly Block Glass = new GlassBlock(Language.Glass, nameof(Glass), TextureLayout.Uniform("glass"));
         public static readonly Block Steel = new ConstructionBlock(Language.Steel, nameof(Steel), TextureLayout.Uniform("steel"));
         public static readonly Block StoneWorked = new BasicBlock(Language.WorkedStone, nameof(StoneWorked), TextureLayout.Uniform("stone_worked"));
         public static readonly Block Ladder = new FlatBlock(Language.Ladder, nameof(Ladder), "ladder", 3f, 1f);
@@ -113,7 +113,7 @@ namespace VoxelGame.Core.Logic
         #region NEW BLOCKS
 
         public static readonly Block Ash = new BasicBlock(Language.Ash, nameof(Ash), TextureLayout.Uniform("ash"));
-        public static readonly Block GlassTiled = new BasicBlock(Language.TiledGlass, nameof(GlassTiled), TextureLayout.Uniform("glass_tiled"), isOpaque: false, renderFaceAtNonOpaques: false);
+        public static readonly Block GlassTiled = new GlassBlock(Language.TiledGlass, nameof(GlassTiled), TextureLayout.Uniform("glass_tiled"));
         public static readonly Block WoolDecorated = new OrganicTintedBlock(Language.DecoratedWool, nameof(WoolDecorated), TextureLayout.Uniform("wool_decorated"));
         public static readonly Block CarpetDecorated = new TintedCustomModelBlock(Language.DecoratedCarpet, nameof(CarpetDecorated), "carpet_decorated", new BoundingBox(new Vector3(0.5f, 0.03125f, 0.5f), new Vector3(0.5f, 0.03125f, 0.5f)));
         public static readonly Block LiquidBarrier = new LiquidBarrierBlock(Language.Barrier, nameof(LiquidBarrier), TextureLayout.Uniform("liquid_barrier_closed"), TextureLayout.Uniform("liquid_barrier_open"));
