@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     // c = color
     // h = height
-    public class ConcreteBlock : Block, IHeightVariable, IWideConnectable
+    public class ConcreteBlock : Block, IHeightVariable, IWideConnectable, IThinConnectable
     {
         private readonly TextureLayout layout;
         private int[] textures = null!;
