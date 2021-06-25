@@ -109,13 +109,13 @@ namespace VoxelGame.Client.Logic
         /// <param name="renderList"></param>
         public void AddCulledToRenderList(Frustum frustum, ref List<(ClientSection section, Vector3 position)> renderList)
         {
-            if (hasMeshData && frustum.BoxInFrustrum(new BoundingBox(ChunkPoint, ChunkExtents)))
+            if (hasMeshData && frustum.BoxInFrustum(new BoundingBox(ChunkPoint, ChunkExtents)))
             {
                 int start = 0, end = Section.SectionSize - 1;
 
                 for (int y = start; y < ChunkHeight; y++)
                 {
-                    if (frustum.BoxInFrustrum(new BoundingBox(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) + Section.Extents, Section.Extents)))
+                    if (frustum.BoxInFrustum(new BoundingBox(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) + Section.Extents, Section.Extents)))
                     {
                         start = y;
 
@@ -125,7 +125,7 @@ namespace VoxelGame.Client.Logic
 
                 for (int y = end; y >= 0; y--)
                 {
-                    if (frustum.BoxInFrustrum(new BoundingBox(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) + Section.Extents, Section.Extents)))
+                    if (frustum.BoxInFrustum(new BoundingBox(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) + Section.Extents, Section.Extents)))
                     {
                         end = y;
 
