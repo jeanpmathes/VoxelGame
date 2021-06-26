@@ -2,6 +2,7 @@
 //     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using System;
 using VoxelGame.Core.Physics;

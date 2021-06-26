@@ -4,9 +4,11 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
@@ -43,6 +45,18 @@ namespace VoxelGame.Core.Logic.Blocks
             post = BlockModel.Load(postModel);
             sides = BlockModel.Load(sideModel).CreateAllDirections(false);
             extensions = BlockModel.Load(extensionModel).CreateAllDirections(false);
+        }
+
+        protected override BoundingBox GetBoundingBox(uint data)
+        {
+            List<BoundingBox> connectors = new List<BoundingBox>(BitHelper.CountSetBits(data));
+
+            if ((data & 0b00_1000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f, 0.5f, 0.21875f), new Vector3(0.0625f, 0.5f, 0.21875f)));
+            if ((data & 0b00_0100) != 0) connectors.Add(new BoundingBox(new Vector3(0.78125f, 0.5f, 0.5f), new Vector3(0.21875f, 0.5f, 0.0625f)));
+            if ((data & 0b00_0010) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f, 0.5f, 0.78125f), new Vector3(0.0625f, 0.5f, 0.21875f)));
+            if ((data & 0b00_0001) != 0) connectors.Add(new BoundingBox(new Vector3(0.21875f, 0.5f, 0.5f), new Vector3(0.21875f, 0.5f, 0.0625f)));
+
+            return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.0625f, 0.5f, 0.0625f), connectors.ToArray());
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
