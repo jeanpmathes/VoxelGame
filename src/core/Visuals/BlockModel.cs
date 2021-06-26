@@ -171,6 +171,22 @@ namespace VoxelGame.Core.Visuals
             return result;
         }
 
+        public (BlockModel north, BlockModel east, BlockModel south, BlockModel west) CreateAllDirections(bool rotateTopAndBottomTexture)
+        {
+            BlockModel north = this;
+
+            BlockModel east = new BlockModel(north);
+            east.RotateY(1, rotateTopAndBottomTexture);
+
+            BlockModel south = new BlockModel(east);
+            south.RotateY(1, rotateTopAndBottomTexture);
+
+            BlockModel west = new BlockModel(south);
+            west.RotateY(1, rotateTopAndBottomTexture);
+
+            return (north, east, south, west);
+        }
+
         private BlockModel CreateSideModel(BlockSide side)
         {
             if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
@@ -374,72 +390,6 @@ namespace VoxelGame.Core.Visuals
 
                 return CreateFallback();
             }
-        }
-
-        public static float[][] CubeVertices()
-        {
-            return new float[][]
-            {
-                new float[] // Front face
-                {
-                    0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f,
-                    0f, 1f, 1f, 0f, 1f, 0f, 0f, 1f,
-                    1f, 1f, 1f, 1f, 1f, 0f, 0f, 1f,
-                    1f, 0f, 1f, 1f, 0f, 0f, 0f, 1f
-                },
-                new float[] // Back face
-                {
-                    1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f,
-                    1f, 1f, 0f, 0f, 1f, 0f, 0f, -1f,
-                    0f, 1f, 0f, 1f, 1f, 0f, 0f, -1f,
-                    0f, 0f, 0f, 1f, 0f, 0f, 0f, -1f
-                },
-                new float[] // Left face
-                {
-                    0f, 0f, 0f, 0f, 0f, -1f, 0f, 0f,
-                    0f, 1f, 0f, 0f, 1f, -1f, 0f, 0f,
-                    0f, 1f, 1f, 1f, 1f, -1f, 0f, 0f,
-                    0f, 0f, 1f, 1f, 0f, -1f, 0f, 0f
-                },
-                new float[] // Right face
-                {
-                    1f, 0f, 1f, 0f, 0f, 1f, 0f, 0f,
-                    1f, 1f, 1f, 0f, 1f, 1f, 0f, 0f,
-                    1f, 1f, 0f, 1f, 1f, 1f, 0f, 0f,
-                    1f, 0f, 0f, 1f, 0f, 1f, 0f, 0f
-                },
-                new float[] // Bottom face
-                {
-                    0f, 0f, 0f, 0f, 0f, 0f, -1f, 0f,
-                    0f, 0f, 1f, 0f, 1f, 0f, -1f, 0f,
-                    1f, 0f, 1f, 1f, 1f, 0f, -1f, 0f,
-                    1f, 0f, 0f, 1f, 0f, 0f, -1f, 0f
-                },
-                new float[] // Top face
-                {
-                    0f, 1f, 1f, 0f, 0f, 0f, 1f, 0f,
-                    0f, 1f, 0f, 0f, 1f, 0f, 1f, 0f,
-                    1f, 1f, 0f, 1f, 1f, 0f, 1f, 0f,
-                    1f, 1f, 1f, 1f, 0f, 0f, 1f, 0f
-                }
-            };
-        }
-
-        public static void CreatePlaneModel(out float[] vertices, out uint[] indices)
-        {
-            vertices = new float[]
-            {
-                -0.5f, -0.5f, 0.0f, 0f, 0f,
-                -0.5f,  0.5f, 0.0f, 0f, 1f,
-                0.5f,  0.5f, 0.0f, 1f, 1f,
-                0.5f, -0.5f, 0.0f, 1f, 0f
-            };
-
-            indices = new uint[]
-            {
-                0, 2, 1,
-                0, 3, 2
-            };
         }
 
         private static BlockModel CreateFallback()

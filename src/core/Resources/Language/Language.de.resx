@@ -132,6 +132,9 @@
   <data name="Barrier" xml:space="preserve">
     <value>Barriere</value>
   </data>
+  <data name="Bars" xml:space="preserve">
+    <value>Gitter</value>
+  </data>
   <data name="Bed" xml:space="preserve">
     <value>Bett</value>
   </data>
@@ -203,6 +206,9 @@
   </data>
   <data name="Glass" xml:space="preserve">
     <value>Glas</value>
+  </data>
+  <data name="GlassPane" xml:space="preserve">
+    <value>Glasscheibe</value>
   </data>
   <data name="GoldOre" xml:space="preserve">
     <value>Golderz</value>

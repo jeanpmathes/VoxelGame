@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System.Collections.Generic;
@@ -68,7 +69,7 @@ namespace VoxelGame.Core.Logic
 
         #region BUILDING BLOCKS
 
-        public static readonly Block Glass = new BasicBlock(Language.Glass, nameof(Glass), TextureLayout.Uniform("glass"), isOpaque: false, renderFaceAtNonOpaques: false);
+        public static readonly Block Glass = new GlassBlock(Language.Glass, nameof(Glass), TextureLayout.Uniform("glass"));
         public static readonly Block Steel = new ConstructionBlock(Language.Steel, nameof(Steel), TextureLayout.Uniform("steel"));
         public static readonly Block StoneWorked = new BasicBlock(Language.WorkedStone, nameof(StoneWorked), TextureLayout.Uniform("stone_worked"));
         public static readonly Block Ladder = new FlatBlock(Language.Ladder, nameof(Ladder), "ladder", 3f, 1f);
@@ -113,7 +114,7 @@ namespace VoxelGame.Core.Logic
         #region NEW BLOCKS
 
         public static readonly Block Ash = new BasicBlock(Language.Ash, nameof(Ash), TextureLayout.Uniform("ash"));
-        public static readonly Block GlassTiled = new BasicBlock(Language.TiledGlass, nameof(GlassTiled), TextureLayout.Uniform("glass_tiled"), isOpaque: false, renderFaceAtNonOpaques: false);
+        public static readonly Block GlassTiled = new GlassBlock(Language.TiledGlass, nameof(GlassTiled), TextureLayout.Uniform("glass_tiled"));
         public static readonly Block WoolDecorated = new OrganicTintedBlock(Language.DecoratedWool, nameof(WoolDecorated), TextureLayout.Uniform("wool_decorated"));
         public static readonly Block CarpetDecorated = new TintedCustomModelBlock(Language.DecoratedCarpet, nameof(CarpetDecorated), "carpet_decorated", new BoundingBox(new Vector3(0.5f, 0.03125f, 0.5f), new Vector3(0.5f, 0.03125f, 0.5f)));
         public static readonly Block LiquidBarrier = new LiquidBarrierBlock(Language.Barrier, nameof(LiquidBarrier), TextureLayout.Uniform("liquid_barrier_closed"), TextureLayout.Uniform("liquid_barrier_open"));
@@ -128,6 +129,8 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Pump = new PumpBlock(Language.Pump, nameof(Pump), 16, TextureLayout.Uniform("pump"));
         public static readonly Block Path = new InsetDirtBlock(Language.Path, nameof(Path), TextureLayout.Uniform("dirt"), TextureLayout.Uniform("dirt"), false);
         public static readonly Block Concrete = new ConcreteBlock(Language.Concrete, nameof(Concrete), TextureLayout.Uniform("concrete"));
+        public static readonly Block GlassPane = new ThinConnectingBlock(Language.GlassPane, nameof(GlassPane), "pane_glass_post", "pane_glass_side", "pane_glass_extension");
+        public static readonly Block Bars = new ThinConnectingBlock(Language.Bars, nameof(Bars), "bars_post", "bars_side", "bars_extension");
 
         #endregion NEW BLOCKS
 

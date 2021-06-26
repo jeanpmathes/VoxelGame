@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// A simple gate that can be used in fences and walls. It can be opened and closed.
     /// Data bit usage: <c>---coo</c>
     /// </summary>
-    public class GateBlock : Block, IConnectable, IFlammable, IFillable
+    public class GateBlock : Block, IWideConnectable, IFlammable, IFillable
     {
         private float[][] verticesClosed = null!;
         private float[][] verticesOpen = null!;
@@ -161,11 +161,11 @@ namespace VoxelGame.Core.Logic.Blocks
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
 
             bool connectX =
-                (world.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
-                || (world.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z));
+                (world.GetBlock(x + 1, y, z, out _) is IWideConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
+                || (world.GetBlock(x - 1, y, z, out _) is IWideConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z));
             bool connectZ =
-                (world.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
-                || (world.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1));
+                (world.GetBlock(x, y, z + 1, out _) is IWideConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
+                || (world.GetBlock(x, y, z - 1, out _) is IWideConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1));
 
             if (orientation.IsZ() && !connectX)
             {
@@ -184,11 +184,11 @@ namespace VoxelGame.Core.Logic.Blocks
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
 
             bool connectX =
-                (world.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
-                || (world.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z));
+                (world.GetBlock(x + 1, y, z, out _) is IWideConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
+                || (world.GetBlock(x - 1, y, z, out _) is IWideConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z));
             bool connectZ =
-                (world.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
-                || (world.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1));
+                (world.GetBlock(x, y, z + 1, out _) is IWideConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
+                || (world.GetBlock(x, y, z - 1, out _) is IWideConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1));
 
             if (orientation.IsZ() && !connectX)
             {
@@ -235,8 +235,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 case BlockSide.Right:
 
                     if (orientation.IsZ() &&
-                        !((world.GetBlock(x + 1, y, z, out _) is IConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z)) ||
-                        (world.GetBlock(x - 1, y, z, out _) is IConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z))))
+                        !((world.GetBlock(x + 1, y, z, out _) is IWideConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z)) ||
+                        (world.GetBlock(x - 1, y, z, out _) is IWideConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z))))
                     {
                         Destroy(world, x, y, z);
                     }
@@ -247,8 +247,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 case BlockSide.Back:
 
                     if (orientation.IsX() &&
-                        !((world.GetBlock(x, y, z + 1, out _) is IConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1)) ||
-                        (world.GetBlock(x, y, z - 1, out _) is IConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1))))
+                        !((world.GetBlock(x, y, z + 1, out _) is IWideConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1)) ||
+                        (world.GetBlock(x, y, z - 1, out _) is IWideConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1))))
                     {
                         Destroy(world, x, y, z);
                     }

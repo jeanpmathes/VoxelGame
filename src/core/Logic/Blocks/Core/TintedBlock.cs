@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// Data bit usage: <c>-ccccc</c>
     /// </summary>
     // c = color
-    public class TintedBlock : BasicBlock, IConnectable
+    public class TintedBlock : BasicBlock, IWideConnectable
     {
         private readonly bool isAnimated;
 

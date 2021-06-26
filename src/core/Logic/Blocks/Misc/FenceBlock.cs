@@ -10,14 +10,14 @@ using VoxelGame.Core.Physics;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// This class represents a block which connects to blocks with the <see cref="IConnectable"/> interface. The texture and indices of the BlockModels are ignored.
+    /// This class represents a block which connects to blocks with the <see cref="IWideConnectable"/> interface. The texture and indices of the BlockModels are ignored.
     /// Data bit usage: <c>--nesw</c>
     /// </summary>
     // n = connected north
     // e = connected east
     // s = connected south
     // w = connected west
-    public class FenceBlock : ConnectingBlock, IFlammable
+    public class FenceBlock : WideConnectingBlock, IFlammable
     {
         internal FenceBlock(string name, string namedId, string texture, string post, string extension) :
             base(

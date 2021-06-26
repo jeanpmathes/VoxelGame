@@ -48,7 +48,7 @@ namespace VoxelGame.Core.Physics
         /// Check whether a <see cref="BoundingBox"/> is inside this <see cref="Frustum"/>.
         /// </summary>
         /// <returns>true if the <see cref="BoundingBox"/> is inside; false if not.</returns>
-        public bool BoxInFrustrum(BoundingBox box)
+        public bool BoxInFrustum(BoundingBox box)
         {
             float px, py, pz;
 

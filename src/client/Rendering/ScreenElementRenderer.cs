@@ -26,7 +26,7 @@ namespace VoxelGame.Client.Rendering
 
         public ScreenElementRenderer()
         {
-            BlockModel.CreatePlaneModel(out float[] vertices, out uint[] indices);
+            BlockModels.CreatePlaneModel(out float[] vertices, out uint[] indices);
 
             drawGroup = ElementDrawGroup.Create();
             drawGroup.SetStorage(6, vertices.Length, vertices, indices.Length, indices);

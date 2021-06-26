@@ -106,6 +106,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bars.
+        /// </summary>
+        public static string Bars {
+            get {
+                return ResourceManager.GetString("Bars", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Bed.
         /// </summary>
         public static string Bed {
@@ -318,6 +327,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Glass {
             get {
                 return ResourceManager.GetString("Glass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Glass Pane.
+        /// </summary>
+        public static string GlassPane {
+            get {
+                return ResourceManager.GetString("GlassPane", resourceCulture);
             }
         }
         
