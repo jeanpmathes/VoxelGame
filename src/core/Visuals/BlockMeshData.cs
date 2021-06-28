@@ -28,17 +28,17 @@ namespace VoxelGame.Core.Visuals
         public BlockMeshData(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices, TintColor tint, bool isAnimated = false)
             : this(vertexCount, vertices, textureIndices, indices, 0, tint, isAnimated) { }
 
-        private BlockMeshData(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices, int textureIndex, TintColor tint, bool isAnimated)
+        private BlockMeshData(uint vertexCount = 0, float[]? vertices = null, int[]? textureIndices = null, uint[]? indices = null, int textureIndex = 0, TintColor? tint = null, bool isAnimated = false)
         {
             VertexCount = vertexCount;
 
-            this.vertices = vertices;
-            this.textureIndices = textureIndices;
-            this.indices = indices;
+            this.vertices = vertices ?? Array.Empty<float>();
+            this.textureIndices = textureIndices ?? Array.Empty<int>();
+            this.indices = indices ?? Array.Empty<uint>();
 
             TextureIndex = textureIndex;
 
-            Tint = tint;
+            Tint = tint ?? TintColor.None;
             IsAnimated = isAnimated;
         }
 
@@ -80,17 +80,17 @@ namespace VoxelGame.Core.Visuals
 
         public static BlockMeshData Basic(float[] vertices, int textureIndex)
         {
-            return new BlockMeshData(4, vertices, Array.Empty<int>(), Array.Empty<uint>(), textureIndex, TintColor.None, false);
+            return new BlockMeshData(vertexCount: 4, vertices: vertices, textureIndex: textureIndex);
         }
 
         public static BlockMeshData VaryingHeight(int textureIndex, TintColor tint)
         {
-            return new BlockMeshData(4, Array.Empty<float>(), Array.Empty<int>(), Array.Empty<uint>(), textureIndex, tint, false);
+            return new BlockMeshData(vertexCount: 4, textureIndex: textureIndex, tint: tint);
         }
 
         public static BlockMeshData Empty()
         {
-            return new BlockMeshData(0, Array.Empty<float>(), Array.Empty<int>(), Array.Empty<uint>());
+            return new BlockMeshData();
         }
     }
 }
