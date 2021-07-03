@@ -11,11 +11,19 @@ using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
-    public class CrossPlantBlock : CrossBlock, IFillable
+    /// <summary>
+    /// A plant made out of two intersecting planes. It is using a neutral tint.
+    /// Data bit usage: <c>-----l</c>
+    /// </summary>
+    // l = lowered
+    public class CrossPlantBlock : Block, IFillable
     {
+        private readonly string texture;
+
+        private int textureIndex;
+
         /// <summary>
-        /// Initializes a new instance of a cross plant; a plant made out of two intersecting planes. It is using a neutral tint.
-        /// Data bit usage: <c>------</c>
+        /// Initializes a new instance of a cross plant.
         /// </summary>
         /// <param name="name">The name of this block.</param>
         /// <param name="namedId">The unique and unlocalized name of this block.</param>
@@ -26,17 +34,28 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                texture,
+                isFull: false,
+                isOpaque: false,
+                renderFaceAtNonOpaques: false,
+                isSolid: false,
                 receiveCollisions: false,
                 isTrigger: false,
                 isReplaceable,
-                boundingBox)
+                isInteractable: false,
+                boundingBox,
+                TargetBuffer.CrossPlant)
         {
+            this.texture = texture;
+        }
+
+        protected override void Setup(ITextureIndexProvider indexProvider)
+        {
+            textureIndex = indexProvider.GetTextureIndex(texture);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return base.GetMesh(info).Modified(TintColor.Neutral);
+            return BlockMeshData.CrossPlant(textureIndex, TintColor.Neutral, (info.Data & 0b1) == 1, false);
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
@@ -44,6 +63,14 @@ namespace VoxelGame.Core.Logic.Blocks
             // Check the block under the placement position.
             Block ground = world.GetBlock(x, y - 1, z, out _) ?? Block.Air;
             return ground is IPlantable;
+        }
+
+        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        {
+            bool isLowered = world.GetBlock(x, y - 1, z, out uint data) is IHeightVariable block
+                             && block.GetHeight(data) == IHeightVariable.MaximumHeight - 1;
+
+            world.SetBlock(this, isLowered ? 1u : 0u, x, y, z);
         }
 
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)

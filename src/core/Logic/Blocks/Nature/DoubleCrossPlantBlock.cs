@@ -13,19 +13,17 @@ namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
     /// Similar to <see cref="CrossPlantBlock"/>, but is two blocks high.
-    /// Data bit usage: <c>-----h</c>
+    /// Data bit usage: <c>----lh</c>
     /// </summary>
+    // l = lowered
     // h = height
     public class DoubleCrossPlantBlock : Block, IFlammable, IFillable
     {
-        private float[] vertices = null!;
-        private int[] bottomTexIndices = null!;
-        private int[] topTexIndices = null!;
-
-        private uint[] indices = null!;
-
         private readonly string bottomTexture;
         private readonly int topTexOffset;
+
+        private int bottomTextureIndex;
+        private int topTextureIndex;
 
         internal DoubleCrossPlantBlock(string name, string namedId, string bottomTexture, int topTexOffset, BoundingBox boundingBox) :
             base(
@@ -40,7 +38,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isReplaceable: false,
                 isInteractable: false,
                 boundingBox,
-                TargetBuffer.Complex)
+                TargetBuffer.CrossPlant)
         {
             this.bottomTexture = bottomTexture;
             this.topTexOffset = topTexOffset;
@@ -48,48 +46,16 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            vertices = new[]
-           {
-                // Two sides: /
-                0.145f, 0f, 0.855f, 0f, 0f, 0f, 0f, 0f,
-                0.145f, 1f, 0.855f, 0f, 1f, 0f, 0f, 0f,
-                0.855f, 1f, 0.145f, 1f, 1f, 0f, 0f, 0f,
-                0.855f, 0f, 0.145f, 1f, 0f, 0f, 0f, 0f,
-
-                // Two sides: \
-                0.145f, 0f, 0.145f, 0f, 0f, 0f, 0f, 0f,
-                0.145f, 1f, 0.145f, 0f, 1f, 0f, 0f, 0f,
-                0.855f, 1f, 0.855f, 1f, 1f, 0f, 0f, 0f,
-                0.855f, 0f, 0.855f, 1f, 0f, 0f, 0f, 0f
-           };
-
-            int tex = indexProvider.GetTextureIndex(bottomTexture);
-            bottomTexIndices = new[] { tex, tex, tex, tex, tex, tex, tex, tex };
-
-            tex += topTexOffset;
-            topTexIndices = new[] { tex, tex, tex, tex, tex, tex, tex, tex };
-
-            indices = new uint[]
-            {
-                // Direction: /
-                0, 2, 1,
-                0, 3, 2,
-
-                0, 1, 2,
-                0, 2, 3,
-
-                // Direction: \
-                4, 6, 5,
-                4, 7, 6,
-
-                4, 5, 6,
-                4, 6, 7
-            };
+            bottomTextureIndex = indexProvider.GetTextureIndex(bottomTexture);
+            topTextureIndex = bottomTextureIndex + topTexOffset;
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return new BlockMeshData(8, vertices, ((info.Data & 0b1) == 0) ? bottomTexIndices : topTexIndices, indices, TintColor.Neutral);
+            bool isUpper = (info.Data & 0b01) != 0;
+            bool isLowered = (info.Data & 0b10) != 0;
+
+            return BlockMeshData.CrossPlant(isUpper ? topTextureIndex : bottomTextureIndex, TintColor.Neutral, isLowered, isUpper);
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
@@ -99,8 +65,13 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            world.SetBlock(this, 0, x, y, z);
-            world.SetBlock(this, 1, x, y + 1, z);
+            bool isLowered = world.GetBlock(x, y - 1, z, out uint data) is IHeightVariable block
+                             && block.GetHeight(data) == IHeightVariable.MaximumHeight - 1;
+
+            uint lowered = (isLowered ? 1u : 0u) << 1;
+
+            world.SetBlock(this, lowered, x, y, z);
+            world.SetBlock(this, lowered | 1, x, y + 1, z);
         }
 
         internal override void DoDestroy(World world, int x, int y, int z, uint data, PhysicsEntity? entity)

@@ -1,4 +1,4 @@
-﻿// <copyright file="DoubeCropBlock.cs" company="VoxelGame">
+﻿// <copyright file="DoubleCropBlock.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>

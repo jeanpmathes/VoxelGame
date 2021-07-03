@@ -29,6 +29,11 @@ namespace VoxelGame.Core.Visuals
         /// Blocks have to accept <see cref="Logic.BlockSide.Front"/> to <see cref="Logic.BlockSide.Top"/>.
         /// Blocks that target this buffer have to implement <see cref="Logic.Interfaces.IHeightVariable"/>.
         /// </summary>
-        VaryingHeight
+        VaryingHeight,
+
+        /// <summary>
+        /// Blocks have to accept <see cref="Logic.BlockSide.All"/> and conform to the cross plant requirements.
+        /// </summary>
+        CrossPlant
     }
 }

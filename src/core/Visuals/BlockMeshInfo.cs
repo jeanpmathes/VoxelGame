@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Visuals
         public uint Data { get; }
         public Liquid Liquid { get; }
 
-        public BlockMeshInfo(BlockSide side, uint data, Liquid liquid)
+        private BlockMeshInfo(BlockSide side, uint data, Liquid liquid)
         {
             Side = side;
             Data = data;
@@ -25,5 +25,7 @@ namespace VoxelGame.Core.Visuals
         public static BlockMeshInfo Simple(BlockSide side, uint data, Liquid liquid) => new BlockMeshInfo(side, data, liquid);
 
         public static BlockMeshInfo Complex(uint data, Liquid liquid) => new BlockMeshInfo(BlockSide.All, data, liquid);
+
+        public static BlockMeshInfo CrossPlant(uint data, Liquid liquid) => new BlockMeshInfo(BlockSide.All, data, liquid);
     }
 }

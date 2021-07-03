@@ -3,11 +3,11 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using System;
 using VoxelGame.Client.Collections;
 using VoxelGame.Client.Rendering;
-using VoxelGame.Core;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Interfaces;
@@ -63,6 +63,8 @@ namespace VoxelGame.Client.Logic
 
             VaryingHeightMeshFaceHolder[] opaqueLiquidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
             VaryingHeightMeshFaceHolder[] transparentLiquidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
+
+            PooledList<int> crossPlantVertexData = new PooledList<int>();
 
             // Loop through the section
             for (var x = 0; x < SectionSize; x++)
@@ -243,6 +245,49 @@ namespace VoxelGame.Client.Logic
 
                                     break;
                                 }
+                            case TargetBuffer.CrossPlant:
+                                {
+                                    BlockMeshData mesh = currentBlock.GetMesh(BlockMeshInfo.CrossPlant(data, currentLiquid));
+
+                                    // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position;)
+                                    int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 12) | (y + 0 << 6);
+                                    int upperDataB = (0 << 31) | (1 << 30) | (x + 0 << 12) | (y + 1 << 6);
+                                    int upperDataC = (1 << 31) | (1 << 30) | (x + 1 << 12) | (y + 1 << 6);
+                                    int upperDataD = (1 << 31) | (0 << 30) | (x + 1 << 12) | (y + 0 << 6);
+
+                                    // int: tttt tttt t-lh ---- ---i iiii iiii iiii (t: tint; l: lowered; h: height; i: texture index)
+                                    int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((mesh.IsLowered ? 1 : 0) << 21) | ((mesh.IsUpper ? 1 : 0) << 20) | mesh.TextureIndex;
+
+                                    // Orientations.
+                                    const int oA = 0;
+                                    const int oB = 1 << 28;
+
+                                    // Z position.
+                                    int lowZ = z;
+                                    int highZ = z + 1;
+
+                                    crossPlantVertexData.AddRange(new[]
+                                    {
+                                        upperDataA | oA | highZ, lowerData,
+                                        upperDataC | oA | lowZ, lowerData,
+                                        upperDataB | oA | highZ, lowerData,
+                                        upperDataA | oA | highZ, lowerData,
+                                        upperDataD | oA | lowZ, lowerData,
+                                        upperDataC | oA | lowZ, lowerData
+                                    });
+
+                                    crossPlantVertexData.AddRange(new[]
+                                    {
+                                        upperDataA | oB | lowZ, lowerData,
+                                        upperDataC | oB | highZ, lowerData,
+                                        upperDataB | oB | lowZ, lowerData,
+                                        upperDataA | oB | lowZ, lowerData,
+                                        upperDataD | oB | highZ, lowerData,
+                                        upperDataC | oB | highZ, lowerData
+                                    });
+
+                                    break;
+                                }
                         }
 
                         if (currentLiquid.RenderType != RenderType.NotRendered && ((currentBlock is IFillable fillable && fillable.RenderLiquid) || (currentBlock is not IFillable && !currentBlock.IsSolidAndFull)))
@@ -347,11 +392,13 @@ namespace VoxelGame.Client.Logic
             GenerateMesh(transparentLiquidMeshFaceHolders, ref transparentLiquidVertexData, ref transparentLiquidVertexCount, ref transparentLiquidIndices);
 
             // Finish up.
-            hasMesh = complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 || varyingHeightVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 || transparentLiquidVertexData.Count != 0;
+            hasMesh = complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 || varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 || transparentLiquidVertexData.Count != 0;
 
-            meshData = new SectionMeshData(ref simpleVertexData,
+            meshData = new SectionMeshData(
+                ref simpleVertexData,
                 ref complexVertexPositions, ref complexVertexData, ref complexIndices,
                 ref varyingHeightVertexData, ref varyingHeightIndices,
+                ref crossPlantVertexData,
                 ref opaqueLiquidVertexData, ref opaqueLiquidIndices,
                 ref transparentLiquidVertexData, ref transparentLiquidIndices);
 
