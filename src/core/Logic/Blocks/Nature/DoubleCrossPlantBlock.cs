@@ -7,6 +7,7 @@
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
@@ -65,13 +66,12 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            bool isLowered = world.GetBlock(x, y - 1, z, out uint data) is IHeightVariable block
-                             && block.GetHeight(data) == IHeightVariable.MaximumHeight - 1;
+            bool isLowered = world.IsLowered(x, y, z);
 
-            uint lowered = (isLowered ? 1u : 0u) << 1;
+            uint data = (isLowered ? 1u : 0u) << 1;
 
-            world.SetBlock(this, lowered, x, y, z);
-            world.SetBlock(this, lowered | 1, x, y + 1, z);
+            world.SetBlock(this, data, x, y, z);
+            world.SetBlock(this, data | 1, x, y + 1, z);
         }
 
         internal override void DoDestroy(World world, int x, int y, int z, uint data, PhysicsEntity? entity)
