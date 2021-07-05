@@ -258,33 +258,25 @@ namespace VoxelGame.Client.Logic
                                     // int: tttt tttt t-lh ---- ---i iiii iiii iiii (t: tint; l: lowered; h: height; i: texture index)
                                     int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((mesh.IsLowered ? 1 : 0) << 21) | ((mesh.IsUpper ? 1 : 0) << 20) | mesh.TextureIndex;
 
-                                    // Orientations.
-                                    const int oA = 0;
-                                    const int oB = 1 << 28;
-
                                     // Z position.
                                     int lowZ = z;
                                     int highZ = z + 1;
 
-                                    crossPlantVertexData.AddRange(new[]
-                                    {
-                                        upperDataA | oA | highZ, lowerData,
-                                        upperDataC | oA | lowZ, lowerData,
-                                        upperDataB | oA | highZ, lowerData,
-                                        upperDataA | oA | highZ, lowerData,
-                                        upperDataD | oA | lowZ, lowerData,
-                                        upperDataC | oA | lowZ, lowerData
-                                    });
+                                    Add(0, highZ, lowZ);
+                                    Add(1 << 28, lowZ, highZ);
 
-                                    crossPlantVertexData.AddRange(new[]
+                                    void Add(int orientation, int zA, int zB)
                                     {
-                                        upperDataA | oB | lowZ, lowerData,
-                                        upperDataC | oB | highZ, lowerData,
-                                        upperDataB | oB | lowZ, lowerData,
-                                        upperDataA | oB | lowZ, lowerData,
-                                        upperDataD | oB | highZ, lowerData,
-                                        upperDataC | oB | highZ, lowerData
-                                    });
+                                        crossPlantVertexData.AddRange(new[]
+                                        {
+                                            upperDataA | orientation | zA, lowerData,
+                                            upperDataC | orientation | zB, lowerData,
+                                            upperDataB | orientation | zA, lowerData,
+                                            upperDataA | orientation | zA, lowerData,
+                                            upperDataD | orientation | zB, lowerData,
+                                            upperDataC | orientation | zB, lowerData
+                                        });
+                                    }
 
                                     break;
                                 }
