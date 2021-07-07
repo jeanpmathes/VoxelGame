@@ -27,5 +27,7 @@ namespace VoxelGame.Core.Visuals
         public static BlockMeshInfo Complex(uint data, Liquid liquid) => new BlockMeshInfo(BlockSide.All, data, liquid);
 
         public static BlockMeshInfo CrossPlant(uint data, Liquid liquid) => new BlockMeshInfo(BlockSide.All, data, liquid);
+
+        public static BlockMeshInfo CropPlant(uint data, Liquid liquid) => new BlockMeshInfo(BlockSide.All, data, liquid);
     }
 }

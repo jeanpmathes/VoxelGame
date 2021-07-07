@@ -7,28 +7,27 @@
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
     /// A block which grows on farmland and has multiple growth stages, of which some are two blocks tall.
-    /// Data bit usage: <c>--hsss</c>
+    /// Data bit usage: <c>-lhsss</c>
     /// </summary>
+    // l = lowered
     // s = stage
     // h = height
     public class DoubleCropBlock : Block, IFlammable, IFillable
     {
-        private float[] vertices = null!;
-
-        private int[] stageTexIndicesLow = null!;
-        private int[] stageTexIndicesTop = null!;
-
-        private uint[] indices = null!;
-
         private readonly string texture;
+
         private int dead, first, second, third;
         private (int low, int top) fourth, fifth, sixth, final;
+
+        private int[] stageTextureIndicesLow = null!;
+        private int[] stageTextureIndicesTop = null!;
 
         internal DoubleCropBlock(string name, string namedId, string texture, int dead, int first, int second, int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final) :
             base(
@@ -43,7 +42,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isReplaceable: false,
                 isInteractable: false,
                 BoundingBox.Block,
-                TargetBuffer.Complex)
+                TargetBuffer.CropPlant)
         {
             this.texture = texture;
 
@@ -60,30 +59,6 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            vertices = new[]
-            {
-                //X----Y---Z---U---V---N---O---P
-                0.25f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
-                0.25f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
-                0.25f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
-                0.25f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
-
-                0.75f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
-                0.75f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
-                0.75f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
-                0.75f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
-
-                0f, 0f, 0.25f, 0f, 0f, 0f, 0f, 0f,
-                0f, 1f, 0.25f, 0f, 1f, 0f, 0f, 0f,
-                1f, 1f, 0.25f, 1f, 1f, 0f, 0f, 0f,
-                1f, 0f, 0.25f, 1f, 0f, 0f, 0f, 0f,
-
-                0f, 0f, 0.75f, 0f, 0f, 0f, 0f, 0f,
-                0f, 1f, 0.75f, 0f, 1f, 0f, 0f, 0f,
-                1f, 1f, 0.75f, 1f, 1f, 0f, 0f, 0f,
-                1f, 0f, 0.75f, 1f, 0f, 0f, 0f, 0f
-            };
-
             int baseIndex = indexProvider.GetTextureIndex(texture);
 
             if (baseIndex == 0)
@@ -92,7 +67,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 fourth = fifth = sixth = final = (0, 0);
             }
 
-            stageTexIndicesLow = new[]
+            stageTextureIndicesLow = new[]
             {
                 baseIndex + dead,
                 baseIndex + first,
@@ -104,7 +79,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 baseIndex + final.low,
             };
 
-            stageTexIndicesTop = new[]
+            stageTextureIndicesTop = new[]
             {
                 0,
                 0,
@@ -114,29 +89,6 @@ namespace VoxelGame.Core.Logic.Blocks
                 baseIndex + fifth.top,
                 baseIndex + sixth.top,
                 baseIndex + final.top,
-            };
-
-            indices = new uint[]
-            {
-                0, 2, 1,
-                0, 3, 2,
-                0, 1, 2,
-                0, 2, 3,
-
-                4, 6, 5,
-                4, 7, 6,
-                4, 5, 6,
-                4, 6, 7,
-
-                8, 10, 9,
-                8, 11, 10,
-                8, 9, 10,
-                8, 10, 11,
-
-                12, 14, 13,
-                12, 15, 14,
-                12, 13, 14,
-                12, 14, 15
             };
         }
 
@@ -157,26 +109,14 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            int[] textureIndices = new int[24];
+            var texData = (int)(info.Data & 0b00_0111);
 
-            var tex = (int)(info.Data & 0b00_0111);
+            bool isUpper = (info.Data & 0b00_1000) != 0;
+            bool isLowered = (info.Data & 0b01_0000) != 0;
 
-            if ((info.Data & 0b00_1000) == 0)
-            {
-                for (var i = 0; i < 24; i++)
-                {
-                    textureIndices[i] = stageTexIndicesLow[tex];
-                }
-            }
-            else
-            {
-                for (var i = 0; i < 24; i++)
-                {
-                    textureIndices[i] = stageTexIndicesTop[tex];
-                }
-            }
+            int textureIndex = !isUpper ? stageTextureIndicesLow[texData] : stageTextureIndicesTop[texData];
 
-            return new BlockMeshData(16, vertices, textureIndices, indices);
+            return BlockMeshData.DoubleCropPlant(textureIndex, TintColor.None, isLowered, isUpper);
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
@@ -186,7 +126,12 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            world.SetBlock(this, (uint)GrowthStage.Initial, x, y, z);
+            bool isLowered = world.IsLowered(x, y, z);
+
+            var data = (uint)GrowthStage.Initial;
+            if (isLowered) data |= 0b01_0000;
+
+            world.SetBlock(this, data, x, y, z);
         }
 
         internal override void DoDestroy(World world, int x, int y, int z, uint data, PhysicsEntity? entity)
@@ -211,6 +156,7 @@ namespace VoxelGame.Core.Logic.Blocks
         internal override void RandomUpdate(World world, int x, int y, int z, uint data)
         {
             var stage = (GrowthStage)(data & 0b00_0111);
+            uint lowered = data & 0b01_0000;
 
             // If this block is the upper part, the random update is ignored.
             if ((data & 0b00_1000) != 0) return;
@@ -227,18 +173,18 @@ namespace VoxelGame.Core.Logic.Blocks
 
                         if (plantable.TryGrow(world, x, y - 1, z, Liquid.Water, LiquidLevel.One) && ((above?.IsReplaceable ?? false) || above == this))
                         {
-                            world.SetBlock(this, (uint)(stage + 1), x, y, z);
-                            world.SetBlock(this, (uint)(0b00_1000 | (int)stage + 1), x, y + 1, z);
+                            world.SetBlock(this, lowered | (uint)(stage + 1), x, y, z);
+                            world.SetBlock(this, lowered | (uint)(0b00_1000 | (int)stage + 1), x, y + 1, z);
                         }
                         else
                         {
-                            world.SetBlock(this, (uint)GrowthStage.Dead, x, y, z);
+                            world.SetBlock(this, lowered | (uint)GrowthStage.Dead, x, y, z);
                             if (stage != GrowthStage.Third) world.SetDefaultBlock(x, y + 1, z);
                         }
                     }
                     else
                     {
-                        world.SetBlock(this, (uint)(stage + 1), x, y, z);
+                        world.SetBlock(this, lowered | (uint)(stage + 1), x, y, z);
                     }
                 }
             }

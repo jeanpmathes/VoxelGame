@@ -66,6 +66,8 @@ namespace VoxelGame.Client.Logic
 
             PooledList<int> crossPlantVertexData = new PooledList<int>();
 
+            PooledList<int> cropPlantVertexData = new PooledList<int>();
+
             // Loop through the section
             for (var x = 0; x < SectionSize; x++)
             {
@@ -262,10 +264,10 @@ namespace VoxelGame.Client.Logic
                                     int lowZ = z;
                                     int highZ = z + 1;
 
-                                    Add(0, highZ, lowZ);
-                                    Add(1 << 28, lowZ, highZ);
+                                    AddFace(0, highZ, lowZ);
+                                    AddFace(1 << 28, lowZ, highZ);
 
-                                    void Add(int orientation, int zA, int zB)
+                                    void AddFace(int orientation, int zA, int zB)
                                     {
                                         crossPlantVertexData.AddRange(new[]
                                         {
@@ -275,6 +277,52 @@ namespace VoxelGame.Client.Logic
                                             upperDataA | orientation | zA, lowerData,
                                             upperDataD | orientation | zB, lowerData,
                                             upperDataC | orientation | zB, lowerData
+                                        });
+                                    }
+
+                                    break;
+                                }
+                            case TargetBuffer.CropPlant:
+                                {
+                                    BlockMeshData mesh = currentBlock.GetMesh(BlockMeshInfo.CropPlant(data, currentLiquid));
+
+                                    // int: uv-- -oss ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; o: orientation; s: shift, xyz: position)
+                                    int upperDataA = (0 << 31) | (0 << 30) | (y + 0 << 6);
+                                    int upperDataB = (0 << 31) | (1 << 30) | (y + 1 << 6);
+                                    int upperDataC = (1 << 31) | (1 << 30) | (y + 1 << 6);
+                                    int upperDataD = (1 << 31) | (0 << 30) | (y + 0 << 6);
+
+                                    // int: tttt tttt t-lh ---c ---i iiii iiii iiii (t: tint; l: lowered; h: height; c: crop type; i: texture index)
+                                    int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((mesh.IsLowered ? 1 : 0) << 21) | ((mesh.IsUpper ? 1 : 0) << 20) | ((mesh.IsDoubleCropPlant ? 1 : 0) << 16) | mesh.TextureIndex;
+
+                                    int firstAlongX = (x << 12) | (z + 0);
+                                    int secondAlongX = (x << 12) | (z + 1);
+
+                                    int firstAlongZ = (x + 0 << 12) | z;
+                                    int secondAlongZ = (x + 1 << 12) | z;
+
+                                    AddFace(0 << 26, 0 << 24, firstAlongX, secondAlongX);
+                                    AddFace(1 << 26, 0 << 24, firstAlongZ, secondAlongZ);
+
+                                    AddFace(0 << 26, 1 << 24, firstAlongX, secondAlongX);
+                                    AddFace(1 << 26, 1 << 24, firstAlongZ, secondAlongZ);
+
+                                    if (!mesh.IsDoubleCropPlant)
+                                    {
+                                        AddFace(0 << 26, 2 << 24, firstAlongX, secondAlongX);
+                                        AddFace(1 << 26, 2 << 24, firstAlongZ, secondAlongZ);
+                                    }
+
+                                    void AddFace(int orientation, int shift, int first, int second)
+                                    {
+                                        cropPlantVertexData.AddRange(new[]
+                                        {
+                                            upperDataA | orientation | shift | first, lowerData,
+                                            upperDataC | orientation | shift | second, lowerData,
+                                            upperDataB | orientation | shift | first, lowerData,
+                                            upperDataA | orientation | shift | first, lowerData,
+                                            upperDataD | orientation | shift | second, lowerData,
+                                            upperDataC | orientation | shift | second, lowerData
                                         });
                                     }
 
@@ -384,13 +432,14 @@ namespace VoxelGame.Client.Logic
             GenerateMesh(transparentLiquidMeshFaceHolders, ref transparentLiquidVertexData, ref transparentLiquidVertexCount, ref transparentLiquidIndices);
 
             // Finish up.
-            hasMesh = complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 || varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 || transparentLiquidVertexData.Count != 0;
+            hasMesh = complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 || varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 || cropPlantVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 || transparentLiquidVertexData.Count != 0;
 
             meshData = new SectionMeshData(
                 ref simpleVertexData,
                 ref complexVertexPositions, ref complexVertexData, ref complexIndices,
                 ref varyingHeightVertexData, ref varyingHeightIndices,
                 ref crossPlantVertexData,
+                ref cropPlantVertexData,
                 ref opaqueLiquidVertexData, ref opaqueLiquidIndices,
                 ref transparentLiquidVertexData, ref transparentLiquidIndices);
 

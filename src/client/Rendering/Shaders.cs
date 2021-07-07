@@ -22,6 +22,7 @@ namespace VoxelGame.Client.Rendering
         public static Shader ComplexSectionShader { get; private set; } = null!;
         public static Shader VaryingHeightShader { get; private set; } = null!;
         public static Shader CrossPlantSectionShader { get; private set; } = null!;
+        public static Shader CropPlantSectionShader { get; private set; } = null!;
         public static Shader OpaqueLiquidSectionShader { get; private set; } = null!;
         public static Shader TransparentLiquidSectionShader { get; private set; } = null!;
         public static Shader OverlayShader { get; private set; } = null!;
@@ -49,8 +50,10 @@ namespace VoxelGame.Client.Rendering
                 ComplexSectionShader = loader.Load("complex_section.vert", "section.frag");
                 VaryingHeightShader = loader.Load("varying_height_section.vert", "section.frag");
                 CrossPlantSectionShader = loader.Load("cross_plant_section.vert", "section.frag");
+                CropPlantSectionShader = loader.Load("crop_plant_section.vert", "section.frag");
                 OpaqueLiquidSectionShader = loader.Load("liquid_section.vert", "opaque_liquid_section.frag");
                 TransparentLiquidSectionShader = loader.Load("liquid_section.vert", "transparent_liquid_section.frag");
+
                 OverlayShader = loader.Load("overlay.vert", "overlay.frag");
                 SelectionShader = loader.Load("selection.vert", "selection.frag");
                 ScreenElementShader = loader.Load("screen_element.vert", "screen_element.frag");

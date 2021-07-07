@@ -34,6 +34,11 @@ namespace VoxelGame.Core.Visuals
         /// <summary>
         /// Blocks have to accept <see cref="Logic.BlockSide.All"/> and conform to the cross plant requirements.
         /// </summary>
-        CrossPlant
+        CrossPlant,
+
+        /// <summary>
+        /// Blocks have to accept <see cref="Logic.BlockSide.All"/> and conform to the crop plant requirements.
+        /// </summary>
+        CropPlant
     }
 }

@@ -26,13 +26,15 @@ namespace VoxelGame.Core.Visuals
 
         public bool IsUpper { get; }
 
+        public bool IsDoubleCropPlant { get; }
+
         public BlockMeshData(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices, bool isAnimated = false)
             : this(vertexCount, vertices, textureIndices, indices, TintColor.None, isAnimated) { }
 
         public BlockMeshData(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices, TintColor tint, bool isAnimated = false)
             : this(vertexCount, vertices, textureIndices, indices, 0, tint, isAnimated) { }
 
-        private BlockMeshData(uint vertexCount = 0, float[]? vertices = null, int[]? textureIndices = null, uint[]? indices = null, int textureIndex = 0, TintColor? tint = null, bool isAnimated = false, bool isLowered = false, bool isUpper = false)
+        private BlockMeshData(uint vertexCount = 0, float[]? vertices = null, int[]? textureIndices = null, uint[]? indices = null, int textureIndex = 0, TintColor? tint = null, bool isAnimated = false, bool isLowered = false, bool isUpper = false, bool isDoubleCropPlant = false)
         {
             VertexCount = vertexCount;
 
@@ -47,6 +49,7 @@ namespace VoxelGame.Core.Visuals
             IsAnimated = isAnimated;
             IsLowered = isLowered;
             IsUpper = isUpper;
+            IsDoubleCropPlant = isDoubleCropPlant;
         }
 
         public float[] GetVertices() => vertices;
@@ -98,6 +101,16 @@ namespace VoxelGame.Core.Visuals
         public static BlockMeshData CrossPlant(int textureIndex, TintColor tint, bool isLowered, bool isUpper)
         {
             return new BlockMeshData(vertexCount: 8, textureIndex: textureIndex, tint: tint, isLowered: isLowered, isUpper: isUpper);
+        }
+
+        public static BlockMeshData CropPlant(int textureIndex, TintColor tint, bool isLowered, bool isUpper)
+        {
+            return new BlockMeshData(vertexCount: 0, textureIndex: textureIndex, tint: tint, isLowered: isLowered, isUpper: isUpper, isDoubleCropPlant: false);
+        }
+
+        public static BlockMeshData DoubleCropPlant(int textureIndex, TintColor tint, bool isLowered, bool isUpper)
+        {
+            return new BlockMeshData(vertexCount: 0, textureIndex: textureIndex, tint: tint, isLowered: isLowered, isUpper: isUpper, isDoubleCropPlant: true);
         }
 
         public static BlockMeshData Empty()

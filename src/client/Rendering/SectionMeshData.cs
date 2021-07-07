@@ -21,6 +21,8 @@ namespace VoxelGame.Client.Rendering
 
         internal readonly PooledList<int> crossPlantVertexData;
 
+        internal readonly PooledList<int> cropPlantVertexData;
+
         internal readonly PooledList<int> opaqueLiquidVertexData;
         internal readonly PooledList<uint> opaqueLiquidIndices;
 
@@ -32,6 +34,7 @@ namespace VoxelGame.Client.Rendering
             ref PooledList<float> complexVertexPositions, ref PooledList<int> complexVertexData, ref PooledList<uint> complexIndices,
             ref PooledList<int> varyingHeightVertexData, ref PooledList<uint> varyingHeightIndices,
             ref PooledList<int> crossPlantVertexData,
+            ref PooledList<int> cropPlantVertexData,
             ref PooledList<int> opaqueLiquidVertexData, ref PooledList<uint> opaqueLiquidIndices,
             ref PooledList<int> transparentLiquidVertexData, ref PooledList<uint> transparentLiquidIndices)
         {
@@ -45,6 +48,8 @@ namespace VoxelGame.Client.Rendering
             this.varyingHeightIndices = varyingHeightIndices;
 
             this.crossPlantVertexData = crossPlantVertexData;
+
+            this.cropPlantVertexData = cropPlantVertexData;
 
             this.opaqueLiquidVertexData = opaqueLiquidVertexData;
             this.opaqueLiquidIndices = opaqueLiquidIndices;
@@ -65,6 +70,8 @@ namespace VoxelGame.Client.Rendering
             varyingHeightIndices.ReturnToPool();
 
             crossPlantVertexData.ReturnToPool();
+
+            cropPlantVertexData.ReturnToPool();
 
             opaqueLiquidVertexData.ReturnToPool();
             opaqueLiquidIndices.ReturnToPool();
