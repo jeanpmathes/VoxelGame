@@ -62,8 +62,8 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Onions = new CropBlock(Language.Onions, nameof(Onions), "onion", 0, 1, 1, 2, 2, 3, 4);
         public static readonly Block Wheat = new CropBlock(Language.Wheat, nameof(Wheat), "wheat", 0, 1, 1, 2, 2, 3, 4);
         public static readonly Block Maize = new DoubleCropBlock(Language.Maize, nameof(Maize), "maize", 0, 1, 2, 2, (3, 6), (3, 6), (4, 7), (5, 8));
-        public static readonly Block PumpkinPlant = new FruitCropBlock(Language.PumpkinPlant, nameof(PumpkinPlant), "pumpkin_plant", 0, 1, 2, 3, 4, Pumpkin);
-        public static readonly Block MelonPlant = new FruitCropBlock(Language.MelonPlant, nameof(MelonPlant), "melon_plant", 0, 1, 2, 3, 4, Melon);
+        public static readonly Block PumpkinPlant = new FruitCropBlock(Language.PumpkinPlant, nameof(PumpkinPlant), "pumpkin_plant", "crop_plant_base", "crop_plant_extension", Pumpkin);
+        public static readonly Block MelonPlant = new FruitCropBlock(Language.MelonPlant, nameof(MelonPlant), "melon_plant", "crop_plant_base", "crop_plant_extension", Melon);
 
         #endregion PLANT BLOCKS
 

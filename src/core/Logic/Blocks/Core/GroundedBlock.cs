@@ -10,7 +10,7 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A BasicBlock that can only be placed on top of blocks that are both solid and full. These blocks are also flammable.
+    /// A BasicBlock that can only be placed on top of blocks that are both solid and full or will become such blocks. These blocks are also flammable.
     /// Data bit usage: <c>------</c>
     /// </summary>
     public class GroundedBlock : BasicBlock, IFlammable
@@ -31,7 +31,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            return world.HasSolidGround(x, y, z);
+            return world.HasSolidGround(x, y, z) || world.GetBlock(x, y - 1, z, out _) == Block.Farmland;
         }
 
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
