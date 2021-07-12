@@ -18,16 +18,16 @@ namespace VoxelGame.Client.Rendering
 
         private static Shaders? _instance;
 
-        public static Shader SimpleSectionShader { get; private set; } = null!;
-        public static Shader ComplexSectionShader { get; private set; } = null!;
-        public static Shader VaryingHeightShader { get; private set; } = null!;
-        public static Shader CrossPlantSectionShader { get; private set; } = null!;
-        public static Shader CropPlantSectionShader { get; private set; } = null!;
-        public static Shader OpaqueLiquidSectionShader { get; private set; } = null!;
-        public static Shader TransparentLiquidSectionShader { get; private set; } = null!;
-        public static Shader OverlayShader { get; private set; } = null!;
-        public static Shader SelectionShader { get; private set; } = null!;
-        public static Shader ScreenElementShader { get; private set; } = null!;
+        public static Shader SimpleSection { get; private set; } = null!;
+        public static Shader ComplexSection { get; private set; } = null!;
+        public static Shader VaryingHeight { get; private set; } = null!;
+        public static Shader CrossPlantSection { get; private set; } = null!;
+        public static Shader CropPlantSection { get; private set; } = null!;
+        public static Shader OpaqueLiquidSection { get; private set; } = null!;
+        public static Shader TransparentLiquidSection { get; private set; } = null!;
+        public static Shader Overlay { get; private set; } = null!;
+        public static Shader Selection { get; private set; } = null!;
+        public static Shader ScreenElement { get; private set; } = null!;
 
         internal static void Load(string directory)
         {
@@ -46,20 +46,20 @@ namespace VoxelGame.Client.Rendering
         {
             using (Logger.BeginScope("Shader setup"))
             {
-                SimpleSectionShader = loader.Load("simple_section.vert", "section.frag");
-                ComplexSectionShader = loader.Load("complex_section.vert", "section.frag");
-                VaryingHeightShader = loader.Load("varying_height_section.vert", "section.frag");
-                CrossPlantSectionShader = loader.Load("cross_plant_section.vert", "section.frag");
-                CropPlantSectionShader = loader.Load("crop_plant_section.vert", "section.frag");
-                OpaqueLiquidSectionShader = loader.Load("liquid_section.vert", "opaque_liquid_section.frag");
-                TransparentLiquidSectionShader = loader.Load("liquid_section.vert", "transparent_liquid_section.frag");
+                SimpleSection = loader.Load("simple_section.vert", "section.frag");
+                ComplexSection = loader.Load("complex_section.vert", "section.frag");
+                VaryingHeight = loader.Load("varying_height_section.vert", "section.frag");
+                CrossPlantSection = loader.Load("cross_plant_section.vert", "section.frag");
+                CropPlantSection = loader.Load("crop_plant_section.vert", "section.frag");
+                OpaqueLiquidSection = loader.Load("liquid_section.vert", "opaque_liquid_section.frag");
+                TransparentLiquidSection = loader.Load("liquid_section.vert", "transparent_liquid_section.frag");
 
-                OverlayShader = loader.Load("overlay.vert", "overlay.frag");
-                SelectionShader = loader.Load("selection.vert", "selection.frag");
-                ScreenElementShader = loader.Load("screen_element.vert", "screen_element.frag");
+                Overlay = loader.Load("overlay.vert", "overlay.frag");
+                Selection = loader.Load("selection.vert", "selection.frag");
+                ScreenElement = loader.Load("screen_element.vert", "screen_element.frag");
 
-                OverlayShader.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
-                ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Screen.Size.X, Screen.Size.Y, 0f, 1f));
+                Overlay.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
+                ScreenElement.SetMatrix4("projection", Matrix4.CreateOrthographic(Screen.Size.X, Screen.Size.Y, 0f, 1f));
 
                 Logger.LogInformation("Shader setup complete.");
             }

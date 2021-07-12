@@ -208,8 +208,8 @@ namespace VoxelGame.Client.Rendering
 
             Client.OnResize(Size);
 
-            Shaders.OverlayShader.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
-            Shaders.ScreenElementShader.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
+            Shaders.Overlay.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
+            Shaders.ScreenElement.SetMatrix4("projection", Matrix4.CreateOrthographic(Size.X, Size.Y, 0f, 1f));
 
             Logger.LogDebug("Window has been resized to: {size}", e.Size);
         }

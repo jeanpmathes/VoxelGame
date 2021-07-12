@@ -29,14 +29,14 @@ namespace VoxelGame.Client.Rendering
             drawGroup = ElementDrawGroup.Create();
             drawGroup.SetStorage(6, vertices.Length, vertices, indices.Length, indices);
 
-            Shaders.OverlayShader.Use();
+            Shaders.Overlay.Use();
 
             drawGroup.VertexArrayBindBuffer(5);
 
-            int vertexLocation = Shaders.OverlayShader.GetAttributeLocation("aPosition");
+            int vertexLocation = Shaders.Overlay.GetAttributeLocation("aPosition");
             drawGroup.VertexArrayBindAttribute(vertexLocation, 3, 0);
 
-            int texCordLocation = Shaders.OverlayShader.GetAttributeLocation("aTexCoord");
+            int texCordLocation = Shaders.Overlay.GetAttributeLocation("aTexCoord");
             drawGroup.VertexArrayBindAttribute(texCordLocation, 2, 3);
         }
 
@@ -63,10 +63,10 @@ namespace VoxelGame.Client.Rendering
 
             drawGroup.BindVertexArray();
 
-            Shaders.OverlayShader.Use();
+            Shaders.Overlay.Use();
 
-            Shaders.OverlayShader.SetInt("texId", textureId);
-            Shaders.OverlayShader.SetInt("tex", samplerId);
+            Shaders.Overlay.SetInt("texId", textureId);
+            Shaders.Overlay.SetInt("tex", samplerId);
 
             drawGroup.DrawElements(PrimitiveType.Triangles);
 
