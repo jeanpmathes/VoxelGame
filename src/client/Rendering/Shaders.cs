@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using VoxelGame.Graphics.Objects;
@@ -58,11 +59,16 @@ namespace VoxelGame.Client.Rendering
                 Selection = loader.Load("selection.vert", "selection.frag");
                 ScreenElement = loader.Load("screen_element.vert", "screen_element.frag");
 
-                Overlay.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
-                ScreenElement.SetMatrix4("projection", Matrix4.CreateOrthographic(Screen.Size.X, Screen.Size.Y, 0f, 1f));
+                UpdateOrthographicProjection();
 
                 Logger.LogInformation("Shader setup complete.");
             }
+        }
+
+        public static void UpdateOrthographicProjection()
+        {
+            Overlay.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
+            ScreenElement.SetMatrix4("projection", Matrix4.CreateOrthographic(Screen.Size.X, Screen.Size.Y, 0f, 1f));
         }
     }
 }

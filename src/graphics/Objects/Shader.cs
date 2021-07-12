@@ -116,6 +116,11 @@ namespace VoxelGame.Graphics.Objects
             return sr.ReadToEnd();
         }
 
+        public bool IsUniformDefined(string name)
+        {
+            return uniformLocations.ContainsKey(name);
+        }
+
         /// <summary>
         /// Set a uniform int on this shader.
         /// </summary>
