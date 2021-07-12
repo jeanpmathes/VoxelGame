@@ -17,6 +17,8 @@ namespace VoxelGame.Client.Rendering
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<Shaders>();
 
+        private const string TimeUniform = "time";
+
         private static Shaders? _instance;
 
         public static Shader SimpleSection { get; private set; } = null!;
@@ -38,9 +40,11 @@ namespace VoxelGame.Client.Rendering
 
         private readonly ShaderLoader loader;
 
+        private readonly ISet<Shader> timedSet = new HashSet<Shader>();
+
         private Shaders(string directory)
         {
-            loader = new ShaderLoader(directory);
+            loader = new ShaderLoader(directory, (timedSet, TimeUniform));
         }
 
         private void LoadAll()
@@ -69,6 +73,16 @@ namespace VoxelGame.Client.Rendering
         {
             Overlay.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
             ScreenElement.SetMatrix4("projection", Matrix4.CreateOrthographic(Screen.Size.X, Screen.Size.Y, 0f, 1f));
+        }
+
+        public static void SetTime(float time)
+        {
+            if (_instance == null) return;
+
+            foreach (Shader shader in _instance.timedSet)
+            {
+                shader.SetFloat(TimeUniform, time);
+            }
         }
     }
 }
