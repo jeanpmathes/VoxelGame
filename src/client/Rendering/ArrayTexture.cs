@@ -214,7 +214,7 @@ namespace VoxelGame.Client.Rendering
             }
         }
 
-        protected void GenerateMipmapWithoutTransparencyMixing(int handle, Bitmap baseLevel, int levels, int length)
+        protected static void GenerateMipmapWithoutTransparencyMixing(int handle, Bitmap baseLevel, int levels, int length)
         {
             Bitmap upperLevel = baseLevel;
 
