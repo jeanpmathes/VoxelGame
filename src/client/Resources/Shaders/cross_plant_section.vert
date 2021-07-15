@@ -108,6 +108,7 @@ void main()
     // Cross plant information.
     bool isUpper = ((aData.y >> 20) & 1) == 1;
     bool isLowered = ((aData.y >> 21) & 1) == 1;
+    bool hasUpper = ((aData.y >> 22) & 1) == 1;
 
     // Position
     vec3 position = vec3((aData.x >> 12) & 63, (aData.x >> 6) & 63, aData.x & 63);
@@ -123,11 +124,14 @@ void main()
     if (isLowered) position.y -= 0.0625;
 
     // Sway in wind.
-    const float swayStrenght = 0.1;
+    const float swayAmplitude = 0.1;
     const float swaySpeed = 0.8;
 
     vec3 wind = vec3(0.7, 0, 0.7);
-    position += wind * noise(vec2(position.xz + wind.xz * time * swaySpeed)) * swayStrenght * texCoord.y;
+    float swayStrength = texCoord.y;
+    if (hasUpper) swayStrength = (swayStrength + (isUpper ? 1.0 : 0.0)) / 2.0;
+
+    position += wind * noise(vec2(position.xz + wind.xz * time * swaySpeed)) * swayAmplitude * swayStrength;
 
     gl_Position = vec4(position, 1.0) * model * view * projection;
 }

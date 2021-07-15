@@ -22,6 +22,8 @@ namespace VoxelGame.Core.Visuals
 
         public bool IsAnimated { get; }
 
+        public bool HasUpper { get; }
+
         public bool IsLowered { get; }
 
         public bool IsUpper { get; }
@@ -34,7 +36,7 @@ namespace VoxelGame.Core.Visuals
         public BlockMeshData(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices, TintColor tint, bool isAnimated = false)
             : this(vertexCount, vertices, textureIndices, indices, 0, tint, isAnimated) { }
 
-        private BlockMeshData(uint vertexCount = 0, float[]? vertices = null, int[]? textureIndices = null, uint[]? indices = null, int textureIndex = 0, TintColor? tint = null, bool isAnimated = false, bool isLowered = false, bool isUpper = false, bool isDoubleCropPlant = false)
+        private BlockMeshData(uint vertexCount = 0, float[]? vertices = null, int[]? textureIndices = null, uint[]? indices = null, int textureIndex = 0, TintColor? tint = null, bool isAnimated = false, bool isLowered = false, bool hasUpper = false, bool isUpper = false, bool isDoubleCropPlant = false)
         {
             VertexCount = vertexCount;
 
@@ -47,6 +49,7 @@ namespace VoxelGame.Core.Visuals
             Tint = tint ?? TintColor.None;
 
             IsAnimated = isAnimated;
+            HasUpper = hasUpper;
             IsLowered = isLowered;
             IsUpper = isUpper;
             IsDoubleCropPlant = isDoubleCropPlant;
@@ -98,9 +101,9 @@ namespace VoxelGame.Core.Visuals
             return new BlockMeshData(vertexCount: 4, textureIndex: textureIndex, tint: tint);
         }
 
-        public static BlockMeshData CrossPlant(int textureIndex, TintColor tint, bool isLowered, bool isUpper)
+        public static BlockMeshData CrossPlant(int textureIndex, TintColor tint, bool hasUpper, bool isLowered, bool isUpper)
         {
-            return new BlockMeshData(vertexCount: 8, textureIndex: textureIndex, tint: tint, isLowered: isLowered, isUpper: isUpper);
+            return new BlockMeshData(vertexCount: 8, textureIndex: textureIndex, tint: tint, hasUpper: hasUpper, isLowered: isLowered, isUpper: isUpper);
         }
 
         public static BlockMeshData CropPlant(int textureIndex, TintColor tint, bool isLowered, bool isUpper)

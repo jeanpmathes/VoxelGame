@@ -56,7 +56,7 @@ namespace VoxelGame.Core.Logic.Blocks
             bool isUpper = (info.Data & 0b01) != 0;
             bool isLowered = (info.Data & 0b10) != 0;
 
-            return BlockMeshData.CrossPlant(isUpper ? topTextureIndex : bottomTextureIndex, TintColor.Neutral, isLowered, isUpper);
+            return BlockMeshData.CrossPlant(isUpper ? topTextureIndex : bottomTextureIndex, TintColor.Neutral, true, isLowered, isUpper);
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)

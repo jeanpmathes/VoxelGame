@@ -56,7 +56,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return BlockMeshData.CrossPlant(textureIndex, TintColor.Neutral, (info.Data & 0b1) == 1, false);
+            return BlockMeshData.CrossPlant(textureIndex, TintColor.Neutral, false, (info.Data & 0b1) == 1, false);
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
