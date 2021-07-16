@@ -251,77 +251,23 @@ namespace VoxelGame.Client.Rendering
 
             switch (stage)
             {
-                case 0: DrawSimpleBuffer(model); break;
-                case 1: DrawCrossPlantBuffer(model); break;
-                case 2: DrawCropPlantBuffer(model); break;
-                case 3: DrawComplexBuffer(model); break;
-                case 4: DrawVaryingHeightBuffer(model); break;
-                case 5: DrawOpaqueLiquidBuffer(model); break;
-                case 6: DrawTransparentLiquidBuffer(model); break;
+                case 0: Draw(simpleDrawGroup, Shaders.SimpleSection, model); break;
+                case 1: Draw(crossPlantDrawGroup, Shaders.CrossPlantSection, model); break;
+                case 2: Draw(cropPlantDrawGroup, Shaders.CropPlantSection, model); break;
+                case 3: Draw(complexDrawGroup, Shaders.ComplexSection, model); break;
+                case 4: Draw(varyingHeightDrawGroup, Shaders.VaryingHeightSection, model); break;
+                case 5: Draw(opaqueLiquidDrawGroup, Shaders.OpaqueLiquidSection, model); break;
+                case 6: Draw(transparentLiquidDrawGroup, Shaders.TransparentLiquidSection, model); break;
             }
         }
 
-        private void DrawSimpleBuffer(Matrix4 model)
+        private static void Draw(IDrawGroup drawGroup, Shader shader, Matrix4 model)
         {
-            if (!simpleDrawGroup.IsFilled) return;
+            if (!drawGroup.IsFilled) return;
 
-            simpleDrawGroup.BindVertexArray();
-            Shaders.SimpleSection.SetMatrix4("model", model);
-            simpleDrawGroup.DrawArrays();
-        }
-
-        private void DrawCrossPlantBuffer(Matrix4 model)
-        {
-            if (!crossPlantDrawGroup.IsFilled) return;
-
-            crossPlantDrawGroup.BindVertexArray();
-            Shaders.CrossPlantSection.SetMatrix4("model", model);
-            crossPlantDrawGroup.DrawArrays();
-        }
-
-        private void DrawCropPlantBuffer(Matrix4 model)
-        {
-            if (!cropPlantDrawGroup.IsFilled) return;
-
-            cropPlantDrawGroup.BindVertexArray();
-            Shaders.CropPlantSection.SetMatrix4("model", model);
-            cropPlantDrawGroup.DrawArrays();
-        }
-
-        private void DrawComplexBuffer(Matrix4 model)
-        {
-            if (!complexDrawGroup.IsFilled) return;
-
-            complexDrawGroup.BindVertexArray();
-            Shaders.ComplexSection.SetMatrix4("model", model);
-            complexDrawGroup.DrawElements();
-        }
-
-        private void DrawVaryingHeightBuffer(Matrix4 model)
-        {
-            if (!varyingHeightDrawGroup.IsFilled) return;
-
-            varyingHeightDrawGroup.BindVertexArray();
-            Shaders.VaryingHeightSection.SetMatrix4("model", model);
-            varyingHeightDrawGroup.DrawElements();
-        }
-
-        private void DrawOpaqueLiquidBuffer(Matrix4 model)
-        {
-            if (!opaqueLiquidDrawGroup.IsFilled) return;
-
-            opaqueLiquidDrawGroup.BindVertexArray();
-            Shaders.OpaqueLiquidSection.SetMatrix4("model", model);
-            opaqueLiquidDrawGroup.DrawElements();
-        }
-
-        private void DrawTransparentLiquidBuffer(Matrix4 model)
-        {
-            if (!transparentLiquidDrawGroup.IsFilled) return;
-
-            transparentLiquidDrawGroup.BindVertexArray();
-            Shaders.TransparentLiquidSection.SetMatrix4("model", model);
-            transparentLiquidDrawGroup.DrawElements();
+            drawGroup.BindVertexArray();
+            shader.SetMatrix4("model", model);
+            drawGroup.Draw();
         }
 
         public static void FinishStage(int stage)

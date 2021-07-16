@@ -9,7 +9,7 @@ using OpenToolkit.Graphics.OpenGL4;
 
 namespace VoxelGame.Graphics.Groups
 {
-    public class ElementPositionDataDrawGroup
+    public class ElementPositionDataDrawGroup : IDrawGroup
     {
         private readonly int positionSize;
         private readonly int dataSize;
@@ -84,6 +84,8 @@ namespace VoxelGame.Graphics.Groups
         {
             GL.DrawElements(PrimitiveType.Triangles, elementCount, DrawElementsType.UnsignedInt, 0);
         }
+
+        public void Draw() => DrawElements();
 
         public void Delete()
         {
