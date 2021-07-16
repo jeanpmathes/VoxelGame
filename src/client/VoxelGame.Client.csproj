@@ -12,6 +12,7 @@
     <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
     <LangVersion>preview</LangVersion>
     <Configurations>Debug;Release;Debug GL33</Configurations>
+    <StartupObject>VoxelGame.Client.Program</StartupObject>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
