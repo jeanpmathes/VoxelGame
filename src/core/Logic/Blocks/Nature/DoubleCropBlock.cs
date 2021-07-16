@@ -109,14 +109,15 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            var texData = (int)(info.Data & 0b00_0111);
+            var stageData = (int)(info.Data & 0b00_0111);
 
             bool isUpper = (info.Data & 0b00_1000) != 0;
             bool isLowered = (info.Data & 0b01_0000) != 0;
+            bool hasUpper = (GrowthStage)stageData >= GrowthStage.Fourth;
 
-            int textureIndex = !isUpper ? stageTextureIndicesLow[texData] : stageTextureIndicesTop[texData];
+            int textureIndex = !isUpper ? stageTextureIndicesLow[stageData] : stageTextureIndicesTop[stageData];
 
-            return BlockMeshData.DoubleCropPlant(textureIndex, TintColor.None, isLowered, isUpper);
+            return BlockMeshData.DoubleCropPlant(textureIndex, TintColor.None, hasUpper, isLowered, isUpper);
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)

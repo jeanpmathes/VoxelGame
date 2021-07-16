@@ -257,7 +257,7 @@ namespace VoxelGame.Client.Logic
                                     int upperDataC = (1 << 31) | (1 << 30) | (x + 1 << 12) | (y + 1 << 6);
                                     int upperDataD = (1 << 31) | (0 << 30) | (x + 1 << 12) | (y + 0 << 6);
 
-                                    // int: tttt tttt tulh ---- ---i iiii iiii iiii (t: tint; u: has upper, l: lowered; h: height; i: texture index)
+                                    // int: tttt tttt tulh ---- ---i iiii iiii iiii (t: tint; u: has upper; l: lowered; h: height; i: texture index)
                                     int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((mesh.HasUpper ? 1 : 0) << 22) | ((mesh.IsLowered ? 1 : 0) << 21) | ((mesh.IsUpper ? 1 : 0) << 20) | mesh.TextureIndex;
 
                                     // Z position.
@@ -292,8 +292,8 @@ namespace VoxelGame.Client.Logic
                                     int upperDataC = (1 << 31) | (1 << 30) | (y + 1 << 6);
                                     int upperDataD = (1 << 31) | (0 << 30) | (y + 0 << 6);
 
-                                    // int: tttt tttt t-lh ---c ---i iiii iiii iiii (t: tint; l: lowered; h: height; c: crop type; i: texture index)
-                                    int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((mesh.IsLowered ? 1 : 0) << 21) | ((mesh.IsUpper ? 1 : 0) << 20) | ((mesh.IsDoubleCropPlant ? 1 : 0) << 16) | mesh.TextureIndex;
+                                    // int: tttt tttt tulh ---c ---i iiii iiii iiii (t: tint; u: has upper; l: lowered; h: height; c: crop type; i: texture index)
+                                    int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((mesh.HasUpper ? 1 : 0) << 22) | ((mesh.IsLowered ? 1 : 0) << 21) | ((mesh.IsUpper ? 1 : 0) << 20) | ((mesh.IsDoubleCropPlant ? 1 : 0) << 16) | mesh.TextureIndex;
 
                                     int firstAlongX = (x << 12) | (z + 0);
                                     int secondAlongX = (x << 12) | (z + 1);

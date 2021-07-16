@@ -108,12 +108,12 @@ namespace VoxelGame.Core.Visuals
 
         public static BlockMeshData CropPlant(int textureIndex, TintColor tint, bool isLowered, bool isUpper)
         {
-            return new BlockMeshData(vertexCount: 0, textureIndex: textureIndex, tint: tint, isLowered: isLowered, isUpper: isUpper, isDoubleCropPlant: false);
+            return new BlockMeshData(vertexCount: 0, textureIndex: textureIndex, tint: tint, hasUpper: false, isLowered: isLowered, isUpper: isUpper, isDoubleCropPlant: false);
         }
 
-        public static BlockMeshData DoubleCropPlant(int textureIndex, TintColor tint, bool isLowered, bool isUpper)
+        public static BlockMeshData DoubleCropPlant(int textureIndex, TintColor tint, bool hasUpper, bool isLowered, bool isUpper)
         {
-            return new BlockMeshData(vertexCount: 0, textureIndex: textureIndex, tint: tint, isLowered: isLowered, isUpper: isUpper, isDoubleCropPlant: true);
+            return new BlockMeshData(vertexCount: 0, textureIndex: textureIndex, tint: tint, hasUpper: hasUpper, isLowered: isLowered, isUpper: isUpper, isDoubleCropPlant: true);
         }
 
         public static BlockMeshData Empty()
