@@ -9,6 +9,7 @@ using OpenToolkit.Mathematics;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using VoxelGame.Graphics.Groups;
+using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
@@ -176,10 +177,7 @@ namespace VoxelGame.Client.Rendering
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-            Shaders.SimpleSection.Use();
-
-            Shaders.SimpleSection.SetMatrix4("view", view);
-            Shaders.SimpleSection.SetMatrix4("projection", projection);
+            SetupShader(Shaders.SimpleSection, view, projection);
         }
 
         private static void PrepareCrossPlantBuffer(Matrix4 view, Matrix4 projection)
@@ -188,10 +186,7 @@ namespace VoxelGame.Client.Rendering
 
             GL.Disable(EnableCap.CullFace);
 
-            Shaders.CrossPlantSection.Use();
-
-            Shaders.CrossPlantSection.SetMatrix4("view", view);
-            Shaders.CrossPlantSection.SetMatrix4("projection", projection);
+            SetupShader(Shaders.CrossPlantSection, view, projection);
         }
 
         private static void PrepareCropPlantBuffer(Matrix4 view, Matrix4 projection)
@@ -200,40 +195,28 @@ namespace VoxelGame.Client.Rendering
 
             GL.Disable(EnableCap.CullFace);
 
-            Shaders.CropPlantSection.Use();
-
-            Shaders.CropPlantSection.SetMatrix4("view", view);
-            Shaders.CropPlantSection.SetMatrix4("projection", projection);
+            SetupShader(Shaders.CropPlantSection, view, projection);
         }
 
         private static void PrepareComplexBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
-            Shaders.ComplexSection.Use();
-
-            Shaders.ComplexSection.SetMatrix4("view", view);
-            Shaders.ComplexSection.SetMatrix4("projection", projection);
+            SetupShader(Shaders.ComplexSection, view, projection);
         }
 
         private static void PrepareVaryingHeightBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-            Shaders.VaryingHeight.Use();
-
-            Shaders.VaryingHeight.SetMatrix4("view", view);
-            Shaders.VaryingHeight.SetMatrix4("projection", projection);
+            SetupShader(Shaders.VaryingHeight, view, projection);
         }
 
         private static void PrepareOpaqueLiquidBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-            Shaders.OpaqueLiquidSection.Use();
-
-            Shaders.OpaqueLiquidSection.SetMatrix4("view", view);
-            Shaders.OpaqueLiquidSection.SetMatrix4("projection", projection);
+            SetupShader(Shaders.OpaqueLiquidSection, view, projection);
         }
 
         private static void PrepareTransparentLiquidBuffer(Matrix4 view, Matrix4 projection)
@@ -246,10 +229,15 @@ namespace VoxelGame.Client.Rendering
             GL.DepthMask(false);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-            Shaders.TransparentLiquidSection.Use();
+            SetupShader(Shaders.TransparentLiquidSection, view, projection);
+        }
 
-            Shaders.TransparentLiquidSection.SetMatrix4("view", view);
-            Shaders.TransparentLiquidSection.SetMatrix4("projection", projection);
+        private static void SetupShader(Shader shader, Matrix4 view, Matrix4 projection)
+        {
+            shader.Use();
+
+            shader.SetMatrix4("view", view);
+            shader.SetMatrix4("projection", projection);
         }
 
         public void DrawStage(int stage, Vector3 position)
