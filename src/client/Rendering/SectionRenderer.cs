@@ -23,6 +23,14 @@ namespace VoxelGame.Client.Rendering
 
         public const int DrawStageCount = 7;
 
+        private const int Simple = 0;
+        private const int CrossPlant = 1;
+        private const int CropPlant = 2;
+        private const int Complex = 3;
+        private const int VaryingHeight = 4;
+        private const int OpaqueLiquid = 5;
+        private const int TransparentLiquid = 6;
+
         private readonly ArrayIDataDrawGroup simpleDrawGroup;
         private readonly ArrayIDataDrawGroup crossPlantDrawGroup;
         private readonly ArrayIDataDrawGroup cropPlantDrawGroup;
@@ -163,13 +171,13 @@ namespace VoxelGame.Client.Rendering
 
             switch (stage)
             {
-                case 0: PrepareSimpleBuffer(view, projection); break;
-                case 1: PrepareCrossPlantBuffer(view, projection); break;
-                case 2: PrepareCropPlantBuffer(view, projection); break;
-                case 3: PrepareComplexBuffer(view, projection); break;
-                case 4: PrepareVaryingHeightBuffer(view, projection); break;
-                case 5: PrepareOpaqueLiquidBuffer(view, projection); break;
-                case 6: PrepareTransparentLiquidBuffer(view, projection); break;
+                case Simple: PrepareSimpleBuffer(view, projection); break;
+                case CrossPlant: PrepareCrossPlantBuffer(view, projection); break;
+                case CropPlant: PrepareCropPlantBuffer(view, projection); break;
+                case Complex: PrepareComplexBuffer(view, projection); break;
+                case VaryingHeight: PrepareVaryingHeightBuffer(view, projection); break;
+                case OpaqueLiquid: PrepareOpaqueLiquidBuffer(view, projection); break;
+                case TransparentLiquid: PrepareTransparentLiquidBuffer(view, projection); break;
             }
         }
 
@@ -251,13 +259,13 @@ namespace VoxelGame.Client.Rendering
 
             switch (stage)
             {
-                case 0: Draw(simpleDrawGroup, Shaders.SimpleSection, model); break;
-                case 1: Draw(crossPlantDrawGroup, Shaders.CrossPlantSection, model); break;
-                case 2: Draw(cropPlantDrawGroup, Shaders.CropPlantSection, model); break;
-                case 3: Draw(complexDrawGroup, Shaders.ComplexSection, model); break;
-                case 4: Draw(varyingHeightDrawGroup, Shaders.VaryingHeightSection, model); break;
-                case 5: Draw(opaqueLiquidDrawGroup, Shaders.OpaqueLiquidSection, model); break;
-                case 6: Draw(transparentLiquidDrawGroup, Shaders.TransparentLiquidSection, model); break;
+                case Simple: Draw(simpleDrawGroup, Shaders.SimpleSection, model); break;
+                case CrossPlant: Draw(crossPlantDrawGroup, Shaders.CrossPlantSection, model); break;
+                case CropPlant: Draw(cropPlantDrawGroup, Shaders.CropPlantSection, model); break;
+                case Complex: Draw(complexDrawGroup, Shaders.ComplexSection, model); break;
+                case VaryingHeight: Draw(varyingHeightDrawGroup, Shaders.VaryingHeightSection, model); break;
+                case OpaqueLiquid: Draw(opaqueLiquidDrawGroup, Shaders.OpaqueLiquidSection, model); break;
+                case TransparentLiquid: Draw(transparentLiquidDrawGroup, Shaders.TransparentLiquidSection, model); break;
             }
         }
 
@@ -274,8 +282,8 @@ namespace VoxelGame.Client.Rendering
         {
             switch (stage)
             {
-                case 1 or 2: FinishPlantBuffer(); break;
-                case 6: FinishTransparentLiquidBuffer(); break;
+                case CrossPlant or CropPlant: FinishPlantBuffer(); break;
+                case TransparentLiquid: FinishTransparentLiquidBuffer(); break;
             }
         }
 
