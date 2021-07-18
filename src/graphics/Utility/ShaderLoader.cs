@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using VoxelGame.Graphics.Objects;
 
 namespace VoxelGame.Graphics.Utility
@@ -23,7 +24,10 @@ namespace VoxelGame.Graphics.Utility
 
         public Shader Load(string vert, string frag)
         {
-            var shader = new Shader(Path.Combine(directory, vert), Path.Combine(directory, frag));
+            using var vertReader = new StreamReader(Path.Combine(directory, vert), Encoding.UTF8);
+            using var fragReader = new StreamReader(Path.Combine(directory, frag), Encoding.UTF8);
+
+            var shader = new Shader(vertReader.ReadToEnd(), fragReader.ReadToEnd());
 
             foreach ((ISet<Shader> set, string uniform) in sets)
             {
