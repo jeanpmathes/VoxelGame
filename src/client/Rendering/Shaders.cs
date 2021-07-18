@@ -51,6 +51,8 @@ namespace VoxelGame.Client.Rendering
         {
             using (Logger.BeginScope("Shader setup"))
             {
+                loader.LoadIncludable("noise", "noise.glsl");
+
                 SimpleSection = loader.Load("simple_section.vert", "section.frag");
                 ComplexSection = loader.Load("complex_section.vert", "section.frag");
                 VaryingHeightSection = loader.Load("varying_height_section.vert", "section.frag");

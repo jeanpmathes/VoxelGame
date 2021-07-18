@@ -7,14 +7,22 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Graphics.Utility
 {
     public class ShaderLoader
     {
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ShaderLoader>();
+
         private readonly string directory;
         private readonly (ISet<Shader> set, string uniform)[] sets;
+
+        private readonly Regex includePattern = new Regex(@"^#pragma(?: )+include\(""(.+)""\)$");
+        private readonly Dictionary<string, string> includables = new Dictionary<string, string>();
 
         public ShaderLoader(string directory, params (ISet<Shader> set, string uniform)[] sets)
         {
@@ -22,12 +30,17 @@ namespace VoxelGame.Graphics.Utility
             this.sets = sets;
         }
 
+        public void LoadIncludable(string name, string file)
+        {
+            includables[name] = File.ReadAllText(Path.Combine(directory, file), Encoding.UTF8);
+        }
+
         public Shader Load(string vert, string frag)
         {
             using var vertReader = new StreamReader(Path.Combine(directory, vert), Encoding.UTF8);
             using var fragReader = new StreamReader(Path.Combine(directory, frag), Encoding.UTF8);
 
-            var shader = new Shader(vertReader.ReadToEnd(), fragReader.ReadToEnd());
+            var shader = new Shader(ProcessSource(vertReader), ProcessSource(fragReader));
 
             foreach ((ISet<Shader> set, string uniform) in sets)
             {
@@ -38,6 +51,38 @@ namespace VoxelGame.Graphics.Utility
             }
 
             return shader;
+        }
+
+        private string ProcessSource(TextReader reader)
+        {
+            var source = new StringBuilder();
+
+            string? line;
+
+            while ((line = reader.ReadLine()) != null)
+            {
+                Match match = includePattern.Match(line);
+
+                if (match.Success)
+                {
+                    string name = match.Groups[1].Value;
+
+                    if (includables.ContainsKey(name))
+                    {
+                        source.AppendLine(includables[name]);
+                    }
+                    else
+                    {
+                        Logger.LogWarning($"Cannot resolve shader include for name: {name}");
+                    }
+                }
+                else
+                {
+                    source.AppendLine(line);
+                }
+            }
+
+            return source.ToString();
         }
     }
 }
