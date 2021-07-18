@@ -137,10 +137,7 @@ namespace VoxelGame.Client
             {
                 Time += e.Time;
 
-                Shaders.SimpleSectionShader.SetFloat("time", (float)Time);
-                Shaders.ComplexSectionShader.SetFloat("time", (float)Time);
-                Shaders.OpaqueLiquidSectionShader.SetFloat("time", (float)Time);
-                Shaders.TransparentLiquidSectionShader.SetFloat("time", (float)Time);
+                Shaders.SetTime((float)Time);
 
                 screen.Clear();
 

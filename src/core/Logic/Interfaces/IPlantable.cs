@@ -10,7 +10,7 @@ namespace VoxelGame.Core.Logic.Interfaces
     /// </summary>
     public interface IPlantable : IBlockBase
     {
-        bool SupportsFullGrowth { get => false; }
+        bool SupportsFullGrowth => false;
 
         public bool TryGrow(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
         {

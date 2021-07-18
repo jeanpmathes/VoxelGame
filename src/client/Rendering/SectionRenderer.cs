@@ -9,6 +9,7 @@ using OpenToolkit.Mathematics;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using VoxelGame.Graphics.Groups;
+using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
@@ -20,9 +21,19 @@ namespace VoxelGame.Client.Rendering
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<SectionRenderer>();
 
-        public const int DrawStageCount = 5;
+        public const int DrawStageCount = 7;
+
+        private const int Simple = 0;
+        private const int CrossPlant = 1;
+        private const int CropPlant = 2;
+        private const int Complex = 3;
+        private const int VaryingHeight = 4;
+        private const int OpaqueLiquid = 5;
+        private const int TransparentLiquid = 6;
 
         private readonly ArrayIDataDrawGroup simpleDrawGroup;
+        private readonly ArrayIDataDrawGroup crossPlantDrawGroup;
+        private readonly ArrayIDataDrawGroup cropPlantDrawGroup;
 
         private readonly ElementPositionDataDrawGroup complexDrawGroup;
 
@@ -33,7 +44,11 @@ namespace VoxelGame.Client.Rendering
         public SectionRenderer()
         {
             simpleDrawGroup = ArrayIDataDrawGroup.Create(2);
+            crossPlantDrawGroup = ArrayIDataDrawGroup.Create(2);
+            cropPlantDrawGroup = ArrayIDataDrawGroup.Create(2);
+
             complexDrawGroup = ElementPositionDataDrawGroup.Create(3, 2);
+
             varyingHeightDrawGroup = ElementIDataDrawGroup.Create(2);
             opaqueLiquidDrawGroup = ElementIDataDrawGroup.Create(2);
             transparentLiquidDrawGroup = ElementIDataDrawGroup.Create(2);
@@ -42,20 +57,42 @@ namespace VoxelGame.Client.Rendering
 
             simpleDrawGroup.VertexArrayBindBuffer();
 
-            Shaders.SimpleSectionShader.Use();
-            int dataLocation = Shaders.SimpleSectionShader.GetAttributeLocation("aData");
+            Shaders.SimpleSection.Use();
+            int dataLocation = Shaders.SimpleSection.GetAttributeLocation("aData");
 
             simpleDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
             #endregion SIMPLE BUFFER SETUP
 
+            #region CROSS PLANT BUFFER SETUP
+
+            crossPlantDrawGroup.VertexArrayBindBuffer();
+
+            Shaders.CrossPlantSection.Use();
+            dataLocation = Shaders.CrossPlantSection.GetAttributeLocation("aData");
+
+            crossPlantDrawGroup.VertexArrayAttributeBinding(dataLocation);
+
+            #endregion CROSS PLANT BUFFER SETUP
+
+            #region CROP PLANT BUFFER SETUP
+
+            cropPlantDrawGroup.VertexArrayBindBuffer();
+
+            Shaders.CropPlantSection.Use();
+            dataLocation = Shaders.CropPlantSection.GetAttributeLocation("aData");
+
+            cropPlantDrawGroup.VertexArrayAttributeBinding(dataLocation);
+
+            #endregion CROP PLANT BUFFER SETUP
+
             #region COMPLEX BUFFER SETUP
 
             complexDrawGroup.VertexArrayBindBuffer();
 
-            Shaders.ComplexSectionShader.Use();
-            int positionLocation = Shaders.ComplexSectionShader.GetAttributeLocation("aPosition");
-            dataLocation = Shaders.ComplexSectionShader.GetAttributeLocation("aData");
+            Shaders.ComplexSection.Use();
+            int positionLocation = Shaders.ComplexSection.GetAttributeLocation("aPosition");
+            dataLocation = Shaders.ComplexSection.GetAttributeLocation("aData");
 
             complexDrawGroup.VertexArrayAttributeBinding(positionLocation, dataLocation);
 
@@ -65,8 +102,8 @@ namespace VoxelGame.Client.Rendering
 
             varyingHeightDrawGroup.VertexArrayBindBuffer();
 
-            Shaders.VaryingHeightShader.Use();
-            dataLocation = Shaders.VaryingHeightShader.GetAttributeLocation("aData");
+            Shaders.VaryingHeightSection.Use();
+            dataLocation = Shaders.VaryingHeightSection.GetAttributeLocation("aData");
 
             varyingHeightDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
@@ -76,8 +113,8 @@ namespace VoxelGame.Client.Rendering
 
             opaqueLiquidDrawGroup.VertexArrayBindBuffer();
 
-            Shaders.OpaqueLiquidSectionShader.Use();
-            dataLocation = Shaders.OpaqueLiquidSectionShader.GetAttributeLocation("aData");
+            Shaders.OpaqueLiquidSection.Use();
+            dataLocation = Shaders.OpaqueLiquidSection.GetAttributeLocation("aData");
 
             opaqueLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
@@ -87,8 +124,8 @@ namespace VoxelGame.Client.Rendering
 
             transparentLiquidDrawGroup.VertexArrayBindBuffer();
 
-            Shaders.TransparentLiquidSectionShader.Use();
-            dataLocation = Shaders.TransparentLiquidSectionShader.GetAttributeLocation("aData");
+            Shaders.TransparentLiquidSection.Use();
+            dataLocation = Shaders.TransparentLiquidSection.GetAttributeLocation("aData");
 
             transparentLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
@@ -103,6 +140,10 @@ namespace VoxelGame.Client.Rendering
             }
 
             simpleDrawGroup.SetData(meshData.simpleVertexData.Count, meshData.simpleVertexData.ExposeArray());
+
+            crossPlantDrawGroup.SetData(meshData.crossPlantVertexData.Count, meshData.crossPlantVertexData.ExposeArray());
+
+            cropPlantDrawGroup.SetData(meshData.cropPlantVertexData.Count, meshData.cropPlantVertexData.ExposeArray());
 
             complexDrawGroup.SetData(meshData.complexVertexPositions.Count, meshData.complexVertexPositions.ExposeArray(),
                 meshData.complexVertexData.Count, meshData.complexVertexData.ExposeArray(),
@@ -130,11 +171,13 @@ namespace VoxelGame.Client.Rendering
 
             switch (stage)
             {
-                case 0: PrepareSimpleBuffer(view, projection); break;
-                case 1: PrepareComplexBuffer(view, projection); break;
-                case 2: PrepareVaryingHeightBuffer(view, projection); break;
-                case 3: PrepareOpaqueLiquidBuffer(view, projection); break;
-                case 4: PrepareTransparentLiquidBuffer(view, projection); break;
+                case Simple: PrepareSimpleBuffer(view, projection); break;
+                case CrossPlant: PrepareCrossPlantBuffer(view, projection); break;
+                case CropPlant: PrepareCropPlantBuffer(view, projection); break;
+                case Complex: PrepareComplexBuffer(view, projection); break;
+                case VaryingHeight: PrepareVaryingHeightBuffer(view, projection); break;
+                case OpaqueLiquid: PrepareOpaqueLiquidBuffer(view, projection); break;
+                case TransparentLiquid: PrepareTransparentLiquidBuffer(view, projection); break;
             }
         }
 
@@ -142,40 +185,46 @@ namespace VoxelGame.Client.Rendering
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-            Shaders.SimpleSectionShader.Use();
+            SetupShader(Shaders.SimpleSection, view, projection);
+        }
 
-            Shaders.SimpleSectionShader.SetMatrix4("view", view);
-            Shaders.SimpleSectionShader.SetMatrix4("projection", projection);
+        private static void PrepareCrossPlantBuffer(Matrix4 view, Matrix4 projection)
+        {
+            Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
+
+            GL.Disable(EnableCap.CullFace);
+
+            SetupShader(Shaders.CrossPlantSection, view, projection);
+        }
+
+        private static void PrepareCropPlantBuffer(Matrix4 view, Matrix4 projection)
+        {
+            Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
+
+            GL.Disable(EnableCap.CullFace);
+
+            SetupShader(Shaders.CropPlantSection, view, projection);
         }
 
         private static void PrepareComplexBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
-            Shaders.ComplexSectionShader.Use();
-
-            Shaders.ComplexSectionShader.SetMatrix4("view", view);
-            Shaders.ComplexSectionShader.SetMatrix4("projection", projection);
+            SetupShader(Shaders.ComplexSection, view, projection);
         }
 
         private static void PrepareVaryingHeightBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-            Shaders.VaryingHeightShader.Use();
-
-            Shaders.VaryingHeightShader.SetMatrix4("view", view);
-            Shaders.VaryingHeightShader.SetMatrix4("projection", projection);
+            SetupShader(Shaders.VaryingHeightSection, view, projection);
         }
 
         private static void PrepareOpaqueLiquidBuffer(Matrix4 view, Matrix4 projection)
         {
             Client.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-            Shaders.OpaqueLiquidSectionShader.Use();
-
-            Shaders.OpaqueLiquidSectionShader.SetMatrix4("view", view);
-            Shaders.OpaqueLiquidSectionShader.SetMatrix4("projection", projection);
+            SetupShader(Shaders.OpaqueLiquidSection, view, projection);
         }
 
         private static void PrepareTransparentLiquidBuffer(Matrix4 view, Matrix4 projection)
@@ -188,10 +237,15 @@ namespace VoxelGame.Client.Rendering
             GL.DepthMask(false);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-            Shaders.TransparentLiquidSectionShader.Use();
+            SetupShader(Shaders.TransparentLiquidSection, view, projection);
+        }
 
-            Shaders.TransparentLiquidSectionShader.SetMatrix4("view", view);
-            Shaders.TransparentLiquidSectionShader.SetMatrix4("projection", projection);
+        private static void SetupShader(Shader shader, Matrix4 view, Matrix4 projection)
+        {
+            shader.Use();
+
+            shader.SetMatrix4("view", view);
+            shader.SetMatrix4("projection", projection);
         }
 
         public void DrawStage(int stage, Vector3 position)
@@ -205,65 +259,37 @@ namespace VoxelGame.Client.Rendering
 
             switch (stage)
             {
-                case 0: DrawSimpleBuffer(model); break;
-                case 1: DrawComplexBuffer(model); break;
-                case 2: DrawVaryingHeightBuffer(model); break;
-                case 3: DrawOpaqueLiquidBuffer(model); break;
-                case 4: DrawTransparentLiquidBuffer(model); break;
+                case Simple: Draw(simpleDrawGroup, Shaders.SimpleSection, model); break;
+                case CrossPlant: Draw(crossPlantDrawGroup, Shaders.CrossPlantSection, model); break;
+                case CropPlant: Draw(cropPlantDrawGroup, Shaders.CropPlantSection, model); break;
+                case Complex: Draw(complexDrawGroup, Shaders.ComplexSection, model); break;
+                case VaryingHeight: Draw(varyingHeightDrawGroup, Shaders.VaryingHeightSection, model); break;
+                case OpaqueLiquid: Draw(opaqueLiquidDrawGroup, Shaders.OpaqueLiquidSection, model); break;
+                case TransparentLiquid: Draw(transparentLiquidDrawGroup, Shaders.TransparentLiquidSection, model); break;
             }
         }
 
-        private void DrawSimpleBuffer(Matrix4 model)
+        private static void Draw(IDrawGroup drawGroup, Shader shader, Matrix4 model)
         {
-            if (!simpleDrawGroup.IsFilled) return;
+            if (!drawGroup.IsFilled) return;
 
-            simpleDrawGroup.BindVertexArray();
-            Shaders.SimpleSectionShader.SetMatrix4("model", model);
-            simpleDrawGroup.DrawArrays();
-        }
-
-        private void DrawComplexBuffer(Matrix4 model)
-        {
-            if (!complexDrawGroup.IsFilled) return;
-
-            complexDrawGroup.BindVertexArray();
-            Shaders.ComplexSectionShader.SetMatrix4("model", model);
-            complexDrawGroup.DrawElements();
-        }
-
-        private void DrawVaryingHeightBuffer(Matrix4 model)
-        {
-            if (!varyingHeightDrawGroup.IsFilled) return;
-
-            varyingHeightDrawGroup.BindVertexArray();
-            Shaders.VaryingHeightShader.SetMatrix4("model", model);
-            varyingHeightDrawGroup.DrawElements();
-        }
-
-        private void DrawOpaqueLiquidBuffer(Matrix4 model)
-        {
-            if (!opaqueLiquidDrawGroup.IsFilled) return;
-
-            opaqueLiquidDrawGroup.BindVertexArray();
-            Shaders.OpaqueLiquidSectionShader.SetMatrix4("model", model);
-            opaqueLiquidDrawGroup.DrawElements();
-        }
-
-        private void DrawTransparentLiquidBuffer(Matrix4 model)
-        {
-            if (!transparentLiquidDrawGroup.IsFilled) return;
-
-            transparentLiquidDrawGroup.BindVertexArray();
-            Shaders.TransparentLiquidSectionShader.SetMatrix4("model", model);
-            transparentLiquidDrawGroup.DrawElements();
+            drawGroup.BindVertexArray();
+            shader.SetMatrix4("model", model);
+            drawGroup.Draw();
         }
 
         public static void FinishStage(int stage)
         {
             switch (stage)
             {
-                case 4: FinishTransparentLiquidBuffer(); break;
+                case CrossPlant or CropPlant: FinishPlantBuffer(); break;
+                case TransparentLiquid: FinishTransparentLiquidBuffer(); break;
             }
+        }
+
+        private static void FinishPlantBuffer()
+        {
+            GL.Enable(EnableCap.CullFace);
         }
 
         private static void FinishTransparentLiquidBuffer()
@@ -284,6 +310,8 @@ namespace VoxelGame.Client.Rendering
             if (disposing)
             {
                 simpleDrawGroup.Delete();
+                crossPlantDrawGroup.Delete();
+                cropPlantDrawGroup.Delete();
                 complexDrawGroup.Delete();
                 varyingHeightDrawGroup.Delete();
                 opaqueLiquidDrawGroup.Delete();

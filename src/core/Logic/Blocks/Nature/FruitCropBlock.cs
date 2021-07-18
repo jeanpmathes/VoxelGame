@@ -20,130 +20,98 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     // s = stage
     // c = connection (orientation)
-    public class FruitCropBlock : CrossBlock, IFlammable, IFillable
+    public class FruitCropBlock : Block, IFlammable, IFillable
     {
-        private float[][] verticesConnected = null!;
-
-        private int[][] texIndices = null!;
-
-        private uint[] indicesConnected = null!;
-
+        private readonly string texture;
         private readonly Block fruit;
 
-        private int dead, initial, noFruit, withFruit, connector;
+        private readonly BlockModel crossBase;
+        private readonly BlockModel[] extensions;
 
-        internal FruitCropBlock(string name, string namedId, string texture, int dead, int initial, int noFruit, int withFruit, int connector, Block fruit) :
+        private (int dead, int initial, int noFruit, int withFruit, int connector) baseTextures;
+
+        internal FruitCropBlock(string name, string namedId, string texture, string baseModel, string extensionModel, Block fruit) :
             base(
                 name,
                 namedId,
-                texture,
+                isFull: false,
+                isOpaque: false,
+                renderFaceAtNonOpaques: true,
+                isSolid: false,
                 receiveCollisions: false,
                 isTrigger: false,
                 isReplaceable: false,
-                new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.175f, 0.5f, 0.175f)))
+                isInteractable: false,
+                new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.175f, 0.5f, 0.175f)),
+                TargetBuffer.Complex)
         {
+            this.texture = texture;
             this.fruit = fruit;
 
-            this.dead = dead;
-            this.initial = initial;
-            this.noFruit = noFruit;
-            this.withFruit = withFruit;
-            this.connector = connector;
+            crossBase = BlockModel.Load(baseModel);
+
+            BlockModel extension = BlockModel.Load(extensionModel);
+            (BlockModel north, BlockModel east, BlockModel south, BlockModel west) directions = extension.CreateAllDirections(false);
+
+            crossBase.Lock();
+            directions.Lock();
+
+            extensions = new[] { directions.north, directions.east, directions.south, directions.west };
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            base.Setup(indexProvider);
+            int baseTextureIndex = indexProvider.GetTextureIndex(texture);
 
-            verticesConnected = new float[4][];
-
-            verticesConnected[0] = new float[96];
-            Array.Copy(vertices, verticesConnected[0], vertices.Length);
-            Array.Copy(new[] {
-                0.5f, 0f, 1f, 0f, 0f, 0f, 0f, 0f,
-                0.5f, 1f, 1f, 0f, 1f, 0f, 0f, 0f,
-                0.5f, 1f, 0f, 1f, 1f, 0f, 0f, 0f,
-                0.5f, 0f, 0f, 1f, 0f, 0f, 0f, 0f
-            }, 0, verticesConnected[0], 64, 32);
-
-            verticesConnected[1] = new float[96];
-            Array.Copy(vertices, verticesConnected[1], vertices.Length);
-            Array.Copy(new[] {
-                0f, 0f, 0.5f, 0f, 0f, 0f, 0f, 0f,
-                0f, 1f, 0.5f, 0f, 1f, 0f, 0f, 0f,
-                1f, 1f, 0.5f, 1f, 1f, 0f, 0f, 0f,
-                1f, 0f, 0.5f, 1f, 0f, 0f, 0f, 0f
-            }, 0, verticesConnected[1], 64, 32);
-
-            verticesConnected[2] = new float[96];
-            Array.Copy(vertices, verticesConnected[2], vertices.Length);
-            Array.Copy(new[] {
-                0.5f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
-                0.5f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
-                0.5f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
-                0.5f, 0f, 0f, 0f, 0f, 0f, 0f, 0f
-            }, 0, verticesConnected[2], 64, 32);
-
-            verticesConnected[3] = new float[96];
-            Array.Copy(vertices, verticesConnected[3], vertices.Length);
-            Array.Copy(new[] {
-                0f, 0f, 0.5f, 1f, 0f, 0f, 0f, 0f,
-                0f, 1f, 0.5f, 1f, 1f, 0f, 0f, 0f,
-                1f, 1f, 0.5f, 0f, 1f, 0f, 0f, 0f,
-                1f, 0f, 0.5f, 0f, 0f, 0f, 0f, 0f
-            }, 0, verticesConnected[3], 64, 32);
-
-            int tex = indexProvider.GetTextureIndex(texture);
-
-            if (tex == 0)
-            {
-                dead = initial = noFruit = withFruit = connector = 0;
-            }
-
-            texIndices = new[]
-            {
-                new[] {tex + dead, tex + dead, tex + dead, tex + dead, tex + dead, tex + dead, tex + dead, tex + dead},
-                new[] {tex + initial, tex + initial, tex + initial, tex + initial, tex + initial, tex + initial, tex + initial, tex + initial},
-                new[] {tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit, tex + noFruit},
-                new[] {tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + withFruit, tex + connector, tex + connector, tex + connector, tex + connector},
-            };
-
-            indicesConnected = new uint[36];
-            Array.Copy(indices, indicesConnected, indices.Length);
-            Array.Copy(new uint[] {
-                8, 10, 9,
-                8, 11, 10,
-                8, 9, 10,
-                8, 10, 11
-            }, 0, indicesConnected, 24, 12);
+            baseTextures = (
+                baseTextureIndex + 0,
+                baseTextureIndex + 1,
+                baseTextureIndex + 2,
+                baseTextureIndex + 3,
+                baseTextureIndex + 4);
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            GrowthStage stage = (GrowthStage)((data >> 2) & 0b111);
+            var stage = (GrowthStage)((data >> 2) & 0b111);
 
-            if (stage < GrowthStage.First)
-            {
-                return new BoundingBox(new Vector3(0.5f, 0.25f, 0.5f), new Vector3(0.175f, 0.25f, 0.175f));
-            }
-            else
-            {
-                return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.175f, 0.5f, 0.175f));
-            }
+            return stage < GrowthStage.First
+                ? new BoundingBox(new Vector3(0.5f, 0.25f, 0.5f), new Vector3(0.175f, 0.25f, 0.175f))
+                : new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.175f, 0.5f, 0.175f));
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             var stage = (GrowthStage)((info.Data >> 2) & 0b111);
 
+            int textureIndex = stage switch
+            {
+                GrowthStage.Dead => baseTextures.dead,
+                GrowthStage.Young => baseTextures.initial,
+                GrowthStage.First => baseTextures.initial,
+                GrowthStage.Second => baseTextures.noFruit,
+                GrowthStage.Third => baseTextures.noFruit,
+                GrowthStage.Fourth => baseTextures.noFruit,
+                GrowthStage.BeforeFruit => baseTextures.noFruit,
+                GrowthStage.WithFruit => baseTextures.withFruit,
+                _ => 0,
+            };
+
             if (stage != GrowthStage.WithFruit)
             {
-                return new BlockMeshData(8, vertices, texIndices[stage < GrowthStage.Second ? (int)stage : 2], indices);
+                crossBase.ToData(out float[] vertices, out int[] textureIndices, out uint[] indices);
+                Array.Fill(textureIndices, textureIndex);
+                return new BlockMeshData((uint)crossBase.VertexCount, vertices, textureIndices, indices);
             }
             else
             {
-                Orientation orientation = (Orientation)(info.Data & 0b11);
-                return new BlockMeshData(12, verticesConnected[(int)orientation], texIndices[3], indicesConnected);
+                var orientation = (Orientation)(info.Data & 0b11);
+                var (vertices, textureIndices, indices) = BlockModel.CombineData(out uint vertexCount, crossBase, extensions[(int)orientation]);
+
+                Array.Fill(textureIndices, textureIndex, 0, crossBase.VertexCount);
+                Array.Fill(textureIndices, baseTextures.connector, crossBase.VertexCount, extensions[0].VertexCount);
+
+                return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
             }
         }
 
@@ -154,7 +122,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            world.SetBlock(this, (int)GrowthStage.Young << 2, x, y, z);
+            world.SetBlock(this, (int)GrowthStage.First << 2, x, y, z);
         }
 
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)

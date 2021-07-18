@@ -9,7 +9,7 @@ using OpenToolkit.Graphics.OpenGL4;
 
 namespace VoxelGame.Graphics.Groups
 {
-    public class ArrayIDataDrawGroup
+    public class ArrayIDataDrawGroup : IDrawGroup
     {
         private readonly int size;
 
@@ -69,6 +69,8 @@ namespace VoxelGame.Graphics.Groups
         {
             GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
         }
+
+        public void Draw() => DrawArrays();
 
         public void Delete()
         {

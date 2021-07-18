@@ -36,5 +36,11 @@ namespace VoxelGame.Core.Utilities
             return (top.IsSolidAndFull && top.IsOpaque)
                    || top is IHeightVariable;
         }
+
+        public static bool IsLowered(this World world, int x, int y, int z)
+        {
+            return world.GetBlock(x, y - 1, z, out uint data) is IHeightVariable block
+                && block.GetHeight(data) == IHeightVariable.MaximumHeight - 1;
+        }
     }
 }

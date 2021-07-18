@@ -649,5 +649,13 @@ namespace VoxelGame.Core.Visuals
             group.bottom.Lock();
             group.top.Lock();
         }
+
+        public static void Lock(this (BlockModel north, BlockModel east, BlockModel south, BlockModel west) group)
+        {
+            group.north.Lock();
+            group.east.Lock();
+            group.south.Lock();
+            group.west.Lock();
+        }
     }
 }

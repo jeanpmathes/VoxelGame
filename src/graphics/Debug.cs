@@ -18,7 +18,7 @@ namespace VoxelGame.Graphics
 #pragma warning disable S1450
 
         // Has to be a member to prevent garbage collection.
-        private DebugProc debugCallbackDelegate;
+        private DebugProc debugCallbackDelegate = null!;
 
 #pragma warning restore S1450
 

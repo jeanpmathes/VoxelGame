@@ -214,7 +214,7 @@ namespace VoxelGame.Client.Rendering
             }
         }
 
-        protected void GenerateMipmapWithoutTransparencyMixing(int handle, Bitmap baseLevel, int levels, int length)
+        protected static void GenerateMipmapWithoutTransparencyMixing(int handle, Bitmap baseLevel, int levels, int length)
         {
             Bitmap upperLevel = baseLevel;
 
@@ -244,7 +244,7 @@ namespace VoxelGame.Client.Rendering
             }
         }
 
-        private void UploadPixelData(int handle, Bitmap bitmap, int lod, int length)
+        private static void UploadPixelData(int handle, Bitmap bitmap, int lod, int length)
         {
             BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             GL.TextureSubImage3D(handle, lod, 0, 0, 0, bitmap.Width, bitmap.Width, length, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
