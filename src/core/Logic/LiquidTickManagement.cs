@@ -1,4 +1,4 @@
-﻿// <copyright file="LiquidTickManagment.cs" company="VoxelGame">
+﻿// <copyright file="LiquidTickManagement.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
