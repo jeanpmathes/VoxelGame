@@ -26,6 +26,7 @@ namespace VoxelGame.Core.Logic.Blocks
     public class FireBlock : Block, IFillable
     {
         private const int TickOffset = 150;
+        private const int TickVariation = 25;
 
         private float[] completeVertices = null!;
         private uint[] completeIndices = null!;
@@ -298,12 +299,12 @@ namespace VoxelGame.Core.Logic.Blocks
             if (world.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull == true)
             {
                 world.SetBlock(this, 0, x, y, z);
-                ScheduleTick(world, x, y, z, TickOffset);
+                ScheduleTick(world, x, y, z, GetDelay(x, y, z));
             }
             else
             {
                 world.SetBlock(this, GetData(world, x, y, z), x, y, z);
-                ScheduleTick(world, x, y, z, TickOffset);
+                ScheduleTick(world, x, y, z, GetDelay(x, y, z));
             }
         }
 
@@ -367,25 +368,24 @@ namespace VoxelGame.Core.Logic.Blocks
                     break;
             }
 
-            void CheckNeighbor(int x, int y, int z, uint mask)
+            void CheckNeighbor(int nx, int ny, int nz, uint mask)
             {
-                if ((data & mask) != 0 && world.GetBlock(x, y, z, out _)?.IsSolidAndFull != true)
-                {
-                    data ^= mask;
-                    SetData(data);
-                }
+                if ((data & mask) == 0 || world.GetBlock(nx, ny, nz, out _)?.IsSolidAndFull == true) return;
+
+                data ^= mask;
+                SetData(data);
             }
 
-            uint AddNeighbor(int x, int y, int z, uint mask)
+            uint AddNeighbor(int nx, int ny, int nz, uint mask)
             {
-                return (world.GetBlock(x, y, z, out _)?.IsSolidAndFull == true) ? mask : (uint)0;
+                return (world.GetBlock(nx, ny, nz, out _)?.IsSolidAndFull == true) ? mask : 0;
             }
 
-            void SetData(uint data)
+            void SetData(uint dataToSet)
             {
-                if (data != 0)
+                if (dataToSet != 0)
                 {
-                    world.SetBlock(this, data, x, y, z);
+                    world.SetBlock(this, dataToSet, x, y, z);
                 }
                 else
                 {
@@ -416,15 +416,15 @@ namespace VoxelGame.Core.Logic.Blocks
                 Destroy(world, x, y, z);
             }
 
-            ScheduleTick(world, x, y, z, TickOffset);
+            ScheduleTick(world, x, y, z, GetDelay(x, y, z));
 
-            bool BurnAt(int x, int y, int z)
+            bool BurnAt(int nx, int ny, int nz)
             {
-                if (world.GetBlock(x, y, z, out _) is IFlammable block)
+                if (world.GetBlock(nx, ny, nz, out _) is IFlammable block)
                 {
-                    if (block.Burn(world, x, y, z, this))
+                    if (block.Burn(world, nx, ny, nz, this))
                     {
-                        Place(world, x, y, z);
+                        Place(world, nx, ny, nz);
                     }
 
                     return true;
@@ -439,6 +439,11 @@ namespace VoxelGame.Core.Logic.Blocks
         public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
             if (liquid != Liquid.None) Destroy(world, x, y, z);
+        }
+
+        private static int GetDelay(int x, int y, int z)
+        {
+            return TickOffset + (BlockUtilities.GetPositionDependentNumber(x, y, z, TickVariation * 2) - TickVariation);
         }
     }
 }
