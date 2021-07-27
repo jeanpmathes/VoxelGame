@@ -127,7 +127,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block PipeValve = new SteelPipeValveBlock(Language.ValvePipe, nameof(PipeValve), 0.375f, "steel_pipe_valve_open", "steel_pipe_valve_closed");
         public static readonly Block RedPlastic = new ConstructionBlock(Language.RedPlastic, nameof(RedPlastic), TextureLayout.Uniform("red_plastic"));
         public static readonly Block Pump = new PumpBlock(Language.Pump, nameof(Pump), 16, TextureLayout.Uniform("pump"));
-        public static readonly Block Path = new InsetDirtBlock(Language.Path, nameof(Path), TextureLayout.Uniform("dirt"), TextureLayout.Uniform("dirt"), false);
+        public static readonly Block Path = new InsetDirtBlock(Language.Path, nameof(Path), TextureLayout.Uniform("dirt"), TextureLayout.Uniform("dirt_wet"), false);
         public static readonly Block Concrete = new ConcreteBlock(Language.Concrete, nameof(Concrete), TextureLayout.Uniform("concrete"));
         public static readonly Block GlassPane = new ThinConnectingBlock(Language.GlassPane, nameof(GlassPane), "pane_glass_post", "pane_glass_side", "pane_glass_extension");
         public static readonly Block Bars = new ThinConnectingBlock(Language.Bars, nameof(Bars), "bars_post", "bars_side", "bars_extension");
