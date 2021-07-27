@@ -312,11 +312,11 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             uint data = 0;
 
-            if (world.GetBlock(x, y, z - 1, out _)?.IsSolidAndFull == true) data |= 0b01_0000; // North.
-            if (world.GetBlock(x + 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b00_1000; // East.
-            if (world.GetBlock(x, y, z + 1, out _)?.IsSolidAndFull == true) data |= 0b00_0100; // South.
-            if (world.GetBlock(x - 1, y, z, out _)?.IsSolidAndFull == true) data |= 0b00_0010; // West.
-            if (world.GetBlock(x, y + 1, z, out _)?.IsSolidAndFull == true) data |= 0b00_0001; // Top.
+            if (world.IsSolid(x, y, z - 1)) data |= 0b01_0000; // North.
+            if (world.IsSolid(x + 1, y, z)) data |= 0b00_1000; // East.
+            if (world.IsSolid(x, y, z + 1)) data |= 0b00_0100; // South.
+            if (world.IsSolid(x - 1, y, z)) data |= 0b00_0010; // West.
+            if (world.IsSolid(x, y + 1, z)) data |= 0b00_0001; // Top.
 
             return data;
         }
@@ -370,7 +370,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             void CheckNeighbor(int nx, int ny, int nz, uint mask)
             {
-                if ((data & mask) == 0 || world.GetBlock(nx, ny, nz, out _)?.IsSolidAndFull == true) return;
+                if ((data & mask) == 0 || world.IsSolid(nx, ny, nz)) return;
 
                 data ^= mask;
                 SetData(data);
@@ -378,7 +378,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             uint AddNeighbor(int nx, int ny, int nz, uint mask)
             {
-                return (world.GetBlock(nx, ny, nz, out _)?.IsSolidAndFull == true) ? mask : 0;
+                return world.IsSolid(nx, ny, nz) ? mask : 0;
             }
 
             void SetData(uint dataToSet)
