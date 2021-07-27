@@ -137,17 +137,24 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            if (!world.HasSolidGround(x, y, z))
+            if (!world.HasSolidGround(x, y, z, solidify: true))
             {
                 return false;
             }
 
             return (entity?.LookingDirection.ToOrientation() ?? Orientation.North) switch
             {
-                Orientation.North => world.GetBlock(x, y, z - 1, out _)?.IsReplaceable == true && world.HasSolidGround(x, y, z - 1),
-                Orientation.East => world.GetBlock(x + 1, y, z, out _)?.IsReplaceable == true && world.HasSolidGround(x + 1, y, z),
-                Orientation.South => world.GetBlock(x, y, z + 1, out _)?.IsReplaceable == true && world.HasSolidGround(x, y, z + 1),
-                Orientation.West => world.GetBlock(x - 1, y, z, out _)?.IsReplaceable == true && world.HasSolidGround(x - 1, y, z),
+                Orientation.North =>
+                    world.GetBlock(x, y, z - 1, out _)?.IsReplaceable == true && world.HasSolidGround(x, y, z - 1, solidify: true),
+
+                Orientation.East =>
+                    world.GetBlock(x + 1, y, z, out _)?.IsReplaceable == true && world.HasSolidGround(x + 1, y, z, solidify: true),
+
+                Orientation.South =>
+                    world.GetBlock(x, y, z + 1, out _)?.IsReplaceable == true && world.HasSolidGround(x, y, z + 1, solidify: true),
+
+                Orientation.West =>
+                    world.GetBlock(x - 1, y, z, out _)?.IsReplaceable == true && world.HasSolidGround(x - 1, y, z, solidify: true),
                 _ => false,
             };
         }

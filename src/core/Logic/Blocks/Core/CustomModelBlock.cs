@@ -58,7 +58,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            return world.HasSolidGround(x, y, z);
+            return world.HasSolidGround(x, y, z, solidify: true);
         }
 
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
