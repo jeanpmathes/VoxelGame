@@ -284,7 +284,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            if (world.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull == true)
+            if (world.HasSolidGround(x, y, z, solidify: true))
             {
                 return true;
             }
@@ -296,7 +296,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            if (world.GetBlock(x, y - 1, z, out _)?.IsSolidAndFull == true)
+            if (world.HasSolidGround(x, y, z))
             {
                 world.SetBlock(this, 0, x, y, z);
                 ScheduleTick(world, x, y, z, GetDelay(x, y, z));
