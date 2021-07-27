@@ -284,7 +284,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            if (world.HasSolidGround(x, y, z, solidify: true))
+            if (world.HasSolidGround(x, y, z))
             {
                 return true;
             }
@@ -424,6 +424,11 @@ namespace VoxelGame.Core.Logic.Blocks
                 {
                     if (block.Burn(world, nx, ny, nz, this))
                     {
+                        if (world.GetBlock(nx, ny - 1, nz, out _) is IAshCoverable coverable)
+                        {
+                            coverable.CoverWithAsh(world, nx, ny - 1, nz);
+                        }
+
                         Place(world, nx, ny, nz);
                     }
 

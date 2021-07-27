@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// A dirt-like block that is a bit lower then normal dirt.
     /// Data bit usage: <c>------</c>.
     /// </summary>
-    public class InsetDirtBlock : Block, IHeightVariable, IFillable, IPlantable, IPotentiallySolid
+    public class InsetDirtBlock : Block, IHeightVariable, IFillable, IPlantable, IPotentiallySolid, IAshCoverable
     {
         private const int Height = IHeightVariable.MaximumHeight - 1;
 
@@ -102,6 +102,11 @@ namespace VoxelGame.Core.Logic.Blocks
         public void BecomeSolid(World world, int x, int y, int z)
         {
             world.SetBlock(Block.Dirt, 0, x, y, z);
+        }
+
+        public void CoverWithAsh(World world, int x, int y, int z)
+        {
+            world.SetBlock(Block.GrassBurned, 0, x, y, z);
         }
     }
 }
