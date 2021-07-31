@@ -13,7 +13,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A plant made out of two intersecting planes. It is using a neutral tint.
+    /// A plant made out of two intersecting planes. It uses neutral tint.
     /// Data bit usage: <c>-----l</c>
     /// </summary>
     // l = lowered
@@ -61,7 +61,6 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            // Check the block under the placement position.
             Block ground = world.GetBlock(x, y - 1, z, out _) ?? Block.Air;
             return ground is IPlantable;
         }
@@ -69,7 +68,6 @@ namespace VoxelGame.Core.Logic.Blocks
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
             bool isLowered = world.IsLowered(x, y, z);
-
             world.SetBlock(this, isLowered ? 1u : 0u, x, y, z);
         }
 
