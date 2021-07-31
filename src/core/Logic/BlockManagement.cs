@@ -20,7 +20,7 @@ namespace VoxelGame.Core.Logic
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<Block>();
 
-        public const int BlockLimit = 1 << Section.DATASHIFT;
+        public const int BlockLimit = 1 << Section.DATA_SHIFT;
 
         private static readonly Dictionary<uint, Block> blockDictionary = new Dictionary<uint, Block>();
         private static readonly Dictionary<string, Block> namedBlockDictionary = new Dictionary<string, Block>();

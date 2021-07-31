@@ -597,7 +597,7 @@ namespace VoxelGame.Core.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ModifyLiquid(bool isStatic, int x, int y, int z)
         {
-            ModifyWorldData(x, y, z, ~Section.STATICMASK, isStatic ? Section.STATICMASK : 0);
+            ModifyWorldData(x, y, z, ~Section.STATIC_MASK, isStatic ? Section.STATIC_MASK : 0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

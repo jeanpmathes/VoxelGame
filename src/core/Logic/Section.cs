@@ -16,18 +16,22 @@ namespace VoxelGame.Core.Logic
         public const int SectionSize = 32;
         public const int TickBatchSize = 4;
 
-        public const int DATASHIFT = 12;
-        public const int LIQUIDSHIFT = 18;
-        public const int LEVELSHIFT = 23;
-        public const int STATICSHIFT = 26;
+#pragma warning disable CA1707 // Identifiers should not contain underscores
+        public const int DATA_SHIFT = 12;
+        public const int LIQUID_SHIFT = 18;
+        public const int LEVEL_SHIFT = 23;
+        public const int STATIC_SHIFT = 26;
+#pragma warning restore CA1707 // Identifiers should not contain underscores
 
-        public const uint BLOCKMASK = 0b0000_0000_0000_0000_0000_1111_1111_1111;
-        public const uint DATAMASK = 0b0000_0000_0000_0011_1111_0000_0000_0000;
-        public const uint LIQUIDMASK = 0b0000_0000_0111_1100_0000_0000_0000_0000;
-        public const uint LEVELMASK = 0b0000_0011_1000_0000_0000_0000_0000_0000;
-        public const uint STATICMASK = 0b0000_0100_0000_0000_0000_0000_0000_0000;
+#pragma warning disable CA1707 // Identifiers should not contain underscores
+        public const uint BLOCK_MASK = 0b0000_0000_0000_0000_0000_1111_1111_1111;
+        public const uint DATA_MASK = 0b0000_0000_0000_0011_1111_0000_0000_0000;
+        public const uint LIQUID_MASK = 0b0000_0000_0111_1100_0000_0000_0000_0000;
+        public const uint LEVEL_MASK = 0b0000_0011_1000_0000_0000_0000_0000_0000;
+        public const uint STATIC_MASK = 0b0000_0100_0000_0000_0000_0000_0000_0000;
+#pragma warning restore CA1707 // Identifiers should not contain underscores
 
-        public static Vector3 Extents { get => new Vector3(SectionSize / 2f, SectionSize / 2f, SectionSize / 2f); }
+        public static Vector3 Extents => new Vector3(SectionSize / 2f, SectionSize / 2f, SectionSize / 2f);
 
         [field: NonSerialized] protected World World { get; private set; } = null!;
 
@@ -38,12 +42,7 @@ namespace VoxelGame.Core.Logic
         protected Section(World world)
         {
             blocks = new uint[SectionSize * SectionSize * SectionSize];
-
-#pragma warning disable S1699 // Constructors should only call non-overridable methods
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
             Setup(world);
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
-#pragma warning restore S1699 // Constructors should only call non-overridable methods
         }
 
         /// <summary>
@@ -102,35 +101,35 @@ namespace VoxelGame.Core.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Decode(uint val, out Block block, out uint data, out Liquid liquid, out LiquidLevel level, out bool isStatic)
         {
-            block = Block.TranslateID(val & BLOCKMASK);
-            data = (val & DATAMASK) >> DATASHIFT;
-            liquid = Liquid.TranslateID((val & LIQUIDMASK) >> LIQUIDSHIFT);
-            level = (LiquidLevel)((val & LEVELMASK) >> LEVELSHIFT);
-            isStatic = (val & STATICMASK) != 0;
+            block = Block.TranslateID(val & BLOCK_MASK);
+            data = (val & DATA_MASK) >> DATA_SHIFT;
+            liquid = Liquid.TranslateID((val & LIQUID_MASK) >> LIQUID_SHIFT);
+            level = (LiquidLevel)((val & LEVEL_MASK) >> LEVEL_SHIFT);
+            isStatic = (val & STATIC_MASK) != 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint Encode(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic)
         {
-            return (uint)((((isStatic ? 1 : 0) << Section.STATICSHIFT) & Section.STATICMASK)
-                           | (((uint)level << Section.LEVELSHIFT) & Section.LEVELMASK)
-                           | ((liquid.Id << Section.LIQUIDSHIFT) & Section.LIQUIDMASK)
-                           | ((data << Section.DATASHIFT) & Section.DATAMASK)
-                           | (block.Id & Section.BLOCKMASK));
+            return (uint)((((isStatic ? 1 : 0) << Section.STATIC_SHIFT) & Section.STATIC_MASK)
+                           | (((uint)level << Section.LEVEL_SHIFT) & Section.LEVEL_MASK)
+                           | ((liquid.Id << Section.LIQUID_SHIFT) & Section.LIQUID_MASK)
+                           | ((data << Section.DATA_SHIFT) & Section.DATA_MASK)
+                           | (block.Id & Section.BLOCK_MASK));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected Block GetBlock(Vector3i position)
         {
-            return Block.TranslateID(this[position.X, position.Y, position.Z] & BLOCKMASK);
+            return Block.TranslateID(this[position.X, position.Y, position.Z] & BLOCK_MASK);
         }
 
         protected Block GetBlock(Vector3i position, out uint data)
         {
             uint val = this[position.X, position.Y, position.Z];
 
-            data = (val << DATASHIFT) & DATAMASK;
-            return Block.TranslateID(val & BLOCKMASK);
+            data = (val << DATA_SHIFT) & DATA_MASK;
+            return Block.TranslateID(val & BLOCK_MASK);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -138,8 +137,8 @@ namespace VoxelGame.Core.Logic
         {
             uint val = this[position.X, position.Y, position.Z];
 
-            level = (int)((val & LEVELMASK) >> LEVELSHIFT);
-            return Liquid.TranslateID((val & LIQUIDMASK) >> LIQUIDSHIFT);
+            level = (int)((val & LEVEL_MASK) >> LEVEL_SHIFT);
+            return Liquid.TranslateID((val & LIQUID_MASK) >> LIQUID_SHIFT);
         }
 
         #region IDisposable Support
