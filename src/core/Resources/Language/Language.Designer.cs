@@ -151,7 +151,7 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to BrickWall.
+        ///   Looks up a localized string similar to Brick Wall.
         /// </summary>
         public static string BrickWall {
             get {

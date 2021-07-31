@@ -20,7 +20,7 @@ namespace VoxelGame.Core.Logic
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<Block>();
 
-        public const int BlockLimit = 1 << Section.DATASHIFT;
+        public const int BlockLimit = 1 << Section.DATA_SHIFT;
 
         private static readonly Dictionary<uint, Block> blockDictionary = new Dictionary<uint, Block>();
         private static readonly Dictionary<string, Block> namedBlockDictionary = new Dictionary<string, Block>();
@@ -62,8 +62,8 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Onions = new CropBlock(Language.Onions, nameof(Onions), "onion", 0, 1, 1, 2, 2, 3, 4);
         public static readonly Block Wheat = new CropBlock(Language.Wheat, nameof(Wheat), "wheat", 0, 1, 1, 2, 2, 3, 4);
         public static readonly Block Maize = new DoubleCropBlock(Language.Maize, nameof(Maize), "maize", 0, 1, 2, 2, (3, 6), (3, 6), (4, 7), (5, 8));
-        public static readonly Block PumpkinPlant = new FruitCropBlock(Language.PumpkinPlant, nameof(PumpkinPlant), "pumpkin_plant", "crop_plant_base", "crop_plant_extension", Pumpkin);
-        public static readonly Block MelonPlant = new FruitCropBlock(Language.MelonPlant, nameof(MelonPlant), "melon_plant", "crop_plant_base", "crop_plant_extension", Melon);
+        public static readonly Block PumpkinPlant = new FruitCropBlock(Language.PumpkinPlant, nameof(PumpkinPlant), "pumpkin_plant", Pumpkin);
+        public static readonly Block MelonPlant = new FruitCropBlock(Language.MelonPlant, nameof(MelonPlant), "melon_plant", Melon);
 
         #endregion PLANT BLOCKS
 
@@ -127,7 +127,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block PipeValve = new SteelPipeValveBlock(Language.ValvePipe, nameof(PipeValve), 0.375f, "steel_pipe_valve_open", "steel_pipe_valve_closed");
         public static readonly Block RedPlastic = new ConstructionBlock(Language.RedPlastic, nameof(RedPlastic), TextureLayout.Uniform("red_plastic"));
         public static readonly Block Pump = new PumpBlock(Language.Pump, nameof(Pump), 16, TextureLayout.Uniform("pump"));
-        public static readonly Block Path = new InsetDirtBlock(Language.Path, nameof(Path), TextureLayout.Uniform("dirt"), TextureLayout.Uniform("dirt"), false);
+        public static readonly Block Path = new InsetDirtBlock(Language.Path, nameof(Path), TextureLayout.Uniform("dirt"), TextureLayout.Uniform("dirt_wet"), false);
         public static readonly Block Concrete = new ConcreteBlock(Language.Concrete, nameof(Concrete), TextureLayout.Uniform("concrete"));
         public static readonly Block GlassPane = new ThinConnectingBlock(Language.GlassPane, nameof(GlassPane), "pane_glass_post", "pane_glass_side", "pane_glass_extension");
         public static readonly Block Bars = new ThinConnectingBlock(Language.Bars, nameof(Bars), "bars_post", "bars_side", "bars_extension");

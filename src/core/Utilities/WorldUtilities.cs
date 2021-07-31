@@ -13,15 +13,25 @@ namespace VoxelGame.Core.Utilities
     {
         public static bool IsSolid(this World world, int x, int y, int z)
         {
-            Block ground = world.GetBlock(x, y, z, out uint data) ?? Block.Air;
-
-            return ground.IsSolidAndFull
-                   || (ground is IHeightVariable varHeight && varHeight.GetHeight(data) == IHeightVariable.MaximumHeight);
+            return IsSolid(world, x, y, z, out _);
         }
 
-        public static bool HasSolidGround(this World world, int x, int y, int z)
+        private static bool IsSolid(this World world, int x, int y, int z, out Block block)
         {
-            return world.IsSolid(x, y - 1, z);
+            block = world.GetBlock(x, y, z, out uint data) ?? Block.Air;
+
+            return block.IsSolidAndFull
+                   || (block is IHeightVariable varHeight && varHeight.GetHeight(data) == IHeightVariable.MaximumHeight);
+        }
+
+        public static bool HasSolidGround(this World world, int x, int y, int z, bool solidify = false)
+        {
+            bool isSolid = world.IsSolid(x, y - 1, z, out Block ground);
+
+            if (!solidify || isSolid || !(ground is IPotentiallySolid solidifiable)) return isSolid;
+
+            solidifiable.BecomeSolid(world, x, y - 1, z);
+            return true;
         }
 
         public static bool HasSolidTop(this World world, int x, int y, int z)

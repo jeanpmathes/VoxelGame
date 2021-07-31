@@ -49,7 +49,7 @@ namespace VoxelGame.Core.Logic
             ConcreteDissolve
         }
 
-        private bool LavaCooling(World world, ContactInformation a, ContactInformation b)
+        private static bool LavaCooling(World world, ContactInformation a, ContactInformation b)
         {
             Select(a, b, Liquid.Lava, out ContactInformation lava, out ContactInformation coolant);
 
@@ -67,7 +67,7 @@ namespace VoxelGame.Core.Logic
             return true;
         }
 
-        private bool LavaBurn(World world, ContactInformation a, ContactInformation b)
+        private static bool LavaBurn(World world, ContactInformation a, ContactInformation b)
         {
             Select(a, b, Liquid.Lava, out ContactInformation lava, out ContactInformation burned);
 
@@ -79,7 +79,7 @@ namespace VoxelGame.Core.Logic
             return true;
         }
 
-        private bool DensitySwap(World world, ContactInformation a, ContactInformation b)
+        private static bool DensitySwap(World world, ContactInformation a, ContactInformation b)
         {
             if (a.position.Y == b.position.Y) return DensityLift(world, a, b);
 
@@ -97,7 +97,7 @@ namespace VoxelGame.Core.Logic
             return true;
         }
 
-        private bool DensityLift(World world, ContactInformation a, ContactInformation b)
+        private static bool DensityLift(World world, ContactInformation a, ContactInformation b)
         {
             ContactInformation dense;
             ContactInformation light;
@@ -135,7 +135,7 @@ namespace VoxelGame.Core.Logic
             return false;
         }
 
-        private bool ConcreteDissolve(World world, ContactInformation a, ContactInformation b)
+        private static bool ConcreteDissolve(World world, ContactInformation a, ContactInformation b)
         {
             Select(a, b, Liquid.Concrete, out ContactInformation concrete, out ContactInformation other);
 

@@ -130,7 +130,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            return world.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true && world.HasSolidGround(x, y, z);
+            return world.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true && world.HasSolidGround(x, y, z, solidify: true);
         }
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
