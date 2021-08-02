@@ -35,34 +35,11 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             Axis axis = ToAxis(info.Data);
 
-            float[] v = sideVertices[(int)info.Side];
-            float[] vertices;
-
             // Check if the texture has to be rotated.
-            if ((axis == Axis.X && (info.Side != BlockSide.Left && info.Side != BlockSide.Right)) || (axis == Axis.Z && (info.Side == BlockSide.Left || info.Side == BlockSide.Right)))
-            {
-                // Texture rotation.
-                vertices = new[]
-                {
-                    v[0], v[1], v[2], 0f, 1f, v[5], v[6], v[7],
-                    v[8], v[9], v[10], 1f, 1f, v[13], v[14], v[15],
-                    v[16], v[17], v[18], 1f, 0f, v[21], v[22], v[23],
-                    v[24], v[25], v[26], 0f, 0f, v[29], v[30], v[31]
-                };
-            }
-            else
-            {
-                // No texture rotation.
-                vertices = new[]
-                {
-                    v[0], v[1], v[2], 0f, 0f, v[5], v[6], v[7],
-                    v[8], v[9], v[10], 0f, 1f, v[13], v[14], v[15],
-                    v[16], v[17], v[18], 1f, 1f, v[21], v[22], v[23],
-                    v[24], v[25], v[26], 1f, 0f, v[29], v[30], v[31]
-                };
-            }
+            bool rotated = (axis == Axis.X && (info.Side != BlockSide.Left && info.Side != BlockSide.Right)) ||
+                           (axis == Axis.Z && (info.Side == BlockSide.Left || info.Side == BlockSide.Right));
 
-            return BlockMeshData.Basic(vertices, sideTextureIndices[TranslateIndex(info.Side, axis)]);
+            return BlockMeshData.Basic(sideTextureIndices[TranslateIndex(info.Side, axis)], rotated);
         }
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)

@@ -117,18 +117,20 @@ namespace VoxelGame.Client.Logic
                                         if (blockToCheck != null && (!blockToCheck.IsFull || (!blockToCheck.IsOpaque && currentBlock.IsOpaque) || (!blockToCheck.IsOpaque && (currentBlock.RenderFaceAtNonOpaques || blockToCheck.RenderFaceAtNonOpaques))))
                                         {
                                             BlockMeshData mesh = currentBlock.GetMesh(BlockMeshInfo.Simple(side, data, currentLiquid));
-                                            float[] vertices = mesh.GetVertices();
+
+                                            side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
+                                            int[][] uvs = BlockModels.GetBlockUVs(mesh.IsTextureRotated);
 
                                             // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                            int upperDataA = (((int)vertices[(0 * 8) + 3]) << 31) | (((int)vertices[(0 * 8) + 4]) << 30) | (((int)vertices[(0 * 8) + 0] + x) << 12) | (((int)vertices[(0 * 8) + 1] + y) << 6) | ((int)vertices[(0 * 8) + 2] + z);
-                                            int upperDataB = (((int)vertices[(1 * 8) + 3]) << 31) | (((int)vertices[(1 * 8) + 4]) << 30) | (((int)vertices[(1 * 8) + 0] + x) << 12) | (((int)vertices[(1 * 8) + 1] + y) << 6) | ((int)vertices[(1 * 8) + 2] + z);
-                                            int upperDataC = (((int)vertices[(2 * 8) + 3]) << 31) | (((int)vertices[(2 * 8) + 4]) << 30) | (((int)vertices[(2 * 8) + 0] + x) << 12) | (((int)vertices[(2 * 8) + 1] + y) << 6) | ((int)vertices[(2 * 8) + 2] + z);
-                                            int upperDataD = (((int)vertices[(3 * 8) + 3]) << 31) | (((int)vertices[(3 * 8) + 4]) << 30) | (((int)vertices[(3 * 8) + 0] + x) << 12) | (((int)vertices[(3 * 8) + 1] + y) << 6) | ((int)vertices[(3 * 8) + 2] + z);
+                                            int upperDataA = (uvs[0][0] << 31) | (uvs[0][1] << 30) | ((a[0] + x) << 12) | ((a[1] + y) << 6) | (a[2] + z);
+                                            int upperDataB = (uvs[1][0] << 31) | (uvs[1][1] << 30) | ((b[0] + x) << 12) | ((b[1] + y) << 6) | (b[2] + z);
+                                            int upperDataC = (uvs[2][0] << 31) | (uvs[2][1] << 30) | ((c[0] + x) << 12) | ((c[1] + y) << 6) | (c[2] + z);
+                                            int upperDataD = (uvs[3][0] << 31) | (uvs[3][1] << 30) | ((d[0] + x) << 12) | ((d[1] + y) << 6) | (d[2] + z);
 
                                             // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
                                             int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)side << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
 
-                                            blockMeshFaceHolders[(int)side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
+                                            blockMeshFaceHolders[(int)side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), mesh.IsTextureRotated);
                                         }
                                     }
 
@@ -240,7 +242,7 @@ namespace VoxelGame.Client.Logic
                                                 // int: tttt tttt t--n nn-_ ---i iiii iiii iiii (t: tint; n: normal; i: texture index, _: used for simple blocks but not here)
                                                 int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)side << 18) | mesh.TextureIndex;
 
-                                                blockMeshFaceHolders[(int)side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD));
+                                                blockMeshFaceHolders[(int)side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), false);
                                             }
                                         }
                                     }

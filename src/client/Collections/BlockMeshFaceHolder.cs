@@ -31,23 +31,23 @@ namespace VoxelGame.Client.Collections
             lastFaces = layerPool.Rent(Section.SectionSize);
 
             // Initialize rows.
-            for (int i = 0; i < Section.SectionSize; i++)
+            for (var i = 0; i < Section.SectionSize; i++)
             {
                 lastFaces[i] = rowPool.Rent(Section.SectionSize);
 
-                for (int j = 0; j < Section.SectionSize; j++)
+                for (var j = 0; j < Section.SectionSize; j++)
                 {
                     lastFaces[i][j] = null;
                 }
             }
         }
 
-        public void AddFace(Vector3i pos, int vertexData, (int vertA, int vertB, int vertC, int vertD) vertices)
+        public void AddFace(Vector3i pos, int vertexData, (int vertA, int vertB, int vertC, int vertD) vertices, bool isRotated)
         {
             ExtractIndices(pos, out int layer, out int row, out int position);
 
             // Build current face.
-            MeshFace currentFace = MeshFace.Get(vertices.vertA, vertices.vertB, vertices.vertC, vertices.vertD, vertexData, (int)((uint)vertices.vertC >> 30) != 0b11, position);
+            MeshFace currentFace = MeshFace.Get(vertices.vertA, vertices.vertB, vertices.vertC, vertices.vertD, vertexData, isRotated, position);
 
             // Check if an already existing face can be extended.
             if (lastFaces[layer][row]?.IsExtendable(currentFace) ?? false)

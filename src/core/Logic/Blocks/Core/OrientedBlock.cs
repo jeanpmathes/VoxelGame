@@ -34,17 +34,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            float[] v = sideVertices[(int)info.Side];
-
-            float[] vertices =
-            {
-                v[0], v[1], v[2], 0f, 0f, v[5], v[6], v[7],
-                v[8], v[9], v[10], 0f, 1f, v[13], v[14], v[15],
-                v[16], v[17], v[18], 1f, 1f, v[21], v[22], v[23],
-                v[24], v[25], v[26], 1f, 0f, v[29], v[30], v[31]
-            };
-
-            return BlockMeshData.Basic(vertices, sideTextureIndices[TranslateIndex(info.Side, (Orientation)(info.Data & 0b00_0011))]);
+            return BlockMeshData.Basic(sideTextureIndices[TranslateIndex(info.Side, (Orientation)(info.Data & 0b00_0011))], false);
         }
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)

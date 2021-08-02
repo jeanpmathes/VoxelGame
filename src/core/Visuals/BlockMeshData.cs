@@ -18,6 +18,8 @@ namespace VoxelGame.Core.Visuals
 
         public int TextureIndex { get; }
 
+        public bool IsTextureRotated { get; }
+
         public TintColor Tint { get; }
 
         public bool IsAnimated { get; }
@@ -31,12 +33,12 @@ namespace VoxelGame.Core.Visuals
         public bool IsDoubleCropPlant { get; }
 
         public BlockMeshData(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices, bool isAnimated = false)
-            : this(vertexCount, vertices, textureIndices, indices, TintColor.None, isAnimated) { }
+            : this(vertexCount, vertices, textureIndices, indices, 0, false, TintColor.None, isAnimated) { }
 
         public BlockMeshData(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices, TintColor tint, bool isAnimated = false)
-            : this(vertexCount, vertices, textureIndices, indices, 0, tint, isAnimated) { }
+            : this(vertexCount, vertices, textureIndices, indices, 0, false, tint, isAnimated) { }
 
-        private BlockMeshData(uint vertexCount = 0, float[]? vertices = null, int[]? textureIndices = null, uint[]? indices = null, int textureIndex = 0, TintColor? tint = null, bool isAnimated = false, bool isLowered = false, bool hasUpper = false, bool isUpper = false, bool isDoubleCropPlant = false)
+        private BlockMeshData(uint vertexCount = 0, float[]? vertices = null, int[]? textureIndices = null, uint[]? indices = null, int textureIndex = 0, bool isTextureRotated = false, TintColor? tint = null, bool isAnimated = false, bool isLowered = false, bool hasUpper = false, bool isUpper = false, bool isDoubleCropPlant = false)
         {
             VertexCount = vertexCount;
 
@@ -45,6 +47,7 @@ namespace VoxelGame.Core.Visuals
             this.indices = indices ?? Array.Empty<uint>();
 
             TextureIndex = textureIndex;
+            IsTextureRotated = isTextureRotated;
 
             Tint = tint ?? TintColor.None;
 
@@ -53,6 +56,26 @@ namespace VoxelGame.Core.Visuals
             IsLowered = isLowered;
             IsUpper = isUpper;
             IsDoubleCropPlant = isDoubleCropPlant;
+        }
+
+        private BlockMeshData(BlockMeshData original)
+        {
+            VertexCount = original.VertexCount;
+
+            vertices = original.vertices;
+            textureIndices = original.textureIndices;
+            indices = original.indices;
+
+            TextureIndex = original.TextureIndex;
+            IsTextureRotated = original.IsTextureRotated;
+
+            Tint = original.Tint;
+
+            IsAnimated = original.IsAnimated;
+            HasUpper = original.HasUpper;
+            IsLowered = original.IsLowered;
+            IsUpper = original.IsUpper;
+            IsDoubleCropPlant = original.IsDoubleCropPlant;
         }
 
         public float[] GetVertices() => vertices;
@@ -73,27 +96,27 @@ namespace VoxelGame.Core.Visuals
 
         public BlockMeshData Modified(TintColor tint)
         {
-            return new BlockMeshData(this.VertexCount, this.GetVertices(), this.GetTextureIndices(), this.GetIndices(), this.TextureIndex, tint, this.IsAnimated);
+            return new BlockMeshData(this.VertexCount, this.vertices, this.textureIndices, this.indices, this.TextureIndex, this.IsTextureRotated, tint, this.IsAnimated, this.HasUpper, this.IsLowered, this.IsUpper, this.IsDoubleCropPlant);
         }
 
         public BlockMeshData Modified(TintColor tint, bool isAnimated)
         {
-            return new BlockMeshData(this.VertexCount, this.GetVertices(), this.GetTextureIndices(), this.GetIndices(), this.TextureIndex, tint, isAnimated);
+            return new BlockMeshData(this.VertexCount, this.vertices, this.textureIndices, this.indices, this.TextureIndex, this.IsTextureRotated, tint, isAnimated, this.HasUpper, this.IsLowered, this.IsUpper, this.IsDoubleCropPlant);
         }
 
         public BlockMeshData SwapTextureIndices(int[] newTextureIndices)
         {
-            return new BlockMeshData(this.VertexCount, this.GetVertices(), newTextureIndices, this.GetIndices(), this.TextureIndex, this.Tint, this.IsAnimated);
+            return new BlockMeshData(this.VertexCount, this.vertices, newTextureIndices, this.indices, this.TextureIndex, this.IsTextureRotated, this.Tint, this.IsAnimated, this.HasUpper, this.IsLowered, this.IsUpper, this.IsDoubleCropPlant);
         }
 
         public BlockMeshData SwapTextureIndex(int newTextureIndex)
         {
-            return new BlockMeshData(this.VertexCount, this.GetVertices(), Array.Empty<int>(), this.GetIndices(), newTextureIndex, this.Tint, this.IsAnimated);
+            return new BlockMeshData(this.VertexCount, this.vertices, this.textureIndices, this.indices, newTextureIndex, this.IsTextureRotated, this.Tint, this.IsAnimated, this.HasUpper, this.IsLowered, this.IsUpper, this.IsDoubleCropPlant);
         }
 
-        public static BlockMeshData Basic(float[] vertices, int textureIndex)
+        public static BlockMeshData Basic(int textureIndex, bool isTextureRotated)
         {
-            return new BlockMeshData(vertexCount: 4, vertices: vertices, textureIndex: textureIndex);
+            return new BlockMeshData(vertexCount: 4, textureIndex: textureIndex, isTextureRotated: isTextureRotated);
         }
 
         public static BlockMeshData VaryingHeight(int textureIndex, TintColor tint)
