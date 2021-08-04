@@ -13,6 +13,7 @@
     <LangVersion>preview</LangVersion>
     <Configurations>Debug;Release;Debug GL33</Configurations>
     <StartupObject>VoxelGame.Client.Program</StartupObject>
+    <PackageLicenseExpression>MIT License</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

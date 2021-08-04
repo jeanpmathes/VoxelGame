@@ -9,6 +9,7 @@
     <ApplicationIcon>vg_icon.ico</ApplicationIcon>
     <LangVersion>preview</LangVersion>
     <Configurations>Debug;Release</Configurations>
+    <PackageLicenseExpression>MIT License</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
