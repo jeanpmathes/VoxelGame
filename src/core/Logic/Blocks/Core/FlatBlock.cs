@@ -141,7 +141,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return new BlockMeshData(8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
+            return BlockMeshData.Complex(8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)

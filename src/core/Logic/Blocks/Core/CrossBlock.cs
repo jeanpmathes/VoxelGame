@@ -90,7 +90,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return new BlockMeshData(8, vertices, textureIndices, indices);
+            return BlockMeshData.Complex(8, vertices, textureIndices, indices);
         }
     }
 }

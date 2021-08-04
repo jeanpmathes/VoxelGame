@@ -246,7 +246,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             if (info.Data == 0)
             {
-                return new BlockMeshData(24, completeVertices, completeTexIndices, completeIndices, true);
+                return BlockMeshData.Complex(24, completeVertices, completeTexIndices, completeIndices, isAnimated: true);
             }
 
             int faceCount = BitHelper.CountSetBits(info.Data & 0b1_1111);
@@ -279,7 +279,7 @@ namespace VoxelGame.Core.Logic.Blocks
             uint[] indices = new uint[faceCount * 12];
             Array.Copy(completeIndices, indices, indices.Length);
 
-            return new BlockMeshData((uint)(faceCount * 4), vertices, textureIndices, indices, true);
+            return BlockMeshData.Complex((uint)(faceCount * 4), vertices, textureIndices, indices, isAnimated: true);
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)

@@ -152,8 +152,8 @@ namespace VoxelGame.Core.Logic.Blocks
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return (info.Data & 0b00_0100) == 0
-                ? new BlockMeshData(vertexCountClosed, verticesClosed[info.Data & 0b00_0011], texIndicesClosed, indicesClosed) // Open.
-                : new BlockMeshData(vertexCountOpen, verticesOpen[info.Data & 0b00_0011], texIndicesOpen, indicesOpen); // Closed.
+                ? BlockMeshData.Complex(vertexCountClosed, verticesClosed[info.Data & 0b00_0011], texIndicesClosed, indicesClosed) // Open.
+                : BlockMeshData.Complex(vertexCountOpen, verticesOpen[info.Data & 0b00_0011], texIndicesOpen, indicesOpen); // Closed.
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)

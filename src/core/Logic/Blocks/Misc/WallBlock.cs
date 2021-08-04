@@ -128,7 +128,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if (straightZ || straightX)
             {
-                return new BlockMeshData(straightVertexCount, straightZ ? extensionStraightZVertices : extensionStraightXVertices, texIndicesStraight, indicesStraight);
+                return BlockMeshData.Complex(straightVertexCount, straightZ ? extensionStraightZVertices : extensionStraightXVertices, texIndicesStraight, indicesStraight);
             }
 
             return base.GetMesh(info);

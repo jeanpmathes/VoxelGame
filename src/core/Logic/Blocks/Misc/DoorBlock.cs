@@ -124,8 +124,8 @@ namespace VoxelGame.Core.Logic.Blocks
             int index = isClosed ? (int)orientation : 4 + (int)openOrientation;
 
             return isBase
-                ? new BlockMeshData(vertexCountBase, verticesBase[index], texIndicesBase, indicesBase)
-                : new BlockMeshData(vertexCountTop, verticesTop[index], texIndicesTop, indicesTop);
+                ? BlockMeshData.Complex(vertexCountBase, verticesBase[index], texIndicesBase, indicesBase)
+                : BlockMeshData.Complex(vertexCountTop, verticesTop[index], texIndicesTop, indicesTop);
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)

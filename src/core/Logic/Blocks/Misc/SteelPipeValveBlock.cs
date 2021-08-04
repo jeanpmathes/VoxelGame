@@ -37,7 +37,7 @@ namespace VoxelGame.Core.Logic.Blocks
             uint vertexCount = SelectModel((info.Data & 0b00_0100) == 0 ? models : closedModels,
                 (Axis)(info.Data & AxisDataMask), out float[] vertices, out int[] textureIndices, out uint[] indices);
 
-            return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
+            return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices);
         }
 
         public override bool IsConnectable(World world, BlockSide side, int x, int y, int z)

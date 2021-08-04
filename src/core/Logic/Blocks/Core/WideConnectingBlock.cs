@@ -143,7 +143,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 Array.Copy(westVertices, 0, vertices, position, westVertices.Length);
             }
 
-            return new BlockMeshData(vertexCount, vertices, currentTextureIndices, currentIndices);
+            return BlockMeshData.Complex(vertexCount, vertices, currentTextureIndices, currentIndices);
         }
     }
 }

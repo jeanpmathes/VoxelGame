@@ -64,7 +64,7 @@ namespace VoxelGame.Core.Logic.Blocks
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             uint vertexCount = SelectModel(models, (Axis)(info.Data & AxisDataMask), out float[] vertices, out int[] textureIndices, out uint[] indices);
-            return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
+            return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices);
         }
 
         protected static uint SelectModel((BlockModel x, BlockModel y, BlockModel z) modelTuple, Axis axis, out float[] vertices, out int[] textureIndices, out uint[] indices)

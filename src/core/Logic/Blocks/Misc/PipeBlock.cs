@@ -90,7 +90,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 (info.Data & 0b00_0010) == 0 ? surface.bottom : connector.bottom,
                 (info.Data & 0b00_0001) == 0 ? surface.top : connector.top);
 
-            return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
+            return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices);
         }
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)

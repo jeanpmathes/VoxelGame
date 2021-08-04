@@ -32,12 +32,6 @@ namespace VoxelGame.Core.Visuals
 
         public bool IsDoubleCropPlant { get; }
 
-        public BlockMeshData(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices, bool isAnimated = false)
-            : this(vertexCount, vertices, textureIndices, indices, 0, false, TintColor.None, isAnimated) { }
-
-        public BlockMeshData(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices, TintColor tint, bool isAnimated = false)
-            : this(vertexCount, vertices, textureIndices, indices, 0, false, tint, isAnimated) { }
-
         private BlockMeshData(uint vertexCount = 0, float[]? vertices = null, int[]? textureIndices = null, uint[]? indices = null, int textureIndex = 0, bool isTextureRotated = false, TintColor? tint = null, bool isAnimated = false, bool isLowered = false, bool hasUpper = false, bool isUpper = false, bool isDoubleCropPlant = false)
         {
             VertexCount = vertexCount;
@@ -117,6 +111,11 @@ namespace VoxelGame.Core.Visuals
         public static BlockMeshData Basic(int textureIndex, bool isTextureRotated)
         {
             return new BlockMeshData(vertexCount: 4, textureIndex: textureIndex, isTextureRotated: isTextureRotated);
+        }
+
+        public static BlockMeshData Complex(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices, TintColor? tint = null, bool isAnimated = false)
+        {
+            return new BlockMeshData(vertexCount: vertexCount, vertices: vertices, textureIndices: textureIndices, indices: indices, tint: tint, isAnimated: isAnimated);
         }
 
         public static BlockMeshData VaryingHeight(int textureIndex, TintColor tint)

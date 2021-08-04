@@ -131,8 +131,8 @@ namespace VoxelGame.Core.Logic.Blocks
             BlockColor color = (BlockColor)((info.Data & 0b11_1000) >> 3);
 
             return isHead
-                ? new BlockMeshData(vertexCountHead, verticesHead[orientation], texIndicesHead, indicesHead, color.ToTintColor())
-                : new BlockMeshData(vertexCountEnd, verticesEnd[orientation], texIndicesEnd, indicesEnd, color.ToTintColor());
+                ? BlockMeshData.Complex(vertexCountHead, verticesHead[orientation], texIndicesHead, indicesHead, color.ToTintColor())
+                : BlockMeshData.Complex(vertexCountEnd, verticesEnd[orientation], texIndicesEnd, indicesEnd, color.ToTintColor());
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
