@@ -4,8 +4,11 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+#define BENCHMARK_SECTION_MESHING
+
 using OpenToolkit.Mathematics;
 using System;
+using System.Diagnostics;
 using VoxelGame.Client.Collections;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Collections;
@@ -21,6 +24,13 @@ namespace VoxelGame.Client.Logic
     {
         [NonSerialized] private bool hasMesh;
         [NonSerialized] private SectionRenderer? renderer;
+
+#if BENCHMARK_SECTION_MESHING
+
+        private static long totalMeshingTime = 0;
+        private static long meshingRuns = 0;
+
+#endif
 
         public ClientSection(World world) : base(world)
         {
@@ -42,6 +52,12 @@ namespace VoxelGame.Client.Logic
 
         public void CreateMeshData(int sectionX, int sectionY, int sectionZ, out SectionMeshData meshData)
         {
+#if BENCHMARK_SECTION_MESHING
+
+            System.Diagnostics.Stopwatch stopwatch = Stopwatch.StartNew();
+
+#endif
+
             // Set the neutral tint colors.
             TintColor blockTint = TintColor.Green;
             TintColor liquidTint = TintColor.Blue;
@@ -450,7 +466,31 @@ namespace VoxelGame.Client.Logic
             ReturnToPool(varyingHeightMeshFaceHolders);
             ReturnToPool(opaqueLiquidMeshFaceHolders);
             ReturnToPool(transparentLiquidMeshFaceHolders);
+
+#if BENCHMARK_SECTION_MESHING
+
+            stopwatch.Stop();
+            if (hasMesh) IncreaseTotalRuntime(stopwatch.ElapsedMilliseconds);
+
+#endif
         }
+
+#if BENCHMARK_SECTION_MESHING
+
+        private static void IncreaseTotalRuntime(long ms)
+        {
+            long totalRuntime = System.Threading.Interlocked.Add(ref totalMeshingTime, ms);
+            long runs = System.Threading.Interlocked.Increment(ref meshingRuns);
+
+            double averageRuntime = totalRuntime / (double)runs;
+
+            if (runs % 100 == 0)
+            {
+                Console.WriteLine($"Average section meshing time: {averageRuntime}ms");
+            }
+        }
+
+#endif
 
         private ClientSection?[] GetNeighborSections(Vector3i sectionPosition)
         {
