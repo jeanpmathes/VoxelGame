@@ -21,6 +21,8 @@ namespace VoxelGame.Client.Logic
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<ClientWorld>();
 
+        private System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
         protected int MaxMeshingTasks { get; } = Properties.client.Default.MaxMeshingTasks;
         protected int MaxMeshDataSends { get; } = Properties.client.Default.MaxMeshDataSends;
 
@@ -91,6 +93,7 @@ namespace VoxelGame.Client.Logic
                     }
                 }
 
+                // Render the collected sections.
                 for (var stage = 0; stage < SectionRenderer.DrawStageCount; stage++)
                 {
                     if (renderList.Count == 0) break;
@@ -153,7 +156,10 @@ namespace VoxelGame.Client.Logic
                 {
                     IsReady = true;
 
-                    Logger.LogInformation("The world is ready.");
+                    stopwatch.Stop();
+                    double readyTime = stopwatch.Elapsed.TotalSeconds;
+
+                    Logger.LogInformation($"The world is ready after {readyTime}s.");
                 }
             }
 

@@ -486,7 +486,7 @@ namespace VoxelGame.Client.Logic
 
             if (runs % 100 == 0)
             {
-                Console.WriteLine($"Average section meshing time: {averageRuntime}ms");
+                Console.WriteLine($@"Average section meshing time: {averageRuntime}ms");
             }
         }
 
