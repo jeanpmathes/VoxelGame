@@ -21,46 +21,41 @@ namespace VoxelGame.Client.Logic
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<ClientWorld>();
 
-        private System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        private readonly System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-        protected int MaxMeshingTasks { get; } = Properties.client.Default.MaxMeshingTasks;
-        protected int MaxMeshDataSends { get; } = Properties.client.Default.MaxMeshDataSends;
+        private static int MaxMeshingTasks { get; } = Properties.client.Default.MaxMeshingTasks;
+        private static int MaxMeshDataSends { get; } = Properties.client.Default.MaxMeshDataSends;
 
         /// <summary>
         /// A queue with chunks that have to be meshed completely, mainly new chunks.
         /// </summary>
-        private readonly UniqueQueue<ClientChunk> chunksToMesh;
+        private readonly UniqueQueue<ClientChunk> chunksToMesh = new UniqueQueue<ClientChunk>();
 
         /// <summary>
         /// A list of chunk meshing tasks,
         /// </summary>
-        private readonly List<Task<SectionMeshData[]>> chunkMeshingTasks;
+        private readonly List<Task<SectionMeshData[]>> chunkMeshingTasks = new List<Task<SectionMeshData[]>>(MaxMeshingTasks);
 
         /// <summary>
         /// A dictionary containing all chunks that are currently meshed, with the task id of their meshing task as key.
         /// </summary>
-        private readonly Dictionary<int, ClientChunk> chunksMeshing;
+        private readonly Dictionary<int, ClientChunk> chunksMeshing = new Dictionary<int, ClientChunk>(MaxMeshingTasks);
 
         /// <summary>
         /// A list of chunks where the mesh data has to be set;
         /// </summary>
-        private readonly List<(ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask)> chunksToSendMeshData;
+        private readonly List<(ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask)> chunksToSendMeshData = new List<(ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask)>(MaxMeshDataSends);
 
         /// <summary>
         /// A set of chunks with information on which sections of them are to mesh.
         /// </summary>
-        private readonly HashSet<(ClientChunk chunk, int index)> sectionsToMesh;
+        private readonly HashSet<(ClientChunk chunk, int index)> sectionsToMesh = new HashSet<(ClientChunk chunk, int index)>();
 
         /// <summary>
         /// This constructor is meant for worlds that are new.
         /// </summary>
         public ClientWorld(string name, string path, int seed) : base(name, path, seed)
         {
-            chunksToMesh = new UniqueQueue<ClientChunk>();
-            chunkMeshingTasks = new List<Task<SectionMeshData[]>>(MaxMeshingTasks);
-            chunksMeshing = new Dictionary<int, ClientChunk>(MaxMeshingTasks);
-            chunksToSendMeshData = new List<(ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask)>(MaxMeshDataSends);
-            sectionsToMesh = new HashSet<(ClientChunk chunk, int index)>();
         }
 
         /// <summary>
@@ -68,49 +63,43 @@ namespace VoxelGame.Client.Logic
         /// </summary>
         public ClientWorld(WorldInformation information, string path) : base(information, path)
         {
-            chunksToMesh = new UniqueQueue<ClientChunk>();
-            chunkMeshingTasks = new List<Task<SectionMeshData[]>>(MaxMeshingTasks);
-            chunksMeshing = new Dictionary<int, ClientChunk>(MaxMeshingTasks);
-            chunksToSendMeshData = new List<(ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask)>(MaxMeshDataSends);
-            sectionsToMesh = new HashSet<(ClientChunk chunk, int index)>();
         }
 
         public void Render()
         {
-            if (IsReady)
+            if (!IsReady) return;
+
+            List<(ClientSection section, Vector3 position)> renderList = new List<(ClientSection section, Vector3 position)>();
+
+            // Fill the render list.
+            for (int x = -Client.Player.LoadDistance; x <= Client.Player.LoadDistance; x++)
             {
-                List<(ClientSection section, Vector3 position)> renderList = new List<(ClientSection section, Vector3 position)>();
-
-                // Fill the render list.
-                for (int x = -Client.Player.LoadDistance; x <= Client.Player.LoadDistance; x++)
+                for (int z = -Client.Player.LoadDistance; z <= Client.Player.LoadDistance; z++)
                 {
-                    for (int z = -Client.Player.LoadDistance; z <= Client.Player.LoadDistance; z++)
+                    if (activeChunks.TryGetValue((Client.Player.ChunkX + x, Client.Player.ChunkZ + z), out Chunk? chunk))
                     {
-                        if (activeChunks.TryGetValue((Client.Player.ChunkX + x, Client.Player.ChunkZ + z), out Chunk? chunk))
-                        {
-                            ((ClientChunk)chunk).AddCulledToRenderList(Client.Player.Frustum, ref renderList);
-                        }
+                        ((ClientChunk)chunk).AddCulledToRenderList(Client.Player.Frustum, ref renderList);
                     }
                 }
-
-                // Render the collected sections.
-                for (var stage = 0; stage < SectionRenderer.DrawStageCount; stage++)
-                {
-                    if (renderList.Count == 0) break;
-
-                    SectionRenderer.PrepareStage(stage);
-
-                    for (var i = 0; i < renderList.Count; i++)
-                    {
-                        renderList[i].section.Render(stage, renderList[i].position);
-                    }
-
-                    SectionRenderer.FinishStage(stage);
-                }
-
-                // Render the player
-                Client.Player.Render();
             }
+
+            // Render the collected sections.
+            for (var stage = 0; stage < SectionRenderer.DrawStageCount; stage++)
+            {
+                if (renderList.Count == 0) break;
+
+                SectionRenderer.PrepareStage(stage);
+
+                for (var i = 0; i < renderList.Count; i++)
+                {
+                    renderList[i].section.Render(stage, renderList[i].position);
+                }
+
+                SectionRenderer.FinishStage(stage);
+            }
+
+            // Render the player
+            Client.Player.Render();
         }
 
         protected override Chunk CreateChunk(int x, int z)
@@ -201,7 +190,7 @@ namespace VoxelGame.Client.Logic
                 {
                     if (chunkMeshingTasks[i].IsCompleted)
                     {
-                        var completed = chunkMeshingTasks[i];
+                        Task<SectionMeshData[]>? completed = chunkMeshingTasks[i];
                         Chunk meshedChunk = chunksMeshing[completed.Id];
 
                         if (chunkMeshingTasks[i].IsFaulted)
