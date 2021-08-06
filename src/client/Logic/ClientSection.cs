@@ -9,6 +9,7 @@
 using OpenToolkit.Mathematics;
 using System;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Collections;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Collections;
@@ -16,21 +17,24 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Logic
 {
     [Serializable]
     public class ClientSection : Core.Logic.Section
     {
-        [NonSerialized] private bool hasMesh;
-        [NonSerialized] private SectionRenderer? renderer;
-
 #if BENCHMARK_SECTION_MESHING
+
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ClientSection>();
 
         private static long totalMeshingTime = 0;
         private static long meshingRuns = 0;
 
 #endif
+
+        [NonSerialized] private bool hasMesh;
+        [NonSerialized] private SectionRenderer? renderer;
 
         public ClientSection(World world) : base(world)
         {
@@ -486,7 +490,7 @@ namespace VoxelGame.Client.Logic
 
             if (runs % 100 == 0)
             {
-                Console.WriteLine($@"Average section meshing time: {averageRuntime}ms");
+                Logger.LogInformation($"Average section meshing time: {averageRuntime}ms");
             }
         }
 
