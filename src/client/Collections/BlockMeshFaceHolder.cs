@@ -199,12 +199,15 @@ namespace VoxelGame.Client.Collections
 
         private static int BuildVertexTexRepetitionMask(bool isRotated, int height, int length)
         {
-            return !isRotated ? ((height << 25) | (length << 20)) : ((length << 25) | (height << 20));
+            const int heightShift = 24;
+            const int lengthShift = 20;
+
+            return !isRotated ? ((height << heightShift) | (length << lengthShift)) : ((length << heightShift) | (height << lengthShift));
         }
 
         public void ReturnToPool()
         {
-            for (int i = 0; i < Section.SectionSize; i++)
+            for (var i = 0; i < Section.SectionSize; i++)
             {
                 rowPool.Return(lastFaces[i]!);
             }

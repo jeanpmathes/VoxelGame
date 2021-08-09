@@ -141,11 +141,11 @@ namespace VoxelGame.Client.Logic
                                             side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
                                             int[][] uvs = BlockModels.GetBlockUVs(mesh.IsTextureRotated);
 
-                                            // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                            int upperDataA = (uvs[0][0] << 31) | (uvs[0][1] << 30) | ((a[0] + x) << 12) | ((a[1] + y) << 6) | (a[2] + z);
-                                            int upperDataB = (uvs[1][0] << 31) | (uvs[1][1] << 30) | ((b[0] + x) << 12) | ((b[1] + y) << 6) | (b[2] + z);
-                                            int upperDataC = (uvs[2][0] << 31) | (uvs[2][1] << 30) | ((c[0] + x) << 12) | ((c[1] + y) << 6) | (c[2] + z);
-                                            int upperDataD = (uvs[3][0] << 31) | (uvs[3][1] << 30) | ((d[0] + x) << 12) | ((d[1] + y) << 6) | (d[2] + z);
+                                            // int: uv-- ---- ---- -xxx xxyy yyyz zzzz (uv: texture coords; xyz: position)
+                                            int upperDataA = (uvs[0][0] << 31) | (uvs[0][1] << 30) | ((a[0] + x) << 10) | ((a[1] + y) << 5) | (a[2] + z);
+                                            int upperDataB = (uvs[1][0] << 31) | (uvs[1][1] << 30) | ((b[0] + x) << 10) | ((b[1] + y) << 5) | (b[2] + z);
+                                            int upperDataC = (uvs[2][0] << 31) | (uvs[2][1] << 30) | ((c[0] + x) << 10) | ((c[1] + y) << 5) | (c[2] + z);
+                                            int upperDataD = (uvs[3][0] << 31) | (uvs[3][1] << 30) | ((d[0] + x) << 10) | ((d[1] + y) << 5) | (d[2] + z);
 
                                             // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
                                             int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)side << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
@@ -253,11 +253,11 @@ namespace VoxelGame.Client.Logic
                                             {
                                                 // Mesh into the simple buffer.
 
-                                                // int: uv-- ---- ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; xyz: position)
-                                                int upperDataA = (0 << 31) | (0 << 30) | ((a[0] + x) << 12) | ((a[1] + y) << 6) | (a[2] + z);
-                                                int upperDataB = (0 << 31) | (1 << 30) | ((b[0] + x) << 12) | ((b[1] + y) << 6) | (b[2] + z);
-                                                int upperDataC = (1 << 31) | (1 << 30) | ((c[0] + x) << 12) | ((c[1] + y) << 6) | (c[2] + z);
-                                                int upperDataD = (1 << 31) | (0 << 30) | ((d[0] + x) << 12) | ((d[1] + y) << 6) | (d[2] + z);
+                                                // int: uv-- ---- ---- ---- -xxx xxyy yyyz zzzz (uv: texture coords; xyz: position)
+                                                int upperDataA = (0 << 31) | (0 << 30) | ((a[0] + x) << 10) | ((a[1] + y) << 5) | (a[2] + z);
+                                                int upperDataB = (0 << 31) | (1 << 30) | ((b[0] + x) << 10) | ((b[1] + y) << 5) | (b[2] + z);
+                                                int upperDataC = (1 << 31) | (1 << 30) | ((c[0] + x) << 10) | ((c[1] + y) << 5) | (c[2] + z);
+                                                int upperDataD = (1 << 31) | (0 << 30) | ((d[0] + x) << 10) | ((d[1] + y) << 5) | (d[2] + z);
 
                                                 // int: tttt tttt t--n nn-_ ---i iiii iiii iiii (t: tint; n: normal; i: texture index, _: used for simple blocks but not here)
                                                 int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)side << 18) | mesh.TextureIndex;
