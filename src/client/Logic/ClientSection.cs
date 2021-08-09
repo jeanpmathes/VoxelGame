@@ -273,11 +273,11 @@ namespace VoxelGame.Client.Logic
                                 {
                                     BlockMeshData mesh = currentBlock.GetMesh(BlockMeshInfo.CrossPlant(data, currentLiquid));
 
-                                    // int: uv-- ---- ---- --xx xxxx eyyy yyzz zzzz (uv: texture coords; xyz: position;)
-                                    int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 12) | (y + 0 << 6);
-                                    int upperDataB = (0 << 31) | (1 << 30) | (x + 0 << 12) | (y + 1 << 6);
-                                    int upperDataC = (1 << 31) | (1 << 30) | (x + 1 << 12) | (y + 1 << 6);
-                                    int upperDataD = (1 << 31) | (0 << 30) | (x + 1 << 12) | (y + 0 << 6);
+                                    // int: uv-o ---- ---- ---- -xxx xxyy yyyz zzzz (uv: texture coords; xyz: position;)
+                                    int upperDataA = (0 << 31) | (0 << 30) | (x + 0 << 10) | (y + 0 << 5);
+                                    int upperDataB = (0 << 31) | (1 << 30) | (x + 0 << 10) | (y + 1 << 5);
+                                    int upperDataC = (1 << 31) | (1 << 30) | (x + 1 << 10) | (y + 1 << 5);
+                                    int upperDataD = (1 << 31) | (0 << 30) | (x + 1 << 10) | (y + 0 << 5);
 
                                     // int: tttt tttt tulh ---- ---i iiii iiii iiii (t: tint; u: has upper; l: lowered; h: height; i: texture index)
                                     int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((mesh.HasUpper ? 1 : 0) << 22) | ((mesh.IsLowered ? 1 : 0) << 21) | ((mesh.IsUpper ? 1 : 0) << 20) | mesh.TextureIndex;
@@ -308,20 +308,20 @@ namespace VoxelGame.Client.Logic
                                 {
                                     BlockMeshData mesh = currentBlock.GetMesh(BlockMeshInfo.CropPlant(data, currentLiquid));
 
-                                    // int: uv-- -oss ---- --xx xxxx yyyy yyzz zzzz (uv: texture coords; o: orientation; s: shift, xyz: position)
-                                    int upperDataA = (0 << 31) | (0 << 30) | (y + 0 << 6);
-                                    int upperDataB = (0 << 31) | (1 << 30) | (y + 1 << 6);
-                                    int upperDataC = (1 << 31) | (1 << 30) | (y + 1 << 6);
-                                    int upperDataD = (1 << 31) | (0 << 30) | (y + 0 << 6);
+                                    // int: uv-- -oss ---- ---- -xxx xxyy yyyz zzzz (uv: texture coords; o: orientation; s: shift, xyz: position)
+                                    int upperDataA = (0 << 31) | (0 << 30) | (y + 0 << 5);
+                                    int upperDataB = (0 << 31) | (1 << 30) | (y + 1 << 5);
+                                    int upperDataC = (1 << 31) | (1 << 30) | (y + 1 << 5);
+                                    int upperDataD = (1 << 31) | (0 << 30) | (y + 0 << 5);
 
                                     // int: tttt tttt tulh ---c ---i iiii iiii iiii (t: tint; u: has upper; l: lowered; h: height; c: crop type; i: texture index)
                                     int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((mesh.HasUpper ? 1 : 0) << 22) | ((mesh.IsLowered ? 1 : 0) << 21) | ((mesh.IsUpper ? 1 : 0) << 20) | ((mesh.IsDoubleCropPlant ? 1 : 0) << 16) | mesh.TextureIndex;
 
-                                    int firstAlongX = (x << 12) | (z + 0);
-                                    int secondAlongX = (x << 12) | (z + 1);
+                                    int firstAlongX = (x << 10) | (z + 0);
+                                    int secondAlongX = (x << 10) | (z + 1);
 
-                                    int firstAlongZ = (x + 0 << 12) | z;
-                                    int secondAlongZ = (x + 1 << 12) | z;
+                                    int firstAlongZ = (x + 0 << 10) | z;
+                                    int secondAlongZ = (x + 1 << 10) | z;
 
                                     AddFace(0 << 26, 0 << 24, firstAlongX, secondAlongX);
                                     AddFace(1 << 26, 0 << 24, firstAlongZ, secondAlongZ);

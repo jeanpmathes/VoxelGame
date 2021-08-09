@@ -39,7 +39,7 @@ void main()
     bool hasUpper = ((aData.y >> 22) & 1) == 1;
 
     // Position
-    vec3 position = vec3((aData.x >> 12) & 63, (aData.x >> 6) & 63, aData.x & 63);
+    vec3 position = vec3((aData.x >> 10) & 31, (aData.x >> 5) & 31, aData.x & 31);
     int orientation = (aData.x >> 28) & 1;
 
     float xOffset = (u == 0 ? +1 : -1) * 0.145;
