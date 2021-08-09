@@ -212,7 +212,12 @@ namespace VoxelGame.Client.Collections
 
         private int BuildVertexTextureRepetition(int height, int length)
         {
-            return !(side == BlockSide.Left || side == BlockSide.Right) ? ((height << 25) | (length << 20)) : ((length << 25) | (height << 20));
+            const int heightShift = 24;
+            const int lengthShift = 20;
+
+            return !(side == BlockSide.Left || side == BlockSide.Right)
+                ? ((height << heightShift) | (length << lengthShift))
+                : ((length << heightShift) | (height << lengthShift));
         }
 
         public void ReturnToPool()

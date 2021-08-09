@@ -36,8 +36,8 @@ void main()
     tint = vec4(((aData.y >> 29) & 7) / 7.0, ((aData.y >> 26) & 7) / 7.0, ((aData.y >> 23) & 7) / 7.0, 1.0);
 
     // Position and Texture
-    int end = (aData.x >> 11) & 1;
-    vec3 position = vec3((aData.x >> 12) & 63, (aData.x >> 6) & 31, aData.x & 63);
+    int end = (aData.x >> 9) & 1;
+    vec3 position = vec3((aData.x >> 10) & 31, (aData.x >> 5) & 15, aData.x & 31);
 
     if (n == 4) // Side: Bottom
     {
@@ -54,8 +54,8 @@ void main()
     }
 
     // Texture Repetition
-    texCoord.x *= ((aData.x >> 25) & 31) + 1;
-    texCoord.y *= ((aData.x >> 20) & 31) + 1;
+    texCoord.x *= ((aData.x >> 24) & 15) + 1;
+    texCoord.y *= ((aData.x >> 20) & 15) + 1;
 
 	gl_Position = vec4(position, 1.0) * model * view * projection;
 }
