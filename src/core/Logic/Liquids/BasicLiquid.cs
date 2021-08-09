@@ -86,7 +86,7 @@ namespace VoxelGame.Core.Logic.Liquids
 
         private bool CheckVerticalWorldBounds(World world, int x, int y, int z)
         {
-            if ((y == 0 && Direction > 0) || (y == Section.SectionSize * Chunk.ChunkHeight - 1 && Direction < 0))
+            if ((y == 0 && Direction > 0) || (y == Section.SectionSize * Chunk.VerticalSectionCount - 1 && Direction < 0))
             {
                 world.SetDefaultLiquid(x, y, z);
 

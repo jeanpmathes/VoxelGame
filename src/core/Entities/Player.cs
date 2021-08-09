@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Entities
         /// <summary>
         /// Gets the extents of how many chunks should be around this player.
         /// </summary>
-        public int LoadDistance { get; } = 2;
+        public int LoadDistance { get; } = 4;
 
         /// <summary>
         /// Gets whether this player has moved to a different chunk in the last frame.
@@ -31,15 +31,13 @@ namespace VoxelGame.Core.Entities
         /// </summary>
         public int ChunkZ { get; private set; }
 
-        private static readonly int sectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
-
         protected Player(World world, float mass, float drag, BoundingBox boundingBox) : base(world, mass, drag, boundingBox)
         {
             Position = World.Information.SpawnInformation.Position;
 
             // Request chunks around current position
-            ChunkX = (int)Math.Floor(Position.X) >> sectionSizeExp;
-            ChunkZ = (int)Math.Floor(Position.Z) >> sectionSizeExp;
+            ChunkX = (int)Math.Floor(Position.X) >> Section.SectionSizeExp;
+            ChunkZ = (int)Math.Floor(Position.Z) >> Section.SectionSizeExp;
 
             for (int x = -LoadDistance; x <= LoadDistance; x++)
             {
@@ -62,8 +60,8 @@ namespace VoxelGame.Core.Entities
 
         private void ChunkChange()
         {
-            int currentChunkX = (int)Math.Floor(Position.X) >> sectionSizeExp;
-            int currentChunkZ = (int)Math.Floor(Position.Z) >> sectionSizeExp;
+            int currentChunkX = (int)Math.Floor(Position.X) >> Section.SectionSizeExp;
+            int currentChunkZ = (int)Math.Floor(Position.Z) >> Section.SectionSizeExp;
 
             if (currentChunkX == ChunkX && currentChunkZ == ChunkZ)
             {

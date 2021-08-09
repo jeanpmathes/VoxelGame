@@ -250,40 +250,40 @@ namespace VoxelGame.Client.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void ProcessChangedSection(Chunk chunk, int x, int y, int z)
         {
-            sectionsToMesh.Add(((ClientChunk)chunk, y >> ChunkHeightExp));
+            sectionsToMesh.Add(((ClientChunk)chunk, y >> Section.SectionSizeExp));
 
             // Check if sections next to changed section have to be changed:
 
             // Next on y axis.
-            if ((y & (Section.SectionSize - 1)) == 0 && (y - 1 >> ChunkHeightExp) >= 0)
+            if ((y & (Section.SectionSize - 1)) == 0 && (y - 1 >> Section.SectionSizeExp) >= 0)
             {
-                sectionsToMesh.Add(((ClientChunk)chunk, y - 1 >> ChunkHeightExp));
+                sectionsToMesh.Add(((ClientChunk)chunk, y - 1 >> Section.SectionSizeExp));
             }
-            else if ((y & (Section.SectionSize - 1)) == Section.SectionSize - 1 && (y + 1 >> ChunkHeightExp) < Chunk.ChunkHeight)
+            else if ((y & (Section.SectionSize - 1)) == Section.SectionSize - 1 && (y + 1 >> Section.SectionSizeExp) < Chunk.VerticalSectionCount)
             {
-                sectionsToMesh.Add(((ClientChunk)chunk, y + 1 >> ChunkHeightExp));
+                sectionsToMesh.Add(((ClientChunk)chunk, y + 1 >> Section.SectionSizeExp));
             }
 
             Chunk? neighbor;
 
             // Next on x axis.
-            if ((x & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x - 1 >> SectionSizeExp, z >> SectionSizeExp), out neighbor))
+            if ((x & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x - 1 >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out neighbor))
             {
-                sectionsToMesh.Add(((ClientChunk)neighbor, y >> ChunkHeightExp));
+                sectionsToMesh.Add(((ClientChunk)neighbor, y >> Section.SectionSizeExp));
             }
-            else if ((x & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue((x + 1 >> SectionSizeExp, z >> SectionSizeExp), out neighbor))
+            else if ((x & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue((x + 1 >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out neighbor))
             {
-                sectionsToMesh.Add(((ClientChunk)neighbor, y >> ChunkHeightExp));
+                sectionsToMesh.Add(((ClientChunk)neighbor, y >> Section.SectionSizeExp));
             }
 
             // Next on z axis.
-            if ((z & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x >> SectionSizeExp, z - 1 >> SectionSizeExp), out neighbor))
+            if ((z & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x >> Section.SectionSizeExp, z - 1 >> Section.SectionSizeExp), out neighbor))
             {
-                sectionsToMesh.Add(((ClientChunk)neighbor, y >> ChunkHeightExp));
+                sectionsToMesh.Add(((ClientChunk)neighbor, y >> Section.SectionSizeExp));
             }
-            else if ((z & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue((x >> SectionSizeExp, z + 1 >> SectionSizeExp), out neighbor))
+            else if ((z & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue((x >> Section.SectionSizeExp, z + 1 >> Section.SectionSizeExp), out neighbor))
             {
-                sectionsToMesh.Add(((ClientChunk)neighbor, y >> ChunkHeightExp));
+                sectionsToMesh.Add(((ClientChunk)neighbor, y >> Section.SectionSizeExp));
             }
         }
 

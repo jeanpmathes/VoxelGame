@@ -28,7 +28,7 @@ namespace VoxelGame.Core.WorldGeneration
         {
             int height = (int)(amplitude * (Math.Sin(a * x) - Math.Sin(b * z))) + mid;
 
-            for (int y = 0; y < Section.SectionSize * Chunk.ChunkHeight; y++)
+            for (int y = 0; y < Section.SectionSize * Chunk.VerticalSectionCount; y++)
             {
                 if (y > height)
                 {

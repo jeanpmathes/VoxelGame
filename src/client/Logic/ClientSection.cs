@@ -28,8 +28,8 @@ namespace VoxelGame.Client.Logic
 
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<ClientSection>();
 
-        private static long totalMeshingTime = 0;
-        private static long meshingRuns = 0;
+        private static long _totalMeshingTime;
+        private static long _meshingRuns;
 
 #endif
 
@@ -96,7 +96,7 @@ namespace VoxelGame.Client.Logic
                     for (var z = 0; z < SectionSize; z++)
                     {
                         Vector3i pos = (x, y, z);
-                        uint val = blocks[(x << 10) + (y << 5) + z];
+                        uint val = blocks[(x << SectionSizeExp2) + (y << SectionSizeExp) + z];
 
                         Section.Decode(val, out Block currentBlock, out uint data, out Liquid currentLiquid, out LiquidLevel level, out bool isStatic);
 
@@ -454,8 +454,6 @@ namespace VoxelGame.Client.Logic
             GenerateMesh(transparentLiquidMeshFaceHolders, ref transparentLiquidVertexData, ref transparentLiquidVertexCount, ref transparentLiquidIndices);
 
             // Finish up.
-            hasMesh = complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 || varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 || cropPlantVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 || transparentLiquidVertexData.Count != 0;
-
             meshData = new SectionMeshData(
                 ref simpleVertexData,
                 ref complexVertexPositions, ref complexVertexData, ref complexIndices,
@@ -464,6 +462,8 @@ namespace VoxelGame.Client.Logic
                 ref cropPlantVertexData,
                 ref opaqueLiquidVertexData, ref opaqueLiquidIndices,
                 ref transparentLiquidVertexData, ref transparentLiquidIndices);
+
+            hasMesh = meshData.IsFilled;
 
             // Cleanup.
             ReturnToPool(blockMeshFaceHolders);
@@ -483,8 +483,8 @@ namespace VoxelGame.Client.Logic
 
         private static void IncreaseTotalRuntime(long ms)
         {
-            long totalRuntime = System.Threading.Interlocked.Add(ref totalMeshingTime, ms);
-            long runs = System.Threading.Interlocked.Increment(ref meshingRuns);
+            long totalRuntime = System.Threading.Interlocked.Add(ref _totalMeshingTime, ms);
+            long runs = System.Threading.Interlocked.Increment(ref _meshingRuns);
 
             double averageRuntime = totalRuntime / (double)runs;
 
@@ -579,7 +579,10 @@ namespace VoxelGame.Client.Logic
 
         public void SetMeshData(ref SectionMeshData meshData)
         {
-            renderer?.SetData(ref meshData);
+            Debug.Assert(renderer != null);
+            // Debug.Assert(hasMesh == meshData.IsFilled);
+
+            renderer.SetData(ref meshData);
         }
 
         public void Render(int stage, Vector3 position)

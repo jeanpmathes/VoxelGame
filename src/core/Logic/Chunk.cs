@@ -23,7 +23,11 @@ namespace VoxelGame.Core.Logic
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<Chunk>();
 
-        public const int ChunkHeight = 32;
+        public const int VerticalSectionCount = 64;
+        public static readonly int VerticalSectionCountExp = (int)Math.Log(VerticalSectionCount, 2);
+
+        public const int ChunkWidth = Section.SectionSize;
+        public const int ChunkHeight = Section.SectionSize * VerticalSectionCount;
 
         /// <summary>
         /// The X position of this chunk in chunk units
@@ -38,14 +42,14 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Gets the position of the chunk as a point located in the center of the chunk.
         /// </summary>
-        public Vector3 ChunkPoint { get => new Vector3((X * Section.SectionSize) + (Section.SectionSize / 2f), ChunkHeight * Section.SectionSize / 2f, (Z * Section.SectionSize) + (Section.SectionSize / 2f)); }
+        public Vector3 ChunkPoint { get => new Vector3((X * ChunkWidth) + (ChunkWidth / 2f), ChunkHeight / 2f, (Z * ChunkWidth) + (ChunkWidth / 2f)); }
 
-        public static Vector3 ChunkExtents { get => new Vector3(Section.SectionSize / 2f, ChunkHeight * Section.SectionSize / 2f, Section.SectionSize / 2f); }
+        public static Vector3 ChunkExtents { get => new Vector3(ChunkWidth / 2f, ChunkHeight / 2f, ChunkWidth / 2f); }
 
         [field: NonSerialized] protected World World { get; private set; }
 
 #pragma warning disable CA1051 // Do not declare visible instance fields
-        protected readonly Section[] sections = new Section[ChunkHeight];
+        protected readonly Section[] sections = new Section[VerticalSectionCount];
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
         private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
@@ -58,7 +62,7 @@ namespace VoxelGame.Core.Logic
             X = x;
             Z = z;
 
-            for (var y = 0; y < ChunkHeight; y++)
+            for (var y = 0; y < VerticalSectionCount; y++)
             {
 #pragma warning disable S1699 // Constructors should only call non-overridable methods
 #pragma warning disable CA2214 // Do not call overridable methods in constructors
@@ -83,7 +87,7 @@ namespace VoxelGame.Core.Logic
             blockTickManager.Setup(World, updateCounter);
             liquidTickManager.Setup(World, updateCounter);
 
-            for (var y = 0; y < ChunkHeight; y++)
+            for (var y = 0; y < VerticalSectionCount; y++)
             {
                 sections[y].Setup(world);
             }
@@ -176,7 +180,7 @@ namespace VoxelGame.Core.Logic
 
                     foreach (Block block in generator.GenerateColumn(x + (X * Section.SectionSize), z + (Z * Section.SectionSize)))
                     {
-                        sections[y >> 5][x, y & (Section.SectionSize - 1), z] = block.Id;
+                        sections[y >> Section.SectionSizeExp][x, y & (Section.SectionSize - 1), z] = block.Id;
 
                         y++;
                     }
@@ -204,7 +208,7 @@ namespace VoxelGame.Core.Logic
             blockTickManager.Process();
             liquidTickManager.Process();
 
-            for (int y = 0; y < ChunkHeight; y++)
+            for (int y = 0; y < VerticalSectionCount; y++)
             {
                 sections[y].Tick(X, y, Z);
             }

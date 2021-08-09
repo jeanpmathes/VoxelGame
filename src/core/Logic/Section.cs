@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using System;
 using System.Runtime.CompilerServices;
@@ -13,8 +14,12 @@ namespace VoxelGame.Core.Logic
     [Serializable]
     public abstract class Section : IDisposable
     {
-        public const int SectionSize = 32;
-        public const int TickBatchSize = 4;
+        public const int SectionSize = 16;
+
+        public static readonly int SectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
+        public static readonly int SectionSizeExp2 = (int)Math.Log(Section.SectionSize, 2) * 2;
+
+        public const int TickBatchSize = 1;
 
 #pragma warning disable CA1707 // Identifiers should not contain underscores
         public const int DATA_SHIFT = 12;
@@ -75,10 +80,10 @@ namespace VoxelGame.Core.Logic
                 int index = NumberGenerator.Random.Next(0, SectionSize * SectionSize * SectionSize);
                 uint val = blocks[index];
 
-                z = index & 31;
-                index = (index - z) >> 5;
-                y = index & 31;
-                index = (index - y) >> 5;
+                z = index & (SectionSize - 1);
+                index = (index - z) >> SectionSizeExp;
+                y = index & (SectionSize - 1);
+                index = (index - y) >> SectionSizeExp;
                 x = index;
 
                 return val;
@@ -94,8 +99,8 @@ namespace VoxelGame.Core.Logic
         /// <returns>The block at the given position.</returns>
         public uint this[int x, int y, int z]
         {
-            get => blocks[(x << 10) + (y << 5) + z];
-            set => blocks[(x << 10) + (y << 5) + z] = value;
+            get => blocks[(x << SectionSizeExp2) + (y << SectionSizeExp) + z];
+            set => blocks[(x << SectionSizeExp2) + (y << SectionSizeExp) + z] = value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -17,7 +17,7 @@ namespace VoxelGame.Client.Logic
     [Serializable]
     public class ClientChunk : Core.Logic.Chunk
     {
-        private const int maxMeshDataStep = 4;
+        private const int maxMeshDataStep = 8;
 
         [NonSerialized] private bool hasMeshData;
         [NonSerialized] private int meshDataIndex;
@@ -33,7 +33,7 @@ namespace VoxelGame.Client.Logic
 
         public void CreateAndSetMesh()
         {
-            for (int y = 0; y < ChunkHeight; y++)
+            for (int y = 0; y < VerticalSectionCount; y++)
             {
                 ((ClientSection)sections[y]).CreateAndSetMesh(X, y, Z);
             }
@@ -54,9 +54,9 @@ namespace VoxelGame.Client.Logic
 
         private SectionMeshData[] CreateMeshData()
         {
-            SectionMeshData[] sectionMeshes = new SectionMeshData[ChunkHeight];
+            SectionMeshData[] sectionMeshes = new SectionMeshData[VerticalSectionCount];
 
-            for (int y = 0; y < ChunkHeight; y++)
+            for (var y = 0; y < VerticalSectionCount; y++)
             {
                 ((ClientSection)sections[y]).CreateMeshData(X, y, Z, out sectionMeshes[y]);
             }
@@ -68,7 +68,7 @@ namespace VoxelGame.Client.Logic
 
         public void SetMeshData(SectionMeshData[] sectionMeshes)
         {
-            for (int y = 0; y < ChunkHeight; y++)
+            for (var y = 0; y < VerticalSectionCount; y++)
             {
                 ((ClientSection)sections[y]).SetMeshData(ref sectionMeshes[y]);
             }
@@ -81,12 +81,12 @@ namespace VoxelGame.Client.Logic
         {
             hasMeshData = false;
 
-            for (int count = 0; count < maxMeshDataStep; count++)
+            for (var count = 0; count < maxMeshDataStep; count++)
             {
                 ((ClientSection)sections[meshDataIndex]).SetMeshData(ref sectionMeshes[meshDataIndex]);
 
                 // The index has reached the end, all sections have received their mesh data.
-                if (meshDataIndex == ChunkHeight - 1)
+                if (meshDataIndex == VerticalSectionCount - 1)
                 {
                     hasMeshData = true;
                     meshDataIndex = 0;
@@ -105,15 +105,15 @@ namespace VoxelGame.Client.Logic
         /// <summary>
         /// Adds all sections inside of the frustum to the render list.
         /// </summary>
-        /// <param name="frustum"></param>
-        /// <param name="renderList"></param>
+        /// <param name="frustum">The view frustum to use for culling.</param>
+        /// <param name="renderList">The list to add the chunks and positions too.</param>
         public void AddCulledToRenderList(Frustum frustum, ref List<(ClientSection section, Vector3 position)> renderList)
         {
             if (hasMeshData && frustum.BoxInFrustum(new BoundingBox(ChunkPoint, ChunkExtents)))
             {
-                int start = 0, end = Section.SectionSize - 1;
+                int start = 0, end = VerticalSectionCount - 1;
 
-                for (int y = start; y < ChunkHeight; y++)
+                for (int y = start; y < VerticalSectionCount; y++)
                 {
                     if (frustum.BoxInFrustum(new BoundingBox(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) + Section.Extents, Section.Extents)))
                     {
@@ -150,7 +150,7 @@ namespace VoxelGame.Client.Logic
             {
                 if (disposing)
                 {
-                    for (int y = 0; y < ChunkHeight; y++)
+                    for (int y = 0; y < VerticalSectionCount; y++)
                     {
                         sections[y].Dispose();
                     }
