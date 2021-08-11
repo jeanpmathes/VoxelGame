@@ -74,7 +74,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            switch ((GrowthStage)(data & 0b00_0111))
+            switch ((GrowthStage) (data & 0b00_0111))
             {
                 case GrowthStage.Initial:
                 case GrowthStage.Dead:
@@ -119,7 +119,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             bool isLowered = world.IsLowered(x, y, z);
 
-            var data = (uint)GrowthStage.Initial;
+            var data = (uint) GrowthStage.Initial;
             if (isLowered) data |= 0b00_1000;
 
             world.SetBlock(this, data, x, y, z);
@@ -135,24 +135,24 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void RandomUpdate(World world, int x, int y, int z, uint data)
         {
-            var stage = (GrowthStage)(data & 0b00_0111);
+            var stage = (GrowthStage) (data & 0b00_0111);
             uint lowered = data & 0b00_1000;
 
             if (stage != GrowthStage.Final && stage != GrowthStage.Dead && world.GetBlock(x, y - 1, z, out _) is IPlantable plantable)
             {
-                if ((int)stage > 2)
+                if ((int) stage > 2)
                 {
                     if (!plantable.SupportsFullGrowth) return;
 
                     if (!plantable.TryGrow(world, x, y - 1, z, Liquid.Water, LiquidLevel.One))
                     {
-                        world.SetBlock(this, lowered | (uint)GrowthStage.Dead, x, y, z);
+                        world.SetBlock(this, lowered | (uint) GrowthStage.Dead, x, y, z);
 
                         return;
                     }
                 }
 
-                world.SetBlock(this, lowered | (uint)(stage + 1), x, y, z);
+                world.SetBlock(this, lowered | (uint) (stage + 1), x, y, z);
             }
         }
 

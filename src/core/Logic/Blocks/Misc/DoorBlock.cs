@@ -88,13 +88,13 @@ namespace VoxelGame.Core.Logic.Blocks
                 }
             }
 
-            vertexCountTop = (uint)topClosed.VertexCount;
-            vertexCountBase = (uint)baseClosed.VertexCount;
+            vertexCountTop = (uint) topClosed.VertexCount;
+            vertexCountBase = (uint) baseClosed.VertexCount;
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            Orientation orientation = (Orientation)(data & 0b00_0011);
+            Orientation orientation = (Orientation) (data & 0b00_0011);
 
             // Check if door is open and if the door is left sided.
             if ((data & 0b01_0000) != 0)
@@ -114,14 +114,14 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            Orientation orientation = (Orientation)(info.Data & 0b00_0011);
+            Orientation orientation = (Orientation) (info.Data & 0b00_0011);
             bool isBase = (info.Data & 0b00_0100) == 0;
             bool isLeftSided = (info.Data & 0b00_1000) == 0;
             bool isClosed = (info.Data & 0b01_0000) == 0;
 
             Orientation openOrientation = isLeftSided ? orientation.Invert() : orientation;
 
-            int index = isClosed ? (int)orientation : 4 + (int)openOrientation;
+            int index = isClosed ? (int) orientation : 4 + (int) openOrientation;
 
             return isBase
                 ? BlockMeshData.Complex(vertexCountBase, verticesBase[index], texIndicesBase, indicesBase)
@@ -171,7 +171,7 @@ namespace VoxelGame.Core.Logic.Blocks
                         break;
                 }
 
-                isLeftSided = neighbor != this || (data & 0b00_1011) != (int)orientation;
+                isLeftSided = neighbor != this || (data & 0b00_1011) != (int) orientation;
             }
             else
             {
@@ -182,8 +182,8 @@ namespace VoxelGame.Core.Logic.Blocks
                     (orientation == Orientation.West && side != BlockSide.Front);
             }
 
-            world.SetBlock(this, (uint)((isLeftSided ? 0b0000 : 0b1000) | (int)orientation), x, y, z);
-            world.SetBlock(this, (uint)((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int)orientation), x, y + 1, z);
+            world.SetBlock(this, (uint) ((isLeftSided ? 0b0000 : 0b1000) | (int) orientation), x, y, z);
+            world.SetBlock(this, (uint) ((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int) orientation), x, y + 1, z);
         }
 
         internal override void DoDestroy(World world, int x, int y, int z, uint data, PhysicsEntity? entity)
@@ -205,7 +205,7 @@ namespace VoxelGame.Core.Logic.Blocks
             entity.World.SetBlock(this, data ^ 0b1_0100, x, y + (isBase ? 1 : -1), z);
 
             // Open a neighboring door, if available.
-            switch (((data & 0b00_1000) == 0) ? ((Orientation)(data & 0b00_0011)).Invert() : (Orientation)(data & 0b00_0011))
+            switch (((data & 0b00_1000) == 0) ? ((Orientation) (data & 0b00_0011)).Invert() : (Orientation) (data & 0b00_0011))
             {
                 case Orientation.North:
 

@@ -4,13 +4,13 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using VoxelGame.Core.Visuals;
-using VoxelGame.Core.Physics;
-using VoxelGame.Core.Entities;
-using System;
-using VoxelGame.Core.Utilities;
 using OpenToolkit.Mathematics;
+using System;
+using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
@@ -279,7 +279,7 @@ namespace VoxelGame.Core.Logic.Blocks
             uint[] indices = new uint[faceCount * 12];
             Array.Copy(completeIndices, indices, indices.Length);
 
-            return BlockMeshData.Complex((uint)(faceCount * 4), vertices, textureIndices, indices, isAnimated: true);
+            return BlockMeshData.Complex((uint) (faceCount * 4), vertices, textureIndices, indices, isAnimated: true);
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)

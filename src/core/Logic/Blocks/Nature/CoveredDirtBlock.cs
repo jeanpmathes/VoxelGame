@@ -56,7 +56,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             mesh = mesh.Modified((hasNeutralTint) ? TintColor.Neutral : TintColor.None);
 
-            if (info.Liquid.Direction > 0) mesh = mesh.SwapTextureIndex(wetTextureIndices[(int)info.Side]);
+            if (info.Liquid.Direction > 0) mesh = mesh.SwapTextureIndex(wetTextureIndices[(int) info.Side]);
 
             return mesh;
         }

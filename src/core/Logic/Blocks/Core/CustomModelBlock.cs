@@ -48,7 +48,7 @@ namespace VoxelGame.Core.Logic.Blocks
             BlockModel blockModel = BlockModel.Load(this.model);
 
             blockModel.ToData(out vertices, out texIndices, out indices);
-            vertexCount = (uint)(blockModel.VertexCount);
+            vertexCount = (uint) (blockModel.VertexCount);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)

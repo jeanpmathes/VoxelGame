@@ -55,7 +55,7 @@ namespace VoxelGame.Core.Logic.Blocks
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             Decode(info.Data, out BlockColor color, out _);
-            return BlockMeshData.VaryingHeight(textures[(int)info.Side], color.ToTintColor());
+            return BlockMeshData.VaryingHeight(textures[(int) info.Side], color.ToTintColor());
         }
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
@@ -74,22 +74,22 @@ namespace VoxelGame.Core.Logic.Blocks
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
         {
             Decode(data, out BlockColor color, out int height);
-            var next = (BlockColor)((int)color + 1);
+            var next = (BlockColor) ((int) color + 1);
             entity.World.SetBlock(this, Encode(next, height), x, y, z);
         }
 
         private static uint Encode(BlockColor color, int height)
         {
             var val = 0;
-            val |= ((int)color << 3) & 0b11_1000;
+            val |= ((int) color << 3) & 0b11_1000;
             val |= (height / 2) & 0b00_0111;
-            return (uint)val;
+            return (uint) val;
         }
 
         private static void Decode(uint data, out BlockColor color, out int height)
         {
-            color = (BlockColor)((data & 0b11_1000) >> 3);
-            height = ((int)(data & 0b00_0111) * 2) + 1;
+            color = (BlockColor) ((data & 0b11_1000) >> 3);
+            height = ((int) (data & 0b00_0111) * 2) + 1;
         }
 
         public int GetHeight(uint data)

@@ -78,9 +78,9 @@ namespace VoxelGame.Client.Rendering
 
         private void UpdateVectors()
         {
-            front.X = (float)Math.Cos(pitch) * (float)Math.Cos(yaw);
-            front.Y = (float)Math.Sin(pitch);
-            front.Z = (float)Math.Cos(pitch) * (float)Math.Sin(yaw);
+            front.X = (float) Math.Cos(pitch) * (float) Math.Cos(yaw);
+            front.Y = (float) Math.Sin(pitch);
+            front.Z = (float) Math.Cos(pitch) * (float) Math.Sin(yaw);
 
             front = Vector3.Normalize(Front);
 

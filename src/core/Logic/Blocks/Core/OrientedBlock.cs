@@ -34,17 +34,17 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return BlockMeshData.Basic(sideTextureIndices[TranslateIndex(info.Side, (Orientation)(info.Data & 0b00_0011))], false);
+            return BlockMeshData.Basic(sideTextureIndices[TranslateIndex(info.Side, (Orientation) (info.Data & 0b00_0011))], false);
         }
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            world.SetBlock(this, (uint)(entity?.LookingDirection.ToOrientation() ?? Orientation.North), x, y, z);
+            world.SetBlock(this, (uint) (entity?.LookingDirection.ToOrientation() ?? Orientation.North), x, y, z);
         }
 
         private static int TranslateIndex(BlockSide side, Orientation orientation)
         {
-            var index = (int)side;
+            var index = (int) side;
 
             if (index < 0 || index > 5)
             {
@@ -56,12 +56,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 return index;
             }
 
-            if (((int)orientation & 0b01) == 1)
+            if (((int) orientation & 0b01) == 1)
             {
                 index = (3 - (index * (1 - (index & 2)))) % 5; // Rotates the index one step
             }
 
-            if (((int)orientation & 0b10) == 2)
+            if (((int) orientation & 0b10) == 2)
             {
                 index = 3 - (index + 2) + ((index & 2) * 2); // Flips the index
             }

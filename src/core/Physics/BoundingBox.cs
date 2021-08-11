@@ -334,16 +334,16 @@ namespace VoxelGame.Core.Physics
             float highestExtent = (Extents.X > Extents.Y) ? Extents.X : Extents.Y;
             highestExtent = (highestExtent > Extents.Z) ? highestExtent : Extents.Z;
 
-            int range = (int)Math.Round(highestExtent * 2, MidpointRounding.AwayFromZero) + 1;
+            int range = (int) Math.Round(highestExtent * 2, MidpointRounding.AwayFromZero) + 1;
             if (range % 2 == 0)
             {
                 range++;
             }
 
             // Get the current position in world coordinates
-            int xPos = (int)Math.Floor(Center.X);
-            int yPos = (int)Math.Floor(Center.Y);
-            int zPos = (int)Math.Floor(Center.Z);
+            int xPos = (int) Math.Floor(Center.X);
+            int yPos = (int) Math.Floor(Center.Y);
+            int zPos = (int) Math.Floor(Center.Z);
 
             // Loop through the world and check for collisions
             for (int x = (range - 1) / -2; x <= (range - 1) / 2; x++)

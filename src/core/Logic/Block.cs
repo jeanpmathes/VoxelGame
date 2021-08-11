@@ -6,7 +6,6 @@
 
 using System.Diagnostics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -111,10 +110,10 @@ namespace VoxelGame.Core.Logic
 
             if (blockDictionary.Count < BlockLimit)
             {
-                blockDictionary.Add((uint)blockDictionary.Count, this);
+                blockDictionary.Add((uint) blockDictionary.Count, this);
                 namedBlockDictionary.Add(namedId, this);
 
-                Id = (uint)(blockDictionary.Count - 1);
+                Id = (uint) (blockDictionary.Count - 1);
             }
             else
             {

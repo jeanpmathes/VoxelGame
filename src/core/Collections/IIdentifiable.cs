@@ -3,9 +3,6 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace VoxelGame.Core.Collections
 {

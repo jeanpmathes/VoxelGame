@@ -6,10 +6,10 @@
 
 #define BENCHMARK_SECTION_MESHING
 
+using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System;
 using System.Diagnostics;
-using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Collections;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Collections;

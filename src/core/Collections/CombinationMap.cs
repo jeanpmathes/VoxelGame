@@ -6,7 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Collections
 {
@@ -46,8 +45,8 @@ namespace VoxelGame.Core.Collections
             {
                 Debug.Assert(a.Id != b.Id);
 
-                var i = (int)Math.Max(a.Id, b.Id);
-                var j = (int)Math.Min(a.Id, b.Id);
+                var i = (int) Math.Max(a.Id, b.Id);
+                var j = (int) Math.Min(a.Id, b.Id);
 
                 return table[i][j];
             }
@@ -56,8 +55,8 @@ namespace VoxelGame.Core.Collections
             {
                 Debug.Assert(a.Id != b.Id);
 
-                var i = (int)Math.Max(a.Id, b.Id);
-                var j = (int)Math.Min(a.Id, b.Id);
+                var i = (int) Math.Max(a.Id, b.Id);
+                var j = (int) Math.Min(a.Id, b.Id);
 
                 Debug.Assert(!flags[i][j], "This combination is already set.");
 

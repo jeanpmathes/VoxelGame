@@ -89,7 +89,7 @@ namespace VoxelGame.Core.Visuals
 
             for (var f = 0; f < faces; f++)
             {
-                var offset = (uint)(f * 4);
+                var offset = (uint) (f * 4);
 
                 indices[(f * 6) + 0] = 0 + offset;
                 indices[(f * 6) + 1] = 2 + offset;

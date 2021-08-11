@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic
     {
         public static int GetBlockHeight(this LiquidLevel level)
         {
-            return ((int)level * 2) + 1;
+            return ((int) level * 2) + 1;
         }
     }
 }

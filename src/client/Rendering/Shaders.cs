@@ -4,9 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
+using System.Collections.Generic;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Graphics.Utility;
 using VoxelGame.Logging;

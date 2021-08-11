@@ -46,7 +46,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return BlockMeshData.Basic(sideTextureIndices[(int)info.Side], false);
+            return BlockMeshData.Basic(sideTextureIndices[(int) info.Side], false);
         }
     }
 }

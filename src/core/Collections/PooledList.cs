@@ -115,7 +115,7 @@ namespace VoxelGame.Core.Collections
         {
             get
             {
-                if ((uint)index >= (uint)size)
+                if ((uint) index >= (uint) size)
                 {
                     throw new ArgumentOutOfRangeException(nameof(index), $"The index has to be smaller then the size '{size}'.");
                 }
@@ -125,7 +125,7 @@ namespace VoxelGame.Core.Collections
 
             set
             {
-                if ((uint)index >= (uint)size)
+                if ((uint) index >= (uint) size)
                 {
                     throw new ArgumentOutOfRangeException(nameof(index), $"The index has to be smaller then the size '{size}'.");
                 }
@@ -226,7 +226,7 @@ namespace VoxelGame.Core.Collections
         /// </summary>
         public void RemoveAt(int index)
         {
-            if ((uint)index >= (uint)size)
+            if ((uint) index >= (uint) size)
             {
                 throw new ArgumentOutOfRangeException($"The index '{index}' is not allowed to be larger then the size of the list.");
             }
@@ -247,7 +247,7 @@ namespace VoxelGame.Core.Collections
             {
                 int newCapacity = (items.Length == 0) ? 4 : items.Length * 2;
 
-                if ((uint)newCapacity > int.MaxValue)
+                if ((uint) newCapacity > int.MaxValue)
                 {
                     newCapacity = int.MaxValue;
                 }

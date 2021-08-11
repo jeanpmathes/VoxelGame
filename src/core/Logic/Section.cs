@@ -16,8 +16,8 @@ namespace VoxelGame.Core.Logic
     {
         public const int SectionSize = 16;
 
-        public static readonly int SectionSizeExp = (int)Math.Log(Section.SectionSize, 2);
-        public static readonly int SectionSizeExp2 = (int)Math.Log(Section.SectionSize, 2) * 2;
+        public static readonly int SectionSizeExp = (int) Math.Log(Section.SectionSize, 2);
+        public static readonly int SectionSizeExp2 = (int) Math.Log(Section.SectionSize, 2) * 2;
 
         public const int TickBatchSize = 1;
 
@@ -109,15 +109,15 @@ namespace VoxelGame.Core.Logic
             block = Block.TranslateID(val & BLOCK_MASK);
             data = (val & DATA_MASK) >> DATA_SHIFT;
             liquid = Liquid.TranslateID((val & LIQUID_MASK) >> LIQUID_SHIFT);
-            level = (LiquidLevel)((val & LEVEL_MASK) >> LEVEL_SHIFT);
+            level = (LiquidLevel) ((val & LEVEL_MASK) >> LEVEL_SHIFT);
             isStatic = (val & STATIC_MASK) != 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint Encode(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic)
         {
-            return (uint)((((isStatic ? 1 : 0) << Section.STATIC_SHIFT) & Section.STATIC_MASK)
-                           | (((uint)level << Section.LEVEL_SHIFT) & Section.LEVEL_MASK)
+            return (uint) ((((isStatic ? 1 : 0) << Section.STATIC_SHIFT) & Section.STATIC_MASK)
+                           | (((uint) level << Section.LEVEL_SHIFT) & Section.LEVEL_MASK)
                            | ((liquid.Id << Section.LIQUID_SHIFT) & Section.LIQUID_MASK)
                            | ((data << Section.DATA_SHIFT) & Section.DATA_MASK)
                            | (block.Id & Section.BLOCK_MASK));
@@ -142,7 +142,7 @@ namespace VoxelGame.Core.Logic
         {
             uint val = this[position.X, position.Y, position.Z];
 
-            level = (int)((val & LEVEL_MASK) >> LEVEL_SHIFT);
+            level = (int) ((val & LEVEL_MASK) >> LEVEL_SHIFT);
             return Liquid.TranslateID((val & LIQUID_MASK) >> LIQUID_SHIFT);
         }
 

@@ -13,13 +13,13 @@ using OpenToolkit.Windowing.Desktop;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using System.IO;
 using VoxelGame.Client.Collections;
-using VoxelGame.Core.Logic;
-using VoxelGame.Client.Rendering;
-using VoxelGame.Logging;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
+using VoxelGame.Client.Rendering;
 using VoxelGame.Client.Scenes;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Logging;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
 namespace VoxelGame.Client
@@ -119,7 +119,7 @@ namespace VoxelGame.Client
 
                 // Block setup.
                 Block.LoadBlocks(BlockTextureArray);
-                Logger.LogDebug("Texture/Block ratio: {ratio:F02}", BlockTextureArray.Count / (float)Block.Count);
+                Logger.LogDebug("Texture/Block ratio: {ratio:F02}", BlockTextureArray.Count / (float) Block.Count);
 
                 // Liquid setup.
                 Liquid.LoadLiquids(LiquidTextureArray);
@@ -137,11 +137,11 @@ namespace VoxelGame.Client
             {
                 Time += e.Time;
 
-                Shaders.SetTime((float)Time);
+                Shaders.SetTime((float) Time);
 
                 screen.Clear();
 
-                sceneManager.Render((float)e.Time);
+                sceneManager.Render((float) e.Time);
 
                 screen.Draw();
 
@@ -157,7 +157,7 @@ namespace VoxelGame.Client
         {
             using (Logger.BeginScope("UpdateFrame"))
             {
-                var deltaTime = (float)MathHelper.Clamp(e.Time, 0f, 1f);
+                var deltaTime = (float) MathHelper.Clamp(e.Time, 0f, 1f);
 
                 sceneManager.Update(deltaTime);
 

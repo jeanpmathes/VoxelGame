@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System.Collections.Generic;
 using OpenToolkit.Mathematics;
+using System.Collections.Generic;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;

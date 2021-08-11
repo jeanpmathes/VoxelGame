@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using OpenToolkit.Graphics.OpenGL4;
+using System;
 
 namespace VoxelGame.Graphics.Groups
 {

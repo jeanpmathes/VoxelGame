@@ -4,9 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common.Input;
+using System;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
@@ -144,9 +144,9 @@ namespace VoxelGame.Client.Entities
 
                 WorldInteraction(input, mouse);
 
-                int headX = (int)Math.Floor(camera.Position.X);
-                int headY = (int)Math.Floor(camera.Position.Y);
-                int headZ = (int)Math.Floor(camera.Position.Z);
+                int headX = (int) Math.Floor(camera.Position.X);
+                int headY = (int) Math.Floor(camera.Position.Y);
+                int headZ = (int) Math.Floor(camera.Position.Z);
 
                 if (World.GetBlock(headX, headY, headZ, out _) is IOverlayTextureProvider overlayBlockTextureProvider)
                 {
@@ -397,8 +397,8 @@ namespace VoxelGame.Client.Entities
 
             if (input.IsKeyDown(Key.KeypadMinus) && !hasPressedMinus)
             {
-                if (blockMode) activeBlock = (activeBlock.Id != 1) ? Block.TranslateID(activeBlock.Id - 1) : Block.TranslateID((uint)(Block.Count - 1));
-                else activeLiquid = (activeLiquid.Id != 1) ? Liquid.TranslateID(activeLiquid.Id - 1) : Liquid.TranslateID((uint)(Liquid.Count - 1));
+                if (blockMode) activeBlock = (activeBlock.Id != 1) ? Block.TranslateID(activeBlock.Id - 1) : Block.TranslateID((uint) (Block.Count - 1));
+                else activeLiquid = (activeLiquid.Id != 1) ? Liquid.TranslateID(activeLiquid.Id - 1) : Liquid.TranslateID((uint) (Liquid.Count - 1));
 
                 hasPressedMinus = true;
 

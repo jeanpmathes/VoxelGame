@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Graphics.ES11;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Visuals

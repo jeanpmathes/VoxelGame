@@ -35,7 +35,7 @@ namespace VoxelGame.Core.Logic.Blocks
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             uint vertexCount = SelectModel((info.Data & 0b00_0100) == 0 ? models : closedModels,
-                (Axis)(info.Data & AxisDataMask), out float[] vertices, out int[] textureIndices, out uint[] indices);
+                (Axis) (info.Data & AxisDataMask), out float[] vertices, out int[] textureIndices, out uint[] indices);
 
             return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices);
         }
@@ -49,7 +49,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             world.GetBlock(x, y, z, out uint data);
             if ((data & 0b00_0100) != 0) return false;
-            return ToAxis(side) == (Axis)(data & AxisDataMask);
+            return ToAxis(side) == (Axis) (data & AxisDataMask);
         }
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)

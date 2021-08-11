@@ -4,10 +4,10 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
+using System;
 using VoxelGame.Core.Physics;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Logging;
@@ -69,7 +69,7 @@ namespace VoxelGame.Client.Rendering
                 {
                     int newElements = BuildMeshData(currentBoundingBox, boundingBox[i], out float[] addVertices, out uint[] addIndices);
 
-                    uint offset = (uint)(points / 3);
+                    uint offset = (uint) (points / 3);
                     for (int j = 0; j < addIndices.Length; j++)
                     {
                         addIndices[j] += offset;

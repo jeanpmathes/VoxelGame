@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using OpenToolkit.Mathematics;
+using System;
 
 namespace VoxelGame.Core.Logic
 {

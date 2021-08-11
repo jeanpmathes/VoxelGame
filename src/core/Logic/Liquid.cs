@@ -4,9 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using System;
 using System.Diagnostics;
-using OpenToolkit.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -89,10 +89,10 @@ namespace VoxelGame.Core.Logic
 
             if (liquidDictionary.Count < LiquidLimit)
             {
-                liquidDictionary.Add((uint)liquidDictionary.Count, this);
+                liquidDictionary.Add((uint) liquidDictionary.Count, this);
                 namedLiquidDictionary.Add(namedId, this);
 
-                Id = (uint)(liquidDictionary.Count - 1);
+                Id = (uint) (liquidDictionary.Count - 1);
             }
             else
             {
@@ -115,7 +115,7 @@ namespace VoxelGame.Core.Logic
 
         public static BoundingBox GetBoundingBox(World world, int x, int y, int z, LiquidLevel level)
         {
-            float halfHeight = ((int)level + 1) * 0.0625f;
+            float halfHeight = ((int) level + 1) * 0.0625f;
             return new BoundingBox(new Vector3(x, y + halfHeight, z), new Vector3(0.5f, halfHeight, 0.5f));
         }
 
@@ -142,13 +142,13 @@ namespace VoxelGame.Core.Logic
             {
                 if (target == this && current != LiquidLevel.Eight)
                 {
-                    int filled = (int)current + (int)level + 1;
+                    int filled = (int) current + (int) level + 1;
                     filled = filled > 7 ? 7 : filled;
 
-                    SetLiquid(world, this, (LiquidLevel)filled, false, fillable, x, y, z);
+                    SetLiquid(world, this, (LiquidLevel) filled, false, fillable, x, y, z);
                     if (isStatic) ScheduleTick(world, x, y, z);
 
-                    remaining = (int)level - (filled - (int)current);
+                    remaining = (int) level - (filled - (int) current);
                     return true;
                 }
 
@@ -162,7 +162,7 @@ namespace VoxelGame.Core.Logic
                 }
             }
 
-            remaining = (int)level;
+            remaining = (int) level;
             return false;
         }
 
@@ -181,7 +181,7 @@ namespace VoxelGame.Core.Logic
             }
             else
             {
-                SetLiquid(world, this, (LiquidLevel)((int)available - (int)level - 1), false, block as IFillable, x, y, z);
+                SetLiquid(world, this, (LiquidLevel) ((int) available - (int) level - 1), false, block as IFillable, x, y, z);
                 if (isStatic) ScheduleTick(world, x, y, z);
             }
 
@@ -200,7 +200,7 @@ namespace VoxelGame.Core.Logic
                 }
                 else
                 {
-                    SetLiquid(world, this, (LiquidLevel)((int)available - (int)level - 1), false, block as IFillable, x, y, z);
+                    SetLiquid(world, this, (LiquidLevel) ((int) available - (int) level - 1), false, block as IFillable, x, y, z);
                     if (isStatic) ScheduleTick(world, x, y, z);
                 }
 
@@ -228,7 +228,7 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         protected bool HasNeighborWithLevel(World world, LiquidLevel level, int x, int y, int z)
         {
-            return (int)level != -1
+            return (int) level != -1
                    && world.GetBlock(x, y, z, out _) is IFillable currentFillable
                    && (CheckNeighborForLevel(x, z - 1, BlockSide.Back)
                        || CheckNeighborForLevel(x + 1, z, BlockSide.Right)

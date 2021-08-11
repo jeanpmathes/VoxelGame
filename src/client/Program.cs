@@ -4,13 +4,13 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using Microsoft.Extensions.Logging;
 using OpenToolkit.Windowing.Desktop;
 using System;
-using Microsoft.Extensions.Logging;
-using VoxelGame.Core.Resources.Language;
 using System.IO;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core;
+using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client

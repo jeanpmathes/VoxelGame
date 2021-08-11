@@ -45,7 +45,7 @@ namespace VoxelGame.Core.WorldGeneration
 
         public IEnumerable<Block> GenerateColumn(int x, int z)
         {
-            int height = (int)(amplitude * halfHeight * noise.GetPerlinFractal(x, z)) + halfHeight;
+            int height = (int) (amplitude * halfHeight * noise.GetPerlinFractal(x, z)) + halfHeight;
 
             for (var y = 0; y < Chunk.ChunkHeight; y++)
             {

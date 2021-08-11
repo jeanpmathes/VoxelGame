@@ -53,14 +53,14 @@ namespace VoxelGame.Core.Physics
             Vector3 direction = ray.Direction;
 
             // Get the origin position in world coordinates.
-            int x = (int)Math.Floor(ray.Origin.X);
-            int y = (int)Math.Floor(ray.Origin.Y);
-            int z = (int)Math.Floor(ray.Origin.Z);
+            int x = (int) Math.Floor(ray.Origin.X);
+            int y = (int) Math.Floor(ray.Origin.Y);
+            int z = (int) Math.Floor(ray.Origin.Z);
 
             // Get the end position in world coordinates.
-            int endX = (int)Math.Floor(ray.EndPoint.X);
-            int endY = (int)Math.Floor(ray.EndPoint.Y);
-            int endZ = (int)Math.Floor(ray.EndPoint.Z);
+            int endX = (int) Math.Floor(ray.EndPoint.X);
+            int endY = (int) Math.Floor(ray.EndPoint.Y);
+            int endZ = (int) Math.Floor(ray.EndPoint.Z);
 
             // Get the direction in which the components are incremented.
             int stepX = Math.Sign(direction.X);

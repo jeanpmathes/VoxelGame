@@ -94,7 +94,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            var stage = (GrowthStage)(data & 0b00_0111);
+            var stage = (GrowthStage) (data & 0b00_0111);
 
             if (((data & 0b00_1000) == 0 && stage == GrowthStage.Initial) ||
                 ((data & 0b00_1000) != 0 && (stage == GrowthStage.Fourth || stage == GrowthStage.Fifth)))
@@ -109,11 +109,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            var stageData = (int)(info.Data & 0b00_0111);
+            var stageData = (int) (info.Data & 0b00_0111);
 
             bool isUpper = (info.Data & 0b00_1000) != 0;
             bool isLowered = (info.Data & 0b01_0000) != 0;
-            bool hasUpper = (GrowthStage)stageData >= GrowthStage.Fourth;
+            bool hasUpper = (GrowthStage) stageData >= GrowthStage.Fourth;
 
             int textureIndex = !isUpper ? stageTextureIndicesLow[stageData] : stageTextureIndicesTop[stageData];
 
@@ -129,7 +129,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             bool isLowered = world.IsLowered(x, y, z);
 
-            var data = (uint)GrowthStage.Initial;
+            var data = (uint) GrowthStage.Initial;
             if (isLowered) data |= 0b01_0000;
 
             world.SetBlock(this, data, x, y, z);
@@ -139,7 +139,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             world.SetDefaultBlock(x, y, z);
 
-            if ((data & 0b00_0111) >= (int)GrowthStage.Fourth)
+            if ((data & 0b00_0111) >= (int) GrowthStage.Fourth)
             {
                 world.SetDefaultBlock(x, y + ((data & 0b00_1000) == 0 ? 1 : -1), z);
             }
@@ -156,7 +156,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void RandomUpdate(World world, int x, int y, int z, uint data)
         {
-            var stage = (GrowthStage)(data & 0b00_0111);
+            var stage = (GrowthStage) (data & 0b00_0111);
             uint lowered = data & 0b01_0000;
 
             // If this block is the upper part, the random update is ignored.
@@ -164,7 +164,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if (world.GetBlock(x, y - 1, z, out _) is IPlantable plantable)
             {
-                if ((int)stage > 2 && !plantable.SupportsFullGrowth) return;
+                if ((int) stage > 2 && !plantable.SupportsFullGrowth) return;
 
                 if (stage != GrowthStage.Final && stage != GrowthStage.Dead)
                 {
@@ -174,18 +174,18 @@ namespace VoxelGame.Core.Logic.Blocks
 
                         if (plantable.TryGrow(world, x, y - 1, z, Liquid.Water, LiquidLevel.One) && ((above?.IsReplaceable ?? false) || above == this))
                         {
-                            world.SetBlock(this, lowered | (uint)(stage + 1), x, y, z);
-                            world.SetBlock(this, lowered | (uint)(0b00_1000 | (int)stage + 1), x, y + 1, z);
+                            world.SetBlock(this, lowered | (uint) (stage + 1), x, y, z);
+                            world.SetBlock(this, lowered | (uint) (0b00_1000 | (int) stage + 1), x, y + 1, z);
                         }
                         else
                         {
-                            world.SetBlock(this, lowered | (uint)GrowthStage.Dead, x, y, z);
+                            world.SetBlock(this, lowered | (uint) GrowthStage.Dead, x, y, z);
                             if (stage != GrowthStage.Third) world.SetDefaultBlock(x, y + 1, z);
                         }
                     }
                     else
                     {
-                        world.SetBlock(this, lowered | (uint)(stage + 1), x, y, z);
+                        world.SetBlock(this, lowered | (uint) (stage + 1), x, y, z);
                     }
                 }
             }

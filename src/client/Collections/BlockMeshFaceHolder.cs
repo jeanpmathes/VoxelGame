@@ -4,10 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
+using OpenToolkit.Mathematics;
 using System.Buffers;
 using System.Collections.Concurrent;
-using OpenToolkit.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 

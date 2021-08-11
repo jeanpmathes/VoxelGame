@@ -4,13 +4,12 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using VoxelGame.Core.Physics;
 using OpenToolkit.Mathematics;
-using System;
-using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
@@ -60,7 +59,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            var stage = (GrowthStage)((data >> 2) & 0b111);
+            var stage = (GrowthStage) ((data >> 2) & 0b111);
 
             return stage < GrowthStage.First
                 ? new BoundingBox(new Vector3(0.5f, 0.25f, 0.5f), new Vector3(0.175f, 0.25f, 0.175f))
@@ -69,7 +68,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            var stage = (GrowthStage)((info.Data >> 2) & 0b111);
+            var stage = (GrowthStage) ((info.Data >> 2) & 0b111);
 
             int index = stage switch
             {
@@ -111,34 +110,34 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             if (!(world.GetBlock(x, y - 1, z, out _) is IPlantable ground)) return;
 
-            var stage = (GrowthStage)((data >> 1) & 0b111);
+            var stage = (GrowthStage) ((data >> 1) & 0b111);
 
             if (stage < GrowthStage.Ready)
             {
-                world.SetBlock(this, (uint)((int)(stage + 1) << 1), x, y, z);
+                world.SetBlock(this, (uint) ((int) (stage + 1) << 1), x, y, z);
             }
             else if (stage == GrowthStage.Ready && ground.SupportsFullGrowth && ground.TryGrow(world, x, y - 1, z, Liquid.Water, LiquidLevel.Two))
             {
                 if (fruit.Place(world, x, y, z - 1))
                 {
-                    world.SetBlock(this, (uint)GrowthStage.Second << 1, x, y, z); // North.
+                    world.SetBlock(this, (uint) GrowthStage.Second << 1, x, y, z); // North.
                 }
                 else if (fruit.Place(world, x + 1, y, z))
                 {
-                    world.SetBlock(this, (uint)GrowthStage.Second << 1, x, y, z); // East.
+                    world.SetBlock(this, (uint) GrowthStage.Second << 1, x, y, z); // East.
                 }
                 else if (fruit.Place(world, x, y, z + 1))
                 {
-                    world.SetBlock(this, (uint)GrowthStage.Second << 1, x, y, z); // South.
+                    world.SetBlock(this, (uint) GrowthStage.Second << 1, x, y, z); // South.
                 }
                 else if (fruit.Place(world, x - 1, y, z))
                 {
-                    world.SetBlock(this, (uint)GrowthStage.Second << 1, x, y, z); // West.
+                    world.SetBlock(this, (uint) GrowthStage.Second << 1, x, y, z); // West.
                 }
             }
             else if (stage == GrowthStage.Ready && ground.SupportsFullGrowth)
             {
-                world.SetBlock(this, (uint)GrowthStage.Dead << 1, x, y, z);
+                world.SetBlock(this, (uint) GrowthStage.Dead << 1, x, y, z);
             }
         }
 

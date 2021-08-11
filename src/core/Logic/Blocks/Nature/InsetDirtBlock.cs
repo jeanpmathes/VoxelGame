@@ -63,8 +63,8 @@ namespace VoxelGame.Core.Logic.Blocks
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             int texture = info.Liquid.Direction > 0
-                ? wetTextureIndices[(int)info.Side]
-                : dryTextureIndices[(int)info.Side];
+                ? wetTextureIndices[(int) info.Side]
+                : dryTextureIndices[(int) info.Side];
 
             return BlockMeshData.VaryingHeight(texture, TintColor.None);
         }

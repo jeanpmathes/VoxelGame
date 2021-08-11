@@ -3,11 +3,11 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using Gwen.Net.Control;
 using Gwen.Net;
+using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
-using VoxelGame.UI.UserInterfaces;
 using System;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.UI.Controls
 {

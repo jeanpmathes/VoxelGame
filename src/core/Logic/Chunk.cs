@@ -4,16 +4,16 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using VoxelGame.Core.WorldGeneration;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Updates;
+using VoxelGame.Core.WorldGeneration;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic

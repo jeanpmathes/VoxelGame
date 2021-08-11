@@ -36,8 +36,8 @@ namespace VoxelGame.Core.Entities
             Position = World.Information.SpawnInformation.Position;
 
             // Request chunks around current position
-            ChunkX = (int)Math.Floor(Position.X) >> Section.SectionSizeExp;
-            ChunkZ = (int)Math.Floor(Position.Z) >> Section.SectionSizeExp;
+            ChunkX = (int) Math.Floor(Position.X) >> Section.SectionSizeExp;
+            ChunkZ = (int) Math.Floor(Position.Z) >> Section.SectionSizeExp;
 
             for (int x = -LoadDistance; x <= LoadDistance; x++)
             {
@@ -60,8 +60,8 @@ namespace VoxelGame.Core.Entities
 
         private void ChunkChange()
         {
-            int currentChunkX = (int)Math.Floor(Position.X) >> Section.SectionSizeExp;
-            int currentChunkZ = (int)Math.Floor(Position.Z) >> Section.SectionSizeExp;
+            int currentChunkX = (int) Math.Floor(Position.X) >> Section.SectionSizeExp;
+            int currentChunkZ = (int) Math.Floor(Position.Z) >> Section.SectionSizeExp;
 
             if (currentChunkX == ChunkX && currentChunkZ == ChunkZ)
             {

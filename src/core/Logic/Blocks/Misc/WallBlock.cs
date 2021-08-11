@@ -48,7 +48,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base.Setup(indexProvider);
 
             BlockModel extensionStraightModel = BlockModel.Load(this.extensionStraight);
-            straightVertexCount = (uint)extensionStraightModel.VertexCount;
+            straightVertexCount = (uint) extensionStraightModel.VertexCount;
 
             extensionStraightModel.RotateY(0, false);
             extensionStraightModel.ToData(out extensionStraightZVertices, out texIndicesStraight, out indicesStraight);

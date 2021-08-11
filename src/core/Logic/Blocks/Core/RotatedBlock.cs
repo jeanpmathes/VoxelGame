@@ -44,7 +44,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            world.SetBlock(this, (uint)ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
+            world.SetBlock(this, (uint) ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
         }
 
         protected enum Axis
@@ -77,12 +77,12 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected static Axis ToAxis(uint data)
         {
-            return (Axis)(data & 0b00_0011);
+            return (Axis) (data & 0b00_0011);
         }
 
         protected static int TranslateIndex(BlockSide side, Axis axis)
         {
-            var index = (int)side;
+            var index = (int) side;
 
             if (axis == Axis.X && side != BlockSide.Front && side != BlockSide.Back)
             {

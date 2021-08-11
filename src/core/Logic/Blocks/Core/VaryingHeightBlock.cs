@@ -51,12 +51,12 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return BlockMeshData.VaryingHeight(textureIndices[(int)info.Side], TintColor.None);
+            return BlockMeshData.VaryingHeight(textureIndices[(int) info.Side], TintColor.None);
         }
 
         public virtual int GetHeight(uint data)
         {
-            return (int)(data & 0b00_1111);
+            return (int) (data & 0b00_1111);
         }
     }
 }
