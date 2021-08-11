@@ -24,7 +24,7 @@ namespace VoxelGame.Core.Logic
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<Chunk>();
 
         public const int VerticalSectionCount = 64;
-        public static readonly int VerticalSectionCountExp = (int)Math.Log(VerticalSectionCount, 2);
+        public static readonly int VerticalSectionCountExp = (int) Math.Log(VerticalSectionCount, 2);
 
         public const int ChunkWidth = Section.SectionSize;
         public const int ChunkHeight = Section.SectionSize * VerticalSectionCount;
@@ -109,7 +109,7 @@ namespace VoxelGame.Core.Logic
             using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 IFormatter formatter = new BinaryFormatter();
-                chunk = (Chunk)formatter.Deserialize(stream);
+                chunk = (Chunk) formatter.Deserialize(stream);
             }
 
             // Checking the chunk

@@ -35,7 +35,7 @@ namespace VoxelGame.Client.Logic
         {
             for (int y = 0; y < VerticalSectionCount; y++)
             {
-                ((ClientSection)sections[y]).CreateAndSetMesh(X, y, Z);
+                ((ClientSection) sections[y]).CreateAndSetMesh(X, y, Z);
             }
 
             hasMeshData = true;
@@ -44,7 +44,7 @@ namespace VoxelGame.Client.Logic
 
         public void CreateAndSetMesh(int y)
         {
-            ((ClientSection)sections[y]).CreateAndSetMesh(X, y, Z);
+            ((ClientSection) sections[y]).CreateAndSetMesh(X, y, Z);
         }
 
         public Task<SectionMeshData[]> CreateMeshDataTask()
@@ -58,7 +58,7 @@ namespace VoxelGame.Client.Logic
 
             for (var y = 0; y < VerticalSectionCount; y++)
             {
-                ((ClientSection)sections[y]).CreateMeshData(X, y, Z, out sectionMeshes[y]);
+                ((ClientSection) sections[y]).CreateMeshData(X, y, Z, out sectionMeshes[y]);
             }
 
             meshDataIndex = 0;
@@ -66,24 +66,31 @@ namespace VoxelGame.Client.Logic
             return sectionMeshes;
         }
 
+        // todo remove
         public void SetMeshData(SectionMeshData[] sectionMeshes)
         {
             for (var y = 0; y < VerticalSectionCount; y++)
             {
-                ((ClientSection)sections[y]).SetMeshData(ref sectionMeshes[y]);
+                ((ClientSection) sections[y]).SetMeshData(ref sectionMeshes[y]);
             }
 
             hasMeshData = true;
             meshDataIndex = 0;
         }
 
-        public bool SetMeshDataStep(SectionMeshData[] sectionMeshes)
+        public void ResetMeshDataSetSteps()
+        {
+            hasMeshData = false;
+            meshDataIndex = 0;
+        }
+
+        public bool DoMeshDataSetStep(SectionMeshData[] sectionMeshes)
         {
             hasMeshData = false;
 
             for (var count = 0; count < maxMeshDataStep; count++)
             {
-                ((ClientSection)sections[meshDataIndex]).SetMeshData(ref sectionMeshes[meshDataIndex]);
+                ((ClientSection) sections[meshDataIndex]).SetMeshData(ref sectionMeshes[meshDataIndex]);
 
                 // The index has reached the end, all sections have received their mesh data.
                 if (meshDataIndex == VerticalSectionCount - 1)
@@ -135,7 +142,7 @@ namespace VoxelGame.Client.Logic
 
                 for (int y = start; y <= end; y++)
                 {
-                    renderList.Add(((ClientSection)sections[y], new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize)));
+                    renderList.Add(((ClientSection) sections[y], new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize)));
                 }
             }
         }

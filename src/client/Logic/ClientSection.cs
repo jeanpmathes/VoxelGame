@@ -117,7 +117,7 @@ namespace VoxelGame.Client.Logic
 
                                     void MeshSimpleSide(BlockSide side)
                                     {
-                                        ClientSection? neighbor = neighbors[(int)side];
+                                        ClientSection? neighbor = neighbors[(int) side];
                                         Block? blockToCheck;
 
                                         Vector3i checkPos = side.Offset(pos);
@@ -148,9 +148,9 @@ namespace VoxelGame.Client.Logic
                                             int upperDataD = (uvs[3][0] << 31) | (uvs[3][1] << 30) | ((d[0] + x) << 10) | ((d[1] + y) << 5) | (d[2] + z);
 
                                             // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                                            int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)side << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
+                                            int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int) side << 18) | mesh.GetAnimationBit(16) | mesh.TextureIndex;
 
-                                            blockMeshFaceHolders[(int)side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), mesh.IsTextureRotated);
+                                            blockMeshFaceHolders[(int) side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), mesh.IsTextureRotated);
                                         }
                                     }
 
@@ -173,11 +173,11 @@ namespace VoxelGame.Client.Logic
 
                                         // int: nnnn nooo oopp ppp- ---- --uu uuuv vvvv (nop: normal; uv: texture coords)
                                         int upperData =
-                                            (((vertices[(i * 8) + 5] < 0f) ? (0b1_0000 | (int)(vertices[(i * 8) + 5] * -15f)) : (int)(vertices[(i * 8) + 5] * 15f)) << 27) |
-                                            (((vertices[(i * 8) + 6] < 0f) ? (0b1_0000 | (int)(vertices[(i * 8) + 6] * -15f)) : (int)(vertices[(i * 8) + 6] * 15f)) << 22) |
-                                            (((vertices[(i * 8) + 7] < 0f) ? (0b1_0000 | (int)(vertices[(i * 8) + 7] * -15f)) : (int)(vertices[(i * 8) + 7] * 15f)) << 17) |
-                                            ((int)(vertices[(i * 8) + 3] * 16f) << 5) |
-                                            ((int)(vertices[(i * 8) + 4] * 16f));
+                                            (((vertices[(i * 8) + 5] < 0f) ? (0b1_0000 | (int) (vertices[(i * 8) + 5] * -15f)) : (int) (vertices[(i * 8) + 5] * 15f)) << 27) |
+                                            (((vertices[(i * 8) + 6] < 0f) ? (0b1_0000 | (int) (vertices[(i * 8) + 6] * -15f)) : (int) (vertices[(i * 8) + 6] * 15f)) << 22) |
+                                            (((vertices[(i * 8) + 7] < 0f) ? (0b1_0000 | (int) (vertices[(i * 8) + 7] * -15f)) : (int) (vertices[(i * 8) + 7] * 15f)) << 17) |
+                                            ((int) (vertices[(i * 8) + 3] * 16f) << 5) |
+                                            ((int) (vertices[(i * 8) + 4] * 16f));
 
                                         complexVertexData.Add(upperData);
 
@@ -205,7 +205,7 @@ namespace VoxelGame.Client.Logic
 
                                     void MeshVaryingHeightSide(BlockSide side)
                                     {
-                                        ClientSection? neighbor = neighbors[(int)side];
+                                        ClientSection? neighbor = neighbors[(int) side];
                                         Block? blockToCheck;
                                         uint blockToCheckData = default;
 
@@ -226,7 +226,7 @@ namespace VoxelGame.Client.Logic
                                         if (blockToCheck != null && (!blockToCheck.IsFull || !blockToCheck.IsOpaque))
                                         {
                                             bool isModified = side != BlockSide.Bottom &&
-                                                              ((IHeightVariable)currentBlock).GetHeight(data) != IHeightVariable.MaximumHeight;
+                                                              ((IHeightVariable) currentBlock).GetHeight(data) != IHeightVariable.MaximumHeight;
 
                                             BlockMeshData mesh = currentBlock.GetMesh(BlockMeshInfo.Simple(side, data, currentLiquid));
                                             side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
@@ -235,7 +235,7 @@ namespace VoxelGame.Client.Logic
                                             {
                                                 // Mesh similar to liquids.
 
-                                                int height = ((IHeightVariable)currentBlock).GetHeight(data);
+                                                int height = ((IHeightVariable) currentBlock).GetHeight(data);
                                                 if (side != BlockSide.Top && blockToCheck is IHeightVariable toCheck && toCheck.GetHeight(blockToCheckData) == height) return;
 
                                                 // int: uv-- ---- ---- ---- -xxx xxey yyyz zzzz (uv: texture coords; hl: texture repetition; xyz: position; e: lower/upper end)
@@ -245,9 +245,9 @@ namespace VoxelGame.Client.Logic
                                                 int upperDataD = (1 << 31) | (0 << 30) | (x + d[0] << 10) | (d[1] << 9) | (y << 5) | (z + d[2]);
 
                                                 // int: tttt tttt tnnn hhhh ---i iiii iiii iiii (t: tint; n: normal; h: height; i: texture index)
-                                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)side << 20) | (height << 16) | mesh.TextureIndex;
+                                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int) side << 20) | (height << 16) | mesh.TextureIndex;
 
-                                                varyingHeightMeshFaceHolders[(int)side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), true, false);
+                                                varyingHeightMeshFaceHolders[(int) side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), true, false);
                                             }
                                             else
                                             {
@@ -260,9 +260,9 @@ namespace VoxelGame.Client.Logic
                                                 int upperDataD = (1 << 31) | (0 << 30) | ((d[0] + x) << 10) | ((d[1] + y) << 5) | (d[2] + z);
 
                                                 // int: tttt tttt t--n nn-_ ---i iiii iiii iiii (t: tint; n: normal; i: texture index, _: used for simple blocks but not here)
-                                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int)side << 18) | mesh.TextureIndex;
+                                                int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int) side << 18) | mesh.TextureIndex;
 
-                                                blockMeshFaceHolders[(int)side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), false);
+                                                blockMeshFaceHolders[(int) side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), false);
                                             }
                                         }
                                     }
@@ -366,7 +366,7 @@ namespace VoxelGame.Client.Logic
 
                             void MeshLiquidSide(BlockSide side)
                             {
-                                ClientSection? neighbor = neighbors[(int)side];
+                                ClientSection? neighbor = neighbors[(int) side];
 
                                 Liquid? liquidToCheck;
                                 Block? blockToCheck;
@@ -397,7 +397,7 @@ namespace VoxelGame.Client.Logic
                                     ? currentLiquid.Direction < 0
                                     : currentLiquid.Direction > 0;
 
-                                bool meshAtNormal = (int)level > sideHeight && blockToCheck?.IsOpaque != true;
+                                bool meshAtNormal = (int) level > sideHeight && blockToCheck?.IsOpaque != true;
                                 bool meshAtEnd = ((flowsTowardsFace && sideHeight != 7 && blockToCheck?.IsOpaque != true)
                                                   || (!flowsTowardsFace && (level != LiquidLevel.Eight || (liquidToCheck != currentLiquid && blockToCheck?.IsOpaque != true))));
 
@@ -417,9 +417,9 @@ namespace VoxelGame.Client.Logic
                                     int upperDataD = (1 << 31) | (0 << 30) | (x + d[0] << 10) | (d[1] << 9) | (y << 5) | (z + d[2]);
 
                                     // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-                                    int lowerData = (mesh.Tint.GetBits(liquidTint) << 23) | ((int)side << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int)level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((mesh.TextureIndex - 1) >> 4) + 1) & 0b0111_1111);
+                                    int lowerData = (mesh.Tint.GetBits(liquidTint) << 23) | ((int) side << 16) | ((sideHeight + 1) << 12) | ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int) level << 8) | (isStatic ? (1 << 7) : (0 << 7)) | ((((mesh.TextureIndex - 1) >> 4) + 1) & 0b0111_1111);
 
-                                    liquidMeshFaceHolders[(int)side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
+                                    liquidMeshFaceHolders[(int) side].AddFace(pos, lowerData, (upperDataA, upperDataB, upperDataC, upperDataD), singleSided, isFull);
                                 }
                             }
                         }
@@ -486,7 +486,7 @@ namespace VoxelGame.Client.Logic
             long totalRuntime = System.Threading.Interlocked.Add(ref _totalMeshingTime, ms);
             long runs = System.Threading.Interlocked.Increment(ref _meshingRuns);
 
-            double averageRuntime = totalRuntime / (double)runs;
+            double averageRuntime = totalRuntime / (double) runs;
 
             if (runs % 100 == 0)
             {
@@ -500,12 +500,12 @@ namespace VoxelGame.Client.Logic
         {
             ClientSection?[] neighbors = new ClientSection?[6];
 
-            neighbors[(int)BlockSide.Front] = World.GetSection(BlockSide.Front.Offset(sectionPosition)) as ClientSection;
-            neighbors[(int)BlockSide.Back] = World.GetSection(BlockSide.Back.Offset(sectionPosition)) as ClientSection;
-            neighbors[(int)BlockSide.Left] = World.GetSection(BlockSide.Left.Offset(sectionPosition)) as ClientSection;
-            neighbors[(int)BlockSide.Right] = World.GetSection(BlockSide.Right.Offset(sectionPosition)) as ClientSection;
-            neighbors[(int)BlockSide.Bottom] = World.GetSection(BlockSide.Bottom.Offset(sectionPosition)) as ClientSection;
-            neighbors[(int)BlockSide.Top] = World.GetSection(BlockSide.Top.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int) BlockSide.Front] = World.GetSection(BlockSide.Front.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int) BlockSide.Back] = World.GetSection(BlockSide.Back.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int) BlockSide.Left] = World.GetSection(BlockSide.Left.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int) BlockSide.Right] = World.GetSection(BlockSide.Right.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int) BlockSide.Bottom] = World.GetSection(BlockSide.Bottom.Offset(sectionPosition)) as ClientSection;
+            neighbors[(int) BlockSide.Top] = World.GetSection(BlockSide.Top.Offset(sectionPosition)) as ClientSection;
 
             return neighbors;
         }
@@ -514,12 +514,12 @@ namespace VoxelGame.Client.Logic
         {
             BlockMeshFaceHolder[] holders = new BlockMeshFaceHolder[6];
 
-            holders[(int)BlockSide.Front] = new BlockMeshFaceHolder(BlockSide.Front);
-            holders[(int)BlockSide.Back] = new BlockMeshFaceHolder(BlockSide.Back);
-            holders[(int)BlockSide.Left] = new BlockMeshFaceHolder(BlockSide.Left);
-            holders[(int)BlockSide.Right] = new BlockMeshFaceHolder(BlockSide.Right);
-            holders[(int)BlockSide.Bottom] = new BlockMeshFaceHolder(BlockSide.Bottom);
-            holders[(int)BlockSide.Top] = new BlockMeshFaceHolder(BlockSide.Top);
+            holders[(int) BlockSide.Front] = new BlockMeshFaceHolder(BlockSide.Front);
+            holders[(int) BlockSide.Back] = new BlockMeshFaceHolder(BlockSide.Back);
+            holders[(int) BlockSide.Left] = new BlockMeshFaceHolder(BlockSide.Left);
+            holders[(int) BlockSide.Right] = new BlockMeshFaceHolder(BlockSide.Right);
+            holders[(int) BlockSide.Bottom] = new BlockMeshFaceHolder(BlockSide.Bottom);
+            holders[(int) BlockSide.Top] = new BlockMeshFaceHolder(BlockSide.Top);
 
             return holders;
         }
@@ -528,12 +528,12 @@ namespace VoxelGame.Client.Logic
         {
             VaryingHeightMeshFaceHolder[] holders = new VaryingHeightMeshFaceHolder[6];
 
-            holders[(int)BlockSide.Front] = new VaryingHeightMeshFaceHolder(BlockSide.Front);
-            holders[(int)BlockSide.Back] = new VaryingHeightMeshFaceHolder(BlockSide.Back);
-            holders[(int)BlockSide.Left] = new VaryingHeightMeshFaceHolder(BlockSide.Left);
-            holders[(int)BlockSide.Right] = new VaryingHeightMeshFaceHolder(BlockSide.Right);
-            holders[(int)BlockSide.Bottom] = new VaryingHeightMeshFaceHolder(BlockSide.Bottom);
-            holders[(int)BlockSide.Top] = new VaryingHeightMeshFaceHolder(BlockSide.Top);
+            holders[(int) BlockSide.Front] = new VaryingHeightMeshFaceHolder(BlockSide.Front);
+            holders[(int) BlockSide.Back] = new VaryingHeightMeshFaceHolder(BlockSide.Back);
+            holders[(int) BlockSide.Left] = new VaryingHeightMeshFaceHolder(BlockSide.Left);
+            holders[(int) BlockSide.Right] = new VaryingHeightMeshFaceHolder(BlockSide.Right);
+            holders[(int) BlockSide.Bottom] = new VaryingHeightMeshFaceHolder(BlockSide.Bottom);
+            holders[(int) BlockSide.Top] = new VaryingHeightMeshFaceHolder(BlockSide.Top);
 
             return holders;
         }
@@ -580,7 +580,7 @@ namespace VoxelGame.Client.Logic
         public void SetMeshData(ref SectionMeshData meshData)
         {
             Debug.Assert(renderer != null);
-            // Debug.Assert(hasMesh == meshData.IsFilled);
+            Debug.Assert(hasMesh == meshData.IsFilled);
 
             renderer.SetData(ref meshData);
         }

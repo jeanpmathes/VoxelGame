@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Diagnostics;
 using VoxelGame.Core.Collections;
 
 namespace VoxelGame.Client.Rendering
@@ -28,6 +29,8 @@ namespace VoxelGame.Client.Rendering
 
         internal readonly PooledList<int> transparentLiquidVertexData;
         internal readonly PooledList<uint> transparentLiquidIndices;
+
+        private bool isReturnedToPool;
 
         public SectionMeshData(
             ref PooledList<int> simpleVertexData,
@@ -62,6 +65,8 @@ namespace VoxelGame.Client.Rendering
 
         public void ReturnPooled()
         {
+            Debug.Assert(!isReturnedToPool);
+
             simpleVertexData.ReturnToPool();
 
             complexVertexPositions.ReturnToPool();
@@ -80,6 +85,15 @@ namespace VoxelGame.Client.Rendering
 
             transparentLiquidVertexData.ReturnToPool();
             transparentLiquidIndices.ReturnToPool();
+
+            isReturnedToPool = true;
+        }
+
+        public void Discard()
+        {
+            if (isReturnedToPool) return;
+
+            ReturnPooled();
         }
     }
 }

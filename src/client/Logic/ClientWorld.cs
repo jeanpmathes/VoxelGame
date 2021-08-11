@@ -42,9 +42,9 @@ namespace VoxelGame.Client.Logic
         private readonly Dictionary<int, ClientChunk> chunksMeshing = new Dictionary<int, ClientChunk>(MaxMeshingTasks);
 
         /// <summary>
-        /// A list of chunks where the mesh data has to be set;
+        /// A list of chunks where the mesh data has to be set.
         /// </summary>
-        private readonly List<(ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask)> chunksToSendMeshData = new List<(ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask)>(MaxMeshDataSends);
+        private readonly List<(ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask)> chunksToSendMeshData = new List<(ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask)>();
 
         /// <summary>
         /// A set of chunks with information on which sections of them are to mesh.
@@ -78,7 +78,7 @@ namespace VoxelGame.Client.Logic
                 {
                     if (activeChunks.TryGetValue((Client.Player.ChunkX + x, Client.Player.ChunkZ + z), out Chunk? chunk))
                     {
-                        ((ClientChunk)chunk).AddCulledToRenderList(Client.Player.Frustum, ref renderList);
+                        ((ClientChunk) chunk).AddCulledToRenderList(Client.Player.Frustum, ref renderList);
                     }
                 }
             }
@@ -134,7 +134,7 @@ namespace VoxelGame.Client.Logic
                 // Mesh all listed sections.
                 foreach ((Chunk chunk, int index) in sectionsToMesh)
                 {
-                    ((ClientChunk)chunk).CreateAndSetMesh(index);
+                    ((ClientChunk) chunk).CreateAndSetMesh(index);
                 }
 
                 sectionsToMesh.Clear();
@@ -158,59 +158,77 @@ namespace VoxelGame.Client.Logic
 
         protected override void ProcessNewlyActivatedChunk(Chunk activatedChunk)
         {
-            chunksToMesh.Enqueue((ClientChunk)activatedChunk);
+            chunksToMesh.Enqueue((ClientChunk) activatedChunk);
 
             // Schedule to mesh the chunks around this chunk
             if (activeChunks.TryGetValue((activatedChunk.X + 1, activatedChunk.Z), out Chunk? neighbor))
             {
-                chunksToMesh.Enqueue((ClientChunk)neighbor);
+                chunksToMesh.Enqueue((ClientChunk) neighbor);
             }
 
             if (activeChunks.TryGetValue((activatedChunk.X - 1, activatedChunk.Z), out neighbor))
             {
-                chunksToMesh.Enqueue((ClientChunk)neighbor);
+                chunksToMesh.Enqueue((ClientChunk) neighbor);
             }
 
             if (activeChunks.TryGetValue((activatedChunk.X, activatedChunk.Z + 1), out neighbor))
             {
-                chunksToMesh.Enqueue((ClientChunk)neighbor);
+                chunksToMesh.Enqueue((ClientChunk) neighbor);
             }
 
             if (activeChunks.TryGetValue((activatedChunk.X, activatedChunk.Z - 1), out neighbor))
             {
-                chunksToMesh.Enqueue((ClientChunk)neighbor);
+                chunksToMesh.Enqueue((ClientChunk) neighbor);
             }
         }
 
         private void FinishMeshingChunks()
         {
-            if (chunkMeshingTasks.Count > 0)
+            if (chunkMeshingTasks.Count == 0) return;
+
+            for (int i = chunkMeshingTasks.Count - 1; i >= 0; i--)
             {
-                for (int i = chunkMeshingTasks.Count - 1; i >= 0; i--)
+                if (chunkMeshingTasks[i].IsCompleted)
                 {
-                    if (chunkMeshingTasks[i].IsCompleted)
+                    Task<SectionMeshData[]> completed = chunkMeshingTasks[i];
+                    Chunk meshedChunk = chunksMeshing[completed.Id];
+
+                    if (chunkMeshingTasks[i].IsFaulted)
                     {
-                        Task<SectionMeshData[]>? completed = chunkMeshingTasks[i];
-                        Chunk meshedChunk = chunksMeshing[completed.Id];
+                        Exception e = completed.Exception?.GetBaseException() ?? new NullReferenceException();
 
-                        if (chunkMeshingTasks[i].IsFaulted)
-                        {
-                            Exception e = completed.Exception?.GetBaseException() ?? new NullReferenceException();
+                        Logger.LogCritical(Events.ChunkMeshingError, e, "An exception occurred when meshing the chunk ({x}|{z}). The exception will be re-thrown.", meshedChunk.X, meshedChunk.Z);
 
-                            Logger.LogCritical(Events.ChunkMeshingError, e, "An exception occurred when meshing the chunk ({x}|{z}). The exception will be re-thrown.", meshedChunk.X, meshedChunk.Z);
+                        throw e;
+                    }
+                    else
+                    {
+                        chunkMeshingTasks.RemoveAt(i);
+                        chunksMeshing.Remove(completed.Id);
 
-                            throw e;
-                        }
-                        else
-                        {
-                            chunkMeshingTasks.RemoveAt(i);
-                            chunksMeshing.Remove(completed.Id);
-
-                            chunksToSendMeshData.Add(((ClientChunk)meshedChunk, completed));
-                        }
+                        StartSendingMeshToChunk((ClientChunk) meshedChunk, completed);
                     }
                 }
             }
+        }
+
+        private void StartSendingMeshToChunk(ClientChunk chunk, Task<SectionMeshData[]> completed)
+        {
+            // If there is already mesh data for this chunk, it is no longer up to date and can be discarded.
+
+            int index = chunksToSendMeshData.FindIndex(entry => ReferenceEquals(entry.chunk, chunk));
+            if (index != -1)
+            {
+                (ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask) entry = chunksToSendMeshData[index];
+                chunksToSendMeshData.RemoveAt(index);
+
+                foreach (SectionMeshData data in entry.chunkMeshingTask.Result)
+                {
+                    data.Discard();
+                }
+            }
+
+            chunksToSendMeshData.Add((chunk, completed));
         }
 
         private void StartMeshingChunks()
@@ -218,8 +236,7 @@ namespace VoxelGame.Client.Logic
             while (chunksToMesh.Count > 0 && chunkMeshingTasks.Count < MaxMeshingTasks)
             {
                 ClientChunk current = chunksToMesh.Dequeue();
-
-                var currentTask = current.CreateMeshDataTask();
+                Task<SectionMeshData[]> currentTask = current.CreateMeshDataTask();
 
                 chunkMeshingTasks.Add(currentTask);
                 chunksMeshing.Add(currentTask.Id, current);
@@ -230,12 +247,14 @@ namespace VoxelGame.Client.Logic
         {
             if (chunksToSendMeshData.Count > 0)
             {
-                int chunkIndex = 0;
-                for (int count = 0; count < MaxMeshDataSends && chunkIndex < chunksToSendMeshData.Count; count++)
+                var chunkIndex = 0;
+                for (var count = 0; count < MaxMeshDataSends && chunkIndex < chunksToSendMeshData.Count; count++)
                 {
                     (Chunk chunk, var chunkMeshingTask) = chunksToSendMeshData[chunkIndex];
 
-                    if (((ClientChunk)chunk).SetMeshDataStep(chunkMeshingTask.Result))
+                    var clientChunk = (ClientChunk) chunk;
+
+                    if (clientChunk.DoMeshDataSetStep(chunkMeshingTask.Result))
                     {
                         chunksToSendMeshData.RemoveAt(chunkIndex);
                     }
@@ -250,18 +269,18 @@ namespace VoxelGame.Client.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void ProcessChangedSection(Chunk chunk, int x, int y, int z)
         {
-            sectionsToMesh.Add(((ClientChunk)chunk, y >> Section.SectionSizeExp));
+            sectionsToMesh.Add(((ClientChunk) chunk, y >> Section.SectionSizeExp));
 
             // Check if sections next to changed section have to be changed:
 
             // Next on y axis.
             if ((y & (Section.SectionSize - 1)) == 0 && (y - 1 >> Section.SectionSizeExp) >= 0)
             {
-                sectionsToMesh.Add(((ClientChunk)chunk, y - 1 >> Section.SectionSizeExp));
+                sectionsToMesh.Add(((ClientChunk) chunk, y - 1 >> Section.SectionSizeExp));
             }
             else if ((y & (Section.SectionSize - 1)) == Section.SectionSize - 1 && (y + 1 >> Section.SectionSizeExp) < Chunk.VerticalSectionCount)
             {
-                sectionsToMesh.Add(((ClientChunk)chunk, y + 1 >> Section.SectionSizeExp));
+                sectionsToMesh.Add(((ClientChunk) chunk, y + 1 >> Section.SectionSizeExp));
             }
 
             Chunk? neighbor;
@@ -269,21 +288,21 @@ namespace VoxelGame.Client.Logic
             // Next on x axis.
             if ((x & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x - 1 >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out neighbor))
             {
-                sectionsToMesh.Add(((ClientChunk)neighbor, y >> Section.SectionSizeExp));
+                sectionsToMesh.Add(((ClientChunk) neighbor, y >> Section.SectionSizeExp));
             }
             else if ((x & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue((x + 1 >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out neighbor))
             {
-                sectionsToMesh.Add(((ClientChunk)neighbor, y >> Section.SectionSizeExp));
+                sectionsToMesh.Add(((ClientChunk) neighbor, y >> Section.SectionSizeExp));
             }
 
             // Next on z axis.
             if ((z & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x >> Section.SectionSizeExp, z - 1 >> Section.SectionSizeExp), out neighbor))
             {
-                sectionsToMesh.Add(((ClientChunk)neighbor, y >> Section.SectionSizeExp));
+                sectionsToMesh.Add(((ClientChunk) neighbor, y >> Section.SectionSizeExp));
             }
             else if ((z & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue((x >> Section.SectionSizeExp, z + 1 >> Section.SectionSizeExp), out neighbor))
             {
-                sectionsToMesh.Add(((ClientChunk)neighbor, y >> Section.SectionSizeExp));
+                sectionsToMesh.Add(((ClientChunk) neighbor, y >> Section.SectionSizeExp));
             }
         }
 
