@@ -84,9 +84,9 @@ namespace VoxelGame.Client.Logic
             VaryingHeightMeshFaceHolder[] opaqueLiquidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
             VaryingHeightMeshFaceHolder[] transparentLiquidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
 
-            PooledList<int> crossPlantVertexData = new PooledList<int>();
+            PooledList<int> crossPlantVertexData = new PooledList<int>(16);
 
-            PooledList<int> cropPlantVertexData = new PooledList<int>();
+            PooledList<int> cropPlantVertexData = new PooledList<int>(16);
 
             // Loop through the section
             for (var x = 0; x < SectionSize; x++)
@@ -430,25 +430,26 @@ namespace VoxelGame.Client.Logic
             // Complex mesh data is already built at this point.
 
             // Build the simple mesh data.
-            PooledList<int> simpleVertexData = new PooledList<int>(4096);
+            PooledList<int> simpleVertexData = new PooledList<int>(2048);
             GenerateMesh(blockMeshFaceHolders, ref simpleVertexData);
 
             // Build the varying height mesh data.
-            PooledList<int> varyingHeightVertexData = new PooledList<int>();
-            PooledList<uint> varyingHeightIndices = new PooledList<uint>();
+            PooledList<int> varyingHeightVertexData = new PooledList<int>(8);
+            PooledList<uint> varyingHeightIndices = new PooledList<uint>(8);
+
             uint varyingHeightVertexCount = 0;
 
             GenerateMesh(varyingHeightMeshFaceHolders, ref varyingHeightVertexData, ref varyingHeightVertexCount, ref varyingHeightIndices);
 
             // Build the liquid mesh data.
-            PooledList<int> opaqueLiquidVertexData = new PooledList<int>();
-            PooledList<uint> opaqueLiquidIndices = new PooledList<uint>();
+            PooledList<int> opaqueLiquidVertexData = new PooledList<int>(8);
+            PooledList<uint> opaqueLiquidIndices = new PooledList<uint>(8);
             uint opaqueLiquidVertexCount = 0;
 
             GenerateMesh(opaqueLiquidMeshFaceHolders, ref opaqueLiquidVertexData, ref opaqueLiquidVertexCount, ref opaqueLiquidIndices);
 
-            PooledList<int> transparentLiquidVertexData = new PooledList<int>();
-            PooledList<uint> transparentLiquidIndices = new PooledList<uint>();
+            PooledList<int> transparentLiquidVertexData = new PooledList<int>(8);
+            PooledList<uint> transparentLiquidIndices = new PooledList<uint>(8);
             uint transparentLiquidVertexCount = 0;
 
             GenerateMesh(transparentLiquidMeshFaceHolders, ref transparentLiquidVertexData, ref transparentLiquidVertexCount, ref transparentLiquidIndices);
@@ -486,12 +487,12 @@ namespace VoxelGame.Client.Logic
             long totalRuntime = System.Threading.Interlocked.Add(ref _totalMeshingTime, ms);
             long runs = System.Threading.Interlocked.Increment(ref _meshingRuns);
 
+            if (runs % 100 != 0) return;
+
             double averageRuntime = totalRuntime / (double) runs;
 
-            if (runs % 100 == 0)
-            {
-                Logger.LogInformation($"Average section meshing time: {averageRuntime}ms");
-            }
+            string msg = $"Average section meshing time: {averageRuntime}ms";
+            Console.WriteLine(msg);
         }
 
 #endif
