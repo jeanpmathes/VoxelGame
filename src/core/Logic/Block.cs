@@ -108,12 +108,12 @@ namespace VoxelGame.Core.Logic
             Debug.Assert((targetBuffer == TargetBuffer.VaryingHeight) == (this is IHeightVariable), $"The target buffer should be {nameof(TargetBuffer.VaryingHeight)} if and only if the block implements {nameof(IHeightVariable)}.");
 #pragma warning restore S3060 // "is" should not be used with "this"
 
-            if (blockDictionary.Count < BlockLimit)
+            if (BlockList.Count < BlockLimit)
             {
-                blockDictionary.Add((uint) blockDictionary.Count, this);
-                namedBlockDictionary.Add(namedId, this);
+                BlockList.Add(this);
+                NamedBlockDictionary.Add(namedId, this);
 
-                Id = (uint) (blockDictionary.Count - 1);
+                Id = (uint) (BlockList.Count - 1);
             }
             else
             {
