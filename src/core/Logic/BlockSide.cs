@@ -51,19 +51,24 @@ namespace VoxelGame.Core.Logic
             };
         }
 
+        private static readonly Vector3i[] directions = new Vector3i[]
+        {
+            (0, 0, 0),
+            (0, 0, 1),
+            (0, 0, -1),
+            (-1, 0, 0),
+            (1, 0, 0),
+            (0, -1, 0),
+            (0, 1, 0)
+        };
+
         public static Vector3i Direction(this BlockSide side)
         {
-            return side switch
-            {
-                BlockSide.All => (0, 0, 0),
-                BlockSide.Front => (0, 0, 1),
-                BlockSide.Back => (0, 0, -1),
-                BlockSide.Left => (-1, 0, 0),
-                BlockSide.Right => (1, 0, 0),
-                BlockSide.Bottom => (0, -1, 0),
-                BlockSide.Top => (0, 1, 0),
-                _ => throw new ArgumentOutOfRangeException(nameof(side), side, null)
-            };
+            int index = (int) side + 1;
+
+            if (index > 6) throw new ArgumentOutOfRangeException(nameof(side), side, null);
+
+            return directions[index];
         }
 
         public static Vector3i Offset(this BlockSide side, Vector3i v)
