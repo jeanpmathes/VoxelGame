@@ -51,7 +51,7 @@ namespace VoxelGame.Client.Logic
         public void CreateAndSetMesh(int sectionX, int sectionY, int sectionZ)
         {
             CreateMeshData(sectionX, sectionY, sectionZ, out SectionMeshData meshData);
-            SetMeshData(ref meshData);
+            SetMeshData(meshData);
         }
 
         public void CreateMeshData(int sectionX, int sectionY, int sectionZ, out SectionMeshData meshData)
@@ -95,11 +95,10 @@ namespace VoxelGame.Client.Logic
                 {
                     for (var z = 0; z < SectionSize; z++)
                     {
-                        Vector3i pos = (x, y, z);
                         uint val = blocks[(x << SectionSizeExp2) + (y << SectionSizeExp) + z];
-
                         Section.Decode(val, out Block currentBlock, out uint data, out Liquid currentLiquid, out LiquidLevel level, out bool isStatic);
 
+                        var pos = new Vector3i(x, y, z);
                         bool isFull = level == LiquidLevel.Eight;
 
                         switch (currentBlock.TargetBuffer)
@@ -431,7 +430,7 @@ namespace VoxelGame.Client.Logic
 
             // Build the simple mesh data.
             PooledList<int> simpleVertexData = new PooledList<int>(2048);
-            GenerateMesh(blockMeshFaceHolders, ref simpleVertexData);
+            GenerateMesh(blockMeshFaceHolders, simpleVertexData);
 
             // Build the varying height mesh data.
             PooledList<int> varyingHeightVertexData = new PooledList<int>(8);
@@ -439,30 +438,30 @@ namespace VoxelGame.Client.Logic
 
             uint varyingHeightVertexCount = 0;
 
-            GenerateMesh(varyingHeightMeshFaceHolders, ref varyingHeightVertexData, ref varyingHeightVertexCount, ref varyingHeightIndices);
+            GenerateMesh(varyingHeightMeshFaceHolders, ref varyingHeightVertexCount, varyingHeightVertexData, varyingHeightIndices);
 
             // Build the liquid mesh data.
             PooledList<int> opaqueLiquidVertexData = new PooledList<int>(8);
             PooledList<uint> opaqueLiquidIndices = new PooledList<uint>(8);
             uint opaqueLiquidVertexCount = 0;
 
-            GenerateMesh(opaqueLiquidMeshFaceHolders, ref opaqueLiquidVertexData, ref opaqueLiquidVertexCount, ref opaqueLiquidIndices);
+            GenerateMesh(opaqueLiquidMeshFaceHolders, ref opaqueLiquidVertexCount, opaqueLiquidVertexData, opaqueLiquidIndices);
 
             PooledList<int> transparentLiquidVertexData = new PooledList<int>(8);
             PooledList<uint> transparentLiquidIndices = new PooledList<uint>(8);
             uint transparentLiquidVertexCount = 0;
 
-            GenerateMesh(transparentLiquidMeshFaceHolders, ref transparentLiquidVertexData, ref transparentLiquidVertexCount, ref transparentLiquidIndices);
+            GenerateMesh(transparentLiquidMeshFaceHolders, ref transparentLiquidVertexCount, transparentLiquidVertexData, transparentLiquidIndices);
 
             // Finish up.
             meshData = new SectionMeshData(
-                ref simpleVertexData,
-                ref complexVertexPositions, ref complexVertexData, ref complexIndices,
-                ref varyingHeightVertexData, ref varyingHeightIndices,
-                ref crossPlantVertexData,
-                ref cropPlantVertexData,
-                ref opaqueLiquidVertexData, ref opaqueLiquidIndices,
-                ref transparentLiquidVertexData, ref transparentLiquidIndices);
+                simpleVertexData,
+                complexVertexPositions, complexVertexData, complexIndices,
+                varyingHeightVertexData, varyingHeightIndices,
+                crossPlantVertexData,
+                cropPlantVertexData,
+                opaqueLiquidVertexData, opaqueLiquidIndices,
+                transparentLiquidVertexData, transparentLiquidIndices);
 
             hasMesh = meshData.IsFilled;
 
@@ -539,19 +538,19 @@ namespace VoxelGame.Client.Logic
             return holders;
         }
 
-        private static void GenerateMesh(BlockMeshFaceHolder[] holders, ref PooledList<int> data)
+        private static void GenerateMesh(BlockMeshFaceHolder[] holders, PooledList<int> data)
         {
             foreach (BlockMeshFaceHolder holder in holders)
             {
-                holder.GenerateMesh(ref data);
+                holder.GenerateMesh(data);
             }
         }
 
-        private static void GenerateMesh(VaryingHeightMeshFaceHolder[] holders, ref PooledList<int> vertexData, ref uint vertexCount, ref PooledList<uint> indexData)
+        private static void GenerateMesh(VaryingHeightMeshFaceHolder[] holders, ref uint vertexCount, PooledList<int> vertexData, PooledList<uint> indexData)
         {
             foreach (VaryingHeightMeshFaceHolder holder in holders)
             {
-                holder.GenerateMesh(ref vertexData, ref vertexCount, ref indexData);
+                holder.GenerateMesh(ref vertexCount, vertexData, indexData);
             }
         }
 
@@ -578,12 +577,12 @@ namespace VoxelGame.Client.Logic
                    || (position.Z < 0 || position.Z >= SectionSize);
         }
 
-        public void SetMeshData(ref SectionMeshData meshData)
+        public void SetMeshData(SectionMeshData meshData)
         {
             Debug.Assert(renderer != null);
             Debug.Assert(hasMesh == meshData.IsFilled);
 
-            renderer.SetData(ref meshData);
+            renderer.SetData(meshData);
         }
 
         public void Render(int stage, Vector3 position)

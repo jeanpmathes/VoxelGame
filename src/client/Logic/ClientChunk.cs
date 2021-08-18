@@ -66,18 +66,6 @@ namespace VoxelGame.Client.Logic
             return sectionMeshes;
         }
 
-        // todo remove
-        public void SetMeshData(SectionMeshData[] sectionMeshes)
-        {
-            for (var y = 0; y < VerticalSectionCount; y++)
-            {
-                ((ClientSection) sections[y]).SetMeshData(ref sectionMeshes[y]);
-            }
-
-            hasMeshData = true;
-            meshDataIndex = 0;
-        }
-
         public void ResetMeshDataSetSteps()
         {
             hasMeshData = false;
@@ -90,7 +78,7 @@ namespace VoxelGame.Client.Logic
 
             for (var count = 0; count < maxMeshDataStep; count++)
             {
-                ((ClientSection) sections[meshDataIndex]).SetMeshData(ref sectionMeshes[meshDataIndex]);
+                ((ClientSection) sections[meshDataIndex]).SetMeshData(sectionMeshes[meshDataIndex]);
 
                 // The index has reached the end, all sections have received their mesh data.
                 if (meshDataIndex == VerticalSectionCount - 1)
@@ -114,7 +102,7 @@ namespace VoxelGame.Client.Logic
         /// </summary>
         /// <param name="frustum">The view frustum to use for culling.</param>
         /// <param name="renderList">The list to add the chunks and positions too.</param>
-        public void AddCulledToRenderList(Frustum frustum, ref List<(ClientSection section, Vector3 position)> renderList)
+        public void AddCulledToRenderList(Frustum frustum, List<(ClientSection section, Vector3 position)> renderList)
         {
             if (hasMeshData && frustum.BoxInFrustum(new BoundingBox(ChunkPoint, ChunkExtents)))
             {

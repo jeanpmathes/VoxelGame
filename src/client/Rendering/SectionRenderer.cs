@@ -132,7 +132,7 @@ namespace VoxelGame.Client.Rendering
             #endregion TRANSPARENT LIQUID BUFFER SETUP
         }
 
-        public void SetData(ref SectionMeshData meshData)
+        public void SetData(SectionMeshData meshData)
         {
             if (disposed)
             {

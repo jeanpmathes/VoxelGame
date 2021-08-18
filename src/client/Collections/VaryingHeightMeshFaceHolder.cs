@@ -160,7 +160,7 @@ namespace VoxelGame.Client.Collections
             0, 2, 3
         };
 
-        public void GenerateMesh(ref PooledList<int> meshData, ref uint vertexCount, ref PooledList<uint> meshIndices)
+        public void GenerateMesh(ref uint vertexCount, PooledList<int> meshData, PooledList<uint> meshIndices)
         {
             if (count == 0)
             {

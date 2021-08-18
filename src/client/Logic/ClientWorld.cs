@@ -78,7 +78,7 @@ namespace VoxelGame.Client.Logic
                 {
                     if (activeChunks.TryGetValue((Client.Player.ChunkX + x, Client.Player.ChunkZ + z), out Chunk? chunk))
                     {
-                        ((ClientChunk) chunk).AddCulledToRenderList(Client.Player.Frustum, ref renderList);
+                        ((ClientChunk) chunk).AddCulledToRenderList(Client.Player.Frustum, renderList);
                     }
                 }
             }

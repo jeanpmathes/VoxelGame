@@ -146,7 +146,7 @@ namespace VoxelGame.Client.Collections
             }
         }
 
-        public void GenerateMesh(ref PooledList<int> meshData)
+        public void GenerateMesh(PooledList<int> meshData)
         {
             if (count == 0)
             {

@@ -7,6 +7,7 @@
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Windowing.Desktop;
 using System;
+using System.Diagnostics;
 using System.IO;
 using VoxelGame.Core;
 using VoxelGame.Core.Resources.Language;
