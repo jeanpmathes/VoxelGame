@@ -13,6 +13,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.WorldGeneration;
 using VoxelGame.Logging;
 
@@ -25,6 +26,8 @@ namespace VoxelGame.Core.Logic
 
         public const int VerticalSectionCount = 64;
         public static readonly int VerticalSectionCountExp = (int) Math.Log(VerticalSectionCount, 2);
+
+        private const int RandomTickBatchSize = VerticalSectionCount / 2;
 
         public const int ChunkWidth = Section.SectionSize;
         public const int ChunkHeight = Section.SectionSize * VerticalSectionCount;
@@ -42,9 +45,9 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Gets the position of the chunk as a point located in the center of the chunk.
         /// </summary>
-        public Vector3 ChunkPoint { get => new Vector3((X * ChunkWidth) + (ChunkWidth / 2f), ChunkHeight / 2f, (Z * ChunkWidth) + (ChunkWidth / 2f)); }
+        public Vector3 ChunkPoint => new Vector3((X * ChunkWidth) + (ChunkWidth / 2f), ChunkHeight / 2f, (Z * ChunkWidth) + (ChunkWidth / 2f));
 
-        public static Vector3 ChunkExtents { get => new Vector3(ChunkWidth / 2f, ChunkHeight / 2f, ChunkWidth / 2f); }
+        public static Vector3 ChunkExtents => new Vector3(ChunkWidth / 2f, ChunkHeight / 2f, ChunkWidth / 2f);
 
         [field: NonSerialized] protected World World { get; private set; }
 
@@ -208,9 +211,12 @@ namespace VoxelGame.Core.Logic
             blockTickManager.Process();
             liquidTickManager.Process();
 
-            for (int y = 0; y < VerticalSectionCount; y++)
+            int anchor = NumberGenerator.Random.Next(0, VerticalSectionCount);
+
+            for (var i = 0; i < RandomTickBatchSize; i++)
             {
-                sections[y].Tick(X, y, Z);
+                int y = (anchor + i) % VerticalSectionCount;
+                sections[y].SendRandomUpdates(X, y, Z);
             }
         }
 

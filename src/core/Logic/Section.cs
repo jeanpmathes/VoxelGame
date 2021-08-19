@@ -19,8 +19,6 @@ namespace VoxelGame.Core.Logic
         public static readonly int SectionSizeExp = (int) Math.Log(Section.SectionSize, 2);
         public static readonly int SectionSizeExp2 = (int) Math.Log(Section.SectionSize, 2) * 2;
 
-        public const int TickBatchSize = 1;
-
 #pragma warning disable CA1707 // Identifiers should not contain underscores
         public const int DATA_SHIFT = 12;
         public const int LIQUID_SHIFT = 18;
@@ -62,18 +60,15 @@ namespace VoxelGame.Core.Logic
 
         protected abstract void Setup();
 
-        public void Tick(int sectionX, int sectionY, int sectionZ)
+        public void SendRandomUpdates(int sectionX, int sectionY, int sectionZ)
         {
-            for (var i = 0; i < TickBatchSize; i++)
-            {
-                uint val = GetPos(out int x, out int y, out int z);
-                Decode(val, out Block block, out uint data, out _, out _, out _);
-                block.RandomUpdate(World, x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), data);
+            uint val = GetPos(out int x, out int y, out int z);
+            Decode(val, out Block block, out uint data, out _, out _, out _);
+            block.RandomUpdate(World, x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), data);
 
-                val = GetPos(out x, out y, out z);
-                Decode(val, out _, out _, out Liquid liquid, out LiquidLevel level, out bool isStatic);
-                liquid.RandomUpdate(World, x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), level, isStatic);
-            }
+            val = GetPos(out x, out y, out z);
+            Decode(val, out _, out _, out Liquid liquid, out LiquidLevel level, out bool isStatic);
+            liquid.RandomUpdate(World, x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), level, isStatic);
 
             uint GetPos(out int x, out int y, out int z)
             {
