@@ -19,8 +19,8 @@ namespace VoxelGame.Core.Logic
 
         public const int LiquidLimit = 32;
 
-        private static readonly Dictionary<uint, Liquid> liquidDictionary = new Dictionary<uint, Liquid>();
-        private static readonly Dictionary<string, Liquid> namedLiquidDictionary = new Dictionary<string, Liquid>();
+        private static readonly List<Liquid> LiquidList = new List<Liquid>();
+        private static readonly Dictionary<string, Liquid> NamedLiquidDictionary = new Dictionary<string, Liquid>();
 
         private const int mPas = 15;
 
@@ -46,9 +46,9 @@ namespace VoxelGame.Core.Logic
         /// <returns>The block with the ID or air if the ID is not valid.</returns>
         public static Liquid TranslateID(uint id)
         {
-            if (liquidDictionary.TryGetValue(id, out Liquid? liquid))
+            if (LiquidList.Count > id)
             {
-                return liquid;
+                return LiquidList[(int) id];
             }
             else
             {
@@ -60,7 +60,7 @@ namespace VoxelGame.Core.Logic
 
         public static Liquid TranslateNamedID(string namedId)
         {
-            if (namedLiquidDictionary.TryGetValue(namedId, out Liquid? liquid))
+            if (NamedLiquidDictionary.TryGetValue(namedId, out Liquid? liquid))
             {
                 return liquid;
             }
@@ -75,7 +75,7 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Gets the count of registered liquids..
         /// </summary>
-        public static int Count { get => liquidDictionary.Count; }
+        public static int Count => LiquidList.Count;
 
         /// <summary>
         /// Calls the setup method on all blocks.
@@ -84,7 +84,7 @@ namespace VoxelGame.Core.Logic
         {
             using (Logger.BeginScope("Liquid Loading"))
             {
-                foreach (Liquid liquid in liquidDictionary.Values)
+                foreach (Liquid liquid in LiquidList)
                 {
                     liquid.Setup(indexProvider);
 

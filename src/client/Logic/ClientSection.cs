@@ -572,9 +572,9 @@ namespace VoxelGame.Client.Logic
 
         private static bool IsPositionOutOfSection(Vector3i position)
         {
-            return (position.X < 0 || position.X >= SectionSize)
-                   || (position.Y < 0 || position.Y >= SectionSize)
-                   || (position.Z < 0 || position.Z >= SectionSize);
+            return position.X < 0 || position.X >= SectionSize ||
+                   position.Y < 0 || position.Y >= SectionSize ||
+                   position.Z < 0 || position.Z >= SectionSize;
         }
 
         public void SetMeshData(SectionMeshData meshData)
