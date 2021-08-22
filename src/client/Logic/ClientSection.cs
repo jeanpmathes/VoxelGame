@@ -6,7 +6,6 @@
 
 #define BENCHMARK_SECTION_MESHING
 
-using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using System;
 using System.Diagnostics;
@@ -17,7 +16,6 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Logic
 {
@@ -25,8 +23,6 @@ namespace VoxelGame.Client.Logic
     public class ClientSection : Core.Logic.Section
     {
 #if BENCHMARK_SECTION_MESHING
-
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ClientSection>();
 
         private static long _totalMeshingTime;
         private static long _meshingRuns;
@@ -405,7 +401,7 @@ namespace VoxelGame.Client.Logic
 
                                 if (atEnd ? !meshAtEnd : !meshAtNormal) return;
 
-                                LiquidMeshData mesh = currentLiquid.GetMesh(new LiquidMeshInfo(level, side, isStatic));
+                                LiquidMeshData mesh = currentLiquid.GetMesh(LiquidMeshInfo.Liquid(level, side, isStatic));
 
                                 bool singleSided = (blockToCheck?.IsOpaque == false &&
                                                     blockToCheck?.IsSolidAndFull == true);

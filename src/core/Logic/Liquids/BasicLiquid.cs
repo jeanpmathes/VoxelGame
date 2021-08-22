@@ -48,7 +48,7 @@ namespace VoxelGame.Core.Logic.Liquids
 
         public override LiquidMeshData GetMesh(LiquidMeshInfo info)
         {
-            return new LiquidMeshData(info.IsStatic ? staticTex[(int) info.Side] : movingTex[(int) info.Side], neutralTint ? TintColor.Neutral : TintColor.None);
+            return LiquidMeshData.Basic(info.IsStatic ? staticTex[(int) info.Side] : movingTex[(int) info.Side], neutralTint ? TintColor.Neutral : TintColor.None);
         }
 
         protected override void ScheduledUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic)

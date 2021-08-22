@@ -210,6 +210,8 @@ namespace VoxelGame.Client.Collections
             ArrayPool<MeshFace[]>.Shared.Return(lastFaces!);
         }
 
+#pragma warning disable CA1812
+
         private class MeshFace
         {
             public MeshFace? previousFace;
@@ -274,5 +276,7 @@ namespace VoxelGame.Client.Collections
 
             #endregion POOLING
         }
+
+#pragma warning restore CA1812
     }
 }

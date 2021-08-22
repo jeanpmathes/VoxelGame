@@ -8,7 +8,7 @@ using System;
 
 namespace VoxelGame.Core.Visuals
 {
-    public class BlockMeshData
+    public sealed class BlockMeshData
     {
         private readonly float[] vertices;
         private readonly int[] textureIndices;

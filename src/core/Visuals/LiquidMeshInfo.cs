@@ -8,17 +8,19 @@ using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Visuals
 {
-    public class LiquidMeshInfo
+    public sealed class LiquidMeshInfo
     {
         public LiquidLevel Level { get; }
         public BlockSide Side { get; }
         public bool IsStatic { get; }
 
-        public LiquidMeshInfo(LiquidLevel level, BlockSide side, bool isStatic)
+        private LiquidMeshInfo(LiquidLevel level, BlockSide side, bool isStatic)
         {
             Level = level;
             Side = side;
             IsStatic = isStatic;
         }
+
+        public static LiquidMeshInfo Liquid(LiquidLevel level, BlockSide side, bool isStatic) => new LiquidMeshInfo(level, side, isStatic);
     }
 }
