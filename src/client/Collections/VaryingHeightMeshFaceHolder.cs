@@ -17,8 +17,8 @@ namespace VoxelGame.Client.Collections
     /// </summary>
     public class VaryingHeightMeshFaceHolder : MeshFaceHolder
     {
-        private static readonly ArrayPool<MeshFace[]> layerPool = ArrayPool<MeshFace[]>.Create(Section.SectionSize, 64);
-        private static readonly ArrayPool<MeshFace> rowPool = ArrayPool<MeshFace>.Create(Section.SectionSize, 256);
+        private static readonly ArrayPool<MeshFace[]> LayerPool = ArrayPool<MeshFace[]>.Create(Section.SectionSize, 64);
+        private static readonly ArrayPool<MeshFace> RowPool = ArrayPool<MeshFace>.Create(Section.SectionSize, 256);
 
         private readonly MeshFace?[][] lastFaces;
 
@@ -27,12 +27,12 @@ namespace VoxelGame.Client.Collections
         public VaryingHeightMeshFaceHolder(BlockSide side) : base(side)
         {
             // Initialize layers.
-            lastFaces = layerPool.Rent(Section.SectionSize);
+            lastFaces = LayerPool.Rent(Section.SectionSize);
 
             // Initialize rows.
             for (var i = 0; i < Section.SectionSize; i++)
             {
-                lastFaces[i] = rowPool.Rent(Section.SectionSize);
+                lastFaces[i] = RowPool.Rent(Section.SectionSize);
 
                 for (var j = 0; j < Section.SectionSize; j++)
                 {
@@ -106,7 +106,7 @@ namespace VoxelGame.Client.Collections
             // Check if the current face can be combined with a face in the previous row.
             while (combinationRowFace != null)
             {
-                if (combinationRowFace.IsCombineable(currentFace))
+                if (combinationRowFace.IsCombinable(currentFace))
                 {
                     switch (side)
                     {
@@ -152,8 +152,7 @@ namespace VoxelGame.Client.Collections
             }
         }
 
-        private static readonly uint[] indices = new uint[]
-        {
+        private static readonly uint[] Indices = {
             0, 2, 1,
             0, 3, 2,
             0, 1, 2,
@@ -192,7 +191,7 @@ namespace VoxelGame.Client.Collections
                         meshData.Add(currentFace.vertexData);
 
                         int newIndices = currentFace.isSingleSided ? 6 : 12;
-                        meshIndices.AddRange(indices, newIndices);
+                        meshIndices.AddRange(Indices, newIndices);
 
                         for (int i = 0; i < newIndices; i++)
                         {
@@ -223,10 +222,10 @@ namespace VoxelGame.Client.Collections
         {
             for (var i = 0; i < Section.SectionSize; i++)
             {
-                rowPool.Return(lastFaces[i]!);
+                RowPool.Return(lastFaces[i]!);
             }
 
-            layerPool.Return(lastFaces!);
+            LayerPool.Return(lastFaces!);
         }
 
         private class MeshFace
@@ -240,7 +239,7 @@ namespace VoxelGame.Client.Collections
 
             public int vertexData;
 
-            public int position;
+            private int position;
             public int length;
             public int height;
 
@@ -258,7 +257,7 @@ namespace VoxelGame.Client.Collections
                     this.isSingleSided == extension.isSingleSided;
             }
 
-            public bool IsCombineable(MeshFace addition)
+            public bool IsCombinable(MeshFace addition)
             {
                 return this.position == addition.position &&
                     this.length == addition.length &&
@@ -268,15 +267,15 @@ namespace VoxelGame.Client.Collections
 
             #region POOLING
 
-            private static readonly ConcurrentBag<MeshFace> objects = new ConcurrentBag<MeshFace>();
+            private static readonly ConcurrentBag<MeshFace> Objects = new ConcurrentBag<MeshFace>();
 
-            public static MeshFace Get(int vert_0_0, int vert01, int vert11, int vert10, int vertData, int position, bool isSingleSided)
+            public static MeshFace Get(int vert00, int vert01, int vert11, int vert10, int vertData, int position, bool isSingleSided)
             {
-                MeshFace instance = objects.TryTake(out instance!) ? instance : new MeshFace();
+                MeshFace instance = Objects.TryTake(out instance!) ? instance : new MeshFace();
 
                 instance.previousFace = null;
 
-                instance.vertexA = vert_0_0;
+                instance.vertexA = vert00;
                 instance.vertexB = vert01;
                 instance.vertexC = vert11;
                 instance.vertexD = vert10;
@@ -294,7 +293,7 @@ namespace VoxelGame.Client.Collections
 
             public void Return()
             {
-                objects.Add(this);
+                Objects.Add(this);
             }
 
             #endregion POOLING

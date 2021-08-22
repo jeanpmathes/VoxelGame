@@ -17,8 +17,8 @@ namespace VoxelGame.Client.Collections
     /// </summary>
     public class BlockMeshFaceHolder : MeshFaceHolder
     {
-        private static readonly ArrayPool<MeshFace[]> layerPool = ArrayPool<MeshFace[]>.Create(Section.SectionSize, 64);
-        private static readonly ArrayPool<MeshFace> rowPool = ArrayPool<MeshFace>.Create(Section.SectionSize, 256);
+        private static readonly ArrayPool<MeshFace[]> LayerPool = ArrayPool<MeshFace[]>.Create(Section.SectionSize, 64);
+        private static readonly ArrayPool<MeshFace> RowPool = ArrayPool<MeshFace>.Create(Section.SectionSize, 256);
 
         private readonly MeshFace?[][] lastFaces;
 
@@ -27,12 +27,12 @@ namespace VoxelGame.Client.Collections
         public BlockMeshFaceHolder(BlockSide side) : base(side)
         {
             // Initialize layers.
-            lastFaces = layerPool.Rent(Section.SectionSize);
+            lastFaces = LayerPool.Rent(Section.SectionSize);
 
             // Initialize rows.
             for (var i = 0; i < Section.SectionSize; i++)
             {
-                lastFaces[i] = rowPool.Rent(Section.SectionSize);
+                lastFaces[i] = RowPool.Rent(Section.SectionSize);
 
                 for (var j = 0; j < Section.SectionSize; j++)
                 {
@@ -100,7 +100,7 @@ namespace VoxelGame.Client.Collections
             // Check if the current face can be combined with a face in the previous row.
             while (combinationRowFace != null)
             {
-                if (combinationRowFace.IsCombineable(currentFace))
+                if (combinationRowFace.IsCombinable(currentFace))
                 {
                     switch (side)
                     {
@@ -208,10 +208,10 @@ namespace VoxelGame.Client.Collections
         {
             for (var i = 0; i < Section.SectionSize; i++)
             {
-                rowPool.Return(lastFaces[i]!);
+                RowPool.Return(lastFaces[i]!);
             }
 
-            layerPool.Return(lastFaces!);
+            LayerPool.Return(lastFaces!);
         }
 
         private class MeshFace
@@ -227,7 +227,7 @@ namespace VoxelGame.Client.Collections
 
             public bool isRotated;
 
-            public int position;
+            private int position;
             public int length;
             public int height;
 
@@ -243,7 +243,7 @@ namespace VoxelGame.Client.Collections
                     this.vertData == extension.vertData;
             }
 
-            public bool IsCombineable(MeshFace addition)
+            public bool IsCombinable(MeshFace addition)
             {
                 return this.position == addition.position &&
                     this.length == addition.length &&
@@ -253,15 +253,15 @@ namespace VoxelGame.Client.Collections
 
             #region POOLING
 
-            private readonly static ConcurrentBag<MeshFace> objects = new ConcurrentBag<MeshFace>();
+            private static readonly ConcurrentBag<MeshFace> Objects = new ConcurrentBag<MeshFace>();
 
-            public static MeshFace Get(int vert_0_0, int vert01, int vert11, int vert10, int vertData, bool isRotated, int position)
+            public static MeshFace Get(int vert00, int vert01, int vert11, int vert10, int vertData, bool isRotated, int position)
             {
-                MeshFace instance = objects.TryTake(out instance!) ? instance : new MeshFace();
+                MeshFace instance = Objects.TryTake(out instance!) ? instance : new MeshFace();
 
                 instance.previousFace = null;
 
-                instance.vertex00 = vert_0_0;
+                instance.vertex00 = vert00;
                 instance.vertex01 = vert01;
                 instance.vertex11 = vert11;
                 instance.vertex10 = vert10;
@@ -279,7 +279,7 @@ namespace VoxelGame.Client.Collections
 
             public void Return()
             {
-                objects.Add(this);
+                Objects.Add(this);
             }
 
             #endregion POOLING
