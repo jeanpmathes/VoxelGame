@@ -6,7 +6,6 @@
 
 using OpenToolkit.Mathematics;
 using System.Buffers;
-using System.Collections.Concurrent;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 
@@ -242,10 +241,6 @@ namespace VoxelGame.Client.Collections
 
             public bool isSingleSided;
 
-            private MeshFace()
-            {
-            }
-
             public bool IsExtendable(MeshFace extension)
             {
                 return this.position + this.length + 1 == extension.position &&
@@ -264,11 +259,9 @@ namespace VoxelGame.Client.Collections
 
             #region POOLING
 
-            private static readonly ConcurrentBag<MeshFace> Objects = new ConcurrentBag<MeshFace>();
-
             public static MeshFace Get(int vert00, int vert01, int vert11, int vert10, int vertData, int position, bool isSingleSided)
             {
-                MeshFace instance = Objects.TryTake(out instance!) ? instance : new MeshFace();
+                MeshFace instance = ObjectPool<MeshFace>.Shared.Get();
 
                 instance.previousFace = null;
 
@@ -290,7 +283,7 @@ namespace VoxelGame.Client.Collections
 
             public void Return()
             {
-                Objects.Add(this);
+                ObjectPool<MeshFace>.Shared.Return(this);
             }
 
             #endregion POOLING
