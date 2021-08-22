@@ -17,9 +17,6 @@ namespace VoxelGame.Client.Collections
     /// </summary>
     public class VaryingHeightMeshFaceHolder : MeshFaceHolder
     {
-        private static readonly ArrayPool<MeshFace[]> LayerPool = ArrayPool<MeshFace[]>.Create(Section.SectionSize, 64);
-        private static readonly ArrayPool<MeshFace> RowPool = ArrayPool<MeshFace>.Create(Section.SectionSize, 256);
-
         private readonly MeshFace?[][] lastFaces;
 
         private int count;
@@ -27,12 +24,12 @@ namespace VoxelGame.Client.Collections
         public VaryingHeightMeshFaceHolder(BlockSide side) : base(side)
         {
             // Initialize layers.
-            lastFaces = LayerPool.Rent(Section.SectionSize);
+            lastFaces = ArrayPool<MeshFace[]>.Shared.Rent(Section.SectionSize);
 
             // Initialize rows.
             for (var i = 0; i < Section.SectionSize; i++)
             {
-                lastFaces[i] = RowPool.Rent(Section.SectionSize);
+                lastFaces[i] = ArrayPool<MeshFace>.Shared.Rent(Section.SectionSize);
 
                 for (var j = 0; j < Section.SectionSize; j++)
                 {
@@ -222,10 +219,10 @@ namespace VoxelGame.Client.Collections
         {
             for (var i = 0; i < Section.SectionSize; i++)
             {
-                RowPool.Return(lastFaces[i]!);
+                ArrayPool<MeshFace>.Shared.Return(lastFaces[i]!);
             }
 
-            LayerPool.Return(lastFaces!);
+            ArrayPool<MeshFace[]>.Shared.Return(lastFaces!);
         }
 
         private class MeshFace
