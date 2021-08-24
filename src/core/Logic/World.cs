@@ -35,9 +35,6 @@ namespace VoxelGame.Core.Logic
         protected string WorldDirectory { get; }
         protected string ChunkDirectory { get; }
 
-        protected int SectionSizeExp { get; } = (int)Math.Log(Section.SectionSize, 2);
-        protected int ChunkHeightExp { get; } = (int)Math.Log(Chunk.ChunkHeight, 2);
-
         /// <summary>
         /// Gets whether this world is ready for physics ticking and rendering.
         /// </summary>
@@ -534,9 +531,9 @@ namespace VoxelGame.Core.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Block? GetBlock(int x, int y, int z, out uint data, out Liquid? liquid, out LiquidLevel level, out bool isStatic)
         {
-            if (activeChunks.TryGetValue((x >> SectionSizeExp, z >> SectionSizeExp), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight * Section.SectionSize)
+            if (activeChunks.TryGetValue((x >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight)
             {
-                uint val = chunk.GetSection(y >> ChunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
+                uint val = chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
                 Section.Decode(val, out Block block, out data, out liquid, out level, out isStatic);
 
                 return block;
@@ -603,41 +600,41 @@ namespace VoxelGame.Core.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z, bool tickLiquid)
         {
-            if (!activeChunks.TryGetValue((x >> SectionSizeExp, z >> SectionSizeExp), out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight * Section.SectionSize)
+            if (!activeChunks.TryGetValue((x >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight)
             {
                 return;
             }
 
             uint val = Section.Encode(block, data, liquid, level, isStatic);
-            chunk.GetSection(y >> ChunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
+            chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
 
             if (tickLiquid) liquid.TickNow(this, x, y, z, level, isStatic);
 
             // Block updates - Side is passed out of the perspective of the block receiving the block update.
 
-            (Block? blockNeighbour, Liquid? liquidNeighbour) = GetPosition(x, y, z + 1, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(this, x, y, z + 1, data, BlockSide.Back);
-            liquidNeighbour?.TickSoon(this, x, y, z + 1, isStatic);
+            (Block? blockNeighbor, Liquid? liquidNeighbor) = GetPosition(x, y, z + 1, out data, out _, out isStatic);
+            blockNeighbor?.BlockUpdate(this, x, y, z + 1, data, BlockSide.Back);
+            liquidNeighbor?.TickSoon(this, x, y, z + 1, isStatic);
 
-            (blockNeighbour, liquidNeighbour) = GetPosition(x, y, z - 1, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(this, x, y, z - 1, data, BlockSide.Front);
-            liquidNeighbour?.TickSoon(this, x, y, z - 1, isStatic);
+            (blockNeighbor, liquidNeighbor) = GetPosition(x, y, z - 1, out data, out _, out isStatic);
+            blockNeighbor?.BlockUpdate(this, x, y, z - 1, data, BlockSide.Front);
+            liquidNeighbor?.TickSoon(this, x, y, z - 1, isStatic);
 
-            (blockNeighbour, liquidNeighbour) = GetPosition(x - 1, y, z, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(this, x - 1, y, z, data, BlockSide.Right);
-            liquidNeighbour?.TickSoon(this, x - 1, y, z, isStatic);
+            (blockNeighbor, liquidNeighbor) = GetPosition(x - 1, y, z, out data, out _, out isStatic);
+            blockNeighbor?.BlockUpdate(this, x - 1, y, z, data, BlockSide.Right);
+            liquidNeighbor?.TickSoon(this, x - 1, y, z, isStatic);
 
-            (blockNeighbour, liquidNeighbour) = GetPosition(x + 1, y, z, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(this, x + 1, y, z, data, BlockSide.Left);
-            liquidNeighbour?.TickSoon(this, x + 1, y, z, isStatic);
+            (blockNeighbor, liquidNeighbor) = GetPosition(x + 1, y, z, out data, out _, out isStatic);
+            blockNeighbor?.BlockUpdate(this, x + 1, y, z, data, BlockSide.Left);
+            liquidNeighbor?.TickSoon(this, x + 1, y, z, isStatic);
 
-            (blockNeighbour, liquidNeighbour) = GetPosition(x, y - 1, z, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(this, x, y - 1, z, data, BlockSide.Top);
-            liquidNeighbour?.TickSoon(this, x, y - 1, z, isStatic);
+            (blockNeighbor, liquidNeighbor) = GetPosition(x, y - 1, z, out data, out _, out isStatic);
+            blockNeighbor?.BlockUpdate(this, x, y - 1, z, data, BlockSide.Top);
+            liquidNeighbor?.TickSoon(this, x, y - 1, z, isStatic);
 
-            (blockNeighbour, liquidNeighbour) = GetPosition(x, y + 1, z, out data, out _, out isStatic);
-            blockNeighbour?.BlockUpdate(this, x, y + 1, z, data, BlockSide.Bottom);
-            liquidNeighbour?.TickSoon(this, x, y + 1, z, isStatic);
+            (blockNeighbor, liquidNeighbor) = GetPosition(x, y + 1, z, out data, out _, out isStatic);
+            blockNeighbor?.BlockUpdate(this, x, y + 1, z, data, BlockSide.Bottom);
+            liquidNeighbor?.TickSoon(this, x, y + 1, z, isStatic);
 
             ProcessChangedSection(chunk, x, y, z);
         }
@@ -656,17 +653,17 @@ namespace VoxelGame.Core.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ModifyWorldData(int x, int y, int z, uint clearMask, uint addMask)
         {
-            if (!activeChunks.TryGetValue((x >> SectionSizeExp, z >> SectionSizeExp), out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight * Section.SectionSize)
+            if (!activeChunks.TryGetValue((x >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out Chunk? chunk) || y < 0 || y >= Chunk.VerticalSectionCount * Section.SectionSize)
             {
                 return;
             }
 
-            uint val = chunk.GetSection(y >> ChunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
+            uint val = chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
 
             val &= clearMask;
             val |= addMask;
 
-            chunk.GetSection(y >> ChunkHeightExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
+            chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
 
             ProcessChangedSection(chunk, x, y, z);
         }
@@ -702,20 +699,20 @@ namespace VoxelGame.Core.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Chunk? GetChunkOfPosition(int x, int z)
         {
-            activeChunks.TryGetValue((x >> SectionSizeExp, z >> SectionSizeExp), out Chunk? chunk);
+            activeChunks.TryGetValue((x >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out Chunk? chunk);
             return chunk;
         }
 
         /// <summary>
         /// Gets a section of an active chunk.
         /// </summary>
-        /// <param name="chunkPosition">The position of the section, in chunk coordinates.</param>
+        /// <param name="sectionPosition">The position of the section, in section coordinates.</param>
         /// <returns>The section at the given position or null if no section was found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Section? GetSection(Vector3i chunkPosition)
+        public Section? GetSection(Vector3i sectionPosition)
         {
-            (int x, int y, int z) = chunkPosition;
-            if (activeChunks.TryGetValue((x, z), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight)
+            (int x, int y, int z) = sectionPosition;
+            if (activeChunks.TryGetValue((x, z), out Chunk? chunk) && y >= 0 && y < Chunk.VerticalSectionCount)
             {
                 return chunk.GetSection(y);
             }

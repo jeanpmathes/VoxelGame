@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using OpenToolkit.Mathematics;
+using System;
 
 namespace VoxelGame.Core.Logic
 {
@@ -27,14 +27,14 @@ namespace VoxelGame.Core.Logic
     {
         // Corners of a block.
 
-        private static readonly int[] c001 = { 0, 0, 1 };
-        private static readonly int[] c011 = { 0, 1, 1 };
-        private static readonly int[] c111 = { 1, 1, 1 };
-        private static readonly int[] c101 = { 1, 0, 1 };
-        private static readonly int[] c000 = { 0, 0, 0 };
-        private static readonly int[] c010 = { 0, 1, 0 };
-        private static readonly int[] c110 = { 1, 1, 0 };
-        private static readonly int[] c100 = { 1, 0, 0 };
+        private static readonly int[] C001 = { 0, 0, 1 };
+        private static readonly int[] C011 = { 0, 1, 1 };
+        private static readonly int[] C111 = { 1, 1, 1 };
+        private static readonly int[] C101 = { 1, 0, 1 };
+        private static readonly int[] C000 = { 0, 0, 0 };
+        private static readonly int[] C010 = { 0, 1, 0 };
+        private static readonly int[] C110 = { 1, 1, 0 };
+        private static readonly int[] C100 = { 1, 0, 0 };
 
         public static BlockSide Opposite(this BlockSide side)
         {
@@ -51,19 +51,24 @@ namespace VoxelGame.Core.Logic
             };
         }
 
+        private static readonly Vector3i[] Directions = new Vector3i[]
+        {
+            (0, 0, 0),
+            (0, 0, 1),
+            (0, 0, -1),
+            (-1, 0, 0),
+            (1, 0, 0),
+            (0, -1, 0),
+            (0, 1, 0)
+        };
+
         public static Vector3i Direction(this BlockSide side)
         {
-            return side switch
-            {
-                BlockSide.All => (0, 0, 0),
-                BlockSide.Front => (0, 0, 1),
-                BlockSide.Back => (0, 0, -1),
-                BlockSide.Left => (-1, 0, 0),
-                BlockSide.Right => (1, 0, 0),
-                BlockSide.Bottom => (0, -1, 0),
-                BlockSide.Top => (0, 1, 0),
-                _ => throw new ArgumentOutOfRangeException(nameof(side), side, null)
-            };
+            int index = (int) side + 1;
+
+            if (index > 6) throw new ArgumentOutOfRangeException(nameof(side), side, null);
+
+            return Directions[index];
         }
 
         public static Vector3i Offset(this BlockSide side, Vector3i v)
@@ -76,45 +81,45 @@ namespace VoxelGame.Core.Logic
             switch (side)
             {
                 case BlockSide.Front:
-                    a = c001;
-                    b = c011;
-                    c = c111;
-                    d = c101;
+                    a = C001;
+                    b = C011;
+                    c = C111;
+                    d = C101;
                     break;
 
                 case BlockSide.Back:
-                    a = c100;
-                    b = c110;
-                    c = c010;
-                    d = c000;
+                    a = C100;
+                    b = C110;
+                    c = C010;
+                    d = C000;
                     break;
 
                 case BlockSide.Left:
-                    a = c000;
-                    b = c010;
-                    c = c011;
-                    d = c001;
+                    a = C000;
+                    b = C010;
+                    c = C011;
+                    d = C001;
                     break;
 
                 case BlockSide.Right:
-                    a = c101;
-                    b = c111;
-                    c = c110;
-                    d = c100;
+                    a = C101;
+                    b = C111;
+                    c = C110;
+                    d = C100;
                     break;
 
                 case BlockSide.Bottom:
-                    a = c000;
-                    b = c001;
-                    c = c101;
-                    d = c100;
+                    a = C000;
+                    b = C001;
+                    c = C101;
+                    d = C100;
                     break;
 
                 case BlockSide.Top:
-                    a = c011;
-                    b = c010;
-                    c = c110;
-                    d = c111;
+                    a = C011;
+                    b = C010;
+                    c = C110;
+                    d = C111;
                     break;
 
                 default:

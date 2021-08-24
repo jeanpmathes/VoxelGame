@@ -4,11 +4,11 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Logging;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 

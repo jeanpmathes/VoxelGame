@@ -5,12 +5,12 @@
 // <author>pershingthesecond</author>
 
 using Microsoft.Extensions.Logging;
+using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common.Input;
+using System;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Rendering;
-using OpenToolkit.Mathematics;
-using System;
 using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
 using VoxelGame.UI.UserInterfaces;

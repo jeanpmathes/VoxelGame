@@ -57,8 +57,8 @@ namespace VoxelGame.Core.Visuals
         /// <param name="original">The original model to copy.</param>
         private BlockModel(BlockModel original)
         {
-            this.TextureNames = (string[])original.TextureNames.Clone();
-            this.Quads = (Quad[])original.Quads.Clone();
+            this.TextureNames = (string[]) original.TextureNames.Clone();
+            this.Quads = (Quad[]) original.Quads.Clone();
         }
 
         /// <summary>
@@ -341,7 +341,7 @@ namespace VoxelGame.Core.Visuals
 
             for (int i = 0; i < Quads.Length; i++)
             {
-                uint offset = (uint)(i * 4);
+                uint offset = (uint) (i * 4);
 
                 indices[(i * 6) + 0] = 0 + offset;
                 indices[(i * 6) + 1] = 2 + offset;
@@ -468,7 +468,7 @@ namespace VoxelGame.Core.Visuals
                     copiedTextureIndices += model.lockedTextureIndices.Length;
                     copiedIndices += model.lockedIndices.Length;
 
-                    vertexCount += (uint)model.VertexCount;
+                    vertexCount += (uint) model.VertexCount;
                 }
 
                 return (vertices, textureIndices, indices);
@@ -494,7 +494,7 @@ namespace VoxelGame.Core.Visuals
                         indices[i] += vertexCount;
                     }
 
-                    vertexCount += (uint)model.VertexCount;
+                    vertexCount += (uint) model.VertexCount;
                 }
 
                 return (vertices.ToArray(), textureIndices.ToArray(), indices.ToArray());

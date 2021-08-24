@@ -3,8 +3,9 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
+
 using OpenToolkit.Mathematics;
+using System;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Client.Collections

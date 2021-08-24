@@ -21,10 +21,10 @@
       <Value Profile="(Default)">60</Value>
     </Setting>
     <Setting Name="MaxMeshingTasks" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">5</Value>
+      <Value Profile="(Default)">10</Value>
     </Setting>
     <Setting Name="MaxMeshDataSends" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">2</Value>
+      <Value Profile="(Default)">16</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -12,7 +12,7 @@ namespace Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.7.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.8.1.0")]
     internal sealed partial class client : global::System.Configuration.ApplicationSettingsBase {
         
         private static client defaultInstance = ((client)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new client())));
@@ -97,7 +97,7 @@ namespace Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
         public int MaxMeshingTasks {
             get {
                 return ((int)(this["MaxMeshingTasks"]));
@@ -109,7 +109,7 @@ namespace Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        [global::System.Configuration.DefaultSettingValueAttribute("16")]
         public int MaxMeshDataSends {
             get {
                 return ((int)(this["MaxMeshDataSends"]));

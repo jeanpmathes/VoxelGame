@@ -16,7 +16,7 @@ namespace VoxelGame.Core.WorldGeneration
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<ComplexGenerator>();
 
         private readonly FastNoise noise;
-        private readonly int halfHeight = Section.SectionSize * Chunk.ChunkHeight / 2;
+        private readonly int halfHeight = Chunk.ChunkHeight / 2;
 
         private readonly float amplitude = 0.6f;
 
@@ -45,9 +45,9 @@ namespace VoxelGame.Core.WorldGeneration
 
         public IEnumerable<Block> GenerateColumn(int x, int z)
         {
-            int height = (int)(amplitude * halfHeight * noise.GetPerlinFractal(x, z)) + halfHeight;
+            int height = (int) (amplitude * halfHeight * noise.GetPerlinFractal(x, z)) + halfHeight;
 
-            for (int y = 0; y < Section.SectionSize * Chunk.ChunkHeight; y++)
+            for (var y = 0; y < Chunk.ChunkHeight; y++)
             {
                 if (y == 0)
                 {

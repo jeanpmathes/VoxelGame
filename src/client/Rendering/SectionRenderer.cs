@@ -4,10 +4,10 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
-using OpenToolkit.Mathematics;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
+using OpenToolkit.Mathematics;
+using System;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
@@ -132,7 +132,7 @@ namespace VoxelGame.Client.Rendering
             #endregion TRANSPARENT LIQUID BUFFER SETUP
         }
 
-        public void SetData(ref SectionMeshData meshData)
+        public void SetData(SectionMeshData meshData)
         {
             if (disposed)
             {

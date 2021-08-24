@@ -4,12 +4,11 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Graphics.ES11;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Visuals
 {
-    public class BlockMeshInfo
+    public sealed class BlockMeshInfo
     {
         public BlockSide Side { get; }
         public uint Data { get; }

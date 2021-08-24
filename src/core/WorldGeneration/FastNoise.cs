@@ -57,13 +57,13 @@ namespace VoxelGame.Core.WorldGeneration
         public enum CellularReturnType { CellValue, NoiseLookup, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
 
         private int m_seed = 1337;
-        private FN_DECIMAL m_frequency = (FN_DECIMAL)0.01;
+        private FN_DECIMAL m_frequency = (FN_DECIMAL) 0.01;
         private Interp m_interp = Interp.Quintic;
         private NoiseType m_noiseType = NoiseType.Simplex;
 
         private int m_octaves = 3;
-        private FN_DECIMAL m_lacunarity = (FN_DECIMAL)2.0;
-        private FN_DECIMAL m_gain = (FN_DECIMAL)0.5;
+        private FN_DECIMAL m_lacunarity = (FN_DECIMAL) 2.0;
+        private FN_DECIMAL m_gain = (FN_DECIMAL) 0.5;
         private FractalType m_fractalType = FractalType.FBM;
 
         private FN_DECIMAL m_fractalBounding;
@@ -75,7 +75,7 @@ namespace VoxelGame.Core.WorldGeneration
         private int m_cellularDistanceIndex1 = 1;
         private float m_cellularJitter = 0.45f;
 
-        private FN_DECIMAL m_gradientPerturbAmp = (FN_DECIMAL)1.0;
+        private FN_DECIMAL m_gradientPerturbAmp = (FN_DECIMAL) 1.0;
 
         public FastNoise(int seed = 1337)
         {
@@ -269,10 +269,10 @@ namespace VoxelGame.Core.WorldGeneration
     };
 
         [MethodImplAttribute(FN_INLINE)]
-        private static int FastFloor(FN_DECIMAL f) { return (f >= 0 ? (int)f : (int)f - 1); }
+        private static int FastFloor(FN_DECIMAL f) { return (f >= 0 ? (int) f : (int) f - 1); }
 
         [MethodImplAttribute(FN_INLINE)]
-        private static int FastRound(FN_DECIMAL f) { return (f >= 0) ? (int)(f + (FN_DECIMAL)0.5) : (int)(f - (FN_DECIMAL)0.5); }
+        private static int FastRound(FN_DECIMAL f) { return (f >= 0) ? (int) (f + (FN_DECIMAL) 0.5) : (int) (f - (FN_DECIMAL) 0.5); }
 
         [MethodImplAttribute(FN_INLINE)]
         private static FN_DECIMAL Lerp(FN_DECIMAL a, FN_DECIMAL b, FN_DECIMAL t) { return a + t * (b - a); }
@@ -358,7 +358,7 @@ namespace VoxelGame.Core.WorldGeneration
             n ^= X_PRIME * x;
             n ^= Y_PRIME * y;
 
-            return (n * n * n * 60493) / (FN_DECIMAL)2147483648.0;
+            return (n * n * n * 60493) / (FN_DECIMAL) 2147483648.0;
         }
 
         [MethodImplAttribute(FN_INLINE)]
@@ -369,7 +369,7 @@ namespace VoxelGame.Core.WorldGeneration
             n ^= Y_PRIME * y;
             n ^= Z_PRIME * z;
 
-            return (n * n * n * 60493) / (FN_DECIMAL)2147483648.0;
+            return (n * n * n * 60493) / (FN_DECIMAL) 2147483648.0;
         }
 
         [MethodImplAttribute(FN_INLINE)]
@@ -381,7 +381,7 @@ namespace VoxelGame.Core.WorldGeneration
             n ^= Z_PRIME * z;
             n ^= W_PRIME * w;
 
-            return (n * n * n * 60493) / (FN_DECIMAL)2147483648.0;
+            return (n * n * n * 60493) / (FN_DECIMAL) 2147483648.0;
         }
 
         [MethodImplAttribute(FN_INLINE)]
@@ -641,7 +641,7 @@ namespace VoxelGame.Core.WorldGeneration
         {
             var i = BitConverter.DoubleToInt64Bits(f);
 
-            return (int)(i ^ (i >> 32));
+            return (int) (i ^ (i >> 32));
         }
 
         public FN_DECIMAL GetWhiteNoise(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w)
@@ -1264,8 +1264,8 @@ namespace VoxelGame.Core.WorldGeneration
             return SingleSimplex(m_seed, x * m_frequency, y * m_frequency, z * m_frequency);
         }
 
-        private const FN_DECIMAL F3 = (FN_DECIMAL)(1.0 / 3.0);
-        private const FN_DECIMAL G3 = (FN_DECIMAL)(1.0 / 6.0);
+        private const FN_DECIMAL F3 = (FN_DECIMAL) (1.0 / 3.0);
+        private const FN_DECIMAL G3 = (FN_DECIMAL) (1.0 / 6.0);
         private const FN_DECIMAL G33 = G3 * 3 - 1;
 
         private static FN_DECIMAL SingleSimplex(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z)
@@ -1326,7 +1326,7 @@ namespace VoxelGame.Core.WorldGeneration
 
             FN_DECIMAL n0, n1, n2, n3;
 
-            t = (FN_DECIMAL)0.6 - x0 * x0 - y0 * y0 - z0 * z0;
+            t = (FN_DECIMAL) 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
             if (t < 0) n0 = 0;
             else
             {
@@ -1334,7 +1334,7 @@ namespace VoxelGame.Core.WorldGeneration
                 n0 = t * t * GradCoord3D(seed, i, j, k, x0, y0, z0);
             }
 
-            t = (FN_DECIMAL)0.6 - x1 * x1 - y1 * y1 - z1 * z1;
+            t = (FN_DECIMAL) 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
             if (t < 0) n1 = 0;
             else
             {
@@ -1342,7 +1342,7 @@ namespace VoxelGame.Core.WorldGeneration
                 n1 = t * t * GradCoord3D(seed, i + i1, j + j1, k + k1, x1, y1, z1);
             }
 
-            t = (FN_DECIMAL)0.6 - x2 * x2 - y2 * y2 - z2 * z2;
+            t = (FN_DECIMAL) 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
             if (t < 0) n2 = 0;
             else
             {
@@ -1350,7 +1350,7 @@ namespace VoxelGame.Core.WorldGeneration
                 n2 = t * t * GradCoord3D(seed, i + i2, j + j2, k + k2, x2, y2, z2);
             }
 
-            t = (FN_DECIMAL)0.6 - x3 * x3 - y3 * y3 - z3 * z3;
+            t = (FN_DECIMAL) 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
             if (t < 0) n3 = 0;
             else
             {
@@ -1441,8 +1441,8 @@ namespace VoxelGame.Core.WorldGeneration
             return SingleSimplex(m_seed, x * m_frequency, y * m_frequency);
         }
 
-        private const FN_DECIMAL F2 = (FN_DECIMAL)(1.0 / 2.0);
-        private const FN_DECIMAL G2 = (FN_DECIMAL)(1.0 / 4.0);
+        private const FN_DECIMAL F2 = (FN_DECIMAL) (1.0 / 2.0);
+        private const FN_DECIMAL G2 = (FN_DECIMAL) (1.0 / 4.0);
 
         private static FN_DECIMAL SingleSimplex(int seed, FN_DECIMAL x, FN_DECIMAL y)
         {
@@ -1474,7 +1474,7 @@ namespace VoxelGame.Core.WorldGeneration
 
             FN_DECIMAL n0, n1, n2;
 
-            t = (FN_DECIMAL)0.5 - x0 * x0 - y0 * y0;
+            t = (FN_DECIMAL) 0.5 - x0 * x0 - y0 * y0;
             if (t < 0) n0 = 0;
             else
             {
@@ -1482,7 +1482,7 @@ namespace VoxelGame.Core.WorldGeneration
                 n0 = t * t * GradCoord2D(seed, i, j, x0, y0);
             }
 
-            t = (FN_DECIMAL)0.5 - x1 * x1 - y1 * y1;
+            t = (FN_DECIMAL) 0.5 - x1 * x1 - y1 * y1;
             if (t < 0) n1 = 0;
             else
             {
@@ -1490,7 +1490,7 @@ namespace VoxelGame.Core.WorldGeneration
                 n1 = t * t * GradCoord2D(seed, i + i1, j + j1, x1, y1);
             }
 
-            t = (FN_DECIMAL)0.5 - x2 * x2 - y2 * y2;
+            t = (FN_DECIMAL) 0.5 - x2 * x2 - y2 * y2;
             if (t < 0) n2 = 0;
             else
             {
@@ -1518,8 +1518,8 @@ namespace VoxelGame.Core.WorldGeneration
         2,1,0,3,0,0,0,0,0,0,0,0,0,0,0,0,3,1,0,2,0,0,0,0,3,2,0,1,3,2,1,0
     };
 
-        private const FN_DECIMAL F4 = (FN_DECIMAL)((2.23606797 - 1.0) / 4.0);
-        private const FN_DECIMAL G4 = (FN_DECIMAL)((5.0 - 2.23606797) / 20.0);
+        private const FN_DECIMAL F4 = (FN_DECIMAL) ((2.23606797 - 1.0) / 4.0);
+        private const FN_DECIMAL G4 = (FN_DECIMAL) ((5.0 - 2.23606797) / 20.0);
 
         private static FN_DECIMAL SingleSimplex(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w)
         {
@@ -1577,35 +1577,35 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL z4 = z0 - 1 + 4 * G4;
             FN_DECIMAL w4 = w0 - 1 + 4 * G4;
 
-            t = (FN_DECIMAL)0.6 - x0 * x0 - y0 * y0 - z0 * z0 - w0 * w0;
+            t = (FN_DECIMAL) 0.6 - x0 * x0 - y0 * y0 - z0 * z0 - w0 * w0;
             if (t < 0) n0 = 0;
             else
             {
                 t *= t;
                 n0 = t * t * GradCoord4D(seed, i, j, k, l, x0, y0, z0, w0);
             }
-            t = (FN_DECIMAL)0.6 - x1 * x1 - y1 * y1 - z1 * z1 - w1 * w1;
+            t = (FN_DECIMAL) 0.6 - x1 * x1 - y1 * y1 - z1 * z1 - w1 * w1;
             if (t < 0) n1 = 0;
             else
             {
                 t *= t;
                 n1 = t * t * GradCoord4D(seed, i + i1, j + j1, k + k1, l + l1, x1, y1, z1, w1);
             }
-            t = (FN_DECIMAL)0.6 - x2 * x2 - y2 * y2 - z2 * z2 - w2 * w2;
+            t = (FN_DECIMAL) 0.6 - x2 * x2 - y2 * y2 - z2 * z2 - w2 * w2;
             if (t < 0) n2 = 0;
             else
             {
                 t *= t;
                 n2 = t * t * GradCoord4D(seed, i + i2, j + j2, k + k2, l + l2, x2, y2, z2, w2);
             }
-            t = (FN_DECIMAL)0.6 - x3 * x3 - y3 * y3 - z3 * z3 - w3 * w3;
+            t = (FN_DECIMAL) 0.6 - x3 * x3 - y3 * y3 - z3 * z3 - w3 * w3;
             if (t < 0) n3 = 0;
             else
             {
                 t *= t;
                 n3 = t * t * GradCoord4D(seed, i + i3, j + j3, k + k3, l + l3, x3, y3, z3, w3);
             }
-            t = (FN_DECIMAL)0.6 - x4 * x4 - y4 * y4 - z4 * z4 - w4 * w4;
+            t = (FN_DECIMAL) 0.6 - x4 * x4 - y4 * y4 - z4 * z4 - w4 * w4;
             if (t < 0) n4 = 0;
             else
             {
@@ -1704,7 +1704,7 @@ namespace VoxelGame.Core.WorldGeneration
             return SingleCubic(m_seed, x * m_frequency, y * m_frequency, z * m_frequency);
         }
 
-        private const FN_DECIMAL CUBIC_3D_BOUNDING = 1 / (FN_DECIMAL)(1.5 * 1.5 * 1.5);
+        private const FN_DECIMAL CUBIC_3D_BOUNDING = 1 / (FN_DECIMAL) (1.5 * 1.5 * 1.5);
 
         private static FN_DECIMAL SingleCubic(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z)
         {
@@ -1722,9 +1722,9 @@ namespace VoxelGame.Core.WorldGeneration
             int y3 = y1 + 2;
             int z3 = z1 + 2;
 
-            FN_DECIMAL xs = x - (FN_DECIMAL)x1;
-            FN_DECIMAL ys = y - (FN_DECIMAL)y1;
-            FN_DECIMAL zs = z - (FN_DECIMAL)z1;
+            FN_DECIMAL xs = x - (FN_DECIMAL) x1;
+            FN_DECIMAL ys = y - (FN_DECIMAL) y1;
+            FN_DECIMAL zs = z - (FN_DECIMAL) z1;
 
             return CubicLerp(
                 CubicLerp(
@@ -1840,7 +1840,7 @@ namespace VoxelGame.Core.WorldGeneration
             return SingleCubic(0, x, y);
         }
 
-        private const FN_DECIMAL CUBIC_2D_BOUNDING = 1 / (FN_DECIMAL)(1.5 * 1.5);
+        private const FN_DECIMAL CUBIC_2D_BOUNDING = 1 / (FN_DECIMAL) (1.5 * 1.5);
 
         private static FN_DECIMAL SingleCubic(int seed, FN_DECIMAL x, FN_DECIMAL y)
         {
@@ -1854,8 +1854,8 @@ namespace VoxelGame.Core.WorldGeneration
             int x3 = x1 + 2;
             int y3 = y1 + 2;
 
-            FN_DECIMAL xs = x - (FN_DECIMAL)x1;
-            FN_DECIMAL ys = y - (FN_DECIMAL)y1;
+            FN_DECIMAL xs = x - (FN_DECIMAL) x1;
+            FN_DECIMAL ys = y - (FN_DECIMAL) y1;
 
             return CubicLerp(
                        CubicLerp(ValCoord2D(seed, x0, y0), ValCoord2D(seed, x1, y0), ValCoord2D(seed, x2, y0), ValCoord2D(seed, x3, y0),

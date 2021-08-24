@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using OpenToolkit.Mathematics;
+using System;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -52,7 +52,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            return (Axis)(data & AxisDataMask) switch
+            return (Axis) (data & AxisDataMask) switch
             {
                 Axis.X => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.5f, diameter, diameter)),
                 Axis.Y => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(diameter, 0.5f, diameter)),
@@ -63,8 +63,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            uint vertexCount = SelectModel(models, (Axis)(info.Data & AxisDataMask), out float[] vertices, out int[] textureIndices, out uint[] indices);
-            return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
+            uint vertexCount = SelectModel(models, (Axis) (info.Data & AxisDataMask), out float[] vertices, out int[] textureIndices, out uint[] indices);
+            return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices);
         }
 
         protected static uint SelectModel((BlockModel x, BlockModel y, BlockModel z) modelTuple, Axis axis, out float[] vertices, out int[] textureIndices, out uint[] indices)
@@ -74,15 +74,15 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 case Axis.X:
                     x.ToData(out vertices, out textureIndices, out indices);
-                    return (uint)x.VertexCount;
+                    return (uint) x.VertexCount;
 
                 case Axis.Y:
                     y.ToData(out vertices, out textureIndices, out indices);
-                    return (uint)y.VertexCount;
+                    return (uint) y.VertexCount;
 
                 case Axis.Z:
                     z.ToData(out vertices, out textureIndices, out indices);
-                    return (uint)z.VertexCount;
+                    return (uint) z.VertexCount;
 
                 default:
                     throw new NotSupportedException();
@@ -91,7 +91,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            world.SetBlock(this, (uint)ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
+            world.SetBlock(this, (uint) ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
         }
 
         public virtual bool IsConnectable(World world, BlockSide side, int x, int y, int z)
@@ -112,7 +112,7 @@ namespace VoxelGame.Core.Logic.Blocks
         protected virtual bool IsSideOpen(World world, int x, int y, int z, BlockSide side)
         {
             world.GetBlock(x, y, z, out uint data);
-            return ToAxis(side) == (Axis)(data & AxisDataMask);
+            return ToAxis(side) == (Axis) (data & AxisDataMask);
         }
 
         protected enum Axis

@@ -45,8 +45,8 @@ namespace VoxelGame.Client.Rendering
             {
                 GL.BindTextureUnit(textureUnits[i] - TextureUnit.Texture0, handles[i]);
 
-                GL.TextureParameter(handles[i], TextureParameterName.TextureWrapS, (int)mode);
-                GL.TextureParameter(handles[i], TextureParameterName.TextureWrapT, (int)mode);
+                GL.TextureParameter(handles[i], TextureParameterName.TextureWrapS, (int) mode);
+                GL.TextureParameter(handles[i], TextureParameterName.TextureWrapT, (int) mode);
             }
         }
 
@@ -130,7 +130,7 @@ namespace VoxelGame.Client.Rendering
 
         private void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures, int startIndex, int length, bool useCustomMipmapGeneration)
         {
-            var levels = (int)Math.Log(resolution, 2);
+            var levels = (int) Math.Log(resolution, 2);
 
             GL.BindTextureUnit(unit - TextureUnit.Texture0, handle);
 
@@ -167,11 +167,11 @@ namespace VoxelGame.Client.Rendering
             }
 
             // Set texture parameters for array
-            GL.TextureParameter(handle, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
-            GL.TextureParameter(handle, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            GL.TextureParameter(handle, TextureParameterName.TextureMinFilter, (int) TextureMinFilter.NearestMipmapNearest);
+            GL.TextureParameter(handle, TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Nearest);
 
-            GL.TextureParameter(handle, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-            GL.TextureParameter(handle, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            GL.TextureParameter(handle, TextureParameterName.TextureWrapS, (int) TextureWrapMode.Repeat);
+            GL.TextureParameter(handle, TextureParameterName.TextureWrapT, (int) TextureWrapMode.Repeat);
         }
 
         /// <summary>
@@ -276,9 +276,9 @@ namespace VoxelGame.Client.Rendering
 
                     Color average = (relevantPixels == 0) ? Color.FromArgb(0, 0, 0, 0) :
                         Color.FromArgb(alpha: maxAlpha,
-                            red: (int)Math.Sqrt(((c1.R * c1.R) + (c2.R * c2.R) + (c3.R * c3.R) + (c4.R * c4.R)) / relevantPixels),
-                            green: (int)Math.Sqrt(((c1.G * c1.G) + (c2.G * c2.G) + (c3.G * c3.G) + (c4.G * c4.G)) / relevantPixels),
-                            blue: (int)Math.Sqrt(((c1.B * c1.B) + (c2.B * c2.B) + (c3.B * c3.B) + (c4.B * c4.B)) / relevantPixels));
+                            red: (int) Math.Sqrt(((c1.R * c1.R) + (c2.R * c2.R) + (c3.R * c3.R) + (c4.R * c4.R)) / relevantPixels),
+                            green: (int) Math.Sqrt(((c1.G * c1.G) + (c2.G * c2.G) + (c3.G * c3.G) + (c4.G * c4.G)) / relevantPixels),
+                            blue: (int) Math.Sqrt(((c1.B * c1.B) + (c2.B * c2.B) + (c3.B * c3.B) + (c4.B * c4.B)) / relevantPixels));
 
                     lowerLevel.SetPixel(w, h, average);
                 }

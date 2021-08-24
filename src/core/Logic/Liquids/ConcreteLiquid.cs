@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using VoxelGame.Core.Logic.Blocks;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Liquids

@@ -3,13 +3,11 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
+using System;
+using System.Collections.Generic;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Graphics.Objects
@@ -65,7 +63,7 @@ namespace VoxelGame.Graphics.Objects
             // Check for compilation errors
             GL.GetShader(shader, ShaderParameter.CompileStatus, out int code);
 
-            if (code != (int)All.True)
+            if (code != (int) All.True)
             {
                 var e = new Exception($"Error occurred whilst compiling Shader({shader})");
 
@@ -86,7 +84,7 @@ namespace VoxelGame.Graphics.Objects
             // Check for linking errors
             GL.GetProgram(program, GetProgramParameterName.LinkStatus, out var code);
 
-            if (code != (int)All.True)
+            if (code != (int) All.True)
             {
                 var e = new Exception($"Error occurred whilst linking Program({program})");
 

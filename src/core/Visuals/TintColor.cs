@@ -212,7 +212,7 @@ namespace VoxelGame.Core.Visuals
         {
             get
             {
-                return ((int)(r * 7f) << 6) | ((int)(g * 7f) << 3) | (int)(b * 7f);
+                return ((int) (r * 7f) << 6) | ((int) (g * 7f) << 3) | (int) (b * 7f);
             }
         }
 
@@ -240,7 +240,7 @@ namespace VoxelGame.Core.Visuals
 
         public override int GetHashCode()
         {
-            return ((IsNeutral) ? 1 : 0 << 9) | ((int)(r * 7f) << 6) | ((int)(g * 7f) << 3) | (int)(b * 7f);
+            return ((IsNeutral) ? 1 : 0 << 9) | ((int) (r * 7f) << 6) | ((int) (g * 7f) << 3) | (int) (b * 7f);
         }
 
         public static bool operator ==(TintColor left, TintColor right)

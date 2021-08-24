@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using System;
 using System.Runtime.CompilerServices;
@@ -13,8 +14,10 @@ namespace VoxelGame.Core.Logic
     [Serializable]
     public abstract class Section : IDisposable
     {
-        public const int SectionSize = 32;
-        public const int TickBatchSize = 4;
+        public const int SectionSize = 16;
+
+        public static readonly int SectionSizeExp = (int) Math.Log(Section.SectionSize, 2);
+        public static readonly int SectionSizeExp2 = (int) Math.Log(Section.SectionSize, 2) * 2;
 
 #pragma warning disable CA1707 // Identifiers should not contain underscores
         public const int DATA_SHIFT = 12;
@@ -57,28 +60,25 @@ namespace VoxelGame.Core.Logic
 
         protected abstract void Setup();
 
-        public void Tick(int sectionX, int sectionY, int sectionZ)
+        public void SendRandomUpdates(int sectionX, int sectionY, int sectionZ)
         {
-            for (var i = 0; i < TickBatchSize; i++)
-            {
-                uint val = GetPos(out int x, out int y, out int z);
-                Decode(val, out Block block, out uint data, out _, out _, out _);
-                block.RandomUpdate(World, x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), data);
+            uint val = GetPos(out int x, out int y, out int z);
+            Decode(val, out Block block, out uint data, out _, out _, out _);
+            block.RandomUpdate(World, x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), data);
 
-                val = GetPos(out x, out y, out z);
-                Decode(val, out _, out _, out Liquid liquid, out LiquidLevel level, out bool isStatic);
-                liquid.RandomUpdate(World, x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), level, isStatic);
-            }
+            val = GetPos(out x, out y, out z);
+            Decode(val, out _, out _, out Liquid liquid, out LiquidLevel level, out bool isStatic);
+            liquid.RandomUpdate(World, x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), level, isStatic);
 
             uint GetPos(out int x, out int y, out int z)
             {
                 int index = NumberGenerator.Random.Next(0, SectionSize * SectionSize * SectionSize);
                 uint val = blocks[index];
 
-                z = index & 31;
-                index = (index - z) >> 5;
-                y = index & 31;
-                index = (index - y) >> 5;
+                z = index & (SectionSize - 1);
+                index = (index - z) >> SectionSizeExp;
+                y = index & (SectionSize - 1);
+                index = (index - y) >> SectionSizeExp;
                 x = index;
 
                 return val;
@@ -94,8 +94,8 @@ namespace VoxelGame.Core.Logic
         /// <returns>The block at the given position.</returns>
         public uint this[int x, int y, int z]
         {
-            get => blocks[(x << 10) + (y << 5) + z];
-            set => blocks[(x << 10) + (y << 5) + z] = value;
+            get => blocks[(x << SectionSizeExp2) + (y << SectionSizeExp) + z];
+            set => blocks[(x << SectionSizeExp2) + (y << SectionSizeExp) + z] = value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -104,15 +104,15 @@ namespace VoxelGame.Core.Logic
             block = Block.TranslateID(val & BLOCK_MASK);
             data = (val & DATA_MASK) >> DATA_SHIFT;
             liquid = Liquid.TranslateID((val & LIQUID_MASK) >> LIQUID_SHIFT);
-            level = (LiquidLevel)((val & LEVEL_MASK) >> LEVEL_SHIFT);
+            level = (LiquidLevel) ((val & LEVEL_MASK) >> LEVEL_SHIFT);
             isStatic = (val & STATIC_MASK) != 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint Encode(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic)
         {
-            return (uint)((((isStatic ? 1 : 0) << Section.STATIC_SHIFT) & Section.STATIC_MASK)
-                           | (((uint)level << Section.LEVEL_SHIFT) & Section.LEVEL_MASK)
+            return (uint) ((((isStatic ? 1 : 0) << Section.STATIC_SHIFT) & Section.STATIC_MASK)
+                           | (((uint) level << Section.LEVEL_SHIFT) & Section.LEVEL_MASK)
                            | ((liquid.Id << Section.LIQUID_SHIFT) & Section.LIQUID_MASK)
                            | ((data << Section.DATA_SHIFT) & Section.DATA_MASK)
                            | (block.Id & Section.BLOCK_MASK));
@@ -124,6 +124,7 @@ namespace VoxelGame.Core.Logic
             return Block.TranslateID(this[position.X, position.Y, position.Z] & BLOCK_MASK);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected Block GetBlock(Vector3i position, out uint data)
         {
             uint val = this[position.X, position.Y, position.Z];
@@ -137,7 +138,7 @@ namespace VoxelGame.Core.Logic
         {
             uint val = this[position.X, position.Y, position.Z];
 
-            level = (int)((val & LEVEL_MASK) >> LEVEL_SHIFT);
+            level = (int) ((val & LEVEL_MASK) >> LEVEL_SHIFT);
             return Liquid.TranslateID((val & LIQUID_MASK) >> LIQUID_SHIFT);
         }
 

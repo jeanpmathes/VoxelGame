@@ -34,10 +34,10 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
-            var orientation = (Orientation)(data & 0b00_0011);
+            var orientation = (Orientation) (data & 0b00_0011);
 
             // If another block of this type is above, no solid block is required to hold.
-            if ((world.GetBlock(x, y + 1, z, out uint dataAbove) ?? Block.Air) == this && orientation == (Orientation)(dataAbove & 0b00_0011))
+            if ((world.GetBlock(x, y + 1, z, out uint dataAbove) ?? Block.Air) == this && orientation == (Orientation) (dataAbove & 0b00_0011))
             {
                 return;
             }
@@ -51,16 +51,16 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void RandomUpdate(World world, int x, int y, int z, uint data)
         {
-            var orientation = (Orientation)(data & 0b00_0011);
-            var age = (int)((data & 0b1_1100) >> 2);
+            var orientation = (Orientation) (data & 0b00_0011);
+            var age = (int) ((data & 0b1_1100) >> 2);
 
             if (age < 7)
             {
-                world.SetBlock(this, (uint)(((age + 1) << 2) | (int)orientation), x, y, z);
+                world.SetBlock(this, (uint) (((age + 1) << 2) | (int) orientation), x, y, z);
             }
             else if (world.GetBlock(x, y - 1, z, out _) == Block.Air)
             {
-                world.SetBlock(this, (uint)orientation, x, y - 1, z);
+                world.SetBlock(this, (uint) orientation, x, y - 1, z);
             }
         }
 

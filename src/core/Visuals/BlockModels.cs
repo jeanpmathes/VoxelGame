@@ -89,7 +89,7 @@ namespace VoxelGame.Core.Visuals
 
             for (var f = 0; f < faces; f++)
             {
-                var offset = (uint)(f * 4);
+                var offset = (uint) (f * 4);
 
                 indices[(f * 6) + 0] = 0 + offset;
                 indices[(f * 6) + 1] = 2 + offset;
@@ -100,6 +100,14 @@ namespace VoxelGame.Core.Visuals
             }
 
             return indices;
+        }
+
+        private static readonly int[][] defaultBlockUVs = { new[] { 0, 0 }, new[] { 0, 1 }, new[] { 1, 1 }, new[] { 1, 0 } };
+        private static readonly int[][] rotatedBlockUVs = { new[] { 0, 1 }, new[] { 1, 1 }, new[] { 1, 0 }, new[] { 0, 0 } };
+
+        public static int[][] GetBlockUVs(bool isRotated)
+        {
+            return isRotated ? rotatedBlockUVs : defaultBlockUVs;
         }
     }
 }

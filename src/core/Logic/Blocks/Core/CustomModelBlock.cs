@@ -48,12 +48,12 @@ namespace VoxelGame.Core.Logic.Blocks
             BlockModel blockModel = BlockModel.Load(this.model);
 
             blockModel.ToData(out vertices, out texIndices, out indices);
-            vertexCount = (uint)(blockModel.VertexCount);
+            vertexCount = (uint) (blockModel.VertexCount);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return new BlockMeshData(vertexCount, vertices, texIndices, indices);
+            return BlockMeshData.Complex(vertexCount, vertices, texIndices, indices);
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)

@@ -54,7 +54,7 @@ namespace VoxelGame.Core.Utilities
         /// <returns>The rounded vector.</returns>
         public static Vector3 Rounded(this Vector3 vector, int digits = 0)
         {
-            return new Vector3((float)Math.Round(vector.X, digits), (float)Math.Round(vector.Y, digits), (float)Math.Round(vector.Z, digits));
+            return new Vector3((float) Math.Round(vector.X, digits), (float) Math.Round(vector.Y, digits), (float) Math.Round(vector.Z, digits));
         }
 
         /// <summary>

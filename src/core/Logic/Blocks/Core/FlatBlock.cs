@@ -4,9 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
-using System.Diagnostics;
 using OpenToolkit.Mathematics;
+using System.Diagnostics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -129,7 +128,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            return ((Orientation)(data & 0b00_0011)) switch
+            return ((Orientation) (data & 0b00_0011)) switch
             {
                 Orientation.North => new BoundingBox(new Vector3(0.5f, 0.5f, 0.95f), new Vector3(0.45f, 0.5f, 0.05f)),
                 Orientation.South => new BoundingBox(new Vector3(0.5f, 0.5f, 0.05f), new Vector3(0.45f, 0.5f, 0.05f)),
@@ -141,7 +140,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return new BlockMeshData(8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
+            return BlockMeshData.Complex(8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
@@ -176,7 +175,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             if (SideToOrientation(entity?.TargetSide ?? BlockSide.Front, out Orientation orientation))
             {
-                world.SetBlock(this, (uint)orientation, x, y, z);
+                world.SetBlock(this, (uint) orientation, x, y, z);
             }
             else
             {
@@ -188,7 +187,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             Vector3 forwardMovement = Vector3.Dot(entity.Movement, entity.Forward) * entity.Forward;
 
-            if (forwardMovement.LengthSquared > 0.1f && (Orientation)(data & 0b00_0011) == (-forwardMovement).ToOrientation())
+            if (forwardMovement.LengthSquared > 0.1f && (Orientation) (data & 0b00_0011) == (-forwardMovement).ToOrientation())
             {
                 // Check if entity looks up or down
                 if (Vector3.CalculateAngle(entity.LookingDirection, Vector3.UnitY) < MathHelper.PiOver2)
@@ -208,7 +207,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
-            CheckBack(world, x, y, z, side, (Orientation)(data & 0b00_0011), schedule: false);
+            CheckBack(world, x, y, z, side, (Orientation) (data & 0b00_0011), schedule: false);
         }
 
         protected void CheckBack(World world, int x, int y, int z, BlockSide side, Orientation blockOrientation, bool schedule)

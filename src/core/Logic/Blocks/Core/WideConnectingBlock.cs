@@ -5,7 +5,6 @@
 // <author>pershingthesecond</author>
 
 using System;
-using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -65,8 +64,8 @@ namespace VoxelGame.Core.Logic.Blocks
             BlockModel postModel = BlockModel.Load(this.post);
             BlockModel extensionModel = BlockModel.Load(this.extension);
 
-            postVertexCount = (uint)postModel.VertexCount;
-            extensionVertexCount = (uint)extensionModel.VertexCount;
+            postVertexCount = (uint) postModel.VertexCount;
+            extensionVertexCount = (uint) extensionModel.VertexCount;
 
             postModel.ToData(out postVertices, out _, out _);
 
@@ -109,7 +108,7 @@ namespace VoxelGame.Core.Logic.Blocks
             bool west = (info.Data & 0b00_0001) != 0;
 
             int extensions = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
-            var vertexCount = (uint)(postVertexCount + (extensions * extensionVertexCount));
+            var vertexCount = (uint) (postVertexCount + (extensions * extensionVertexCount));
 
             float[] vertices = new float[vertexCount * 8];
             int[] currentTextureIndices = this.textureIndices[extensions];
@@ -143,7 +142,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 Array.Copy(westVertices, 0, vertices, position, westVertices.Length);
             }
 
-            return new BlockMeshData(vertexCount, vertices, currentTextureIndices, currentIndices);
+            return BlockMeshData.Complex(vertexCount, vertices, currentTextureIndices, currentIndices);
         }
     }
 }

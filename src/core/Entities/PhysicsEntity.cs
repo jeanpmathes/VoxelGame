@@ -150,10 +150,10 @@ namespace VoxelGame.Core.Entities
                 {
                     if (liquid.ReceiveContact) liquid.EntityContact(this, x, y, z);
 
-                    if ((int)level > maxLevel || (maxLevel == 7 && liquid.Density > density))
+                    if ((int) level > maxLevel || (maxLevel == 7 && liquid.Density > density))
                     {
                         density = liquid.Density;
-                        maxLevel = (int)level;
+                        maxLevel = (int) level;
                         noGas = liquid.Direction > 0;
                     }
                 }
@@ -179,11 +179,11 @@ namespace VoxelGame.Core.Entities
             {
                 if (yCollision)
                 {
-                    int xPos = (int)Math.Floor(BoundingBox.Center.X);
-                    int yPos = (int)Math.Floor(BoundingBox.Center.Y);
-                    int zPos = (int)Math.Floor(BoundingBox.Center.Z);
+                    int xPos = (int) Math.Floor(BoundingBox.Center.X);
+                    int yPos = (int) Math.Floor(BoundingBox.Center.Y);
+                    int zPos = (int) Math.Floor(BoundingBox.Center.Z);
 
-                    IsGrounded = !World.GetBlock(xPos, yPos + (int)Math.Round(BoundingBox.Extents.Y), zPos, out _)?.IsSolid ?? true;
+                    IsGrounded = !World.GetBlock(xPos, yPos + (int) Math.Round(BoundingBox.Extents.Y), zPos, out _)?.IsSolid ?? true;
                 }
 
                 movement = new Vector3(

@@ -3,12 +3,12 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using VoxelGame.Core.Logic.Interfaces;
-using VoxelGame.Core.Visuals;
-using VoxelGame.Core.Physics;
-using VoxelGame.Core.Utilities;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
+using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
@@ -76,15 +76,15 @@ namespace VoxelGame.Core.Logic.Blocks
                 }
             }
 
-            vertexCountClosed = (uint)closedModel.VertexCount;
-            vertexCountOpen = (uint)openModel.VertexCount;
+            vertexCountClosed = (uint) closedModel.VertexCount;
+            vertexCountOpen = (uint) openModel.VertexCount;
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
             bool isClosed = (data & 0b00_0100) == 0;
 
-            return ((Orientation)(data & 0b00_0011)) switch
+            return ((Orientation) (data & 0b00_0011)) switch
             {
                 Orientation.North => NorthSouth(0.375f),
                 Orientation.East => WestEast(0.625f),
@@ -152,8 +152,8 @@ namespace VoxelGame.Core.Logic.Blocks
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return (info.Data & 0b00_0100) == 0
-                ? new BlockMeshData(vertexCountClosed, verticesClosed[info.Data & 0b00_0011], texIndicesClosed, indicesClosed) // Open.
-                : new BlockMeshData(vertexCountOpen, verticesOpen[info.Data & 0b00_0011], texIndicesOpen, indicesOpen); // Closed.
+                ? BlockMeshData.Complex(vertexCountClosed, verticesClosed[info.Data & 0b00_0011], texIndicesClosed, indicesClosed) // Open.
+                : BlockMeshData.Complex(vertexCountOpen, verticesOpen[info.Data & 0b00_0011], texIndicesOpen, indicesOpen); // Closed.
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
@@ -199,12 +199,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 orientation = orientation.Rotate();
             }
 
-            world.SetBlock(this, (uint)orientation, x, y, z);
+            world.SetBlock(this, (uint) orientation, x, y, z);
         }
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
         {
-            Orientation orientation = (Orientation)(data & 0b00_0011);
+            Orientation orientation = (Orientation) (data & 0b00_0011);
             bool isClosed = (data & 0b00_0100) == 0;
 
             // Check if orientation has to be inverted.
@@ -222,12 +222,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 return;
             }
 
-            entity.World.SetBlock(this, (uint)((isClosed ? 0b00_0100 : 0b00_0000) | (int)orientation.Invert()), x, y, z);
+            entity.World.SetBlock(this, (uint) ((isClosed ? 0b00_0100 : 0b00_0000) | (int) orientation.Invert()), x, y, z);
         }
 
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
-            var orientation = (Orientation)(data & 0b00_0011);
+            var orientation = (Orientation) (data & 0b00_0011);
 
             switch (side)
             {
@@ -261,7 +261,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             if (world.GetBlock(x, y, z, out uint data) == this)
             {
-                var orientation = (Orientation)(data & 0b00_0011);
+                var orientation = (Orientation) (data & 0b00_0011);
 
                 return orientation switch
                 {

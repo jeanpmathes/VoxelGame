@@ -36,7 +36,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return base.GetMesh(info).Modified(((BlockColor)(0b01_1111 & info.Data)).ToTintColor(), isAnimated);
+            return base.GetMesh(info).Modified(((BlockColor) (0b01_1111 & info.Data)).ToTintColor(), isAnimated);
         }
 
         protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)

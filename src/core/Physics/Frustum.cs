@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Physics
             up = up.Normalized();
             right = right.Normalized();
 
-            float hnear = (float)(2f * Math.Tan(fovy / 2f) * near);
+            float hnear = (float) (2f * Math.Tan(fovy / 2f) * near);
             float wnear = hnear * ratio;
 
             Vector3 nc = pos + (dir * near);

@@ -21,7 +21,7 @@ namespace VoxelGame.Core.WorldGeneration
 
         public IEnumerable<Block> GenerateColumn(int x, int z)
         {
-            for (int y = 0; y < Section.SectionSize * Chunk.ChunkHeight; y++)
+            for (int y = 0; y < Section.SectionSize * Chunk.VerticalSectionCount; y++)
             {
                 if (y > heightAir)
                 {

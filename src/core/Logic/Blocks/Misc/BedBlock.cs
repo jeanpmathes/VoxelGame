@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System.Diagnostics;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -62,8 +61,8 @@ namespace VoxelGame.Core.Logic.Blocks
             blockModel.PlaneSplit(Vector3.UnitZ, Vector3.UnitZ, out BlockModel top, out BlockModel bottom);
             bottom.Move(-Vector3.UnitZ);
 
-            vertexCountHead = (uint)top.VertexCount;
-            vertexCountEnd = (uint)bottom.VertexCount;
+            vertexCountHead = (uint) top.VertexCount;
+            vertexCountEnd = (uint) bottom.VertexCount;
 
             for (int i = 0; i < 4; i++)
             {
@@ -86,7 +85,7 @@ namespace VoxelGame.Core.Logic.Blocks
         protected override BoundingBox GetBoundingBox(uint data)
         {
             bool isBase = (data & 0b1) == 1;
-            Orientation orientation = (Orientation)((data & 0b00_0110) >> 1);
+            Orientation orientation = (Orientation) ((data & 0b00_0110) >> 1);
 
             BoundingBox[] legs = new BoundingBox[2];
 
@@ -127,12 +126,12 @@ namespace VoxelGame.Core.Logic.Blocks
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             bool isHead = (info.Data & 0b1) == 1;
-            int orientation = (int)((info.Data & 0b00_0110) >> 1);
-            BlockColor color = (BlockColor)((info.Data & 0b11_1000) >> 3);
+            int orientation = (int) ((info.Data & 0b00_0110) >> 1);
+            BlockColor color = (BlockColor) ((info.Data & 0b11_1000) >> 3);
 
             return isHead
-                ? new BlockMeshData(vertexCountHead, verticesHead[orientation], texIndicesHead, indicesHead, color.ToTintColor())
-                : new BlockMeshData(vertexCountEnd, verticesEnd[orientation], texIndicesEnd, indicesEnd, color.ToTintColor());
+                ? BlockMeshData.Complex(vertexCountHead, verticesHead[orientation], texIndicesHead, indicesHead, color.ToTintColor())
+                : BlockMeshData.Complex(vertexCountEnd, verticesEnd[orientation], texIndicesEnd, indicesEnd, color.ToTintColor());
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
@@ -165,8 +164,8 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 case Orientation.North:
 
-                    world.SetBlock(this, (int)Orientation.North << 1, x, y, z);
-                    world.SetBlock(this, ((int)Orientation.North << 1) | 1, x, y, z - 1);
+                    world.SetBlock(this, (int) Orientation.North << 1, x, y, z);
+                    world.SetBlock(this, ((int) Orientation.North << 1) | 1, x, y, z - 1);
 
                     world.SetSpawnPosition(new Vector3(x, 1024f, z));
 
@@ -174,8 +173,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 case Orientation.East:
 
-                    world.SetBlock(this, (int)Orientation.East << 1, x, y, z);
-                    world.SetBlock(this, ((int)Orientation.East << 1) | 1, x + 1, y, z);
+                    world.SetBlock(this, (int) Orientation.East << 1, x, y, z);
+                    world.SetBlock(this, ((int) Orientation.East << 1) | 1, x + 1, y, z);
 
                     world.SetSpawnPosition(new Vector3(x, 1024f, z));
 
@@ -183,8 +182,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 case Orientation.South:
 
-                    world.SetBlock(this, (int)Orientation.South << 1, x, y, z);
-                    world.SetBlock(this, ((int)Orientation.South << 1) | 1, x, y, z + 1);
+                    world.SetBlock(this, (int) Orientation.South << 1, x, y, z);
+                    world.SetBlock(this, ((int) Orientation.South << 1) | 1, x, y, z + 1);
 
                     world.SetSpawnPosition(new Vector3(x, 1024f, z));
 
@@ -192,8 +191,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 case Orientation.West:
 
-                    world.SetBlock(this, (int)Orientation.West << 1, x, y, z);
-                    world.SetBlock(this, ((int)Orientation.West << 1) | 1, x - 1, y, z);
+                    world.SetBlock(this, (int) Orientation.West << 1, x, y, z);
+                    world.SetBlock(this, ((int) Orientation.West << 1) | 1, x - 1, y, z);
 
                     world.SetSpawnPosition(new Vector3(x, 1024f, z));
 
@@ -205,7 +204,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             bool isHead = (data & 0b1) == 1;
 
-            switch ((Orientation)((data & 0b00_0110) >> 1))
+            switch ((Orientation) ((data & 0b00_0110) >> 1))
             {
                 case Orientation.North:
 
@@ -241,7 +240,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             bool isHead = (data & 0b1) == 1;
 
-            switch ((Orientation)((data & 0b00_0110) >> 1))
+            switch ((Orientation) ((data & 0b00_0110) >> 1))
             {
                 case Orientation.North:
 

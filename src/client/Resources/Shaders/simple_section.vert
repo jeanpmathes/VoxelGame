@@ -30,8 +30,8 @@ void main()
     texCoord = vec2((aData.x >> 31) & 1, (aData.x >> 30) & 1);
 
     // Texture Repetition
-    texCoord.x *= ((aData.x >> 25) & 31) + 1;
-    texCoord.y *= ((aData.x >> 20) & 31) + 1;
+    texCoord.x *= ((aData.x >> 24) & 15) + 1;
+    texCoord.y *= ((aData.x >> 20) & 15) + 1;
 
     // Tint
     tint = vec4(((aData.y >> 29) & 7) / 7.0, ((aData.y >> 26) & 7) / 7.0, ((aData.y >> 23) & 7) / 7.0, 1.0);
@@ -40,6 +40,6 @@ void main()
     anim = (aData.y >> 16) & 1;
 
     // Position
-    vec3 position = vec3((aData.x >> 12) & 63, (aData.x >> 6) & 63, aData.x & 63);
+    vec3 position = vec3((aData.x >> 10) & 31, (aData.x >> 5) & 31, aData.x & 31);
     gl_Position = vec4(position, 1.0) * model * view * projection;
 }

@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System.Collections.Generic;
 using OpenToolkit.Mathematics;
+using System.Collections.Generic;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -67,7 +67,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 (info.Data & 0b00_0010) == 0 ? sides.south : extensions.south,
                 (info.Data & 0b00_0001) == 0 ? sides.west : extensions.west);
 
-            return new BlockMeshData(vertexCount, vertices, textureIndices, indices);
+            return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices);
         }
     }
 }

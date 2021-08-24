@@ -19,23 +19,23 @@ namespace VoxelGame.Core.Logic
 
         public const int LiquidLimit = 32;
 
-        private static readonly Dictionary<uint, Liquid> liquidDictionary = new Dictionary<uint, Liquid>();
-        private static readonly Dictionary<string, Liquid> namedLiquidDictionary = new Dictionary<string, Liquid>();
+        private static readonly List<Liquid> LiquidList = new List<Liquid>();
+        private static readonly Dictionary<string, Liquid> NamedLiquidDictionary = new Dictionary<string, Liquid>();
 
         private const int mPas = 15;
 
         public static readonly Liquid None = new NoLiquid(Language.NoLiquid, nameof(None));
         public static readonly Liquid Water = new BasicLiquid(Language.Water, nameof(Water), 997f, 1 * mPas, false, TextureLayout.Liquid("water_moving_side", "water_moving"), TextureLayout.Liquid("water_static_side", "water_static"), RenderType.Transparent);
         public static readonly Liquid Milk = new BasicLiquid(Language.Milk, nameof(Milk), 1033f, 2 * mPas, false, TextureLayout.Liquid("milk_moving_side", "milk_moving"), TextureLayout.Liquid("milk_static_side", "milk_static"));
-        public static readonly Liquid Steam = new BasicLiquid(Language.Steam, nameof(Steam), -0.015f, (int)(0.25 * mPas), false, TextureLayout.Liquid("steam_moving_side", "steam_moving"), TextureLayout.Liquid("steam_static_side", "steam_static"), RenderType.Transparent);
+        public static readonly Liquid Steam = new BasicLiquid(Language.Steam, nameof(Steam), -0.015f, (int) (0.25 * mPas), false, TextureLayout.Liquid("steam_moving_side", "steam_moving"), TextureLayout.Liquid("steam_static_side", "steam_static"), RenderType.Transparent);
         public static readonly Liquid Lava = new HotLiquid(Language.Lava, nameof(Lava), 3100f, 15 * mPas, false, TextureLayout.Liquid("lava_moving_side", "lava_moving"), TextureLayout.Liquid("lava_static_side", "lava_static"));
         public static readonly Liquid CrudeOil = new BasicLiquid(Language.CrudeOil, nameof(CrudeOil), 870f, 8 * mPas, false, TextureLayout.Liquid("oil_moving_side", "oil_moving"), TextureLayout.Liquid("oil_static_side", "oil_static"));
-        public static readonly Liquid NaturalGas = new BasicLiquid(Language.NaturalGas, nameof(NaturalGas), -0.8f, (int)(0.5 * mPas), false, TextureLayout.Liquid("gas_moving_side", "gas_moving"), TextureLayout.Liquid("gas_static_side", "gas_static"), RenderType.Transparent);
+        public static readonly Liquid NaturalGas = new BasicLiquid(Language.NaturalGas, nameof(NaturalGas), -0.8f, (int) (0.5 * mPas), false, TextureLayout.Liquid("gas_moving_side", "gas_moving"), TextureLayout.Liquid("gas_static_side", "gas_static"), RenderType.Transparent);
         public static readonly Liquid Concrete = new ConcreteLiquid(Language.Concrete, nameof(Concrete), 2400f, 10 * mPas, TextureLayout.Liquid("concrete_moving_side", "concrete_moving"), TextureLayout.Liquid("concrete_static_side", "concrete_static"));
         public static readonly Liquid Honey = new BasicLiquid(Language.Honey, nameof(Honey), 1450f, 20 * mPas, false, TextureLayout.Liquid("honey_moving_side", "honey_moving"), TextureLayout.Liquid("honey_static_side", "honey_static"), RenderType.Transparent);
-        public static readonly Liquid Petrol = new BasicLiquid(Language.Petrol, nameof(Petrol), 740f, (int)(0.9 * mPas), false, TextureLayout.Liquid("petrol_moving_side", "petrol_moving"), TextureLayout.Liquid("petrol_static_side", "petrol_static"), RenderType.Transparent);
-        public static readonly Liquid Wine = new BasicLiquid(Language.Wine, nameof(Wine), 1090f, (int)(1.4 * mPas), false, TextureLayout.Liquid("wine_moving_side", "wine_moving"), TextureLayout.Liquid("wine_static_side", "wine_static"), RenderType.Transparent);
-        public static readonly Liquid Beer = new BasicLiquid(Language.Beer, nameof(Beer), 1030f, (int)(1.5 * mPas), false, TextureLayout.Liquid("beer_moving_side", "beer_moving"), TextureLayout.Liquid("beer_static_side", "beer_static"), RenderType.Transparent);
+        public static readonly Liquid Petrol = new BasicLiquid(Language.Petrol, nameof(Petrol), 740f, (int) (0.9 * mPas), false, TextureLayout.Liquid("petrol_moving_side", "petrol_moving"), TextureLayout.Liquid("petrol_static_side", "petrol_static"), RenderType.Transparent);
+        public static readonly Liquid Wine = new BasicLiquid(Language.Wine, nameof(Wine), 1090f, (int) (1.4 * mPas), false, TextureLayout.Liquid("wine_moving_side", "wine_moving"), TextureLayout.Liquid("wine_static_side", "wine_static"), RenderType.Transparent);
+        public static readonly Liquid Beer = new BasicLiquid(Language.Beer, nameof(Beer), 1030f, (int) (1.5 * mPas), false, TextureLayout.Liquid("beer_moving_side", "beer_moving"), TextureLayout.Liquid("beer_static_side", "beer_static"), RenderType.Transparent);
 
         protected static readonly LiquidContactManager ContactManager = new LiquidContactManager();
 
@@ -46,9 +46,9 @@ namespace VoxelGame.Core.Logic
         /// <returns>The block with the ID or air if the ID is not valid.</returns>
         public static Liquid TranslateID(uint id)
         {
-            if (liquidDictionary.TryGetValue(id, out Liquid? liquid))
+            if (LiquidList.Count > id)
             {
-                return liquid;
+                return LiquidList[(int) id];
             }
             else
             {
@@ -60,7 +60,7 @@ namespace VoxelGame.Core.Logic
 
         public static Liquid TranslateNamedID(string namedId)
         {
-            if (namedLiquidDictionary.TryGetValue(namedId, out Liquid? liquid))
+            if (NamedLiquidDictionary.TryGetValue(namedId, out Liquid? liquid))
             {
                 return liquid;
             }
@@ -75,7 +75,7 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Gets the count of registered liquids..
         /// </summary>
-        public static int Count { get => liquidDictionary.Count; }
+        public static int Count => LiquidList.Count;
 
         /// <summary>
         /// Calls the setup method on all blocks.
@@ -84,7 +84,7 @@ namespace VoxelGame.Core.Logic
         {
             using (Logger.BeginScope("Liquid Loading"))
             {
-                foreach (Liquid liquid in liquidDictionary.Values)
+                foreach (Liquid liquid in LiquidList)
                 {
                     liquid.Setup(indexProvider);
 
@@ -104,7 +104,7 @@ namespace VoxelGame.Core.Logic
 
             if (toElevate == Liquid.None || toElevate.IsGas) return;
 
-            var currentLevel = (int)initialLevel;
+            var currentLevel = (int) initialLevel;
 
             if (!(start is IFillable startFillable) || !startFillable.AllowOutflow(world, x, y, z, BlockSide.Top)) return;
 
@@ -116,7 +116,7 @@ namespace VoxelGame.Core.Logic
 
                 if (currentBlock?.AllowInflow(world, x, currentY, z, BlockSide.Bottom, toElevate) != true) break;
 
-                toElevate.Fill(world, x, currentY, z, (LiquidLevel)currentLevel, out currentLevel);
+                toElevate.Fill(world, x, currentY, z, (LiquidLevel) currentLevel, out currentLevel);
 
                 if (!currentBlock.AllowOutflow(world, x, currentY, z, BlockSide.Top)) break;
             }

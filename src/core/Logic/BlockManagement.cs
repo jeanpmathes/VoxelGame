@@ -22,8 +22,8 @@ namespace VoxelGame.Core.Logic
 
         public const int BlockLimit = 1 << Section.DATA_SHIFT;
 
-        private static readonly Dictionary<uint, Block> blockDictionary = new Dictionary<uint, Block>();
-        private static readonly Dictionary<string, Block> namedBlockDictionary = new Dictionary<string, Block>();
+        private static readonly List<Block> BlockList = new List<Block>();
+        private static readonly Dictionary<string, Block> NamedBlockDictionary = new Dictionary<string, Block>();
 
         #region NATURAL BLOCKS
 
@@ -137,7 +137,7 @@ namespace VoxelGame.Core.Logic
         internal static class Specials
         {
 #pragma warning disable S3218 // Inner class members should not shadow outer class "static" or type members
-            public static readonly ConcreteBlock Concrete = (ConcreteBlock)Block.Concrete;
+            public static readonly ConcreteBlock Concrete = (ConcreteBlock) Block.Concrete;
 #pragma warning restore S3218 // Inner class members should not shadow outer class "static" or type members
         }
 
@@ -148,13 +148,13 @@ namespace VoxelGame.Core.Logic
         /// <returns>The block with the ID or air if the ID is not valid.</returns>
         public static Block TranslateID(uint id)
         {
-            if (blockDictionary.TryGetValue(id, out Block? block))
+            if (BlockList.Count > id)
             {
-                return block;
+                return BlockList[(int) id];
             }
             else
             {
-                Logger.LogWarning("No Block with the ID {id} could be found, returning {fallback} instead.", id, nameof(Block.Air));
+                Logger.LogWarning($"No Block with the ID {id} could be found, returning {Block.Air.NamedId} instead.");
 
                 return Block.Air;
             }
@@ -162,7 +162,7 @@ namespace VoxelGame.Core.Logic
 
         public static Block TranslateNamedID(string namedId)
         {
-            if (namedBlockDictionary.TryGetValue(namedId, out Block? block))
+            if (NamedBlockDictionary.TryGetValue(namedId, out Block? block))
             {
                 return block;
             }
@@ -177,7 +177,7 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Gets the count of registered blocks.
         /// </summary>
-        public static int Count { get => blockDictionary.Count; }
+        public static int Count => BlockList.Count;
 
         /// <summary>
         /// Calls the setup method on all blocks.
@@ -186,7 +186,7 @@ namespace VoxelGame.Core.Logic
         {
             using (Logger.BeginScope("Block Loading"))
             {
-                foreach (Block block in blockDictionary.Values)
+                foreach (Block block in BlockList)
                 {
                     block.Setup(indexProvider);
 

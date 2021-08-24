@@ -56,11 +56,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void RandomUpdate(World world, int x, int y, int z, uint data)
         {
-            var age = (int)(data & 0b00_0111);
+            var age = (int) (data & 0b00_0111);
 
             if (age < 7)
             {
-                world.SetBlock(this, (uint)(age + 1), x, y, z);
+                world.SetBlock(this, (uint) (age + 1), x, y, z);
             }
             else
             {

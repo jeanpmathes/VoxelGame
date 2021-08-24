@@ -40,7 +40,7 @@ void main()
     int type = (aData.y >> 16) & 1;
 
     // Position
-    vec3 position = vec3((aData.x >> 12) & 63, (aData.x >> 6) & 63, aData.x & 63);
+    vec3 position = vec3((aData.x >> 10) & 31, (aData.x >> 5) & 31, aData.x & 31);
 
     int nShift = (aData.x >> 24) & 3;
     int orientation = (aData.x >> 26) & 1;

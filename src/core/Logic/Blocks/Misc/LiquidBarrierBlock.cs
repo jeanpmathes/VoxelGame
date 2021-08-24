@@ -47,7 +47,7 @@ namespace VoxelGame.Core.Logic.Blocks
             BlockMeshData mesh = base.GetMesh(info);
 
             if ((info.Data & 0b00_0001) == 1)
-                mesh = mesh.SwapTextureIndex(openTextureIndices[(int)info.Side]);
+                mesh = mesh.SwapTextureIndex(openTextureIndices[(int) info.Side]);
 
             return mesh;
         }

@@ -4,10 +4,10 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
+using System;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Graphics.Objects;

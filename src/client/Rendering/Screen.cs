@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using Microsoft.Extensions.Logging;
+using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
@@ -13,7 +14,6 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using OpenToolkit.Graphics.OpenGL4;
 using VoxelGame.Logging;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
@@ -51,7 +51,7 @@ namespace VoxelGame.Client.Rendering
         /// <summary>
         /// Gets the aspect ratio <c>x/y</c>.
         /// </summary>
-        public static float AspectRatio => Size.X / (float)Size.Y;
+        public static float AspectRatio => Size.X / (float) Size.Y;
 
         /// <summary>
         /// Gets whether the screen is in fullscreen.
@@ -122,8 +122,8 @@ namespace VoxelGame.Client.Rendering
 
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent, Size.X, Size.Y, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Nearest);
 
             GL.CreateFramebuffers(1, out depthFBO);
             GL.NamedFramebufferTexture(depthFBO, FramebufferAttachment.DepthAttachment, depthTex, 0);
@@ -244,7 +244,7 @@ namespace VoxelGame.Client.Rendering
             }
             else
             {
-                unsafe { GLFW.SetWindowMonitor(Instance.Client.WindowPointer, null, previousScreenLocation.X, previousScreenLocation.Y, previousScreenSize.X, previousScreenSize.Y, (int)Instance.Client.RenderFrequency); }
+                unsafe { GLFW.SetWindowMonitor(Instance.Client.WindowPointer, null, previousScreenLocation.X, previousScreenLocation.Y, previousScreenSize.X, previousScreenSize.Y, (int) Instance.Client.RenderFrequency); }
                 Instance.Client.IsFullscreen = false;
 
                 Logger.LogDebug("Fullscreen: Switched to normal mode.");
