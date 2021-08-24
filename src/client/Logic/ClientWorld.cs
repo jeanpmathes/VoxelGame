@@ -21,7 +21,7 @@ namespace VoxelGame.Client.Logic
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<ClientWorld>();
 
-        private readonly System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        private readonly System.Diagnostics.Stopwatch readyStopwatch = System.Diagnostics.Stopwatch.StartNew();
 
         private static int MaxMeshingTasks { get; } = Properties.client.Default.MaxMeshingTasks;
         private static int MaxMeshDataSends { get; } = Properties.client.Default.MaxMeshDataSends;
@@ -145,8 +145,8 @@ namespace VoxelGame.Client.Logic
                 {
                     IsReady = true;
 
-                    stopwatch.Stop();
-                    double readyTime = stopwatch.Elapsed.TotalSeconds;
+                    readyStopwatch.Stop();
+                    double readyTime = readyStopwatch.Elapsed.TotalSeconds;
 
                     Logger.LogInformation($"The world is ready after {readyTime}s.");
                 }

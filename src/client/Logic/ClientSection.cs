@@ -6,8 +6,6 @@
 
 // ReSharper disable CommentTypo
 
-#define BENCHMARK_SECTION_MESHING
-
 using OpenToolkit.Mathematics;
 using System;
 using System.Diagnostics;
@@ -57,12 +55,6 @@ namespace VoxelGame.Client.Logic
         [SuppressMessage("Blocker Code Smell", "S2437:Silly bit operations should not be performed", Justification = "Improves readability.")]
         public void CreateMeshData(int sectionX, int sectionY, int sectionZ, out SectionMeshData meshData)
         {
-#if BENCHMARK_SECTION_MESHING
-
-            System.Diagnostics.Stopwatch stopwatch = Stopwatch.StartNew();
-
-#endif
-
             // Set the neutral tint colors.
             TintColor blockTint = TintColor.Green;
             TintColor liquidTint = TintColor.Blue;
@@ -478,31 +470,7 @@ namespace VoxelGame.Client.Logic
             ReturnToPool(varyingHeightMeshFaceHolders);
             ReturnToPool(opaqueLiquidMeshFaceHolders);
             ReturnToPool(transparentLiquidMeshFaceHolders);
-
-#if BENCHMARK_SECTION_MESHING
-
-            stopwatch.Stop();
-            if (hasMesh) IncreaseTotalRuntime(stopwatch.ElapsedMilliseconds);
-
-#endif
         }
-
-#if BENCHMARK_SECTION_MESHING
-
-        private static void IncreaseTotalRuntime(long ms)
-        {
-            long totalRuntime = System.Threading.Interlocked.Add(ref _totalMeshingTime, ms);
-            long runs = System.Threading.Interlocked.Increment(ref _meshingRuns);
-
-            if (runs % 100 != 0) return;
-
-            double averageRuntime = totalRuntime / (double) runs;
-
-            string msg = $"Average section meshing time: {averageRuntime}ms";
-            Console.WriteLine(msg);
-        }
-
-#endif
 
         private ClientSection?[] GetNeighborSections(Vector3i sectionPosition)
         {
