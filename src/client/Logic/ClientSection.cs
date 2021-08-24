@@ -4,11 +4,14 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+// ReSharper disable CommentTypo
+
 #define BENCHMARK_SECTION_MESHING
 
 using OpenToolkit.Mathematics;
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Client.Collections;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Collections;
@@ -50,6 +53,7 @@ namespace VoxelGame.Client.Logic
             SetMeshData(meshData);
         }
 
+        [SuppressMessage("Blocker Code Smell", "S2437:Silly bit operations should not be performed", Justification = "Improves readability.")]
         public void CreateMeshData(int sectionX, int sectionY, int sectionZ, out SectionMeshData meshData)
         {
 #if BENCHMARK_SECTION_MESHING
