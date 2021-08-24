@@ -12,6 +12,7 @@ using OpenToolkit.Mathematics;
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using VoxelGame.Client.Collections;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Collections;
@@ -114,6 +115,7 @@ namespace VoxelGame.Client.Logic
                                     MeshSimpleSide(BlockSide.Bottom);
                                     MeshSimpleSide(BlockSide.Top);
 
+                                    [MethodImpl(MethodImplOptions.AggressiveInlining)]
                                     void MeshSimpleSide(BlockSide side)
                                     {
                                         ClientSection? neighbor = neighbors[(int) side];
@@ -205,6 +207,7 @@ namespace VoxelGame.Client.Logic
                                     MeshVaryingHeightSide(BlockSide.Bottom);
                                     MeshVaryingHeightSide(BlockSide.Top);
 
+                                    [MethodImpl(MethodImplOptions.AggressiveInlining)]
                                     void MeshVaryingHeightSide(BlockSide side)
                                     {
                                         ClientSection? neighbor = neighbors[(int) side];
@@ -291,6 +294,7 @@ namespace VoxelGame.Client.Logic
                                     AddFace(0, highZ, lowZ);
                                     AddFace(1 << 28, lowZ, highZ);
 
+                                    [MethodImpl(MethodImplOptions.AggressiveInlining)]
                                     void AddFace(int orientation, int zA, int zB)
                                     {
                                         crossPlantVertexData.AddRange(new[]
@@ -337,6 +341,7 @@ namespace VoxelGame.Client.Logic
                                         AddFace(1 << 26, 2 << 24, firstAlongZ, secondAlongZ);
                                     }
 
+                                    [MethodImpl(MethodImplOptions.AggressiveInlining)]
                                     void AddFace(int orientation, int shift, int first, int second)
                                     {
                                         cropPlantVertexData.AddRange(new[]
@@ -366,6 +371,7 @@ namespace VoxelGame.Client.Logic
                             MeshLiquidSide(BlockSide.Bottom);
                             MeshLiquidSide(BlockSide.Top);
 
+                            [MethodImpl(MethodImplOptions.AggressiveInlining)]
                             void MeshLiquidSide(BlockSide side)
                             {
                                 ClientSection? neighbor = neighbors[(int) side];

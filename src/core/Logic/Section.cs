@@ -124,6 +124,7 @@ namespace VoxelGame.Core.Logic
             return Block.TranslateID(this[position.X, position.Y, position.Z] & BLOCK_MASK);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected Block GetBlock(Vector3i position, out uint data)
         {
             uint val = this[position.X, position.Y, position.Z];
