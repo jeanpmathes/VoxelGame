@@ -134,8 +134,8 @@ namespace VoxelGame.Client.Entities
             // Do input handling.
             if (Screen.IsFocused)
             {
-                KeyboardState input = Application.Client.Keyboard;
-                MouseState mouse = Application.Client.Mouse;
+                KeyboardState input = Application.Client.Instance.Keybinds.Keyboard;
+                MouseState mouse = Application.Client.Instance.Keybinds.Mouse;
 
                 MovementInput(input);
                 MouseChange();

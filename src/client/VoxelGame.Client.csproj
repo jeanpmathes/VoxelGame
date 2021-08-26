@@ -61,6 +61,7 @@
   <ItemGroup>
     <ProjectReference Include="..\core\VoxelGame.Core.csproj" />
     <ProjectReference Include="..\graphics\VoxelGame.Graphics.csproj" />
+    <ProjectReference Include="..\input\VoxelGame.Input.csproj" />
     <ProjectReference Include="..\ui\VoxelGame.UI.csproj" />
   </ItemGroup>
 

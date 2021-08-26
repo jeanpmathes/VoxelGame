@@ -95,7 +95,7 @@ namespace VoxelGame.Client.Scenes
                     return;
                 }
 
-                KeyboardState input = Application.Client.Keyboard;
+                KeyboardState input = Application.Client.Instance.Keybinds.Keyboard;
 
                 if (hasReleasedScreenshotKey && input.IsKeyDown(Key.F12))
                 {

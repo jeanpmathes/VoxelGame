@@ -19,6 +19,7 @@ using VoxelGame.Client.Rendering;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Input;
 using VoxelGame.Logging;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
@@ -27,13 +28,9 @@ namespace VoxelGame.Client.Application
     internal class Client : GameWindow
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<Client>();
-        private static Client Instance { get; set; } = null!;
+        public static Client Instance { get; set; } = null!;
 
         #region STATIC PROPERTIES
-
-        public static KeyboardState Keyboard => Instance.KeyboardState;
-
-        public static MouseState Mouse => Instance.MouseState;
 
         /// <summary>
         /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
@@ -51,6 +48,9 @@ namespace VoxelGame.Client.Application
         public static double Ups => 1.0 / Instance.updateDeltaBuffer.Average;
 
         #endregion STATIC PROPERTIES
+
+        public KeybindManager Keybinds { get; }
+        private InputManager input;
 
         private readonly Graphics.Debug glDebug;
         private readonly SceneManager sceneManager;
@@ -92,6 +92,9 @@ namespace VoxelGame.Client.Application
             Closed += OnClosed;
 
             MouseMove += OnMouseMove;
+
+            input = new InputManager();
+            Keybinds = new KeybindManager(input);
         }
 
         private new void OnLoad()
@@ -159,11 +162,13 @@ namespace VoxelGame.Client.Application
             {
                 var deltaTime = (float) MathHelper.Clamp(e.Time, 0f, 1f);
 
+                input.SetState(KeyboardState, MouseState);
+
                 sceneManager.Update(deltaTime);
 
                 if (IsFocused)
                 {
-                    KeyboardState input = Client.Instance.LastKeyboardState;
+                    KeyboardState input = Application.Client.Instance.Keybinds.Keyboard;
 
                     if (hasReleasedFullscreenKey && input.IsKeyDown(Key.F11))
                     {
