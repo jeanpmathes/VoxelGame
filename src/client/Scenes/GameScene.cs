@@ -12,6 +12,7 @@ using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Updates;
+using VoxelGame.Input.Actions;
 using VoxelGame.Logging;
 using VoxelGame.UI.UserInterfaces;
 
@@ -30,12 +31,10 @@ namespace VoxelGame.Client.Scenes
         public ClientWorld World { get; private set; }
         public ClientPlayer Player { get; private set; } = null!;
 
-        private bool wireframeMode;
-        private bool hasReleasesWireframeKey = true;
+        private readonly Toggle wireframeToggle;
+        private readonly Toggle uiToggle;
 
         private bool hasReleasedScreenshotKey = true;
-
-        private bool hasReleasedUIKey = true;
 
         internal GameScene(Application.Client client, ClientWorld world)
         {
@@ -47,6 +46,9 @@ namespace VoxelGame.Client.Scenes
 
             World = world;
             counter = world.UpdateCounter;
+
+            wireframeToggle = client.Keybinds.GetToggle("wireframe", Key.K);
+            uiToggle = client.Keybinds.GetToggle("ui", Key.J);
         }
 
         public void Load()
@@ -108,39 +110,18 @@ namespace VoxelGame.Client.Scenes
                     hasReleasedScreenshotKey = true;
                 }
 
-                if (hasReleasesWireframeKey && input.IsKeyDown(Key.K))
+                if (wireframeToggle.Changed)
                 {
-                    hasReleasesWireframeKey = false;
+                    Screen.SetWireFrame(wireframeToggle.State);
 
-                    if (wireframeMode)
-                    {
-                        Screen.SetWireFrame(false);
-                        wireframeMode = false;
-
-                        Logger.LogInformation("Disabled wire-frame mode.");
-                    }
-                    else
-                    {
-                        Screen.SetWireFrame(true);
-                        wireframeMode = true;
-
-                        Logger.LogInformation("Enabled wire-frame mode.");
-                    }
-                }
-                else if (input.IsKeyUp(Key.K))
-                {
-                    hasReleasesWireframeKey = true;
+                    Logger.LogInformation(wireframeToggle.State
+                        ? "Enabled wire-frame mode."
+                        : "Disabled wire-frame mode.");
                 }
 
-                if (hasReleasedUIKey && input.IsKeyDown(Key.J))
+                if (uiToggle.Changed)
                 {
-                    hasReleasedUIKey = false;
-
                     ui.IsHidden = !ui.IsHidden;
-                }
-                else if (input.IsKeyUp(Key.J))
-                {
-                    hasReleasedUIKey = true;
                 }
 
                 if (input.IsKeyDown(Key.Escape))

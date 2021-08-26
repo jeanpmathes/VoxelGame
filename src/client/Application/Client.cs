@@ -20,6 +20,7 @@ using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Input;
+using VoxelGame.Input.Actions;
 using VoxelGame.Logging;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
@@ -66,6 +67,8 @@ namespace VoxelGame.Client.Application
         private readonly CircularTimeBuffer renderDeltaBuffer = new CircularTimeBuffer(deltaBufferCapacity);
         private readonly CircularTimeBuffer updateDeltaBuffer = new CircularTimeBuffer(deltaBufferCapacity);
 
+        private Toggle fullscreenToggle;
+
         private Screen screen = null!;
 
         public Client(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, string appDataDirectory, string screenshotDirectory) : base(gameWindowSettings, nativeWindowSettings)
@@ -95,6 +98,8 @@ namespace VoxelGame.Client.Application
 
             input = new InputManager();
             Keybinds = new KeybindManager(input);
+
+            fullscreenToggle = Keybinds.GetToggle("fullscreen", Key.F11);
         }
 
         private new void OnLoad()
@@ -154,8 +159,6 @@ namespace VoxelGame.Client.Application
             }
         }
 
-        private bool hasReleasedFullscreenKey = true;
-
         private new void OnUpdateFrame(FrameEventArgs e)
         {
             using (Logger.BeginScope("UpdateFrame"))
@@ -166,20 +169,9 @@ namespace VoxelGame.Client.Application
 
                 sceneManager.Update(deltaTime);
 
-                if (IsFocused)
+                if (IsFocused && fullscreenToggle.Changed)
                 {
-                    KeyboardState input = Application.Client.Instance.Keybinds.Keyboard;
-
-                    if (hasReleasedFullscreenKey && input.IsKeyDown(Key.F11))
-                    {
-                        hasReleasedFullscreenKey = false;
-
-                        Screen.SetFullscreen(!Client.Instance.IsFullscreen);
-                    }
-                    else if (input.IsKeyUp(Key.F11))
-                    {
-                        hasReleasedFullscreenKey = true;
-                    }
+                    Screen.SetFullscreen(!Instance.IsFullscreen);
                 }
 
                 updateDeltaBuffer.Write(e.Time);
