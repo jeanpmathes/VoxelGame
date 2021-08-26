@@ -20,34 +20,55 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Logging", "src\lo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Graphics", "src\graphics\VoxelGame.Graphics.csproj", "{5179D32D-B43C-4E51-9319-1BF238103887}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Input", "src\input\VoxelGame.Input.csproj", "{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A528B57B-6AE1-49B9-B725-4BA1BA264D71}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{A528B57B-6AE1-49B9-B725-4BA1BA264D71}.Debug|x64.ActiveCfg = Debug|x86
+		{A528B57B-6AE1-49B9-B725-4BA1BA264D71}.Release|Any CPU.ActiveCfg = Release|x86
 		{A528B57B-6AE1-49B9-B725-4BA1BA264D71}.Release|x64.ActiveCfg = Release|x86
+		{3BD64392-3092-432F-9922-4B130465C92E}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{3BD64392-3092-432F-9922-4B130465C92E}.Debug|x64.ActiveCfg = Debug|x64
 		{3BD64392-3092-432F-9922-4B130465C92E}.Debug|x64.Build.0 = Debug|x64
+		{3BD64392-3092-432F-9922-4B130465C92E}.Release|Any CPU.ActiveCfg = Release|x64
 		{3BD64392-3092-432F-9922-4B130465C92E}.Release|x64.ActiveCfg = Release|x64
 		{3BD64392-3092-432F-9922-4B130465C92E}.Release|x64.Build.0 = Release|x64
+		{7F71C4F5-2880-4A50-985F-B4B3F4889F21}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{7F71C4F5-2880-4A50-985F-B4B3F4889F21}.Debug|x64.ActiveCfg = Debug|x64
 		{7F71C4F5-2880-4A50-985F-B4B3F4889F21}.Debug|x64.Build.0 = Debug|x64
+		{7F71C4F5-2880-4A50-985F-B4B3F4889F21}.Release|Any CPU.ActiveCfg = Release|x64
 		{7F71C4F5-2880-4A50-985F-B4B3F4889F21}.Release|x64.ActiveCfg = Release|x64
 		{7F71C4F5-2880-4A50-985F-B4B3F4889F21}.Release|x64.Build.0 = Release|x64
+		{9E30F44C-0376-4B55-988B-5C9FC6A9D26B}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{9E30F44C-0376-4B55-988B-5C9FC6A9D26B}.Debug|x64.ActiveCfg = Debug|x64
 		{9E30F44C-0376-4B55-988B-5C9FC6A9D26B}.Debug|x64.Build.0 = Debug|x64
+		{9E30F44C-0376-4B55-988B-5C9FC6A9D26B}.Release|Any CPU.ActiveCfg = Release|x64
 		{9E30F44C-0376-4B55-988B-5C9FC6A9D26B}.Release|x64.ActiveCfg = Release|x64
 		{9E30F44C-0376-4B55-988B-5C9FC6A9D26B}.Release|x64.Build.0 = Release|x64
+		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Debug|x64.ActiveCfg = Debug|x64
 		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Debug|x64.Build.0 = Debug|x64
+		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Release|Any CPU.ActiveCfg = Release|x64
 		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Release|x64.ActiveCfg = Release|x64
 		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Release|x64.Build.0 = Release|x64
+		{5179D32D-B43C-4E51-9319-1BF238103887}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{5179D32D-B43C-4E51-9319-1BF238103887}.Debug|x64.ActiveCfg = Debug|x64
 		{5179D32D-B43C-4E51-9319-1BF238103887}.Debug|x64.Build.0 = Debug|x64
+		{5179D32D-B43C-4E51-9319-1BF238103887}.Release|Any CPU.ActiveCfg = Release|x64
 		{5179D32D-B43C-4E51-9319-1BF238103887}.Release|x64.ActiveCfg = Release|x64
 		{5179D32D-B43C-4E51-9319-1BF238103887}.Release|x64.Build.0 = Release|x64
+		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Debug|x64.ActiveCfg = Debug|x64
+		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Release|Any CPU.ActiveCfg = Release|x64
+		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Release|x64.ActiveCfg = Release|x64
+		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
