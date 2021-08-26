@@ -134,8 +134,8 @@ namespace VoxelGame.Client.Entities
             // Do input handling.
             if (Screen.IsFocused)
             {
-                KeyboardState input = Client.Keyboard;
-                MouseState mouse = Client.Mouse;
+                KeyboardState input = Application.Client.Keyboard;
+                MouseState mouse = Application.Client.Mouse;
 
                 MovementInput(input);
                 MouseChange();
@@ -222,8 +222,8 @@ namespace VoxelGame.Client.Entities
         private void MouseChange()
         {
             // Apply the camera pitch and yaw (we clamp the pitch in the camera class)
-            camera.Yaw += Client.SmoothMouseDelta.X * mouseSensitivity;
-            camera.Pitch -= Client.SmoothMouseDelta.Y * mouseSensitivity;
+            camera.Yaw += Application.Client.SmoothMouseDelta.X * mouseSensitivity;
+            camera.Pitch -= Application.Client.SmoothMouseDelta.Y * mouseSensitivity;
 
             Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
         }

@@ -70,7 +70,7 @@ namespace VoxelGame.Client
 
             logger.LogInformation("Starting game on version: {Version}", Version);
 
-            using (Client client = new Client(gameWindowSettings, nativeWindowSettings, appDataDirectory, screenshotDirectory))
+            using (Application.Client client = new Application.Client(gameWindowSettings, nativeWindowSettings, appDataDirectory, screenshotDirectory))
             {
                 client.Run();
             }

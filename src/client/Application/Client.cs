@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
@@ -11,7 +12,6 @@ using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Common.Input;
 using OpenToolkit.Windowing.Desktop;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
-using System.IO;
 using VoxelGame.Client.Collections;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
@@ -22,7 +22,7 @@ using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
-namespace VoxelGame.Client
+namespace VoxelGame.Client.Application
 {
     internal class Client : GameWindow
     {

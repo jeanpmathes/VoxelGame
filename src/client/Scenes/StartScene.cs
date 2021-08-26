@@ -24,12 +24,12 @@ namespace VoxelGame.Client.Scenes
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<StartScene>();
 
-        private readonly Client client;
+        private readonly Application.Client client;
         private readonly StartUserInterface ui;
 
         private List<(WorldInformation information, string path)> worlds;
 
-        internal StartScene(Client client)
+        internal StartScene(Application.Client client)
         {
             this.client = client;
 

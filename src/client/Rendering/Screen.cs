@@ -67,9 +67,9 @@ namespace VoxelGame.Client.Rendering
 
         private protected static Screen Instance { get; set; } = null!;
 
-        private Client Client { get; set; }
+        private Application.Client Client { get; set; }
 
-        internal Screen(Client client)
+        internal Screen(Application.Client client)
         {
             Instance = this;
 

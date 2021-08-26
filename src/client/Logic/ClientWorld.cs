@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using VoxelGame.Client.Rendering;
+using VoxelGame.Client.Application;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Logging;
@@ -72,13 +73,13 @@ namespace VoxelGame.Client.Logic
             List<(ClientSection section, Vector3 position)> renderList = new List<(ClientSection section, Vector3 position)>();
 
             // Fill the render list.
-            for (int x = -Client.Player.LoadDistance; x <= Client.Player.LoadDistance; x++)
+            for (int x = -Application.Client.Player.LoadDistance; x <= Application.Client.Player.LoadDistance; x++)
             {
-                for (int z = -Client.Player.LoadDistance; z <= Client.Player.LoadDistance; z++)
+                for (int z = -Application.Client.Player.LoadDistance; z <= Application.Client.Player.LoadDistance; z++)
                 {
-                    if (activeChunks.TryGetValue((Client.Player.ChunkX + x, Client.Player.ChunkZ + z), out Chunk? chunk))
+                    if (activeChunks.TryGetValue((Application.Client.Player.ChunkX + x, Application.Client.Player.ChunkZ + z), out Chunk? chunk))
                     {
-                        ((ClientChunk) chunk).AddCulledToRenderList(Client.Player.Frustum, renderList);
+                        ((ClientChunk) chunk).AddCulledToRenderList(Application.Client.Player.Frustum, renderList);
                     }
                 }
             }
@@ -99,7 +100,7 @@ namespace VoxelGame.Client.Logic
             }
 
             // Render the player
-            Client.Player.Render();
+            Application.Client.Player.Render();
         }
 
         protected override Chunk CreateChunk(int x, int z)
@@ -129,7 +130,7 @@ namespace VoxelGame.Client.Logic
                     chunk.Tick();
                 }
 
-                Client.Player.Tick(deltaTime);
+                Application.Client.Player.Tick(deltaTime);
 
                 // Mesh all listed sections.
                 foreach ((Chunk chunk, int index) in sectionsToMesh)

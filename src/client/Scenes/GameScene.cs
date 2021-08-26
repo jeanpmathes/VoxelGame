@@ -23,7 +23,7 @@ namespace VoxelGame.Client.Scenes
 
         private readonly GameUserInterface ui;
 
-        private readonly Client client;
+        private readonly Application.Client client;
 
         private readonly UpdateCounter counter;
 
@@ -37,7 +37,7 @@ namespace VoxelGame.Client.Scenes
 
         private bool hasReleasedUIKey = true;
 
-        internal GameScene(Client client, ClientWorld world)
+        internal GameScene(Application.Client client, ClientWorld world)
         {
             this.client = client;
 
@@ -74,7 +74,7 @@ namespace VoxelGame.Client.Scenes
         {
             using (Logger.BeginScope("GameScene Render"))
             {
-                ui.SetUpdateRate(Client.Fps, Client.Ups);
+                ui.SetUpdateRate(Application.Client.Fps, Application.Client.Ups);
 
                 World.Render();
 
@@ -95,7 +95,7 @@ namespace VoxelGame.Client.Scenes
                     return;
                 }
 
-                KeyboardState input = Client.Keyboard;
+                KeyboardState input = Application.Client.Keyboard;
 
                 if (hasReleasedScreenshotKey && input.IsKeyDown(Key.F12))
                 {
