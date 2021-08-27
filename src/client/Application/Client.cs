@@ -67,7 +67,7 @@ namespace VoxelGame.Client.Application
         private readonly CircularTimeBuffer renderDeltaBuffer = new CircularTimeBuffer(deltaBufferCapacity);
         private readonly CircularTimeBuffer updateDeltaBuffer = new CircularTimeBuffer(deltaBufferCapacity);
 
-        private Toggle fullscreenToggle;
+        private readonly Toggle fullscreenToggle;
 
         private Screen screen = null!;
 

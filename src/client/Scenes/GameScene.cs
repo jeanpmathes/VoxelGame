@@ -34,7 +34,8 @@ namespace VoxelGame.Client.Scenes
         private readonly Toggle wireframeToggle;
         private readonly Toggle uiToggle;
 
-        private bool hasReleasedScreenshotKey = true;
+        private readonly PushButton screenshotButton;
+        private readonly PushButton escapeButton;
 
         internal GameScene(Application.Client client, ClientWorld world)
         {
@@ -49,6 +50,9 @@ namespace VoxelGame.Client.Scenes
 
             wireframeToggle = client.Keybinds.GetToggle("wireframe", Key.K);
             uiToggle = client.Keybinds.GetToggle("ui", Key.J);
+
+            screenshotButton = client.Keybinds.GetPushButton("screenshot", Key.F12);
+            escapeButton = client.Keybinds.GetPushButton("escape", Key.Escape);
         }
 
         public void Load()
@@ -97,17 +101,9 @@ namespace VoxelGame.Client.Scenes
                     return;
                 }
 
-                KeyboardState input = Application.Client.Instance.Keybinds.Keyboard;
-
-                if (hasReleasedScreenshotKey && input.IsKeyDown(Key.F12))
+                if (screenshotButton.Pushed)
                 {
-                    hasReleasedScreenshotKey = false;
-
                     Screen.TakeScreenshot(client.ScreenshotDirectory);
-                }
-                else if (input.IsKeyUp(Key.F12))
-                {
-                    hasReleasedScreenshotKey = true;
                 }
 
                 if (wireframeToggle.Changed)
@@ -124,7 +120,7 @@ namespace VoxelGame.Client.Scenes
                     ui.IsHidden = !ui.IsHidden;
                 }
 
-                if (input.IsKeyDown(Key.Escape))
+                if (escapeButton.Pushed)
                 {
                     client.LoadStartScene();
                 }

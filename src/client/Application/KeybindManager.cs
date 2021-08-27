@@ -5,14 +5,19 @@
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 using OpenToolkit.Windowing.Common.Input;
 using VoxelGame.Input;
 using VoxelGame.Input.Actions;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Application
 {
     internal class KeybindManager
     {
+        private static readonly ILogger Logger = LoggingHelper.CreateLogger<KeybindManager>();
+
         private readonly InputManager input;
 
         public KeyboardState Keyboard => input.CurrentKeyboardState;
@@ -21,6 +26,20 @@ namespace VoxelGame.Client.Application
         public KeybindManager(InputManager input)
         {
             this.input = input;
+        }
+
+        private readonly Dictionary<string, InputAction> keybinds = new Dictionary<string, InputAction>();
+
+        private void AddKeybind(string id, InputAction action)
+        {
+            if (keybinds.ContainsKey(id))
+            {
+                Debug.Fail($"The id '{id}' is already in use for a keybind.");
+            }
+
+            keybinds[id] = action;
+
+            Logger.LogDebug($"Created keybind: {id}");
         }
 
         private readonly Dictionary<string, Toggle> toggles = new Dictionary<string, Toggle>();
@@ -36,21 +55,26 @@ namespace VoxelGame.Client.Application
             toggle = new Toggle(key, input);
             toggles[id] = toggle;
 
+            AddKeybind(id, toggle);
+
             return toggle;
         }
 
-        public Toggle GetToggle(string id, MouseButton button)
+        private readonly Dictionary<string, PushButton> pushButtons = new Dictionary<string, PushButton>();
+
+        public PushButton GetPushButton(string id, Key key)
         {
-            if (toggles.TryGetValue(id, out Toggle? toggle))
+            if (pushButtons.TryGetValue(id, out PushButton? button))
             {
-                toggle.Clear();
-                return toggle;
+                return button;
             }
 
-            toggle = new Toggle(button, input);
-            toggles[id] = toggle;
+            button = new PushButton(key, input);
+            pushButtons[id] = button;
 
-            return toggle;
+            AddKeybind(id, button);
+
+            return button;
         }
     }
 }
