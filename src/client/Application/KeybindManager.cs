@@ -60,6 +60,38 @@ namespace VoxelGame.Client.Application
             return toggle;
         }
 
+        private readonly Dictionary<string, Button> buttons = new Dictionary<string, Button>();
+
+        public Button GetButton(string id, Key key)
+        {
+            if (buttons.TryGetValue(id, out Button? button))
+            {
+                return button;
+            }
+
+            button = new Button(key, input);
+            buttons[id] = button;
+
+            AddKeybind(id, button);
+
+            return button;
+        }
+
+        public Button GetButton(string id, MouseButton key)
+        {
+            if (buttons.TryGetValue(id, out Button? button))
+            {
+                return button;
+            }
+
+            button = new Button(key, input);
+            buttons[id] = button;
+
+            AddKeybind(id, button);
+
+            return button;
+        }
+
         private readonly Dictionary<string, PushButton> pushButtons = new Dictionary<string, PushButton>();
 
         public PushButton GetPushButton(string id, Key key)
