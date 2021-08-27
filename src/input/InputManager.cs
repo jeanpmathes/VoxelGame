@@ -12,16 +12,10 @@ namespace VoxelGame.Input
 {
     public class InputManager
     {
-        public KeyboardState CurrentKeyboardState { get; private set; }
-        public MouseState CurrentMouseState { get; private set; }
-
         internal CombinedState CurrentState { get; private set; }
 
         public void SetState(KeyboardState keyboard, MouseState mouse)
         {
-            CurrentKeyboardState = keyboard;
-            CurrentMouseState = mouse;
-
             CurrentState = new CombinedState(keyboard, mouse);
 
             OnUpdate?.Invoke();

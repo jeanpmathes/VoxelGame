@@ -20,9 +20,6 @@ namespace VoxelGame.Client.Application
 
         private readonly InputManager input;
 
-        public KeyboardState Keyboard => input.CurrentKeyboardState;
-        public MouseState Mouse => input.CurrentMouseState;
-
         public KeybindManager(InputManager input)
         {
             this.input = input;
