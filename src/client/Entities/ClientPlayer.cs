@@ -15,6 +15,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Input.Actions;
+using VoxelGame.Input.Composite;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Entities
@@ -31,13 +32,8 @@ namespace VoxelGame.Client.Entities
 
         private readonly GameUserInterface ui;
 
-        private readonly Button forwardsButton;
-        private readonly Button backwardsButton;
-        private readonly Button strafeLeftButton;
-        private readonly Button strafeRightButton;
-
+        private readonly Axis2 movementInput;
         private readonly Button sprintButton;
-
         private readonly Button jumpButton;
 
         private readonly Button interactOrPlaceButton;
@@ -68,10 +64,14 @@ namespace VoxelGame.Client.Entities
 
             this.ui = ui;
 
-            forwardsButton = Application.Client.Instance.Keybinds.GetButton("forwards", Key.W);
-            backwardsButton = Application.Client.Instance.Keybinds.GetButton("backwards", Key.S);
-            strafeLeftButton = Application.Client.Instance.Keybinds.GetButton("strafe_left", Key.A);
-            strafeRightButton = Application.Client.Instance.Keybinds.GetButton("strafe_right", Key.D);
+            Button forwardsButton = Application.Client.Instance.Keybinds.GetButton("forwards", Key.W);
+            Button backwardsButton = Application.Client.Instance.Keybinds.GetButton("backwards", Key.S);
+            Button strafeRightButton = Application.Client.Instance.Keybinds.GetButton("strafe_right", Key.D);
+            Button strafeLeftButton = Application.Client.Instance.Keybinds.GetButton("strafe_left", Key.A);
+
+            movementInput = new Axis2(
+                new Axis(forwardsButton, backwardsButton),
+                new Axis(strafeRightButton, strafeLeftButton));
 
             sprintButton = Application.Client.Instance.Keybinds.GetButton("sprint", Key.ShiftLeft);
 
@@ -210,19 +210,8 @@ namespace VoxelGame.Client.Entities
 
         private void MovementInput()
         {
-            movement = new Vector3();
-
-            if (forwardsButton.IsDown)
-                movement += Forward; // Forward
-
-            if (backwardsButton.IsDown)
-                movement -= Forward; // Backwards
-
-            if (strafeLeftButton.IsDown)
-                movement -= Right; // Left
-
-            if (strafeRightButton.IsDown)
-                movement += Right; // Right
+            (float x, float z) = movementInput.Value;
+            movement = (x * Forward) + (z * Right);
 
             if (movement != Vector3.Zero)
             {
