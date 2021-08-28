@@ -21,6 +21,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Input;
 using VoxelGame.Input.Actions;
+using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
@@ -50,8 +51,9 @@ namespace VoxelGame.Client.Application
 
         #endregion STATIC PROPERTIES
 
+        private readonly InputManager input;
         public KeybindManager Keybinds { get; }
-        private InputManager input;
+        public Mouse Mouse => input.Mouse;
 
         private readonly Graphics.Debug glDebug;
         private readonly SceneManager sceneManager;
@@ -90,13 +92,10 @@ namespace VoxelGame.Client.Application
 
             RenderFrame += OnRenderFrame;
             UpdateFrame += OnUpdateFrame;
-            UpdateFrame += MouseUpdate;
 
             Closed += OnClosed;
 
-            MouseMove += OnMouseMove;
-
-            input = new InputManager();
+            input = new InputManager(this);
             Keybinds = new KeybindManager(input);
 
             fullscreenToggle = Keybinds.GetToggle("fullscreen", Key.F11);
@@ -165,7 +164,7 @@ namespace VoxelGame.Client.Application
             {
                 var deltaTime = (float) MathHelper.Clamp(e.Time, 0f, 1f);
 
-                input.SetState(KeyboardState, MouseState);
+                input.UpdateState(KeyboardState, MouseState);
 
                 sceneManager.Update(deltaTime);
 
@@ -209,57 +208,5 @@ namespace VoxelGame.Client.Application
         }
 
         #endregion SCENE MANAGEMENT
-
-        #region MOUSE MOVE
-
-        public static Vector2 SmoothMouseDelta { get; private set; }
-        public bool DoMouseTracking { get; set; }
-
-        private Vector2 lastMouseDelta;
-        private Vector2 rawMouseDelta;
-        private Vector2 mouseDelta;
-
-        private Vector2 mouseCorrection;
-        private bool mouseHasMoved;
-
-        new protected void OnMouseMove(MouseMoveEventArgs e)
-        {
-            if (!DoMouseTracking) return;
-
-            mouseHasMoved = true;
-
-            Vector2 center = new Vector2(Size.X / 2f, Size.Y / 2f);
-
-            rawMouseDelta += e.Delta;
-            mouseCorrection += center - MousePosition;
-
-            MousePosition = center;
-        }
-
-        private void MouseUpdate(FrameEventArgs e)
-        {
-            if (!DoMouseTracking) return;
-
-            if (!mouseHasMoved)
-            {
-                mouseDelta = Vector2.Zero;
-            }
-            else
-            {
-                const float a = 0.4f;
-
-                mouseDelta = rawMouseDelta - mouseCorrection;
-                mouseDelta = (lastMouseDelta * (1f - a)) + (mouseDelta * a);
-            }
-
-            SmoothMouseDelta = mouseDelta;
-            mouseHasMoved = false;
-
-            lastMouseDelta = mouseDelta;
-            rawMouseDelta = Vector2.Zero;
-            mouseCorrection = Vector2.Zero;
-        }
-
-        #endregion MOUSE MOVE
     }
 }

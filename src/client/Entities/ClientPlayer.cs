@@ -242,9 +242,9 @@ namespace VoxelGame.Client.Entities
 
         private void MouseChange()
         {
-            // Apply the camera pitch and yaw (we clamp the pitch in the camera class)
-            camera.Yaw += Application.Client.SmoothMouseDelta.X * mouseSensitivity;
-            camera.Pitch -= Application.Client.SmoothMouseDelta.Y * mouseSensitivity;
+            // Apply the camera pitch and yaw (the pitch is clamped in the camera class)
+            camera.Yaw += Application.Client.Instance.Mouse.Delta.X * mouseSensitivity;
+            camera.Pitch += Application.Client.Instance.Mouse.Delta.Y * mouseSensitivity;
 
             Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
         }

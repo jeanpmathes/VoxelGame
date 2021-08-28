@@ -41,7 +41,7 @@ namespace VoxelGame.Client.Scenes
         {
             this.client = client;
 
-            Screen.SetCursor(visible: false, tracked: true);
+            Screen.SetCursor(visible: false, locked: true);
 
             ui = new GameUserInterface(client, false);
 

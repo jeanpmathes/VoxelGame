@@ -43,10 +43,12 @@ namespace VoxelGame.Client.Rendering
         /// <summary>
         /// Gets the window size. The value is equal to the value retrieved from <see cref="Client.Instance"/>.
         /// </summary>
-        public static Vector2i Size
-        {
-            get => Instance.Client.Size; set => Instance.Client.Size = value;
-        }
+        public static Vector2i Size => Instance.Client.Size;
+
+        /// <summary>
+        /// Get the center of the screen.
+        /// </summary>
+        public static Vector2i Center => new Vector2i(Size.X / 2, Size.Y / 2);
 
         /// <summary>
         /// Gets the aspect ratio <c>x/y</c>.
@@ -215,10 +217,10 @@ namespace VoxelGame.Client.Rendering
 
         #region PUBLIC STATIC METHODS
 
-        public static void SetCursor(bool visible, bool tracked = false, bool grabbed = false)
+        public static void SetCursor(bool visible, bool locked = false, bool grabbed = false)
         {
             Instance.Client.CursorVisible = visible;
-            Instance.Client.DoMouseTracking = tracked;
+            Instance.Client.Mouse.Locked = locked;
             Instance.Client.CursorGrabbed = grabbed;
         }
 
