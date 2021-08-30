@@ -41,8 +41,7 @@ namespace VoxelGame.Client.Entities
         private readonly Button blockInteractButton;
 
         private readonly Toggle placementModeToggle;
-        private readonly PushButton previousButton;
-        private readonly PushButton nextButton;
+        private readonly Axis selectionAxis;
 
         public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingBox boundingBox, GameUserInterface ui) : base(world, mass, drag, boundingBox)
         {
@@ -82,8 +81,10 @@ namespace VoxelGame.Client.Entities
             blockInteractButton = Application.Client.Instance.Keybinds.GetButton("strafe_left", Key.ControlLeft);
 
             placementModeToggle = Application.Client.Instance.Keybinds.GetToggle("placement_mode", Key.R);
-            nextButton = Application.Client.Instance.Keybinds.GetPushButton("select_next_placement", Key.KeypadPlus);
-            previousButton = Application.Client.Instance.Keybinds.GetPushButton("select_previous_placement", Key.KeypadMinus);
+
+            Button nextButton = Application.Client.Instance.Keybinds.GetPushButton("select_next_placement", Key.KeypadPlus);
+            Button previousButton = Application.Client.Instance.Keybinds.GetPushButton("select_previous_placement", Key.KeypadMinus);
+            selectionAxis = new Axis(nextButton, previousButton);
         }
 
         /// <summary>
@@ -392,20 +393,23 @@ namespace VoxelGame.Client.Entities
                 updateUI = true;
             }
 
-            if (nextButton.Pushed)
+            if (selectionAxis.Value != 0)
             {
-                if (blockMode) activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID(activeBlock.Id + 1) : Block.TranslateID(1);
-                else activeLiquid = (activeLiquid.Id != Liquid.Count - 1) ? Liquid.TranslateID(activeLiquid.Id + 1) : Liquid.TranslateID(1);
+                if (selectionAxis.Value > 0)
+                {
+                    if (blockMode) activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID(activeBlock.Id + 1) : Block.TranslateID(1);
+                    else activeLiquid = (activeLiquid.Id != Liquid.Count - 1) ? Liquid.TranslateID(activeLiquid.Id + 1) : Liquid.TranslateID(1);
 
-                updateUI = true;
-            }
+                    updateUI = true;
+                }
 
-            if (previousButton.Pushed)
-            {
-                if (blockMode) activeBlock = (activeBlock.Id != 1) ? Block.TranslateID(activeBlock.Id - 1) : Block.TranslateID((uint) (Block.Count - 1));
-                else activeLiquid = (activeLiquid.Id != 1) ? Liquid.TranslateID(activeLiquid.Id - 1) : Liquid.TranslateID((uint) (Liquid.Count - 1));
+                if (selectionAxis.Value < 0)
+                {
+                    if (blockMode) activeBlock = (activeBlock.Id != 1) ? Block.TranslateID(activeBlock.Id - 1) : Block.TranslateID((uint) (Block.Count - 1));
+                    else activeLiquid = (activeLiquid.Id != 1) ? Liquid.TranslateID(activeLiquid.Id - 1) : Liquid.TranslateID((uint) (Liquid.Count - 1));
 
-                updateUI = true;
+                    updateUI = true;
+                }
             }
 
             if (updateUI)
