@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Input.Devices
@@ -34,7 +33,7 @@ namespace VoxelGame.Input.Devices
             float yScale = 1f / input.Window.Size.Y;
 
             delta = Vector2.Multiply(delta, (-xScale, yScale)) * 1000;
-            delta = Vector2.Lerp(oldDelta, delta, 0.5f);
+            delta = Vector2.Lerp(oldDelta, delta, 0.7f);
 
             oldDelta = Delta;
             Delta = delta;
