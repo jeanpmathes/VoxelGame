@@ -7,6 +7,7 @@
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common.Input;
 using System;
+using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
@@ -28,8 +29,6 @@ namespace VoxelGame.Client.Entities
         private readonly Camera camera;
         private readonly Vector3 cameraOffset = new Vector3(0f, 0.65f, 0f);
 
-        private readonly float mouseSensitivity = Properties.client.Default.MouseSensitivity;
-
         private readonly GameUserInterface ui;
 
         private readonly Axis2 movementInput;
@@ -42,6 +41,8 @@ namespace VoxelGame.Client.Entities
 
         private readonly Toggle placementModeToggle;
         private readonly Axis selectionAxis;
+
+        private readonly LookBind lookInput;
 
         public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingBox boundingBox, GameUserInterface ui) : base(world, mass, drag, boundingBox)
         {
@@ -85,6 +86,8 @@ namespace VoxelGame.Client.Entities
             Button nextButton = Application.Client.Instance.Keybinds.GetPushButton("select_next_placement", Key.KeypadPlus);
             Button previousButton = Application.Client.Instance.Keybinds.GetPushButton("select_previous_placement", Key.KeypadMinus);
             selectionAxis = new Axis(nextButton, previousButton);
+
+            lookInput = Application.Client.Instance.Keybinds.GetLookBind("look_around", Properties.client.Default.MouseSensitivity);
         }
 
         /// <summary>
@@ -170,8 +173,8 @@ namespace VoxelGame.Client.Entities
             // Do input handling.
             if (Screen.IsFocused)
             {
-                MovementInput();
-                MouseChange();
+                HandleMovementInput();
+                HandleLookInput();
 
                 BlockLiquidSelection(firstUpdate);
 
@@ -209,7 +212,7 @@ namespace VoxelGame.Client.Entities
         private readonly Vector3 maxSwimForce = new Vector3(0f, 2500f, 0f);
         private readonly float jumpForce = 25000f;
 
-        private void MovementInput()
+        private void HandleMovementInput()
         {
             (float x, float z) = movementInput.Value;
             movement = (x * Forward) + (z * Right);
@@ -241,11 +244,12 @@ namespace VoxelGame.Client.Entities
             }
         }
 
-        private void MouseChange()
+        private void HandleLookInput()
         {
             // Apply the camera pitch and yaw (the pitch is clamped in the camera class)
-            camera.Yaw += Application.Client.Instance.Mouse.Delta.X * mouseSensitivity;
-            camera.Pitch += Application.Client.Instance.Mouse.Delta.Y * mouseSensitivity;
+            (float yaw, float pitch) = lookInput.Value;
+            camera.Yaw += yaw;
+            camera.Pitch += pitch;
 
             Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
         }

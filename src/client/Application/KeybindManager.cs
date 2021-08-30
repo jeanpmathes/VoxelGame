@@ -105,5 +105,20 @@ namespace VoxelGame.Client.Application
 
             return button;
         }
+
+        private readonly Dictionary<string, LookBind> lookBinds = new Dictionary<string, LookBind>();
+
+        public LookBind GetLookBind(string id, float sensitivity)
+        {
+            if (lookBinds.TryGetValue(id, out LookBind? bind))
+            {
+                return bind;
+            }
+
+            bind = new LookBind(input.Mouse, sensitivity);
+            lookBinds[id] = bind;
+
+            return bind;
+        }
     }
 }
