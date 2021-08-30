@@ -30,7 +30,7 @@ namespace VoxelGame.Client.Application
     internal class Client : GameWindow
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<Client>();
-        public static Client Instance { get; set; } = null!;
+        public static Client Instance { get; private set; } = null!;
 
         #region STATIC PROPERTIES
 
