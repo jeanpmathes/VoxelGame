@@ -30,8 +30,6 @@ namespace VoxelGame.Input.Devices
         {
             Vector2 delta = input.Window.MouseDelta - correction;
 
-            Console.WriteLine(delta);
-
             float xScale = 1f / input.Window.Size.X;
             float yScale = 1f / input.Window.Size.Y;
 

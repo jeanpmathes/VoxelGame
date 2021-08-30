@@ -9,31 +9,25 @@ using VoxelGame.Input.Internal;
 
 namespace VoxelGame.Input.Actions
 {
-    public class Button : InputAction
+    public abstract class Button : InputAction
     {
-        private readonly KeyOrButton keyOrButton;
+        private protected KeyOrButton KeyOrButton { get; }
 
-        public bool IsDown { get; private set; }
+        public bool IsDown { get; private protected set; }
 
         public bool IsUp => !IsDown;
 
-        public Button(Key key, InputManager input) : this(new KeyOrButton(key), input)
+        protected Button(Key key, InputManager input) : this(new KeyOrButton(key), input)
         {
         }
 
-        public Button(MouseButton mouseButton, InputManager input) : this(new KeyOrButton(mouseButton), input)
+        protected Button(MouseButton mouseButton, InputManager input) : this(new KeyOrButton(mouseButton), input)
         {
         }
 
         private Button(KeyOrButton keyOrButton, InputManager input) : base(input)
         {
-            this.keyOrButton = keyOrButton;
-        }
-
-        protected override void Update()
-        {
-            CombinedState state = Input.CurrentState;
-            IsDown = state.IsKeyOrButtonDown(keyOrButton);
+            KeyOrButton = keyOrButton;
         }
     }
 }

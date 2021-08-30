@@ -66,7 +66,7 @@ namespace VoxelGame.Client.Application
                 return button;
             }
 
-            button = new Button(key, input);
+            button = new SimpleButton(key, input);
             buttons[id] = button;
 
             AddKeybind(id, button);
@@ -81,7 +81,7 @@ namespace VoxelGame.Client.Application
                 return button;
             }
 
-            button = new Button(key, input);
+            button = new SimpleButton(key, input);
             buttons[id] = button;
 
             AddKeybind(id, button);

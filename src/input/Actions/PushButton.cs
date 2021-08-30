@@ -9,25 +9,27 @@ using VoxelGame.Input.Internal;
 
 namespace VoxelGame.Input.Actions
 {
-    public class PushButton : InputAction
+    public class PushButton : Button
     {
-        private readonly KeyOrButton keyOrButton;
-
         private bool hasReleased;
+        private bool pushed;
 
-        public bool Pushed { get; private set; }
+        public bool Pushed
+        {
+            get => pushed;
+            private set
+            {
+                pushed = value;
+                IsDown = value;
+            }
+        }
 
-        public PushButton(Key key, InputManager input) : this(new KeyOrButton(key), input)
+        public PushButton(Key key, InputManager input) : base(key, input)
         {
         }
 
-        public PushButton(MouseButton mouseButton, InputManager input) : this(new KeyOrButton(mouseButton), input)
+        public PushButton(MouseButton mouseButton, InputManager input) : base(mouseButton, input)
         {
-        }
-
-        private PushButton(KeyOrButton keyOrButton, InputManager input) : base(input)
-        {
-            this.keyOrButton = keyOrButton;
         }
 
         protected override void Update()
@@ -36,12 +38,12 @@ namespace VoxelGame.Input.Actions
 
             Pushed = false;
 
-            if (hasReleased && state.IsKeyOrButtonDown(keyOrButton))
+            if (hasReleased && state.IsKeyOrButtonDown(KeyOrButton))
             {
                 hasReleased = false;
                 Pushed = true;
             }
-            else if (state.IsKeyOrButtonUp(keyOrButton))
+            else if (state.IsKeyOrButtonUp(KeyOrButton))
             {
                 hasReleased = true;
             }
