@@ -8,18 +8,18 @@ using OpenToolkit.Windowing.Common.Input;
 
 namespace VoxelGame.Input.Internal
 {
-    internal readonly struct KeyOrButton
+    public readonly struct KeyOrButton
     {
         private readonly Key? key;
         private readonly MouseButton? button;
 
-        internal KeyOrButton(Key key)
+        public KeyOrButton(Key key)
         {
             this.key = key;
             this.button = null;
         }
 
-        internal KeyOrButton(MouseButton button)
+        public KeyOrButton(MouseButton button)
         {
             this.key = null;
             this.button = button;
@@ -28,7 +28,7 @@ namespace VoxelGame.Input.Internal
         private bool IsKeyboardKey => key != null;
         private bool IsMouseButton => button != null;
 
-        public bool State(CombinedState state)
+        internal bool State(CombinedState state)
         {
             if (IsKeyboardKey)
             {

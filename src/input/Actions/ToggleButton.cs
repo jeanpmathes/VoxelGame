@@ -1,4 +1,4 @@
-﻿// <copyright file="Toggle.cs" company="VoxelGame">
+﻿// <copyright file="ToggleButton.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -9,26 +9,29 @@ using VoxelGame.Input.Internal;
 
 namespace VoxelGame.Input.Actions
 {
-    public class Toggle : InputAction
+    public class ToggleButton : Button
     {
-        private readonly KeyOrButton keyOrButton;
-
         private bool hasReleased;
+        private bool state;
 
-        public bool State { get; private set; }
+        public bool State
+        {
+            get => state;
+            private set
+            {
+                state = value;
+                IsDown = value;
+            }
+        }
+
         public bool Changed { get; private set; }
 
-        public Toggle(Key key, InputManager input) : this(new KeyOrButton(key), input)
+        public ToggleButton(Key key, InputManager input) : base(key, input)
         {
         }
 
-        public Toggle(MouseButton mouseButton, InputManager input) : this(new KeyOrButton(mouseButton), input)
+        public ToggleButton(MouseButton mouseButton, InputManager input) : base(mouseButton, input)
         {
-        }
-
-        private Toggle(KeyOrButton keyOrButton, InputManager input) : base(input)
-        {
-            this.keyOrButton = keyOrButton;
         }
 
         public void Clear()
@@ -42,14 +45,14 @@ namespace VoxelGame.Input.Actions
 
             Changed = false;
 
-            if (hasReleased && state.IsKeyOrButtonDown(keyOrButton))
+            if (hasReleased && state.IsKeyOrButtonDown(KeyOrButton))
             {
                 hasReleased = false;
 
                 State = !State;
                 Changed = true;
             }
-            else if (state.IsKeyOrButtonUp(keyOrButton))
+            else if (state.IsKeyOrButtonUp(KeyOrButton))
             {
                 hasReleased = true;
             }

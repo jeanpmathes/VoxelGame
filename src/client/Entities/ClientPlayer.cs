@@ -39,7 +39,7 @@ namespace VoxelGame.Client.Entities
         private readonly Button destroyButton;
         private readonly Button blockInteractButton;
 
-        private readonly Toggle placementModeToggle;
+        private readonly ToggleButton placementModeToggle;
         private readonly Axis selectionAxis;
 
         private readonly LookBind lookInput;

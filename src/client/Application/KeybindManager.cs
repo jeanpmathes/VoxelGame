@@ -39,17 +39,17 @@ namespace VoxelGame.Client.Application
             Logger.LogDebug($"Created keybind: {id}");
         }
 
-        private readonly Dictionary<string, Toggle> toggles = new Dictionary<string, Toggle>();
+        private readonly Dictionary<string, ToggleButton> toggles = new Dictionary<string, ToggleButton>();
 
-        public Toggle GetToggle(string id, Key key)
+        public ToggleButton GetToggle(string id, Key key)
         {
-            if (toggles.TryGetValue(id, out Toggle? toggle))
+            if (toggles.TryGetValue(id, out ToggleButton? toggle))
             {
                 toggle.Clear();
                 return toggle;
             }
 
-            toggle = new Toggle(key, input);
+            toggle = new ToggleButton(key, input);
             toggles[id] = toggle;
 
             AddKeybind(id, toggle);

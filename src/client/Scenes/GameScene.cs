@@ -31,8 +31,8 @@ namespace VoxelGame.Client.Scenes
         public ClientWorld World { get; private set; }
         public ClientPlayer Player { get; private set; } = null!;
 
-        private readonly Toggle wireframeToggle;
-        private readonly Toggle uiToggle;
+        private readonly ToggleButton wireframeToggle;
+        private readonly ToggleButton uiToggle;
 
         private readonly PushButton screenshotButton;
         private readonly PushButton escapeButton;
