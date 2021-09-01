@@ -18,104 +18,108 @@ namespace VoxelGame.Client.Application
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<KeybindManager>();
 
-        private readonly InputManager input;
+        public InputManager Input { get; }
 
         public KeybindManager(InputManager input)
         {
-            this.input = input;
+            Input = input;
+
+            Keybind.RegisterWithManager(this);
         }
 
-        private readonly Dictionary<string, InputAction> keybinds = new Dictionary<string, InputAction>();
+        private readonly Dictionary<Keybind, Button> keybinds = new Dictionary<Keybind, Button>();
 
-        private void AddKeybind(string id, InputAction action)
+        private readonly Dictionary<Keybind, ToggleButton> toggleButtons = new Dictionary<Keybind, ToggleButton>();
+        private readonly Dictionary<Keybind, SimpleButton> simpleButtons = new Dictionary<Keybind, SimpleButton>();
+        private readonly Dictionary<Keybind, PushButton> pushButtons = new Dictionary<Keybind, PushButton>();
+
+        public void Add(Keybind bind, ToggleButton button)
         {
-            if (keybinds.ContainsKey(id))
+            AddKeybind(bind, button);
+            toggleButtons.Add(bind, button);
+        }
+
+        public void Add(Keybind bind, SimpleButton button)
+        {
+            AddKeybind(bind, button);
+            simpleButtons.Add(bind, button);
+        }
+
+        public void Add(Keybind bind, PushButton button)
+        {
+            AddKeybind(bind, button);
+            pushButtons.Add(bind, button);
+        }
+
+        private void AddKeybind(Keybind bind, Button button)
+        {
+            if (keybinds.ContainsKey(bind))
             {
-                Debug.Fail($"The id '{id}' is already in use for a keybind.");
+                Debug.Fail($"The keybind '{bind}' is already associated with an action.");
             }
 
-            keybinds[id] = action;
+            keybinds[bind] = button;
 
-            Logger.LogDebug($"Created keybind: {id}");
+            Logger.LogDebug(Events.SetKeyBind, $"Created keybind: {bind}");
         }
 
-        private readonly Dictionary<string, ToggleButton> toggles = new Dictionary<string, ToggleButton>();
-
-        public ToggleButton GetToggle(string id, Key key)
+        public ToggleButton GetToggle(Keybind bind)
         {
-            if (toggles.TryGetValue(id, out ToggleButton? toggle))
-            {
-                toggle.Clear();
-                return toggle;
-            }
-
-            toggle = new ToggleButton(key, input);
-            toggles[id] = toggle;
-
-            AddKeybind(id, toggle);
-
-            return toggle;
+            Debug.Assert(toggleButtons.ContainsKey(bind), "No toggle associated with this keybind.");
+            return toggleButtons[bind];
         }
 
-        private readonly Dictionary<string, Button> buttons = new Dictionary<string, Button>();
-
-        public Button GetButton(string id, Key key)
+        public Button GetButton(Keybind bind)
         {
-            if (buttons.TryGetValue(id, out Button? button))
-            {
-                return button;
-            }
-
-            button = new SimpleButton(key, input);
-            buttons[id] = button;
-
-            AddKeybind(id, button);
-
-            return button;
+            Debug.Assert(simpleButtons.ContainsKey(bind), "No simple button associated with this keybind.");
+            return simpleButtons[bind];
         }
 
-        public Button GetButton(string id, MouseButton key)
+        public PushButton GetPushButton(Keybind bind)
         {
-            if (buttons.TryGetValue(id, out Button? button))
-            {
-                return button;
-            }
-
-            button = new SimpleButton(key, input);
-            buttons[id] = button;
-
-            AddKeybind(id, button);
-
-            return button;
+            Debug.Assert(pushButtons.ContainsKey(bind), "No push button associated with this keybind.");
+            return pushButtons[bind];
         }
 
-        private readonly Dictionary<string, PushButton> pushButtons = new Dictionary<string, PushButton>();
+        #region KEYBINDS
 
-        public PushButton GetPushButton(string id, Key key)
+        public Keybind Fullscreen { get; } = Keybind.RegisterToggle("fullscreen", Key.F11);
+
+        public Keybind Wireframe { get; } = Keybind.RegisterToggle("wireframe", Key.K);
+        public Keybind UI { get; } = Keybind.RegisterToggle("ui", Key.J);
+
+        public Keybind Screenshot { get; } = Keybind.RegisterPushButton("screenshot", Key.F12);
+        public Keybind Escape { get; } = Keybind.RegisterPushButton("escape", Key.Escape);
+
+        public Keybind Forwards { get; } = Keybind.RegisterButton("forwards", Key.W);
+        public Keybind Backwards { get; } = Keybind.RegisterButton("backwards", Key.S);
+        public Keybind StrafeRight { get; } = Keybind.RegisterButton("strafe_right", Key.D);
+        public Keybind StrafeLeft { get; } = Keybind.RegisterButton("strafe_left", Key.A);
+
+        public Keybind Sprint { get; } = Keybind.RegisterButton("sprint", Key.ShiftLeft);
+        public Keybind Jump { get; } = Keybind.RegisterButton("jump", Key.Space);
+
+        public Keybind InteractOrPlace { get; } = Keybind.RegisterButton("interact_or_place", MouseButton.Right);
+        public Keybind Destroy { get; } = Keybind.RegisterButton("destroy", MouseButton.Left);
+        public Keybind BlockInteract { get; } = Keybind.RegisterButton("block_interact", Key.ControlLeft);
+
+        public Keybind PlacementMode { get; } = Keybind.RegisterToggle("placement_mode", Key.R);
+
+        public Keybind NextPlacement { get; } = Keybind.RegisterPushButton("select_next_placement", Key.KeypadPlus);
+        public Keybind PreviousPlacement { get; } = Keybind.RegisterPushButton("select_previous_placement", Key.KeypadMinus);
+
+        #endregion KEYBINDS
+
+        private readonly Dictionary<string, LookInput> lookBinds = new Dictionary<string, LookInput>();
+
+        public LookInput GetLookBind(string id, float sensitivity)
         {
-            if (pushButtons.TryGetValue(id, out PushButton? button))
-            {
-                return button;
-            }
-
-            button = new PushButton(key, input);
-            pushButtons[id] = button;
-
-            AddKeybind(id, button);
-
-            return button;
-        }
-
-        private readonly Dictionary<string, LookBind> lookBinds = new Dictionary<string, LookBind>();
-
-        public LookBind GetLookBind(string id, float sensitivity)
-        {
-            if (lookBinds.TryGetValue(id, out LookBind? bind))
+            if (lookBinds.TryGetValue(id, out LookInput? bind))
             {
                 return bind;
             }
 
-            bind = new LookBind(input.Mouse, sensitivity);
+            bind = new LookInput(Input.Mouse, sensitivity);
             lookBinds[id] = bind;
 
             return bind;

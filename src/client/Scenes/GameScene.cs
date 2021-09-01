@@ -6,7 +6,6 @@
 
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
-using OpenToolkit.Windowing.Common.Input;
 using System;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
@@ -48,11 +47,11 @@ namespace VoxelGame.Client.Scenes
             World = world;
             counter = world.UpdateCounter;
 
-            wireframeToggle = client.Keybinds.GetToggle("wireframe", Key.K);
-            uiToggle = client.Keybinds.GetToggle("ui", Key.J);
+            wireframeToggle = client.Keybinds.GetToggle(client.Keybinds.Wireframe);
+            uiToggle = client.Keybinds.GetToggle(client.Keybinds.UI);
 
-            screenshotButton = client.Keybinds.GetPushButton("screenshot", Key.F12);
-            escapeButton = client.Keybinds.GetPushButton("escape", Key.Escape);
+            screenshotButton = client.Keybinds.GetPushButton(client.Keybinds.Screenshot);
+            escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
         }
 
         public void Load()

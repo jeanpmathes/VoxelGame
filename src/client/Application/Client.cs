@@ -98,7 +98,7 @@ namespace VoxelGame.Client.Application
             input = new InputManager(this);
             Keybinds = new KeybindManager(input);
 
-            fullscreenToggle = Keybinds.GetToggle("fullscreen", Key.F11);
+            fullscreenToggle = Keybinds.GetToggle(Keybinds.Fullscreen);
         }
 
         private new void OnLoad()

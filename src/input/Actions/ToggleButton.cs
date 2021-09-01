@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Windowing.Common.Input;
 using VoxelGame.Input.Internal;
 
 namespace VoxelGame.Input.Actions
@@ -26,11 +25,7 @@ namespace VoxelGame.Input.Actions
 
         public bool Changed { get; private set; }
 
-        public ToggleButton(Key key, InputManager input) : base(key, input)
-        {
-        }
-
-        public ToggleButton(MouseButton mouseButton, InputManager input) : base(mouseButton, input)
+        public ToggleButton(KeyOrButton keyOrButton, InputManager input) : base(keyOrButton, input)
         {
         }
 

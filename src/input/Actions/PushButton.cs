@@ -24,11 +24,7 @@ namespace VoxelGame.Input.Actions
             }
         }
 
-        public PushButton(Key key, InputManager input) : base(key, input)
-        {
-        }
-
-        public PushButton(MouseButton mouseButton, InputManager input) : base(mouseButton, input)
+        public PushButton(KeyOrButton keyOrButton, InputManager input) : base(keyOrButton, input)
         {
         }
 

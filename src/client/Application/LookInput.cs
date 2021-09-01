@@ -1,4 +1,4 @@
-﻿// <copyright file="LookBind.cs" company="VoxelGame">
+﻿// <copyright file="LookInput.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -9,12 +9,12 @@ using VoxelGame.Input.Devices;
 
 namespace VoxelGame.Client.Application
 {
-    public class LookBind
+    public class LookInput
     {
         private readonly Mouse mouse;
         private readonly float sensitivity;
 
-        public LookBind(Mouse mouse, float sensitivity)
+        public LookInput(Mouse mouse, float sensitivity)
         {
             this.mouse = mouse;
             this.sensitivity = sensitivity;

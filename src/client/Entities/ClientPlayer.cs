@@ -5,7 +5,6 @@
 // <author>pershingthesecond</author>
 
 using OpenToolkit.Mathematics;
-using OpenToolkit.Windowing.Common.Input;
 using System;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
@@ -31,6 +30,8 @@ namespace VoxelGame.Client.Entities
 
         private readonly GameUserInterface ui;
 
+        #region INPUT ACTIONS
+
         private readonly Axis2 movementInput;
         private readonly Button sprintButton;
         private readonly Button jumpButton;
@@ -42,7 +43,9 @@ namespace VoxelGame.Client.Entities
         private readonly ToggleButton placementModeToggle;
         private readonly Axis selectionAxis;
 
-        private readonly LookBind lookInput;
+        private readonly LookInput lookInput;
+
+        #endregion INPUT ACTIONS
 
         public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingBox boundingBox, GameUserInterface ui) : base(world, mass, drag, boundingBox)
         {
@@ -64,30 +67,32 @@ namespace VoxelGame.Client.Entities
 
             this.ui = ui;
 
-            Button forwardsButton = Application.Client.Instance.Keybinds.GetButton("forwards", Key.W);
-            Button backwardsButton = Application.Client.Instance.Keybinds.GetButton("backwards", Key.S);
-            Button strafeRightButton = Application.Client.Instance.Keybinds.GetButton("strafe_right", Key.D);
-            Button strafeLeftButton = Application.Client.Instance.Keybinds.GetButton("strafe_left", Key.A);
+            KeybindManager keybind = Application.Client.Instance.Keybinds;
+
+            Button forwardsButton = keybind.GetButton(keybind.Forwards);
+            Button backwardsButton = keybind.GetButton(keybind.Backwards);
+            Button strafeRightButton = keybind.GetButton(keybind.StrafeRight);
+            Button strafeLeftButton = keybind.GetButton(keybind.StrafeLeft);
 
             movementInput = new Axis2(
                 new Axis(forwardsButton, backwardsButton),
                 new Axis(strafeRightButton, strafeLeftButton));
 
-            sprintButton = Application.Client.Instance.Keybinds.GetButton("sprint", Key.ShiftLeft);
+            sprintButton = keybind.GetButton(keybind.Sprint);
+            jumpButton = keybind.GetButton(keybind.Jump);
 
-            jumpButton = Application.Client.Instance.Keybinds.GetButton("jump", Key.Space);
+            interactOrPlaceButton = keybind.GetButton(keybind.InteractOrPlace);
+            destroyButton = keybind.GetButton(keybind.Destroy);
+            blockInteractButton = keybind.GetButton(keybind.BlockInteract);
 
-            interactOrPlaceButton = Application.Client.Instance.Keybinds.GetButton("interact_or_place", MouseButton.Right);
-            destroyButton = Application.Client.Instance.Keybinds.GetButton("destroy", MouseButton.Left);
-            blockInteractButton = Application.Client.Instance.Keybinds.GetButton("strafe_left", Key.ControlLeft);
+            placementModeToggle = keybind.GetToggle(keybind.PlacementMode);
+            placementModeToggle.Clear();
 
-            placementModeToggle = Application.Client.Instance.Keybinds.GetToggle("placement_mode", Key.R);
-
-            Button nextButton = Application.Client.Instance.Keybinds.GetPushButton("select_next_placement", Key.KeypadPlus);
-            Button previousButton = Application.Client.Instance.Keybinds.GetPushButton("select_previous_placement", Key.KeypadMinus);
+            Button nextButton = keybind.GetPushButton(keybind.NextPlacement);
+            Button previousButton = keybind.GetPushButton(keybind.PreviousPlacement);
             selectionAxis = new Axis(nextButton, previousButton);
 
-            lookInput = Application.Client.Instance.Keybinds.GetLookBind("look_around", Properties.client.Default.MouseSensitivity);
+            lookInput = keybind.GetLookBind("look_around", Properties.client.Default.MouseSensitivity);
         }
 
         /// <summary>
