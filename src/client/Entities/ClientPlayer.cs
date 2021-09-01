@@ -43,8 +43,6 @@ namespace VoxelGame.Client.Entities
         private readonly ToggleButton placementModeToggle;
         private readonly Axis selectionAxis;
 
-        private readonly LookInput lookInput;
-
         #endregion INPUT ACTIONS
 
         public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingBox boundingBox, GameUserInterface ui) : base(world, mass, drag, boundingBox)
@@ -91,8 +89,6 @@ namespace VoxelGame.Client.Entities
             Button nextButton = keybind.GetPushButton(keybind.NextPlacement);
             Button previousButton = keybind.GetPushButton(keybind.PreviousPlacement);
             selectionAxis = new Axis(nextButton, previousButton);
-
-            lookInput = keybind.GetLookBind("look_around", Properties.client.Default.MouseSensitivity);
         }
 
         /// <summary>
@@ -252,7 +248,7 @@ namespace VoxelGame.Client.Entities
         private void HandleLookInput()
         {
             // Apply the camera pitch and yaw (the pitch is clamped in the camera class)
-            (float yaw, float pitch) = lookInput.Value;
+            (float yaw, float pitch) = Application.Client.Instance.Keybinds.LookBind.Value;
             camera.Yaw += yaw;
             camera.Pitch += pitch;
 

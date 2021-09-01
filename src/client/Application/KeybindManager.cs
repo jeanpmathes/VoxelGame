@@ -25,6 +25,8 @@ namespace VoxelGame.Client.Application
             Input = input;
 
             Keybind.RegisterWithManager(this);
+
+            LookBind = new LookInput(Input.Mouse, Properties.client.Default.MouseSensitivity);
         }
 
         private readonly Dictionary<Keybind, Button> keybinds = new Dictionary<Keybind, Button>();
@@ -110,19 +112,6 @@ namespace VoxelGame.Client.Application
 
         #endregion KEYBINDS
 
-        private readonly Dictionary<string, LookInput> lookBinds = new Dictionary<string, LookInput>();
-
-        public LookInput GetLookBind(string id, float sensitivity)
-        {
-            if (lookBinds.TryGetValue(id, out LookInput? bind))
-            {
-                return bind;
-            }
-
-            bind = new LookInput(Input.Mouse, sensitivity);
-            lookBinds[id] = bind;
-
-            return bind;
-        }
+        public LookInput LookBind { get; }
     }
 }
