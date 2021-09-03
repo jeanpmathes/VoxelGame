@@ -42,5 +42,20 @@ namespace VoxelGame.Input.Internal
 
             return false;
         }
+
+        public override string ToString()
+        {
+            if (IsKeyboardKey)
+            {
+                return key.ToString()!;
+            }
+
+            if (IsMouseButton)
+            {
+                return button.ToString()!;
+            }
+
+            return "unknown";
+        }
     }
 }

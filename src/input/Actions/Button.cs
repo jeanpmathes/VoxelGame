@@ -10,7 +10,7 @@ namespace VoxelGame.Input.Actions
 {
     public abstract class Button : InputAction
     {
-        private protected KeyOrButton KeyOrButton { get; private set; }
+        public KeyOrButton KeyOrButton { get; private set; }
 
         public bool IsDown { get; private protected set; }
 

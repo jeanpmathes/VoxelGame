@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Windowing.Common.Input;
 using VoxelGame.Input;
 using VoxelGame.Input.Actions;
+using VoxelGame.Input.Internal;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Application
@@ -82,6 +83,22 @@ namespace VoxelGame.Client.Application
             Debug.Assert(pushButtons.ContainsKey(bind), "No push button associated with this keybind.");
             return pushButtons[bind];
         }
+
+        public void Rebind(Keybind bind, KeyOrButton keyOrButton)
+        {
+            Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
+            keybinds[bind].SetBinding(keyOrButton);
+
+            Logger.LogInformation(Events.SetKeyBind, $"Rebind '{bind}' to: {keyOrButton}");
+        }
+
+        public KeyOrButton GetCurrentBind(Keybind bind)
+        {
+            Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
+            return keybinds[bind].KeyOrButton;
+        }
+
+        public IEnumerator<Keybind> Binds => keybinds.Keys.GetEnumerator();
 
         #region KEYBINDS
 
