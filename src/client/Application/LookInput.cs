@@ -12,7 +12,8 @@ namespace VoxelGame.Client.Application
     public class LookInput
     {
         private readonly Mouse mouse;
-        private readonly float sensitivity;
+
+        private float sensitivity;
 
         public LookInput(Mouse mouse, float sensitivity)
         {
@@ -21,5 +22,10 @@ namespace VoxelGame.Client.Application
         }
 
         public Vector2 Value => mouse.Delta * sensitivity;
+
+        public void SetSensitivity(float newSensitivity)
+        {
+            sensitivity = newSensitivity;
+        }
     }
 }
