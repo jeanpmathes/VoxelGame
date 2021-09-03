@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Diagnostics;
 using OpenToolkit.Windowing.Common.Input;
 
 namespace VoxelGame.Input.Internal
@@ -25,6 +26,22 @@ namespace VoxelGame.Input.Internal
             this.button = button;
         }
 
+        public KeyOrButton(KeyButtonPair settings)
+        {
+            Debug.Assert(!settings.Default);
+
+            if (settings.Key != Key.Unknown)
+            {
+                this.key = settings.Key;
+                this.button = null;
+            }
+            else
+            {
+                this.key = null;
+                this.button = settings.Button;
+            }
+        }
+
         private bool IsKeyboardKey => key != null;
         private bool IsMouseButton => button != null;
 
@@ -42,6 +59,8 @@ namespace VoxelGame.Input.Internal
 
             return false;
         }
+
+        public KeyButtonPair Settings => new KeyButtonPair { Key = key ?? Key.Unknown, Button = button ?? MouseButton.LastButton };
 
         public override string ToString()
         {

@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Windowing.Common.Input;
@@ -26,6 +27,7 @@ namespace VoxelGame.Client.Application
             Input = input;
 
             Keybind.RegisterWithManager(this);
+            InitializeSettings();
 
             LookBind = new LookInput(Input.Mouse, Properties.client.Default.MouseSensitivity);
         }
@@ -66,6 +68,48 @@ namespace VoxelGame.Client.Application
             Logger.LogDebug(Events.SetKeyBind, $"Created keybind: {bind}");
         }
 
+        private void InitializeSettings()
+        {
+            foreach (KeyValuePair<Keybind, Button> pair in keybinds)
+            {
+                string key = PropertyName(pair.Key);
+
+                SettingsProperty property = new SettingsProperty(key)
+                {
+                    PropertyType = typeof(KeyButtonPair),
+                    IsReadOnly = false,
+                    DefaultValue = KeyButtonPair.DefaultValue,
+                    Provider = Properties.client.Default.Providers["LocalFileSettingsProvider"],
+                    SerializeAs = SettingsSerializeAs.Xml
+                };
+
+                property.Attributes.Add(typeof(UserScopedSettingAttribute), new UserScopedSettingAttribute());
+
+                Properties.client.Default.Properties.Add(property);
+            }
+
+            Properties.client.Default.Reload();
+
+            foreach (KeyValuePair<Keybind, Button> pair in keybinds)
+            {
+                string key = PropertyName(pair.Key);
+                var settings = (KeyButtonPair) Properties.client.Default[key];
+
+                if (settings.Default)
+                {
+                    Properties.client.Default[key] = pair.Value.KeyOrButton.Settings;
+                }
+                else
+                {
+                    pair.Value.SetBinding(new KeyOrButton(settings));
+                }
+            }
+
+            Properties.client.Default.Save();
+
+            Logger.LogInformation("Finished initializing up keybind settings.");
+        }
+
         public ToggleButton GetToggle(Keybind bind)
         {
             Debug.Assert(toggleButtons.ContainsKey(bind), "No toggle associated with this keybind.");
@@ -89,8 +133,13 @@ namespace VoxelGame.Client.Application
             Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
             keybinds[bind].SetBinding(keyOrButton);
 
+            Properties.client.Default[PropertyName(bind)] = keyOrButton.Settings;
+            Properties.client.Default.Save();
+
             Logger.LogInformation(Events.SetKeyBind, $"Rebind '{bind}' to: {keyOrButton}");
         }
+
+        private static string PropertyName(Keybind bind) => $"Input_{bind}";
 
         public KeyOrButton GetCurrentBind(Keybind bind)
         {
@@ -130,5 +179,17 @@ namespace VoxelGame.Client.Application
         #endregion KEYBINDS
 
         public LookInput LookBind { get; }
+
+        private sealed class KeyButtonSettings : ApplicationSettingsBase
+        {
+            [UserScopedSetting]
+            [SettingsSerializeAs(SettingsSerializeAs.Xml)]
+            [DefaultSettingValue("")]
+            public KeyButtonPair KeyButtonPair
+            {
+                get => (KeyButtonPair) this[nameof(KeyButtonPair)];
+                set => this[nameof(KeyButtonPair)] = value;
+            }
+        }
     }
 }

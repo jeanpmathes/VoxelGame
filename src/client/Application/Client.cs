@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
+using OpenToolkit.Windowing.Common.Input;
 using OpenToolkit.Windowing.Desktop;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Client.Collections;
@@ -21,6 +22,7 @@ using VoxelGame.Core.Visuals;
 using VoxelGame.Input;
 using VoxelGame.Input.Actions;
 using VoxelGame.Input.Devices;
+using VoxelGame.Input.Internal;
 using VoxelGame.Logging;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
