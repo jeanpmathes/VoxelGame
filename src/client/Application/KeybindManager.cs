@@ -206,17 +206,5 @@ namespace VoxelGame.Client.Application
         #endregion KEYBINDS
 
         public LookInput LookBind { get; }
-
-        private sealed class KeyButtonSettings : ApplicationSettingsBase
-        {
-            [UserScopedSetting]
-            [SettingsSerializeAs(SettingsSerializeAs.Xml)]
-            [DefaultSettingValue("")]
-            public KeyButtonPair KeyButtonPair
-            {
-                get => (KeyButtonPair) this[nameof(KeyButtonPair)];
-                set => this[nameof(KeyButtonPair)] = value;
-            }
-        }
     }
 }
