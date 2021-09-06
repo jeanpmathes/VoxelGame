@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Windowing.Common.Input;
 using VoxelGame.Input.Internal;
 
 namespace VoxelGame.Input.Actions

@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using VoxelGame.Client.Rendering;
-using VoxelGame.Client.Application;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Logging;
