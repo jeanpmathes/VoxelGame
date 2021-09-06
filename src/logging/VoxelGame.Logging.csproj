@@ -7,6 +7,7 @@
     <PackageLicenseExpression>MIT License</PackageLicenseExpression>
     <Platforms>x64</Platforms>
     <ApplicationIcon>vg_icon.ico</ApplicationIcon>
+    <LangVersion>9</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

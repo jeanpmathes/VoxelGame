@@ -10,10 +10,10 @@
     <Platforms>x64</Platforms>
     <ApplicationIcon>vg_icon.ico</ApplicationIcon>
     <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
-    <LangVersion>preview</LangVersion>
     <Configurations>Debug;Release</Configurations>
     <StartupObject>VoxelGame.Client.Program</StartupObject>
     <PackageLicenseExpression>MIT License</PackageLicenseExpression>
+    <LangVersion>9</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
