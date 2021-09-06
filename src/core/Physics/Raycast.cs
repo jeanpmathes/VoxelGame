@@ -178,7 +178,7 @@ namespace VoxelGame.Core.Physics
 
             // Check if the ray intersects the bounding box of the liquid.
             return (liquid != null && liquid != Liquid.None &&
-                    Liquid.GetBoundingBox(world, x, y, z, level).Intersects(ray));
+                    Liquid.GetBoundingBox(x, y, z, level).Intersects(ray));
         }
     }
 }

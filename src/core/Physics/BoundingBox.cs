@@ -404,7 +404,6 @@ namespace VoxelGame.Core.Physics
                         if (currentLiquid?.CheckContact == true)
                         {
                             BoundingBox currentBoundingBox = Liquid.GetBoundingBox(
-                                world,
                                 x + xPos,
                                 y + yPos,
                                 z + zPos,

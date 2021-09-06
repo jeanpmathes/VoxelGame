@@ -112,7 +112,7 @@ namespace VoxelGame.Core.Logic
 
         public abstract LiquidMeshData GetMesh(LiquidMeshInfo info);
 
-        public static BoundingBox GetBoundingBox(World world, int x, int y, int z, LiquidLevel level)
+        public static BoundingBox GetBoundingBox(int x, int y, int z, LiquidLevel level)
         {
             float halfHeight = ((int) level + 1) * 0.0625f;
 

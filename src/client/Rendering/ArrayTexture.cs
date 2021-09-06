@@ -138,7 +138,8 @@ namespace VoxelGame.Client.Rendering
             GL.CreateTextures(TextureTarget.Texture2DArray, arrayCount, arr);
         }
 
-        private void SetupArrayTexture(int handle, TextureUnit unit, int resolution, List<Bitmap> textures,
+        private static void SetupArrayTexture(int handle, TextureUnit unit, int resolution,
+            IReadOnlyList<Bitmap> textures,
             int startIndex, int length, bool useCustomMipmapGeneration)
         {
             var levels = (int) Math.Log(resolution, 2);
