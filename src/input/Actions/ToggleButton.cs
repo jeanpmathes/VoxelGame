@@ -36,18 +36,18 @@ namespace VoxelGame.Input.Actions
 
         protected override void Update()
         {
-            CombinedState state = Input.CurrentState;
+            CombinedState currentState = Input.CurrentState;
 
             Changed = false;
 
-            if (hasReleased && state.IsKeyOrButtonDown(KeyOrButton))
+            if (hasReleased && currentState.IsKeyOrButtonDown(KeyOrButton))
             {
                 hasReleased = false;
 
                 State = !State;
                 Changed = true;
             }
-            else if (state.IsKeyOrButtonUp(KeyOrButton))
+            else if (currentState.IsKeyOrButtonUp(KeyOrButton))
             {
                 hasReleased = true;
             }
