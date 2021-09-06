@@ -74,11 +74,16 @@ namespace VoxelGame.Client.Application
 
         private Screen screen = null!;
 
-        public Client(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, string appDataDirectory, string screenshotDirectory) : base(gameWindowSettings, nativeWindowSettings)
+        public Client(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings,
+            string appDataDirectory, string screenshotDirectory) : base(gameWindowSettings, nativeWindowSettings)
         {
             Instance = this;
 
-            unsafe { WindowPointer = WindowPtr; }
+            unsafe
+            {
+                WindowPointer = WindowPtr;
+            }
+
             glDebug = new Graphics.Debug();
 
             this.AppDataDirectory = appDataDirectory;
@@ -113,7 +118,15 @@ namespace VoxelGame.Client.Application
                 screen = new Screen(this);
 
                 // Texture setup.
-                BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2, TextureUnit.Texture3, TextureUnit.Texture4);
+                BlockTextureArray = new ArrayTexture(
+                    "Resources/Textures/Blocks",
+                    16,
+                    true,
+                    TextureUnit.Texture1,
+                    TextureUnit.Texture2,
+                    TextureUnit.Texture3,
+                    TextureUnit.Texture4);
+
                 Logger.LogInformation("All block textures loaded.");
 
                 LiquidTextureArray = new ArrayTexture("Resources/Textures/Liquids", 16, false, TextureUnit.Texture5);

@@ -22,7 +22,9 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public abstract class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable : IConnectable
     {
-        protected ConnectingBlock(string name, string namedId, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool receiveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable, BoundingBox boundingBox, TargetBuffer targetBuffer) :
+        protected ConnectingBlock(string name, string namedId, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques,
+            bool isSolid, bool receiveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable,
+            BoundingBox boundingBox, TargetBuffer targetBuffer) :
             base(
                 name,
                 namedId,
@@ -35,9 +37,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isReplaceable,
                 isInteractable,
                 boundingBox,
-                targetBuffer)
-        {
-        }
+                targetBuffer) {}
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
@@ -64,7 +64,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
             uint CheckNeighbor(int nx, int ny, int nz, BlockSide neighborSide, uint mask, uint oldData)
             {
-                if (world.GetBlock(nx, ny, nz, out _) is TConnectable neighbor && neighbor.IsConnectable(world, neighborSide, nx, ny, nz))
+                if (world.GetBlock(nx, ny, nz, out _) is TConnectable neighbor &&
+                    neighbor.IsConnectable(world, neighborSide, nx, ny, nz))
                 {
                     oldData |= mask;
                 }

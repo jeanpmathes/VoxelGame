@@ -84,7 +84,9 @@ namespace VoxelGame.Core.Logic
 
         private BoundingBox boundingBox;
 
-        protected Block(string name, string namedId, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques, bool isSolid, bool receiveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable, BoundingBox boundingBox, TargetBuffer targetBuffer)
+        protected Block(string name, string namedId, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques,
+            bool isSolid, bool receiveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable,
+            BoundingBox boundingBox, TargetBuffer targetBuffer)
         {
             Name = name;
             NamedId = namedId;
@@ -102,10 +104,15 @@ namespace VoxelGame.Core.Logic
 
             TargetBuffer = targetBuffer;
 
-            Debug.Assert(targetBuffer != TargetBuffer.Simple ^ isFull, $"TargetBuffer '{nameof(TargetBuffer.Simple)}' requires {nameof(isFull)} to be {!isFull}, all other target buffers cannot be full.");
+            Debug.Assert(
+                targetBuffer != TargetBuffer.Simple ^ isFull,
+                $"TargetBuffer '{nameof(TargetBuffer.Simple)}' requires {nameof(isFull)} to be {!isFull}, all other target buffers cannot be full.");
+
             Debug.Assert(isFull || !isOpaque, "A block that is not full cannot be opaque.");
 #pragma warning disable S3060 // "is" should not be used with "this"
-            Debug.Assert((targetBuffer == TargetBuffer.VaryingHeight) == (this is IHeightVariable), $"The target buffer should be {nameof(TargetBuffer.VaryingHeight)} if and only if the block implements {nameof(IHeightVariable)}.");
+            Debug.Assert(
+                (targetBuffer == TargetBuffer.VaryingHeight) == (this is IHeightVariable),
+                $"The target buffer should be {nameof(TargetBuffer.VaryingHeight)} if and only if the block implements {nameof(IHeightVariable)}.");
 #pragma warning restore S3060 // "is" should not be used with "this"
 
             if (BlockList.Count < BlockLimit)
@@ -128,9 +135,7 @@ namespace VoxelGame.Core.Logic
         /// Called when loading blocks, meant to setup vertex data, indices etc.
         /// </summary>
         /// <param name="indexProvider"></param>
-        protected virtual void Setup(ITextureIndexProvider indexProvider)
-        {
-        }
+        protected virtual void Setup(ITextureIndexProvider indexProvider) {}
 
         /// <summary>
         /// Returns the bounding box of this block if it would be at the given position.
@@ -142,7 +147,10 @@ namespace VoxelGame.Core.Logic
         /// <returns>The bounding box.</returns>
         public BoundingBox GetBoundingBox(World world, int x, int y, int z)
         {
-            return (world.GetBlock(x, y, z, out uint data) == this ? GetBoundingBox(data) : boundingBox).Translated(x, y, z);
+            return (world.GetBlock(x, y, z, out uint data) == this ? GetBoundingBox(data) : boundingBox).Translated(
+                x,
+                y,
+                z);
         }
 
         protected virtual BoundingBox GetBoundingBox(uint data)
@@ -193,6 +201,7 @@ namespace VoxelGame.Core.Logic
             if (world.GetBlock(x, y, z, out uint data) == this && CanDestroy(world, x, y, z, data, entity))
             {
                 DoDestroy(world, x, y, z, data, entity);
+
                 return true;
             }
             else
@@ -226,9 +235,7 @@ namespace VoxelGame.Core.Logic
             }
         }
 
-        protected virtual void EntityCollision(Entities.PhysicsEntity entity, int x, int y, int z, uint data)
-        {
-        }
+        protected virtual void EntityCollision(Entities.PhysicsEntity entity, int x, int y, int z, uint data) {}
 
         /// <summary>
         /// Called when a block and an entity collide.
@@ -245,9 +252,7 @@ namespace VoxelGame.Core.Logic
             }
         }
 
-        protected virtual void EntityInteract(Entities.PhysicsEntity entity, int x, int y, int z, uint data)
-        {
-        }
+        protected virtual void EntityInteract(Entities.PhysicsEntity entity, int x, int y, int z, uint data) {}
 
         /// <summary>
         /// This method is called on blocks next to a position that was changed.
@@ -258,20 +263,14 @@ namespace VoxelGame.Core.Logic
         /// <param name="z">The z position of the block next to the changed position.</param>
         /// <param name="data">The data of the block next to the changed position.</param>
         /// <param name="side">The side of the block where the change happened.</param>
-        internal virtual void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
-        {
-        }
+        internal virtual void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side) {}
 
         /// <summary>
         /// This method is called randomly on some blocks every update.
         /// </summary>
-        internal virtual void RandomUpdate(World world, int x, int y, int z, uint data)
-        {
-        }
+        internal virtual void RandomUpdate(World world, int x, int y, int z, uint data) {}
 
-        protected virtual void ScheduledUpdate(World world, int x, int y, int z, uint data)
-        {
-        }
+        protected virtual void ScheduledUpdate(World world, int x, int y, int z, uint data) {}
 
         public sealed override string ToString()
         {

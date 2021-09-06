@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 namespace VoxelGame.Core.Utilities
 {
     public static class BitHelper

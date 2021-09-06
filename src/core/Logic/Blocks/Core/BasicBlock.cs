@@ -21,7 +21,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public virtual int TextureIdentifier => layout.Bottom;
 
-        internal BasicBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true, bool receiveCollisions = false, bool isTrigger = false, bool isInteractable = false) :
+        internal BasicBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true,
+            bool renderFaceAtNonOpaques = true, bool isSolid = true, bool receiveCollisions = false,
+            bool isTrigger = false, bool isInteractable = false) :
             base(
                 name,
                 namedId,

@@ -18,7 +18,8 @@ namespace VoxelGame.Core.Logic.Blocks
     // o = orientation
     public class OrientedBlock : BasicBlock
     {
-        internal OrientedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
+        internal OrientedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true,
+            bool renderFaceAtNonOpaques = true, bool isSolid = true) :
             base(
                 name,
                 namedId,
@@ -28,13 +29,13 @@ namespace VoxelGame.Core.Logic.Blocks
                 isSolid,
                 receiveCollisions: false,
                 isTrigger: false,
-                isInteractable: false)
-        {
-        }
+                isInteractable: false) {}
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return BlockMeshData.Basic(sideTextureIndices[TranslateIndex(info.Side, (Orientation) (info.Data & 0b00_0011))], false);
+            return BlockMeshData.Basic(
+                sideTextureIndices[TranslateIndex(info.Side, (Orientation) (info.Data & 0b00_0011))],
+                false);
         }
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)

@@ -26,11 +26,17 @@ namespace VoxelGame.Graphics.Groups
 
         public static ElementDrawGroup Create() => new ElementDrawGroup();
 
-        public void SetStorage(int elements, int vertexDataCount, float[] vertexData, int indexDataCount, uint[] indexData)
+        public void SetStorage(int elements, int vertexDataCount, float[] vertexData, int indexDataCount,
+            uint[] indexData)
         {
             elementCount = elements;
 
-            GL.NamedBufferStorage(vbo, vertexDataCount * sizeof(float), vertexData, BufferStorageFlags.DynamicStorageBit);
+            GL.NamedBufferStorage(
+                vbo,
+                vertexDataCount * sizeof(float),
+                vertexData,
+                BufferStorageFlags.DynamicStorageBit);
+
             GL.NamedBufferStorage(ebo, indexDataCount * sizeof(uint), indexData, BufferStorageFlags.DynamicStorageBit);
         }
 

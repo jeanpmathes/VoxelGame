@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.UI.Controls;
 
 namespace VoxelGame.UI.UserInterfaces
@@ -11,11 +12,15 @@ namespace VoxelGame.UI.UserInterfaces
     {
         private GameControl control = null!;
 
-        public bool IsHidden { get => control.IsHidden; set => control.IsHidden = value; }
-
-        public GameUserInterface(OpenToolkit.Windowing.Desktop.GameWindow window, bool drawBackground) : base(window, drawBackground)
+        public bool IsHidden
         {
+            get => control.IsHidden;
+            set => control.IsHidden = value;
         }
+
+        public GameUserInterface(OpenToolkit.Windowing.Desktop.GameWindow window, bool drawBackground) : base(
+            window,
+            drawBackground) {}
 
         public override void CreateControl()
         {

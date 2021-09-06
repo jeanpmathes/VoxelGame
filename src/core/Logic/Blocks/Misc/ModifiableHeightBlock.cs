@@ -25,9 +25,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 receiveCollisions: false,
                 isTrigger: false,
                 isReplaceable: false,
-                isInteractable: true)
-        {
-        }
+                isInteractable: true) {}
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {

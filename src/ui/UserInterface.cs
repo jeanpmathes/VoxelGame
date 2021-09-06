@@ -15,18 +15,24 @@ namespace VoxelGame.UI
 {
     public abstract class UserInterface : IDisposable
     {
-        public ControlBase Root { get => gui.Root; }
+        public ControlBase Root
+        {
+            get => gui.Root;
+        }
 
         private readonly IGwenGui gui;
         private readonly bool drawBackground;
 
         protected UserInterface(GameWindow window, bool drawBackground)
         {
-            gui = GwenGuiFactory.CreateFromGame(window, GwenGuiSettings.Default.From((settings) =>
-            {
-                settings.SkinFile = new System.IO.FileInfo("DefaultSkin2.png");
-                settings.DrawBackground = drawBackground;
-            }));
+            gui = GwenGuiFactory.CreateFromGame(
+                window,
+                GwenGuiSettings.Default.From(
+                    (settings) =>
+                    {
+                        settings.SkinFile = new System.IO.FileInfo("DefaultSkin2.png");
+                        settings.DrawBackground = drawBackground;
+                    }));
 
             this.drawBackground = drawBackground;
         }

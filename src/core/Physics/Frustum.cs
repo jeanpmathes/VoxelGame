@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using System;
 
@@ -15,7 +16,8 @@ namespace VoxelGame.Core.Physics
     {
         private readonly Plane[] planes;
 
-        public Frustum(float fovy, float ratio, float near, float far, Vector3 pos, Vector3 dir, Vector3 up, Vector3 right)
+        public Frustum(float fovy, float ratio, float near, float far, Vector3 pos, Vector3 dir, Vector3 up,
+            Vector3 right)
         {
             dir = dir.Normalized();
             up = up.Normalized();
@@ -40,7 +42,7 @@ namespace VoxelGame.Core.Physics
                 new Plane(nl, pos), // Left.
                 new Plane(nr, pos), // Right.
                 new Plane(nb, pos), // Bottom.
-                new Plane(nt, pos)  // Top.
+                new Plane(nt, pos) // Top.
             };
         }
 

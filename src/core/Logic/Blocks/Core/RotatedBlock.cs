@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using System;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -17,7 +18,8 @@ namespace VoxelGame.Core.Logic.Blocks
     // a = axis
     public class RotatedBlock : BasicBlock, IFlammable
     {
-        internal RotatedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
+        internal RotatedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true,
+            bool renderFaceAtNonOpaques = true, bool isSolid = true) :
             base(
                 name,
                 namedId,
@@ -27,9 +29,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isSolid,
                 receiveCollisions: false,
                 isTrigger: false,
-                isInteractable: false)
-        {
-        }
+                isInteractable: false) {}
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
@@ -51,7 +51,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             X, // East-West
             Y, // Up-Down
-            Z  // North-South
+            Z // North-South
         }
 
         protected static Axis ToAxis(BlockSide side)

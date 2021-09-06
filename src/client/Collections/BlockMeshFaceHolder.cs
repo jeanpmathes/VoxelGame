@@ -37,12 +37,20 @@ namespace VoxelGame.Client.Collections
             }
         }
 
-        public void AddFace(Vector3i pos, int vertexData, (int vertA, int vertB, int vertC, int vertD) vertices, bool isRotated)
+        public void AddFace(Vector3i pos, int vertexData, (int vertA, int vertB, int vertC, int vertD) vertices,
+            bool isRotated)
         {
             ExtractIndices(pos, out int layer, out int row, out int position);
 
             // Build current face.
-            MeshFace currentFace = MeshFace.Get(vertices.vertA, vertices.vertB, vertices.vertC, vertices.vertD, vertexData, isRotated, position);
+            MeshFace currentFace = MeshFace.Get(
+                vertices.vertA,
+                vertices.vertB,
+                vertices.vertC,
+                vertices.vertD,
+                vertexData,
+                isRotated,
+                position);
 
             // Check if an already existing face can be extended.
             if (lastFaces[layer][row]?.IsExtendable(currentFace) ?? false)
@@ -57,21 +65,25 @@ namespace VoxelGame.Client.Collections
                     case BlockSide.Bottom:
                         currentFace.vertex01 = vertices.vertB;
                         currentFace.vertex11 = vertices.vertC;
+
                         break;
 
                     case BlockSide.Left:
                         currentFace.vertex11 = vertices.vertC;
                         currentFace.vertex10 = vertices.vertD;
+
                         break;
 
                     case BlockSide.Right:
                         currentFace.vertex00 = vertices.vertA;
                         currentFace.vertex01 = vertices.vertB;
+
                         break;
 
                     case BlockSide.Top:
                         currentFace.vertex00 = vertices.vertA;
                         currentFace.vertex10 = vertices.vertD;
+
                         break;
                 }
 
@@ -105,17 +117,20 @@ namespace VoxelGame.Client.Collections
                         case BlockSide.Top:
                             currentFace.vertex00 = combinationRowFace.vertex00;
                             currentFace.vertex01 = combinationRowFace.vertex01;
+
                             break;
 
                         case BlockSide.Back:
                             currentFace.vertex11 = combinationRowFace.vertex11;
                             currentFace.vertex10 = combinationRowFace.vertex10;
+
                             break;
 
                         case BlockSide.Left:
                         case BlockSide.Right:
                             currentFace.vertex00 = combinationRowFace.vertex00;
                             currentFace.vertex10 = combinationRowFace.vertex10;
+
                             break;
                     }
 
@@ -164,7 +179,10 @@ namespace VoxelGame.Client.Collections
                             currentFace.isRotated = !currentFace.isRotated;
                         }
 
-                        int vertTexRepetition = BuildVertexTexRepetitionMask(currentFace.isRotated, currentFace.height, currentFace.length);
+                        int vertTexRepetition = BuildVertexTexRepetitionMask(
+                            currentFace.isRotated,
+                            currentFace.height,
+                            currentFace.length);
 
                         meshData.Add(vertTexRepetition | currentFace.vertex00);
                         meshData.Add(currentFace.vertData);
@@ -197,7 +215,9 @@ namespace VoxelGame.Client.Collections
             const int heightShift = 24;
             const int lengthShift = 20;
 
-            return !isRotated ? ((height << heightShift) | (length << lengthShift)) : ((length << heightShift) | (height << lengthShift));
+            return !isRotated
+                ? ((height << heightShift) | (length << lengthShift))
+                : ((length << heightShift) | (height << lengthShift));
         }
 
         public void ReturnToPool()
@@ -232,22 +252,23 @@ namespace VoxelGame.Client.Collections
             public bool IsExtendable(MeshFace extension)
             {
                 return this.position + this.length + 1 == extension.position &&
-                    this.height == extension.height &&
-                    this.isRotated == extension.isRotated &&
-                    this.vertData == extension.vertData;
+                       this.height == extension.height &&
+                       this.isRotated == extension.isRotated &&
+                       this.vertData == extension.vertData;
             }
 
             public bool IsCombinable(MeshFace addition)
             {
                 return this.position == addition.position &&
-                    this.length == addition.length &&
-                    this.isRotated == addition.isRotated &&
-                    this.vertData == addition.vertData;
+                       this.length == addition.length &&
+                       this.isRotated == addition.isRotated &&
+                       this.vertData == addition.vertData;
             }
 
             #region POOLING
 
-            public static MeshFace Get(int vert00, int vert01, int vert11, int vert10, int vertData, bool isRotated, int position)
+            public static MeshFace Get(int vert00, int vert01, int vert11, int vert10, int vertData, bool isRotated,
+                int position)
             {
                 MeshFace instance = ObjectPool<MeshFace>.Shared.Get();
 

@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -92,31 +93,38 @@ namespace VoxelGame.Core.Logic.Blocks
                 Orientation.West => WestEast(0.375f),
                 _ => NorthSouth(0.375f),
             };
+
             BoundingBox NorthSouth(float offset)
             {
                 if (isClosed)
                 {
-                    return new BoundingBox(new Vector3(0.96875f, 0.71875f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f),
-                    new BoundingBox(new Vector3(0.96875f, 0.28125f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                    new BoundingBox(new Vector3(0.03125f, 0.71875f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                    new BoundingBox(new Vector3(0.03125f, 0.28125f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                    // Moving parts.
-                    new BoundingBox(new Vector3(0.75f, 0.71875f, 0.5f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(0.75f, 0.28125f, 0.5f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(0.25f, 0.71875f, 0.5f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(0.25f, 0.28125f, 0.5f), new Vector3(0.1875f, 0.09375f, 0.0625f)));
+                    return new BoundingBox(
+                        new Vector3(0.96875f, 0.71875f, 0.5f),
+                        new Vector3(0.03125f, 0.15625f, 0.125f),
+                        new BoundingBox(new Vector3(0.96875f, 0.28125f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                        new BoundingBox(new Vector3(0.03125f, 0.71875f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                        new BoundingBox(new Vector3(0.03125f, 0.28125f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                        // Moving parts.
+                        new BoundingBox(new Vector3(0.75f, 0.71875f, 0.5f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                        new BoundingBox(new Vector3(0.75f, 0.28125f, 0.5f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                        new BoundingBox(new Vector3(0.25f, 0.71875f, 0.5f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                        new BoundingBox(new Vector3(0.25f, 0.28125f, 0.5f), new Vector3(0.1875f, 0.09375f, 0.0625f)));
                 }
                 else
                 {
-                    return new BoundingBox(new Vector3(0.96875f, 0.71875f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f),
-                    new BoundingBox(new Vector3(0.96875f, 0.28125f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                    new BoundingBox(new Vector3(0.03125f, 0.71875f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                    new BoundingBox(new Vector3(0.03125f, 0.28125f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
-                    // Moving parts.
-                    new BoundingBox(new Vector3(0.875f, 0.71875f, offset), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.875f, 0.28125f, offset), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.125f, 0.71875f, offset), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.125f, 0.28125f, offset), new Vector3(0.0625f, 0.09375f, 0.1875f)));
+                    return new BoundingBox(
+                        new Vector3(0.96875f, 0.71875f, 0.5f),
+                        new Vector3(0.03125f, 0.15625f, 0.125f),
+                        new BoundingBox(new Vector3(0.96875f, 0.28125f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                        new BoundingBox(new Vector3(0.03125f, 0.71875f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                        new BoundingBox(new Vector3(0.03125f, 0.28125f, 0.5f), new Vector3(0.03125f, 0.15625f, 0.125f)),
+                        // Moving parts.
+                        new BoundingBox(new Vector3(0.875f, 0.71875f, offset), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                        new BoundingBox(new Vector3(0.875f, 0.28125f, offset), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                        new BoundingBox(new Vector3(0.125f, 0.71875f, offset), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                        new BoundingBox(
+                            new Vector3(0.125f, 0.28125f, offset),
+                            new Vector3(0.0625f, 0.09375f, 0.1875f)));
                 }
             }
 
@@ -124,27 +132,33 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 if (isClosed)
                 {
-                    return new BoundingBox(new Vector3(0.5f, 0.71875f, 0.96875f), new Vector3(0.125f, 0.15625f, 0.03125f),
-                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.96875f), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.03125f), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.03125f), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                    // Moving parts.
-                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.75f), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.75f), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.25f), new Vector3(0.0625f, 0.09375f, 0.1875f)),
-                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.25f), new Vector3(0.0625f, 0.09375f, 0.1875f)));
+                    return new BoundingBox(
+                        new Vector3(0.5f, 0.71875f, 0.96875f),
+                        new Vector3(0.125f, 0.15625f, 0.03125f),
+                        new BoundingBox(new Vector3(0.5f, 0.28125f, 0.96875f), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                        new BoundingBox(new Vector3(0.5f, 0.71875f, 0.03125f), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                        new BoundingBox(new Vector3(0.5f, 0.28125f, 0.03125f), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                        // Moving parts.
+                        new BoundingBox(new Vector3(0.5f, 0.71875f, 0.75f), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                        new BoundingBox(new Vector3(0.5f, 0.28125f, 0.75f), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                        new BoundingBox(new Vector3(0.5f, 0.71875f, 0.25f), new Vector3(0.0625f, 0.09375f, 0.1875f)),
+                        new BoundingBox(new Vector3(0.5f, 0.28125f, 0.25f), new Vector3(0.0625f, 0.09375f, 0.1875f)));
                 }
                 else
                 {
-                    return new BoundingBox(new Vector3(0.5f, 0.71875f, 0.96875f), new Vector3(0.125f, 0.15625f, 0.03125f),
-                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.96875f), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                    new BoundingBox(new Vector3(0.5f, 0.71875f, 0.03125f), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                    new BoundingBox(new Vector3(0.5f, 0.28125f, 0.03125f), new Vector3(0.125f, 0.15625f, 0.03125f)),
-                    // Moving parts.
-                    new BoundingBox(new Vector3(offset, 0.71875f, 0.875f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(offset, 0.28125f, 0.875f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(offset, 0.71875f, 0.125f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
-                    new BoundingBox(new Vector3(offset, 0.28125f, 0.125f), new Vector3(0.1875f, 0.09375f, 0.0625f)));
+                    return new BoundingBox(
+                        new Vector3(0.5f, 0.71875f, 0.96875f),
+                        new Vector3(0.125f, 0.15625f, 0.03125f),
+                        new BoundingBox(new Vector3(0.5f, 0.28125f, 0.96875f), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                        new BoundingBox(new Vector3(0.5f, 0.71875f, 0.03125f), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                        new BoundingBox(new Vector3(0.5f, 0.28125f, 0.03125f), new Vector3(0.125f, 0.15625f, 0.03125f)),
+                        // Moving parts.
+                        new BoundingBox(new Vector3(offset, 0.71875f, 0.875f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                        new BoundingBox(new Vector3(offset, 0.28125f, 0.875f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                        new BoundingBox(new Vector3(offset, 0.71875f, 0.125f), new Vector3(0.1875f, 0.09375f, 0.0625f)),
+                        new BoundingBox(
+                            new Vector3(offset, 0.28125f, 0.125f),
+                            new Vector3(0.1875f, 0.09375f, 0.0625f)));
                 }
             }
         }
@@ -152,8 +166,16 @@ namespace VoxelGame.Core.Logic.Blocks
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return (info.Data & 0b00_0100) == 0
-                ? BlockMeshData.Complex(vertexCountClosed, verticesClosed[info.Data & 0b00_0011], texIndicesClosed, indicesClosed) // Open.
-                : BlockMeshData.Complex(vertexCountOpen, verticesOpen[info.Data & 0b00_0011], texIndicesOpen, indicesOpen); // Closed.
+                ? BlockMeshData.Complex(
+                    vertexCountClosed,
+                    verticesClosed[info.Data & 0b00_0011],
+                    texIndicesClosed,
+                    indicesClosed) // Open.
+                : BlockMeshData.Complex(
+                    vertexCountOpen,
+                    verticesOpen[info.Data & 0b00_0011],
+                    texIndicesOpen,
+                    indicesOpen); // Closed.
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
@@ -161,11 +183,16 @@ namespace VoxelGame.Core.Logic.Blocks
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
 
             bool connectX =
-                (world.GetBlock(x + 1, y, z, out _) is IWideConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
-                || (world.GetBlock(x - 1, y, z, out _) is IWideConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z));
+                (world.GetBlock(x + 1, y, z, out _) is IWideConnectable east &&
+                 east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
+                || (world.GetBlock(x - 1, y, z, out _) is IWideConnectable west &&
+                    west.IsConnectable(world, BlockSide.Right, x - 1, y, z));
+
             bool connectZ =
-                (world.GetBlock(x, y, z + 1, out _) is IWideConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
-                || (world.GetBlock(x, y, z - 1, out _) is IWideConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1));
+                (world.GetBlock(x, y, z + 1, out _) is IWideConnectable south &&
+                 south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
+                || (world.GetBlock(x, y, z - 1, out _) is IWideConnectable north &&
+                    north.IsConnectable(world, BlockSide.Front, x, y, z - 1));
 
             if (orientation.IsZ() && !connectX)
             {
@@ -184,11 +211,16 @@ namespace VoxelGame.Core.Logic.Blocks
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
 
             bool connectX =
-                (world.GetBlock(x + 1, y, z, out _) is IWideConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
-                || (world.GetBlock(x - 1, y, z, out _) is IWideConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z));
+                (world.GetBlock(x + 1, y, z, out _) is IWideConnectable east &&
+                 east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
+                || (world.GetBlock(x - 1, y, z, out _) is IWideConnectable west &&
+                    west.IsConnectable(world, BlockSide.Right, x - 1, y, z));
+
             bool connectZ =
-                (world.GetBlock(x, y, z + 1, out _) is IWideConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
-                || (world.GetBlock(x, y, z - 1, out _) is IWideConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1));
+                (world.GetBlock(x, y, z + 1, out _) is IWideConnectable south &&
+                 south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
+                || (world.GetBlock(x, y, z - 1, out _) is IWideConnectable north &&
+                    north.IsConnectable(world, BlockSide.Front, x, y, z - 1));
 
             if (orientation.IsZ() && !connectX)
             {
@@ -208,21 +240,33 @@ namespace VoxelGame.Core.Logic.Blocks
             bool isClosed = (data & 0b00_0100) == 0;
 
             // Check if orientation has to be inverted.
-            if (isClosed && Vector2.Dot(orientation.ToVector().Xz, entity.Position.Xz - new Vector2(x + 0.5f, z + 0.5f)) < 0)
+            if (isClosed &&
+                Vector2.Dot(orientation.ToVector().Xz, entity.Position.Xz - new Vector2(x + 0.5f, z + 0.5f)) < 0)
             {
                 orientation = orientation.Invert();
             }
 
-            Vector3 center = isClosed ? new Vector3(0.5f, 0.5f, 0.5f) + (-orientation.ToVector() * 0.09375f) : new Vector3(0.5f, 0.5f, 0.5f);
+            Vector3 center = isClosed
+                ? new Vector3(0.5f, 0.5f, 0.5f) + (-orientation.ToVector() * 0.09375f)
+                : new Vector3(0.5f, 0.5f, 0.5f);
+
             float closedOffset = isClosed ? 0.09375f : 0f;
-            Vector3 extents = (orientation == Orientation.North || orientation == Orientation.South) ? new Vector3(0.5f, 0.375f, 0.125f + closedOffset) : new Vector3(0.125f + closedOffset, 0.375f, 0.5f);
+
+            Vector3 extents = (orientation == Orientation.North || orientation == Orientation.South)
+                ? new Vector3(0.5f, 0.375f, 0.125f + closedOffset)
+                : new Vector3(0.125f + closedOffset, 0.375f, 0.5f);
 
             if (entity.BoundingBox.Intersects(new BoundingBox(center + new Vector3(x, y, z), extents)))
             {
                 return;
             }
 
-            entity.World.SetBlock(this, (uint) ((isClosed ? 0b00_0100 : 0b00_0000) | (int) orientation.Invert()), x, y, z);
+            entity.World.SetBlock(
+                this,
+                (uint) ((isClosed ? 0b00_0100 : 0b00_0000) | (int) orientation.Invert()),
+                x,
+                y,
+                z);
         }
 
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
@@ -235,8 +279,10 @@ namespace VoxelGame.Core.Logic.Blocks
                 case BlockSide.Right:
 
                     if (orientation.IsZ() &&
-                        !((world.GetBlock(x + 1, y, z, out _) is IWideConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z)) ||
-                        (world.GetBlock(x - 1, y, z, out _) is IWideConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z))))
+                        !((world.GetBlock(x + 1, y, z, out _) is IWideConnectable east &&
+                           east.IsConnectable(world, BlockSide.Left, x + 1, y, z)) ||
+                          (world.GetBlock(x - 1, y, z, out _) is IWideConnectable west &&
+                           west.IsConnectable(world, BlockSide.Right, x - 1, y, z))))
                     {
                         Destroy(world, x, y, z);
                     }
@@ -247,8 +293,10 @@ namespace VoxelGame.Core.Logic.Blocks
                 case BlockSide.Back:
 
                     if (orientation.IsX() &&
-                        !((world.GetBlock(x, y, z + 1, out _) is IWideConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1)) ||
-                        (world.GetBlock(x, y, z - 1, out _) is IWideConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1))))
+                        !((world.GetBlock(x, y, z + 1, out _) is IWideConnectable south &&
+                           south.IsConnectable(world, BlockSide.Back, x, y, z + 1)) ||
+                          (world.GetBlock(x, y, z - 1, out _) is IWideConnectable north &&
+                           north.IsConnectable(world, BlockSide.Front, x, y, z - 1))))
                     {
                         Destroy(world, x, y, z);
                     }

@@ -28,18 +28,18 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal FruitCropBlock(string name, string namedId, string texture, Block fruit) :
             base(
-                    name,
-                    namedId,
-                    isFull: false,
-                    isOpaque: false,
-                    renderFaceAtNonOpaques: false,
-                    isSolid: false,
-                    receiveCollisions: false,
-                    isTrigger: false,
-                    isReplaceable: false,
-                    isInteractable: false,
-                    new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.175f, 0.5f, 0.175f)),
-                    TargetBuffer.CrossPlant)
+                name,
+                namedId,
+                isFull: false,
+                isOpaque: false,
+                renderFaceAtNonOpaques: false,
+                isSolid: false,
+                receiveCollisions: false,
+                isTrigger: false,
+                isReplaceable: false,
+                isInteractable: false,
+                new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.175f, 0.5f, 0.175f)),
+                TargetBuffer.CrossPlant)
         {
             this.texture = texture;
             this.fruit = fruit;
@@ -89,6 +89,7 @@ namespace VoxelGame.Core.Logic.Blocks
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
             Block ground = world.GetBlock(x, y - 1, z, out _) ?? Block.Air;
+
             return ground is IPlantable;
         }
 
@@ -116,7 +117,13 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 world.SetBlock(this, (uint) ((int) (stage + 1) << 1), x, y, z);
             }
-            else if (stage == GrowthStage.Ready && ground.SupportsFullGrowth && ground.TryGrow(world, x, y - 1, z, Liquid.Water, LiquidLevel.Two))
+            else if (stage == GrowthStage.Ready && ground.SupportsFullGrowth && ground.TryGrow(
+                world,
+                x,
+                y - 1,
+                z,
+                Liquid.Water,
+                LiquidLevel.Two))
             {
                 if (fruit.Place(world, x, y, z - 1))
                 {

@@ -38,6 +38,7 @@ namespace VoxelGame.Core.Logic.Blocks
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
             Block down = world.GetBlock(x, y - 1, z, out _) ?? Block.Air;
+
             return down == requiredGround || down == this;
         }
 
@@ -67,6 +68,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 if (world.GetBlock(x, y + 1, z, out _)?.IsReplaceable ?? false)
                 {
                     var height = 0;
+
                     for (var o = 0; o < maxHeight; o++)
                     {
                         if (world.GetBlock(x, y - o, z, out _) == this)

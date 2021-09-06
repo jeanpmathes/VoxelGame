@@ -31,7 +31,8 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <param name="texture">The name of the texture of this block.</param>
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
         /// <param name="boundingBox">The bounding box of this block.</param>
-        internal CrossPlantBlock(string name, string namedId, string texture, bool isReplaceable, BoundingBox boundingBox) :
+        internal CrossPlantBlock(string name, string namedId, string texture, bool isReplaceable,
+            BoundingBox boundingBox) :
             base(
                 name,
                 namedId,
@@ -62,6 +63,7 @@ namespace VoxelGame.Core.Logic.Blocks
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
             Block ground = world.GetBlock(x, y - 1, z, out _) ?? Block.Air;
+
             return ground is IPlantable;
         }
 

@@ -20,9 +20,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 normal,
                 normal,
                 hasNeutralTint,
-                supportsFullGrowth: false)
-        {
-        }
+                supportsFullGrowth: false) {}
 
         public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
         {

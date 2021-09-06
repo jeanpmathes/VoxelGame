@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
@@ -36,8 +37,14 @@ namespace VoxelGame.UI.Controls
             performance = BuildLabel("FPS/UPS: 000/000");
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("General", "RCS1130:Bitwise operation on enum without Flags attribute.", Justification = "Intended by Gwen.Net")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Critical Code Smell", "S3265:Non-flags enums should not be used in bitwise operations", Justification = "Intended by Gwen.Net")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "General",
+            "RCS1130:Bitwise operation on enum without Flags attribute.",
+            Justification = "Intended by Gwen.Net")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Critical Code Smell",
+            "S3265:Non-flags enums should not be used in bitwise operations",
+            Justification = "Intended by Gwen.Net")]
         private Label BuildLabel(string text)
         {
             Label label = new Label(grid);

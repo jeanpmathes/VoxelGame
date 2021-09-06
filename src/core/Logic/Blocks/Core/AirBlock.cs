@@ -35,9 +35,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isReplaceable: true,
                 isInteractable: false,
                 BoundingBox.Block,
-                TargetBuffer.NotRendered)
-        {
-        }
+                TargetBuffer.NotRendered) {}
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {

@@ -37,12 +37,20 @@ namespace VoxelGame.Client.Collections
             }
         }
 
-        public void AddFace(Vector3i pos, int vertexData, (int vertA, int vertB, int vertC, int vertD) vertices, bool isSingleSided, bool isFull)
+        public void AddFace(Vector3i pos, int vertexData, (int vertA, int vertB, int vertC, int vertD) vertices,
+            bool isSingleSided, bool isFull)
         {
             ExtractIndices(pos, out int layer, out int row, out int position);
 
             // Build current face.
-            MeshFace currentFace = MeshFace.Get(vertices.vertA, vertices.vertB, vertices.vertC, vertices.vertD, vertexData, position, isSingleSided);
+            MeshFace currentFace = MeshFace.Get(
+                vertices.vertA,
+                vertices.vertB,
+                vertices.vertC,
+                vertices.vertD,
+                vertexData,
+                position,
+                isSingleSided);
 
             // Front and Back faces cannot be extended (along the y axis) when the liquid is not all full level.
             bool levelPermitsExtending = !((side == BlockSide.Front || side == BlockSide.Back) && !isFull);
@@ -60,21 +68,25 @@ namespace VoxelGame.Client.Collections
                     case BlockSide.Bottom:
                         currentFace.vertexB = vertices.vertB;
                         currentFace.vertexC = vertices.vertC;
+
                         break;
 
                     case BlockSide.Left:
                         currentFace.vertexC = vertices.vertC;
                         currentFace.vertexD = vertices.vertD;
+
                         break;
 
                     case BlockSide.Right:
                         currentFace.vertexA = vertices.vertA;
                         currentFace.vertexB = vertices.vertB;
+
                         break;
 
                     case BlockSide.Top:
                         currentFace.vertexA = vertices.vertA;
                         currentFace.vertexD = vertices.vertD;
+
                         break;
                 }
 
@@ -111,17 +123,20 @@ namespace VoxelGame.Client.Collections
                         case BlockSide.Top:
                             currentFace.vertexA = combinationRowFace.vertexA;
                             currentFace.vertexB = combinationRowFace.vertexB;
+
                             break;
 
                         case BlockSide.Back:
                             currentFace.vertexC = combinationRowFace.vertexC;
                             currentFace.vertexD = combinationRowFace.vertexD;
+
                             break;
 
                         case BlockSide.Left:
                         case BlockSide.Right:
                             currentFace.vertexA = combinationRowFace.vertexA;
                             currentFace.vertexD = combinationRowFace.vertexD;
+
                             break;
                     }
 
@@ -148,7 +163,8 @@ namespace VoxelGame.Client.Collections
             }
         }
 
-        private static readonly uint[] Indices = {
+        private static readonly uint[] Indices =
+        {
             0, 2, 1,
             0, 3, 2,
             0, 1, 2,
@@ -246,22 +262,23 @@ namespace VoxelGame.Client.Collections
             public bool IsExtendable(MeshFace extension)
             {
                 return this.position + this.length + 1 == extension.position &&
-                    this.height == extension.height &&
-                    this.vertexData == extension.vertexData &&
-                    this.isSingleSided == extension.isSingleSided;
+                       this.height == extension.height &&
+                       this.vertexData == extension.vertexData &&
+                       this.isSingleSided == extension.isSingleSided;
             }
 
             public bool IsCombinable(MeshFace addition)
             {
                 return this.position == addition.position &&
-                    this.length == addition.length &&
-                    this.vertexData == addition.vertexData &&
-                    this.isSingleSided == addition.isSingleSided;
+                       this.length == addition.length &&
+                       this.vertexData == addition.vertexData &&
+                       this.isSingleSided == addition.isSingleSided;
             }
 
             #region POOLING
 
-            public static MeshFace Get(int vert00, int vert01, int vert11, int vert10, int vertData, int position, bool isSingleSided)
+            public static MeshFace Get(int vert00, int vert01, int vert11, int vert10, int vertData, int position,
+                bool isSingleSided)
             {
                 MeshFace instance = ObjectPool<MeshFace>.Shared.Get();
 

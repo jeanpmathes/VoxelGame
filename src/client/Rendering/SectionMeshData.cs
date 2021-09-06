@@ -85,7 +85,10 @@ namespace VoxelGame.Client.Rendering
             this.transparentLiquidIndices = new PooledList<uint>();
         }
 
-        public bool IsFilled => complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 || varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 || cropPlantVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 || transparentLiquidVertexData.Count != 0;
+        public bool IsFilled => complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 ||
+                                varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 ||
+                                cropPlantVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 ||
+                                transparentLiquidVertexData.Count != 0;
 
         public void ReturnPooled()
         {

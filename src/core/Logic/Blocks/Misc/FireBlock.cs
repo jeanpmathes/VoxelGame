@@ -246,7 +246,12 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             if (info.Data == 0)
             {
-                return BlockMeshData.Complex(24, completeVertices, completeTexIndices, completeIndices, isAnimated: true);
+                return BlockMeshData.Complex(
+                    24,
+                    completeVertices,
+                    completeTexIndices,
+                    completeIndices,
+                    isAnimated: true);
             }
 
             int faceCount = BitHelper.CountSetBits(info.Data & 0b1_1111);
@@ -328,26 +333,31 @@ namespace VoxelGame.Core.Logic.Blocks
                 case BlockSide.Back:
 
                     CheckNeighbor(x, y, z - 1, 0b01_0000);
+
                     break;
 
                 case BlockSide.Right:
 
                     CheckNeighbor(x + 1, y, z, 0b00_1000);
+
                     break;
 
                 case BlockSide.Front:
 
                     CheckNeighbor(x, y, z + 1, 0b00_0100);
+
                     break;
 
                 case BlockSide.Left:
 
                     CheckNeighbor(x - 1, y, z, 0b00_0010);
+
                     break;
 
                 case BlockSide.Top:
 
                     CheckNeighbor(x, y + 1, z, 0b00_0001);
+
                     break;
 
                 case BlockSide.Bottom:

@@ -19,8 +19,6 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 closed,
-                open)
-        {
-        }
+                open) {}
     }
 }

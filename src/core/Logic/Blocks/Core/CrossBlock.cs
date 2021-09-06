@@ -32,7 +32,8 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <param name="isTrigger">Whether this block is a trigger.</param>
         /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
         /// <param name="boundingBox">The bounding box of this block.</param>
-        protected CrossBlock(string name, string namedId, string texture, bool receiveCollisions, bool isTrigger, bool isReplaceable, BoundingBox boundingBox) :
+        protected CrossBlock(string name, string namedId, string texture, bool receiveCollisions, bool isTrigger,
+            bool isReplaceable, BoundingBox boundingBox) :
             base(
                 name,
                 namedId,
@@ -85,7 +86,7 @@ namespace VoxelGame.Core.Logic.Blocks
             };
 
             int tex = indexProvider.GetTextureIndex(texture);
-            textureIndices = new[] { tex, tex, tex, tex, tex, tex, tex, tex };
+            textureIndices = new[] {tex, tex, tex, tex, tex, tex, tex, tex};
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)

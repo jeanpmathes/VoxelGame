@@ -31,7 +31,8 @@ namespace VoxelGame.Graphics
             GL.DebugMessageCallback(debugCallbackDelegate, IntPtr.Zero);
         }
 
-        private static void DebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
+        private static void DebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity,
+            int length, IntPtr message, IntPtr userParam)
         {
             if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
@@ -77,28 +78,63 @@ namespace VoxelGame.Graphics
             {
                 case DebugSeverity.DebugSeverityNotification:
                 case DebugSeverity.DontCare:
-                    Logger.LogInformation(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+                    Logger.LogInformation(
+                        eventId,
+                        "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                        "Message: {message}",
+                        sourceShort,
+                        typeShort,
+                        idResolved,
+                        System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+
                     break;
 
                 case DebugSeverity.DebugSeverityLow:
-                    Logger.LogWarning(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+                    Logger.LogWarning(
+                        eventId,
+                        "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                        "Message: {message}",
+                        sourceShort,
+                        typeShort,
+                        idResolved,
+                        System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+
                     break;
 
                 case DebugSeverity.DebugSeverityMedium:
-                    Logger.LogError(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+                    Logger.LogError(
+                        eventId,
+                        "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                        "Message: {message}",
+                        sourceShort,
+                        typeShort,
+                        idResolved,
+                        System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+
                     break;
 
                 case DebugSeverity.DebugSeverityHigh:
-                    Logger.LogCritical(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+                    Logger.LogCritical(
+                        eventId,
+                        "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                        "Message: {message}",
+                        sourceShort,
+                        typeShort,
+                        idResolved,
+                        System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+
                     break;
 
                 default:
-                    Logger.LogInformation(eventId, "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}", sourceShort, typeShort, idResolved, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+                    Logger.LogInformation(
+                        eventId,
+                        "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
+                        "Message: {message}",
+                        sourceShort,
+                        typeShort,
+                        idResolved,
+                        System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+
                     break;
             }
         }

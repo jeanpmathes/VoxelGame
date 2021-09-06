@@ -35,7 +35,8 @@ namespace VoxelGame.Client.Logic
         /// <summary>
         /// A list of chunk meshing tasks,
         /// </summary>
-        private readonly List<Task<SectionMeshData[]>> chunkMeshingTasks = new List<Task<SectionMeshData[]>>(MaxMeshingTasks);
+        private readonly List<Task<SectionMeshData[]>> chunkMeshingTasks =
+            new List<Task<SectionMeshData[]>>(MaxMeshingTasks);
 
         /// <summary>
         /// A dictionary containing all chunks that are currently meshed, with the task id of their meshing task as key.
@@ -45,39 +46,40 @@ namespace VoxelGame.Client.Logic
         /// <summary>
         /// A list of chunks where the mesh data has to be set.
         /// </summary>
-        private readonly List<(ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask)> chunksToSendMeshData = new List<(ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask)>();
+        private readonly List<(ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask)> chunksToSendMeshData =
+            new List<(ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask)>();
 
         /// <summary>
         /// A set of chunks with information on which sections of them are to mesh.
         /// </summary>
-        private readonly HashSet<(ClientChunk chunk, int index)> sectionsToMesh = new HashSet<(ClientChunk chunk, int index)>();
+        private readonly HashSet<(ClientChunk chunk, int index)> sectionsToMesh =
+            new HashSet<(ClientChunk chunk, int index)>();
 
         /// <summary>
         /// This constructor is meant for worlds that are new.
         /// </summary>
-        public ClientWorld(string name, string path, int seed) : base(name, path, seed)
-        {
-        }
+        public ClientWorld(string name, string path, int seed) : base(name, path, seed) {}
 
         /// <summary>
         /// This constructor is meant for worlds that already exist.
         /// </summary>
-        public ClientWorld(WorldInformation information, string path) : base(information, path)
-        {
-        }
+        public ClientWorld(WorldInformation information, string path) : base(information, path) {}
 
         public void Render()
         {
             if (!IsReady) return;
 
-            List<(ClientSection section, Vector3 position)> renderList = new List<(ClientSection section, Vector3 position)>();
+            List<(ClientSection section, Vector3 position)> renderList =
+                new List<(ClientSection section, Vector3 position)>();
 
             // Fill the render list.
             for (int x = -Application.Client.Player.LoadDistance; x <= Application.Client.Player.LoadDistance; x++)
             {
                 for (int z = -Application.Client.Player.LoadDistance; z <= Application.Client.Player.LoadDistance; z++)
                 {
-                    if (activeChunks.TryGetValue((Application.Client.Player.ChunkX + x, Application.Client.Player.ChunkZ + z), out Chunk? chunk))
+                    if (activeChunks.TryGetValue(
+                        (Application.Client.Player.ChunkX + x, Application.Client.Player.ChunkZ + z),
+                        out Chunk? chunk))
                     {
                         ((ClientChunk) chunk).AddCulledToRenderList(Application.Client.Player.Frustum, renderList);
                     }
@@ -198,7 +200,12 @@ namespace VoxelGame.Client.Logic
                     {
                         Exception e = completed.Exception?.GetBaseException() ?? new NullReferenceException();
 
-                        Logger.LogCritical(Events.ChunkMeshingError, e, "An exception occurred when meshing the chunk ({x}|{z}). The exception will be re-thrown.", meshedChunk.X, meshedChunk.Z);
+                        Logger.LogCritical(
+                            Events.ChunkMeshingError,
+                            e,
+                            "An exception occurred when meshing the chunk ({x}|{z}). The exception will be re-thrown.",
+                            meshedChunk.X,
+                            meshedChunk.Z);
 
                         throw e;
                     }
@@ -218,6 +225,7 @@ namespace VoxelGame.Client.Logic
             // If there is already mesh data for this chunk, it is no longer up to date and can be discarded.
 
             int index = chunksToSendMeshData.FindIndex(entry => ReferenceEquals(entry.chunk, chunk));
+
             if (index != -1)
             {
                 (ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask) entry = chunksToSendMeshData[index];
@@ -249,6 +257,7 @@ namespace VoxelGame.Client.Logic
             if (chunksToSendMeshData.Count > 0)
             {
                 var chunkIndex = 0;
+
                 for (var count = 0; count < MaxMeshDataSends && chunkIndex < chunksToSendMeshData.Count; count++)
                 {
                     (Chunk chunk, var chunkMeshingTask) = chunksToSendMeshData[chunkIndex];
@@ -279,7 +288,8 @@ namespace VoxelGame.Client.Logic
             {
                 sectionsToMesh.Add(((ClientChunk) chunk, y - 1 >> Section.SectionSizeExp));
             }
-            else if ((y & (Section.SectionSize - 1)) == Section.SectionSize - 1 && (y + 1 >> Section.SectionSizeExp) < Chunk.VerticalSectionCount)
+            else if ((y & (Section.SectionSize - 1)) == Section.SectionSize - 1 &&
+                     (y + 1 >> Section.SectionSizeExp) < Chunk.VerticalSectionCount)
             {
                 sectionsToMesh.Add(((ClientChunk) chunk, y + 1 >> Section.SectionSizeExp));
             }
@@ -287,21 +297,29 @@ namespace VoxelGame.Client.Logic
             Chunk? neighbor;
 
             // Next on x axis.
-            if ((x & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x - 1 >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out neighbor))
+            if ((x & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue(
+                (x - 1 >> Section.SectionSizeExp, z >> Section.SectionSizeExp),
+                out neighbor))
             {
                 sectionsToMesh.Add(((ClientChunk) neighbor, y >> Section.SectionSizeExp));
             }
-            else if ((x & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue((x + 1 >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out neighbor))
+            else if ((x & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue(
+                (x + 1 >> Section.SectionSizeExp, z >> Section.SectionSizeExp),
+                out neighbor))
             {
                 sectionsToMesh.Add(((ClientChunk) neighbor, y >> Section.SectionSizeExp));
             }
 
             // Next on z axis.
-            if ((z & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue((x >> Section.SectionSizeExp, z - 1 >> Section.SectionSizeExp), out neighbor))
+            if ((z & (Section.SectionSize - 1)) == 0 && activeChunks.TryGetValue(
+                (x >> Section.SectionSizeExp, z - 1 >> Section.SectionSizeExp),
+                out neighbor))
             {
                 sectionsToMesh.Add(((ClientChunk) neighbor, y >> Section.SectionSizeExp));
             }
-            else if ((z & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue((x >> Section.SectionSizeExp, z + 1 >> Section.SectionSizeExp), out neighbor))
+            else if ((z & (Section.SectionSize - 1)) == Section.SectionSize - 1 && activeChunks.TryGetValue(
+                (x >> Section.SectionSizeExp, z + 1 >> Section.SectionSizeExp),
+                out neighbor))
             {
                 sectionsToMesh.Add(((ClientChunk) neighbor, y >> Section.SectionSizeExp));
             }

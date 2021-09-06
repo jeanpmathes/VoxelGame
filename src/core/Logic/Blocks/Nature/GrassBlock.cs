@@ -21,9 +21,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 normal,
                 wet,
                 hasNeutralTint: true,
-                supportsFullGrowth: false)
-        {
-        }
+                supportsFullGrowth: false) {}
 
         internal override void RandomUpdate(World world, int x, int y, int z, uint data)
         {
@@ -39,15 +37,29 @@ namespace VoxelGame.Core.Logic.Blocks
             if (world.GetBlock(x, y, z + 1, out _) is IGrassSpreadable c) c.SpreadGrass(world, x, y, z + 1, this);
             if (world.GetBlock(x, y, z - 1, out _) is IGrassSpreadable d) d.SpreadGrass(world, x, y, z - 1, this);
 
-            if (world.GetBlock(x + 1, y + 1, z, out _) is IGrassSpreadable e) e.SpreadGrass(world, x + 1, y + 1, z, this);
-            if (world.GetBlock(x - 1, y + 1, z, out _) is IGrassSpreadable f) f.SpreadGrass(world, x - 1, y + 1, z, this);
-            if (world.GetBlock(x, y + 1, z + 1, out _) is IGrassSpreadable g) g.SpreadGrass(world, x, y + 1, z + 1, this);
-            if (world.GetBlock(x, y + 1, z - 1, out _) is IGrassSpreadable h) h.SpreadGrass(world, x, y + 1, z - 1, this);
+            if (world.GetBlock(x + 1, y + 1, z, out _) is IGrassSpreadable e)
+                e.SpreadGrass(world, x + 1, y + 1, z, this);
 
-            if (world.GetBlock(x + 1, y - 1, z, out _) is IGrassSpreadable i) i.SpreadGrass(world, x + 1, y - 1, z, this);
-            if (world.GetBlock(x - 1, y - 1, z, out _) is IGrassSpreadable j) j.SpreadGrass(world, x - 1, y - 1, z, this);
-            if (world.GetBlock(x, y - 1, z + 1, out _) is IGrassSpreadable k) k.SpreadGrass(world, x, y - 1, z + 1, this);
-            if (world.GetBlock(x, y - 1, z - 1, out _) is IGrassSpreadable l) l.SpreadGrass(world, x, y - 1, z - 1, this);
+            if (world.GetBlock(x - 1, y + 1, z, out _) is IGrassSpreadable f)
+                f.SpreadGrass(world, x - 1, y + 1, z, this);
+
+            if (world.GetBlock(x, y + 1, z + 1, out _) is IGrassSpreadable g)
+                g.SpreadGrass(world, x, y + 1, z + 1, this);
+
+            if (world.GetBlock(x, y + 1, z - 1, out _) is IGrassSpreadable h)
+                h.SpreadGrass(world, x, y + 1, z - 1, this);
+
+            if (world.GetBlock(x + 1, y - 1, z, out _) is IGrassSpreadable i)
+                i.SpreadGrass(world, x + 1, y - 1, z, this);
+
+            if (world.GetBlock(x - 1, y - 1, z, out _) is IGrassSpreadable j)
+                j.SpreadGrass(world, x - 1, y - 1, z, this);
+
+            if (world.GetBlock(x, y - 1, z + 1, out _) is IGrassSpreadable k)
+                k.SpreadGrass(world, x, y - 1, z + 1, this);
+
+            if (world.GetBlock(x, y - 1, z - 1, out _) is IGrassSpreadable l)
+                l.SpreadGrass(world, x, y - 1, z - 1, this);
         }
 
         public virtual bool Burn(World world, int x, int y, int z, Block fire)

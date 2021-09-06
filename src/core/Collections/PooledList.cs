@@ -2,6 +2,7 @@
 //     Based on the implementation of System.Collections.Generic.List<T>
 // </copyright>
 // <author>pershingthesecond</author>
+
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -36,7 +37,9 @@ namespace VoxelGame.Core.Collections
 
             if (capacity < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(capacity), $"The value '{capacity}' is negative, which is not allowed.");
+                throw new ArgumentOutOfRangeException(
+                    nameof(capacity),
+                    $"The value '{capacity}' is negative, which is not allowed.");
             }
 
             if (capacity == 0)
@@ -69,7 +72,9 @@ namespace VoxelGame.Core.Collections
             {
                 if (value < size)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(value), $"Value '{value}' is smaller than size '{size}'.");
+                    throw new ArgumentOutOfRangeException(
+                        nameof(value),
+                        $"Value '{value}' is smaller than size '{size}'.");
                 }
 
                 if (value != items.Length)
@@ -117,7 +122,9 @@ namespace VoxelGame.Core.Collections
             {
                 if ((uint) index >= (uint) size)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(index), $"The index has to be smaller then the size '{size}'.");
+                    throw new ArgumentOutOfRangeException(
+                        nameof(index),
+                        $"The index has to be smaller then the size '{size}'.");
                 }
 
                 return items[index];
@@ -127,7 +134,9 @@ namespace VoxelGame.Core.Collections
             {
                 if ((uint) index >= (uint) size)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(index), $"The index has to be smaller then the size '{size}'.");
+                    throw new ArgumentOutOfRangeException(
+                        nameof(index),
+                        $"The index has to be smaller then the size '{size}'.");
                 }
 
                 items[index] = value;
@@ -228,7 +237,8 @@ namespace VoxelGame.Core.Collections
         {
             if ((uint) index >= (uint) size)
             {
-                throw new ArgumentOutOfRangeException($"The index '{index}' is not allowed to be larger then the size of the list.");
+                throw new ArgumentOutOfRangeException(
+                    $"The index '{index}' is not allowed to be larger then the size of the list.");
             }
 
             size--;

@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using System;
 
@@ -23,10 +24,7 @@ namespace VoxelGame.Core.Physics
 
         public Vector3 EndPoint
         {
-            get
-            {
-                return Origin + (Direction * Length);
-            }
+            get { return Origin + (Direction * Length); }
         }
 
         public override int GetHashCode()

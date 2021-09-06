@@ -84,10 +84,12 @@ namespace VoxelGame.Core.Logic
                     {
                         case TickOperation.Tick:
                             block.ScheduledUpdate(world, x, y, z, data);
+
                             break;
 
                         case TickOperation.Destroy:
                             block.Destroy(world, x, y, z);
+
                             break;
                     }
                 }

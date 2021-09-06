@@ -22,8 +22,15 @@ namespace VoxelGame.Client.Entities
 {
     public class ClientPlayer : Core.Entities.Player
     {
-        public override Vector3 LookingDirection { get => camera.Front; }
-        public override BlockSide TargetSide { get => selectedSide; }
+        public override Vector3 LookingDirection
+        {
+            get => camera.Front;
+        }
+
+        public override BlockSide TargetSide
+        {
+            get => selectedSide;
+        }
 
         private readonly Camera camera;
         private readonly Vector3 cameraOffset = new Vector3(0f, 0.65f, 0f);
@@ -45,7 +52,8 @@ namespace VoxelGame.Client.Entities
 
         #endregion INPUT ACTIONS
 
-        public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingBox boundingBox, GameUserInterface ui) : base(world, mass, drag, boundingBox)
+        public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingBox boundingBox,
+            GameUserInterface ui) : base(world, mass, drag, boundingBox)
         {
             this.camera = camera;
             camera.Position = Position;
@@ -54,7 +62,10 @@ namespace VoxelGame.Client.Entities
 
             overlay = new OverlayRenderer();
 
-            crosshair = new Texture("Resources/Textures/UI/crosshair.png", OpenToolkit.Graphics.OpenGL4.TextureUnit.Texture10, fallbackResolution: 32);
+            crosshair = new Texture(
+                "Resources/Textures/UI/crosshair.png",
+                OpenToolkit.Graphics.OpenGL4.TextureUnit.Texture10,
+                fallbackResolution: 32);
 
             crosshairRenderer = new ScreenElementRenderer();
             crosshairRenderer.SetTexture(crosshair);
@@ -112,9 +123,15 @@ namespace VoxelGame.Client.Entities
         /// <summary>
         /// Gets the frustum of the player camera.
         /// </summary>
-        public Frustum Frustum { get => camera.Frustum; }
+        public Frustum Frustum
+        {
+            get => camera.Frustum;
+        }
 
-        public override Vector3 Movement { get => movement; }
+        public override Vector3 Movement
+        {
+            get => movement;
+        }
 
         private readonly BoxRenderer selectionRenderer;
 
@@ -190,7 +207,8 @@ namespace VoxelGame.Client.Entities
                     overlay.SetBlockTexture(overlayBlockTextureProvider.TextureIdentifier);
                     renderOverlay = true;
                 }
-                else if (World.GetLiquid(headX, headY, headZ, out _, out _) is IOverlayTextureProvider overlayLiquidTextureProvider)
+                else if (World.GetLiquid(headX, headY, headZ, out _, out _) is IOverlayTextureProvider
+                    overlayLiquidTextureProvider)
                 {
                     overlay.SetLiquidTexture(overlayLiquidTextureProvider.TextureIdentifier);
                     renderOverlay = true;
@@ -291,10 +309,18 @@ namespace VoxelGame.Client.Entities
                 }
 
                 // Prevent block placement if the block would intersect the player.
-                if (!blockMode || !activeBlock.IsSolid || !BoundingBox.Intersects(activeBlock.GetBoundingBox(World, placePositionX, placePositionY, placePositionZ)))
+                if (!blockMode || !activeBlock.IsSolid || !BoundingBox.Intersects(
+                    activeBlock.GetBoundingBox(World, placePositionX, placePositionY, placePositionZ)))
                 {
                     if (blockMode) activeBlock.Place(World, placePositionX, placePositionY, placePositionZ, this);
-                    else activeLiquid.Fill(World, placePositionX, placePositionY, placePositionZ, LiquidLevel.One, out _);
+                    else
+                        activeLiquid.Fill(
+                            World,
+                            placePositionX,
+                            placePositionY,
+                            placePositionZ,
+                            LiquidLevel.One,
+                            out _);
 
                     timer = 0;
                 }
@@ -312,26 +338,32 @@ namespace VoxelGame.Client.Entities
                 {
                     case BlockSide.Front:
                         placePositionZ++;
+
                         break;
 
                     case BlockSide.Back:
                         placePositionZ--;
+
                         break;
 
                     case BlockSide.Left:
                         placePositionX--;
+
                         break;
 
                     case BlockSide.Right:
                         placePositionX++;
+
                         break;
 
                     case BlockSide.Bottom:
                         placePositionY--;
+
                         break;
 
                     case BlockSide.Top:
                         placePositionY++;
+
                         break;
                 }
             }
@@ -357,26 +389,32 @@ namespace VoxelGame.Client.Entities
                     {
                         case BlockSide.Front:
                             z++;
+
                             break;
 
                         case BlockSide.Back:
                             z--;
+
                             break;
 
                         case BlockSide.Left:
                             x--;
+
                             break;
 
                         case BlockSide.Right:
                             x++;
+
                             break;
 
                         case BlockSide.Bottom:
                             y--;
+
                             break;
 
                         case BlockSide.Top:
                             y++;
+
                             break;
                     }
                 }
@@ -402,16 +440,28 @@ namespace VoxelGame.Client.Entities
             {
                 if (selectionAxis.Value > 0)
                 {
-                    if (blockMode) activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID(activeBlock.Id + 1) : Block.TranslateID(1);
-                    else activeLiquid = (activeLiquid.Id != Liquid.Count - 1) ? Liquid.TranslateID(activeLiquid.Id + 1) : Liquid.TranslateID(1);
+                    if (blockMode)
+                        activeBlock = (activeBlock.Id != Block.Count - 1)
+                            ? Block.TranslateID(activeBlock.Id + 1)
+                            : Block.TranslateID(1);
+                    else
+                        activeLiquid = (activeLiquid.Id != Liquid.Count - 1)
+                            ? Liquid.TranslateID(activeLiquid.Id + 1)
+                            : Liquid.TranslateID(1);
 
                     updateUI = true;
                 }
 
                 if (selectionAxis.Value < 0)
                 {
-                    if (blockMode) activeBlock = (activeBlock.Id != 1) ? Block.TranslateID(activeBlock.Id - 1) : Block.TranslateID((uint) (Block.Count - 1));
-                    else activeLiquid = (activeLiquid.Id != 1) ? Liquid.TranslateID(activeLiquid.Id - 1) : Liquid.TranslateID((uint) (Liquid.Count - 1));
+                    if (blockMode)
+                        activeBlock = (activeBlock.Id != 1)
+                            ? Block.TranslateID(activeBlock.Id - 1)
+                            : Block.TranslateID((uint) (Block.Count - 1));
+                    else
+                        activeLiquid = (activeLiquid.Id != 1)
+                            ? Liquid.TranslateID(activeLiquid.Id - 1)
+                            : Liquid.TranslateID((uint) (Liquid.Count - 1));
 
                     updateUI = true;
                 }

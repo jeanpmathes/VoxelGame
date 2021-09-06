@@ -47,7 +47,10 @@ namespace VoxelGame.Core.Collections
 
             if (ticks.tickables.Count >= maxTicks)
             {
-                Logger.LogWarning("For update {update} a tick was scheduled although the limit for this update is already reached. It has been scheduled for the following update.", targetUpdate);
+                Logger.LogWarning(
+                    "For update {update} a tick was scheduled although the limit for this update is already reached. It has been scheduled for the following update.",
+                    targetUpdate);
+
                 Add(tick, tickOffset + 1);
             }
             else
@@ -79,7 +82,7 @@ namespace VoxelGame.Core.Collections
                 {
                     if (last == null)
                     {
-                        nextTicks = new TicksHolder(targetTick) { next = current };
+                        nextTicks = new TicksHolder(targetTick) {next = current};
 
                         return nextTicks;
                     }

@@ -158,7 +158,8 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Setup of readonly fields and non-optional steps.
         /// </summary>
-        private World(WorldInformation information, string worldDirectory, string chunkDirectory, IWorldGenerator generator)
+        private World(WorldInformation information, string worldDirectory, string chunkDirectory,
+            IWorldGenerator generator)
         {
             positionsToActivate = new HashSet<(int x, int z)>();
             positionsActivating = new HashSet<(int, int)>();
@@ -250,7 +251,8 @@ namespace VoxelGame.Core.Logic
                         {
                             throw completed.Exception?.GetBaseException() ?? new NullReferenceException();
                         }
-                        else if (!activeChunks.ContainsKey((generatedChunk.X, generatedChunk.Z)) && !positionsToReleaseOnActivation.Remove((generatedChunk.X, generatedChunk.Z)))
+                        else if (!activeChunks.ContainsKey((generatedChunk.X, generatedChunk.Z)) &&
+                                 !positionsToReleaseOnActivation.Remove((generatedChunk.X, generatedChunk.Z)))
                         {
                             activeChunks.Add((generatedChunk.X, generatedChunk.Z), generatedChunk);
 
@@ -297,8 +299,13 @@ namespace VoxelGame.Core.Logic
                         {
                             if (!positionsToReleaseOnActivation.Remove((x, z)) || !activeChunks.ContainsKey((x, z)))
                             {
-                                Logger.LogError(Events.ChunkLoadingError, completed.Exception!.GetBaseException(), "An exception occurred when loading the chunk ({x}|{z}). " +
-                                    "The chunk has been scheduled for generation", x, z);
+                                Logger.LogError(
+                                    Events.ChunkLoadingError,
+                                    completed.Exception!.GetBaseException(),
+                                    "An exception occurred when loading the chunk ({x}|{z}). " +
+                                    "The chunk has been scheduled for generation",
+                                    x,
+                                    z);
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
                                 if (chunksToGenerate.Enqueue(CreateChunk(x, z)))
@@ -328,9 +335,13 @@ namespace VoxelGame.Core.Logic
                             }
                             else
                             {
-                                Logger.LogError(Events.ChunkLoadingError, "The position of the loaded chunk file for position ({x}|{z}) did not match the requested position. " +
+                                Logger.LogError(
+                                    Events.ChunkLoadingError,
+                                    "The position of the loaded chunk file for position ({x}|{z}) did not match the requested position. " +
                                     "This may be the result of a renamed chunk file. " +
-                                    "The position will be scheduled for generation.", x, z);
+                                    "The position will be scheduled for generation.",
+                                    x,
+                                    z);
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
                                 if (chunksToGenerate.Enqueue(CreateChunk(x, z)))
@@ -386,7 +397,8 @@ namespace VoxelGame.Core.Logic
                         positionsSaving.Remove((completedChunk.X, completedChunk.Z));
 
                         // Check if the chunk should be activated and is not active and not requested to be released on activation; if true, the chunk will not be disposed
-                        if ((positionsToActivate.Contains((completedChunk.X, completedChunk.Z)) || positionsActivating.Contains((completedChunk.X, completedChunk.Z)))
+                        if ((positionsToActivate.Contains((completedChunk.X, completedChunk.Z)) ||
+                             positionsActivating.Contains((completedChunk.X, completedChunk.Z)))
                             && !activeChunks.ContainsKey((completedChunk.X, completedChunk.Z))
                             && !positionsToReleaseOnActivation.Contains((completedChunk.X, completedChunk.Z)))
                         {
@@ -405,8 +417,13 @@ namespace VoxelGame.Core.Logic
                         {
                             if (completed.IsFaulted)
                             {
-                                Logger.LogError(Events.ChunkSavingError, completed.Exception!.GetBaseException(), "An exception occurred when saving chunk ({x}|{z}). " +
-                                    "The chunk will be disposed without saving.", completedChunk.X, completedChunk.Z);
+                                Logger.LogError(
+                                    Events.ChunkSavingError,
+                                    completed.Exception!.GetBaseException(),
+                                    "An exception occurred when saving chunk ({x}|{z}). " +
+                                    "The chunk will be disposed without saving.",
+                                    completedChunk.X,
+                                    completedChunk.Z);
                             }
 
                             if (positionsActivatingThroughSaving.Remove((completedChunk.X, completedChunk.Z)))
@@ -529,11 +546,17 @@ namespace VoxelGame.Core.Logic
         /// <param name="isStatic">If the liquid at that position is static.</param>
         /// <returns>The Block at x, y, z or null if the block was not found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Block? GetBlock(int x, int y, int z, out uint data, out Liquid? liquid, out LiquidLevel level, out bool isStatic)
+        private Block? GetBlock(int x, int y, int z, out uint data, out Liquid? liquid, out LiquidLevel level,
+            out bool isStatic)
         {
-            if (activeChunks.TryGetValue((x >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight)
+            if (activeChunks.TryGetValue(
+                (x >> Section.SectionSizeExp, z >> Section.SectionSizeExp),
+                out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight)
             {
-                uint val = chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
+                uint val = chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1),
+                    y & (Section.SectionSize - 1),
+                    z & (Section.SectionSize - 1)];
+
                 Section.Decode(val, out Block block, out data, out liquid, out level, out isStatic);
 
                 return block;
@@ -556,9 +579,11 @@ namespace VoxelGame.Core.Logic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public (Block? block, Liquid? liquid) GetPosition(int x, int y, int z, out uint data, out LiquidLevel level, out bool isStatic)
+        public (Block? block, Liquid? liquid) GetPosition(int x, int y, int z, out uint data, out LiquidLevel level,
+            out bool isStatic)
         {
             Block? block = GetBlock(x, y, z, out data, out Liquid? liquid, out level, out isStatic);
+
             return (block, liquid);
         }
 
@@ -598,15 +623,21 @@ namespace VoxelGame.Core.Logic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z, bool tickLiquid)
+        private void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y,
+            int z, bool tickLiquid)
         {
-            if (!activeChunks.TryGetValue((x >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight)
+            if (!activeChunks.TryGetValue(
+                (x >> Section.SectionSizeExp, z >> Section.SectionSizeExp),
+                out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight)
             {
                 return;
             }
 
             uint val = Section.Encode(block, data, liquid, level, isStatic);
-            chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
+
+            chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1),
+                y & (Section.SectionSize - 1),
+                z & (Section.SectionSize - 1)] = val;
 
             if (tickLiquid) liquid.TickNow(this, x, y, z, level, isStatic);
 
@@ -640,7 +671,8 @@ namespace VoxelGame.Core.Logic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z)
+        public void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y,
+            int z)
         {
             SetPosition(block, data, liquid, level, isStatic, x, y, z, true);
         }
@@ -653,17 +685,23 @@ namespace VoxelGame.Core.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ModifyWorldData(int x, int y, int z, uint clearMask, uint addMask)
         {
-            if (!activeChunks.TryGetValue((x >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out Chunk? chunk) || y < 0 || y >= Chunk.VerticalSectionCount * Section.SectionSize)
+            if (!activeChunks.TryGetValue(
+                (x >> Section.SectionSizeExp, z >> Section.SectionSizeExp),
+                out Chunk? chunk) || y < 0 || y >= Chunk.VerticalSectionCount * Section.SectionSize)
             {
                 return;
             }
 
-            uint val = chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)];
+            uint val = chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1),
+                y & (Section.SectionSize - 1),
+                z & (Section.SectionSize - 1)];
 
             val &= clearMask;
             val |= addMask;
 
-            chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1), y & (Section.SectionSize - 1), z & (Section.SectionSize - 1)] = val;
+            chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1),
+                y & (Section.SectionSize - 1),
+                z & (Section.SectionSize - 1)] = val;
 
             ProcessChangedSection(chunk, x, y, z);
         }
@@ -687,6 +725,7 @@ namespace VoxelGame.Core.Logic
         public Chunk? GetChunk(int x, int z)
         {
             activeChunks.TryGetValue((x, z), out Chunk? chunk);
+
             return chunk;
         }
 
@@ -700,6 +739,7 @@ namespace VoxelGame.Core.Logic
         public Chunk? GetChunkOfPosition(int x, int z)
         {
             activeChunks.TryGetValue((x >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out Chunk? chunk);
+
             return chunk;
         }
 
@@ -712,6 +752,7 @@ namespace VoxelGame.Core.Logic
         public Section? GetSection(Vector3i sectionPosition)
         {
             (int x, int y, int z) = sectionPosition;
+
             if (activeChunks.TryGetValue((x, z), out Chunk? chunk) && y >= 0 && y < Chunk.VerticalSectionCount)
             {
                 return chunk.GetSection(y);
@@ -772,6 +813,7 @@ namespace VoxelGame.Core.Logic
 
             List<Task> tasks = new List<Task>();
             AddAllTasks(ref tasks);
+
             return Task.WhenAll(tasks);
         }
 

@@ -43,7 +43,11 @@ namespace VoxelGame.Graphics.Objects
                     SetupTexture(bitmap);
                 }
 
-                Logger.LogWarning(Events.MissingResource, exception, "The texture could not be loaded and a fallback was used instead because the file was not found: {path}", path);
+                Logger.LogWarning(
+                    Events.MissingResource,
+                    exception,
+                    "The texture could not be loaded and a fallback was used instead because the file was not found: {path}",
+                    path);
             }
 
             GL.TextureParameter(Handle, TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Nearest);
@@ -65,7 +69,17 @@ namespace VoxelGame.Graphics.Objects
                 System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
             GL.TextureStorage2D(Handle, 1, SizedInternalFormat.Rgba8, bitmap.Width, bitmap.Height);
-            GL.TextureSubImage2D(Handle, 0, 0, 0, bitmap.Width, bitmap.Height, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+
+            GL.TextureSubImage2D(
+                Handle,
+                0,
+                0,
+                0,
+                bitmap.Width,
+                bitmap.Height,
+                PixelFormat.Bgra,
+                PixelType.UnsignedByte,
+                data.Scan0);
         }
 
         public void Use(TextureUnit unit = TextureUnit.Texture0)
@@ -88,7 +102,9 @@ namespace VoxelGame.Graphics.Objects
                 }
                 else
                 {
-                    Logger.LogWarning(Events.UndeletedTexture, "A texture has been disposed by GC, without deleting the texture storage.");
+                    Logger.LogWarning(
+                        Events.UndeletedTexture,
+                        "A texture has been disposed by GC, without deleting the texture storage.");
                 }
 
                 disposed = true;

@@ -27,14 +27,19 @@ namespace VoxelGame.Core.Logic.Blocks
     internal class PipeBlock<TConnect> : Block, IFillable where TConnect : IPipeConnectable
     {
         private readonly BlockModel center;
-        private readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) connector;
-        private readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) surface;
+
+        private readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom,
+            BlockModel top) connector;
+
+        private readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom,
+            BlockModel top) surface;
 
         private readonly float diameter;
 
         public bool RenderLiquid => false;
 
-        internal PipeBlock(string name, string namedId, float diameter, string centerModel, string connectorModel, string surfaceModel) :
+        internal PipeBlock(string name, string namedId, float diameter, string centerModel, string connectorModel,
+            string surfaceModel) :
             base(
                 name,
                 namedId,
@@ -70,19 +75,53 @@ namespace VoxelGame.Core.Logic.Blocks
 
             float connectorWidth = (0.5f - diameter) / 2f;
 
-            if ((data & 0b10_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f, 0.5f, 1f - connectorWidth), new Vector3(diameter, diameter, connectorWidth)));
-            if ((data & 0b01_0000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f, 0.5f, connectorWidth), new Vector3(diameter, diameter, connectorWidth)));
-            if ((data & 0b00_1000) != 0) connectors.Add(new BoundingBox(new Vector3(connectorWidth, 0.5f, 0.5f), new Vector3(connectorWidth, diameter, diameter)));
-            if ((data & 0b00_0100) != 0) connectors.Add(new BoundingBox(new Vector3(1f - connectorWidth, 0.5f, 0.5f), new Vector3(connectorWidth, diameter, diameter)));
-            if ((data & 0b00_0010) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f, connectorWidth, 0.5f), new Vector3(diameter, connectorWidth, diameter)));
-            if ((data & 0b00_0001) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f, 1f - connectorWidth, 0.5f), new Vector3(diameter, connectorWidth, diameter)));
+            if ((data & 0b10_0000) != 0)
+                connectors.Add(
+                    new BoundingBox(
+                        new Vector3(0.5f, 0.5f, 1f - connectorWidth),
+                        new Vector3(diameter, diameter, connectorWidth)));
 
-            return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(diameter, diameter, diameter), connectors.ToArray());
+            if ((data & 0b01_0000) != 0)
+                connectors.Add(
+                    new BoundingBox(
+                        new Vector3(0.5f, 0.5f, connectorWidth),
+                        new Vector3(diameter, diameter, connectorWidth)));
+
+            if ((data & 0b00_1000) != 0)
+                connectors.Add(
+                    new BoundingBox(
+                        new Vector3(connectorWidth, 0.5f, 0.5f),
+                        new Vector3(connectorWidth, diameter, diameter)));
+
+            if ((data & 0b00_0100) != 0)
+                connectors.Add(
+                    new BoundingBox(
+                        new Vector3(1f - connectorWidth, 0.5f, 0.5f),
+                        new Vector3(connectorWidth, diameter, diameter)));
+
+            if ((data & 0b00_0010) != 0)
+                connectors.Add(
+                    new BoundingBox(
+                        new Vector3(0.5f, connectorWidth, 0.5f),
+                        new Vector3(diameter, connectorWidth, diameter)));
+
+            if ((data & 0b00_0001) != 0)
+                connectors.Add(
+                    new BoundingBox(
+                        new Vector3(0.5f, 1f - connectorWidth, 0.5f),
+                        new Vector3(diameter, connectorWidth, diameter)));
+
+            return new BoundingBox(
+                new Vector3(0.5f, 0.5f, 0.5f),
+                new Vector3(diameter, diameter, diameter),
+                connectors.ToArray());
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            (float[] vertices, int[] textureIndices, uint[] indices) = BlockModel.CombineData(out uint vertexCount, center,
+            (float[] vertices, int[] textureIndices, uint[] indices) = BlockModel.CombineData(
+                out uint vertexCount,
+                center,
                 (info.Data & 0b10_0000) == 0 ? surface.front : connector.front,
                 (info.Data & 0b01_0000) == 0 ? surface.back : connector.back,
                 (info.Data & 0b00_1000) == 0 ? surface.left : connector.left,
@@ -130,7 +169,8 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 Block? block = world.GetBlock(cx, cy, cz, out _);
 
-                return block == this || (block is TConnect connectable && connectable.IsConnectable(world, side, cx, cy, cz));
+                return block == this ||
+                       (block is TConnect connectable && connectable.IsConnectable(world, side, cx, cy, cz));
             }
         }
 
@@ -143,16 +183,19 @@ namespace VoxelGame.Core.Logic.Blocks
                 case 0b10_0000:
                 case 0b01_0000:
                     data = 0b11_0000;
+
                     break;
 
                 case 0b00_1000:
                 case 0b00_0100:
                     data = 0b00_1100;
+
                     break;
 
                 case 0b00_0010:
                 case 0b00_0001:
                     data = 0b00_0011;
+
                     break;
             }
         }

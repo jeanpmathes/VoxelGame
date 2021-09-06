@@ -26,7 +26,8 @@ namespace VoxelGame.Core.Logic.Blocks
         private int bottomTextureIndex;
         private int topTextureIndex;
 
-        internal DoubleCrossPlantBlock(string name, string namedId, string bottomTexture, int topTexOffset, BoundingBox boundingBox) :
+        internal DoubleCrossPlantBlock(string name, string namedId, string bottomTexture, int topTexOffset,
+            BoundingBox boundingBox) :
             base(
                 name,
                 namedId,
@@ -56,12 +57,18 @@ namespace VoxelGame.Core.Logic.Blocks
             bool isUpper = (info.Data & 0b01) != 0;
             bool isLowered = (info.Data & 0b10) != 0;
 
-            return BlockMeshData.CrossPlant(isUpper ? topTextureIndex : bottomTextureIndex, TintColor.Neutral, true, isLowered, isUpper);
+            return BlockMeshData.CrossPlant(
+                isUpper ? topTextureIndex : bottomTextureIndex,
+                TintColor.Neutral,
+                true,
+                isLowered,
+                isUpper);
         }
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            return world.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true && (world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable;
+            return world.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true &&
+                   (world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable;
         }
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
@@ -85,7 +92,8 @@ namespace VoxelGame.Core.Logic.Blocks
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
-            if (side == BlockSide.Bottom && (data & 0b1) == 0 && !((world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
+            if (side == BlockSide.Bottom && (data & 0b1) == 0 &&
+                !((world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
             {
                 Destroy(world, x, y, z);
             }

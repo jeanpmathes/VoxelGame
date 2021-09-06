@@ -40,7 +40,9 @@ namespace VoxelGame.Core.Logic
             try
             {
                 string json = File.ReadAllText(path);
-                WorldInformation information = JsonSerializer.Deserialize<WorldInformation>(json) ?? new WorldInformation();
+
+                WorldInformation information =
+                    JsonSerializer.Deserialize<WorldInformation>(json) ?? new WorldInformation();
 
                 Logger.LogDebug("WorldInformation for World '{name}' was loaded from: {path}", information.Name, path);
 
@@ -71,6 +73,9 @@ namespace VoxelGame.Core.Logic
             Z = position.Z;
         }
 
-        public Vector3 Position { get => new Vector3(X, Y, Z); }
+        public Vector3 Position
+        {
+            get => new Vector3(X, Y, Z);
+        }
     }
 }

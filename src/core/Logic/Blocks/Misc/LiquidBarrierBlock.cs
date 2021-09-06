@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
@@ -60,6 +61,7 @@ namespace VoxelGame.Core.Logic.Blocks
         public bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
         {
             world.GetBlock(x, y, z, out uint data);
+
             return (data & 0b00_0001) == 1;
         }
     }

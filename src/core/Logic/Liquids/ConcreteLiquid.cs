@@ -10,7 +10,8 @@ namespace VoxelGame.Core.Logic.Liquids
 {
     public class ConcreteLiquid : BasicLiquid
     {
-        public ConcreteLiquid(string name, string namedId, float density, int viscosity, TextureLayout movingLayout, TextureLayout staticLayout) :
+        public ConcreteLiquid(string name, string namedId, float density, int viscosity, TextureLayout movingLayout,
+            TextureLayout staticLayout) :
             base(
                 name,
                 namedId,
@@ -19,9 +20,7 @@ namespace VoxelGame.Core.Logic.Liquids
                 neutralTint: false,
                 movingLayout,
                 staticLayout,
-                RenderType.Opaque)
-        {
-        }
+                RenderType.Opaque) {}
 
         internal override void RandomUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic)
         {

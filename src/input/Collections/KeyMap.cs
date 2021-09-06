@@ -27,6 +27,7 @@ namespace VoxelGame.Input.Collections
             }
 
             usageCount[keyOrButton]++;
+
             return unused;
         }
 

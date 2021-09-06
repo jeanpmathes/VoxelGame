@@ -19,7 +19,8 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private readonly (BlockModel x, BlockModel y, BlockModel z) closedModels;
 
-        internal SteelPipeValveBlock(string name, string namedId, float diameter, string openModel, string closedModel) :
+        internal SteelPipeValveBlock(string name, string namedId, float diameter, string openModel,
+            string closedModel) :
             base(
                 name,
                 namedId,
@@ -34,8 +35,12 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            uint vertexCount = SelectModel((info.Data & 0b00_0100) == 0 ? models : closedModels,
-                (Axis) (info.Data & AxisDataMask), out float[] vertices, out int[] textureIndices, out uint[] indices);
+            uint vertexCount = SelectModel(
+                (info.Data & 0b00_0100) == 0 ? models : closedModels,
+                (Axis) (info.Data & AxisDataMask),
+                out float[] vertices,
+                out int[] textureIndices,
+                out uint[] indices);
 
             return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices);
         }
@@ -48,7 +53,9 @@ namespace VoxelGame.Core.Logic.Blocks
         protected override bool IsSideOpen(World world, int x, int y, int z, BlockSide side)
         {
             world.GetBlock(x, y, z, out uint data);
+
             if ((data & 0b00_0100) != 0) return false;
+
             return ToAxis(side) == (Axis) (data & AxisDataMask);
         }
 

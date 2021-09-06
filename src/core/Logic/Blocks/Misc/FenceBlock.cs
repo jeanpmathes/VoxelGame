@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -26,9 +27,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 texture,
                 post,
                 extension,
-                new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.1875f, 0.5f, 0.1875f)))
-        {
-        }
+                new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.1875f, 0.5f, 0.1875f))) {}
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
@@ -44,29 +43,52 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if (north)
             {
-                children[extensions] = new BoundingBox(new Vector3(0.5f, 0.28125f, 0.15625f), new Vector3(0.125f, 0.15625f, 0.15625f));
-                children[extensions + 1] = new BoundingBox(new Vector3(0.5f, 0.71875f, 0.15625f), new Vector3(0.125f, 0.15625f, 0.15625f));
+                children[extensions] = new BoundingBox(
+                    new Vector3(0.5f, 0.28125f, 0.15625f),
+                    new Vector3(0.125f, 0.15625f, 0.15625f));
+
+                children[extensions + 1] = new BoundingBox(
+                    new Vector3(0.5f, 0.71875f, 0.15625f),
+                    new Vector3(0.125f, 0.15625f, 0.15625f));
+
                 extensions += 2;
             }
 
             if (east)
             {
-                children[extensions] = new BoundingBox(new Vector3(0.84375f, 0.28125f, 0.5f), new Vector3(0.15625f, 0.15625f, 0.125f));
-                children[extensions + 1] = new BoundingBox(new Vector3(0.84375f, 0.71875f, 0.5f), new Vector3(0.15625f, 0.15625f, 0.125f));
+                children[extensions] = new BoundingBox(
+                    new Vector3(0.84375f, 0.28125f, 0.5f),
+                    new Vector3(0.15625f, 0.15625f, 0.125f));
+
+                children[extensions + 1] = new BoundingBox(
+                    new Vector3(0.84375f, 0.71875f, 0.5f),
+                    new Vector3(0.15625f, 0.15625f, 0.125f));
+
                 extensions += 2;
             }
 
             if (south)
             {
-                children[extensions] = new BoundingBox(new Vector3(0.5f, 0.28125f, 0.84375f), new Vector3(0.125f, 0.15625f, 0.15625f));
-                children[extensions + 1] = new BoundingBox(new Vector3(0.5f, 0.71875f, 0.84375f), new Vector3(0.125f, 0.15625f, 0.15625f));
+                children[extensions] = new BoundingBox(
+                    new Vector3(0.5f, 0.28125f, 0.84375f),
+                    new Vector3(0.125f, 0.15625f, 0.15625f));
+
+                children[extensions + 1] = new BoundingBox(
+                    new Vector3(0.5f, 0.71875f, 0.84375f),
+                    new Vector3(0.125f, 0.15625f, 0.15625f));
+
                 extensions += 2;
             }
 
             if (west)
             {
-                children[extensions] = new BoundingBox(new Vector3(0.15625f, 0.28125f, 0.5f), new Vector3(0.15625f, 0.15625f, 0.125f));
-                children[extensions + 1] = new BoundingBox(new Vector3(0.15625f, 0.71875f, 0.5f), new Vector3(0.15625f, 0.15625f, 0.125f));
+                children[extensions] = new BoundingBox(
+                    new Vector3(0.15625f, 0.28125f, 0.5f),
+                    new Vector3(0.15625f, 0.15625f, 0.125f));
+
+                children[extensions + 1] = new BoundingBox(
+                    new Vector3(0.15625f, 0.71875f, 0.5f),
+                    new Vector3(0.15625f, 0.15625f, 0.125f));
             }
 
             return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.1875f, 0.5f, 0.1875f), children);

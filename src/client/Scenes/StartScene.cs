@@ -155,13 +155,16 @@ namespace VoxelGame.Client.Scenes
                     Console.Write($"{n + 1}: ");
 
                     Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write($"{worlds[n].information.Name} - {Language.CreatedOn}: {worlds[n].information.Creation}");
+
+                    Console.Write(
+                        $"{worlds[n].information.Name} - {Language.CreatedOn}: {worlds[n].information.Creation}");
 
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.Write(" [");
 
                     if (worlds[n].information.Version == Program.Version) Console.ForegroundColor = ConsoleColor.Green;
                     else Console.ForegroundColor = ConsoleColor.Red;
+
                     Console.Write(worlds[n].information.Version);
 
                     Console.ForegroundColor = ConsoleColor.White;
@@ -195,8 +198,7 @@ namespace VoxelGame.Client.Scenes
                 Console.ForegroundColor = ConsoleColor.White;
                 name = Console.ReadLine();
                 Console.ResetColor();
-            }
-            while (!IsNameValid(name));
+            } while (!IsNameValid(name));
 
             StringBuilder path = new StringBuilder(Path.Combine(worldsDirectory, name));
 
@@ -238,7 +240,7 @@ namespace VoxelGame.Client.Scenes
                 if (!CheckChar(c)) return false;
             }
 
-            foreach (char c in new char[] { '.', ',', '{', '}' })
+            foreach (char c in new char[] {'.', ',', '{', '}'})
             {
                 if (!CheckChar(c)) return false;
             }

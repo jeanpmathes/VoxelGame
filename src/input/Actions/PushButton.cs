@@ -24,9 +24,7 @@ namespace VoxelGame.Input.Actions
             }
         }
 
-        public PushButton(KeyOrButton keyOrButton, InputManager input) : base(keyOrButton, input)
-        {
-        }
+        public PushButton(KeyOrButton keyOrButton, InputManager input) : base(keyOrButton, input) {}
 
         protected override void Update()
         {

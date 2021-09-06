@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using System;
 
@@ -54,7 +55,10 @@ namespace VoxelGame.Core.Utilities
         /// <returns>The rounded vector.</returns>
         public static Vector3 Rounded(this Vector3 vector, int digits = 0)
         {
-            return new Vector3((float) Math.Round(vector.X, digits), (float) Math.Round(vector.Y, digits), (float) Math.Round(vector.Z, digits));
+            return new Vector3(
+                (float) Math.Round(vector.X, digits),
+                (float) Math.Round(vector.Y, digits),
+                (float) Math.Round(vector.Z, digits));
         }
 
         /// <summary>
@@ -66,7 +70,10 @@ namespace VoxelGame.Core.Utilities
         /// <returns>The vector with clamped components</returns>
         public static Vector3 ClampComponents(Vector3 vector, Vector3 min, Vector3 max)
         {
-            return new Vector3(MathHelper.Clamp(vector.X, min.X, max.X), MathHelper.Clamp(vector.Y, min.Y, max.Y), MathHelper.Clamp(vector.Z, min.Z, max.Z));
+            return new Vector3(
+                MathHelper.Clamp(vector.X, min.X, max.X),
+                MathHelper.Clamp(vector.Y, min.Y, max.Y),
+                MathHelper.Clamp(vector.Z, min.Z, max.Z));
         }
 
         /// <summary>
@@ -87,7 +94,10 @@ namespace VoxelGame.Core.Utilities
         /// <returns>The modulo vector.</returns>
         public static Vector3i Mod(this Vector3i vector, int mod)
         {
-            return new Vector3i((vector.X % mod + mod) % mod, (vector.Y % mod + mod) % mod, (vector.Z % mod + mod) % mod);
+            return new Vector3i(
+                (vector.X % mod + mod) % mod,
+                (vector.Y % mod + mod) % mod,
+                (vector.Z % mod + mod) % mod);
         }
     }
 }

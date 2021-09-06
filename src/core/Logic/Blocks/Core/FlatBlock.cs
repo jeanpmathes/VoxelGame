@@ -115,7 +115,7 @@ namespace VoxelGame.Core.Logic.Blocks
             };
 
             int tex = indexProvider.GetTextureIndex(texture);
-            textureIndices = new[] { tex, tex, tex, tex, tex, tex, tex, tex };
+            textureIndices = new[] {tex, tex, tex, tex, tex, tex, tex, tex};
 
             indices = new uint[]
             {
@@ -187,7 +187,8 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             Vector3 forwardMovement = Vector3.Dot(entity.Movement, entity.Forward) * entity.Forward;
 
-            if (forwardMovement.LengthSquared > 0.1f && (Orientation) (data & 0b00_0011) == (-forwardMovement).ToOrientation())
+            if (forwardMovement.LengthSquared > 0.1f &&
+                (Orientation) (data & 0b00_0011) == (-forwardMovement).ToOrientation())
             {
                 // Check if entity looks up or down
                 if (Vector3.CalculateAngle(entity.LookingDirection, Vector3.UnitY) < MathHelper.PiOver2)
@@ -201,7 +202,10 @@ namespace VoxelGame.Core.Logic.Blocks
             }
             else
             {
-                entity.Velocity = new Vector3(entity.Velocity.X, MathHelper.Clamp(entity.Velocity.Y, -slidingVelocity, float.MaxValue), entity.Velocity.Z);
+                entity.Velocity = new Vector3(
+                    entity.Velocity.X,
+                    MathHelper.Clamp(entity.Velocity.Y, -slidingVelocity, float.MaxValue),
+                    entity.Velocity.Z);
             }
         }
 
@@ -210,28 +214,33 @@ namespace VoxelGame.Core.Logic.Blocks
             CheckBack(world, x, y, z, side, (Orientation) (data & 0b00_0011), schedule: false);
         }
 
-        protected void CheckBack(World world, int x, int y, int z, BlockSide side, Orientation blockOrientation, bool schedule)
+        protected void CheckBack(World world, int x, int y, int z, BlockSide side, Orientation blockOrientation,
+            bool schedule)
         {
             switch (side)
             {
                 case BlockSide.Front:
 
                     Check(x, y, z + 1, Orientation.North);
+
                     break;
 
                 case BlockSide.Back:
 
                     Check(x, y, z - 1, Orientation.South);
+
                     break;
 
                 case BlockSide.Left:
 
                     Check(x - 1, y, z, Orientation.East);
+
                     break;
 
                 case BlockSide.Right:
 
                     Check(x + 1, y, z, Orientation.West);
+
                     break;
             }
 
@@ -251,22 +260,27 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 case BlockSide.Front:
                     orientation = Orientation.South;
+
                     return true;
 
                 case BlockSide.Back:
                     orientation = Orientation.North;
+
                     return true;
 
                 case BlockSide.Left:
                     orientation = Orientation.West;
+
                     return true;
 
                 case BlockSide.Right:
                     orientation = Orientation.East;
+
                     return true;
 
                 default:
                     orientation = Orientation.North;
+
                     return false;
             }
         }

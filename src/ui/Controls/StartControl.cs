@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
@@ -27,11 +28,17 @@ namespace VoxelGame.UI.Controls
             layout = new VerticalLayout(this);
 
             start = new Button(layout);
-            start.Clicked += new GwenEventHandler<ClickedEventArgs>((ControlBase __, ClickedEventArgs _) => Start?.Invoke());
+
+            start.Clicked +=
+                new GwenEventHandler<ClickedEventArgs>((ControlBase __, ClickedEventArgs _) => Start?.Invoke());
+
             start.Text = "START";
 
             exit = new Button(layout);
-            exit.Clicked += new GwenEventHandler<ClickedEventArgs>((ControlBase __, ClickedEventArgs _) => Exit?.Invoke());
+
+            exit.Clicked +=
+                new GwenEventHandler<ClickedEventArgs>((ControlBase __, ClickedEventArgs _) => Exit?.Invoke());
+
             exit.Text = "EXIT";
         }
 

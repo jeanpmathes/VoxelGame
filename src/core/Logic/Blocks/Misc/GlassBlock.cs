@@ -20,8 +20,6 @@ namespace VoxelGame.Core.Logic.Blocks
                 namedId,
                 layout,
                 isOpaque: false,
-                renderFaceAtNonOpaques: false)
-        {
-        }
+                renderFaceAtNonOpaques: false) {}
     }
 }

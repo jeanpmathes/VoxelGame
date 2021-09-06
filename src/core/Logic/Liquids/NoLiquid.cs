@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Liquids
@@ -20,17 +21,13 @@ namespace VoxelGame.Core.Logic.Liquids
                 viscosity: 1,
                 checkContact: false,
                 receiveContact: false,
-                RenderType.NotRendered)
-        {
-        }
+                RenderType.NotRendered) {}
 
         public override LiquidMeshData GetMesh(LiquidMeshInfo info)
         {
             return LiquidMeshData.Empty;
         }
 
-        protected override void ScheduledUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic)
-        {
-        }
+        protected override void ScheduledUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic) {}
     }
 }

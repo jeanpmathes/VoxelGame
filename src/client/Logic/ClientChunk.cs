@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
@@ -22,9 +23,7 @@ namespace VoxelGame.Client.Logic
         [NonSerialized] private bool hasMeshData;
         [NonSerialized] private int meshDataIndex;
 
-        public ClientChunk(World world, int x, int z, UpdateCounter updateCounter) : base(world, x, z, updateCounter)
-        {
-        }
+        public ClientChunk(World world, int x, int z, UpdateCounter updateCounter) : base(world, x, z, updateCounter) {}
 
         protected override Section CreateSection()
         {
@@ -110,7 +109,11 @@ namespace VoxelGame.Client.Logic
 
                 for (int y = start; y < VerticalSectionCount; y++)
                 {
-                    if (frustum.BoxInFrustum(new BoundingBox(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) + Section.Extents, Section.Extents)))
+                    if (frustum.BoxInFrustum(
+                        new BoundingBox(
+                            new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
+                            Section.Extents,
+                            Section.Extents)))
                     {
                         start = y;
 
@@ -120,7 +123,11 @@ namespace VoxelGame.Client.Logic
 
                 for (int y = end; y >= 0; y--)
                 {
-                    if (frustum.BoxInFrustum(new BoundingBox(new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) + Section.Extents, Section.Extents)))
+                    if (frustum.BoxInFrustum(
+                        new BoundingBox(
+                            new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
+                            Section.Extents,
+                            Section.Extents)))
                     {
                         end = y;
 
@@ -130,7 +137,9 @@ namespace VoxelGame.Client.Logic
 
                 for (int y = start; y <= end; y++)
                 {
-                    renderList.Add(((ClientSection) sections[y], new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize)));
+                    renderList.Add(
+                        ((ClientSection) sections[y],
+                            new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize)));
                 }
             }
         }

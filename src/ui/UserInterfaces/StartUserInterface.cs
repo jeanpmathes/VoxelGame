@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using System;
 using VoxelGame.UI.Controls;
 
@@ -12,9 +13,9 @@ namespace VoxelGame.UI.UserInterfaces
     {
         private StartControl control = null!;
 
-        public StartUserInterface(OpenToolkit.Windowing.Desktop.GameWindow window, bool drawBackground) : base(window, drawBackground)
-        {
-        }
+        public StartUserInterface(OpenToolkit.Windowing.Desktop.GameWindow window, bool drawBackground) : base(
+            window,
+            drawBackground) {}
 
         public override void CreateControl()
         {

@@ -58,7 +58,14 @@ namespace VoxelGame.Client.Scenes
         {
             // Player setup.
             Camera camera = new Camera(new Vector3());
-            Player = new ClientPlayer(World, 70f, 0.25f, camera, new Core.Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)), ui);
+
+            Player = new ClientPlayer(
+                World,
+                70f,
+                0.25f,
+                camera,
+                new Core.Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)),
+                ui);
 
             ui.Load();
             ui.Resize(Screen.Size);
@@ -109,9 +116,10 @@ namespace VoxelGame.Client.Scenes
                 {
                     Screen.SetWireFrame(wireframeToggle.State);
 
-                    Logger.LogInformation(wireframeToggle.State
-                        ? "Enabled wire-frame mode."
-                        : "Disabled wire-frame mode.");
+                    Logger.LogInformation(
+                        wireframeToggle.State
+                            ? "Enabled wire-frame mode."
+                            : "Disabled wire-frame mode.");
                 }
 
                 if (uiToggle.Changed)
@@ -137,7 +145,10 @@ namespace VoxelGame.Client.Scenes
             }
             catch (AggregateException exception)
             {
-                Logger.LogCritical(Events.WorldSavingError, exception.GetBaseException(), "An exception was thrown when saving the world.");
+                Logger.LogCritical(
+                    Events.WorldSavingError,
+                    exception.GetBaseException(),
+                    "An exception was thrown when saving the world.");
             }
 
             World.Dispose();

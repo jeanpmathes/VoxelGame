@@ -18,16 +18,15 @@ namespace VoxelGame.Core.Logic.Blocks
     // c = color
     public class TintedCustomModelBlock : CustomModelBlock, IFlammable
     {
-        internal TintedCustomModelBlock(string name, string namedId, string modelName, Physics.BoundingBox boundingBox, bool isSolid = true) :
+        internal TintedCustomModelBlock(string name, string namedId, string modelName, Physics.BoundingBox boundingBox,
+            bool isSolid = true) :
             base(
                 name,
                 namedId,
                 modelName,
                 boundingBox,
                 isSolid,
-                isInteractable: true)
-        {
-        }
+                isInteractable: true) {}
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {

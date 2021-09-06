@@ -64,8 +64,8 @@ namespace VoxelGame.Core.Visuals
             vertices = new[]
             {
                 -0.5f, -0.5f, 0.0f, 0f, 0f,
-                -0.5f,  0.5f, 0.0f, 0f, 1f,
-                0.5f,  0.5f, 0.0f, 1f, 1f,
+                -0.5f, 0.5f, 0.0f, 0f, 1f,
+                0.5f, 0.5f, 0.0f, 1f, 1f,
                 0.5f, -0.5f, 0.0f, 1f, 0f
             };
 
@@ -80,6 +80,7 @@ namespace VoxelGame.Core.Visuals
         {
             int[] data = new int[length];
             Array.Fill(data, tex);
+
             return data;
         }
 
@@ -102,8 +103,8 @@ namespace VoxelGame.Core.Visuals
             return indices;
         }
 
-        private static readonly int[][] defaultBlockUVs = { new[] { 0, 0 }, new[] { 0, 1 }, new[] { 1, 1 }, new[] { 1, 0 } };
-        private static readonly int[][] rotatedBlockUVs = { new[] { 0, 1 }, new[] { 1, 1 }, new[] { 1, 0 }, new[] { 0, 0 } };
+        private static readonly int[][] defaultBlockUVs = {new[] {0, 0}, new[] {0, 1}, new[] {1, 1}, new[] {1, 0}};
+        private static readonly int[][] rotatedBlockUVs = {new[] {0, 1}, new[] {1, 1}, new[] {1, 0}, new[] {0, 0}};
 
         public static int[][] GetBlockUVs(bool isRotated)
         {

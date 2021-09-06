@@ -28,7 +28,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public bool SupportsFullGrowth { get; }
 
-        internal InsetDirtBlock(string name, string namedId, TextureLayout dry, TextureLayout wet, bool supportsFullGrowth) :
+        internal InsetDirtBlock(string name, string namedId, TextureLayout dry, TextureLayout wet,
+            bool supportsFullGrowth) :
             base(
                 name,
                 namedId,

@@ -25,9 +25,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isSolid: true,
                 receiveCollisions: false,
                 isTrigger: false,
-                isInteractable: false)
-        {
-        }
+                isInteractable: false) {}
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {

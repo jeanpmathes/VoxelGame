@@ -14,16 +14,34 @@ namespace VoxelGame.Core.Logic
 {
     public class LiquidContactManager
     {
-        private readonly CombinationMap<Liquid, ContactAction> map = new CombinationMap<Liquid, ContactAction>(Liquid.Count);
+        private readonly CombinationMap<Liquid, ContactAction> map =
+            new CombinationMap<Liquid, ContactAction>(Liquid.Count);
 
         public LiquidContactManager()
         {
-            map.AddCombination(Liquid.Lava, ContactAction.LavaCooling, Liquid.Water, Liquid.Milk, Liquid.Concrete, Liquid.Beer, Liquid.Wine, Liquid.Honey);
+            map.AddCombination(
+                Liquid.Lava,
+                ContactAction.LavaCooling,
+                Liquid.Water,
+                Liquid.Milk,
+                Liquid.Concrete,
+                Liquid.Beer,
+                Liquid.Wine,
+                Liquid.Honey);
+
             map.AddCombination(Liquid.Lava, ContactAction.LavaBurn, Liquid.CrudeOil, Liquid.NaturalGas);
-            map.AddCombination(Liquid.Concrete, ContactAction.ConcreteDissolve, Liquid.Water, Liquid.Milk, Liquid.Beer, Liquid.Wine);
+
+            map.AddCombination(
+                Liquid.Concrete,
+                ContactAction.ConcreteDissolve,
+                Liquid.Water,
+                Liquid.Milk,
+                Liquid.Beer,
+                Liquid.Wine);
         }
 
-        public bool HandleContact(World world, Liquid liquidA, Vector3i posA, LiquidLevel levelA, Liquid liquidB, Vector3i posB, LiquidLevel levelB, bool isStaticB)
+        public bool HandleContact(World world, Liquid liquidA, Vector3i posA, LiquidLevel levelA, Liquid liquidB,
+            Vector3i posB, LiquidLevel levelB, bool isStaticB)
         {
             Debug.Assert(liquidA != liquidB);
 
@@ -56,10 +74,24 @@ namespace VoxelGame.Core.Logic
 
             if (lavaBlock.IsReplaceable || lavaBlock.Destroy(world, lava.position.X, lava.position.Y, lava.position.Z))
             {
-                world.SetPosition(Block.Pumice, 0, Liquid.None, LiquidLevel.Eight, true, lava.position.X, lava.position.Y, lava.position.Z);
+                world.SetPosition(
+                    Block.Pumice,
+                    0,
+                    Liquid.None,
+                    LiquidLevel.Eight,
+                    true,
+                    lava.position.X,
+                    lava.position.Y,
+                    lava.position.Z);
             }
 
-            world.SetLiquid(Liquid.Steam, coolant.level, false, coolant.position.X, coolant.position.Y, coolant.position.Z);
+            world.SetLiquid(
+                Liquid.Steam,
+                coolant.level,
+                false,
+                coolant.position.X,
+                coolant.position.Y,
+                coolant.position.Z);
 
             Liquid.Steam.TickSoon(world, coolant.position.X, coolant.position.Y, coolant.position.Z, true);
 
@@ -114,18 +146,56 @@ namespace VoxelGame.Core.Logic
 
             if (dense.level == LiquidLevel.One) return false;
 
-            (Block? aboveLightBlock, Liquid? aboveLightLiquid) = world.GetPosition(light.position.X, light.position.Y + light.liquid.Direction, light.position.Z, out _, out _, out _);
+            (Block? aboveLightBlock, Liquid? aboveLightLiquid) = world.GetPosition(
+                light.position.X,
+                light.position.Y + light.liquid.Direction,
+                light.position.Z,
+                out _,
+                out _,
+                out _);
 
-            if (aboveLightBlock is IFillable fillable && fillable.AllowInflow(world, light.position.X, light.position.Y + light.liquid.Direction, light.position.Z, light.liquid.Direction > 0 ? BlockSide.Bottom : BlockSide.Top, light.liquid)
+            if (aboveLightBlock is IFillable fillable && fillable.AllowInflow(
+                                                          world,
+                                                          light.position.X,
+                                                          light.position.Y + light.liquid.Direction,
+                                                          light.position.Z,
+                                                          light.liquid.Direction > 0 ? BlockSide.Bottom : BlockSide.Top,
+                                                          light.liquid)
                                                       && aboveLightLiquid == Liquid.None)
             {
-                world.SetLiquid(light.liquid, light.level, true, light.position.X, light.position.Y + light.liquid.Direction, light.position.Z);
-                light.liquid.TickSoon(world, light.position.X, light.position.Y + light.liquid.Direction, light.position.Z, true);
+                world.SetLiquid(
+                    light.liquid,
+                    light.level,
+                    true,
+                    light.position.X,
+                    light.position.Y + light.liquid.Direction,
+                    light.position.Z);
 
-                world.SetLiquid(dense.liquid, LiquidLevel.One, true, light.position.X, light.position.Y, light.position.Z);
+                light.liquid.TickSoon(
+                    world,
+                    light.position.X,
+                    light.position.Y + light.liquid.Direction,
+                    light.position.Z,
+                    true);
+
+                world.SetLiquid(
+                    dense.liquid,
+                    LiquidLevel.One,
+                    true,
+                    light.position.X,
+                    light.position.Y,
+                    light.position.Z);
+
                 dense.liquid.TickSoon(world, light.position.X, light.position.Y, light.position.Z, true);
 
-                world.SetLiquid(dense.liquid, dense.level - 1, true, dense.position.X, dense.position.Y, dense.position.Z);
+                world.SetLiquid(
+                    dense.liquid,
+                    dense.level - 1,
+                    true,
+                    dense.position.X,
+                    dense.position.Y,
+                    dense.position.Z);
+
                 dense.liquid.TickSoon(world, dense.position.X, dense.position.Y, dense.position.Z, true);
 
                 return true;
@@ -140,13 +210,21 @@ namespace VoxelGame.Core.Logic
 
             other.liquid.TickSoon(world, other.position.X, other.position.Y, other.position.Z, other.isStatic);
 
-            world.SetLiquid(Liquid.Water, concrete.level, true, concrete.position.X, concrete.position.Y, concrete.position.Z);
+            world.SetLiquid(
+                Liquid.Water,
+                concrete.level,
+                true,
+                concrete.position.X,
+                concrete.position.Y,
+                concrete.position.Z);
+
             Liquid.Water.TickSoon(world, concrete.position.X, concrete.position.Y, concrete.position.Z, true);
 
             return true;
         }
 
-        private static void Select(ContactInformation a, ContactInformation b, Liquid liquid, out ContactInformation selected, out ContactInformation other)
+        private static void Select(ContactInformation a, ContactInformation b, Liquid liquid,
+            out ContactInformation selected, out ContactInformation other)
         {
             if (a.liquid == liquid)
             {

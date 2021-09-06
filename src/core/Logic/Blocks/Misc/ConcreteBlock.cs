@@ -49,12 +49,14 @@ namespace VoxelGame.Core.Logic.Blocks
         protected override BoundingBox GetBoundingBox(uint data)
         {
             Decode(data, out _, out int height);
+
             return BoundingBox.BlockWithHeight(height);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             Decode(info.Data, out BlockColor color, out _);
+
             return BlockMeshData.VaryingHeight(textures[(int) info.Side], color.ToTintColor());
         }
 
@@ -83,6 +85,7 @@ namespace VoxelGame.Core.Logic.Blocks
             var val = 0;
             val |= ((int) color << 3) & 0b11_1000;
             val |= (height / 2) & 0b00_0111;
+
             return (uint) val;
         }
 
@@ -95,12 +98,14 @@ namespace VoxelGame.Core.Logic.Blocks
         public int GetHeight(uint data)
         {
             Decode(data, out _, out int height);
+
             return height;
         }
 
         public bool IsConnectable(World world, BlockSide side, int x, int y, int z)
         {
             world.GetBlock(x, y, z, out uint data);
+
             return GetHeight(data) == IHeightVariable.MaximumHeight;
         }
     }

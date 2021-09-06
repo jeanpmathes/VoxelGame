@@ -25,9 +25,7 @@ namespace VoxelGame.Input.Actions
 
         public bool Changed { get; private set; }
 
-        public ToggleButton(KeyOrButton keyOrButton, InputManager input) : base(keyOrButton, input)
-        {
-        }
+        public ToggleButton(KeyOrButton keyOrButton, InputManager input) : base(keyOrButton, input) {}
 
         public void Clear()
         {

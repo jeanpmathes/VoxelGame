@@ -26,15 +26,18 @@ namespace VoxelGame.Logging
 
             LogLevel level = logDebug ? LogLevel.Debug : LogLevel.Information;
 
-            LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
-            {
-                builder
-                    .AddFilter("Microsoft", LogLevel.Warning)
-                    .AddFilter("System", LogLevel.Warning)
-                    .AddFilter("VoxelGame", level)
-                    .AddSimpleConsole(options => options.IncludeScopes = true)
-                    .AddFile(Path.Combine(appDataDirectory, "Logs", $"voxel-log-{{Date}}{DateTime.Now:_HH-mm-ss}.log"), level);
-            });
+            LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
+                builder =>
+                {
+                    builder
+                        .AddFilter("Microsoft", LogLevel.Warning)
+                        .AddFilter("System", LogLevel.Warning)
+                        .AddFilter("VoxelGame", level)
+                        .AddSimpleConsole(options => options.IncludeScopes = true)
+                        .AddFile(
+                            Path.Combine(appDataDirectory, "Logs", $"voxel-log-{{Date}}{DateTime.Now:_HH-mm-ss}.log"),
+                            level);
+                });
 
             return LoggerFactory.CreateLogger(category);
         }

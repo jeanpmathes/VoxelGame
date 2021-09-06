@@ -26,8 +26,13 @@ namespace VoxelGame.Client
         private static void Main(string[] args)
 #endif
         {
-            string appDataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "voxel");
-            string screenshotDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "VoxelGame");
+            string appDataDirectory = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "voxel");
+
+            string screenshotDirectory = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
+                "VoxelGame");
 
             Directory.CreateDirectory(appDataDirectory);
             Directory.CreateDirectory(screenshotDirectory);
@@ -69,7 +74,11 @@ namespace VoxelGame.Client
 
             logger.LogInformation("Starting game on version: {Version}", Version);
 
-            using (Application.Client client = new Application.Client(gameWindowSettings, nativeWindowSettings, appDataDirectory, screenshotDirectory))
+            using (Application.Client client = new Application.Client(
+                gameWindowSettings,
+                nativeWindowSettings,
+                appDataDirectory,
+                screenshotDirectory))
             {
                 client.Run();
             }

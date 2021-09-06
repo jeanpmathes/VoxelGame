@@ -58,7 +58,8 @@ namespace VoxelGame.Core.WorldGeneration
                     if (y == height + 1 && y < snowLevel && y > beachLevel + 1)
                     {
 #pragma warning disable S2234 // Parameters should be passed in the correct order
-                        if (noise.GetCellular(x, z, y) > caveTreshold + (y / (halfHeight * caveLifter)) || noise.GetCellular(x, z, y - 1) > caveTreshold + ((y - 1) / (halfHeight * caveLifter)))
+                        if (noise.GetCellular(x, z, y) > caveTreshold + (y / (halfHeight * caveLifter)) ||
+                            noise.GetCellular(x, z, y - 1) > caveTreshold + ((y - 1) / (halfHeight * caveLifter)))
 #pragma warning restore S2234 // Parameters should be passed in the correct order
                         {
                             yield return Block.Air;

@@ -21,7 +21,8 @@ namespace VoxelGame.Core.Utilities
             block = world.GetBlock(x, y, z, out uint data) ?? Block.Air;
 
             return block.IsSolidAndFull
-                   || (block is IHeightVariable varHeight && varHeight.GetHeight(data) == IHeightVariable.MaximumHeight);
+                   || (block is IHeightVariable varHeight &&
+                       varHeight.GetHeight(data) == IHeightVariable.MaximumHeight);
         }
 
         public static bool HasSolidGround(this World world, int x, int y, int z, bool solidify = false)
@@ -31,6 +32,7 @@ namespace VoxelGame.Core.Utilities
             if (!solidify || isSolid || !(ground is IPotentiallySolid solidifiable)) return isSolid;
 
             solidifiable.BecomeSolid(world, x, y - 1, z);
+
             return true;
         }
 
@@ -50,7 +52,7 @@ namespace VoxelGame.Core.Utilities
         public static bool IsLowered(this World world, int x, int y, int z)
         {
             return world.GetBlock(x, y - 1, z, out uint data) is IHeightVariable block
-                && block.GetHeight(data) == IHeightVariable.MaximumHeight - 1;
+                   && block.GetHeight(data) == IHeightVariable.MaximumHeight - 1;
         }
     }
 }

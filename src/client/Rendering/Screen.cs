@@ -91,13 +91,22 @@ namespace VoxelGame.Client.Rendering
 
             msTex = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2DMultisample, msTex);
-            GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, samples, PixelInternalFormat.Rgba8, Size.X, Size.Y, true);
+
+            GL.TexImage2DMultisample(
+                TextureTargetMultisample.Texture2DMultisample,
+                samples,
+                PixelInternalFormat.Rgba8,
+                Size.X,
+                Size.Y,
+                true);
+
             GL.BindTexture(TextureTarget.Texture2DMultisample, 0);
 
             GL.CreateFramebuffers(1, out msFBO);
             GL.NamedFramebufferTexture(msFBO, FramebufferAttachment.ColorAttachment0, msTex, 0);
 
-            FramebufferStatus multisampledFboStatus = GL.CheckNamedFramebufferStatus(msFBO, FramebufferTarget.Framebuffer);
+            FramebufferStatus multisampledFboStatus =
+                GL.CheckNamedFramebufferStatus(msFBO, FramebufferTarget.Framebuffer);
 
             while (multisampledFboStatus != FramebufferStatus.FramebufferComplete)
             {
@@ -109,7 +118,12 @@ namespace VoxelGame.Client.Rendering
 
             GL.CreateRenderbuffers(1, out msRBO);
             GL.NamedRenderbufferStorageMultisample(msRBO, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
-            GL.NamedFramebufferRenderbuffer(msFBO, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, msRBO);
+
+            GL.NamedFramebufferRenderbuffer(
+                msFBO,
+                FramebufferAttachment.DepthStencilAttachment,
+                RenderbufferTarget.Renderbuffer,
+                msRBO);
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, msFBO);
             GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
@@ -122,10 +136,26 @@ namespace VoxelGame.Client.Rendering
             GL.ActiveTexture(TextureUnit.Texture20);
             GL.BindTexture(TextureTarget.Texture2D, depthTex);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent, Size.X, Size.Y, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+            GL.TexImage2D(
+                TextureTarget.Texture2D,
+                0,
+                PixelInternalFormat.DepthComponent,
+                Size.X,
+                Size.Y,
+                0,
+                PixelFormat.DepthComponent,
+                PixelType.Float,
+                IntPtr.Zero);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Nearest);
+            GL.TexParameter(
+                TextureTarget.Texture2D,
+                TextureParameterName.TextureMinFilter,
+                (int) TextureMinFilter.Nearest);
+
+            GL.TexParameter(
+                TextureTarget.Texture2D,
+                TextureParameterName.TextureMagFilter,
+                (int) TextureMagFilter.Nearest);
 
             GL.CreateFramebuffers(1, out depthFBO);
             GL.NamedFramebufferTexture(depthFBO, FramebufferAttachment.DepthAttachment, depthTex, 0);
@@ -150,9 +180,15 @@ namespace VoxelGame.Client.Rendering
 
             GL.CreateRenderbuffers(1, out screenshotRBO);
             GL.NamedRenderbufferStorage(screenshotRBO, RenderbufferStorage.Rgba8, Size.X, Size.Y);
-            GL.NamedFramebufferRenderbuffer(screenshotFBO, FramebufferAttachment.ColorAttachment0, RenderbufferTarget.Renderbuffer, screenshotRBO);
 
-            FramebufferStatus screenshotFboStatus = GL.CheckNamedFramebufferStatus(screenshotFBO, FramebufferTarget.Framebuffer);
+            GL.NamedFramebufferRenderbuffer(
+                screenshotFBO,
+                FramebufferAttachment.ColorAttachment0,
+                RenderbufferTarget.Renderbuffer,
+                screenshotRBO);
+
+            FramebufferStatus screenshotFboStatus =
+                GL.CheckNamedFramebufferStatus(screenshotFBO, FramebufferTarget.Framebuffer);
 
             while (screenshotFboStatus != FramebufferStatus.FramebufferComplete)
             {
@@ -163,18 +199,30 @@ namespace VoxelGame.Client.Rendering
             }
 
             #endregion SCREENSHOT FBO
+
         }
 
         public void Clear()
         {
-            GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Color, 0, new float[] { 0.5f, 0.8f, 0.9f, 1.0f });
-            GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, 0, new float[] { 1f });
+            GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Color, 0, new float[] {0.5f, 0.8f, 0.9f, 1.0f});
+            GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, 0, new float[] {1f});
         }
 
         public void Draw()
         {
-            GL.BlitNamedFramebuffer(msFBO, 0, 0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y,
-                ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
+            GL.BlitNamedFramebuffer(
+                msFBO,
+                0,
+                0,
+                0,
+                Size.X,
+                Size.Y,
+                0,
+                0,
+                Size.X,
+                Size.Y,
+                ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit,
+                BlitFramebufferFilter.Nearest);
         }
 
         private void OnResize(ResizeEventArgs e)
@@ -184,7 +232,15 @@ namespace VoxelGame.Client.Rendering
             #region MULTISAMPLED FBO
 
             GL.BindTexture(TextureTarget.Texture2DMultisample, msTex);
-            GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, samples, PixelInternalFormat.Rgba8, Size.X, Size.Y, true);
+
+            GL.TexImage2DMultisample(
+                TextureTargetMultisample.Texture2DMultisample,
+                samples,
+                PixelInternalFormat.Rgba8,
+                Size.X,
+                Size.Y,
+                true);
+
             GL.BindTexture(TextureTarget.Texture2DMultisample, 0);
 
             GL.NamedRenderbufferStorageMultisample(msRBO, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
@@ -196,7 +252,16 @@ namespace VoxelGame.Client.Rendering
             GL.ActiveTexture(TextureUnit.Texture20);
             GL.BindTexture(TextureTarget.Texture2D, depthTex);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent, Size.X, Size.Y, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+            GL.TexImage2D(
+                TextureTarget.Texture2D,
+                0,
+                PixelInternalFormat.DepthComponent,
+                Size.X,
+                Size.Y,
+                0,
+                PixelFormat.DepthComponent,
+                PixelType.Float,
+                IntPtr.Zero);
 
             GL.ActiveTexture(TextureUnit.Texture0);
 
@@ -246,7 +311,18 @@ namespace VoxelGame.Client.Rendering
             }
             else
             {
-                unsafe { GLFW.SetWindowMonitor(Instance.Client.WindowPointer, null, previousScreenLocation.X, previousScreenLocation.Y, previousScreenSize.X, previousScreenSize.Y, (int) Instance.Client.RenderFrequency); }
+                unsafe
+                {
+                    GLFW.SetWindowMonitor(
+                        Instance.Client.WindowPointer,
+                        null,
+                        previousScreenLocation.X,
+                        previousScreenLocation.Y,
+                        previousScreenSize.X,
+                        previousScreenSize.Y,
+                        (int) Instance.Client.RenderFrequency);
+                }
+
                 Instance.Client.IsFullscreen = false;
 
                 Logger.LogDebug("Fullscreen: Switched to normal mode.");
@@ -279,14 +355,32 @@ namespace VoxelGame.Client.Rendering
         {
             IntPtr data = Marshal.AllocHGlobal(Size.X * Size.Y * 4);
 
-            GL.BlitNamedFramebuffer(Instance.msFBO, Instance.screenshotFBO, 0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+            GL.BlitNamedFramebuffer(
+                Instance.msFBO,
+                Instance.screenshotFBO,
+                0,
+                0,
+                Size.X,
+                Size.Y,
+                0,
+                0,
+                Size.X,
+                Size.Y,
+                ClearBufferMask.ColorBufferBit,
+                BlitFramebufferFilter.Nearest);
 
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, Instance.screenshotFBO);
             GL.ReadPixels(0, 0, Size.X, Size.Y, PixelFormat.Bgra, PixelType.UnsignedByte, data);
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, Instance.msFBO);
 
-            using Bitmap screenshot = new Bitmap(Size.X, Size.Y, 4 * Size.X, System.Drawing.Imaging.PixelFormat.Format32bppArgb, data);
+            using Bitmap screenshot = new Bitmap(
+                Size.X,
+                Size.Y,
+                4 * Size.X,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb,
+                data);
+
             screenshot.RotateFlip(RotateFlipType.RotateNoneFlipY);
 
             string path = Path.Combine(directory, $"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
@@ -302,8 +396,21 @@ namespace VoxelGame.Client.Rendering
             GL.ActiveTexture(TextureUnit.Texture20);
             GL.BindTexture(TextureTarget.Texture2D, Instance.depthTex);
 
-            GL.ClearNamedFramebuffer(Instance.depthFBO, ClearBuffer.Depth, 0, new float[] { 1f });
-            GL.BlitNamedFramebuffer(Instance.msFBO, Instance.depthFBO, 0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
+            GL.ClearNamedFramebuffer(Instance.depthFBO, ClearBuffer.Depth, 0, new float[] {1f});
+
+            GL.BlitNamedFramebuffer(
+                Instance.msFBO,
+                Instance.depthFBO,
+                0,
+                0,
+                Size.X,
+                Size.Y,
+                0,
+                0,
+                Size.X,
+                Size.Y,
+                ClearBufferMask.DepthBufferBit,
+                BlitFramebufferFilter.Nearest);
 
             GL.ActiveTexture(TextureUnit.Texture0);
         }

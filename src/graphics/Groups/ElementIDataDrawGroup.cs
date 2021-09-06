@@ -42,6 +42,7 @@ namespace VoxelGame.Graphics.Groups
             if (elementCount == 0)
             {
                 IsFilled = false;
+
                 return;
             }
 

@@ -39,7 +39,8 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly string post;
         private readonly string extension;
 
-        protected WideConnectingBlock(string name, string namedId, string texture, string post, string extension, BoundingBox boundingBox) :
+        protected WideConnectingBlock(string name, string namedId, string texture, string post, string extension,
+            BoundingBox boundingBox) :
             base(
                 name,
                 namedId,

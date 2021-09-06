@@ -45,7 +45,10 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Gets the position of the chunk as a point located in the center of the chunk.
         /// </summary>
-        public Vector3 ChunkPoint => new Vector3((X * ChunkWidth) + (ChunkWidth / 2f), ChunkHeight / 2f, (Z * ChunkWidth) + (ChunkWidth / 2f));
+        public Vector3 ChunkPoint => new Vector3(
+            (X * ChunkWidth) + (ChunkWidth / 2f),
+            ChunkHeight / 2f,
+            (Z * ChunkWidth) + (ChunkWidth / 2f));
 
         public static Vector3 ChunkExtents => new Vector3(ChunkWidth / 2f, ChunkHeight / 2f, ChunkWidth / 2f);
 
@@ -74,8 +77,15 @@ namespace VoxelGame.Core.Logic
 #pragma warning restore S1699 // Constructors should only call non-overridable methods
             }
 
-            blockTickManager = new ScheduledTickManager<Block.BlockTick>(Block.MaxLiquidTicksPerFrameAndChunk, World, updateCounter);
-            liquidTickManager = new ScheduledTickManager<Liquid.LiquidTick>(Liquid.MaxLiquidTicksPerFrameAndChunk, World, updateCounter);
+            blockTickManager = new ScheduledTickManager<Block.BlockTick>(
+                Block.MaxLiquidTicksPerFrameAndChunk,
+                World,
+                updateCounter);
+
+            liquidTickManager = new ScheduledTickManager<Liquid.LiquidTick>(
+                Liquid.MaxLiquidTicksPerFrameAndChunk,
+                World,
+                updateCounter);
         }
 
         protected abstract Section CreateSection();
@@ -122,7 +132,10 @@ namespace VoxelGame.Core.Logic
             }
             else
             {
-                Logger.LogWarning("The file for the chunk at ({x}|{z}) was not valid as the position did not match.", x, z);
+                Logger.LogWarning(
+                    "The file for the chunk at ({x}|{z}) was not valid as the position did not match.",
+                    x,
+                    z);
 
                 return null;
             }
@@ -181,7 +194,9 @@ namespace VoxelGame.Core.Logic
                 {
                     int y = 0;
 
-                    foreach (Block block in generator.GenerateColumn(x + (X * Section.SectionSize), z + (Z * Section.SectionSize)))
+                    foreach (Block block in generator.GenerateColumn(
+                        x + (X * Section.SectionSize),
+                        z + (Z * Section.SectionSize)))
                     {
                         sections[y >> Section.SectionSizeExp][x, y & (Section.SectionSize - 1), z] = block.Id;
 

@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Logic.Interfaces;
 
 namespace VoxelGame.Core.Logic.Liquids
@@ -12,7 +13,9 @@ namespace VoxelGame.Core.Logic.Liquids
     /// </summary>
     public class HotLiquid : BasicLiquid
     {
-        public HotLiquid(string name, string namedId, float density, int viscosity, bool neutralTint, TextureLayout movingLayout, TextureLayout staticLayout, Visuals.RenderType renderType = Visuals.RenderType.Opaque) :
+        public HotLiquid(string name, string namedId, float density, int viscosity, bool neutralTint,
+            TextureLayout movingLayout, TextureLayout staticLayout,
+            Visuals.RenderType renderType = Visuals.RenderType.Opaque) :
             base(
                 name,
                 namedId,
@@ -21,9 +24,7 @@ namespace VoxelGame.Core.Logic.Liquids
                 neutralTint,
                 movingLayout,
                 staticLayout,
-                renderType)
-        {
-        }
+                renderType) {}
 
         protected override void ScheduledUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic)
         {

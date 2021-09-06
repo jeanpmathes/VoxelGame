@@ -25,7 +25,8 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly string texture;
         private int second, third, fourth, fifth, sixth, final, dead;
 
-        internal CropBlock(string name, string namedId, string texture, int second, int third, int fourth, int fifth, int sixth, int final, int dead) :
+        internal CropBlock(string name, string namedId, string texture, int second, int third, int fourth, int fifth,
+            int sixth, int final, int dead) :
             base(
                 name,
                 namedId,
@@ -138,7 +139,8 @@ namespace VoxelGame.Core.Logic.Blocks
             var stage = (GrowthStage) (data & 0b00_0111);
             uint lowered = data & 0b00_1000;
 
-            if (stage != GrowthStage.Final && stage != GrowthStage.Dead && world.GetBlock(x, y - 1, z, out _) is IPlantable plantable)
+            if (stage != GrowthStage.Final && stage != GrowthStage.Dead &&
+                world.GetBlock(x, y - 1, z, out _) is IPlantable plantable)
             {
                 if ((int) stage > 2)
                 {

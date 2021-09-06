@@ -61,7 +61,8 @@ namespace VoxelGame.Input.Internal
             return false;
         }
 
-        public KeyButtonPair Settings => new KeyButtonPair { Key = key ?? Key.Unknown, Button = button ?? MouseButton.LastButton };
+        public KeyButtonPair Settings => new KeyButtonPair
+            {Key = key ?? Key.Unknown, Button = button ?? MouseButton.LastButton};
 
         public override bool Equals(object? obj)
         {

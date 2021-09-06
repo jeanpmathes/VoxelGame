@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using System;
 using VoxelGame.Core.Logic;
@@ -23,7 +24,13 @@ namespace VoxelGame.Core.Physics
         /// <returns>True if an intersection happens.</returns>
         public static bool CastBlock(World world, Ray ray, out int hitX, out int hitY, out int hitZ, out BlockSide side)
         {
-            return CastVoxel(ray, out hitX, out hitY, out hitZ, out side, (ray1, x, y, z) => BlockIntersectionCheck(world, ray1, x, y, z));
+            return CastVoxel(
+                ray,
+                out hitX,
+                out hitY,
+                out hitZ,
+                out side,
+                (ray1, x, y, z) => BlockIntersectionCheck(world, ray1, x, y, z));
         }
 
         /// <summary>
@@ -36,12 +43,20 @@ namespace VoxelGame.Core.Physics
         /// <param name="hitZ">The z position where the intersection happens.</param>
         /// <param name="side">The side of the voxel which is hit first.</param>
         /// <returns>True if an intersection happens.</returns>
-        public static bool CastLiquid(World world, Ray ray, out int hitX, out int hitY, out int hitZ, out BlockSide side)
+        public static bool CastLiquid(World world, Ray ray, out int hitX, out int hitY, out int hitZ,
+            out BlockSide side)
         {
-            return CastVoxel(ray, out hitX, out hitY, out hitZ, out side, (ray1, x, y, z) => LiquidIntersectionCheck(world, ray1, x, y, z));
+            return CastVoxel(
+                ray,
+                out hitX,
+                out hitY,
+                out hitZ,
+                out side,
+                (ray1, x, y, z) => LiquidIntersectionCheck(world, ray1, x, y, z));
         }
 
-        private static bool CastVoxel(Ray ray, out int hitX, out int hitY, out int hitZ, out BlockSide side, Func<Ray, int, int, int, bool> rayIntersectionCheck)
+        private static bool CastVoxel(Ray ray, out int hitX, out int hitY, out int hitZ, out BlockSide side,
+            Func<Ray, int, int, int, bool> rayIntersectionCheck)
         {
             /*
              * Voxel Traversal Algorithm
@@ -145,6 +160,7 @@ namespace VoxelGame.Core.Physics
 
             hitX = hitY = hitZ = -1;
             side = BlockSide.All;
+
             return false;
         }
 
@@ -161,7 +177,8 @@ namespace VoxelGame.Core.Physics
             Liquid? liquid = world.GetLiquid(x, y, z, out LiquidLevel level, out _);
 
             // Check if the ray intersects the bounding box of the liquid.
-            return (liquid != null && liquid != Liquid.None && Liquid.GetBoundingBox(world, x, y, z, level).Intersects(ray));
+            return (liquid != null && liquid != Liquid.None &&
+                    Liquid.GetBoundingBox(world, x, y, z, level).Intersects(ray));
         }
     }
 }

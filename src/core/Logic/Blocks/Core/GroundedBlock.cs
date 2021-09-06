@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -15,7 +16,8 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class GroundedBlock : BasicBlock, IFlammable
     {
-        internal GroundedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true, bool isInteractable = false) :
+        internal GroundedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true,
+            bool renderFaceAtNonOpaques = true, bool isSolid = true, bool isInteractable = false) :
             base(
                 name,
                 namedId,
@@ -25,9 +27,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isSolid,
                 receiveCollisions: false,
                 isTrigger: false,
-                isInteractable)
-        {
-        }
+                isInteractable) {}
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {

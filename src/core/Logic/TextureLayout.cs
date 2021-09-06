@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using System;
 using VoxelGame.Core.Visuals;
 
@@ -16,7 +17,8 @@ namespace VoxelGame.Core.Logic
         private static ITextureIndexProvider _blockTextureIndexProvider = null!;
         private static ITextureIndexProvider _liquidTextureIndexProvider = null!;
 
-        public static void SetProviders(ITextureIndexProvider blockTextureIndexProvider, ITextureIndexProvider liquidTextureIndexProvider)
+        public static void SetProviders(ITextureIndexProvider blockTextureIndexProvider,
+            ITextureIndexProvider liquidTextureIndexProvider)
         {
             _blockTextureIndexProvider = blockTextureIndexProvider;
             _liquidTextureIndexProvider = liquidTextureIndexProvider;
@@ -52,7 +54,8 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Returns a texture layout where every side has a different texture.
         /// </summary>
-        public static TextureLayout Unique(string front, string back, string left, string right, string bottom, string top)
+        public static TextureLayout Unique(string front, string back, string left, string right, string bottom,
+            string top)
         {
             return new TextureLayout(
                 front: _blockTextureIndexProvider.GetTextureIndex(front),
@@ -204,11 +207,11 @@ namespace VoxelGame.Core.Logic
         public bool Equals(TextureLayout other)
         {
             return Front == other.Front &&
-                Back == other.Back &&
-                Left == other.Left &&
-                Right == other.Right &&
-                Bottom == other.Bottom &&
-                Top == other.Top;
+                   Back == other.Back &&
+                   Left == other.Left &&
+                   Right == other.Right &&
+                   Bottom == other.Bottom &&
+                   Top == other.Top;
         }
     }
 }

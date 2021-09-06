@@ -14,7 +14,8 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class NaturalBlock : BasicBlock, IFlammable
     {
-        internal NaturalBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
+        internal NaturalBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true,
+            bool renderFaceAtNonOpaques = true, bool isSolid = true) :
             base(
                 name,
                 namedId,
@@ -24,8 +25,6 @@ namespace VoxelGame.Core.Logic.Blocks
                 isSolid,
                 receiveCollisions: false,
                 isTrigger: false,
-                isInteractable: false)
-        {
-        }
+                isInteractable: false) {}
     }
 }

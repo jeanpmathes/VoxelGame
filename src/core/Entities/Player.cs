@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using System;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
@@ -31,7 +32,11 @@ namespace VoxelGame.Core.Entities
         /// </summary>
         public int ChunkZ { get; private set; }
 
-        protected Player(World world, float mass, float drag, BoundingBox boundingBox) : base(world, mass, drag, boundingBox)
+        protected Player(World world, float mass, float drag, BoundingBox boundingBox) : base(
+            world,
+            mass,
+            drag,
+            boundingBox)
         {
             Position = World.Information.SpawnInformation.Position;
 
@@ -94,8 +99,13 @@ namespace VoxelGame.Core.Entities
                 {
                     for (int z = 0; z < (2 * LoadDistance) + 1; z++)
                     {
-                        World.ReleaseChunk(ChunkX + ((LoadDistance - x) * -signX), ChunkZ + ((LoadDistance - z) * -signZ));
-                        World.RequestChunk(currentChunkX + ((LoadDistance - x) * signX), currentChunkZ + ((LoadDistance - z) * signZ));
+                        World.ReleaseChunk(
+                            ChunkX + ((LoadDistance - x) * -signX),
+                            ChunkZ + ((LoadDistance - z) * -signZ));
+
+                        World.RequestChunk(
+                            currentChunkX + ((LoadDistance - x) * signX),
+                            currentChunkZ + ((LoadDistance - z) * signZ));
                     }
                 }
 
@@ -103,8 +113,13 @@ namespace VoxelGame.Core.Entities
                 {
                     for (int x = 0; x < (2 * LoadDistance) + 1; x++)
                     {
-                        World.ReleaseChunk(ChunkX + ((LoadDistance - x) * -signX), ChunkZ + ((LoadDistance - z) * -signZ));
-                        World.RequestChunk(currentChunkX + ((LoadDistance - x) * signX), currentChunkZ + ((LoadDistance - z) * signZ));
+                        World.ReleaseChunk(
+                            ChunkX + ((LoadDistance - x) * -signX),
+                            ChunkZ + ((LoadDistance - z) * -signZ));
+
+                        World.RequestChunk(
+                            currentChunkX + ((LoadDistance - x) * signX),
+                            currentChunkZ + ((LoadDistance - z) * signZ));
                     }
                 }
             }

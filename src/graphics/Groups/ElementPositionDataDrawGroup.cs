@@ -39,13 +39,15 @@ namespace VoxelGame.Graphics.Groups
 
         public bool IsFilled { get; private set; }
 
-        public void SetData(int positionCount, float[] positions, int dataCount, int[] data, int indexCount, uint[] indices)
+        public void SetData(int positionCount, float[] positions, int dataCount, int[] data, int indexCount,
+            uint[] indices)
         {
             elementCount = indexCount;
 
             if (elementCount == 0)
             {
                 IsFilled = false;
+
                 return;
             }
 
@@ -68,7 +70,14 @@ namespace VoxelGame.Graphics.Groups
             GL.EnableVertexArrayAttrib(vao, positionAttribute);
             GL.EnableVertexArrayAttrib(vao, dataAttribute);
 
-            GL.VertexArrayAttribFormat(vao, positionAttribute, positionSize, VertexAttribType.Float, false, 0 * sizeof(float));
+            GL.VertexArrayAttribFormat(
+                vao,
+                positionAttribute,
+                positionSize,
+                VertexAttribType.Float,
+                false,
+                0 * sizeof(float));
+
             GL.VertexArrayAttribIFormat(vao, dataAttribute, dataSize, VertexAttribType.Int, 0 * sizeof(int));
 
             GL.VertexArrayAttribBinding(vao, positionAttribute, 0);

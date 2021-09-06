@@ -29,7 +29,10 @@ namespace VoxelGame.Client.Rendering
 
         public Vector3 Position { get; set; }
 
-        public Frustum Frustum { get => new Frustum(fov, Screen.AspectRatio, nearClipping, farClipping, Position, front, up, right); }
+        public Frustum Frustum
+        {
+            get => new Frustum(fov, Screen.AspectRatio, nearClipping, farClipping, Position, front, up, right);
+        }
 
         public Vector3 Front => front;
         public Vector3 Up => up;

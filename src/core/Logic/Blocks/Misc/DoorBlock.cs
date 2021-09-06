@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -58,10 +59,20 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            BlockModel.Load(closed).PlaneSplit(Vector3.UnitY, -Vector3.UnitY, out BlockModel baseClosed, out BlockModel topClosed);
+            BlockModel.Load(closed).PlaneSplit(
+                Vector3.UnitY,
+                -Vector3.UnitY,
+                out BlockModel baseClosed,
+                out BlockModel topClosed);
+
             topClosed.Move(-Vector3.UnitY);
 
-            BlockModel.Load(open).PlaneSplit(Vector3.UnitY, -Vector3.UnitY, out BlockModel baseOpen, out BlockModel topOpen);
+            BlockModel.Load(open).PlaneSplit(
+                Vector3.UnitY,
+                -Vector3.UnitY,
+                out BlockModel baseOpen,
+                out BlockModel topOpen);
+
             topOpen.Move(-Vector3.UnitY);
 
             for (int i = 0; i < 4; i++)
@@ -104,9 +115,13 @@ namespace VoxelGame.Core.Logic.Blocks
 
             return orientation switch
             {
-                Orientation.North => new BoundingBox(new Vector3(0.5f, 0.5f, 0.9375f), new Vector3(0.5f, 0.5f, 0.0625f)),
+                Orientation.North => new BoundingBox(
+                    new Vector3(0.5f, 0.5f, 0.9375f),
+                    new Vector3(0.5f, 0.5f, 0.0625f)),
                 Orientation.East => new BoundingBox(new Vector3(0.0625f, 0.5f, 0.5f), new Vector3(0.0625f, 0.5f, 0.5f)),
-                Orientation.South => new BoundingBox(new Vector3(0.5f, 0.5f, 0.0625f), new Vector3(0.5f, 0.5f, 0.0625f)),
+                Orientation.South => new BoundingBox(
+                    new Vector3(0.5f, 0.5f, 0.0625f),
+                    new Vector3(0.5f, 0.5f, 0.0625f)),
                 Orientation.West => new BoundingBox(new Vector3(0.9375f, 0.5f, 0.5f), new Vector3(0.0625f, 0.5f, 0.5f)),
                 _ => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.5f, 0.5f, 0.5f))
             };
@@ -130,7 +145,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            return world.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true && world.HasSolidGround(x, y, z, solidify: true);
+            return world.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true &&
+                   world.HasSolidGround(x, y, z, solidify: true);
         }
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
@@ -151,23 +167,28 @@ namespace VoxelGame.Core.Logic.Blocks
                 {
                     case Orientation.North:
                         neighbor = world.GetBlock(x - 1, y, z, out data) ?? Block.Air;
+
                         break;
 
                     case Orientation.East:
                         neighbor = world.GetBlock(x, y, z - 1, out data) ?? Block.Air;
+
                         break;
 
                     case Orientation.South:
                         neighbor = world.GetBlock(x + 1, y, z, out data) ?? Block.Air;
+
                         break;
 
                     case Orientation.West:
                         neighbor = world.GetBlock(x, y, z + 1, out data) ?? Block.Air;
+
                         break;
 
                     default:
                         neighbor = Block.Air;
                         data = 0;
+
                         break;
                 }
 
@@ -196,7 +217,10 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             bool isBase = (data & 0b00_0100) == 0;
 
-            if (entity.BoundingBox.Intersects(new BoundingBox(new Vector3(0.5f, 1f, 0.5f) + new Vector3(x, isBase ? y : y - 1, z), new Vector3(0.5f, 1f, 0.5f))))
+            if (entity.BoundingBox.Intersects(
+                new BoundingBox(
+                    new Vector3(0.5f, 1f, 0.5f) + new Vector3(x, isBase ? y : y - 1, z),
+                    new Vector3(0.5f, 1f, 0.5f))))
             {
                 return;
             }
@@ -205,26 +229,32 @@ namespace VoxelGame.Core.Logic.Blocks
             entity.World.SetBlock(this, data ^ 0b1_0100, x, y + (isBase ? 1 : -1), z);
 
             // Open a neighboring door, if available.
-            switch (((data & 0b00_1000) == 0) ? ((Orientation) (data & 0b00_0011)).Invert() : (Orientation) (data & 0b00_0011))
+            switch (((data & 0b00_1000) == 0)
+                ? ((Orientation) (data & 0b00_0011)).Invert()
+                : (Orientation) (data & 0b00_0011))
             {
                 case Orientation.North:
 
                     OpenNeighbor(x - 1, y, z);
+
                     break;
 
                 case Orientation.East:
 
                     OpenNeighbor(x, y, z - 1);
+
                     break;
 
                 case Orientation.South:
 
                     OpenNeighbor(x + 1, y, z);
+
                     break;
 
                 case Orientation.West:
 
                     OpenNeighbor(x, y, z + 1);
+
                     break;
             }
 

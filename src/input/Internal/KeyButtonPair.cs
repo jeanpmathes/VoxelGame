@@ -17,6 +17,6 @@ namespace VoxelGame.Input.Internal
         public Key Key { get; set; } = Key.Unknown;
         public MouseButton Button { get; set; }
 
-        public static KeyButtonPair DefaultValue => new KeyButtonPair { Default = true };
+        public static KeyButtonPair DefaultValue => new KeyButtonPair {Default = true};
     }
 }

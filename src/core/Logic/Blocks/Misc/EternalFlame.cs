@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Logic.Interfaces;
 
 namespace VoxelGame.Core.Logic.Blocks
@@ -23,9 +24,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isSolid: true,
                 receiveCollisions: false,
                 isTrigger: false,
-                isInteractable: false)
-        {
-        }
+                isInteractable: false) {}
 
         public virtual bool Burn(World world, int x, int y, int z, Block fire)
         {

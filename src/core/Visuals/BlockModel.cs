@@ -17,14 +17,20 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Visuals
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = "This class is meant for data storage.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Performance",
+        "CA1819:Properties should not return arrays",
+        Justification = "This class is meant for data storage.")]
     public sealed class BlockModel
     {
         private const string BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
 
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<BlockModel>();
 
-        private static readonly string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Models");
+        private static readonly string Path = System.IO.Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "Resources",
+            "Models");
 
         private static ITextureIndexProvider _blockTextureIndexProvider = null!;
 
@@ -47,9 +53,7 @@ namespace VoxelGame.Core.Visuals
         private int[] lockedTextureIndices = null!;
         private uint[] lockedIndices = null!;
 
-        public BlockModel()
-        {
-        }
+        public BlockModel() {}
 
         /// <summary>
         /// Copy-constructor.
@@ -88,8 +92,8 @@ namespace VoxelGame.Core.Visuals
                 }
             }
 
-            a = new BlockModel() { TextureNames = this.TextureNames };
-            b = new BlockModel() { TextureNames = this.TextureNames };
+            a = new BlockModel() {TextureNames = this.TextureNames};
+            b = new BlockModel() {TextureNames = this.TextureNames};
 
             a.Quads = quadsA.ToArray();
             b.Quads = quadsB.ToArray();
@@ -127,7 +131,9 @@ namespace VoxelGame.Core.Visuals
 
             float angle = rotations * MathHelper.PiOver2 * -1f;
 
-            Matrix4 xyz = Matrix4.CreateTranslation(-0.5f, -0.5f, -0.5f) * Matrix4.CreateRotationY(angle) * Matrix4.CreateTranslation(0.5f, 0.5f, 0.5f);
+            Matrix4 xyz = Matrix4.CreateTranslation(-0.5f, -0.5f, -0.5f) * Matrix4.CreateRotationY(angle) *
+                          Matrix4.CreateTranslation(0.5f, 0.5f, 0.5f);
+
             Matrix4 nop = Matrix4.CreateRotationY(angle);
 
             rotations = rotateTopAndBottomTexture ? 0 : rotations;
@@ -142,11 +148,13 @@ namespace VoxelGame.Core.Visuals
         /// Creates six models, one for each block side, from a north oriented model.
         /// </summary>
         /// <returns> The six models.</returns>
-        public (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) CreateAllSides()
+        public (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
+            CreateAllSides()
         {
             if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
-            (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) result;
+            (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
+                result;
 
             result.front = this;
 
@@ -171,7 +179,8 @@ namespace VoxelGame.Core.Visuals
             return result;
         }
 
-        public (BlockModel north, BlockModel east, BlockModel south, BlockModel west) CreateAllDirections(bool rotateTopAndBottomTexture)
+        public (BlockModel north, BlockModel east, BlockModel south, BlockModel west) CreateAllDirections(
+            bool rotateTopAndBottomTexture)
         {
             BlockModel north = this;
 
@@ -206,37 +215,44 @@ namespace VoxelGame.Core.Visuals
                     rotation = Matrix4.CreateRotationY(MathHelper.Pi);
                     axis = Vector3.UnitY;
                     rotations = 2;
+
                     break;
 
                 case BlockSide.Left:
                     rotation = Matrix4.CreateRotationY(MathHelper.ThreePiOver2);
                     axis = Vector3.UnitY;
                     rotations = 1;
+
                     break;
 
                 case BlockSide.Right:
                     rotation = Matrix4.CreateRotationY(MathHelper.PiOver2);
                     axis = Vector3.UnitY;
                     rotations = 3;
+
                     break;
 
                 case BlockSide.Bottom:
                     rotation = Matrix4.CreateRotationX(MathHelper.PiOver2);
                     axis = Vector3.UnitX;
                     rotations = 1;
+
                     break;
 
                 case BlockSide.Top:
                     rotation = Matrix4.CreateRotationX(MathHelper.ThreePiOver2);
                     axis = Vector3.UnitX;
                     rotations = 1;
+
                     break;
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(side));
             }
 
-            Matrix4 matrix = Matrix4.CreateTranslation(-0.5f, -0.5f, -0.5f) * rotation * Matrix4.CreateTranslation(0.5f, 0.5f, 0.5f);
+            Matrix4 matrix = Matrix4.CreateTranslation(-0.5f, -0.5f, -0.5f) * rotation *
+                             Matrix4.CreateTranslation(0.5f, 0.5f, 0.5f);
+
             copy.ApplyMatrix(matrix, rotation);
             copy.RotateTextureCoordinates(axis, rotations);
 
@@ -365,7 +381,8 @@ namespace VoxelGame.Core.Visuals
         {
             if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
-            JsonSerializerOptions options = new JsonSerializerOptions { IgnoreReadOnlyProperties = true, WriteIndented = true };
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {IgnoreReadOnlyProperties = true, WriteIndented = true};
 
             string json = JsonSerializer.Serialize(this, options);
             File.WriteAllText(System.IO.Path.Combine(Path, name + ".json"), json);
@@ -386,7 +403,11 @@ namespace VoxelGame.Core.Visuals
             }
             catch (Exception e) when (e is IOException || e is FileNotFoundException || e is JsonException)
             {
-                Logger.LogWarning(Events.MissingResource, e, "Could not load the model '{name}' because an exception occurred, a fallback will be used instead.", name);
+                Logger.LogWarning(
+                    Events.MissingResource,
+                    e,
+                    "Could not load the model '{name}' because an exception occurred, a fallback will be used instead.",
+                    name);
 
                 return CreateFallback();
             }
@@ -396,44 +417,81 @@ namespace VoxelGame.Core.Visuals
         {
             return new BlockModel
             {
-                TextureNames = new string[] { "missing_texture" },
+                TextureNames = new string[] {"missing_texture"},
                 Quads = new Quad[]
                 {
-                    new Quad { Vert0 = new Vertex { X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.000f, N = -1f, O = 0f, P = 0f},
-                               Vert1 = new Vertex { X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.000f, N = -1f, O = 0f, P = 0f},
-                               Vert2 = new Vertex { X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.250f, N = -1f, O = 0f, P = 0f},
-                               Vert3 = new Vertex { X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.250f, N = -1f, O = 0f, P = 0f}
+                    new Quad
+                    {
+                        Vert0 = new Vertex
+                            {X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.000f, N = -1f, O = 0f, P = 0f},
+                        Vert1 = new Vertex
+                            {X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.000f, N = -1f, O = 0f, P = 0f},
+                        Vert2 = new Vertex
+                            {X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.250f, N = -1f, O = 0f, P = 0f},
+                        Vert3 = new Vertex
+                            {X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.250f, N = -1f, O = 0f, P = 0f}
                     },
-                    new Quad { Vert0 = new Vertex { X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.250f, N = 0f, O = 0f, P = 1f},
-                               Vert1 = new Vertex { X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.250f, N = 0f, O = 0f, P = 1f},
-                               Vert2 = new Vertex { X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 0f, O = 0f, P = 1f},
-                               Vert3 = new Vertex { X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 0f, O = 0f, P = 1f}
+                    new Quad
+                    {
+                        Vert0 = new Vertex
+                            {X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.250f, N = 0f, O = 0f, P = 1f},
+                        Vert1 = new Vertex
+                            {X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.250f, N = 0f, O = 0f, P = 1f},
+                        Vert2 = new Vertex
+                            {X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 0f, O = 0f, P = 1f},
+                        Vert3 = new Vertex
+                            {X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 0f, O = 0f, P = 1f}
                     },
-                    new Quad { Vert0 = new Vertex { X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 1f, O = 0f, P = 0f},
-                               Vert1 = new Vertex { X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 1f, O = 0f, P = 0f},
-                               Vert2 = new Vertex { X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 1f, O = 0f, P = 0f},
-                               Vert3 = new Vertex { X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 1f, O = 0f, P = 0f}
+                    new Quad
+                    {
+                        Vert0 = new Vertex
+                            {X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 1f, O = 0f, P = 0f},
+                        Vert1 = new Vertex
+                            {X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 1f, O = 0f, P = 0f},
+                        Vert2 = new Vertex
+                            {X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 1f, O = 0f, P = 0f},
+                        Vert3 = new Vertex
+                            {X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 1f, O = 0f, P = 0f}
                     },
-                    new Quad { Vert0 = new Vertex { X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 0f, O = 0f, P = -1f},
-                               Vert1 = new Vertex { X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 0f, O = 0f, P = -1f},
-                               Vert2 = new Vertex { X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 1.000f, N = 0f, O = 0f, P = -1f},
-                               Vert3 = new Vertex { X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 1.000f, N = 0f, O = 0f, P = -1f}
+                    new Quad
+                    {
+                        Vert0 = new Vertex
+                            {X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 0f, O = 0f, P = -1f},
+                        Vert1 = new Vertex
+                            {X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 0f, O = 0f, P = -1f},
+                        Vert2 = new Vertex
+                            {X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 1.000f, N = 0f, O = 0f, P = -1f},
+                        Vert3 = new Vertex
+                            {X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 1.000f, N = 0f, O = 0f, P = -1f}
                     },
-                    new Quad { Vert0 = new Vertex { X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.125f, V = 0.500f, N = 0f, O = -1f, P = 0f},
-                               Vert1 = new Vertex { X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 0f, O = -1f, P = 0f},
-                               Vert2 = new Vertex { X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 0f, O = -1f, P = 0f},
-                               Vert3 = new Vertex { X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.125f, V = 0.750f, N = 0f, O = -1f, P = 0f}
+                    new Quad
+                    {
+                        Vert0 = new Vertex
+                            {X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.125f, V = 0.500f, N = 0f, O = -1f, P = 0f},
+                        Vert1 = new Vertex
+                            {X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 0f, O = -1f, P = 0f},
+                        Vert2 = new Vertex
+                            {X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 0f, O = -1f, P = 0f},
+                        Vert3 = new Vertex
+                            {X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.125f, V = 0.750f, N = 0f, O = -1f, P = 0f}
                     },
-                    new Quad { Vert0 = new Vertex { X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 0f, O = 1f, P = 0f},
-                               Vert1 = new Vertex { X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.875f, V = 0.500f, N = 0f, O = 1f, P = 0f},
-                               Vert2 = new Vertex { X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.875f, V = 0.750f, N = 0f, O = 1f, P = 0f},
-                               Vert3 = new Vertex { X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 0f, O = 1f, P = 0f}
+                    new Quad
+                    {
+                        Vert0 = new Vertex
+                            {X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 0f, O = 1f, P = 0f},
+                        Vert1 = new Vertex
+                            {X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.875f, V = 0.500f, N = 0f, O = 1f, P = 0f},
+                        Vert2 = new Vertex
+                            {X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.875f, V = 0.750f, N = 0f, O = 1f, P = 0f},
+                        Vert3 = new Vertex
+                            {X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 0f, O = 1f, P = 0f}
                     }
                 }
             };
         }
 
-        public static (float[] vertices, int[] textureIndices, uint[] indices) CombineData(out uint vertexCount, params BlockModel[] models)
+        public static (float[] vertices, int[] textureIndices, uint[] indices) CombineData(out uint vertexCount,
+            params BlockModel[] models)
         {
             vertexCount = 0;
 
@@ -456,7 +514,14 @@ namespace VoxelGame.Core.Visuals
                 foreach (var model in models)
                 {
                     Array.Copy(model.lockedVertices, 0, vertices, copiedVertices, model.lockedVertices.Length);
-                    Array.Copy(model.lockedTextureIndices, 0, textureIndices, copiedTextureIndices, model.lockedTextureIndices.Length);
+
+                    Array.Copy(
+                        model.lockedTextureIndices,
+                        0,
+                        textureIndices,
+                        copiedTextureIndices,
+                        model.lockedTextureIndices.Length);
+
                     Array.Copy(model.lockedIndices, 0, indices, copiedIndices, model.lockedIndices.Length);
 
                     for (int i = copiedIndices; i < copiedIndices + model.lockedIndices.Length; i++)
@@ -640,7 +705,9 @@ namespace VoxelGame.Core.Visuals
 
     public static class BlockModelExtensions
     {
-        public static void Lock(this (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top) group)
+        public static void Lock(
+            this (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel
+                top) group)
         {
             group.front.Lock();
             group.back.Lock();

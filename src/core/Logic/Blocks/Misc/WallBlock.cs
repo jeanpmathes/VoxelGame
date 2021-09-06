@@ -31,7 +31,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private readonly string extensionStraight;
 
-        internal WallBlock(string name, string namedId, string texture, string post, string extension, string extensionStraight) :
+        internal WallBlock(string name, string namedId, string texture, string post, string extension,
+            string extensionStraight) :
             base(
                 name: name,
                 namedId,
@@ -91,25 +92,36 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 if (north)
                 {
-                    children[extensions] = new BoundingBox(new Vector3(0.5f, 0.46875f, 0.125f), new Vector3(0.1875f, 0.46875f, 0.125f));
+                    children[extensions] = new BoundingBox(
+                        new Vector3(0.5f, 0.46875f, 0.125f),
+                        new Vector3(0.1875f, 0.46875f, 0.125f));
+
                     extensions++;
                 }
 
                 if (east)
                 {
-                    children[extensions] = new BoundingBox(new Vector3(0.875f, 0.46875f, 0.5f), new Vector3(0.125f, 0.46875f, 0.1875f));
+                    children[extensions] = new BoundingBox(
+                        new Vector3(0.875f, 0.46875f, 0.5f),
+                        new Vector3(0.125f, 0.46875f, 0.1875f));
+
                     extensions++;
                 }
 
                 if (south)
                 {
-                    children[extensions] = new BoundingBox(new Vector3(0.5f, 0.46875f, 0.875f), new Vector3(0.1875f, 0.46875f, 0.125f));
+                    children[extensions] = new BoundingBox(
+                        new Vector3(0.5f, 0.46875f, 0.875f),
+                        new Vector3(0.1875f, 0.46875f, 0.125f));
+
                     extensions++;
                 }
 
                 if (west)
                 {
-                    children[extensions] = new BoundingBox(new Vector3(0.125f, 0.46875f, 0.5f), new Vector3(0.125f, 0.46875f, 0.1875f));
+                    children[extensions] = new BoundingBox(
+                        new Vector3(0.125f, 0.46875f, 0.5f),
+                        new Vector3(0.125f, 0.46875f, 0.1875f));
                 }
 
                 return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f), children);
@@ -128,7 +140,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if (straightZ || straightX)
             {
-                return BlockMeshData.Complex(straightVertexCount, straightZ ? extensionStraightZVertices : extensionStraightXVertices, texIndicesStraight, indicesStraight);
+                return BlockMeshData.Complex(
+                    straightVertexCount,
+                    straightZ ? extensionStraightZVertices : extensionStraightXVertices,
+                    texIndicesStraight,
+                    indicesStraight);
             }
 
             return base.GetMesh(info);

@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
@@ -45,18 +46,12 @@ namespace VoxelGame.Core.Entities
 
         public Vector3 Forward
         {
-            get
-            {
-                return Rotation * Vector3.UnitX;
-            }
+            get { return Rotation * Vector3.UnitX; }
         }
 
         public Vector3 Right
         {
-            get
-            {
-                return Rotation * Vector3.UnitZ;
-            }
+            get { return Rotation * Vector3.UnitZ; }
         }
 
         public World World { get; }
@@ -122,8 +117,11 @@ namespace VoxelGame.Core.Entities
             Vector3 movement = Velocity * deltaTime;
             movement *= 1f / physicsIterations;
 
-            HashSet<(int x, int y, int z, Block block)> blockIntersections = new HashSet<(int x, int y, int z, Block block)>();
-            HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections = new HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)>();
+            HashSet<(int x, int y, int z, Block block)> blockIntersections =
+                new HashSet<(int x, int y, int z, Block block)>();
+
+            HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections =
+                new HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)>();
 
             for (int i = 0; i < physicsIterations; i++)
             {
@@ -171,11 +169,19 @@ namespace VoxelGame.Core.Entities
             Update(deltaTime);
         }
 
-        private void DoPhysicsStep(ref Vector3 movement, ref HashSet<(int x, int y, int z, Block block)> blockIntersections, ref HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections)
+        private void DoPhysicsStep(ref Vector3 movement,
+            ref HashSet<(int x, int y, int z, Block block)> blockIntersections,
+            ref HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections)
         {
             boundingBox.Center += movement;
 
-            if (BoundingBox.IntersectsTerrain(World, out bool xCollision, out bool yCollision, out bool zCollision, ref blockIntersections, ref liquidIntersections))
+            if (BoundingBox.IntersectsTerrain(
+                World,
+                out bool xCollision,
+                out bool yCollision,
+                out bool zCollision,
+                ref blockIntersections,
+                ref liquidIntersections))
             {
                 if (yCollision)
                 {
@@ -183,7 +189,8 @@ namespace VoxelGame.Core.Entities
                     int yPos = (int) Math.Floor(BoundingBox.Center.Y);
                     int zPos = (int) Math.Floor(BoundingBox.Center.Z);
 
-                    IsGrounded = !World.GetBlock(xPos, yPos + (int) Math.Round(BoundingBox.Extents.Y), zPos, out _)?.IsSolid ?? true;
+                    IsGrounded = !World.GetBlock(xPos, yPos + (int) Math.Round(BoundingBox.Extents.Y), zPos, out _)
+                        ?.IsSolid ?? true;
                 }
 
                 movement = new Vector3(

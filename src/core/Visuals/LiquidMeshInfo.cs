@@ -21,6 +21,7 @@ namespace VoxelGame.Core.Visuals
             IsStatic = isStatic;
         }
 
-        public static LiquidMeshInfo Liquid(LiquidLevel level, BlockSide side, bool isStatic) => new LiquidMeshInfo(level, side, isStatic);
+        public static LiquidMeshInfo Liquid(LiquidLevel level, BlockSide side, bool isStatic) =>
+            new LiquidMeshInfo(level, side, isStatic);
     }
 }

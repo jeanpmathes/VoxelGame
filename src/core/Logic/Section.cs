@@ -64,11 +64,24 @@ namespace VoxelGame.Core.Logic
         {
             uint val = GetPos(out int x, out int y, out int z);
             Decode(val, out Block block, out uint data, out _, out _, out _);
-            block.RandomUpdate(World, x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), data);
+
+            block.RandomUpdate(
+                World,
+                x + (sectionX * SectionSize),
+                y + (sectionY * SectionSize),
+                z + (sectionZ * SectionSize),
+                data);
 
             val = GetPos(out x, out y, out z);
             Decode(val, out _, out _, out Liquid liquid, out LiquidLevel level, out bool isStatic);
-            liquid.RandomUpdate(World, x + (sectionX * SectionSize), y + (sectionY * SectionSize), z + (sectionZ * SectionSize), level, isStatic);
+
+            liquid.RandomUpdate(
+                World,
+                x + (sectionX * SectionSize),
+                y + (sectionY * SectionSize),
+                z + (sectionZ * SectionSize),
+                level,
+                isStatic);
 
             uint GetPos(out int x, out int y, out int z)
             {
@@ -99,7 +112,8 @@ namespace VoxelGame.Core.Logic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Decode(uint val, out Block block, out uint data, out Liquid liquid, out LiquidLevel level, out bool isStatic)
+        public static void Decode(uint val, out Block block, out uint data, out Liquid liquid, out LiquidLevel level,
+            out bool isStatic)
         {
             block = Block.TranslateID(val & BLOCK_MASK);
             data = (val & DATA_MASK) >> DATA_SHIFT;
@@ -130,6 +144,7 @@ namespace VoxelGame.Core.Logic
             uint val = this[position.X, position.Y, position.Z];
 
             data = (val << DATA_SHIFT) & DATA_MASK;
+
             return Block.TranslateID(val & BLOCK_MASK);
         }
 
@@ -139,6 +154,7 @@ namespace VoxelGame.Core.Logic
             uint val = this[position.X, position.Y, position.Z];
 
             level = (int) ((val & LEVEL_MASK) >> LEVEL_SHIFT);
+
             return Liquid.TranslateID((val & LIQUID_MASK) >> LIQUID_SHIFT);
         }
 

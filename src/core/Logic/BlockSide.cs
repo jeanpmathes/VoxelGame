@@ -27,14 +27,14 @@ namespace VoxelGame.Core.Logic
     {
         // Corners of a block.
 
-        private static readonly int[] C001 = { 0, 0, 1 };
-        private static readonly int[] C011 = { 0, 1, 1 };
-        private static readonly int[] C111 = { 1, 1, 1 };
-        private static readonly int[] C101 = { 1, 0, 1 };
-        private static readonly int[] C000 = { 0, 0, 0 };
-        private static readonly int[] C010 = { 0, 1, 0 };
-        private static readonly int[] C110 = { 1, 1, 0 };
-        private static readonly int[] C100 = { 1, 0, 0 };
+        private static readonly int[] C001 = {0, 0, 1};
+        private static readonly int[] C011 = {0, 1, 1};
+        private static readonly int[] C111 = {1, 1, 1};
+        private static readonly int[] C101 = {1, 0, 1};
+        private static readonly int[] C000 = {0, 0, 0};
+        private static readonly int[] C010 = {0, 1, 0};
+        private static readonly int[] C110 = {1, 1, 0};
+        private static readonly int[] C100 = {1, 0, 0};
 
         public static BlockSide Opposite(this BlockSide side)
         {
@@ -85,6 +85,7 @@ namespace VoxelGame.Core.Logic
                     b = C011;
                     c = C111;
                     d = C101;
+
                     break;
 
                 case BlockSide.Back:
@@ -92,6 +93,7 @@ namespace VoxelGame.Core.Logic
                     b = C110;
                     c = C010;
                     d = C000;
+
                     break;
 
                 case BlockSide.Left:
@@ -99,6 +101,7 @@ namespace VoxelGame.Core.Logic
                     b = C010;
                     c = C011;
                     d = C001;
+
                     break;
 
                 case BlockSide.Right:
@@ -106,6 +109,7 @@ namespace VoxelGame.Core.Logic
                     b = C111;
                     c = C110;
                     d = C100;
+
                     break;
 
                 case BlockSide.Bottom:
@@ -113,6 +117,7 @@ namespace VoxelGame.Core.Logic
                     b = C001;
                     c = C101;
                     d = C100;
+
                     break;
 
                 case BlockSide.Top:
@@ -120,6 +125,7 @@ namespace VoxelGame.Core.Logic
                     b = C010;
                     c = C110;
                     d = C111;
+
                     break;
 
                 default:

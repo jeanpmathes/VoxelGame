@@ -27,7 +27,8 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly (BlockModel north, BlockModel east, BlockModel south, BlockModel west) sides;
         private readonly (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensions;
 
-        public ThinConnectingBlock(string name, string namedId, string postModel, string sideModel, string extensionModel) :
+        public ThinConnectingBlock(string name, string namedId, string postModel, string sideModel,
+            string extensionModel) :
             base(
                 name,
                 namedId,
@@ -51,17 +52,33 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             List<BoundingBox> connectors = new List<BoundingBox>(BitHelper.CountSetBits(data));
 
-            if ((data & 0b00_1000) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f, 0.5f, 0.21875f), new Vector3(0.0625f, 0.5f, 0.21875f)));
-            if ((data & 0b00_0100) != 0) connectors.Add(new BoundingBox(new Vector3(0.78125f, 0.5f, 0.5f), new Vector3(0.21875f, 0.5f, 0.0625f)));
-            if ((data & 0b00_0010) != 0) connectors.Add(new BoundingBox(new Vector3(0.5f, 0.5f, 0.78125f), new Vector3(0.0625f, 0.5f, 0.21875f)));
-            if ((data & 0b00_0001) != 0) connectors.Add(new BoundingBox(new Vector3(0.21875f, 0.5f, 0.5f), new Vector3(0.21875f, 0.5f, 0.0625f)));
+            if ((data & 0b00_1000) != 0)
+                connectors.Add(
+                    new BoundingBox(new Vector3(0.5f, 0.5f, 0.21875f), new Vector3(0.0625f, 0.5f, 0.21875f)));
 
-            return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.0625f, 0.5f, 0.0625f), connectors.ToArray());
+            if ((data & 0b00_0100) != 0)
+                connectors.Add(
+                    new BoundingBox(new Vector3(0.78125f, 0.5f, 0.5f), new Vector3(0.21875f, 0.5f, 0.0625f)));
+
+            if ((data & 0b00_0010) != 0)
+                connectors.Add(
+                    new BoundingBox(new Vector3(0.5f, 0.5f, 0.78125f), new Vector3(0.0625f, 0.5f, 0.21875f)));
+
+            if ((data & 0b00_0001) != 0)
+                connectors.Add(
+                    new BoundingBox(new Vector3(0.21875f, 0.5f, 0.5f), new Vector3(0.21875f, 0.5f, 0.0625f)));
+
+            return new BoundingBox(
+                new Vector3(0.5f, 0.5f, 0.5f),
+                new Vector3(0.0625f, 0.5f, 0.0625f),
+                connectors.ToArray());
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            (float[] vertices, int[] textureIndices, uint[] indices) = BlockModel.CombineData(out uint vertexCount, post,
+            (float[] vertices, int[] textureIndices, uint[] indices) = BlockModel.CombineData(
+                out uint vertexCount,
+                post,
                 (info.Data & 0b00_1000) == 0 ? sides.north : extensions.north,
                 (info.Data & 0b00_0100) == 0 ? sides.east : extensions.east,
                 (info.Data & 0b00_0010) == 0 ? sides.south : extensions.south,

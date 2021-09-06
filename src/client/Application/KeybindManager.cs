@@ -126,18 +126,21 @@ namespace VoxelGame.Client.Application
         public ToggleButton GetToggle(Keybind bind)
         {
             Debug.Assert(toggleButtons.ContainsKey(bind), "No toggle associated with this keybind.");
+
             return toggleButtons[bind];
         }
 
         public Button GetButton(Keybind bind)
         {
             Debug.Assert(simpleButtons.ContainsKey(bind), "No simple button associated with this keybind.");
+
             return simpleButtons[bind];
         }
 
         public PushButton GetPushButton(Keybind bind)
         {
             Debug.Assert(pushButtons.ContainsKey(bind), "No push button associated with this keybind.");
+
             return pushButtons[bind];
         }
 
@@ -161,6 +164,7 @@ namespace VoxelGame.Client.Application
         public KeyOrButton GetCurrentBind(Keybind bind)
         {
             Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
+
             return keybinds[bind].KeyOrButton;
         }
 
@@ -201,7 +205,9 @@ namespace VoxelGame.Client.Application
         public Keybind PlacementMode { get; } = Keybind.RegisterToggle("placement_mode", Key.R);
 
         public Keybind NextPlacement { get; } = Keybind.RegisterPushButton("select_next_placement", Key.KeypadPlus);
-        public Keybind PreviousPlacement { get; } = Keybind.RegisterPushButton("select_previous_placement", Key.KeypadMinus);
+
+        public Keybind PreviousPlacement { get; } =
+            Keybind.RegisterPushButton("select_previous_placement", Key.KeypadMinus);
 
         #endregion KEYBINDS
 

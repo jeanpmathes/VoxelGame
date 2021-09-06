@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -17,15 +18,14 @@ namespace VoxelGame.Core.Logic.Blocks
     // a = age
     public class GrowingFlatBlock : FlatBlock, IFlammable, IFillable
     {
-        internal GrowingFlatBlock(string name, string namedId, string texture, float climbingVelocity, float slidingVelocity) :
+        internal GrowingFlatBlock(string name, string namedId, string texture, float climbingVelocity,
+            float slidingVelocity) :
             base(
                 name,
                 namedId,
                 texture,
                 climbingVelocity,
-                slidingVelocity)
-        {
-        }
+                slidingVelocity) {}
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
@@ -37,7 +37,8 @@ namespace VoxelGame.Core.Logic.Blocks
             var orientation = (Orientation) (data & 0b00_0011);
 
             // If another block of this type is above, no solid block is required to hold.
-            if ((world.GetBlock(x, y + 1, z, out uint dataAbove) ?? Block.Air) == this && orientation == (Orientation) (dataAbove & 0b00_0011))
+            if ((world.GetBlock(x, y + 1, z, out uint dataAbove) ?? Block.Air) == this &&
+                orientation == (Orientation) (dataAbove & 0b00_0011))
             {
                 return;
             }

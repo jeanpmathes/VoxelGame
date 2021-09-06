@@ -55,7 +55,8 @@ namespace VoxelGame.Client.Rendering
             drawGroup.SetData(elementCount, vertices.Length, vertices, indices.Length, indices);
         }
 
-        protected int BuildMeshData(BoundingBox currentBoundingBox, BoundingBox boundingBox, out float[] vertices, out uint[] indices)
+        protected int BuildMeshData(BoundingBox currentBoundingBox, BoundingBox boundingBox, out float[] vertices,
+            out uint[] indices)
         {
             int points = BuildMeshData_NonRecursive(currentBoundingBox, boundingBox, out vertices, out indices);
 
@@ -67,9 +68,14 @@ namespace VoxelGame.Client.Rendering
             {
                 for (int i = 0; i < boundingBox.ChildCount; i++)
                 {
-                    int newElements = BuildMeshData(currentBoundingBox, boundingBox[i], out float[] addVertices, out uint[] addIndices);
+                    int newElements = BuildMeshData(
+                        currentBoundingBox,
+                        boundingBox[i],
+                        out float[] addVertices,
+                        out uint[] addIndices);
 
                     uint offset = (uint) (points / 3);
+
                     for (int j = 0; j < addIndices.Length; j++)
                     {
                         addIndices[j] += offset;
@@ -94,7 +100,8 @@ namespace VoxelGame.Client.Rendering
             }
         }
 
-        private static int BuildMeshData_NonRecursive(BoundingBox currentBoundingBox, BoundingBox boundingBox, out float[] vertices, out uint[] indices)
+        private static int BuildMeshData_NonRecursive(BoundingBox currentBoundingBox, BoundingBox boundingBox,
+            out float[] vertices, out uint[] indices)
         {
             Vector3 offset = boundingBox.Center - currentBoundingBox.Center;
 
@@ -177,7 +184,9 @@ namespace VoxelGame.Client.Rendering
             }
             else
             {
-                Logger.LogWarning(Events.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
+                Logger.LogWarning(
+                    Events.UndeletedBuffers,
+                    "A renderer has been disposed by GC, without deleting buffers.");
             }
 
             disposed = true;

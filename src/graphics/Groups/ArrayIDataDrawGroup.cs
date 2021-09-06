@@ -40,6 +40,7 @@ namespace VoxelGame.Graphics.Groups
             if (vertexCount == 0)
             {
                 IsFilled = false;
+
                 return;
             }
 

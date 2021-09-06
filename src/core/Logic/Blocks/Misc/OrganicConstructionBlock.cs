@@ -18,8 +18,6 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                layout)
-        {
-        }
+                layout) {}
     }
 }

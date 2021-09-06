@@ -28,7 +28,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public bool RenderLiquid => false;
 
-        internal StraightSteelPipeBlock(string name, string namedId, float diameter, string model, bool isInteractable = false) :
+        internal StraightSteelPipeBlock(string name, string namedId, float diameter, string model,
+            bool isInteractable = false) :
             base(
                 name,
                 namedId,
@@ -63,25 +64,36 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            uint vertexCount = SelectModel(models, (Axis) (info.Data & AxisDataMask), out float[] vertices, out int[] textureIndices, out uint[] indices);
+            uint vertexCount = SelectModel(
+                models,
+                (Axis) (info.Data & AxisDataMask),
+                out float[] vertices,
+                out int[] textureIndices,
+                out uint[] indices);
+
             return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices);
         }
 
-        protected static uint SelectModel((BlockModel x, BlockModel y, BlockModel z) modelTuple, Axis axis, out float[] vertices, out int[] textureIndices, out uint[] indices)
+        protected static uint SelectModel((BlockModel x, BlockModel y, BlockModel z) modelTuple, Axis axis,
+            out float[] vertices, out int[] textureIndices, out uint[] indices)
         {
             var (x, y, z) = modelTuple;
+
             switch (axis)
             {
                 case Axis.X:
                     x.ToData(out vertices, out textureIndices, out indices);
+
                     return (uint) x.VertexCount;
 
                 case Axis.Y:
                     y.ToData(out vertices, out textureIndices, out indices);
+
                     return (uint) y.VertexCount;
 
                 case Axis.Z:
                     z.ToData(out vertices, out textureIndices, out indices);
+
                     return (uint) z.VertexCount;
 
                 default:
@@ -112,6 +124,7 @@ namespace VoxelGame.Core.Logic.Blocks
         protected virtual bool IsSideOpen(World world, int x, int y, int z, BlockSide side)
         {
             world.GetBlock(x, y, z, out uint data);
+
             return ToAxis(side) == (Axis) (data & AxisDataMask);
         }
 

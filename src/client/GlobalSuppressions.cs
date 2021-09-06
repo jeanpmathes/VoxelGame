@@ -5,5 +5,15 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "Not a public API.", Scope = "module")]
-[assembly: SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Logging does not have to be localized.", Scope = "module")]
+[assembly:
+    SuppressMessage(
+        "Design",
+        "CA1062:Validate arguments of public methods",
+        Justification = "Not a public API.",
+        Scope = "module")]
+[assembly:
+    SuppressMessage(
+        "Globalization",
+        "CA1303:Do not pass literals as localized parameters",
+        Justification = "Logging does not have to be localized.",
+        Scope = "module")]

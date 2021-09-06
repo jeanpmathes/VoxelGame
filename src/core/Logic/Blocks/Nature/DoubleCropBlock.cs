@@ -29,7 +29,9 @@ namespace VoxelGame.Core.Logic.Blocks
         private int[] stageTextureIndicesLow = null!;
         private int[] stageTextureIndicesTop = null!;
 
-        internal DoubleCropBlock(string name, string namedId, string texture, int dead, int first, int second, int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final) :
+        internal DoubleCropBlock(string name, string namedId, string texture, int dead, int first, int second,
+            int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth,
+            (int low, int top) final) :
             base(
                 name,
                 namedId,
@@ -148,7 +150,8 @@ namespace VoxelGame.Core.Logic.Blocks
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
-            if (side == BlockSide.Bottom && (data & 0b00_1000) == 0 && !((world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
+            if (side == BlockSide.Bottom && (data & 0b00_1000) == 0 &&
+                !((world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
             {
                 Destroy(world, x, y, z);
             }
@@ -172,7 +175,8 @@ namespace VoxelGame.Core.Logic.Blocks
                     {
                         Block? above = world.GetBlock(x, y + 1, z, out _);
 
-                        if (plantable.TryGrow(world, x, y - 1, z, Liquid.Water, LiquidLevel.One) && ((above?.IsReplaceable ?? false) || above == this))
+                        if (plantable.TryGrow(world, x, y - 1, z, Liquid.Water, LiquidLevel.One) &&
+                            ((above?.IsReplaceable ?? false) || above == this))
                         {
                             world.SetBlock(this, lowered | (uint) (stage + 1), x, y, z);
                             world.SetBlock(this, lowered | (uint) (0b00_1000 | (int) stage + 1), x, y + 1, z);
