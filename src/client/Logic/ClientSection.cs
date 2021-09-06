@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 // ReSharper disable CommentTypo
+// ReSharper disable ShiftExpressionZeroLeftOperand
 
 using OpenToolkit.Mathematics;
 using System;
@@ -24,13 +25,6 @@ namespace VoxelGame.Client.Logic
     [Serializable]
     public class ClientSection : Core.Logic.Section
     {
-#if BENCHMARK_SECTION_MESHING
-
-        private static long _totalMeshingTime;
-        private static long _meshingRuns;
-
-#endif
-
         [NonSerialized] private bool hasMesh;
         [NonSerialized] private SectionRenderer? renderer;
 
@@ -119,8 +113,8 @@ namespace VoxelGame.Client.Logic
                                         {
                                             checkPos = checkPos.Mod(SectionSize);
 
-                                            bool atEnd = side == BlockSide.Top || side == BlockSide.Bottom;
-                                            blockToCheck = neighbor?.GetBlock(checkPos) ?? (atEnd ? Block.Air : null);
+                                            bool atVerticalEnd = side == BlockSide.Top || side == BlockSide.Bottom;
+                                            blockToCheck = neighbor?.GetBlock(checkPos) ?? (atVerticalEnd ? Block.Air : null);
                                         }
                                         else
                                         {
@@ -212,8 +206,8 @@ namespace VoxelGame.Client.Logic
                                         {
                                             checkPos = checkPos.Mod(SectionSize);
 
-                                            bool atEnd = side == BlockSide.Top || side == BlockSide.Bottom;
-                                            blockToCheck = neighbor?.GetBlock(checkPos, out blockToCheckData) ?? (atEnd ? Block.Air : null);
+                                            bool atVerticalEnd = side == BlockSide.Top || side == BlockSide.Bottom;
+                                            blockToCheck = neighbor?.GetBlock(checkPos, out blockToCheckData) ?? (atVerticalEnd ? Block.Air : null);
                                         }
                                         else
                                         {
@@ -374,14 +368,14 @@ namespace VoxelGame.Client.Logic
                                 Vector3i checkPos = side.Offset(pos);
 
                                 int sideHeight = -1;
-                                bool atEnd = side == BlockSide.Top || side == BlockSide.Bottom;
+                                bool atVerticalEnd = side == BlockSide.Top || side == BlockSide.Bottom;
 
                                 if (IsPositionOutOfSection(checkPos))
                                 {
                                     checkPos = checkPos.Mod(SectionSize);
 
-                                    liquidToCheck = neighbor?.GetLiquid(checkPos, out sideHeight) ?? (atEnd ? Liquid.None : null);
-                                    blockToCheck = neighbor?.GetBlock(checkPos) ?? (atEnd ? Block.Air : null);
+                                    liquidToCheck = neighbor?.GetLiquid(checkPos, out sideHeight) ?? (atVerticalEnd ? Liquid.None : null);
+                                    blockToCheck = neighbor?.GetBlock(checkPos) ?? (atVerticalEnd ? Block.Air : null);
                                 }
                                 else
                                 {
@@ -401,7 +395,7 @@ namespace VoxelGame.Client.Logic
                                 bool meshAtEnd = ((flowsTowardsFace && sideHeight != 7 && blockToCheck?.IsOpaque != true)
                                                   || (!flowsTowardsFace && (level != LiquidLevel.Eight || (liquidToCheck != currentLiquid && blockToCheck?.IsOpaque != true))));
 
-                                if (atEnd ? !meshAtEnd : !meshAtNormal) return;
+                                if (atVerticalEnd ? !meshAtEnd : !meshAtNormal) return;
 
                                 LiquidMeshData mesh = currentLiquid.GetMesh(LiquidMeshInfo.Liquid(level, side, isStatic));
 

@@ -5,8 +5,8 @@
 // <author>pershingthesecond</author>
 
 using OpenToolkit.Mathematics;
-using OpenToolkit.Windowing.Common.Input;
 using System;
+using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
@@ -14,6 +14,8 @@ using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Input.Actions;
+using VoxelGame.Input.Composite;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Entities
@@ -26,9 +28,22 @@ namespace VoxelGame.Client.Entities
         private readonly Camera camera;
         private readonly Vector3 cameraOffset = new Vector3(0f, 0.65f, 0f);
 
-        private readonly float mouseSensitivity = Properties.client.Default.MouseSensitivity;
-
         private readonly GameUserInterface ui;
+
+        #region INPUT ACTIONS
+
+        private readonly Axis2 movementInput;
+        private readonly Button sprintButton;
+        private readonly Button jumpButton;
+
+        private readonly Button interactOrPlaceButton;
+        private readonly Button destroyButton;
+        private readonly Button blockInteractButton;
+
+        private readonly ToggleButton placementModeToggle;
+        private readonly Axis selectionAxis;
+
+        #endregion INPUT ACTIONS
 
         public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingBox boundingBox, GameUserInterface ui) : base(world, mass, drag, boundingBox)
         {
@@ -49,6 +64,31 @@ namespace VoxelGame.Client.Entities
             activeLiquid = Liquid.Water;
 
             this.ui = ui;
+
+            KeybindManager keybind = Application.Client.Instance.Keybinds;
+
+            Button forwardsButton = keybind.GetButton(keybind.Forwards);
+            Button backwardsButton = keybind.GetButton(keybind.Backwards);
+            Button strafeRightButton = keybind.GetButton(keybind.StrafeRight);
+            Button strafeLeftButton = keybind.GetButton(keybind.StrafeLeft);
+
+            movementInput = new Axis2(
+                new Axis(forwardsButton, backwardsButton),
+                new Axis(strafeRightButton, strafeLeftButton));
+
+            sprintButton = keybind.GetButton(keybind.Sprint);
+            jumpButton = keybind.GetButton(keybind.Jump);
+
+            interactOrPlaceButton = keybind.GetButton(keybind.InteractOrPlace);
+            destroyButton = keybind.GetButton(keybind.Destroy);
+            blockInteractButton = keybind.GetButton(keybind.BlockInteract);
+
+            placementModeToggle = keybind.GetToggle(keybind.PlacementMode);
+            placementModeToggle.Clear();
+
+            Button nextButton = keybind.GetPushButton(keybind.NextPlacement);
+            Button previousButton = keybind.GetPushButton(keybind.PreviousPlacement);
+            selectionAxis = new Axis(nextButton, previousButton);
         }
 
         /// <summary>
@@ -134,15 +174,12 @@ namespace VoxelGame.Client.Entities
             // Do input handling.
             if (Screen.IsFocused)
             {
-                KeyboardState input = Client.Keyboard;
-                MouseState mouse = Client.Mouse;
+                HandleMovementInput();
+                HandleLookInput();
 
-                MovementInput(input);
-                MouseChange();
+                BlockLiquidSelection(firstUpdate);
 
-                BlockLiquidSelection(input, firstUpdate);
-
-                WorldInteraction(input, mouse);
+                WorldInteraction();
 
                 int headX = (int) Math.Floor(camera.Position.X);
                 int headY = (int) Math.Floor(camera.Position.Y);
@@ -176,25 +213,14 @@ namespace VoxelGame.Client.Entities
         private readonly Vector3 maxSwimForce = new Vector3(0f, 2500f, 0f);
         private readonly float jumpForce = 25000f;
 
-        private void MovementInput(KeyboardState input)
+        private void HandleMovementInput()
         {
-            movement = new Vector3();
-
-            if (input.IsKeyDown(Key.W))
-                movement += Forward; // Forward
-
-            if (input.IsKeyDown(Key.S))
-                movement -= Forward; // Backwards
-
-            if (input.IsKeyDown(Key.A))
-                movement -= Right; // Left
-
-            if (input.IsKeyDown(Key.D))
-                movement += Right; // Right
+            (float x, float z) = movementInput.Value;
+            movement = (x * Forward) + (z * Right);
 
             if (movement != Vector3.Zero)
             {
-                if (input.IsKeyDown(Key.ShiftLeft))
+                if (sprintButton.IsDown)
                 {
                     movement = movement.Normalized() * sprintSpeed;
                 }
@@ -206,7 +232,7 @@ namespace VoxelGame.Client.Entities
 
             Move(movement, maxForce);
 
-            if (input.IsKeyDown(Key.Space))
+            if (jumpButton.IsDown)
             {
                 if (IsGrounded)
                 {
@@ -219,11 +245,12 @@ namespace VoxelGame.Client.Entities
             }
         }
 
-        private void MouseChange()
+        private void HandleLookInput()
         {
-            // Apply the camera pitch and yaw (we clamp the pitch in the camera class)
-            camera.Yaw += Client.SmoothMouseDelta.X * mouseSensitivity;
-            camera.Pitch -= Client.SmoothMouseDelta.Y * mouseSensitivity;
+            // Apply the camera pitch and yaw (the pitch is clamped in the camera class)
+            (float yaw, float pitch) = Application.Client.Instance.Keybinds.LookBind.Value;
+            camera.Yaw += yaw;
+            camera.Pitch += pitch;
 
             Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
         }
@@ -235,7 +262,7 @@ namespace VoxelGame.Client.Entities
 
         private float timer;
 
-        private void WorldInteraction(KeyboardState input, MouseState mouse)
+        private void WorldInteraction()
         {
             Block? target = World.GetBlock(selectedX, selectedY, selectedZ, out _);
 
@@ -244,19 +271,19 @@ namespace VoxelGame.Client.Entities
                 return;
             }
 
-            PlaceInteract(input, mouse, target);
-            DestroyInteract(mouse, target);
+            PlaceInteract(target);
+            DestroyInteract(target);
         }
 
-        private void PlaceInteract(KeyboardState input, MouseState mouse, Block target)
+        private void PlaceInteract(Block target)
         {
-            if (timer < interactionCooldown || mouse.IsButtonUp(MouseButton.Right)) return;
+            if (timer < interactionCooldown || interactOrPlaceButton.IsUp) return;
 
             int placePositionX = selectedX;
             int placePositionY = selectedY;
             int placePositionZ = selectedZ;
 
-            if (input.IsKeyDown(Key.ControlLeft) || !target.IsInteractable)
+            if (blockInteractButton.IsDown || !target.IsInteractable)
             {
                 if (!target.IsReplaceable)
                 {
@@ -310,9 +337,9 @@ namespace VoxelGame.Client.Entities
             }
         }
 
-        private void DestroyInteract(MouseState mouse, Block target)
+        private void DestroyInteract(Block target)
         {
-            if (timer >= interactionCooldown && mouse.IsButtonDown(MouseButton.Left))
+            if (timer >= interactionCooldown && destroyButton.IsDown)
             {
                 if (blockMode) target.Destroy(World, selectedX, selectedY, selectedZ, this);
                 else TakeLiquid(selectedX, selectedY, selectedZ);
@@ -363,50 +390,31 @@ namespace VoxelGame.Client.Entities
 
         private bool blockMode = true;
 
-        private bool hasPressedPlus;
-        private bool hasPressedMinus;
-        private bool hasSwitchedMode;
-
-        private void BlockLiquidSelection(KeyboardState input, bool updateUI)
+        private void BlockLiquidSelection(bool updateUI)
         {
-            if (input.IsKeyDown(Key.R) && !hasSwitchedMode)
+            if (placementModeToggle.Changed)
             {
                 blockMode = !blockMode;
-                hasSwitchedMode = true;
-
                 updateUI = true;
             }
-            else if (input.IsKeyUp(Key.R))
+
+            if (selectionAxis.Value != 0)
             {
-                hasSwitchedMode = false;
-            }
+                if (selectionAxis.Value > 0)
+                {
+                    if (blockMode) activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID(activeBlock.Id + 1) : Block.TranslateID(1);
+                    else activeLiquid = (activeLiquid.Id != Liquid.Count - 1) ? Liquid.TranslateID(activeLiquid.Id + 1) : Liquid.TranslateID(1);
 
-            if (input.IsKeyDown(Key.KeypadPlus) && !hasPressedPlus)
-            {
-                if (blockMode) activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID(activeBlock.Id + 1) : Block.TranslateID(1);
-                else activeLiquid = (activeLiquid.Id != Liquid.Count - 1) ? Liquid.TranslateID(activeLiquid.Id + 1) : Liquid.TranslateID(1);
+                    updateUI = true;
+                }
 
-                hasPressedPlus = true;
+                if (selectionAxis.Value < 0)
+                {
+                    if (blockMode) activeBlock = (activeBlock.Id != 1) ? Block.TranslateID(activeBlock.Id - 1) : Block.TranslateID((uint) (Block.Count - 1));
+                    else activeLiquid = (activeLiquid.Id != 1) ? Liquid.TranslateID(activeLiquid.Id - 1) : Liquid.TranslateID((uint) (Liquid.Count - 1));
 
-                updateUI = true;
-            }
-            else if (input.IsKeyUp(Key.KeypadPlus))
-            {
-                hasPressedPlus = false;
-            }
-
-            if (input.IsKeyDown(Key.KeypadMinus) && !hasPressedMinus)
-            {
-                if (blockMode) activeBlock = (activeBlock.Id != 1) ? Block.TranslateID(activeBlock.Id - 1) : Block.TranslateID((uint) (Block.Count - 1));
-                else activeLiquid = (activeLiquid.Id != 1) ? Liquid.TranslateID(activeLiquid.Id - 1) : Liquid.TranslateID((uint) (Liquid.Count - 1));
-
-                hasPressedMinus = true;
-
-                updateUI = true;
-            }
-            else if (input.IsKeyUp(Key.KeypadMinus))
-            {
-                hasPressedMinus = false;
+                    updateUI = true;
+                }
             }
 
             if (updateUI)

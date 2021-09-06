@@ -153,8 +153,8 @@ namespace VoxelGame.Client.Rendering
 
             Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
             Shaders.Selection.SetMatrix4("model", model);
-            Shaders.Selection.SetMatrix4("view", Client.Player.GetViewMatrix());
-            Shaders.Selection.SetMatrix4("projection", Client.Player.GetProjectionMatrix());
+            Shaders.Selection.SetMatrix4("view", Application.Client.Player.GetViewMatrix());
+            Shaders.Selection.SetMatrix4("projection", Application.Client.Player.GetProjectionMatrix());
 
             drawGroup.DrawElements(PrimitiveType.Lines);
 

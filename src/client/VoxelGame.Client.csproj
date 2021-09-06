@@ -11,7 +11,7 @@
     <ApplicationIcon>vg_icon.ico</ApplicationIcon>
     <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
     <LangVersion>preview</LangVersion>
-    <Configurations>Debug;Release;Debug GL33</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <StartupObject>VoxelGame.Client.Program</StartupObject>
     <PackageLicenseExpression>MIT License</PackageLicenseExpression>
   </PropertyGroup>
@@ -33,13 +33,6 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug GL33|x64'">
-    <DefineConstants>DEBUG;TRACE;GL33</DefineConstants>
-    <Optimize>false</Optimize>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <WarningsAsErrors>nullable</WarningsAsErrors>
-  </PropertyGroup>
-
   <ItemGroup>
     <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml" />
   </ItemGroup>
@@ -52,7 +45,6 @@
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
     <PackageReference Include="OpenTK" Version="4.0.0-pre9.1" />
-    <PackageReference Include="Serilog.Extensions.Logging.File" Version="2.0.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
@@ -62,6 +54,7 @@
   <ItemGroup>
     <ProjectReference Include="..\core\VoxelGame.Core.csproj" />
     <ProjectReference Include="..\graphics\VoxelGame.Graphics.csproj" />
+    <ProjectReference Include="..\input\VoxelGame.Input.csproj" />
     <ProjectReference Include="..\ui\VoxelGame.UI.csproj" />
   </ItemGroup>
 

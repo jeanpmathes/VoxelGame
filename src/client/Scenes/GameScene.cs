@@ -6,12 +6,12 @@
 
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
-using OpenToolkit.Windowing.Common.Input;
 using System;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Updates;
+using VoxelGame.Input.Actions;
 using VoxelGame.Logging;
 using VoxelGame.UI.UserInterfaces;
 
@@ -23,30 +23,35 @@ namespace VoxelGame.Client.Scenes
 
         private readonly GameUserInterface ui;
 
-        private readonly Client client;
+        private readonly Application.Client client;
 
         private readonly UpdateCounter counter;
 
         public ClientWorld World { get; private set; }
         public ClientPlayer Player { get; private set; } = null!;
 
-        private bool wireframeMode;
-        private bool hasReleasesWireframeKey = true;
+        private readonly ToggleButton wireframeToggle;
+        private readonly ToggleButton uiToggle;
 
-        private bool hasReleasedScreenshotKey = true;
+        private readonly PushButton screenshotButton;
+        private readonly PushButton escapeButton;
 
-        private bool hasReleasedUIKey = true;
-
-        internal GameScene(Client client, ClientWorld world)
+        internal GameScene(Application.Client client, ClientWorld world)
         {
             this.client = client;
 
-            Screen.SetCursor(visible: false, tracked: true);
+            Screen.SetCursor(visible: false, locked: true);
 
             ui = new GameUserInterface(client, false);
 
             World = world;
             counter = world.UpdateCounter;
+
+            wireframeToggle = client.Keybinds.GetToggle(client.Keybinds.Wireframe);
+            uiToggle = client.Keybinds.GetToggle(client.Keybinds.UI);
+
+            screenshotButton = client.Keybinds.GetPushButton(client.Keybinds.Screenshot);
+            escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
         }
 
         public void Load()
@@ -74,7 +79,7 @@ namespace VoxelGame.Client.Scenes
         {
             using (Logger.BeginScope("GameScene Render"))
             {
-                ui.SetUpdateRate(Client.Fps, Client.Ups);
+                ui.SetUpdateRate(Application.Client.Fps, Application.Client.Ups);
 
                 World.Render();
 
@@ -95,55 +100,26 @@ namespace VoxelGame.Client.Scenes
                     return;
                 }
 
-                KeyboardState input = Client.Keyboard;
-
-                if (hasReleasedScreenshotKey && input.IsKeyDown(Key.F12))
+                if (screenshotButton.Pushed)
                 {
-                    hasReleasedScreenshotKey = false;
-
                     Screen.TakeScreenshot(client.ScreenshotDirectory);
                 }
-                else if (input.IsKeyUp(Key.F12))
+
+                if (wireframeToggle.Changed)
                 {
-                    hasReleasedScreenshotKey = true;
+                    Screen.SetWireFrame(wireframeToggle.State);
+
+                    Logger.LogInformation(wireframeToggle.State
+                        ? "Enabled wire-frame mode."
+                        : "Disabled wire-frame mode.");
                 }
 
-                if (hasReleasesWireframeKey && input.IsKeyDown(Key.K))
+                if (uiToggle.Changed)
                 {
-                    hasReleasesWireframeKey = false;
-
-                    if (wireframeMode)
-                    {
-                        Screen.SetWireFrame(false);
-                        wireframeMode = false;
-
-                        Logger.LogInformation("Disabled wire-frame mode.");
-                    }
-                    else
-                    {
-                        Screen.SetWireFrame(true);
-                        wireframeMode = true;
-
-                        Logger.LogInformation("Enabled wire-frame mode.");
-                    }
-                }
-                else if (input.IsKeyUp(Key.K))
-                {
-                    hasReleasesWireframeKey = true;
-                }
-
-                if (hasReleasedUIKey && input.IsKeyDown(Key.J))
-                {
-                    hasReleasedUIKey = false;
-
                     ui.IsHidden = !ui.IsHidden;
                 }
-                else if (input.IsKeyUp(Key.J))
-                {
-                    hasReleasedUIKey = true;
-                }
 
-                if (input.IsKeyDown(Key.Escape))
+                if (escapeButton.Pushed)
                 {
                     client.LoadStartScene();
                 }

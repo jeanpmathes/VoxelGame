@@ -19,6 +19,15 @@ namespace VoxelGame.Logging
         /// </summary>
         public const int Default = 0;
 
+        #region CORE APPLICATION
+
+        /// <summary>
+        /// Occurs when a key bind is registered or the binding is changed.
+        /// </summary>
+        public const int SetKeyBind = 120;
+
+        #endregion CORE APPLICATION
+
         #region OPENGL
 
         // Documentation by OpenGL.

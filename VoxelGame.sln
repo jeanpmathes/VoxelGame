@@ -20,6 +20,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Logging", "src\lo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Graphics", "src\graphics\VoxelGame.Graphics.csproj", "{5179D32D-B43C-4E51-9319-1BF238103887}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Input", "src\input\VoxelGame.Input.csproj", "{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -48,6 +50,10 @@ Global
 		{5179D32D-B43C-4E51-9319-1BF238103887}.Debug|x64.Build.0 = Debug|x64
 		{5179D32D-B43C-4E51-9319-1BF238103887}.Release|x64.ActiveCfg = Release|x64
 		{5179D32D-B43C-4E51-9319-1BF238103887}.Release|x64.Build.0 = Release|x64
+		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Debug|x64.ActiveCfg = Debug|x64
+		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Debug|x64.Build.0 = Debug|x64
+		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Release|x64.ActiveCfg = Release|x64
+		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

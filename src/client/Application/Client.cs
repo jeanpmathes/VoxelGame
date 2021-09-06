@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
@@ -11,7 +12,6 @@ using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Common.Input;
 using OpenToolkit.Windowing.Desktop;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
-using System.IO;
 using VoxelGame.Client.Collections;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
@@ -19,21 +19,21 @@ using VoxelGame.Client.Rendering;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Input;
+using VoxelGame.Input.Actions;
+using VoxelGame.Input.Devices;
+using VoxelGame.Input.Internal;
 using VoxelGame.Logging;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
-namespace VoxelGame.Client
+namespace VoxelGame.Client.Application
 {
     internal class Client : GameWindow
     {
         private static readonly ILogger Logger = LoggingHelper.CreateLogger<Client>();
-        private static Client Instance { get; set; } = null!;
+        public static Client Instance { get; private set; } = null!;
 
         #region STATIC PROPERTIES
-
-        public static KeyboardState Keyboard => Instance.KeyboardState;
-
-        public static MouseState Mouse => Instance.MouseState;
 
         /// <summary>
         /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
@@ -52,6 +52,10 @@ namespace VoxelGame.Client
 
         #endregion STATIC PROPERTIES
 
+        private readonly InputManager input;
+        public KeybindManager Keybinds { get; }
+        public Mouse Mouse => input.Mouse;
+
         private readonly Graphics.Debug glDebug;
         private readonly SceneManager sceneManager;
 
@@ -65,6 +69,8 @@ namespace VoxelGame.Client
         private const int deltaBufferCapacity = 30;
         private readonly CircularTimeBuffer renderDeltaBuffer = new CircularTimeBuffer(deltaBufferCapacity);
         private readonly CircularTimeBuffer updateDeltaBuffer = new CircularTimeBuffer(deltaBufferCapacity);
+
+        private readonly ToggleButton fullscreenToggle;
 
         private Screen screen = null!;
 
@@ -87,11 +93,13 @@ namespace VoxelGame.Client
 
             RenderFrame += OnRenderFrame;
             UpdateFrame += OnUpdateFrame;
-            UpdateFrame += MouseUpdate;
 
             Closed += OnClosed;
 
-            MouseMove += OnMouseMove;
+            input = new InputManager(this);
+            Keybinds = new KeybindManager(input);
+
+            fullscreenToggle = Keybinds.GetToggle(Keybinds.Fullscreen);
         }
 
         private new void OnLoad()
@@ -151,30 +159,19 @@ namespace VoxelGame.Client
             }
         }
 
-        private bool hasReleasedFullscreenKey = true;
-
         private new void OnUpdateFrame(FrameEventArgs e)
         {
             using (Logger.BeginScope("UpdateFrame"))
             {
                 var deltaTime = (float) MathHelper.Clamp(e.Time, 0f, 1f);
 
+                input.UpdateState(KeyboardState, MouseState);
+
                 sceneManager.Update(deltaTime);
 
-                if (IsFocused)
+                if (IsFocused && fullscreenToggle.Changed)
                 {
-                    KeyboardState input = Client.Instance.LastKeyboardState;
-
-                    if (hasReleasedFullscreenKey && input.IsKeyDown(Key.F11))
-                    {
-                        hasReleasedFullscreenKey = false;
-
-                        Screen.SetFullscreen(!Client.Instance.IsFullscreen);
-                    }
-                    else if (input.IsKeyUp(Key.F11))
-                    {
-                        hasReleasedFullscreenKey = true;
-                    }
+                    Screen.SetFullscreen(!Instance.IsFullscreen);
                 }
 
                 updateDeltaBuffer.Write(e.Time);
@@ -212,57 +209,5 @@ namespace VoxelGame.Client
         }
 
         #endregion SCENE MANAGEMENT
-
-        #region MOUSE MOVE
-
-        public static Vector2 SmoothMouseDelta { get; private set; }
-        public bool DoMouseTracking { get; set; }
-
-        private Vector2 lastMouseDelta;
-        private Vector2 rawMouseDelta;
-        private Vector2 mouseDelta;
-
-        private Vector2 mouseCorrection;
-        private bool mouseHasMoved;
-
-        new protected void OnMouseMove(MouseMoveEventArgs e)
-        {
-            if (!DoMouseTracking) return;
-
-            mouseHasMoved = true;
-
-            Vector2 center = new Vector2(Size.X / 2f, Size.Y / 2f);
-
-            rawMouseDelta += e.Delta;
-            mouseCorrection += center - MousePosition;
-
-            MousePosition = center;
-        }
-
-        private void MouseUpdate(FrameEventArgs e)
-        {
-            if (!DoMouseTracking) return;
-
-            if (!mouseHasMoved)
-            {
-                mouseDelta = Vector2.Zero;
-            }
-            else
-            {
-                const float a = 0.4f;
-
-                mouseDelta = rawMouseDelta - mouseCorrection;
-                mouseDelta = (lastMouseDelta * (1f - a)) + (mouseDelta * a);
-            }
-
-            SmoothMouseDelta = mouseDelta;
-            mouseHasMoved = false;
-
-            lastMouseDelta = mouseDelta;
-            rawMouseDelta = Vector2.Zero;
-            mouseCorrection = Vector2.Zero;
-        }
-
-        #endregion MOUSE MOVE
     }
 }
