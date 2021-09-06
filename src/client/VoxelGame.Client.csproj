@@ -11,7 +11,7 @@
     <ApplicationIcon>vg_icon.ico</ApplicationIcon>
     <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
     <LangVersion>preview</LangVersion>
-    <Configurations>Debug;Release;Debug GL33</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <StartupObject>VoxelGame.Client.Program</StartupObject>
     <PackageLicenseExpression>MIT License</PackageLicenseExpression>
   </PropertyGroup>
@@ -31,13 +31,6 @@
     <OutputPath>bin\x64\Release\</OutputPath>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug GL33|x64'">
-    <DefineConstants>DEBUG;TRACE;GL33</DefineConstants>
-    <Optimize>false</Optimize>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <WarningsAsErrors>nullable</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

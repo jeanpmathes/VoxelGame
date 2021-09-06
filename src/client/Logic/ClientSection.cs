@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 // ReSharper disable CommentTypo
+// ReSharper disable ShiftExpressionZeroLeftOperand
 
 using OpenToolkit.Mathematics;
 using System;
