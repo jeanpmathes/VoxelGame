@@ -19,7 +19,7 @@ namespace VoxelGame.Client.Logic
 {
     public class ClientWorld : Core.Logic.World
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ClientWorld>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<ClientWorld>();
 
         private readonly System.Diagnostics.Stopwatch readyStopwatch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -150,7 +150,7 @@ namespace VoxelGame.Client.Logic
                     readyStopwatch.Stop();
                     double readyTime = readyStopwatch.Elapsed.TotalSeconds;
 
-                    Logger.LogInformation($"The world is ready after {readyTime}s.");
+                    logger.LogInformation($"The world is ready after {readyTime}s.");
                 }
             }
 
@@ -199,7 +199,7 @@ namespace VoxelGame.Client.Logic
                     {
                         Exception e = completed.Exception?.GetBaseException() ?? new NullReferenceException();
 
-                        Logger.LogCritical(
+                        logger.LogCritical(
                             Events.ChunkMeshingError,
                             e,
                             "An exception occurred when meshing the chunk ({x}|{z}). The exception will be re-thrown.",

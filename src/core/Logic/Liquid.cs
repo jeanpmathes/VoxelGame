@@ -88,12 +88,12 @@ namespace VoxelGame.Core.Logic
 
             RenderType = renderType;
 
-            if (LiquidList.Count < LiquidLimit)
+            if (liquidList.Count < LiquidLimit)
             {
-                LiquidList.Add(this);
-                NamedLiquidDictionary.Add(namedId, this);
+                liquidList.Add(this);
+                namedLiquidDictionary.Add(namedId, this);
 
-                Id = (uint) (LiquidList.Count - 1);
+                Id = (uint) (liquidList.Count - 1);
             }
             else
             {

@@ -17,7 +17,7 @@ namespace VoxelGame.Client.Rendering
 {
     public class ScreenElementRenderer : IDisposable
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ScreenElementRenderer>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<ScreenElementRenderer>();
 
         private readonly ElementDrawGroup drawGroup;
 
@@ -104,7 +104,7 @@ namespace VoxelGame.Client.Rendering
             }
             else
             {
-                Logger.LogWarning(
+                logger.LogWarning(
                     Events.UndeletedBuffers,
                     "A renderer has been disposed by GC, without deleting buffers.");
             }

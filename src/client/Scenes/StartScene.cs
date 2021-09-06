@@ -22,7 +22,7 @@ namespace VoxelGame.Client.Scenes
 {
     public class StartScene : IScene
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<StartScene>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<StartScene>();
 
         private readonly Application.Client client;
         private readonly StartUserInterface ui;
@@ -49,7 +49,7 @@ namespace VoxelGame.Client.Scenes
             ui.CreateControl();
             ui.SetActions(Action_Start, Action_Exit);
 
-            LookupWorlds(client.WorldsDirectory);
+            LookupWorlds(client.worldsDirectory);
         }
 
         public void Update(float deltaTime)
@@ -77,7 +77,7 @@ namespace VoxelGame.Client.Scenes
         private void Action_Start()
         {
             ListWorlds(worlds);
-            client.LoadGameScene(WorldSetup(client.WorldsDirectory));
+            client.LoadGameScene(WorldSetup(client.worldsDirectory));
         }
 
         private void Action_Exit()
@@ -91,13 +91,13 @@ namespace VoxelGame.Client.Scenes
 
         private ClientWorld WorldSetup(string worldsDirectory)
         {
-            using (Logger.BeginScope("WorldSetup"))
+            using (logger.BeginScope("WorldSetup"))
             {
                 bool newWorld;
 
                 if (worlds.Count == 0)
                 {
-                    Logger.LogInformation("Skipping new world prompt as no worlds are available to load.");
+                    logger.LogInformation("Skipping new world prompt as no worlds are available to load.");
 
                     newWorld = true;
                 }
@@ -130,15 +130,15 @@ namespace VoxelGame.Client.Scenes
                     WorldInformation information = WorldInformation.Load(meta);
                     worlds.Add((information, directory));
 
-                    Logger.LogDebug("Valid world directory found: {directory}", directory);
+                    logger.LogDebug("Valid world directory found: {directory}", directory);
                 }
                 else
                 {
-                    Logger.LogDebug("The directory has no meta file and is ignored: {directory}", directory);
+                    logger.LogDebug("The directory has no meta file and is ignored: {directory}", directory);
                 }
             }
 
-            Logger.LogInformation("Completed world lookup, {Count} valid directories have been found.", worlds.Count);
+            logger.LogInformation("Completed world lookup, {Count} valid directories have been found.", worlds.Count);
         }
 
         private static void ListWorlds(List<(WorldInformation information, string path)> worlds)
@@ -219,7 +219,7 @@ namespace VoxelGame.Client.Scenes
         {
             if (name.Length == 0)
             {
-                Logger.LogWarning("The input is too short.");
+                logger.LogWarning("The input is too short.");
 
                 Console.WriteLine(Language.InputNotValid);
 
@@ -228,7 +228,7 @@ namespace VoxelGame.Client.Scenes
 
             if (name[^1] == ' ')
             {
-                Logger.LogWarning("The input ends with a whitespace.");
+                logger.LogWarning("The input ends with a whitespace.");
 
                 Console.WriteLine(Language.InputNotValid);
 
@@ -251,7 +251,7 @@ namespace VoxelGame.Client.Scenes
             {
                 if (name.Contains(c, StringComparison.Ordinal))
                 {
-                    Logger.LogWarning("The input contains an invalid character.");
+                    logger.LogWarning("The input contains an invalid character.");
 
                     Console.WriteLine(Language.InputNotValid);
 
@@ -318,14 +318,14 @@ namespace VoxelGame.Client.Scenes
                     }
                     else
                     {
-                        Logger.LogWarning("The index ({i}) is too high or too low.", n);
+                        logger.LogWarning("The index ({i}) is too high or too low.", n);
 
                         Console.WriteLine(Language.WorldNotFound);
                     }
                 }
                 else
                 {
-                    Logger.LogWarning("The input ({input}) could not be parsed to an int value.", index);
+                    logger.LogWarning("The input ({input}) could not be parsed to an int value.", index);
 
                     Console.WriteLine(Language.InputNotValid);
                 }

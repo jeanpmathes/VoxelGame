@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic
 {
     public class WorldInformation
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<WorldInformation>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldInformation>();
 
         public string Name { get; set; } = "No Name";
         public int Seed { get; set; } = 2133;
@@ -44,13 +44,13 @@ namespace VoxelGame.Core.Logic
                 WorldInformation information =
                     JsonSerializer.Deserialize<WorldInformation>(json) ?? new WorldInformation();
 
-                Logger.LogDebug("WorldInformation for World '{name}' was loaded from: {path}", information.Name, path);
+                logger.LogDebug("WorldInformation for World '{name}' was loaded from: {path}", information.Name, path);
 
                 return information;
             }
             catch (JsonException exception)
             {
-                Logger.LogError(Events.WorldLoadingError, exception, "The meta file could not be loaded: {path}", path);
+                logger.LogError(Events.WorldLoadingError, exception, "The meta file could not be loaded: {path}", path);
 
                 return new WorldInformation();
             }

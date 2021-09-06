@@ -104,22 +104,22 @@ namespace VoxelGame.Client.Application
         {
             var bind = new Keybind(id, type, defaultKeyOrButton);
 
-            Debug.Assert(!Bindings.Contains(bind), $"The binding '{bind.id}' is already defined.");
-            Bindings.Add(bind);
+            Debug.Assert(!bindings.Contains(bind), $"The binding '{bind.id}' is already defined.");
+            bindings.Add(bind);
 
             return bind;
         }
 
-        private static readonly HashSet<Keybind> Bindings = new HashSet<Keybind>();
+        private static readonly HashSet<Keybind> bindings = new HashSet<Keybind>();
 
         internal static void RegisterWithManager(KeybindManager manager)
         {
-            foreach (Keybind bind in Bindings)
+            foreach (Keybind bind in bindings)
             {
                 bind.AddToManager(manager);
             }
 
-            Bindings.Clear();
+            bindings.Clear();
         }
 
         private void AddToManager(KeybindManager manager)

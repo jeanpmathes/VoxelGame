@@ -25,18 +25,18 @@ namespace VoxelGame.Core.Visuals
     {
         private const string BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
 
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<BlockModel>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
 
-        private static readonly string Path = System.IO.Path.Combine(
+        private static readonly string path = System.IO.Path.Combine(
             Directory.GetCurrentDirectory(),
             "Resources",
             "Models");
 
-        private static ITextureIndexProvider _blockTextureIndexProvider = null!;
+        private static ITextureIndexProvider blockTextureIndexProvider = null!;
 
         public static void SetBlockTextureIndexProvider(ITextureIndexProvider blockTextureIndexProvider)
         {
-            _blockTextureIndexProvider = blockTextureIndexProvider;
+            BlockModel.blockTextureIndexProvider = blockTextureIndexProvider;
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
@@ -294,7 +294,7 @@ namespace VoxelGame.Core.Visuals
 
             for (var i = 0; i < TextureNames.Length; i++)
             {
-                texIndexLookup[i] = _blockTextureIndexProvider.GetTextureIndex(TextureNames[i]);
+                texIndexLookup[i] = blockTextureIndexProvider.GetTextureIndex(TextureNames[i]);
             }
 
             vertices = new float[Quads.Length * 32];
@@ -385,7 +385,7 @@ namespace VoxelGame.Core.Visuals
                 {IgnoreReadOnlyProperties = true, WriteIndented = true};
 
             string json = JsonSerializer.Serialize(this, options);
-            File.WriteAllText(System.IO.Path.Combine(Path, name + ".json"), json);
+            File.WriteAllText(System.IO.Path.Combine(path, name + ".json"), json);
         }
 
         #region STATIC METHODS
@@ -394,16 +394,16 @@ namespace VoxelGame.Core.Visuals
         {
             try
             {
-                string json = File.ReadAllText(System.IO.Path.Combine(Path, name + ".json"));
+                string json = File.ReadAllText(System.IO.Path.Combine(path, name + ".json"));
                 BlockModel model = JsonSerializer.Deserialize<BlockModel>(json) ?? new BlockModel();
 
-                Logger.LogDebug("Loaded BlockModel: {name}", name);
+                logger.LogDebug("Loaded BlockModel: {name}", name);
 
                 return model;
             }
             catch (Exception e) when (e is IOException || e is FileNotFoundException || e is JsonException)
             {
-                Logger.LogWarning(
+                logger.LogWarning(
                     Events.MissingResource,
                     e,
                     "Could not load the model '{name}' because an exception occurred, a fallback will be used instead.",

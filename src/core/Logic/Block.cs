@@ -115,12 +115,12 @@ namespace VoxelGame.Core.Logic
                 $"The target buffer should be {nameof(TargetBuffer.VaryingHeight)} if and only if the block implements {nameof(IHeightVariable)}.");
 #pragma warning restore S3060 // "is" should not be used with "this"
 
-            if (BlockList.Count < BlockLimit)
+            if (blockList.Count < BlockLimit)
             {
-                BlockList.Add(this);
-                NamedBlockDictionary.Add(namedId, this);
+                blockList.Add(this);
+                namedBlockDictionary.Add(namedId, this);
 
-                Id = (uint) (BlockList.Count - 1);
+                Id = (uint) (blockList.Count - 1);
             }
             else
             {

@@ -15,11 +15,11 @@ namespace VoxelGame.Client.Rendering
 {
     internal sealed class Shaders
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Shaders>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Shaders>();
 
         private const string TimeUniform = "time";
 
-        private static Shaders? _instance;
+        private static Shaders? instance;
 
         public static Shader SimpleSection { get; private set; } = null!;
         public static Shader ComplexSection { get; private set; } = null!;
@@ -34,8 +34,8 @@ namespace VoxelGame.Client.Rendering
 
         internal static void Load(string directory)
         {
-            _instance ??= new Shaders(directory);
-            _instance.LoadAll();
+            instance ??= new Shaders(directory);
+            instance.LoadAll();
         }
 
         private readonly ShaderLoader loader;
@@ -49,7 +49,7 @@ namespace VoxelGame.Client.Rendering
 
         private void LoadAll()
         {
-            using (Logger.BeginScope("Shader setup"))
+            using (logger.BeginScope("Shader setup"))
             {
                 loader.LoadIncludable("noise", "noise.glsl");
 
@@ -67,7 +67,7 @@ namespace VoxelGame.Client.Rendering
 
                 UpdateOrthographicProjection();
 
-                Logger.LogInformation("Shader setup complete.");
+                logger.LogInformation("Shader setup complete.");
             }
         }
 
@@ -79,9 +79,9 @@ namespace VoxelGame.Client.Rendering
 
         public static void SetTime(float time)
         {
-            if (_instance == null) return;
+            if (instance == null) return;
 
-            foreach (Shader shader in _instance.timedSet)
+            foreach (Shader shader in instance.timedSet)
             {
                 shader.SetFloat(TimeUniform, time);
             }

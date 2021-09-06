@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Collections
     [Serializable]
     public class ScheduledTickManager<T> where T : ITickable
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ScheduledTickManager<T>>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<ScheduledTickManager<T>>();
 
         private readonly int maxTicks;
         private TicksHolder? nextTicks;
@@ -47,7 +47,7 @@ namespace VoxelGame.Core.Collections
 
             if (ticks.tickables.Count >= maxTicks)
             {
-                Logger.LogWarning(
+                logger.LogWarning(
                     "For update {update} a tick was scheduled although the limit for this update is already reached. It has been scheduled for the following update.",
                     targetUpdate);
 

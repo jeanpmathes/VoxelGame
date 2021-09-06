@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic
 {
     public abstract class World : IDisposable
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<World>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
         public WorldInformation Information { get; }
 
@@ -139,7 +139,7 @@ namespace VoxelGame.Core.Logic
         {
             Information.Save(Path.Combine(WorldDirectory, "meta.json"));
 
-            Logger.LogInformation("Created a new world.");
+            logger.LogInformation("Created a new world.");
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace VoxelGame.Core.Logic
                 chunkDirectory: path + "/Chunks",
                 new ComplexGenerator(information.Seed))
         {
-            Logger.LogInformation("Loaded an existing world.");
+            logger.LogInformation("Loaded an existing world.");
         }
 
         /// <summary>
@@ -299,7 +299,7 @@ namespace VoxelGame.Core.Logic
                         {
                             if (!positionsToReleaseOnActivation.Remove((x, z)) || !activeChunks.ContainsKey((x, z)))
                             {
-                                Logger.LogError(
+                                logger.LogError(
                                     Events.ChunkLoadingError,
                                     completed.Exception!.GetBaseException(),
                                     "An exception occurred when loading the chunk ({x}|{z}). " +
@@ -335,7 +335,7 @@ namespace VoxelGame.Core.Logic
                             }
                             else
                             {
-                                Logger.LogError(
+                                logger.LogError(
                                     Events.ChunkLoadingError,
                                     "The position of the loaded chunk file for position ({x}|{z}) did not match the requested position. " +
                                     "This may be the result of a renamed chunk file. " +
@@ -417,7 +417,7 @@ namespace VoxelGame.Core.Logic
                         {
                             if (completed.IsFaulted)
                             {
-                                Logger.LogError(
+                                logger.LogError(
                                     Events.ChunkSavingError,
                                     completed.Exception!.GetBaseException(),
                                     "An exception occurred when saving chunk ({x}|{z}). " +
@@ -468,7 +468,7 @@ namespace VoxelGame.Core.Logic
             {
                 positionsToActivate.Add((x, z));
 
-                Logger.LogDebug(Events.ChunkRequest, "Chunk ({x}|{z}) has been requested successfully.", x, z);
+                logger.LogDebug(Events.ChunkRequest, "Chunk ({x}|{z}) has been requested successfully.", x, z);
             }
         }
 
@@ -494,7 +494,7 @@ namespace VoxelGame.Core.Logic
                 activeChunks.Remove((x, z));
                 chunksToSave.Enqueue(chunk);
 
-                Logger.LogDebug(Events.ChunkRelease, "Released chunk ({x}|{z}).", x, z);
+                logger.LogDebug(Events.ChunkRelease, "Released chunk ({x}|{z}).", x, z);
 
                 canRelease = true;
             }
@@ -503,7 +503,7 @@ namespace VoxelGame.Core.Logic
             {
                 positionsToReleaseOnActivation.Add((x, z));
 
-                Logger.LogDebug(Events.ChunkRelease, "Scheduled to release chunk ({x}|{z}) after activation.", x, z);
+                logger.LogDebug(Events.ChunkRelease, "Scheduled to release chunk ({x}|{z}) after activation.", x, z);
 
                 canRelease = true;
             }
@@ -512,7 +512,7 @@ namespace VoxelGame.Core.Logic
             {
                 positionsToActivate.Remove((x, z));
 
-                Logger.LogDebug(Events.ChunkRelease, "Chunk ({x}|{z}) has been removed from activation list.", x, z);
+                logger.LogDebug(Events.ChunkRelease, "Chunk ({x}|{z}) has been removed from activation list.", x, z);
 
                 canRelease = true;
             }
@@ -619,7 +619,7 @@ namespace VoxelGame.Core.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ModifyLiquid(bool isStatic, int x, int y, int z)
         {
-            ModifyWorldData(x, y, z, ~Section.STATIC_MASK, isStatic ? Section.STATIC_MASK : 0);
+            ModifyWorldData(x, y, z, ~Section.StaticMask, isStatic ? Section.StaticMask : 0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -771,7 +771,7 @@ namespace VoxelGame.Core.Logic
         {
             Information.SpawnInformation = new SpawnInformation(position);
 
-            Logger.LogInformation("World spawn position has been set to: {position}", position);
+            logger.LogInformation("World spawn position has been set to: {position}", position);
         }
 
         /// <summary>
@@ -783,7 +783,7 @@ namespace VoxelGame.Core.Logic
             Console.WriteLine(Language.AllChunksSaving);
             Console.WriteLine();
 
-            Logger.LogInformation("Saving world.");
+            logger.LogInformation("Saving world.");
 
             List<Task> savingTasks = new List<Task>(activeChunks.Count);
 

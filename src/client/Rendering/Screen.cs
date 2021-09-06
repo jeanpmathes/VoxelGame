@@ -24,7 +24,7 @@ namespace VoxelGame.Client.Rendering
     /// </summary>
     public class Screen : IDisposable
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Screen>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
 
         private readonly int samples;
 
@@ -83,7 +83,7 @@ namespace VoxelGame.Client.Rendering
 
             int maxSamples = GL.GetInteger(GetPName.MaxSamples);
             samples = Properties.client.Default.SampleCount;
-            Logger.LogDebug("Set sample count to {samples}, of maximum {max} possible samples.", samples, maxSamples);
+            logger.LogDebug("Set sample count to {samples}, of maximum {max} possible samples.", samples, maxSamples);
 
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
@@ -110,7 +110,7 @@ namespace VoxelGame.Client.Rendering
 
             while (multisampledFboStatus != FramebufferStatus.FramebufferComplete)
             {
-                Logger.LogWarning("Multi-sampled FBO not complete [{status}], waiting...", multisampledFboStatus);
+                logger.LogWarning("Multi-sampled FBO not complete [{status}], waiting...", multisampledFboStatus);
                 Thread.Sleep(100);
 
                 multisampledFboStatus = GL.CheckNamedFramebufferStatus(msFBO, FramebufferTarget.Framebuffer);
@@ -164,7 +164,7 @@ namespace VoxelGame.Client.Rendering
 
             while (depthFboStatus != FramebufferStatus.FramebufferComplete)
             {
-                Logger.LogWarning("Depth FBO not complete [{status}], waiting...", depthFboStatus);
+                logger.LogWarning("Depth FBO not complete [{status}], waiting...", depthFboStatus);
                 Thread.Sleep(100);
 
                 depthFboStatus = GL.CheckNamedFramebufferStatus(depthFBO, FramebufferTarget.Framebuffer);
@@ -192,7 +192,7 @@ namespace VoxelGame.Client.Rendering
 
             while (screenshotFboStatus != FramebufferStatus.FramebufferComplete)
             {
-                Logger.LogWarning("Screenshot FBO not complete [{status}], waiting...", screenshotFboStatus);
+                logger.LogWarning("Screenshot FBO not complete [{status}], waiting...", screenshotFboStatus);
                 Thread.Sleep(100);
 
                 screenshotFboStatus = GL.CheckNamedFramebufferStatus(screenshotFBO, FramebufferTarget.Framebuffer);
@@ -277,7 +277,7 @@ namespace VoxelGame.Client.Rendering
 
             Shaders.UpdateOrthographicProjection();
 
-            Logger.LogDebug("Window has been resized to: {size}", e.Size);
+            logger.LogDebug("Window has been resized to: {size}", e.Size);
         }
 
         #region PUBLIC STATIC METHODS
@@ -307,7 +307,7 @@ namespace VoxelGame.Client.Rendering
 
                 Instance.Client.WindowState = WindowState.Fullscreen;
                 Instance.Client.IsFullscreen = true;
-                Logger.LogDebug("Fullscreen: Switched to fullscreen mode.");
+                logger.LogDebug("Fullscreen: Switched to fullscreen mode.");
             }
             else
             {
@@ -325,7 +325,7 @@ namespace VoxelGame.Client.Rendering
 
                 Instance.Client.IsFullscreen = false;
 
-                Logger.LogDebug("Fullscreen: Switched to normal mode.");
+                logger.LogDebug("Fullscreen: Switched to normal mode.");
             }
         }
 
@@ -386,7 +386,7 @@ namespace VoxelGame.Client.Rendering
             string path = Path.Combine(directory, $"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
 
             screenshot.Save(path);
-            Logger.LogInformation("Saved a screenshot to: {path}", path);
+            logger.LogInformation("Saved a screenshot to: {path}", path);
 
             Marshal.FreeHGlobal(data);
         }
@@ -438,7 +438,7 @@ namespace VoxelGame.Client.Rendering
                 GL.DeleteRenderbuffer(screenshotRBO);
             }
 
-            Logger.LogWarning(Events.UndeletedGlObjects, "A screen object has been destroyed without disposing it.");
+            logger.LogWarning(Events.UndeletedGlObjects, "A screen object has been destroyed without disposing it.");
 
             disposed = true;
         }

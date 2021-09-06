@@ -16,12 +16,12 @@ namespace VoxelGame.Core.Logic
 {
     public abstract partial class Liquid
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Liquid>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Liquid>();
 
         public const int LiquidLimit = 32;
 
-        private static readonly List<Liquid> LiquidList = new List<Liquid>();
-        private static readonly Dictionary<string, Liquid> NamedLiquidDictionary = new Dictionary<string, Liquid>();
+        private static readonly List<Liquid> liquidList = new List<Liquid>();
+        private static readonly Dictionary<string, Liquid> namedLiquidDictionary = new Dictionary<string, Liquid>();
 
         private const int mPas = 15;
 
@@ -141,13 +141,13 @@ namespace VoxelGame.Core.Logic
         /// <returns>The block with the ID or air if the ID is not valid.</returns>
         public static Liquid TranslateID(uint id)
         {
-            if (LiquidList.Count > id)
+            if (liquidList.Count > id)
             {
-                return LiquidList[(int) id];
+                return liquidList[(int) id];
             }
             else
             {
-                Logger.LogWarning(
+                logger.LogWarning(
                     "No Liquid with the ID {id} could be found, returning {fallback} instead.",
                     id,
                     nameof(Liquid.None));
@@ -158,13 +158,13 @@ namespace VoxelGame.Core.Logic
 
         public static Liquid TranslateNamedID(string namedId)
         {
-            if (NamedLiquidDictionary.TryGetValue(namedId, out Liquid? liquid))
+            if (namedLiquidDictionary.TryGetValue(namedId, out Liquid? liquid))
             {
                 return liquid;
             }
             else
             {
-                Logger.LogWarning(
+                logger.LogWarning(
                     "No Liquid with the named ID {id} could be found, returning {fallback} instead.",
                     namedId,
                     nameof(Liquid.None));
@@ -176,23 +176,23 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Gets the count of registered liquids..
         /// </summary>
-        public static int Count => LiquidList.Count;
+        public static int Count => liquidList.Count;
 
         /// <summary>
         /// Calls the setup method on all blocks.
         /// </summary>
         public static void LoadLiquids(ITextureIndexProvider indexProvider)
         {
-            using (Logger.BeginScope("Liquid Loading"))
+            using (logger.BeginScope("Liquid Loading"))
             {
-                foreach (Liquid liquid in LiquidList)
+                foreach (Liquid liquid in liquidList)
                 {
                     liquid.Setup(indexProvider);
 
-                    Logger.LogDebug(Events.LiquidLoad, "Loaded the liquid [{liquid}] with ID {id}.", liquid, liquid.Id);
+                    logger.LogDebug(Events.LiquidLoad, "Loaded the liquid [{liquid}] with ID {id}.", liquid, liquid.Id);
                 }
 
-                Logger.LogInformation("Liquid setup complete. A total of {count} liquids have been loaded.", Count);
+                logger.LogInformation("Liquid setup complete. A total of {count} liquids have been loaded.", Count);
             }
         }
 

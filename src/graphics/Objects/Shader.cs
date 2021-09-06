@@ -14,7 +14,7 @@ namespace VoxelGame.Graphics.Objects
 {
     public class Shader
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Shader>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Shader>();
 
         private readonly Dictionary<string, int> uniformLocations;
 
@@ -67,7 +67,7 @@ namespace VoxelGame.Graphics.Objects
             {
                 var e = new Exception($"Error occurred whilst compiling Shader({shader})");
 
-                Logger.LogCritical(
+                logger.LogCritical(
                     Events.ShaderError,
                     e,
                     "Error occurred whilst compiling Shader({shader}): {info}",
@@ -78,7 +78,7 @@ namespace VoxelGame.Graphics.Objects
             }
             else
             {
-                Logger.LogDebug("Successfully compiled Shader({shader})", shader);
+                logger.LogDebug("Successfully compiled Shader({shader})", shader);
             }
         }
 
@@ -93,7 +93,7 @@ namespace VoxelGame.Graphics.Objects
             {
                 var e = new Exception($"Error occurred whilst linking Program({program})");
 
-                Logger.LogCritical(
+                logger.LogCritical(
                     Events.ShaderError,
                     e,
                     "Error occurred whilst linking Program({program}): {info}",
@@ -104,7 +104,7 @@ namespace VoxelGame.Graphics.Objects
             }
             else
             {
-                Logger.LogDebug("Successfully linked Program({program})", program);
+                logger.LogDebug("Successfully linked Program({program})", program);
             }
         }
 

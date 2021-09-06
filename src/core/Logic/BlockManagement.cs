@@ -18,12 +18,12 @@ namespace VoxelGame.Core.Logic
 {
     public abstract partial class Block : IBlockBase
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Block>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Block>();
 
-        public const int BlockLimit = 1 << Section.DATA_SHIFT;
+        public const int BlockLimit = 1 << Section.DataShift;
 
-        private static readonly List<Block> BlockList = new List<Block>();
-        private static readonly Dictionary<string, Block> NamedBlockDictionary = new Dictionary<string, Block>();
+        private static readonly List<Block> blockList = new List<Block>();
+        private static readonly Dictionary<string, Block> namedBlockDictionary = new Dictionary<string, Block>();
 
         #region NATURAL BLOCKS
 
@@ -482,13 +482,13 @@ namespace VoxelGame.Core.Logic
         /// <returns>The block with the ID or air if the ID is not valid.</returns>
         public static Block TranslateID(uint id)
         {
-            if (BlockList.Count > id)
+            if (blockList.Count > id)
             {
-                return BlockList[(int) id];
+                return blockList[(int) id];
             }
             else
             {
-                Logger.LogWarning($"No Block with the ID {id} could be found, returning {Block.Air.NamedId} instead.");
+                logger.LogWarning($"No Block with the ID {id} could be found, returning {Block.Air.NamedId} instead.");
 
                 return Block.Air;
             }
@@ -496,13 +496,13 @@ namespace VoxelGame.Core.Logic
 
         public static Block TranslateNamedID(string namedId)
         {
-            if (NamedBlockDictionary.TryGetValue(namedId, out Block? block))
+            if (namedBlockDictionary.TryGetValue(namedId, out Block? block))
             {
                 return block;
             }
             else
             {
-                Logger.LogWarning(
+                logger.LogWarning(
                     "No Block with the named ID {id} could be found, returning {fallback} instead.",
                     namedId,
                     nameof(Block.Air));
@@ -514,23 +514,23 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         /// Gets the count of registered blocks.
         /// </summary>
-        public static int Count => BlockList.Count;
+        public static int Count => blockList.Count;
 
         /// <summary>
         /// Calls the setup method on all blocks.
         /// </summary>
         public static void LoadBlocks(ITextureIndexProvider indexProvider)
         {
-            using (Logger.BeginScope("Block Loading"))
+            using (logger.BeginScope("Block Loading"))
             {
-                foreach (Block block in BlockList)
+                foreach (Block block in blockList)
                 {
                     block.Setup(indexProvider);
 
-                    Logger.LogDebug(Events.BlockLoad, "Loaded the block [{block}] with ID {id}.", block, block.Id);
+                    logger.LogDebug(Events.BlockLoad, "Loaded the block [{block}] with ID {id}.", block, block.Id);
                 }
 
-                Logger.LogInformation("Block setup complete. A total of {count} blocks have been loaded.", Count);
+                logger.LogInformation("Block setup complete. A total of {count} blocks have been loaded.", Count);
             }
         }
     }

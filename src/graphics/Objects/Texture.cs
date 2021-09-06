@@ -16,7 +16,7 @@ namespace VoxelGame.Graphics.Objects
 {
     public class Texture : IDisposable
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Texture>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Texture>();
 
         private int Handle { get; }
 
@@ -43,7 +43,7 @@ namespace VoxelGame.Graphics.Objects
                     SetupTexture(bitmap);
                 }
 
-                Logger.LogWarning(
+                logger.LogWarning(
                     Events.MissingResource,
                     exception,
                     "The texture could not be loaded and a fallback was used instead because the file was not found: {path}",
@@ -102,7 +102,7 @@ namespace VoxelGame.Graphics.Objects
                 }
                 else
                 {
-                    Logger.LogWarning(
+                    logger.LogWarning(
                         Events.UndeletedTexture,
                         "A texture has been disposed by GC, without deleting the texture storage.");
                 }

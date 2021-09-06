@@ -163,7 +163,7 @@ namespace VoxelGame.Client.Collections
             }
         }
 
-        private static readonly uint[] Indices =
+        private static readonly uint[] indices =
         {
             0, 2, 1,
             0, 3, 2,
@@ -203,7 +203,7 @@ namespace VoxelGame.Client.Collections
                         meshData.Add(currentFace.vertexData);
 
                         int newIndices = currentFace.isSingleSided ? 6 : 12;
-                        meshIndices.AddRange(Indices, newIndices);
+                        meshIndices.AddRange(indices, newIndices);
 
                         for (int i = 0; i < newIndices; i++)
                         {

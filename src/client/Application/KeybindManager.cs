@@ -19,7 +19,7 @@ namespace VoxelGame.Client.Application
 {
     internal class KeybindManager
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<KeybindManager>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<KeybindManager>();
 
         public InputManager Input { get; }
 
@@ -70,7 +70,7 @@ namespace VoxelGame.Client.Application
 
             keybinds[bind] = button;
 
-            Logger.LogDebug(Events.SetKeyBind, $"Created keybind: {bind}");
+            logger.LogDebug(Events.SetKeyBind, $"Created keybind: {bind}");
         }
 
         private void InitializeSettings()
@@ -112,7 +112,7 @@ namespace VoxelGame.Client.Application
 
             Properties.client.Default.Save();
 
-            Logger.LogInformation("Finished initializing keybind settings.");
+            logger.LogInformation("Finished initializing keybind settings.");
         }
 
         private void InitializeUsages()
@@ -154,7 +154,7 @@ namespace VoxelGame.Client.Application
             Properties.client.Default[PropertyName(bind)] = keyOrButton.Settings;
             Properties.client.Default.Save();
 
-            Logger.LogInformation(Events.SetKeyBind, $"Rebind '{bind}' to: {keyOrButton}");
+            logger.LogInformation(Events.SetKeyBind, $"Rebind '{bind}' to: {keyOrButton}");
 
             UpdateAddedBind(keyOrButton);
         }
@@ -176,7 +176,7 @@ namespace VoxelGame.Client.Application
 
             if (!unused)
             {
-                Logger.LogWarning(Events.SetKeyBind, $"Key '{keyOrButton}' is used by multiple bindings.");
+                logger.LogWarning(Events.SetKeyBind, $"Key '{keyOrButton}' is used by multiple bindings.");
             }
         }
 

@@ -28,7 +28,7 @@ namespace VoxelGame.Client.Application
 {
     internal class Client : GameWindow
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Client>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
         public static Client Instance { get; private set; } = null!;
 
         #region STATIC PROPERTIES
@@ -60,13 +60,13 @@ namespace VoxelGame.Client.Application
         private double Time { get; set; }
         public unsafe Window* WindowPointer { get; }
 
-        public readonly string AppDataDirectory;
-        public readonly string WorldsDirectory;
-        public readonly string ScreenshotDirectory;
+        public readonly string appDataDirectory;
+        public readonly string worldsDirectory;
+        public readonly string screenshotDirectory;
 
-        private const int deltaBufferCapacity = 30;
-        private readonly CircularTimeBuffer renderDeltaBuffer = new CircularTimeBuffer(deltaBufferCapacity);
-        private readonly CircularTimeBuffer updateDeltaBuffer = new CircularTimeBuffer(deltaBufferCapacity);
+        private const int DeltaBufferCapacity = 30;
+        private readonly CircularTimeBuffer renderDeltaBuffer = new CircularTimeBuffer(DeltaBufferCapacity);
+        private readonly CircularTimeBuffer updateDeltaBuffer = new CircularTimeBuffer(DeltaBufferCapacity);
 
         private readonly ToggleButton fullscreenToggle;
 
@@ -84,11 +84,11 @@ namespace VoxelGame.Client.Application
 
             glDebug = new Graphics.Debug();
 
-            this.AppDataDirectory = appDataDirectory;
-            this.ScreenshotDirectory = screenshotDirectory;
+            this.appDataDirectory = appDataDirectory;
+            this.screenshotDirectory = screenshotDirectory;
 
-            WorldsDirectory = Path.Combine(appDataDirectory, "Worlds");
-            Directory.CreateDirectory(WorldsDirectory);
+            worldsDirectory = Path.Combine(appDataDirectory, "Worlds");
+            Directory.CreateDirectory(worldsDirectory);
 
             sceneManager = new SceneManager();
 
@@ -107,7 +107,7 @@ namespace VoxelGame.Client.Application
 
         private new void OnLoad()
         {
-            using (Logger.BeginScope("Client OnLoad"))
+            using (logger.BeginScope("Client OnLoad"))
             {
                 // GL debug setup.
                 glDebug.Enable();
@@ -125,10 +125,10 @@ namespace VoxelGame.Client.Application
                     TextureUnit.Texture3,
                     TextureUnit.Texture4);
 
-                Logger.LogInformation("All block textures loaded.");
+                logger.LogInformation("All block textures loaded.");
 
                 LiquidTextureArray = new ArrayTexture("Resources/Textures/Liquids", 16, false, TextureUnit.Texture5);
-                Logger.LogInformation("All liquid textures loaded.");
+                logger.LogInformation("All liquid textures loaded.");
 
                 TextureLayout.SetProviders(BlockTextureArray, LiquidTextureArray);
                 BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
@@ -138,7 +138,7 @@ namespace VoxelGame.Client.Application
 
                 // Block setup.
                 Block.LoadBlocks(BlockTextureArray);
-                Logger.LogDebug("Texture/Block ratio: {ratio:F02}", BlockTextureArray.Count / (float) Block.Count);
+                logger.LogDebug("Texture/Block ratio: {ratio:F02}", BlockTextureArray.Count / (float) Block.Count);
 
                 // Liquid setup.
                 Liquid.LoadLiquids(LiquidTextureArray);
@@ -146,13 +146,13 @@ namespace VoxelGame.Client.Application
                 // Scene setup.
                 sceneManager.Load(new StartScene(this));
 
-                Logger.LogInformation("Finished OnLoad");
+                logger.LogInformation("Finished OnLoad");
             }
         }
 
         private new void OnRenderFrame(FrameEventArgs e)
         {
-            using (Logger.BeginScope("RenderFrame"))
+            using (logger.BeginScope("RenderFrame"))
             {
                 Time += e.Time;
 
@@ -172,7 +172,7 @@ namespace VoxelGame.Client.Application
 
         private new void OnUpdateFrame(FrameEventArgs e)
         {
-            using (Logger.BeginScope("UpdateFrame"))
+            using (logger.BeginScope("UpdateFrame"))
             {
                 var deltaTime = (float) MathHelper.Clamp(e.Time, 0f, 1f);
 
@@ -191,7 +191,7 @@ namespace VoxelGame.Client.Application
 
         private new void OnClosed()
         {
-            Logger.LogInformation("Closing window.");
+            logger.LogInformation("Closing window.");
 
             sceneManager.Unload();
         }

@@ -13,7 +13,7 @@ namespace VoxelGame.Graphics
 {
     public class Debug
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Debug>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Debug>();
 
 #pragma warning disable S1450
 
@@ -78,7 +78,7 @@ namespace VoxelGame.Graphics
             {
                 case DebugSeverity.DebugSeverityNotification:
                 case DebugSeverity.DontCare:
-                    Logger.LogInformation(
+                    logger.LogInformation(
                         eventId,
                         "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
                         "Message: {message}",
@@ -90,7 +90,7 @@ namespace VoxelGame.Graphics
                     break;
 
                 case DebugSeverity.DebugSeverityLow:
-                    Logger.LogWarning(
+                    logger.LogWarning(
                         eventId,
                         "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
                         "Message: {message}",
@@ -102,7 +102,7 @@ namespace VoxelGame.Graphics
                     break;
 
                 case DebugSeverity.DebugSeverityMedium:
-                    Logger.LogError(
+                    logger.LogError(
                         eventId,
                         "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
                         "Message: {message}",
@@ -114,7 +114,7 @@ namespace VoxelGame.Graphics
                     break;
 
                 case DebugSeverity.DebugSeverityHigh:
-                    Logger.LogCritical(
+                    logger.LogCritical(
                         eventId,
                         "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
                         "Message: {message}",
@@ -126,7 +126,7 @@ namespace VoxelGame.Graphics
                     break;
 
                 default:
-                    Logger.LogInformation(
+                    logger.LogInformation(
                         eventId,
                         "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
                         "Message: {message}",

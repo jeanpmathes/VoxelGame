@@ -18,7 +18,7 @@ namespace VoxelGame.Client.Logic
     [Serializable]
     public class ClientChunk : Core.Logic.Chunk
     {
-        private const int maxMeshDataStep = 8;
+        private const int MaxMeshDataStep = 8;
 
         [NonSerialized] private bool hasMeshData;
         [NonSerialized] private int meshDataIndex;
@@ -75,7 +75,7 @@ namespace VoxelGame.Client.Logic
         {
             hasMeshData = false;
 
-            for (var count = 0; count < maxMeshDataStep; count++)
+            for (var count = 0; count < MaxMeshDataStep; count++)
             {
                 ((ClientSection) sections[meshDataIndex]).SetMeshData(sectionMeshes[meshDataIndex]);
 

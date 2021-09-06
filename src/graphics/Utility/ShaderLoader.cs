@@ -16,7 +16,7 @@ namespace VoxelGame.Graphics.Utility
 {
     public class ShaderLoader
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ShaderLoader>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<ShaderLoader>();
 
         private readonly string directory;
         private readonly (ISet<Shader> set, string uniform)[] sets;
@@ -73,7 +73,7 @@ namespace VoxelGame.Graphics.Utility
                     }
                     else
                     {
-                        Logger.LogWarning($"Cannot resolve shader include for name: {name}");
+                        logger.LogWarning($"Cannot resolve shader include for name: {name}");
                     }
                 }
                 else

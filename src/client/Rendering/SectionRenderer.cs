@@ -19,7 +19,7 @@ namespace VoxelGame.Client.Rendering
     /// </summary>
     public class SectionRenderer : IDisposable
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<SectionRenderer>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
 
         public const int DrawStageCount = 7;
 
@@ -380,7 +380,7 @@ namespace VoxelGame.Client.Rendering
             }
             else
             {
-                Logger.LogWarning(
+                logger.LogWarning(
                     Events.UndeletedBuffers,
                     "A renderer has been disposed by GC, without deleting buffers.");
             }

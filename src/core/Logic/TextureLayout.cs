@@ -14,14 +14,14 @@ namespace VoxelGame.Core.Logic
     /// </summary>
     public readonly struct TextureLayout : IEquatable<TextureLayout>
     {
-        private static ITextureIndexProvider _blockTextureIndexProvider = null!;
-        private static ITextureIndexProvider _liquidTextureIndexProvider = null!;
+        private static ITextureIndexProvider blockTextureIndexProvider = null!;
+        private static ITextureIndexProvider liquidTextureIndexProvider = null!;
 
         public static void SetProviders(ITextureIndexProvider blockTextureIndexProvider,
             ITextureIndexProvider liquidTextureIndexProvider)
         {
-            _blockTextureIndexProvider = blockTextureIndexProvider;
-            _liquidTextureIndexProvider = liquidTextureIndexProvider;
+            TextureLayout.blockTextureIndexProvider = blockTextureIndexProvider;
+            TextureLayout.liquidTextureIndexProvider = liquidTextureIndexProvider;
         }
 
         public int Front { get; }
@@ -46,7 +46,7 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public static TextureLayout Uniform(string texture)
         {
-            int i = _blockTextureIndexProvider.GetTextureIndex(texture);
+            int i = blockTextureIndexProvider.GetTextureIndex(texture);
 
             return new TextureLayout(i, i, i, i, i, i);
         }
@@ -58,12 +58,12 @@ namespace VoxelGame.Core.Logic
             string top)
         {
             return new TextureLayout(
-                front: _blockTextureIndexProvider.GetTextureIndex(front),
-                back: _blockTextureIndexProvider.GetTextureIndex(back),
-                left: _blockTextureIndexProvider.GetTextureIndex(left),
-                right: _blockTextureIndexProvider.GetTextureIndex(right),
-                bottom: _blockTextureIndexProvider.GetTextureIndex(bottom),
-                top: _blockTextureIndexProvider.GetTextureIndex(top));
+                front: blockTextureIndexProvider.GetTextureIndex(front),
+                back: blockTextureIndexProvider.GetTextureIndex(back),
+                left: blockTextureIndexProvider.GetTextureIndex(left),
+                right: blockTextureIndexProvider.GetTextureIndex(right),
+                bottom: blockTextureIndexProvider.GetTextureIndex(bottom),
+                top: blockTextureIndexProvider.GetTextureIndex(top));
         }
 
         /// <summary>
@@ -71,8 +71,8 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public static TextureLayout Column(string sides, string ends)
         {
-            int sideIndex = _blockTextureIndexProvider.GetTextureIndex(sides);
-            int endIndex = _blockTextureIndexProvider.GetTextureIndex(ends);
+            int sideIndex = blockTextureIndexProvider.GetTextureIndex(sides);
+            int endIndex = blockTextureIndexProvider.GetTextureIndex(ends);
 
             return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, endIndex, endIndex);
         }
@@ -82,8 +82,8 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public static TextureLayout Column(string texture, int sideOffset, int endOffset)
         {
-            int sideIndex = _blockTextureIndexProvider.GetTextureIndex(texture) + sideOffset;
-            int endIndex = _blockTextureIndexProvider.GetTextureIndex(texture) + endOffset;
+            int sideIndex = blockTextureIndexProvider.GetTextureIndex(texture) + sideOffset;
+            int endIndex = blockTextureIndexProvider.GetTextureIndex(texture) + endOffset;
 
             return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, endIndex, endIndex);
         }
@@ -93,9 +93,9 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public static TextureLayout UnqiueColumn(string sides, string bottom, string top)
         {
-            int sideIndex = _blockTextureIndexProvider.GetTextureIndex(sides);
-            int bottomIndex = _blockTextureIndexProvider.GetTextureIndex(bottom);
-            int topIndex = _blockTextureIndexProvider.GetTextureIndex(top);
+            int sideIndex = blockTextureIndexProvider.GetTextureIndex(sides);
+            int bottomIndex = blockTextureIndexProvider.GetTextureIndex(bottom);
+            int topIndex = blockTextureIndexProvider.GetTextureIndex(top);
 
             return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, bottomIndex, topIndex);
         }
@@ -105,8 +105,8 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public static TextureLayout UnqiueFront(string front, string rest)
         {
-            int frontIndex = _blockTextureIndexProvider.GetTextureIndex(front);
-            int restIndex = _blockTextureIndexProvider.GetTextureIndex(rest);
+            int frontIndex = blockTextureIndexProvider.GetTextureIndex(front);
+            int restIndex = blockTextureIndexProvider.GetTextureIndex(rest);
 
             return new TextureLayout(frontIndex, restIndex, restIndex, restIndex, restIndex, restIndex);
         }
@@ -116,8 +116,8 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public static TextureLayout UnqiueTop(string rest, string top)
         {
-            int topIndex = _blockTextureIndexProvider.GetTextureIndex(top);
-            int restIndex = _blockTextureIndexProvider.GetTextureIndex(rest);
+            int topIndex = blockTextureIndexProvider.GetTextureIndex(top);
+            int restIndex = blockTextureIndexProvider.GetTextureIndex(rest);
 
             return new TextureLayout(restIndex, restIndex, restIndex, restIndex, restIndex, topIndex);
         }
@@ -127,8 +127,8 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public static TextureLayout Liquid(string sides, string ends)
         {
-            int sideIndex = _liquidTextureIndexProvider.GetTextureIndex(sides);
-            int endIndex = _liquidTextureIndexProvider.GetTextureIndex(ends);
+            int sideIndex = liquidTextureIndexProvider.GetTextureIndex(sides);
+            int endIndex = liquidTextureIndexProvider.GetTextureIndex(ends);
 
             return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, endIndex, endIndex);
         }

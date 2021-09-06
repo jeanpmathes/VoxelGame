@@ -19,7 +19,7 @@ namespace VoxelGame.Client.Rendering
     /// </summary>
     public class BoxRenderer : IDisposable
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<BoxRenderer>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<BoxRenderer>();
 
         private readonly ElementDrawGroup drawGroup;
 
@@ -184,7 +184,7 @@ namespace VoxelGame.Client.Rendering
             }
             else
             {
-                Logger.LogWarning(
+                logger.LogWarning(
                     Events.UndeletedBuffers,
                     "A renderer has been disposed by GC, without deleting buffers.");
             }
