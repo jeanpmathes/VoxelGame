@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.Diagnostics;
 using OpenToolkit.Windowing.Common.Input;
 
@@ -61,6 +62,21 @@ namespace VoxelGame.Input.Internal
         }
 
         public KeyButtonPair Settings => new KeyButtonPair { Key = key ?? Key.Unknown, Button = button ?? MouseButton.LastButton };
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is KeyOrButton other)
+            {
+                return this.key == other.key && this.button == other.button;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(key, button);
+        }
 
         public override string ToString()
         {

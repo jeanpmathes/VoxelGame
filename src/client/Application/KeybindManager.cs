@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Windowing.Common.Input;
 using VoxelGame.Input;
 using VoxelGame.Input.Actions;
+using VoxelGame.Input.Collections;
 using VoxelGame.Input.Internal;
 using VoxelGame.Logging;
 
@@ -27,10 +28,14 @@ namespace VoxelGame.Client.Application
             Input = input;
 
             Keybind.RegisterWithManager(this);
+
             InitializeSettings();
+            InitializeUsages();
 
             LookBind = new LookInput(Input.Mouse, Properties.client.Default.MouseSensitivity);
         }
+
+        private readonly KeyMap usageMap = new KeyMap();
 
         private readonly Dictionary<Keybind, Button> keybinds = new Dictionary<Keybind, Button>();
 
@@ -107,7 +112,15 @@ namespace VoxelGame.Client.Application
 
             Properties.client.Default.Save();
 
-            Logger.LogInformation("Finished initializing up keybind settings.");
+            Logger.LogInformation("Finished initializing keybind settings.");
+        }
+
+        private void InitializeUsages()
+        {
+            foreach (KeyValuePair<Keybind, Button> pair in keybinds)
+            {
+                UpdateAddedBind(pair.Value.KeyOrButton);
+            }
         }
 
         public ToggleButton GetToggle(Keybind bind)
@@ -131,12 +144,16 @@ namespace VoxelGame.Client.Application
         public void Rebind(Keybind bind, KeyOrButton keyOrButton)
         {
             Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
+
+            usageMap.RemoveBinding(keybinds[bind].KeyOrButton);
             keybinds[bind].SetBinding(keyOrButton);
 
             Properties.client.Default[PropertyName(bind)] = keyOrButton.Settings;
             Properties.client.Default.Save();
 
             Logger.LogInformation(Events.SetKeyBind, $"Rebind '{bind}' to: {keyOrButton}");
+
+            UpdateAddedBind(keyOrButton);
         }
 
         private static string PropertyName(Keybind bind) => $"Input_{bind}";
@@ -148,6 +165,16 @@ namespace VoxelGame.Client.Application
         }
 
         public IEnumerator<Keybind> Binds => keybinds.Keys.GetEnumerator();
+
+        private void UpdateAddedBind(KeyOrButton keyOrButton)
+        {
+            bool unused = usageMap.AddBinding(keyOrButton);
+
+            if (!unused)
+            {
+                Logger.LogWarning(Events.SetKeyBind, $"Key '{keyOrButton}' is used by multiple bindings.");
+            }
+        }
 
         #region KEYBINDS
 
