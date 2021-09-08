@@ -37,6 +37,7 @@ namespace VoxelGame.Client.Entities
 
         private readonly float interactionCooldown = 0.25f;
         private readonly float jumpForce = 25000f;
+
         private readonly Vector3 maxForce = new(500f, 0f, 500f);
         private readonly Vector3 maxSwimForce = new(0f, 2500f, 0f);
 
