@@ -18,6 +18,7 @@ using VoxelGame.Client.Rendering;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Graphics;
 using VoxelGame.Input;
 using VoxelGame.Input.Actions;
 using VoxelGame.Input.Devices;
@@ -28,47 +29,20 @@ namespace VoxelGame.Client.Application
 {
     internal class Client : GameWindow
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
-        public static Client Instance { get; private set; } = null!;
-
-        #region STATIC PROPERTIES
-
-        /// <summary>
-        /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
-        /// </summary>
-        public static ArrayTexture BlockTextureArray { get; private set; } = null!;
-
-        /// <summary>
-        /// Gets the <see cref="ArrayTexture"/> that contains all liquid textures. It is bound to unit 5.
-        /// </summary>
-        public static ArrayTexture LiquidTextureArray { get; private set; } = null!;
-
-        public static ClientPlayer Player { get; private set; } = null!;
-
-        public static double Fps => 1.0 / Instance.renderDeltaBuffer.Average;
-        public static double Ups => 1.0 / Instance.updateDeltaBuffer.Average;
-
-        #endregion STATIC PROPERTIES
-
-        private readonly InputManager input;
-        public KeybindManager Keybinds { get; }
-        public Mouse Mouse => input.Mouse;
-
-        private readonly Graphics.Debug glDebug;
-        private readonly SceneManager sceneManager;
-
-        private double Time { get; set; }
-        public unsafe Window* WindowPointer { get; }
-
-        public readonly string appDataDirectory;
-        public readonly string worldsDirectory;
-        public readonly string screenshotDirectory;
-
         private const int DeltaBufferCapacity = 30;
-        private readonly CircularTimeBuffer renderDeltaBuffer = new CircularTimeBuffer(DeltaBufferCapacity);
-        private readonly CircularTimeBuffer updateDeltaBuffer = new CircularTimeBuffer(DeltaBufferCapacity);
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
         private readonly ToggleButton fullscreenToggle;
+
+        private readonly Debug glDebug;
+
+        private readonly InputManager input;
+        private readonly CircularTimeBuffer renderDeltaBuffer = new(DeltaBufferCapacity);
+        private readonly SceneManager sceneManager;
+        public readonly string screenshotDirectory;
+        private readonly CircularTimeBuffer updateDeltaBuffer = new(DeltaBufferCapacity);
+
+        public readonly string worldsDirectory;
 
         private Screen screen = null!;
 
@@ -82,9 +56,8 @@ namespace VoxelGame.Client.Application
                 WindowPointer = WindowPtr;
             }
 
-            glDebug = new Graphics.Debug();
+            glDebug = new Debug();
 
-            this.appDataDirectory = appDataDirectory;
             this.screenshotDirectory = screenshotDirectory;
 
             worldsDirectory = Path.Combine(appDataDirectory, "Worlds");
@@ -104,6 +77,13 @@ namespace VoxelGame.Client.Application
 
             fullscreenToggle = Keybinds.GetToggle(Keybinds.Fullscreen);
         }
+
+        public static Client Instance { get; private set; } = null!;
+        public KeybindManager Keybinds { get; }
+        public Mouse Mouse => input.Mouse;
+
+        private double Time { get; set; }
+        public unsafe Window* WindowPointer { get; }
 
         private new void OnLoad()
         {
@@ -125,10 +105,10 @@ namespace VoxelGame.Client.Application
                     TextureUnit.Texture3,
                     TextureUnit.Texture4);
 
-                logger.LogInformation("All block textures loaded.");
+                logger.LogInformation("Block textures loaded");
 
                 LiquidTextureArray = new ArrayTexture("Resources/Textures/Liquids", 16, false, TextureUnit.Texture5);
-                logger.LogInformation("All liquid textures loaded.");
+                logger.LogInformation("Liquid textures loaded");
 
                 TextureLayout.SetProviders(BlockTextureArray, LiquidTextureArray);
                 BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
@@ -138,7 +118,7 @@ namespace VoxelGame.Client.Application
 
                 // Block setup.
                 Block.LoadBlocks(BlockTextureArray);
-                logger.LogDebug("Texture/Block ratio: {ratio:F02}", BlockTextureArray.Count / (float) Block.Count);
+                logger.LogDebug("Texture/Block ratio: {Ratio:F02}", BlockTextureArray.Count / (float) Block.Count);
 
                 // Liquid setup.
                 Liquid.LoadLiquids(LiquidTextureArray);
@@ -180,10 +160,7 @@ namespace VoxelGame.Client.Application
 
                 sceneManager.Update(deltaTime);
 
-                if (IsFocused && fullscreenToggle.Changed)
-                {
-                    Screen.SetFullscreen(!Instance.IsFullscreen);
-                }
+                if (IsFocused && fullscreenToggle.Changed) Screen.SetFullscreen(!Instance.IsFullscreen);
 
                 updateDeltaBuffer.Write(e.Time);
             }
@@ -191,16 +168,35 @@ namespace VoxelGame.Client.Application
 
         private new void OnClosed()
         {
-            logger.LogInformation("Closing window.");
+            logger.LogInformation("Closing window");
 
             sceneManager.Unload();
         }
+
+        #region STATIC PROPERTIES
+
+        /// <summary>
+        ///     Gets the <see cref="ArrayTexture" /> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
+        /// </summary>
+        public static ArrayTexture BlockTextureArray { get; private set; } = null!;
+
+        /// <summary>
+        ///     Gets the <see cref="ArrayTexture" /> that contains all liquid textures. It is bound to unit 5.
+        /// </summary>
+        public static ArrayTexture LiquidTextureArray { get; private set; } = null!;
+
+        public static ClientPlayer Player { get; private set; } = null!;
+
+        public static double Fps => 1.0 / Instance.renderDeltaBuffer.Average;
+        public static double Ups => 1.0 / Instance.updateDeltaBuffer.Average;
+
+        #endregion STATIC PROPERTIES
 
         #region SCENE MANAGEMENT
 
         public void LoadGameScene(ClientWorld world)
         {
-            GameScene gameScene = new GameScene(Instance, world);
+            GameScene gameScene = new(Instance, world);
 
             sceneManager.Load(gameScene);
 

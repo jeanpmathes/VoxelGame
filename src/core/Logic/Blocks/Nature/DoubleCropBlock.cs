@@ -13,8 +13,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block which grows on farmland and has multiple growth stages, of which some are two blocks tall.
-    /// Data bit usage: <c>-lhsss</c>
+    ///     A block which grows on farmland and has multiple growth stages, of which some are two blocks tall.
+    ///     Data bit usage: <c>-lhsss</c>
     /// </summary>
     // l = lowered
     // s = stage
@@ -35,14 +35,14 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: true,
-                isSolid: false,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable: false,
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
                 BoundingBox.Block,
                 TargetBuffer.CropPlant)
         {
@@ -57,6 +57,11 @@ namespace VoxelGame.Core.Logic.Blocks
             this.fifth = fifth;
             this.sixth = sixth;
             this.final = final;
+        }
+
+        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0 && level > LiquidLevel.Four) ScheduleDestroy(world, x, y, z);
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
@@ -78,7 +83,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 baseIndex + fourth.low,
                 baseIndex + fifth.low,
                 baseIndex + sixth.low,
-                baseIndex + final.low,
+                baseIndex + final.low
             };
 
             stageTextureIndicesTop = new[]
@@ -90,7 +95,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 baseIndex + fourth.top,
                 baseIndex + fifth.top,
                 baseIndex + sixth.top,
-                baseIndex + final.top,
+                baseIndex + final.top
             };
         }
 
@@ -98,15 +103,11 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             var stage = (GrowthStage) (data & 0b00_0111);
 
-            if (((data & 0b00_1000) == 0 && stage == GrowthStage.Initial) ||
-                ((data & 0b00_1000) != 0 && (stage == GrowthStage.Fourth || stage == GrowthStage.Fifth)))
-            {
+            if ((data & 0b00_1000) == 0 && stage == GrowthStage.Initial ||
+                (data & 0b00_1000) != 0 && (stage == GrowthStage.Fourth || stage == GrowthStage.Fifth))
                 return BoundingBox.BlockWithHeight(7);
-            }
-            else
-            {
-                return BoundingBox.BlockWithHeight(15);
-            }
+
+            return BoundingBox.BlockWithHeight(15);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
@@ -142,19 +143,14 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetDefaultBlock(x, y, z);
 
             if ((data & 0b00_0111) >= (int) GrowthStage.Fourth)
-            {
                 world.SetDefaultBlock(x, y + ((data & 0b00_1000) == 0 ? 1 : -1), z);
-            }
         }
 
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
             if (side == BlockSide.Bottom && (data & 0b00_1000) == 0 &&
-                !((world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
-            {
-                Destroy(world, x, y, z);
-            }
+                !((world.GetBlock(x, y - 1, z, out _) ?? Air) is IPlantable)) Destroy(world, x, y, z);
         }
 
         internal override void RandomUpdate(World world, int x, int y, int z, uint data)
@@ -179,7 +175,7 @@ namespace VoxelGame.Core.Logic.Blocks
                             ((above?.IsReplaceable ?? false) || above == this))
                         {
                             world.SetBlock(this, lowered | (uint) (stage + 1), x, y, z);
-                            world.SetBlock(this, lowered | (uint) (0b00_1000 | (int) stage + 1), x, y + 1, z);
+                            world.SetBlock(this, lowered | (uint) (0b00_1000 | ((int) stage + 1)), x, y + 1, z);
                         }
                         else
                         {
@@ -195,52 +191,41 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
-        {
-            if (liquid.Direction > 0 && level > LiquidLevel.Four) ScheduleDestroy(world, x, y, z);
-        }
-
         private enum GrowthStage
         {
             /// <summary>
-            /// One Block tall.
+            ///     One Block tall.
             /// </summary>
-            Dead,
+            Dead = 0,
 
             /// <summary>
-            /// One Block tall.
+            ///     One Block tall.
             /// </summary>
-            Initial,
+            Initial = 1,
+
+            // Second
 
             /// <summary>
-            /// One Block tall.
+            ///     One Block tall.
             /// </summary>
-            Second,
+            Third = 3,
 
             /// <summary>
-            /// One Block tall.
+            ///     Two blocks tall.
             /// </summary>
-            Third,
+            Fourth = 4,
 
             /// <summary>
-            /// Two blocks tall.
+            ///     Two blocks tall.
             /// </summary>
-            Fourth,
+            Fifth = 5,
+
+            // Sixth
 
             /// <summary>
-            /// Two blocks tall.
+            ///     Two blocks tall.
             /// </summary>
-            Fifth,
-
-            /// <summary>
-            /// Two blocks tall.
-            /// </summary>
-            Sixth,
-
-            /// <summary>
-            /// Two blocks tall.
-            /// </summary>
-            Final,
+            Final = 7
         }
     }
 }

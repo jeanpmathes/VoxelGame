@@ -5,17 +5,18 @@
 // <author>pershingthesecond</author>
 
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Liquids
 {
     /// <summary>
-    /// A liquid that can burn it's surroundings.
+    ///     A liquid that can burn it's surroundings.
     /// </summary>
     public class HotLiquid : BasicLiquid
     {
         public HotLiquid(string name, string namedId, float density, int viscosity, bool neutralTint,
             TextureLayout movingLayout, TextureLayout staticLayout,
-            Visuals.RenderType renderType = Visuals.RenderType.Opaque) :
+            RenderType renderType = RenderType.Opaque) :
             base(
                 name,
                 namedId,
@@ -49,12 +50,10 @@ namespace VoxelGame.Core.Logic.Liquids
             BurnAndPlaceFire(x, y - 1, z); // Bottom.
             BurnAndPlaceFire(x, y + 1, z); // Top.
 
-            void BurnAndPlaceFire(int x, int y, int z)
+            void BurnAndPlaceFire(int nx, int ny, int nz)
             {
-                if (world.GetBlock(x, y, z, out _) is IFlammable block && block.Burn(world, x, y, z, Block.Fire))
-                {
-                    Block.Fire.Place(world, x, y, z);
-                }
+                if (world.GetBlock(nx, ny, nz, out _) is IFlammable block && block.Burn(world, nx, ny, nz, Block.Fire))
+                    Block.Fire.Place(world, nx, ny, nz);
             }
         }
     }

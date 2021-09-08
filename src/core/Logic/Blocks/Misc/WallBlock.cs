@@ -12,8 +12,10 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// This class represents a wall block which connects to blocks with the <see cref="IConnectable"/> interface. When connecting in a straight line, no post is used and indices are not ignored, else indices are ignored.
-    /// Data bit usage: <c>--nesw</c>
+    ///     This class represents a wall block which connects to blocks with the
+    ///     <see cref="VoxelGame.Core.Logic.Interfaces.IWideConnectable" /> interface. When connecting in a straight line, no
+    ///     post is used and indices are not ignored, else indices are ignored.
+    ///     Data bit usage: <c>--nesw</c>
     /// </summary>
     // n = connected north
     // e = connected east
@@ -21,20 +23,19 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public class WallBlock : WideConnectingBlock
     {
-        private uint straightVertexCount;
-
-        private float[] extensionStraightZVertices = null!;
+        private readonly string extensionStraight;
         private float[] extensionStraightXVertices = null!;
 
-        private int[] texIndicesStraight = null!;
+        private float[] extensionStraightZVertices = null!;
         private uint[] indicesStraight = null!;
+        private uint straightVertexCount;
 
-        private readonly string extensionStraight;
+        private int[] texIndicesStraight = null!;
 
         internal WallBlock(string name, string namedId, string texture, string post, string extension,
             string extensionStraight) :
             base(
-                name: name,
+                name,
                 namedId,
                 texture,
                 post,
@@ -48,7 +49,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             base.Setup(indexProvider);
 
-            BlockModel extensionStraightModel = BlockModel.Load(this.extensionStraight);
+            BlockModel extensionStraightModel = BlockModel.Load(extensionStraight);
             straightVertexCount = (uint) extensionStraightModel.VertexCount;
 
             extensionStraightModel.RotateY(0, false);
@@ -59,10 +60,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             int tex = indexProvider.GetTextureIndex(texture);
 
-            for (var i = 0; i < texIndicesStraight.Length; i++)
-            {
-                texIndicesStraight[i] = tex;
-            }
+            for (var i = 0; i < texIndicesStraight.Length; i++) texIndicesStraight[i] = tex;
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
@@ -76,56 +74,49 @@ namespace VoxelGame.Core.Logic.Blocks
             bool straightX = !north && !south && east && west;
 
             if (straightZ)
-            {
                 return new BoundingBox(new Vector3(0.5f, 0.46875f, 0.5f), new Vector3(0.1875f, 0.46875f, 0.5f));
-            }
-            else if (straightX)
-            {
+
+            if (straightX)
                 return new BoundingBox(new Vector3(0.5f, 0.46875f, 0.5f), new Vector3(0.5f, 0.46875f, 0.1875f));
-            }
-            else
+
+            int extensions = BitHelper.CountSetBits(data & 0b1111);
+
+            BoundingBox[] children = new BoundingBox[extensions];
+            extensions = 0;
+
+            if (north)
             {
-                int extensions = BitHelper.CountSetBits(data & 0b1111);
+                children[extensions] = new BoundingBox(
+                    new Vector3(0.5f, 0.46875f, 0.125f),
+                    new Vector3(0.1875f, 0.46875f, 0.125f));
 
-                BoundingBox[] children = new BoundingBox[extensions];
-                extensions = 0;
-
-                if (north)
-                {
-                    children[extensions] = new BoundingBox(
-                        new Vector3(0.5f, 0.46875f, 0.125f),
-                        new Vector3(0.1875f, 0.46875f, 0.125f));
-
-                    extensions++;
-                }
-
-                if (east)
-                {
-                    children[extensions] = new BoundingBox(
-                        new Vector3(0.875f, 0.46875f, 0.5f),
-                        new Vector3(0.125f, 0.46875f, 0.1875f));
-
-                    extensions++;
-                }
-
-                if (south)
-                {
-                    children[extensions] = new BoundingBox(
-                        new Vector3(0.5f, 0.46875f, 0.875f),
-                        new Vector3(0.1875f, 0.46875f, 0.125f));
-
-                    extensions++;
-                }
-
-                if (west)
-                {
-                    children[extensions] = new BoundingBox(
-                        new Vector3(0.125f, 0.46875f, 0.5f),
-                        new Vector3(0.125f, 0.46875f, 0.1875f));
-                }
-
-                return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f), children);
+                extensions++;
             }
+
+            if (east)
+            {
+                children[extensions] = new BoundingBox(
+                    new Vector3(0.875f, 0.46875f, 0.5f),
+                    new Vector3(0.125f, 0.46875f, 0.1875f));
+
+                extensions++;
+            }
+
+            if (south)
+            {
+                children[extensions] = new BoundingBox(
+                    new Vector3(0.5f, 0.46875f, 0.875f),
+                    new Vector3(0.1875f, 0.46875f, 0.125f));
+
+                extensions++;
+            }
+
+            if (west)
+                children[extensions] = new BoundingBox(
+                    new Vector3(0.125f, 0.46875f, 0.5f),
+                    new Vector3(0.125f, 0.46875f, 0.1875f));
+
+            return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f), children);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
@@ -139,13 +130,11 @@ namespace VoxelGame.Core.Logic.Blocks
             bool straightX = !north && !south && east && west;
 
             if (straightZ || straightX)
-            {
                 return BlockMeshData.Complex(
                     straightVertexCount,
                     straightZ ? extensionStraightZVertices : extensionStraightXVertices,
                     texIndicesStraight,
                     indicesStraight);
-            }
 
             return base.GetMesh(info);
         }

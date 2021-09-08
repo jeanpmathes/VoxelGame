@@ -13,8 +13,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A dirt-like block that is a bit lower then normal dirt.
-    /// Data bit usage: <c>------</c>.
+    ///     A dirt-like block that is a bit lower then normal dirt.
+    ///     Data bit usage: <c>------</c>.
     /// </summary>
     public class InsetDirtBlock : Block, IHeightVariable, IFillable, IPlantable, IPotentiallySolid, IAshCoverable
     {
@@ -26,28 +26,43 @@ namespace VoxelGame.Core.Logic.Blocks
         private int[] dryTextureIndices = null!;
         private int[] wetTextureIndices = null!;
 
-        public bool SupportsFullGrowth { get; }
-
         internal InsetDirtBlock(string name, string namedId, TextureLayout dry, TextureLayout wet,
             bool supportsFullGrowth) :
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: false,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable: false,
+                false,
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
                 BoundingBox.Block,
                 TargetBuffer.VaryingHeight)
         {
-            this.dryLayout = dry;
-            this.wetLayout = wet;
+            dryLayout = dry;
+            wetLayout = wet;
 
             SupportsFullGrowth = supportsFullGrowth;
+        }
+
+        public void CoverWithAsh(World world, int x, int y, int z)
+        {
+            world.SetBlock(GrassBurned, 0, x, y, z);
+        }
+
+        public int GetHeight(uint data)
+        {
+            return Height;
+        }
+
+        public bool SupportsFullGrowth { get; }
+
+        public void BecomeSolid(World world, int x, int y, int z)
+        {
+            world.SetBlock(Dirt, 0, x, y, z);
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
@@ -72,42 +87,18 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            return !world.HasOpaqueTop(x, y, z) || Block.Dirt.CanPlace(world, x, y, z, entity);
+            return !world.HasOpaqueTop(x, y, z) || Dirt.CanPlace(world, x, y, z, entity);
         }
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            if (world.HasOpaqueTop(x, y, z))
-            {
-                Block.Dirt.Place(world, x, y, z, entity);
-            }
-            else
-            {
-                world.SetBlock(this, 0, x, y, z);
-            }
+            if (world.HasOpaqueTop(x, y, z)) Dirt.Place(world, x, y, z, entity);
+            else world.SetBlock(this, 0, x, y, z);
         }
 
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
-            if (side == BlockSide.Top && world.HasOpaqueTop(x, y, z))
-            {
-                BecomeSolid(world, x, y, z);
-            }
-        }
-
-        public int GetHeight(uint data)
-        {
-            return Height;
-        }
-
-        public void BecomeSolid(World world, int x, int y, int z)
-        {
-            world.SetBlock(Block.Dirt, 0, x, y, z);
-        }
-
-        public void CoverWithAsh(World world, int x, int y, int z)
-        {
-            world.SetBlock(Block.GrassBurned, 0, x, y, z);
+            if (side == BlockSide.Top && world.HasOpaqueTop(x, y, z)) BecomeSolid(world, x, y, z);
         }
     }
 }

@@ -11,8 +11,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block that grows downwards and can hang freely. This block is affected by neutral tint.
-    /// Data bit usage: <c>-aaaoo</c>
+    ///     A block that grows downwards and can hang freely. This block is affected by neutral tint.
+    ///     Data bit usage: <c>-aaaoo</c>
     /// </summary>
     // o = orientation
     // a = age
@@ -27,6 +27,11 @@ namespace VoxelGame.Core.Logic.Blocks
                 climbingVelocity,
                 slidingVelocity) {}
 
+        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0 && level > LiquidLevel.Two) ScheduleDestroy(world, x, y, z);
+        }
+
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return base.GetMesh(info).Modified(TintColor.Neutral);
@@ -37,15 +42,10 @@ namespace VoxelGame.Core.Logic.Blocks
             var orientation = (Orientation) (data & 0b00_0011);
 
             // If another block of this type is above, no solid block is required to hold.
-            if ((world.GetBlock(x, y + 1, z, out uint dataAbove) ?? Block.Air) == this &&
-                orientation == (Orientation) (dataAbove & 0b00_0011))
-            {
-                return;
-            }
-            else if (side == BlockSide.Top)
-            {
-                side = orientation.Invert().ToBlockSide();
-            }
+            if ((world.GetBlock(x, y + 1, z, out uint dataAbove) ?? Air) == this &&
+                orientation == (Orientation) (dataAbove & 0b00_0011)) return;
+
+            if (side == BlockSide.Top) side = orientation.Invert().ToBlockSide();
 
             CheckBack(world, x, y, z, side, orientation, true);
         }
@@ -55,19 +55,8 @@ namespace VoxelGame.Core.Logic.Blocks
             var orientation = (Orientation) (data & 0b00_0011);
             var age = (int) ((data & 0b1_1100) >> 2);
 
-            if (age < 7)
-            {
-                world.SetBlock(this, (uint) (((age + 1) << 2) | (int) orientation), x, y, z);
-            }
-            else if (world.GetBlock(x, y - 1, z, out _) == Block.Air)
-            {
-                world.SetBlock(this, (uint) orientation, x, y - 1, z);
-            }
-        }
-
-        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
-        {
-            if (liquid.Direction > 0 && level > LiquidLevel.Two) ScheduleDestroy(world, x, y, z);
+            if (age < 7) world.SetBlock(this, (uint) (((age + 1) << 2) | (int) orientation), x, y, z);
+            else if (world.GetBlock(x, y - 1, z, out _) == Air) world.SetBlock(this, (uint) orientation, x, y - 1, z);
         }
     }
 }

@@ -19,6 +19,6 @@ namespace VoxelGame.Input.Composite
             this.y = y;
         }
 
-        public Vector2 Value => new Vector2(x.Value, y.Value);
+        public Vector2 Value => new(x.Value, y.Value);
     }
 }

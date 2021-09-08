@@ -4,11 +4,11 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 
@@ -19,10 +19,10 @@ namespace VoxelGame.Graphics.Utility
         private static readonly ILogger logger = LoggingHelper.CreateLogger<ShaderLoader>();
 
         private readonly string directory;
-        private readonly (ISet<Shader> set, string uniform)[] sets;
+        private readonly Dictionary<string, string> includables = new();
 
-        private readonly Regex includePattern = new Regex(@"^#pragma(?: )+include\(""(.+)""\)$");
-        private readonly Dictionary<string, string> includables = new Dictionary<string, string>();
+        private readonly Regex includePattern = new(@"^#pragma(?: )+include\(""(.+)""\)$");
+        private readonly (ISet<Shader> set, string uniform)[] sets;
 
         public ShaderLoader(string directory, params (ISet<Shader> set, string uniform)[] sets)
         {
@@ -43,12 +43,8 @@ namespace VoxelGame.Graphics.Utility
             var shader = new Shader(ProcessSource(vertReader), ProcessSource(fragReader));
 
             foreach ((ISet<Shader> set, string uniform) in sets)
-            {
                 if (shader.IsUniformDefined(uniform))
-                {
                     set.Add(shader);
-                }
-            }
 
             return shader;
         }
@@ -67,14 +63,8 @@ namespace VoxelGame.Graphics.Utility
                 {
                     string name = match.Groups[1].Value;
 
-                    if (includables.ContainsKey(name))
-                    {
-                        source.AppendLine(includables[name]);
-                    }
-                    else
-                    {
-                        logger.LogWarning($"Cannot resolve shader include for name: {name}");
-                    }
+                    if (includables.ContainsKey(name)) source.AppendLine(includables[name]);
+                    else logger.LogWarning("Cannot resolve shader include for name: {Name}", name);
                 }
                 else
                 {

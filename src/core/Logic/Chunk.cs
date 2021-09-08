@@ -4,13 +4,13 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using Microsoft.Extensions.Logging;
-using OpenToolkit.Mathematics;
 using System;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
@@ -22,44 +22,21 @@ namespace VoxelGame.Core.Logic
     [Serializable]
     public abstract class Chunk : IDisposable
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
-
         public const int VerticalSectionCount = 64;
-        public static readonly int VerticalSectionCountExp = (int) Math.Log(VerticalSectionCount, 2);
 
         private const int RandomTickBatchSize = VerticalSectionCount / 2;
 
         public const int ChunkWidth = Section.SectionSize;
         public const int ChunkHeight = Section.SectionSize * VerticalSectionCount;
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
+        public static readonly int VerticalSectionCountExp = (int) Math.Log(VerticalSectionCount, 2);
 
-        /// <summary>
-        /// The X position of this chunk in chunk units
-        /// </summary>
-        public int X { get; }
-
-        /// <summary>
-        /// The Y position of this chunk in chunk units
-        /// </summary>
-        public int Z { get; }
-
-        /// <summary>
-        /// Gets the position of the chunk as a point located in the center of the chunk.
-        /// </summary>
-        public Vector3 ChunkPoint => new Vector3(
-            (X * ChunkWidth) + (ChunkWidth / 2f),
-            ChunkHeight / 2f,
-            (Z * ChunkWidth) + (ChunkWidth / 2f));
-
-        public static Vector3 ChunkExtents => new Vector3(ChunkWidth / 2f, ChunkHeight / 2f, ChunkWidth / 2f);
-
-        [field: NonSerialized] protected World World { get; private set; }
+        private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
+        private readonly ScheduledTickManager<Liquid.LiquidTick> liquidTickManager;
 
 #pragma warning disable CA1051 // Do not declare visible instance fields
         protected readonly Section[] sections = new Section[VerticalSectionCount];
 #pragma warning restore CA1051 // Do not declare visible instance fields
-
-        private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
-        private readonly ScheduledTickManager<Liquid.LiquidTick> liquidTickManager;
 
         protected Chunk(World world, int x, int z, UpdateCounter updateCounter)
         {
@@ -88,10 +65,32 @@ namespace VoxelGame.Core.Logic
                 updateCounter);
         }
 
+        /// <summary>
+        ///     The X position of this chunk in chunk units
+        /// </summary>
+        public int X { get; }
+
+        /// <summary>
+        ///     The Y position of this chunk in chunk units
+        /// </summary>
+        public int Z { get; }
+
+        /// <summary>
+        ///     Gets the position of the chunk as a point located in the center of the chunk.
+        /// </summary>
+        public Vector3 ChunkPoint => new(
+            X * ChunkWidth + ChunkWidth / 2f,
+            ChunkHeight / 2f,
+            Z * ChunkWidth + ChunkWidth / 2f);
+
+        public static Vector3 ChunkExtents => new(ChunkWidth / 2f, ChunkHeight / 2f, ChunkWidth / 2f);
+
+        [field: NonSerialized] protected World World { get; private set; }
+
         protected abstract Section CreateSection();
 
         /// <summary>
-        /// Calls setup on all sections. This is required after loading.
+        ///     Calls setup on all sections. This is required after loading.
         /// </summary>
         public void Setup(World world, UpdateCounter updateCounter)
         {
@@ -100,14 +99,12 @@ namespace VoxelGame.Core.Logic
             blockTickManager.Setup(World, updateCounter);
             liquidTickManager.Setup(World, updateCounter);
 
-            for (var y = 0; y < VerticalSectionCount; y++)
-            {
-                sections[y].Setup(world);
-            }
+            for (var y = 0; y < VerticalSectionCount; y++) sections[y].Setup(world);
         }
 
         /// <summary>
-        /// Loads a chunk from a file specified by the path. If the loaded chunk does not fit the x and z parameters, null is returned.
+        ///     Loads a chunk from a file specified by the path. If the loaded chunk does not fit the x and z parameters, null is
+        ///     returned.
         /// </summary>
         /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
         /// <param name="x">The x coordinate of the chunk.</param>
@@ -115,7 +112,7 @@ namespace VoxelGame.Core.Logic
         /// <returns>The loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
         public static Chunk? Load(string path, int x, int z)
         {
-            logger.LogDebug("Loading chunk for position: ({x}|{z})", x, z);
+            logger.LogDebug("Loading chunk for position: ({X}|{Z})", x, z);
 
             Chunk chunk;
 
@@ -126,23 +123,19 @@ namespace VoxelGame.Core.Logic
             }
 
             // Checking the chunk
-            if (chunk.X == x && chunk.Z == z)
-            {
-                return chunk;
-            }
-            else
-            {
-                logger.LogWarning(
-                    "The file for the chunk at ({x}|{z}) was not valid as the position did not match.",
-                    x,
-                    z);
+            if (chunk.X == x && chunk.Z == z) return chunk;
 
-                return null;
-            }
+            logger.LogWarning(
+                "File for the chunk at ({X}|{Z}) was invalid: position did not match",
+                x,
+                z);
+
+            return null;
         }
 
         /// <summary>
-        /// Runs a task that loads a chunk from a file specified by the path. If the loaded chunk does not fit the x and z parameters, null is returned.
+        ///     Runs a task that loads a chunk from a file specified by the path. If the loaded chunk does not fit the x and z
+        ///     parameters, null is returned.
         /// </summary>
         /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
         /// <param name="x">The x coordinate of the chunk.</param>
@@ -154,7 +147,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Saves this chunk in the directory specified by the path.
+        ///     Saves this chunk in the directory specified by the path.
         /// </summary>
         /// <param name="path">The path of the directory where this chunk should be saved.</param>
         public void Save(string path)
@@ -164,7 +157,7 @@ namespace VoxelGame.Core.Logic
 
             string chunkFile = path + $"/x{X}z{Z}.chunk";
 
-            logger.LogDebug("Saving the chunk ({x}|{z}) to: {path}", X, Z, chunkFile);
+            logger.LogDebug("Saving the chunk ({X}|{Z}) to: {Path}", X, Z, chunkFile);
 
             using Stream stream = new FileStream(chunkFile, FileMode.Create, FileAccess.Write, FileShare.Read);
             IFormatter formatter = new BinaryFormatter();
@@ -175,7 +168,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Runs a task which saves this chunk in the directory specified by the path.
+        ///     Runs a task which saves this chunk in the directory specified by the path.
         /// </summary>
         /// <param name="path">The path of the directory where this chunk should be saved.</param>
         /// <returns>A task.</returns>
@@ -186,22 +179,20 @@ namespace VoxelGame.Core.Logic
 
         public void Generate(IWorldGenerator generator)
         {
-            logger.LogDebug("Generating the chunk ({x}|{z}) using the '{name}' generator.", X, Z, generator);
+            logger.LogDebug("Generating the chunk ({X}|{Z}) using '{Name}' generator", X, Z, generator);
 
-            for (int x = 0; x < Section.SectionSize; x++)
+            for (var x = 0; x < Section.SectionSize; x++)
+            for (var z = 0; z < Section.SectionSize; z++)
             {
-                for (int z = 0; z < Section.SectionSize; z++)
+                var y = 0;
+
+                foreach (Block block in generator.GenerateColumn(
+                    x + X * Section.SectionSize,
+                    z + Z * Section.SectionSize))
                 {
-                    int y = 0;
+                    sections[y >> Section.SectionSizeExp][x, y & (Section.SectionSize - 1), z] = block.Id;
 
-                    foreach (Block block in generator.GenerateColumn(
-                        x + (X * Section.SectionSize),
-                        z + (Z * Section.SectionSize)))
-                    {
-                        sections[y >> Section.SectionSizeExp][x, y & (Section.SectionSize - 1), z] = block.Id;
-
-                        y++;
-                    }
+                    y++;
                 }
             }
         }
@@ -247,14 +238,9 @@ namespace VoxelGame.Core.Logic
 
         public sealed override bool Equals(object? obj)
         {
-            if (obj is Chunk other)
-            {
-                return other.X == this.X && other.Z == this.Z;
-            }
-            else
-            {
-                return false;
-            }
+            if (obj is Chunk other) return other.X == X && other.Z == Z;
+
+            return false;
         }
 
         public sealed override int GetHashCode()

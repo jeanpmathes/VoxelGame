@@ -8,17 +8,20 @@ namespace VoxelGame.Core.Visuals
 {
     public sealed class LiquidMeshData
     {
-        public int TextureIndex { get; }
-        public TintColor Tint { get; }
-
         private LiquidMeshData(int textureIndex, TintColor tint)
         {
             TextureIndex = textureIndex;
             Tint = tint;
         }
 
-        public static LiquidMeshData Empty { get; } = new LiquidMeshData(0, TintColor.None);
+        public int TextureIndex { get; }
+        public TintColor Tint { get; }
 
-        public static LiquidMeshData Basic(int textureIndex, TintColor tint) => new LiquidMeshData(textureIndex, tint);
+        public static LiquidMeshData Empty { get; } = new(0, TintColor.None);
+
+        public static LiquidMeshData Basic(int textureIndex, TintColor tint)
+        {
+            return new(textureIndex, tint);
+        }
     }
 }

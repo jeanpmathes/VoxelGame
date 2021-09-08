@@ -4,10 +4,10 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
-using System;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
@@ -15,12 +15,10 @@ using VoxelGame.Logging;
 namespace VoxelGame.Client.Rendering
 {
     /// <summary>
-    /// A renderer for <see cref="VoxelGame.Core.Logic.Section"/>.
+    ///     A renderer for <see cref="VoxelGame.Core.Logic.Section" />.
     /// </summary>
     public class SectionRenderer : IDisposable
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
-
         public const int DrawStageCount = 7;
 
         private const int Simple = 0;
@@ -30,16 +28,17 @@ namespace VoxelGame.Client.Rendering
         private const int VaryingHeight = 4;
         private const int OpaqueLiquid = 5;
         private const int TransparentLiquid = 6;
-
-        private readonly ArrayIDataDrawGroup simpleDrawGroup;
-        private readonly ArrayIDataDrawGroup crossPlantDrawGroup;
-        private readonly ArrayIDataDrawGroup cropPlantDrawGroup;
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
 
         private readonly ElementPositionDataDrawGroup complexDrawGroup;
+        private readonly ArrayIDataDrawGroup cropPlantDrawGroup;
+        private readonly ArrayIDataDrawGroup crossPlantDrawGroup;
+        private readonly ElementIDataDrawGroup opaqueLiquidDrawGroup;
+
+        private readonly ArrayIDataDrawGroup simpleDrawGroup;
+        private readonly ElementIDataDrawGroup transparentLiquidDrawGroup;
 
         private readonly ElementIDataDrawGroup varyingHeightDrawGroup;
-        private readonly ElementIDataDrawGroup opaqueLiquidDrawGroup;
-        private readonly ElementIDataDrawGroup transparentLiquidDrawGroup;
 
         public SectionRenderer()
         {
@@ -135,10 +134,7 @@ namespace VoxelGame.Client.Rendering
 
         public void SetData(SectionMeshData meshData)
         {
-            if (disposed)
-            {
-                return;
-            }
+            if (disposed) return;
 
             simpleDrawGroup.SetData(meshData.simpleVertexData.Count, meshData.simpleVertexData.ExposeArray());
 
@@ -284,10 +280,7 @@ namespace VoxelGame.Client.Rendering
 
         public void DrawStage(int stage, Vector3 position)
         {
-            if (disposed)
-            {
-                return;
-            }
+            if (disposed) return;
 
             Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
 
@@ -382,7 +375,7 @@ namespace VoxelGame.Client.Rendering
             {
                 logger.LogWarning(
                     Events.UndeletedBuffers,
-                    "A renderer has been disposed by GC, without deleting buffers.");
+                    "Renderer disposed by GC without freeing storage");
             }
 
             disposed = true;
@@ -390,12 +383,12 @@ namespace VoxelGame.Client.Rendering
 
         ~SectionRenderer()
         {
-            Dispose(disposing: false);
+            Dispose(false);
         }
 
         public void Dispose()
         {
-            Dispose(disposing: true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 

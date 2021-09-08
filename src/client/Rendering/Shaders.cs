@@ -4,9 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
-using System.Collections.Generic;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Graphics.Utility;
 using VoxelGame.Logging;
@@ -15,11 +15,19 @@ namespace VoxelGame.Client.Rendering
 {
     internal sealed class Shaders
     {
+        private const string TimeUniform = "time";
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Shaders>();
 
-        private const string TimeUniform = "time";
-
         private static Shaders? instance;
+
+        private readonly ShaderLoader loader;
+
+        private readonly ISet<Shader> timedSet = new HashSet<Shader>();
+
+        private Shaders(string directory)
+        {
+            loader = new ShaderLoader(directory, (timedSet, TimeUniform));
+        }
 
         public static Shader SimpleSection { get; private set; } = null!;
         public static Shader ComplexSection { get; private set; } = null!;
@@ -36,15 +44,6 @@ namespace VoxelGame.Client.Rendering
         {
             instance ??= new Shaders(directory);
             instance.LoadAll();
-        }
-
-        private readonly ShaderLoader loader;
-
-        private readonly ISet<Shader> timedSet = new HashSet<Shader>();
-
-        private Shaders(string directory)
-        {
-            loader = new ShaderLoader(directory, (timedSet, TimeUniform));
         }
 
         private void LoadAll()
@@ -67,7 +66,7 @@ namespace VoxelGame.Client.Rendering
 
                 UpdateOrthographicProjection();
 
-                logger.LogInformation("Shader setup complete.");
+                logger.LogInformation("Completed shader setup");
             }
         }
 
@@ -81,10 +80,7 @@ namespace VoxelGame.Client.Rendering
         {
             if (instance == null) return;
 
-            foreach (Shader shader in instance.timedSet)
-            {
-                shader.SetFloat(TimeUniform, time);
-            }
+            foreach (Shader shader in instance.timedSet) shader.SetFloat(TimeUniform, time);
         }
     }
 }

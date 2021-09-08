@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic
         private const int ScheduledDestroyOffset = 5;
 
         /// <summary>
-        /// Schedules a tick according to the given tick offset;
+        ///     Schedules a tick according to the given tick offset;
         /// </summary>
         /// <param name="world">The world in which the block is.</param>
         /// <param name="x">The x position of the block.</param>
@@ -29,7 +29,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Schedule the destruction of this block.
+        ///     Schedule the destruction of this block.
         /// </summary>
         /// <param name="world">The world in which the block is located.</param>
         /// <param name="x">The x position of the block to destroy.</param>
@@ -43,7 +43,7 @@ namespace VoxelGame.Core.Logic
 
         internal void TickNow(World world, int x, int y, int z, uint data)
         {
-            if (this == Block.Air) return;
+            if (this == Air) return;
 
             ScheduledUpdate(world, x, y, z, data);
         }
@@ -79,7 +79,6 @@ namespace VoxelGame.Core.Logic
                 Block? block = world.GetBlock(x, y, z, out uint data);
 
                 if (block?.Id == target)
-                {
                     switch (operation)
                     {
                         case TickOperation.Tick:
@@ -92,7 +91,6 @@ namespace VoxelGame.Core.Logic
 
                             break;
                     }
-                }
             }
         }
     }

@@ -10,18 +10,18 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic
 {
     /// <summary>
-    /// Provides functionality to define the textures of a default six-sided block or a liquid.
+    ///     Provides functionality to define the textures of a default six-sided block or a liquid.
     /// </summary>
     public readonly struct TextureLayout : IEquatable<TextureLayout>
     {
         private static ITextureIndexProvider blockTextureIndexProvider = null!;
         private static ITextureIndexProvider liquidTextureIndexProvider = null!;
 
-        public static void SetProviders(ITextureIndexProvider blockTextureIndexProvider,
-            ITextureIndexProvider liquidTextureIndexProvider)
+        public static void SetProviders(ITextureIndexProvider blockTextureProvider,
+            ITextureIndexProvider liquidTextureProvider)
         {
-            TextureLayout.blockTextureIndexProvider = blockTextureIndexProvider;
-            TextureLayout.liquidTextureIndexProvider = liquidTextureIndexProvider;
+            blockTextureIndexProvider = blockTextureProvider;
+            liquidTextureIndexProvider = liquidTextureProvider;
         }
 
         public int Front { get; }
@@ -42,7 +42,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Returns a texture layout where every side has the same texture.
+        ///     Returns a texture layout where every side has the same texture.
         /// </summary>
         public static TextureLayout Uniform(string texture)
         {
@@ -52,22 +52,22 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Returns a texture layout where every side has a different texture.
+        ///     Returns a texture layout where every side has a different texture.
         /// </summary>
         public static TextureLayout Unique(string front, string back, string left, string right, string bottom,
             string top)
         {
-            return new TextureLayout(
-                front: blockTextureIndexProvider.GetTextureIndex(front),
-                back: blockTextureIndexProvider.GetTextureIndex(back),
-                left: blockTextureIndexProvider.GetTextureIndex(left),
-                right: blockTextureIndexProvider.GetTextureIndex(right),
-                bottom: blockTextureIndexProvider.GetTextureIndex(bottom),
-                top: blockTextureIndexProvider.GetTextureIndex(top));
+            return new(
+                blockTextureIndexProvider.GetTextureIndex(front),
+                blockTextureIndexProvider.GetTextureIndex(back),
+                blockTextureIndexProvider.GetTextureIndex(left),
+                blockTextureIndexProvider.GetTextureIndex(right),
+                blockTextureIndexProvider.GetTextureIndex(bottom),
+                blockTextureIndexProvider.GetTextureIndex(top));
         }
 
         /// <summary>
-        /// Returns a texture layout where two textures are used, one for top/bottom, the other for the sides around it.
+        ///     Returns a texture layout where two textures are used, one for top/bottom, the other for the sides around it.
         /// </summary>
         public static TextureLayout Column(string sides, string ends)
         {
@@ -78,7 +78,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Returns a texture layout where two textures are used, one for top/bottom, the other for the sides around it.
+        ///     Returns a texture layout where two textures are used, one for top/bottom, the other for the sides around it.
         /// </summary>
         public static TextureLayout Column(string texture, int sideOffset, int endOffset)
         {
@@ -89,7 +89,8 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Returns a texture layout where three textures are used, one for top, one for bottom, the other for the sides around it.
+        ///     Returns a texture layout where three textures are used, one for top, one for bottom, the other for the sides around
+        ///     it.
         /// </summary>
         public static TextureLayout UnqiueColumn(string sides, string bottom, string top)
         {
@@ -101,7 +102,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Returns a texture layout where all sides but the front have the same texture.
+        ///     Returns a texture layout where all sides but the front have the same texture.
         /// </summary>
         public static TextureLayout UnqiueFront(string front, string rest)
         {
@@ -112,7 +113,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Returns a texture layout where all sides but the top side have the same texture.
+        ///     Returns a texture layout where all sides but the top side have the same texture.
         /// </summary>
         public static TextureLayout UnqiueTop(string rest, string top)
         {
@@ -123,7 +124,8 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Returns a texture layout using liquid textures. The layout itself is similar to <see cref="TextureLayout.Column(string, string)"/>.
+        ///     Returns a texture layout using liquid textures. The layout itself is similar to
+        ///     <see cref="TextureLayout.Column(string, string)" />.
         /// </summary>
         public static TextureLayout Liquid(string sides, string ends)
         {
@@ -194,14 +196,9 @@ namespace VoxelGame.Core.Logic
 
         public override bool Equals(object? obj)
         {
-            if (obj is TextureLayout other)
-            {
-                return Equals(other: other);
-            }
-            else
-            {
-                return false;
-            }
+            if (obj is TextureLayout other) return Equals(other);
+
+            return false;
         }
 
         public bool Equals(TextureLayout other)

@@ -4,13 +4,14 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using Microsoft.Extensions.Logging;
-using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using OpenToolkit.Mathematics;
+using Properties;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
@@ -23,106 +24,10 @@ namespace VoxelGame.Core.Logic
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
-        public WorldInformation Information { get; }
-
-        public UpdateCounter UpdateCounter { get; }
-
-        protected int MaxGenerationTasks { get; } = Properties.core.Default.MaxGenerationTasks;
-        protected int MaxLoadingTasks { get; } = Properties.core.Default.MaxLoadingTasks;
-
-        protected int MaxSavingTasks { get; } = Properties.core.Default.MaxSavingTasks;
-
-        protected string WorldDirectory { get; }
-        protected string ChunkDirectory { get; }
-
-        /// <summary>
-        /// Gets whether this world is ready for physics ticking and rendering.
-        /// </summary>
-        public bool IsReady { get; protected set; }
-
         private readonly IWorldGenerator generator;
 
-#pragma warning disable CA1051 // Do not declare visible instance fields
-
         /// <summary>
-        /// A set of chunk positions which are currently not active and should either be loaded or generated.
-        /// </summary>
-        protected readonly HashSet<(int x, int z)> positionsToActivate;
-
-        /// <summary>
-        /// A set of chunk positions that are currently being activated. No new chunks for these positions should be created.
-        /// </summary>
-        protected readonly HashSet<(int, int)> positionsActivating;
-
-        /// <summary>
-        /// A queue that contains all chunks that have to be generated.
-        /// </summary>
-        protected readonly UniqueQueue<Chunk> chunksToGenerate;
-
-        /// <summary>
-        /// A list of chunk generation tasks.
-        /// </summary>
-        protected readonly List<Task> chunkGenerateTasks;
-
-        /// <summary>
-        /// A dictionary containing all chunks that are currently generated, with the task id of their generating task as key.
-        /// </summary>
-        protected readonly Dictionary<int, Chunk> chunksGenerating;
-
-        /// <summary>
-        /// A queue that contains all positions that have to be loaded.
-        /// </summary>
-        protected readonly UniqueQueue<(int x, int z)> positionsToLoad;
-
-        /// <summary>
-        /// A list of chunk loading tasks.
-        /// </summary>
-        protected readonly List<Task<Chunk?>> chunkLoadingTasks;
-
-        /// <summary>
-        /// A dictionary containing all chunk positions that are currently loaded, with the task id of their loading task as key.
-        /// </summary>
-        protected readonly Dictionary<int, (int x, int z)> positionsLoading;
-
-        /// <summary>
-        /// A dictionary that contains all active chunks.
-        /// </summary>
-        protected readonly Dictionary<ValueTuple<int, int>, Chunk> activeChunks;
-
-        /// <summary>
-        /// A set of chunk positions that should be released on their activation.
-        /// </summary>
-        protected readonly HashSet<(int x, int z)> positionsToReleaseOnActivation;
-
-        /// <summary>
-        /// A queue of chunks that should be saved and disposed.
-        /// </summary>
-        protected readonly UniqueQueue<Chunk> chunksToSave;
-
-        /// <summary>
-        /// A list of chunk saving tasks.
-        /// </summary>
-        protected readonly List<Task> chunkSavingTasks;
-
-        /// <summary>
-        /// A dictionary containing all chunks that are currently saved, with the task id of their saving task as key.
-        /// </summary>
-        protected readonly Dictionary<int, Chunk> chunksSaving;
-
-        /// <summary>
-        /// A set containing all positions that are currently saved.
-        /// </summary>
-        protected readonly HashSet<(int x, int z)> positionsSaving;
-
-        /// <summary>
-        /// A set of positions that have no task activating them and have to be activated by the saving code.
-        /// </summary>
-        protected readonly HashSet<(int x, int z)> positionsActivatingThroughSaving;
-
-#pragma warning restore CA1051 // Do not declare visible instance fields
-
-        /// <summary>
-        /// This constructor is meant for worlds that are new.
+        ///     This constructor is meant for worlds that are new.
         /// </summary>
         protected World(string name, string path, int seed) :
             this(
@@ -133,30 +38,30 @@ namespace VoxelGame.Core.Logic
                     Creation = DateTime.Now,
                     Version = GameInformation.Instance.Version
                 },
-                worldDirectory: path,
-                chunkDirectory: path + "/Chunks",
+                path,
+                path + "/Chunks",
                 new ComplexGenerator(seed))
         {
             Information.Save(Path.Combine(WorldDirectory, "meta.json"));
 
-            logger.LogInformation("Created a new world.");
+            logger.LogInformation("Created new world");
         }
 
         /// <summary>
-        /// This constructor is meant for worlds that already exist.
+        ///     This constructor is meant for worlds that already exist.
         /// </summary>
         protected World(WorldInformation information, string path) :
             this(
                 information,
-                worldDirectory: path,
-                chunkDirectory: path + "/Chunks",
+                path,
+                path + "/Chunks",
                 new ComplexGenerator(information.Seed))
         {
-            logger.LogInformation("Loaded an existing world.");
+            logger.LogInformation("Loaded existing world");
         }
 
         /// <summary>
-        /// Setup of readonly fields and non-optional steps.
+        ///     Setup of readonly fields and non-optional steps.
         /// </summary>
         private World(WorldInformation information, string worldDirectory, string chunkDirectory,
             IWorldGenerator generator)
@@ -188,6 +93,23 @@ namespace VoxelGame.Core.Logic
             Setup();
         }
 
+        public WorldInformation Information { get; }
+
+        public UpdateCounter UpdateCounter { get; }
+
+        protected int MaxGenerationTasks { get; } = core.Default.MaxGenerationTasks;
+        protected int MaxLoadingTasks { get; } = core.Default.MaxLoadingTasks;
+
+        protected int MaxSavingTasks { get; } = core.Default.MaxSavingTasks;
+
+        protected string WorldDirectory { get; }
+        protected string ChunkDirectory { get; }
+
+        /// <summary>
+        ///     Gets whether this world is ready for physics ticking and rendering.
+        /// </summary>
+        public bool IsReady { get; protected set; }
+
         private void Setup()
         {
             Directory.CreateDirectory(WorldDirectory);
@@ -203,7 +125,6 @@ namespace VoxelGame.Core.Logic
         protected void StartActivatingChunks()
         {
             foreach ((int x, int z) in positionsToActivate)
-            {
                 if (!positionsActivating.Contains((x, z)) && !activeChunks.ContainsKey((x, z)))
                 {
                     string pathToChunk = ChunkDirectory + $@"\x{x}z{z}.chunk";
@@ -221,12 +142,8 @@ namespace VoxelGame.Core.Logic
 #pragma warning restore CA2000 // Dispose objects before losing scope
                     }
 
-                    if (isActivating)
-                    {
-                        positionsActivating.Add((x, z));
-                    }
+                    if (isActivating) positionsActivating.Add((x, z));
                 }
-            }
 
             positionsToActivate.Clear();
         }
@@ -234,9 +151,7 @@ namespace VoxelGame.Core.Logic
         protected void FinishGeneratingChunks()
         {
             if (chunkGenerateTasks.Count > 0)
-            {
                 for (int i = chunkGenerateTasks.Count - 1; i >= 0; i--)
-                {
                     if (chunkGenerateTasks[i].IsCompleted)
                     {
                         Task completed = chunkGenerateTasks[i];
@@ -248,11 +163,10 @@ namespace VoxelGame.Core.Logic
                         positionsActivating.Remove((generatedChunk.X, generatedChunk.Z));
 
                         if (completed.IsFaulted)
-                        {
                             throw completed.Exception?.GetBaseException() ?? new NullReferenceException();
-                        }
-                        else if (!activeChunks.ContainsKey((generatedChunk.X, generatedChunk.Z)) &&
-                                 !positionsToReleaseOnActivation.Remove((generatedChunk.X, generatedChunk.Z)))
+
+                        if (!activeChunks.ContainsKey((generatedChunk.X, generatedChunk.Z)) &&
+                            !positionsToReleaseOnActivation.Remove((generatedChunk.X, generatedChunk.Z)))
                         {
                             activeChunks.Add((generatedChunk.X, generatedChunk.Z), generatedChunk);
 
@@ -263,8 +177,6 @@ namespace VoxelGame.Core.Logic
                             generatedChunk.Dispose();
                         }
                     }
-                }
-            }
         }
 
         protected void StartGeneratingChunks()
@@ -282,9 +194,7 @@ namespace VoxelGame.Core.Logic
         protected void FinishLoadingChunks()
         {
             if (chunkLoadingTasks.Count > 0)
-            {
                 for (int i = chunkLoadingTasks.Count - 1; i >= 0; i--)
-                {
                     if (chunkLoadingTasks[i].IsCompleted)
                     {
                         Task<Chunk?> completed = chunkLoadingTasks[i];
@@ -302,7 +212,7 @@ namespace VoxelGame.Core.Logic
                                 logger.LogError(
                                     Events.ChunkLoadingError,
                                     completed.Exception!.GetBaseException(),
-                                    "An exception occurred when loading the chunk ({x}|{z}). " +
+                                    "An exception occurred when loading the chunk ({X}|{Z}). " +
                                     "The chunk has been scheduled for generation",
                                     x,
                                     z);
@@ -310,9 +220,7 @@ namespace VoxelGame.Core.Logic
 #pragma warning disable CA2000 // Dispose objects before losing scope
                                 if (chunksToGenerate.Enqueue(CreateChunk(x, z)))
 #pragma warning restore CA2000 // Dispose objects before losing scope
-                                {
                                     positionsActivating.Add((x, z));
-                                }
                             }
                         }
                         else
@@ -337,23 +245,19 @@ namespace VoxelGame.Core.Logic
                             {
                                 logger.LogError(
                                     Events.ChunkLoadingError,
-                                    "The position of the loaded chunk file for position ({x}|{z}) did not match the requested position. " +
-                                    "This may be the result of a renamed chunk file. " +
-                                    "The position will be scheduled for generation.",
+                                    "Position of the loaded chunk file for position ({X}|{Z}) did not match the requested position, " +
+                                    "which can be caused by a renamed chunk file. " +
+                                    "Position will be scheduled for generation",
                                     x,
                                     z);
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
                                 if (chunksToGenerate.Enqueue(CreateChunk(x, z)))
 #pragma warning restore CA2000 // Dispose objects before losing scope
-                                {
                                     positionsActivating.Add((x, z));
-                                }
                             }
                         }
                     }
-                }
-            }
         }
 
         protected void StartLoadingChunks()
@@ -384,9 +288,7 @@ namespace VoxelGame.Core.Logic
         protected void FinishSavingChunks()
         {
             if (chunkSavingTasks.Count > 0)
-            {
                 for (int i = chunkSavingTasks.Count - 1; i >= 0; i--)
-                {
                     if (chunkSavingTasks[i].IsCompleted)
                     {
                         Task completed = chunkSavingTasks[i];
@@ -405,9 +307,7 @@ namespace VoxelGame.Core.Logic
                             positionsToActivate.Remove((completedChunk.X, completedChunk.Z));
 
                             if (positionsActivatingThroughSaving.Remove((completedChunk.X, completedChunk.Z)))
-                            {
                                 positionsActivating.Remove((completedChunk.X, completedChunk.Z));
-                            }
 
                             activeChunks.Add((completedChunk.X, completedChunk.Z), completedChunk);
 
@@ -416,28 +316,22 @@ namespace VoxelGame.Core.Logic
                         else
                         {
                             if (completed.IsFaulted)
-                            {
                                 logger.LogError(
                                     Events.ChunkSavingError,
                                     completed.Exception!.GetBaseException(),
-                                    "An exception occurred when saving chunk ({x}|{z}). " +
-                                    "The chunk will be disposed without saving.",
+                                    "An exception occurred when saving chunk ({X}|{Z}). " +
+                                    "Chunk will be disposed without saving",
                                     completedChunk.X,
                                     completedChunk.Z);
-                            }
 
                             if (positionsActivatingThroughSaving.Remove((completedChunk.X, completedChunk.Z)))
-                            {
                                 positionsActivating.Remove((completedChunk.X, completedChunk.Z));
-                            }
 
                             positionsToReleaseOnActivation.Remove((completedChunk.X, completedChunk.Z));
 
                             completedChunk.Dispose();
                         }
                     }
-                }
-            }
         }
 
         protected abstract void ProcessNewlyActivatedChunk(Chunk activatedChunk);
@@ -456,7 +350,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Requests the activation of a chunk. This chunk will either be loaded or generated.
+        ///     Requests the activation of a chunk. This chunk will either be loaded or generated.
         /// </summary>
         /// <param name="x">The x coordinates in chunk coordinates.</param>
         /// <param name="z">The z coordinates in chunk coordinates.</param>
@@ -468,12 +362,12 @@ namespace VoxelGame.Core.Logic
             {
                 positionsToActivate.Add((x, z));
 
-                logger.LogDebug(Events.ChunkRequest, "Chunk ({x}|{z}) has been requested successfully.", x, z);
+                logger.LogDebug(Events.ChunkRequest, "Chunk ({X}|{Z}) has been requested successfully", x, z);
             }
         }
 
         /// <summary>
-        /// Notifies the world that a chunk is no longer needed. The world decides if the chunk is deactivated.
+        ///     Notifies the world that a chunk is no longer needed. The world decides if the chunk is deactivated.
         /// </summary>
         /// <param name="x">The x coordinates in chunk coordinates.</param>
         /// <param name="z">The z coordinates in chunk coordinates.</param>
@@ -481,12 +375,9 @@ namespace VoxelGame.Core.Logic
         public bool ReleaseChunk(int x, int z)
         {
             // Check if the chunk can be released
-            if (x == 0 && z == 0)
-            {
-                return false; // The chunk at (0|0) cannot be released.
-            }
+            if (x == 0 && z == 0) return false; // The chunk at (0|0) cannot be released.
 
-            bool canRelease = false;
+            var canRelease = false;
 
             // Check if the chunk exists
             if (activeChunks.TryGetValue((x, z), out Chunk? chunk))
@@ -494,7 +385,7 @@ namespace VoxelGame.Core.Logic
                 activeChunks.Remove((x, z));
                 chunksToSave.Enqueue(chunk);
 
-                logger.LogDebug(Events.ChunkRelease, "Released chunk ({x}|{z}).", x, z);
+                logger.LogDebug(Events.ChunkRelease, "Released chunk ({X}|{Z})", x, z);
 
                 canRelease = true;
             }
@@ -503,7 +394,7 @@ namespace VoxelGame.Core.Logic
             {
                 positionsToReleaseOnActivation.Add((x, z));
 
-                logger.LogDebug(Events.ChunkRelease, "Scheduled to release chunk ({x}|{z}) after activation.", x, z);
+                logger.LogDebug(Events.ChunkRelease, "Scheduled to release chunk ({X}|{Z}) after activation", x, z);
 
                 canRelease = true;
             }
@@ -512,7 +403,7 @@ namespace VoxelGame.Core.Logic
             {
                 positionsToActivate.Remove((x, z));
 
-                logger.LogDebug(Events.ChunkRelease, "Chunk ({x}|{z}) has been removed from activation list.", x, z);
+                logger.LogDebug(Events.ChunkRelease, "Removed chunk ({X}|{Z}) from activation list", x, z);
 
                 canRelease = true;
             }
@@ -521,7 +412,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Returns the block at a given position in block coordinates. The block is only searched in active chunks.
+        ///     Returns the block at a given position in block coordinates. The block is only searched in active chunks.
         /// </summary>
         /// <param name="x">The x position in block coordinates.</param>
         /// <param name="y">The y position in block coordinates.</param>
@@ -535,7 +426,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Returns the block at a given position in block coordinates. The block is only searched in active chunks.
+        ///     Returns the block at a given position in block coordinates. The block is only searched in active chunks.
         /// </summary>
         /// <param name="x">The x position in block coordinates.</param>
         /// <param name="y">The y position in block coordinates.</param>
@@ -561,15 +452,13 @@ namespace VoxelGame.Core.Logic
 
                 return block;
             }
-            else
-            {
-                data = 0;
-                liquid = null;
-                level = 0;
-                isStatic = false;
 
-                return null;
-            }
+            data = 0;
+            liquid = null;
+            level = 0;
+            isStatic = false;
+
+            return null;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -588,7 +477,8 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Sets a block in the world, adds the changed sections to the re-mesh set and sends block updates to the neighbors of the changed block.
+        ///     Sets a block in the world, adds the changed sections to the re-mesh set and sends block updates to the neighbors of
+        ///     the changed block.
         /// </summary>
         /// <param name="block">The block which should be set at the position.</param>
         /// <param name="data">The block data which should be set at the position.</param>
@@ -610,7 +500,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Set the <c>isStatic</c> flag of a liquid without causing any updates around this liquid.
+        ///     Set the <c>isStatic</c> flag of a liquid without causing any updates around this liquid.
         /// </summary>
         /// <param name="isStatic"></param>
         /// <param name="x"></param>
@@ -628,10 +518,7 @@ namespace VoxelGame.Core.Logic
         {
             if (!activeChunks.TryGetValue(
                 (x >> Section.SectionSizeExp, z >> Section.SectionSizeExp),
-                out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight)
-            {
-                return;
-            }
+                out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight) return;
 
             uint val = Section.Encode(block, data, liquid, level, isStatic);
 
@@ -680,17 +567,14 @@ namespace VoxelGame.Core.Logic
         protected abstract void ProcessChangedSection(Chunk chunk, int x, int y, int z);
 
         /// <summary>
-        /// Modify the data of a position, without causing any updates.
+        ///     Modify the data of a position, without causing any updates.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ModifyWorldData(int x, int y, int z, uint clearMask, uint addMask)
         {
             if (!activeChunks.TryGetValue(
                 (x >> Section.SectionSizeExp, z >> Section.SectionSizeExp),
-                out Chunk? chunk) || y < 0 || y >= Chunk.VerticalSectionCount * Section.SectionSize)
-            {
-                return;
-            }
+                out Chunk? chunk) || y < 0 || y >= Chunk.VerticalSectionCount * Section.SectionSize) return;
 
             uint val = chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1),
                 y & (Section.SectionSize - 1),
@@ -717,7 +601,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Gets an active chunk.
+        ///     Gets an active chunk.
         /// </summary>
         /// <param name="x">The x position of the chunk in chunk coordinates.</param>
         /// <param name="z">The y position of the chunk in chunk coordinates.</param>
@@ -730,7 +614,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Gets the chunk that contains the specified position. If the chunk is not active, null is returned.
+        ///     Gets the chunk that contains the specified position. If the chunk is not active, null is returned.
         /// </summary>
         /// <param name="x">The x position.</param>
         /// <param name="z">The y position.</param>
@@ -744,7 +628,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Gets a section of an active chunk.
+        ///     Gets a section of an active chunk.
         /// </summary>
         /// <param name="sectionPosition">The position of the section, in section coordinates.</param>
         /// <returns>The section at the given position or null if no section was found.</returns>
@@ -754,28 +638,24 @@ namespace VoxelGame.Core.Logic
             (int x, int y, int z) = sectionPosition;
 
             if (activeChunks.TryGetValue((x, z), out Chunk? chunk) && y >= 0 && y < Chunk.VerticalSectionCount)
-            {
                 return chunk.GetSection(y);
-            }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         /// <summary>
-        /// Sets the spawn position of this world.
+        ///     Sets the spawn position of this world.
         /// </summary>
         /// <param name="position">The position to set as spawn.</param>
         public void SetSpawnPosition(Vector3 position)
         {
             Information.SpawnInformation = new SpawnInformation(position);
 
-            logger.LogInformation("World spawn position has been set to: {position}", position);
+            logger.LogInformation("World spawn position has been set to: {Position}", position);
         }
 
         /// <summary>
-        /// Saves all active chunks that are not currently saved.
+        ///     Saves all active chunks that are not currently saved.
         /// </summary>
         /// <returns>A task that represents all tasks saving the chunks.</returns>
         public Task Save()
@@ -783,17 +663,13 @@ namespace VoxelGame.Core.Logic
             Console.WriteLine(Language.AllChunksSaving);
             Console.WriteLine();
 
-            logger.LogInformation("Saving world.");
+            logger.LogInformation("Saving world");
 
-            List<Task> savingTasks = new List<Task>(activeChunks.Count);
+            List<Task> savingTasks = new(activeChunks.Count);
 
             foreach (Chunk chunk in activeChunks.Values)
-            {
                 if (!positionsSaving.Contains((chunk.X, chunk.Z)))
-                {
                     savingTasks.Add(chunk.SaveTask(ChunkDirectory));
-                }
-            }
 
             Information.Version = GameInformation.Instance.Version;
 
@@ -803,7 +679,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Wait for all world tasks to finish.
+        ///     Wait for all world tasks to finish.
         /// </summary>
         /// <returns>A task that is finished when all world tasks are finished.</returns>
         public Task FinishAll()
@@ -811,7 +687,7 @@ namespace VoxelGame.Core.Logic
             // This method is just a quick hack to fix a possible cause of crashes.
             // It would be better to also process the finished tasks.
 
-            List<Task> tasks = new List<Task>();
+            List<Task> tasks = new();
             AddAllTasks(ref tasks);
 
             return Task.WhenAll(tasks);
@@ -824,6 +700,86 @@ namespace VoxelGame.Core.Logic
             tasks.AddRange(chunkSavingTasks);
         }
 
+#pragma warning disable CA1051 // Do not declare visible instance fields
+
+        /// <summary>
+        ///     A set of chunk positions which are currently not active and should either be loaded or generated.
+        /// </summary>
+        protected readonly HashSet<(int x, int z)> positionsToActivate;
+
+        /// <summary>
+        ///     A set of chunk positions that are currently being activated. No new chunks for these positions should be created.
+        /// </summary>
+        protected readonly HashSet<(int, int)> positionsActivating;
+
+        /// <summary>
+        ///     A queue that contains all chunks that have to be generated.
+        /// </summary>
+        protected readonly UniqueQueue<Chunk> chunksToGenerate;
+
+        /// <summary>
+        ///     A list of chunk generation tasks.
+        /// </summary>
+        protected readonly List<Task> chunkGenerateTasks;
+
+        /// <summary>
+        ///     A dictionary containing all chunks that are currently generated, with the task id of their generating task as key.
+        /// </summary>
+        protected readonly Dictionary<int, Chunk> chunksGenerating;
+
+        /// <summary>
+        ///     A queue that contains all positions that have to be loaded.
+        /// </summary>
+        protected readonly UniqueQueue<(int x, int z)> positionsToLoad;
+
+        /// <summary>
+        ///     A list of chunk loading tasks.
+        /// </summary>
+        protected readonly List<Task<Chunk?>> chunkLoadingTasks;
+
+        /// <summary>
+        ///     A dictionary containing all chunk positions that are currently loaded, with the task id of their loading task as
+        ///     key.
+        /// </summary>
+        protected readonly Dictionary<int, (int x, int z)> positionsLoading;
+
+        /// <summary>
+        ///     A dictionary that contains all active chunks.
+        /// </summary>
+        protected readonly Dictionary<ValueTuple<int, int>, Chunk> activeChunks;
+
+        /// <summary>
+        ///     A set of chunk positions that should be released on their activation.
+        /// </summary>
+        protected readonly HashSet<(int x, int z)> positionsToReleaseOnActivation;
+
+        /// <summary>
+        ///     A queue of chunks that should be saved and disposed.
+        /// </summary>
+        protected readonly UniqueQueue<Chunk> chunksToSave;
+
+        /// <summary>
+        ///     A list of chunk saving tasks.
+        /// </summary>
+        protected readonly List<Task> chunkSavingTasks;
+
+        /// <summary>
+        ///     A dictionary containing all chunks that are currently saved, with the task id of their saving task as key.
+        /// </summary>
+        protected readonly Dictionary<int, Chunk> chunksSaving;
+
+        /// <summary>
+        ///     A set containing all positions that are currently saved.
+        /// </summary>
+        protected readonly HashSet<(int x, int z)> positionsSaving;
+
+        /// <summary>
+        ///     A set of positions that have no task activating them and have to be activated by the saving code.
+        /// </summary>
+        protected readonly HashSet<(int x, int z)> positionsActivatingThroughSaving;
+
+#pragma warning restore CA1051 // Do not declare visible instance fields
+
         #region IDisposable Support
 
         private bool disposed;
@@ -834,20 +790,11 @@ namespace VoxelGame.Core.Logic
             {
                 if (disposing)
                 {
-                    foreach (Chunk activeChunk in activeChunks.Values)
-                    {
-                        activeChunk.Dispose();
-                    }
+                    foreach (Chunk activeChunk in activeChunks.Values) activeChunk.Dispose();
 
-                    foreach (Chunk generatingChunk in chunksGenerating.Values)
-                    {
-                        generatingChunk.Dispose();
-                    }
+                    foreach (Chunk generatingChunk in chunksGenerating.Values) generatingChunk.Dispose();
 
-                    foreach (Chunk savingChunk in chunksSaving.Values)
-                    {
-                        savingChunk.Dispose();
-                    }
+                    foreach (Chunk savingChunk in chunksSaving.Values) savingChunk.Dispose();
                 }
 
                 disposed = true;

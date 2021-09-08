@@ -4,9 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System;
 using System.Diagnostics;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -17,61 +17,6 @@ namespace VoxelGame.Core.Logic
 {
     public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string>
     {
-        /// <summary>
-        /// Gets the liquid id which can be any value from 0 to 31.
-        /// </summary>
-        public uint Id { get; }
-
-        /// <summary>
-        /// Gets the localized name of the liquid.
-        /// </summary>
-        public string Name { get; }
-
-        /// <summary>
-        /// An unlocalized string that identifies this liquid.
-        /// </summary>
-        public string NamedId { get; }
-
-        /// <summary>
-        /// Gets the density of this liquid.
-        /// </summary>
-        public float Density { get; }
-
-        /// <summary>
-        /// Gets the flowing direction of this liquid. Positive means down, negative means up.
-        /// </summary>
-        public int Direction { get; }
-
-        /// <summary>
-        /// Gets the viscosity of this liquid, meaning the tick offset between two updates.
-        /// </summary>
-        public int Viscosity { get; }
-
-        /// <summary>
-        /// Gets whether entity contacts have to be checked.
-        /// </summary>
-        public bool CheckContact { get; }
-
-        /// <summary>
-        /// Gets whether this liquid receives entity contacts.
-        /// </summary>
-        public bool ReceiveContact { get; }
-
-        /// <summary>
-        /// Gets the <see cref="Visuals.RenderType"/> of this liquid.
-        /// </summary>
-        public RenderType RenderType { get; }
-
-        /// <summary>
-        /// Get whether this liquid is a fluid that flows down.
-        /// </summary>
-        public bool IsFluid => Direction > 0;
-
-        /// <summary>
-        /// Get whether this liquid is a gas that flows up.
-        /// </summary>
-        public bool IsGas => Direction < 0;
-
         protected Liquid(string name, string namedId, float density, int viscosity, bool checkContact,
             bool receiveContact, RenderType renderType)
         {
@@ -101,11 +46,67 @@ namespace VoxelGame.Core.Logic
             }
         }
 
-        uint IIdentifiable<uint>.Id => Id;
-        string IIdentifiable<string>.Id => NamedId;
+        /// <summary>
+        ///     Gets the liquid id which can be any value from 0 to 31.
+        /// </summary>
+        public uint Id { get; }
 
         /// <summary>
-        /// Called when loading liquids, meant to setup vertex data, indices etc.
+        ///     Gets the localized name of the liquid.
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        ///     An unlocalized string that identifies this liquid.
+        /// </summary>
+        public string NamedId { get; }
+
+        /// <summary>
+        ///     Gets the density of this liquid.
+        /// </summary>
+        public float Density { get; }
+
+        /// <summary>
+        ///     Gets the flowing direction of this liquid. Positive means down, negative means up.
+        /// </summary>
+        public int Direction { get; }
+
+        /// <summary>
+        ///     Gets the viscosity of this liquid, meaning the tick offset between two updates.
+        /// </summary>
+        public int Viscosity { get; }
+
+        /// <summary>
+        ///     Gets whether entity contacts have to be checked.
+        /// </summary>
+        public bool CheckContact { get; }
+
+        /// <summary>
+        ///     Gets whether this liquid receives entity contacts.
+        /// </summary>
+        public bool ReceiveContact { get; }
+
+        /// <summary>
+        ///     Gets the <see cref="Visuals.RenderType" /> of this liquid.
+        /// </summary>
+        public RenderType RenderType { get; }
+
+        /// <summary>
+        ///     Get whether this liquid is a fluid that flows down.
+        /// </summary>
+        public bool IsFluid => Direction > 0;
+
+        /// <summary>
+        ///     Get whether this liquid is a gas that flows up.
+        /// </summary>
+        public bool IsGas => Direction < 0;
+
+        string IIdentifiable<string>.Id => NamedId;
+
+        uint IIdentifiable<uint>.Id => Id;
+
+        /// <summary>
+        ///     Called when loading liquids, meant to setup vertex data, indices etc.
         /// </summary>
         /// <param name="indexProvider"></param>
         protected virtual void Setup(ITextureIndexProvider indexProvider) {}
@@ -122,16 +123,15 @@ namespace VoxelGame.Core.Logic
         public void EntityContact(PhysicsEntity entity, int x, int y, int z)
         {
             if (entity.World.GetLiquid(x, y, z, out LiquidLevel level, out bool isStatic) == this)
-            {
                 EntityContact(entity, x, y, z, level, isStatic);
-            }
         }
 
         protected virtual void EntityContact(PhysicsEntity entity, int x, int y, int z, LiquidLevel level,
             bool isStatic) {}
 
         /// <summary>
-        /// Tries to fill a position with the specified amount of liquid. The remaining liquid is specified, it can be converted to <see cref="LiquidLevel"/> if it is not <c>-1</c>.
+        ///     Tries to fill a position with the specified amount of liquid. The remaining liquid is specified, it can be
+        ///     converted to <see cref="LiquidLevel" /> if it is not <c>-1</c>.
         /// </summary>
         public bool Fill(World world, int x, int y, int z, LiquidLevel level, out int remaining)
         {
@@ -158,7 +158,7 @@ namespace VoxelGame.Core.Logic
                     return true;
                 }
 
-                if (target == Liquid.None)
+                if (target == None)
                 {
                     SetLiquid(world, this, level, false, fillable, x, y, z);
                     ScheduleTick(world, x, y, z);
@@ -175,7 +175,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Tries to take a certain amount of liquid from a position. The actually taken amount is given when finished.
+        ///     Tries to take a certain amount of liquid from a position. The actually taken amount is given when finished.
         /// </summary>
         public bool Take(World world, int x, int y, int z, ref LiquidLevel level)
         {
@@ -187,11 +187,11 @@ namespace VoxelGame.Core.Logic
                 out LiquidLevel available,
                 out bool isStatic);
 
-            if (liquid != this || this == Liquid.None) return false;
+            if (liquid != this || this == None) return false;
 
             if (level >= available)
             {
-                SetLiquid(world, Liquid.None, LiquidLevel.Eight, true, block as IFillable, x, y, z);
+                SetLiquid(world, None, LiquidLevel.Eight, true, block as IFillable, x, y, z);
             }
             else
             {
@@ -221,11 +221,11 @@ namespace VoxelGame.Core.Logic
                 out LiquidLevel available,
                 out bool isStatic);
 
-            if (liquid == this && this != Liquid.None && level <= available)
+            if (liquid == this && this != None && level <= available)
             {
                 if (level == available)
                 {
-                    SetLiquid(world, Liquid.None, LiquidLevel.Eight, true, block as IFillable, x, y, z);
+                    SetLiquid(world, None, LiquidLevel.Eight, true, block as IFillable, x, y, z);
                 }
                 else
                 {
@@ -244,16 +244,14 @@ namespace VoxelGame.Core.Logic
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         protected abstract void ScheduledUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic);
 
         /// <summary>
-        /// Sets the liquid at the position and calls the necessary methods on the <see cref="IFillable"/>.
+        ///     Sets the liquid at the position and calls the necessary methods on the <see cref="IFillable" />.
         /// </summary>
         protected static void SetLiquid(World world, Liquid liquid, LiquidLevel level, bool isStatic,
             IFillable? fillable, int x, int y, int z)
@@ -263,7 +261,8 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Check if a liquid has a neighbor of the same liquid and this neighbor has a specified level. If the specified level is <c>-1</c>, false is directly returned.
+        ///     Check if a liquid has a neighbor of the same liquid and this neighbor has a specified level. If the specified level
+        ///     is <c>-1</c>, false is directly returned.
         /// </summary>
         protected bool HasNeighborWithLevel(World world, LiquidLevel level, int x, int y, int z)
         {
@@ -303,9 +302,9 @@ namespace VoxelGame.Core.Logic
             {
                 (Block? block, Liquid? liquid) = world.GetPosition(nx, y, nz, out _, out _, out _);
 
-                return liquid == Liquid.None && block is IFillable neighborFillable
-                                             && neighborFillable.AllowInflow(world, nx, y, nz, side.Opposite(), this)
-                                             && currentFillable.AllowOutflow(world, x, y, z, side);
+                return liquid == None && block is IFillable neighborFillable
+                                      && neighborFillable.AllowInflow(world, nx, y, nz, side.Opposite(), this)
+                                      && currentFillable.AllowOutflow(world, x, y, z, side);
             }
         }
 
@@ -322,7 +321,7 @@ namespace VoxelGame.Core.Logic
 
             for (var r = 0; r < range; r++)
             {
-                Vector3i line = (-r * perpendicularDir) + ((1 + r) * dir) + pos;
+                Vector3i line = -r * perpendicularDir + (1 + r) * dir + pos;
 
                 for (var s = 0; s < 2 * (r + 1); s++)
                 {
@@ -330,7 +329,7 @@ namespace VoxelGame.Core.Logic
 
                     if (ignoreRows[row - 1]) continue;
 
-                    Vector3i current = (s * perpendicularDir) + line;
+                    Vector3i current = s * perpendicularDir + line;
 
                     (Block? block, Liquid? liquid) = world.GetPosition(
                         current.X,
@@ -351,13 +350,11 @@ namespace VoxelGame.Core.Logic
                         ignoreRows[row - 1] = true;
 
                         if (s == 0)
-                        {
-                            for (var i = 0; i < row - 1; i++) ignoreRows[i] = true;
-                        }
+                            for (var i = 0; i < row - 1; i++)
+                                ignoreRows[i] = true;
                         else if (s == 2 * (r + 1) - 1)
-                        {
-                            for (int i = row; i < range * 2; i++) ignoreRows[i] = true;
-                        }
+                            for (int i = row; i < range * 2; i++)
+                                ignoreRows[i] = true;
                     }
                     else if (level <= target)
                     {
@@ -372,7 +369,7 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        /// Check if there is a liquid of the same type above this position or a gas of the same type below.
+        ///     Check if there is a liquid of the same type above this position or a gas of the same type below.
         /// </summary>
         protected bool IsAtSurface(World world, int x, int y, int z)
         {

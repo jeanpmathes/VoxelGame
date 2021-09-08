@@ -4,9 +4,10 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
-using System.Collections.Generic;
 using VoxelGame.Core.Logic.Blocks;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -18,12 +19,68 @@ namespace VoxelGame.Core.Logic
 {
     public abstract partial class Block : IBlockBase
     {
+        public const int BlockLimit = 1 << Section.DataShift;
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Block>();
 
-        public const int BlockLimit = 1 << Section.DataShift;
+        private static readonly List<Block> blockList = new();
+        private static readonly Dictionary<string, Block> namedBlockDictionary = new();
 
-        private static readonly List<Block> blockList = new List<Block>();
-        private static readonly Dictionary<string, Block> namedBlockDictionary = new Dictionary<string, Block>();
+        /// <summary>
+        ///     Gets the count of registered blocks.
+        /// </summary>
+        public static int Count => blockList.Count;
+
+        /// <summary>
+        ///     Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.
+        /// </summary>
+        /// <param name="id">The ID of the block to return.</param>
+        /// <returns>The block with the ID or air if the ID is not valid.</returns>
+        public static Block TranslateID(uint id)
+        {
+            if (blockList.Count > id) return blockList[(int) id];
+
+            logger.LogWarning("No Block with ID {ID} could be found, returning {Air} instead", id, Air.NamedId);
+
+            return Air;
+        }
+
+        public static Block TranslateNamedID(string namedId)
+        {
+            if (namedBlockDictionary.TryGetValue(namedId, out Block? block)) return block;
+
+            logger.LogWarning(
+                "No Block with the named ID {ID} could be found, returning {Fallback} instead",
+                namedId,
+                nameof(Air));
+
+            return Air;
+        }
+
+        /// <summary>
+        ///     Calls the setup method on all blocks.
+        /// </summary>
+        public static void LoadBlocks(ITextureIndexProvider indexProvider)
+        {
+            using (logger.BeginScope("Block Loading"))
+            {
+                foreach (Block block in blockList)
+                {
+                    block.Setup(indexProvider);
+
+                    logger.LogDebug(Events.BlockLoad, "Loaded block [{Block}] with ID {ID}", block, block.Id);
+                }
+
+                logger.LogInformation("Block setup complete, {Count} blocks loaded", Count);
+            }
+        }
+
+        [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
+        internal static class Specials
+        {
+#pragma warning disable S3218 // Inner class members should not shadow outer class "static" or type members
+            public static readonly ConcreteBlock Concrete = (ConcreteBlock) Block.Concrete;
+#pragma warning restore S3218 // Inner class members should not shadow outer class "static" or type members
+        }
 
         #region NATURAL BLOCKS
 
@@ -101,7 +158,7 @@ namespace VoxelGame.Core.Logic
             Language.Leaves,
             nameof(Leaves),
             TextureLayout.Uniform("leaves"),
-            isOpaque: false);
+            false);
 
         public static readonly Block Log = new RotatedBlock(
             Language.Log,
@@ -146,7 +203,7 @@ namespace VoxelGame.Core.Logic
             Language.Cactus,
             nameof(Cactus),
             TextureLayout.Column("cactus", 0, 1),
-            Block.Sand,
+            Sand,
             4);
 
         public static readonly Block Pumpkin = new GroundedBlock(
@@ -353,7 +410,7 @@ namespace VoxelGame.Core.Logic
             Language.PulsatingBlock,
             nameof(Pulsating),
             TextureLayout.Uniform("pulsating"),
-            isAnimated: true);
+            true);
 
         public static readonly Block EternalFlame = new EternalFlame(
             Language.EternalFlame,
@@ -467,71 +524,5 @@ namespace VoxelGame.Core.Logic
             "bars_extension");
 
         #endregion NEW BLOCKS
-
-        internal static class Specials
-        {
-#pragma warning disable S3218 // Inner class members should not shadow outer class "static" or type members
-            public static readonly ConcreteBlock Concrete = (ConcreteBlock) Block.Concrete;
-#pragma warning restore S3218 // Inner class members should not shadow outer class "static" or type members
-        }
-
-        /// <summary>
-        /// Translates a block ID to a reference to the block that has that ID. If the ID is not valid, air is returned.
-        /// </summary>
-        /// <param name="id">The ID of the block to return.</param>
-        /// <returns>The block with the ID or air if the ID is not valid.</returns>
-        public static Block TranslateID(uint id)
-        {
-            if (blockList.Count > id)
-            {
-                return blockList[(int) id];
-            }
-            else
-            {
-                logger.LogWarning($"No Block with the ID {id} could be found, returning {Block.Air.NamedId} instead.");
-
-                return Block.Air;
-            }
-        }
-
-        public static Block TranslateNamedID(string namedId)
-        {
-            if (namedBlockDictionary.TryGetValue(namedId, out Block? block))
-            {
-                return block;
-            }
-            else
-            {
-                logger.LogWarning(
-                    "No Block with the named ID {id} could be found, returning {fallback} instead.",
-                    namedId,
-                    nameof(Block.Air));
-
-                return Block.Air;
-            }
-        }
-
-        /// <summary>
-        /// Gets the count of registered blocks.
-        /// </summary>
-        public static int Count => blockList.Count;
-
-        /// <summary>
-        /// Calls the setup method on all blocks.
-        /// </summary>
-        public static void LoadBlocks(ITextureIndexProvider indexProvider)
-        {
-            using (logger.BeginScope("Block Loading"))
-            {
-                foreach (Block block in blockList)
-                {
-                    block.Setup(indexProvider);
-
-                    logger.LogDebug(Events.BlockLoad, "Loaded the block [{block}] with ID {id}.", block, block.Id);
-                }
-
-                logger.LogInformation("Block setup complete. A total of {count} blocks have been loaded.", Count);
-            }
-        }
     }
 }

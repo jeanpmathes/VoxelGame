@@ -3,11 +3,11 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
-using System;
-using System.Collections.Generic;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Graphics.Objects
@@ -17,8 +17,6 @@ namespace VoxelGame.Graphics.Objects
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Shader>();
 
         private readonly Dictionary<string, int> uniformLocations;
-
-        private int Handle { get; }
 
         public Shader(string vertSource, string fragSource)
         {
@@ -56,6 +54,8 @@ namespace VoxelGame.Graphics.Objects
             }
         }
 
+        private int Handle { get; }
+
         private static void CompileShader(int shader)
         {
             GL.CompileShader(shader);
@@ -70,16 +70,14 @@ namespace VoxelGame.Graphics.Objects
                 logger.LogCritical(
                     Events.ShaderError,
                     e,
-                    "Error occurred whilst compiling Shader({shader}): {info}",
+                    "Error occurred whilst compiling Shader({Shader}): {Info}",
                     shader,
                     GL.GetShaderInfoLog(shader));
 
                 throw e;
             }
-            else
-            {
-                logger.LogDebug("Successfully compiled Shader({shader})", shader);
-            }
+
+            logger.LogDebug("Successfully compiled Shader({Shader})", shader);
         }
 
         private static void LinkProgram(int program)
@@ -87,7 +85,7 @@ namespace VoxelGame.Graphics.Objects
             GL.LinkProgram(program);
 
             // Check for linking errors
-            GL.GetProgram(program, GetProgramParameterName.LinkStatus, out var code);
+            GL.GetProgram(program, GetProgramParameterName.LinkStatus, out int code);
 
             if (code != (int) All.True)
             {
@@ -96,16 +94,14 @@ namespace VoxelGame.Graphics.Objects
                 logger.LogCritical(
                     Events.ShaderError,
                     e,
-                    "Error occurred whilst linking Program({program}): {info}",
+                    "Error occurred whilst linking Program({Program}): {Info}",
                     program,
                     GL.GetProgramInfoLog(program));
 
                 throw e;
             }
-            else
-            {
-                logger.LogDebug("Successfully linked Program({program})", program);
-            }
+
+            logger.LogDebug("Successfully linked Program({Program})", program);
         }
 
         public void Use()
@@ -124,7 +120,7 @@ namespace VoxelGame.Graphics.Objects
         }
 
         /// <summary>
-        /// Set a uniform int on this shader.
+        ///     Set a uniform int on this shader.
         /// </summary>
         /// <param name="name">The name of the uniform</param>
         /// <param name="data">The data to set</param>
@@ -135,7 +131,7 @@ namespace VoxelGame.Graphics.Objects
         }
 
         /// <summary>
-        /// Set a uniform float on this shader.
+        ///     Set a uniform float on this shader.
         /// </summary>
         /// <param name="name">The name of the uniform</param>
         /// <param name="data">The data to set</param>
@@ -146,14 +142,14 @@ namespace VoxelGame.Graphics.Objects
         }
 
         /// <summary>
-        /// Set a uniform Matrix4 on this shader
+        ///     Set a uniform Matrix4 on this shader
         /// </summary>
         /// <param name="name">The name of the uniform</param>
         /// <param name="data">The data to set</param>
         /// <remarks>
-        ///   <para>
-        ///   The matrix is transposed before being sent to the shader.
-        ///   </para>
+        ///     <para>
+        ///         The matrix is transposed before being sent to the shader.
+        ///     </para>
         /// </remarks>
         public void SetMatrix4(string name, Matrix4 data)
         {
@@ -162,7 +158,7 @@ namespace VoxelGame.Graphics.Objects
         }
 
         /// <summary>
-        /// Set a uniform Vector3 on this shader.
+        ///     Set a uniform Vector3 on this shader.
         /// </summary>
         /// <param name="name">The name of the uniform</param>
         /// <param name="data">The data to set</param>

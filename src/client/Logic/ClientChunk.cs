@@ -4,10 +4,10 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using OpenToolkit.Mathematics;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
@@ -16,7 +16,7 @@ using VoxelGame.Core.Updates;
 namespace VoxelGame.Client.Logic
 {
     [Serializable]
-    public class ClientChunk : Core.Logic.Chunk
+    public class ClientChunk : Chunk
     {
         private const int MaxMeshDataStep = 8;
 
@@ -32,10 +32,7 @@ namespace VoxelGame.Client.Logic
 
         public void CreateAndSetMesh()
         {
-            for (int y = 0; y < VerticalSectionCount; y++)
-            {
-                ((ClientSection) sections[y]).CreateAndSetMesh(X, y, Z);
-            }
+            for (var y = 0; y < VerticalSectionCount; y++) ((ClientSection) sections[y]).CreateAndSetMesh(X, y, Z);
 
             hasMeshData = true;
             meshDataIndex = 0;
@@ -56,9 +53,7 @@ namespace VoxelGame.Client.Logic
             SectionMeshData[] sectionMeshes = new SectionMeshData[VerticalSectionCount];
 
             for (var y = 0; y < VerticalSectionCount; y++)
-            {
                 ((ClientSection) sections[y]).CreateMeshData(X, y, Z, out sectionMeshes[y]);
-            }
 
             meshDataIndex = 0;
 
@@ -87,17 +82,15 @@ namespace VoxelGame.Client.Logic
 
                     return true;
                 }
-                else
-                {
-                    meshDataIndex++;
-                }
+
+                meshDataIndex++;
             }
 
             return false;
         }
 
         /// <summary>
-        /// Adds all sections inside of the frustum to the render list.
+        ///     Adds all sections inside of the frustum to the render list.
         /// </summary>
         /// <param name="frustum">The view frustum to use for culling.</param>
         /// <param name="renderList">The list to add the chunks and positions too.</param>
@@ -108,7 +101,6 @@ namespace VoxelGame.Client.Logic
                 int start = 0, end = VerticalSectionCount - 1;
 
                 for (int y = start; y < VerticalSectionCount; y++)
-                {
                     if (frustum.BoxInFrustum(
                         new BoundingBox(
                             new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
@@ -119,10 +111,8 @@ namespace VoxelGame.Client.Logic
 
                         break;
                     }
-                }
 
                 for (int y = end; y >= 0; y--)
-                {
                     if (frustum.BoxInFrustum(
                         new BoundingBox(
                             new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
@@ -133,14 +123,11 @@ namespace VoxelGame.Client.Logic
 
                         break;
                     }
-                }
 
                 for (int y = start; y <= end; y++)
-                {
                     renderList.Add(
                         ((ClientSection) sections[y],
                             new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize)));
-                }
             }
         }
 
@@ -153,12 +140,8 @@ namespace VoxelGame.Client.Logic
             if (!disposed)
             {
                 if (disposing)
-                {
-                    for (int y = 0; y < VerticalSectionCount; y++)
-                    {
+                    for (var y = 0; y < VerticalSectionCount; y++)
                         sections[y].Dispose();
-                    }
-                }
 
                 disposed = true;
             }

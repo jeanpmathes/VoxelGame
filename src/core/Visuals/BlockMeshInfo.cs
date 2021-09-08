@@ -10,10 +10,6 @@ namespace VoxelGame.Core.Visuals
 {
     public sealed class BlockMeshInfo
     {
-        public BlockSide Side { get; }
-        public uint Data { get; }
-        public Liquid Liquid { get; }
-
         private BlockMeshInfo(BlockSide side, uint data, Liquid liquid)
         {
             Side = side;
@@ -21,15 +17,28 @@ namespace VoxelGame.Core.Visuals
             Liquid = liquid;
         }
 
-        public static BlockMeshInfo Simple(BlockSide side, uint data, Liquid liquid) =>
-            new BlockMeshInfo(side, data, liquid);
+        public BlockSide Side { get; }
+        public uint Data { get; }
+        public Liquid Liquid { get; }
 
-        public static BlockMeshInfo Complex(uint data, Liquid liquid) => new BlockMeshInfo(BlockSide.All, data, liquid);
+        public static BlockMeshInfo Simple(BlockSide side, uint data, Liquid liquid)
+        {
+            return new(side, data, liquid);
+        }
 
-        public static BlockMeshInfo CrossPlant(uint data, Liquid liquid) =>
-            new BlockMeshInfo(BlockSide.All, data, liquid);
+        public static BlockMeshInfo Complex(uint data, Liquid liquid)
+        {
+            return new(BlockSide.All, data, liquid);
+        }
 
-        public static BlockMeshInfo CropPlant(uint data, Liquid liquid) =>
-            new BlockMeshInfo(BlockSide.All, data, liquid);
+        public static BlockMeshInfo CrossPlant(uint data, Liquid liquid)
+        {
+            return new(BlockSide.All, data, liquid);
+        }
+
+        public static BlockMeshInfo CropPlant(uint data, Liquid liquid)
+        {
+            return new(BlockSide.All, data, liquid);
+        }
     }
 }

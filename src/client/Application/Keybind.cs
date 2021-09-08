@@ -37,10 +37,7 @@ namespace VoxelGame.Client.Application
 
         public override bool Equals(object? obj)
         {
-            if (obj is Keybind other)
-            {
-                return this == other;
-            }
+            if (obj is Keybind other) return this == other;
 
             return false;
         }
@@ -70,35 +67,53 @@ namespace VoxelGame.Client.Application
             return id;
         }
 
-        public static Keybind RegisterButton(string id, Key defaultKey) => Register(
-            id,
-            Binding.SimpleButton,
-            new KeyOrButton(defaultKey));
+        public static Keybind RegisterButton(string id, Key defaultKey)
+        {
+            return Register(
+                id,
+                Binding.SimpleButton,
+                new KeyOrButton(defaultKey));
+        }
 
-        public static Keybind RegisterButton(string id, MouseButton defaultButton) => Register(
-            id,
-            Binding.SimpleButton,
-            new KeyOrButton(defaultButton));
+        public static Keybind RegisterButton(string id, MouseButton defaultButton)
+        {
+            return Register(
+                id,
+                Binding.SimpleButton,
+                new KeyOrButton(defaultButton));
+        }
 
-        public static Keybind RegisterToggle(string id, Key defaultKey) => Register(
-            id,
-            Binding.ToggleButton,
-            new KeyOrButton(defaultKey));
+        public static Keybind RegisterToggle(string id, Key defaultKey)
+        {
+            return Register(
+                id,
+                Binding.ToggleButton,
+                new KeyOrButton(defaultKey));
+        }
 
-        public static Keybind RegisterToggle(string id, MouseButton defaultButton) => Register(
-            id,
-            Binding.ToggleButton,
-            new KeyOrButton(defaultButton));
+        public static Keybind RegisterToggle(string id, MouseButton defaultButton)
+        {
+            return Register(
+                id,
+                Binding.ToggleButton,
+                new KeyOrButton(defaultButton));
+        }
 
-        public static Keybind RegisterPushButton(string id, Key defaultKey) => Register(
-            id,
-            Binding.PushButton,
-            new KeyOrButton(defaultKey));
+        public static Keybind RegisterPushButton(string id, Key defaultKey)
+        {
+            return Register(
+                id,
+                Binding.PushButton,
+                new KeyOrButton(defaultKey));
+        }
 
-        public static Keybind RegisterPushButton(string id, MouseButton defaultButton) => Register(
-            id,
-            Binding.PushButton,
-            new KeyOrButton(defaultButton));
+        public static Keybind RegisterPushButton(string id, MouseButton defaultButton)
+        {
+            return Register(
+                id,
+                Binding.PushButton,
+                new KeyOrButton(defaultButton));
+        }
 
         private static Keybind Register(string id, Binding type, KeyOrButton defaultKeyOrButton)
         {
@@ -110,14 +125,11 @@ namespace VoxelGame.Client.Application
             return bind;
         }
 
-        private static readonly HashSet<Keybind> bindings = new HashSet<Keybind>();
+        private static readonly HashSet<Keybind> bindings = new();
 
         internal static void RegisterWithManager(KeybindManager manager)
         {
-            foreach (Keybind bind in bindings)
-            {
-                bind.AddToManager(manager);
-            }
+            foreach (Keybind bind in bindings) bind.AddToManager(manager);
 
             bindings.Clear();
         }

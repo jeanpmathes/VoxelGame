@@ -4,19 +4,19 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Graphics.OpenGL4;
 using System;
+using OpenToolkit.Graphics.OpenGL4;
 
 namespace VoxelGame.Graphics.Groups
 {
     public class ElementPositionDataDrawGroup : IDrawGroup
     {
-        private readonly int positionSize;
         private readonly int dataSize;
-
-        private readonly int positionVbo;
         private readonly int dataVbo;
         private readonly int ebo;
+        private readonly int positionSize;
+
+        private readonly int positionVbo;
         private readonly int vao;
 
         private int elementCount;
@@ -32,12 +32,22 @@ namespace VoxelGame.Graphics.Groups
             GL.CreateVertexArrays(1, out vao);
         }
 
-        public static ElementPositionDataDrawGroup Create(int positionSize, int dataSize)
+        public bool IsFilled { get; private set; }
+
+        public void BindVertexArray()
         {
-            return new ElementPositionDataDrawGroup(positionSize, dataSize);
+            GL.BindVertexArray(vao);
         }
 
-        public bool IsFilled { get; private set; }
+        public void Draw()
+        {
+            DrawElements();
+        }
+
+        public static ElementPositionDataDrawGroup Create(int positionSize, int dataSize)
+        {
+            return new(positionSize, dataSize);
+        }
 
         public void SetData(int positionCount, float[] positions, int dataCount, int[] data, int indexCount,
             uint[] indices)
@@ -84,17 +94,10 @@ namespace VoxelGame.Graphics.Groups
             GL.VertexArrayAttribBinding(vao, dataAttribute, 1);
         }
 
-        public void BindVertexArray()
-        {
-            GL.BindVertexArray(vao);
-        }
-
         public void DrawElements()
         {
             GL.DrawElements(PrimitiveType.Triangles, elementCount, DrawElementsType.UnsignedInt, 0);
         }
-
-        public void Draw() => DrawElements();
 
         public void Delete()
         {

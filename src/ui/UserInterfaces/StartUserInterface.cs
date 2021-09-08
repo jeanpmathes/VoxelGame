@@ -5,15 +5,16 @@
 // <author>pershingthesecond</author>
 
 using System;
+using OpenToolkit.Windowing.Desktop;
 using VoxelGame.UI.Controls;
 
 namespace VoxelGame.UI.UserInterfaces
 {
     public class StartUserInterface : UserInterface
     {
-        private StartControl control = null!;
+        private StartControl? control;
 
-        public StartUserInterface(OpenToolkit.Windowing.Desktop.GameWindow window, bool drawBackground) : base(
+        public StartUserInterface(GameWindow window, bool drawBackground) : base(
             window,
             drawBackground) {}
 
@@ -25,6 +26,8 @@ namespace VoxelGame.UI.UserInterfaces
 
         public void SetActions(Action start, Action exit)
         {
+            if (control == null) return;
+
             control.Start += start;
             control.Exit += exit;
         }

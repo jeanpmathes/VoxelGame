@@ -3,24 +3,20 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using Microsoft.Extensions.Logging;
+using OpenToolkit.Graphics.OpenGL4;
 using VoxelGame.Logging;
-using PixelFormat = OpenToolkit.Graphics.OpenGL4.PixelFormat;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace VoxelGame.Graphics.Objects
 {
     public class Texture : IDisposable
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Texture>();
-
-        private int Handle { get; }
-
-        public TextureUnit TextureUnit { get; private set; }
 
         public Texture(string path, TextureUnit unit, int fallbackResolution = 16)
         {
@@ -46,7 +42,7 @@ namespace VoxelGame.Graphics.Objects
                 logger.LogWarning(
                     Events.MissingResource,
                     exception,
-                    "The texture could not be loaded and a fallback was used instead because the file was not found: {path}",
+                    "The texture could not be loaded and a fallback was used instead because the file was not found: {Path}",
                     path);
             }
 
@@ -59,6 +55,10 @@ namespace VoxelGame.Graphics.Objects
             GL.GenerateTextureMipmap(Handle);
         }
 
+        private int Handle { get; }
+
+        public TextureUnit TextureUnit { get; private set; }
+
         private void SetupTexture(Bitmap bitmap)
         {
             bitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
@@ -66,7 +66,7 @@ namespace VoxelGame.Graphics.Objects
             BitmapData data = bitmap.LockBits(
                 new Rectangle(0, 0, bitmap.Width, bitmap.Height),
                 ImageLockMode.ReadOnly,
-                System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                PixelFormat.Format32bppArgb);
 
             GL.TextureStorage2D(Handle, 1, SizedInternalFormat.Rgba8, bitmap.Width, bitmap.Height);
 
@@ -77,7 +77,7 @@ namespace VoxelGame.Graphics.Objects
                 0,
                 bitmap.Width,
                 bitmap.Height,
-                PixelFormat.Bgra,
+                OpenToolkit.Graphics.OpenGL4.PixelFormat.Bgra,
                 PixelType.UnsignedByte,
                 data.Scan0);
         }
@@ -88,6 +88,21 @@ namespace VoxelGame.Graphics.Objects
             TextureUnit = unit;
         }
 
+        public static Bitmap CreateFallback(int resolution)
+        {
+            var fallback = new Bitmap(resolution, resolution, PixelFormat.Format32bppArgb);
+
+            Color magenta = Color.FromArgb(64, 255, 0, 255);
+            Color black = Color.FromArgb(64, 0, 0, 0);
+
+            for (var x = 0; x < fallback.Width; x++)
+            for (var y = 0; y < fallback.Height; y++)
+                if ((x % 2 == 0) ^ (y % 2 == 0)) fallback.SetPixel(x, y, magenta);
+                else fallback.SetPixel(x, y, black);
+
+            return fallback;
+        }
+
         #region IDisposable Support
 
         private bool disposed;
@@ -96,16 +111,11 @@ namespace VoxelGame.Graphics.Objects
         {
             if (!disposed)
             {
-                if (disposing)
-                {
-                    GL.DeleteTexture(Handle);
-                }
+                if (disposing) GL.DeleteTexture(Handle);
                 else
-                {
                     logger.LogWarning(
                         Events.UndeletedTexture,
-                        "A texture has been disposed by GC, without deleting the texture storage.");
-                }
+                        "Texture disposed by GC without freeing storage");
 
                 disposed = true;
             }
@@ -113,40 +123,15 @@ namespace VoxelGame.Graphics.Objects
 
         ~Texture()
         {
-            Dispose(disposing: false);
+            Dispose(false);
         }
 
         public void Dispose()
         {
-            Dispose(disposing: true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         #endregion IDisposable Support
-
-        public static Bitmap CreateFallback(int resolution)
-        {
-            var fallback = new Bitmap(resolution, resolution, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-            Color magenta = Color.FromArgb(64, 255, 0, 255);
-            Color black = Color.FromArgb(64, 0, 0, 0);
-
-            for (var x = 0; x < fallback.Width; x++)
-            {
-                for (var y = 0; y < fallback.Height; y++)
-                {
-                    if (x % 2 == 0 ^ y % 2 == 0)
-                    {
-                        fallback.SetPixel(x, y, magenta);
-                    }
-                    else
-                    {
-                        fallback.SetPixel(x, y, black);
-                    }
-                }
-            }
-
-            return fallback;
-        }
     }
 }

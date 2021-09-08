@@ -10,10 +10,6 @@ namespace VoxelGame.Core.Visuals
 {
     public sealed class LiquidMeshInfo
     {
-        public LiquidLevel Level { get; }
-        public BlockSide Side { get; }
-        public bool IsStatic { get; }
-
         private LiquidMeshInfo(LiquidLevel level, BlockSide side, bool isStatic)
         {
             Level = level;
@@ -21,7 +17,13 @@ namespace VoxelGame.Core.Visuals
             IsStatic = isStatic;
         }
 
-        public static LiquidMeshInfo Liquid(LiquidLevel level, BlockSide side, bool isStatic) =>
-            new LiquidMeshInfo(level, side, isStatic);
+        public LiquidLevel Level { get; }
+        public BlockSide Side { get; }
+        public bool IsStatic { get; }
+
+        public static LiquidMeshInfo Liquid(LiquidLevel level, BlockSide side, bool isStatic)
+        {
+            return new(level, side, isStatic);
+        }
     }
 }

@@ -24,6 +24,7 @@
 // <author>Jordan Peck</author>
 
 #pragma warning disable
+// ReSharper disable all
 
 // Uncomment the line below to swap all the inputs/outputs/calculations of FastNoise to doubles instead of floats
 //#define FN_USE_DOUBLES
@@ -41,37 +42,6 @@ namespace VoxelGame.Core.WorldGeneration
 {
     public class FastNoise
     {
-        private const Int16 FN_INLINE = 256; //(Int16)MethodImplOptions.AggressiveInlining;
-        private const int FN_CELLULAR_INDEX_MAX = 3;
-
-        public enum NoiseType
-        {
-            Value,
-            ValueFractal,
-            Perlin,
-            PerlinFractal,
-            Simplex,
-            SimplexFractal,
-            Cellular,
-            WhiteNoise,
-            Cubic,
-            CubicFractal
-        };
-
-        public enum Interp
-        {
-            Linear,
-            Hermite,
-            Quintic
-        };
-
-        public enum FractalType
-        {
-            FBM,
-            Billow,
-            RigidMulti
-        };
-
         public enum CellularDistanceFunction
         {
             Euclidean,
@@ -91,185 +61,62 @@ namespace VoxelGame.Core.WorldGeneration
             Distance2Div
         };
 
-        private int m_seed = 1337;
-        private FN_DECIMAL m_frequency = (FN_DECIMAL) 0.01;
-        private Interp m_interp = Interp.Quintic;
-        private NoiseType m_noiseType = NoiseType.Simplex;
-
-        private int m_octaves = 3;
-        private FN_DECIMAL m_lacunarity = (FN_DECIMAL) 2.0;
-        private FN_DECIMAL m_gain = (FN_DECIMAL) 0.5;
-        private FractalType m_fractalType = FractalType.FBM;
-
-        private FN_DECIMAL m_fractalBounding;
-
-        private CellularDistanceFunction m_cellularDistanceFunction = CellularDistanceFunction.Euclidean;
-        private CellularReturnType m_cellularReturnType = CellularReturnType.CellValue;
-        private FastNoise m_cellularNoiseLookup = null!;
-        private int m_cellularDistanceIndex0 = 0;
-        private int m_cellularDistanceIndex1 = 1;
-        private float m_cellularJitter = 0.45f;
-
-        private FN_DECIMAL m_gradientPerturbAmp = (FN_DECIMAL) 1.0;
-
-        public FastNoise(int seed = 1337)
+        public enum FractalType
         {
-            m_seed = seed;
-            CalculateFractalBounding();
-        }
+            FBM,
+            Billow,
+            RigidMulti
+        };
 
-        // Returns a 0 float/double
-        public static FN_DECIMAL GetDecimalType()
+        public enum Interp
         {
-            return 0;
-        }
+            Linear,
+            Hermite,
+            Quintic
+        };
 
-        // Returns the seed used by this object
-        public int GetSeed()
+        public enum NoiseType
         {
-            return m_seed;
-        }
+            Value,
+            ValueFractal,
+            Perlin,
+            PerlinFractal,
+            Simplex,
+            SimplexFractal,
+            Cellular,
+            WhiteNoise,
+            Cubic,
+            CubicFractal
+        };
 
-        // Sets seed used for all noise types
-        // Default: 1337
-        public void SetSeed(int seed)
-        {
-            m_seed = seed;
-        }
+        private const Int16 FN_INLINE = 256; //(Int16)MethodImplOptions.AggressiveInlining;
+        private const int FN_CELLULAR_INDEX_MAX = 3;
 
-        // Sets frequency for all noise types
-        // Default: 0.01
-        public void SetFrequency(FN_DECIMAL frequency)
-        {
-            m_frequency = frequency;
-        }
+        // Hashing
+        private const int X_PRIME = 1619;
 
-        // Changes the interpolation method used to smooth between noise values
-        // Possible interpolation methods (lowest to highest quality) :
-        // - Linear
-        // - Hermite
-        // - Quintic
-        // Used in Value, Gradient Noise and Position Perturbing
-        // Default: Quintic
-        public void SetInterp(Interp interp)
-        {
-            m_interp = interp;
-        }
+        private const int Y_PRIME = 31337;
+        private const int Z_PRIME = 6971;
+        private const int W_PRIME = 1013;
 
-        // Sets noise return type of GetNoise(...)
-        // Default: Simplex
-        public void SetNoiseType(NoiseType noiseType)
-        {
-            m_noiseType = noiseType;
-        }
+        private const FN_DECIMAL F3 = (FN_DECIMAL) (1.0 / 3.0);
+        private const FN_DECIMAL G3 = (FN_DECIMAL) (1.0 / 6.0);
+        private const FN_DECIMAL G33 = G3 * 3 - 1;
 
-        // Sets octave count for all fractal noise types
-        // Default: 3
-        public void SetFractalOctaves(int octaves)
-        {
-            m_octaves = octaves;
-            CalculateFractalBounding();
-        }
+        private const FN_DECIMAL F2 = (FN_DECIMAL) (1.0 / 2.0);
+        private const FN_DECIMAL G2 = (FN_DECIMAL) (1.0 / 4.0);
 
-        // Sets octave lacunarity for all fractal noise types
-        // Default: 2.0
-        public void SetFractalLacunarity(FN_DECIMAL lacunarity)
-        {
-            m_lacunarity = lacunarity;
-        }
+        private const FN_DECIMAL F4 = (FN_DECIMAL) ((2.23606797 - 1.0) / 4.0);
+        private const FN_DECIMAL G4 = (FN_DECIMAL) ((5.0 - 2.23606797) / 20.0);
 
-        // Sets octave gain for all fractal noise types
-        // Default: 0.5
-        public void SetFractalGain(FN_DECIMAL gain)
-        {
-            m_gain = gain;
-            CalculateFractalBounding();
-        }
+        private const FN_DECIMAL CUBIC_3D_BOUNDING = 1 / (FN_DECIMAL) (1.5 * 1.5 * 1.5);
 
-        // Sets method for combining octaves in all fractal noise types
-        // Default: FBM
-        public void SetFractalType(FractalType fractalType)
-        {
-            m_fractalType = fractalType;
-        }
-
-        // Sets return type from cellular noise calculations
-        // Note: NoiseLookup requires another FastNoise object be set with SetCellularNoiseLookup() to function
-        // Default: CellValue
-        public void SetCellularDistanceFunction(CellularDistanceFunction cellularDistanceFunction)
-        {
-            m_cellularDistanceFunction = cellularDistanceFunction;
-        }
-
-        // Sets distance function used in cellular noise calculations
-        // Default: Euclidean
-        public void SetCellularReturnType(CellularReturnType cellularReturnType)
-        {
-            m_cellularReturnType = cellularReturnType;
-        }
-
-        // Sets the 2 distance indicies used for distance2 return types
-        // Default: 0, 1
-        // Note: index0 should be lower than index1
-        // Both indicies must be >= 0, index1 must be < 4
-        public void SetCellularDistance2Indicies(int cellularDistanceIndex0, int cellularDistanceIndex1)
-        {
-            m_cellularDistanceIndex0 = Math.Min(cellularDistanceIndex0, cellularDistanceIndex1);
-            m_cellularDistanceIndex1 = Math.Max(cellularDistanceIndex0, cellularDistanceIndex1);
-
-            m_cellularDistanceIndex0 = Math.Min(Math.Max(m_cellularDistanceIndex0, 0), FN_CELLULAR_INDEX_MAX);
-            m_cellularDistanceIndex1 = Math.Min(Math.Max(m_cellularDistanceIndex1, 0), FN_CELLULAR_INDEX_MAX);
-        }
-
-        // Sets the maximum distance a cellular point can move from it's grid position
-        // Setting this high will make artifacts more common
-        // Default: 0.45
-        public void SetCellularJitter(float cellularJitter)
-        {
-            m_cellularJitter = cellularJitter;
-        }
-
-        // Noise used to calculate a cell value if cellular return type is NoiseLookup
-        // The lookup value is acquired through GetNoise() so ensure you SetNoiseType() on the noise lookup, value, gradient or simplex is recommended
-        public void SetCellularNoiseLookup(FastNoise noise)
-        {
-            m_cellularNoiseLookup = noise;
-        }
-
-        // Sets the maximum perturb distance from original location when using GradientPerturb{Fractal}(...)
-        // Default: 1.0
-        public void SetGradientPerturbAmp(FN_DECIMAL gradientPerturbAmp)
-        {
-            m_gradientPerturbAmp = gradientPerturbAmp;
-        }
-
-        private struct Float2
-        {
-            public readonly FN_DECIMAL x, y;
-
-            public Float2(FN_DECIMAL x, FN_DECIMAL y)
-            {
-                this.x = x;
-                this.y = y;
-            }
-        }
-
-        private struct Float3
-        {
-            public readonly FN_DECIMAL x, y, z;
-
-            public Float3(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z)
-            {
-                this.x = x;
-                this.y = y;
-                this.z = z;
-            }
-        }
+        private const FN_DECIMAL CUBIC_2D_BOUNDING = 1 / (FN_DECIMAL) (1.5 * 1.5);
 
         private static readonly Float2[] GRAD_2D =
         {
             new Float2(-1, -1), new Float2(1, -1), new Float2(-1, 1), new Float2(1, 1),
-            new Float2(0, -1), new Float2(-1, 0), new Float2(0, 1), new Float2(1, 0),
+            new Float2(0, -1), new Float2(-1, 0), new Float2(0, 1), new Float2(1, 0)
         };
 
         private static readonly Float3[] GRAD_3D =
@@ -277,7 +124,7 @@ namespace VoxelGame.Core.WorldGeneration
             new Float3(1, 1, 0), new Float3(-1, 1, 0), new Float3(1, -1, 0), new Float3(-1, -1, 0),
             new Float3(1, 0, 1), new Float3(-1, 0, 1), new Float3(1, 0, -1), new Float3(-1, 0, -1),
             new Float3(0, 1, 1), new Float3(0, -1, 1), new Float3(0, 1, -1), new Float3(0, -1, -1),
-            new Float3(1, 1, 0), new Float3(0, -1, 1), new Float3(-1, 1, 0), new Float3(0, -1, -1),
+            new Float3(1, 1, 0), new Float3(0, -1, 1), new Float3(-1, 1, 0), new Float3(0, -1, -1)
         };
 
         private static readonly Float2[] CELL_2D =
@@ -409,7 +256,7 @@ namespace VoxelGame.Core.WorldGeneration
             new Float2(0.01426758847f, -0.9998982128f), new Float2(-0.6734383991f, 0.7392433447f),
             new Float2(0.639412098f, -0.7688642071f), new Float2(0.9211571421f, 0.3891908523f),
             new Float2(-0.146637214f, -0.9891903394f), new Float2(-0.782318098f, 0.6228791163f),
-            new Float2(-0.5039610839f, -0.8637263605f), new Float2(-0.7743120191f, -0.6328039957f),
+            new Float2(-0.5039610839f, -0.8637263605f), new Float2(-0.7743120191f, -0.6328039957f)
         };
 
         private static readonly Float3[] CELL_3D =
@@ -669,8 +516,172 @@ namespace VoxelGame.Core.WorldGeneration
             new Float3(-0.1842489331f, -0.9777375055f, -0.1004076743f),
             new Float3(0.0775473789f, -0.9111505856f, 0.4047110257f),
             new Float3(0.1399838409f, 0.7601631212f, -0.6344734459f),
-            new Float3(0.4484419361f, -0.845289248f, 0.2904925424f),
+            new Float3(0.4484419361f, -0.845289248f, 0.2904925424f)
         };
+
+        private static readonly byte[] SIMPLEX_4D =
+        {
+            0, 1, 2, 3, 0, 1, 3, 2, 0, 0, 0, 0, 0, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 0,
+            0, 2, 1, 3, 0, 0, 0, 0, 0, 3, 1, 2, 0, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 2, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 2, 0, 3, 0, 0, 0, 0, 1, 3, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 0, 1, 2, 3, 1, 0,
+            1, 0, 2, 3, 1, 0, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 3, 1, 0, 0, 0, 0, 2, 1, 3, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            2, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 2, 3, 0, 2, 1, 0, 0, 0, 0, 3, 1, 2, 0,
+            2, 1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 0, 2, 0, 0, 0, 0, 3, 2, 0, 1, 3, 2, 1, 0
+        };
+
+        private CellularDistanceFunction m_cellularDistanceFunction = CellularDistanceFunction.Euclidean;
+        private int m_cellularDistanceIndex0 = 0;
+        private int m_cellularDistanceIndex1 = 1;
+        private float m_cellularJitter = 0.45f;
+        private FastNoise m_cellularNoiseLookup = null!;
+        private CellularReturnType m_cellularReturnType = CellularReturnType.CellValue;
+
+        private FN_DECIMAL m_fractalBounding;
+        private FractalType m_fractalType = FractalType.FBM;
+        private FN_DECIMAL m_frequency = (FN_DECIMAL) 0.01;
+        private FN_DECIMAL m_gain = (FN_DECIMAL) 0.5;
+
+        private FN_DECIMAL m_gradientPerturbAmp = (FN_DECIMAL) 1.0;
+        private Interp m_interp = Interp.Quintic;
+        private FN_DECIMAL m_lacunarity = (FN_DECIMAL) 2.0;
+        private NoiseType m_noiseType = NoiseType.Simplex;
+
+        private int m_octaves = 3;
+
+        private int m_seed = 1337;
+
+        public FastNoise(int seed = 1337)
+        {
+            m_seed = seed;
+            CalculateFractalBounding();
+        }
+
+        // Returns a 0 float/double
+        public static FN_DECIMAL GetDecimalType()
+        {
+            return 0;
+        }
+
+        // Returns the seed used by this object
+        public int GetSeed()
+        {
+            return m_seed;
+        }
+
+        // Sets seed used for all noise types
+        // Default: 1337
+        public void SetSeed(int seed)
+        {
+            m_seed = seed;
+        }
+
+        // Sets frequency for all noise types
+        // Default: 0.01
+        public void SetFrequency(FN_DECIMAL frequency)
+        {
+            m_frequency = frequency;
+        }
+
+        // Changes the interpolation method used to smooth between noise values
+        // Possible interpolation methods (lowest to highest quality) :
+        // - Linear
+        // - Hermite
+        // - Quintic
+        // Used in Value, Gradient Noise and Position Perturbing
+        // Default: Quintic
+        public void SetInterp(Interp interp)
+        {
+            m_interp = interp;
+        }
+
+        // Sets noise return type of GetNoise(...)
+        // Default: Simplex
+        public void SetNoiseType(NoiseType noiseType)
+        {
+            m_noiseType = noiseType;
+        }
+
+        // Sets octave count for all fractal noise types
+        // Default: 3
+        public void SetFractalOctaves(int octaves)
+        {
+            m_octaves = octaves;
+            CalculateFractalBounding();
+        }
+
+        // Sets octave lacunarity for all fractal noise types
+        // Default: 2.0
+        public void SetFractalLacunarity(FN_DECIMAL lacunarity)
+        {
+            m_lacunarity = lacunarity;
+        }
+
+        // Sets octave gain for all fractal noise types
+        // Default: 0.5
+        public void SetFractalGain(FN_DECIMAL gain)
+        {
+            m_gain = gain;
+            CalculateFractalBounding();
+        }
+
+        // Sets method for combining octaves in all fractal noise types
+        // Default: FBM
+        public void SetFractalType(FractalType fractalType)
+        {
+            m_fractalType = fractalType;
+        }
+
+        // Sets return type from cellular noise calculations
+        // Note: NoiseLookup requires another FastNoise object be set with SetCellularNoiseLookup() to function
+        // Default: CellValue
+        public void SetCellularDistanceFunction(CellularDistanceFunction cellularDistanceFunction)
+        {
+            m_cellularDistanceFunction = cellularDistanceFunction;
+        }
+
+        // Sets distance function used in cellular noise calculations
+        // Default: Euclidean
+        public void SetCellularReturnType(CellularReturnType cellularReturnType)
+        {
+            m_cellularReturnType = cellularReturnType;
+        }
+
+        // Sets the 2 distance indicies used for distance2 return types
+        // Default: 0, 1
+        // Note: index0 should be lower than index1
+        // Both indicies must be >= 0, index1 must be < 4
+        public void SetCellularDistance2Indicies(int cellularDistanceIndex0, int cellularDistanceIndex1)
+        {
+            m_cellularDistanceIndex0 = Math.Min(cellularDistanceIndex0, cellularDistanceIndex1);
+            m_cellularDistanceIndex1 = Math.Max(cellularDistanceIndex0, cellularDistanceIndex1);
+
+            m_cellularDistanceIndex0 = Math.Min(Math.Max(m_cellularDistanceIndex0, 0), FN_CELLULAR_INDEX_MAX);
+            m_cellularDistanceIndex1 = Math.Min(Math.Max(m_cellularDistanceIndex1, 0), FN_CELLULAR_INDEX_MAX);
+        }
+
+        // Sets the maximum distance a cellular point can move from it's grid position
+        // Setting this high will make artifacts more common
+        // Default: 0.45
+        public void SetCellularJitter(float cellularJitter)
+        {
+            m_cellularJitter = cellularJitter;
+        }
+
+        // Noise used to calculate a cell value if cellular return type is NoiseLookup
+        // The lookup value is acquired through GetNoise() so ensure you SetNoiseType() on the noise lookup, value, gradient or simplex is recommended
+        public void SetCellularNoiseLookup(FastNoise noise)
+        {
+            m_cellularNoiseLookup = noise;
+        }
+
+        // Sets the maximum perturb distance from original location when using GradientPerturb{Fractal}(...)
+        // Default: 1.0
+        public void SetGradientPerturbAmp(FN_DECIMAL gradientPerturbAmp)
+        {
+            m_gradientPerturbAmp = gradientPerturbAmp;
+        }
 
         [MethodImplAttribute(FN_INLINE)]
         private static int FastFloor(FN_DECIMAL f)
@@ -715,7 +726,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL amp = m_gain;
             FN_DECIMAL ampFractal = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 ampFractal += amp;
                 amp *= m_gain;
@@ -723,13 +734,6 @@ namespace VoxelGame.Core.WorldGeneration
 
             m_fractalBounding = 1 / ampFractal;
         }
-
-        // Hashing
-        private const int X_PRIME = 1619;
-
-        private const int Y_PRIME = 31337;
-        private const int Z_PRIME = 6971;
-        private const int W_PRIME = 1013;
 
         [MethodImplAttribute(FN_INLINE)]
         private static int Hash2D(int seed, int x, int y)
@@ -1157,7 +1161,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = SingleValue(seed, x, y, z);
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1176,7 +1180,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = Math.Abs(SingleValue(seed, x, y, z)) * 2 - 1;
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1195,7 +1199,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = 1 - Math.Abs(SingleValue(seed, x, y, z));
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1287,7 +1291,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = SingleValue(seed, x, y);
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1305,7 +1309,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = Math.Abs(SingleValue(seed, x, y)) * 2 - 1;
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1322,7 +1326,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = 1 - Math.Abs(SingleValue(seed, x, y));
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1405,7 +1409,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = SinglePerlin(seed, x, y, z);
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1424,7 +1428,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = Math.Abs(SinglePerlin(seed, x, y, z)) * 2 - 1;
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1443,7 +1447,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = 1 - Math.Abs(SinglePerlin(seed, x, y, z));
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1557,7 +1561,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = SinglePerlin(seed, x, y);
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1575,7 +1579,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = Math.Abs(SinglePerlin(seed, x, y)) * 2 - 1;
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1593,7 +1597,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = 1 - Math.Abs(SinglePerlin(seed, x, y));
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1681,7 +1685,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = SingleSimplex(seed, x, y, z);
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1700,7 +1704,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = Math.Abs(SingleSimplex(seed, x, y, z)) * 2 - 1;
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1719,7 +1723,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = 1 - Math.Abs(SingleSimplex(seed, x, y, z));
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1736,10 +1740,6 @@ namespace VoxelGame.Core.WorldGeneration
         {
             return SingleSimplex(m_seed, x * m_frequency, y * m_frequency, z * m_frequency);
         }
-
-        private const FN_DECIMAL F3 = (FN_DECIMAL) (1.0 / 3.0);
-        private const FN_DECIMAL G3 = (FN_DECIMAL) (1.0 / 6.0);
-        private const FN_DECIMAL G33 = G3 * 3 - 1;
 
         private static FN_DECIMAL SingleSimplex(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z)
         {
@@ -1895,7 +1895,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = SingleSimplex(seed, x, y);
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1913,7 +1913,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = Math.Abs(SingleSimplex(seed, x, y)) * 2 - 1;
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1931,7 +1931,7 @@ namespace VoxelGame.Core.WorldGeneration
             FN_DECIMAL sum = 1 - Math.Abs(SingleSimplex(seed, x, y));
             FN_DECIMAL amp = 1;
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 x *= m_lacunarity;
                 y *= m_lacunarity;
@@ -1947,9 +1947,6 @@ namespace VoxelGame.Core.WorldGeneration
         {
             return SingleSimplex(m_seed, x * m_frequency, y * m_frequency);
         }
-
-        private const FN_DECIMAL F2 = (FN_DECIMAL) (1.0 / 2.0);
-        private const FN_DECIMAL G2 = (FN_DECIMAL) (1.0 / 4.0);
 
         private static FN_DECIMAL SingleSimplex(int seed, FN_DECIMAL x, FN_DECIMAL y)
         {
@@ -2018,21 +2015,6 @@ namespace VoxelGame.Core.WorldGeneration
         {
             return SingleSimplex(m_seed, x * m_frequency, y * m_frequency, z * m_frequency, w * m_frequency);
         }
-
-        private static readonly byte[] SIMPLEX_4D =
-        {
-            0, 1, 2, 3, 0, 1, 3, 2, 0, 0, 0, 0, 0, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 0,
-            0, 2, 1, 3, 0, 0, 0, 0, 0, 3, 1, 2, 0, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 2, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            1, 2, 0, 3, 0, 0, 0, 0, 1, 3, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 0, 1, 2, 3, 1, 0,
-            1, 0, 2, 3, 1, 0, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 3, 1, 0, 0, 0, 0, 2, 1, 3, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            2, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 2, 3, 0, 2, 1, 0, 0, 0, 0, 3, 1, 2, 0,
-            2, 1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 0, 2, 0, 0, 0, 0, 3, 2, 0, 1, 3, 2, 1, 0
-        };
-
-        private const FN_DECIMAL F4 = (FN_DECIMAL) ((2.23606797 - 1.0) / 4.0);
-        private const FN_DECIMAL G4 = (FN_DECIMAL) ((5.0 - 2.23606797) / 20.0);
 
         private static FN_DECIMAL SingleSimplex(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w)
         {
@@ -2166,7 +2148,7 @@ namespace VoxelGame.Core.WorldGeneration
             int seed = m_seed;
             FN_DECIMAL sum = SingleCubic(seed, x, y, z);
             FN_DECIMAL amp = 1;
-            int i = 0;
+            var i = 0;
 
             while (++i < m_octaves)
             {
@@ -2186,7 +2168,7 @@ namespace VoxelGame.Core.WorldGeneration
             int seed = m_seed;
             FN_DECIMAL sum = Math.Abs(SingleCubic(seed, x, y, z)) * 2 - 1;
             FN_DECIMAL amp = 1;
-            int i = 0;
+            var i = 0;
 
             while (++i < m_octaves)
             {
@@ -2206,7 +2188,7 @@ namespace VoxelGame.Core.WorldGeneration
             int seed = m_seed;
             FN_DECIMAL sum = 1 - Math.Abs(SingleCubic(seed, x, y, z));
             FN_DECIMAL amp = 1;
-            int i = 0;
+            var i = 0;
 
             while (++i < m_octaves)
             {
@@ -2225,8 +2207,6 @@ namespace VoxelGame.Core.WorldGeneration
         {
             return SingleCubic(m_seed, x * m_frequency, y * m_frequency, z * m_frequency);
         }
-
-        private const FN_DECIMAL CUBIC_3D_BOUNDING = 1 / (FN_DECIMAL) (1.5 * 1.5 * 1.5);
 
         private static FN_DECIMAL SingleCubic(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z)
         {
@@ -2382,7 +2362,7 @@ namespace VoxelGame.Core.WorldGeneration
             int seed = m_seed;
             FN_DECIMAL sum = SingleCubic(seed, x, y);
             FN_DECIMAL amp = 1;
-            int i = 0;
+            var i = 0;
 
             while (++i < m_octaves)
             {
@@ -2401,7 +2381,7 @@ namespace VoxelGame.Core.WorldGeneration
             int seed = m_seed;
             FN_DECIMAL sum = Math.Abs(SingleCubic(seed, x, y)) * 2 - 1;
             FN_DECIMAL amp = 1;
-            int i = 0;
+            var i = 0;
 
             while (++i < m_octaves)
             {
@@ -2420,7 +2400,7 @@ namespace VoxelGame.Core.WorldGeneration
             int seed = m_seed;
             FN_DECIMAL sum = 1 - Math.Abs(SingleCubic(seed, x, y));
             FN_DECIMAL amp = 1;
-            int i = 0;
+            var i = 0;
 
             while (++i < m_octaves)
             {
@@ -2441,8 +2421,6 @@ namespace VoxelGame.Core.WorldGeneration
 
             return SingleCubic(0, x, y);
         }
-
-        private const FN_DECIMAL CUBIC_2D_BOUNDING = 1 / (FN_DECIMAL) (1.5 * 1.5);
 
         private static FN_DECIMAL SingleCubic(int seed, FN_DECIMAL x, FN_DECIMAL y)
         {
@@ -2961,7 +2939,7 @@ namespace VoxelGame.Core.WorldGeneration
 
             SingleGradientPerturb(seed, amp, m_frequency, ref x, ref y, ref z);
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 freq *= m_lacunarity;
                 amp *= m_gain;
@@ -3060,7 +3038,7 @@ namespace VoxelGame.Core.WorldGeneration
 
             SingleGradientPerturb(seed, amp, m_frequency, ref x, ref y);
 
-            for (int i = 1; i < m_octaves; i++)
+            for (var i = 1; i < m_octaves; i++)
             {
                 freq *= m_lacunarity;
                 amp *= m_gain;
@@ -3117,6 +3095,29 @@ namespace VoxelGame.Core.WorldGeneration
 
             x += Lerp(lx0x, lx1x, ys) * perturbAmp;
             y += Lerp(ly0x, ly1x, ys) * perturbAmp;
+        }
+
+        private struct Float2
+        {
+            public readonly FN_DECIMAL x, y;
+
+            public Float2(FN_DECIMAL x, FN_DECIMAL y)
+            {
+                this.x = x;
+                this.y = y;
+            }
+        }
+
+        private struct Float3
+        {
+            public readonly FN_DECIMAL x, y, z;
+
+            public Float3(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z)
+            {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+            }
         }
     }
 }

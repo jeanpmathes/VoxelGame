@@ -4,8 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Logic.Liquids;
 using VoxelGame.Core.Resources.Language;
@@ -16,14 +17,15 @@ namespace VoxelGame.Core.Logic
 {
     public abstract partial class Liquid
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<Liquid>();
-
         public const int LiquidLimit = 32;
 
-        private static readonly List<Liquid> liquidList = new List<Liquid>();
-        private static readonly Dictionary<string, Liquid> namedLiquidDictionary = new Dictionary<string, Liquid>();
-
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
         private const int mPas = 15;
+
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Liquid>();
+
+        private static readonly List<Liquid> liquidList = new();
+        private static readonly Dictionary<string, Liquid> namedLiquidDictionary = new();
 
         public static readonly Liquid None = new NoLiquid(Language.NoLiquid, nameof(None));
 
@@ -132,54 +134,44 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("beer_static_side", "beer_static"),
             RenderType.Transparent);
 
-        protected static readonly LiquidContactManager ContactManager = new LiquidContactManager();
+        protected static readonly LiquidContactManager ContactManager = new();
 
         /// <summary>
-        /// Translates a liquid ID to a reference to the liquid that has that ID. If the ID is not valid, none is returned.
+        ///     Gets the count of registered liquids..
+        /// </summary>
+        public static int Count => liquidList.Count;
+
+        /// <summary>
+        ///     Translates a liquid ID to a reference to the liquid that has that ID. If the ID is not valid, none is returned.
         /// </summary>
         /// <param name="id">The ID of the block to return.</param>
         /// <returns>The block with the ID or air if the ID is not valid.</returns>
         public static Liquid TranslateID(uint id)
         {
-            if (liquidList.Count > id)
-            {
-                return liquidList[(int) id];
-            }
-            else
-            {
-                logger.LogWarning(
-                    "No Liquid with the ID {id} could be found, returning {fallback} instead.",
-                    id,
-                    nameof(Liquid.None));
+            if (liquidList.Count > id) return liquidList[(int) id];
 
-                return Liquid.None;
-            }
+            logger.LogWarning(
+                "No Liquid with ID '{ID}' could be found, returning {Fallback} instead",
+                id,
+                nameof(None));
+
+            return None;
         }
 
         public static Liquid TranslateNamedID(string namedId)
         {
-            if (namedLiquidDictionary.TryGetValue(namedId, out Liquid? liquid))
-            {
-                return liquid;
-            }
-            else
-            {
-                logger.LogWarning(
-                    "No Liquid with the named ID {id} could be found, returning {fallback} instead.",
-                    namedId,
-                    nameof(Liquid.None));
+            if (namedLiquidDictionary.TryGetValue(namedId, out Liquid? liquid)) return liquid;
 
-                return Liquid.None;
-            }
+            logger.LogWarning(
+                "No Liquid with named ID '{ID}' could be found, returning {Fallback} instead",
+                namedId,
+                nameof(None));
+
+            return None;
         }
 
         /// <summary>
-        /// Gets the count of registered liquids..
-        /// </summary>
-        public static int Count => liquidList.Count;
-
-        /// <summary>
-        /// Calls the setup method on all blocks.
+        ///     Calls the setup method on all blocks.
         /// </summary>
         public static void LoadLiquids(ITextureIndexProvider indexProvider)
         {
@@ -189,10 +181,10 @@ namespace VoxelGame.Core.Logic
                 {
                     liquid.Setup(indexProvider);
 
-                    logger.LogDebug(Events.LiquidLoad, "Loaded the liquid [{liquid}] with ID {id}.", liquid, liquid.Id);
+                    logger.LogDebug(Events.LiquidLoad, "Loaded liquid [{Liquid}] with ID '{ID}'", liquid, liquid.Id);
                 }
 
-                logger.LogInformation("Liquid setup complete. A total of {count} liquids have been loaded.", Count);
+                logger.LogInformation("Liquid setup complete, total of {Count} liquids loaded", Count);
             }
         }
 
@@ -203,7 +195,7 @@ namespace VoxelGame.Core.Logic
 
             if (start == null || toElevate == null) return;
 
-            if (toElevate == Liquid.None || toElevate.IsGas) return;
+            if (toElevate == None || toElevate.IsGas) return;
 
             var currentLevel = (int) initialLevel;
 

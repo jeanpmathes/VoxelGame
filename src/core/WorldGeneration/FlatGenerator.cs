@@ -22,25 +22,11 @@ namespace VoxelGame.Core.WorldGeneration
 
         public IEnumerable<Block> GenerateColumn(int x, int z)
         {
-            for (int y = 0; y < Section.SectionSize * Chunk.VerticalSectionCount; y++)
-            {
-                if (y > heightAir)
-                {
-                    yield return Block.Air;
-                }
-                else if (y == heightAir)
-                {
-                    yield return Block.Grass;
-                }
-                else if (y > heightDirt)
-                {
-                    yield return Block.Dirt;
-                }
-                else
-                {
-                    yield return Block.Stone;
-                }
-            }
+            for (var y = 0; y < Section.SectionSize * Chunk.VerticalSectionCount; y++)
+                if (y > heightAir) yield return Block.Air;
+                else if (y == heightAir) yield return Block.Grass;
+                else if (y > heightDirt) yield return Block.Dirt;
+                else yield return Block.Stone;
         }
     }
 }

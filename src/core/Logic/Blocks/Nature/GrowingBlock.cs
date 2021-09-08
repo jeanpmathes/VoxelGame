@@ -10,26 +10,20 @@ using VoxelGame.Core.Logic.Interfaces;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block that grows upwards and is destroyed if a certain ground block is not given.
-    /// Data bit usage: <c>---aaa</c>
+    ///     A block that grows upwards and is destroyed if a certain ground block is not given.
+    ///     Data bit usage: <c>---aaa</c>
     /// </summary>
     // a = age
     public class GrowingBlock : BasicBlock, IFlammable
     {
-        private readonly Block requiredGround;
         private readonly int maxHeight;
+        private readonly Block requiredGround;
 
         internal GrowingBlock(string name, string namedId, TextureLayout layout, Block ground, int maxHeight) :
             base(
                 name,
                 namedId,
-                layout,
-                isOpaque: true,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isInteractable: false)
+                layout)
         {
             requiredGround = ground;
             this.maxHeight = maxHeight;
@@ -37,7 +31,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            Block down = world.GetBlock(x, y - 1, z, out _) ?? Block.Air;
+            Block down = world.GetBlock(x, y - 1, z, out _) ?? Air;
 
             return down == requiredGround || down == this;
         }
@@ -46,12 +40,9 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             if (side == BlockSide.Bottom)
             {
-                Block below = world.GetBlock(x, y - 1, z, out _) ?? Block.Air;
+                Block below = world.GetBlock(x, y - 1, z, out _) ?? Air;
 
-                if (below != requiredGround && below != this)
-                {
-                    ScheduleDestroy(world, x, y, z);
-                }
+                if (below != requiredGround && below != this) ScheduleDestroy(world, x, y, z);
             }
         }
 
@@ -70,21 +61,10 @@ namespace VoxelGame.Core.Logic.Blocks
                     var height = 0;
 
                     for (var o = 0; o < maxHeight; o++)
-                    {
-                        if (world.GetBlock(x, y - o, z, out _) == this)
-                        {
-                            height++;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
+                        if (world.GetBlock(x, y - o, z, out _) == this) height++;
+                        else break;
 
-                    if (height < maxHeight)
-                    {
-                        Place(world, x, y + 1, z);
-                    }
+                    if (height < maxHeight) Place(world, x, y + 1, z);
                 }
             }
         }

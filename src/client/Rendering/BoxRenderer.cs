@@ -4,10 +4,10 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
-using System;
 using VoxelGame.Core.Physics;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Logging;
@@ -15,7 +15,7 @@ using VoxelGame.Logging;
 namespace VoxelGame.Client.Rendering
 {
     /// <summary>
-    /// A renderer that renders instances of the <see cref="BoundingBox"/> struct.
+    ///     A renderer that renders instances of the <see cref="BoundingBox" /> struct.
     /// </summary>
     public class BoxRenderer : IDisposable
     {
@@ -39,15 +39,9 @@ namespace VoxelGame.Client.Rendering
 
         public void SetBoundingBox(BoundingBox boundingBox)
         {
-            if (disposed)
-            {
-                return;
-            }
+            if (disposed) return;
 
-            if (currentBoundingBox == boundingBox)
-            {
-                return;
-            }
+            if (currentBoundingBox == boundingBox) return;
 
             currentBoundingBox = boundingBox;
 
@@ -55,49 +49,41 @@ namespace VoxelGame.Client.Rendering
             drawGroup.SetData(elementCount, vertices.Length, vertices, indices.Length, indices);
         }
 
-        protected int BuildMeshData(BoundingBox currentBoundingBox, BoundingBox boundingBox, out float[] vertices,
-            out uint[] indices)
+        private static int BuildMeshData(BoundingBox currentBoundingBox, BoundingBox boundingBox,
+            out float[] vertices, out uint[] indices)
         {
             int points = BuildMeshData_NonRecursive(currentBoundingBox, boundingBox, out vertices, out indices);
 
-            if (boundingBox.ChildCount == 0)
+            if (boundingBox.ChildCount == 0) return points;
+
+            for (var i = 0; i < boundingBox.ChildCount; i++)
             {
-                return points;
+                int newElements = BuildMeshData(
+                    currentBoundingBox,
+                    boundingBox[i],
+                    out float[] addVertices,
+                    out uint[] addIndices);
+
+                var offset = (uint) (points / 3);
+
+                for (var j = 0; j < addIndices.Length; j++) addIndices[j] += offset;
+
+                float[] combinedVertices = new float[vertices.Length + addVertices.Length];
+                Array.Copy(vertices, 0, combinedVertices, 0, vertices.Length);
+                Array.Copy(addVertices, 0, combinedVertices, vertices.Length, addVertices.Length);
+
+                vertices = combinedVertices;
+
+                uint[] combinedIndices = new uint[indices.Length + addIndices.Length];
+                Array.Copy(indices, 0, combinedIndices, 0, indices.Length);
+                Array.Copy(addIndices, 0, combinedIndices, indices.Length, addIndices.Length);
+
+                indices = combinedIndices;
+
+                points += newElements;
             }
-            else
-            {
-                for (int i = 0; i < boundingBox.ChildCount; i++)
-                {
-                    int newElements = BuildMeshData(
-                        currentBoundingBox,
-                        boundingBox[i],
-                        out float[] addVertices,
-                        out uint[] addIndices);
 
-                    uint offset = (uint) (points / 3);
-
-                    for (int j = 0; j < addIndices.Length; j++)
-                    {
-                        addIndices[j] += offset;
-                    }
-
-                    float[] combinedVertices = new float[vertices.Length + addVertices.Length];
-                    Array.Copy(vertices, 0, combinedVertices, 0, vertices.Length);
-                    Array.Copy(addVertices, 0, combinedVertices, vertices.Length, addVertices.Length);
-
-                    vertices = combinedVertices;
-
-                    uint[] combinedIndices = new uint[indices.Length + addIndices.Length];
-                    Array.Copy(indices, 0, combinedIndices, 0, indices.Length);
-                    Array.Copy(addIndices, 0, combinedIndices, indices.Length, addIndices.Length);
-
-                    indices = combinedIndices;
-
-                    points += newElements;
-                }
-
-                return points;
-            }
+            return points;
         }
 
         private static int BuildMeshData_NonRecursive(BoundingBox currentBoundingBox, BoundingBox boundingBox,
@@ -105,10 +91,10 @@ namespace VoxelGame.Client.Rendering
         {
             Vector3 offset = boundingBox.Center - currentBoundingBox.Center;
 
-            Vector3 min = (-boundingBox.Extents) + offset;
+            Vector3 min = -boundingBox.Extents + offset;
             Vector3 max = boundingBox.Extents + offset;
 
-            vertices = new float[]
+            vertices = new[]
             {
                 // Bottom
                 min.X, min.Y, min.Z,
@@ -149,10 +135,7 @@ namespace VoxelGame.Client.Rendering
 
         public void Draw(Vector3 position)
         {
-            if (disposed)
-            {
-                return;
-            }
+            if (disposed) return;
 
             drawGroup.BindVertexArray();
 
@@ -178,28 +161,23 @@ namespace VoxelGame.Client.Rendering
             if (disposed)
                 return;
 
-            if (disposing)
-            {
-                drawGroup.Delete();
-            }
+            if (disposing) drawGroup.Delete();
             else
-            {
                 logger.LogWarning(
                     Events.UndeletedBuffers,
-                    "A renderer has been disposed by GC, without deleting buffers.");
-            }
+                    "Renderer disposed by GC without freeing storage");
 
             disposed = true;
         }
 
         ~BoxRenderer()
         {
-            Dispose(disposing: false);
+            Dispose(false);
         }
 
         public void Dispose()
         {
-            Dispose(disposing: true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 

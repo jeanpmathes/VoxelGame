@@ -4,11 +4,11 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using Microsoft.Extensions.Logging;
-using OpenToolkit.Mathematics;
 using System;
 using System.IO;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using OpenToolkit.Mathematics;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic
@@ -21,11 +21,11 @@ namespace VoxelGame.Core.Logic
         public int Seed { get; set; } = 2133;
         public DateTime Creation { get; set; } = DateTime.MinValue;
         public string Version { get; set; } = "missing";
-        public SpawnInformation SpawnInformation { get; set; } = new SpawnInformation(new Vector3(0f, 1024f, 0f));
+        public SpawnInformation SpawnInformation { get; set; } = new(new Vector3(0f, 1024f, 0f));
 
         public void Save(string path)
         {
-            JsonSerializerOptions options = new JsonSerializerOptions
+            JsonSerializerOptions options = new()
             {
                 IgnoreReadOnlyProperties = true,
                 WriteIndented = true
@@ -44,13 +44,13 @@ namespace VoxelGame.Core.Logic
                 WorldInformation information =
                     JsonSerializer.Deserialize<WorldInformation>(json) ?? new WorldInformation();
 
-                logger.LogDebug("WorldInformation for World '{name}' was loaded from: {path}", information.Name, path);
+                logger.LogDebug("WorldInformation for World '{Name}' was loaded from: {Path}", information.Name, path);
 
                 return information;
             }
             catch (JsonException exception)
             {
-                logger.LogError(Events.WorldLoadingError, exception, "The meta file could not be loaded: {path}", path);
+                logger.LogError(Events.WorldLoadingError, exception, "The meta file could not be loaded: {Path}", path);
 
                 return new WorldInformation();
             }
@@ -73,9 +73,6 @@ namespace VoxelGame.Core.Logic
             Z = position.Z;
         }
 
-        public Vector3 Position
-        {
-            get => new Vector3(X, Y, Z);
-        }
+        public Vector3 Position => new(X, Y, Z);
     }
 }

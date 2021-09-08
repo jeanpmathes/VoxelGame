@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System.Collections.Generic;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -15,8 +15,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block that connects to other pipes and allows water flow.
-    /// Data bit usage: <c>fblrdt</c>
+    ///     A block that connects to other pipes and allows water flow.
+    ///     Data bit usage: <c>fblrdt</c>
     /// </summary>
     // f: front
     // b: back
@@ -31,28 +31,26 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom,
             BlockModel top) connector;
 
-        private readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom,
-            BlockModel top) surface;
-
         private readonly float diameter;
 
-        public bool RenderLiquid => false;
+        private readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom,
+            BlockModel top) surface;
 
         internal PipeBlock(string name, string namedId, float diameter, string centerModel, string connectorModel,
             string surfaceModel) :
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable: false,
-                boundingBox: new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(diameter, diameter, diameter)),
-                targetBuffer: TargetBuffer.Complex)
+                false,
+                false,
+                true,
+                true,
+                false,
+                false,
+                false,
+                false,
+                new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(diameter, diameter, diameter)),
+                TargetBuffer.Complex)
         {
             this.diameter = diameter;
 
@@ -69,9 +67,21 @@ namespace VoxelGame.Core.Logic.Blocks
             surface.Lock();
         }
 
+        public bool RenderLiquid => false;
+
+        public bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
+        {
+            return IsSideOpen(world, x, y, z, side);
+        }
+
+        public bool AllowOutflow(World world, int x, int y, int z, BlockSide side)
+        {
+            return IsSideOpen(world, x, y, z, side);
+        }
+
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            List<BoundingBox> connectors = new List<BoundingBox>(BitHelper.CountSetBits(data));
+            List<BoundingBox> connectors = new(BitHelper.CountSetBits(data));
 
             float connectorWidth = (0.5f - diameter) / 2f;
 
@@ -146,10 +156,7 @@ namespace VoxelGame.Core.Logic.Blocks
             uint updatedData = GetConnectionData(world, x, y, z);
             OpenOpposingSide(ref updatedData);
 
-            if (updatedData != data)
-            {
-                world.SetBlock(this, updatedData, x, y, z);
-            }
+            if (updatedData != data) world.SetBlock(this, updatedData, x, y, z);
         }
 
         private uint GetConnectionData(World world, int x, int y, int z)
@@ -170,7 +177,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 Block? block = world.GetBlock(cx, cy, cz, out _);
 
                 return block == this ||
-                       (block is TConnect connectable && connectable.IsConnectable(world, side, cx, cy, cz));
+                       block is TConnect connectable && connectable.IsConnectable(world, side, cx, cy, cz);
             }
         }
 
@@ -198,16 +205,6 @@ namespace VoxelGame.Core.Logic.Blocks
 
                     break;
             }
-        }
-
-        public bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
-        {
-            return IsSideOpen(world, x, y, z, side);
-        }
-
-        public bool AllowOutflow(World world, int x, int y, int z, BlockSide side)
-        {
-            return IsSideOpen(world, x, y, z, side);
         }
 
         private static bool IsSideOpen(World world, int x, int y, int z, BlockSide side)

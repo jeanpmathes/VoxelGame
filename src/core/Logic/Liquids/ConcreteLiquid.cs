@@ -4,8 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using VoxelGame.Core.Visuals;
-
 namespace VoxelGame.Core.Logic.Liquids
 {
     public class ConcreteLiquid : BasicLiquid
@@ -17,10 +15,9 @@ namespace VoxelGame.Core.Logic.Liquids
                 namedId,
                 density,
                 viscosity,
-                neutralTint: false,
+                false,
                 movingLayout,
-                staticLayout,
-                RenderType.Opaque) {}
+                staticLayout) {}
 
         internal override void RandomUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic)
         {

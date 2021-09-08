@@ -4,9 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System;
 using System.Diagnostics;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Interfaces;
 
@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic
     public class LiquidContactManager
     {
         private readonly CombinationMap<Liquid, ContactAction> map =
-            new CombinationMap<Liquid, ContactAction>(Liquid.Count);
+            new(Liquid.Count);
 
         public LiquidContactManager()
         {
@@ -58,14 +58,6 @@ namespace VoxelGame.Core.Logic
             };
         }
 
-        private enum ContactAction
-        {
-            Default,
-            LavaCooling,
-            LavaBurn,
-            ConcreteDissolve
-        }
-
         private static bool LavaCooling(World world, ContactInformation a, ContactInformation b)
         {
             Select(a, b, Liquid.Lava, out ContactInformation lava, out ContactInformation coolant);
@@ -73,7 +65,6 @@ namespace VoxelGame.Core.Logic
             Block lavaBlock = world.GetBlock(lava.position.X, lava.position.Y, lava.position.Z, out _) ?? Block.Air;
 
             if (lavaBlock.IsReplaceable || lavaBlock.Destroy(world, lava.position.X, lava.position.Y, lava.position.Z))
-            {
                 world.SetPosition(
                     Block.Pumice,
                     0,
@@ -83,7 +74,6 @@ namespace VoxelGame.Core.Logic
                     lava.position.X,
                     lava.position.Y,
                     lava.position.Z);
-            }
 
             world.SetLiquid(
                 Liquid.Steam,
@@ -236,6 +226,14 @@ namespace VoxelGame.Core.Logic
                 selected = b;
                 other = a;
             }
+        }
+
+        private enum ContactAction
+        {
+            Default,
+            LavaCooling,
+            LavaBurn,
+            ConcreteDissolve
         }
 
         private readonly struct ContactInformation

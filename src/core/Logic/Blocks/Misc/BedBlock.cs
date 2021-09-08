@@ -14,40 +14,39 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block that is two blocks long and allows setting the spawn point.
-    /// Data bit usage: <c>cccoop</c>
+    ///     A block that is two blocks long and allows setting the spawn point.
+    ///     Data bit usage: <c>cccoop</c>
     /// </summary>
     // c = color
     // o = orientation
     // p = position
     public class BedBlock : Block, IFlammable, IFillable
     {
-        private readonly float[][] verticesHead = new float[4][];
+        private readonly string model;
         private readonly float[][] verticesEnd = new float[4][];
-
-        private int[] texIndicesHead = null!;
-        private int[] texIndicesEnd = null!;
-
-        private uint[] indicesHead = null!;
+        private readonly float[][] verticesHead = new float[4][];
         private uint[] indicesEnd = null!;
 
-        private uint vertexCountHead;
+        private uint[] indicesHead = null!;
+        private int[] texIndicesEnd = null!;
+
+        private int[] texIndicesHead = null!;
         private uint vertexCountEnd;
 
-        private readonly string model;
+        private uint vertexCountHead;
 
         internal BedBlock(string name, string namedId, string model) :
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable: true,
+                false,
+                false,
+                true,
+                true,
+                false,
+                false,
+                false,
+                true,
                 new BoundingBox(new Vector3(0.5f, 0.21875f, 0.5f), new Vector3(0.5f, 0.21875f, 0.5f)),
                 TargetBuffer.Complex)
         {
@@ -56,7 +55,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            BlockModel blockModel = BlockModel.Load(this.model);
+            BlockModel blockModel = BlockModel.Load(model);
 
             blockModel.PlaneSplit(Vector3.UnitZ, Vector3.UnitZ, out BlockModel top, out BlockModel bottom);
             bottom.Move(-Vector3.UnitZ);
@@ -64,8 +63,7 @@ namespace VoxelGame.Core.Logic.Blocks
             vertexCountHead = (uint) top.VertexCount;
             vertexCountEnd = (uint) bottom.VertexCount;
 
-            for (int i = 0; i < 4; i++)
-            {
+            for (var i = 0; i < 4; i++)
                 if (i == 0)
                 {
                     top.ToData(out verticesHead[i], out texIndicesHead, out indicesHead);
@@ -79,13 +77,12 @@ namespace VoxelGame.Core.Logic.Blocks
                     bottom.RotateY(1);
                     bottom.ToData(out verticesEnd[i], out _, out _);
                 }
-            }
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
             bool isBase = (data & 0b1) == 1;
-            Orientation orientation = (Orientation) ((data & 0b00_0110) >> 1);
+            var orientation = (Orientation) ((data & 0b00_0110) >> 1);
 
             BoundingBox[] legs = new BoundingBox[2];
 
@@ -146,8 +143,8 @@ namespace VoxelGame.Core.Logic.Blocks
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             bool isHead = (info.Data & 0b1) == 1;
-            int orientation = (int) ((info.Data & 0b00_0110) >> 1);
-            BlockColor color = (BlockColor) ((info.Data & 0b11_1000) >> 3);
+            var orientation = (int) ((info.Data & 0b00_0110) >> 1);
+            var color = (BlockColor) ((info.Data & 0b11_1000) >> 3);
 
             return isHead
                 ? BlockMeshData.Complex(
@@ -166,29 +163,26 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            if (!world.HasSolidGround(x, y, z, solidify: true))
-            {
-                return false;
-            }
+            if (!world.HasSolidGround(x, y, z, true)) return false;
 
             return (entity?.LookingDirection.ToOrientation() ?? Orientation.North) switch
             {
                 Orientation.North =>
                     world.GetBlock(x, y, z - 1, out _)?.IsReplaceable == true &&
-                    world.HasSolidGround(x, y, z - 1, solidify: true),
+                    world.HasSolidGround(x, y, z - 1, true),
 
                 Orientation.East =>
                     world.GetBlock(x + 1, y, z, out _)?.IsReplaceable == true &&
-                    world.HasSolidGround(x + 1, y, z, solidify: true),
+                    world.HasSolidGround(x + 1, y, z, true),
 
                 Orientation.South =>
                     world.GetBlock(x, y, z + 1, out _)?.IsReplaceable == true &&
-                    world.HasSolidGround(x, y, z + 1, solidify: true),
+                    world.HasSolidGround(x, y, z + 1, true),
 
                 Orientation.West =>
                     world.GetBlock(x - 1, y, z, out _)?.IsReplaceable == true &&
-                    world.HasSolidGround(x - 1, y, z, solidify: true),
-                _ => false,
+                    world.HasSolidGround(x - 1, y, z, true),
+                _ => false
             };
         }
 
@@ -284,11 +278,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
                     isHead = !isHead;
 
-                    entity.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
+                    entity.World.SetBlock(this, (data + 0b00_1000) & 0b11_1111, x, y, z);
 
                     entity.World.SetBlock(
                         this,
-                        (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001,
+                        ((data + 0b00_1000) & 0b11_1111) ^ 0b00_0001,
                         x,
                         y,
                         z - (isHead ? 1 : -1));
@@ -297,11 +291,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 case Orientation.East:
 
-                    entity.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
+                    entity.World.SetBlock(this, (data + 0b00_1000) & 0b11_1111, x, y, z);
 
                     entity.World.SetBlock(
                         this,
-                        (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001,
+                        ((data + 0b00_1000) & 0b11_1111) ^ 0b00_0001,
                         x - (isHead ? 1 : -1),
                         y,
                         z);
@@ -310,11 +304,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 case Orientation.South:
 
-                    entity.World.SetBlock(this, data + 0b00_1000 & 0b11_1111, x, y, z);
+                    entity.World.SetBlock(this, (data + 0b00_1000) & 0b11_1111, x, y, z);
 
                     entity.World.SetBlock(
                         this,
-                        (data + 0b00_1000 & 0b11_1111) ^ 0b00_0001,
+                        ((data + 0b00_1000) & 0b11_1111) ^ 0b00_0001,
                         x,
                         y,
                         z - (isHead ? 1 : -1));
@@ -325,11 +319,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
                     isHead = !isHead;
 
-                    entity.World.SetBlock(this, data + 0b00_1000 & 0b01_1111, x, y, z);
+                    entity.World.SetBlock(this, (data + 0b00_1000) & 0b01_1111, x, y, z);
 
                     entity.World.SetBlock(
                         this,
-                        (data + 0b00_1000 & 0b01_1111) ^ 0b00_0001,
+                        ((data + 0b00_1000) & 0b01_1111) ^ 0b00_0001,
                         x - (isHead ? 1 : -1),
                         y,
                         z);
@@ -340,10 +334,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && !world.HasSolidGround(x, y, z))
-            {
-                Destroy(world, x, y, z);
-            }
+            if (side == BlockSide.Bottom && !world.HasSolidGround(x, y, z)) Destroy(world, x, y, z);
         }
     }
 }

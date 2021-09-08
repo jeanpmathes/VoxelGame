@@ -4,38 +4,37 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
+using System.IO;
 using Gwen.Net.Control;
 using Gwen.Net.OpenTk;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Desktop;
-using System;
 
 namespace VoxelGame.UI
 {
     public abstract class UserInterface : IDisposable
     {
-        public ControlBase Root
-        {
-            get => gui.Root;
-        }
+        private readonly bool drawBackground;
 
         private readonly IGwenGui gui;
-        private readonly bool drawBackground;
 
         protected UserInterface(GameWindow window, bool drawBackground)
         {
             gui = GwenGuiFactory.CreateFromGame(
                 window,
                 GwenGuiSettings.Default.From(
-                    (settings) =>
+                    settings =>
                     {
-                        settings.SkinFile = new System.IO.FileInfo("DefaultSkin2.png");
+                        settings.SkinFile = new FileInfo("DefaultSkin2.png");
                         settings.DrawBackground = drawBackground;
                     }));
 
             this.drawBackground = drawBackground;
         }
+
+        public ControlBase Root => gui.Root;
 
         public void Load()
         {
@@ -68,10 +67,7 @@ namespace VoxelGame.UI
         {
             if (!disposed)
             {
-                if (disposing)
-                {
-                    gui.Dispose();
-                }
+                if (disposing) gui.Dispose();
 
                 disposed = true;
             }
@@ -79,7 +75,7 @@ namespace VoxelGame.UI
 
         public void Dispose()
         {
-            Dispose(disposing: true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 

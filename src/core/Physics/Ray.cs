@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System;
+using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Core.Physics
 {
@@ -22,10 +22,7 @@ namespace VoxelGame.Core.Physics
             Length = length;
         }
 
-        public Vector3 EndPoint
-        {
-            get { return Origin + (Direction * Length); }
-        }
+        public Vector3 EndPoint => Origin + Direction * Length;
 
         public override int GetHashCode()
         {
@@ -44,14 +41,9 @@ namespace VoxelGame.Core.Physics
 
         public override bool Equals(object? obj)
         {
-            if (obj is Ray ray)
-            {
-                return Equals(other: ray);
-            }
-            else
-            {
-                return false;
-            }
+            if (obj is Ray ray) return Equals(ray);
+
+            return false;
         }
 
         public bool Equals(Ray other)

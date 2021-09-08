@@ -13,8 +13,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// Similar to <see cref="CrossPlantBlock"/>, but is two blocks high.
-    /// Data bit usage: <c>----lh</c>
+    ///     Similar to <see cref="CrossPlantBlock" />, but is two blocks high.
+    ///     Data bit usage: <c>----lh</c>
     /// </summary>
     // l = lowered
     // h = height
@@ -31,19 +31,24 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: false,
-                isSolid: false,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable: false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
                 boundingBox,
                 TargetBuffer.CrossPlant)
         {
             this.bottomTexture = bottomTexture;
             this.topTexOffset = topTexOffset;
+        }
+
+        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0 && level > LiquidLevel.Five) ScheduleDestroy(world, x, y, z);
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
@@ -68,7 +73,7 @@ namespace VoxelGame.Core.Logic.Blocks
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
             return world.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true &&
-                   (world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable;
+                   (world.GetBlock(x, y - 1, z, out _) ?? Air) is IPlantable;
         }
 
         protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
@@ -93,15 +98,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             // Check if this block is the lower part and if the ground supports plant growth.
             if (side == BlockSide.Bottom && (data & 0b1) == 0 &&
-                !((world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
-            {
-                Destroy(world, x, y, z);
-            }
-        }
-
-        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
-        {
-            if (liquid.Direction > 0 && level > LiquidLevel.Five) ScheduleDestroy(world, x, y, z);
+                !((world.GetBlock(x, y - 1, z, out _) ?? Air) is IPlantable)) Destroy(world, x, y, z);
         }
     }
 }

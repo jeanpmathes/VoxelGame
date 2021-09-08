@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System.Collections.Generic;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -14,8 +14,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A thin block that connects to other blocks.
-    /// Data bit usage: <c>--nesw</c>
+    ///     A thin block that connects to other blocks.
+    ///     Data bit usage: <c>--nesw</c>
     /// </summary>
     // n = connected north
     // e = connected east
@@ -23,23 +23,23 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConnectable
     {
+        private readonly (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensions;
         private readonly BlockModel post;
         private readonly (BlockModel north, BlockModel east, BlockModel south, BlockModel west) sides;
-        private readonly (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensions;
 
         public ThinConnectingBlock(string name, string namedId, string postModel, string sideModel,
             string extensionModel) :
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable: false,
+                false,
+                false,
+                true,
+                true,
+                false,
+                false,
+                false,
+                false,
                 new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.0625f, 0.5f, 0.0625f)),
                 TargetBuffer.Complex)
         {
@@ -50,7 +50,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            List<BoundingBox> connectors = new List<BoundingBox>(BitHelper.CountSetBits(data));
+            List<BoundingBox> connectors = new(BitHelper.CountSetBits(data));
 
             if ((data & 0b00_1000) != 0)
                 connectors.Add(

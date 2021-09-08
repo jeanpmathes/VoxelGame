@@ -11,20 +11,14 @@ namespace VoxelGame.Input.Collections
 {
     public class KeyMap
     {
-        private readonly Dictionary<KeyOrButton, int> usageCount = new Dictionary<KeyOrButton, int>();
+        private readonly Dictionary<KeyOrButton, int> usageCount = new();
 
         public bool AddBinding(KeyOrButton keyOrButton)
         {
             var unused = true;
 
-            if (usageCount.ContainsKey(keyOrButton))
-            {
-                unused = false;
-            }
-            else
-            {
-                usageCount.Add(keyOrButton, 0);
-            }
+            if (usageCount.ContainsKey(keyOrButton)) unused = false;
+            else usageCount.Add(keyOrButton, 0);
 
             usageCount[keyOrButton]++;
 
@@ -35,18 +29,12 @@ namespace VoxelGame.Input.Collections
         {
             usageCount[keyOrButton]--;
 
-            if (usageCount[keyOrButton] == 0)
-            {
-                usageCount.Remove(keyOrButton);
-            }
+            if (usageCount[keyOrButton] == 0) usageCount.Remove(keyOrButton);
         }
 
         public int GetUsageCount(KeyOrButton keyOrButton)
         {
-            if (!usageCount.TryGetValue(keyOrButton, out int count))
-            {
-                count = 0;
-            }
+            if (!usageCount.TryGetValue(keyOrButton, out int count)) count = 0;
 
             return count;
         }

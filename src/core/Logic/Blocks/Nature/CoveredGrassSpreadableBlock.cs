@@ -9,7 +9,8 @@ using VoxelGame.Core.Logic.Interfaces;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A <see cref="CoveredDirtBlock"/> on that grass can spread. It models a dirt block with something on it that can be washed away.
+    ///     A <see cref="CoveredDirtBlock" /> on that grass can spread. It models a dirt block with something on it that can be
+    ///     washed away.
     /// </summary>
     public class CoveredGrassSpreadableBlock : CoveredDirtBlock, IGrassSpreadable, IFillable
     {
@@ -20,11 +21,11 @@ namespace VoxelGame.Core.Logic.Blocks
                 normal,
                 normal,
                 hasNeutralTint,
-                supportsFullGrowth: false) {}
+                false) {}
 
         public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0) world.SetBlock(Block.Dirt, 0, x, y, z);
+            if (liquid.Direction > 0) world.SetBlock(Dirt, 0, x, y, z);
         }
     }
 }

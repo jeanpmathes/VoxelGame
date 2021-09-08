@@ -10,6 +10,6 @@ namespace VoxelGame.Core.Utilities
 {
     public static class NumberGenerator
     {
-        public static Random Random { get; } = new Random();
+        public static Random Random { get; } = new();
     }
 }

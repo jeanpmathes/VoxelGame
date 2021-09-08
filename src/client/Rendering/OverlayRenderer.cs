@@ -4,9 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
-using System;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Logging;
@@ -18,9 +18,9 @@ namespace VoxelGame.Client.Rendering
         private static readonly ILogger logger = LoggingHelper.CreateLogger<OverlayRenderer>();
 
         private readonly ElementDrawGroup drawGroup;
+        private int samplerId;
 
         private int textureId;
-        private int samplerId;
 
         public OverlayRenderer()
         {
@@ -42,7 +42,7 @@ namespace VoxelGame.Client.Rendering
 
         public void SetBlockTexture(int number)
         {
-            samplerId = (number / 2048) + 1;
+            samplerId = number / 2048 + 1;
             textureId = number % 2048;
         }
 
@@ -54,10 +54,7 @@ namespace VoxelGame.Client.Rendering
 
         public void Draw()
         {
-            if (disposed)
-            {
-                return;
-            }
+            if (disposed) return;
 
             GL.Enable(EnableCap.Blend);
 
@@ -85,28 +82,23 @@ namespace VoxelGame.Client.Rendering
             if (disposed)
                 return;
 
-            if (disposing)
-            {
-                drawGroup.Delete();
-            }
+            if (disposing) drawGroup.Delete();
             else
-            {
                 logger.LogWarning(
                     Events.UndeletedBuffers,
-                    "A renderer has been disposed by GC, without deleting buffers.");
-            }
+                    "Renderer disposed by GC without freeing storage");
 
             disposed = true;
         }
 
         ~OverlayRenderer()
         {
-            Dispose(disposing: false);
+            Dispose(false);
         }
 
         public void Dispose()
         {
-            Dispose(disposing: true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 

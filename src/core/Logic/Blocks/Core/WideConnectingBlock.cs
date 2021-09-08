@@ -12,8 +12,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A base class for blocks that connect to other blocks as wide connectables, like fences or walls.
-    /// Data bit usage: <c>--nesw</c>
+    ///     A base class for blocks that connect to other blocks as wide connectables, like fences or walls.
+    ///     Data bit usage: <c>--nesw</c>
     /// </summary>
     // n = connected north
     // e = connected east
@@ -21,37 +21,37 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public abstract class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConnectable
     {
-        private uint postVertexCount;
-        private uint extensionVertexCount;
+        private readonly string extension;
+        private readonly string post;
 
-        private float[] postVertices = null!;
-
-        private float[] northVertices = null!;
+        private protected readonly string texture;
         private float[] eastVertices = null!;
-        private float[] southVertices = null!;
-        private float[] westVertices = null!;
-
-        private int[][] textureIndices = null!;
+        private uint extensionVertexCount;
 
         private uint[][] indices = null!;
 
-        private protected readonly string texture;
-        private readonly string post;
-        private readonly string extension;
+        private float[] northVertices = null!;
+        private uint postVertexCount;
+
+        private float[] postVertices = null!;
+        private float[] southVertices = null!;
+
+        private int[][] textureIndices = null!;
+        private float[] westVertices = null!;
 
         protected WideConnectingBlock(string name, string namedId, string texture, string post, string extension,
             BoundingBox boundingBox) :
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable: false,
+                false,
+                false,
+                true,
+                true,
+                false,
+                false,
+                false,
+                false,
                 boundingBox,
                 TargetBuffer.Complex)
         {
@@ -62,8 +62,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            BlockModel postModel = BlockModel.Load(this.post);
-            BlockModel extensionModel = BlockModel.Load(this.extension);
+            BlockModel postModel = BlockModel.Load(post);
+            BlockModel extensionModel = BlockModel.Load(extension);
 
             postVertexCount = (uint) postModel.VertexCount;
             extensionVertexCount = (uint) extensionModel.VertexCount;
@@ -87,18 +87,14 @@ namespace VoxelGame.Core.Logic.Blocks
             textureIndices = new int[5][];
 
             for (var i = 0; i < 5; i++)
-            {
                 textureIndices[i] =
-                    BlockModels.GenerateTextureDataArray(tex, postModel.VertexCount + (i * extensionModel.VertexCount));
-            }
+                    BlockModels.GenerateTextureDataArray(tex, postModel.VertexCount + i * extensionModel.VertexCount);
 
             indices = new uint[5][];
 
             for (var i = 0; i < 5; i++)
-            {
                 indices[i] =
-                    BlockModels.GenerateIndexDataArray(postModel.Quads.Length + (i * extensionModel.Quads.Length));
-            }
+                    BlockModels.GenerateIndexDataArray(postModel.Quads.Length + i * extensionModel.Quads.Length);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
@@ -109,11 +105,11 @@ namespace VoxelGame.Core.Logic.Blocks
             bool west = (info.Data & 0b00_0001) != 0;
 
             int extensions = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
-            var vertexCount = (uint) (postVertexCount + (extensions * extensionVertexCount));
+            var vertexCount = (uint) (postVertexCount + extensions * extensionVertexCount);
 
             float[] vertices = new float[vertexCount * 8];
-            int[] currentTextureIndices = this.textureIndices[extensions];
-            uint[] currentIndices = this.indices[extensions];
+            int[] currentTextureIndices = textureIndices[extensions];
+            uint[] currentIndices = indices[extensions];
 
             // Combine the required vertices into one array
             var position = 0;
@@ -138,10 +134,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 position += southVertices.Length;
             }
 
-            if (west)
-            {
-                Array.Copy(westVertices, 0, vertices, position, westVertices.Length);
-            }
+            if (west) Array.Copy(westVertices, 0, vertices, position, westVertices.Length);
 
             return BlockMeshData.Complex(vertexCount, vertices, currentTextureIndices, currentIndices);
         }

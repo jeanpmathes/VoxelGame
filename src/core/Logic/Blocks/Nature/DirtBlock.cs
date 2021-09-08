@@ -10,28 +10,26 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A simple block which allows the spread of grass.
-    /// Data bit usage: <c>------</c>
+    ///     A simple block which allows the spread of grass.
+    ///     Data bit usage: <c>------</c>
     /// </summary>
     public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     {
-        private int[] wetTextureIndices = null!;
-
         private readonly TextureLayout wet;
+        private int[] wetTextureIndices = null!;
 
         internal DirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet) :
             base(
                 name,
                 namedId,
-                layout: normal,
-                isOpaque: true,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isInteractable: false)
+                normal)
         {
             this.wet = wet;
+        }
+
+        public virtual bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
+        {
+            return liquid.Viscosity < 100;
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
@@ -55,15 +53,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             Liquid? liquid = world.GetLiquid(x, y, z, out LiquidLevel level, out _);
 
-            if (liquid == Liquid.Water && level == LiquidLevel.Eight)
-            {
-                world.SetBlock(Block.Mud, 0, x, y, z);
-            }
-        }
-
-        public virtual bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
-        {
-            return liquid.Viscosity < 100;
+            if (liquid == Liquid.Water && level == LiquidLevel.Eight) world.SetBlock(Mud, 0, x, y, z);
         }
     }
 }

@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Physics
@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Physics
     public static class Raycast
     {
         /// <summary>
-        /// Checks if a ray intersects with a block that is not <see cref="Block.Air"/>.
+        ///     Checks if a ray intersects with a block that is not <see cref="Block.Air" />.
         /// </summary>
         /// <param name="world">The world in which to cast the ray.</param>
         /// <param name="ray">The ray.</param>
@@ -34,7 +34,7 @@ namespace VoxelGame.Core.Physics
         }
 
         /// <summary>
-        /// Checks if a ray intersects with a liquid that is not <see cref="Liquid.None"/>
+        ///     Checks if a ray intersects with a liquid that is not <see cref="Liquid.None" />
         /// </summary>
         /// <param name="world">The world in which to cast the ray.</param>
         /// <param name="ray">The ray.</param>
@@ -68,14 +68,14 @@ namespace VoxelGame.Core.Physics
             Vector3 direction = ray.Direction;
 
             // Get the origin position in world coordinates.
-            int x = (int) Math.Floor(ray.Origin.X);
-            int y = (int) Math.Floor(ray.Origin.Y);
-            int z = (int) Math.Floor(ray.Origin.Z);
+            var x = (int) Math.Floor(ray.Origin.X);
+            var y = (int) Math.Floor(ray.Origin.Y);
+            var z = (int) Math.Floor(ray.Origin.Z);
 
             // Get the end position in world coordinates.
-            int endX = (int) Math.Floor(ray.EndPoint.X);
-            int endY = (int) Math.Floor(ray.EndPoint.Y);
-            int endZ = (int) Math.Floor(ray.EndPoint.Z);
+            var endX = (int) Math.Floor(ray.EndPoint.X);
+            var endY = (int) Math.Floor(ray.EndPoint.Y);
+            var endZ = (int) Math.Floor(ray.EndPoint.Z);
 
             // Get the direction in which the components are incremented.
             int stepX = Math.Sign(direction.X);
@@ -83,19 +83,19 @@ namespace VoxelGame.Core.Physics
             int stepZ = Math.Sign(direction.Z);
 
             // Calculate the distance to the next voxel border from the current position.
-            double nextVoxelBoundaryX = (stepX > 0) ? x + stepX : x;
-            double nextVoxelBoundaryY = (stepY > 0) ? y + stepY : y;
-            double nextVoxelBoundaryZ = (stepZ > 0) ? z + stepZ : z;
+            double nextVoxelBoundaryX = stepX > 0 ? x + stepX : x;
+            double nextVoxelBoundaryY = stepY > 0 ? y + stepY : y;
+            double nextVoxelBoundaryZ = stepZ > 0 ? z + stepZ : z;
 
             // Calculate the distance to the next voxel border.
-            double tMaxX = (direction.X != 0) ? (nextVoxelBoundaryX - ray.Origin.X) / direction.X : double.MaxValue;
-            double tMaxY = (direction.Y != 0) ? (nextVoxelBoundaryY - ray.Origin.Y) / direction.Y : double.MaxValue;
-            double tMaxZ = (direction.Z != 0) ? (nextVoxelBoundaryZ - ray.Origin.Z) / direction.Z : double.MaxValue;
+            double tMaxX = direction.X != 0 ? (nextVoxelBoundaryX - ray.Origin.X) / direction.X : double.MaxValue;
+            double tMaxY = direction.Y != 0 ? (nextVoxelBoundaryY - ray.Origin.Y) / direction.Y : double.MaxValue;
+            double tMaxZ = direction.Z != 0 ? (nextVoxelBoundaryZ - ray.Origin.Z) / direction.Z : double.MaxValue;
 
             // Calculate distance so component equals voxel border.
-            double tDeltaX = (direction.X != 0) ? stepX / direction.X : double.MaxValue;
-            double tDeltaY = (direction.Y != 0) ? stepY / direction.Y : double.MaxValue;
-            double tDeltaZ = (direction.Z != 0) ? stepZ / direction.Z : double.MaxValue;
+            double tDeltaX = direction.X != 0 ? stepX / direction.X : double.MaxValue;
+            double tDeltaY = direction.Y != 0 ? stepY / direction.Y : double.MaxValue;
+            double tDeltaZ = direction.Z != 0 ? stepZ / direction.Z : double.MaxValue;
 
             // Check if the ray intersects the bounding box of the voxel.
             if (rayIntersectionCheck(ray, x, y, z))
@@ -119,14 +119,14 @@ namespace VoxelGame.Core.Physics
                         x += stepX;
                         tMaxX += tDeltaX;
 
-                        side = (stepX > 0) ? BlockSide.Left : BlockSide.Right;
+                        side = stepX > 0 ? BlockSide.Left : BlockSide.Right;
                     }
                     else
                     {
                         z += stepZ;
                         tMaxZ += tDeltaZ;
 
-                        side = (stepZ > 0) ? BlockSide.Back : BlockSide.Front;
+                        side = stepZ > 0 ? BlockSide.Back : BlockSide.Front;
                     }
                 }
                 else
@@ -136,14 +136,14 @@ namespace VoxelGame.Core.Physics
                         y += stepY;
                         tMaxY += tDeltaY;
 
-                        side = (stepY > 0) ? BlockSide.Bottom : BlockSide.Top;
+                        side = stepY > 0 ? BlockSide.Bottom : BlockSide.Top;
                     }
                     else
                     {
                         z += stepZ;
                         tMaxZ += tDeltaZ;
 
-                        side = (stepZ > 0) ? BlockSide.Back : BlockSide.Front;
+                        side = stepZ > 0 ? BlockSide.Back : BlockSide.Front;
                     }
                 }
 
@@ -169,7 +169,7 @@ namespace VoxelGame.Core.Physics
             Block? block = world.GetBlock(x, y, z, out _);
 
             // Check if the ray intersects the bounding box of the block.
-            return (block != null && block != Block.Air && block.GetBoundingBox(world, x, y, z).Intersects(ray));
+            return block != null && block != Block.Air && block.GetBoundingBox(world, x, y, z).Intersects(ray);
         }
 
         private static bool LiquidIntersectionCheck(World world, Ray ray, int x, int y, int z)
@@ -177,8 +177,8 @@ namespace VoxelGame.Core.Physics
             Liquid? liquid = world.GetLiquid(x, y, z, out LiquidLevel level, out _);
 
             // Check if the ray intersects the bounding box of the liquid.
-            return (liquid != null && liquid != Liquid.None &&
-                    Liquid.GetBoundingBox(x, y, z, level).Intersects(ray));
+            return liquid != null && liquid != Liquid.None &&
+                   Liquid.GetBoundingBox(x, y, z, level).Intersects(ray);
         }
     }
 }

@@ -11,8 +11,9 @@ using VoxelGame.Core.Physics;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// This class represents a block which connects to blocks with the <see cref="IWideConnectable"/> interface. The texture and indices of the BlockModels are ignored.
-    /// Data bit usage: <c>--nesw</c>
+    ///     This class represents a block which connects to blocks with the <see cref="IWideConnectable" /> interface. The
+    ///     texture and indices of the BlockModels are ignored.
+    ///     Data bit usage: <c>--nesw</c>
     /// </summary>
     // n = connected north
     // e = connected east
@@ -43,11 +44,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if (north)
             {
-                children[extensions] = new BoundingBox(
+                children[0] = new BoundingBox(
                     new Vector3(0.5f, 0.28125f, 0.15625f),
                     new Vector3(0.125f, 0.15625f, 0.15625f));
 
-                children[extensions + 1] = new BoundingBox(
+                children[1] = new BoundingBox(
                     new Vector3(0.5f, 0.71875f, 0.15625f),
                     new Vector3(0.125f, 0.15625f, 0.15625f));
 

@@ -4,10 +4,12 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using Microsoft.Extensions.Logging;
-using OpenToolkit.Windowing.Desktop;
 using System;
 using System.IO;
+using Microsoft.Extensions.Logging;
+using OpenToolkit.Windowing.Common;
+using OpenToolkit.Windowing.Desktop;
+using Properties;
 using VoxelGame.Core;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
@@ -37,12 +39,10 @@ namespace VoxelGame.Client
             Directory.CreateDirectory(appDataDirectory);
             Directory.CreateDirectory(screenshotDirectory);
 
-            bool logDebug;
-
 #if DEBUG
-            logDebug = true;
+            const bool logDebug = true;
 #else
-            logDebug = args.Length > 0 && args[0] == "-logDebug";
+            var logDebug = args.Length > 0 && args[0] == "-logDebug";
 #endif
 
             ILogger logger = LoggingHelper.SetupLogging(nameof(Program), logDebug, appDataDirectory);
@@ -53,28 +53,28 @@ namespace VoxelGame.Client
 
             Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";
             GameInformation.Initialize(Version);
-            Console.Title = Language.VoxelGame + " " + Version;
+            Console.Title = Language.VoxelGame + @" " + Version;
 
             Console.WriteLine(Language.StartingGame);
-            Console.WriteLine(Language.Version + " " + Version);
+            Console.WriteLine(Language.Version + @" " + Version);
 
-            GameWindowSettings gameWindowSettings = new GameWindowSettings
+            GameWindowSettings gameWindowSettings = new()
             {
                 IsMultiThreaded = false,
-                RenderFrequency = Properties.client.Default.MaxFPS,
+                RenderFrequency = client.Default.MaxFPS,
                 UpdateFrequency = 60.0
             };
 
             NativeWindowSettings nativeWindowSettings = NativeWindowSettings.Default;
-            nativeWindowSettings.WindowBorder = OpenToolkit.Windowing.Common.WindowBorder.Hidden;
-            nativeWindowSettings.Profile = OpenToolkit.Windowing.Common.ContextProfile.Compatability;
+            nativeWindowSettings.WindowBorder = WindowBorder.Hidden;
+            nativeWindowSettings.Profile = ContextProfile.Compatability;
             nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
-            nativeWindowSettings.Size = Properties.client.Default.ScreenSize.ToVector2i();
+            nativeWindowSettings.Size = client.Default.ScreenSize.ToVector2i();
             nativeWindowSettings.StartFocused = false;
 
             logger.LogInformation("Starting game on version: {Version}", Version);
 
-            using (Application.Client client = new Application.Client(
+            using (Application.Client client = new(
                 gameWindowSettings,
                 nativeWindowSettings,
                 appDataDirectory,
@@ -83,7 +83,7 @@ namespace VoxelGame.Client
                 client.Run();
             }
 
-            logger.LogInformation("Exiting game.");
+            logger.LogInformation("Exiting");
         }
     }
 }

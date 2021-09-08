@@ -4,16 +4,16 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Graphics.OpenGL4;
 using System;
+using OpenToolkit.Graphics.OpenGL4;
 
 namespace VoxelGame.Graphics.Groups
 {
     public class ElementDrawGroup
     {
-        private readonly int vbo;
         private readonly int ebo;
         private readonly int vao;
+        private readonly int vbo;
 
         private int elementCount;
 
@@ -24,7 +24,10 @@ namespace VoxelGame.Graphics.Groups
             GL.CreateVertexArrays(1, out vao);
         }
 
-        public static ElementDrawGroup Create() => new ElementDrawGroup();
+        public static ElementDrawGroup Create()
+        {
+            return new();
+        }
 
         public void SetStorage(int elements, int vertexDataCount, float[] vertexData, int indexDataCount,
             uint[] indexData)
@@ -44,10 +47,7 @@ namespace VoxelGame.Graphics.Groups
         {
             elementCount = elements;
 
-            if (elementCount == 0)
-            {
-                return;
-            }
+            if (elementCount == 0) return;
 
             GL.NamedBufferData(vbo, vertexDataCount * sizeof(float), vertexData, BufferUsageHint.DynamicDraw);
             GL.NamedBufferData(ebo, indexDataCount * sizeof(uint), indexData, BufferUsageHint.DynamicDraw);

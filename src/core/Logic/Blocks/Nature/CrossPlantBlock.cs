@@ -13,8 +13,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A plant made out of two intersecting planes. It uses neutral tint.
-    /// Data bit usage: <c>-----l</c>
+    ///     A plant made out of two intersecting planes. It uses neutral tint.
+    ///     Data bit usage: <c>-----l</c>
     /// </summary>
     // l = lowered
     public class CrossPlantBlock : Block, IFlammable, IFillable
@@ -24,7 +24,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private int textureIndex;
 
         /// <summary>
-        /// Initializes a new instance of a cross plant.
+        ///     Initializes a new instance of a cross plant.
         /// </summary>
         /// <param name="name">The name of this block.</param>
         /// <param name="namedId">The unique and unlocalized name of this block.</param>
@@ -36,18 +36,23 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: false,
-                isSolid: false,
-                receiveCollisions: false,
-                isTrigger: false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
                 isReplaceable,
-                isInteractable: false,
+                false,
                 boundingBox,
                 TargetBuffer.CrossPlant)
         {
             this.texture = texture;
+        }
+
+        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.Direction > 0 && level > LiquidLevel.Four) Destroy(world, x, y, z);
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
@@ -62,7 +67,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
         {
-            Block ground = world.GetBlock(x, y - 1, z, out _) ?? Block.Air;
+            Block ground = world.GetBlock(x, y - 1, z, out _) ?? Air;
 
             return ground is IPlantable;
         }
@@ -75,15 +80,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && !((world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
-            {
+            if (side == BlockSide.Bottom && !((world.GetBlock(x, y - 1, z, out _) ?? Air) is IPlantable))
                 Destroy(world, x, y, z);
-            }
-        }
-
-        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
-        {
-            if (liquid.Direction > 0 && level > LiquidLevel.Four) Destroy(world, x, y, z);
         }
     }
 }

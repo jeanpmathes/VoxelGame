@@ -4,15 +4,19 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
-using System;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Graphics
 {
     public class Debug
     {
+        private const string LoggingTemplate =
+            "OpenGL Debug | Source: {Source} | Type: {Type} | Event: {Event} | Message: {Message}";
+
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Debug>();
 
 #pragma warning disable S1450
@@ -80,60 +84,55 @@ namespace VoxelGame.Graphics
                 case DebugSeverity.DontCare:
                     logger.LogInformation(
                         eventId,
-                        "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}",
+                        LoggingTemplate,
                         sourceShort,
                         typeShort,
                         idResolved,
-                        System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+                        Marshal.PtrToStringAnsi(message, length));
 
                     break;
 
                 case DebugSeverity.DebugSeverityLow:
                     logger.LogWarning(
                         eventId,
-                        "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}",
+                        LoggingTemplate,
                         sourceShort,
                         typeShort,
                         idResolved,
-                        System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+                        Marshal.PtrToStringAnsi(message, length));
 
                     break;
 
                 case DebugSeverity.DebugSeverityMedium:
                     logger.LogError(
                         eventId,
-                        "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}",
+                        LoggingTemplate,
                         sourceShort,
                         typeShort,
                         idResolved,
-                        System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+                        Marshal.PtrToStringAnsi(message, length));
 
                     break;
 
                 case DebugSeverity.DebugSeverityHigh:
                     logger.LogCritical(
                         eventId,
-                        "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}",
+                        LoggingTemplate,
                         sourceShort,
                         typeShort,
                         idResolved,
-                        System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+                        Marshal.PtrToStringAnsi(message, length));
 
                     break;
 
                 default:
                     logger.LogInformation(
                         eventId,
-                        "OpenGL Debug | Source: {source} | Type: {type} | Event: {event} | " +
-                        "Message: {message}",
+                        LoggingTemplate,
                         sourceShort,
                         typeShort,
                         idResolved,
-                        System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length));
+                        Marshal.PtrToStringAnsi(message, length));
 
                     break;
             }

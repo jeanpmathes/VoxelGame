@@ -4,9 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -14,61 +14,19 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Entities
 {
     /// <summary>
-    /// An entity which is affected by gravity and forces.
+    ///     An entity which is affected by gravity and forces.
     /// </summary>
     public abstract class PhysicsEntity : IDisposable
     {
         /// <summary>
-        /// The gravitational constant which accelerates all physics entities.
+        ///     The gravitational constant which accelerates all physics entities.
         /// </summary>
         public const float Gravity = -9.81f;
 
-        /// <summary>
-        /// Gets the mass of this physics entity.
-        /// </summary>
-        public float Mass { get; }
-
-        /// <summary>
-        /// Gets the drag affecting the velocity of this physics entity.
-        /// </summary>
-        public float Drag { get; }
-
-        /// <summary>
-        /// Gets or sets the velocity of the physics entity.
-        /// </summary>
-        public Vector3 Velocity { get; set; }
-
-        public Vector3 Position { get; set; }
-        public Quaternion Rotation { get; set; }
-
-        public bool IsGrounded { get; private set; }
-        public bool IsSwimming { get; private set; }
-
-        public Vector3 Forward
-        {
-            get { return Rotation * Vector3.UnitX; }
-        }
-
-        public Vector3 Right
-        {
-            get { return Rotation * Vector3.UnitZ; }
-        }
-
-        public World World { get; }
-
-        public abstract Vector3 Movement { get; }
-        public abstract Vector3 LookingDirection { get; }
-        public abstract Logic.BlockSide TargetSide { get; }
-
         private readonly int physicsIterations = 10;
-
-        private Vector3 force;
         private BoundingBox boundingBox;
 
-        public BoundingBox BoundingBox
-        {
-            get => boundingBox;
-        }
+        private Vector3 force;
 
         protected PhysicsEntity(World world, float mass, float drag, BoundingBox boundingBox)
         {
@@ -84,16 +42,49 @@ namespace VoxelGame.Core.Entities
         }
 
         /// <summary>
-        /// Applies force to this entity.
+        ///     Gets the mass of this physics entity.
         /// </summary>
-        /// <param name="force">The force to apply.</param>
-        public void AddForce(Vector3 force)
+        public float Mass { get; }
+
+        /// <summary>
+        ///     Gets the drag affecting the velocity of this physics entity.
+        /// </summary>
+        public float Drag { get; }
+
+        /// <summary>
+        ///     Gets or sets the velocity of the physics entity.
+        /// </summary>
+        public Vector3 Velocity { get; set; }
+
+        public Vector3 Position { get; set; }
+        public Quaternion Rotation { get; set; }
+
+        public bool IsGrounded { get; private set; }
+        public bool IsSwimming { get; private set; }
+
+        public Vector3 Forward => Rotation * Vector3.UnitX;
+
+        public Vector3 Right => Rotation * Vector3.UnitZ;
+
+        public World World { get; }
+
+        public abstract Vector3 Movement { get; }
+        public abstract Vector3 LookingDirection { get; }
+        public abstract BlockSide TargetSide { get; }
+
+        public BoundingBox BoundingBox => boundingBox;
+
+        /// <summary>
+        ///     Applies force to this entity.
+        /// </summary>
+        /// <param name="additionalForce">The force to apply.</param>
+        public void AddForce(Vector3 additionalForce)
         {
-            this.force += force;
+            force += additionalForce;
         }
 
         /// <summary>
-        /// Tries to move the entity in a certain direction using forces, but never using more force than specified.
+        ///     Tries to move the entity in a certain direction using forces, but never using more force than specified.
         /// </summary>
         /// <param name="movement">The target movement, can be zero to try to stop moving.</param>
         /// <param name="maxForce">The maximum allowed force to use.</param>
@@ -118,37 +109,31 @@ namespace VoxelGame.Core.Entities
             movement *= 1f / physicsIterations;
 
             HashSet<(int x, int y, int z, Block block)> blockIntersections =
-                new HashSet<(int x, int y, int z, Block block)>();
+                new();
 
             HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections =
-                new HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)>();
+                new();
 
-            for (int i = 0; i < physicsIterations; i++)
-            {
+            for (var i = 0; i < physicsIterations; i++)
                 DoPhysicsStep(ref movement, ref blockIntersections, ref liquidIntersections);
-            }
 
-            foreach ((int x, int y, int z, Logic.Block block) in blockIntersections)
-            {
+            foreach ((int x, int y, int z, Block block) in blockIntersections)
                 if (block.ReceiveCollisions)
-                {
                     block.EntityCollision(this, x, y, z);
-                }
-            }
 
             Vector3 liquidDrag = Vector3.Zero;
 
             if (liquidIntersections.Count != 0)
             {
-                float density = 0f;
+                var density = 0f;
                 int maxLevel = -1;
-                bool noGas = false;
+                var noGas = false;
 
                 foreach ((int x, int y, int z, Liquid liquid, LiquidLevel level) in liquidIntersections)
                 {
                     if (liquid.ReceiveContact) liquid.EntityContact(this, x, y, z);
 
-                    if ((int) level > maxLevel || (maxLevel == 7 && liquid.Density > density))
+                    if ((int) level > maxLevel || maxLevel == 7 && liquid.Density > density)
                     {
                         density = liquid.Density;
                         maxLevel = (int) level;
@@ -185,9 +170,9 @@ namespace VoxelGame.Core.Entities
             {
                 if (yCollision)
                 {
-                    int xPos = (int) Math.Floor(BoundingBox.Center.X);
-                    int yPos = (int) Math.Floor(BoundingBox.Center.Y);
-                    int zPos = (int) Math.Floor(BoundingBox.Center.Z);
+                    var xPos = (int) Math.Floor(BoundingBox.Center.X);
+                    var yPos = (int) Math.Floor(BoundingBox.Center.Y);
+                    var zPos = (int) Math.Floor(BoundingBox.Center.Z);
 
                     IsGrounded = !World.GetBlock(xPos, yPos + (int) Math.Round(BoundingBox.Extents.Y), zPos, out _)
                         ?.IsSolid ?? true;
