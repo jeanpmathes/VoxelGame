@@ -32,16 +32,17 @@ namespace VoxelGame.Client.Application
         private const int DeltaBufferCapacity = 30;
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
+        private readonly InputManager input;
+        private readonly SceneManager sceneManager;
+
+        private readonly CircularTimeBuffer renderDeltaBuffer = new(DeltaBufferCapacity);
+        private readonly CircularTimeBuffer updateDeltaBuffer = new(DeltaBufferCapacity);
+
         private readonly ToggleButton fullscreenToggle;
 
         private readonly Debug glDebug;
 
-        private readonly InputManager input;
-        private readonly CircularTimeBuffer renderDeltaBuffer = new(DeltaBufferCapacity);
-        private readonly SceneManager sceneManager;
         public readonly string screenshotDirectory;
-        private readonly CircularTimeBuffer updateDeltaBuffer = new(DeltaBufferCapacity);
-
         public readonly string worldsDirectory;
 
         private Screen screen = null!;
