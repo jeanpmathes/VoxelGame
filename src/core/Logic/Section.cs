@@ -16,6 +16,17 @@ namespace VoxelGame.Core.Logic
     {
         public const int SectionSize = 16;
 
+        public const int DataShift = 12;
+        public const int LiquidShift = 18;
+        public const int LevelShift = 23;
+        public const int StaticShift = 26;
+
+        public const uint BlockMask = 0b0000_0000_0000_0000_0000_1111_1111_1111;
+        public const uint DataMask = 0b0000_0000_0000_0011_1111_0000_0000_0000;
+        public const uint LiquidMask = 0b0000_0000_0111_1100_0000_0000_0000_0000;
+        public const uint LevelMask = 0b0000_0011_1000_0000_0000_0000_0000_0000;
+        public const uint StaticMask = 0b0000_0100_0000_0000_0000_0000_0000_0000;
+
         public static readonly int SectionSizeExp = (int) Math.Log(SectionSize, 2);
         public static readonly int SectionSizeExp2 = (int) Math.Log(SectionSize, 2) * 2;
 
@@ -34,12 +45,12 @@ namespace VoxelGame.Core.Logic
         [field: NonSerialized] protected World World { get; private set; } = null!;
 
         /// <summary>
-        ///     Gets or sets the block at a section position.
+        ///     Gets or sets the block data at a section position.
         /// </summary>
-        /// <param name="x">The x position of the block in this section.</param>
-        /// <param name="y">The y position of the block in this section.</param>
-        /// <param name="z">The z position of the block in this section.</param>
-        /// <returns>The block at the given position.</returns>
+        /// <param name="x">The x position of the block data in this section.</param>
+        /// <param name="y">The y position of the block data in this section.</param>
+        /// <param name="z">The z position of the block data in this section.</param>
+        /// <returns>The block data at the given position.</returns>
         public uint this[int x, int y, int z]
         {
             get => blocks[(x << SectionSizeExp2) + (y << SectionSizeExp) + z];
@@ -142,21 +153,6 @@ namespace VoxelGame.Core.Logic
 
             return Liquid.TranslateID((val & LiquidMask) >> LiquidShift);
         }
-
-#pragma warning disable CA1707 // Identifiers should not contain underscores
-        public const int DataShift = 12;
-        public const int LiquidShift = 18;
-        public const int LevelShift = 23;
-        public const int StaticShift = 26;
-#pragma warning restore CA1707 // Identifiers should not contain underscores
-
-#pragma warning disable CA1707 // Identifiers should not contain underscores
-        public const uint BlockMask = 0b0000_0000_0000_0000_0000_1111_1111_1111;
-        public const uint DataMask = 0b0000_0000_0000_0011_1111_0000_0000_0000;
-        public const uint LiquidMask = 0b0000_0000_0111_1100_0000_0000_0000_0000;
-        public const uint LevelMask = 0b0000_0011_1000_0000_0000_0000_0000_0000;
-        public const uint StaticMask = 0b0000_0100_0000_0000_0000_0000_0000_0000;
-#pragma warning restore CA1707 // Identifiers should not contain underscores
 
         #region IDisposable Support
 
