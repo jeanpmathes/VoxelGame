@@ -42,13 +42,20 @@ namespace VoxelGame.Client
 #if DEBUG
             const bool logDebug = true;
 #else
-            var logDebug = args.Length > 0 && args[0] == "-logDebug";
+            bool logDebug = args.Length > 0 && args[0] == "-logDebug";
 #endif
 
             ILogger logger = LoggingHelper.SetupLogging(nameof(Program), logDebug, appDataDirectory);
 
 #if !DEBUG
-            logger.LogInformation(logDebug ? "Debug will be logged." : "Debug will not be logged. Use '-logDebug' to log debug messages.");
+            if (logDebug)
+            {
+                logger.LogInformation("Logging debug messages");
+            }
+            else
+            {
+                logger.LogInformation("Debug messages will not be logged. Use '-logDebug' to log debug messages");
+            }
 #endif
 
             Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";
