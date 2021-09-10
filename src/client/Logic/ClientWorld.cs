@@ -47,6 +47,8 @@ namespace VoxelGame.Client.Logic
 
         private readonly Stopwatch readyStopwatch = Stopwatch.StartNew();
 
+        private readonly List<(ClientSection section, Vector3 position)> renderList = new();
+
         /// <summary>
         ///     A set of chunks with information on which sections of them are to mesh.
         /// </summary>
@@ -70,8 +72,7 @@ namespace VoxelGame.Client.Logic
         {
             if (!IsReady) return;
 
-            List<(ClientSection section, Vector3 position)> renderList =
-                new();
+            renderList.Clear();
 
             // Fill the render list.
             for (int x = -Application.Client.Player.LoadDistance; x <= Application.Client.Player.LoadDistance; x++)
