@@ -294,9 +294,9 @@ namespace VoxelGame.Client.Logic
             }
         }
 
-        protected override void AddAllTasks(ref List<Task> tasks)
+        protected override void AddAllTasks(List<Task> tasks)
         {
-            base.AddAllTasks(ref tasks);
+            base.AddAllTasks(tasks);
             tasks.AddRange(chunkMeshingTasks);
         }
     }

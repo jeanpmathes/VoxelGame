@@ -688,12 +688,12 @@ namespace VoxelGame.Core.Logic
             // It would be better to also process the finished tasks.
 
             List<Task> tasks = new();
-            AddAllTasks(ref tasks);
+            AddAllTasks(tasks);
 
             return Task.WhenAll(tasks);
         }
 
-        protected virtual void AddAllTasks(ref List<Task> tasks)
+        protected virtual void AddAllTasks(List<Task> tasks)
         {
             tasks.AddRange(chunkGenerateTasks);
             tasks.AddRange(chunkLoadingTasks);

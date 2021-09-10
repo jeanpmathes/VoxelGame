@@ -7,7 +7,6 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Core.Collections
 {
@@ -116,7 +115,6 @@ namespace VoxelGame.Core.Collections
             }
         }
 
-        [SuppressMessage("ReSharper.DPA", "DPA0001: Memory allocation issues")]
         private T[] MoveIntoNew(int newSize)
         {
             T[] newItems = arrayPool.Rent(newSize);
