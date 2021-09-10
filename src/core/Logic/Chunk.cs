@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -110,6 +111,10 @@ namespace VoxelGame.Core.Logic
         /// <param name="x">The x coordinate of the chunk.</param>
         /// <param name="z">The z coordinate of the chunk.</param>
         /// <returns>The loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
+        [SuppressMessage(
+            "ReSharper.DPA",
+            "DPA0002: Excessive memory allocations in SOH",
+            Justification = "Chunks are allocated here.")]
         public static Chunk? Load(string path, int x, int z)
         {
             logger.LogDebug("Loading chunk for position: ({X}|{Z})", x, z);
@@ -119,7 +124,9 @@ namespace VoxelGame.Core.Logic
             using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 IFormatter formatter = new BinaryFormatter();
-                chunk = (Chunk) formatter.Deserialize(stream);
+
+                chunk = (Chunk) formatter.Deserialize(
+                    stream); // Allocation issue flagged here, remove suppression when serialization and deserialization is reworked.
             }
 
             // Checking the chunk

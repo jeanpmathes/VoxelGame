@@ -7,10 +7,11 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Core.Collections
 {
-    [DebuggerDisplay("Count = {Count}")]
+    [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
     public class PooledList<T>
     {
         private readonly ArrayPool<T> arrayPool;
@@ -73,18 +74,11 @@ namespace VoxelGame.Core.Collections
                 {
                     if (value > 0)
                     {
-                        T[] newItems = arrayPool.Rent(value);
-
-                        if (Count > 0) Array.Copy(items, 0, newItems, 0, Count);
-
-                        arrayPool.Return(items);
-
-                        items = newItems;
+                        items = MoveIntoNew(value);
                     }
                     else
                     {
                         if (items.Length > 0) arrayPool.Return(items);
-
                         items = Array.Empty<T>();
                     }
                 }
@@ -120,6 +114,18 @@ namespace VoxelGame.Core.Collections
 
                 items[index] = value;
             }
+        }
+
+        [SuppressMessage("ReSharper.DPA", "DPA0001: Memory allocation issues")]
+        private T[] MoveIntoNew(int newSize)
+        {
+            T[] newItems = arrayPool.Rent(newSize);
+
+            if (Count > 0) Array.Copy(items, 0, newItems, 0, Count);
+
+            arrayPool.Return(items);
+
+            return newItems;
         }
 
         /// <summary>
