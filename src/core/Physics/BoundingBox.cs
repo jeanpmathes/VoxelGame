@@ -57,34 +57,6 @@ namespace VoxelGame.Core.Physics
             new Vector3(x: 0.355f, y: 0.5f, z: 0.355f));
 
         /// <summary>
-        ///     Returns a <see cref="BoundingBox" /> with the size of a block, translated to a specified position.
-        /// </summary>
-        /// <param name="x">The x position.</param>
-        /// <param name="y">The y position.</param>
-        /// <param name="z">The z position.</param>
-        public static BoundingBox BlockAt(int x, int y, int z)
-        {
-            return new(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f) + (x, y, z), new Vector3(x: 0.5f, y: 0.5f, z: 0.5f));
-        }
-
-        /// <summary>
-        ///     Get a <see cref="BoundingBox" /> with a set height at a given position.
-        /// </summary>
-        /// <param name="height">The height of the bounding box, should be a value between 0 and 15.</param>
-        /// <param name="x">The x position.</param>
-        /// <param name="y">The y position.</param>
-        /// <param name="z">The z position.</param>
-        /// <returns>The bounding box.</returns>
-        public static BoundingBox BlockAt(int height, int x, int y, int z)
-        {
-            float halfHeight = (height + 1) * 0.03125f;
-
-            return new BoundingBox(
-                new Vector3(x: 0.5f, halfHeight, z: 0.5f) + (x, y, z),
-                new Vector3(x: 0.5f, halfHeight, z: 0.5f));
-        }
-
-        /// <summary>
         ///     Get a <see cref="BoundingBox" /> with a set height.
         /// </summary>
         /// <param name="height">The height of the bounding box, should be a value between 0 and 15.</param>
@@ -96,18 +68,6 @@ namespace VoxelGame.Core.Physics
             return new BoundingBox(
                 new Vector3(x: 0.5f, halfHeight, z: 0.5f),
                 new Vector3(x: 0.5f, halfHeight, z: 0.5f));
-        }
-
-        /// <summary>
-        ///     Returns a translated copy of this <see cref="BoundingBox" />.
-        /// </summary>
-        /// <param name="x">The x position.</param>
-        /// <param name="y">The y position.</param>
-        /// <param name="z">The z position.</param>
-        /// <returns>The translated bounding box.</returns>
-        public BoundingBox Translated(int x, int y, int z)
-        {
-            return Translated((x, y, z));
         }
 
         /// <summary>
