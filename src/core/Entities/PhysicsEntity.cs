@@ -169,7 +169,9 @@ namespace VoxelGame.Core.Entities
                 {
                     Vector3i boundingBoxCenter = BoundingBox.Center.Floor();
 
-                    IsGrounded = !World.GetBlock(boundingBoxCenter, out _)
+                    IsGrounded = !World.GetBlock(
+                            boundingBoxCenter + (0, (int) Math.Round(BoundingBox.Extents.Y), 0),
+                            out _)
                         ?.IsSolid ?? true;
                 }
 
