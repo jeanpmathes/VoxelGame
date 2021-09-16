@@ -247,8 +247,8 @@ namespace VoxelGame.Core.Physics
         }
 
         private bool IntersectsTerrain_NonRecursive(World world, out bool xCollision, out bool yCollision,
-            out bool zCollision, ref HashSet<(Vector3i position, Block block)> blockIntersections,
-            ref HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections)
+            out bool zCollision, ISet<(Vector3i position, Block block)> blockIntersections,
+            ISet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections)
         {
             var intersects = false;
 
@@ -324,16 +324,16 @@ namespace VoxelGame.Core.Physics
         ///     Calculate all intersections of a <see cref="BoundingBox" /> with the terrain.
         /// </summary>
         public bool IntersectsTerrain(World world, out bool xCollision, out bool yCollision, out bool zCollision,
-            ref HashSet<(Vector3i position, Block block)> blockIntersections,
-            ref HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections)
+            HashSet<(Vector3i position, Block block)> blockIntersections,
+            HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections)
         {
             bool isIntersecting = IntersectsTerrain_NonRecursive(
                 world,
                 out xCollision,
                 out yCollision,
                 out zCollision,
-                ref blockIntersections,
-                ref liquidIntersections);
+                blockIntersections,
+                liquidIntersections);
 
             if (ChildCount == 0) return isIntersecting;
 
@@ -344,8 +344,8 @@ namespace VoxelGame.Core.Physics
                     out bool childX,
                     out bool childY,
                     out bool childZ,
-                    ref blockIntersections,
-                    ref liquidIntersections);
+                    blockIntersections,
+                    liquidIntersections);
 
                 isIntersecting = childIntersecting || isIntersecting;
 

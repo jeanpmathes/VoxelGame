@@ -108,14 +108,11 @@ namespace VoxelGame.Core.Entities
             Vector3 movement = Velocity * deltaTime;
             movement *= 1f / physicsIterations;
 
-            HashSet<(Vector3i position, Block block)> blockIntersections =
-                new();
-
-            HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections =
-                new();
+            HashSet<(Vector3i position, Block block)> blockIntersections = new();
+            HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections = new();
 
             for (var i = 0; i < physicsIterations; i++)
-                DoPhysicsStep(ref movement, ref blockIntersections, ref liquidIntersections);
+                DoPhysicsStep(ref movement, blockIntersections, liquidIntersections);
 
             foreach ((Vector3i position, Block block) in blockIntersections)
                 if (block.ReceiveCollisions)
@@ -155,8 +152,8 @@ namespace VoxelGame.Core.Entities
         }
 
         private void DoPhysicsStep(ref Vector3 movement,
-            ref HashSet<(Vector3i position, Block block)> blockIntersections,
-            ref HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections)
+            HashSet<(Vector3i position, Block block)> blockIntersections,
+            HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections)
         {
             boundingBox.Center += movement;
 
@@ -165,8 +162,8 @@ namespace VoxelGame.Core.Entities
                 out bool xCollision,
                 out bool yCollision,
                 out bool zCollision,
-                ref blockIntersections,
-                ref liquidIntersections))
+                blockIntersections,
+                liquidIntersections))
             {
                 if (yCollision)
                 {

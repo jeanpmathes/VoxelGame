@@ -41,12 +41,12 @@ namespace VoxelGame.Core.Utilities
 
         public static bool HasSolidTop(this World world, Vector3i position)
         {
-            return world.IsSolid(position);
+            return world.IsSolid(position + Vector3i.UnitY);
         }
 
         public static bool HasOpaqueTop(this World world, Vector3i position)
         {
-            Block top = world.GetBlock(position, out _) ?? Block.Air;
+            Block top = world.GetBlock(position + Vector3i.UnitY, out _) ?? Block.Air;
 
             return top.IsSolidAndFull && top.IsOpaque
                    || top is IHeightVariable;
