@@ -150,7 +150,7 @@ namespace VoxelGame.Core.Visuals
 
         public static BlockMeshData Basic(int textureIndex, bool isTextureRotated)
         {
-            return new(4, textureIndex: textureIndex, isTextureRotated: isTextureRotated);
+            return new(vertexCount: 4, textureIndex: textureIndex, isTextureRotated: isTextureRotated);
         }
 
         public static BlockMeshData Complex(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices,
@@ -167,14 +167,14 @@ namespace VoxelGame.Core.Visuals
 
         public static BlockMeshData VaryingHeight(int textureIndex, TintColor tint)
         {
-            return new(4, textureIndex: textureIndex, tint: tint);
+            return new(vertexCount: 4, textureIndex: textureIndex, tint: tint);
         }
 
         public static BlockMeshData CrossPlant(int textureIndex, TintColor tint, bool hasUpper, bool isLowered,
             bool isUpper)
         {
             return new(
-                8,
+                vertexCount: 8,
                 textureIndex: textureIndex,
                 tint: tint,
                 hasUpper: hasUpper,
@@ -185,7 +185,7 @@ namespace VoxelGame.Core.Visuals
         public static BlockMeshData CropPlant(int textureIndex, TintColor tint, bool isLowered, bool isUpper)
         {
             return new(
-                0,
+                vertexCount: 0,
                 textureIndex: textureIndex,
                 tint: tint,
                 hasUpper: false,
@@ -198,7 +198,7 @@ namespace VoxelGame.Core.Visuals
             bool isUpper)
         {
             return new(
-                0,
+                vertexCount: 0,
                 textureIndex: textureIndex,
                 tint: tint,
                 hasUpper: hasUpper,

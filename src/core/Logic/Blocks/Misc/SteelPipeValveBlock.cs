@@ -4,14 +4,16 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block that only connects to steel pipes at specific sides and can be closed.
-    /// Data bit usage: <c>---oaa</c>
+    ///     A block that only connects to steel pipes at specific sides and can be closed.
+    ///     Data bit usage: <c>---oaa</c>
     /// </summary>
     // aa = axis
     // o = open
@@ -45,23 +47,23 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices);
         }
 
-        public override bool IsConnectable(World world, BlockSide side, int x, int y, int z)
+        public override bool IsConnectable(World world, BlockSide side, Vector3i position)
         {
-            return base.IsSideOpen(world, x, y, z, side);
+            return base.IsSideOpen(world, position, side);
         }
 
-        protected override bool IsSideOpen(World world, int x, int y, int z, BlockSide side)
+        protected override bool IsSideOpen(World world, Vector3i position, BlockSide side)
         {
-            world.GetBlock(x, y, z, out uint data);
+            world.GetBlock(position, out uint data);
 
             if ((data & 0b00_0100) != 0) return false;
 
-            return ToAxis(side) == (Axis) (data & AxisDataMask);
+            return side.Axis() == (Axis) (data & AxisDataMask);
         }
 
-        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
+        protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
-            entity.World.SetBlock(this, data ^ 0b00_0100, x, y, z);
+            entity.World.SetBlock(this, data ^ 0b00_0100, position);
         }
     }
 }

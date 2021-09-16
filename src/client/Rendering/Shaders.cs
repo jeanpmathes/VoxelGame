@@ -72,8 +72,13 @@ namespace VoxelGame.Client.Rendering
 
         public static void UpdateOrthographicProjection()
         {
-            Overlay.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
-            ScreenElement.SetMatrix4("projection", Matrix4.CreateOrthographic(Screen.Size.X, Screen.Size.Y, 0f, 1f));
+            Overlay.SetMatrix4(
+                "projection",
+                Matrix4.CreateOrthographic(width: 1f, 1f / Screen.AspectRatio, depthNear: 0f, depthFar: 1f));
+
+            ScreenElement.SetMatrix4(
+                "projection",
+                Matrix4.CreateOrthographic(Screen.Size.X, Screen.Size.Y, depthNear: 0f, depthFar: 1f));
         }
 
         public static void SetTime(float time)

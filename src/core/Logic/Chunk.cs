@@ -30,7 +30,7 @@ namespace VoxelGame.Core.Logic
         public const int ChunkWidth = Section.SectionSize;
         public const int ChunkHeight = Section.SectionSize * VerticalSectionCount;
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
-        public static readonly int VerticalSectionCountExp = (int) Math.Log(VerticalSectionCount, 2);
+        public static readonly int VerticalSectionCountExp = (int) Math.Log(VerticalSectionCount, newBase: 2);
 
         private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
         private readonly ScheduledTickManager<Liquid.LiquidTick> liquidTickManager;
@@ -224,12 +224,12 @@ namespace VoxelGame.Core.Logic
             blockTickManager.Process();
             liquidTickManager.Process();
 
-            int anchor = NumberGenerator.Random.Next(0, VerticalSectionCount);
+            int anchor = NumberGenerator.Random.Next(minValue: 0, VerticalSectionCount);
 
             for (var i = 0; i < RandomTickBatchSize; i++)
             {
                 int y = (anchor + i) % VerticalSectionCount;
-                sections[y].SendRandomUpdates(X, y, Z);
+                sections[y].SendRandomUpdates((X, y, Z));
             }
         }
 
@@ -261,12 +261,12 @@ namespace VoxelGame.Core.Logic
 
         ~Chunk()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 

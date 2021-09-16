@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Core.Utilities
 {
@@ -15,9 +16,9 @@ namespace VoxelGame.Core.Utilities
             return Math.Abs(HashCode.Combine(x, z)) % mod;
         }
 
-        public static int GetPositionDependentNumber(int x, int y, int z, int mod)
+        public static int GetPositionDependentNumber(Vector3i position, int mod)
         {
-            return Math.Abs(HashCode.Combine(x, y, z)) % mod;
+            return Math.Abs(HashCode.Combine(position.X, position.Y, position.Z)) % mod;
         }
     }
 }

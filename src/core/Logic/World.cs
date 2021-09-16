@@ -414,39 +414,33 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         ///     Returns the block at a given position in block coordinates. The block is only searched in active chunks.
         /// </summary>
-        /// <param name="x">The x position in block coordinates.</param>
-        /// <param name="y">The y position in block coordinates.</param>
-        /// <param name="z">The z position in block coordinates.</param>
+        /// <param name="position">The block position.</param>
         /// <param name="data">The block data at the position.</param>
-        /// <returns>The Block at x, y, z or null if the block was not found.</returns>
+        /// <returns>The Block at the given position or null if the block was not found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Block? GetBlock(int x, int y, int z, out uint data)
+        public Block? GetBlock(Vector3i position, out uint data)
         {
-            return GetBlock(x, y, z, out data, out _, out _, out _);
+            return GetBlock(position, out data, out _, out _, out _);
         }
 
         /// <summary>
         ///     Returns the block at a given position in block coordinates. The block is only searched in active chunks.
         /// </summary>
-        /// <param name="x">The x position in block coordinates.</param>
-        /// <param name="y">The y position in block coordinates.</param>
-        /// <param name="z">The z position in block coordinates.</param>
+        /// <param name="position">The block position.</param>
         /// <param name="data">The block data at the position.</param>
         /// <param name="liquid">The liquid at the position.</param>
         /// <param name="level">The liquid level of the position.</param>
         /// <param name="isStatic">If the liquid at that position is static.</param>
         /// <returns>The Block at x, y, z or null if the block was not found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Block? GetBlock(int x, int y, int z, out uint data, out Liquid? liquid, out LiquidLevel level,
+        private Block? GetBlock(Vector3i position, out uint data, out Liquid? liquid, out LiquidLevel level,
             out bool isStatic)
         {
-            if (activeChunks.TryGetValue(
-                (x >> Section.SectionSizeExp, z >> Section.SectionSizeExp),
-                out Chunk? chunk) && y >= 0 && y < Chunk.ChunkHeight)
+            Chunk? chunk = GetChunkWithBlock(position);
+
+            if (chunk != null)
             {
-                uint val = chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1),
-                    y & (Section.SectionSize - 1),
-                    z & (Section.SectionSize - 1)];
+                uint val = chunk.GetSection(position.Y >> Section.SectionSizeExp).GetContent(position);
 
                 Section.Decode(val, out Block block, out data, out liquid, out level, out isStatic);
 
@@ -462,16 +456,16 @@ namespace VoxelGame.Core.Logic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Liquid? GetLiquid(int x, int y, int z, out LiquidLevel level, out bool isStatic)
+        public Liquid? GetLiquid(Vector3i position, out LiquidLevel level, out bool isStatic)
         {
-            return GetPosition(x, y, z, out _, out level, out isStatic).liquid;
+            return GetPosition(position, out _, out level, out isStatic).liquid;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public (Block? block, Liquid? liquid) GetPosition(int x, int y, int z, out uint data, out LiquidLevel level,
+        public (Block? block, Liquid? liquid) GetPosition(Vector3i position, out uint data, out LiquidLevel level,
             out bool isStatic)
         {
-            Block? block = GetBlock(x, y, z, out data, out Liquid? liquid, out level, out isStatic);
+            Block? block = GetBlock(position, out data, out Liquid? liquid, out level, out isStatic);
 
             return (block, liquid);
         }
@@ -482,122 +476,102 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         /// <param name="block">The block which should be set at the position.</param>
         /// <param name="data">The block data which should be set at the position.</param>
-        /// <param name="x">The x position of the block to set.</param>
-        /// <param name="y">The y position of the block to set.</param>
-        /// <param name="z">The z position of the block to set.</param>
+        /// <param name="position">The block position.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetBlock(Block block, uint data, int x, int y, int z)
+        public void SetBlock(Block block, uint data, Vector3i position)
         {
-            Liquid liquid = GetPosition(x, y, z, out _, out LiquidLevel level, out bool isStatic).liquid ?? Liquid.None;
-            SetPosition(block, data, liquid, level, isStatic, x, y, z, true);
+            Liquid liquid = GetPosition(position, out _, out LiquidLevel level, out bool isStatic).liquid ??
+                            Liquid.None;
+
+            SetPosition(block, data, liquid, level, isStatic, position, tickLiquid: true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetLiquid(Liquid liquid, LiquidLevel level, bool isStatic, int x, int y, int z)
+        public void SetLiquid(Liquid liquid, LiquidLevel level, bool isStatic, Vector3i position)
         {
-            Block block = GetBlock(x, y, z, out uint data, out _, out _, out _) ?? Block.Air;
-            SetPosition(block, data, liquid, level, isStatic, x, y, z, false);
+            Block block = GetBlock(position, out uint data, out _, out _, out _) ?? Block.Air;
+            SetPosition(block, data, liquid, level, isStatic, position, tickLiquid: false);
         }
 
         /// <summary>
         ///     Set the <c>isStatic</c> flag of a liquid without causing any updates around this liquid.
         /// </summary>
-        /// <param name="isStatic"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="z"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void ModifyLiquid(bool isStatic, int x, int y, int z)
+        internal void ModifyLiquid(bool isStatic, Vector3i position)
         {
-            ModifyWorldData(x, y, z, ~Section.StaticMask, isStatic ? Section.StaticMask : 0);
+            ModifyWorldData(position, ~Section.StaticMask, isStatic ? Section.StaticMask : 0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y,
-            int z, bool tickLiquid)
+        private void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic,
+            Vector3i position, bool tickLiquid)
         {
-            if (!activeChunks.TryGetValue(
-                (x >> Section.SectionSizeExp, z >> Section.SectionSizeExp),
-                out Chunk? chunk) || y < 0 || y >= Chunk.ChunkHeight) return;
+            Chunk? chunk = GetChunkWithBlock(position);
+
+            if (chunk == null) return;
 
             uint val = Section.Encode(block, data, liquid, level, isStatic);
 
-            chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1),
-                y & (Section.SectionSize - 1),
-                z & (Section.SectionSize - 1)] = val;
+            chunk.GetSection(position.Y >> Section.SectionSizeExp).SetContent(position, val);
 
-            if (tickLiquid) liquid.TickNow(this, x, y, z, level, isStatic);
+            if (tickLiquid) liquid.TickNow(this, position, level, isStatic);
 
             // Block updates - Side is passed out of the perspective of the block receiving the block update.
 
-            (Block? blockNeighbor, Liquid? liquidNeighbor) = GetPosition(x, y, z + 1, out data, out _, out isStatic);
-            blockNeighbor?.BlockUpdate(this, x, y, z + 1, data, BlockSide.Back);
-            liquidNeighbor?.TickSoon(this, x, y, z + 1, isStatic);
+            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
+            {
+                Vector3i neighborPosition = side.Offset(position);
 
-            (blockNeighbor, liquidNeighbor) = GetPosition(x, y, z - 1, out data, out _, out isStatic);
-            blockNeighbor?.BlockUpdate(this, x, y, z - 1, data, BlockSide.Front);
-            liquidNeighbor?.TickSoon(this, x, y, z - 1, isStatic);
+                (Block? blockNeighbor, Liquid? liquidNeighbor) = GetPosition(
+                    neighborPosition,
+                    out data,
+                    out _,
+                    out isStatic);
 
-            (blockNeighbor, liquidNeighbor) = GetPosition(x - 1, y, z, out data, out _, out isStatic);
-            blockNeighbor?.BlockUpdate(this, x - 1, y, z, data, BlockSide.Right);
-            liquidNeighbor?.TickSoon(this, x - 1, y, z, isStatic);
+                blockNeighbor?.BlockUpdate(this, neighborPosition, data, side.Opposite());
+                liquidNeighbor?.TickSoon(this, neighborPosition, isStatic);
+            }
 
-            (blockNeighbor, liquidNeighbor) = GetPosition(x + 1, y, z, out data, out _, out isStatic);
-            blockNeighbor?.BlockUpdate(this, x + 1, y, z, data, BlockSide.Left);
-            liquidNeighbor?.TickSoon(this, x + 1, y, z, isStatic);
-
-            (blockNeighbor, liquidNeighbor) = GetPosition(x, y - 1, z, out data, out _, out isStatic);
-            blockNeighbor?.BlockUpdate(this, x, y - 1, z, data, BlockSide.Top);
-            liquidNeighbor?.TickSoon(this, x, y - 1, z, isStatic);
-
-            (blockNeighbor, liquidNeighbor) = GetPosition(x, y + 1, z, out data, out _, out isStatic);
-            blockNeighbor?.BlockUpdate(this, x, y + 1, z, data, BlockSide.Bottom);
-            liquidNeighbor?.TickSoon(this, x, y + 1, z, isStatic);
-
-            ProcessChangedSection(chunk, x, y, z);
+            ProcessChangedSection(chunk, position);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic, int x, int y,
-            int z)
+        public void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic,
+            Vector3i position)
         {
-            SetPosition(block, data, liquid, level, isStatic, x, y, z, true);
+            SetPosition(block, data, liquid, level, isStatic, position, tickLiquid: true);
         }
 
-        protected abstract void ProcessChangedSection(Chunk chunk, int x, int y, int z);
+        protected abstract void ProcessChangedSection(Chunk chunk, Vector3i position);
 
         /// <summary>
         ///     Modify the data of a position, without causing any updates.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ModifyWorldData(int x, int y, int z, uint clearMask, uint addMask)
+        private void ModifyWorldData(Vector3i position, uint clearMask, uint addMask)
         {
-            if (!activeChunks.TryGetValue(
-                (x >> Section.SectionSizeExp, z >> Section.SectionSizeExp),
-                out Chunk? chunk) || y < 0 || y >= Chunk.VerticalSectionCount * Section.SectionSize) return;
+            Chunk? chunk = GetChunkWithBlock(position);
 
-            uint val = chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1),
-                y & (Section.SectionSize - 1),
-                z & (Section.SectionSize - 1)];
+            if (chunk == null) return;
+
+            uint val = chunk.GetSection(position.Y >> Section.SectionSizeExp).GetContent(position);
 
             val &= clearMask;
             val |= addMask;
 
-            chunk.GetSection(y >> Section.SectionSizeExp)[x & (Section.SectionSize - 1),
-                y & (Section.SectionSize - 1),
-                z & (Section.SectionSize - 1)] = val;
+            chunk.GetSection(position.Y >> Section.SectionSizeExp).SetContent(position, val);
 
-            ProcessChangedSection(chunk, x, y, z);
+            ProcessChangedSection(chunk, position);
         }
 
-        public void SetDefaultBlock(int x, int y, int z)
+        public void SetDefaultBlock(Vector3i position)
         {
-            SetBlock(Block.Air, 0, x, y, z);
+            SetBlock(Block.Air, data: 0, position);
         }
 
-        public void SetDefaultLiquid(int x, int y, int z)
+        public void SetDefaultLiquid(Vector3i position)
         {
-            SetLiquid(Liquid.None, LiquidLevel.Eight, true, x, y, z);
+            SetLiquid(Liquid.None, LiquidLevel.Eight, isStatic: true, position);
         }
 
         /// <summary>
@@ -616,13 +590,14 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         ///     Gets the chunk that contains the specified position. If the chunk is not active, null is returned.
         /// </summary>
-        /// <param name="x">The x position.</param>
-        /// <param name="z">The y position.</param>
+        /// <param name="position">The position. The y component is ignored.</param>
         /// <returns>The chunk if it exists, null if not.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Chunk? GetChunkOfPosition(int x, int z)
+        public Chunk? GetChunkOfPosition(Vector3i position)
         {
-            activeChunks.TryGetValue((x >> Section.SectionSizeExp, z >> Section.SectionSizeExp), out Chunk? chunk);
+            activeChunks.TryGetValue(
+                (position.X >> Section.SectionSizeExp, position.Z >> Section.SectionSizeExp),
+                out Chunk? chunk);
 
             return chunk;
         }
@@ -637,10 +612,22 @@ namespace VoxelGame.Core.Logic
         {
             (int x, int y, int z) = sectionPosition;
 
-            if (activeChunks.TryGetValue((x, z), out Chunk? chunk) && y >= 0 && y < Chunk.VerticalSectionCount)
+            if (activeChunks.TryGetValue((x, z), out Chunk? chunk) && y is >= 0 and < Chunk.VerticalSectionCount)
                 return chunk.GetSection(y);
 
             return null;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private Chunk? GetChunkWithBlock(Vector3i blockPosition)
+        {
+            bool exists = activeChunks.TryGetValue(
+                (blockPosition.X >> Section.SectionSizeExp, blockPosition.Z >> Section.SectionSizeExp),
+                out Chunk? chunk);
+
+            if (!exists || blockPosition.Y is < 0 or >= Chunk.ChunkHeight) return null;
+
+            return chunk;
         }
 
         /// <summary>
@@ -803,12 +790,12 @@ namespace VoxelGame.Core.Logic
 
         ~World()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 

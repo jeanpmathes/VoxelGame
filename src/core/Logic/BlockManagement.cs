@@ -96,7 +96,7 @@ namespace VoxelGame.Core.Logic
             Language.AshCoveredDirt,
             nameof(GrassBurned),
             TextureLayout.UnqiueColumn("ash_side", "dirt", "ash"),
-            false);
+            hasNeutralTint: false);
 
         public static readonly Block Dirt = new DirtBlock(
             Language.Dirt,
@@ -109,34 +109,34 @@ namespace VoxelGame.Core.Logic
             nameof(Farmland),
             TextureLayout.UnqiueTop("dirt", "farmland"),
             TextureLayout.UnqiueTop("dirt_wet", "farmland_wet"),
-            true);
+            supportsFullGrowth: true);
 
         public static readonly Block TallGrass = new CrossPlantBlock(
             Language.TallGrass,
             nameof(TallGrass),
             "tall_grass",
-            true,
+            isReplaceable: true,
             BoundingBox.CrossBlock);
 
         public static readonly Block VeryTallGrass = new DoubleCrossPlantBlock(
             Language.VeryTallGrass,
             nameof(VeryTallGrass),
             "very_tall_grass",
-            1,
+            topTexOffset: 1,
             BoundingBox.CrossBlock);
 
         public static readonly Block Flower = new CrossPlantBlock(
             Language.Flower,
             nameof(Flower),
             "flower",
-            true,
-            new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.175f, 0.5f, 0.175f)));
+            isReplaceable: true,
+            new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f)));
 
         public static readonly Block TallFlower = new DoubleCrossPlantBlock(
             Language.TallFlower,
             nameof(TallFlower),
             "tall_flower",
-            1,
+            topTexOffset: 1,
             BoundingBox.CrossBlock);
 
         public static readonly Block Stone = new BasicBlock(
@@ -158,12 +158,12 @@ namespace VoxelGame.Core.Logic
             Language.Leaves,
             nameof(Leaves),
             TextureLayout.Uniform("leaves"),
-            false);
+            isOpaque: false);
 
         public static readonly Block Log = new RotatedBlock(
             Language.Log,
             nameof(Log),
-            TextureLayout.Column("log", 0, 1));
+            TextureLayout.Column("log", sideOffset: 0, endOffset: 1));
 
         public static readonly Block Wood = new OrganicConstructionBlock(
             Language.Wood,
@@ -202,9 +202,9 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Cactus = new GrowingBlock(
             Language.Cactus,
             nameof(Cactus),
-            TextureLayout.Column("cactus", 0, 1),
+            TextureLayout.Column("cactus", sideOffset: 0, endOffset: 1),
             Sand,
-            4);
+            maxHeight: 4);
 
         public static readonly Block Pumpkin = new GroundedBlock(
             Language.Pumpkin,
@@ -220,45 +220,71 @@ namespace VoxelGame.Core.Logic
             Language.SpiderWeb,
             nameof(Spiderweb),
             "spider_web",
-            0.01f);
+            maxVelocity: 0.01f);
 
-        public static readonly Block Vines = new GrowingFlatBlock(Language.Vines, nameof(Vines), "vines", 2f, 1f);
-        public static readonly Block Flax = new CropBlock(Language.Flax, nameof(Flax), "flax", 0, 1, 2, 3, 3, 4, 5);
+        public static readonly Block Vines = new GrowingFlatBlock(
+            Language.Vines,
+            nameof(Vines),
+            "vines",
+            climbingVelocity: 2f,
+            slidingVelocity: 1f);
+
+        public static readonly Block Flax = new CropBlock(
+            Language.Flax,
+            nameof(Flax),
+            "flax",
+            second: 0,
+            third: 1,
+            fourth: 2,
+            fifth: 3,
+            sixth: 3,
+            final: 4,
+            dead: 5);
 
         public static readonly Block Potatoes = new CropBlock(
             Language.Potatoes,
             nameof(Potatoes),
             "potato",
-            1,
-            1,
-            2,
-            2,
-            3,
-            4,
-            5);
+            second: 1,
+            third: 1,
+            fourth: 2,
+            fifth: 2,
+            sixth: 3,
+            final: 4,
+            dead: 5);
 
         public static readonly Block Onions = new CropBlock(
             Language.Onions,
             nameof(Onions),
             "onion",
-            0,
-            1,
-            1,
-            2,
-            2,
-            3,
-            4);
+            second: 0,
+            third: 1,
+            fourth: 1,
+            fifth: 2,
+            sixth: 2,
+            final: 3,
+            dead: 4);
 
-        public static readonly Block Wheat = new CropBlock(Language.Wheat, nameof(Wheat), "wheat", 0, 1, 1, 2, 2, 3, 4);
+        public static readonly Block Wheat = new CropBlock(
+            Language.Wheat,
+            nameof(Wheat),
+            "wheat",
+            second: 0,
+            third: 1,
+            fourth: 1,
+            fifth: 2,
+            sixth: 2,
+            final: 3,
+            dead: 4);
 
         public static readonly Block Maize = new DoubleCropBlock(
             Language.Maize,
             nameof(Maize),
             "maize",
-            0,
-            1,
-            2,
-            2,
+            dead: 0,
+            first: 1,
+            second: 2,
+            third: 2,
             (3, 6),
             (3, 6),
             (4, 7),
@@ -295,7 +321,12 @@ namespace VoxelGame.Core.Logic
             nameof(StoneWorked),
             TextureLayout.Uniform("stone_worked"));
 
-        public static readonly Block Ladder = new FlatBlock(Language.Ladder, nameof(Ladder), "ladder", 3f, 1f);
+        public static readonly Block Ladder = new FlatBlock(
+            Language.Ladder,
+            nameof(Ladder),
+            "ladder",
+            climbingVelocity: 3f,
+            slidingVelocity: 1f);
 
         public static readonly Block TilesSmall = new ConstructionBlock(
             Language.SmallTiles,
@@ -340,7 +371,7 @@ namespace VoxelGame.Core.Logic
             Language.Vase,
             nameof(Vase),
             "vase",
-            new BoundingBox(new Vector3(0.5f, 0.375f, 0.5f), new Vector3(0.25f, 0.375f, 0.25f)));
+            new BoundingBox(new Vector3(x: 0.5f, y: 0.375f, z: 0.5f), new Vector3(x: 0.25f, y: 0.375f, z: 0.25f)));
 
         public static readonly Block Bed = new BedBlock(Language.Bed, nameof(Bed), "bed");
 
@@ -353,7 +384,7 @@ namespace VoxelGame.Core.Logic
             Language.Carpet,
             nameof(Carpet),
             "carpet",
-            new BoundingBox(new Vector3(0.5f, 0.03125f, 0.5f), new Vector3(0.5f, 0.03125f, 0.5f)));
+            new BoundingBox(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
 
         #endregion DECORATION BLOCKS
 
@@ -410,7 +441,7 @@ namespace VoxelGame.Core.Logic
             Language.PulsatingBlock,
             nameof(Pulsating),
             TextureLayout.Uniform("pulsating"),
-            true);
+            isAnimated: true);
 
         public static readonly Block EternalFlame = new EternalFlame(
             Language.EternalFlame,
@@ -437,7 +468,7 @@ namespace VoxelGame.Core.Logic
             Language.DecoratedCarpet,
             nameof(CarpetDecorated),
             "carpet_decorated",
-            new BoundingBox(new Vector3(0.5f, 0.03125f, 0.5f), new Vector3(0.5f, 0.03125f, 0.5f)));
+            new BoundingBox(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
 
         public static readonly Block LiquidBarrier = new LiquidBarrierBlock(
             Language.Barrier,
@@ -445,7 +476,11 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("liquid_barrier_closed"),
             TextureLayout.Uniform("liquid_barrier_open"));
 
-        public static readonly Block Mud = new MudBlock(Language.Mud, nameof(Mud), TextureLayout.Uniform("mud"), 0.1f);
+        public static readonly Block Mud = new MudBlock(
+            Language.Mud,
+            nameof(Mud),
+            TextureLayout.Uniform("mud"),
+            maxVelocity: 0.1f);
 
         public static readonly Block Pumice = new BasicBlock(
             Language.Pumice,
@@ -460,7 +495,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block SteelPipe = new PipeBlock<IIndustrialPipeConnectable>(
             Language.SteelPipe,
             nameof(SteelPipe),
-            0.375f,
+            diameter: 0.375f,
             "steel_pipe_center",
             "steel_pipe_connector",
             "steel_pipe_surface");
@@ -468,7 +503,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block WoodenPipe = new PipeBlock<IPrimitivePipeConnectable>(
             Language.WoodenPipe,
             nameof(WoodenPipe),
-            0.3125f,
+            diameter: 0.3125f,
             "wood_pipe_center",
             "wood_pipe_connector",
             "wood_pipe_surface");
@@ -476,13 +511,13 @@ namespace VoxelGame.Core.Logic
         public static readonly Block StraightSteelPipe = new StraightSteelPipeBlock(
             Language.SteelPipeStraight,
             nameof(StraightSteelPipe),
-            0.375f,
+            diameter: 0.375f,
             "steel_pipe_straight");
 
         public static readonly Block PipeValve = new SteelPipeValveBlock(
             Language.ValvePipe,
             nameof(PipeValve),
-            0.375f,
+            diameter: 0.375f,
             "steel_pipe_valve_open",
             "steel_pipe_valve_closed");
 
@@ -494,7 +529,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Pump = new PumpBlock(
             Language.Pump,
             nameof(Pump),
-            16,
+            pumpDistance: 16,
             TextureLayout.Uniform("pump"));
 
         public static readonly Block Path = new InsetDirtBlock(
@@ -502,7 +537,7 @@ namespace VoxelGame.Core.Logic
             nameof(Path),
             TextureLayout.Uniform("dirt"),
             TextureLayout.Uniform("dirt_wet"),
-            false);
+            supportsFullGrowth: false);
 
         public static readonly Block Concrete = new ConcreteBlock(
             Language.Concrete,

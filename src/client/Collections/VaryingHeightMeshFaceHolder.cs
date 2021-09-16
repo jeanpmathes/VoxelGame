@@ -58,7 +58,7 @@ namespace VoxelGame.Client.Collections
                 isSingleSided);
 
             // Front and Back faces cannot be extended (along the y axis) when the liquid is not all full level.
-            bool levelPermitsExtending = !((side == BlockSide.Front || side == BlockSide.Back) && !isFull);
+            bool levelPermitsExtending = !(side is BlockSide.Front or BlockSide.Back && !isFull);
 
             // Check if an already existing face can be extended.
             if (levelPermitsExtending && (lastFaces[layer][row]?.IsExtendable(currentFace) ?? false))
@@ -111,7 +111,7 @@ namespace VoxelGame.Client.Collections
             MeshFace? lastCombinationRowFace = null;
 
             // Left and right faces cannot be combined (along the y axis) when the liquid is not all full level.
-            if ((side == BlockSide.Left || side == BlockSide.Right) && !isFull) return;
+            if (side is BlockSide.Left or BlockSide.Right && !isFull) return;
 
             // Check if the current face can be combined with a face in the previous row.
             while (combinationRowFace != null)
@@ -211,7 +211,7 @@ namespace VoxelGame.Client.Collections
             const int heightShift = 24;
             const int lengthShift = 20;
 
-            return !(side == BlockSide.Left || side == BlockSide.Right)
+            return !(side is BlockSide.Left or BlockSide.Right)
                 ? (height << heightShift) | (length << lengthShift)
                 : (length << heightShift) | (height << lengthShift);
         }

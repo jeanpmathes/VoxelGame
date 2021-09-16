@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 
@@ -29,43 +30,42 @@ namespace VoxelGame.Core.Logic.Blocks
             this.maxHeight = maxHeight;
         }
 
-        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            Block down = world.GetBlock(x, y - 1, z, out _) ?? Air;
+            Block down = world.GetBlock(position - Vector3i.UnitY, out _) ?? Air;
 
             return down == requiredGround || down == this;
         }
 
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom)
             {
-                Block below = world.GetBlock(x, y - 1, z, out _) ?? Air;
+                Block below = world.GetBlock(position - Vector3i.UnitY, out _) ?? Air;
 
-                if (below != requiredGround && below != this) ScheduleDestroy(world, x, y, z);
+                if (below != requiredGround && below != this) ScheduleDestroy(world, position);
             }
         }
 
-        internal override void RandomUpdate(World world, int x, int y, int z, uint data)
+        internal override void RandomUpdate(World world, Vector3i position, uint data)
         {
             var age = (int) (data & 0b00_0111);
 
             if (age < 7)
             {
-                world.SetBlock(this, (uint) (age + 1), x, y, z);
+                world.SetBlock(this, (uint) (age + 1), position);
             }
             else
             {
-                if (world.GetBlock(x, y + 1, z, out _)?.IsReplaceable ?? false)
-                {
-                    var height = 0;
+                if (!(world.GetBlock(position + Vector3i.UnitY, out _)?.IsReplaceable ?? false)) return;
 
-                    for (var o = 0; o < maxHeight; o++)
-                        if (world.GetBlock(x, y - o, z, out _) == this) height++;
-                        else break;
+                var height = 0;
 
-                    if (height < maxHeight) Place(world, x, y + 1, z);
-                }
+                for (var o = 0; o < maxHeight; o++)
+                    if (world.GetBlock(position - Vector3i.UnitY * o, out _) == this) height++;
+                    else break;
+
+                if (height < maxHeight) Place(world, position + Vector3i.UnitY);
             }
         }
     }

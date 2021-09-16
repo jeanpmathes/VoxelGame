@@ -42,15 +42,15 @@ namespace VoxelGame.Client.Rendering
 
         public SectionRenderer()
         {
-            simpleDrawGroup = ArrayIDataDrawGroup.Create(2);
-            crossPlantDrawGroup = ArrayIDataDrawGroup.Create(2);
-            cropPlantDrawGroup = ArrayIDataDrawGroup.Create(2);
+            simpleDrawGroup = ArrayIDataDrawGroup.Create(size: 2);
+            crossPlantDrawGroup = ArrayIDataDrawGroup.Create(size: 2);
+            cropPlantDrawGroup = ArrayIDataDrawGroup.Create(size: 2);
 
-            complexDrawGroup = ElementPositionDataDrawGroup.Create(3, 2);
+            complexDrawGroup = ElementPositionDataDrawGroup.Create(positionSize: 3, dataSize: 2);
 
-            varyingHeightDrawGroup = ElementIDataDrawGroup.Create(2);
-            opaqueLiquidDrawGroup = ElementIDataDrawGroup.Create(2);
-            transparentLiquidDrawGroup = ElementIDataDrawGroup.Create(2);
+            varyingHeightDrawGroup = ElementIDataDrawGroup.Create(size: 2);
+            opaqueLiquidDrawGroup = ElementIDataDrawGroup.Create(size: 2);
+            transparentLiquidDrawGroup = ElementIDataDrawGroup.Create(size: 2);
 
             #region SIMPLE BUFFER SETUP
 
@@ -264,7 +264,7 @@ namespace VoxelGame.Client.Rendering
             Application.Client.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
             GL.Enable(EnableCap.Blend);
-            GL.DepthMask(false);
+            GL.DepthMask(flag: false);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             SetupShader(Shaders.TransparentLiquidSection, view, projection);
@@ -349,7 +349,7 @@ namespace VoxelGame.Client.Rendering
         private static void FinishTransparentLiquidBuffer()
         {
             GL.Disable(EnableCap.Blend);
-            GL.DepthMask(true);
+            GL.DepthMask(flag: true);
         }
 
         #region IDisposable Support
@@ -383,12 +383,12 @@ namespace VoxelGame.Client.Rendering
 
         ~SectionRenderer()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 

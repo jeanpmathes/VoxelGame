@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -36,7 +37,7 @@ namespace VoxelGame.Core.Logic.Blocks
             this.wet = wet;
         }
 
-        public virtual bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
+        public virtual bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
         {
             return liquid.Viscosity < 100;
         }
@@ -61,20 +62,20 @@ namespace VoxelGame.Core.Logic.Blocks
             return mesh;
         }
 
-        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return !world.HasSolidTop(x, y, z) || Dirt.CanPlace(world, x, y, z, entity);
+            return !world.HasSolidTop(position) || Dirt.CanPlace(world, position, entity);
         }
 
-        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            if (world.HasSolidTop(x, y, z)) Dirt.Place(world, x, y, z, entity);
-            else world.SetBlock(this, 0, x, y, z);
+            if (world.HasSolidTop(position)) Dirt.Place(world, position, entity);
+            else world.SetBlock(this, data: 0, position);
         }
 
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            if (side == BlockSide.Top && world.HasOpaqueTop(x, y, z)) world.SetBlock(Dirt, 0, x, y, z);
+            if (side == BlockSide.Top && world.HasOpaqueTop(position)) world.SetBlock(Dirt, data: 0, position);
         }
     }
 }

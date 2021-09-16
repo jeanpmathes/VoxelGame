@@ -9,7 +9,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Utilities
 {
     /// <summary>
-    /// A set of colors that can be stored in up to four bits, less bits are supported too.
+    ///     A set of colors that can be stored in up to four bits, less bits are supported too.
     /// </summary>
     public enum BlockColor
     {
@@ -48,15 +48,15 @@ namespace VoxelGame.Core.Utilities
         PrussianBlue = 0b11100,
         SlateGray = 0b11101,
         Taupe = 0b11110,
-        Viridian = 0b11111,
+        Viridian = 0b11111
     }
 
     public static class BlockColorExtensions
     {
         /// <summary>
-        /// Converts a <see cref="BlockColor"/> to a <see cref="TintColor"/>.
+        ///     Converts a <see cref="BlockColor" /> to a <see cref="TintColor" />.
         /// </summary>
-        /// <param name="color">The <see cref="BlockColor"/> to convert.</param>
+        /// <param name="color">The <see cref="BlockColor" /> to convert.</param>
         /// <returns>The resulting TintColor.</returns>
         public static TintColor ToTintColor(this BlockColor color)
         {
@@ -97,7 +97,7 @@ namespace VoxelGame.Core.Utilities
                 BlockColor.Taupe => TintColor.Taupe,
                 BlockColor.Viridian => TintColor.Viridian,
 
-                _ => new TintColor(1f, 1f, 1f),
+                _ => new TintColor(r: 1f, g: 1f, b: 1f)
             };
         }
     }

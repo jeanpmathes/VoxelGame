@@ -19,9 +19,9 @@ namespace VoxelGame.Graphics.Groups
 
         private ElementDrawGroup()
         {
-            GL.CreateBuffers(1, out vbo);
-            GL.CreateBuffers(1, out ebo);
-            GL.CreateVertexArrays(1, out vao);
+            GL.CreateBuffers(n: 1, out vbo);
+            GL.CreateBuffers(n: 1, out ebo);
+            GL.CreateVertexArrays(n: 1, out vao);
         }
 
         public static ElementDrawGroup Create()
@@ -55,15 +55,23 @@ namespace VoxelGame.Graphics.Groups
 
         public void VertexArrayBindBuffer(int size)
         {
-            GL.VertexArrayVertexBuffer(vao, 0, vbo, IntPtr.Zero, size * sizeof(float));
+            GL.VertexArrayVertexBuffer(vao, bindingindex: 0, vbo, IntPtr.Zero, size * sizeof(float));
             GL.VertexArrayElementBuffer(vao, ebo);
         }
 
         public void VertexArrayBindAttribute(int attribute, int size, int offset)
         {
             GL.EnableVertexArrayAttrib(vao, attribute);
-            GL.VertexArrayAttribFormat(vao, attribute, size, VertexAttribType.Float, false, offset * sizeof(float));
-            GL.VertexArrayAttribBinding(vao, attribute, 0);
+
+            GL.VertexArrayAttribFormat(
+                vao,
+                attribute,
+                size,
+                VertexAttribType.Float,
+                normalized: false,
+                offset * sizeof(float));
+
+            GL.VertexArrayAttribBinding(vao, attribute, bindingindex: 0);
         }
 
         public void BindVertexArray()
@@ -73,7 +81,7 @@ namespace VoxelGame.Graphics.Groups
 
         public void DrawElements(PrimitiveType type)
         {
-            GL.DrawElements(type, elementCount, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(type, elementCount, DrawElementsType.UnsignedInt, indices: 0);
         }
 
         public void Delete()

@@ -23,9 +23,9 @@ namespace VoxelGame.Graphics.Groups
         {
             this.size = size;
 
-            GL.CreateBuffers(1, out vbo);
-            GL.CreateBuffers(1, out ebo);
-            GL.CreateVertexArrays(1, out vao);
+            GL.CreateBuffers(n: 1, out vbo);
+            GL.CreateBuffers(n: 1, out ebo);
+            GL.CreateVertexArrays(n: 1, out vao);
         }
 
         public bool IsFilled { get; private set; }
@@ -64,7 +64,7 @@ namespace VoxelGame.Graphics.Groups
 
         public void VertexArrayBindBuffer()
         {
-            GL.VertexArrayVertexBuffer(vao, 0, vbo, IntPtr.Zero, size * sizeof(int));
+            GL.VertexArrayVertexBuffer(vao, bindingindex: 0, vbo, IntPtr.Zero, size * sizeof(int));
             GL.VertexArrayElementBuffer(vao, ebo);
         }
 
@@ -72,12 +72,12 @@ namespace VoxelGame.Graphics.Groups
         {
             GL.EnableVertexArrayAttrib(vao, attribute);
             GL.VertexArrayAttribIFormat(vao, attribute, size, VertexAttribType.Int, 0 * sizeof(int));
-            GL.VertexArrayAttribBinding(vao, attribute, 0);
+            GL.VertexArrayAttribBinding(vao, attribute, bindingindex: 0);
         }
 
         public void DrawElements()
         {
-            GL.DrawElements(PrimitiveType.Triangles, elementCount, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Triangles, elementCount, DrawElementsType.UnsignedInt, indices: 0);
         }
 
         public void Delete()

@@ -4,8 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System;
+using System.Diagnostics.CodeAnalysis;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Utilities
@@ -22,25 +23,26 @@ namespace VoxelGame.Core.Utilities
     {
         public static Orientation ToOrientation(this Vector3 vector)
         {
-            if (Math.Abs(vector.Z) > Math.Abs(vector.X))
-            {
-                return (vector.Z > 0) ? Orientation.South : Orientation.North;
-            }
-            else
-            {
-                return (vector.X > 0) ? Orientation.East : Orientation.West;
-            }
+            if (Math.Abs(vector.Z) > Math.Abs(vector.X)) return vector.Z > 0 ? Orientation.South : Orientation.North;
+
+            return vector.X > 0 ? Orientation.East : Orientation.West;
         }
 
-        public static Vector3 ToVector(this Orientation orientation)
+        public static Vector3 ToVector3(this Orientation orientation)
+        {
+            return orientation.ToVector3i().ToVector3();
+        }
+
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        public static Vector3i ToVector3i(this Orientation orientation)
         {
             return orientation switch
             {
-                Orientation.North => -Vector3.UnitZ,
-                Orientation.East => Vector3.UnitX,
-                Orientation.South => Vector3.UnitZ,
-                Orientation.West => -Vector3.UnitX,
-                _ => -Vector3.UnitZ
+                Orientation.North => -Vector3i.UnitZ,
+                Orientation.East => Vector3i.UnitX,
+                Orientation.South => Vector3i.UnitZ,
+                Orientation.West => -Vector3i.UnitX,
+                _ => -Vector3i.UnitZ
             };
         }
 
@@ -56,7 +58,7 @@ namespace VoxelGame.Core.Utilities
             };
         }
 
-        public static Orientation Invert(this Orientation orientation)
+        public static Orientation Opposite(this Orientation orientation)
         {
             return orientation switch
             {
@@ -80,20 +82,49 @@ namespace VoxelGame.Core.Utilities
             };
         }
 
-        /// <summary>
-        /// Check if this orientation is on the x axis.
-        /// </summary>
-        public static bool IsX(this Orientation orientation)
+        public static Vector3i Offset(this Orientation orientation, Vector3i vector)
         {
-            return orientation == Orientation.East || orientation == Orientation.West;
+            return vector + orientation.ToVector3i();
+        }
+
+        public static uint ToFlag(this Orientation orientation)
+        {
+            return orientation switch
+            {
+                Orientation.North => 0b1000,
+                Orientation.East => 0b0100,
+                Orientation.South => 0b0010,
+                Orientation.West => 0b0001,
+                _ => 0b1000
+            };
         }
 
         /// <summary>
-        /// Check if this orientation is on the z axis.
+        ///     Check if this orientation is on the x axis.
+        /// </summary>
+        public static bool IsX(this Orientation orientation)
+        {
+            return orientation.Axis() == Utilities.Axis.X;
+        }
+
+        /// <summary>
+        ///     Check if this orientation is on the z axis.
         /// </summary>
         public static bool IsZ(this Orientation orientation)
         {
-            return orientation == Orientation.North || orientation == Orientation.South;
+            return orientation.Axis() == Utilities.Axis.Z;
+        }
+
+        public static Axis Axis(this Orientation orientation)
+        {
+            return orientation switch
+            {
+                Orientation.North => Utilities.Axis.Z,
+                Orientation.East => Utilities.Axis.X,
+                Orientation.South => Utilities.Axis.Z,
+                Orientation.West => Utilities.Axis.X,
+                _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
+            };
         }
     }
 }

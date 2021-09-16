@@ -32,13 +32,13 @@ namespace VoxelGame.Core.WorldGeneration
             noise = new FastNoise(seed);
 
             // Settings for fractal noise
-            noise.SetFractalLacunarity(0.5f);
-            noise.SetFractalGain(2f);
+            noise.SetFractalLacunarity(lacunarity: 0.5f);
+            noise.SetFractalGain(gain: 2f);
 
             // Settings for cellular noise
             noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance2Div);
             noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Euclidean);
-            noise.SetCellularJitter(0.4f);
+            noise.SetCellularJitter(cellularJitter: 0.4f);
 
             logger.LogInformation("Created complex world generator");
         }

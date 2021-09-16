@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -15,27 +15,27 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// An animated block that attaches to sides.
-    /// Data bit usage: <c>-neswt</c>
+    ///     An animated block that attaches to sides.
+    ///     Data bit usage: <c>-fblrt</c>
     /// </summary>
-    // n = north
-    // e = east
-    // s = south
-    // w = west
+    // f = front
+    // b = back
+    // l = left
+    // r = right
     // t = top
     public class FireBlock : Block, IFillable
     {
         private const int TickOffset = 150;
         private const int TickVariation = 25;
 
-        private float[] completeVertices = null!;
+        private readonly string texture;
+
+        private float[][] attachedVertices = null!;
         private uint[] completeIndices = null!;
         private int[] completeTexIndices = null!;
 
-        private float[][] attachedVertices = null!;
+        private float[] completeVertices = null!;
         private int texIndex;
-
-        private readonly string texture;
 
         internal FireBlock(string name, string namedId, string texture) :
             base(
@@ -53,6 +53,11 @@ namespace VoxelGame.Core.Logic.Blocks
                 TargetBuffer.Complex)
         {
             this.texture = texture;
+        }
+
+        public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid != Liquid.None) Destroy(world, position);
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
@@ -136,23 +141,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             attachedVertices = new[]
             {
-                // North:
-                new[]
-                {
-                    1f, 0f, 0.001f, 0f, 0f, 0f, 0f, 0f,
-                    1f, 1f, 0.1f, 0f, 1f, 0f, 0f, 0f,
-                    0f, 1f, 0.1f, 1f, 1f, 0f, 0f, 0f,
-                    0f, 0f, 0.001f, 1f, 0f, 0f, 0f, 0f
-                },
-                // East:
-                new[]
-                {
-                    0.999f, 0f, 1f, 0f, 0f, 0f, 0f, 0f,
-                    0.9f, 1f, 1f, 0f, 1f, 0f, 0f, 0f,
-                    0.9f, 1f, 0f, 1f, 1f, 0f, 0f, 0f,
-                    0.999f, 0f, 0f, 1f, 0f, 0f, 0f, 0f
-                },
-                // South:
+                // Front:
                 new[]
                 {
                     0f, 0f, 0.999f, 0f, 0f, 0f, 0f, 0f,
@@ -160,7 +149,15 @@ namespace VoxelGame.Core.Logic.Blocks
                     1f, 1f, 0.9f, 1f, 1f, 0f, 0f, 0f,
                     1f, 0f, 0.999f, 1f, 0f, 0f, 0f, 0f
                 },
-                // West:
+                // Back:
+                new[]
+                {
+                    1f, 0f, 0.001f, 0f, 0f, 0f, 0f, 0f,
+                    1f, 1f, 0.1f, 0f, 1f, 0f, 0f, 0f,
+                    0f, 1f, 0.1f, 1f, 1f, 0f, 0f, 0f,
+                    0f, 0f, 0.001f, 1f, 0f, 0f, 0f, 0f
+                },
+                // Left:
                 new[]
                 {
                     0.001f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
@@ -168,6 +165,18 @@ namespace VoxelGame.Core.Logic.Blocks
                     0.1f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
                     0.001f, 0f, 1f, 1f, 0f, 0f, 0f, 0f
                 },
+                // Right:
+                new[]
+                {
+                    0.999f, 0f, 1f, 0f, 0f, 0f, 0f, 0f,
+                    0.9f, 1f, 1f, 0f, 1f, 0f, 0f, 0f,
+                    0.9f, 1f, 0f, 1f, 1f, 0f, 0f, 0f,
+                    0.999f, 0f, 0f, 1f, 0f, 0f, 0f, 0f
+                },
+
+                // Bottom - dummy array.
+                Array.Empty<float>(),
+
                 // Top:
                 new[]
                 {
@@ -186,52 +195,30 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            if (data == 0)
-            {
-                return BoundingBox.Block;
-            }
+            if (data == 0) return BoundingBox.Block;
 
             int count = BitHelper.CountSetBits(data);
 
             var parent = new BoundingBox();
             var children = new BoundingBox[count - 1];
 
-            if ((data & 0b01_0000) != 0)
+            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
             {
-                var child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.1f), new Vector3(0.5f, 0.5f, 0.1f));
+                if (side == BlockSide.Bottom) continue;
 
-                IncludeChild(child);
+                if (IsFlagSet(data, side))
+                {
+                    Vector3 offset = side.Direction().ToVector3() * 0.4f;
+
+                    var child = new BoundingBox(
+                        new Vector3(x: 0.5f, y: 0.5f, z: 0.5f) + offset,
+                        new Vector3(x: 0.5f, y: 0.5f, z: 0.5f) - offset.Absolute());
+
+                    IncludeChild(child);
+                }
             }
 
-            if ((data & 0b00_1000) != 0)
-            {
-                var child = new BoundingBox(new Vector3(0.9f, 0.5f, 0.5f), new Vector3(0.1f, 0.5f, 0.5f));
-
-                IncludeChild(child);
-            }
-
-            if ((data & 0b00_0100) != 0)
-            {
-                var child = new BoundingBox(new Vector3(0.5f, 0.5f, 0.9f), new Vector3(0.5f, 0.5f, 0.1f));
-
-                IncludeChild(child);
-            }
-
-            if ((data & 0b00_0010) != 0)
-            {
-                var child = new BoundingBox(new Vector3(0.1f, 0.5f, 0.5f), new Vector3(0.1f, 0.5f, 0.5f));
-
-                IncludeChild(child);
-            }
-
-            if ((data & 0b00_0001) != 0)
-            {
-                var child = new BoundingBox(new Vector3(0.5f, 0.9f, 0.5f), new Vector3(0.5f, 0.1f, 0.5f));
-
-                IncludeChild(child);
-            }
-
-            return (children.Length == 0) ? parent : new BoundingBox(parent.Center, parent.Extents, children);
+            return children.Length == 0 ? parent : new BoundingBox(parent.Center, parent.Extents, children);
 
             void IncludeChild(BoundingBox child)
             {
@@ -245,41 +232,37 @@ namespace VoxelGame.Core.Logic.Blocks
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             if (info.Data == 0)
-            {
                 return BlockMeshData.Complex(
-                    24,
+                    vertexCount: 24,
                     completeVertices,
                     completeTexIndices,
                     completeIndices,
                     isAnimated: true);
-            }
 
             int faceCount = BitHelper.CountSetBits(info.Data & 0b1_1111);
 
-            if ((info.Data & 0b00_0001) != 0)
-            {
-                faceCount++;
-            }
+            if ((info.Data & 0b00_0001) != 0) faceCount++;
 
             float[] vertices = new float[faceCount * 32];
 
             var vi = 0;
 
-            for (var i = 0; i < 5; i++)
+            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
             {
-                if ((info.Data & (0b1_0000 >> i)) != 0)
+                if (side == BlockSide.Bottom) continue;
+
+                if (IsFlagSet(info.Data, side))
                 {
-                    Array.Copy(attachedVertices[i], 0, vertices, vi, attachedVertices[i].Length);
+                    var i = (int) side;
+
+                    Array.Copy(attachedVertices[i], sourceIndex: 0, vertices, vi, attachedVertices[i].Length);
                     vi += attachedVertices[i].Length;
                 }
             }
 
             int[] textureIndices = new int[faceCount * 4];
 
-            for (var i = 0; i < textureIndices.Length; i++)
-            {
-                textureIndices[i] = texIndex;
-            }
+            for (var i = 0; i < textureIndices.Length; i++) textureIndices[i] = texIndex;
 
             uint[] indices = new uint[faceCount * 12];
             Array.Copy(completeIndices, indices, indices.Length);
@@ -287,178 +270,133 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.Complex((uint) (faceCount * 4), vertices, textureIndices, indices, isAnimated: true);
         }
 
-        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            if (world.HasSolidGround(x, y, z))
+            if (world.HasSolidGround(position)) return true;
+
+            return GetData(world, position) != 0;
+        }
+
+        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+        {
+            if (world.HasSolidGround(position))
             {
-                return true;
+                world.SetBlock(this, data: 0, position);
+                ScheduleTick(world, position, GetDelay(position));
             }
             else
             {
-                return GetData(world, x, y, z) != 0;
+                world.SetBlock(this, GetData(world, position), position);
+                ScheduleTick(world, position, GetDelay(position));
             }
         }
 
-        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
-        {
-            if (world.HasSolidGround(x, y, z))
-            {
-                world.SetBlock(this, 0, x, y, z);
-                ScheduleTick(world, x, y, z, GetDelay(x, y, z));
-            }
-            else
-            {
-                world.SetBlock(this, GetData(world, x, y, z), x, y, z);
-                ScheduleTick(world, x, y, z, GetDelay(x, y, z));
-            }
-        }
-
-        private static uint GetData(World world, int x, int y, int z)
+        private static uint GetData(World world, Vector3i position)
         {
             uint data = 0;
 
-            if (world.IsSolid(x, y, z - 1)) data |= 0b01_0000; // North.
-            if (world.IsSolid(x + 1, y, z)) data |= 0b00_1000; // East.
-            if (world.IsSolid(x, y, z + 1)) data |= 0b00_0100; // South.
-            if (world.IsSolid(x - 1, y, z)) data |= 0b00_0010; // West.
-            if (world.IsSolid(x, y + 1, z)) data |= 0b00_0001; // Top.
+            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
+            {
+                if (side == BlockSide.Bottom) continue;
+
+                if (world.IsSolid(side.Offset(position))) data |= GetFlag(side);
+            }
 
             return data;
         }
 
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            switch (side)
+            if (side == BlockSide.Bottom)
             {
-                case BlockSide.Back:
+                if (data != 0) return;
 
-                    CheckNeighbor(x, y, z - 1, 0b01_0000);
+                for (var sideToCheck = BlockSide.Front; sideToCheck <= BlockSide.Top; sideToCheck++)
+                {
+                    if (sideToCheck == BlockSide.Bottom) continue;
 
-                    break;
+                    if (world.IsSolid(sideToCheck.Offset(position))) data |= GetFlag(sideToCheck);
+                }
 
-                case BlockSide.Right:
-
-                    CheckNeighbor(x + 1, y, z, 0b00_1000);
-
-                    break;
-
-                case BlockSide.Front:
-
-                    CheckNeighbor(x, y, z + 1, 0b00_0100);
-
-                    break;
-
-                case BlockSide.Left:
-
-                    CheckNeighbor(x - 1, y, z, 0b00_0010);
-
-                    break;
-
-                case BlockSide.Top:
-
-                    CheckNeighbor(x, y + 1, z, 0b00_0001);
-
-                    break;
-
-                case BlockSide.Bottom:
-
-                    if (data != 0)
-                    {
-                        break;
-                    }
-
-                    data |= AddNeighbor(x, y, z - 1, 0b01_0000); // North.
-                    data |= AddNeighbor(x + 1, y, z, 0b00_1000); // East.
-                    data |= AddNeighbor(x, y, z + 1, 0b00_0100); // South.
-                    data |= AddNeighbor(x - 1, y, z, 0b00_0010); // West.
-                    data |= AddNeighbor(x, y + 1, z, 0b00_0001); // Top.
-
-                    SetData(data);
-
-                    break;
-            }
-
-            void CheckNeighbor(int nx, int ny, int nz, uint mask)
-            {
-                if ((data & mask) == 0 || world.IsSolid(nx, ny, nz)) return;
-
-                data ^= mask;
                 SetData(data);
             }
-
-            uint AddNeighbor(int nx, int ny, int nz, uint mask)
+            else
             {
-                return world.IsSolid(nx, ny, nz) ? mask : 0;
+                if (!IsFlagSet(data, side) || world.IsSolid(side.Offset(position))) return;
+
+                data ^= GetFlag(side);
+                SetData(data);
             }
 
             void SetData(uint dataToSet)
             {
-                if (dataToSet != 0)
-                {
-                    world.SetBlock(this, dataToSet, x, y, z);
-                }
-                else
-                {
-                    Destroy(world, x, y, z);
-                }
+                if (dataToSet != 0) world.SetBlock(this, dataToSet, position);
+                else Destroy(world, position);
             }
         }
 
-        protected override void ScheduledUpdate(World world, int x, int y, int z, uint data)
+        protected override void ScheduledUpdate(World world, Vector3i position, uint data)
         {
             var canBurn = false;
 
             if (data == 0)
             {
-                canBurn |= BurnAt(x, y - 1, z); // Bottom.
-
-                data = 0b1_1111;
+                canBurn |= BurnAt(position - Vector3i.UnitY); // Bottom.
+                data = 0b01_1111;
             }
 
-            if ((data & 0b01_0000) != 0) canBurn |= BurnAt(x, y, z - 1); // North.
-            if ((data & 0b00_1000) != 0) canBurn |= BurnAt(x + 1, y, z); // East.
-            if ((data & 0b00_0100) != 0) canBurn |= BurnAt(x, y, z + 1); // South.
-            if ((data & 0b00_0010) != 0) canBurn |= BurnAt(x - 1, y, z); // West.
-            if ((data & 0b00_0001) != 0) canBurn |= BurnAt(x, y + 1, z); // Top.
-
-            if (!canBurn)
+            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
             {
-                Destroy(world, x, y, z);
+                if (side == BlockSide.Bottom) continue;
+
+                if (IsFlagSet(data, side)) canBurn |= BurnAt(side.Offset(position));
             }
 
-            ScheduleTick(world, x, y, z, GetDelay(x, y, z));
+            if (!canBurn) Destroy(world, position);
 
-            bool BurnAt(int nx, int ny, int nz)
+            ScheduleTick(world, position, GetDelay(position));
+
+            bool BurnAt(Vector3i burnPosition)
             {
-                if (world.GetBlock(nx, ny, nz, out _) is IFlammable block)
+                if (world.GetBlock(burnPosition, out _) is IFlammable block)
                 {
-                    if (block.Burn(world, nx, ny, nz, this))
+                    if (block.Burn(world, burnPosition, this))
                     {
-                        if (world.GetBlock(nx, ny - 1, nz, out _) is IAshCoverable coverable)
-                        {
-                            coverable.CoverWithAsh(world, nx, ny - 1, nz);
-                        }
+                        if (world.GetBlock(burnPosition - Vector3i.UnitY, out _) is IAshCoverable coverable)
+                            coverable.CoverWithAsh(world, burnPosition - Vector3i.UnitY);
 
-                        Place(world, nx, ny, nz);
+                        Place(world, burnPosition);
                     }
 
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
         }
 
-        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
+        private static int GetDelay(Vector3i position)
         {
-            if (liquid != Liquid.None) Destroy(world, x, y, z);
+            return TickOffset +
+                   (BlockUtilities.GetPositionDependentNumber(position, TickVariation * 2) - TickVariation);
         }
 
-        private static int GetDelay(int x, int y, int z)
+        private static uint GetFlag(BlockSide side)
         {
-            return TickOffset + (BlockUtilities.GetPositionDependentNumber(x, y, z, TickVariation * 2) - TickVariation);
+            return side switch
+            {
+                BlockSide.Front => 0b01_0000,
+                BlockSide.Back => 0b00_1000,
+                BlockSide.Left => 0b00_0100,
+                BlockSide.Right => 0b00_0010,
+                BlockSide.Top => 0b00_0001,
+                _ => 0b00_0000
+            };
+        }
+
+        private static bool IsFlagSet(uint data, BlockSide side)
+        {
+            return (data & GetFlag(side)) != 0;
         }
     }
 }

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -12,8 +13,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block that has differently colored versions. Animation can be activated.
-    /// Data bit usage: <c>-ccccc</c>
+    ///     A block that has differently colored versions. Animation can be activated.
+    ///     Data bit usage: <c>-ccccc</c>
     /// </summary>
     // c = color
     public class TintedBlock : BasicBlock, IWideConnectable
@@ -40,9 +41,9 @@ namespace VoxelGame.Core.Logic.Blocks
             return base.GetMesh(info).Modified(((BlockColor) (0b01_1111 & info.Data)).ToTintColor(), isAnimated);
         }
 
-        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
+        protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
-            entity.World.SetBlock(this, data + 1 & 0b01_1111, x, y, z);
+            entity.World.SetBlock(this, (data + 1) & 0b01_1111, position);
         }
     }
 }

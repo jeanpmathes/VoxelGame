@@ -10,16 +10,14 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// This class represents a simple block that is completely filled. <see cref="BasicBlock"/>s themselves do not have much function, but the class can be extended easily.
-    /// Data bit usage: <c>------</c>
+    ///     This class represents a simple block that is completely filled. <see cref="BasicBlock" />s themselves do not have
+    ///     much function, but the class can be extended easily.
+    ///     Data bit usage: <c>------</c>
     /// </summary>
     public class BasicBlock : Block, IOverlayTextureProvider
     {
-        private protected int[] sideTextureIndices = null!;
-
         private readonly TextureLayout layout;
-
-        public virtual int TextureIdentifier => layout.Bottom;
+        private protected int[] sideTextureIndices = null!;
 
         internal BasicBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true,
             bool renderFaceAtNonOpaques = true, bool isSolid = true, bool receiveCollisions = false,
@@ -41,6 +39,8 @@ namespace VoxelGame.Core.Logic.Blocks
             this.layout = layout;
         }
 
+        public virtual int TextureIdentifier => layout.Bottom;
+
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
             sideTextureIndices = layout.GetTexIndexArray();
@@ -48,7 +48,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return BlockMeshData.Basic(sideTextureIndices[(int) info.Side], false);
+            return BlockMeshData.Basic(sideTextureIndices[(int) info.Side], isTextureRotated: false);
         }
     }
 }

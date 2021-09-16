@@ -244,51 +244,52 @@ namespace VoxelGame.Client.Logic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void ProcessChangedSection(Chunk chunk, int x, int y, int z)
+        protected override void ProcessChangedSection(Chunk chunk, Vector3i position)
         {
-            sectionsToMesh.Add(((ClientChunk) chunk, y >> Section.SectionSizeExp));
+            sectionsToMesh.Add(((ClientChunk) chunk, position.Y >> Section.SectionSizeExp));
 
             // Check if sections next to changed section have to be changed:
 
-            switch (y & (Section.SectionSize - 1))
+            switch (position.Y & (Section.SectionSize - 1))
             {
                 // Next on y axis.
-                case 0 when (y - 1) >> Section.SectionSizeExp >= 0:
-                    sectionsToMesh.Add(((ClientChunk) chunk, (y - 1) >> Section.SectionSizeExp));
+                case 0 when (position.Y - 1) >> Section.SectionSizeExp >= 0:
+                    sectionsToMesh.Add(((ClientChunk) chunk, (position.Y - 1) >> Section.SectionSizeExp));
 
                     break;
-                case Section.SectionSize - 1 when (y + 1) >> Section.SectionSizeExp < Chunk.VerticalSectionCount:
-                    sectionsToMesh.Add(((ClientChunk) chunk, (y + 1) >> Section.SectionSizeExp));
+                case Section.SectionSize - 1
+                    when (position.Y + 1) >> Section.SectionSizeExp < Chunk.VerticalSectionCount:
+                    sectionsToMesh.Add(((ClientChunk) chunk, (position.Y + 1) >> Section.SectionSizeExp));
 
                     break;
             }
 
             Chunk? neighbor;
 
-            switch (x & (Section.SectionSize - 1))
+            switch (position.X & (Section.SectionSize - 1))
             {
                 // Next on x axis.
                 case 0 when activeChunks.TryGetValue(
-                    ((x - 1) >> Section.SectionSizeExp, z >> Section.SectionSizeExp),
+                    ((position.X - 1) >> Section.SectionSizeExp, position.Z >> Section.SectionSizeExp),
                     out neighbor):
                 case Section.SectionSize - 1 when activeChunks.TryGetValue(
-                    ((x + 1) >> Section.SectionSizeExp, z >> Section.SectionSizeExp),
+                    ((position.X + 1) >> Section.SectionSizeExp, position.Z >> Section.SectionSizeExp),
                     out neighbor):
-                    sectionsToMesh.Add(((ClientChunk) neighbor, y >> Section.SectionSizeExp));
+                    sectionsToMesh.Add(((ClientChunk) neighbor, position.Y >> Section.SectionSizeExp));
 
                     break;
             }
 
-            switch (z & (Section.SectionSize - 1))
+            switch (position.Z & (Section.SectionSize - 1))
             {
                 // Next on z axis.
                 case 0 when activeChunks.TryGetValue(
-                    (x >> Section.SectionSizeExp, (z - 1) >> Section.SectionSizeExp),
+                    (position.X >> Section.SectionSizeExp, (position.Z - 1) >> Section.SectionSizeExp),
                     out neighbor):
                 case Section.SectionSize - 1 when activeChunks.TryGetValue(
-                    (x >> Section.SectionSizeExp, (z + 1) >> Section.SectionSizeExp),
+                    (position.X >> Section.SectionSizeExp, (position.Z + 1) >> Section.SectionSizeExp),
                     out neighbor):
-                    sectionsToMesh.Add(((ClientChunk) neighbor, y >> Section.SectionSizeExp));
+                    sectionsToMesh.Add(((ClientChunk) neighbor, position.Y >> Section.SectionSizeExp));
 
                     break;
             }

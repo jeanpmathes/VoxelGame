@@ -154,7 +154,7 @@ namespace VoxelGame.Graphics.Objects
         public void SetMatrix4(string name, Matrix4 data)
         {
             GL.UseProgram(Handle);
-            GL.UniformMatrix4(uniformLocations[name], true, ref data);
+            GL.UniformMatrix4(uniformLocations[name], transpose: true, ref data);
         }
 
         /// <summary>

@@ -60,9 +60,9 @@ namespace VoxelGame.Client.Logic
 
             BlockMeshFaceHolder[] blockMeshFaceHolders = CreateBlockMeshFaceHolders();
 
-            PooledList<float> complexVertexPositions = new(64);
-            PooledList<int> complexVertexData = new(32);
-            PooledList<uint> complexIndices = new(16);
+            PooledList<float> complexVertexPositions = new(capacity: 64);
+            PooledList<int> complexVertexData = new(capacity: 32);
+            PooledList<uint> complexIndices = new(capacity: 16);
 
             uint complexVertexCount = 0;
 
@@ -71,9 +71,9 @@ namespace VoxelGame.Client.Logic
             VaryingHeightMeshFaceHolder[] opaqueLiquidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
             VaryingHeightMeshFaceHolder[] transparentLiquidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
 
-            PooledList<int> crossPlantVertexData = new(16);
+            PooledList<int> crossPlantVertexData = new(capacity: 16);
 
-            PooledList<int> cropPlantVertexData = new(16);
+            PooledList<int> cropPlantVertexData = new(capacity: 16);
 
             // Loop through the section
             for (var x = 0; x < SectionSize; x++)
@@ -118,7 +118,7 @@ namespace VoxelGame.Client.Logic
                             {
                                 checkPos = checkPos.Mod(SectionSize);
 
-                                bool atVerticalEnd = side == BlockSide.Top || side == BlockSide.Bottom;
+                                bool atVerticalEnd = side is BlockSide.Top or BlockSide.Bottom;
 
                                 blockToCheck = neighbor?.GetBlock(checkPos) ??
                                                (atVerticalEnd ? Block.Air : null);
@@ -156,7 +156,7 @@ namespace VoxelGame.Client.Logic
 
                                 // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
                                 int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((int) side << 18) |
-                                                mesh.GetAnimationBit(16) | mesh.TextureIndex;
+                                                mesh.GetAnimationBit(shift: 16) | mesh.TextureIndex;
 
                                 blockMeshFaceHolders[(int) side].AddFace(
                                     pos,
@@ -200,7 +200,7 @@ namespace VoxelGame.Client.Logic
                             complexVertexData.Add(upperData);
 
                             // int: tttt tttt t--- ---a ---i iiii iiii iiii(t: tint; a: animated; i: texture index)
-                            int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | mesh.GetAnimationBit(i, 16) |
+                            int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | mesh.GetAnimationBit(i, shift: 16) |
                                             textureIndices[i];
 
                             complexVertexData.Add(lowerData);
@@ -235,7 +235,7 @@ namespace VoxelGame.Client.Logic
                             {
                                 checkPos = checkPos.Mod(SectionSize);
 
-                                bool atVerticalEnd = side == BlockSide.Top || side == BlockSide.Bottom;
+                                bool atVerticalEnd = side is BlockSide.Top or BlockSide.Bottom;
 
                                 blockToCheck = neighbor?.GetBlock(checkPos, out blockToCheckData) ??
                                                (atVerticalEnd ? Block.Air : null);
@@ -286,8 +286,8 @@ namespace VoxelGame.Client.Logic
                                         pos,
                                         lowerData,
                                         (upperDataA, upperDataB, upperDataC, upperDataD),
-                                        true,
-                                        false);
+                                        isSingleSided: true,
+                                        isFull: false);
                                 }
                                 else
                                 {
@@ -314,7 +314,7 @@ namespace VoxelGame.Client.Logic
                                         pos,
                                         lowerData,
                                         (upperDataA, upperDataB, upperDataC, upperDataD),
-                                        false);
+                                        isRotated: false);
                                 }
                             }
                         }
@@ -341,7 +341,7 @@ namespace VoxelGame.Client.Logic
                         int lowZ = z;
                         int highZ = z + 1;
 
-                        AddFace(0, highZ, lowZ);
+                        AddFace(orientation: 0, highZ, lowZ);
                         AddFace(1 << 28, lowZ, highZ);
 
                         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -517,12 +517,12 @@ namespace VoxelGame.Client.Logic
             // Complex mesh data is already built at this point.
 
             // Build the simple mesh data.
-            PooledList<int> simpleVertexData = new(2048);
+            PooledList<int> simpleVertexData = new(capacity: 2048);
             GenerateMesh(blockMeshFaceHolders, simpleVertexData);
 
             // Build the varying height mesh data.
-            PooledList<int> varyingHeightVertexData = new(8);
-            PooledList<uint> varyingHeightIndices = new(8);
+            PooledList<int> varyingHeightVertexData = new(capacity: 8);
+            PooledList<uint> varyingHeightIndices = new(capacity: 8);
 
             uint varyingHeightVertexCount = 0;
 
@@ -533,8 +533,8 @@ namespace VoxelGame.Client.Logic
                 varyingHeightIndices);
 
             // Build the liquid mesh data.
-            PooledList<int> opaqueLiquidVertexData = new(8);
-            PooledList<uint> opaqueLiquidIndices = new(8);
+            PooledList<int> opaqueLiquidVertexData = new(capacity: 8);
+            PooledList<uint> opaqueLiquidIndices = new(capacity: 8);
             uint opaqueLiquidVertexCount = 0;
 
             GenerateMesh(
@@ -543,8 +543,8 @@ namespace VoxelGame.Client.Logic
                 opaqueLiquidVertexData,
                 opaqueLiquidIndices);
 
-            PooledList<int> transparentLiquidVertexData = new(8);
-            PooledList<uint> transparentLiquidIndices = new(8);
+            PooledList<int> transparentLiquidVertexData = new(capacity: 8);
+            PooledList<uint> transparentLiquidIndices = new(capacity: 8);
             uint transparentLiquidVertexCount = 0;
 
             GenerateMesh(
@@ -650,9 +650,8 @@ namespace VoxelGame.Client.Logic
 
         private static bool IsPositionOutOfSection(Vector3i position)
         {
-            return position.X < 0 || position.X >= SectionSize ||
-                   position.Y < 0 || position.Y >= SectionSize ||
-                   position.Z < 0 || position.Z >= SectionSize;
+            return position.X is < 0 or >= SectionSize || position.Y is < 0 or >= SectionSize ||
+                   position.Z is < 0 or >= SectionSize;
         }
 
         public void SetMeshData(SectionMeshData meshData)

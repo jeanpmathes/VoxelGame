@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Logic.Liquids;
 using VoxelGame.Core.Resources.Language;
@@ -32,9 +33,9 @@ namespace VoxelGame.Core.Logic
         public static readonly Liquid Water = new BasicLiquid(
             Language.Water,
             nameof(Water),
-            997f,
+            density: 997f,
             1 * mPas,
-            false,
+            neutralTint: false,
             TextureLayout.Liquid("water_moving_side", "water_moving"),
             TextureLayout.Liquid("water_static_side", "water_static"),
             RenderType.Transparent);
@@ -42,18 +43,18 @@ namespace VoxelGame.Core.Logic
         public static readonly Liquid Milk = new BasicLiquid(
             Language.Milk,
             nameof(Milk),
-            1033f,
+            density: 1033f,
             2 * mPas,
-            false,
+            neutralTint: false,
             TextureLayout.Liquid("milk_moving_side", "milk_moving"),
             TextureLayout.Liquid("milk_static_side", "milk_static"));
 
         public static readonly Liquid Steam = new BasicLiquid(
             Language.Steam,
             nameof(Steam),
-            -0.015f,
+            density: -0.015f,
             (int) (0.25 * mPas),
-            false,
+            neutralTint: false,
             TextureLayout.Liquid("steam_moving_side", "steam_moving"),
             TextureLayout.Liquid("steam_static_side", "steam_static"),
             RenderType.Transparent);
@@ -61,27 +62,27 @@ namespace VoxelGame.Core.Logic
         public static readonly Liquid Lava = new HotLiquid(
             Language.Lava,
             nameof(Lava),
-            3100f,
+            density: 3100f,
             15 * mPas,
-            false,
+            neutralTint: false,
             TextureLayout.Liquid("lava_moving_side", "lava_moving"),
             TextureLayout.Liquid("lava_static_side", "lava_static"));
 
         public static readonly Liquid CrudeOil = new BasicLiquid(
             Language.CrudeOil,
             nameof(CrudeOil),
-            870f,
+            density: 870f,
             8 * mPas,
-            false,
+            neutralTint: false,
             TextureLayout.Liquid("oil_moving_side", "oil_moving"),
             TextureLayout.Liquid("oil_static_side", "oil_static"));
 
         public static readonly Liquid NaturalGas = new BasicLiquid(
             Language.NaturalGas,
             nameof(NaturalGas),
-            -0.8f,
+            density: -0.8f,
             (int) (0.5 * mPas),
-            false,
+            neutralTint: false,
             TextureLayout.Liquid("gas_moving_side", "gas_moving"),
             TextureLayout.Liquid("gas_static_side", "gas_static"),
             RenderType.Transparent);
@@ -89,7 +90,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Liquid Concrete = new ConcreteLiquid(
             Language.Concrete,
             nameof(Concrete),
-            2400f,
+            density: 2400f,
             10 * mPas,
             TextureLayout.Liquid("concrete_moving_side", "concrete_moving"),
             TextureLayout.Liquid("concrete_static_side", "concrete_static"));
@@ -97,9 +98,9 @@ namespace VoxelGame.Core.Logic
         public static readonly Liquid Honey = new BasicLiquid(
             Language.Honey,
             nameof(Honey),
-            1450f,
+            density: 1450f,
             20 * mPas,
-            false,
+            neutralTint: false,
             TextureLayout.Liquid("honey_moving_side", "honey_moving"),
             TextureLayout.Liquid("honey_static_side", "honey_static"),
             RenderType.Transparent);
@@ -107,9 +108,9 @@ namespace VoxelGame.Core.Logic
         public static readonly Liquid Petrol = new BasicLiquid(
             Language.Petrol,
             nameof(Petrol),
-            740f,
+            density: 740f,
             (int) (0.9 * mPas),
-            false,
+            neutralTint: false,
             TextureLayout.Liquid("petrol_moving_side", "petrol_moving"),
             TextureLayout.Liquid("petrol_static_side", "petrol_static"),
             RenderType.Transparent);
@@ -117,9 +118,9 @@ namespace VoxelGame.Core.Logic
         public static readonly Liquid Wine = new BasicLiquid(
             Language.Wine,
             nameof(Wine),
-            1090f,
+            density: 1090f,
             (int) (1.4 * mPas),
-            false,
+            neutralTint: false,
             TextureLayout.Liquid("wine_moving_side", "wine_moving"),
             TextureLayout.Liquid("wine_static_side", "wine_static"),
             RenderType.Transparent);
@@ -127,9 +128,9 @@ namespace VoxelGame.Core.Logic
         public static readonly Liquid Beer = new BasicLiquid(
             Language.Beer,
             nameof(Beer),
-            1030f,
+            density: 1030f,
             (int) (1.5 * mPas),
-            false,
+            neutralTint: false,
             TextureLayout.Liquid("beer_moving_side", "beer_moving"),
             TextureLayout.Liquid("beer_static_side", "beer_static"),
             RenderType.Transparent);
@@ -188,10 +189,10 @@ namespace VoxelGame.Core.Logic
             }
         }
 
-        public static void Elevate(World world, int x, int y, int z, int pumpDistance)
+        public static void Elevate(World world, Vector3i position, int pumpDistance)
         {
             (Block? start, Liquid? toElevate) =
-                world.GetPosition(x, y, z, out _, out LiquidLevel initialLevel, out _);
+                world.GetPosition(position, out _, out LiquidLevel initialLevel, out _);
 
             if (start == null || toElevate == null) return;
 
@@ -199,24 +200,24 @@ namespace VoxelGame.Core.Logic
 
             var currentLevel = (int) initialLevel;
 
-            if (!(start is IFillable startFillable) ||
-                !startFillable.AllowOutflow(world, x, y, z, BlockSide.Top)) return;
+            if (start is not IFillable startFillable ||
+                !startFillable.AllowOutflow(world, position, BlockSide.Top)) return;
 
             for (var offset = 1; offset <= pumpDistance && currentLevel > -1; offset++)
             {
-                int currentY = y + offset;
+                Vector3i elevatedPosition = position + (0, offset, 0);
 
-                var currentBlock = world.GetBlock(x, currentY, z, out _) as IFillable;
+                var currentBlock = world.GetBlock(elevatedPosition, out _) as IFillable;
 
-                if (currentBlock?.AllowInflow(world, x, currentY, z, BlockSide.Bottom, toElevate) != true) break;
+                if (currentBlock?.AllowInflow(world, elevatedPosition, BlockSide.Bottom, toElevate) != true) break;
 
-                toElevate.Fill(world, x, currentY, z, (LiquidLevel) currentLevel, out currentLevel);
+                toElevate.Fill(world, elevatedPosition, (LiquidLevel) currentLevel, out currentLevel);
 
-                if (!currentBlock.AllowOutflow(world, x, currentY, z, BlockSide.Top)) break;
+                if (!currentBlock.AllowOutflow(world, elevatedPosition, BlockSide.Top)) break;
             }
 
             LiquidLevel elevated = initialLevel - (currentLevel + 1);
-            toElevate.Take(world, x, y, z, ref elevated);
+            toElevate.Take(world, position, ref elevated);
         }
     }
 }

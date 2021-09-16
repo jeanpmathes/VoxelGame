@@ -31,10 +31,10 @@ namespace VoxelGame.Client.Rendering
 
             Shaders.Selection.Use();
 
-            drawGroup.VertexArrayBindBuffer(3);
+            drawGroup.VertexArrayBindBuffer(size: 3);
 
             int vertexLocation = Shaders.Selection.GetAttributeLocation("aPosition");
-            drawGroup.VertexArrayBindAttribute(vertexLocation, 3, 0);
+            drawGroup.VertexArrayBindAttribute(vertexLocation, size: 3, offset: 0);
         }
 
         public void SetBoundingBox(BoundingBox boundingBox)
@@ -69,14 +69,14 @@ namespace VoxelGame.Client.Rendering
                 for (var j = 0; j < addIndices.Length; j++) addIndices[j] += offset;
 
                 float[] combinedVertices = new float[vertices.Length + addVertices.Length];
-                Array.Copy(vertices, 0, combinedVertices, 0, vertices.Length);
-                Array.Copy(addVertices, 0, combinedVertices, vertices.Length, addVertices.Length);
+                Array.Copy(vertices, sourceIndex: 0, combinedVertices, destinationIndex: 0, vertices.Length);
+                Array.Copy(addVertices, sourceIndex: 0, combinedVertices, vertices.Length, addVertices.Length);
 
                 vertices = combinedVertices;
 
                 uint[] combinedIndices = new uint[indices.Length + addIndices.Length];
-                Array.Copy(indices, 0, combinedIndices, 0, indices.Length);
-                Array.Copy(addIndices, 0, combinedIndices, indices.Length, addIndices.Length);
+                Array.Copy(indices, sourceIndex: 0, combinedIndices, destinationIndex: 0, indices.Length);
+                Array.Copy(addIndices, sourceIndex: 0, combinedIndices, indices.Length, addIndices.Length);
 
                 indices = combinedIndices;
 
@@ -148,8 +148,8 @@ namespace VoxelGame.Client.Rendering
 
             drawGroup.DrawElements(PrimitiveType.Lines);
 
-            GL.BindVertexArray(0);
-            GL.UseProgram(0);
+            GL.BindVertexArray(array: 0);
+            GL.UseProgram(program: 0);
         }
 
         #region IDisposable Support
@@ -172,12 +172,12 @@ namespace VoxelGame.Client.Rendering
 
         ~BoxRenderer()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 

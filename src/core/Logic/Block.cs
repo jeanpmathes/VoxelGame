@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.Diagnostics;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -131,27 +132,27 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public bool IsSolidAndFull => IsSolid && IsFull;
 
-        public bool Place(World world, int x, int y, int z, PhysicsEntity? entity = null)
+        public bool Place(World world, Vector3i position, PhysicsEntity? entity = null)
         {
-            (Block? block, Liquid? liquid) = world.GetPosition(x, y, z, out _, out LiquidLevel level, out _);
+            (Block? block, Liquid? liquid) = world.GetPosition(position, out _, out LiquidLevel level, out _);
 
-            bool canPlace = block?.IsReplaceable == true && CanPlace(world, x, y, z, entity);
+            bool canPlace = block?.IsReplaceable == true && CanPlace(world, position, entity);
 
-            if (canPlace) DoPlace(world, x, y, z, entity);
+            if (canPlace) DoPlace(world, position, entity);
 
             liquid ??= Liquid.None;
 
             if (liquid != Liquid.None && this is IFillable fillable)
-                fillable.LiquidChange(world, x, y, z, liquid, level);
+                fillable.LiquidChange(world, position, liquid, level);
 
             return canPlace;
         }
 
-        public bool Destroy(World world, int x, int y, int z, PhysicsEntity? entity = null)
+        public bool Destroy(World world, Vector3i position, PhysicsEntity? entity = null)
         {
-            if (world.GetBlock(x, y, z, out uint data) == this && CanDestroy(world, x, y, z, data, entity))
+            if (world.GetBlock(position, out uint data) == this && CanDestroy(world, position, data, entity))
             {
-                DoDestroy(world, x, y, z, data, entity);
+                DoDestroy(world, position, data, entity);
 
                 return true;
             }
@@ -173,16 +174,12 @@ namespace VoxelGame.Core.Logic
         ///     Returns the bounding box of this block if it would be at the given position.
         /// </summary>
         /// <param name="world">The world in which the block is.</param>
-        /// <param name="x">The x position.</param>
-        /// <param name="y">The y position.</param>
-        /// <param name="z">The z position.</param>
+        /// <param name="position">The position of the block.</param>
         /// <returns>The bounding box.</returns>
-        public BoundingBox GetBoundingBox(World world, int x, int y, int z)
+        public BoundingBox GetBoundingBox(World world, Vector3i position)
         {
-            return (world.GetBlock(x, y, z, out uint data) == this ? GetBoundingBox(data) : boundingBox).Translated(
-                x,
-                y,
-                z);
+            return (world.GetBlock(position, out uint data) == this ? GetBoundingBox(data) : boundingBox).Translated(
+                position);
         }
 
         protected virtual BoundingBox GetBoundingBox(uint data)
@@ -197,71 +194,65 @@ namespace VoxelGame.Core.Logic
         /// <returns>The mesh data.</returns>
         public abstract BlockMeshData GetMesh(BlockMeshInfo info);
 
-        internal virtual bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        internal virtual bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return true;
         }
 
-        protected virtual void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        protected virtual void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            world.SetBlock(this, 0, x, y, z);
+            world.SetBlock(this, data: 0, position);
         }
 
-        internal virtual bool CanDestroy(World world, int x, int y, int z, uint data, PhysicsEntity? entity)
+        internal virtual bool CanDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             return true;
         }
 
-        internal virtual void DoDestroy(World world, int x, int y, int z, uint data, PhysicsEntity? entity)
+        internal virtual void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
-            world.SetDefaultBlock(x, y, z);
+            world.SetDefaultBlock(position);
         }
 
         /// <summary>
         ///     This method is called when an entity collides with this block.
         /// </summary>
         /// <param name="entity">The entity that caused the collision.</param>
-        /// <param name="x">The x position of the block the entity collided with.</param>
-        /// <param name="y">The y position of the block the entity collided with.</param>
-        /// <param name="z">The z position of the block the entity collided with.</param>
-        public void EntityCollision(PhysicsEntity entity, int x, int y, int z)
+        /// <param name="position">The block position.</param>
+        public void EntityCollision(PhysicsEntity entity, Vector3i position)
         {
-            if (entity.World.GetBlock(x, y, z, out uint data) == this) EntityCollision(entity, x, y, z, data);
+            if (entity.World.GetBlock(position, out uint data) == this) EntityCollision(entity, position, data);
         }
 
-        protected virtual void EntityCollision(PhysicsEntity entity, int x, int y, int z, uint data) {}
+        protected virtual void EntityCollision(PhysicsEntity entity, Vector3i position, uint data) {}
 
         /// <summary>
         ///     Called when a block and an entity collide.
         /// </summary>
         /// <param name="entity">The entity that collided with the block.</param>
-        /// <param name="x">The x position of the block.</param>
-        /// <param name="y">The y position of the block.</param>
-        /// <param name="z">The z position of the block.</param>
-        public void EntityInteract(PhysicsEntity entity, int x, int y, int z)
+        /// <param name="position">The block position.</param>
+        public void EntityInteract(PhysicsEntity entity, Vector3i position)
         {
-            if (entity.World.GetBlock(x, y, z, out uint data) == this) EntityInteract(entity, x, y, z, data);
+            if (entity.World.GetBlock(position, out uint data) == this) EntityInteract(entity, position, data);
         }
 
-        protected virtual void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data) {}
+        protected virtual void EntityInteract(PhysicsEntity entity, Vector3i position, uint data) {}
 
         /// <summary>
         ///     This method is called on blocks next to a position that was changed.
         /// </summary>
-        /// <param name="world"></param>
-        /// <param name="x">The x position of the block next to the changed position.</param>
-        /// <param name="y">The y position of the block next to the changed position.</param>
-        /// <param name="z">The z position of the block next to the changed position.</param>
+        /// <param name="world">The containing world.</param>
+        /// <param name="position">The block position.</param>
         /// <param name="data">The data of the block next to the changed position.</param>
         /// <param name="side">The side of the block where the change happened.</param>
-        internal virtual void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side) {}
+        internal virtual void BlockUpdate(World world, Vector3i position, uint data, BlockSide side) {}
 
         /// <summary>
         ///     This method is called randomly on some blocks every update.
         /// </summary>
-        internal virtual void RandomUpdate(World world, int x, int y, int z, uint data) {}
+        internal virtual void RandomUpdate(World world, Vector3i position, uint data) {}
 
-        protected virtual void ScheduledUpdate(World world, int x, int y, int z, uint data) {}
+        protected virtual void ScheduledUpdate(World world, Vector3i position, uint data) {}
 
         public sealed override string ToString()
         {

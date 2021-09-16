@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Interfaces;
 
@@ -11,47 +12,49 @@ namespace VoxelGame.Core.Utilities
 {
     public static class WorldExtensions
     {
-        public static bool IsSolid(this World world, int x, int y, int z)
+        public static bool IsSolid(this World world, Vector3i position)
         {
-            return IsSolid(world, x, y, z, out _);
+            return IsSolid(world, position, out _);
         }
 
-        private static bool IsSolid(this World world, int x, int y, int z, out Block block)
+        private static bool IsSolid(this World world, Vector3i position, out Block block)
         {
-            block = world.GetBlock(x, y, z, out uint data) ?? Block.Air;
+            block = world.GetBlock(position, out uint data) ?? Block.Air;
 
             return block.IsSolidAndFull
-                   || (block is IHeightVariable varHeight &&
-                       varHeight.GetHeight(data) == IHeightVariable.MaximumHeight);
+                   || block is IHeightVariable varHeight &&
+                   varHeight.GetHeight(data) == IHeightVariable.MaximumHeight;
         }
 
-        public static bool HasSolidGround(this World world, int x, int y, int z, bool solidify = false)
+        public static bool HasSolidGround(this World world, Vector3i position, bool solidify = false)
         {
-            bool isSolid = world.IsSolid(x, y - 1, z, out Block ground);
+            Vector3i groundPosition = position - Vector3i.UnitY;
 
-            if (!solidify || isSolid || !(ground is IPotentiallySolid solidifiable)) return isSolid;
+            bool isSolid = world.IsSolid(groundPosition, out Block ground);
 
-            solidifiable.BecomeSolid(world, x, y - 1, z);
+            if (!solidify || isSolid || ground is not IPotentiallySolid solidifiable) return isSolid;
+
+            solidifiable.BecomeSolid(world, groundPosition);
 
             return true;
         }
 
-        public static bool HasSolidTop(this World world, int x, int y, int z)
+        public static bool HasSolidTop(this World world, Vector3i position)
         {
-            return world.IsSolid(x, y + 1, z);
+            return world.IsSolid(position);
         }
 
-        public static bool HasOpaqueTop(this World world, int x, int y, int z)
+        public static bool HasOpaqueTop(this World world, Vector3i position)
         {
-            Block top = world.GetBlock(x, y + 1, z, out _) ?? Block.Air;
+            Block top = world.GetBlock(position, out _) ?? Block.Air;
 
-            return (top.IsSolidAndFull && top.IsOpaque)
+            return top.IsSolidAndFull && top.IsOpaque
                    || top is IHeightVariable;
         }
 
-        public static bool IsLowered(this World world, int x, int y, int z)
+        public static bool IsLowered(this World world, Vector3i position)
         {
-            return world.GetBlock(x, y - 1, z, out uint data) is IHeightVariable block
+            return world.GetBlock(position, out uint data) is IHeightVariable block
                    && block.GetHeight(data) == IHeightVariable.MaximumHeight - 1;
         }
     }

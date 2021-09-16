@@ -40,7 +40,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 texture,
                 post,
                 extension,
-                new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f)))
+                new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.25f, y: 0.5f, z: 0.25f)))
         {
             this.extensionStraight = extensionStraight;
         }
@@ -52,10 +52,10 @@ namespace VoxelGame.Core.Logic.Blocks
             BlockModel extensionStraightModel = BlockModel.Load(extensionStraight);
             straightVertexCount = (uint) extensionStraightModel.VertexCount;
 
-            extensionStraightModel.RotateY(0, false);
+            extensionStraightModel.RotateY(rotations: 0, rotateTopAndBottomTexture: false);
             extensionStraightModel.ToData(out extensionStraightZVertices, out texIndicesStraight, out indicesStraight);
 
-            extensionStraightModel.RotateY(1, false);
+            extensionStraightModel.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
             extensionStraightModel.ToData(out extensionStraightXVertices, out _, out _);
 
             int tex = indexProvider.GetTextureIndex(texture);
@@ -74,10 +74,14 @@ namespace VoxelGame.Core.Logic.Blocks
             bool straightX = !north && !south && east && west;
 
             if (straightZ)
-                return new BoundingBox(new Vector3(0.5f, 0.46875f, 0.5f), new Vector3(0.1875f, 0.46875f, 0.5f));
+                return new BoundingBox(
+                    new Vector3(x: 0.5f, y: 0.46875f, z: 0.5f),
+                    new Vector3(x: 0.1875f, y: 0.46875f, z: 0.5f));
 
             if (straightX)
-                return new BoundingBox(new Vector3(0.5f, 0.46875f, 0.5f), new Vector3(0.5f, 0.46875f, 0.1875f));
+                return new BoundingBox(
+                    new Vector3(x: 0.5f, y: 0.46875f, z: 0.5f),
+                    new Vector3(x: 0.5f, y: 0.46875f, z: 0.1875f));
 
             int extensions = BitHelper.CountSetBits(data & 0b1111);
 
@@ -87,8 +91,8 @@ namespace VoxelGame.Core.Logic.Blocks
             if (north)
             {
                 children[extensions] = new BoundingBox(
-                    new Vector3(0.5f, 0.46875f, 0.125f),
-                    new Vector3(0.1875f, 0.46875f, 0.125f));
+                    new Vector3(x: 0.5f, y: 0.46875f, z: 0.125f),
+                    new Vector3(x: 0.1875f, y: 0.46875f, z: 0.125f));
 
                 extensions++;
             }
@@ -96,8 +100,8 @@ namespace VoxelGame.Core.Logic.Blocks
             if (east)
             {
                 children[extensions] = new BoundingBox(
-                    new Vector3(0.875f, 0.46875f, 0.5f),
-                    new Vector3(0.125f, 0.46875f, 0.1875f));
+                    new Vector3(x: 0.875f, y: 0.46875f, z: 0.5f),
+                    new Vector3(x: 0.125f, y: 0.46875f, z: 0.1875f));
 
                 extensions++;
             }
@@ -105,18 +109,21 @@ namespace VoxelGame.Core.Logic.Blocks
             if (south)
             {
                 children[extensions] = new BoundingBox(
-                    new Vector3(0.5f, 0.46875f, 0.875f),
-                    new Vector3(0.1875f, 0.46875f, 0.125f));
+                    new Vector3(x: 0.5f, y: 0.46875f, z: 0.875f),
+                    new Vector3(x: 0.1875f, y: 0.46875f, z: 0.125f));
 
                 extensions++;
             }
 
             if (west)
                 children[extensions] = new BoundingBox(
-                    new Vector3(0.125f, 0.46875f, 0.5f),
-                    new Vector3(0.125f, 0.46875f, 0.1875f));
+                    new Vector3(x: 0.125f, y: 0.46875f, z: 0.5f),
+                    new Vector3(x: 0.125f, y: 0.46875f, z: 0.1875f));
 
-            return new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.25f, 0.5f, 0.25f), children);
+            return new BoundingBox(
+                new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
+                new Vector3(x: 0.25f, y: 0.5f, z: 0.25f),
+                children);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
@@ -11,21 +12,20 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block that lets liquids through but can be closed by interacting with it.
-    /// Data bit usage: <c>-----o</c>
+    ///     A block that lets liquids through but can be closed by interacting with it.
+    ///     Data bit usage: <c>-----o</c>
     /// </summary>
     // o = open
     public class LiquidBarrierBlock : BasicBlock, IFillable, IFlammable
     {
-        private int[] openTextureIndices = null!;
-
         private readonly TextureLayout open;
+        private int[] openTextureIndices = null!;
 
         internal LiquidBarrierBlock(string name, string namedId, TextureLayout closed, TextureLayout open) :
             base(
                 name,
                 namedId,
-                layout: closed,
+                closed,
                 isOpaque: true,
                 renderFaceAtNonOpaques: true,
                 isSolid: true,
@@ -34,6 +34,13 @@ namespace VoxelGame.Core.Logic.Blocks
                 isInteractable: true)
         {
             this.open = open;
+        }
+
+        public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
+        {
+            world.GetBlock(position, out uint data);
+
+            return (data & 0b00_0001) == 1;
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
@@ -53,16 +60,9 @@ namespace VoxelGame.Core.Logic.Blocks
             return mesh;
         }
 
-        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
+        protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
-            entity.World.SetBlock(this, data ^ 0b00_0001, x, y, z);
-        }
-
-        public bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
-        {
-            world.GetBlock(x, y, z, out uint data);
-
-            return (data & 0b00_0001) == 1;
+            entity.World.SetBlock(this, data ^ 0b00_0001, position);
         }
     }
 }

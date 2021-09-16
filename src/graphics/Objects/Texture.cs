@@ -22,7 +22,7 @@ namespace VoxelGame.Graphics.Objects
         {
             TextureUnit = unit;
 
-            GL.CreateTextures(TextureTarget.Texture2D, 1, out int handle);
+            GL.CreateTextures(TextureTarget.Texture2D, n: 1, out int handle);
             Handle = handle;
 
             Use(TextureUnit);
@@ -32,7 +32,7 @@ namespace VoxelGame.Graphics.Objects
                 using var bitmap = new Bitmap(path);
                 SetupTexture(bitmap);
             }
-            catch (Exception exception) when (exception is FileNotFoundException || exception is ArgumentException)
+            catch (Exception exception) when (exception is FileNotFoundException or ArgumentException)
             {
                 using (Bitmap bitmap = CreateFallback(fallbackResolution))
                 {
@@ -64,17 +64,17 @@ namespace VoxelGame.Graphics.Objects
             bitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
 
             BitmapData data = bitmap.LockBits(
-                new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                new Rectangle(x: 0, y: 0, bitmap.Width, bitmap.Height),
                 ImageLockMode.ReadOnly,
                 PixelFormat.Format32bppArgb);
 
-            GL.TextureStorage2D(Handle, 1, SizedInternalFormat.Rgba8, bitmap.Width, bitmap.Height);
+            GL.TextureStorage2D(Handle, levels: 1, SizedInternalFormat.Rgba8, bitmap.Width, bitmap.Height);
 
             GL.TextureSubImage2D(
                 Handle,
-                0,
-                0,
-                0,
+                level: 0,
+                xoffset: 0,
+                yoffset: 0,
                 bitmap.Width,
                 bitmap.Height,
                 OpenToolkit.Graphics.OpenGL4.PixelFormat.Bgra,
@@ -92,8 +92,8 @@ namespace VoxelGame.Graphics.Objects
         {
             var fallback = new Bitmap(resolution, resolution, PixelFormat.Format32bppArgb);
 
-            Color magenta = Color.FromArgb(64, 255, 0, 255);
-            Color black = Color.FromArgb(64, 0, 0, 0);
+            Color magenta = Color.FromArgb(alpha: 64, red: 255, green: 0, blue: 255);
+            Color black = Color.FromArgb(alpha: 64, red: 0, green: 0, blue: 0);
 
             for (var x = 0; x < fallback.Width; x++)
             for (var y = 0; y < fallback.Height; y++)
@@ -123,12 +123,12 @@ namespace VoxelGame.Graphics.Objects
 
         ~Texture()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 

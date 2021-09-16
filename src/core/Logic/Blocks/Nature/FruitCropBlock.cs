@@ -30,24 +30,24 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.175f, 0.5f, 0.175f)),
+                isFull: false,
+                isOpaque: false,
+                renderFaceAtNonOpaques: false,
+                isSolid: false,
+                receiveCollisions: false,
+                isTrigger: false,
+                isReplaceable: false,
+                isInteractable: false,
+                new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f)),
                 TargetBuffer.CrossPlant)
         {
             this.texture = texture;
             this.fruit = fruit;
         }
 
-        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
+        public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0 && level > LiquidLevel.Three) ScheduleDestroy(world, x, y, z);
+            if (liquid.Direction > 0 && level > LiquidLevel.Three) ScheduleDestroy(world, position);
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
@@ -67,8 +67,8 @@ namespace VoxelGame.Core.Logic.Blocks
             var stage = (GrowthStage) ((data >> 2) & 0b111);
 
             return stage < GrowthStage.First
-                ? new BoundingBox(new Vector3(0.5f, 0.25f, 0.5f), new Vector3(0.175f, 0.25f, 0.175f))
-                : new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.175f, 0.5f, 0.175f));
+                ? new BoundingBox(new Vector3(x: 0.5f, y: 0.25f, z: 0.5f), new Vector3(x: 0.175f, y: 0.25f, z: 0.175f))
+                : new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f));
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
@@ -88,59 +88,55 @@ namespace VoxelGame.Core.Logic.Blocks
                 _ => 0
             };
 
-            return BlockMeshData.CrossPlant(index, TintColor.None, false, (info.Data & 0b1) == 1, false);
+            return BlockMeshData.CrossPlant(
+                index,
+                TintColor.None,
+                hasUpper: false,
+                (info.Data & 0b1) == 1,
+                isUpper: false);
         }
 
-        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            Block ground = world.GetBlock(x, y - 1, z, out _) ?? Air;
+            Block ground = world.GetBlock(position - Vector3i.UnitY, out _) ?? Air;
 
             return ground is IPlantable;
         }
 
-        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            bool isLowered = world.IsLowered(x, y, z);
-            world.SetBlock(this, isLowered ? 1u : 0u, x, y, z);
+            bool isLowered = world.IsLowered(position);
+            world.SetBlock(this, isLowered ? 1u : 0u, position);
         }
 
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && !((world.GetBlock(x, y - 1, z, out _) ?? Air) is IPlantable))
-                Destroy(world, x, y, z);
+            if (side == BlockSide.Bottom && !((world.GetBlock(position - Vector3i.UnitY, out _) ?? Air) is IPlantable))
+                Destroy(world, position);
         }
 
-        internal override void RandomUpdate(World world, int x, int y, int z, uint data)
+        internal override void RandomUpdate(World world, Vector3i position, uint data)
         {
-            if (!(world.GetBlock(x, y - 1, z, out _) is IPlantable ground)) return;
+            if (world.GetBlock(position - Vector3i.UnitY, out _) is not IPlantable ground) return;
 
             var stage = (GrowthStage) ((data >> 1) & 0b111);
 
-            if (stage < GrowthStage.Ready)
-            {
-                world.SetBlock(this, (uint) ((int) (stage + 1) << 1), x, y, z);
-            }
+            if (stage < GrowthStage.Ready) world.SetBlock(this, (uint) ((int) (stage + 1) << 1), position);
             else if (stage == GrowthStage.Ready && ground.SupportsFullGrowth && ground.TryGrow(
                 world,
-                x,
-                y - 1,
-                z,
+                position - Vector3i.UnitY,
                 Liquid.Water,
                 LiquidLevel.Two))
-            {
-                if (fruit.Place(world, x, y, z - 1))
-                    world.SetBlock(this, (uint) GrowthStage.Second << 1, x, y, z); // North.
-                else if (fruit.Place(world, x + 1, y, z))
-                    world.SetBlock(this, (uint) GrowthStage.Second << 1, x, y, z); // East.
-                else if (fruit.Place(world, x, y, z + 1))
-                    world.SetBlock(this, (uint) GrowthStage.Second << 1, x, y, z); // South.
-                else if (fruit.Place(world, x - 1, y, z))
-                    world.SetBlock(this, (uint) GrowthStage.Second << 1, x, y, z); // West.
-            }
+                for (var orientation = Orientation.North; orientation <= Orientation.West; orientation++)
+                {
+                    if (!fruit.Place(world, orientation.Offset(position))) continue;
+
+                    world.SetBlock(this, (uint) GrowthStage.Second << 1, position);
+
+                    break;
+                }
             else if (stage == GrowthStage.Ready && ground.SupportsFullGrowth)
-            {
-                world.SetBlock(this, (uint) GrowthStage.Dead << 1, x, y, z);
-            }
+                world.SetBlock(this, (uint) GrowthStage.Dead << 1, position);
         }
 
         private enum GrowthStage

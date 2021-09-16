@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
@@ -12,8 +13,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block which can be rotated to be oriented on different axis. The y axis is the default orientation.
-    /// Data bit usage: <c>----aa</c>
+    ///     A block which can be rotated to be oriented on different axis. The y axis is the default orientation.
+    ///     Data bit usage: <c>----aa</c>
     /// </summary>
     // a = axis
     public class RotatedBlock : BasicBlock, IFlammable
@@ -36,22 +37,15 @@ namespace VoxelGame.Core.Logic.Blocks
             Axis axis = ToAxis(info.Data);
 
             // Check if the texture has to be rotated.
-            bool rotated = (axis == Axis.X && (info.Side != BlockSide.Left && info.Side != BlockSide.Right)) ||
-                           (axis == Axis.Z && (info.Side == BlockSide.Left || info.Side == BlockSide.Right));
+            bool rotated = axis == Axis.X && info.Side != BlockSide.Left && info.Side != BlockSide.Right ||
+                           axis == Axis.Z && info.Side is BlockSide.Left or BlockSide.Right;
 
             return BlockMeshData.Basic(sideTextureIndices[TranslateIndex(info.Side, axis)], rotated);
         }
 
-        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            world.SetBlock(this, (uint) ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
-        }
-
-        protected enum Axis
-        {
-            X, // East-West
-            Y, // Up-Down
-            Z // North-South
+            world.SetBlock(this, (uint) ToAxis(entity?.TargetSide ?? BlockSide.Front), position);
         }
 
         protected static Axis ToAxis(BlockSide side)
@@ -84,17 +78,18 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             var index = (int) side;
 
-            if (axis == Axis.X && side != BlockSide.Front && side != BlockSide.Back)
-            {
-                index = 7 - index;
-            }
+            if (axis == Axis.X && side != BlockSide.Front && side != BlockSide.Back) index = 7 - index;
 
-            if (axis == Axis.Z && side != BlockSide.Left && side != BlockSide.Right)
-            {
-                index = 5 - index;
-            }
+            if (axis == Axis.Z && side != BlockSide.Left && side != BlockSide.Right) index = 5 - index;
 
             return index;
+        }
+
+        protected enum Axis
+        {
+            X, // East-West
+            Y, // Up-Down
+            Z // North-South
         }
     }
 }

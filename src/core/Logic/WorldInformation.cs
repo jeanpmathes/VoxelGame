@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic
         public int Seed { get; set; } = 2133;
         public DateTime Creation { get; set; } = DateTime.MinValue;
         public string Version { get; set; } = "missing";
-        public SpawnInformation SpawnInformation { get; set; } = new(new Vector3(0f, 1024f, 0f));
+        public SpawnInformation SpawnInformation { get; set; } = new(new Vector3(x: 0f, y: 1024f, z: 0f));
 
         public void Save(string path)
         {

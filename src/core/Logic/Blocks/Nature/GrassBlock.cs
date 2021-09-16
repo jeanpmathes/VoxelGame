@@ -4,7 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
@@ -20,51 +22,31 @@ namespace VoxelGame.Core.Logic.Blocks
                 namedId,
                 normal,
                 wet,
-                true,
-                false) {}
+                hasNeutralTint: true,
+                supportsFullGrowth: false) {}
 
-        public virtual bool Burn(World world, int x, int y, int z, Block fire)
+        public bool Burn(World world, Vector3i position, Block fire)
         {
-            world.SetBlock(GrassBurned, 0, x, y, z);
-            fire.Place(world, x, y + 1, z);
+            world.SetBlock(GrassBurned, data: 0, position);
+            fire.Place(world, position + Vector3i.UnitY);
 
             return false;
         }
 
-        internal override void RandomUpdate(World world, int x, int y, int z, uint data)
+        internal override void RandomUpdate(World world, Vector3i position, uint data)
         {
-            Liquid? liquid = world.GetLiquid(x, y, z, out LiquidLevel level, out _);
+            Liquid? liquid = world.GetLiquid(position, out LiquidLevel level, out _);
 
-            if (liquid == Liquid.Water && level == LiquidLevel.Eight) world.SetBlock(Mud, 0, x, y, z);
+            if (liquid == Liquid.Water && level == LiquidLevel.Eight) world.SetBlock(Mud, data: 0, position);
 
-            if (world.GetBlock(x + 1, y, z, out _) is IGrassSpreadable a) a.SpreadGrass(world, x + 1, y, z, this);
-            if (world.GetBlock(x - 1, y, z, out _) is IGrassSpreadable b) b.SpreadGrass(world, x - 1, y, z, this);
-            if (world.GetBlock(x, y, z + 1, out _) is IGrassSpreadable c) c.SpreadGrass(world, x, y, z + 1, this);
-            if (world.GetBlock(x, y, z - 1, out _) is IGrassSpreadable d) d.SpreadGrass(world, x, y, z - 1, this);
+            for (int yOffset = -1; yOffset <= 1; yOffset++)
+            for (var orientation = Orientation.North; orientation <= Orientation.West; orientation++)
+            {
+                Vector3i otherPosition = orientation.Offset(position) + Vector3i.UnitY * yOffset;
 
-            if (world.GetBlock(x + 1, y + 1, z, out _) is IGrassSpreadable e)
-                e.SpreadGrass(world, x + 1, y + 1, z, this);
-
-            if (world.GetBlock(x - 1, y + 1, z, out _) is IGrassSpreadable f)
-                f.SpreadGrass(world, x - 1, y + 1, z, this);
-
-            if (world.GetBlock(x, y + 1, z + 1, out _) is IGrassSpreadable g)
-                g.SpreadGrass(world, x, y + 1, z + 1, this);
-
-            if (world.GetBlock(x, y + 1, z - 1, out _) is IGrassSpreadable h)
-                h.SpreadGrass(world, x, y + 1, z - 1, this);
-
-            if (world.GetBlock(x + 1, y - 1, z, out _) is IGrassSpreadable i)
-                i.SpreadGrass(world, x + 1, y - 1, z, this);
-
-            if (world.GetBlock(x - 1, y - 1, z, out _) is IGrassSpreadable j)
-                j.SpreadGrass(world, x - 1, y - 1, z, this);
-
-            if (world.GetBlock(x, y - 1, z + 1, out _) is IGrassSpreadable k)
-                k.SpreadGrass(world, x, y - 1, z + 1, this);
-
-            if (world.GetBlock(x, y - 1, z - 1, out _) is IGrassSpreadable l)
-                l.SpreadGrass(world, x, y - 1, z - 1, this);
+                if (world.GetBlock(otherPosition, out _) is IGrassSpreadable grassSpreadable)
+                    grassSpreadable.SpreadGrass(world, otherPosition, this);
+            }
         }
     }
 }

@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Visuals
         public int TextureIndex { get; }
         public TintColor Tint { get; }
 
-        public static LiquidMeshData Empty { get; } = new(0, TintColor.None);
+        public static LiquidMeshData Empty { get; } = new(textureIndex: 0, TintColor.None);
 
         public static LiquidMeshData Basic(int textureIndex, TintColor tint)
         {

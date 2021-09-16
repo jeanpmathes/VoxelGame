@@ -148,7 +148,7 @@ namespace VoxelGame.Client.Rendering
             IReadOnlyList<Bitmap> textures,
             int startIndex, int length, bool useCustomMipmapGeneration)
         {
-            var levels = (int) Math.Log(resolution, 2);
+            var levels = (int) Math.Log(resolution, newBase: 2);
 
             GL.BindTextureUnit(unit - TextureUnit.Texture0, handle);
 
@@ -163,7 +163,7 @@ namespace VoxelGame.Client.Rendering
                 for (int i = startIndex; i < length; i++)
                 {
                     textures[i].RotateFlip(RotateFlipType.RotateNoneFlipY);
-                    canvas.DrawImage(textures[i], 0, i * resolution, resolution, resolution);
+                    canvas.DrawImage(textures[i], x: 0, i * resolution, resolution, resolution);
                 }
 
                 canvas.Save();
@@ -171,16 +171,16 @@ namespace VoxelGame.Client.Rendering
 
             // Upload pixel data to array
             BitmapData data = container.LockBits(
-                new Rectangle(0, 0, container.Width, container.Height),
+                new Rectangle(x: 0, y: 0, container.Width, container.Height),
                 ImageLockMode.ReadOnly,
                 PixelFormat.Format32bppArgb);
 
             GL.TextureSubImage3D(
                 handle,
-                0,
-                0,
-                0,
-                0,
+                level: 0,
+                xoffset: 0,
+                yoffset: 0,
+                zoffset: 0,
                 resolution,
                 resolution,
                 length,
@@ -234,7 +234,7 @@ namespace VoxelGame.Client.Rendering
                         {
                             bitmaps.Add(
                                 bitmap.Clone(
-                                    new Rectangle(j * resolution, 0, resolution, resolution),
+                                    new Rectangle(j * resolution, y: 0, resolution, resolution),
                                     PixelFormat.Format32bppArgb));
 
                             texIndex++;
@@ -282,16 +282,16 @@ namespace VoxelGame.Client.Rendering
         private static void UploadPixelData(int handle, Bitmap bitmap, int lod, int length)
         {
             BitmapData data = bitmap.LockBits(
-                new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                new Rectangle(x: 0, y: 0, bitmap.Width, bitmap.Height),
                 ImageLockMode.ReadOnly,
                 PixelFormat.Format32bppArgb);
 
             GL.TextureSubImage3D(
                 handle,
                 lod,
-                0,
-                0,
-                0,
+                xoffset: 0,
+                yoffset: 0,
+                zoffset: 0,
                 bitmap.Width,
                 bitmap.Width,
                 length,
@@ -328,7 +328,7 @@ namespace VoxelGame.Client.Rendering
                 double relevantPixels = minAlpha != 0 ? 4 : one + two + three + four;
 
                 Color average = relevantPixels == 0
-                    ? Color.FromArgb(0, 0, 0, 0)
+                    ? Color.FromArgb(alpha: 0, red: 0, green: 0, blue: 0)
                     : Color.FromArgb(
                         maxAlpha,
                         (int) Math.Sqrt(
@@ -363,12 +363,12 @@ namespace VoxelGame.Client.Rendering
 
         ~ArrayTexture()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 

@@ -18,7 +18,7 @@ namespace VoxelGame.Input.Collections
             var unused = true;
 
             if (usageCount.ContainsKey(keyOrButton)) unused = false;
-            else usageCount.Add(keyOrButton, 0);
+            else usageCount.Add(keyOrButton, value: 0);
 
             usageCount[keyOrButton]++;
 

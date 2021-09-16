@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -31,14 +32,14 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                false,
-                false,
-                false,
-                true,
-                false,
-                false,
-                false,
-                false,
+                isFull: false,
+                isOpaque: false,
+                renderFaceAtNonOpaques: false,
+                isSolid: true,
+                receiveCollisions: false,
+                isTrigger: false,
+                isReplaceable: false,
+                isInteractable: false,
                 BoundingBox.Block,
                 TargetBuffer.VaryingHeight)
         {
@@ -48,9 +49,9 @@ namespace VoxelGame.Core.Logic.Blocks
             SupportsFullGrowth = supportsFullGrowth;
         }
 
-        public void CoverWithAsh(World world, int x, int y, int z)
+        public void CoverWithAsh(World world, Vector3i position)
         {
-            world.SetBlock(GrassBurned, 0, x, y, z);
+            world.SetBlock(GrassBurned, data: 0, position);
         }
 
         public int GetHeight(uint data)
@@ -60,9 +61,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public bool SupportsFullGrowth { get; }
 
-        public void BecomeSolid(World world, int x, int y, int z)
+        public void BecomeSolid(World world, Vector3i position)
         {
-            world.SetBlock(Dirt, 0, x, y, z);
+            world.SetBlock(Dirt, data: 0, position);
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
@@ -85,20 +86,20 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.VaryingHeight(texture, TintColor.None);
         }
 
-        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return !world.HasOpaqueTop(x, y, z) || Dirt.CanPlace(world, x, y, z, entity);
+            return !world.HasOpaqueTop(position) || Dirt.CanPlace(world, position, entity);
         }
 
-        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            if (world.HasOpaqueTop(x, y, z)) Dirt.Place(world, x, y, z, entity);
-            else world.SetBlock(this, 0, x, y, z);
+            if (world.HasOpaqueTop(position)) Dirt.Place(world, position, entity);
+            else world.SetBlock(this, data: 0, position);
         }
 
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            if (side == BlockSide.Top && world.HasOpaqueTop(x, y, z)) BecomeSolid(world, x, y, z);
+            if (side == BlockSide.Top && world.HasOpaqueTop(position)) BecomeSolid(world, position);
         }
     }
 }

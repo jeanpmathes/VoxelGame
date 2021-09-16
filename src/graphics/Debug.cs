@@ -38,7 +38,7 @@ namespace VoxelGame.Graphics
         private static void DebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity,
             int length, IntPtr message, IntPtr userParam)
         {
-            if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+            if (id is 131169 or 131185 or 131218 or 131204) return;
 
             string sourceShort = source switch
             {

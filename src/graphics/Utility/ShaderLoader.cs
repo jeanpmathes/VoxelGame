@@ -61,7 +61,7 @@ namespace VoxelGame.Graphics.Utility
 
                 if (match.Success)
                 {
-                    string name = match.Groups[1].Value;
+                    string name = match.Groups[groupnum: 1].Value;
 
                     if (includables.ContainsKey(name)) source.AppendLine(includables[name]);
                     else logger.LogWarning("Cannot resolve shader include for name: {Name}", name);

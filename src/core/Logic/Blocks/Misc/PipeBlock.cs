@@ -41,15 +41,15 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                false,
-                false,
-                true,
-                true,
-                false,
-                false,
-                false,
-                false,
-                new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(diameter, diameter, diameter)),
+                isFull: false,
+                isOpaque: false,
+                renderFaceAtNonOpaques: true,
+                isSolid: true,
+                receiveCollisions: false,
+                isTrigger: false,
+                isReplaceable: false,
+                isInteractable: false,
+                new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, diameter)),
                 TargetBuffer.Complex)
         {
             this.diameter = diameter;
@@ -69,14 +69,14 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public bool RenderLiquid => false;
 
-        public bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
+        public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
         {
-            return IsSideOpen(world, x, y, z, side);
+            return IsSideOpen(world, position, side);
         }
 
-        public bool AllowOutflow(World world, int x, int y, int z, BlockSide side)
+        public bool AllowOutflow(World world, Vector3i position, BlockSide side)
         {
-            return IsSideOpen(world, x, y, z, side);
+            return IsSideOpen(world, position, side);
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
@@ -85,44 +85,20 @@ namespace VoxelGame.Core.Logic.Blocks
 
             float connectorWidth = (0.5f - diameter) / 2f;
 
-            if ((data & 0b10_0000) != 0)
-                connectors.Add(
-                    new BoundingBox(
-                        new Vector3(0.5f, 0.5f, 1f - connectorWidth),
-                        new Vector3(diameter, diameter, connectorWidth)));
+            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
+            {
+                if (!side.IsSet(data)) continue;
 
-            if ((data & 0b01_0000) != 0)
-                connectors.Add(
-                    new BoundingBox(
-                        new Vector3(0.5f, 0.5f, connectorWidth),
-                        new Vector3(diameter, diameter, connectorWidth)));
+                var direction = side.Direction().ToVector3();
 
-            if ((data & 0b00_1000) != 0)
                 connectors.Add(
                     new BoundingBox(
-                        new Vector3(connectorWidth, 0.5f, 0.5f),
-                        new Vector3(connectorWidth, diameter, diameter)));
-
-            if ((data & 0b00_0100) != 0)
-                connectors.Add(
-                    new BoundingBox(
-                        new Vector3(1f - connectorWidth, 0.5f, 0.5f),
-                        new Vector3(connectorWidth, diameter, diameter)));
-
-            if ((data & 0b00_0010) != 0)
-                connectors.Add(
-                    new BoundingBox(
-                        new Vector3(0.5f, connectorWidth, 0.5f),
-                        new Vector3(diameter, connectorWidth, diameter)));
-
-            if ((data & 0b00_0001) != 0)
-                connectors.Add(
-                    new BoundingBox(
-                        new Vector3(0.5f, 1f - connectorWidth, 0.5f),
-                        new Vector3(diameter, connectorWidth, diameter)));
+                        (0.5f, 0.5f, 0.5f) + direction * (0.5f - connectorWidth),
+                        (diameter, diameter, diameter) + direction.Absolute() * (connectorWidth - diameter)));
+            }
 
             return new BoundingBox(
-                new Vector3(0.5f, 0.5f, 0.5f),
+                new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
                 new Vector3(diameter, diameter, diameter),
                 connectors.ToArray());
         }
@@ -132,95 +108,65 @@ namespace VoxelGame.Core.Logic.Blocks
             (float[] vertices, int[] textureIndices, uint[] indices) = BlockModel.CombineData(
                 out uint vertexCount,
                 center,
-                (info.Data & 0b10_0000) == 0 ? surface.front : connector.front,
-                (info.Data & 0b01_0000) == 0 ? surface.back : connector.back,
-                (info.Data & 0b00_1000) == 0 ? surface.left : connector.left,
-                (info.Data & 0b00_0100) == 0 ? surface.right : connector.right,
-                (info.Data & 0b00_0010) == 0 ? surface.bottom : connector.bottom,
-                (info.Data & 0b00_0001) == 0 ? surface.top : connector.top);
+                BlockSide.Front.IsSet(info.Data) ? connector.front : surface.front,
+                BlockSide.Back.IsSet(info.Data) ? connector.back : surface.back,
+                BlockSide.Left.IsSet(info.Data) ? connector.left : surface.left,
+                BlockSide.Right.IsSet(info.Data) ? connector.right : surface.right,
+                BlockSide.Bottom.IsSet(info.Data) ? connector.bottom : surface.bottom,
+                BlockSide.Top.IsSet(info.Data) ? connector.top : surface.top);
 
             return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices);
         }
 
-        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            uint data = GetConnectionData(world, x, y, z);
+            uint data = GetConnectionData(world, position);
 
             OpenOpposingSide(ref data);
 
-            world.SetBlock(this, data, x, y, z);
+            world.SetBlock(this, data, position);
         }
 
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            uint updatedData = GetConnectionData(world, x, y, z);
+            uint updatedData = GetConnectionData(world, position);
             OpenOpposingSide(ref updatedData);
 
-            if (updatedData != data) world.SetBlock(this, updatedData, x, y, z);
+            if (updatedData != data) world.SetBlock(this, updatedData, position);
         }
 
-        private uint GetConnectionData(World world, int x, int y, int z)
+        private uint GetConnectionData(World world, Vector3i position)
         {
             uint data = 0;
 
-            if (IsConnectable(BlockSide.Back, x, y, z + 1)) data |= 0b10_0000;
-            if (IsConnectable(BlockSide.Front, x, y, z - 1)) data |= 0b01_0000;
-            if (IsConnectable(BlockSide.Right, x - 1, y, z)) data |= 0b00_1000;
-            if (IsConnectable(BlockSide.Left, x + 1, y, z)) data |= 0b00_0100;
-            if (IsConnectable(BlockSide.Top, x, y - 1, z)) data |= 0b00_0010;
-            if (IsConnectable(BlockSide.Bottom, x, y + 1, z)) data |= 0b00_0001;
+            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
+            {
+                Vector3i otherPosition = side.Offset(position);
+                Block? otherBlock = world.GetBlock(position, out _);
+
+                if (otherBlock == this || otherBlock is TConnect connectable &&
+                    connectable.IsConnectable(world, side, otherPosition)) data |= side.ToFlag();
+            }
 
             return data;
-
-            bool IsConnectable(BlockSide side, int cx, int cy, int cz)
-            {
-                Block? block = world.GetBlock(cx, cy, cz, out _);
-
-                return block == this ||
-                       block is TConnect connectable && connectable.IsConnectable(world, side, cx, cy, cz);
-            }
         }
 
         private static void OpenOpposingSide(ref uint data)
         {
             if (BitHelper.CountSetBits(data) != 1) return;
 
-            switch (data)
-            {
-                case 0b10_0000:
-                case 0b01_0000:
-                    data = 0b11_0000;
+            if ((data & 0b11_0000) != 0) data = 0b11_0000;
 
-                    break;
+            if ((data & 0b00_1100) != 0) data = 0b00_1100;
 
-                case 0b00_1000:
-                case 0b00_0100:
-                    data = 0b00_1100;
-
-                    break;
-
-                case 0b00_0010:
-                case 0b00_0001:
-                    data = 0b00_0011;
-
-                    break;
-            }
+            if ((data & 0b00_0011) != 0) data = 0b00_0011;
         }
 
-        private static bool IsSideOpen(World world, int x, int y, int z, BlockSide side)
+        private static bool IsSideOpen(World world, Vector3i position, BlockSide side)
         {
-            world.GetBlock(x, y, z, out uint data);
+            world.GetBlock(position, out uint data);
 
-            return side switch
-            {
-                BlockSide.Front => (data & 0b10_0000) != 0,
-                BlockSide.Back => (data & 0b01_0000) != 0,
-                BlockSide.Left => (data & 0b00_1000) != 0,
-                BlockSide.Right => (data & 0b00_0100) != 0,
-                BlockSide.Bottom => (data & 0b00_0010) != 0,
-                BlockSide.Top => (data & 0b00_0001) != 0,
-                _ => true
-            };
+            return side.IsSet(data);
         }
     }
 }

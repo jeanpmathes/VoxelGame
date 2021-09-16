@@ -4,13 +4,15 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System;
+using System.ComponentModel;
+using OpenToolkit.Mathematics;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic
 {
     /// <summary>
-    /// The side of a block.
+    ///     The side of a block.
     /// </summary>
     public enum BlockSide
     {
@@ -36,6 +38,17 @@ namespace VoxelGame.Core.Logic
         private static readonly int[] c110 = {1, 1, 0};
         private static readonly int[] c100 = {1, 0, 0};
 
+        private static readonly Vector3i[] directions =
+        {
+            (0, 0, 0),
+            (0, 0, 1),
+            (0, 0, -1),
+            (-1, 0, 0),
+            (1, 0, 0),
+            (0, -1, 0),
+            (0, 1, 0)
+        };
+
         public static BlockSide Opposite(this BlockSide side)
         {
             return side switch
@@ -47,26 +60,42 @@ namespace VoxelGame.Core.Logic
                 BlockSide.Right => BlockSide.Left,
                 BlockSide.Bottom => BlockSide.Top,
                 BlockSide.Top => BlockSide.Bottom,
-                _ => throw new ArgumentOutOfRangeException(nameof(side), side, null)
+                _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
             };
         }
 
-        private static readonly Vector3i[] directions = new Vector3i[]
+        public static Orientation ToOrientation(this BlockSide side)
         {
-            (0, 0, 0),
-            (0, 0, 1),
-            (0, 0, -1),
-            (-1, 0, 0),
-            (1, 0, 0),
-            (0, -1, 0),
-            (0, 1, 0)
-        };
+            return side switch
+            {
+                BlockSide.Front => Orientation.South,
+                BlockSide.Back => Orientation.North,
+                BlockSide.Left => Orientation.West,
+                BlockSide.Right => Orientation.East,
+                _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+            };
+        }
+
+        public static bool IsLateral(this BlockSide side)
+        {
+            return side switch
+            {
+                BlockSide.All => false,
+                BlockSide.Front => true,
+                BlockSide.Back => true,
+                BlockSide.Left => true,
+                BlockSide.Right => true,
+                BlockSide.Bottom => false,
+                BlockSide.Top => false,
+                _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+            };
+        }
 
         public static Vector3i Direction(this BlockSide side)
         {
             int index = (int) side + 1;
 
-            if (index > 6) throw new ArgumentOutOfRangeException(nameof(side), side, null);
+            if (index > 6) throw new ArgumentOutOfRangeException(nameof(side), side, message: null);
 
             return directions[index];
         }
@@ -74,6 +103,41 @@ namespace VoxelGame.Core.Logic
         public static Vector3i Offset(this BlockSide side, Vector3i v)
         {
             return v + side.Direction();
+        }
+
+        public static Axis Axis(this BlockSide side)
+        {
+            return side switch
+            {
+                BlockSide.All => throw new InvalidEnumArgumentException(),
+                BlockSide.Front => Utilities.Axis.Z,
+                BlockSide.Back => Utilities.Axis.Z,
+                BlockSide.Left => Utilities.Axis.X,
+                BlockSide.Right => Utilities.Axis.X,
+                BlockSide.Bottom => Utilities.Axis.Y,
+                BlockSide.Top => Utilities.Axis.Y,
+                _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+            };
+        }
+
+        public static uint ToFlag(this BlockSide side)
+        {
+            return side switch
+            {
+                BlockSide.All => 0b11_1111,
+                BlockSide.Front => 0b10_0000,
+                BlockSide.Back => 0b01_0000,
+                BlockSide.Left => 0b00_1000,
+                BlockSide.Right => 0b00_0100,
+                BlockSide.Bottom => 0b00_0010,
+                BlockSide.Top => 0b00_0001,
+                _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+            };
+        }
+
+        public static bool IsSet(this BlockSide side, uint flags)
+        {
+            return (flags & side.ToFlag()) != 0;
         }
 
         public static void Corners(this BlockSide side, out int[] a, out int[] b, out int[] c, out int[] d)
@@ -129,7 +193,7 @@ namespace VoxelGame.Core.Logic
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(side), side, null);
+                    throw new ArgumentOutOfRangeException(nameof(side), side, message: null);
             }
         }
     }

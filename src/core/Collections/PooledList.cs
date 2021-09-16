@@ -119,7 +119,7 @@ namespace VoxelGame.Core.Collections
         {
             T[] newItems = arrayPool.Rent(newSize);
 
-            if (Count > 0) Array.Copy(items, 0, newItems, 0, Count);
+            if (Count > 0) Array.Copy(items, sourceIndex: 0, newItems, destinationIndex: 0, Count);
 
             arrayPool.Return(items);
 
@@ -181,7 +181,7 @@ namespace VoxelGame.Core.Collections
             {
                 EnsureCapacity(Count + count);
 
-                Array.Copy(array, 0, items, Count, count);
+                Array.Copy(array, sourceIndex: 0, items, Count, count);
 
                 Count += count;
             }
@@ -207,7 +207,7 @@ namespace VoxelGame.Core.Collections
             {
                 EnsureCapacity(Count + count);
 
-                Array.Copy(pooledList.items, 0, items, Count, count);
+                Array.Copy(pooledList.items, sourceIndex: 0, items, Count, count);
 
                 Count += count;
             }

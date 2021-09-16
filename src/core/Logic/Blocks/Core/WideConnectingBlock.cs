@@ -44,14 +44,14 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                false,
-                false,
-                true,
-                true,
-                false,
-                false,
-                false,
-                false,
+                isFull: false,
+                isOpaque: false,
+                renderFaceAtNonOpaques: true,
+                isSolid: true,
+                receiveCollisions: false,
+                isTrigger: false,
+                isReplaceable: false,
+                isInteractable: false,
                 boundingBox,
                 TargetBuffer.Complex)
         {
@@ -70,16 +70,16 @@ namespace VoxelGame.Core.Logic.Blocks
 
             postModel.ToData(out postVertices, out _, out _);
 
-            extensionModel.RotateY(0, false);
+            extensionModel.RotateY(rotations: 0, rotateTopAndBottomTexture: false);
             extensionModel.ToData(out northVertices, out _, out _);
 
-            extensionModel.RotateY(1, false);
+            extensionModel.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
             extensionModel.ToData(out eastVertices, out _, out _);
 
-            extensionModel.RotateY(1, false);
+            extensionModel.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
             extensionModel.ToData(out southVertices, out _, out _);
 
-            extensionModel.RotateY(1, false);
+            extensionModel.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
             extensionModel.ToData(out westVertices, out _, out _);
 
             int tex = indexProvider.GetTextureIndex(texture);
@@ -113,28 +113,28 @@ namespace VoxelGame.Core.Logic.Blocks
 
             // Combine the required vertices into one array
             var position = 0;
-            Array.Copy(postVertices, 0, vertices, 0, postVertices.Length);
+            Array.Copy(postVertices, sourceIndex: 0, vertices, destinationIndex: 0, postVertices.Length);
             position += postVertices.Length;
 
             if (north)
             {
-                Array.Copy(northVertices, 0, vertices, position, northVertices.Length);
+                Array.Copy(northVertices, sourceIndex: 0, vertices, position, northVertices.Length);
                 position += northVertices.Length;
             }
 
             if (east)
             {
-                Array.Copy(eastVertices, 0, vertices, position, eastVertices.Length);
+                Array.Copy(eastVertices, sourceIndex: 0, vertices, position, eastVertices.Length);
                 position += eastVertices.Length;
             }
 
             if (south)
             {
-                Array.Copy(southVertices, 0, vertices, position, southVertices.Length);
+                Array.Copy(southVertices, sourceIndex: 0, vertices, position, southVertices.Length);
                 position += southVertices.Length;
             }
 
-            if (west) Array.Copy(westVertices, 0, vertices, position, westVertices.Length);
+            if (west) Array.Copy(westVertices, sourceIndex: 0, vertices, position, westVertices.Length);
 
             return BlockMeshData.Complex(vertexCount, vertices, currentTextureIndices, currentIndices);
         }

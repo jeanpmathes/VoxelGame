@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -30,13 +31,13 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                false,
-                false,
-                true,
+                isFull: false,
+                isOpaque: false,
+                renderFaceAtNonOpaques: true,
                 isSolid,
-                false,
-                false,
-                false,
+                receiveCollisions: false,
+                isTrigger: false,
+                isReplaceable: false,
                 isInteractable,
                 boundingBox,
                 TargetBuffer.Complex)
@@ -57,14 +58,14 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.Complex(vertexCount, vertices, texIndices, indices);
         }
 
-        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return world.HasSolidGround(x, y, z, true);
+            return world.HasSolidGround(position, solidify: true);
         }
 
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && !world.HasSolidGround(x, y, z)) Destroy(world, x, y, z);
+            if (side == BlockSide.Bottom && !world.HasSolidGround(position)) Destroy(world, position);
         }
     }
 }

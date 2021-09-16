@@ -39,7 +39,7 @@ namespace VoxelGame.Client.Rendering
             get => MathHelper.RadiansToDegrees(pitch);
             set
             {
-                float angle = MathHelper.Clamp(value, -89f, 89f);
+                float angle = MathHelper.Clamp(value, min: -89f, max: 89f);
                 pitch = MathHelper.DegreesToRadians(angle);
                 UpdateVectors();
             }
@@ -60,7 +60,7 @@ namespace VoxelGame.Client.Rendering
             get => MathHelper.RadiansToDegrees(fov);
             set
             {
-                float angle = MathHelper.Clamp(value, 1f, 45f);
+                float angle = MathHelper.Clamp(value, min: 1f, max: 45f);
                 fov = MathHelper.DegreesToRadians(angle);
             }
         }

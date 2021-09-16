@@ -4,18 +4,20 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
+
 namespace VoxelGame.Core.Logic.Interfaces
 {
     /// <summary>
-    /// Mark a block as able to support plant growth.
+    ///     Mark a block as able to support plant growth.
     /// </summary>
     public interface IPlantable : IBlockBase
     {
         bool SupportsFullGrowth => false;
 
-        public bool TryGrow(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
+        public bool TryGrow(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
-            return liquid.TryTakeExact(world, x, y, z, level);
+            return liquid.TryTakeExact(world, position, level);
         }
     }
 }

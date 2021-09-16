@@ -164,7 +164,7 @@ namespace VoxelGame.Client.Collections
 
                 while (currentFace != null)
                 {
-                    if (side == BlockSide.Left || side == BlockSide.Right)
+                    if (side is BlockSide.Left or BlockSide.Right)
                         currentFace.isRotated = !currentFace.isRotated;
 
                     int vertTexRepetition = BuildVertexTexRepetitionMask(

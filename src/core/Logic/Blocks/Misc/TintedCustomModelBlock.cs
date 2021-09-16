@@ -4,21 +4,23 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A custom model block that uses tint.
-    /// Data bit usage: <c>-ccccc</c>
+    ///     A custom model block that uses tint.
+    ///     Data bit usage: <c>-ccccc</c>
     /// </summary>
     // c = color
     public class TintedCustomModelBlock : CustomModelBlock, IFlammable
     {
-        internal TintedCustomModelBlock(string name, string namedId, string modelName, Physics.BoundingBox boundingBox,
+        internal TintedCustomModelBlock(string name, string namedId, string modelName, BoundingBox boundingBox,
             bool isSolid = true) :
             base(
                 name,
@@ -33,9 +35,9 @@ namespace VoxelGame.Core.Logic.Blocks
             return base.GetMesh(info).Modified(((BlockColor) (0b01_1111 & info.Data)).ToTintColor());
         }
 
-        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
+        protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
-            entity.World.SetBlock(this, data + 1 & 0b01_1111, x, y, z);
+            entity.World.SetBlock(this, (data + 1) & 0b01_1111, position);
         }
     }
 }

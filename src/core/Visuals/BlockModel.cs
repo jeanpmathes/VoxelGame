@@ -117,8 +117,8 @@ namespace VoxelGame.Core.Visuals
 
             float angle = rotations * MathHelper.PiOver2 * -1f;
 
-            Matrix4 xyz = Matrix4.CreateTranslation(-0.5f, -0.5f, -0.5f) * Matrix4.CreateRotationY(angle) *
-                          Matrix4.CreateTranslation(0.5f, 0.5f, 0.5f);
+            Matrix4 xyz = Matrix4.CreateTranslation(x: -0.5f, y: -0.5f, z: -0.5f) * Matrix4.CreateRotationY(angle) *
+                          Matrix4.CreateTranslation(x: 0.5f, y: 0.5f, z: 0.5f);
 
             var nop = Matrix4.CreateRotationY(angle);
 
@@ -168,13 +168,13 @@ namespace VoxelGame.Core.Visuals
             BlockModel north = this;
 
             BlockModel east = new(north);
-            east.RotateY(1, rotateTopAndBottomTexture);
+            east.RotateY(rotations: 1, rotateTopAndBottomTexture);
 
             BlockModel south = new(east);
-            south.RotateY(1, rotateTopAndBottomTexture);
+            south.RotateY(rotations: 1, rotateTopAndBottomTexture);
 
             BlockModel west = new(south);
-            west.RotateY(1, rotateTopAndBottomTexture);
+            west.RotateY(rotations: 1, rotateTopAndBottomTexture);
 
             return (north, east, south, west);
         }
@@ -233,8 +233,8 @@ namespace VoxelGame.Core.Visuals
                     throw new ArgumentOutOfRangeException(nameof(side));
             }
 
-            Matrix4 matrix = Matrix4.CreateTranslation(-0.5f, -0.5f, -0.5f) * rotation *
-                             Matrix4.CreateTranslation(0.5f, 0.5f, 0.5f);
+            Matrix4 matrix = Matrix4.CreateTranslation(x: -0.5f, y: -0.5f, z: -0.5f) * rotation *
+                             Matrix4.CreateTranslation(x: 0.5f, y: 0.5f, z: 0.5f);
 
             copy.ApplyMatrix(matrix, rotation);
             copy.RotateTextureCoordinates(axis, rotations);
@@ -283,11 +283,11 @@ namespace VoxelGame.Core.Visuals
                 vertices[q * 32 + 0] = quad.Vert0.X;
                 vertices[q * 32 + 1] = quad.Vert0.Y;
                 vertices[q * 32 + 2] = quad.Vert0.Z;
-                vertices[q * 32 + 3] = MathHelper.Clamp(quad.Vert0.U, 0f, 1f);
-                vertices[q * 32 + 4] = MathHelper.Clamp(quad.Vert0.V, 0f, 1f);
-                vertices[q * 32 + 5] = MathHelper.Clamp(quad.Vert0.N, -1f, 1f);
-                vertices[q * 32 + 6] = MathHelper.Clamp(quad.Vert0.O, -1f, 1f);
-                vertices[q * 32 + 7] = MathHelper.Clamp(quad.Vert0.P, -1f, 1f);
+                vertices[q * 32 + 3] = MathHelper.Clamp(quad.Vert0.U, min: 0f, max: 1f);
+                vertices[q * 32 + 4] = MathHelper.Clamp(quad.Vert0.V, min: 0f, max: 1f);
+                vertices[q * 32 + 5] = MathHelper.Clamp(quad.Vert0.N, min: -1f, max: 1f);
+                vertices[q * 32 + 6] = MathHelper.Clamp(quad.Vert0.O, min: -1f, max: 1f);
+                vertices[q * 32 + 7] = MathHelper.Clamp(quad.Vert0.P, min: -1f, max: 1f);
 
                 textureIndices[q * 4 + 0] = texIndexLookup[quad.TextureId];
 
@@ -295,11 +295,11 @@ namespace VoxelGame.Core.Visuals
                 vertices[q * 32 + 8] = quad.Vert1.X;
                 vertices[q * 32 + 9] = quad.Vert1.Y;
                 vertices[q * 32 + 10] = quad.Vert1.Z;
-                vertices[q * 32 + 11] = MathHelper.Clamp(quad.Vert1.U, 0f, 1f);
-                vertices[q * 32 + 12] = MathHelper.Clamp(quad.Vert1.V, 0f, 1f);
-                vertices[q * 32 + 13] = MathHelper.Clamp(quad.Vert1.N, -1f, 1f);
-                vertices[q * 32 + 14] = MathHelper.Clamp(quad.Vert1.O, -1f, 1f);
-                vertices[q * 32 + 15] = MathHelper.Clamp(quad.Vert1.P, -1f, 1f);
+                vertices[q * 32 + 11] = MathHelper.Clamp(quad.Vert1.U, min: 0f, max: 1f);
+                vertices[q * 32 + 12] = MathHelper.Clamp(quad.Vert1.V, min: 0f, max: 1f);
+                vertices[q * 32 + 13] = MathHelper.Clamp(quad.Vert1.N, min: -1f, max: 1f);
+                vertices[q * 32 + 14] = MathHelper.Clamp(quad.Vert1.O, min: -1f, max: 1f);
+                vertices[q * 32 + 15] = MathHelper.Clamp(quad.Vert1.P, min: -1f, max: 1f);
 
                 textureIndices[q * 4 + 1] = texIndexLookup[quad.TextureId];
 
@@ -307,11 +307,11 @@ namespace VoxelGame.Core.Visuals
                 vertices[q * 32 + 16] = quad.Vert2.X;
                 vertices[q * 32 + 17] = quad.Vert2.Y;
                 vertices[q * 32 + 18] = quad.Vert2.Z;
-                vertices[q * 32 + 19] = MathHelper.Clamp(quad.Vert2.U, 0f, 1f);
-                vertices[q * 32 + 20] = MathHelper.Clamp(quad.Vert2.V, 0f, 1f);
-                vertices[q * 32 + 21] = MathHelper.Clamp(quad.Vert2.N, -1f, 1f);
-                vertices[q * 32 + 22] = MathHelper.Clamp(quad.Vert2.O, -1f, 1f);
-                vertices[q * 32 + 23] = MathHelper.Clamp(quad.Vert2.P, -1f, 1f);
+                vertices[q * 32 + 19] = MathHelper.Clamp(quad.Vert2.U, min: 0f, max: 1f);
+                vertices[q * 32 + 20] = MathHelper.Clamp(quad.Vert2.V, min: 0f, max: 1f);
+                vertices[q * 32 + 21] = MathHelper.Clamp(quad.Vert2.N, min: -1f, max: 1f);
+                vertices[q * 32 + 22] = MathHelper.Clamp(quad.Vert2.O, min: -1f, max: 1f);
+                vertices[q * 32 + 23] = MathHelper.Clamp(quad.Vert2.P, min: -1f, max: 1f);
 
                 textureIndices[q * 4 + 2] = texIndexLookup[quad.TextureId];
 
@@ -319,11 +319,11 @@ namespace VoxelGame.Core.Visuals
                 vertices[q * 32 + 24] = quad.Vert3.X;
                 vertices[q * 32 + 25] = quad.Vert3.Y;
                 vertices[q * 32 + 26] = quad.Vert3.Z;
-                vertices[q * 32 + 27] = MathHelper.Clamp(quad.Vert3.U, 0f, 1f);
-                vertices[q * 32 + 28] = MathHelper.Clamp(quad.Vert3.V, 0f, 1f);
-                vertices[q * 32 + 29] = MathHelper.Clamp(quad.Vert3.N, -1f, 1f);
-                vertices[q * 32 + 30] = MathHelper.Clamp(quad.Vert3.O, -1f, 1f);
-                vertices[q * 32 + 31] = MathHelper.Clamp(quad.Vert3.P, -1f, 1f);
+                vertices[q * 32 + 27] = MathHelper.Clamp(quad.Vert3.U, min: 0f, max: 1f);
+                vertices[q * 32 + 28] = MathHelper.Clamp(quad.Vert3.V, min: 0f, max: 1f);
+                vertices[q * 32 + 29] = MathHelper.Clamp(quad.Vert3.N, min: -1f, max: 1f);
+                vertices[q * 32 + 30] = MathHelper.Clamp(quad.Vert3.O, min: -1f, max: 1f);
+                vertices[q * 32 + 31] = MathHelper.Clamp(quad.Vert3.P, min: -1f, max: 1f);
 
                 textureIndices[q * 4 + 3] = texIndexLookup[quad.TextureId];
             }
@@ -375,7 +375,7 @@ namespace VoxelGame.Core.Visuals
 
                 return model;
             }
-            catch (Exception e) when (e is IOException || e is FileNotFoundException || e is JsonException)
+            catch (Exception e) when (e is IOException or FileNotFoundException or JsonException)
             {
                 logger.LogWarning(
                     Events.MissingResource,
@@ -475,7 +475,7 @@ namespace VoxelGame.Core.Visuals
         {
             vertexCount = 0;
 
-            bool locked = models.Aggregate(true, (current, model) => current && model.isLocked);
+            bool locked = models.Aggregate(seed: true, (current, model) => current && model.isLocked);
 
             if (locked)
             {
@@ -493,16 +493,21 @@ namespace VoxelGame.Core.Visuals
 
                 foreach (var model in models)
                 {
-                    Array.Copy(model.lockedVertices, 0, vertices, copiedVertices, model.lockedVertices.Length);
+                    Array.Copy(
+                        model.lockedVertices,
+                        sourceIndex: 0,
+                        vertices,
+                        copiedVertices,
+                        model.lockedVertices.Length);
 
                     Array.Copy(
                         model.lockedTextureIndices,
-                        0,
+                        sourceIndex: 0,
                         textureIndices,
                         copiedTextureIndices,
                         model.lockedTextureIndices.Length);
 
-                    Array.Copy(model.lockedIndices, 0, indices, copiedIndices, model.lockedIndices.Length);
+                    Array.Copy(model.lockedIndices, sourceIndex: 0, indices, copiedIndices, model.lockedIndices.Length);
 
                     for (int i = copiedIndices; i < copiedIndices + model.lockedIndices.Length; i++)
                         indices[i] += vertexCount;
@@ -591,7 +596,7 @@ namespace VoxelGame.Core.Visuals
             Vert3 = Vert3.ApplyMatrix(xyz, nop);
 
             // Rotate UVs for top and bottom sides.
-            if (new Vector3(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(2) == Vector3.UnitY)
+            if (new Vector3(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(digits: 2) == Vector3.UnitY)
                 for (var r = 0; r < rotations; r++)
                 {
                     Vert0 = Vert0.RotateUV();
@@ -605,7 +610,7 @@ namespace VoxelGame.Core.Visuals
 
         public Quad RotateTextureCoordinates(Vector3 axis, int rotations)
         {
-            if (new Vector3(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(2) != axis) return this;
+            if (new Vector3(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(digits: 2) != axis) return this;
 
             for (var r = 0; r < rotations; r++)
             {
@@ -640,7 +645,7 @@ namespace VoxelGame.Core.Visuals
 
         public Vertex ApplyTranslationMatrix(Matrix4 xyz)
         {
-            Vector4 position = new Vector4(X, Y, Z, 1f) * xyz;
+            Vector4 position = new Vector4(X, Y, Z, w: 1f) * xyz;
 
             X = position.X;
             Y = position.Y;
@@ -651,8 +656,8 @@ namespace VoxelGame.Core.Visuals
 
         public Vertex ApplyMatrix(Matrix4 xyz, Matrix4 nop)
         {
-            Vector4 position = new Vector4(X, Y, Z, 1f) * xyz;
-            Vector4 normal = new Vector4(N, O, P, 1f) * nop;
+            Vector4 position = new Vector4(X, Y, Z, w: 1f) * xyz;
+            Vector4 normal = new Vector4(N, O, P, w: 1f) * nop;
 
             X = position.X;
             Y = position.Y;

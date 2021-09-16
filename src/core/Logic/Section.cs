@@ -27,8 +27,8 @@ namespace VoxelGame.Core.Logic
         public const uint LevelMask = 0b0000_0011_1000_0000_0000_0000_0000_0000;
         public const uint StaticMask = 0b0000_0100_0000_0000_0000_0000_0000_0000;
 
-        public static readonly int SectionSizeExp = (int) Math.Log(SectionSize, 2);
-        public static readonly int SectionSizeExp2 = (int) Math.Log(SectionSize, 2) * 2;
+        public static readonly int SectionSizeExp = (int) Math.Log(SectionSize, newBase: 2);
+        public static readonly int SectionSizeExp2 = (int) Math.Log(SectionSize, newBase: 2) * 2;
 
 #pragma warning disable CA1051 // Do not declare visible instance fields
         protected readonly uint[] blocks;
@@ -57,6 +57,17 @@ namespace VoxelGame.Core.Logic
             set => blocks[(x << SectionSizeExp2) + (y << SectionSizeExp) + z] = value;
         }
 
+        public uint GetContent(Vector3i position)
+        {
+            return this[position.X & (SectionSize - 1), position.Y & (SectionSize - 1), position.Z & (SectionSize - 1)];
+        }
+
+        public void SetContent(Vector3i position, uint value)
+        {
+            this[position.X & (SectionSize - 1), position.Y & (SectionSize - 1), position.Z & (SectionSize - 1)] =
+                value;
+        }
+
         /// <summary>
         ///     Sets up all non serialized members.
         /// </summary>
@@ -69,39 +80,39 @@ namespace VoxelGame.Core.Logic
 
         protected abstract void Setup();
 
-        public void SendRandomUpdates(int sectionX, int sectionY, int sectionZ)
+        public void SendRandomUpdates(Vector3i sectionPosition)
         {
-            uint val = GetPos(out int x, out int y, out int z);
+            uint val = GetPos(out Vector3i selectedPosition);
             Decode(val, out Block block, out uint data, out _, out _, out _);
+
+            Vector3i blockPosition = selectedPosition + sectionPosition * SectionSize;
 
             block.RandomUpdate(
                 World,
-                x + sectionX * SectionSize,
-                y + sectionY * SectionSize,
-                z + sectionZ * SectionSize,
+                blockPosition,
                 data);
 
-            val = GetPos(out x, out y, out z);
+            val = GetPos(out selectedPosition);
             Decode(val, out _, out _, out Liquid liquid, out LiquidLevel level, out bool isStatic);
+
+            Vector3i liquidPosition = selectedPosition + sectionPosition * SectionSize;
 
             liquid.RandomUpdate(
                 World,
-                x + sectionX * SectionSize,
-                y + sectionY * SectionSize,
-                z + sectionZ * SectionSize,
+                liquidPosition,
                 level,
                 isStatic);
 
-            uint GetPos(out int nx, out int ny, out int nz)
+            uint GetPos(out Vector3i randomPosition)
             {
-                int index = NumberGenerator.Random.Next(0, SectionSize * SectionSize * SectionSize);
+                int index = NumberGenerator.Random.Next(minValue: 0, SectionSize * SectionSize * SectionSize);
                 uint posVal = blocks[index];
 
-                nz = index & (SectionSize - 1);
-                index = (index - nz) >> SectionSizeExp;
-                ny = index & (SectionSize - 1);
-                index = (index - ny) >> SectionSizeExp;
-                nx = index;
+                randomPosition.Z = index & (SectionSize - 1);
+                index = (index - randomPosition.Z) >> SectionSizeExp;
+                randomPosition.Y = index & (SectionSize - 1);
+                index = (index - randomPosition.Y) >> SectionSizeExp;
+                randomPosition.X = index;
 
                 return posVal;
             }
@@ -160,12 +171,12 @@ namespace VoxelGame.Core.Logic
 
         ~Section()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 

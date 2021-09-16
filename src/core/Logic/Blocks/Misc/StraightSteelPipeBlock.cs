@@ -4,29 +4,28 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block that only connects to steel pipes at specific sides.
-    /// Data bit usage: <c>----aa</c>
+    ///     A block that only connects to steel pipes at specific sides.
+    ///     Data bit usage: <c>----aa</c>
     /// </summary>
     // aa = axis
     internal class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectable
     {
         private protected const uint AxisDataMask = 0b00_0011;
 
-        private protected readonly (BlockModel x, BlockModel y, BlockModel z) models;
-
         private readonly float diameter;
 
-        public bool RenderLiquid => false;
+        private protected readonly (BlockModel x, BlockModel y, BlockModel z) models;
 
         internal StraightSteelPipeBlock(string name, string namedId, float diameter, string model,
             bool isInteractable = false) :
@@ -41,8 +40,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 isTrigger: false,
                 isReplaceable: false,
                 isInteractable,
-                boundingBox: new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(diameter, diameter, 0.5f)),
-                targetBuffer: TargetBuffer.Complex)
+                new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, z: 0.5f)),
+                TargetBuffer.Complex)
         {
             BlockModel initial = BlockModel.Load(model);
 
@@ -51,15 +50,28 @@ namespace VoxelGame.Core.Logic.Blocks
             this.diameter = diameter;
         }
 
+        public bool RenderLiquid => false;
+
+        public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
+        {
+            return IsSideOpen(world, position, side);
+        }
+
+        public bool AllowOutflow(World world, Vector3i position, BlockSide side)
+        {
+            return IsSideOpen(world, position, side);
+        }
+
+        public virtual bool IsConnectable(World world, BlockSide side, Vector3i position)
+        {
+            return IsSideOpen(world, position, side);
+        }
+
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            return (Axis) (data & AxisDataMask) switch
-            {
-                Axis.X => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.5f, diameter, diameter)),
-                Axis.Y => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(diameter, 0.5f, diameter)),
-                Axis.Z => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(diameter, diameter, 0.5f)),
-                _ => throw new NotSupportedException()
-            };
+            var axis = (Axis) (data & AxisDataMask);
+
+            return new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), axis.Vector3(onAxis: 0.5f, diameter));
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
@@ -101,59 +113,16 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            world.SetBlock(this, (uint) ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
+            world.SetBlock(this, (uint) (entity?.TargetSide ?? BlockSide.Front).Axis(), position);
         }
 
-        public virtual bool IsConnectable(World world, BlockSide side, int x, int y, int z)
+        protected virtual bool IsSideOpen(World world, Vector3i position, BlockSide side)
         {
-            return IsSideOpen(world, x, y, z, side);
-        }
+            world.GetBlock(position, out uint data);
 
-        public bool AllowInflow(World world, int x, int y, int z, BlockSide side, Liquid liquid)
-        {
-            return IsSideOpen(world, x, y, z, side);
-        }
-
-        public bool AllowOutflow(World world, int x, int y, int z, BlockSide side)
-        {
-            return IsSideOpen(world, x, y, z, side);
-        }
-
-        protected virtual bool IsSideOpen(World world, int x, int y, int z, BlockSide side)
-        {
-            world.GetBlock(x, y, z, out uint data);
-
-            return ToAxis(side) == (Axis) (data & AxisDataMask);
-        }
-
-        protected enum Axis
-        {
-            X = 0b00,
-            Y = 0b01,
-            Z = 0b10,
-        }
-
-        protected static Axis ToAxis(BlockSide side)
-        {
-            switch (side)
-            {
-                case BlockSide.Front:
-                case BlockSide.Back:
-                    return Axis.Z;
-
-                case BlockSide.Left:
-                case BlockSide.Right:
-                    return Axis.X;
-
-                case BlockSide.Bottom:
-                case BlockSide.Top:
-                    return Axis.Y;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(side));
-            }
+            return side.Axis() == (Axis) (data & AxisDataMask);
         }
     }
 }

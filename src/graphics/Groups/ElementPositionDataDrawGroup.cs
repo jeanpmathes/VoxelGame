@@ -26,10 +26,10 @@ namespace VoxelGame.Graphics.Groups
             this.positionSize = positionSize;
             this.dataSize = dataSize;
 
-            GL.CreateBuffers(1, out positionVbo);
-            GL.CreateBuffers(1, out dataVbo);
-            GL.CreateBuffers(1, out ebo);
-            GL.CreateVertexArrays(1, out vao);
+            GL.CreateBuffers(n: 1, out positionVbo);
+            GL.CreateBuffers(n: 1, out dataVbo);
+            GL.CreateBuffers(n: 1, out ebo);
+            GL.CreateVertexArrays(n: 1, out vao);
         }
 
         public bool IsFilled { get; private set; }
@@ -70,8 +70,8 @@ namespace VoxelGame.Graphics.Groups
 
         public void VertexArrayBindBuffer()
         {
-            GL.VertexArrayVertexBuffer(vao, 0, positionVbo, IntPtr.Zero, positionSize * sizeof(float));
-            GL.VertexArrayVertexBuffer(vao, 1, dataVbo, IntPtr.Zero, dataSize * sizeof(int));
+            GL.VertexArrayVertexBuffer(vao, bindingindex: 0, positionVbo, IntPtr.Zero, positionSize * sizeof(float));
+            GL.VertexArrayVertexBuffer(vao, bindingindex: 1, dataVbo, IntPtr.Zero, dataSize * sizeof(int));
             GL.VertexArrayElementBuffer(vao, ebo);
         }
 
@@ -85,18 +85,18 @@ namespace VoxelGame.Graphics.Groups
                 positionAttribute,
                 positionSize,
                 VertexAttribType.Float,
-                false,
+                normalized: false,
                 0 * sizeof(float));
 
             GL.VertexArrayAttribIFormat(vao, dataAttribute, dataSize, VertexAttribType.Int, 0 * sizeof(int));
 
-            GL.VertexArrayAttribBinding(vao, positionAttribute, 0);
-            GL.VertexArrayAttribBinding(vao, dataAttribute, 1);
+            GL.VertexArrayAttribBinding(vao, positionAttribute, bindingindex: 0);
+            GL.VertexArrayAttribBinding(vao, dataAttribute, bindingindex: 1);
         }
 
         public void DrawElements()
         {
-            GL.DrawElements(PrimitiveType.Triangles, elementCount, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Triangles, elementCount, DrawElementsType.UnsignedInt, indices: 0);
         }
 
         public void Delete()

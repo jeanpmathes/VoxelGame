@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -35,14 +36,14 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                false,
-                false,
-                true,
-                false,
-                false,
-                false,
-                false,
-                false,
+                isFull: false,
+                isOpaque: false,
+                renderFaceAtNonOpaques: true,
+                isSolid: false,
+                receiveCollisions: false,
+                isTrigger: false,
+                isReplaceable: false,
+                isInteractable: false,
                 BoundingBox.Block,
                 TargetBuffer.CropPlant)
         {
@@ -59,9 +60,9 @@ namespace VoxelGame.Core.Logic.Blocks
             this.final = final;
         }
 
-        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
+        public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0 && level > LiquidLevel.Four) ScheduleDestroy(world, x, y, z);
+            if (liquid.Direction > 0 && level > LiquidLevel.Four) ScheduleDestroy(world, position);
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
@@ -104,10 +105,10 @@ namespace VoxelGame.Core.Logic.Blocks
             var stage = (GrowthStage) (data & 0b00_0111);
 
             if ((data & 0b00_1000) == 0 && stage == GrowthStage.Initial ||
-                (data & 0b00_1000) != 0 && (stage == GrowthStage.Fourth || stage == GrowthStage.Fifth))
-                return BoundingBox.BlockWithHeight(7);
+                (data & 0b00_1000) != 0 && stage is GrowthStage.Fourth or GrowthStage.Fifth)
+                return BoundingBox.BlockWithHeight(height: 7);
 
-            return BoundingBox.BlockWithHeight(15);
+            return BoundingBox.BlockWithHeight(height: 15);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
@@ -123,37 +124,37 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.DoubleCropPlant(textureIndex, TintColor.None, hasUpper, isLowered, isUpper);
         }
 
-        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return world.GetBlock(x, y - 1, z, out _) is IPlantable;
+            return world.GetBlock(position - Vector3i.UnitY, out _) is IPlantable;
         }
 
-        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            bool isLowered = world.IsLowered(x, y, z);
+            bool isLowered = world.IsLowered(position);
 
             var data = (uint) GrowthStage.Initial;
             if (isLowered) data |= 0b01_0000;
 
-            world.SetBlock(this, data, x, y, z);
+            world.SetBlock(this, data, position);
         }
 
-        internal override void DoDestroy(World world, int x, int y, int z, uint data, PhysicsEntity? entity)
+        internal override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
-            world.SetDefaultBlock(x, y, z);
+            world.SetDefaultBlock(position);
 
             if ((data & 0b00_0111) >= (int) GrowthStage.Fourth)
-                world.SetDefaultBlock(x, y + ((data & 0b00_1000) == 0 ? 1 : -1), z);
+                world.SetDefaultBlock(position + Vector3i.UnitY * ((data & 0b00_1000) == 0 ? 1 : -1));
         }
 
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
             if (side == BlockSide.Bottom && (data & 0b00_1000) == 0 &&
-                !((world.GetBlock(x, y - 1, z, out _) ?? Air) is IPlantable)) Destroy(world, x, y, z);
+                (world.GetBlock(position - Vector3i.UnitY, out _) ?? Air) is not IPlantable) Destroy(world, position);
         }
 
-        internal override void RandomUpdate(World world, int x, int y, int z, uint data)
+        internal override void RandomUpdate(World world, Vector3i position, uint data)
         {
             var stage = (GrowthStage) (data & 0b00_0111);
             uint lowered = data & 0b01_0000;
@@ -161,7 +162,7 @@ namespace VoxelGame.Core.Logic.Blocks
             // If this block is the upper part, the random update is ignored.
             if ((data & 0b00_1000) != 0) return;
 
-            if (world.GetBlock(x, y - 1, z, out _) is IPlantable plantable)
+            if (world.GetBlock(position - Vector3i.UnitY, out _) is IPlantable plantable)
             {
                 if ((int) stage > 2 && !plantable.SupportsFullGrowth) return;
 
@@ -169,23 +170,27 @@ namespace VoxelGame.Core.Logic.Blocks
                 {
                     if (stage >= GrowthStage.Third)
                     {
-                        Block? above = world.GetBlock(x, y + 1, z, out _);
+                        Block? above = world.GetBlock(position + Vector3i.UnitY, out _);
 
-                        if (plantable.TryGrow(world, x, y - 1, z, Liquid.Water, LiquidLevel.One) &&
+                        if (plantable.TryGrow(world, position - Vector3i.UnitY, Liquid.Water, LiquidLevel.One) &&
                             ((above?.IsReplaceable ?? false) || above == this))
                         {
-                            world.SetBlock(this, lowered | (uint) (stage + 1), x, y, z);
-                            world.SetBlock(this, lowered | (uint) (0b00_1000 | ((int) stage + 1)), x, y + 1, z);
+                            world.SetBlock(this, lowered | (uint) (stage + 1), position);
+
+                            world.SetBlock(
+                                this,
+                                lowered | (uint) (0b00_1000 | ((int) stage + 1)),
+                                position + Vector3i.UnitY);
                         }
                         else
                         {
-                            world.SetBlock(this, lowered | (uint) GrowthStage.Dead, x, y, z);
-                            if (stage != GrowthStage.Third) world.SetDefaultBlock(x, y + 1, z);
+                            world.SetBlock(this, lowered | (uint) GrowthStage.Dead, position);
+                            if (stage != GrowthStage.Third) world.SetDefaultBlock(position + Vector3i.UnitY);
                         }
                     }
                     else
                     {
-                        world.SetBlock(this, lowered | (uint) (stage + 1), x, y, z);
+                        world.SetBlock(this, lowered | (uint) (stage + 1), position);
                     }
                 }
             }

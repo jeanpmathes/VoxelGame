@@ -93,5 +93,15 @@ namespace VoxelGame.Core.Utilities
                 (vector.Y % mod + mod) % mod,
                 (vector.Z % mod + mod) % mod);
         }
+
+        /// <summary>
+        ///     Returns a floored vector of a given vector.
+        /// </summary>
+        /// <param name="vector">The vector to floor.</param>
+        /// <returns>The component-wise floored vector.</returns>
+        public static Vector3i Floor(this Vector3 vector)
+        {
+            return new((int) Math.Floor(vector.X), (int) Math.Floor(vector.Y), (int) Math.Floor(vector.Z));
+        }
     }
 }

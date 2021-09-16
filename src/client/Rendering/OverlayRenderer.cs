@@ -27,17 +27,17 @@ namespace VoxelGame.Client.Rendering
             BlockModels.CreatePlaneModel(out float[] vertices, out uint[] indices);
 
             drawGroup = ElementDrawGroup.Create();
-            drawGroup.SetStorage(6, vertices.Length, vertices, indices.Length, indices);
+            drawGroup.SetStorage(elements: 6, vertices.Length, vertices, indices.Length, indices);
 
             Shaders.Overlay.Use();
 
-            drawGroup.VertexArrayBindBuffer(5);
+            drawGroup.VertexArrayBindBuffer(size: 5);
 
             int vertexLocation = Shaders.Overlay.GetAttributeLocation("aPosition");
-            drawGroup.VertexArrayBindAttribute(vertexLocation, 3, 0);
+            drawGroup.VertexArrayBindAttribute(vertexLocation, size: 3, offset: 0);
 
             int texCordLocation = Shaders.Overlay.GetAttributeLocation("aTexCoord");
-            drawGroup.VertexArrayBindAttribute(texCordLocation, 2, 3);
+            drawGroup.VertexArrayBindAttribute(texCordLocation, size: 2, offset: 3);
         }
 
         public void SetBlockTexture(int number)
@@ -67,8 +67,8 @@ namespace VoxelGame.Client.Rendering
 
             drawGroup.DrawElements(PrimitiveType.Triangles);
 
-            GL.BindVertexArray(0);
-            GL.UseProgram(0);
+            GL.BindVertexArray(array: 0);
+            GL.UseProgram(program: 0);
 
             GL.Disable(EnableCap.Blend);
         }
@@ -93,12 +93,12 @@ namespace VoxelGame.Client.Rendering
 
         ~OverlayRenderer()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 

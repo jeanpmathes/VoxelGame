@@ -11,19 +11,18 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block with two crossed quads.
-    /// Data bit usage: <c>------</c>
+    ///     A block with two crossed quads.
+    ///     Data bit usage: <c>------</c>
     /// </summary>
     public class CrossBlock : Block, IFillable
     {
-        private protected float[] vertices = null!;
-        private protected int[] textureIndices = null!;
-        private protected uint[] indices = null!;
-
         private protected readonly string texture;
+        private protected uint[] indices = null!;
+        private protected int[] textureIndices = null!;
+        private protected float[] vertices = null!;
 
         /// <summary>
-        /// Initializes a new instance of a cross block; a block made out of two intersecting planes.
+        ///     Initializes a new instance of a cross block; a block made out of two intersecting planes.
         /// </summary>
         /// <param name="name">The name of this block.</param>
         /// <param name="namedId">The unique and unlocalized name of this block.</param>
@@ -91,7 +90,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return BlockMeshData.Complex(8, vertices, textureIndices, indices);
+            return BlockMeshData.Complex(vertexCount: 8, vertices, textureIndices, indices);
         }
     }
 }

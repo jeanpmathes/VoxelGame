@@ -108,18 +108,18 @@ namespace VoxelGame.Core.Entities
             Vector3 movement = Velocity * deltaTime;
             movement *= 1f / physicsIterations;
 
-            HashSet<(int x, int y, int z, Block block)> blockIntersections =
+            HashSet<(Vector3i position, Block block)> blockIntersections =
                 new();
 
-            HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections =
+            HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections =
                 new();
 
             for (var i = 0; i < physicsIterations; i++)
                 DoPhysicsStep(ref movement, ref blockIntersections, ref liquidIntersections);
 
-            foreach ((int x, int y, int z, Block block) in blockIntersections)
+            foreach ((Vector3i position, Block block) in blockIntersections)
                 if (block.ReceiveCollisions)
-                    block.EntityCollision(this, x, y, z);
+                    block.EntityCollision(this, position);
 
             Vector3 liquidDrag = Vector3.Zero;
 
@@ -129,9 +129,9 @@ namespace VoxelGame.Core.Entities
                 int maxLevel = -1;
                 var noGas = false;
 
-                foreach ((int x, int y, int z, Liquid liquid, LiquidLevel level) in liquidIntersections)
+                foreach ((Vector3i position, Liquid liquid, LiquidLevel level) in liquidIntersections)
                 {
-                    if (liquid.ReceiveContact) liquid.EntityContact(this, x, y, z);
+                    if (liquid.ReceiveContact) liquid.EntityContact(this, position);
 
                     if ((int) level > maxLevel || maxLevel == 7 && liquid.Density > density)
                     {
@@ -148,15 +148,15 @@ namespace VoxelGame.Core.Entities
 
             boundingBox.Center = Position;
 
-            force = new Vector3(0f, Gravity * Mass, 0f);
+            force = new Vector3(x: 0f, Gravity * Mass, z: 0f);
             force -= liquidDrag;
 
             Update(deltaTime);
         }
 
         private void DoPhysicsStep(ref Vector3 movement,
-            ref HashSet<(int x, int y, int z, Block block)> blockIntersections,
-            ref HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections)
+            ref HashSet<(Vector3i position, Block block)> blockIntersections,
+            ref HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections)
         {
             boundingBox.Center += movement;
 
@@ -170,11 +170,9 @@ namespace VoxelGame.Core.Entities
             {
                 if (yCollision)
                 {
-                    var xPos = (int) Math.Floor(BoundingBox.Center.X);
-                    var yPos = (int) Math.Floor(BoundingBox.Center.Y);
-                    var zPos = (int) Math.Floor(BoundingBox.Center.Z);
+                    Vector3i boundingBoxCenter = BoundingBox.Center.Floor();
 
-                    IsGrounded = !World.GetBlock(xPos, yPos + (int) Math.Round(BoundingBox.Extents.Y), zPos, out _)
+                    IsGrounded = !World.GetBlock(boundingBoxCenter, out _)
                         ?.IsSolid ?? true;
                 }
 
@@ -198,13 +196,13 @@ namespace VoxelGame.Core.Entities
 
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         ~PhysicsEntity()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         protected abstract void Dispose(bool disposing);

@@ -8,12 +8,12 @@ using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Input.Composite
 {
-    public class Axis2
+    public class InputAxis2
     {
-        private readonly Axis x;
-        private readonly Axis y;
+        private readonly InputAxis x;
+        private readonly InputAxis y;
 
-        public Axis2(Axis x, Axis y)
+        public InputAxis2(InputAxis x, InputAxis y)
         {
             this.x = x;
             this.y = y;

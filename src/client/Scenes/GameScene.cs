@@ -38,9 +38,9 @@ namespace VoxelGame.Client.Scenes
         {
             this.client = client;
 
-            Screen.SetCursor(false, true);
+            Screen.SetCursor(visible: false, locked: true);
 
-            ui = new GameUserInterface(client, false);
+            ui = new GameUserInterface(client, drawBackground: false);
 
             World = world;
             counter = world.UpdateCounter;
@@ -62,10 +62,10 @@ namespace VoxelGame.Client.Scenes
 
             Player = new ClientPlayer(
                 World,
-                70f,
-                0.25f,
+                mass: 70f,
+                drag: 0.25f,
                 camera,
-                new BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)),
+                new BoundingBox(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.25f, y: 0.9f, z: 0.25f)),
                 ui);
 
             ui.Load();
@@ -162,7 +162,7 @@ namespace VoxelGame.Client.Scenes
 
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 

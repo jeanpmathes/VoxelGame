@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System.Diagnostics;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -15,8 +15,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// This class represents a block with a single face that sticks to other blocks.
-    /// Data bit usage: <c>----oo</c>
+    ///     This class represents a block with a single face that sticks to other blocks.
+    ///     Data bit usage: <c>----oo</c>
     /// </summary>
     // o = orientation
     public class FlatBlock : Block, IFillable
@@ -24,15 +24,16 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly float climbingVelocity;
         private readonly float slidingVelocity;
 
-        private float[][] sideVertices = null!;
-        private int[] textureIndices = null!;
+        private readonly string texture;
 
         private uint[] indices = null!;
 
-        private readonly string texture;
+        private float[][] sideVertices = null!;
+        private int[] textureIndices = null!;
 
         /// <summary>
-        /// Creates a FlatBlock, a block with a single face that sticks to other blocks. It allows entities to climb and can use neutral tints.
+        ///     Creates a FlatBlock, a block with a single face that sticks to other blocks. It allows entities to climb and can
+        ///     use neutral tints.
         /// </summary>
         /// <param name="name">The name of the block.</param>
         /// <param name="namedId">The unique and unlocalized name of this block.</param>
@@ -128,62 +129,49 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            return ((Orientation) (data & 0b00_0011)) switch
+            return (Orientation) (data & 0b00_0011) switch
             {
-                Orientation.North => new BoundingBox(new Vector3(0.5f, 0.5f, 0.95f), new Vector3(0.45f, 0.5f, 0.05f)),
-                Orientation.South => new BoundingBox(new Vector3(0.5f, 0.5f, 0.05f), new Vector3(0.45f, 0.5f, 0.05f)),
-                Orientation.West => new BoundingBox(new Vector3(0.95f, 0.5f, 0.5f), new Vector3(0.05f, 0.5f, 0.45f)),
-                Orientation.East => new BoundingBox(new Vector3(0.05f, 0.5f, 0.5f), new Vector3(0.05f, 0.5f, 0.45f)),
-                _ => new BoundingBox(new Vector3(0.5f, 0.5f, 0.95f), new Vector3(0.5f, 0.5f, 0.05f)),
+                Orientation.North => new BoundingBox(
+                    new Vector3(x: 0.5f, y: 0.5f, z: 0.95f),
+                    new Vector3(x: 0.45f, y: 0.5f, z: 0.05f)),
+                Orientation.South => new BoundingBox(
+                    new Vector3(x: 0.5f, y: 0.5f, z: 0.05f),
+                    new Vector3(x: 0.45f, y: 0.5f, z: 0.05f)),
+                Orientation.West => new BoundingBox(
+                    new Vector3(x: 0.95f, y: 0.5f, z: 0.5f),
+                    new Vector3(x: 0.05f, y: 0.5f, z: 0.45f)),
+                Orientation.East => new BoundingBox(
+                    new Vector3(x: 0.05f, y: 0.5f, z: 0.5f),
+                    new Vector3(x: 0.05f, y: 0.5f, z: 0.45f)),
+                _ => new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.95f), new Vector3(x: 0.5f, y: 0.5f, z: 0.05f))
             };
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return BlockMeshData.Complex(8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
+            return BlockMeshData.Complex(vertexCount: 8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
         }
 
-        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            if (SideToOrientation(entity?.TargetSide ?? BlockSide.Front, out Orientation orientation))
-            {
-                switch (orientation)
-                {
-                    case Orientation.North:
-                        return world.IsSolid(x, y, z + 1);
+            BlockSide side = entity?.TargetSide ?? BlockSide.Front;
 
-                    case Orientation.East:
-                        return world.IsSolid(x - 1, y, z);
+            if (!side.IsLateral()) return false;
 
-                    case Orientation.South:
-                        return world.IsSolid(x, y, z - 1);
+            var orientation = side.ToOrientation();
 
-                    case Orientation.West:
-                        return world.IsSolid(x + 1, y, z);
-
-                    default:
-                        return false;
-                }
-            }
-            else
-            {
-                return false;
-            }
+            return world.IsSolid(orientation.Opposite().Offset(position));
         }
 
-        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            if (SideToOrientation(entity?.TargetSide ?? BlockSide.Front, out Orientation orientation))
-            {
-                world.SetBlock(this, (uint) orientation, x, y, z);
-            }
-            else
-            {
-                Debug.Fail("Should be able to place.");
-            }
+            BlockSide side = entity?.TargetSide ?? BlockSide.Front;
+
+            if (side.IsLateral()) world.SetBlock(this, (uint) side.ToOrientation(), position);
+            else Debug.Fail("Should be able to place.");
         }
 
-        protected override void EntityCollision(PhysicsEntity entity, int x, int y, int z, uint data)
+        protected override void EntityCollision(PhysicsEntity entity, Vector3i position, uint data)
         {
             Vector3 forwardMovement = Vector3.Dot(entity.Movement, entity.Forward) * entity.Forward;
 
@@ -192,13 +180,8 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 // Check if entity looks up or down
                 if (Vector3.CalculateAngle(entity.LookingDirection, Vector3.UnitY) < MathHelper.PiOver2)
-                {
                     entity.Velocity = new Vector3(entity.Velocity.X, climbingVelocity, entity.Velocity.Z);
-                }
-                else
-                {
-                    entity.Velocity = new Vector3(entity.Velocity.X, -climbingVelocity, entity.Velocity.Z);
-                }
+                else entity.Velocity = new Vector3(entity.Velocity.X, -climbingVelocity, entity.Velocity.Z);
             }
             else
             {
@@ -209,80 +192,19 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            CheckBack(world, x, y, z, side, (Orientation) (data & 0b00_0011), schedule: false);
+            CheckBack(world, position, side, (Orientation) (data & 0b00_0011), schedule: false);
         }
 
-        protected void CheckBack(World world, int x, int y, int z, BlockSide side, Orientation blockOrientation,
+        protected void CheckBack(World world, Vector3i position, BlockSide side, Orientation blockOrientation,
             bool schedule)
         {
-            switch (side)
-            {
-                case BlockSide.Front:
+            if (blockOrientation != side.ToOrientation().Opposite() ||
+                world.IsSolid(blockOrientation.Offset(position))) return;
 
-                    Check(x, y, z + 1, Orientation.North);
-
-                    break;
-
-                case BlockSide.Back:
-
-                    Check(x, y, z - 1, Orientation.South);
-
-                    break;
-
-                case BlockSide.Left:
-
-                    Check(x - 1, y, z, Orientation.East);
-
-                    break;
-
-                case BlockSide.Right:
-
-                    Check(x + 1, y, z, Orientation.West);
-
-                    break;
-            }
-
-            void Check(int bx, int by, int bz, Orientation orientation)
-            {
-                if (blockOrientation == orientation && !world.IsSolid(bx, by, bz))
-                {
-                    if (schedule) ScheduleDestroy(world, x, y, z);
-                    else Destroy(world, x, y, z);
-                }
-            }
-        }
-
-        private static bool SideToOrientation(BlockSide side, out Orientation orientation)
-        {
-            switch (side)
-            {
-                case BlockSide.Front:
-                    orientation = Orientation.South;
-
-                    return true;
-
-                case BlockSide.Back:
-                    orientation = Orientation.North;
-
-                    return true;
-
-                case BlockSide.Left:
-                    orientation = Orientation.West;
-
-                    return true;
-
-                case BlockSide.Right:
-                    orientation = Orientation.East;
-
-                    return true;
-
-                default:
-                    orientation = Orientation.North;
-
-                    return false;
-            }
+            if (schedule) ScheduleDestroy(world, position);
+            else Destroy(world, position);
         }
     }
 }

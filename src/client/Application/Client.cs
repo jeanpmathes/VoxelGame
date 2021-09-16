@@ -99,8 +99,8 @@ namespace VoxelGame.Client.Application
                 // Texture setup.
                 BlockTextureArray = new ArrayTexture(
                     "Resources/Textures/Blocks",
-                    16,
-                    true,
+                    resolution: 16,
+                    useCustomMipmapGeneration: true,
                     TextureUnit.Texture1,
                     TextureUnit.Texture2,
                     TextureUnit.Texture3,
@@ -108,7 +108,12 @@ namespace VoxelGame.Client.Application
 
                 logger.LogInformation("Block textures loaded");
 
-                LiquidTextureArray = new ArrayTexture("Resources/Textures/Liquids", 16, false, TextureUnit.Texture5);
+                LiquidTextureArray = new ArrayTexture(
+                    "Resources/Textures/Liquids",
+                    resolution: 16,
+                    useCustomMipmapGeneration: false,
+                    TextureUnit.Texture5);
+
                 logger.LogInformation("Liquid textures loaded");
 
                 TextureLayout.SetProviders(BlockTextureArray, LiquidTextureArray);
@@ -155,7 +160,7 @@ namespace VoxelGame.Client.Application
         {
             using (logger.BeginScope("UpdateFrame"))
             {
-                var deltaTime = (float) MathHelper.Clamp(e.Time, 0f, 1f);
+                var deltaTime = (float) MathHelper.Clamp(e.Time, min: 0f, max: 1f);
 
                 input.UpdateState(KeyboardState, MouseState);
 

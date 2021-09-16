@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 
@@ -27,33 +28,30 @@ namespace VoxelGame.Core.Logic.Liquids
                 staticLayout,
                 renderType) {}
 
-        protected override void ScheduledUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic)
+        protected override void ScheduledUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic)
         {
-            if (world.GetBlock(x, y, z, out _) is IFlammable block) block.Burn(world, x, y, z, Block.Fire);
+            if (world.GetBlock(position, out _) is IFlammable block) block.Burn(world, position, Block.Fire);
 
-            BurnAround(world, x, y, z);
+            BurnAround(world, position);
 
-            base.ScheduledUpdate(world, x, y, z, level, isStatic);
+            base.ScheduledUpdate(world, position, level, isStatic);
         }
 
-        internal override void RandomUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic)
+        internal override void RandomUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic)
         {
-            BurnAround(world, x, y, z);
+            BurnAround(world, position);
         }
 
-        private static void BurnAround(World world, int x, int y, int z)
+        private static void BurnAround(World world, Vector3i position)
         {
-            BurnAndPlaceFire(x, y, z + 1); // Front.
-            BurnAndPlaceFire(x, y, z - 1); // Back.
-            BurnAndPlaceFire(x - 1, y, z); // Left.
-            BurnAndPlaceFire(x + 1, y, z); // Right.
-            BurnAndPlaceFire(x, y - 1, z); // Bottom.
-            BurnAndPlaceFire(x, y + 1, z); // Top.
-
-            void BurnAndPlaceFire(int nx, int ny, int nz)
+            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
             {
-                if (world.GetBlock(nx, ny, nz, out _) is IFlammable block && block.Burn(world, nx, ny, nz, Block.Fire))
-                    Block.Fire.Place(world, nx, ny, nz);
+                Vector3i offsetPosition = side.Offset(position);
+
+                if (world.GetBlock(offsetPosition, out _) is IFlammable block &&
+                    block.Burn(world, offsetPosition, Block.Fire))
+                    Block.Fire.Place(world, offsetPosition);
+
             }
         }
     }

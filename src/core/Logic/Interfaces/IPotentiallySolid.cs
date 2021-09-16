@@ -4,13 +4,15 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
+
 namespace VoxelGame.Core.Logic.Interfaces
 {
     /// <summary>
-    /// Mark a non-solid block as able to become solid.
+    ///     Mark a non-solid block as able to become solid.
     /// </summary>
     public interface IPotentiallySolid : IBlockBase
     {
-        void BecomeSolid(World world, int x, int y, int z);
+        void BecomeSolid(World world, Vector3i position);
     }
 }

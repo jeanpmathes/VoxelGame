@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -27,9 +28,9 @@ namespace VoxelGame.Core.Logic.Blocks
                 climbingVelocity,
                 slidingVelocity) {}
 
-        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
+        public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0 && level > LiquidLevel.Two) ScheduleDestroy(world, x, y, z);
+            if (liquid.Direction > 0 && level > LiquidLevel.Two) ScheduleDestroy(world, position);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
@@ -37,26 +38,27 @@ namespace VoxelGame.Core.Logic.Blocks
             return base.GetMesh(info).Modified(TintColor.Neutral);
         }
 
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             var orientation = (Orientation) (data & 0b00_0011);
 
             // If another block of this type is above, no solid block is required to hold.
-            if ((world.GetBlock(x, y + 1, z, out uint dataAbove) ?? Air) == this &&
+            if ((world.GetBlock(position + Vector3i.UnitY, out uint dataAbove) ?? Air) == this &&
                 orientation == (Orientation) (dataAbove & 0b00_0011)) return;
 
-            if (side == BlockSide.Top) side = orientation.Invert().ToBlockSide();
+            if (side == BlockSide.Top) side = orientation.Opposite().ToBlockSide();
 
-            CheckBack(world, x, y, z, side, orientation, true);
+            CheckBack(world, position, side, orientation, schedule: true);
         }
 
-        internal override void RandomUpdate(World world, int x, int y, int z, uint data)
+        internal override void RandomUpdate(World world, Vector3i position, uint data)
         {
             var orientation = (Orientation) (data & 0b00_0011);
             var age = (int) ((data & 0b1_1100) >> 2);
 
-            if (age < 7) world.SetBlock(this, (uint) (((age + 1) << 2) | (int) orientation), x, y, z);
-            else if (world.GetBlock(x, y - 1, z, out _) == Air) world.SetBlock(this, (uint) orientation, x, y - 1, z);
+            if (age < 7) world.SetBlock(this, (uint) (((age + 1) << 2) | (int) orientation), position);
+            else if (world.GetBlock(position - Vector3i.UnitY, out _) == Air)
+                world.SetBlock(this, (uint) orientation, position - Vector3i.UnitY);
         }
     }
 }

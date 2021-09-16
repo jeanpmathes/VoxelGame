@@ -33,15 +33,15 @@ namespace VoxelGame.Client.Scenes
         {
             this.client = client;
 
-            ui = new StartUserInterface(client, true);
+            ui = new StartUserInterface(client, drawBackground: true);
 
             worlds = new List<(WorldInformation information, string path)>();
         }
 
         public void Load()
         {
-            Screen.SetCursor(true);
-            Screen.SetWireFrame(false);
+            Screen.SetCursor(visible: true);
+            Screen.SetWireFrame(wireframe: false);
 
             ui.Load();
             ui.Resize(Screen.Size);
@@ -125,7 +125,7 @@ namespace VoxelGame.Client.Scenes
 
         private static void ListWorlds(List<(WorldInformation information, string path)> worlds)
         {
-            Thread.Sleep(100);
+            Thread.Sleep(millisecondsTimeout: 100);
 
             if (worlds.Count > 0)
             {
@@ -167,7 +167,7 @@ namespace VoxelGame.Client.Scenes
             string input = Console.ReadLine()?.ToUpperInvariant() ?? "";
             Console.ResetColor();
 
-            return input == "Y" || input == "YES";
+            return input is "Y" or "YES";
         }
 
         private static ClientWorld CreateNewWorld(string worldsDirectory)
@@ -185,9 +185,9 @@ namespace VoxelGame.Client.Scenes
 
             StringBuilder path = new(Path.Combine(worldsDirectory, name));
 
-            if (IsNameReserved(name)) path.Append('_');
+            if (IsNameReserved(name)) path.Append(value: '_');
 
-            while (Directory.Exists(path.ToString())) path.Append('_');
+            while (Directory.Exists(path.ToString())) path.Append(value: '_');
 
             return new ClientWorld(name, path.ToString(), DateTime.Now.GetHashCode());
         }
@@ -316,7 +316,7 @@ namespace VoxelGame.Client.Scenes
 
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 

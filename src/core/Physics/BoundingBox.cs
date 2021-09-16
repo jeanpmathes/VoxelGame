@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Physics
 {
@@ -46,14 +47,14 @@ namespace VoxelGame.Core.Physics
         ///     Gets a <see cref="BoundingBox" /> with the size of a <see cref="Logic.Block" />.
         /// </summary>
         public static BoundingBox Block =>
-            new(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.5f, 0.5f, 0.5f));
+            new(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.5f, y: 0.5f, z: 0.5f));
 
         /// <summary>
         ///     Gets a <see cref="BoundingBox" /> with the size of a <see cref="Logic.Blocks.CrossBlock" />.
         /// </summary>
         public static BoundingBox CrossBlock => new(
-            new Vector3(0.5f, 0.5f, 0.5f),
-            new Vector3(0.355f, 0.5f, 0.355f));
+            new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
+            new Vector3(x: 0.355f, y: 0.5f, z: 0.355f));
 
         /// <summary>
         ///     Returns a <see cref="BoundingBox" /> with the size of a block, translated to a specified position.
@@ -63,7 +64,7 @@ namespace VoxelGame.Core.Physics
         /// <param name="z">The z position.</param>
         public static BoundingBox BlockAt(int x, int y, int z)
         {
-            return new(new Vector3(0.5f, 0.5f, 0.5f) + (x, y, z), new Vector3(0.5f, 0.5f, 0.5f));
+            return new(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f) + (x, y, z), new Vector3(x: 0.5f, y: 0.5f, z: 0.5f));
         }
 
         /// <summary>
@@ -79,8 +80,8 @@ namespace VoxelGame.Core.Physics
             float halfHeight = (height + 1) * 0.03125f;
 
             return new BoundingBox(
-                new Vector3(0.5f, halfHeight, 0.5f) + (x, y, z),
-                new Vector3(0.5f, halfHeight, 0.5f));
+                new Vector3(x: 0.5f, halfHeight, z: 0.5f) + (x, y, z),
+                new Vector3(x: 0.5f, halfHeight, z: 0.5f));
         }
 
         /// <summary>
@@ -92,7 +93,9 @@ namespace VoxelGame.Core.Physics
         {
             float halfHeight = (height + 1) * 0.03125f;
 
-            return new BoundingBox(new Vector3(0.5f, halfHeight, 0.5f), new Vector3(0.5f, halfHeight, 0.5f));
+            return new BoundingBox(
+                new Vector3(x: 0.5f, halfHeight, z: 0.5f),
+                new Vector3(x: 0.5f, halfHeight, z: 0.5f));
         }
 
         /// <summary>
@@ -284,8 +287,8 @@ namespace VoxelGame.Core.Physics
         }
 
         private bool IntersectsTerrain_NonRecursive(World world, out bool xCollision, out bool yCollision,
-            out bool zCollision, ref HashSet<(int x, int y, int z, Block block)> blockIntersections,
-            ref HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections)
+            out bool zCollision, ref HashSet<(Vector3i position, Block block)> blockIntersections,
+            ref HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections)
         {
             var intersects = false;
 
@@ -302,19 +305,17 @@ namespace VoxelGame.Core.Physics
             if (range % 2 == 0) range++;
 
             // Get the current position in world coordinates
-            var xPos = (int) Math.Floor(Center.X);
-            var yPos = (int) Math.Floor(Center.Y);
-            var zPos = (int) Math.Floor(Center.Z);
+            Vector3i center = Center.Floor();
 
             // Loop through the world and check for collisions
             for (int x = (range - 1) / -2; x <= (range - 1) / 2; x++)
             for (int y = (range - 1) / -2; y <= (range - 1) / 2; y++)
             for (int z = (range - 1) / -2; z <= (range - 1) / 2; z++)
             {
+                Vector3i position = center + new Vector3i(x, y, z);
+
                 (Block? currentBlock, Liquid? currentLiquid) = world.GetPosition(
-                    x + xPos,
-                    y + yPos,
-                    z + zPos,
+                    position,
                     out _,
                     out LiquidLevel level,
                     out _);
@@ -323,9 +324,7 @@ namespace VoxelGame.Core.Physics
                 {
                     BoundingBox currentBoundingBox = currentBlock.GetBoundingBox(
                         world,
-                        x + xPos,
-                        y + yPos,
-                        z + zPos);
+                        position);
 
                     bool newX = false, newY = false, newZ = false;
 
@@ -336,7 +335,7 @@ namespace VoxelGame.Core.Physics
                         ref newY,
                         ref newZ))
                     {
-                        blockIntersections.Add((x + xPos, y + yPos, z + zPos, currentBlock));
+                        blockIntersections.Add((position, currentBlock));
 
                         if (currentBlock.IsSolid)
                         {
@@ -351,14 +350,10 @@ namespace VoxelGame.Core.Physics
 
                 if (currentLiquid?.CheckContact == true)
                 {
-                    BoundingBox currentBoundingBox = Liquid.GetBoundingBox(
-                        x + xPos,
-                        y + yPos,
-                        z + zPos,
-                        level);
+                    BoundingBox currentBoundingBox = Liquid.GetBoundingBox(position, level);
 
                     if (Intersects(currentBoundingBox))
-                        liquidIntersections.Add((x + xPos, y + yPos, z + zPos, currentLiquid, level));
+                        liquidIntersections.Add((position, currentLiquid, level));
                 }
             }
 
@@ -369,8 +364,8 @@ namespace VoxelGame.Core.Physics
         ///     Calculate all intersections of a <see cref="BoundingBox" /> with the terrain.
         /// </summary>
         public bool IntersectsTerrain(World world, out bool xCollision, out bool yCollision, out bool zCollision,
-            ref HashSet<(int x, int y, int z, Block block)> blockIntersections,
-            ref HashSet<(int x, int y, int z, Liquid liquid, LiquidLevel level)> liquidIntersections)
+            ref HashSet<(Vector3i position, Block block)> blockIntersections,
+            ref HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections)
         {
             bool isIntersecting = IntersectsTerrain_NonRecursive(
                 world,

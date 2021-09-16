@@ -4,16 +4,18 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A base class for different blocks that connect to other blocks. This class handles placement and updates.
-    /// Data bit usage: <c>--nesw</c>
+    ///     A base class for different blocks that connect to other blocks. This class handles placement and updates.
+    ///     Data bit usage: <c>--nesw</c>
     /// </summary>
     /// <typeparam name="TConnectable">The connection interface.</typeparam>
     // n = connected north
@@ -39,40 +41,25 @@ namespace VoxelGame.Core.Logic.Blocks
                 boundingBox,
                 targetBuffer) {}
 
-        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            world.SetBlock(this, IConnectable.GetConnectionData<TConnectable>(world, x, y, z), x, y, z);
+            world.SetBlock(this, IConnectable.GetConnectionData<TConnectable>(world, position), position);
         }
 
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             uint newData = data;
 
-            newData = side switch
-            {
-                BlockSide.Back => CheckNeighbor(x, y, z - 1, BlockSide.Front, 0b00_1000, newData),
-                BlockSide.Right => CheckNeighbor(x + 1, y, z, BlockSide.Left, 0b00_0100, newData),
-                BlockSide.Front => CheckNeighbor(x, y, z + 1, BlockSide.Back, 0b00_0010, newData),
-                BlockSide.Left => CheckNeighbor(x - 1, y, z, BlockSide.Right, 0b00_0001, newData),
-                _ => newData
-            };
+            if (side.IsLateral())
+                newData = CheckNeighbor(side.Offset(position), side.Opposite(), side.ToOrientation().ToFlag(), newData);
 
-            if (newData != data)
-            {
-                world.SetBlock(this, newData, x, y, z);
-            }
+            if (newData != data) world.SetBlock(this, newData, position);
 
-            uint CheckNeighbor(int nx, int ny, int nz, BlockSide neighborSide, uint mask, uint oldData)
+            uint CheckNeighbor(Vector3i neighborPosition, BlockSide neighborSide, uint mask, uint oldData)
             {
-                if (world.GetBlock(nx, ny, nz, out _) is TConnectable neighbor &&
-                    neighbor.IsConnectable(world, neighborSide, nx, ny, nz))
-                {
-                    oldData |= mask;
-                }
-                else
-                {
-                    oldData &= ~mask;
-                }
+                if (world.GetBlock(neighborPosition, out _) is TConnectable neighbor &&
+                    neighbor.IsConnectable(world, neighborSide, neighborPosition)) oldData |= mask;
+                else oldData &= ~mask;
 
                 return oldData;
             }

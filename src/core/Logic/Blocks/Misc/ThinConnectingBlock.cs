@@ -32,20 +32,20 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                false,
-                false,
-                true,
-                true,
-                false,
-                false,
-                false,
-                false,
-                new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.0625f, 0.5f, 0.0625f)),
+                isFull: false,
+                isOpaque: false,
+                renderFaceAtNonOpaques: true,
+                isSolid: true,
+                receiveCollisions: false,
+                isTrigger: false,
+                isReplaceable: false,
+                isInteractable: false,
+                new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.0625f, y: 0.5f, z: 0.0625f)),
                 TargetBuffer.Complex)
         {
             post = BlockModel.Load(postModel);
-            sides = BlockModel.Load(sideModel).CreateAllDirections(false);
-            extensions = BlockModel.Load(extensionModel).CreateAllDirections(false);
+            sides = BlockModel.Load(sideModel).CreateAllDirections(rotateTopAndBottomTexture: false);
+            extensions = BlockModel.Load(extensionModel).CreateAllDirections(rotateTopAndBottomTexture: false);
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
@@ -54,23 +54,31 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if ((data & 0b00_1000) != 0)
                 connectors.Add(
-                    new BoundingBox(new Vector3(0.5f, 0.5f, 0.21875f), new Vector3(0.0625f, 0.5f, 0.21875f)));
+                    new BoundingBox(
+                        new Vector3(x: 0.5f, y: 0.5f, z: 0.21875f),
+                        new Vector3(x: 0.0625f, y: 0.5f, z: 0.21875f)));
 
             if ((data & 0b00_0100) != 0)
                 connectors.Add(
-                    new BoundingBox(new Vector3(0.78125f, 0.5f, 0.5f), new Vector3(0.21875f, 0.5f, 0.0625f)));
+                    new BoundingBox(
+                        new Vector3(x: 0.78125f, y: 0.5f, z: 0.5f),
+                        new Vector3(x: 0.21875f, y: 0.5f, z: 0.0625f)));
 
             if ((data & 0b00_0010) != 0)
                 connectors.Add(
-                    new BoundingBox(new Vector3(0.5f, 0.5f, 0.78125f), new Vector3(0.0625f, 0.5f, 0.21875f)));
+                    new BoundingBox(
+                        new Vector3(x: 0.5f, y: 0.5f, z: 0.78125f),
+                        new Vector3(x: 0.0625f, y: 0.5f, z: 0.21875f)));
 
             if ((data & 0b00_0001) != 0)
                 connectors.Add(
-                    new BoundingBox(new Vector3(0.21875f, 0.5f, 0.5f), new Vector3(0.21875f, 0.5f, 0.0625f)));
+                    new BoundingBox(
+                        new Vector3(x: 0.21875f, y: 0.5f, z: 0.5f),
+                        new Vector3(x: 0.21875f, y: 0.5f, z: 0.0625f)));
 
             return new BoundingBox(
-                new Vector3(0.5f, 0.5f, 0.5f),
-                new Vector3(0.0625f, 0.5f, 0.0625f),
+                new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
+                new Vector3(x: 0.0625f, y: 0.5f, z: 0.0625f),
                 connectors.ToArray());
         }
 
