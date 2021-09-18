@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System.Diagnostics;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -156,7 +155,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             BlockSide side = entity?.TargetSide ?? BlockSide.Front;
 
-            if (!side.IsLateral()) return false;
+            if (!side.IsLateral()) side = BlockSide.Back;
 
             var orientation = side.ToOrientation();
 
@@ -167,8 +166,9 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             BlockSide side = entity?.TargetSide ?? BlockSide.Front;
 
-            if (side.IsLateral()) world.SetBlock(this, (uint) side.ToOrientation(), position);
-            else Debug.Fail("Should be able to place.");
+            if (!side.IsLateral()) side = BlockSide.Back;
+
+            world.SetBlock(this, (uint) side.ToOrientation(), position);
         }
 
         protected override void EntityCollision(PhysicsEntity entity, Vector3i position, uint data)
@@ -200,8 +200,10 @@ namespace VoxelGame.Core.Logic.Blocks
         protected void CheckBack(World world, Vector3i position, BlockSide side, Orientation blockOrientation,
             bool schedule)
         {
+            if (!side.IsLateral()) return;
+
             if (blockOrientation != side.ToOrientation().Opposite() ||
-                world.IsSolid(blockOrientation.Offset(position))) return;
+                world.IsSolid(blockOrientation.Opposite().Offset(position))) return;
 
             if (schedule) ScheduleDestroy(world, position);
             else Destroy(world, position);
