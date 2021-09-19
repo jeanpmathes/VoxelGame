@@ -64,12 +64,12 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return !world.HasSolidTop(position) || Dirt.CanPlace(world, position, entity);
+            return !world.HasOpaqueTop(position) || Dirt.CanPlace(world, position, entity);
         }
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            if (world.HasSolidTop(position)) Dirt.Place(world, position, entity);
+            if (world.HasOpaqueTop(position)) Dirt.Place(world, position, entity);
             else world.SetBlock(this, data: 0, position);
         }
 

@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using OpenToolkit.Mathematics;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Interfaces
 {
@@ -15,9 +16,7 @@ namespace VoxelGame.Core.Logic.Interfaces
     {
         public bool SpreadGrass(World world, Vector3i position, Block grass)
         {
-            Block above = world.GetBlock(position + Vector3i.UnitY, out _) ?? Block.Air;
-
-            if (world.GetBlock(position, out _) != this || above.IsSolidAndFull && above.IsOpaque) return false;
+            if (world.GetBlock(position, out _) != this || world.HasOpaqueTop(position)) return false;
 
             world.SetBlock(grass, data: 0, position);
 
