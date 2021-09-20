@@ -121,22 +121,37 @@ namespace VoxelGame.Core.Logic.Blocks
 
             var stage = (GrowthStage) ((data >> 1) & 0b111);
 
-            if (stage < GrowthStage.Ready) world.SetBlock(this, (uint) ((int) (stage + 1) << 1), position);
-            else if (stage == GrowthStage.Ready && ground.SupportsFullGrowth && ground.TryGrow(
-                world,
-                position - Vector3i.UnitY,
-                Liquid.Water,
-                LiquidLevel.Two))
-                for (var orientation = Orientation.North; orientation <= Orientation.West; orientation++)
-                {
-                    if (!fruit.Place(world, orientation.Offset(position))) continue;
+            switch (stage)
+            {
+                case < GrowthStage.Ready:
+                    world.SetBlock(this, (uint) ((int) (stage + 1) << 1), position);
 
-                    world.SetBlock(this, (uint) GrowthStage.Second << 1, position);
+                    break;
+                case GrowthStage.Ready when ground.SupportsFullGrowth && ground.TryGrow(
+                    world,
+                    position - Vector3i.UnitY,
+                    Liquid.Water,
+                    LiquidLevel.Two):
+                {
+                    int start = BlockUtilities.GetPositionDependentNumber(position, mod: 4);
+
+                    for (int i = start; i < start + 4; i++)
+                    {
+                        var orientation = (Orientation) (i % 4);
+
+                        if (!fruit.Place(world, orientation.Offset(position))) continue;
+                        world.SetBlock(this, (uint) GrowthStage.Second << 1, position);
+
+                        break;
+                    }
 
                     break;
                 }
-            else if (stage == GrowthStage.Ready && ground.SupportsFullGrowth)
-                world.SetBlock(this, (uint) GrowthStage.Dead << 1, position);
+                case GrowthStage.Ready when ground.SupportsFullGrowth:
+                    world.SetBlock(this, (uint) GrowthStage.Dead << 1, position);
+
+                    break;
+            }
         }
 
         private enum GrowthStage
