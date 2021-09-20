@@ -142,7 +142,7 @@ namespace VoxelGame.Core.Logic.Blocks
             for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
             {
                 Vector3i otherPosition = side.Offset(position);
-                Block? otherBlock = world.GetBlock(position, out _);
+                Block? otherBlock = world.GetBlock(otherPosition, out _);
 
                 if (otherBlock == this || otherBlock is TConnect connectable &&
                     connectable.IsConnectable(world, side, otherPosition)) data |= side.ToFlag();
