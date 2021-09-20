@@ -279,16 +279,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            if (world.HasSolidGround(position))
-            {
-                world.SetBlock(this, data: 0, position);
-                ScheduleTick(world, position, GetDelay(position));
-            }
-            else
-            {
-                world.SetBlock(this, GetData(world, position), position);
-                ScheduleTick(world, position, GetDelay(position));
-            }
+            world.SetBlock(this, world.HasSolidGround(position) ? 0 : GetData(world, position), position);
+            ScheduleTick(world, position, GetDelay(position));
         }
 
         private static uint GetData(World world, Vector3i position)
