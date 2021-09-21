@@ -337,7 +337,7 @@ namespace VoxelGame.Core.Logic
                         out LiquidLevel level,
                         out _);
 
-                    if (liquid != this || !(block is IFillable fillable) || !fillable.AllowInflow(
+                    if (liquid != this || block is not IFillable fillable || !fillable.AllowInflow(
                         world,
                         current,
                         BlockSide.Top,

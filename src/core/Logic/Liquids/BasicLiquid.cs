@@ -352,9 +352,9 @@ namespace VoxelGame.Core.Logic.Liquids
                             remaining ? level - 1 : LiquidLevel.Eight,
                             !remaining,
                             currentFillable,
-                            neighborPosition);
+                            position);
 
-                        if (remaining) ScheduleTick(world, neighborPosition);
+                        if (remaining) ScheduleTick(world, position);
                     }
 
                     return true;
