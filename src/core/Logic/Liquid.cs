@@ -138,7 +138,7 @@ namespace VoxelGame.Core.Logic
         ///     Tries to fill a position with the specified amount of liquid. The remaining liquid is specified, it can be
         ///     converted to <see cref="LiquidLevel" /> if it is not <c>-1</c>.
         /// </summary>
-        public bool Fill(World world, Vector3i position, LiquidLevel level, out int remaining)
+        public bool Fill(World world, Vector3i position, LiquidLevel level, BlockSide entrySide, out int remaining)
         {
             (Block? block, Liquid? target) = world.GetPosition(
                 position,
@@ -146,7 +146,7 @@ namespace VoxelGame.Core.Logic
                 out LiquidLevel current,
                 out bool isStatic);
 
-            if (block is IFillable fillable && fillable.AllowInflow(world, position, BlockSide.Top, this))
+            if (block is IFillable fillable && fillable.AllowInflow(world, position, entrySide, this))
             {
                 if (target == this && current != LiquidLevel.Eight)
                 {

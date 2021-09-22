@@ -195,7 +195,6 @@ namespace VoxelGame.Core.Logic
                 world.GetPosition(position, out _, out LiquidLevel initialLevel, out _);
 
             if (start == null || toElevate == null) return;
-
             if (toElevate == None || toElevate.IsGas) return;
 
             var currentLevel = (int) initialLevel;
@@ -209,9 +208,9 @@ namespace VoxelGame.Core.Logic
 
                 var currentBlock = world.GetBlock(elevatedPosition, out _) as IFillable;
 
-                if (currentBlock?.AllowInflow(world, elevatedPosition, BlockSide.Bottom, toElevate) != true) break;
+                if (currentBlock == null) break;
 
-                toElevate.Fill(world, elevatedPosition, (LiquidLevel) currentLevel, out currentLevel);
+                toElevate.Fill(world, elevatedPosition, (LiquidLevel) currentLevel, BlockSide.Bottom, out currentLevel);
 
                 if (!currentBlock.AllowOutflow(world, elevatedPosition, BlockSide.Top)) break;
             }

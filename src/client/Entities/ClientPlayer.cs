@@ -269,7 +269,7 @@ namespace VoxelGame.Client.Entities
                     activeBlock.GetBoundingBox(World, placePosition)))
                 {
                     if (blockMode) activeBlock.Place(World, placePosition, this);
-                    else activeLiquid.Fill(World, placePosition, LiquidLevel.One, out _);
+                    else activeLiquid.Fill(World, placePosition, LiquidLevel.One, BlockSide.Top, out _);
 
                     timer = 0;
                 }
