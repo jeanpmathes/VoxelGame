@@ -399,45 +399,20 @@ namespace VoxelGame.Core.Logic.Liquids
         {
             if (level < LiquidLevel.Three) return false;
 
-            int start = BlockUtilities.GetPositionDependentNumber(position.X, position.Z, mod: 4);
+            (Vector3i position, LiquidLevel level, bool isStatic, IFillable fillable)? potentialTarget =
+                SearchFlowTarget(world, position, level - 2, range: 4);
 
-            for (int i = start; i < start + 4; i++)
-            {
-                var orientation = (Orientation) (i % 4);
+            if (potentialTarget == null) return false;
 
-                if (currentFillable.AllowOutflow(world, position, orientation.ToBlockSide())
-                    && CheckDirection(orientation.ToVector3i(), orientation.Opposite().ToBlockSide())) return true;
-            }
+            var target = ((Vector3i position, LiquidLevel level, bool isStatic, IFillable fillable)) potentialTarget;
 
-            return false;
+            SetLiquid(world, this, target.level + 1, isStatic: false, target.fillable, target.position);
+            if (target.isStatic) ScheduleTick(world, target.position);
 
-            bool CheckDirection(Vector3i direction, BlockSide side)
-            {
-                if (!SearchLevel(
-                    world,
-                    position,
-                    direction,
-                    range: 4,
-                    level - 2,
-                    out Vector3i targetPosition)) return false;
+            SetLiquid(world, this, level - 1, isStatic: false, currentFillable, position);
+            ScheduleTick(world, position);
 
-                (Block? block, Liquid? liquid) = world.GetPosition(
-                    targetPosition,
-                    out _,
-                    out LiquidLevel target,
-                    out bool isStatic);
-
-                if (block is not IFillable targetFillable ||
-                    !targetFillable.AllowInflow(world, targetPosition, side, this) || liquid != this) return false;
-
-                SetLiquid(world, this, target + 1, isStatic: false, targetFillable, targetPosition);
-                if (isStatic) ScheduleTick(world, targetPosition);
-
-                SetLiquid(world, this, level - 1, isStatic: false, currentFillable, position);
-                ScheduleTick(world, position);
-
-                return true;
-            }
+            return true;
         }
 
         private void SpreadOrDestroyLiquid(World world, Vector3i position, LiquidLevel level)

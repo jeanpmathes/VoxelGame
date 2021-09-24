@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Collections;
@@ -310,58 +311,79 @@ namespace VoxelGame.Core.Logic
             return false;
         }
 
-        protected bool SearchLevel(World world, Vector3i position, Vector3i direction, int range, LiquidLevel target,
-            out Vector3i targetPosition)
+        protected (Vector3i position, LiquidLevel level, bool isStatic, IFillable fillable)? SearchFlowTarget(
+            World world, Vector3i position, LiquidLevel maximumLevel, int range)
         {
-            targetPosition = (0, 0, 0);
+            int extendedRange = range + 1;
+            int extents = extendedRange * 2 + 1;
+            Vector3i center = (extendedRange, 0, extendedRange);
 
-            var perpendicularDirection = new Vector3i(direction.Z, y: 0, -direction.X);
+            #pragma warning disable CA1814
+            bool[,] mark = new bool[extents, extents];
+            #pragma warning restore CA1814
 
-            bool[] ignoreRows = new bool[range * 2];
+            Queue<(Vector3i position, IFillable fillable)> queue = new();
+            Queue<(Vector3i position, IFillable fillable)> nextQueue = new();
 
-            for (var r = 0; r < range; r++)
+            (Block? startBlock, Liquid? startLiquid) = world.GetPosition(position, out _, out _, out _);
+
+            if (startBlock is not IFillable startFillable || startLiquid != this) return null;
+
+            queue.Enqueue((position, startFillable));
+            Mark(position);
+
+            for (var depth = 0; queue.Count > 0 && depth <= range; depth++)
             {
-                Vector3i line = -r * perpendicularDirection + (1 + r) * direction + position;
-
-                for (var s = 0; s < 2 * (r + 1); s++)
-                {
-                    int row = s + (range - r);
-
-                    if (ignoreRows[row - 1]) continue;
-
-                    Vector3i current = s * perpendicularDirection + line;
-
-                    (Block? block, Liquid? liquid) = world.GetPosition(
-                        current,
-                        out _,
-                        out LiquidLevel level,
-                        out _);
-
-                    if (liquid != this || block is not IFillable fillable || !fillable.AllowInflow(
-                        world,
-                        current,
-                        BlockSide.Top,
-                        this))
+                foreach ((Vector3i position, IFillable fillable) e in queue)
+                    for (var orientation = Orientation.North; orientation <= Orientation.West; orientation++)
                     {
-                        ignoreRows[row - 1] = true;
+                        Vector3i nextPosition = orientation.Offset(e.position);
 
-                        if (s == 0)
-                            for (var i = 0; i < row - 1; i++)
-                                ignoreRows[i] = true;
-                        else if (s == 2 * (r + 1) - 1)
-                            for (int i = row; i < range * 2; i++)
-                                ignoreRows[i] = true;
-                    }
-                    else if (level <= target)
-                    {
-                        targetPosition = current;
+                        if (IsMarked(nextPosition)) continue;
 
-                        return true;
+                        (Block? nextBlock, Liquid? nextLiquid) = world.GetPosition(
+                            nextPosition,
+                            out _,
+                            out LiquidLevel nextLevel,
+                            out bool isNextStatic);
+
+                        if (nextBlock is not IFillable nextFillable || nextLiquid != this) continue;
+
+                        bool canFlow = e.fillable.AllowOutflow(world, e.position, orientation.ToBlockSide()) &&
+                                       nextFillable.AllowInflow(
+                                           world,
+                                           nextPosition,
+                                           orientation.Opposite().ToBlockSide(),
+                                           this);
+
+                        if (!canFlow) continue;
+
+                        if (nextLevel <= maximumLevel) return (nextPosition, nextLevel, isNextStatic, nextFillable);
+
+                        Mark(nextPosition);
+                        nextQueue.Enqueue((nextPosition, nextFillable));
                     }
-                }
+
+                (queue, nextQueue) = (nextQueue, new Queue<(Vector3i position, IFillable fillable)>());
             }
 
-            return false;
+            return null;
+
+            void Mark(Vector3i positionToMark)
+            {
+                Vector3i centerOffset = positionToMark - position;
+                (int x, _, int z) = center + centerOffset;
+
+                mark[x, z] = true;
+            }
+
+            bool IsMarked(Vector3i positionToCheck)
+            {
+                Vector3i centerOffset = positionToCheck - position;
+                (int x, _, int z) = center + centerOffset;
+
+                return mark[x, z];
+            }
         }
 
         protected bool IsAtSurface(World world, Vector3i position)
