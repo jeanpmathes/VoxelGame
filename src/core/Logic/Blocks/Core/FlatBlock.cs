@@ -37,8 +37,8 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <param name="name">The name of the block.</param>
         /// <param name="namedId">The unique and unlocalized name of this block.</param>
         /// <param name="texture">The texture to use for the block.</param>
-        /// <param name="climbingVelocity"></param>
-        /// <param name="slidingVelocity"></param>
+        /// <param name="climbingVelocity">The velocity of players climbing the block.</param>
+        /// <param name="slidingVelocity">The velocity of players sliding along the block.</param>
         internal FlatBlock(string name, string namedId, string texture, float climbingVelocity, float slidingVelocity) :
             base(
                 name,
@@ -64,66 +64,19 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             sideVertices = new[]
             {
-                new[] // North
-                {
-                    1f, 0f, 0.99f, 1f, 0f, 0f, 0f, -1f,
-                    1f, 1f, 0.99f, 1f, 1f, 0f, 0f, -1f,
-                    0f, 1f, 0.99f, 0f, 1f, 0f, 0f, -1f,
-                    0f, 0f, 0.99f, 0f, 0f, 0f, 0f, -1f,
-
-                    0f, 0f, 0.99f, 0f, 0f, 0f, 0f, 1f,
-                    0f, 1f, 0.99f, 0f, 1f, 0f, 0f, 1f,
-                    1f, 1f, 0.99f, 1f, 1f, 0f, 0f, 1f,
-                    1f, 0f, 0.99f, 1f, 0f, 0f, 0f, 1f
-                },
-                new[] // East
-                {
-                    0.01f, 0f, 1f, 1f, 0f, 1f, 0f, 0f,
-                    0.01f, 1f, 1f, 1f, 1f, 1f, 0f, 0f,
-                    0.01f, 1f, 0f, 0f, 1f, 1f, 0f, 0f,
-                    0.01f, 0f, 0f, 0f, 0f, 1f, 0f, 0f,
-
-                    0.01f, 0f, 0f, 0f, 0f, -1f, 0f, 0f,
-                    0.01f, 1f, 0f, 0f, 1f, -1f, 0f, 0f,
-                    0.01f, 1f, 1f, 1f, 1f, -1f, 0f, 0f,
-                    0.01f, 0f, 1f, 1f, 0f, -1f, 0f, 0f
-                },
-                new[] // South
-                {
-                    0f, 0f, 0.01f, 0f, 0f, 0f, 0f, 1f,
-                    0f, 1f, 0.01f, 0f, 1f, 0f, 0f, 1f,
-                    1f, 1f, 0.01f, 1f, 1f, 0f, 0f, 1f,
-                    1f, 0f, 0.01f, 1f, 0f, 0f, 0f, 1f,
-
-                    1f, 0f, 0.01f, 1f, 0f, 0f, 0f, -1f,
-                    1f, 1f, 0.01f, 1f, 1f, 0f, 0f, -1f,
-                    0f, 1f, 0.01f, 0f, 1f, 0f, 0f, -1f,
-                    0f, 0f, 0.01f, 0f, 0f, 0f, 0f, -1f
-                },
-                new[] // West
-                {
-                    0.99f, 0f, 0f, 1f, 0f, -1f, 0f, 0f,
-                    0.99f, 1f, 0f, 1f, 1f, -1f, 0f, 0f,
-                    0.99f, 1f, 1f, 0f, 1f, -1f, 0f, 0f,
-                    0.99f, 0f, 1f, 0f, 0f, -1f, 0f, 0f,
-
-                    0.99f, 0f, 1f, 0f, 0f, 1f, 0f, 0f,
-                    0.99f, 1f, 1f, 0f, 1f, 1f, 0f, 0f,
-                    0.99f, 1f, 0f, 1f, 1f, 1f, 0f, 0f,
-                    0.99f, 0f, 0f, 1f, 0f, 1f, 0f, 0f
-                }
+                GetVertices(Orientation.North),
+                GetVertices(Orientation.East),
+                GetVertices(Orientation.South),
+                GetVertices(Orientation.West)
             };
 
-            int tex = indexProvider.GetTextureIndex(texture);
-            textureIndices = new[] {tex, tex, tex, tex, tex, tex, tex, tex};
+            indices = BlockModels.GenerateIndexDataArray(faces: 2);
+            textureIndices = BlockModels.GenerateTextureDataArray(indexProvider.GetTextureIndex(texture), length: 8);
 
-            indices = new uint[]
+            static float[] GetVertices(Orientation orientation)
             {
-                0, 2, 1,
-                0, 3, 2,
-                4, 6, 5,
-                4, 7, 6
-            };
+                return BlockModels.CreateFlatModel(orientation.ToBlockSide().Opposite(), offset: 0.01f);
+            }
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
@@ -156,7 +109,6 @@ namespace VoxelGame.Core.Logic.Blocks
             BlockSide side = entity?.TargetSide ?? BlockSide.Front;
 
             if (!side.IsLateral()) side = BlockSide.Back;
-
             var orientation = side.ToOrientation();
 
             return world.IsSolid(orientation.Opposite().Offset(position));
@@ -165,9 +117,7 @@ namespace VoxelGame.Core.Logic.Blocks
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             BlockSide side = entity?.TargetSide ?? BlockSide.Front;
-
             if (!side.IsLateral()) side = BlockSide.Back;
-
             world.SetBlock(this, (uint) side.ToOrientation(), position);
         }
 
@@ -177,19 +127,15 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if (forwardMovement.LengthSquared > 0.1f &&
                 (Orientation) (data & 0b00_0011) == (-forwardMovement).ToOrientation())
-            {
                 // Check if entity looks up or down
-                if (Vector3.CalculateAngle(entity.LookingDirection, Vector3.UnitY) < MathHelper.PiOver2)
-                    entity.Velocity = new Vector3(entity.Velocity.X, climbingVelocity, entity.Velocity.Z);
-                else entity.Velocity = new Vector3(entity.Velocity.X, -climbingVelocity, entity.Velocity.Z);
-            }
+                entity.Velocity = Vector3.CalculateAngle(entity.LookingDirection, Vector3.UnitY) < MathHelper.PiOver2
+                    ? new Vector3(entity.Velocity.X, climbingVelocity, entity.Velocity.Z)
+                    : new Vector3(entity.Velocity.X, -climbingVelocity, entity.Velocity.Z);
             else
-            {
                 entity.Velocity = new Vector3(
                     entity.Velocity.X,
                     MathHelper.Clamp(entity.Velocity.Y, -slidingVelocity, float.MaxValue),
                     entity.Velocity.Z);
-            }
         }
 
         internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
