@@ -80,9 +80,9 @@ namespace VoxelGame.Core.Visuals
             };
         }
 
-        public static void CreatePlaneModel(out float[] vertices, out uint[] indices)
+        public static (float[] vertices, uint[] indices) CreatePlaneModel()
         {
-            vertices = new[]
+            float[] vertices =
             {
                 -0.5f, -0.5f, 0.0f, 0f, 0f,
                 -0.5f, 0.5f, 0.0f, 0f, 1f,
@@ -90,11 +90,13 @@ namespace VoxelGame.Core.Visuals
                 0.5f, -0.5f, 0.0f, 1f, 0f
             };
 
-            indices = new uint[]
+            uint[] indices =
             {
                 0, 2, 1,
                 0, 3, 2
             };
+
+            return (vertices, indices);
         }
 
         public static int[] GenerateTextureDataArray(int tex, int length)

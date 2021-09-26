@@ -4,10 +4,10 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
@@ -45,51 +45,26 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            world.SetBlock(this, (uint) ToAxis(entity?.TargetSide ?? BlockSide.Front), position);
+            world.SetBlock(this, (uint) (entity?.TargetSide ?? BlockSide.Front).Axis(), position);
         }
 
-        protected static Axis ToAxis(BlockSide side)
-        {
-            switch (side)
-            {
-                case BlockSide.Front:
-                case BlockSide.Back:
-                    return Axis.Z;
-
-                case BlockSide.Left:
-                case BlockSide.Right:
-                    return Axis.X;
-
-                case BlockSide.Bottom:
-                case BlockSide.Top:
-                    return Axis.Y;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(side));
-            }
-        }
-
-        protected static Axis ToAxis(uint data)
+        private static Axis ToAxis(uint data)
         {
             return (Axis) (data & 0b00_0011);
         }
 
-        protected static int TranslateIndex(BlockSide side, Axis axis)
+        private static int TranslateIndex(BlockSide side, Axis axis)
         {
             var index = (int) side;
 
-            if (axis == Axis.X && side != BlockSide.Front && side != BlockSide.Back) index = 7 - index;
-
-            if (axis == Axis.Z && side != BlockSide.Left && side != BlockSide.Right) index = 5 - index;
+            index = axis switch
+            {
+                Axis.X when side != BlockSide.Front && side != BlockSide.Back => 7 - index,
+                Axis.Z when side != BlockSide.Left && side != BlockSide.Right => 5 - index,
+                _ => index
+            };
 
             return index;
-        }
-
-        protected enum Axis
-        {
-            X, // East-West
-            Y, // Up-Down
-            Z // North-South
         }
     }
 }

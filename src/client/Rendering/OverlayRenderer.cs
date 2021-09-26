@@ -24,7 +24,7 @@ namespace VoxelGame.Client.Rendering
 
         public OverlayRenderer()
         {
-            BlockModels.CreatePlaneModel(out float[] vertices, out uint[] indices);
+            (float[] vertices, uint[] indices) = BlockModels.CreatePlaneModel();
 
             drawGroup = ElementDrawGroup.Create();
             drawGroup.SetStorage(elements: 6, vertices.Length, vertices, indices.Length, indices);
