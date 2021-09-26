@@ -117,7 +117,7 @@ namespace VoxelGame.Core.Logic
             Justification = "Chunks are allocated here.")]
         public static Chunk? Load(string path, int x, int z)
         {
-            logger.LogDebug("Loading chunk for position: ({X}|{Z})", x, z);
+            logger.LogDebug(Events.ChunkOperation, "Loading chunk for position: ({X}|{Z})", x, z);
 
             Chunk chunk;
 
@@ -164,7 +164,7 @@ namespace VoxelGame.Core.Logic
 
             string chunkFile = path + $"/x{X}z{Z}.chunk";
 
-            logger.LogDebug("Saving the chunk ({X}|{Z}) to: {Path}", X, Z, chunkFile);
+            logger.LogDebug(Events.ChunkOperation, "Saving the chunk ({X}|{Z}) to: {Path}", X, Z, chunkFile);
 
             using Stream stream = new FileStream(chunkFile, FileMode.Create, FileAccess.Write, FileShare.Read);
             IFormatter formatter = new BinaryFormatter();
@@ -186,7 +186,12 @@ namespace VoxelGame.Core.Logic
 
         public void Generate(IWorldGenerator generator)
         {
-            logger.LogDebug("Generating the chunk ({X}|{Z}) using '{Name}' generator", X, Z, generator);
+            logger.LogDebug(
+                Events.ChunkOperation,
+                "Generating the chunk ({X}|{Z}) using '{Name}' generator",
+                X,
+                Z,
+                generator);
 
             for (var x = 0; x < Section.SectionSize; x++)
             for (var z = 0; z < Section.SectionSize; z++)

@@ -371,7 +371,7 @@ namespace VoxelGame.Core.Visuals
                 string json = File.ReadAllText(Path.Combine(path, name + ".json"));
                 BlockModel model = JsonSerializer.Deserialize<BlockModel>(json) ?? new BlockModel();
 
-                logger.LogDebug("Loaded BlockModel: {Name}", name);
+                logger.LogDebug(Events.ResourceLoad, "Loaded BlockModel: {Name}", name);
 
                 return model;
             }

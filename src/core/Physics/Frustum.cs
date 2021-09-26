@@ -11,7 +11,7 @@ namespace VoxelGame.Core.Physics
 {
 #pragma warning disable CA1815 // Override equals and operator equals on value types
 
-    public struct Frustum
+    public readonly struct Frustum
 #pragma warning restore CA1815 // Override equals and operator equals on value types
     {
         private readonly Plane[] planes;

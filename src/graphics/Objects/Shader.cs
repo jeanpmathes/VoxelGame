@@ -77,7 +77,7 @@ namespace VoxelGame.Graphics.Objects
                 throw e;
             }
 
-            logger.LogDebug("Successfully compiled Shader({Shader})", shader);
+            logger.LogDebug(Events.ShaderSetup, "Successfully compiled Shader({Shader})", shader);
         }
 
         private static void LinkProgram(int program)
@@ -101,7 +101,7 @@ namespace VoxelGame.Graphics.Objects
                 throw e;
             }
 
-            logger.LogDebug("Successfully linked Program({Program})", program);
+            logger.LogDebug(Events.ShaderSetup, "Successfully linked Program({Program})", program);
         }
 
         public void Use()

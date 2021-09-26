@@ -112,15 +112,21 @@ namespace VoxelGame.Client.Scenes
                     WorldInformation information = WorldInformation.Load(meta);
                     worlds.Add((information, directory));
 
-                    logger.LogDebug("Valid world directory found: {Directory}", directory);
+                    logger.LogDebug(Events.WorldIO, "Valid world directory found: {Directory}", directory);
                 }
                 else
                 {
-                    logger.LogDebug("Directory has no meta file and is ignored: {Directory}", directory);
+                    logger.LogDebug(
+                        Events.WorldIO,
+                        "Directory has no meta file and is ignored: {Directory}",
+                        directory);
                 }
             }
 
-            logger.LogInformation("Completed world lookup, found {Count} valid directories", worlds.Count);
+            logger.LogInformation(
+                Events.WorldIO,
+                "Completed world lookup, found {Count} valid directories",
+                worlds.Count);
         }
 
         private static void ListWorlds(List<(WorldInformation information, string path)> worlds)
@@ -196,7 +202,7 @@ namespace VoxelGame.Client.Scenes
         {
             if (name.Length == 0)
             {
-                logger.LogWarning("World name '{Name}' too short", name);
+                logger.LogWarning(Events.UserInteraction, "World name '{Name}' too short", name);
                 Console.WriteLine(Language.InputNotValid);
 
                 return false;
@@ -204,7 +210,7 @@ namespace VoxelGame.Client.Scenes
 
             if (name[^1] == ' ')
             {
-                logger.LogWarning("World name '{Name}' ends with whitespace", name);
+                logger.LogWarning(Events.UserInteraction, "World name '{Name}' ends with whitespace", name);
                 Console.WriteLine(Language.InputNotValid);
 
                 return false;
@@ -224,7 +230,7 @@ namespace VoxelGame.Client.Scenes
             {
                 if (name.Contains(c, StringComparison.Ordinal))
                 {
-                    logger.LogWarning("World name '{Name}' contains invalid characters", name);
+                    logger.LogWarning(Events.UserInteraction, "World name '{Name}' contains invalid characters", name);
                     Console.WriteLine(Language.InputNotValid);
 
                     return false;
@@ -286,12 +292,15 @@ namespace VoxelGame.Client.Scenes
 
                     if (n >= 0 && n < worlds.Count) return new ClientWorld(worlds[n].information, worlds[n].path);
 
-                    logger.LogWarning("World index ({I}) too high or too low", n);
+                    logger.LogWarning(Events.UserInteraction, "World index ({I}) too high or too low", n);
                     Console.WriteLine(Language.WorldNotFound);
                 }
                 else
                 {
-                    logger.LogWarning("Input '{Input}' could not be parsed to an int value", index);
+                    logger.LogWarning(
+                        Events.UserInteraction,
+                        "Input '{Input}' could not be parsed to an int value",
+                        index);
 
                     Console.WriteLine(Language.InputNotValid);
                 }

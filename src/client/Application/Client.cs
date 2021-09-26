@@ -106,7 +106,7 @@ namespace VoxelGame.Client.Application
                     TextureUnit.Texture3,
                     TextureUnit.Texture4);
 
-                logger.LogInformation("Block textures loaded");
+                logger.LogInformation(Events.ResourceLoad, "Block textures loaded");
 
                 LiquidTextureArray = new ArrayTexture(
                     "Resources/Textures/Liquids",
@@ -114,7 +114,7 @@ namespace VoxelGame.Client.Application
                     useCustomMipmapGeneration: false,
                     TextureUnit.Texture5);
 
-                logger.LogInformation("Liquid textures loaded");
+                logger.LogInformation(Events.ResourceLoad, "Liquid textures loaded");
 
                 TextureLayout.SetProviders(BlockTextureArray, LiquidTextureArray);
                 BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
@@ -124,7 +124,11 @@ namespace VoxelGame.Client.Application
 
                 // Block setup.
                 Block.LoadBlocks(BlockTextureArray);
-                logger.LogDebug("Texture/Block ratio: {Ratio:F02}", BlockTextureArray.Count / (float) Block.Count);
+
+                logger.LogDebug(
+                    Events.ResourceLoad,
+                    "Texture/Block ratio: {Ratio:F02}",
+                    BlockTextureArray.Count / (float) Block.Count);
 
                 // Liquid setup.
                 Liquid.LoadLiquids(LiquidTextureArray);
@@ -132,7 +136,7 @@ namespace VoxelGame.Client.Application
                 // Scene setup.
                 sceneManager.Load(new StartScene(this));
 
-                logger.LogInformation("Finished OnLoad");
+                logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
             }
         }
 
@@ -174,7 +178,7 @@ namespace VoxelGame.Client.Application
 
         private new void OnClosed()
         {
-            logger.LogInformation("Closing window");
+            logger.LogInformation(Events.WindowState, "Closing window");
 
             sceneManager.Unload();
         }

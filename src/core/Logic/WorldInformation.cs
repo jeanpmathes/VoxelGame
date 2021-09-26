@@ -44,7 +44,11 @@ namespace VoxelGame.Core.Logic
                 WorldInformation information =
                     JsonSerializer.Deserialize<WorldInformation>(json) ?? new WorldInformation();
 
-                logger.LogDebug("WorldInformation for World '{Name}' was loaded from: {Path}", information.Name, path);
+                logger.LogDebug(
+                    Events.WorldIO,
+                    "WorldInformation for World '{Name}' was loaded from: {Path}",
+                    information.Name,
+                    path);
 
                 return information;
             }

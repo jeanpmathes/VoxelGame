@@ -39,7 +39,11 @@ namespace VoxelGame.Core.Logic
         {
             if (blockList.Count > id) return blockList[(int) id];
 
-            logger.LogWarning("No Block with ID {ID} could be found, returning {Air} instead", id, Air.NamedId);
+            logger.LogWarning(
+                Events.UnknownBlock,
+                "No Block with ID {ID} could be found, returning {Air} instead",
+                id,
+                Air.NamedId);
 
             return Air;
         }
@@ -49,6 +53,7 @@ namespace VoxelGame.Core.Logic
             if (namedBlockDictionary.TryGetValue(namedId, out Block? block)) return block;
 
             logger.LogWarning(
+                Events.UnknownBlock,
                 "No Block with the named ID {ID} could be found, returning {Fallback} instead",
                 namedId,
                 nameof(Air));
@@ -70,7 +75,7 @@ namespace VoxelGame.Core.Logic
                     logger.LogDebug(Events.BlockLoad, "Loaded block [{Block}] with ID {ID}", block, block.Id);
                 }
 
-                logger.LogInformation("Block setup complete, {Count} blocks loaded", Count);
+                logger.LogInformation(Events.BlockLoad, "Block setup complete, {Count} blocks loaded", Count);
             }
         }
 

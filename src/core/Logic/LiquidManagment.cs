@@ -152,6 +152,7 @@ namespace VoxelGame.Core.Logic
             if (liquidList.Count > id) return liquidList[(int) id];
 
             logger.LogWarning(
+                Events.UnknownLiquid,
                 "No Liquid with ID '{ID}' could be found, returning {Fallback} instead",
                 id,
                 nameof(None));
@@ -164,6 +165,7 @@ namespace VoxelGame.Core.Logic
             if (namedLiquidDictionary.TryGetValue(namedId, out Liquid? liquid)) return liquid;
 
             logger.LogWarning(
+                Events.UnknownLiquid,
                 "No Liquid with named ID '{ID}' could be found, returning {Fallback} instead",
                 namedId,
                 nameof(None));
@@ -185,7 +187,10 @@ namespace VoxelGame.Core.Logic
                     logger.LogDebug(Events.LiquidLoad, "Loaded liquid [{Liquid}] with ID '{ID}'", liquid, liquid.Id);
                 }
 
-                logger.LogInformation("Liquid setup complete, total of {Count} liquids loaded", Count);
+                logger.LogInformation(
+                    Events.LiquidLoad,
+                    "Liquid setup complete, total of {Count} liquids loaded",
+                    Count);
             }
         }
 

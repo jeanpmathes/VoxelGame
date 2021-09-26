@@ -66,7 +66,7 @@ namespace VoxelGame.Client.Rendering
 
                 UpdateOrthographicProjection();
 
-                logger.LogInformation("Completed shader setup");
+                logger.LogInformation(Events.ShaderSetup, "Completed shader setup");
             }
         }
 

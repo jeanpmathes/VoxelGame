@@ -40,7 +40,7 @@ namespace VoxelGame.Core.WorldGeneration
             noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Euclidean);
             noise.SetCellularJitter(cellularJitter: 0.4f);
 
-            logger.LogInformation("Created complex world generator");
+            logger.LogInformation(Events.WorldGeneration, "Created complex world generator");
         }
 
         public IEnumerable<Block> GenerateColumn(int x, int z)

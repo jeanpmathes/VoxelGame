@@ -138,7 +138,7 @@ namespace VoxelGame.Client.Logic
                     readyStopwatch.Stop();
                     double readyTime = readyStopwatch.Elapsed.TotalSeconds;
 
-                    logger.LogInformation("World ready after {ReadyTime}s", readyTime);
+                    logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}s", readyTime);
                 }
             }
 

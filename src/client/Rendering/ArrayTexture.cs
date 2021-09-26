@@ -89,7 +89,7 @@ namespace VoxelGame.Client.Rendering
             catch (DirectoryNotFoundException)
             {
                 texturePaths = Array.Empty<string>();
-                logger.LogWarning("A texture directory has not been found: {Path}", path);
+                logger.LogWarning(Events.MissingDepository, "A texture directory has not been found: {Path}", path);
             }
 
             List<Bitmap> textures = new();
@@ -136,7 +136,7 @@ namespace VoxelGame.Client.Rendering
             // Cleanup
             foreach (Bitmap bitmap in textures) bitmap.Dispose();
 
-            logger.LogDebug("Loaded ArrayTexture with {Count} textures", Count);
+            logger.LogDebug(Events.ResourceLoad, "Loaded ArrayTexture with {Count} textures", Count);
         }
 
         private void GetHandles(int[] arr)

@@ -75,7 +75,7 @@ namespace VoxelGame.Client.Scenes
 
             counter.ResetUpdate();
 
-            logger.LogInformation("Loaded GameScene");
+            logger.LogInformation(Events.SceneChange, "Loaded GameScene");
         }
 
         public void OnResize(Vector2i size)
@@ -108,13 +108,7 @@ namespace VoxelGame.Client.Scenes
 
                 if (screenshotButton.Pushed) Screen.TakeScreenshot(client.screenshotDirectory);
 
-                if (wireframeToggle.Changed)
-                {
-                    Screen.SetWireFrame(wireframeToggle.State);
-
-                    if (wireframeToggle.State) logger.LogInformation("Enable wireframe mode");
-                    else logger.LogInformation("Disable wireframe mode");
-                }
+                if (wireframeToggle.Changed) Screen.SetWireFrame(wireframeToggle.State);
 
                 if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
 
@@ -124,7 +118,7 @@ namespace VoxelGame.Client.Scenes
 
         public void Unload()
         {
-            logger.LogInformation("Unloading world");
+            logger.LogInformation(Events.WorldIO, "Unloading world");
 
             try
             {

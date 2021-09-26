@@ -49,7 +49,12 @@ namespace VoxelGame.Client.Rendering
 
             int maxSamples = GL.GetInteger(GetPName.MaxSamples);
             samples = Properties.client.Default.SampleCount;
-            logger.LogDebug("Set sample count to {Samples}, of maximum {Max} possible samples", samples, maxSamples);
+
+            logger.LogDebug(
+                Events.VisualQuality,
+                "Set sample count to {Samples}, of maximum {Max} possible samples",
+                samples,
+                maxSamples);
 
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
@@ -76,7 +81,11 @@ namespace VoxelGame.Client.Rendering
 
             while (multisampledFboStatus != FramebufferStatus.FramebufferComplete)
             {
-                logger.LogWarning("Multi-sampled FBO not complete [{Status}], waiting...", multisampledFboStatus);
+                logger.LogWarning(
+                    Events.VisualsSetup,
+                    "Multi-sampled FBO not complete [{Status}], waiting...",
+                    multisampledFboStatus);
+
                 Thread.Sleep(millisecondsTimeout: 100);
 
                 multisampledFboStatus = GL.CheckNamedFramebufferStatus(msFBO, FramebufferTarget.Framebuffer);
@@ -130,7 +139,7 @@ namespace VoxelGame.Client.Rendering
 
             while (depthFboStatus != FramebufferStatus.FramebufferComplete)
             {
-                logger.LogWarning("Depth FBO not complete [{Status}], waiting...", depthFboStatus);
+                logger.LogWarning(Events.VisualsSetup, "Depth FBO not complete [{Status}], waiting...", depthFboStatus);
                 Thread.Sleep(millisecondsTimeout: 100);
 
                 depthFboStatus = GL.CheckNamedFramebufferStatus(depthFBO, FramebufferTarget.Framebuffer);
@@ -158,7 +167,11 @@ namespace VoxelGame.Client.Rendering
 
             while (screenshotFboStatus != FramebufferStatus.FramebufferComplete)
             {
-                logger.LogWarning("Screenshot FBO not complete [{Status}], waiting...", screenshotFboStatus);
+                logger.LogWarning(
+                    Events.VisualsSetup,
+                    "Screenshot FBO not complete [{Status}], waiting...",
+                    screenshotFboStatus);
+
                 Thread.Sleep(millisecondsTimeout: 100);
 
                 screenshotFboStatus = GL.CheckNamedFramebufferStatus(screenshotFBO, FramebufferTarget.Framebuffer);
@@ -247,7 +260,7 @@ namespace VoxelGame.Client.Rendering
 
             Shaders.UpdateOrthographicProjection();
 
-            logger.LogDebug("Window has been resized to: {Size}", e.Size);
+            logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", e.Size);
         }
 
         #region PUBLIC STATIC PROPERTIES
@@ -306,7 +319,7 @@ namespace VoxelGame.Client.Rendering
 
                 Instance.Client.WindowState = WindowState.Fullscreen;
                 Instance.Client.IsFullscreen = true;
-                logger.LogDebug("Fullscreen: Switched to fullscreen mode");
+                logger.LogDebug(Events.WindowState, "Fullscreen: Switched to fullscreen mode");
             }
             else
             {
@@ -324,7 +337,7 @@ namespace VoxelGame.Client.Rendering
 
                 Instance.Client.IsFullscreen = false;
 
-                logger.LogDebug("Fullscreen: Switched to normal mode");
+                logger.LogDebug(Events.WindowState, "Fullscreen: Switched to normal mode");
             }
         }
 
@@ -385,7 +398,7 @@ namespace VoxelGame.Client.Rendering
             string path = Path.Combine(directory, $"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
 
             screenshot.Save(path);
-            logger.LogInformation("Saved a screenshot to: {Path}", path);
+            logger.LogInformation(Events.Screenshot, "Saved a screenshot to: {Path}", path);
 
             Marshal.FreeHGlobal(data);
         }

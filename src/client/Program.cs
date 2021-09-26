@@ -50,11 +50,11 @@ namespace VoxelGame.Client
 #if !DEBUG
             if (logDebug)
             {
-                logger.LogInformation("Logging debug messages");
+                logger.LogInformation(Events.Meta, "Logging debug messages");
             }
             else
             {
-                logger.LogInformation("Debug messages will not be logged. Use '-logDebug' to log debug messages");
+                logger.LogInformation(Events.Meta, "Debug messages will not be logged. Use '-logDebug' to log debug messages");
             }
 #endif
 
@@ -79,7 +79,7 @@ namespace VoxelGame.Client
             nativeWindowSettings.Size = client.Default.ScreenSize.ToVector2i();
             nativeWindowSettings.StartFocused = false;
 
-            logger.LogInformation("Starting game on version: {Version}", Version);
+            logger.LogInformation(Events.ApplicationInformation, "Starting game on version: {Version}", Version);
 
             using (Application.Client client = new(
                 gameWindowSettings,
@@ -90,7 +90,7 @@ namespace VoxelGame.Client
                 client.Run();
             }
 
-            logger.LogInformation("Exiting");
+            logger.LogInformation(Events.ApplicationState, "Exiting");
         }
     }
 }

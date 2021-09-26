@@ -44,7 +44,7 @@ namespace VoxelGame.Core.Logic
         {
             Information.Save(Path.Combine(WorldDirectory, "meta.json"));
 
-            logger.LogInformation("Created new world");
+            logger.LogInformation(Events.WorldIO, "Created new world");
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace VoxelGame.Core.Logic
                 path + "/Chunks",
                 new ComplexGenerator(information.Seed))
         {
-            logger.LogInformation("Loaded existing world");
+            logger.LogInformation(Events.WorldIO, "Loaded existing world");
         }
 
         /// <summary>
@@ -638,7 +638,7 @@ namespace VoxelGame.Core.Logic
         {
             Information.SpawnInformation = new SpawnInformation(position);
 
-            logger.LogInformation("World spawn position has been set to: {Position}", position);
+            logger.LogInformation(Events.WorldData, "World spawn position has been set to: {Position}", position);
         }
 
         /// <summary>
@@ -650,7 +650,7 @@ namespace VoxelGame.Core.Logic
             Console.WriteLine(Language.AllChunksSaving);
             Console.WriteLine();
 
-            logger.LogInformation("Saving world");
+            logger.LogInformation(Events.WorldIO, "Saving world");
 
             List<Task> savingTasks = new(activeChunks.Count);
 

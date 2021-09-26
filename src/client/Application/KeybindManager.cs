@@ -108,7 +108,7 @@ namespace VoxelGame.Client.Application
 
             client.Default.Save();
 
-            logger.LogInformation("Finished initializing keybind settings");
+            logger.LogInformation(Events.InputSystem, "Finished initializing keybind settings");
         }
 
         private void InitializeUsages()
