@@ -28,7 +28,7 @@ namespace VoxelGame.Core.Logic.Blocks
         public bool Burn(World world, Vector3i position, Block fire)
         {
             world.SetBlock(GrassBurned, data: 0, position);
-            fire.Place(world, position + Vector3i.UnitY);
+            fire.Place(world, position.Above());
 
             return false;
         }

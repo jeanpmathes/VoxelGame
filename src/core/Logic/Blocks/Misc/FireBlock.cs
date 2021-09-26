@@ -333,7 +333,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if (data == 0)
             {
-                canBurn |= BurnAt(position - Vector3i.UnitY); // Bottom.
+                canBurn |= BurnAt(position.Below()); // Bottom.
                 data = 0b01_1111;
             }
 
@@ -354,8 +354,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 {
                     if (block.Burn(world, burnPosition, this))
                     {
-                        if (world.GetBlock(burnPosition - Vector3i.UnitY, out _) is IAshCoverable coverable)
-                            coverable.CoverWithAsh(world, burnPosition - Vector3i.UnitY);
+                        if (world.GetBlock(burnPosition.Below(), out _) is IAshCoverable coverable)
+                            coverable.CoverWithAsh(world, burnPosition.Below());
 
                         Place(world, burnPosition);
                     }

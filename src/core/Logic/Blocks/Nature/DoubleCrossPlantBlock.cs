@@ -73,8 +73,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return world.GetBlock(position + Vector3i.UnitY, out _)?.IsReplaceable == true &&
-                   (world.GetBlock(position - Vector3i.UnitY, out _) ?? Air) is IPlantable;
+            return world.GetBlock(position.Above(), out _)?.IsReplaceable == true &&
+                   (world.GetBlock(position.Below(), out _) ?? Air) is IPlantable;
         }
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
@@ -84,7 +84,7 @@ namespace VoxelGame.Core.Logic.Blocks
             uint data = (isLowered ? 1u : 0u) << 1;
 
             world.SetBlock(this, data, position);
-            world.SetBlock(this, data | 1, position + Vector3i.UnitY);
+            world.SetBlock(this, data | 1, position.Above());
         }
 
         internal override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
@@ -92,14 +92,14 @@ namespace VoxelGame.Core.Logic.Blocks
             bool isBase = (data & 0b1) == 0;
 
             world.SetDefaultBlock(position);
-            world.SetDefaultBlock(position + Vector3i.UnitY * (isBase ? 1 : -1));
+            world.SetDefaultBlock(isBase ? position.Above() : position.Below());
         }
 
         internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
             if (side == BlockSide.Bottom && (data & 0b1) == 0 &&
-                (world.GetBlock(position - Vector3i.UnitY, out _) ?? Air) is not IPlantable) Destroy(world, position);
+                (world.GetBlock(position.Below(), out _) ?? Air) is not IPlantable) Destroy(world, position);
         }
     }
 }

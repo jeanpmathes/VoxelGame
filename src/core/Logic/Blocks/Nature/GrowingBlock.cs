@@ -7,6 +7,7 @@
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
@@ -32,7 +33,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            Block down = world.GetBlock(position - Vector3i.UnitY, out _) ?? Air;
+            Block down = world.GetBlock(position.Below(), out _) ?? Air;
 
             return down == requiredGround || down == this;
         }
@@ -41,7 +42,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             if (side == BlockSide.Bottom)
             {
-                Block below = world.GetBlock(position - Vector3i.UnitY, out _) ?? Air;
+                Block below = world.GetBlock(position.Below(), out _) ?? Air;
 
                 if (below != requiredGround && below != this) ScheduleDestroy(world, position);
             }
@@ -57,15 +58,15 @@ namespace VoxelGame.Core.Logic.Blocks
             }
             else
             {
-                if (!(world.GetBlock(position + Vector3i.UnitY, out _)?.IsReplaceable ?? false)) return;
+                if (!(world.GetBlock(position.Above(), out _)?.IsReplaceable ?? false)) return;
 
                 var height = 0;
 
-                for (var o = 0; o < maxHeight; o++)
-                    if (world.GetBlock(position - Vector3i.UnitY * o, out _) == this) height++;
+                for (var offset = 0; offset < maxHeight; offset++)
+                    if (world.GetBlock(position.Below(offset), out _) == this) height++;
                     else break;
 
-                if (height < maxHeight) Place(world, position + Vector3i.UnitY);
+                if (height < maxHeight) Place(world, position.Above());
             }
         }
     }

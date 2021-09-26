@@ -28,7 +28,7 @@ namespace VoxelGame.Core.Utilities
 
         public static bool HasSolidGround(this World world, Vector3i position, bool solidify = false)
         {
-            Vector3i groundPosition = position - Vector3i.UnitY;
+            Vector3i groundPosition = position.Below();
 
             bool isSolid = world.IsSolid(groundPosition, out Block ground);
 
@@ -41,12 +41,12 @@ namespace VoxelGame.Core.Utilities
 
         public static bool HasSolidTop(this World world, Vector3i position)
         {
-            return world.IsSolid(position + Vector3i.UnitY);
+            return world.IsSolid(position.Above());
         }
 
         public static bool HasOpaqueTop(this World world, Vector3i position)
         {
-            Block top = world.GetBlock(position + Vector3i.UnitY, out _) ?? Block.Air;
+            Block top = world.GetBlock(position.Above(), out _) ?? Block.Air;
 
             return top.IsSolidAndFull && top.IsOpaque
                    || top is IHeightVariable;
@@ -54,7 +54,7 @@ namespace VoxelGame.Core.Utilities
 
         public static bool IsLowered(this World world, Vector3i position)
         {
-            return world.GetBlock(position, out uint data) is IHeightVariable block
+            return world.GetBlock(position.Below(), out uint data) is IHeightVariable block
                    && block.GetHeight(data) == IHeightVariable.MaximumHeight - 1;
         }
     }

@@ -10,7 +10,7 @@ using OpenToolkit.Mathematics;
 namespace VoxelGame.Core.Utilities
 {
     /// <summary>
-    ///     A class containing different mathematical methods.
+    ///     A class containing different mathematical methods and extensions.
     /// </summary>
     public static class VMath
     {
@@ -102,6 +102,21 @@ namespace VoxelGame.Core.Utilities
         public static Vector3i Floor(this Vector3 vector)
         {
             return new((int) Math.Floor(vector.X), (int) Math.Floor(vector.Y), (int) Math.Floor(vector.Z));
+        }
+
+        public static Vector3i Below(this Vector3i vector)
+        {
+            return vector - Vector3i.UnitY;
+        }
+
+        public static Vector3i Below(this Vector3i vector, int offset)
+        {
+            return vector - Vector3i.UnitY * offset;
+        }
+
+        public static Vector3i Above(this Vector3i vector)
+        {
+            return vector + Vector3i.UnitY;
         }
     }
 }

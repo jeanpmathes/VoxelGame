@@ -144,7 +144,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return world.GetBlock(position + Vector3i.UnitY, out _)?.IsReplaceable == true &&
+            return world.GetBlock(position.Above(), out _)?.IsReplaceable == true &&
                    world.HasSolidGround(position, solidify: true);
         }
 
@@ -179,7 +179,7 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetBlock(
                 this,
                 (uint) ((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int) orientation),
-                position + Vector3i.UnitY);
+                position.Above());
         }
 
         internal override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)

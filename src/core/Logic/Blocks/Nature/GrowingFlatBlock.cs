@@ -43,7 +43,7 @@ namespace VoxelGame.Core.Logic.Blocks
             var orientation = (Orientation) (data & 0b00_0011);
 
             // If another block of this type is above, no solid block is required to hold.
-            if ((world.GetBlock(position + Vector3i.UnitY, out uint dataAbove) ?? Air) == this &&
+            if ((world.GetBlock(position.Above(), out uint dataAbove) ?? Air) == this &&
                 orientation == (Orientation) (dataAbove & 0b00_0011)) return;
 
             if (side == BlockSide.Top) side = orientation.Opposite().ToBlockSide();
@@ -57,8 +57,8 @@ namespace VoxelGame.Core.Logic.Blocks
             var age = (int) ((data & 0b1_1100) >> 2);
 
             if (age < 7) world.SetBlock(this, (uint) (((age + 1) << 2) | (int) orientation), position);
-            else if (world.GetBlock(position - Vector3i.UnitY, out _) == Air)
-                world.SetBlock(this, (uint) orientation, position - Vector3i.UnitY);
+            else if (world.GetBlock(position.Below(), out _) == Air)
+                world.SetBlock(this, (uint) orientation, position.Below());
         }
     }
 }

@@ -73,7 +73,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            Block ground = world.GetBlock(position - Vector3i.UnitY, out _) ?? Air;
+            Block ground = world.GetBlock(position.Below(), out _) ?? Air;
 
             return ground is IPlantable;
         }
@@ -86,7 +86,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && (world.GetBlock(position - Vector3i.UnitY, out _) ?? Air) is not IPlantable)
+            if (side == BlockSide.Bottom && (world.GetBlock(position.Below(), out _) ?? Air) is not IPlantable)
                 Destroy(world, position);
         }
     }
