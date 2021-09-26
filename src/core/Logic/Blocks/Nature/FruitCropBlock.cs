@@ -133,12 +133,8 @@ namespace VoxelGame.Core.Logic.Blocks
                     Liquid.Water,
                     LiquidLevel.Two):
                 {
-                    int start = BlockUtilities.GetPositionDependentNumber(position, mod: 4);
-
-                    for (int i = start; i < start + 4; i++)
+                    foreach (Orientation orientation in Orientations.ShuffledStart(position))
                     {
-                        var orientation = (Orientation) (i % 4);
-
                         if (!fruit.Place(world, orientation.Offset(position))) continue;
                         world.SetBlock(this, (uint) GrowthStage.Second << 1, position);
 

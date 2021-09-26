@@ -27,6 +27,13 @@ namespace VoxelGame.Core.Utilities
             {Orientation.North, Orientation.East, Orientation.South, Orientation.West}.AsReadOnly();
 
         public static IEnumerable<Orientation> All => orientations;
+
+        public static IEnumerable<Orientation> ShuffledStart(Vector3i position)
+        {
+            int start = BlockUtilities.GetPositionDependentNumber(position, mod: 4);
+
+            for (int i = start; i < start + 4; i++) yield return orientations[i % 4];
+        }
     }
 
     public static class OrientationExtensions

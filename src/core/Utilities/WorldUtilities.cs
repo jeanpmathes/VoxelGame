@@ -4,12 +4,21 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Interfaces;
 
 namespace VoxelGame.Core.Utilities
 {
+    public static class BlockUtilities
+    {
+        public static int GetPositionDependentNumber(Vector3i position, int mod)
+        {
+            return Math.Abs(HashCode.Combine(position.X, position.Y, position.Z)) % mod;
+        }
+    }
+
     public static class WorldExtensions
     {
         public static bool IsSolid(this World world, Vector3i position)

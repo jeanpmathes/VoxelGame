@@ -267,17 +267,12 @@ namespace VoxelGame.Core.Logic.Liquids
             var levelHorizontal = LiquidLevel.Eight;
             IFillable? horizontalFillable = null;
 
-            int start = BlockUtilities.GetPositionDependentNumber(position.X, position.Z, mod: 4);
-
-            for (int i = start; i < start + 4; i++)
-            {
-                var orientation = (Orientation) (i % 4);
-
+            foreach (Orientation orientation in Orientations.ShuffledStart(position))
                 if (CheckNeighbor(
                     currentFillable.AllowOutflow(world, position, orientation.ToBlockSide()),
                     orientation.Offset(position),
-                    orientation.Opposite().ToBlockSide())) return true;
-            }
+                    orientation.Opposite().ToBlockSide()))
+                    return true;
 
             if (horizontalPosition == position) return false;
 
