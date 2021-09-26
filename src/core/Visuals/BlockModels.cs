@@ -10,53 +10,46 @@ namespace VoxelGame.Core.Visuals
 {
     public static class BlockModels
     {
-        public static float[][] CubeVertices()
+        private static readonly int[][] defaultBlockUVs = {new[] {0, 0}, new[] {0, 1}, new[] {1, 1}, new[] {1, 0}};
+        private static readonly int[][] rotatedBlockUVs = {new[] {0, 1}, new[] {1, 1}, new[] {1, 0}, new[] {0, 0}};
+
+        public static (float[] vertices, uint[] indices, int[] textureIndices) CreateCrossModel(int textureIndex)
         {
-            return new[]
+            float[] vertices =
             {
-                new[] // Front face
-                {
-                    0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f,
-                    0f, 1f, 1f, 0f, 1f, 0f, 0f, 1f,
-                    1f, 1f, 1f, 1f, 1f, 0f, 0f, 1f,
-                    1f, 0f, 1f, 1f, 0f, 0f, 0f, 1f
-                },
-                new[] // Back face
-                {
-                    1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f,
-                    1f, 1f, 0f, 0f, 1f, 0f, 0f, -1f,
-                    0f, 1f, 0f, 1f, 1f, 0f, 0f, -1f,
-                    0f, 0f, 0f, 1f, 0f, 0f, 0f, -1f
-                },
-                new[] // Left face
-                {
-                    0f, 0f, 0f, 0f, 0f, -1f, 0f, 0f,
-                    0f, 1f, 0f, 0f, 1f, -1f, 0f, 0f,
-                    0f, 1f, 1f, 1f, 1f, -1f, 0f, 0f,
-                    0f, 0f, 1f, 1f, 0f, -1f, 0f, 0f
-                },
-                new[] // Right face
-                {
-                    1f, 0f, 1f, 0f, 0f, 1f, 0f, 0f,
-                    1f, 1f, 1f, 0f, 1f, 1f, 0f, 0f,
-                    1f, 1f, 0f, 1f, 1f, 1f, 0f, 0f,
-                    1f, 0f, 0f, 1f, 0f, 1f, 0f, 0f
-                },
-                new[] // Bottom face
-                {
-                    0f, 0f, 0f, 0f, 0f, 0f, -1f, 0f,
-                    0f, 0f, 1f, 0f, 1f, 0f, -1f, 0f,
-                    1f, 0f, 1f, 1f, 1f, 0f, -1f, 0f,
-                    1f, 0f, 0f, 1f, 0f, 0f, -1f, 0f
-                },
-                new[] // Top face
-                {
-                    0f, 1f, 1f, 0f, 0f, 0f, 1f, 0f,
-                    0f, 1f, 0f, 0f, 1f, 0f, 1f, 0f,
-                    1f, 1f, 0f, 1f, 1f, 0f, 1f, 0f,
-                    1f, 1f, 1f, 1f, 0f, 0f, 1f, 0f
-                }
+                // Two sides: /
+                0.145f, 0f, 0.855f, 0f, 0f, 0f, 0f, 0f,
+                0.145f, 1f, 0.855f, 0f, 1f, 0f, 0f, 0f,
+                0.855f, 1f, 0.145f, 1f, 1f, 0f, 0f, 0f,
+                0.855f, 0f, 0.145f, 1f, 0f, 0f, 0f, 0f,
+
+                // Two sides: \
+                0.145f, 0f, 0.145f, 0f, 0f, 0f, 0f, 0f,
+                0.145f, 1f, 0.145f, 0f, 1f, 0f, 0f, 0f,
+                0.855f, 1f, 0.855f, 1f, 1f, 0f, 0f, 0f,
+                0.855f, 0f, 0.855f, 1f, 0f, 0f, 0f, 0f
             };
+
+            uint[] indices =
+            {
+                // Direction: /
+                0, 2, 1,
+                0, 3, 2,
+
+                0, 1, 2,
+                0, 2, 3,
+
+                // Direction: \
+                4, 6, 5,
+                4, 7, 6,
+
+                4, 5, 6,
+                4, 6, 7
+            };
+
+            int[] textureIndices = GenerateTextureDataArray(textureIndex, length: 8);
+
+            return (vertices, indices, textureIndices);
         }
 
         public static void CreatePlaneModel(out float[] vertices, out uint[] indices)
@@ -92,19 +85,16 @@ namespace VoxelGame.Core.Visuals
             {
                 var offset = (uint) (f * 4);
 
-                indices[(f * 6) + 0] = 0 + offset;
-                indices[(f * 6) + 1] = 2 + offset;
-                indices[(f * 6) + 2] = 1 + offset;
-                indices[(f * 6) + 3] = 0 + offset;
-                indices[(f * 6) + 4] = 3 + offset;
-                indices[(f * 6) + 5] = 2 + offset;
+                indices[f * 6 + 0] = 0 + offset;
+                indices[f * 6 + 1] = 2 + offset;
+                indices[f * 6 + 2] = 1 + offset;
+                indices[f * 6 + 3] = 0 + offset;
+                indices[f * 6 + 4] = 3 + offset;
+                indices[f * 6 + 5] = 2 + offset;
             }
 
             return indices;
         }
-
-        private static readonly int[][] defaultBlockUVs = {new[] {0, 0}, new[] {0, 1}, new[] {1, 1}, new[] {1, 0}};
-        private static readonly int[][] rotatedBlockUVs = {new[] {0, 1}, new[] {1, 1}, new[] {1, 0}, new[] {0, 0}};
 
         public static int[][] GetBlockUVs(bool isRotated)
         {

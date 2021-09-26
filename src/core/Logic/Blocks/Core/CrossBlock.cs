@@ -16,10 +16,11 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class CrossBlock : Block, IFillable
     {
-        private protected readonly string texture;
-        private protected uint[] indices = null!;
-        private protected int[] textureIndices = null!;
-        private protected float[] vertices = null!;
+        private readonly string texture;
+
+        private uint[] indices = null!;
+        private int[] textureIndices = null!;
+        private float[] vertices = null!;
 
         /// <summary>
         ///     Initializes a new instance of a cross block; a block made out of two intersecting planes.
@@ -52,40 +53,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            vertices = new[]
-            {
-                // Two sides: /
-                0.145f, 0f, 0.855f, 0f, 0f, 0f, 0f, 0f,
-                0.145f, 1f, 0.855f, 0f, 1f, 0f, 0f, 0f,
-                0.855f, 1f, 0.145f, 1f, 1f, 0f, 0f, 0f,
-                0.855f, 0f, 0.145f, 1f, 0f, 0f, 0f, 0f,
-
-                // Two sides: \
-                0.145f, 0f, 0.145f, 0f, 0f, 0f, 0f, 0f,
-                0.145f, 1f, 0.145f, 0f, 1f, 0f, 0f, 0f,
-                0.855f, 1f, 0.855f, 1f, 1f, 0f, 0f, 0f,
-                0.855f, 0f, 0.855f, 1f, 0f, 0f, 0f, 0f
-            };
-
-            indices = new uint[]
-            {
-                // Direction: /
-                0, 2, 1,
-                0, 3, 2,
-
-                0, 1, 2,
-                0, 2, 3,
-
-                // Direction: \
-                4, 6, 5,
-                4, 7, 6,
-
-                4, 5, 6,
-                4, 6, 7
-            };
-
-            int tex = indexProvider.GetTextureIndex(texture);
-            textureIndices = new[] {tex, tex, tex, tex, tex, tex, tex, tex};
+            (vertices, indices, textureIndices) = BlockModels.CreateCrossModel(indexProvider.GetTextureIndex(texture));
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
