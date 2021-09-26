@@ -44,7 +44,7 @@ namespace VoxelGame.Core.Logic.Liquids
 
         private static void BurnAround(World world, Vector3i position)
         {
-            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
+            foreach (BlockSide side in BlockSide.All.Sides())
             {
                 Vector3i offsetPosition = side.Offset(position);
 

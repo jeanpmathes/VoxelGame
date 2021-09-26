@@ -518,7 +518,7 @@ namespace VoxelGame.Core.Logic
 
             // Block updates - Side is passed out of the perspective of the block receiving the block update.
 
-            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
+            foreach (BlockSide side in BlockSide.All.Sides())
             {
                 Vector3i neighborPosition = side.Offset(position);
 

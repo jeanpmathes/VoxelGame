@@ -85,7 +85,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             float connectorWidth = (0.5f - diameter) / 2f;
 
-            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
+            foreach (BlockSide side in BlockSide.All.Sides())
             {
                 if (!side.IsSet(data)) continue;
 
@@ -139,7 +139,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             uint data = 0;
 
-            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
+            foreach (BlockSide side in BlockSide.All.Sides())
             {
                 Vector3i otherPosition = side.Offset(position);
                 Block? otherBlock = world.GetBlock(otherPosition, out _);

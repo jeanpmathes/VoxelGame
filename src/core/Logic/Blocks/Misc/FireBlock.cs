@@ -202,7 +202,7 @@ namespace VoxelGame.Core.Logic.Blocks
             var parent = new BoundingBox();
             var children = new BoundingBox[count - 1];
 
-            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
+            foreach (BlockSide side in BlockSide.All.Sides())
             {
                 if (side == BlockSide.Bottom) continue;
 
@@ -247,7 +247,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             var vi = 0;
 
-            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
+            foreach (BlockSide side in BlockSide.All.Sides())
             {
                 if (side == BlockSide.Bottom) continue;
 
@@ -287,7 +287,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             uint data = 0;
 
-            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
+            foreach (BlockSide side in BlockSide.All.Sides())
             {
                 if (side == BlockSide.Bottom) continue;
 
@@ -303,7 +303,7 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 if (data != 0) return;
 
-                for (var sideToCheck = BlockSide.Front; sideToCheck <= BlockSide.Top; sideToCheck++)
+                foreach (BlockSide sideToCheck in BlockSide.All.Sides())
                 {
                     if (sideToCheck == BlockSide.Bottom) continue;
 
@@ -337,7 +337,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 data = 0b01_1111;
             }
 
-            for (var side = BlockSide.Front; side <= BlockSide.Top; side++)
+            foreach (BlockSide side in BlockSide.All.Sides())
             {
                 if (side == BlockSide.Bottom) continue;
 

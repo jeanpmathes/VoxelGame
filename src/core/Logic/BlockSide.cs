@@ -5,7 +5,10 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Utilities;
 
@@ -48,6 +51,22 @@ namespace VoxelGame.Core.Logic
             (0, -1, 0),
             (0, 1, 0)
         };
+
+        private static readonly ReadOnlyCollection<BlockSide> sides = new List<BlockSide>
+                {BlockSide.Front, BlockSide.Back, BlockSide.Left, BlockSide.Right, BlockSide.Bottom, BlockSide.Top}
+            .AsReadOnly();
+
+        /// <summary>
+        ///     Provides an enumerable that contains all actual blocks sides, meaning not the side <c>All</c>.
+        /// </summary>
+        /// <param name="side">Must be the block side <c>All</c>.</param>
+        /// <returns>The block side enumerable.</returns>
+        public static IEnumerable<BlockSide> Sides(this BlockSide side)
+        {
+            Debug.Assert(side == BlockSide.All);
+
+            return sides;
+        }
 
         public static BlockSide Opposite(this BlockSide side)
         {
