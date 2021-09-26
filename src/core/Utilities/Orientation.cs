@@ -5,6 +5,8 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic;
@@ -17,6 +19,14 @@ namespace VoxelGame.Core.Utilities
         East = 0b01,
         South = 0b10,
         West = 0b11
+    }
+
+    public static class Orientations
+    {
+        private static readonly ReadOnlyCollection<Orientation> orientations = new List<Orientation>
+            {Orientation.North, Orientation.East, Orientation.South, Orientation.West}.AsReadOnly();
+
+        public static IEnumerable<Orientation> All => orientations;
     }
 
     public static class OrientationExtensions

@@ -266,7 +266,7 @@ namespace VoxelGame.Core.Logic
 
             if (world.GetBlock(position, out _) is not IFillable currentFillable) return false;
 
-            for (var orientation = Orientation.North; orientation <= Orientation.West; orientation++)
+            foreach (Orientation orientation in Orientations.All)
             {
                 Vector3i neighborPosition = orientation.Offset(position);
 
@@ -288,7 +288,7 @@ namespace VoxelGame.Core.Logic
         {
             if (world.GetBlock(position, out _) is not IFillable currentFillable) return false;
 
-            for (var orientation = Orientation.North; orientation <= Orientation.West; orientation++)
+            foreach (Orientation orientation in Orientations.All)
             {
                 Vector3i neighborPosition = orientation.Offset(position);
 
@@ -335,34 +335,34 @@ namespace VoxelGame.Core.Logic
             for (var depth = 0; queue.Count > 0 && depth <= range; depth++)
             {
                 foreach ((Vector3i position, IFillable fillable) e in queue)
-                    for (var orientation = Orientation.North; orientation <= Orientation.West; orientation++)
-                    {
-                        Vector3i nextPosition = orientation.Offset(e.position);
+                foreach (Orientation orientation in Orientations.All)
+                {
+                    Vector3i nextPosition = orientation.Offset(e.position);
 
-                        if (IsMarked(nextPosition)) continue;
+                    if (IsMarked(nextPosition)) continue;
 
-                        (Block? nextBlock, Liquid? nextLiquid) = world.GetPosition(
-                            nextPosition,
-                            out _,
-                            out LiquidLevel nextLevel,
-                            out bool isNextStatic);
+                    (Block? nextBlock, Liquid? nextLiquid) = world.GetPosition(
+                        nextPosition,
+                        out _,
+                        out LiquidLevel nextLevel,
+                        out bool isNextStatic);
 
-                        if (nextBlock is not IFillable nextFillable || nextLiquid != this) continue;
+                    if (nextBlock is not IFillable nextFillable || nextLiquid != this) continue;
 
-                        bool canFlow = e.fillable.AllowOutflow(world, e.position, orientation.ToBlockSide()) &&
-                                       nextFillable.AllowInflow(
-                                           world,
-                                           nextPosition,
-                                           orientation.Opposite().ToBlockSide(),
-                                           this);
+                    bool canFlow = e.fillable.AllowOutflow(world, e.position, orientation.ToBlockSide()) &&
+                                   nextFillable.AllowInflow(
+                                       world,
+                                       nextPosition,
+                                       orientation.Opposite().ToBlockSide(),
+                                       this);
 
-                        if (!canFlow) continue;
+                    if (!canFlow) continue;
 
-                        if (nextLevel <= maximumLevel) return (nextPosition, nextLevel, isNextStatic, nextFillable);
+                    if (nextLevel <= maximumLevel) return (nextPosition, nextLevel, isNextStatic, nextFillable);
 
-                        Mark(nextPosition);
-                        nextQueue.Enqueue((nextPosition, nextFillable));
-                    }
+                    Mark(nextPosition);
+                    nextQueue.Enqueue((nextPosition, nextFillable));
+                }
 
                 (queue, nextQueue) = (nextQueue, new Queue<(Vector3i position, IFillable fillable)>());
             }

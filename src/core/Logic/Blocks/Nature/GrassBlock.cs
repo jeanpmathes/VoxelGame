@@ -40,13 +40,13 @@ namespace VoxelGame.Core.Logic.Blocks
             if (liquid == Liquid.Water && level == LiquidLevel.Eight) world.SetBlock(Mud, data: 0, position);
 
             for (int yOffset = -1; yOffset <= 1; yOffset++)
-            for (var orientation = Orientation.North; orientation <= Orientation.West; orientation++)
-            {
-                Vector3i otherPosition = orientation.Offset(position) + Vector3i.UnitY * yOffset;
+                foreach (Orientation orientation in Orientations.All)
+                {
+                    Vector3i otherPosition = orientation.Offset(position) + Vector3i.UnitY * yOffset;
 
-                if (world.GetBlock(otherPosition, out _) is IGrassSpreadable grassSpreadable)
-                    grassSpreadable.SpreadGrass(world, otherPosition, this);
-            }
+                    if (world.GetBlock(otherPosition, out _) is IGrassSpreadable grassSpreadable)
+                        grassSpreadable.SpreadGrass(world, otherPosition, this);
+                }
         }
     }
 }

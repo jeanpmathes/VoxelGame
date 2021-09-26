@@ -213,7 +213,7 @@ namespace VoxelGame.Core.Logic.Liquids
         {
             bool liquidBelowIsNone = world.GetLiquid(position + FlowDirection, out _, out _) == None;
 
-            for (var orientation = Orientation.North; orientation <= Orientation.West; orientation++)
+            foreach (Orientation orientation in Orientations.All)
             {
                 if (!currentFillable.AllowOutflow(world, position, orientation.ToBlockSide())) continue;
 
@@ -419,7 +419,7 @@ namespace VoxelGame.Core.Logic.Liquids
         {
             var remaining = (int) level;
 
-            for (var orientation = Orientation.North; orientation <= Orientation.West; orientation++)
+            foreach (Orientation orientation in Orientations.All)
             {
                 FillNeighbor(orientation.Offset(position), orientation.ToBlockSide());
 

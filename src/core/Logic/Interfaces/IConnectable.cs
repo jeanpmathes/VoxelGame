@@ -34,7 +34,7 @@ namespace VoxelGame.Core.Logic.Interfaces
         {
             uint data = 0;
 
-            for (var orientation = Orientation.North; orientation <= Orientation.West; orientation++)
+            foreach (Orientation orientation in Orientations.All)
             {
                 Vector3i neighborPosition = orientation.Offset(position);
 
