@@ -22,18 +22,8 @@ namespace VoxelGame.Core.Logic.Blocks
     // p = position
     public class BedBlock : Block, IFlammable, IFillable
     {
-        private readonly string model;
-        private readonly float[][] verticesEnd = new float[4][];
-        private readonly float[][] verticesHead = new float[4][];
-        private uint[] indicesEnd = null!;
-
-        private uint[] indicesHead = null!;
-        private int[] texIndicesEnd = null!;
-
-        private int[] texIndicesHead = null!;
-        private uint vertexCountEnd;
-
-        private uint vertexCountHead;
+        private (uint vertexCount, float[][] vertices, int[] textureIndices, uint[] indices) footMesh;
+        private (uint vertexCount, float[][] vertices, int[] textureIndices, uint[] indices) headMesh;
 
         internal BedBlock(string name, string namedId, string model) :
             base(
@@ -50,33 +40,36 @@ namespace VoxelGame.Core.Logic.Blocks
                 new BoundingBox(new Vector3(x: 0.5f, y: 0.21875f, z: 0.5f), new Vector3(x: 0.5f, y: 0.21875f, z: 0.5f)),
                 TargetBuffer.Complex)
         {
-            this.model = model;
-        }
-
-        protected override void Setup(ITextureIndexProvider indexProvider)
-        {
             BlockModel blockModel = BlockModel.Load(model);
 
-            blockModel.PlaneSplit(Vector3.UnitZ, Vector3.UnitZ, out BlockModel top, out BlockModel bottom);
-            bottom.Move(-Vector3.UnitZ);
+            blockModel.PlaneSplit(Vector3.UnitZ, Vector3.UnitZ, out BlockModel head, out BlockModel foot);
+            foot.Move(-Vector3.UnitZ);
 
-            vertexCountHead = (uint) top.VertexCount;
-            vertexCountEnd = (uint) bottom.VertexCount;
+            (BlockModel north, BlockModel east, BlockModel south, BlockModel west) headParts =
+                head.CreateAllOrientations(rotateTopAndBottomTexture: true);
 
-            for (var i = 0; i < 4; i++)
-                if (i == 0)
+            (BlockModel north, BlockModel east, BlockModel south, BlockModel west) footParts =
+                foot.CreateAllOrientations(rotateTopAndBottomTexture: true);
+
+            AddToMeshes(headParts.north, footParts.north, index: 0);
+            AddToMeshes(headParts.east, footParts.east, index: 1);
+            AddToMeshes(headParts.south, footParts.south, index: 2);
+            AddToMeshes(headParts.west, footParts.west, index: 3);
+
+            void AddToMeshes(BlockModel headPart, BlockModel footPart, int index)
+            {
+                headPart.ToData(out float[] headVertices, out int[] headTextureIndices, out uint[] headIndices);
+                footPart.ToData(out float[] footVertices, out int[] footTextureIndices, out uint[] footIndices);
+
+                if (index == 0)
                 {
-                    top.ToData(out verticesHead[i], out texIndicesHead, out indicesHead);
-                    bottom.ToData(out verticesEnd[i], out texIndicesEnd, out indicesEnd);
+                    headMesh = ((uint) head.VertexCount, new float[4][], headTextureIndices, headIndices);
+                    footMesh = ((uint) foot.VertexCount, new float[4][], footTextureIndices, footIndices);
                 }
-                else
-                {
-                    top.RotateY(rotations: 1);
-                    top.ToData(out verticesHead[i], out _, out _);
 
-                    bottom.RotateY(rotations: 1);
-                    bottom.ToData(out verticesEnd[i], out _, out _);
-                }
+                headMesh.vertices[index] = headVertices;
+                footMesh.vertices[index] = footVertices;
+            }
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
@@ -151,16 +144,16 @@ namespace VoxelGame.Core.Logic.Blocks
 
             return isHead
                 ? BlockMeshData.Complex(
-                    vertexCountHead,
-                    verticesHead[orientation],
-                    texIndicesHead,
-                    indicesHead,
+                    headMesh.vertexCount,
+                    headMesh.vertices[orientation],
+                    headMesh.textureIndices,
+                    headMesh.indices,
                     color.ToTintColor())
                 : BlockMeshData.Complex(
-                    vertexCountEnd,
-                    verticesEnd[orientation],
-                    texIndicesEnd,
-                    indicesEnd,
+                    footMesh.vertexCount,
+                    footMesh.vertices[orientation],
+                    footMesh.textureIndices,
+                    footMesh.indices,
                     color.ToTintColor());
         }
 
