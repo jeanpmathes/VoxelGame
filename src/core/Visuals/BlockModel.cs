@@ -127,6 +127,25 @@ namespace VoxelGame.Core.Visuals
             for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyRotationMatrixY(xyz, nop, rotations);
         }
 
+        public void OverwriteTexture(string newTexture)
+        {
+            TextureNames = new[] {newTexture};
+
+            for (var i = 0; i < Quads.Length; i++)
+            {
+                Quad old = Quads[i];
+
+                Quads[i] = new Quad
+                {
+                    TextureId = 0,
+                    Vert0 = old.Vert0,
+                    Vert1 = old.Vert1,
+                    Vert2 = old.Vert2,
+                    Vert3 = old.Vert3
+                };
+            }
+        }
+
         /// <summary>
         ///     Creates six models, one for each block side, from a north oriented model.
         /// </summary>
@@ -162,7 +181,7 @@ namespace VoxelGame.Core.Visuals
             return result;
         }
 
-        public (BlockModel north, BlockModel east, BlockModel south, BlockModel west) CreateAllDirections(
+        public (BlockModel north, BlockModel east, BlockModel south, BlockModel west) CreateAllOrientations(
             bool rotateTopAndBottomTexture)
         {
             BlockModel north = this;

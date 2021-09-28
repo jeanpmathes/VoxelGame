@@ -4,7 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
+using System.Collections.Generic;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -21,23 +21,10 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public abstract class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConnectable
     {
-        private readonly string extension;
-        private readonly string post;
+        private readonly List<(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices)> meshes =
+            new(capacity: 16);
 
         private protected readonly string texture;
-        private float[] eastVertices = null!;
-        private uint extensionVertexCount;
-
-        private uint[][] indices = null!;
-
-        private float[] northVertices = null!;
-        private uint postVertexCount;
-
-        private float[] postVertices = null!;
-        private float[] southVertices = null!;
-
-        private int[][] textureIndices = null!;
-        private float[] westVertices = null!;
 
         protected WideConnectingBlock(string name, string namedId, string texture, string post, string extension,
             BoundingBox boundingBox) :
@@ -56,87 +43,45 @@ namespace VoxelGame.Core.Logic.Blocks
                 TargetBuffer.Complex)
         {
             this.texture = texture;
-            this.post = post;
-            this.extension = extension;
-        }
 
-        protected override void Setup(ITextureIndexProvider indexProvider)
-        {
             BlockModel postModel = BlockModel.Load(post);
             BlockModel extensionModel = BlockModel.Load(extension);
 
-            postVertexCount = (uint) postModel.VertexCount;
-            extensionVertexCount = (uint) extensionModel.VertexCount;
+            postModel.OverwriteTexture(texture);
+            extensionModel.OverwriteTexture(texture);
 
-            postModel.ToData(out postVertices, out _, out _);
+            (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensionModels =
+                extensionModel.CreateAllOrientations(rotateTopAndBottomTexture: false);
 
-            extensionModel.RotateY(rotations: 0, rotateTopAndBottomTexture: false);
-            extensionModel.ToData(out northVertices, out _, out _);
+            postModel.Lock();
+            extensionModels.Lock();
 
-            extensionModel.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
-            extensionModel.ToData(out eastVertices, out _, out _);
+            List<BlockModel> requiredModels = new(capacity: 5);
 
-            extensionModel.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
-            extensionModel.ToData(out southVertices, out _, out _);
+            for (uint data = 0b00_0000; data <= 0b00_1111; data++)
+            {
+                requiredModels.Clear();
+                requiredModels.Add(postModel);
 
-            extensionModel.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
-            extensionModel.ToData(out westVertices, out _, out _);
+                if ((data & 0b00_1000) != 0) requiredModels.Add(extensionModels.north);
+                if ((data & 0b00_0100) != 0) requiredModels.Add(extensionModels.east);
+                if ((data & 0b00_0010) != 0) requiredModels.Add(extensionModels.south);
+                if ((data & 0b00_0001) != 0) requiredModels.Add(extensionModels.west);
 
-            int tex = indexProvider.GetTextureIndex(texture);
+                (float[] vertices, int[] textureIndices, uint[] indices) = BlockModel.CombineData(
+                    out uint vertexCount,
+                    requiredModels.ToArray());
 
-            textureIndices = new int[5][];
-
-            for (var i = 0; i < 5; i++)
-                textureIndices[i] =
-                    BlockModels.GenerateTextureDataArray(tex, postModel.VertexCount + i * extensionModel.VertexCount);
-
-            indices = new uint[5][];
-
-            for (var i = 0; i < 5; i++)
-                indices[i] =
-                    BlockModels.GenerateIndexDataArray(postModel.Quads.Length + i * extensionModel.Quads.Length);
+                meshes.Add((vertexCount, vertices, textureIndices, indices));
+            }
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            bool north = (info.Data & 0b00_1000) != 0;
-            bool east = (info.Data & 0b00_0100) != 0;
-            bool south = (info.Data & 0b00_0010) != 0;
-            bool west = (info.Data & 0b00_0001) != 0;
+            (uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices) mesh =
+                meshes[(int) info.Data & 0b00_1111];
 
-            int extensions = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
-            var vertexCount = (uint) (postVertexCount + extensions * extensionVertexCount);
-
-            float[] vertices = new float[vertexCount * 8];
-            int[] currentTextureIndices = textureIndices[extensions];
-            uint[] currentIndices = indices[extensions];
-
-            // Combine the required vertices into one array
-            var position = 0;
-            Array.Copy(postVertices, sourceIndex: 0, vertices, destinationIndex: 0, postVertices.Length);
-            position += postVertices.Length;
-
-            if (north)
-            {
-                Array.Copy(northVertices, sourceIndex: 0, vertices, position, northVertices.Length);
-                position += northVertices.Length;
-            }
-
-            if (east)
-            {
-                Array.Copy(eastVertices, sourceIndex: 0, vertices, position, eastVertices.Length);
-                position += eastVertices.Length;
-            }
-
-            if (south)
-            {
-                Array.Copy(southVertices, sourceIndex: 0, vertices, position, southVertices.Length);
-                position += southVertices.Length;
-            }
-
-            if (west) Array.Copy(westVertices, sourceIndex: 0, vertices, position, westVertices.Length);
-
-            return BlockMeshData.Complex(vertexCount, vertices, currentTextureIndices, currentIndices);
+            return BlockMeshData.Complex(mesh.vertexCount, mesh.vertices, mesh.textureIndices, mesh.indices);
         }
     }
 }

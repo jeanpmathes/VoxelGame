@@ -44,8 +44,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 TargetBuffer.Complex)
         {
             post = BlockModel.Load(postModel);
-            sides = BlockModel.Load(sideModel).CreateAllDirections(rotateTopAndBottomTexture: false);
-            extensions = BlockModel.Load(extensionModel).CreateAllDirections(rotateTopAndBottomTexture: false);
+            sides = BlockModel.Load(sideModel).CreateAllOrientations(rotateTopAndBottomTexture: false);
+            extensions = BlockModel.Load(extensionModel).CreateAllOrientations(rotateTopAndBottomTexture: false);
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
