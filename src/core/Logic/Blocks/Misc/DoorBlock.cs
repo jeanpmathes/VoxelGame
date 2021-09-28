@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -23,19 +24,10 @@ namespace VoxelGame.Core.Logic.Blocks
     // o = orientation
     public class DoorBlock : Block, IFillable
     {
-        private readonly string closed;
-        private readonly string open;
-        private readonly float[][] verticesBase = new float[8][];
-        private readonly float[][] verticesTop = new float[8][];
-        private uint[] indicesBase = null!;
-
-        private uint[] indicesTop = null!;
-        private int[] texIndicesBase = null!;
-
-        private int[] texIndicesTop = null!;
-        private uint vertexCountBase;
-
-        private uint vertexCountTop;
+        private readonly List<BlockMesh> baseClosedMeshes = new();
+        private readonly List<BlockMesh> baseOpenMeshes = new();
+        private readonly List<BlockMesh> topClosedMeshes = new();
+        private readonly List<BlockMesh> topOpenMeshes = new();
 
         internal DoorBlock(string name, string namedId, string closed, string open) :
             base(
@@ -51,12 +43,6 @@ namespace VoxelGame.Core.Logic.Blocks
                 isInteractable: true,
                 new BoundingBox(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.5f, y: 1f, z: 0.5f)),
                 TargetBuffer.Complex)
-        {
-            this.closed = closed;
-            this.open = open;
-        }
-
-        protected override void Setup(ITextureIndexProvider indexProvider)
         {
             BlockModel.Load(closed).PlaneSplit(
                 Vector3.UnitY,
@@ -74,30 +60,22 @@ namespace VoxelGame.Core.Logic.Blocks
 
             topOpen.Move(-Vector3.UnitY);
 
-            for (var i = 0; i < 4; i++)
-                if (i == 0)
-                {
-                    baseClosed.ToData(out verticesBase[i], out texIndicesBase, out indicesBase);
-                    topClosed.ToData(out verticesTop[i], out texIndicesTop, out indicesTop);
+            CreateMeshes(baseClosed, baseClosedMeshes);
+            CreateMeshes(baseOpen, baseOpenMeshes);
 
-                    baseOpen.ToData(out verticesBase[i + 4], out _, out _);
-                    topOpen.ToData(out verticesTop[i + 4], out _, out _);
-                }
-                else
-                {
-                    baseClosed.RotateY(rotations: 1);
-                    baseClosed.ToData(out verticesBase[i], out _, out _);
-                    topClosed.RotateY(rotations: 1);
-                    topClosed.ToData(out verticesTop[i], out _, out _);
+            CreateMeshes(topClosed, topClosedMeshes);
+            CreateMeshes(topOpen, topOpenMeshes);
 
-                    baseOpen.RotateY(rotations: 1);
-                    baseOpen.ToData(out verticesBase[i + 4], out _, out _);
-                    topOpen.RotateY(rotations: 1);
-                    topOpen.ToData(out verticesTop[i + 4], out _, out _);
-                }
+            static void CreateMeshes(BlockModel model, ICollection<BlockMesh> meshList)
+            {
+                (BlockModel north, BlockModel east, BlockModel south, BlockModel west) =
+                    model.CreateAllOrientations(rotateTopAndBottomTexture: true);
 
-            vertexCountTop = (uint) topClosed.VertexCount;
-            vertexCountBase = (uint) baseClosed.VertexCount;
+                meshList.Add(north.GetMesh());
+                meshList.Add(east.GetMesh());
+                meshList.Add(south.GetMesh());
+                meshList.Add(west.GetMesh());
+            }
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
@@ -133,13 +111,23 @@ namespace VoxelGame.Core.Logic.Blocks
             bool isLeftSided = (info.Data & 0b00_1000) == 0;
             bool isClosed = (info.Data & 0b01_0000) == 0;
 
-            Orientation openOrientation = isLeftSided ? orientation.Opposite() : orientation;
+            if (isClosed)
+            {
+                var index = (int) orientation;
 
-            int index = isClosed ? (int) orientation : 4 + (int) openOrientation;
+                BlockMesh mesh = isBase ? baseClosedMeshes[index] : topClosedMeshes[index];
 
-            return isBase
-                ? BlockMeshData.Complex(vertexCountBase, verticesBase[index], texIndicesBase, indicesBase)
-                : BlockMeshData.Complex(vertexCountTop, verticesTop[index], texIndicesTop, indicesTop);
+                return mesh.GetComplexMeshData();
+            }
+            else
+            {
+                Orientation openOrientation = isLeftSided ? orientation.Opposite() : orientation;
+                var index = (int) openOrientation;
+
+                BlockMesh mesh = isBase ? baseOpenMeshes[index] : topOpenMeshes[index];
+
+                return mesh.GetComplexMeshData();
+            }
         }
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
