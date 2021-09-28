@@ -362,6 +362,13 @@ namespace VoxelGame.Core.Visuals
             }
         }
 
+        public BlockMesh GetMesh()
+        {
+            ToData(out float[] vertices, out int[] textureIndices, out uint[] indices);
+
+            return new BlockMesh((uint) VertexCount, vertices, textureIndices, indices);
+        }
+
         public void Lock()
         {
             if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
@@ -563,6 +570,13 @@ namespace VoxelGame.Core.Visuals
 
                 return (vertices.ToArray(), textureIndices.ToArray(), indices.ToArray());
             }
+        }
+
+        public static BlockMesh GetCombinedMesh(params BlockModel[] models)
+        {
+            (float[] vertices, int[] textureIndices, uint[] indices) = CombineData(out uint vertexCount, models);
+
+            return new BlockMesh(vertexCount, vertices, textureIndices, indices);
         }
 
         #endregion STATIC METHODS

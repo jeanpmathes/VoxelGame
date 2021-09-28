@@ -21,8 +21,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public abstract class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConnectable
     {
-        private readonly List<(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices)> meshes =
-            new(capacity: 16);
+        private readonly List<BlockMesh> meshes = new(capacity: 16);
 
         private protected readonly string texture;
 
@@ -68,20 +67,13 @@ namespace VoxelGame.Core.Logic.Blocks
                 if ((data & 0b00_0010) != 0) requiredModels.Add(extensionModels.south);
                 if ((data & 0b00_0001) != 0) requiredModels.Add(extensionModels.west);
 
-                (float[] vertices, int[] textureIndices, uint[] indices) = BlockModel.CombineData(
-                    out uint vertexCount,
-                    requiredModels.ToArray());
-
-                meshes.Add((vertexCount, vertices, textureIndices, indices));
+                meshes.Add(BlockModel.GetCombinedMesh(requiredModels.ToArray()));
             }
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            (uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices) mesh =
-                meshes[(int) info.Data & 0b00_1111];
-
-            return BlockMeshData.Complex(mesh.vertexCount, mesh.vertices, mesh.textureIndices, mesh.indices);
+            return meshes[(int) info.Data & 0b00_1111].GetComplexMeshData();
         }
     }
 }

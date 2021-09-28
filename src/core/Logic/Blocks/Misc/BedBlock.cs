@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -22,8 +23,8 @@ namespace VoxelGame.Core.Logic.Blocks
     // p = position
     public class BedBlock : Block, IFlammable, IFillable
     {
-        private (uint vertexCount, float[][] vertices, int[] textureIndices, uint[] indices) footMesh;
-        private (uint vertexCount, float[][] vertices, int[] textureIndices, uint[] indices) headMesh;
+        private readonly List<BlockMesh> footMeshes = new(capacity: 4);
+        private readonly List<BlockMesh> headMeshes = new(capacity: 4);
 
         internal BedBlock(string name, string namedId, string model) :
             base(
@@ -51,25 +52,20 @@ namespace VoxelGame.Core.Logic.Blocks
             (BlockModel north, BlockModel east, BlockModel south, BlockModel west) footParts =
                 foot.CreateAllOrientations(rotateTopAndBottomTexture: true);
 
-            AddToMeshes(headParts.north, footParts.north, index: 0);
-            AddToMeshes(headParts.east, footParts.east, index: 1);
-            AddToMeshes(headParts.south, footParts.south, index: 2);
-            AddToMeshes(headParts.west, footParts.west, index: 3);
+            headParts.Lock();
+            footParts.Lock();
 
-            void AddToMeshes(BlockModel headPart, BlockModel footPart, int index)
-            {
-                headPart.ToData(out float[] headVertices, out int[] headTextureIndices, out uint[] headIndices);
-                footPart.ToData(out float[] footVertices, out int[] footTextureIndices, out uint[] footIndices);
+            headMeshes.Add(headParts.north.GetMesh());
+            footMeshes.Add(footParts.north.GetMesh());
 
-                if (index == 0)
-                {
-                    headMesh = ((uint) head.VertexCount, new float[4][], headTextureIndices, headIndices);
-                    footMesh = ((uint) foot.VertexCount, new float[4][], footTextureIndices, footIndices);
-                }
+            headMeshes.Add(headParts.east.GetMesh());
+            footMeshes.Add(footParts.east.GetMesh());
 
-                headMesh.vertices[index] = headVertices;
-                footMesh.vertices[index] = footVertices;
-            }
+            headMeshes.Add(headParts.south.GetMesh());
+            footMeshes.Add(footParts.south.GetMesh());
+
+            headMeshes.Add(headParts.west.GetMesh());
+            footMeshes.Add(footParts.west.GetMesh());
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
@@ -142,19 +138,9 @@ namespace VoxelGame.Core.Logic.Blocks
             var orientation = (int) ((info.Data & 0b00_0110) >> 1);
             var color = (BlockColor) ((info.Data & 0b11_1000) >> 3);
 
-            return isHead
-                ? BlockMeshData.Complex(
-                    headMesh.vertexCount,
-                    headMesh.vertices[orientation],
-                    headMesh.textureIndices,
-                    headMesh.indices,
-                    color.ToTintColor())
-                : BlockMeshData.Complex(
-                    footMesh.vertexCount,
-                    footMesh.vertices[orientation],
-                    footMesh.textureIndices,
-                    footMesh.indices,
-                    color.ToTintColor());
+            BlockMesh mesh = isHead ? headMeshes[orientation] : footMeshes[orientation];
+
+            return mesh.GetComplexMeshData(color.ToTintColor());
         }
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
