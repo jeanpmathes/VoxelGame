@@ -440,7 +440,12 @@ namespace VoxelGame.Core.Logic
 
         #region SPECIAL BLOCKS
 
-        public static readonly Block Fire = new FireBlock(Language.Fire, nameof(Fire), "fire");
+        public static readonly Block Fire = new FireBlock(
+            Language.Fire,
+            nameof(Fire),
+            "fire_complete",
+            "fire_side",
+            "fire_top");
 
         public static readonly Block Pulsating = new TintedBlock(
             Language.PulsatingBlock,

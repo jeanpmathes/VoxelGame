@@ -5,6 +5,8 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -28,16 +30,9 @@ namespace VoxelGame.Core.Logic.Blocks
         private const int TickOffset = 150;
         private const int TickVariation = 25;
 
-        private readonly string texture;
+        private readonly List<BlockMesh> meshes = new(capacity: 32);
 
-        private float[][] attachedVertices = null!;
-        private uint[] completeIndices = null!;
-        private int[] completeTexIndices = null!;
-
-        private float[] completeVertices = null!;
-        private int texIndex;
-
-        internal FireBlock(string name, string namedId, string texture) :
+        internal FireBlock(string name, string namedId, string complete, string side, string top) :
             base(
                 name,
                 namedId,
@@ -52,7 +47,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 BoundingBox.Block,
                 TargetBuffer.Complex)
         {
-            this.texture = texture;
+            BlockModel completeModel = BlockModel.Load(complete);
+
+            BlockModel sideModel = BlockModel.Load(side);
+            BlockModel topModel = BlockModel.Load(top);
+
+            PrepareMeshes(completeModel, sideModel, topModel);
         }
 
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
@@ -60,137 +60,41 @@ namespace VoxelGame.Core.Logic.Blocks
             if (liquid != Liquid.None) Destroy(world, position);
         }
 
-        protected override void Setup(ITextureIndexProvider indexProvider)
+        private void PrepareMeshes(BlockModel complete, BlockModel side, BlockModel top)
         {
-            texIndex = indexProvider.GetTextureIndex(texture);
+            (BlockModel north, BlockModel east, BlockModel south, BlockModel west) =
+                side.CreateAllOrientations(rotateTopAndBottomTexture: true);
 
-            completeVertices = new[]
-            {
-                // North:
-                1f, 0f, 0.001f, 0f, 0f, 0f, 0f, 0f,
-                1f, 1f, 0.001f, 0f, 1f, 0f, 0f, 0f,
-                0f, 1f, 0.001f, 1f, 1f, 0f, 0f, 0f,
-                0f, 0f, 0.001f, 1f, 0f, 0f, 0f, 0f,
-
-                // East:
-                0.999f, 0f, 1f, 0f, 0f, 0f, 0f, 0f,
-                0.999f, 1f, 1f, 0f, 1f, 0f, 0f, 0f,
-                0.999f, 1f, 0f, 1f, 1f, 0f, 0f, 0f,
-                0.999f, 0f, 0f, 1f, 0f, 0f, 0f, 0f,
-
-                // South:
-                0f, 0f, 0.999f, 0f, 0f, 0f, 0f, 0f,
-                0f, 1f, 0.999f, 0f, 1f, 0f, 0f, 0f,
-                1f, 1f, 0.999f, 1f, 1f, 0f, 0f, 0f,
-                1f, 0f, 0.999f, 1f, 0f, 0f, 0f, 0f,
-
-                // West:
-                0.001f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
-                0.001f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
-                0.001f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
-                0.001f, 0f, 1f, 1f, 0f, 0f, 0f, 0f,
-
-                // Two sides: /
-                0.145f, 0f, 0.855f, 0f, 0f, 0f, 0f, 0f,
-                0.145f, 1f, 0.855f, 0f, 1f, 0f, 0f, 0f,
-                0.855f, 1f, 0.145f, 1f, 1f, 0f, 0f, 0f,
-                0.855f, 0f, 0.145f, 1f, 0f, 0f, 0f, 0f,
-
-                // Two sides: \
-                0.145f, 0f, 0.145f, 0f, 0f, 0f, 0f, 0f,
-                0.145f, 1f, 0.145f, 0f, 1f, 0f, 0f, 0f,
-                0.855f, 1f, 0.855f, 1f, 1f, 0f, 0f, 0f,
-                0.855f, 0f, 0.855f, 1f, 0f, 0f, 0f, 0f
-            };
-
-            completeTexIndices = new int[24];
-            for (var i = 0; i < completeTexIndices.Length; i++) completeTexIndices[i] = texIndex;
-
-            completeIndices = new uint[]
-            {
-                0, 2, 1,
-                0, 3, 2,
-                0, 1, 2,
-                0, 2, 3,
-
-                4, 6, 5,
-                4, 7, 6,
-                4, 5, 6,
-                4, 6, 7,
-
-                8, 10, 9,
-                8, 11, 10,
-                8, 9, 10,
-                8, 10, 11,
-
-                12, 14, 13,
-                12, 15, 14,
-                12, 13, 14,
-                12, 14, 15,
-
-                16, 18, 17,
-                16, 19, 18,
-                16, 17, 18,
-                16, 18, 19,
-
-                20, 22, 21,
-                20, 23, 22,
-                20, 21, 22,
-                20, 22, 23
-            };
-
-            attachedVertices = new[]
-            {
-                // Front:
-                new[]
+            for (uint data = 0b00_0000; data <= 0b01_1111; data++)
+                if (data == 0)
                 {
-                    0f, 0f, 0.999f, 0f, 0f, 0f, 0f, 0f,
-                    0f, 1f, 0.9f, 0f, 1f, 0f, 0f, 0f,
-                    1f, 1f, 0.9f, 1f, 1f, 0f, 0f, 0f,
-                    1f, 0f, 0.999f, 1f, 0f, 0f, 0f, 0f
-                },
-                // Back:
-                new[]
-                {
-                    1f, 0f, 0.001f, 0f, 0f, 0f, 0f, 0f,
-                    1f, 1f, 0.1f, 0f, 1f, 0f, 0f, 0f,
-                    0f, 1f, 0.1f, 1f, 1f, 0f, 0f, 0f,
-                    0f, 0f, 0.001f, 1f, 0f, 0f, 0f, 0f
-                },
-                // Left:
-                new[]
-                {
-                    0.001f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
-                    0.1f, 1f, 0f, 0f, 1f, 0f, 0f, 0f,
-                    0.1f, 1f, 1f, 1f, 1f, 0f, 0f, 0f,
-                    0.001f, 0f, 1f, 1f, 0f, 0f, 0f, 0f
-                },
-                // Right:
-                new[]
-                {
-                    0.999f, 0f, 1f, 0f, 0f, 0f, 0f, 0f,
-                    0.9f, 1f, 1f, 0f, 1f, 0f, 0f, 0f,
-                    0.9f, 1f, 0f, 1f, 1f, 0f, 0f, 0f,
-                    0.999f, 0f, 0f, 1f, 0f, 0f, 0f, 0f
-                },
-
-                // Bottom - dummy array.
-                Array.Empty<float>(),
-
-                // Top:
-                new[]
-                {
-                    0f, 0.999f, 1f, 0f, 0f, 0f, 0f, 0f,
-                    0f, 0.8f, 0f, 0f, 1f, 0f, 0f, 0f,
-                    1f, 0.8f, 0f, 1f, 1f, 0f, 0f, 0f,
-                    1f, 0.999f, 1f, 1f, 0f, 0f, 0f, 0f,
-
-                    0f, 0.8f, 1f, 0f, 1f, 0f, 0f, 0f,
-                    0f, 0.999f, 0f, 0f, 0f, 0f, 0f, 0f,
-                    1f, 0.999f, 0f, 1f, 0f, 0f, 0f, 0f,
-                    1f, 0.8f, 1f, 1f, 1f, 0f, 0f, 0f
+                    meshes.Add(complete.GetMesh());
                 }
-            };
+                else
+                {
+                    List<BlockModel> requiredModels = new(capacity: 5);
+
+                    requiredModels.AddRange(
+                        from blockSide in BlockSide.All.Sides()
+                        where blockSide != BlockSide.Bottom && IsFlagSet(data, blockSide)
+                        select GetSideModel(blockSide));
+
+                    BlockMesh combinedMesh = BlockModel.GetCombinedMesh(requiredModels.ToArray());
+                    meshes.Add(combinedMesh);
+                }
+
+            BlockModel GetSideModel(BlockSide blockSide)
+            {
+                return blockSide switch
+                {
+                    BlockSide.Front => south,
+                    BlockSide.Back => north,
+                    BlockSide.Left => west,
+                    BlockSide.Right => east,
+                    BlockSide.Top => top,
+                    _ => throw new ArgumentOutOfRangeException(nameof(blockSide), blockSide, message: null)
+                };
+            }
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
@@ -231,43 +135,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            if (info.Data == 0)
-                return BlockMeshData.Complex(
-                    vertexCount: 24,
-                    completeVertices,
-                    completeTexIndices,
-                    completeIndices,
-                    isAnimated: true);
+            BlockMesh mesh = meshes[(int) info.Data & 0b01_1111];
 
-            int faceCount = BitHelper.CountSetBits(info.Data & 0b1_1111);
-
-            if ((info.Data & 0b00_0001) != 0) faceCount++;
-
-            float[] vertices = new float[faceCount * 32];
-
-            var vi = 0;
-
-            foreach (BlockSide side in BlockSide.All.Sides())
-            {
-                if (side == BlockSide.Bottom) continue;
-
-                if (IsFlagSet(info.Data, side))
-                {
-                    var i = (int) side;
-
-                    Array.Copy(attachedVertices[i], sourceIndex: 0, vertices, vi, attachedVertices[i].Length);
-                    vi += attachedVertices[i].Length;
-                }
-            }
-
-            int[] textureIndices = new int[faceCount * 4];
-
-            for (var i = 0; i < textureIndices.Length; i++) textureIndices[i] = texIndex;
-
-            uint[] indices = new uint[faceCount * 12];
-            Array.Copy(completeIndices, indices, indices.Length);
-
-            return BlockMeshData.Complex((uint) (faceCount * 4), vertices, textureIndices, indices, isAnimated: true);
+            return mesh.GetComplexMeshData(isAnimated: true);
         }
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
