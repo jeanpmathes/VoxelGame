@@ -22,7 +22,7 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private readonly List<BlockMesh> meshes = new(capacity: 8);
 
-        internal GateBlock(string name, string namedId, string closed, string open) :
+        internal GateBlock(string name, string namedId, string closedModel, string openModel) :
             base(
                 name,
                 namedId,
@@ -37,14 +37,14 @@ namespace VoxelGame.Core.Logic.Blocks
                 BoundingBox.Block,
                 TargetBuffer.Complex)
         {
-            BlockModel closedModel = BlockModel.Load(closed);
-            BlockModel openModel = BlockModel.Load(open);
+            BlockModel closed = BlockModel.Load(closedModel);
+            BlockModel open = BlockModel.Load(openModel);
 
             (BlockModel north, BlockModel east, BlockModel south, BlockModel west) closedModels =
-                closedModel.CreateAllOrientations(rotateTopAndBottomTexture: false);
+                closed.CreateAllOrientations(rotateTopAndBottomTexture: false);
 
             (BlockModel north, BlockModel east, BlockModel south, BlockModel west) openModels =
-                openModel.CreateAllOrientations(rotateTopAndBottomTexture: false);
+                open.CreateAllOrientations(rotateTopAndBottomTexture: false);
 
             for (uint data = 0b00_0000; data <= 0b_00_0111; data++)
             {

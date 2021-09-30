@@ -26,14 +26,14 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly BlockMesh straightX;
         private readonly BlockMesh straightZ;
 
-        internal WallBlock(string name, string namedId, string texture, string post, string extension,
+        internal WallBlock(string name, string namedId, string texture, string postModel, string extensionModel,
             string extensionStraight) :
             base(
                 name,
                 namedId,
                 texture,
-                post,
-                extension,
+                postModel,
+                extensionModel,
                 new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.25f, y: 0.5f, z: 0.25f)))
         {
             BlockModel straightZModel = BlockModel.Load(extensionStraight);

@@ -21,13 +21,13 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public class FenceBlock : WideConnectingBlock, IFlammable
     {
-        internal FenceBlock(string name, string namedId, string texture, string post, string extension) :
+        internal FenceBlock(string name, string namedId, string texture, string postModel, string extensionModel) :
             base(
                 name,
                 namedId,
                 texture,
-                post,
-                extension,
+                postModel,
+                extensionModel,
                 new BoundingBox(
                     new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
                     new Vector3(x: 0.1875f, y: 0.5f, z: 0.1875f))) {}

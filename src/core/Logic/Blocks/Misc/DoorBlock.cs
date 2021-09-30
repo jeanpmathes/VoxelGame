@@ -29,7 +29,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly List<BlockMesh> topClosedMeshes = new();
         private readonly List<BlockMesh> topOpenMeshes = new();
 
-        internal DoorBlock(string name, string namedId, string closed, string open) :
+        internal DoorBlock(string name, string namedId, string closedModel, string openModel) :
             base(
                 name,
                 namedId,
@@ -44,7 +44,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 new BoundingBox(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.5f, y: 1f, z: 0.5f)),
                 TargetBuffer.Complex)
         {
-            BlockModel.Load(closed).PlaneSplit(
+            BlockModel.Load(closedModel).PlaneSplit(
                 Vector3.UnitY,
                 -Vector3.UnitY,
                 out BlockModel baseClosed,
@@ -52,7 +52,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             topClosed.Move(-Vector3.UnitY);
 
-            BlockModel.Load(open).PlaneSplit(
+            BlockModel.Load(openModel).PlaneSplit(
                 Vector3.UnitY,
                 -Vector3.UnitY,
                 out BlockModel baseOpen,

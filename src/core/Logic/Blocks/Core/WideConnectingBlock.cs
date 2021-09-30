@@ -23,9 +23,8 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private readonly List<BlockMesh> meshes = new(capacity: 16);
 
-        private protected readonly string texture;
-
-        protected WideConnectingBlock(string name, string namedId, string texture, string post, string extension,
+        protected WideConnectingBlock(string name, string namedId, string texture, string postModel,
+            string extensionModel,
             BoundingBox boundingBox) :
             base(
                 name,
@@ -41,31 +40,29 @@ namespace VoxelGame.Core.Logic.Blocks
                 boundingBox,
                 TargetBuffer.Complex)
         {
-            this.texture = texture;
+            BlockModel post = BlockModel.Load(postModel);
+            BlockModel extension = BlockModel.Load(extensionModel);
 
-            BlockModel postModel = BlockModel.Load(post);
-            BlockModel extensionModel = BlockModel.Load(extension);
+            post.OverwriteTexture(texture);
+            extension.OverwriteTexture(texture);
 
-            postModel.OverwriteTexture(texture);
-            extensionModel.OverwriteTexture(texture);
+            (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensions =
+                extension.CreateAllOrientations(rotateTopAndBottomTexture: false);
 
-            (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensionModels =
-                extensionModel.CreateAllOrientations(rotateTopAndBottomTexture: false);
-
-            postModel.Lock();
-            extensionModels.Lock();
+            post.Lock();
+            extensions.Lock();
 
             List<BlockModel> requiredModels = new(capacity: 5);
 
             for (uint data = 0b00_0000; data <= 0b00_1111; data++)
             {
                 requiredModels.Clear();
-                requiredModels.Add(postModel);
+                requiredModels.Add(post);
 
-                if ((data & 0b00_1000) != 0) requiredModels.Add(extensionModels.north);
-                if ((data & 0b00_0100) != 0) requiredModels.Add(extensionModels.east);
-                if ((data & 0b00_0010) != 0) requiredModels.Add(extensionModels.south);
-                if ((data & 0b00_0001) != 0) requiredModels.Add(extensionModels.west);
+                if ((data & 0b00_1000) != 0) requiredModels.Add(extensions.north);
+                if ((data & 0b00_0100) != 0) requiredModels.Add(extensions.east);
+                if ((data & 0b00_0010) != 0) requiredModels.Add(extensions.south);
+                if ((data & 0b00_0001) != 0) requiredModels.Add(extensions.west);
 
                 meshes.Add(BlockModel.GetCombinedMesh(requiredModels.ToArray()));
             }

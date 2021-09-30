@@ -32,7 +32,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private readonly List<BlockMesh> meshes = new(capacity: 32);
 
-        internal FireBlock(string name, string namedId, string complete, string side, string top) :
+        internal FireBlock(string name, string namedId, string completeModel, string sideModel, string topModel) :
             base(
                 name,
                 namedId,
@@ -47,12 +47,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 BoundingBox.Block,
                 TargetBuffer.Complex)
         {
-            BlockModel completeModel = BlockModel.Load(complete);
+            BlockModel complete = BlockModel.Load(completeModel);
 
-            BlockModel sideModel = BlockModel.Load(side);
-            BlockModel topModel = BlockModel.Load(top);
+            BlockModel side = BlockModel.Load(sideModel);
+            BlockModel top = BlockModel.Load(topModel);
 
-            PrepareMeshes(completeModel, sideModel, topModel);
+            PrepareMeshes(complete, side, top);
         }
 
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)

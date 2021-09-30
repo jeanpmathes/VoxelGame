@@ -19,12 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class CustomModelBlock : Block, IFillable
     {
-        private readonly string model;
-        private uint[] indices = null!;
-        private int[] texIndices = null!;
-
-        private uint vertexCount;
-        private float[] vertices = null!;
+        private readonly BlockMesh mesh;
 
         internal CustomModelBlock(string name, string namedId, string modelName, BoundingBox boundingBox,
             bool isSolid = true, bool isInteractable = false) :
@@ -42,20 +37,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 boundingBox,
                 TargetBuffer.Complex)
         {
-            model = modelName;
-        }
-
-        protected override void Setup(ITextureIndexProvider indexProvider)
-        {
-            BlockModel blockModel = BlockModel.Load(model);
-
-            blockModel.ToData(out vertices, out texIndices, out indices);
-            vertexCount = (uint) blockModel.VertexCount;
+            mesh = BlockModel.Load(modelName).GetMesh();
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return BlockMeshData.Complex(vertexCount, vertices, texIndices, indices);
+            return mesh.GetComplexMeshData();
         }
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
