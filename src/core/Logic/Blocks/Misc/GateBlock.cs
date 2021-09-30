@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -19,19 +20,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class GateBlock : Block, IWideConnectable, IFlammable, IFillable
     {
-        private readonly string closed;
-        private readonly string open;
-
-        private uint[] indicesClosed = null!;
-        private uint[] indicesOpen = null!;
-
-        private int[] texIndicesClosed = null!;
-        private int[] texIndicesOpen = null!;
-
-        private uint vertexCountClosed;
-        private uint vertexCountOpen;
-        private float[][] verticesClosed = null!;
-        private float[][] verticesOpen = null!;
+        private readonly List<BlockMesh> meshes = new(capacity: 8);
 
         internal GateBlock(string name, string namedId, string closed, string open) :
             base(
@@ -48,8 +37,23 @@ namespace VoxelGame.Core.Logic.Blocks
                 BoundingBox.Block,
                 TargetBuffer.Complex)
         {
-            this.closed = closed;
-            this.open = open;
+            BlockModel closedModel = BlockModel.Load(closed);
+            BlockModel openModel = BlockModel.Load(open);
+
+            (BlockModel north, BlockModel east, BlockModel south, BlockModel west) closedModels =
+                closedModel.CreateAllOrientations(rotateTopAndBottomTexture: false);
+
+            (BlockModel north, BlockModel east, BlockModel south, BlockModel west) openModels =
+                openModel.CreateAllOrientations(rotateTopAndBottomTexture: false);
+
+            for (uint data = 0b00_0000; data <= 0b_00_0111; data++)
+            {
+                var orientation = (Orientation) (data & 0b00_0011);
+                bool isClosed = (data & 0b00_0100) == 0;
+
+                BlockMesh mesh = orientation.Pick(isClosed ? closedModels : openModels).GetMesh();
+                meshes.Add(mesh);
+            }
         }
 
         public bool IsConnectable(World world, BlockSide side, Vector3i position)
@@ -69,32 +73,6 @@ namespace VoxelGame.Core.Logic.Blocks
             }
 
             return false;
-        }
-
-        protected override void Setup(ITextureIndexProvider indexProvider)
-        {
-            verticesClosed = new float[4][];
-            verticesOpen = new float[4][];
-
-            BlockModel closedModel = BlockModel.Load(closed);
-            BlockModel openModel = BlockModel.Load(open);
-
-            for (var i = 0; i < 4; i++)
-                if (i == 0)
-                {
-                    closedModel.ToData(out verticesClosed[i], out texIndicesClosed, out indicesClosed);
-                    openModel.ToData(out verticesOpen[i], out texIndicesOpen, out indicesOpen);
-                }
-                else
-                {
-                    closedModel.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
-                    closedModel.ToData(out verticesClosed[i], out _, out _);
-                    openModel.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
-                    openModel.ToData(out verticesOpen[i], out _, out _);
-                }
-
-            vertexCountClosed = (uint) closedModel.VertexCount;
-            vertexCountOpen = (uint) openModel.VertexCount;
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
@@ -225,17 +203,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return (info.Data & 0b00_0100) == 0
-                ? BlockMeshData.Complex(
-                    vertexCountClosed,
-                    verticesClosed[info.Data & 0b00_0011],
-                    texIndicesClosed,
-                    indicesClosed) // Open.
-                : BlockMeshData.Complex(
-                    vertexCountOpen,
-                    verticesOpen[info.Data & 0b00_0011],
-                    texIndicesOpen,
-                    indicesOpen); // Closed.
+            return meshes[(int) info.Data].GetComplexMeshData();
         }
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)

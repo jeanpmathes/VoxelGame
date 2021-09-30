@@ -104,6 +104,18 @@ namespace VoxelGame.Core.Utilities
             return vector + orientation.ToVector3i();
         }
 
+        public static T Pick<T>(this Orientation orientation, (T north, T east, T south, T west) tuple)
+        {
+            return orientation switch
+            {
+                Orientation.North => tuple.north,
+                Orientation.East => tuple.east,
+                Orientation.South => tuple.south,
+                Orientation.West => tuple.west,
+                _ => tuple.north
+            };
+        }
+
         public static uint ToFlag(this Orientation orientation)
         {
             return orientation switch
