@@ -28,7 +28,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isTrigger: false,
                 isInteractable: false) {}
 
-        public virtual bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
+        public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
         {
             return liquid.Viscosity < 100;
         }

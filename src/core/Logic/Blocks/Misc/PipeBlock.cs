@@ -26,15 +26,8 @@ namespace VoxelGame.Core.Logic.Blocks
     // t: top
     internal class PipeBlock<TConnect> : Block, IFillable where TConnect : IPipeConnectable
     {
-        private readonly BlockModel center;
-
-        private readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom,
-            BlockModel top) connector;
-
         private readonly float diameter;
-
-        private readonly (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom,
-            BlockModel top) surface;
+        private readonly List<BlockMesh> meshes = new(capacity: 64);
 
         internal PipeBlock(string name, string namedId, float diameter, string centerModel, string connectorModel,
             string surfaceModel) :
@@ -54,17 +47,34 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             this.diameter = diameter;
 
-            center = BlockModel.Load(centerModel);
+            BlockModel center = BlockModel.Load(centerModel);
 
             BlockModel frontConnector = BlockModel.Load(connectorModel);
             BlockModel frontSurface = BlockModel.Load(surfaceModel);
 
-            connector = frontConnector.CreateAllSides();
-            surface = frontSurface.CreateAllSides();
+            (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
+                connectors = frontConnector.CreateAllSides();
+
+            (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
+                surfaces = frontSurface.CreateAllSides();
 
             center.Lock();
-            connector.Lock();
-            surface.Lock();
+            connectors.Lock();
+            surfaces.Lock();
+
+            for (uint data = 0b00_0000; data <= 0b11_1111; data++)
+            {
+                BlockMesh mesh = BlockModel.GetCombinedMesh(
+                    center,
+                    BlockSide.Front.IsSet(data) ? connectors.front : surfaces.front,
+                    BlockSide.Back.IsSet(data) ? connectors.back : surfaces.back,
+                    BlockSide.Left.IsSet(data) ? connectors.left : surfaces.left,
+                    BlockSide.Right.IsSet(data) ? connectors.right : surfaces.right,
+                    BlockSide.Bottom.IsSet(data) ? connectors.bottom : surfaces.bottom,
+                    BlockSide.Top.IsSet(data) ? connectors.top : surfaces.top);
+
+                meshes.Add(mesh);
+            }
         }
 
         public bool RenderLiquid => false;
@@ -105,17 +115,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            (float[] vertices, int[] textureIndices, uint[] indices) = BlockModel.CombineData(
-                out uint vertexCount,
-                center,
-                BlockSide.Front.IsSet(info.Data) ? connector.front : surface.front,
-                BlockSide.Back.IsSet(info.Data) ? connector.back : surface.back,
-                BlockSide.Left.IsSet(info.Data) ? connector.left : surface.left,
-                BlockSide.Right.IsSet(info.Data) ? connector.right : surface.right,
-                BlockSide.Bottom.IsSet(info.Data) ? connector.bottom : surface.bottom,
-                BlockSide.Top.IsSet(info.Data) ? connector.top : surface.top);
+            BlockMesh mesh = meshes[(int) info.Data];
 
-            return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices);
+            return mesh.GetComplexMeshData();
         }
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)

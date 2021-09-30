@@ -203,7 +203,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return meshes[(int) info.Data].GetComplexMeshData();
+            return meshes[(int) info.Data & 0b00_0111].GetComplexMeshData();
         }
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
