@@ -4,7 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
+using System.Collections.Generic;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -21,14 +21,11 @@ namespace VoxelGame.Core.Logic.Blocks
     // aa = axis
     internal class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectable
     {
-        private protected const uint AxisDataMask = 0b00_0011;
-
         private readonly float diameter;
 
-        private protected readonly (BlockModel x, BlockModel y, BlockModel z) models;
+        private readonly List<BlockMesh> meshes = new(capacity: 3);
 
-        internal StraightSteelPipeBlock(string name, string namedId, float diameter, string model,
-            bool isInteractable = false) :
+        internal StraightSteelPipeBlock(string name, string namedId, float diameter, string model) :
             base(
                 name,
                 namedId,
@@ -39,15 +36,17 @@ namespace VoxelGame.Core.Logic.Blocks
                 receiveCollisions: false,
                 isTrigger: false,
                 isReplaceable: false,
-                isInteractable,
+                isInteractable: false,
                 new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, z: 0.5f)),
                 TargetBuffer.Complex)
         {
-            BlockModel initial = BlockModel.Load(model);
-
-            models = initial.CreateAllAxis();
-
             this.diameter = diameter;
+
+            (BlockModel x, BlockModel y, BlockModel z) = BlockModel.Load(model).CreateAllAxis();
+
+            meshes.Add(x.GetMesh());
+            meshes.Add(y.GetMesh());
+            meshes.Add(z.GetMesh());
         }
 
         public bool RenderLiquid => false;
@@ -62,55 +61,23 @@ namespace VoxelGame.Core.Logic.Blocks
             return IsSideOpen(world, position, side);
         }
 
-        public virtual bool IsConnectable(World world, BlockSide side, Vector3i position)
+        public bool IsConnectable(World world, BlockSide side, Vector3i position)
         {
             return IsSideOpen(world, position, side);
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            var axis = (Axis) (data & AxisDataMask);
+            var axis = (Axis) (data & 0b00_0011);
 
             return new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), axis.Vector3(onAxis: 0.5f, diameter));
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            uint vertexCount = SelectModel(
-                models,
-                (Axis) (info.Data & AxisDataMask),
-                out float[] vertices,
-                out int[] textureIndices,
-                out uint[] indices);
+            BlockMesh mesh = meshes[(int) info.Data & 0b00_0011];
 
-            return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices);
-        }
-
-        protected static uint SelectModel((BlockModel x, BlockModel y, BlockModel z) modelTuple, Axis axis,
-            out float[] vertices, out int[] textureIndices, out uint[] indices)
-        {
-            var (x, y, z) = modelTuple;
-
-            switch (axis)
-            {
-                case Axis.X:
-                    x.ToData(out vertices, out textureIndices, out indices);
-
-                    return (uint) x.VertexCount;
-
-                case Axis.Y:
-                    y.ToData(out vertices, out textureIndices, out indices);
-
-                    return (uint) y.VertexCount;
-
-                case Axis.Z:
-                    z.ToData(out vertices, out textureIndices, out indices);
-
-                    return (uint) z.VertexCount;
-
-                default:
-                    throw new NotSupportedException();
-            }
+            return mesh.GetComplexMeshData();
         }
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
@@ -118,11 +85,11 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetBlock(this, (uint) (entity?.TargetSide ?? BlockSide.Front).Axis(), position);
         }
 
-        protected virtual bool IsSideOpen(World world, Vector3i position, BlockSide side)
+        private static bool IsSideOpen(World world, Vector3i position, BlockSide side)
         {
             world.GetBlock(position, out uint data);
 
-            return side.Axis() == (Axis) (data & AxisDataMask);
+            return side.Axis() == (Axis) (data & 0b00_0011);
         }
     }
 }
