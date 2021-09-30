@@ -23,14 +23,8 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public class WallBlock : WideConnectingBlock
     {
-        private readonly string extensionStraight;
-        private float[] extensionStraightXVertices = null!;
-
-        private float[] extensionStraightZVertices = null!;
-        private uint[] indicesStraight = null!;
-        private uint straightVertexCount;
-
-        private int[] texIndicesStraight = null!;
+        private readonly BlockMesh straightX;
+        private readonly BlockMesh straightZ;
 
         internal WallBlock(string name, string namedId, string texture, string post, string extension,
             string extensionStraight) :
@@ -42,25 +36,14 @@ namespace VoxelGame.Core.Logic.Blocks
                 extension,
                 new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.25f, y: 0.5f, z: 0.25f)))
         {
-            this.extensionStraight = extensionStraight;
-        }
+            BlockModel straightZModel = BlockModel.Load(extensionStraight);
+            straightZModel.OverwriteTexture(texture);
 
-        protected override void Setup(ITextureIndexProvider indexProvider)
-        {
-            base.Setup(indexProvider);
+            BlockModel straightXModel = straightZModel.Copy();
+            straightXModel.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
 
-            BlockModel extensionStraightModel = BlockModel.Load(extensionStraight);
-            straightVertexCount = (uint) extensionStraightModel.VertexCount;
-
-            extensionStraightModel.RotateY(rotations: 0, rotateTopAndBottomTexture: false);
-            extensionStraightModel.ToData(out extensionStraightZVertices, out texIndicesStraight, out indicesStraight);
-
-            extensionStraightModel.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
-            extensionStraightModel.ToData(out extensionStraightXVertices, out _, out _);
-
-            int tex = indexProvider.GetTextureIndex(texture);
-
-            for (var i = 0; i < texIndicesStraight.Length; i++) texIndicesStraight[i] = tex;
+            straightX = straightXModel.GetMesh();
+            straightZ = straightZModel.GetMesh();
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
@@ -70,15 +53,15 @@ namespace VoxelGame.Core.Logic.Blocks
             bool south = (data & 0b00_0010) != 0;
             bool west = (data & 0b00_0001) != 0;
 
-            bool straightZ = north && south && !east && !west;
-            bool straightX = !north && !south && east && west;
+            bool useStraightZ = north && south && !east && !west;
+            bool useStraightX = !north && !south && east && west;
 
-            if (straightZ)
+            if (useStraightZ)
                 return new BoundingBox(
                     new Vector3(x: 0.5f, y: 0.46875f, z: 0.5f),
                     new Vector3(x: 0.1875f, y: 0.46875f, z: 0.5f));
 
-            if (straightX)
+            if (useStraightX)
                 return new BoundingBox(
                     new Vector3(x: 0.5f, y: 0.46875f, z: 0.5f),
                     new Vector3(x: 0.5f, y: 0.46875f, z: 0.1875f));
@@ -133,15 +116,11 @@ namespace VoxelGame.Core.Logic.Blocks
             bool south = (info.Data & 0b00_0010) != 0;
             bool west = (info.Data & 0b00_0001) != 0;
 
-            bool straightZ = north && south && !east && !west;
-            bool straightX = !north && !south && east && west;
+            bool useStraightZ = north && south && !east && !west;
+            bool useStraightX = !north && !south && east && west;
 
-            if (straightZ || straightX)
-                return BlockMeshData.Complex(
-                    straightVertexCount,
-                    straightZ ? extensionStraightZVertices : extensionStraightXVertices,
-                    texIndicesStraight,
-                    indicesStraight);
+            if (useStraightZ || useStraightX)
+                return useStraightZ ? straightZ.GetComplexMeshData() : straightX.GetComplexMeshData();
 
             return base.GetMesh(info);
         }

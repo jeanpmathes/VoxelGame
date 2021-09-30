@@ -388,6 +388,11 @@ namespace VoxelGame.Core.Visuals
             File.WriteAllText(Path.Combine(path, name + ".json"), json);
         }
 
+        public BlockModel Copy()
+        {
+            return new(this);
+        }
+
         #region STATIC METHODS
 
         public static BlockModel Load(string name)
