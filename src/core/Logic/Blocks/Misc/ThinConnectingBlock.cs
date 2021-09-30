@@ -23,9 +23,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConnectable
     {
-        private readonly (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensions;
-        private readonly BlockModel post;
-        private readonly (BlockModel north, BlockModel east, BlockModel south, BlockModel west) sides;
+        private readonly List<BlockMesh> meshes = new(capacity: 16);
 
         public ThinConnectingBlock(string name, string namedId, string postModel, string sideModel,
             string extensionModel) :
@@ -43,9 +41,25 @@ namespace VoxelGame.Core.Logic.Blocks
                 new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.0625f, y: 0.5f, z: 0.0625f)),
                 TargetBuffer.Complex)
         {
-            post = BlockModel.Load(postModel);
-            sides = BlockModel.Load(sideModel).CreateAllOrientations(rotateTopAndBottomTexture: false);
-            extensions = BlockModel.Load(extensionModel).CreateAllOrientations(rotateTopAndBottomTexture: false);
+            BlockModel post = BlockModel.Load(postModel);
+
+            (BlockModel north, BlockModel east, BlockModel south, BlockModel west) sides =
+                BlockModel.Load(sideModel).CreateAllOrientations(rotateTopAndBottomTexture: false);
+
+            (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensions =
+                BlockModel.Load(extensionModel).CreateAllOrientations(rotateTopAndBottomTexture: false);
+
+            for (uint data = 0b00_0000; data <= 0b00_1111; data++)
+            {
+                BlockMesh mesh = BlockModel.GetCombinedMesh(
+                    post,
+                    (data & 0b00_1000) == 0 ? sides.north : extensions.north,
+                    (data & 0b00_0100) == 0 ? sides.east : extensions.east,
+                    (data & 0b00_0010) == 0 ? sides.south : extensions.south,
+                    (data & 0b00_0001) == 0 ? sides.west : extensions.west);
+
+                meshes.Add(mesh);
+            }
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
@@ -84,15 +98,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            (float[] vertices, int[] textureIndices, uint[] indices) = BlockModel.CombineData(
-                out uint vertexCount,
-                post,
-                (info.Data & 0b00_1000) == 0 ? sides.north : extensions.north,
-                (info.Data & 0b00_0100) == 0 ? sides.east : extensions.east,
-                (info.Data & 0b00_0010) == 0 ? sides.south : extensions.south,
-                (info.Data & 0b00_0001) == 0 ? sides.west : extensions.west);
+            BlockMesh mesh = meshes[(int) info.Data & 0b00_1111];
 
-            return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices);
+            return mesh.GetComplexMeshData();
         }
     }
 }
