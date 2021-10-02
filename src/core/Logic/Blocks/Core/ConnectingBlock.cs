@@ -24,20 +24,12 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public abstract class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable : IConnectable
     {
-        protected ConnectingBlock(string name, string namedId, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques,
-            bool isSolid, bool receiveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable,
-            BoundingBox boundingBox, TargetBuffer targetBuffer) :
+        protected ConnectingBlock(string name, string namedId, BlockFlags flags, BoundingBox boundingBox,
+            TargetBuffer targetBuffer) :
             base(
                 name,
                 namedId,
-                isFull,
-                isOpaque,
-                renderFaceAtNonOpaques,
-                isSolid,
-                receiveCollisions,
-                isTrigger,
-                isReplaceable,
-                isInteractable,
+                flags,
                 boundingBox,
                 targetBuffer) {}
 

@@ -20,19 +20,11 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly TextureLayout layout;
         private int[] textureIndices = null!;
 
-        protected VaryingHeightBlock(string name, string namedId, TextureLayout layout, bool isSolid,
-            bool receiveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable) :
+        protected VaryingHeightBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: false,
-                isSolid,
-                receiveCollisions,
-                isTrigger,
-                isReplaceable,
-                isInteractable,
+                flags with {IsFull = false, IsOpaque = false},
                 BoundingBox.Block,
                 TargetBuffer.VaryingHeight)
         {

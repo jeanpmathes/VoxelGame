@@ -25,26 +25,11 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <summary>
         ///     Initializes a new instance of a cross block; a block made out of two intersecting planes.
         /// </summary>
-        /// <param name="name">The name of this block.</param>
-        /// <param name="namedId">The unique and unlocalized name of this block.</param>
-        /// <param name="texture">The name of the texture for this block.</param>
-        /// <param name="receiveCollisions">Whether this block should receive collisions.</param>
-        /// <param name="isTrigger">Whether this block is a trigger.</param>
-        /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
-        /// <param name="boundingBox">The bounding box of this block.</param>
-        protected CrossBlock(string name, string namedId, string texture, bool receiveCollisions, bool isTrigger,
-            bool isReplaceable, BoundingBox boundingBox) :
+        protected CrossBlock(string name, string namedId, string texture, BlockFlags flags, BoundingBox boundingBox) :
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: false,
-                isSolid: false,
-                receiveCollisions,
-                isTrigger,
-                isReplaceable,
-                isInteractable: false,
+                flags with {IsFull = false, IsOpaque = false, IsSolid = false},
                 boundingBox,
                 TargetBuffer.Complex)
         {

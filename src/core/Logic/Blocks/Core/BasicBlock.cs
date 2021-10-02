@@ -19,20 +19,11 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly TextureLayout layout;
         private protected int[] sideTextureIndices = null!;
 
-        internal BasicBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true,
-            bool renderFaceAtNonOpaques = true, bool isSolid = true, bool receiveCollisions = false,
-            bool isTrigger = false, bool isInteractable = false) :
+        internal BasicBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
             base(
                 name,
                 namedId,
-                isFull: true,
-                isOpaque,
-                renderFaceAtNonOpaques,
-                isSolid,
-                receiveCollisions,
-                isTrigger,
-                isReplaceable: false,
-                isInteractable,
+                flags with {IsFull = true, IsReplaceable = false},
                 BoundingBox.Block,
                 TargetBuffer.Simple)
         {

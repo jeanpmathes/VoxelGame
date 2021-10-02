@@ -30,21 +30,14 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <param name="name">The name of this block.</param>
         /// <param name="namedId">The unique and unlocalized name of this block.</param>
         /// <param name="texture">The name of the texture of this block.</param>
-        /// <param name="isReplaceable">Indicates whether this block will be replaceable.</param>
+        /// <param name="flags">The block flags.</param>
         /// <param name="boundingBox">The bounding box of this block.</param>
-        internal CrossPlantBlock(string name, string namedId, string texture, bool isReplaceable,
+        internal CrossPlantBlock(string name, string namedId, string texture, BlockFlags flags,
             BoundingBox boundingBox) :
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: false,
-                isSolid: false,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable,
-                isInteractable: false,
+                flags with {IsFull = false, IsOpaque = false},
                 boundingBox,
                 TargetBuffer.CrossPlant)
         {

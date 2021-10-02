@@ -21,12 +21,8 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                layout,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable: true) {}
+                BlockFlags.Functional,
+                layout) {}
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {

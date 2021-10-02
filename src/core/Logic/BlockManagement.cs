@@ -120,7 +120,7 @@ namespace VoxelGame.Core.Logic
             Language.TallGrass,
             nameof(TallGrass),
             "tall_grass",
-            isReplaceable: true,
+            BlockFlags.Replaceable,
             BoundingBox.CrossBlock);
 
         public static readonly Block VeryTallGrass = new DoubleCrossPlantBlock(
@@ -134,7 +134,7 @@ namespace VoxelGame.Core.Logic
             Language.Flower,
             nameof(Flower),
             "flower",
-            isReplaceable: true,
+            BlockFlags.Replaceable,
             new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f)));
 
         public static readonly Block TallFlower = new DoubleCrossPlantBlock(
@@ -147,6 +147,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Stone = new BasicBlock(
             Language.Stone,
             nameof(Stone),
+            BlockFlags.Basic,
             TextureLayout.Uniform("stone"));
 
         public static readonly Block Rubble = new ConstructionBlock(
@@ -162,12 +163,17 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Leaves = new NaturalBlock(
             Language.Leaves,
             nameof(Leaves),
-            TextureLayout.Uniform("leaves"),
-            isOpaque: false);
+            new BlockFlags
+            {
+                IsSolid = true,
+                RenderFaceAtNonOpaques = true
+            },
+            TextureLayout.Uniform("leaves"));
 
         public static readonly Block Log = new RotatedBlock(
             Language.Log,
             nameof(Log),
+            BlockFlags.Basic,
             TextureLayout.Column("log", sideOffset: 0, endOffset: 1));
 
         public static readonly Block Wood = new OrganicConstructionBlock(
@@ -188,16 +194,19 @@ namespace VoxelGame.Core.Logic
         public static readonly Block OreCoal = new BasicBlock(
             Language.CoalOre,
             nameof(OreCoal),
+            BlockFlags.Basic,
             TextureLayout.Uniform("ore_coal"));
 
         public static readonly Block OreIron = new BasicBlock(
             Language.IronOre,
             nameof(OreIron),
+            BlockFlags.Basic,
             TextureLayout.Uniform("ore_iron"));
 
         public static readonly Block OreGold = new BasicBlock(
             Language.GoldOre,
             nameof(OreGold),
+            BlockFlags.Basic,
             TextureLayout.Uniform("ore_gold"));
 
         #endregion NATURAL BLOCKS
@@ -214,11 +223,13 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Pumpkin = new GroundedBlock(
             Language.Pumpkin,
             nameof(Pumpkin),
+            BlockFlags.Basic,
             TextureLayout.Column("pumpkin_side", "pumpkin_top"));
 
         public static readonly Block Melon = new GroundedBlock(
             Language.Melon,
             nameof(Melon),
+            BlockFlags.Basic,
             TextureLayout.Column("melon_side", "melon_top"));
 
         public static readonly Block Spiderweb = new SpiderWebBlock(
@@ -324,6 +335,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block StoneWorked = new BasicBlock(
             Language.WorkedStone,
             nameof(StoneWorked),
+            BlockFlags.Basic,
             TextureLayout.Uniform("stone_worked"));
 
         public static readonly Block Ladder = new FlatBlock(
@@ -346,11 +358,13 @@ namespace VoxelGame.Core.Logic
         public static readonly Block TilesCheckerboardBlack = new TintedBlock(
             Language.CheckerboardTilesBlack,
             nameof(TilesCheckerboardBlack),
+            BlockFlags.Basic,
             TextureLayout.Uniform("checkerboard_tiles_black"));
 
         public static readonly Block TilesCheckerboardWhite = new TintedBlock(
             Language.CheckerboardTilesWhite,
             nameof(TilesCheckerboardWhite),
+            BlockFlags.Basic,
             TextureLayout.Uniform("checkerboard_tiles_white"));
 
         public static readonly Block Bricks = new ConstructionBlock(
@@ -370,11 +384,13 @@ namespace VoxelGame.Core.Logic
         public static readonly Block StoneFace = new OrientedBlock(
             Language.StoneFace,
             nameof(StoneFace),
+            BlockFlags.Basic,
             TextureLayout.UnqiueFront("stone_worked_face", "stone_worked"));
 
         public static readonly Block Vase = new CustomModelBlock(
             Language.Vase,
             nameof(Vase),
+            BlockFlags.Solid,
             "vase",
             new BoundingBox(new Vector3(x: 0.5f, y: 0.375f, z: 0.5f), new Vector3(x: 0.25f, y: 0.375f, z: 0.25f)));
 
@@ -388,6 +404,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Carpet = new TintedCustomModelBlock(
             Language.Carpet,
             nameof(Carpet),
+            BlockFlags.Solid,
             "carpet",
             new BoundingBox(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
 
@@ -450,6 +467,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Pulsating = new TintedBlock(
             Language.PulsatingBlock,
             nameof(Pulsating),
+            BlockFlags.Basic,
             TextureLayout.Uniform("pulsating"),
             isAnimated: true);
 
@@ -462,7 +480,11 @@ namespace VoxelGame.Core.Logic
 
         #region NEW BLOCKS
 
-        public static readonly Block Ash = new BasicBlock(Language.Ash, nameof(Ash), TextureLayout.Uniform("ash"));
+        public static readonly Block Ash = new BasicBlock(
+            Language.Ash,
+            nameof(Ash),
+            BlockFlags.Basic,
+            TextureLayout.Uniform("ash"));
 
         public static readonly Block GlassTiled = new GlassBlock(
             Language.TiledGlass,
@@ -477,6 +499,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block CarpetDecorated = new TintedCustomModelBlock(
             Language.DecoratedCarpet,
             nameof(CarpetDecorated),
+            BlockFlags.Solid,
             "carpet_decorated",
             new BoundingBox(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
 
@@ -495,11 +518,13 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Pumice = new BasicBlock(
             Language.Pumice,
             nameof(Pumice),
+            BlockFlags.Basic,
             TextureLayout.Uniform("pumice"));
 
         public static readonly Block Obsidian = new BasicBlock(
             Language.Obsidian,
             nameof(Obsidian),
+            BlockFlags.Basic,
             TextureLayout.Uniform("obsidian"));
 
         public static readonly Block SteelPipe = new PipeBlock<IIndustrialPipeConnectable>(

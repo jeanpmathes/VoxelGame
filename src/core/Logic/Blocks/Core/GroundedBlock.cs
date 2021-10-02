@@ -18,18 +18,12 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class GroundedBlock : BasicBlock, IFlammable
     {
-        internal GroundedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true,
-            bool renderFaceAtNonOpaques = true, bool isSolid = true, bool isInteractable = false) :
+        internal GroundedBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
             base(
                 name,
                 namedId,
-                layout,
-                isOpaque,
-                renderFaceAtNonOpaques,
-                isSolid,
-                receiveCollisions: false,
-                isTrigger: false,
-                isInteractable) {}
+                flags,
+                layout) {}
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {

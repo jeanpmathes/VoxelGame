@@ -19,15 +19,10 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                layout,
-                isOpaque: true,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isInteractable: false) {}
+                BlockFlags.Basic,
+                layout) {}
 
-        public virtual bool Burn(World world, Vector3i position, Block fire)
+        public bool Burn(World world, Vector3i position, Block fire)
         {
             return false;
         }

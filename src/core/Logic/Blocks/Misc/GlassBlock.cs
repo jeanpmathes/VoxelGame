@@ -9,8 +9,8 @@ using VoxelGame.Core.Logic.Interfaces;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A glass block.
-    /// Data bit usage: <c>------</c>
+    ///     A glass block.
+    ///     Data bit usage: <c>------</c>
     /// </summary>
     public class GlassBlock : BasicBlock, IThinConnectable
     {
@@ -18,8 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                layout,
-                isOpaque: false,
-                renderFaceAtNonOpaques: false) {}
+                BlockFlags.Basic with {IsOpaque = false},
+                layout) {}
     }
 }

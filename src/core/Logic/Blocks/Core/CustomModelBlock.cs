@@ -21,19 +21,12 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private readonly BlockMesh mesh;
 
-        internal CustomModelBlock(string name, string namedId, string modelName, BoundingBox boundingBox,
-            bool isSolid = true, bool isInteractable = false) :
+        internal CustomModelBlock(string name, string namedId, BlockFlags flags, string modelName,
+            BoundingBox boundingBox) :
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: true,
-                isSolid,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable,
+                flags with {IsFull = false, IsOpaque = false},
                 boundingBox,
                 TargetBuffer.Complex)
         {

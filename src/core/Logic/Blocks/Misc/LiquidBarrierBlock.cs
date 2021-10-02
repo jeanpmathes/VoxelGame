@@ -25,13 +25,8 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                closed,
-                isOpaque: true,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isInteractable: true)
+                BlockFlags.Basic with {IsInteractable = true},
+                closed)
         {
             this.open = open;
         }

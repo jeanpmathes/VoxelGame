@@ -23,6 +23,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // o = open
     internal class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable
     {
+        private readonly float diameter;
         private readonly List<BlockMesh?> meshes = new(capacity: 8);
 
         internal SteelPipeValveBlock(string name, string namedId, float diameter, string openModel,
@@ -30,17 +31,12 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable: true,
+                BlockFlags.Functional,
                 new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, z: 0.5f)),
                 TargetBuffer.Complex)
         {
+            this.diameter = diameter;
+
             (BlockModel openX, BlockModel openY, BlockModel openZ) = BlockModel.Load(openModel).CreateAllAxis();
             (BlockModel closedX, BlockModel closedY, BlockModel closedZ) = BlockModel.Load(closedModel).CreateAllAxis();
 
@@ -72,6 +68,13 @@ namespace VoxelGame.Core.Logic.Blocks
             world.GetBlock(position, out uint data);
 
             return side.Axis() == (Axis) (data & 0b00_0011);
+        }
+
+        protected override BoundingBox GetBoundingBox(uint data)
+        {
+            var axis = (Axis) (data & 0b00_0011);
+
+            return new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), axis.Vector3(onAxis: 0.5f, diameter));
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)

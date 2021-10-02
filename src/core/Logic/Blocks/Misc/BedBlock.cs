@@ -30,14 +30,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable: true,
+                BlockFlags.Functional,
                 new BoundingBox(new Vector3(x: 0.5f, y: 0.21875f, z: 0.5f), new Vector3(x: 0.5f, y: 0.21875f, z: 0.5f)),
                 TargetBuffer.Complex)
         {

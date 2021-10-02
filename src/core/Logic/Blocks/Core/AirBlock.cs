@@ -28,14 +28,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: false,
-                isSolid: false,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: true,
-                isInteractable: false,
+                BlockFlags.Empty,
                 BoundingBox.Block,
                 TargetBuffer.NotRendered) {}
 

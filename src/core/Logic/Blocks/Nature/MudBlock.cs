@@ -22,13 +22,8 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                layout,
-                isOpaque: true,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: true,
-                isTrigger: false,
-                isInteractable: false)
+                BlockFlags.Collider with {IsOpaque = true},
+                layout)
         {
             this.maxVelocity = maxVelocity;
         }

@@ -25,6 +25,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
+                BlockFlags.Basic,
                 layout)
         {
             requiredGround = ground;

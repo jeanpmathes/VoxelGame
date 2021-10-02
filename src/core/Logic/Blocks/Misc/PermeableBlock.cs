@@ -20,13 +20,8 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                layout,
-                isOpaque: true,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isInteractable: false) {}
+                BlockFlags.Basic,
+                layout) {}
 
         public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
         {

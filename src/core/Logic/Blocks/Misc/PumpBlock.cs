@@ -22,13 +22,8 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                layout,
-                isOpaque: true,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isInteractable: true)
+                BlockFlags.Basic with {IsInteractable = true},
+                layout)
         {
             this.pumpDistance = pumpDistance;
         }

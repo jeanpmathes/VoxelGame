@@ -21,34 +21,33 @@ namespace VoxelGame.Core.Logic
     {
         private readonly BoundingBox boundingBox;
 
-        protected Block(string name, string namedId, bool isFull, bool isOpaque, bool renderFaceAtNonOpaques,
-            bool isSolid, bool receiveCollisions, bool isTrigger, bool isReplaceable, bool isInteractable,
-            BoundingBox boundingBox, TargetBuffer targetBuffer)
+        protected Block(string name, string namedId, BlockFlags flags, BoundingBox boundingBox,
+            TargetBuffer targetBuffer)
         {
             Name = name;
             NamedId = namedId;
 
-            IsFull = isFull;
-            IsOpaque = isOpaque;
-            RenderFaceAtNonOpaques = renderFaceAtNonOpaques;
-            IsSolid = isSolid;
-            ReceiveCollisions = receiveCollisions;
-            IsTrigger = isTrigger;
-            IsReplaceable = isReplaceable;
-            IsInteractable = isInteractable;
+            IsFull = flags.IsFull;
+            IsOpaque = flags.IsOpaque;
+            RenderFaceAtNonOpaques = flags.RenderFaceAtNonOpaques;
+            IsSolid = flags.IsSolid;
+            ReceiveCollisions = flags.ReceiveCollisions;
+            IsTrigger = flags.IsTrigger;
+            IsReplaceable = flags.IsReplaceable;
+            IsInteractable = flags.IsInteractable;
 
             this.boundingBox = boundingBox;
 
             TargetBuffer = targetBuffer;
 
             Debug.Assert(
-                (targetBuffer != TargetBuffer.Simple) ^ isFull,
-                $"TargetBuffer '{nameof(TargetBuffer.Simple)}' requires {nameof(isFull)} to be {!isFull}, all other target buffers cannot be full.");
+                (TargetBuffer != TargetBuffer.Simple) ^ IsFull,
+                $"TargetBuffer '{nameof(TargetBuffer.Simple)}' requires {nameof(IsFull)} to be {!IsFull}, all other target buffers cannot be full.");
 
-            Debug.Assert(isFull || !isOpaque, "A block that is not full cannot be opaque.");
+            Debug.Assert(IsFull || !IsOpaque, "A block that is not full cannot be opaque.");
 #pragma warning disable S3060 // "is" should not be used with "this"
             Debug.Assert(
-                targetBuffer == TargetBuffer.VaryingHeight == this is IHeightVariable,
+                TargetBuffer == TargetBuffer.VaryingHeight == this is IHeightVariable,
                 $"The target buffer should be {nameof(TargetBuffer.VaryingHeight)} if and only if the block implements {nameof(IHeightVariable)}.");
 #pragma warning restore S3060 // "is" should not be used with "this"
 

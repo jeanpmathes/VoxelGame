@@ -21,17 +21,13 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private readonly bool isAnimated;
 
-        internal TintedBlock(string name, string namedId, TextureLayout layout, bool isAnimated = false) :
+        internal TintedBlock(string name, string namedId, BlockFlags flags, TextureLayout layout,
+            bool isAnimated = false) :
             base(
                 name,
                 namedId,
-                layout,
-                isOpaque: true,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isInteractable: true)
+                flags with {IsInteractable = true},
+                layout)
         {
             this.isAnimated = isAnimated;
         }
