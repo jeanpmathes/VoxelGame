@@ -463,8 +463,8 @@ namespace VoxelGame.Client.Logic
                         if (liquidToCheck != currentLiquid || !isNeighborLiquidMeshed) sideHeight = -1;
 
                         bool flowsTowardsFace = side == BlockSide.Top
-                            ? currentLiquid.Direction < 0
-                            : currentLiquid.Direction > 0;
+                            ? currentLiquid.Direction == VerticalFlow.Upwards
+                            : currentLiquid.Direction == VerticalFlow.Downwards;
 
                         bool meshAtNormal = (int) level > sideHeight && blockToCheck?.IsOpaque != true;
 
@@ -500,7 +500,7 @@ namespace VoxelGame.Client.Logic
                         // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
                         int lowerData = (mesh.Tint.GetBits(liquidTint) << 23) | ((int) side << 16) |
                                         ((sideHeight + 1) << 12) |
-                                        ((currentLiquid.Direction > 0 ? 0 : 1) << 11) | ((int) level << 8) |
+                                        (currentLiquid.Direction.GetBit() << 11) | ((int) level << 8) |
                                         (isStatic ? 1 << 7 : 0 << 7) |
                                         ((((mesh.TextureIndex - 1) >> 4) + 1) & 0b0111_1111);
 

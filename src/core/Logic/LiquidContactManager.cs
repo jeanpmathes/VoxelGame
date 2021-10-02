@@ -141,7 +141,7 @@ namespace VoxelGame.Core.Logic
             if (aboveLightBlock is IFillable fillable && fillable.AllowInflow(
                                                           world,
                                                           aboveLightPosition,
-                                                          light.liquid.Direction > 0 ? BlockSide.Bottom : BlockSide.Top,
+                                                          light.liquid.Direction.EntrySide().Opposite(),
                                                           light.liquid)
                                                       && aboveLightLiquid == Liquid.None)
             {

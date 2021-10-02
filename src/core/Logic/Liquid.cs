@@ -26,7 +26,13 @@ namespace VoxelGame.Core.Logic
             NamedId = namedId;
 
             Density = Math.Abs(density);
-            Direction = Math.Sign(density);
+
+            Direction = Math.Sign(density) switch
+            {
+                > 0 => VerticalFlow.Downwards,
+                0 => VerticalFlow.Static,
+                < 0 => VerticalFlow.Upwards
+            };
 
             Viscosity = viscosity;
 
@@ -71,7 +77,7 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         ///     Gets the flowing direction of this liquid. Positive means down, negative means up.
         /// </summary>
-        public int Direction { get; }
+        public VerticalFlow Direction { get; }
 
         /// <summary>
         ///     Gets the viscosity of this liquid, meaning the tick offset between two updates.
@@ -96,14 +102,14 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         ///     Get whether this liquid is a fluid that flows down.
         /// </summary>
-        public bool IsFluid => Direction > 0;
+        public bool IsFluid => Direction == VerticalFlow.Downwards;
 
         /// <summary>
         ///     Get whether this liquid is a gas that flows up.
         /// </summary>
-        public bool IsGas => Direction < 0;
+        public bool IsGas => Direction == VerticalFlow.Upwards;
 
-        public Vector3i FlowDirection => new(x: 0, -Direction, z: 0);
+        public Vector3i FlowDirection => Direction.FlowDirection();
 
         string IIdentifiable<string>.Id => NamedId;
 

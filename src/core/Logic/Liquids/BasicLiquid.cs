@@ -69,7 +69,7 @@ namespace VoxelGame.Core.Logic.Liquids
                     position,
                     currentFillable: null,
                     level,
-                    -Direction,
+                    Direction.FlowDirection().Y,
                     handleContact: false,
                     out int remaining) && remaining == -1 ||
                 FlowVertical(
@@ -77,7 +77,7 @@ namespace VoxelGame.Core.Logic.Liquids
                     position,
                     currentFillable: null,
                     (LiquidLevel) remaining,
-                    Direction,
+                    -Direction.FlowDirection().Y,
                     handleContact: false,
                     out remaining) &&
                 remaining == -1) return;
@@ -87,7 +87,14 @@ namespace VoxelGame.Core.Logic.Liquids
 
         private void ValidLocationFlow(World world, Vector3i position, LiquidLevel level, IFillable current)
         {
-            if (FlowVertical(world, position, current, level, Direction, handleContact: true, out _)) return;
+            if (FlowVertical(
+                world,
+                position,
+                current,
+                level,
+                -Direction.FlowDirection().Y,
+                handleContact: true,
+                out _)) return;
 
             if (level != LiquidLevel.One
                 ? FlowHorizontal(world, position, level, current) || FarFlowHorizontal(world, position, level, current)
@@ -98,8 +105,8 @@ namespace VoxelGame.Core.Logic.Liquids
 
         private bool CheckVerticalWorldBounds(World world, Vector3i position)
         {
-            if (position.Y == 0 && Direction > 0 ||
-                position.Y == Section.SectionSize * Chunk.VerticalSectionCount - 1 && Direction < 0)
+            if (position.Y == 0 && Direction == VerticalFlow.Downwards ||
+                position.Y == Section.SectionSize * Chunk.VerticalSectionCount - 1 && Direction == VerticalFlow.Upwards)
             {
                 world.SetDefaultLiquid(position);
 
@@ -227,7 +234,7 @@ namespace VoxelGame.Core.Logic.Liquids
                     && neighborFillable.AllowOutflow(
                         world,
                         neighborPosition,
-                        Direction > 0 ? BlockSide.Bottom : BlockSide.Top)
+                        Direction.ExitSide())
                     && neighborLiquid == None && CheckLowerPosition(neighborPosition + FlowDirection))
                 {
                     SetLiquid(world, this, LiquidLevel.One, isStatic: false, neighborFillable, neighborPosition);
@@ -253,7 +260,7 @@ namespace VoxelGame.Core.Logic.Liquids
                        && fillable.AllowInflow(
                            world,
                            lowerPosition,
-                           Direction > 0 ? BlockSide.Top : BlockSide.Bottom,
+                           Direction.EntrySide(),
                            this)
                        && (lowerLiquid == this && level != LiquidLevel.Eight ||
                            liquidBelowIsNone && lowerLiquid != this);
@@ -322,12 +329,12 @@ namespace VoxelGame.Core.Logic.Liquids
                         && belowFillable.AllowInflow(
                             world,
                             belowNeighborPosition,
-                            Direction > 0 ? BlockSide.Top : BlockSide.Bottom,
+                            Direction.EntrySide(),
                             this)
                         && neighborFillable.AllowOutflow(
                             world,
                             neighborPosition,
-                            Direction > 0 ? BlockSide.Bottom : BlockSide.Top))
+                            Direction.ExitSide()))
                     {
                         SetLiquid(world, this, level, isStatic: false, belowFillable, belowNeighborPosition);
 

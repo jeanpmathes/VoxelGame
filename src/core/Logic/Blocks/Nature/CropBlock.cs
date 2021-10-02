@@ -46,7 +46,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0 && level > LiquidLevel.Three) ScheduleDestroy(world, position);
+            if (liquid.IsFluid && level > LiquidLevel.Three) ScheduleDestroy(world, position);
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)

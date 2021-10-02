@@ -134,7 +134,7 @@ namespace VoxelGame.Core.Entities
                     {
                         density = liquid.Density;
                         maxLevel = (int) level;
-                        noGas = liquid.Direction > 0;
+                        noGas = liquid.IsFluid;
                     }
                 }
 

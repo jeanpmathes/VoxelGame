@@ -30,7 +30,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0 && level > LiquidLevel.Two) ScheduleDestroy(world, position);
+            if (liquid.IsFluid && level > LiquidLevel.Two) ScheduleDestroy(world, position);
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)

@@ -40,7 +40,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
-            if (liquid.Direction > 0) ScheduleDestroy(world, position);
+            if (liquid.IsFluid) ScheduleDestroy(world, position);
         }
 
         protected override void EntityCollision(PhysicsEntity entity, Vector3i position, uint data)
