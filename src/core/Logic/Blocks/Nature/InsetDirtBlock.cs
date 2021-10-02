@@ -72,7 +72,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            int texture = info.Liquid.IsFluid
+            int texture = info.Liquid.IsLiquid
                 ? wetTextureIndices[(int) info.Side]
                 : dryTextureIndices[(int) info.Side];
 

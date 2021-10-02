@@ -45,7 +45,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             BlockMeshData mesh = base.GetMesh(info);
 
-            if (info.Liquid.IsFluid)
+            if (info.Liquid.IsLiquid)
                 mesh = mesh.SwapTextureIndex(wetTextureIndices[(int) info.Side]);
 
             return mesh;

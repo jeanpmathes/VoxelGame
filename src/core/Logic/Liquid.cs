@@ -100,12 +100,12 @@ namespace VoxelGame.Core.Logic
         public RenderType RenderType { get; }
 
         /// <summary>
-        ///     Get whether this liquid is a fluid that flows down.
+        ///     Get whether this fluids is a liquid.
         /// </summary>
-        public bool IsFluid => Direction == VerticalFlow.Downwards;
+        public bool IsLiquid => Direction == VerticalFlow.Downwards;
 
         /// <summary>
-        ///     Get whether this liquid is a gas that flows up.
+        ///     Get whether this fluid is a gas.
         /// </summary>
         public bool IsGas => Direction == VerticalFlow.Upwards;
 

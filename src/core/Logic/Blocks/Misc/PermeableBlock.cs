@@ -30,7 +30,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return base.GetMesh(info).Modified(info.Liquid.IsFluid ? TintColor.LightGray : TintColor.None);
+            return base.GetMesh(info).Modified(info.Liquid.IsLiquid ? TintColor.LightGray : TintColor.None);
         }
     }
 }
