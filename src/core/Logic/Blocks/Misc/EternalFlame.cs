@@ -3,13 +3,15 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block that does not stop burning.
-    /// Data bit usage: <c>------</c>
+    ///     A block that does not stop burning.
+    ///     Data bit usage: <c>------</c>
     /// </summary>
     public class EternalFlame : BasicBlock, IFlammable
     {
@@ -17,17 +19,10 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                layout,
-                isOpaque: true,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isInteractable: false)
-        {
-        }
+                BlockFlags.Basic,
+                layout) {}
 
-        public virtual bool Burn(World world, int x, int y, int z, Block fire)
+        public bool Burn(World world, Vector3i position, Block fire)
         {
             return false;
         }

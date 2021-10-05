@@ -4,69 +4,48 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block that loads its complete model from a file. The block can only be placed on top of solid and full blocks.
-    /// Data bit usage: <c>------</c>
+    ///     A block that loads its complete model from a file. The block can only be placed on top of solid and full blocks.
+    ///     Data bit usage: <c>------</c>
     /// </summary>
     public class CustomModelBlock : Block, IFillable
     {
-        private float[] vertices = null!;
-        private int[] texIndices = null!;
-        private uint[] indices = null!;
+        private readonly BlockMesh mesh;
 
-        private uint vertexCount;
-
-        private readonly string model;
-
-        internal CustomModelBlock(string name, string namedId, string modelName, Physics.BoundingBox boundingBox, bool isSolid = true, bool isInteractable = false) :
+        internal CustomModelBlock(string name, string namedId, BlockFlags flags, string modelName,
+            BoundingBox boundingBox) :
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: true,
-                isSolid,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable,
+                flags with {IsFull = false, IsOpaque = false},
                 boundingBox,
                 TargetBuffer.Complex)
         {
-            this.model = modelName;
-        }
-
-        protected override void Setup(ITextureIndexProvider indexProvider)
-        {
-            BlockModel blockModel = BlockModel.Load(this.model);
-
-            blockModel.ToData(out vertices, out texIndices, out indices);
-            vertexCount = (uint) (blockModel.VertexCount);
+            mesh = BlockModel.Load(modelName).GetMesh();
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return BlockMeshData.Complex(vertexCount, vertices, texIndices, indices);
+            return mesh.GetComplexMeshData();
         }
 
-        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return world.HasSolidGround(x, y, z, solidify: true);
+            return world.HasSolidGround(position, solidify: true);
         }
 
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && !world.HasSolidGround(x, y, z))
-            {
-                Destroy(world, x, y, z);
-            }
+            if (side == BlockSide.Bottom && !world.HasSolidGround(position)) Destroy(world, position);
         }
     }
 }

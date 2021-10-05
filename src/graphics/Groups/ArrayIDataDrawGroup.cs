@@ -4,17 +4,17 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Graphics.OpenGL4;
 using System;
+using OpenToolkit.Graphics.OpenGL4;
 
 namespace VoxelGame.Graphics.Groups
 {
     public class ArrayIDataDrawGroup : IDrawGroup
     {
         private readonly int size;
+        private readonly int vao;
 
         private readonly int vbo;
-        private readonly int vao;
 
         private int vertexCount;
 
@@ -22,16 +22,26 @@ namespace VoxelGame.Graphics.Groups
         {
             this.size = size;
 
-            GL.CreateBuffers(1, out vbo);
-            GL.CreateVertexArrays(1, out vao);
+            GL.CreateBuffers(n: 1, out vbo);
+            GL.CreateVertexArrays(n: 1, out vao);
+        }
+
+        public bool IsFilled { get; private set; }
+
+        public void BindVertexArray()
+        {
+            GL.BindVertexArray(vao);
+        }
+
+        public void Draw()
+        {
+            DrawArrays();
         }
 
         public static ArrayIDataDrawGroup Create(int size)
         {
-            return new ArrayIDataDrawGroup(size);
+            return new(size);
         }
-
-        public bool IsFilled { get; private set; }
 
         public void SetData(int vertexDataCount, int[] vertexData)
         {
@@ -40,6 +50,7 @@ namespace VoxelGame.Graphics.Groups
             if (vertexCount == 0)
             {
                 IsFilled = false;
+
                 return;
             }
 
@@ -50,27 +61,20 @@ namespace VoxelGame.Graphics.Groups
 
         public void VertexArrayBindBuffer()
         {
-            GL.VertexArrayVertexBuffer(vao, 0, vbo, IntPtr.Zero, size * sizeof(int));
+            GL.VertexArrayVertexBuffer(vao, bindingindex: 0, vbo, IntPtr.Zero, size * sizeof(int));
         }
 
         public void VertexArrayAttributeBinding(int attribute)
         {
             GL.EnableVertexArrayAttrib(vao, attribute);
             GL.VertexArrayAttribIFormat(vao, attribute, size, VertexAttribType.Int, 0 * sizeof(int));
-            GL.VertexArrayAttribBinding(vao, attribute, 0);
-        }
-
-        public void BindVertexArray()
-        {
-            GL.BindVertexArray(vao);
+            GL.VertexArrayAttribBinding(vao, attribute, bindingindex: 0);
         }
 
         public void DrawArrays()
         {
-            GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
+            GL.DrawArrays(PrimitiveType.Triangles, first: 0, vertexCount);
         }
-
-        public void Draw() => DrawArrays();
 
         public void Delete()
         {

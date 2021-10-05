@@ -4,12 +4,13 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
-using System;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Rendering;
+using VoxelGame.Core.Physics;
 using VoxelGame.Core.Updates;
 using VoxelGame.Input.Actions;
 using VoxelGame.Logging;
@@ -19,22 +20,19 @@ namespace VoxelGame.Client.Scenes
 {
     public class GameScene : IScene
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<GameScene>();
-
-        private readonly GameUserInterface ui;
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
 
         private readonly Application.Client client;
 
         private readonly UpdateCounter counter;
-
-        public ClientWorld World { get; private set; }
-        public ClientPlayer Player { get; private set; } = null!;
-
-        private readonly ToggleButton wireframeToggle;
-        private readonly ToggleButton uiToggle;
+        private readonly PushButton escapeButton;
 
         private readonly PushButton screenshotButton;
-        private readonly PushButton escapeButton;
+
+        private readonly GameUserInterface ui;
+        private readonly ToggleButton uiToggle;
+
+        private readonly ToggleButton wireframeToggle;
 
         internal GameScene(Application.Client client, ClientWorld world)
         {
@@ -42,7 +40,7 @@ namespace VoxelGame.Client.Scenes
 
             Screen.SetCursor(visible: false, locked: true);
 
-            ui = new GameUserInterface(client, false);
+            ui = new GameUserInterface(client, drawBackground: false);
 
             World = world;
             counter = world.UpdateCounter;
@@ -54,11 +52,21 @@ namespace VoxelGame.Client.Scenes
             escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
         }
 
+        public ClientWorld World { get; private set; }
+        public ClientPlayer Player { get; private set; } = null!;
+
         public void Load()
         {
             // Player setup.
-            Camera camera = new Camera(new Vector3());
-            Player = new ClientPlayer(World, 70f, 0.25f, camera, new Core.Physics.BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.25f, 0.9f, 0.25f)), ui);
+            Camera camera = new(new Vector3());
+
+            Player = new ClientPlayer(
+                World,
+                mass: 70f,
+                drag: 0.25f,
+                camera,
+                new BoundingBox(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.25f, y: 0.9f, z: 0.25f)),
+                ui);
 
             ui.Load();
             ui.Resize(Screen.Size);
@@ -67,7 +75,7 @@ namespace VoxelGame.Client.Scenes
 
             counter.ResetUpdate();
 
-            Logger.LogInformation("Loaded GameScene");
+            logger.LogInformation(Events.SceneChange, "Loaded GameScene");
         }
 
         public void OnResize(Vector2i size)
@@ -77,7 +85,7 @@ namespace VoxelGame.Client.Scenes
 
         public void Render(float deltaTime)
         {
-            using (Logger.BeginScope("GameScene Render"))
+            using (logger.BeginScope("GameScene Render"))
             {
                 ui.SetUpdateRate(Application.Client.Fps, Application.Client.Ups);
 
@@ -89,46 +97,28 @@ namespace VoxelGame.Client.Scenes
 
         public void Update(float deltaTime)
         {
-            using (Logger.BeginScope("GameScene Update"))
+            using (logger.BeginScope("GameScene Update"))
             {
                 counter.IncrementUpdate();
 
                 World.Update(deltaTime);
 
                 if (!Screen.IsFocused) // check to see if the window is focused
-                {
                     return;
-                }
 
-                if (screenshotButton.Pushed)
-                {
-                    Screen.TakeScreenshot(client.ScreenshotDirectory);
-                }
+                if (screenshotButton.Pushed) Screen.TakeScreenshot(client.screenshotDirectory);
 
-                if (wireframeToggle.Changed)
-                {
-                    Screen.SetWireFrame(wireframeToggle.State);
+                if (wireframeToggle.Changed) Screen.SetWireFrame(wireframeToggle.State);
 
-                    Logger.LogInformation(wireframeToggle.State
-                        ? "Enabled wire-frame mode."
-                        : "Disabled wire-frame mode.");
-                }
+                if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
 
-                if (uiToggle.Changed)
-                {
-                    ui.IsHidden = !ui.IsHidden;
-                }
-
-                if (escapeButton.Pushed)
-                {
-                    client.LoadStartScene();
-                }
+                if (escapeButton.Pushed) client.LoadStartScene();
             }
         }
 
         public void Unload()
         {
-            Logger.LogInformation("Unloading world.");
+            logger.LogInformation(Events.WorldIO, "Unloading world");
 
             try
             {
@@ -137,7 +127,10 @@ namespace VoxelGame.Client.Scenes
             }
             catch (AggregateException exception)
             {
-                Logger.LogCritical(Events.WorldSavingError, exception.GetBaseException(), "An exception was thrown when saving the world.");
+                logger.LogCritical(
+                    Events.WorldSavingError,
+                    exception.GetBaseException(),
+                    "Exception occurred while saving world");
             }
 
             World.Dispose();
@@ -155,10 +148,7 @@ namespace VoxelGame.Client.Scenes
         {
             if (!disposed)
             {
-                if (disposing)
-                {
-                    ui.Dispose();
-                }
+                if (disposing) ui.Dispose();
 
                 disposed = true;
             }

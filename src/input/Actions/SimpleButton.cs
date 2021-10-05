@@ -10,9 +10,7 @@ namespace VoxelGame.Input.Actions
 {
     public class SimpleButton : Button
     {
-        public SimpleButton(KeyOrButton keyOrButton, InputManager input) : base(keyOrButton, input)
-        {
-        }
+        public SimpleButton(KeyOrButton keyOrButton, InputManager input) : base(keyOrButton, input) {}
 
         protected override void Update()
         {

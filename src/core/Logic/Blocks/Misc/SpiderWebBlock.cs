@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -12,15 +13,15 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block that slows down entities that collide with it.
-    /// Data bit usage: <c>------</c>
+    ///     A block that slows down entities that collide with it.
+    ///     Data bit usage: <c>------</c>
     /// </summary>
     public class SpiderWebBlock : CrossBlock, IFlammable, IFillable
     {
         private readonly float maxVelocity;
 
         /// <summary>
-        /// Creates a SpiderWeb block, a block that slows down entities that collide with it.
+        ///     Creates a SpiderWeb block, a block that slows down entities that collide with it.
         /// </summary>
         /// <param name="name">The name of the block.</param>
         /// <param name="namedId">The unique and unlocalized name of this block.</param>
@@ -31,22 +32,20 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 texture,
-                receiveCollisions: true,
-                isTrigger: true,
-                isReplaceable: false,
+                BlockFlags.Trigger,
                 BoundingBox.CrossBlock)
         {
             this.maxVelocity = maxVelocity;
         }
 
-        protected override void EntityCollision(PhysicsEntity entity, int x, int y, int z, uint data)
+        public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
-            entity.Velocity = VMath.Clamp(entity.Velocity, -1f, maxVelocity);
+            if (liquid.IsLiquid) ScheduleDestroy(world, position);
         }
 
-        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
+        protected override void EntityCollision(PhysicsEntity entity, Vector3i position, uint data)
         {
-            if (liquid.Direction > 0) ScheduleDestroy(world, x, y, z);
+            entity.Velocity = VMath.Clamp(entity.Velocity, min: -1f, maxVelocity);
         }
     }
 }

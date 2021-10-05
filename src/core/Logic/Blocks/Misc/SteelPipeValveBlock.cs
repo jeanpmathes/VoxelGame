@@ -4,57 +4,104 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
+using System.Diagnostics;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
+using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block that only connects to steel pipes at specific sides and can be closed.
-    /// Data bit usage: <c>---oaa</c>
+    ///     A block that only connects to steel pipes at specific sides and can be closed.
+    ///     Data bit usage: <c>---oaa</c>
     /// </summary>
     // aa = axis
     // o = open
-    internal class SteelPipeValveBlock : StraightSteelPipeBlock
+    internal class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable
     {
-        private readonly (BlockModel x, BlockModel y, BlockModel z) closedModels;
+        private readonly float diameter;
+        private readonly List<BlockMesh?> meshes = new(capacity: 8);
 
-        internal SteelPipeValveBlock(string name, string namedId, float diameter, string openModel, string closedModel) :
+        internal SteelPipeValveBlock(string name, string namedId, float diameter, string openModel,
+            string closedModel) :
             base(
                 name,
                 namedId,
-                diameter,
-                openModel,
-                isInteractable: true)
+                BlockFlags.Functional,
+                new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, z: 0.5f)),
+                TargetBuffer.Complex)
         {
-            BlockModel initial = BlockModel.Load(closedModel);
+            this.diameter = diameter;
 
-            closedModels = initial.CreateAllAxis();
+            (BlockModel openX, BlockModel openY, BlockModel openZ) = BlockModel.Load(openModel).CreateAllAxis();
+            (BlockModel closedX, BlockModel closedY, BlockModel closedZ) = BlockModel.Load(closedModel).CreateAllAxis();
+
+            meshes.Add(openX.GetMesh());
+            meshes.Add(openY.GetMesh());
+            meshes.Add(openZ.GetMesh());
+            meshes.Add(item: null);
+
+            meshes.Add(closedX.GetMesh());
+            meshes.Add(closedY.GetMesh());
+            meshes.Add(closedZ.GetMesh());
+            meshes.Add(item: null);
+        }
+
+        public bool RenderLiquid => false;
+
+        public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
+        {
+            return IsSideOpen(world, position, side);
+        }
+
+        public bool AllowOutflow(World world, Vector3i position, BlockSide side)
+        {
+            return IsSideOpen(world, position, side);
+        }
+
+        public bool IsConnectable(World world, BlockSide side, Vector3i position)
+        {
+            world.GetBlock(position, out uint data);
+
+            return side.Axis() == (Axis) (data & 0b00_0011);
+        }
+
+        protected override BoundingBox GetBoundingBox(uint data)
+        {
+            var axis = (Axis) (data & 0b00_0011);
+
+            return new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), axis.Vector3(onAxis: 0.5f, diameter));
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            uint vertexCount = SelectModel((info.Data & 0b00_0100) == 0 ? models : closedModels,
-                (Axis) (info.Data & AxisDataMask), out float[] vertices, out int[] textureIndices, out uint[] indices);
+            BlockMesh? mesh = meshes[(int) info.Data & 0b00_0111];
+            Debug.Assert(mesh != null);
 
-            return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices);
+            return mesh.GetComplexMeshData();
         }
 
-        public override bool IsConnectable(World world, BlockSide side, int x, int y, int z)
+        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return base.IsSideOpen(world, x, y, z, side);
+            world.SetBlock(this, (uint) (entity?.TargetSide ?? BlockSide.Front).Axis(), position);
         }
 
-        protected override bool IsSideOpen(World world, int x, int y, int z, BlockSide side)
+        protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
-            world.GetBlock(x, y, z, out uint data);
+            entity.World.SetBlock(this, data ^ 0b00_0100, position);
+        }
+
+        private static bool IsSideOpen(World world, Vector3i position, BlockSide side)
+        {
+            world.GetBlock(position, out uint data);
+
             if ((data & 0b00_0100) != 0) return false;
-            return ToAxis(side) == (Axis) (data & AxisDataMask);
-        }
 
-        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
-        {
-            entity.World.SetBlock(this, data ^ 0b00_0100, x, y, z);
+            return side.Axis() == (Axis) (data & 0b00_0011);
         }
     }
 }

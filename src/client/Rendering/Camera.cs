@@ -3,24 +3,22 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Physics;
 
 namespace VoxelGame.Client.Rendering
 {
     public class Camera
     {
-        private readonly float nearClipping = 0.1f;
         private readonly float farClipping = 1000f;
+        private readonly float nearClipping = 0.1f;
+        private float fov = MathHelper.PiOver2 / 90f * 70f;
 
         private Vector3 front = Vector3.UnitX;
-        private Vector3 up = Vector3.UnitY;
-        private Vector3 right = Vector3.UnitZ;
 
         private float pitch;
         private float yaw;
-        private float fov = MathHelper.PiOver2 / 90f * 70f;
 
         public Camera(Vector3 position)
         {
@@ -29,18 +27,19 @@ namespace VoxelGame.Client.Rendering
 
         public Vector3 Position { get; set; }
 
-        public Frustum Frustum { get => new Frustum(fov, Screen.AspectRatio, nearClipping, farClipping, Position, front, up, right); }
+        public Frustum Frustum => new(fov, Screen.AspectRatio, nearClipping, farClipping, Position, front, Up, Right);
 
         public Vector3 Front => front;
-        public Vector3 Up => up;
-        public Vector3 Right => right;
+        public Vector3 Up { get; private set; } = Vector3.UnitY;
+
+        public Vector3 Right { get; private set; } = Vector3.UnitZ;
 
         public float Pitch
         {
             get => MathHelper.RadiansToDegrees(pitch);
             set
             {
-                var angle = MathHelper.Clamp(value, -89f, 89f);
+                float angle = MathHelper.Clamp(value, min: -89f, max: 89f);
                 pitch = MathHelper.DegreesToRadians(angle);
                 UpdateVectors();
             }
@@ -61,7 +60,7 @@ namespace VoxelGame.Client.Rendering
             get => MathHelper.RadiansToDegrees(fov);
             set
             {
-                var angle = MathHelper.Clamp(value, 1f, 45f);
+                float angle = MathHelper.Clamp(value, min: 1f, max: 45f);
                 fov = MathHelper.DegreesToRadians(angle);
             }
         }
@@ -84,8 +83,8 @@ namespace VoxelGame.Client.Rendering
 
             front = Vector3.Normalize(Front);
 
-            right = Vector3.Normalize(Vector3.Cross(Front, Vector3.UnitY));
-            up = Vector3.Normalize(Vector3.Cross(Right, Front));
+            Right = Vector3.Normalize(Vector3.Cross(Front, Vector3.UnitY));
+            Up = Vector3.Normalize(Vector3.Cross(Right, Front));
         }
     }
 }

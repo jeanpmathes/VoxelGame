@@ -4,7 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
+using System.Collections.Generic;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -12,8 +12,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A base class for blocks that connect to other blocks as wide connectables, like fences or walls.
-    /// Data bit usage: <c>--nesw</c>
+    ///     A base class for blocks that connect to other blocks as wide connectables, like fences or walls.
+    ///     Data bit usage: <c>--nesw</c>
     /// </summary>
     // n = connected north
     // e = connected east
@@ -21,128 +21,54 @@ namespace VoxelGame.Core.Logic.Blocks
     // w = connected west
     public abstract class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConnectable
     {
-        private uint postVertexCount;
-        private uint extensionVertexCount;
+        private readonly List<BlockMesh> meshes = new(capacity: 16);
 
-        private float[] postVertices = null!;
-
-        private float[] northVertices = null!;
-        private float[] eastVertices = null!;
-        private float[] southVertices = null!;
-        private float[] westVertices = null!;
-
-        private int[][] textureIndices = null!;
-
-        private uint[][] indices = null!;
-
-        private protected readonly string texture;
-        private readonly string post;
-        private readonly string extension;
-
-        protected WideConnectingBlock(string name, string namedId, string texture, string post, string extension, BoundingBox boundingBox) :
+        protected WideConnectingBlock(string name, string namedId, string texture, string postModel,
+            string extensionModel,
+            BoundingBox boundingBox) :
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable: false,
+                new BlockFlags
+                {
+                    IsFull = false,
+                    IsOpaque = false,
+                    IsSolid = true
+                },
                 boundingBox,
                 TargetBuffer.Complex)
         {
-            this.texture = texture;
-            this.post = post;
-            this.extension = extension;
-        }
+            BlockModel post = BlockModel.Load(postModel);
+            BlockModel extension = BlockModel.Load(extensionModel);
 
-        protected override void Setup(ITextureIndexProvider indexProvider)
-        {
-            BlockModel postModel = BlockModel.Load(this.post);
-            BlockModel extensionModel = BlockModel.Load(this.extension);
+            post.OverwriteTexture(texture);
+            extension.OverwriteTexture(texture);
 
-            postVertexCount = (uint) postModel.VertexCount;
-            extensionVertexCount = (uint) extensionModel.VertexCount;
+            (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensions =
+                extension.CreateAllOrientations(rotateTopAndBottomTexture: false);
 
-            postModel.ToData(out postVertices, out _, out _);
+            post.Lock();
+            extensions.Lock();
 
-            extensionModel.RotateY(0, false);
-            extensionModel.ToData(out northVertices, out _, out _);
+            List<BlockModel> requiredModels = new(capacity: 5);
 
-            extensionModel.RotateY(1, false);
-            extensionModel.ToData(out eastVertices, out _, out _);
-
-            extensionModel.RotateY(1, false);
-            extensionModel.ToData(out southVertices, out _, out _);
-
-            extensionModel.RotateY(1, false);
-            extensionModel.ToData(out westVertices, out _, out _);
-
-            int tex = indexProvider.GetTextureIndex(texture);
-
-            textureIndices = new int[5][];
-
-            for (var i = 0; i < 5; i++)
+            for (uint data = 0b00_0000; data <= 0b00_1111; data++)
             {
-                textureIndices[i] =
-                    BlockModels.GenerateTextureDataArray(tex, postModel.VertexCount + (i * extensionModel.VertexCount));
-            }
+                requiredModels.Clear();
+                requiredModels.Add(post);
 
-            indices = new uint[5][];
+                if ((data & 0b00_1000) != 0) requiredModels.Add(extensions.north);
+                if ((data & 0b00_0100) != 0) requiredModels.Add(extensions.east);
+                if ((data & 0b00_0010) != 0) requiredModels.Add(extensions.south);
+                if ((data & 0b00_0001) != 0) requiredModels.Add(extensions.west);
 
-            for (var i = 0; i < 5; i++)
-            {
-                indices[i] =
-                    BlockModels.GenerateIndexDataArray(postModel.Quads.Length + (i * extensionModel.Quads.Length));
+                meshes.Add(BlockModel.GetCombinedMesh(requiredModels.ToArray()));
             }
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            bool north = (info.Data & 0b00_1000) != 0;
-            bool east = (info.Data & 0b00_0100) != 0;
-            bool south = (info.Data & 0b00_0010) != 0;
-            bool west = (info.Data & 0b00_0001) != 0;
-
-            int extensions = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
-            var vertexCount = (uint) (postVertexCount + (extensions * extensionVertexCount));
-
-            float[] vertices = new float[vertexCount * 8];
-            int[] currentTextureIndices = this.textureIndices[extensions];
-            uint[] currentIndices = this.indices[extensions];
-
-            // Combine the required vertices into one array
-            var position = 0;
-            Array.Copy(postVertices, 0, vertices, 0, postVertices.Length);
-            position += postVertices.Length;
-
-            if (north)
-            {
-                Array.Copy(northVertices, 0, vertices, position, northVertices.Length);
-                position += northVertices.Length;
-            }
-
-            if (east)
-            {
-                Array.Copy(eastVertices, 0, vertices, position, eastVertices.Length);
-                position += eastVertices.Length;
-            }
-
-            if (south)
-            {
-                Array.Copy(southVertices, 0, vertices, position, southVertices.Length);
-                position += southVertices.Length;
-            }
-
-            if (west)
-            {
-                Array.Copy(westVertices, 0, vertices, position, westVertices.Length);
-            }
-
-            return BlockMeshData.Complex(vertexCount, vertices, currentTextureIndices, currentIndices);
+            return meshes[(int) info.Data & 0b00_1111].GetComplexMeshData();
         }
     }
 }

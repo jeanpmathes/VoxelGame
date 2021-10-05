@@ -10,6 +10,9 @@ from json import JSONEncoder
 
 PATH = os.path.expanduser("~\Desktop\\")
 
+# Options:
+include_normals = True # Whether to include normals of the model or use zero for all normals
+
 class Vertex:
     def __init__(self, co, uv, nm):
         self.X = round(co.x, 5)
@@ -17,9 +20,15 @@ class Vertex:
         self.Z = round(co.y, 5)
         self.U = round(abs(1 - uv.x), 4)
         self.V = round(uv.y, 4)
-        self.N = round(nm.x, 4)
-        self.O = round(nm.z, 4)
-        self.P = round(nm.y, 4)
+        
+        if include_normals:
+            self.N = round(nm.x, 4)
+            self.O = round(nm.z, 4)
+            self.P = round(nm.y, 4)
+        else:
+            self.N = 0.0
+            self.O = 0.0
+            self.P = 0.0
     
 class Quad:
     def __init__(self, tex_id, verts):

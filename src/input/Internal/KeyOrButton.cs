@@ -18,12 +18,12 @@ namespace VoxelGame.Input.Internal
         public KeyOrButton(Key key)
         {
             this.key = key;
-            this.button = null;
+            button = null;
         }
 
         public KeyOrButton(MouseButton button)
         {
-            this.key = null;
+            key = null;
             this.button = button;
         }
 
@@ -33,13 +33,13 @@ namespace VoxelGame.Input.Internal
 
             if (settings.Key != Key.Unknown)
             {
-                this.key = settings.Key;
-                this.button = null;
+                key = settings.Key;
+                button = null;
             }
             else
             {
-                this.key = null;
-                this.button = settings.Button;
+                key = null;
+                button = settings.Button;
             }
         }
 
@@ -48,27 +48,18 @@ namespace VoxelGame.Input.Internal
 
         internal bool State(CombinedState state)
         {
-            if (IsKeyboardKey)
-            {
-                return state.Keyboard[(Key) key!];
-            }
+            if (IsKeyboardKey) return state.Keyboard[(Key) key!];
 
-            if (IsMouseButton)
-            {
-                return state.Mouse[(MouseButton) button!];
-            }
+            if (IsMouseButton) return state.Mouse[(MouseButton) button!];
 
             return false;
         }
 
-        public KeyButtonPair Settings => new KeyButtonPair { Key = key ?? Key.Unknown, Button = button ?? MouseButton.LastButton };
+        public KeyButtonPair Settings => new() {Key = key ?? Key.Unknown, Button = button ?? MouseButton.LastButton};
 
         public override bool Equals(object? obj)
         {
-            if (obj is KeyOrButton other)
-            {
-                return this.key == other.key && this.button == other.button;
-            }
+            if (obj is KeyOrButton other) return key == other.key && button == other.button;
 
             return false;
         }
@@ -80,15 +71,9 @@ namespace VoxelGame.Input.Internal
 
         public override string ToString()
         {
-            if (IsKeyboardKey)
-            {
-                return key.ToString()!;
-            }
+            if (IsKeyboardKey) return key.ToString()!;
 
-            if (IsMouseButton)
-            {
-                return button.ToString()!;
-            }
+            if (IsMouseButton) return button.ToString()!;
 
             return "unknown";
         }

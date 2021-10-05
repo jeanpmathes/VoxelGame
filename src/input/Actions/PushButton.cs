@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Windowing.Common.Input;
 using VoxelGame.Input.Internal;
 
 namespace VoxelGame.Input.Actions
@@ -24,9 +23,7 @@ namespace VoxelGame.Input.Actions
             }
         }
 
-        public PushButton(KeyOrButton keyOrButton, InputManager input) : base(keyOrButton, input)
-        {
-        }
+        public PushButton(KeyOrButton keyOrButton, InputManager input) : base(keyOrButton, input) {}
 
         protected override void Update()
         {

@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Collections;
 
 namespace VoxelGame.Core.Logic
@@ -15,37 +16,33 @@ namespace VoxelGame.Core.Logic
         private const int ScheduledDestroyOffset = 5;
 
         /// <summary>
-        /// Schedules a tick according to the given tick offset;
+        ///     Schedules a tick according to the given tick offset;
         /// </summary>
         /// <param name="world">The world in which the block is.</param>
-        /// <param name="x">The x position of the block.</param>
-        /// <param name="y">The y position of the block.</param>
-        /// <param name="z">The z position of the block.</param>
+        /// <param name="position">The position of the block a tick should be scheduled for.</param>
         /// <param name="tickOffset">The offset in frames to when the block should be ticked.</param>
-        protected void ScheduleTick(World world, int x, int y, int z, int tickOffset)
+        protected void ScheduleTick(World world, Vector3i position, int tickOffset)
         {
-            Chunk? chunk = world.GetChunkOfPosition(x, z);
-            chunk?.ScheduleBlockTick(new BlockTick(x, y, z, this, TickOperation.Tick), tickOffset);
+            Chunk? chunk = world.GetChunkOfPosition(position);
+            chunk?.ScheduleBlockTick(new BlockTick(position, this, TickOperation.Tick), tickOffset);
         }
 
         /// <summary>
-        /// Schedule the destruction of this block.
+        ///     Schedule the destruction of this block.
         /// </summary>
         /// <param name="world">The world in which the block is located.</param>
-        /// <param name="x">The x position of the block to destroy.</param>
-        /// <param name="y">The y position of the block to destroy.</param>
-        /// <param name="z">The z position of the block to destroy.</param>
-        protected void ScheduleDestroy(World world, int x, int y, int z)
+        /// <param name="position">The position of the block that will be scheduled to be destroyed.</param>
+        protected void ScheduleDestroy(World world, Vector3i position)
         {
-            Chunk? chunk = world.GetChunkOfPosition(x, z);
-            chunk?.ScheduleBlockTick(new BlockTick(x, y, z, this, TickOperation.Destroy), ScheduledDestroyOffset);
+            Chunk? chunk = world.GetChunkOfPosition(position);
+            chunk?.ScheduleBlockTick(new BlockTick(position, this, TickOperation.Destroy), ScheduledDestroyOffset);
         }
 
-        internal void TickNow(World world, int x, int y, int z, uint data)
+        internal void TickNow(World world, Vector3i position, uint data)
         {
-            if (this == Block.Air) return;
+            if (this == Air) return;
 
-            ScheduledUpdate(world, x, y, z, data);
+            ScheduledUpdate(world, position, data);
         }
 
         internal enum TickOperation
@@ -63,11 +60,11 @@ namespace VoxelGame.Core.Logic
             private readonly uint target;
             private readonly TickOperation operation;
 
-            public BlockTick(int x, int y, int z, Block target, TickOperation operation)
+            public BlockTick(Vector3i position, Block target, TickOperation operation)
             {
-                this.x = x;
-                this.y = y;
-                this.z = z;
+                x = position.X;
+                y = position.Y;
+                z = position.Z;
 
                 this.target = target.Id;
 
@@ -76,21 +73,21 @@ namespace VoxelGame.Core.Logic
 
             public void Tick(World world)
             {
-                Block? block = world.GetBlock(x, y, z, out uint data);
+                Block? block = world.GetBlock((x, y, z), out uint data);
 
                 if (block?.Id == target)
-                {
                     switch (operation)
                     {
                         case TickOperation.Tick:
-                            block.ScheduledUpdate(world, x, y, z, data);
+                            block.ScheduledUpdate(world, (x, y, z), data);
+
                             break;
 
                         case TickOperation.Destroy:
-                            block.Destroy(world, x, y, z);
+                            block.Destroy(world, (x, y, z));
+
                             break;
                     }
-                }
             }
         }
     }

@@ -9,8 +9,8 @@ using VoxelGame.Core.Logic.Interfaces;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A <see cref="TintedBlock"/> made out of organic, flammable materials.
-    /// Data bit usage: <c>--cccc</c>
+    ///     A <see cref="TintedBlock" /> made out of organic, flammable materials.
+    ///     Data bit usage: <c>--cccc</c>
     /// </summary>
     public class OrganicTintedBlock : TintedBlock, IFlammable
     {
@@ -18,8 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                layout)
-        {
-        }
+                BlockFlags.Basic,
+                layout) {}
     }
 }

@@ -3,7 +3,9 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using System;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Collections;
 
 namespace VoxelGame.Core.Logic
@@ -13,30 +15,30 @@ namespace VoxelGame.Core.Logic
         public const int MaxLiquidTicksPerFrameAndChunk = 1024;
 
         /// <summary>
-        /// Schedules a tick according to the viscosity.
+        ///     Schedules a tick according to the viscosity.
         /// </summary>
-        protected void ScheduleTick(World world, int x, int y, int z)
+        protected void ScheduleTick(World world, Vector3i position)
         {
-            Chunk? chunk = world.GetChunkOfPosition(x, z);
-            chunk?.ScheduleLiquidTick(new LiquidTick(x, y, z, this), Viscosity);
+            Chunk? chunk = world.GetChunkOfPosition(position);
+            chunk?.ScheduleLiquidTick(new LiquidTick(position, this), Viscosity);
         }
 
         /// <summary>
-        /// Will schedule a tick for a liquid according to the viscosity.
+        ///     Will schedule a tick for a liquid according to the viscosity.
         /// </summary>
-        internal void TickSoon(World world, int x, int y, int z, bool isStatic)
+        internal void TickSoon(World world, Vector3i position, bool isStatic)
         {
-            if (!isStatic || this == Liquid.None) return;
+            if (!isStatic || this == None) return;
 
-            world.ModifyLiquid(false, x, y, z);
-            ScheduleTick(world, x, y, z);
+            world.ModifyLiquid(isStatic: false, position);
+            ScheduleTick(world, position);
         }
 
-        internal void TickNow(World world, int x, int y, int z, LiquidLevel level, bool isStatic)
+        internal void TickNow(World world, Vector3i position, LiquidLevel level, bool isStatic)
         {
-            if (this == Liquid.None) return;
+            if (this == None) return;
 
-            ScheduledUpdate(world, x, y, z, level, isStatic);
+            ScheduledUpdate(world, position, level, isStatic);
         }
 
         [Serializable]
@@ -47,23 +49,20 @@ namespace VoxelGame.Core.Logic
             private readonly int x, y, z;
             private readonly uint target;
 
-            public LiquidTick(int x, int y, int z, Liquid target)
+            public LiquidTick(Vector3i position, Liquid target)
             {
-                this.x = x;
-                this.y = y;
-                this.z = z;
+                x = position.X;
+                y = position.Y;
+                z = position.Z;
 
                 this.target = target.Id;
             }
 
             public void Tick(World world)
             {
-                Liquid? liquid = world.GetLiquid(x, y, z, out LiquidLevel level, out bool isStatic);
+                Liquid? liquid = world.GetLiquid((x, y, z), out LiquidLevel level, out bool isStatic);
 
-                if (liquid?.Id == target)
-                {
-                    liquid.ScheduledUpdate(world, x, y, z, level, isStatic);
-                }
+                if (liquid?.Id == target) liquid.ScheduledUpdate(world, (x, y, z), level, isStatic);
             }
         }
     }

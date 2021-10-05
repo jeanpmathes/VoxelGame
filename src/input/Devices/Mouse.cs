@@ -11,6 +11,9 @@ namespace VoxelGame.Input.Devices
     public class Mouse
     {
         private readonly InputManager input;
+        private Vector2 correction;
+
+        private Vector2 oldDelta;
 
         internal Mouse(InputManager input)
         {
@@ -20,10 +23,7 @@ namespace VoxelGame.Input.Devices
         public bool Locked { get; set; }
         public Vector2 Delta { get; private set; }
 
-        private Vector2i LockPosition => new Vector2i(input.Window.Size.X / 2, input.Window.Size.Y / 2);
-
-        private Vector2 oldDelta;
-        private Vector2 correction;
+        private Vector2i LockPosition => new(input.Window.Size.X / 2, input.Window.Size.Y / 2);
 
         internal void Update()
         {
@@ -33,7 +33,7 @@ namespace VoxelGame.Input.Devices
             float yScale = 1f / input.Window.Size.Y;
 
             delta = Vector2.Multiply(delta, (-xScale, yScale)) * 1000;
-            delta = Vector2.Lerp(oldDelta, delta, 0.7f);
+            delta = Vector2.Lerp(oldDelta, delta, blend: 0.7f);
 
             oldDelta = Delta;
             Delta = delta;

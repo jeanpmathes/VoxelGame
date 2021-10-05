@@ -28,6 +28,7 @@ namespace VoxelGame.Client.Collections
                     layer = pos.Z;
                     row = pos.X;
                     position = pos.Y;
+
                     break;
 
                 case BlockSide.Left:
@@ -35,6 +36,7 @@ namespace VoxelGame.Client.Collections
                     layer = pos.X;
                     row = pos.Y;
                     position = pos.Z;
+
                     break;
 
                 case BlockSide.Bottom:
@@ -42,6 +44,7 @@ namespace VoxelGame.Client.Collections
                     layer = pos.Y;
                     row = pos.X;
                     position = pos.Z;
+
                     break;
 
                 default:

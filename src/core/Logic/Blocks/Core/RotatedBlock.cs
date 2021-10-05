@@ -3,96 +3,60 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using System;
+
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block which can be rotated to be oriented on different axis. The y axis is the default orientation.
-    /// Data bit usage: <c>----aa</c>
+    ///     A block which can be rotated to be oriented on different axis. The y axis is the default orientation.
+    ///     Data bit usage: <c>----aa</c>
     /// </summary>
     // a = axis
     public class RotatedBlock : BasicBlock, IFlammable
     {
-        internal RotatedBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
+        internal RotatedBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
             base(
                 name,
                 namedId,
-                layout,
-                isOpaque,
-                renderFaceAtNonOpaques,
-                isSolid,
-                receiveCollisions: false,
-                isTrigger: false,
-                isInteractable: false)
-        {
-        }
+                flags,
+                layout) {}
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             Axis axis = ToAxis(info.Data);
 
             // Check if the texture has to be rotated.
-            bool rotated = (axis == Axis.X && (info.Side != BlockSide.Left && info.Side != BlockSide.Right)) ||
-                           (axis == Axis.Z && (info.Side == BlockSide.Left || info.Side == BlockSide.Right));
+            bool rotated = axis == Axis.X && info.Side != BlockSide.Left && info.Side != BlockSide.Right ||
+                           axis == Axis.Z && info.Side is BlockSide.Left or BlockSide.Right;
 
             return BlockMeshData.Basic(sideTextureIndices[TranslateIndex(info.Side, axis)], rotated);
         }
 
-        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            world.SetBlock(this, (uint) ToAxis(entity?.TargetSide ?? BlockSide.Front), x, y, z);
+            world.SetBlock(this, (uint) (entity?.TargetSide ?? BlockSide.Front).Axis(), position);
         }
 
-        protected enum Axis
-        {
-            X, // East-West
-            Y, // Up-Down
-            Z  // North-South
-        }
-
-        protected static Axis ToAxis(BlockSide side)
-        {
-            switch (side)
-            {
-                case BlockSide.Front:
-                case BlockSide.Back:
-                    return Axis.Z;
-
-                case BlockSide.Left:
-                case BlockSide.Right:
-                    return Axis.X;
-
-                case BlockSide.Bottom:
-                case BlockSide.Top:
-                    return Axis.Y;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(side));
-            }
-        }
-
-        protected static Axis ToAxis(uint data)
+        private static Axis ToAxis(uint data)
         {
             return (Axis) (data & 0b00_0011);
         }
 
-        protected static int TranslateIndex(BlockSide side, Axis axis)
+        private static int TranslateIndex(BlockSide side, Axis axis)
         {
             var index = (int) side;
 
-            if (axis == Axis.X && side != BlockSide.Front && side != BlockSide.Back)
+            index = axis switch
             {
-                index = 7 - index;
-            }
-
-            if (axis == Axis.Z && side != BlockSide.Left && side != BlockSide.Right)
-            {
-                index = 5 - index;
-            }
+                Axis.X when side != BlockSide.Front && side != BlockSide.Back => 7 - index,
+                Axis.Z when side != BlockSide.Left && side != BlockSide.Right => 5 - index,
+                _ => index
+            };
 
             return index;
         }

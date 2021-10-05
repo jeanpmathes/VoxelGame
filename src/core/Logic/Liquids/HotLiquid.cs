@@ -3,16 +3,21 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Liquids
 {
     /// <summary>
-    /// A liquid that can burn it's surroundings.
+    ///     A liquid that can burn it's surroundings.
     /// </summary>
     public class HotLiquid : BasicLiquid
     {
-        public HotLiquid(string name, string namedId, float density, int viscosity, bool neutralTint, TextureLayout movingLayout, TextureLayout staticLayout, Visuals.RenderType renderType = Visuals.RenderType.Opaque) :
+        public HotLiquid(string name, string namedId, float density, int viscosity, bool neutralTint,
+            TextureLayout movingLayout, TextureLayout staticLayout,
+            RenderType renderType = RenderType.Opaque) :
             base(
                 name,
                 namedId,
@@ -21,39 +26,32 @@ namespace VoxelGame.Core.Logic.Liquids
                 neutralTint,
                 movingLayout,
                 staticLayout,
-                renderType)
+                renderType) {}
+
+        protected override void ScheduledUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic)
         {
+            if (world.GetBlock(position, out _) is IFlammable block) block.Burn(world, position, Block.Fire);
+
+            BurnAround(world, position);
+
+            base.ScheduledUpdate(world, position, level, isStatic);
         }
 
-        protected override void ScheduledUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic)
+        internal override void RandomUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic)
         {
-            if (world.GetBlock(x, y, z, out _) is IFlammable block) block.Burn(world, x, y, z, Block.Fire);
-
-            BurnAround(world, x, y, z);
-
-            base.ScheduledUpdate(world, x, y, z, level, isStatic);
+            BurnAround(world, position);
         }
 
-        internal override void RandomUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic)
+        private static void BurnAround(World world, Vector3i position)
         {
-            BurnAround(world, x, y, z);
-        }
-
-        private static void BurnAround(World world, int x, int y, int z)
-        {
-            BurnAndPlaceFire(x, y, z + 1); // Front.
-            BurnAndPlaceFire(x, y, z - 1); // Back.
-            BurnAndPlaceFire(x - 1, y, z); // Left.
-            BurnAndPlaceFire(x + 1, y, z); // Right.
-            BurnAndPlaceFire(x, y - 1, z); // Bottom.
-            BurnAndPlaceFire(x, y + 1, z); // Top.
-
-            void BurnAndPlaceFire(int x, int y, int z)
+            foreach (BlockSide side in BlockSide.All.Sides())
             {
-                if (world.GetBlock(x, y, z, out _) is IFlammable block && block.Burn(world, x, y, z, Block.Fire))
-                {
-                    Block.Fire.Place(world, x, y, z);
-                }
+                Vector3i offsetPosition = side.Offset(position);
+
+                if (world.GetBlock(offsetPosition, out _) is IFlammable block &&
+                    block.Burn(world, offsetPosition, Block.Fire))
+                    Block.Fire.Place(world, offsetPosition);
+
             }
         }
     }

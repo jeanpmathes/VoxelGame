@@ -11,26 +11,25 @@ namespace VoxelGame.Client.Rendering
 {
     public class SectionMeshData
     {
-        public static SectionMeshData Empty => new SectionMeshData();
-
-        internal readonly PooledList<int> simpleVertexData;
+        internal readonly PooledList<uint> complexIndices;
+        internal readonly PooledList<int> complexVertexData;
 
         internal readonly PooledList<float> complexVertexPositions;
-        internal readonly PooledList<int> complexVertexData;
-        internal readonly PooledList<uint> complexIndices;
-
-        internal readonly PooledList<int> varyingHeightVertexData;
-        internal readonly PooledList<uint> varyingHeightIndices;
-
-        internal readonly PooledList<int> crossPlantVertexData;
 
         internal readonly PooledList<int> cropPlantVertexData;
 
-        internal readonly PooledList<int> opaqueLiquidVertexData;
+        internal readonly PooledList<int> crossPlantVertexData;
         internal readonly PooledList<uint> opaqueLiquidIndices;
 
-        internal readonly PooledList<int> transparentLiquidVertexData;
+        internal readonly PooledList<int> opaqueLiquidVertexData;
+
+        internal readonly PooledList<int> simpleVertexData;
         internal readonly PooledList<uint> transparentLiquidIndices;
+
+        internal readonly PooledList<int> transparentLiquidVertexData;
+        internal readonly PooledList<uint> varyingHeightIndices;
+
+        internal readonly PooledList<int> varyingHeightVertexData;
 
         private bool isReturnedToPool;
 
@@ -65,27 +64,32 @@ namespace VoxelGame.Client.Rendering
 
         private SectionMeshData()
         {
-            this.simpleVertexData = new PooledList<int>();
+            simpleVertexData = new PooledList<int>();
 
-            this.complexVertexPositions = new PooledList<float>();
-            this.complexVertexData = new PooledList<int>();
-            this.complexIndices = new PooledList<uint>();
+            complexVertexPositions = new PooledList<float>();
+            complexVertexData = new PooledList<int>();
+            complexIndices = new PooledList<uint>();
 
-            this.varyingHeightVertexData = new PooledList<int>();
-            this.varyingHeightIndices = new PooledList<uint>();
+            varyingHeightVertexData = new PooledList<int>();
+            varyingHeightIndices = new PooledList<uint>();
 
-            this.crossPlantVertexData = new PooledList<int>();
+            crossPlantVertexData = new PooledList<int>();
 
-            this.cropPlantVertexData = new PooledList<int>();
+            cropPlantVertexData = new PooledList<int>();
 
-            this.opaqueLiquidVertexData = new PooledList<int>();
-            this.opaqueLiquidIndices = new PooledList<uint>();
+            opaqueLiquidVertexData = new PooledList<int>();
+            opaqueLiquidIndices = new PooledList<uint>();
 
-            this.transparentLiquidVertexData = new PooledList<int>();
-            this.transparentLiquidIndices = new PooledList<uint>();
+            transparentLiquidVertexData = new PooledList<int>();
+            transparentLiquidIndices = new PooledList<uint>();
         }
 
-        public bool IsFilled => complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 || varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 || cropPlantVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 || transparentLiquidVertexData.Count != 0;
+        public static SectionMeshData Empty => new();
+
+        public bool IsFilled => complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 ||
+                                varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 ||
+                                cropPlantVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 ||
+                                transparentLiquidVertexData.Count != 0;
 
         public void ReturnPooled()
         {

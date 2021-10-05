@@ -10,7 +10,11 @@ namespace VoxelGame.Core.Collections
 {
     public class ObjectPool<T> where T : class, new()
     {
-        private readonly ConcurrentBag<T> objects = new ConcurrentBag<T>();
+        private readonly ConcurrentBag<T> objects = new();
+
+#pragma warning disable CA1000 // Do not declare static members on generic types
+        public static ObjectPool<T> Shared { get; } = new();
+#pragma warning restore CA1000 // Do not declare static members on generic types
 
         public T Get()
         {
@@ -21,9 +25,5 @@ namespace VoxelGame.Core.Collections
         {
             objects.Add(obj);
         }
-
-#pragma warning disable CA1000 // Do not declare static members on generic types
-        public static ObjectPool<T> Shared { get; } = new ObjectPool<T>();
-#pragma warning restore CA1000 // Do not declare static members on generic types
     }
 }

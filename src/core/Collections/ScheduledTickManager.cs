@@ -4,9 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
@@ -16,13 +16,13 @@ namespace VoxelGame.Core.Collections
     [Serializable]
     public class ScheduledTickManager<T> where T : ITickable
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ScheduledTickManager<T>>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<ScheduledTickManager<T>>();
 
         private readonly int maxTicks;
         private TicksHolder? nextTicks;
+        [NonSerialized] private UpdateCounter updateCounter;
 
         [NonSerialized] private World world;
-        [NonSerialized] private UpdateCounter updateCounter;
 
         public ScheduledTickManager(int maxTicks, World world, UpdateCounter updateCounter)
         {
@@ -42,18 +42,24 @@ namespace VoxelGame.Core.Collections
 
         public void Add(T tick, int tickOffset)
         {
-            long targetUpdate = updateCounter.CurrentUpdate + tickOffset;
-            TicksHolder ticks = FindOrCreateTargetTick(targetUpdate);
+            TicksHolder ticks;
 
-            if (ticks.tickables.Count >= maxTicks)
+            do
             {
-                Logger.LogWarning("For update {update} a tick was scheduled although the limit for this update is already reached. It has been scheduled for the following update.", targetUpdate);
-                Add(tick, tickOffset + 1);
-            }
-            else
-            {
-                ticks.tickables.Add(tick);
-            }
+                long targetUpdate = updateCounter.CurrentUpdate + tickOffset;
+                ticks = FindOrCreateTargetTick(targetUpdate);
+
+                if (ticks.tickables.Count < maxTicks) break;
+
+                logger.LogWarning(
+                    "Tick for {Update} has been scheduled for following update as limit is reached",
+                    targetUpdate);
+
+                tickOffset += 1;
+
+            } while (ticks.tickables.Count >= maxTicks);
+
+            ticks.tickables.Add(tick);
         }
 
         private TicksHolder FindOrCreateTargetTick(long targetTick)
@@ -70,27 +76,22 @@ namespace VoxelGame.Core.Collections
 
             while (current != null)
             {
-                if (current.targetUpdate == targetTick)
-                {
-                    return current;
-                }
+                if (current.targetUpdate == targetTick) return current;
 
                 if (current.targetUpdate > targetTick)
                 {
                     if (last == null)
                     {
-                        nextTicks = new TicksHolder(targetTick) { next = current };
+                        nextTicks = new TicksHolder(targetTick) {next = current};
 
                         return nextTicks;
                     }
-                    else
-                    {
-                        var newTicks = new TicksHolder(targetTick);
-                        last.next = newTicks;
-                        newTicks.next = current;
 
-                        return newTicks;
-                    }
+                    var newTicks = new TicksHolder(targetTick);
+                    last.next = newTicks;
+                    newTicks.next = current;
+
+                    return newTicks;
                 }
 
                 last = current;
@@ -107,17 +108,14 @@ namespace VoxelGame.Core.Collections
         {
             if (nextTicks != null && nextTicks.targetUpdate <= updateCounter.CurrentUpdate)
             {
-                foreach (T scheduledTick in nextTicks.tickables)
-                {
-                    scheduledTick.Tick(world);
-                }
+                foreach (T scheduledTick in nextTicks.tickables) scheduledTick.Tick(world);
 
                 nextTicks = nextTicks.next;
             }
         }
 
         /// <summary>
-        /// Subtracts the current update from all target updates so they are update-independent.
+        ///     Subtracts the current update from all target updates so they are update-independent.
         /// </summary>
         public void Unload()
         {
@@ -131,7 +129,7 @@ namespace VoxelGame.Core.Collections
         }
 
         /// <summary>
-        /// Adds the current update to all target updates so they will be called.
+        ///     Adds the current update to all target updates so they will be called.
         /// </summary>
         public void Load()
         {
@@ -147,9 +145,9 @@ namespace VoxelGame.Core.Collections
         [Serializable]
         private class TicksHolder
         {
-            public long targetUpdate;
             public TicksHolder? next;
-            public List<T> tickables = new List<T>();
+            public long targetUpdate;
+            public List<T> tickables = new();
 
             public TicksHolder(long targetUpdate)
             {

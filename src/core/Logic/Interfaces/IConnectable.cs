@@ -4,44 +4,44 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
+using VoxelGame.Core.Utilities;
+
 namespace VoxelGame.Core.Logic.Interfaces
 {
     public interface IConnectable : IBlockBase
     {
         /// <summary>
-        /// Checks if this block supports connection at a specific side.
+        ///     Checks if this block supports connection at a specific side.
         /// </summary>
         /// <param name="world">The world this block is in.</param>
         /// <param name="side">The side to check for connect-ability. Only front, back, left and right are valid.</param>
-        /// <param name="x">The x position of the block to check.</param>
-        /// <param name="y">The y position of the block to check.</param>
-        /// <param name="z">The z position of the block to check.</param>
+        /// <param name="position">The block position.</param>
         /// <returns>True if connection is supported; false if not.</returns>
-        public bool IsConnectable(World world, BlockSide side, int x, int y, int z)
+        public bool IsConnectable(World world, BlockSide side, Vector3i position)
         {
             return true;
         }
 
         /// <summary>
-        /// Get the data about connectables around a block. The data is packed in an uint using four bits.
+        ///     Get the data about connectables around a block. The data is packed in an uint using four bits.
         /// </summary>
         /// <param name="world">The world the block is in.</param>
-        /// <param name="x">The x position of the block.</param>
-        /// <param name="y">The y position of the block.</param>
-        /// <param name="z">The z position of the block.</param>
-        /// <returns></returns>
-        public static uint GetConnectionData<TConnectable>(World world, int x, int y, int z) where TConnectable : IConnectable
+        /// <param name="position">The world position of the block.</param>
+        /// <returns>The connection data.</returns>
+        public static uint GetConnectionData<TConnectable>(World world, Vector3i position)
+            where TConnectable : IConnectable
         {
             uint data = 0;
 
-            if (world.GetBlock(x, y, z - 1, out _) is TConnectable north && north.IsConnectable(world, BlockSide.Front, x, y, z - 1))
-                data |= 0b00_1000;
-            if (world.GetBlock(x + 1, y, z, out _) is TConnectable east && east.IsConnectable(world, BlockSide.Left, x + 1, y, z))
-                data |= 0b00_0100;
-            if (world.GetBlock(x, y, z + 1, out _) is TConnectable south && south.IsConnectable(world, BlockSide.Back, x, y, z + 1))
-                data |= 0b00_0010;
-            if (world.GetBlock(x - 1, y, z, out _) is TConnectable west && west.IsConnectable(world, BlockSide.Right, x - 1, y, z))
-                data |= 0b00_0001;
+            foreach (Orientation orientation in Orientations.All)
+            {
+                Vector3i neighborPosition = orientation.Offset(position);
+
+                if (world.GetBlock(neighborPosition, out _) is TConnectable connectable &&
+                    connectable.IsConnectable(world, orientation.ToBlockSide().Opposite(), neighborPosition))
+                    data |= orientation.ToFlag();
+            }
 
             return data;
         }

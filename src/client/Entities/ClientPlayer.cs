@@ -4,10 +4,12 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
-using System;
+using Properties;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
+using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
@@ -20,32 +22,52 @@ using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Entities
 {
-    public class ClientPlayer : Core.Entities.Player
+    public class ClientPlayer : Player
     {
-        public override Vector3 LookingDirection { get => camera.Front; }
-        public override BlockSide TargetSide { get => selectedSide; }
-
         private readonly Camera camera;
-        private readonly Vector3 cameraOffset = new Vector3(0f, 0.65f, 0f);
+        private readonly Vector3 cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
+
+        private readonly Texture crosshair;
+        private readonly Vector3 crosshairColor = client.Default.CrosshairColor.ToVector3();
+
+        private readonly Vector2 crosshairPosition = new(x: 0.5f, y: 0.5f);
+        private readonly ScreenElementRenderer crosshairRenderer;
+        private readonly float crosshairScale = client.Default.CrosshairScale;
+
+        private readonly float interactionCooldown = 0.25f;
+        private readonly float jumpForce = 25000f;
+
+        private readonly Vector3 maxForce = new(x: 500f, y: 0f, z: 500f);
+        private readonly Vector3 maxSwimForce = new(x: 0f, y: 2500f, z: 0f);
+
+        private readonly OverlayRenderer overlay;
+
+        private readonly BoxRenderer selectionRenderer;
+
+        private readonly float speed = 4f;
+        private readonly float sprintSpeed = 6f;
+        private readonly float swimSpeed = 4f;
 
         private readonly GameUserInterface ui;
 
-        #region INPUT ACTIONS
+        private Block activeBlock;
+        private Liquid activeLiquid;
 
-        private readonly Axis2 movementInput;
-        private readonly Button sprintButton;
-        private readonly Button jumpButton;
+        private bool blockMode = true;
 
-        private readonly Button interactOrPlaceButton;
-        private readonly Button destroyButton;
-        private readonly Button blockInteractButton;
+        private bool firstUpdate = true;
 
-        private readonly ToggleButton placementModeToggle;
-        private readonly Axis selectionAxis;
+        private Vector3 movement;
 
-        #endregion INPUT ACTIONS
+        private bool renderOverlay;
 
-        public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingBox boundingBox, GameUserInterface ui) : base(world, mass, drag, boundingBox)
+        private Vector3i selectedPosition = new(x: 0, y: -1, z: 0);
+        private BlockSide selectedSide;
+
+        private float timer;
+
+        public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingBox boundingBox,
+            GameUserInterface ui) : base(world, mass, drag, boundingBox)
         {
             this.camera = camera;
             camera.Position = Position;
@@ -54,7 +76,10 @@ namespace VoxelGame.Client.Entities
 
             overlay = new OverlayRenderer();
 
-            crosshair = new Texture("Resources/Textures/UI/crosshair.png", OpenToolkit.Graphics.OpenGL4.TextureUnit.Texture10, fallbackResolution: 32);
+            crosshair = new Texture(
+                "Resources/Textures/UI/crosshair.png",
+                TextureUnit.Texture10,
+                fallbackResolution: 32);
 
             crosshairRenderer = new ScreenElementRenderer();
             crosshairRenderer.SetTexture(crosshair);
@@ -72,9 +97,9 @@ namespace VoxelGame.Client.Entities
             Button strafeRightButton = keybind.GetButton(keybind.StrafeRight);
             Button strafeLeftButton = keybind.GetButton(keybind.StrafeLeft);
 
-            movementInput = new Axis2(
-                new Axis(forwardsButton, backwardsButton),
-                new Axis(strafeRightButton, strafeLeftButton));
+            movementInput = new InputAxis2(
+                new InputAxis(forwardsButton, backwardsButton),
+                new InputAxis(strafeRightButton, strafeLeftButton));
 
             sprintButton = keybind.GetButton(keybind.Sprint);
             jumpButton = keybind.GetButton(keybind.Jump);
@@ -88,11 +113,22 @@ namespace VoxelGame.Client.Entities
 
             Button nextButton = keybind.GetPushButton(keybind.NextPlacement);
             Button previousButton = keybind.GetPushButton(keybind.PreviousPlacement);
-            selectionAxis = new Axis(nextButton, previousButton);
+            selectionAxis = new InputAxis(nextButton, previousButton);
         }
 
+        public override Vector3 LookingDirection => camera.Front;
+
+        public override BlockSide TargetSide => selectedSide;
+
         /// <summary>
-        /// Gets the view matrix of the camera of this player.
+        ///     Gets the frustum of the player camera.
+        /// </summary>
+        public Frustum Frustum => camera.Frustum;
+
+        public override Vector3 Movement => movement;
+
+        /// <summary>
+        ///     Gets the view matrix of the camera of this player.
         /// </summary>
         /// <returns>The view matrix.</returns>
         public Matrix4 GetViewMatrix()
@@ -101,7 +137,7 @@ namespace VoxelGame.Client.Entities
         }
 
         /// <summary>
-        /// Gets the projection matrix of the camera of this player.
+        ///     Gets the projection matrix of the camera of this player.
         /// </summary>
         /// <returns>The projection matrix.</returns>
         public Matrix4 GetProjectionMatrix()
@@ -109,31 +145,11 @@ namespace VoxelGame.Client.Entities
             return camera.GetProjectionMatrix();
         }
 
-        /// <summary>
-        /// Gets the frustum of the player camera.
-        /// </summary>
-        public Frustum Frustum { get => camera.Frustum; }
-
-        public override Vector3 Movement { get => movement; }
-
-        private readonly BoxRenderer selectionRenderer;
-
-        private readonly OverlayRenderer overlay;
-
-        private bool renderOverlay;
-
-        private readonly Texture crosshair;
-        private readonly ScreenElementRenderer crosshairRenderer;
-
-        private readonly Vector2 crosshairPosition = new Vector2(0.5f, 0.5f);
-        private readonly float crosshairScale = Properties.client.Default.CrosshairScale;
-        private readonly Vector3 crosshairColor = Properties.client.Default.CrosshairColor.ToVector3();
-
         public void Render()
         {
-            if (selectedY >= 0)
+            if (selectedPosition.Y >= 0)
             {
-                Block selectedBlock = World.GetBlock(selectedX, selectedY, selectedZ, out _) ?? Block.Air;
+                Block selectedBlock = World.GetBlock(selectedPosition, out _) ?? Block.Air;
 
 #if DEBUG
                 if (selectedBlock != Block.Air)
@@ -141,26 +157,19 @@ namespace VoxelGame.Client.Entities
                 if (!selectedBlock.IsReplaceable)
 #endif
                 {
-                    BoundingBox selectedBox = selectedBlock.GetBoundingBox(World, selectedX, selectedY, selectedZ);
+                    BoundingBox selectedBox = selectedBlock.GetBoundingBox(World, selectedPosition);
 
-                    Shaders.Selection.SetVector3("color", new Vector3(0.1f, 0.1f, 0.1f));
+                    Shaders.Selection.SetVector3("color", new Vector3(x: 0.1f, y: 0.1f, z: 0.1f));
 
                     selectionRenderer.SetBoundingBox(selectedBox);
                     selectionRenderer.Draw(selectedBox.Center);
                 }
             }
 
-            if (renderOverlay)
-            {
-                overlay.Draw();
-            }
+            if (renderOverlay) overlay.Draw();
 
             crosshairRenderer.Draw(crosshairPosition, crosshairScale);
         }
-
-        private Vector3 movement;
-
-        private bool firstUpdate = true;
 
         protected override void OnUpdate(float deltaTime)
         {
@@ -168,8 +177,8 @@ namespace VoxelGame.Client.Entities
 
             camera.Position = Position + cameraOffset;
 
-            var ray = new Ray(camera.Position, camera.Front, 6f);
-            Raycast.CastBlock(World, ray, out selectedX, out selectedY, out selectedZ, out selectedSide);
+            var ray = new Ray(camera.Position, camera.Front, length: 6f);
+            Raycast.CastBlock(World, ray, out selectedPosition, out selectedSide);
 
             // Do input handling.
             if (Screen.IsFocused)
@@ -181,16 +190,15 @@ namespace VoxelGame.Client.Entities
 
                 WorldInteraction();
 
-                int headX = (int) Math.Floor(camera.Position.X);
-                int headY = (int) Math.Floor(camera.Position.Y);
-                int headZ = (int) Math.Floor(camera.Position.Z);
+                Vector3i headPosition = camera.Position.Floor();
 
-                if (World.GetBlock(headX, headY, headZ, out _) is IOverlayTextureProvider overlayBlockTextureProvider)
+                if (World.GetBlock(headPosition, out _) is IOverlayTextureProvider overlayBlockTextureProvider)
                 {
                     overlay.SetBlockTexture(overlayBlockTextureProvider.TextureIdentifier);
                     renderOverlay = true;
                 }
-                else if (World.GetLiquid(headX, headY, headZ, out _, out _) is IOverlayTextureProvider overlayLiquidTextureProvider)
+                else if (World.GetLiquid(headPosition, out _, out _) is IOverlayTextureProvider
+                    overlayLiquidTextureProvider)
                 {
                     overlay.SetLiquidTexture(overlayLiquidTextureProvider.TextureIdentifier);
                     renderOverlay = true;
@@ -206,42 +214,23 @@ namespace VoxelGame.Client.Entities
             timer += deltaTime;
         }
 
-        private readonly float speed = 4f;
-        private readonly float sprintSpeed = 6f;
-        private readonly Vector3 maxForce = new Vector3(500f, 0f, 500f);
-        private readonly float swimSpeed = 4f;
-        private readonly Vector3 maxSwimForce = new Vector3(0f, 2500f, 0f);
-        private readonly float jumpForce = 25000f;
-
         private void HandleMovementInput()
         {
             (float x, float z) = movementInput.Value;
-            movement = (x * Forward) + (z * Right);
+            movement = x * Forward + z * Right;
 
             if (movement != Vector3.Zero)
             {
-                if (sprintButton.IsDown)
-                {
-                    movement = movement.Normalized() * sprintSpeed;
-                }
-                else
-                {
-                    movement = movement.Normalized() * speed;
-                }
+                if (sprintButton.IsDown) movement = movement.Normalized() * sprintSpeed;
+                else movement = movement.Normalized() * speed;
             }
 
             Move(movement, maxForce);
 
             if (jumpButton.IsDown)
             {
-                if (IsGrounded)
-                {
-                    AddForce(new Vector3(0f, jumpForce, 0f));
-                }
-                else if (IsSwimming)
-                {
-                    Move(Vector3.UnitY * swimSpeed, maxSwimForce);
-                }
+                if (IsGrounded) AddForce(new Vector3(x: 0f, jumpForce, z: 0f));
+                else if (IsSwimming) Move(Vector3.UnitY * swimSpeed, maxSwimForce);
             }
         }
 
@@ -255,21 +244,11 @@ namespace VoxelGame.Client.Entities
             Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
         }
 
-        private readonly float interactionCooldown = 0.25f;
-
-        private int selectedX, selectedY = -1, selectedZ;
-        private BlockSide selectedSide;
-
-        private float timer;
-
         private void WorldInteraction()
         {
-            Block? target = World.GetBlock(selectedX, selectedY, selectedZ, out _);
+            Block? target = World.GetBlock(selectedPosition, out _);
 
-            if (target == null)
-            {
-                return;
-            }
+            if (target == null) return;
 
             PlaceInteract(target);
             DestroyInteract(target);
@@ -279,61 +258,27 @@ namespace VoxelGame.Client.Entities
         {
             if (timer < interactionCooldown || interactOrPlaceButton.IsUp) return;
 
-            int placePositionX = selectedX;
-            int placePositionY = selectedY;
-            int placePositionZ = selectedZ;
+            Vector3i placePosition = selectedPosition;
 
             if (blockInteractButton.IsDown || !target.IsInteractable)
             {
-                if (!target.IsReplaceable)
-                {
-                    OffsetSelection();
-                }
+                if (!target.IsReplaceable) placePosition = selectedSide.Offset(placePosition);
 
                 // Prevent block placement if the block would intersect the player.
-                if (!blockMode || !activeBlock.IsSolid || !BoundingBox.Intersects(activeBlock.GetBoundingBox(World, placePositionX, placePositionY, placePositionZ)))
+                if (!blockMode || !activeBlock.IsSolid || !BoundingBox.Intersects(
+                    activeBlock.GetBoundingBox(World, placePosition)))
                 {
-                    if (blockMode) activeBlock.Place(World, placePositionX, placePositionY, placePositionZ, this);
-                    else activeLiquid.Fill(World, placePositionX, placePositionY, placePositionZ, LiquidLevel.One, out _);
+                    if (blockMode) activeBlock.Place(World, placePosition, this);
+                    else activeLiquid.Fill(World, placePosition, LiquidLevel.One, BlockSide.Top, out _);
 
                     timer = 0;
                 }
             }
             else if (target.IsInteractable)
             {
-                target.EntityInteract(this, selectedX, selectedY, selectedZ);
+                target.EntityInteract(this, selectedPosition);
 
                 timer = 0;
-            }
-
-            void OffsetSelection()
-            {
-                switch (selectedSide)
-                {
-                    case BlockSide.Front:
-                        placePositionZ++;
-                        break;
-
-                    case BlockSide.Back:
-                        placePositionZ--;
-                        break;
-
-                    case BlockSide.Left:
-                        placePositionX--;
-                        break;
-
-                    case BlockSide.Right:
-                        placePositionX++;
-                        break;
-
-                    case BlockSide.Bottom:
-                        placePositionY--;
-                        break;
-
-                    case BlockSide.Top:
-                        placePositionY++;
-                        break;
-                }
             }
         }
 
@@ -341,54 +286,22 @@ namespace VoxelGame.Client.Entities
         {
             if (timer >= interactionCooldown && destroyButton.IsDown)
             {
-                if (blockMode) target.Destroy(World, selectedX, selectedY, selectedZ, this);
-                else TakeLiquid(selectedX, selectedY, selectedZ);
+                if (blockMode) target.Destroy(World, selectedPosition, this);
+                else TakeLiquid(selectedPosition);
 
                 timer = 0;
             }
 
-            void TakeLiquid(int x, int y, int z)
+            void TakeLiquid(Vector3i position)
             {
-                LiquidLevel level = LiquidLevel.One;
+                var level = LiquidLevel.One;
 
                 if (!target.IsReplaceable)
-                {
-                    switch (selectedSide)
-                    {
-                        case BlockSide.Front:
-                            z++;
-                            break;
+                    position = selectedSide.Offset(position);
 
-                        case BlockSide.Back:
-                            z--;
-                            break;
-
-                        case BlockSide.Left:
-                            x--;
-                            break;
-
-                        case BlockSide.Right:
-                            x++;
-                            break;
-
-                        case BlockSide.Bottom:
-                            y--;
-                            break;
-
-                        case BlockSide.Top:
-                            y++;
-                            break;
-                    }
-                }
-
-                World.GetLiquid(x, y, z, out _, out _)?.Take(World, x, y, z, ref level);
+                World.GetLiquid(position, out _, out _)?.Take(World, position, ref level);
             }
         }
-
-        private Block activeBlock;
-        private Liquid activeLiquid;
-
-        private bool blockMode = true;
 
         private void BlockLiquidSelection(bool updateUI)
         {
@@ -402,16 +315,28 @@ namespace VoxelGame.Client.Entities
             {
                 if (selectionAxis.Value > 0)
                 {
-                    if (blockMode) activeBlock = (activeBlock.Id != Block.Count - 1) ? Block.TranslateID(activeBlock.Id + 1) : Block.TranslateID(1);
-                    else activeLiquid = (activeLiquid.Id != Liquid.Count - 1) ? Liquid.TranslateID(activeLiquid.Id + 1) : Liquid.TranslateID(1);
+                    if (blockMode)
+                        activeBlock = activeBlock.Id != Block.Count - 1
+                            ? Block.TranslateID(activeBlock.Id + 1)
+                            : Block.TranslateID(id: 1);
+                    else
+                        activeLiquid = activeLiquid.Id != Liquid.Count - 1
+                            ? Liquid.TranslateID(activeLiquid.Id + 1)
+                            : Liquid.TranslateID(id: 1);
 
                     updateUI = true;
                 }
 
                 if (selectionAxis.Value < 0)
                 {
-                    if (blockMode) activeBlock = (activeBlock.Id != 1) ? Block.TranslateID(activeBlock.Id - 1) : Block.TranslateID((uint) (Block.Count - 1));
-                    else activeLiquid = (activeLiquid.Id != 1) ? Liquid.TranslateID(activeLiquid.Id - 1) : Liquid.TranslateID((uint) (Liquid.Count - 1));
+                    if (blockMode)
+                        activeBlock = activeBlock.Id != 1
+                            ? Block.TranslateID(activeBlock.Id - 1)
+                            : Block.TranslateID((uint) (Block.Count - 1));
+                    else
+                        activeLiquid = activeLiquid.Id != 1
+                            ? Liquid.TranslateID(activeLiquid.Id - 1)
+                            : Liquid.TranslateID((uint) (Liquid.Count - 1));
 
                     updateUI = true;
                 }
@@ -419,16 +344,25 @@ namespace VoxelGame.Client.Entities
 
             if (updateUI)
             {
-                if (blockMode)
-                {
-                    ui.SetPlayerSelection(Language.Block, activeBlock.Name);
-                }
-                else
-                {
-                    ui.SetPlayerSelection(Language.Liquid, activeLiquid.Name);
-                }
+                if (blockMode) ui.SetPlayerSelection(Language.Block, activeBlock.Name);
+                else ui.SetPlayerSelection(Language.Liquid, activeLiquid.Name);
             }
         }
+
+        #region INPUT ACTIONS
+
+        private readonly InputAxis2 movementInput;
+        private readonly Button sprintButton;
+        private readonly Button jumpButton;
+
+        private readonly Button interactOrPlaceButton;
+        private readonly Button destroyButton;
+        private readonly Button blockInteractButton;
+
+        private readonly ToggleButton placementModeToggle;
+        private readonly InputAxis selectionAxis;
+
+        #endregion INPUT ACTIONS
 
         #region IDisposable Support
 

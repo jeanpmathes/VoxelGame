@@ -4,72 +4,38 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
-using OpenToolkit.Mathematics;
-using OpenToolkit.Windowing.Common;
-using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Microsoft.Extensions.Logging;
+using OpenToolkit.Graphics.OpenGL4;
+using OpenToolkit.Mathematics;
+using OpenToolkit.Windowing.Common;
+using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Logging;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace VoxelGame.Client.Rendering
 {
     /// <summary>
-    /// Common functionality associated with the screen.
+    ///     Common functionality associated with the screen.
     /// </summary>
     public class Screen : IDisposable
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Screen>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
+        private readonly int depthFBO;
 
-        private readonly int samples;
-
-        private readonly int msTex;
+        private readonly int depthTex;
         private readonly int msFBO;
         private readonly int msRBO;
 
-        private readonly int depthTex;
-        private readonly int depthFBO;
+        private readonly int msTex;
+
+        private readonly int samples;
 
         private readonly int screenshotFBO;
         private readonly int screenshotRBO;
-
-        #region PUBLIC STATIC PROPERTIES
-
-        /// <summary>
-        /// Gets the window size. The value is equal to the value retrieved from <see cref="Client.Instance"/>.
-        /// </summary>
-        public static Vector2i Size => Instance.Client.Size;
-
-        /// <summary>
-        /// Get the center of the screen.
-        /// </summary>
-        public static Vector2i Center => new Vector2i(Size.X / 2, Size.Y / 2);
-
-        /// <summary>
-        /// Gets the aspect ratio <c>x/y</c>.
-        /// </summary>
-        public static float AspectRatio => Size.X / (float) Size.Y;
-
-        /// <summary>
-        /// Gets whether the screen is in fullscreen.
-        /// </summary>
-        public static bool IsFullscreen => Instance.Client.IsFullscreen;
-
-        /// <summary>
-        /// Gets whether the screen is focused.
-        /// </summary>
-        public static bool IsFocused => Instance.Client.IsFocused;
-
-        #endregion PUBLIC STATIC PROPERTIES
-
-        private protected static Screen Instance { get; set; } = null!;
-
-        private Application.Client Client { get; set; }
 
         internal Screen(Application.Client client)
         {
@@ -83,7 +49,12 @@ namespace VoxelGame.Client.Rendering
 
             int maxSamples = GL.GetInteger(GetPName.MaxSamples);
             samples = Properties.client.Default.SampleCount;
-            Logger.LogDebug("Set sample count to {samples}, of maximum {max} possible samples.", samples, maxSamples);
+
+            logger.LogDebug(
+                Events.VisualQuality,
+                "Set sample count to {Samples}, of maximum {Max} possible samples",
+                samples,
+                maxSamples);
 
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
@@ -91,25 +62,43 @@ namespace VoxelGame.Client.Rendering
 
             msTex = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2DMultisample, msTex);
-            GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, samples, PixelInternalFormat.Rgba8, Size.X, Size.Y, true);
-            GL.BindTexture(TextureTarget.Texture2DMultisample, 0);
 
-            GL.CreateFramebuffers(1, out msFBO);
-            GL.NamedFramebufferTexture(msFBO, FramebufferAttachment.ColorAttachment0, msTex, 0);
+            GL.TexImage2DMultisample(
+                TextureTargetMultisample.Texture2DMultisample,
+                samples,
+                PixelInternalFormat.Rgba8,
+                Size.X,
+                Size.Y,
+                fixedsamplelocations: true);
 
-            FramebufferStatus multisampledFboStatus = GL.CheckNamedFramebufferStatus(msFBO, FramebufferTarget.Framebuffer);
+            GL.BindTexture(TextureTarget.Texture2DMultisample, texture: 0);
+
+            GL.CreateFramebuffers(n: 1, out msFBO);
+            GL.NamedFramebufferTexture(msFBO, FramebufferAttachment.ColorAttachment0, msTex, level: 0);
+
+            FramebufferStatus multisampledFboStatus =
+                GL.CheckNamedFramebufferStatus(msFBO, FramebufferTarget.Framebuffer);
 
             while (multisampledFboStatus != FramebufferStatus.FramebufferComplete)
             {
-                Logger.LogWarning("Multi-sampled FBO not complete [{status}], waiting...", multisampledFboStatus);
-                Thread.Sleep(100);
+                logger.LogWarning(
+                    Events.VisualsSetup,
+                    "Multi-sampled FBO not complete [{Status}], waiting...",
+                    multisampledFboStatus);
+
+                Thread.Sleep(millisecondsTimeout: 100);
 
                 multisampledFboStatus = GL.CheckNamedFramebufferStatus(msFBO, FramebufferTarget.Framebuffer);
             }
 
-            GL.CreateRenderbuffers(1, out msRBO);
+            GL.CreateRenderbuffers(n: 1, out msRBO);
             GL.NamedRenderbufferStorageMultisample(msRBO, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
-            GL.NamedFramebufferRenderbuffer(msFBO, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, msRBO);
+
+            GL.NamedFramebufferRenderbuffer(
+                msFBO,
+                FramebufferAttachment.DepthStencilAttachment,
+                RenderbufferTarget.Renderbuffer,
+                msRBO);
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, msFBO);
             GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
@@ -122,20 +111,36 @@ namespace VoxelGame.Client.Rendering
             GL.ActiveTexture(TextureUnit.Texture20);
             GL.BindTexture(TextureTarget.Texture2D, depthTex);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent, Size.X, Size.Y, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+            GL.TexImage2D(
+                TextureTarget.Texture2D,
+                level: 0,
+                PixelInternalFormat.DepthComponent,
+                Size.X,
+                Size.Y,
+                border: 0,
+                PixelFormat.DepthComponent,
+                PixelType.Float,
+                IntPtr.Zero);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Nearest);
+            GL.TexParameter(
+                TextureTarget.Texture2D,
+                TextureParameterName.TextureMinFilter,
+                (int) TextureMinFilter.Nearest);
 
-            GL.CreateFramebuffers(1, out depthFBO);
-            GL.NamedFramebufferTexture(depthFBO, FramebufferAttachment.DepthAttachment, depthTex, 0);
+            GL.TexParameter(
+                TextureTarget.Texture2D,
+                TextureParameterName.TextureMagFilter,
+                (int) TextureMagFilter.Nearest);
+
+            GL.CreateFramebuffers(n: 1, out depthFBO);
+            GL.NamedFramebufferTexture(depthFBO, FramebufferAttachment.DepthAttachment, depthTex, level: 0);
 
             FramebufferStatus depthFboStatus = GL.CheckNamedFramebufferStatus(depthFBO, FramebufferTarget.Framebuffer);
 
             while (depthFboStatus != FramebufferStatus.FramebufferComplete)
             {
-                Logger.LogWarning("Depth FBO not complete [{status}], waiting...", depthFboStatus);
-                Thread.Sleep(100);
+                logger.LogWarning(Events.VisualsSetup, "Depth FBO not complete [{Status}], waiting...", depthFboStatus);
+                Thread.Sleep(millisecondsTimeout: 100);
 
                 depthFboStatus = GL.CheckNamedFramebufferStatus(depthFBO, FramebufferTarget.Framebuffer);
             }
@@ -146,46 +151,80 @@ namespace VoxelGame.Client.Rendering
 
             #region SCREENSHOT FBO
 
-            GL.CreateFramebuffers(1, out screenshotFBO);
+            GL.CreateFramebuffers(n: 1, out screenshotFBO);
 
-            GL.CreateRenderbuffers(1, out screenshotRBO);
+            GL.CreateRenderbuffers(n: 1, out screenshotRBO);
             GL.NamedRenderbufferStorage(screenshotRBO, RenderbufferStorage.Rgba8, Size.X, Size.Y);
-            GL.NamedFramebufferRenderbuffer(screenshotFBO, FramebufferAttachment.ColorAttachment0, RenderbufferTarget.Renderbuffer, screenshotRBO);
 
-            FramebufferStatus screenshotFboStatus = GL.CheckNamedFramebufferStatus(screenshotFBO, FramebufferTarget.Framebuffer);
+            GL.NamedFramebufferRenderbuffer(
+                screenshotFBO,
+                FramebufferAttachment.ColorAttachment0,
+                RenderbufferTarget.Renderbuffer,
+                screenshotRBO);
+
+            FramebufferStatus screenshotFboStatus =
+                GL.CheckNamedFramebufferStatus(screenshotFBO, FramebufferTarget.Framebuffer);
 
             while (screenshotFboStatus != FramebufferStatus.FramebufferComplete)
             {
-                Logger.LogWarning("Screenshot FBO not complete [{status}], waiting...", screenshotFboStatus);
-                Thread.Sleep(100);
+                logger.LogWarning(
+                    Events.VisualsSetup,
+                    "Screenshot FBO not complete [{Status}], waiting...",
+                    screenshotFboStatus);
+
+                Thread.Sleep(millisecondsTimeout: 100);
 
                 screenshotFboStatus = GL.CheckNamedFramebufferStatus(screenshotFBO, FramebufferTarget.Framebuffer);
             }
 
             #endregion SCREENSHOT FBO
+
         }
+
+        private static Screen Instance { get; set; } = null!;
+
+        private Application.Client Client { get; }
 
         public void Clear()
         {
-            GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Color, 0, new float[] { 0.5f, 0.8f, 0.9f, 1.0f });
-            GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, 0, new float[] { 1f });
+            GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Color, drawbuffer: 0, new[] {0.5f, 0.8f, 0.9f, 1.0f});
+            GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, drawbuffer: 0, new[] {1f});
         }
 
         public void Draw()
         {
-            GL.BlitNamedFramebuffer(msFBO, 0, 0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y,
-                ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
+            GL.BlitNamedFramebuffer(
+                msFBO,
+                drawFramebuffer: 0,
+                srcX0: 0,
+                srcY0: 0,
+                Size.X,
+                Size.Y,
+                dstX0: 0,
+                dstY0: 0,
+                Size.X,
+                Size.Y,
+                ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit,
+                BlitFramebufferFilter.Nearest);
         }
 
         private void OnResize(ResizeEventArgs e)
         {
-            GL.Viewport(0, 0, Size.X, Size.Y);
+            GL.Viewport(x: 0, y: 0, Size.X, Size.Y);
 
             #region MULTISAMPLED FBO
 
             GL.BindTexture(TextureTarget.Texture2DMultisample, msTex);
-            GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, samples, PixelInternalFormat.Rgba8, Size.X, Size.Y, true);
-            GL.BindTexture(TextureTarget.Texture2DMultisample, 0);
+
+            GL.TexImage2DMultisample(
+                TextureTargetMultisample.Texture2DMultisample,
+                samples,
+                PixelInternalFormat.Rgba8,
+                Size.X,
+                Size.Y,
+                fixedsamplelocations: true);
+
+            GL.BindTexture(TextureTarget.Texture2DMultisample, texture: 0);
 
             GL.NamedRenderbufferStorageMultisample(msRBO, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
 
@@ -196,7 +235,16 @@ namespace VoxelGame.Client.Rendering
             GL.ActiveTexture(TextureUnit.Texture20);
             GL.BindTexture(TextureTarget.Texture2D, depthTex);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent, Size.X, Size.Y, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+            GL.TexImage2D(
+                TextureTarget.Texture2D,
+                level: 0,
+                PixelInternalFormat.DepthComponent,
+                Size.X,
+                Size.Y,
+                border: 0,
+                PixelFormat.DepthComponent,
+                PixelType.Float,
+                IntPtr.Zero);
 
             GL.ActiveTexture(TextureUnit.Texture0);
 
@@ -212,8 +260,37 @@ namespace VoxelGame.Client.Rendering
 
             Shaders.UpdateOrthographicProjection();
 
-            Logger.LogDebug("Window has been resized to: {size}", e.Size);
+            logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", e.Size);
         }
+
+        #region PUBLIC STATIC PROPERTIES
+
+        /// <summary>
+        ///     Gets the window size. The value is equal to the value retrieved from the client.
+        /// </summary>
+        public static Vector2i Size => Instance.Client.Size;
+
+        /// <summary>
+        ///     Get the center of the screen.
+        /// </summary>
+        public static Vector2i Center => new(Size.X / 2, Size.Y / 2);
+
+        /// <summary>
+        ///     Gets the aspect ratio <c>x/y</c>.
+        /// </summary>
+        public static float AspectRatio => Size.X / (float) Size.Y;
+
+        /// <summary>
+        ///     Gets whether the screen is in fullscreen.
+        /// </summary>
+        public static bool IsFullscreen => Instance.Client.IsFullscreen;
+
+        /// <summary>
+        ///     Gets whether the screen is focused.
+        /// </summary>
+        public static bool IsFocused => Instance.Client.IsFocused;
+
+        #endregion PUBLIC STATIC PROPERTIES
 
         #region PUBLIC STATIC METHODS
 
@@ -228,7 +305,7 @@ namespace VoxelGame.Client.Rendering
         private static Vector2i previousScreenLocation;
 
         /// <summary>
-        /// Set if the screen should be in fullscreen.
+        ///     Set if the screen should be in fullscreen.
         /// </summary>
         /// <param name="fullscreen">If fullscreen should be active.</param>
         public static void SetFullscreen(bool fullscreen)
@@ -242,57 +319,86 @@ namespace VoxelGame.Client.Rendering
 
                 Instance.Client.WindowState = WindowState.Fullscreen;
                 Instance.Client.IsFullscreen = true;
-                Logger.LogDebug("Fullscreen: Switched to fullscreen mode.");
+                logger.LogDebug(Events.WindowState, "Fullscreen: Switched to fullscreen mode");
             }
             else
             {
-                unsafe { GLFW.SetWindowMonitor(Instance.Client.WindowPointer, null, previousScreenLocation.X, previousScreenLocation.Y, previousScreenSize.X, previousScreenSize.Y, (int) Instance.Client.RenderFrequency); }
+                unsafe
+                {
+                    GLFW.SetWindowMonitor(
+                        Instance.Client.WindowPointer,
+                        monitor: null,
+                        previousScreenLocation.X,
+                        previousScreenLocation.Y,
+                        previousScreenSize.X,
+                        previousScreenSize.Y,
+                        (int) Instance.Client.RenderFrequency);
+                }
+
                 Instance.Client.IsFullscreen = false;
 
-                Logger.LogDebug("Fullscreen: Switched to normal mode.");
+                logger.LogDebug(Events.WindowState, "Fullscreen: Switched to normal mode");
             }
         }
 
         /// <summary>
-        /// Set the wire-frame mode.
+        ///     Set the wire-frame mode.
         /// </summary>
         /// <param name="wireframe">True to activate wireframe, false to deactivate it.</param>
         public static void SetWireFrame(bool wireframe)
         {
             if (wireframe)
             {
-                GL.LineWidth(5f);
+                GL.LineWidth(width: 5f);
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
             }
             else
             {
-                GL.LineWidth(1f);
+                GL.LineWidth(width: 1f);
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             }
         }
 
         /// <summary>
-        /// Takes a screenshot and saves it to the specified directory.
+        ///     Takes a screenshot and saves it to the specified directory.
         /// </summary>
         /// <param name="directory">The directory in which the screenshot should be saved.</param>
         public static void TakeScreenshot(string directory)
         {
             IntPtr data = Marshal.AllocHGlobal(Size.X * Size.Y * 4);
 
-            GL.BlitNamedFramebuffer(Instance.msFBO, Instance.screenshotFBO, 0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+            GL.BlitNamedFramebuffer(
+                Instance.msFBO,
+                Instance.screenshotFBO,
+                srcX0: 0,
+                srcY0: 0,
+                Size.X,
+                Size.Y,
+                dstX0: 0,
+                dstY0: 0,
+                Size.X,
+                Size.Y,
+                ClearBufferMask.ColorBufferBit,
+                BlitFramebufferFilter.Nearest);
 
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, Instance.screenshotFBO);
-            GL.ReadPixels(0, 0, Size.X, Size.Y, PixelFormat.Bgra, PixelType.UnsignedByte, data);
+            GL.ReadPixels(x: 0, y: 0, Size.X, Size.Y, PixelFormat.Bgra, PixelType.UnsignedByte, data);
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, Instance.msFBO);
 
-            using Bitmap screenshot = new Bitmap(Size.X, Size.Y, 4 * Size.X, System.Drawing.Imaging.PixelFormat.Format32bppArgb, data);
+            using Bitmap screenshot = new(
+                Size.X,
+                Size.Y,
+                4 * Size.X,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb,
+                data);
+
             screenshot.RotateFlip(RotateFlipType.RotateNoneFlipY);
 
             string path = Path.Combine(directory, $"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
 
             screenshot.Save(path);
-            Logger.LogInformation("Saved a screenshot to: {path}", path);
+            logger.LogInformation(Events.Screenshot, "Saved a screenshot to: {Path}", path);
 
             Marshal.FreeHGlobal(data);
         }
@@ -302,8 +408,21 @@ namespace VoxelGame.Client.Rendering
             GL.ActiveTexture(TextureUnit.Texture20);
             GL.BindTexture(TextureTarget.Texture2D, Instance.depthTex);
 
-            GL.ClearNamedFramebuffer(Instance.depthFBO, ClearBuffer.Depth, 0, new float[] { 1f });
-            GL.BlitNamedFramebuffer(Instance.msFBO, Instance.depthFBO, 0, 0, Size.X, Size.Y, 0, 0, Size.X, Size.Y, ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
+            GL.ClearNamedFramebuffer(Instance.depthFBO, ClearBuffer.Depth, drawbuffer: 0, new[] {1f});
+
+            GL.BlitNamedFramebuffer(
+                Instance.msFBO,
+                Instance.depthFBO,
+                srcX0: 0,
+                srcY0: 0,
+                Size.X,
+                Size.Y,
+                dstX0: 0,
+                dstY0: 0,
+                Size.X,
+                Size.Y,
+                ClearBufferMask.DepthBufferBit,
+                BlitFramebufferFilter.Nearest);
 
             GL.ActiveTexture(TextureUnit.Texture0);
         }
@@ -331,7 +450,7 @@ namespace VoxelGame.Client.Rendering
                 GL.DeleteRenderbuffer(screenshotRBO);
             }
 
-            Logger.LogWarning(Events.UndeletedGlObjects, "A screen object has been destroyed without disposing it.");
+            logger.LogWarning(Events.UndeletedGlObjects, "Screen object disposed by GC without freeing storage");
 
             disposed = true;
         }

@@ -4,13 +4,13 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using Microsoft.Extensions.Logging;
-using OpenToolkit.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+using Microsoft.Extensions.Logging;
+using OpenToolkit.Mathematics;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
@@ -22,7 +22,7 @@ namespace VoxelGame.Client.Scenes
 {
     public class StartScene : IScene
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<StartScene>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<StartScene>();
 
         private readonly Application.Client client;
         private readonly StartUserInterface ui;
@@ -33,7 +33,7 @@ namespace VoxelGame.Client.Scenes
         {
             this.client = client;
 
-            ui = new StartUserInterface(client, true);
+            ui = new StartUserInterface(client, drawBackground: true);
 
             worlds = new List<(WorldInformation information, string path)>();
         }
@@ -41,7 +41,7 @@ namespace VoxelGame.Client.Scenes
         public void Load()
         {
             Screen.SetCursor(visible: true);
-            Screen.SetWireFrame(false);
+            Screen.SetWireFrame(wireframe: false);
 
             ui.Load();
             ui.Resize(Screen.Size);
@@ -49,7 +49,7 @@ namespace VoxelGame.Client.Scenes
             ui.CreateControl();
             ui.SetActions(Action_Start, Action_Exit);
 
-            LookupWorlds(client.WorldsDirectory);
+            LookupWorlds(client.worldsDirectory);
         }
 
         public void Update(float deltaTime)
@@ -77,7 +77,7 @@ namespace VoxelGame.Client.Scenes
         private void Action_Start()
         {
             ListWorlds(worlds);
-            client.LoadGameScene(WorldSetup(client.WorldsDirectory));
+            client.LoadGameScene(WorldSetup(client.worldsDirectory));
         }
 
         private void Action_Exit()
@@ -91,29 +91,11 @@ namespace VoxelGame.Client.Scenes
 
         private ClientWorld WorldSetup(string worldsDirectory)
         {
-            using (Logger.BeginScope("WorldSetup"))
+            using (logger.BeginScope("WorldSetup"))
             {
-                bool newWorld;
+                bool newWorld = worlds.Count == 0 || NewWorldPrompt();
 
-                if (worlds.Count == 0)
-                {
-                    Logger.LogInformation("Skipping new world prompt as no worlds are available to load.");
-
-                    newWorld = true;
-                }
-                else
-                {
-                    newWorld = NewWorldPrompt();
-                }
-
-                if (newWorld)
-                {
-                    return CreateNewWorld(worldsDirectory);
-                }
-                else
-                {
-                    return LoadExistingWorld(worlds);
-                }
+                return newWorld ? CreateNewWorld(worldsDirectory) : LoadExistingWorld(worlds);
             }
         }
 
@@ -130,42 +112,52 @@ namespace VoxelGame.Client.Scenes
                     WorldInformation information = WorldInformation.Load(meta);
                     worlds.Add((information, directory));
 
-                    Logger.LogDebug("Valid world directory found: {directory}", directory);
+                    logger.LogDebug(Events.WorldIO, "Valid world directory found: {Directory}", directory);
                 }
                 else
                 {
-                    Logger.LogDebug("The directory has no meta file and is ignored: {directory}", directory);
+                    logger.LogDebug(
+                        Events.WorldIO,
+                        "Directory has no meta file and is ignored: {Directory}",
+                        directory);
                 }
             }
 
-            Logger.LogInformation("Completed world lookup, {Count} valid directories have been found.", worlds.Count);
+            logger.LogInformation(
+                Events.WorldIO,
+                "Completed world lookup, found {Count} valid directories",
+                worlds.Count);
         }
 
         private static void ListWorlds(List<(WorldInformation information, string path)> worlds)
         {
-            Thread.Sleep(100);
+            Thread.Sleep(millisecondsTimeout: 100);
 
             if (worlds.Count > 0)
             {
                 Console.WriteLine(Language.ListingWorlds);
 
-                for (int n = 0; n < worlds.Count; n++)
+                for (var n = 0; n < worlds.Count; n++)
                 {
                     Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write($"{n + 1}: ");
+                    Console.Write($@"{n + 1}: ");
 
                     Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write($"{worlds[n].information.Name} - {Language.CreatedOn}: {worlds[n].information.Creation}");
+
+                    Console.Write(
+                        $@"{worlds[n].information.Name} - {Language.CreatedOn}: {worlds[n].information.Creation}");
 
                     Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write(" [");
+                    Console.Write(@" [");
 
-                    if (worlds[n].information.Version == Program.Version) Console.ForegroundColor = ConsoleColor.Green;
-                    else Console.ForegroundColor = ConsoleColor.Red;
+                    Console.ForegroundColor = worlds[n].information.Version == Program.Version
+                        ? ConsoleColor.Green
+                        : ConsoleColor.Red;
+
                     Console.Write(worlds[n].information.Version);
 
                     Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine("]");
+                    Console.WriteLine(@"]");
                 }
 
                 Console.ResetColor();
@@ -175,13 +167,13 @@ namespace VoxelGame.Client.Scenes
 
         private static bool NewWorldPrompt()
         {
-            Console.WriteLine(Language.NewWorldPrompt + " [y|skip: n]");
+            Console.WriteLine(Language.NewWorldPrompt + @" [y|skip: n]");
 
             Console.ForegroundColor = ConsoleColor.White;
-            string input = Console.ReadLine().ToUpperInvariant();
+            string input = Console.ReadLine()?.ToUpperInvariant() ?? "";
             Console.ResetColor();
 
-            return input == "Y" || input == "YES";
+            return input is "Y" or "YES";
         }
 
         private static ClientWorld CreateNewWorld(string worldsDirectory)
@@ -193,22 +185,15 @@ namespace VoxelGame.Client.Scenes
             do
             {
                 Console.ForegroundColor = ConsoleColor.White;
-                name = Console.ReadLine();
+                name = Console.ReadLine() ?? "";
                 Console.ResetColor();
-            }
-            while (!IsNameValid(name));
+            } while (!IsNameValid(name));
 
-            StringBuilder path = new StringBuilder(Path.Combine(worldsDirectory, name));
+            StringBuilder path = new(Path.Combine(worldsDirectory, name));
 
-            if (IsNameReserved(name))
-            {
-                path.Append('_');
-            }
+            if (IsNameReserved(name)) path.Append(value: '_');
 
-            while (Directory.Exists(path.ToString()))
-            {
-                path.Append('_');
-            }
+            while (Directory.Exists(path.ToString())) path.Append(value: '_');
 
             return new ClientWorld(name, path.ToString(), DateTime.Now.GetHashCode());
         }
@@ -217,8 +202,7 @@ namespace VoxelGame.Client.Scenes
         {
             if (name.Length == 0)
             {
-                Logger.LogWarning("The input is too short.");
-
+                logger.LogWarning(Events.UserInteraction, "World name '{Name}' too short", name);
                 Console.WriteLine(Language.InputNotValid);
 
                 return false;
@@ -226,22 +210,19 @@ namespace VoxelGame.Client.Scenes
 
             if (name[^1] == ' ')
             {
-                Logger.LogWarning("The input ends with a whitespace.");
-
+                logger.LogWarning(Events.UserInteraction, "World name '{Name}' ends with whitespace", name);
                 Console.WriteLine(Language.InputNotValid);
 
                 return false;
             }
 
             foreach (char c in Path.GetInvalidFileNameChars())
-            {
-                if (!CheckChar(c)) return false;
-            }
+                if (!CheckChar(c))
+                    return false;
 
-            foreach (char c in new char[] { '.', ',', '{', '}' })
-            {
-                if (!CheckChar(c)) return false;
-            }
+            foreach (char c in new[] {'.', ',', '{', '}'})
+                if (!CheckChar(c))
+                    return false;
 
             return true;
 
@@ -249,8 +230,7 @@ namespace VoxelGame.Client.Scenes
             {
                 if (name.Contains(c, StringComparison.Ordinal))
                 {
-                    Logger.LogWarning("The input contains an invalid character.");
-
+                    logger.LogWarning(Events.UserInteraction, "World name '{Name}' contains invalid characters", name);
                     Console.WriteLine(Language.InputNotValid);
 
                     return false;
@@ -303,27 +283,24 @@ namespace VoxelGame.Client.Scenes
                 Console.WriteLine(Language.EnterIndexOfWorld);
 
                 Console.ForegroundColor = ConsoleColor.White;
-                string index = Console.ReadLine();
+                string index = Console.ReadLine() ?? "";
                 Console.ResetColor();
 
                 if (int.TryParse(index, out int n))
                 {
                     n--;
 
-                    if (n >= 0 && n < worlds.Count)
-                    {
-                        return new ClientWorld(worlds[n].information, worlds[n].path);
-                    }
-                    else
-                    {
-                        Logger.LogWarning("The index ({i}) is too high or too low.", n);
+                    if (n >= 0 && n < worlds.Count) return new ClientWorld(worlds[n].information, worlds[n].path);
 
-                        Console.WriteLine(Language.WorldNotFound);
-                    }
+                    logger.LogWarning(Events.UserInteraction, "World index ({I}) too high or too low", n);
+                    Console.WriteLine(Language.WorldNotFound);
                 }
                 else
                 {
-                    Logger.LogWarning("The input ({input}) could not be parsed to an int value.", index);
+                    logger.LogWarning(
+                        Events.UserInteraction,
+                        "Input '{Input}' could not be parsed to an int value",
+                        index);
 
                     Console.WriteLine(Language.InputNotValid);
                 }
@@ -340,10 +317,7 @@ namespace VoxelGame.Client.Scenes
         {
             if (!disposed)
             {
-                if (disposing)
-                {
-                    ui.Dispose();
-                }
+                if (disposing) ui.Dispose();
 
                 disposed = true;
             }
@@ -352,7 +326,7 @@ namespace VoxelGame.Client.Scenes
         public void Dispose()
         {
             Dispose(disposing: true);
-            System.GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);
         }
 
         #endregion IDisposable Support

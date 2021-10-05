@@ -4,10 +4,10 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
-using System;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Graphics.Objects;
@@ -17,61 +17,52 @@ namespace VoxelGame.Client.Rendering
 {
     public class ScreenElementRenderer : IDisposable
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ScreenElementRenderer>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<ScreenElementRenderer>();
 
         private readonly ElementDrawGroup drawGroup;
+        private Vector3 color;
 
         private int texUnit;
-        private Vector3 color;
 
         public ScreenElementRenderer()
         {
-            BlockModels.CreatePlaneModel(out float[] vertices, out uint[] indices);
+            (float[] vertices, uint[] indices) = BlockModels.CreatePlaneModel();
 
             drawGroup = ElementDrawGroup.Create();
-            drawGroup.SetStorage(6, vertices.Length, vertices, indices.Length, indices);
+            drawGroup.SetStorage(elements: 6, vertices.Length, vertices, indices.Length, indices);
 
             Shaders.ScreenElement.Use();
 
-            drawGroup.VertexArrayBindBuffer(5);
+            drawGroup.VertexArrayBindBuffer(size: 5);
 
             int vertexLocation = Shaders.ScreenElement.GetAttributeLocation("aPosition");
-            drawGroup.VertexArrayBindAttribute(vertexLocation, 3, 0);
+            drawGroup.VertexArrayBindAttribute(vertexLocation, size: 3, offset: 0);
 
             int texCordLocation = Shaders.ScreenElement.GetAttributeLocation("aTexCoord");
-            drawGroup.VertexArrayBindAttribute(texCordLocation, 2, 3);
+            drawGroup.VertexArrayBindAttribute(texCordLocation, size: 2, offset: 3);
         }
 
         public void SetTexture(Texture texture)
         {
-            if (disposed)
-            {
-                return;
-            }
+            if (disposed) return;
 
             texUnit = texture.TextureUnit - TextureUnit.Texture0;
         }
 
-        public void SetColor(Vector3 color)
+        public void SetColor(Vector3 newColor)
         {
-            if (disposed)
-            {
-                return;
-            }
+            if (disposed) return;
 
-            this.color = color;
+            color = newColor;
         }
 
         public void Draw(Vector2 offset, float scaling)
         {
-            if (disposed)
-            {
-                return;
-            }
+            if (disposed) return;
 
             var screenSize = Screen.Size.ToVector2();
-            Vector3 scale = new Vector3(scaling, scaling, 1f) * screenSize.Length;
-            Vector3 translate = new Vector3((offset - new Vector2(0.5f, 0.5f)) * screenSize);
+            Vector3 scale = new Vector3(scaling, scaling, z: 1f) * screenSize.Length;
+            var translate = new Vector3((offset - new Vector2(x: 0.5f, y: 0.5f)) * screenSize);
 
             Matrix4 model = Matrix4.Identity * Matrix4.CreateScale(scale) * Matrix4.CreateTranslation(translate);
 
@@ -85,8 +76,8 @@ namespace VoxelGame.Client.Rendering
 
             drawGroup.DrawElements(PrimitiveType.Triangles);
 
-            GL.BindVertexArray(0);
-            GL.UseProgram(0);
+            GL.BindVertexArray(array: 0);
+            GL.UseProgram(program: 0);
         }
 
         #region IDisposable Support
@@ -98,14 +89,11 @@ namespace VoxelGame.Client.Rendering
             if (disposed)
                 return;
 
-            if (disposing)
-            {
-                drawGroup.Delete();
-            }
+            if (disposing) drawGroup.Delete();
             else
-            {
-                Logger.LogWarning(Events.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
-            }
+                logger.LogWarning(
+                    Events.UndeletedBuffers,
+                    "Renderer disposed by GC without freeing storage");
 
             disposed = true;
         }

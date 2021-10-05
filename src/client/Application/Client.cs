@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
-using OpenToolkit.Windowing.Common.Input;
 using OpenToolkit.Windowing.Desktop;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Client.Collections;
@@ -19,10 +18,10 @@ using VoxelGame.Client.Rendering;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Graphics;
 using VoxelGame.Input;
 using VoxelGame.Input.Actions;
 using VoxelGame.Input.Devices;
-using VoxelGame.Input.Internal;
 using VoxelGame.Logging;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
@@ -30,62 +29,40 @@ namespace VoxelGame.Client.Application
 {
     internal class Client : GameWindow
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Client>();
-        public static Client Instance { get; private set; } = null!;
-
-        #region STATIC PROPERTIES
-
-        /// <summary>
-        /// Gets the <see cref="ArrayTexture"/> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
-        /// </summary>
-        public static ArrayTexture BlockTextureArray { get; private set; } = null!;
-
-        /// <summary>
-        /// Gets the <see cref="ArrayTexture"/> that contains all liquid textures. It is bound to unit 5.
-        /// </summary>
-        public static ArrayTexture LiquidTextureArray { get; private set; } = null!;
-
-        public static ClientPlayer Player { get; private set; } = null!;
-
-        public static double Fps => 1.0 / Instance.renderDeltaBuffer.Average;
-        public static double Ups => 1.0 / Instance.updateDeltaBuffer.Average;
-
-        #endregion STATIC PROPERTIES
-
-        private readonly InputManager input;
-        public KeybindManager Keybinds { get; }
-        public Mouse Mouse => input.Mouse;
-
-        private readonly Graphics.Debug glDebug;
-        private readonly SceneManager sceneManager;
-
-        private double Time { get; set; }
-        public unsafe Window* WindowPointer { get; }
-
-        public readonly string AppDataDirectory;
-        public readonly string WorldsDirectory;
-        public readonly string ScreenshotDirectory;
-
-        private const int deltaBufferCapacity = 30;
-        private readonly CircularTimeBuffer renderDeltaBuffer = new CircularTimeBuffer(deltaBufferCapacity);
-        private readonly CircularTimeBuffer updateDeltaBuffer = new CircularTimeBuffer(deltaBufferCapacity);
+        private const int DeltaBufferCapacity = 30;
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
         private readonly ToggleButton fullscreenToggle;
 
+        private readonly Debug glDebug;
+
+        private readonly InputManager input;
+
+        private readonly CircularTimeBuffer renderDeltaBuffer = new(DeltaBufferCapacity);
+        private readonly SceneManager sceneManager;
+
+        public readonly string screenshotDirectory;
+        private readonly CircularTimeBuffer updateDeltaBuffer = new(DeltaBufferCapacity);
+        public readonly string worldsDirectory;
+
         private Screen screen = null!;
 
-        public Client(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, string appDataDirectory, string screenshotDirectory) : base(gameWindowSettings, nativeWindowSettings)
+        public Client(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings,
+            string appDataDirectory, string screenshotDirectory) : base(gameWindowSettings, nativeWindowSettings)
         {
             Instance = this;
 
-            unsafe { WindowPointer = WindowPtr; }
-            glDebug = new Graphics.Debug();
+            unsafe
+            {
+                WindowPointer = WindowPtr;
+            }
 
-            this.AppDataDirectory = appDataDirectory;
-            this.ScreenshotDirectory = screenshotDirectory;
+            glDebug = new Debug();
 
-            WorldsDirectory = Path.Combine(appDataDirectory, "Worlds");
-            Directory.CreateDirectory(WorldsDirectory);
+            this.screenshotDirectory = screenshotDirectory;
+
+            worldsDirectory = Path.Combine(appDataDirectory, "Worlds");
+            Directory.CreateDirectory(worldsDirectory);
 
             sceneManager = new SceneManager();
 
@@ -102,9 +79,16 @@ namespace VoxelGame.Client.Application
             fullscreenToggle = Keybinds.GetToggle(Keybinds.Fullscreen);
         }
 
+        public static Client Instance { get; private set; } = null!;
+        public KeybindManager Keybinds { get; }
+        public Mouse Mouse => input.Mouse;
+
+        private double Time { get; set; }
+        public unsafe Window* WindowPointer { get; }
+
         private new void OnLoad()
         {
-            using (Logger.BeginScope("Client OnLoad"))
+            using (logger.BeginScope("Client OnLoad"))
             {
                 // GL debug setup.
                 glDebug.Enable();
@@ -113,11 +97,24 @@ namespace VoxelGame.Client.Application
                 screen = new Screen(this);
 
                 // Texture setup.
-                BlockTextureArray = new ArrayTexture("Resources/Textures/Blocks", 16, true, TextureUnit.Texture1, TextureUnit.Texture2, TextureUnit.Texture3, TextureUnit.Texture4);
-                Logger.LogInformation("All block textures loaded.");
+                BlockTextureArray = new ArrayTexture(
+                    "Resources/Textures/Blocks",
+                    resolution: 16,
+                    useCustomMipmapGeneration: true,
+                    TextureUnit.Texture1,
+                    TextureUnit.Texture2,
+                    TextureUnit.Texture3,
+                    TextureUnit.Texture4);
 
-                LiquidTextureArray = new ArrayTexture("Resources/Textures/Liquids", 16, false, TextureUnit.Texture5);
-                Logger.LogInformation("All liquid textures loaded.");
+                logger.LogInformation(Events.ResourceLoad, "Block textures loaded");
+
+                LiquidTextureArray = new ArrayTexture(
+                    "Resources/Textures/Liquids",
+                    resolution: 16,
+                    useCustomMipmapGeneration: false,
+                    TextureUnit.Texture5);
+
+                logger.LogInformation(Events.ResourceLoad, "Liquid textures loaded");
 
                 TextureLayout.SetProviders(BlockTextureArray, LiquidTextureArray);
                 BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
@@ -127,7 +124,11 @@ namespace VoxelGame.Client.Application
 
                 // Block setup.
                 Block.LoadBlocks(BlockTextureArray);
-                Logger.LogDebug("Texture/Block ratio: {ratio:F02}", BlockTextureArray.Count / (float) Block.Count);
+
+                logger.LogDebug(
+                    Events.ResourceLoad,
+                    "Texture/Block ratio: {Ratio:F02}",
+                    BlockTextureArray.Count / (float) Block.Count);
 
                 // Liquid setup.
                 Liquid.LoadLiquids(LiquidTextureArray);
@@ -135,13 +136,13 @@ namespace VoxelGame.Client.Application
                 // Scene setup.
                 sceneManager.Load(new StartScene(this));
 
-                Logger.LogInformation("Finished OnLoad");
+                logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
             }
         }
 
         private new void OnRenderFrame(FrameEventArgs e)
         {
-            using (Logger.BeginScope("RenderFrame"))
+            using (logger.BeginScope("RenderFrame"))
             {
                 Time += e.Time;
 
@@ -161,18 +162,15 @@ namespace VoxelGame.Client.Application
 
         private new void OnUpdateFrame(FrameEventArgs e)
         {
-            using (Logger.BeginScope("UpdateFrame"))
+            using (logger.BeginScope("UpdateFrame"))
             {
-                var deltaTime = (float) MathHelper.Clamp(e.Time, 0f, 1f);
+                var deltaTime = (float) MathHelper.Clamp(e.Time, min: 0f, max: 1f);
 
                 input.UpdateState(KeyboardState, MouseState);
 
                 sceneManager.Update(deltaTime);
 
-                if (IsFocused && fullscreenToggle.Changed)
-                {
-                    Screen.SetFullscreen(!Instance.IsFullscreen);
-                }
+                if (IsFocused && fullscreenToggle.Changed) Screen.SetFullscreen(!Instance.IsFullscreen);
 
                 updateDeltaBuffer.Write(e.Time);
             }
@@ -180,16 +178,35 @@ namespace VoxelGame.Client.Application
 
         private new void OnClosed()
         {
-            Logger.LogInformation("Closing window.");
+            logger.LogInformation(Events.WindowState, "Closing window");
 
             sceneManager.Unload();
         }
+
+        #region STATIC PROPERTIES
+
+        /// <summary>
+        ///     Gets the <see cref="ArrayTexture" /> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
+        /// </summary>
+        public static ArrayTexture BlockTextureArray { get; private set; } = null!;
+
+        /// <summary>
+        ///     Gets the <see cref="ArrayTexture" /> that contains all liquid textures. It is bound to unit 5.
+        /// </summary>
+        public static ArrayTexture LiquidTextureArray { get; private set; } = null!;
+
+        public static ClientPlayer Player { get; private set; } = null!;
+
+        public static double Fps => 1.0 / Instance.renderDeltaBuffer.Average;
+        public static double Ups => 1.0 / Instance.updateDeltaBuffer.Average;
+
+        #endregion STATIC PROPERTIES
 
         #region SCENE MANAGEMENT
 
         public void LoadGameScene(ClientWorld world)
         {
-            GameScene gameScene = new GameScene(Instance, world);
+            GameScene gameScene = new(Instance, world);
 
             sceneManager.Load(gameScene);
 

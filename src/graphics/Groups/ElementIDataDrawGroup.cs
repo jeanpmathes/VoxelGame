@@ -4,18 +4,18 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Graphics.OpenGL4;
 using System;
+using OpenToolkit.Graphics.OpenGL4;
 
 namespace VoxelGame.Graphics.Groups
 {
     public class ElementIDataDrawGroup : IDrawGroup
     {
+        private readonly int ebo;
         private readonly int size;
+        private readonly int vao;
 
         private readonly int vbo;
-        private readonly int ebo;
-        private readonly int vao;
 
         private int elementCount;
 
@@ -23,17 +23,27 @@ namespace VoxelGame.Graphics.Groups
         {
             this.size = size;
 
-            GL.CreateBuffers(1, out vbo);
-            GL.CreateBuffers(1, out ebo);
-            GL.CreateVertexArrays(1, out vao);
+            GL.CreateBuffers(n: 1, out vbo);
+            GL.CreateBuffers(n: 1, out ebo);
+            GL.CreateVertexArrays(n: 1, out vao);
+        }
+
+        public bool IsFilled { get; private set; }
+
+        public void BindVertexArray()
+        {
+            GL.BindVertexArray(vao);
+        }
+
+        public void Draw()
+        {
+            DrawElements();
         }
 
         public static ElementIDataDrawGroup Create(int size)
         {
-            return new ElementIDataDrawGroup(size);
+            return new(size);
         }
-
-        public bool IsFilled { get; private set; }
 
         public void SetData(int vertexDataCount, int[] vertexData, int elementDataCount, uint[] elementData)
         {
@@ -42,6 +52,7 @@ namespace VoxelGame.Graphics.Groups
             if (elementCount == 0)
             {
                 IsFilled = false;
+
                 return;
             }
 
@@ -53,7 +64,7 @@ namespace VoxelGame.Graphics.Groups
 
         public void VertexArrayBindBuffer()
         {
-            GL.VertexArrayVertexBuffer(vao, 0, vbo, IntPtr.Zero, size * sizeof(int));
+            GL.VertexArrayVertexBuffer(vao, bindingindex: 0, vbo, IntPtr.Zero, size * sizeof(int));
             GL.VertexArrayElementBuffer(vao, ebo);
         }
 
@@ -61,20 +72,13 @@ namespace VoxelGame.Graphics.Groups
         {
             GL.EnableVertexArrayAttrib(vao, attribute);
             GL.VertexArrayAttribIFormat(vao, attribute, size, VertexAttribType.Int, 0 * sizeof(int));
-            GL.VertexArrayAttribBinding(vao, attribute, 0);
-        }
-
-        public void BindVertexArray()
-        {
-            GL.BindVertexArray(vao);
+            GL.VertexArrayAttribBinding(vao, attribute, bindingindex: 0);
         }
 
         public void DrawElements()
         {
-            GL.DrawElements(PrimitiveType.Triangles, elementCount, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Triangles, elementCount, DrawElementsType.UnsignedInt, indices: 0);
         }
-
-        public void Draw() => DrawElements();
 
         public void Delete()
         {

@@ -4,8 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic;
 using VoxelGame.Logging;
 
@@ -13,64 +13,56 @@ namespace VoxelGame.Core.WorldGeneration
 {
     public class ComplexGenerator : IWorldGenerator
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<ComplexGenerator>();
+        private const int HalfHeight = Chunk.ChunkHeight / 2;
+
+        private const float Amplitude = 0.6f;
+
+        private const int SnowLevel = 550;
+        private const int BeachLevel = 450;
+        private const int SoilDepth = 5;
+
+        private const float CaveThreshold = 0.7f;
+        private const float CaveLifter = 3.5f;
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<ComplexGenerator>();
 
         private readonly FastNoise noise;
-        private readonly int halfHeight = Chunk.ChunkHeight / 2;
-
-        private readonly float amplitude = 0.6f;
-
-        private readonly int snowLevel = 550;
-        private readonly int beachLevel = 450;
-        private readonly int soilDepth = 5;
-
-        private readonly float caveTreshold = 0.7f;
-        private readonly float caveLifter = 3.5f;
 
         public ComplexGenerator(int seed)
         {
             noise = new FastNoise(seed);
 
             // Settings for fractal noise
-            noise.SetFractalLacunarity(0.5f);
-            noise.SetFractalGain(2f);
+            noise.SetFractalLacunarity(lacunarity: 0.5f);
+            noise.SetFractalGain(gain: 2f);
 
             // Settings for cellular noise
             noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance2Div);
             noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Euclidean);
-            noise.SetCellularJitter(0.4f);
+            noise.SetCellularJitter(cellularJitter: 0.4f);
 
-            Logger.LogInformation("Created an IWorldGenerator of type Complex.");
+            logger.LogInformation(Events.WorldGeneration, "Created complex world generator");
         }
 
         public IEnumerable<Block> GenerateColumn(int x, int z)
         {
-            int height = (int) (amplitude * halfHeight * noise.GetPerlinFractal(x, z)) + halfHeight;
+            int height = (int) (Amplitude * HalfHeight * noise.GetPerlinFractal(x, z)) + HalfHeight;
 
             for (var y = 0; y < Chunk.ChunkHeight; y++)
-            {
                 if (y == 0)
                 {
                     yield return Block.Rubble;
                 }
                 else if (y > height)
                 {
-                    if (y == height + 1 && y < snowLevel && y > beachLevel + 1)
+                    if (y == height + 1 && y is < SnowLevel and > BeachLevel + 1)
                     {
 #pragma warning disable S2234 // Parameters should be passed in the correct order
-                        if (noise.GetCellular(x, z, y) > caveTreshold + (y / (halfHeight * caveLifter)) || noise.GetCellular(x, z, y - 1) > caveTreshold + ((y - 1) / (halfHeight * caveLifter)))
+                        if (noise.GetCellular(x, z, y) > CaveThreshold + y / (HalfHeight * CaveLifter) ||
+                            noise.GetCellular(x, z, y - 1) > CaveThreshold + (y - 1) / (HalfHeight * CaveLifter))
 #pragma warning restore S2234 // Parameters should be passed in the correct order
-                        {
                             yield return Block.Air;
-                        }
-                        else if (noise.GetWhiteNoise(x, z) > 0)
-                        {
-                            yield return Block.TallGrass;
-                        }
-                        else
-                        {
-                            yield return Block.Flower;
-                        }
+                        else if (noise.GetWhiteNoise(x, z) > 0) yield return Block.TallGrass;
+                        else yield return Block.Flower;
                     }
                     else
                     {
@@ -80,43 +72,24 @@ namespace VoxelGame.Core.WorldGeneration
                 else
                 {
 #pragma warning disable S2234 // Parameters should be passed in the correct order
-                    if (noise.GetCellular(x, z, y) > caveTreshold + (y / (halfHeight * caveLifter)))
+                    if (noise.GetCellular(x, z, y) > CaveThreshold + y / (HalfHeight * CaveLifter))
 #pragma warning restore S2234 // Parameters should be passed in the correct order
-                    {
                         yield return Block.Air;
-                    }
                     else if (y == height)
-                    {
-                        if (y >= snowLevel)
+                        yield return y switch
                         {
-                            yield return Block.Snow;
-                        }
-                        else if (y <= beachLevel)
-                        {
-                            yield return Block.Sand;
-                        }
-                        else
-                        {
-                            yield return Block.Grass;
-                        }
-                    }
+                            >= SnowLevel => Block.Snow,
+                            <= BeachLevel => Block.Sand,
+                            _ => Block.Grass
+                        };
                     else
-                    {
-                        if (height < snowLevel && height > beachLevel && y + soilDepth > height)
+                        yield return height switch
                         {
-                            yield return Block.Dirt;
-                        }
-                        else if (height <= beachLevel && y + soilDepth > height)
-                        {
-                            yield return Block.Sand;
-                        }
-                        else
-                        {
-                            yield return Block.Stone;
-                        }
-                    }
+                            < SnowLevel and > BeachLevel when y + SoilDepth > height => Block.Dirt,
+                            <= BeachLevel when y + SoilDepth > height => Block.Sand,
+                            _ => Block.Stone
+                        };
                 }
-            }
         }
     }
 }

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -13,8 +14,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// Similar to <see cref="CrossPlantBlock"/>, but is two blocks high.
-    /// Data bit usage: <c>----lh</c>
+    ///     Similar to <see cref="CrossPlantBlock" />, but is two blocks high.
+    ///     Data bit usage: <c>----lh</c>
     /// </summary>
     // l = lowered
     // h = height
@@ -26,23 +27,22 @@ namespace VoxelGame.Core.Logic.Blocks
         private int bottomTextureIndex;
         private int topTextureIndex;
 
-        internal DoubleCrossPlantBlock(string name, string namedId, string bottomTexture, int topTexOffset, BoundingBox boundingBox) :
+        internal DoubleCrossPlantBlock(string name, string namedId, string bottomTexture, int topTexOffset,
+            BoundingBox boundingBox) :
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: false,
-                isSolid: false,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable: false,
+                new BlockFlags(),
                 boundingBox,
                 TargetBuffer.CrossPlant)
         {
             this.bottomTexture = bottomTexture;
             this.topTexOffset = topTexOffset;
+        }
+
+        public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
+        {
+            if (liquid.IsLiquid && level > LiquidLevel.Five) ScheduleDestroy(world, position);
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
@@ -56,44 +56,43 @@ namespace VoxelGame.Core.Logic.Blocks
             bool isUpper = (info.Data & 0b01) != 0;
             bool isLowered = (info.Data & 0b10) != 0;
 
-            return BlockMeshData.CrossPlant(isUpper ? topTextureIndex : bottomTextureIndex, TintColor.Neutral, true, isLowered, isUpper);
+            return BlockMeshData.CrossPlant(
+                isUpper ? topTextureIndex : bottomTextureIndex,
+                TintColor.Neutral,
+                hasUpper: true,
+                isLowered,
+                isUpper);
         }
 
-        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return world.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true && (world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable;
+            return world.GetBlock(position.Above(), out _)?.IsReplaceable == true &&
+                   (world.GetBlock(position.Below(), out _) ?? Air) is IPlantable;
         }
 
-        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            bool isLowered = world.IsLowered(x, y, z);
+            bool isLowered = world.IsLowered(position);
 
             uint data = (isLowered ? 1u : 0u) << 1;
 
-            world.SetBlock(this, data, x, y, z);
-            world.SetBlock(this, data | 1, x, y + 1, z);
+            world.SetBlock(this, data, position);
+            world.SetBlock(this, data | 1, position.Above());
         }
 
-        internal override void DoDestroy(World world, int x, int y, int z, uint data, PhysicsEntity? entity)
+        internal override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             bool isBase = (data & 0b1) == 0;
 
-            world.SetDefaultBlock(x, y, z);
-            world.SetDefaultBlock(x, y + (isBase ? 1 : -1), z);
+            world.SetDefaultBlock(position);
+            world.SetDefaultBlock(isBase ? position.Above() : position.Below());
         }
 
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
-            if (side == BlockSide.Bottom && (data & 0b1) == 0 && !((world.GetBlock(x, y - 1, z, out _) ?? Block.Air) is IPlantable))
-            {
-                Destroy(world, x, y, z);
-            }
-        }
-
-        public void LiquidChange(World world, int x, int y, int z, Liquid liquid, LiquidLevel level)
-        {
-            if (liquid.Direction > 0 && level > LiquidLevel.Five) ScheduleDestroy(world, x, y, z);
+            if (side == BlockSide.Bottom && (data & 0b1) == 0 &&
+                (world.GetBlock(position.Below(), out _) ?? Air) is not IPlantable) Destroy(world, position);
         }
     }
 }

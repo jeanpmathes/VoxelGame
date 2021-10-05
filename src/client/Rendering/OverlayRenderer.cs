@@ -4,9 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
-using System;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Logging;
@@ -15,34 +15,34 @@ namespace VoxelGame.Client.Rendering
 {
     public class OverlayRenderer : IDisposable
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<OverlayRenderer>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<OverlayRenderer>();
 
         private readonly ElementDrawGroup drawGroup;
+        private int samplerId;
 
         private int textureId;
-        private int samplerId;
 
         public OverlayRenderer()
         {
-            BlockModels.CreatePlaneModel(out float[] vertices, out uint[] indices);
+            (float[] vertices, uint[] indices) = BlockModels.CreatePlaneModel();
 
             drawGroup = ElementDrawGroup.Create();
-            drawGroup.SetStorage(6, vertices.Length, vertices, indices.Length, indices);
+            drawGroup.SetStorage(elements: 6, vertices.Length, vertices, indices.Length, indices);
 
             Shaders.Overlay.Use();
 
-            drawGroup.VertexArrayBindBuffer(5);
+            drawGroup.VertexArrayBindBuffer(size: 5);
 
             int vertexLocation = Shaders.Overlay.GetAttributeLocation("aPosition");
-            drawGroup.VertexArrayBindAttribute(vertexLocation, 3, 0);
+            drawGroup.VertexArrayBindAttribute(vertexLocation, size: 3, offset: 0);
 
             int texCordLocation = Shaders.Overlay.GetAttributeLocation("aTexCoord");
-            drawGroup.VertexArrayBindAttribute(texCordLocation, 2, 3);
+            drawGroup.VertexArrayBindAttribute(texCordLocation, size: 2, offset: 3);
         }
 
         public void SetBlockTexture(int number)
         {
-            samplerId = (number / 2048) + 1;
+            samplerId = number / 2048 + 1;
             textureId = number % 2048;
         }
 
@@ -54,10 +54,7 @@ namespace VoxelGame.Client.Rendering
 
         public void Draw()
         {
-            if (disposed)
-            {
-                return;
-            }
+            if (disposed) return;
 
             GL.Enable(EnableCap.Blend);
 
@@ -70,8 +67,8 @@ namespace VoxelGame.Client.Rendering
 
             drawGroup.DrawElements(PrimitiveType.Triangles);
 
-            GL.BindVertexArray(0);
-            GL.UseProgram(0);
+            GL.BindVertexArray(array: 0);
+            GL.UseProgram(program: 0);
 
             GL.Disable(EnableCap.Blend);
         }
@@ -85,14 +82,11 @@ namespace VoxelGame.Client.Rendering
             if (disposed)
                 return;
 
-            if (disposing)
-            {
-                drawGroup.Delete();
-            }
+            if (disposing) drawGroup.Delete();
             else
-            {
-                Logger.LogWarning(Events.UndeletedBuffers, "A renderer has been disposed by GC, without deleting buffers.");
-            }
+                logger.LogWarning(
+                    Events.UndeletedBuffers,
+                    "Renderer disposed by GC without freeing storage");
 
             disposed = true;
         }

@@ -4,13 +4,14 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using VoxelGame.Core.Visuals;
+using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Core.Logic.Liquids
 {
     public class ConcreteLiquid : BasicLiquid
     {
-        public ConcreteLiquid(string name, string namedId, float density, int viscosity, TextureLayout movingLayout, TextureLayout staticLayout) :
+        public ConcreteLiquid(string name, string namedId, float density, int viscosity, TextureLayout movingLayout,
+            TextureLayout staticLayout) :
             base(
                 name,
                 namedId,
@@ -18,18 +19,14 @@ namespace VoxelGame.Core.Logic.Liquids
                 viscosity,
                 neutralTint: false,
                 movingLayout,
-                staticLayout,
-                RenderType.Opaque)
-        {
-        }
+                staticLayout) {}
 
-        internal override void RandomUpdate(World world, int x, int y, int z, LiquidLevel level, bool isStatic)
+        internal override void RandomUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic)
         {
-            if (isStatic)
-            {
-                world.SetDefaultLiquid(x, y, z);
-                Block.Specials.Concrete.Place(world, level, x, y, z);
-            }
+            if (!isStatic) return;
+
+            world.SetDefaultLiquid(position);
+            Block.Specials.Concrete.Place(world, level, position);
         }
     }
 }

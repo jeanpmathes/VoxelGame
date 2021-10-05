@@ -3,13 +3,14 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using VoxelGame.Core.Logic.Interfaces;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// Blocks that are used in constructing structures.
-    /// Data bit usage: <c>------</c>
+    ///     Blocks that are used in constructing structures.
+    ///     Data bit usage: <c>------</c>
     /// </summary>
     public class ConstructionBlock : BasicBlock, IWideConnectable, IThinConnectable
     {
@@ -17,14 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                layout,
-                isOpaque: true,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isInteractable: false)
-        {
-        }
+                BlockFlags.Basic,
+                layout) {}
     }
 }

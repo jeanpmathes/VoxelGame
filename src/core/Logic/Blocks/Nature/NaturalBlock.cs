@@ -9,23 +9,16 @@ using VoxelGame.Core.Logic.Interfaces;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A natural block that can burn.
-    /// Data bit usage: <c>------</c>
+    ///     A natural block that can burn.
+    ///     Data bit usage: <c>------</c>
     /// </summary>
     public class NaturalBlock : BasicBlock, IFlammable
     {
-        internal NaturalBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true) :
+        internal NaturalBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
             base(
                 name,
                 namedId,
-                layout,
-                isOpaque,
-                renderFaceAtNonOpaques,
-                isSolid,
-                receiveCollisions: false,
-                isTrigger: false,
-                isInteractable: false)
-        {
-        }
+                flags,
+                layout) {}
     }
 }

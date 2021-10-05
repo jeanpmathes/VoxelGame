@@ -4,9 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
-using System.Collections.Generic;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Graphics.Utility;
 using VoxelGame.Logging;
@@ -15,11 +15,19 @@ namespace VoxelGame.Client.Rendering
 {
     internal sealed class Shaders
     {
-        private static readonly ILogger Logger = LoggingHelper.CreateLogger<Shaders>();
-
         private const string TimeUniform = "time";
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Shaders>();
 
-        private static Shaders? _instance;
+        private static Shaders? instance;
+
+        private readonly ShaderLoader loader;
+
+        private readonly ISet<Shader> timedSet = new HashSet<Shader>();
+
+        private Shaders(string directory)
+        {
+            loader = new ShaderLoader(directory, (timedSet, TimeUniform));
+        }
 
         public static Shader SimpleSection { get; private set; } = null!;
         public static Shader ComplexSection { get; private set; } = null!;
@@ -34,22 +42,13 @@ namespace VoxelGame.Client.Rendering
 
         internal static void Load(string directory)
         {
-            _instance ??= new Shaders(directory);
-            _instance.LoadAll();
-        }
-
-        private readonly ShaderLoader loader;
-
-        private readonly ISet<Shader> timedSet = new HashSet<Shader>();
-
-        private Shaders(string directory)
-        {
-            loader = new ShaderLoader(directory, (timedSet, TimeUniform));
+            instance ??= new Shaders(directory);
+            instance.LoadAll();
         }
 
         private void LoadAll()
         {
-            using (Logger.BeginScope("Shader setup"))
+            using (logger.BeginScope("Shader setup"))
             {
                 loader.LoadIncludable("noise", "noise.glsl");
 
@@ -67,24 +66,26 @@ namespace VoxelGame.Client.Rendering
 
                 UpdateOrthographicProjection();
 
-                Logger.LogInformation("Shader setup complete.");
+                logger.LogInformation(Events.ShaderSetup, "Completed shader setup");
             }
         }
 
         public static void UpdateOrthographicProjection()
         {
-            Overlay.SetMatrix4("projection", Matrix4.CreateOrthographic(1f, 1f / Screen.AspectRatio, 0f, 1f));
-            ScreenElement.SetMatrix4("projection", Matrix4.CreateOrthographic(Screen.Size.X, Screen.Size.Y, 0f, 1f));
+            Overlay.SetMatrix4(
+                "projection",
+                Matrix4.CreateOrthographic(width: 1f, 1f / Screen.AspectRatio, depthNear: 0f, depthFar: 1f));
+
+            ScreenElement.SetMatrix4(
+                "projection",
+                Matrix4.CreateOrthographic(Screen.Size.X, Screen.Size.Y, depthNear: 0f, depthFar: 1f));
         }
 
         public static void SetTime(float time)
         {
-            if (_instance == null) return;
+            if (instance == null) return;
 
-            foreach (Shader shader in _instance.timedSet)
-            {
-                shader.SetFloat(TimeUniform, time);
-            }
+            foreach (Shader shader in instance.timedSet) shader.SetFloat(TimeUniform, time);
         }
     }
 }

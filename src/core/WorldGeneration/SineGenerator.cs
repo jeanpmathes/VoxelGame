@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Logic;
@@ -11,10 +12,10 @@ namespace VoxelGame.Core.WorldGeneration
 {
     public class SineGenerator : IWorldGenerator
     {
-        private readonly int amplitude;
-        private readonly int mid;
         private readonly float a;
+        private readonly int amplitude;
         private readonly float b;
+        private readonly int mid;
 
         public SineGenerator(int amplitude, int mid, float a = 1f, float b = 1f)
         {
@@ -28,25 +29,11 @@ namespace VoxelGame.Core.WorldGeneration
         {
             int height = (int) (amplitude * (Math.Sin(a * x) - Math.Sin(b * z))) + mid;
 
-            for (int y = 0; y < Section.SectionSize * Chunk.VerticalSectionCount; y++)
-            {
-                if (y > height)
-                {
-                    yield return Block.Air;
-                }
-                else if (y == height)
-                {
-                    yield return Block.Grass;
-                }
-                else if (y > height - 5)
-                {
-                    yield return Block.Dirt;
-                }
-                else
-                {
-                    yield return Block.Stone;
-                }
-            }
+            for (var y = 0; y < Section.SectionSize * Chunk.VerticalSectionCount; y++)
+                if (y > height) yield return Block.Air;
+                else if (y == height) yield return Block.Grass;
+                else if (y > height - 5) yield return Block.Dirt;
+                else yield return Block.Stone;
         }
     }
 }

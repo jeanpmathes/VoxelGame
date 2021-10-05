@@ -7,7 +7,7 @@
     <Platforms>x64</Platforms>
     <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
     <ApplicationIcon>vg_icon.ico</ApplicationIcon>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>9</LangVersion>
     <Configurations>Debug;Release</Configurations>
     <PackageLicenseExpression>MIT License</PackageLicenseExpression>
   </PropertyGroup>

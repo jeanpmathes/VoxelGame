@@ -3,6 +3,8 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
+using System.Collections.Generic;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -13,8 +15,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A two units high block that can be opened and closed.
-    /// Data bit usage: <c>-csboo</c>
+    ///     A two units high block that can be opened and closed.
+    ///     Data bit usage: <c>-csboo</c>
     /// </summary>
     // c = closed
     // s = side
@@ -22,118 +24,112 @@ namespace VoxelGame.Core.Logic.Blocks
     // o = orientation
     public class DoorBlock : Block, IFillable
     {
-        private readonly float[][] verticesTop = new float[8][];
-        private readonly float[][] verticesBase = new float[8][];
+        private readonly List<BlockMesh> baseClosedMeshes = new();
+        private readonly List<BlockMesh> baseOpenMeshes = new();
+        private readonly List<BlockMesh> topClosedMeshes = new();
+        private readonly List<BlockMesh> topOpenMeshes = new();
 
-        private int[] texIndicesTop = null!;
-        private int[] texIndicesBase = null!;
-
-        private uint[] indicesTop = null!;
-        private uint[] indicesBase = null!;
-
-        private uint vertexCountTop;
-        private uint vertexCountBase;
-
-        private readonly string closed;
-        private readonly string open;
-
-        internal DoorBlock(string name, string namedId, string closed, string open) :
+        internal DoorBlock(string name, string namedId, string closedModel, string openModel) :
             base(
                 name,
                 namedId,
-                isFull: false,
-                isOpaque: false,
-                renderFaceAtNonOpaques: true,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable: true,
-                new BoundingBox(new Vector3(0.5f, 1f, 0.5f), new Vector3(0.5f, 1f, 0.5f)),
+                BlockFlags.Functional,
+                new BoundingBox(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.5f, y: 1f, z: 0.5f)),
                 TargetBuffer.Complex)
         {
-            this.closed = closed;
-            this.open = open;
-        }
+            BlockModel.Load(closedModel).PlaneSplit(
+                Vector3.UnitY,
+                -Vector3.UnitY,
+                out BlockModel baseClosed,
+                out BlockModel topClosed);
 
-        protected override void Setup(ITextureIndexProvider indexProvider)
-        {
-            BlockModel.Load(closed).PlaneSplit(Vector3.UnitY, -Vector3.UnitY, out BlockModel baseClosed, out BlockModel topClosed);
             topClosed.Move(-Vector3.UnitY);
 
-            BlockModel.Load(open).PlaneSplit(Vector3.UnitY, -Vector3.UnitY, out BlockModel baseOpen, out BlockModel topOpen);
+            BlockModel.Load(openModel).PlaneSplit(
+                Vector3.UnitY,
+                -Vector3.UnitY,
+                out BlockModel baseOpen,
+                out BlockModel topOpen);
+
             topOpen.Move(-Vector3.UnitY);
 
-            for (int i = 0; i < 4; i++)
+            CreateMeshes(baseClosed, baseClosedMeshes);
+            CreateMeshes(baseOpen, baseOpenMeshes);
+
+            CreateMeshes(topClosed, topClosedMeshes);
+            CreateMeshes(topOpen, topOpenMeshes);
+
+            static void CreateMeshes(BlockModel model, ICollection<BlockMesh> meshList)
             {
-                if (i == 0)
-                {
-                    baseClosed.ToData(out verticesBase[i], out texIndicesBase, out indicesBase);
-                    topClosed.ToData(out verticesTop[i], out texIndicesTop, out indicesTop);
+                (BlockModel north, BlockModel east, BlockModel south, BlockModel west) =
+                    model.CreateAllOrientations(rotateTopAndBottomTexture: true);
 
-                    baseOpen.ToData(out verticesBase[i + 4], out _, out _);
-                    topOpen.ToData(out verticesTop[i + 4], out _, out _);
-                }
-                else
-                {
-                    baseClosed.RotateY(1);
-                    baseClosed.ToData(out verticesBase[i], out _, out _);
-                    topClosed.RotateY(1);
-                    topClosed.ToData(out verticesTop[i], out _, out _);
-
-                    baseOpen.RotateY(1);
-                    baseOpen.ToData(out verticesBase[i + 4], out _, out _);
-                    topOpen.RotateY(1);
-                    topOpen.ToData(out verticesTop[i + 4], out _, out _);
-                }
+                meshList.Add(north.GetMesh());
+                meshList.Add(east.GetMesh());
+                meshList.Add(south.GetMesh());
+                meshList.Add(west.GetMesh());
             }
-
-            vertexCountTop = (uint) topClosed.VertexCount;
-            vertexCountBase = (uint) baseClosed.VertexCount;
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            Orientation orientation = (Orientation) (data & 0b00_0011);
+            var orientation = (Orientation) (data & 0b00_0011);
 
             // Check if door is open and if the door is left sided.
             if ((data & 0b01_0000) != 0)
-            {
-                orientation = ((data & 0b00_1000) == 0) ? orientation.Rotate() : orientation.Rotate().Invert();
-            }
+                orientation = (data & 0b00_1000) == 0 ? orientation.Rotate() : orientation.Rotate().Opposite();
 
             return orientation switch
             {
-                Orientation.North => new BoundingBox(new Vector3(0.5f, 0.5f, 0.9375f), new Vector3(0.5f, 0.5f, 0.0625f)),
-                Orientation.East => new BoundingBox(new Vector3(0.0625f, 0.5f, 0.5f), new Vector3(0.0625f, 0.5f, 0.5f)),
-                Orientation.South => new BoundingBox(new Vector3(0.5f, 0.5f, 0.0625f), new Vector3(0.5f, 0.5f, 0.0625f)),
-                Orientation.West => new BoundingBox(new Vector3(0.9375f, 0.5f, 0.5f), new Vector3(0.0625f, 0.5f, 0.5f)),
-                _ => new BoundingBox(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.5f, 0.5f, 0.5f))
+                Orientation.North => new BoundingBox(
+                    new Vector3(x: 0.5f, y: 0.5f, z: 0.9375f),
+                    new Vector3(x: 0.5f, y: 0.5f, z: 0.0625f)),
+                Orientation.East => new BoundingBox(
+                    new Vector3(x: 0.0625f, y: 0.5f, z: 0.5f),
+                    new Vector3(x: 0.0625f, y: 0.5f, z: 0.5f)),
+                Orientation.South => new BoundingBox(
+                    new Vector3(x: 0.5f, y: 0.5f, z: 0.0625f),
+                    new Vector3(x: 0.5f, y: 0.5f, z: 0.0625f)),
+                Orientation.West => new BoundingBox(
+                    new Vector3(x: 0.9375f, y: 0.5f, z: 0.5f),
+                    new Vector3(x: 0.0625f, y: 0.5f, z: 0.5f)),
+                _ => new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.5f, y: 0.5f, z: 0.5f))
             };
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            Orientation orientation = (Orientation) (info.Data & 0b00_0011);
+            var orientation = (Orientation) (info.Data & 0b00_0011);
             bool isBase = (info.Data & 0b00_0100) == 0;
             bool isLeftSided = (info.Data & 0b00_1000) == 0;
             bool isClosed = (info.Data & 0b01_0000) == 0;
 
-            Orientation openOrientation = isLeftSided ? orientation.Invert() : orientation;
+            if (isClosed)
+            {
+                var index = (int) orientation;
 
-            int index = isClosed ? (int) orientation : 4 + (int) openOrientation;
+                BlockMesh mesh = isBase ? baseClosedMeshes[index] : topClosedMeshes[index];
 
-            return isBase
-                ? BlockMeshData.Complex(vertexCountBase, verticesBase[index], texIndicesBase, indicesBase)
-                : BlockMeshData.Complex(vertexCountTop, verticesTop[index], texIndicesTop, indicesTop);
+                return mesh.GetComplexMeshData();
+            }
+            else
+            {
+                Orientation openOrientation = isLeftSided ? orientation.Opposite() : orientation;
+                var index = (int) openOrientation;
+
+                BlockMesh mesh = isBase ? baseOpenMeshes[index] : topOpenMeshes[index];
+
+                return mesh.GetComplexMeshData();
+            }
         }
 
-        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return world.GetBlock(x, y + 1, z, out _)?.IsReplaceable == true && world.HasSolidGround(x, y, z, solidify: true);
+            return world.GetBlock(position.Above(), out _)?.IsReplaceable == true &&
+                   world.HasSolidGround(position, solidify: true);
         }
 
-        protected override void DoPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
             BlockSide side = entity?.TargetSide ?? BlockSide.Top;
@@ -144,107 +140,72 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 // Choose side according to neighboring doors to form a double door.
 
-                Block neighbor;
-                uint data;
+                Orientation toNeighbor = orientation.Rotate().Opposite();
+                Vector3i neighborPosition = toNeighbor.Offset(position);
 
-                switch (orientation)
-                {
-                    case Orientation.North:
-                        neighbor = world.GetBlock(x - 1, y, z, out data) ?? Block.Air;
-                        break;
-
-                    case Orientation.East:
-                        neighbor = world.GetBlock(x, y, z - 1, out data) ?? Block.Air;
-                        break;
-
-                    case Orientation.South:
-                        neighbor = world.GetBlock(x + 1, y, z, out data) ?? Block.Air;
-                        break;
-
-                    case Orientation.West:
-                        neighbor = world.GetBlock(x, y, z + 1, out data) ?? Block.Air;
-                        break;
-
-                    default:
-                        neighbor = Block.Air;
-                        data = 0;
-                        break;
-                }
-
+                Block neighbor = world.GetBlock(neighborPosition, out uint data) ?? Air;
                 isLeftSided = neighbor != this || (data & 0b00_1011) != (int) orientation;
             }
             else
             {
                 isLeftSided =
-                    (orientation == Orientation.North && side != BlockSide.Left) ||
-                    (orientation == Orientation.East && side != BlockSide.Back) ||
-                    (orientation == Orientation.South && side != BlockSide.Right) ||
-                    (orientation == Orientation.West && side != BlockSide.Front);
+                    orientation == Orientation.North && side != BlockSide.Left ||
+                    orientation == Orientation.East && side != BlockSide.Back ||
+                    orientation == Orientation.South && side != BlockSide.Right ||
+                    orientation == Orientation.West && side != BlockSide.Front;
             }
 
-            world.SetBlock(this, (uint) ((isLeftSided ? 0b0000 : 0b1000) | (int) orientation), x, y, z);
-            world.SetBlock(this, (uint) ((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int) orientation), x, y + 1, z);
+            world.SetBlock(this, (uint) ((isLeftSided ? 0b0000 : 0b1000) | (int) orientation), position);
+
+            world.SetBlock(
+                this,
+                (uint) ((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int) orientation),
+                position.Above());
         }
 
-        internal override void DoDestroy(World world, int x, int y, int z, uint data, PhysicsEntity? entity)
-        {
-            world.SetDefaultBlock(x, y, z);
-            world.SetDefaultBlock(x, y + ((data & 0b00_0100) == 0 ? 1 : -1), z);
-        }
-
-        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
+        internal override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             bool isBase = (data & 0b00_0100) == 0;
 
-            if (entity.BoundingBox.Intersects(new BoundingBox(new Vector3(0.5f, 1f, 0.5f) + new Vector3(x, isBase ? y : y - 1, z), new Vector3(0.5f, 1f, 0.5f))))
-            {
-                return;
-            }
+            world.SetDefaultBlock(position);
+            world.SetDefaultBlock(position + (isBase ? Vector3i.UnitY : -Vector3i.UnitY));
+        }
 
-            entity.World.SetBlock(this, data ^ 0b1_0000, x, y, z);
-            entity.World.SetBlock(this, data ^ 0b1_0100, x, y + (isBase ? 1 : -1), z);
+        protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
+        {
+            bool isBase = (data & 0b00_0100) == 0;
+            Vector3i otherPosition = position + (isBase ? Vector3i.UnitY : -Vector3i.UnitY);
+
+            if (entity.BoundingBox.Intersects(
+                new BoundingBox(
+                    new Vector3(x: 0.5f, y: 1f, z: 0.5f) + otherPosition.ToVector3(),
+                    new Vector3(x: 0.5f, y: 1f, z: 0.5f)))) return;
+
+            entity.World.SetBlock(this, data ^ 0b1_0000, position);
+            entity.World.SetBlock(this, data ^ 0b1_0100, otherPosition);
 
             // Open a neighboring door, if available.
-            switch (((data & 0b00_1000) == 0) ? ((Orientation) (data & 0b00_0011)).Invert() : (Orientation) (data & 0b00_0011))
+            bool isLeftSided = (data & 0b00_1000) == 0;
+            var orientation = (Orientation) (data & 0b00_0011);
+            orientation = isLeftSided ? orientation.Opposite() : orientation;
+
+            Orientation toNeighbor = orientation.Rotate().Opposite();
+
+            OpenNeighbor(toNeighbor.Offset(position));
+
+            void OpenNeighbor(Vector3i neighborPosition)
             {
-                case Orientation.North:
-
-                    OpenNeighbor(x - 1, y, z);
-                    break;
-
-                case Orientation.East:
-
-                    OpenNeighbor(x, y, z - 1);
-                    break;
-
-                case Orientation.South:
-
-                    OpenNeighbor(x + 1, y, z);
-                    break;
-
-                case Orientation.West:
-
-                    OpenNeighbor(x, y, z + 1);
-                    break;
-            }
-
-            void OpenNeighbor(int x, int y, int z)
-            {
-                Block neighbor = entity.World.GetBlock(x, y, z, out uint neighborData) ?? Block.Air;
+                Block neighbor = entity.World.GetBlock(neighborPosition, out uint neighborData) ?? Air;
 
                 if (neighbor == this && (data & 0b01_1011) == ((neighborData ^ 0b00_1000) & 0b01_1011))
-                {
-                    neighbor.EntityInteract(entity, x, y, z);
-                }
+                    neighbor.EntityInteract(entity, neighborPosition);
             }
         }
 
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && (data & 0b00_0100) == 0 && !world.HasSolidGround(x, y, z))
-            {
-                Destroy(world, x, y, z);
-            }
+            if (side == BlockSide.Bottom && (data & 0b00_0100) == 0 && !world.HasSolidGround(position))
+                Destroy(world, position);
         }
     }
 }

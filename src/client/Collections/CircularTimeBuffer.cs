@@ -20,7 +20,9 @@ namespace VoxelGame.Client.Collections
 
         public CircularTimeBuffer(int capacity)
         {
-            if (capacity < 1) throw new ArgumentOutOfRangeException(nameof(capacity), "Capacity has to be larger than zero.");
+            if (capacity < 1)
+                throw new ArgumentOutOfRangeException(nameof(capacity), "Capacity has to be larger than zero.");
+
             this.capacity = capacity;
             buffer = new double[capacity];
         }

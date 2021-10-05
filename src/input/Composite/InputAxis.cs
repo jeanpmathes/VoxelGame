@@ -8,12 +8,12 @@ using VoxelGame.Input.Actions;
 
 namespace VoxelGame.Input.Composite
 {
-    public class Axis
+    public class InputAxis
     {
-        private readonly Button positive;
         private readonly Button negative;
+        private readonly Button positive;
 
-        public Axis(Button positive, Button negative)
+        public InputAxis(Button positive, Button negative)
         {
             this.positive = positive;
             this.negative = negative;

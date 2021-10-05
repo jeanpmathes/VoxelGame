@@ -3,8 +3,9 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
-using OpenToolkit.Mathematics;
+
 using System;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Physics
@@ -12,36 +13,41 @@ namespace VoxelGame.Core.Physics
     public static class Raycast
     {
         /// <summary>
-        /// Checks if a ray intersects with a block that is not <see cref="Block.Air"/>.
+        ///     Checks if a ray intersects with a block that is not <see cref="Block.Air" />.
         /// </summary>
         /// <param name="world">The world in which to cast the ray.</param>
         /// <param name="ray">The ray.</param>
-        /// <param name="hitX">The x position where the intersection happens.</param>
-        /// <param name="hitY">The y position where the intersection happens.</param>
-        /// <param name="hitZ">The z position where the intersection happens.</param>
+        /// <param name="hit">The position where the intersection happens.</param>
         /// <param name="side">The side of the voxel which is hit first.</param>
         /// <returns>True if an intersection happens.</returns>
-        public static bool CastBlock(World world, Ray ray, out int hitX, out int hitY, out int hitZ, out BlockSide side)
+        public static bool CastBlock(World world, Ray ray, out Vector3i hit, out BlockSide side)
         {
-            return CastVoxel(ray, out hitX, out hitY, out hitZ, out side, (ray1, x, y, z) => BlockIntersectionCheck(world, ray1, x, y, z));
+            return CastVoxel(
+                ray,
+                out hit,
+                out side,
+                (r, pos) => BlockIntersectionCheck(world, r, pos));
         }
 
         /// <summary>
-        /// Checks if a ray intersects with a liquid that is not <see cref="Liquid.None"/>
+        ///     Checks if a ray intersects with a liquid that is not <see cref="Liquid.None" />
         /// </summary>
         /// <param name="world">The world in which to cast the ray.</param>
         /// <param name="ray">The ray.</param>
-        /// <param name="hitX">The x position where the intersection happens.</param>
-        /// <param name="hitY">The y position where the intersection happens.</param>
-        /// <param name="hitZ">The z position where the intersection happens.</param>
+        /// <param name="hit">The hit position.</param>
         /// <param name="side">The side of the voxel which is hit first.</param>
         /// <returns>True if an intersection happens.</returns>
-        public static bool CastLiquid(World world, Ray ray, out int hitX, out int hitY, out int hitZ, out BlockSide side)
+        public static bool CastLiquid(World world, Ray ray, out Vector3i hit, out BlockSide side)
         {
-            return CastVoxel(ray, out hitX, out hitY, out hitZ, out side, (ray1, x, y, z) => LiquidIntersectionCheck(world, ray1, x, y, z));
+            return CastVoxel(
+                ray,
+                out hit,
+                out side,
+                (r, pos) => LiquidIntersectionCheck(world, r, pos));
         }
 
-        private static bool CastVoxel(Ray ray, out int hitX, out int hitY, out int hitZ, out BlockSide side, Func<Ray, int, int, int, bool> rayIntersectionCheck)
+        private static bool CastVoxel(Ray ray, out Vector3i hit, out BlockSide side,
+            Func<Ray, Vector3i, bool> rayIntersectionCheck)
         {
             /*
              * Voxel Traversal Algorithm
@@ -53,14 +59,14 @@ namespace VoxelGame.Core.Physics
             Vector3 direction = ray.Direction;
 
             // Get the origin position in world coordinates.
-            int x = (int) Math.Floor(ray.Origin.X);
-            int y = (int) Math.Floor(ray.Origin.Y);
-            int z = (int) Math.Floor(ray.Origin.Z);
+            var x = (int) Math.Floor(ray.Origin.X);
+            var y = (int) Math.Floor(ray.Origin.Y);
+            var z = (int) Math.Floor(ray.Origin.Z);
 
             // Get the end position in world coordinates.
-            int endX = (int) Math.Floor(ray.EndPoint.X);
-            int endY = (int) Math.Floor(ray.EndPoint.Y);
-            int endZ = (int) Math.Floor(ray.EndPoint.Z);
+            var endX = (int) Math.Floor(ray.EndPoint.X);
+            var endY = (int) Math.Floor(ray.EndPoint.Y);
+            var endZ = (int) Math.Floor(ray.EndPoint.Z);
 
             // Get the direction in which the components are incremented.
             int stepX = Math.Sign(direction.X);
@@ -68,26 +74,24 @@ namespace VoxelGame.Core.Physics
             int stepZ = Math.Sign(direction.Z);
 
             // Calculate the distance to the next voxel border from the current position.
-            double nextVoxelBoundaryX = (stepX > 0) ? x + stepX : x;
-            double nextVoxelBoundaryY = (stepY > 0) ? y + stepY : y;
-            double nextVoxelBoundaryZ = (stepZ > 0) ? z + stepZ : z;
+            double nextVoxelBoundaryX = stepX > 0 ? x + stepX : x;
+            double nextVoxelBoundaryY = stepY > 0 ? y + stepY : y;
+            double nextVoxelBoundaryZ = stepZ > 0 ? z + stepZ : z;
 
             // Calculate the distance to the next voxel border.
-            double tMaxX = (direction.X != 0) ? (nextVoxelBoundaryX - ray.Origin.X) / direction.X : double.MaxValue;
-            double tMaxY = (direction.Y != 0) ? (nextVoxelBoundaryY - ray.Origin.Y) / direction.Y : double.MaxValue;
-            double tMaxZ = (direction.Z != 0) ? (nextVoxelBoundaryZ - ray.Origin.Z) / direction.Z : double.MaxValue;
+            double tMaxX = direction.X != 0 ? (nextVoxelBoundaryX - ray.Origin.X) / direction.X : double.MaxValue;
+            double tMaxY = direction.Y != 0 ? (nextVoxelBoundaryY - ray.Origin.Y) / direction.Y : double.MaxValue;
+            double tMaxZ = direction.Z != 0 ? (nextVoxelBoundaryZ - ray.Origin.Z) / direction.Z : double.MaxValue;
 
             // Calculate distance so component equals voxel border.
-            double tDeltaX = (direction.X != 0) ? stepX / direction.X : double.MaxValue;
-            double tDeltaY = (direction.Y != 0) ? stepY / direction.Y : double.MaxValue;
-            double tDeltaZ = (direction.Z != 0) ? stepZ / direction.Z : double.MaxValue;
+            double tDeltaX = direction.X != 0 ? stepX / direction.X : double.MaxValue;
+            double tDeltaY = direction.Y != 0 ? stepY / direction.Y : double.MaxValue;
+            double tDeltaZ = direction.Z != 0 ? stepZ / direction.Z : double.MaxValue;
 
             // Check if the ray intersects the bounding box of the voxel.
-            if (rayIntersectionCheck(ray, x, y, z))
+            if (rayIntersectionCheck(ray, (x, y, z)))
             {
-                hitX = x;
-                hitY = y;
-                hitZ = z;
+                hit = (x, y, z);
 
                 // As the ray starts in this voxel, no side is selected.
                 side = BlockSide.All;
@@ -104,14 +108,14 @@ namespace VoxelGame.Core.Physics
                         x += stepX;
                         tMaxX += tDeltaX;
 
-                        side = (stepX > 0) ? BlockSide.Left : BlockSide.Right;
+                        side = stepX > 0 ? BlockSide.Left : BlockSide.Right;
                     }
                     else
                     {
                         z += stepZ;
                         tMaxZ += tDeltaZ;
 
-                        side = (stepZ > 0) ? BlockSide.Back : BlockSide.Front;
+                        side = stepZ > 0 ? BlockSide.Back : BlockSide.Front;
                     }
                 }
                 else
@@ -121,47 +125,47 @@ namespace VoxelGame.Core.Physics
                         y += stepY;
                         tMaxY += tDeltaY;
 
-                        side = (stepY > 0) ? BlockSide.Bottom : BlockSide.Top;
+                        side = stepY > 0 ? BlockSide.Bottom : BlockSide.Top;
                     }
                     else
                     {
                         z += stepZ;
                         tMaxZ += tDeltaZ;
 
-                        side = (stepZ > 0) ? BlockSide.Back : BlockSide.Front;
+                        side = stepZ > 0 ? BlockSide.Back : BlockSide.Front;
                     }
                 }
 
                 // Check if the ray intersects the bounding box of the block
-                if (rayIntersectionCheck(ray, x, y, z))
+                if (rayIntersectionCheck(ray, (x, y, z)))
                 {
-                    hitX = x;
-                    hitY = y;
-                    hitZ = z;
+                    hit = (x, y, z);
 
                     return true;
                 }
             }
 
-            hitX = hitY = hitZ = -1;
+            hit = (-1, -1, -1);
             side = BlockSide.All;
+
             return false;
         }
 
-        private static bool BlockIntersectionCheck(World world, Ray ray, int x, int y, int z)
+        private static bool BlockIntersectionCheck(World world, Ray ray, Vector3i position)
         {
-            Block? block = world.GetBlock(x, y, z, out _);
+            Block? block = world.GetBlock(position, out _);
 
             // Check if the ray intersects the bounding box of the block.
-            return (block != null && block != Block.Air && block.GetBoundingBox(world, x, y, z).Intersects(ray));
+            return block != null && block != Block.Air && block.GetBoundingBox(world, position).Intersects(ray);
         }
 
-        private static bool LiquidIntersectionCheck(World world, Ray ray, int x, int y, int z)
+        private static bool LiquidIntersectionCheck(World world, Ray ray, Vector3i position)
         {
-            Liquid? liquid = world.GetLiquid(x, y, z, out LiquidLevel level, out _);
+            Liquid? liquid = world.GetLiquid(position, out LiquidLevel level, out _);
 
             // Check if the ray intersects the bounding box of the liquid.
-            return (liquid != null && liquid != Liquid.None && Liquid.GetBoundingBox(world, x, y, z, level).Intersects(ray));
+            return liquid != null && liquid != Liquid.None &&
+                   Liquid.GetBoundingBox(position, level).Intersects(ray);
         }
     }
 }

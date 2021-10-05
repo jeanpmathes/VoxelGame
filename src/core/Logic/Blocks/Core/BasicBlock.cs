@@ -10,34 +10,27 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// This class represents a simple block that is completely filled. <see cref="BasicBlock"/>s themselves do not have much function, but the class can be extended easily.
-    /// Data bit usage: <c>------</c>
+    ///     This class represents a simple block that is completely filled. <see cref="BasicBlock" />s themselves do not have
+    ///     much function, but the class can be extended easily.
+    ///     Data bit usage: <c>------</c>
     /// </summary>
     public class BasicBlock : Block, IOverlayTextureProvider
     {
+        private readonly TextureLayout layout;
         private protected int[] sideTextureIndices = null!;
 
-        private readonly TextureLayout layout;
-
-        public virtual int TextureIdentifier => layout.Bottom;
-
-        internal BasicBlock(string name, string namedId, TextureLayout layout, bool isOpaque = true, bool renderFaceAtNonOpaques = true, bool isSolid = true, bool receiveCollisions = false, bool isTrigger = false, bool isInteractable = false) :
+        internal BasicBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
             base(
                 name,
                 namedId,
-                isFull: true,
-                isOpaque,
-                renderFaceAtNonOpaques,
-                isSolid,
-                receiveCollisions,
-                isTrigger,
-                isReplaceable: false,
-                isInteractable,
+                flags with {IsFull = true, IsReplaceable = false},
                 BoundingBox.Block,
                 TargetBuffer.Simple)
         {
             this.layout = layout;
         }
+
+        public virtual int TextureIdentifier => layout.Bottom;
 
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
@@ -46,7 +39,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            return BlockMeshData.Basic(sideTextureIndices[(int) info.Side], false);
+            return BlockMeshData.Basic(sideTextureIndices[(int) info.Side], isTextureRotated: false);
         }
     }
 }

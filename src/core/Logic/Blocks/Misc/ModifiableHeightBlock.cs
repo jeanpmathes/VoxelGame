@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -11,8 +12,8 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Blocks
 {
     /// <summary>
-    /// A block that allows to change its height by interacting.
-    /// Data bit usage: <c>--hhhh</c>
+    ///     A block that allows to change its height by interacting.
+    ///     Data bit usage: <c>--hhhh</c>
     /// </summary>
     public class ModifiableHeightBlock : VaryingHeightBlock
     {
@@ -20,40 +21,31 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                layout,
-                isSolid: true,
-                receiveCollisions: false,
-                isTrigger: false,
-                isReplaceable: false,
-                isInteractable: true)
+                BlockFlags.Functional,
+                layout) {}
+
+        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
+            return world.HasSolidGround(position, solidify: true);
         }
 
-        internal override bool CanPlace(World world, int x, int y, int z, PhysicsEntity? entity)
+        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            return world.HasSolidGround(x, y, z, solidify: true);
-        }
-
-        internal override void BlockUpdate(World world, int x, int y, int z, uint data, BlockSide side)
-        {
-            if (side == BlockSide.Bottom && !world.HasSolidGround(x, y, z))
+            if (side == BlockSide.Bottom && !world.HasSolidGround(position))
             {
                 if (GetHeight(data) == IHeightVariable.MaximumHeight)
-                    ScheduleDestroy(world, x, y, z);
+                    ScheduleDestroy(world, position);
                 else
-                    Destroy(world, x, y, z);
+                    Destroy(world, position);
             }
         }
 
-        protected override void EntityInteract(PhysicsEntity entity, int x, int y, int z, uint data)
+        protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
             uint height = data & 0b00_1111;
             height++;
 
-            if (height <= IHeightVariable.MaximumHeight)
-            {
-                entity.World.SetBlock(this, height, x, y, z);
-            }
+            if (height <= IHeightVariable.MaximumHeight) entity.World.SetBlock(this, height, position);
         }
     }
 }

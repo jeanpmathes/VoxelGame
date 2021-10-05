@@ -3,6 +3,7 @@
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
+
 namespace VoxelGame.Core.Logic.Interfaces
 {
     public interface IHeightVariable

@@ -15,8 +15,8 @@ namespace VoxelGame.Input.Internal
 
         internal CombinedState(KeyboardState keyboard, MouseState mouse)
         {
-            this.Keyboard = keyboard;
-            this.Mouse = mouse;
+            Keyboard = keyboard;
+            Mouse = mouse;
         }
 
         public bool IsKeyOrButtonDown(KeyOrButton keyOrButton)
