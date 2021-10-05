@@ -74,7 +74,7 @@ namespace VoxelGame.Client
 
             NativeWindowSettings nativeWindowSettings = NativeWindowSettings.Default;
             nativeWindowSettings.WindowBorder = WindowBorder.Hidden;
-            nativeWindowSettings.Profile = ContextProfile.Compatability;
+            nativeWindowSettings.Profile = ContextProfile.Core;
             nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
             nativeWindowSettings.Size = client.Default.ScreenSize.ToVector2i();
             nativeWindowSettings.StartFocused = false;
