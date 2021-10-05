@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic
 
     public static class VerticalFlowExtensions
     {
-        public static Vector3i FlowDirection(this VerticalFlow flow)
+        public static Vector3i Direction(this VerticalFlow flow)
         {
             return flow switch
             {
@@ -36,6 +36,17 @@ namespace VoxelGame.Core.Logic
                 VerticalFlow.Static => 0,
                 VerticalFlow.Downwards => 0,
                 _ => 0
+            };
+        }
+
+        public static VerticalFlow Opposite(this VerticalFlow flow)
+        {
+            return flow switch
+            {
+                VerticalFlow.Upwards => VerticalFlow.Downwards,
+                VerticalFlow.Static => VerticalFlow.Static,
+                VerticalFlow.Downwards => VerticalFlow.Upwards,
+                _ => VerticalFlow.Static
             };
         }
 

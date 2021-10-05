@@ -109,7 +109,7 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public bool IsGas => Direction == VerticalFlow.Upwards;
 
-        public Vector3i FlowDirection => Direction.FlowDirection();
+        public Vector3i FlowDirection => Direction.Direction();
 
         string IIdentifiable<string>.Id => NamedId;
 

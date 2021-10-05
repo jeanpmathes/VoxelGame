@@ -69,7 +69,7 @@ namespace VoxelGame.Core.Logic.Liquids
                     position,
                     currentFillable: null,
                     level,
-                    Direction.FlowDirection().Y,
+                    Direction,
                     handleContact: false,
                     out int remaining) && remaining == -1 ||
                 FlowVertical(
@@ -77,7 +77,7 @@ namespace VoxelGame.Core.Logic.Liquids
                     position,
                     currentFillable: null,
                     (LiquidLevel) remaining,
-                    -Direction.FlowDirection().Y,
+                    Direction.Opposite(),
                     handleContact: false,
                     out remaining) &&
                 remaining == -1) return;
@@ -92,7 +92,7 @@ namespace VoxelGame.Core.Logic.Liquids
                 position,
                 current,
                 level,
-                -Direction.FlowDirection().Y,
+                Direction,
                 handleContact: true,
                 out _)) return;
 
@@ -117,12 +117,10 @@ namespace VoxelGame.Core.Logic.Liquids
         }
 
         private bool FlowVertical(World world, Vector3i position, IFillable? currentFillable, LiquidLevel level,
-            int direction, bool handleContact, out int remaining)
+            VerticalFlow flow, bool handleContact, out int remaining)
         {
-            Vector3i flowDirection = (0, -direction, 0);
-
             (Block? blockVertical, Liquid? liquidVertical) = world.GetPosition(
-                position + flowDirection,
+                position + flow.Direction(),
                 out _,
                 out LiquidLevel levelVertical,
                 out bool isStatic);
@@ -130,18 +128,18 @@ namespace VoxelGame.Core.Logic.Liquids
             if (blockVertical is IFillable verticalFillable
                 && verticalFillable.AllowInflow(
                     world,
-                    position + flowDirection,
-                    direction > 0 ? BlockSide.Top : BlockSide.Bottom,
+                    position + flow.Direction(),
+                    flow.EntrySide(),
                     this)
-                && (currentFillable?.AllowOutflow(world, position, direction > 0 ? BlockSide.Bottom : BlockSide.Top) ??
+                && (currentFillable?.AllowOutflow(world, position, flow.ExitSide()) ??
                     true))
             {
                 if (liquidVertical == None)
                 {
-                    SetLiquid(world, this, level, isStatic: false, verticalFillable, position + flowDirection);
+                    SetLiquid(world, this, level, isStatic: false, verticalFillable, position + flow.Direction());
                     SetLiquid(world, None, LiquidLevel.Eight, isStatic: true, currentFillable, position);
 
-                    ScheduleTick(world, position + flowDirection);
+                    ScheduleTick(world, position + flow.Direction());
 
                     remaining = -1;
 
@@ -167,7 +165,7 @@ namespace VoxelGame.Core.Logic.Liquids
                             levelVertical + (int) level + 1,
                             isStatic: false,
                             verticalFillable,
-                            position + flowDirection);
+                            position + flow.Direction());
 
                         SetLiquid(world, None, LiquidLevel.Eight, isStatic: true, currentFillable, position);
 
@@ -181,7 +179,7 @@ namespace VoxelGame.Core.Logic.Liquids
                             LiquidLevel.Eight,
                             isStatic: false,
                             verticalFillable,
-                            position + flowDirection);
+                            position + flow.Direction());
 
                         SetLiquid(world, this, level - volume - 1, isStatic: false, currentFillable, position);
 
@@ -190,7 +188,7 @@ namespace VoxelGame.Core.Logic.Liquids
                         ScheduleTick(world, position);
                     }
 
-                    if (isStatic) ScheduleTick(world, position + flowDirection);
+                    if (isStatic) ScheduleTick(world, position + flow.Direction());
 
                     return true;
                 }
@@ -205,7 +203,7 @@ namespace VoxelGame.Core.Logic.Liquids
                         position,
                         level,
                         liquidVertical,
-                        position + flowDirection,
+                        position + flow.Direction(),
                         levelVertical,
                         isStatic);
                 }
