@@ -1,3 +1,0 @@
-DLLs compiled using the following repo (last commit: May 28, 2020) by Geinome:
-
-https://github.com/Geinome/Gwen.Net
