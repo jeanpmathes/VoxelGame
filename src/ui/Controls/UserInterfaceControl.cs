@@ -11,13 +11,13 @@ namespace VoxelGame.UI.Controls
 {
     internal abstract class UserInterfaceControl : ControlBase
     {
-        private readonly UserInterface ui;
-
         internal UserInterfaceControl(UserInterface userInterface) : base(userInterface.Root)
         {
-            ui = userInterface;
+            UI = userInterface;
         }
 
-        protected FontHolder Fonts => ui.Fonts!;
+        public UserInterface UI { get; }
+
+        protected FontHolder Fonts => UI.Fonts!;
     }
 }

@@ -20,6 +20,8 @@ namespace VoxelGame.UI.Controls
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
     internal class StartControl : UserInterfaceControl
     {
+        private ImagePanel? image;
+
         internal StartControl(StartUserInterface parent) : base(parent)
         {
             Dock = Dock.Fill;
@@ -48,9 +50,12 @@ namespace VoxelGame.UI.Controls
             MakeFiller(bar);
 
             bar.SetColumnWidths(1.0f);
-            bar.SetRowHeights(0.05f, 0.15f, 0.55f, 0.15f, 0.1f);
+            bar.SetRowHeights(0.05f, 0.15f, 0.55f, 0.15f, 0.10f);
 
-            ImagePanel image = new(start) {ImageName = Source.GetImageName("preview")};
+            image = new ImagePanel(start)
+            {
+                ImageName = Source.GetImageName("start")
+            };
         }
 
         private static void MakeFiller(ControlBase control)
