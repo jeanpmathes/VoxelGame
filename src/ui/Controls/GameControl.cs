@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
@@ -12,9 +11,9 @@ using VoxelGame.Core;
 
 namespace VoxelGame.UI.Controls
 {
-    internal class GameControl : ControlBase
+    internal class GameControl : UserInterfaceControl
     {
-        internal GameControl(UserInterface parent) : base(parent.Root)
+        internal GameControl(UserInterface parent) : base(parent)
         {
             Dock = Dock.Fill;
 
@@ -27,14 +26,6 @@ namespace VoxelGame.UI.Controls
             performance = BuildLabel("FPS/UPS: 000/000");
         }
 
-        [SuppressMessage(
-            "General",
-            "RCS1130:Bitwise operation on enum without Flags attribute.",
-            Justification = "Intended by Gwen.Net")]
-        [SuppressMessage(
-            "Critical Code Smell",
-            "S3265:Non-flags enums should not be used in bitwise operations",
-            Justification = "Intended by Gwen.Net")]
         private Label BuildLabel(string text)
         {
             Label label = new(grid) {Alignment = Alignment.Top | Alignment.CenterH, Text = text};

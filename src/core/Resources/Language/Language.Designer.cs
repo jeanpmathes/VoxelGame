@@ -286,6 +286,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Exit.
+        /// </summary>
+        public static string Exit {
+            get {
+                return ResourceManager.GetString("Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Farmland.
         /// </summary>
         public static string Farmland {
@@ -939,6 +948,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string WorldNotFound {
             get {
                 return ResourceManager.GetString("WorldNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Worlds.
+        /// </summary>
+        public static string Worlds {
+            get {
+                return ResourceManager.GetString("Worlds", resourceCulture);
             }
         }
     }

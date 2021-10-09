@@ -11,6 +11,7 @@ using Gwen.Net.OpenTk;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Desktop;
+using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI
 {
@@ -34,13 +35,16 @@ namespace VoxelGame.UI
             this.drawBackground = drawBackground;
         }
 
+        internal FontHolder? Fonts { get; private set; }
+
         public ControlBase Root => gui.Root;
 
         public void Load()
         {
             gui.Load();
             gui.Root.ShouldDrawBackground = drawBackground;
-            gui.Root.Skin.DefaultFont.Size = 15;
+
+            Fonts = new FontHolder(gui.Root.Skin);
         }
 
         public abstract void CreateControl();

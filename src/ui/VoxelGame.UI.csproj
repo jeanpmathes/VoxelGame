@@ -25,9 +25,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="lib\**" />
-    <EmbeddedResource Remove="lib\**" />
-    <None Remove="lib\**" />
+      <Compile Remove="lib\**"/>
+      <EmbeddedResource Remove="lib\**"/>
+      <None Remove="lib\**"/>
+      <None Update="DefaultSkin2.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\GUI\preview.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -61,11 +67,5 @@
       <HintPath>..\..\lib\Gwen.Net\Gwen.Net.OpenTk.dll</HintPath>
       <Private>true</Private>
     </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="DefaultSkin2.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 </Project>

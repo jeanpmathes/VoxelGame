@@ -5,42 +5,95 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
+using VoxelGame.Core;
+using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.UserInterfaces;
+using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.Controls
 {
-    internal class StartControl : ControlBase
+    [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
+    [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
+    internal class StartControl : UserInterfaceControl
     {
-        internal StartControl(StartUserInterface parent) : base(parent.Root)
+        internal StartControl(StartUserInterface parent) : base(parent)
         {
             Dock = Dock.Fill;
 
-            layout = new VerticalLayout(this);
+            CreateContent();
+        }
 
-            start = new Button(layout);
+        private void CreateContent()
+        {
+            GridLayout start = new(this);
+            start.SetColumnWidths(0.3f, 0.7f);
+            start.SetRowHeights(1.0f);
 
-            start.Clicked += (_, _) => Start?.Invoke();
+            GridLayout bar = new(start)
+            {
+                Dock = Dock.Fill
+            };
 
-            start.Text = "START";
+            MakeFiller(bar);
+            VerticalLayout title = new(bar);
+            CreateTitle(title);
 
-            exit = new Button(layout);
+            MakeFiller(bar);
+            VerticalLayout menu = new(bar);
+            CreateMenu(menu);
+            MakeFiller(bar);
+
+            bar.SetColumnWidths(1.0f);
+            bar.SetRowHeights(0.05f, 0.15f, 0.5f, 0.2f, 0.1f);
+
+            ImagePanel image = new(start) {ImageName = Source.GetImageName("preview")};
+        }
+
+        private static void MakeFiller(ControlBase control)
+        {
+            VerticalLayout filler = new(control);
+        }
+
+        private void CreateTitle(ControlBase bar)
+        {
+            Label title = new(bar)
+            {
+                Text = Language.VoxelGame,
+                Font = Fonts.Title,
+                Alignment = Alignment.Center
+            };
+
+            Label subtitle = new(bar)
+            {
+                Text = GameInformation.Instance.Version,
+                Font = Fonts.Subtitle,
+                Alignment = Alignment.Center
+            };
+        }
+
+        private void CreateMenu(ControlBase menu)
+        {
+            Button worlds = new(menu)
+            {
+                Text = Language.Worlds
+            };
+
+            worlds.Clicked += (_, _) => Start?.Invoke();
+
+            Button exit = new(menu)
+            {
+                Text = Language.Exit
+            };
 
             exit.Clicked += (_, _) => Exit?.Invoke();
-
-            exit.Text = "EXIT";
         }
 
         public event Action? Start;
 
         public event Action? Exit;
-#pragma warning disable S1450
-        private readonly VerticalLayout layout;
-
-        private readonly Button start;
-        private readonly Button exit;
-#pragma warning restore S1450
     }
 }

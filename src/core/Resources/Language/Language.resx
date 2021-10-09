@@ -411,4 +411,10 @@
   <data name="WorldNotFound" xml:space="preserve">
     <value>World not found!</value>
   </data>
+  <data name="Worlds" xml:space="preserve">
+    <value>Worlds</value>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
 </root>
