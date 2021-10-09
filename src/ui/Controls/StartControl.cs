@@ -48,7 +48,7 @@ namespace VoxelGame.UI.Controls
             MakeFiller(bar);
 
             bar.SetColumnWidths(1.0f);
-            bar.SetRowHeights(0.05f, 0.15f, 0.5f, 0.2f, 0.1f);
+            bar.SetRowHeights(0.05f, 0.15f, 0.55f, 0.15f, 0.1f);
 
             ImagePanel image = new(start) {ImageName = Source.GetImageName("preview")};
         }
