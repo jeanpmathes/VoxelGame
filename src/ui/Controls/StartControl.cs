@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
+using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.UI.Controls
@@ -16,17 +17,35 @@ namespace VoxelGame.UI.Controls
     internal class StartControl : UserInterfaceControl
     {
         private readonly MainMenu mainMenu;
+        private readonly WorldSelection worldSelection;
 
-        internal StartControl(StartUserInterface parent) : base(parent)
+        internal StartControl(StartUserInterface parent, IWorldProvider worldProvider) : base(parent)
         {
             Dock = Dock.Fill;
-            mainMenu = new MainMenu(this, Fonts);
 
-            mainMenu.Start += () => Start?.Invoke();
+            mainMenu = new MainMenu(this, Fonts);
             mainMenu.Exit += () => Exit?.Invoke();
+            mainMenu.Worlds += OpenWorldSelection;
+
+            worldSelection = new WorldSelection(this, worldProvider, Fonts);
+            worldSelection.Cancel += OpenMainMenu;
+
+            worldSelection.Hide();
         }
 
-        public event Action? Start;
+        private void OpenWorldSelection()
+        {
+            mainMenu.Hide();
+            worldSelection.Show();
+
+            worldSelection.Refresh();
+        }
+
+        private void OpenMainMenu()
+        {
+            worldSelection.Hide();
+            mainMenu.Show();
+        }
 
         public event Action? Exit;
     }

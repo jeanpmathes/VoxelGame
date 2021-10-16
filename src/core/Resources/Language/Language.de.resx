@@ -417,4 +417,7 @@
     <data name="Exit" xml:space="preserve">
     <value>Verlassen</value>
   </data>
+    <data name="Back" xml:space="preserve">
+    <value>Zurück</value>
+  </data>
 </root>

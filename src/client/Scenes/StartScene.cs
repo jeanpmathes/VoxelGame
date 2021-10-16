@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
+using VoxelGame.Client.Application;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
@@ -27,13 +28,17 @@ namespace VoxelGame.Client.Scenes
         private readonly Application.Client client;
         private readonly StartUserInterface ui;
 
+        private readonly WorldManager worldManager;
+
         private List<(WorldInformation information, string path)> worlds;
 
         internal StartScene(Application.Client client)
         {
             this.client = client;
+            worldManager = new WorldManager(client.worldsDirectory);
+            worldManager.WorldActivation += client.LoadGameScene;
 
-            ui = new StartUserInterface(client, drawBackground: true);
+            ui = new StartUserInterface(client, worldManager, drawBackground: true);
 
             worlds = new List<(WorldInformation information, string path)>();
         }
@@ -47,9 +52,7 @@ namespace VoxelGame.Client.Scenes
             ui.Resize(Screen.Size);
 
             ui.CreateControl();
-            ui.SetActions(Action_Start, Action_Exit);
-
-            LookupWorlds(client.worldsDirectory);
+            ui.SetExitAction(() => client.Close());
         }
 
         public void Update(float deltaTime)
@@ -71,21 +74,6 @@ namespace VoxelGame.Client.Scenes
         {
             // Method intentionally left empty.
         }
-
-        #region ACTIONS
-
-        private void Action_Start()
-        {
-            ListWorlds(worlds);
-            client.LoadGameScene(WorldSetup(client.worldsDirectory));
-        }
-
-        private void Action_Exit()
-        {
-            client.Close();
-        }
-
-        #endregion ACTIONS
 
         #region WORLD SETUP
 

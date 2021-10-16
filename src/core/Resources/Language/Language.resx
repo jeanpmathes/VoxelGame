@@ -408,13 +408,16 @@
   <data name="WorkedStone" xml:space="preserve">
     <value>Worked Stone</value>
   </data>
-  <data name="WorldNotFound" xml:space="preserve">
+    <data name="WorldNotFound" xml:space="preserve">
     <value>World not found!</value>
   </data>
-  <data name="Worlds" xml:space="preserve">
+    <data name="Worlds" xml:space="preserve">
     <value>Worlds</value>
   </data>
-  <data name="Exit" xml:space="preserve">
+    <data name="Exit" xml:space="preserve">
     <value>Exit</value>
+  </data>
+    <data name="Back" xml:space="preserve">
+    <value>Back</value>
   </data>
 </root>

@@ -7,28 +7,33 @@
 using System;
 using OpenToolkit.Windowing.Desktop;
 using VoxelGame.UI.Controls;
+using VoxelGame.UI.Providers;
 
 namespace VoxelGame.UI.UserInterfaces
 {
     public class StartUserInterface : UserInterface
     {
+        private readonly IWorldProvider worldProvider;
+
         private StartControl? control;
 
-        public StartUserInterface(GameWindow window, bool drawBackground) : base(
+        public StartUserInterface(GameWindow window, IWorldProvider worldProvider, bool drawBackground) : base(
             window,
-            drawBackground) {}
+            drawBackground)
+        {
+            this.worldProvider = worldProvider;
+        }
 
         public override void CreateControl()
         {
             control?.Dispose();
-            control = new StartControl(this);
+            control = new StartControl(this, worldProvider);
         }
 
-        public void SetActions(Action start, Action exit)
+        public void SetExitAction(Action exit)
         {
             if (control == null) return;
 
-            control.Start += start;
             control.Exit += exit;
         }
     }
