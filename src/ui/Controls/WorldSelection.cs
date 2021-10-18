@@ -144,7 +144,26 @@ namespace VoxelGame.UI.Controls
                     VerticalAlignment = VerticalAlignment.Center
                 };
 
-                load.Pressed += (_, _) => { worldProvider.LoadWorld(info, path); };
+                Button delete = new(layout)
+                {
+                    ImageName = Source.GetIconName("delete"),
+                    ImageSize = new Size(width: 40, height: 40),
+                    ToolTipText = Language.Delete,
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
+                load.Pressed += (_, _) => worldProvider.LoadWorld(info, path);
+
+                delete.Pressed += (_, _) => Modals.OpenBooleanModal(
+                    this,
+                    Language.DeleteWorldQuery,
+                    () =>
+                    {
+                        worldProvider.DeleteWorld(path);
+                        Refresh();
+                    },
+                    () => {});
             }
         }
 
@@ -158,8 +177,6 @@ namespace VoxelGame.UI.Controls
                 VerticalAlignment = VerticalAlignment.Center,
                 Resizing = Resizing.None
             };
-
-            // worldCreationWindow.MakeModal(dim: true);
 
             VerticalLayout layout = new(worldCreationWindow)
             {

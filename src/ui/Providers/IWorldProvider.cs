@@ -20,5 +20,7 @@ namespace VoxelGame.UI.Providers
         void CreateWorld(string name);
 
         bool IsWorldNameValid(string name);
+
+        void DeleteWorld(string path);
     }
 }

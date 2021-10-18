@@ -408,13 +408,19 @@
     <data name="CreateNewWorld" xml:space="preserve">
     <value>Erzeuge Neue Welt</value>
   </data>
-    <data name="Options" xml:space="preserve">
+  <data name="Options" xml:space="preserve">
     <value>Optionen</value>
   </data>
-    <data name="EnterWorldName" xml:space="preserve">
+  <data name="EnterWorldName" xml:space="preserve">
     <value>Weltnamen eingeben</value>
   </data>
-    <data name="Create" xml:space="preserve">
+  <data name="Create" xml:space="preserve">
     <value>Erzeugen</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Löschen</value>
+  </data>
+  <data name="DeleteWorldQuery" xml:space="preserve">
+    <value>Welt löschen?</value>
   </data>
 </root>

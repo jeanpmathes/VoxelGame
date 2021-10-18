@@ -108,6 +108,18 @@ namespace VoxelGame.Client.Application
             }
         }
 
+        public void DeleteWorld(string path)
+        {
+            try
+            {
+                Directory.Delete(path, recursive: true);
+            }
+            catch (IOException e)
+            {
+                logger.LogError(Events.FileIO, e, "Failed to delete world");
+            }
+        }
+
         private static bool IsNameReserved(string name)
         {
             switch (name)

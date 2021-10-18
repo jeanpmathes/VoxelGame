@@ -268,6 +268,24 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        public static string Delete {
+            get {
+                return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete World?.
+        /// </summary>
+        public static string DeleteWorldQuery {
+            get {
+                return ResourceManager.GetString("DeleteWorldQuery", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Dirt.
         /// </summary>
         public static string Dirt {

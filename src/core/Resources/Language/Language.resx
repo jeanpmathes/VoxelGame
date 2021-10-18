@@ -417,4 +417,10 @@
   <data name="EnterWorldName" xml:space="preserve">
     <value>Enter a world name</value>
   </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteWorldQuery" xml:space="preserve">
+    <value>Delete World?</value>
+  </data>
 </root>
