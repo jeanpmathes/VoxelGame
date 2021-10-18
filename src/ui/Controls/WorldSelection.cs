@@ -114,7 +114,8 @@ namespace VoxelGame.UI.Controls
 
                 Button load = new(layout)
                 {
-                    Text = "Load",
+                    ImageName = Source.GetIconName("load"),
+                    ImageSize = new Size(width: 40, height: 40),
                     HorizontalAlignment = HorizontalAlignment.Right,
                     VerticalAlignment = VerticalAlignment.Center
                 };

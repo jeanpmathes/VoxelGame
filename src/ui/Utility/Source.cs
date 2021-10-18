@@ -12,5 +12,10 @@ namespace VoxelGame.UI.Utility
         {
             return $"Resources/GUI/{name}.png";
         }
+
+        public static string GetIconName(string name)
+        {
+            return $"Resources/GUI/Icons/{name}.png";
+        }
     }
 }
