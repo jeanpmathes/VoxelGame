@@ -466,6 +466,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Load.
+        /// </summary>
+        public static string Load {
+            get {
+                return ResourceManager.GetString("Load", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Log.
         /// </summary>
         public static string Log {

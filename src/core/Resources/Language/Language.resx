@@ -420,4 +420,7 @@
     <data name="Back" xml:space="preserve">
     <value>Back</value>
   </data>
+    <data name="Load" xml:space="preserve">
+    <value>Load</value>
+  </data>
 </root>

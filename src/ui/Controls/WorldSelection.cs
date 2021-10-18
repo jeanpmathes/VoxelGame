@@ -116,6 +116,7 @@ namespace VoxelGame.UI.Controls
                 {
                     ImageName = Source.GetIconName("load"),
                     ImageSize = new Size(width: 40, height: 40),
+                    ToolTipText = Language.Load,
                     HorizontalAlignment = HorizontalAlignment.Right,
                     VerticalAlignment = VerticalAlignment.Center
                 };
