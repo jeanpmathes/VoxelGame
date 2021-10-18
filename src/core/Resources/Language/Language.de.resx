@@ -168,9 +168,6 @@
   <data name="Concrete" xml:space="preserve">
     <value>Beton</value>
   </data>
-  <data name="CreatedOn" xml:space="preserve">
-    <value>Erstellt am</value>
-  </data>
   <data name="CrudeOil" xml:space="preserve">
     <value>Rohöl</value>
   </data>
@@ -182,12 +179,6 @@
   </data>
   <data name="Dirt" xml:space="preserve">
     <value>Erde</value>
-  </data>
-  <data name="EnterIndexOfWorld" xml:space="preserve">
-    <value>Geben sie die Nummer der Welt ein: </value>
-  </data>
-  <data name="EnterNameOfWorld" xml:space="preserve">
-    <value>Geben sie den Namen der neuen Welt ein: </value>
   </data>
   <data name="EternalFlame" xml:space="preserve">
     <value>Ewiges Feuer</value>
@@ -243,9 +234,6 @@
   <data name="Liquid" xml:space="preserve">
     <value>Flüssigkeit</value>
   </data>
-  <data name="ListingWorlds" xml:space="preserve">
-    <value>Liste alle Welten auf: </value>
-  </data>
   <data name="Log" xml:space="preserve">
     <value>Stamm</value>
   </data>
@@ -266,9 +254,6 @@
   </data>
   <data name="NaturalGas" xml:space="preserve">
     <value>Erdgas</value>
-  </data>
-  <data name="NewWorldPrompt" xml:space="preserve">
-    <value>Möchten sie eine neue Welt erstellen?</value>
   </data>
   <data name="NoLiquid" xml:space="preserve">
     <value>Keine Flüssigkeit</value>
@@ -408,10 +393,7 @@
     <data name="WorkedStone" xml:space="preserve">
     <value>Bearbeiteter Stein</value>
   </data>
-    <data name="WorldNotFound" xml:space="preserve">
-    <value>Welt wurde nicht gefunden!</value>
-  </data>
-    <data name="Worlds" xml:space="preserve">
+  <data name="Worlds" xml:space="preserve">
     <value>Welten</value>
   </data>
     <data name="Exit" xml:space="preserve">
@@ -422,5 +404,17 @@
   </data>
     <data name="Load" xml:space="preserve">
     <value>Laden</value>
+  </data>
+    <data name="CreateNewWorld" xml:space="preserve">
+    <value>Erzeuge Neue Welt</value>
+  </data>
+    <data name="Options" xml:space="preserve">
+    <value>Optionen</value>
+  </data>
+    <data name="EnterWorldName" xml:space="preserve">
+    <value>Weltnamen eingeben</value>
+  </data>
+    <data name="Create" xml:space="preserve">
+    <value>Erzeugen</value>
   </data>
 </root>

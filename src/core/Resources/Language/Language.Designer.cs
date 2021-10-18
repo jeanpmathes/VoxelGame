@@ -223,11 +223,20 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Created on.
+        ///   Looks up a localized string similar to Create.
         /// </summary>
-        public static string CreatedOn {
+        public static string Create {
             get {
-                return ResourceManager.GetString("CreatedOn", resourceCulture);
+                return ResourceManager.GetString("Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create New World.
+        /// </summary>
+        public static string CreateNewWorld {
+            get {
+                return ResourceManager.GetString("CreateNewWorld", resourceCulture);
             }
         }
         
@@ -268,20 +277,11 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Enter the index of the world to load:.
+        ///   Looks up a localized string similar to Enter a world name.
         /// </summary>
-        public static string EnterIndexOfWorld {
+        public static string EnterWorldName {
             get {
-                return ResourceManager.GetString("EnterIndexOfWorld", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Enter the name of the world to create:.
-        /// </summary>
-        public static string EnterNameOfWorld {
-            get {
-                return ResourceManager.GetString("EnterNameOfWorld", resourceCulture);
+                return ResourceManager.GetString("EnterWorldName", resourceCulture);
             }
         }
         
@@ -457,15 +457,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Listing all worlds: .
-        /// </summary>
-        public static string ListingWorlds {
-            get {
-                return ResourceManager.GetString("ListingWorlds", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Load.
         /// </summary>
         public static string Load {
@@ -538,15 +529,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Do you want to create a new world?.
-        /// </summary>
-        public static string NewWorldPrompt {
-            get {
-                return ResourceManager.GetString("NewWorldPrompt", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to No Liquid.
         /// </summary>
         public static string NoLiquid {
@@ -570,6 +552,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Onions {
             get {
                 return ResourceManager.GetString("Onions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Options.
+        /// </summary>
+        public static string Options {
+            get {
+                return ResourceManager.GetString("Options", resourceCulture);
             }
         }
         
@@ -957,15 +948,6 @@ namespace VoxelGame.Core.Resources.Language {
         public static string WorkedStone {
             get {
                 return ResourceManager.GetString("WorkedStone", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to World not found!.
-        /// </summary>
-        public static string WorldNotFound {
-            get {
-                return ResourceManager.GetString("WorldNotFound", resourceCulture);
             }
         }
         

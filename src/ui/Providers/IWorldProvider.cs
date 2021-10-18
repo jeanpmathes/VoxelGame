@@ -16,5 +16,9 @@ namespace VoxelGame.UI.Providers
         void Refresh();
 
         void LoadWorld(WorldInformation information, string path);
+
+        void CreateWorld(string name);
+
+        bool IsWorldNameValid(string name);
     }
 }

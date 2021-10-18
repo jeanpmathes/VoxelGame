@@ -24,6 +24,8 @@ namespace VoxelGame.UI.Controls
     {
         private readonly IWorldProvider worldProvider;
 
+        private Window? worldCreationWindow;
+
         private ControlBase? worldList;
 
         internal WorldSelection(ControlBase parent, IWorldProvider worldProvider, FontHolder fonts) : base(
@@ -41,16 +43,25 @@ namespace VoxelGame.UI.Controls
                 Text = Language.Back
             };
 
-            back.Clicked += (_, _) => Cancel?.Invoke();
+            back.Clicked += (_, _) =>
+            {
+                worldCreationWindow?.Close();
+                Cancel?.Invoke();
+            };
         }
 
         protected override void CreateDisplay(ControlBase display)
         {
-            GroupBox scrollBox = new(display)
+            DockLayout layout = new(display)
             {
-                Text = Language.Worlds,
                 Padding = Padding.Five,
                 Margin = Margin.Ten
+            };
+
+            GroupBox scrollBox = new(layout)
+            {
+                Text = Language.Worlds,
+                Dock = Dock.Fill
             };
 
             ScrollControl scroll = new(scrollBox)
@@ -63,6 +74,18 @@ namespace VoxelGame.UI.Controls
 
             worldList = new VerticalLayout(scroll);
 
+            GroupBox options = new(layout)
+            {
+                Text = Language.Options,
+                Dock = Dock.Bottom
+            };
+
+            Button newWorld = new(options)
+            {
+                Text = Language.CreateNewWorld
+            };
+
+            newWorld.Clicked += (_, _) => OpenWorldCreationWindow();
         }
 
         public void Refresh()
@@ -94,7 +117,7 @@ namespace VoxelGame.UI.Controls
 
                 Label date = new(infoPanel)
                 {
-                    Text = info.Creation.ToShortDateString(),
+                    Text = $"{info.Creation.ToLongDateString()} - {info.Creation.ToLongTimeString()}",
                     Font = Fonts.Small
                 };
 
@@ -122,6 +145,66 @@ namespace VoxelGame.UI.Controls
                 };
 
                 load.Pressed += (_, _) => { worldProvider.LoadWorld(info, path); };
+            }
+        }
+
+        private void OpenWorldCreationWindow()
+        {
+            worldCreationWindow = new Window(this)
+            {
+                Title = Language.CreateNewWorld,
+                StartPosition = StartPosition.CenterCanvas,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Resizing = Resizing.None
+            };
+
+            // worldCreationWindow.MakeModal(dim: true);
+
+            VerticalLayout layout = new(worldCreationWindow)
+            {
+                Padding = Padding.Five,
+                Margin = Margin.Ten
+            };
+
+            Label info = new(layout)
+            {
+                Text = Language.EnterWorldName,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Padding = Padding.Five
+            };
+
+            TextBox name = new(layout)
+            {
+                Text = "Hello World",
+                Padding = Padding.Five
+            };
+
+            Button create = new(layout)
+            {
+                Text = Language.Create,
+                Padding = Padding.Five
+            };
+
+            name.TextChanged += (_, _) => ValidateInput(out _);
+            create.Pressed += (_, _) => CreateWorld();
+
+            void ValidateInput(out bool isValid)
+            {
+                string input = name.Text;
+                isValid = worldProvider.IsWorldNameValid(input);
+
+                name.TextColor = isValid ? Color.White : Color.Red;
+                create.IsDisabled = !isValid;
+
+                create.UpdateColors();
+            }
+
+            void CreateWorld()
+            {
+                ValidateInput(out bool isValid);
+
+                if (isValid) worldProvider.CreateWorld(name.Text);
             }
         }
 

@@ -168,9 +168,6 @@
   <data name="Concrete" xml:space="preserve">
     <value>Concrete</value>
   </data>
-  <data name="CreatedOn" xml:space="preserve">
-    <value>Created on</value>
-  </data>
   <data name="CrudeOil" xml:space="preserve">
     <value>Crude Oil</value>
   </data>
@@ -182,12 +179,6 @@
   </data>
   <data name="Dirt" xml:space="preserve">
     <value>Dirt</value>
-  </data>
-  <data name="EnterIndexOfWorld" xml:space="preserve">
-    <value>Enter the index of the world to load:</value>
-  </data>
-  <data name="EnterNameOfWorld" xml:space="preserve">
-    <value>Enter the name of the world to create:</value>
   </data>
   <data name="EternalFlame" xml:space="preserve">
     <value>Eternal Flame</value>
@@ -243,9 +234,6 @@
   <data name="Liquid" xml:space="preserve">
     <value>Liquid</value>
   </data>
-  <data name="ListingWorlds" xml:space="preserve">
-    <value>Listing all worlds: </value>
-  </data>
   <data name="Log" xml:space="preserve">
     <value>Log</value>
   </data>
@@ -266,9 +254,6 @@
   </data>
   <data name="NaturalGas" xml:space="preserve">
     <value>Natural Gas</value>
-  </data>
-  <data name="NewWorldPrompt" xml:space="preserve">
-    <value>Do you want to create a new world?</value>
   </data>
   <data name="NoLiquid" xml:space="preserve">
     <value>No Liquid</value>
@@ -408,19 +393,28 @@
   <data name="WorkedStone" xml:space="preserve">
     <value>Worked Stone</value>
   </data>
-    <data name="WorldNotFound" xml:space="preserve">
-    <value>World not found!</value>
-  </data>
-    <data name="Worlds" xml:space="preserve">
+  <data name="Worlds" xml:space="preserve">
     <value>Worlds</value>
   </data>
-    <data name="Exit" xml:space="preserve">
+  <data name="Exit" xml:space="preserve">
     <value>Exit</value>
   </data>
-    <data name="Back" xml:space="preserve">
+  <data name="Back" xml:space="preserve">
     <value>Back</value>
   </data>
-    <data name="Load" xml:space="preserve">
+  <data name="Load" xml:space="preserve">
     <value>Load</value>
+  </data>
+  <data name="CreateNewWorld" xml:space="preserve">
+    <value>Create New World</value>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>Options</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="EnterWorldName" xml:space="preserve">
+    <value>Enter a world name</value>
   </data>
 </root>
