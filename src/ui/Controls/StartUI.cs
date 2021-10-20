@@ -1,4 +1,4 @@
-﻿// <copyright file="GameControl.cs" company="VoxelGame">
+﻿// <copyright file="StartUI.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -14,12 +14,12 @@ namespace VoxelGame.UI.Controls
 {
     [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-    internal class StartControl : UserInterfaceControl
+    internal class StartUI : UserInterfaceControl
     {
         private readonly MainMenu mainMenu;
         private readonly WorldSelection worldSelection;
 
-        internal StartControl(StartUserInterface parent, IWorldProvider worldProvider) : base(parent)
+        internal StartUI(StartUserInterface parent, IWorldProvider worldProvider) : base(parent)
         {
             Dock = Dock.Fill;
 

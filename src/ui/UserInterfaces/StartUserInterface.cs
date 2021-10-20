@@ -15,7 +15,7 @@ namespace VoxelGame.UI.UserInterfaces
     {
         private readonly IWorldProvider worldProvider;
 
-        private StartControl? control;
+        private StartUI? control;
 
         public StartUserInterface(GameWindow window, IWorldProvider worldProvider, bool drawBackground) : base(
             window,
@@ -27,7 +27,7 @@ namespace VoxelGame.UI.UserInterfaces
         public override void CreateControl()
         {
             control?.Dispose();
-            control = new StartControl(this, worldProvider);
+            control = new StartUI(this, worldProvider);
         }
 
         public void SetExitAction(Action exit)

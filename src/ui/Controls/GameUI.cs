@@ -1,4 +1,4 @@
-﻿// <copyright file="GameControl.cs" company="VoxelGame">
+﻿// <copyright file="GameUI.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -11,9 +11,9 @@ using VoxelGame.Core;
 
 namespace VoxelGame.UI.Controls
 {
-    internal class GameControl : UserInterfaceControl
+    internal class GameUI : UserInterfaceControl
     {
-        internal GameControl(UserInterface parent) : base(parent)
+        internal GameUI(UserInterface parent) : base(parent)
         {
             Dock = Dock.Fill;
 

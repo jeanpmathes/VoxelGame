@@ -11,7 +11,7 @@ namespace VoxelGame.UI.UserInterfaces
 {
     public class GameUserInterface : UserInterface
     {
-        private GameControl? control;
+        private GameUI? control;
 
         public GameUserInterface(GameWindow window, bool drawBackground) : base(
             window,
@@ -30,7 +30,7 @@ namespace VoxelGame.UI.UserInterfaces
         public override void CreateControl()
         {
             control?.Dispose();
-            control = new GameControl(this);
+            control = new GameUI(this);
         }
 
         public void SetUpdateRate(double fps, double ups)
