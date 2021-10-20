@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using VoxelGame.UI.Providers;
@@ -20,7 +21,8 @@ namespace VoxelGame.UI.Controls
         private readonly SettingsMenu settingsMenu;
         private readonly WorldSelection worldSelection;
 
-        internal StartUI(StartUserInterface parent, IWorldProvider worldProvider) : base(parent)
+        internal StartUI(StartUserInterface parent, IWorldProvider worldProvider,
+            List<ISettingsProvider> settingsProviders) : base(parent)
         {
             Dock = Dock.Fill;
 
@@ -32,7 +34,7 @@ namespace VoxelGame.UI.Controls
             worldSelection = new WorldSelection(this, worldProvider, Fonts);
             worldSelection.Cancel += OpenMainMenu;
 
-            settingsMenu = new SettingsMenu(this, Fonts);
+            settingsMenu = new SettingsMenu(this, settingsProviders, Fonts);
             settingsMenu.Cancel += OpenMainMenu;
 
             OpenMainMenu();

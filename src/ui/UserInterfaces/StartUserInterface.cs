@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using OpenToolkit.Windowing.Desktop;
 using VoxelGame.UI.Controls;
 using VoxelGame.UI.Providers;
@@ -13,21 +14,24 @@ namespace VoxelGame.UI.UserInterfaces
 {
     public class StartUserInterface : UserInterface
     {
+        private readonly List<ISettingsProvider> settingsProviders;
         private readonly IWorldProvider worldProvider;
 
         private StartUI? control;
 
-        public StartUserInterface(GameWindow window, IWorldProvider worldProvider, bool drawBackground) : base(
+        public StartUserInterface(GameWindow window, IWorldProvider worldProvider,
+            List<ISettingsProvider> settingsProviders, bool drawBackground) : base(
             window,
             drawBackground)
         {
             this.worldProvider = worldProvider;
+            this.settingsProviders = settingsProviders;
         }
 
         public override void CreateControl()
         {
             control?.Dispose();
-            control = new StartUI(this, worldProvider);
+            control = new StartUI(this, worldProvider, settingsProviders);
         }
 
         public void SetExitAction(Action exit)

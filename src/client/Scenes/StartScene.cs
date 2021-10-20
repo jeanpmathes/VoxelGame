@@ -5,9 +5,11 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using OpenToolkit.Mathematics;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
+using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes
@@ -25,7 +27,7 @@ namespace VoxelGame.Client.Scenes
             worldManager = new WorldManager(client.worldsDirectory);
             worldManager.WorldActivation += client.LoadGameScene;
 
-            ui = new StartUserInterface(client, worldManager, drawBackground: true);
+            ui = new StartUserInterface(client, worldManager, new List<ISettingsProvider>(), drawBackground: true);
         }
 
         public void Load()

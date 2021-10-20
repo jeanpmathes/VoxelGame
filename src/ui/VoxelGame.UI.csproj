@@ -64,14 +64,18 @@
     <ProjectReference Include="..\core\VoxelGame.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Gwen.Net">
-      <HintPath>..\..\lib\Gwen.Net\Gwen.Net.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Gwen.Net.OpenTk">
-      <HintPath>..\..\lib\Gwen.Net\Gwen.Net.OpenTk.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-  </ItemGroup>
+    <ItemGroup>
+        <Reference Include="Gwen.Net">
+            <HintPath>..\..\lib\Gwen.Net\Gwen.Net.dll</HintPath>
+            <Private>true</Private>
+        </Reference>
+        <Reference Include="Gwen.Net.OpenTk">
+            <HintPath>..\..\lib\Gwen.Net\Gwen.Net.OpenTk.dll</HintPath>
+            <Private>true</Private>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Controls\Settings"/>
+    </ItemGroup>
 </Project>
