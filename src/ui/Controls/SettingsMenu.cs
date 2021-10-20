@@ -16,7 +16,10 @@ namespace VoxelGame.UI.Controls
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
     public class SettingsMenu : VoxelMenu
     {
-        public SettingsMenu(ControlBase parent, FontHolder fonts) : base(parent, fonts) {}
+        public SettingsMenu(ControlBase parent, FontHolder fonts) : base(parent, fonts)
+        {
+            CreateContent();
+        }
 
         protected override void CreateMenu(ControlBase menu)
         {

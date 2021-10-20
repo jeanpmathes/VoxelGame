@@ -16,7 +16,10 @@ namespace VoxelGame.UI.Controls
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
     internal class MainMenu : VoxelMenu
     {
-        internal MainMenu(ControlBase parent, FontHolder fonts) : base(parent, fonts) {}
+        internal MainMenu(ControlBase parent, FontHolder fonts) : base(parent, fonts)
+        {
+            CreateContent();
+        }
 
         internal event Action? SelectExit;
         internal event Action? SelectWorlds;

@@ -33,7 +33,7 @@ namespace VoxelGame.UI.Controls
             fonts)
         {
             this.worldProvider = worldProvider;
-            FillWorldList();
+            CreateContent();
         }
 
         protected override void CreateMenu(ControlBase menu)
@@ -73,6 +73,7 @@ namespace VoxelGame.UI.Controls
             };
 
             worldList = new VerticalLayout(scroll);
+            FillWorldList();
 
             GroupBox options = new(layout)
             {

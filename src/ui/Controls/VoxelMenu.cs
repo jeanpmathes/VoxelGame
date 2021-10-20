@@ -23,13 +23,11 @@ namespace VoxelGame.UI.Controls
             Fonts = fonts;
 
             Dock = Dock.Fill;
-
-            CreateContent();
         }
 
         protected FontHolder Fonts { get; }
 
-        private void CreateContent()
+        protected void CreateContent()
         {
             GridLayout start = new(this);
             start.SetColumnWidths(0.3f, 0.7f);
