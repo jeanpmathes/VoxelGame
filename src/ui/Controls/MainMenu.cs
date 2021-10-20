@@ -14,12 +14,13 @@ namespace VoxelGame.UI.Controls
 {
     [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-    internal class MainMenu : StartMenu
+    internal class MainMenu : VoxelMenu
     {
         internal MainMenu(ControlBase parent, FontHolder fonts) : base(parent, fonts) {}
 
-        internal event Action? Exit;
-        internal event Action? Worlds;
+        internal event Action? SelectExit;
+        internal event Action? SelectWorlds;
+        internal event Action? SelectSettings;
 
         protected override void CreateMenu(ControlBase menu)
         {
@@ -28,14 +29,21 @@ namespace VoxelGame.UI.Controls
                 Text = Language.Worlds
             };
 
-            worlds.Clicked += (_, _) => Worlds?.Invoke();
+            worlds.Clicked += (_, _) => SelectWorlds?.Invoke();
+
+            Button settings = new(menu)
+            {
+                Text = Language.Settings
+            };
+
+            settings.Clicked += (_, _) => SelectSettings?.Invoke();
 
             Button exit = new(menu)
             {
                 Text = Language.Exit
             };
 
-            exit.Clicked += (_, _) => Exit?.Invoke();
+            exit.Clicked += (_, _) => SelectExit?.Invoke();
         }
 
         protected override void CreateDisplay(ControlBase display)

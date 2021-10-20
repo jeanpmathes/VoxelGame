@@ -414,13 +414,16 @@
   <data name="Create" xml:space="preserve">
     <value>Create</value>
   </data>
-  <data name="EnterWorldName" xml:space="preserve">
+    <data name="EnterWorldName" xml:space="preserve">
     <value>Enter a world name</value>
   </data>
-  <data name="Delete" xml:space="preserve">
+    <data name="Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="DeleteWorldQuery" xml:space="preserve">
+    <data name="DeleteWorldQuery" xml:space="preserve">
     <value>Delete World?</value>
+  </data>
+    <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
   </data>
 </root>

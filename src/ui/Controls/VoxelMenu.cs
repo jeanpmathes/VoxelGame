@@ -1,4 +1,4 @@
-﻿// <copyright file="StartMenu.cs" company="VoxelGame">
+﻿// <copyright file="VoxelMenu.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -16,9 +16,9 @@ namespace VoxelGame.UI.Controls
 {
     [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-    public abstract class StartMenu : ControlBase
+    public abstract class VoxelMenu : ControlBase
     {
-        protected StartMenu(ControlBase parent, FontHolder fonts) : base(parent)
+        protected VoxelMenu(ControlBase parent, FontHolder fonts) : base(parent)
         {
             Fonts = fonts;
 

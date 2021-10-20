@@ -20,7 +20,7 @@ namespace VoxelGame.UI.Controls
 {
     [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-    public class WorldSelection : StartMenu
+    public class WorldSelection : VoxelMenu
     {
         private readonly IWorldProvider worldProvider;
 
