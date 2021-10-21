@@ -10,6 +10,8 @@ using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Input;
+using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.Controls
@@ -18,14 +20,16 @@ namespace VoxelGame.UI.Controls
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
     public abstract class VoxelMenu : ControlBase
     {
-        protected VoxelMenu(ControlBase parent, FontHolder fonts) : base(parent)
+        private protected VoxelMenu(ControlBase parent, Context context) : base(parent)
         {
-            Fonts = fonts;
-
+            Context = context;
             Dock = Dock.Fill;
         }
 
-        protected FontHolder Fonts { get; }
+        internal Context Context { get; }
+
+        protected FontHolder Fonts => Context.Fonts;
+        protected InputListener Input => Context.Input;
 
         protected void CreateContent()
         {

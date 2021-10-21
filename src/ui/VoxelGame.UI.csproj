@@ -62,6 +62,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\core\VoxelGame.Core.csproj" />
+      <ProjectReference Include="..\input\VoxelGame.Input.csproj"/>
   </ItemGroup>
 
     <ItemGroup>
@@ -73,9 +74,5 @@
             <HintPath>..\..\lib\Gwen.Net\Gwen.Net.OpenTk.dll</HintPath>
             <Private>true</Private>
         </Reference>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Controls\Settings"/>
     </ItemGroup>
 </Project>

@@ -14,6 +14,7 @@ using VoxelGame.Core;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Providers;
+using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.Controls
@@ -28,9 +29,9 @@ namespace VoxelGame.UI.Controls
 
         private ControlBase? worldList;
 
-        internal WorldSelection(ControlBase parent, IWorldProvider worldProvider, FontHolder fonts) : base(
+        internal WorldSelection(ControlBase parent, IWorldProvider worldProvider, Context context) : base(
             parent,
-            fonts)
+            context)
         {
             this.worldProvider = worldProvider;
             CreateContent();

@@ -5,7 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
-using VoxelGame.UI.Providers.Settings;
+using VoxelGame.UI.Settings;
 
 namespace VoxelGame.UI.Providers
 {

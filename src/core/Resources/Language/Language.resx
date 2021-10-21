@@ -426,4 +426,61 @@
     <data name="Settings" xml:space="preserve">
     <value>Settings</value>
   </data>
+    <data name="Keybinds" xml:space="preserve">
+    <value>Keybinds</value>
+  </data>
+    <data name="KeyFullscreen" xml:space="preserve">
+    <value>Fullscreen</value>
+  </data>
+    <data name="KeyWireframe" xml:space="preserve">
+    <value>Wireframe</value>
+  </data>
+    <data name="KeyToggleUI" xml:space="preserve">
+    <value>Toggle UI</value>
+  </data>
+    <data name="KeyScreenshot" xml:space="preserve">
+    <value>Screenshot</value>
+  </data>
+    <data name="KeyEscape" xml:space="preserve">
+    <value>Escape</value>
+  </data>
+    <data name="KeyForwards" xml:space="preserve">
+    <value>Forwards</value>
+  </data>
+    <data name="KeyBackwards" xml:space="preserve">
+    <value>Backwards</value>
+  </data>
+    <data name="KeyStrafeRight" xml:space="preserve">
+    <value>Strafe Right</value>
+  </data>
+    <data name="KeyStrafeLeft" xml:space="preserve">
+    <value>Strafe Left</value>
+  </data>
+    <data name="KeySprint" xml:space="preserve">
+    <value>Sprint</value>
+  </data>
+    <data name="KeyJump" xml:space="preserve">
+    <value>Jump</value>
+  </data>
+    <data name="KeyInteractOrPlace" xml:space="preserve">
+    <value>Interact / Place</value>
+  </data>
+    <data name="KeyDestroy" xml:space="preserve">
+    <value>Destroy</value>
+  </data>
+    <data name="KeyForceInteract" xml:space="preserve">
+    <value>Force Interaction</value>
+  </data>
+    <data name="KeyPlacementMode" xml:space="preserve">
+    <value>Placement Mode</value>
+  </data>
+    <data name="KeyNextPlacement" xml:space="preserve">
+    <value>Next Placement</value>
+  </data>
+    <data name="KeyPreviousPlacement" xml:space="preserve">
+    <value>Previous Placement</value>
+  </data>
+    <data name="PressAnyKeyOrButton" xml:space="preserve">
+    <value>Press any key or button...</value>
+  </data>
 </root>

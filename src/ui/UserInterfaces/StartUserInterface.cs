@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using OpenToolkit.Windowing.Desktop;
+using VoxelGame.Input;
 using VoxelGame.UI.Controls;
 using VoxelGame.UI.Providers;
 
@@ -19,9 +20,10 @@ namespace VoxelGame.UI.UserInterfaces
 
         private StartUI? control;
 
-        public StartUserInterface(GameWindow window, IWorldProvider worldProvider,
+        public StartUserInterface(GameWindow window, InputListener inputListener, IWorldProvider worldProvider,
             List<ISettingsProvider> settingsProviders, bool drawBackground) : base(
             window,
+            inputListener,
             drawBackground)
         {
             this.worldProvider = worldProvider;

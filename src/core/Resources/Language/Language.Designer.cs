@@ -430,6 +430,168 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Backwards.
+        /// </summary>
+        public static string KeyBackwards {
+            get {
+                return ResourceManager.GetString("KeyBackwards", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Keybinds.
+        /// </summary>
+        public static string Keybinds {
+            get {
+                return ResourceManager.GetString("Keybinds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Destroy.
+        /// </summary>
+        public static string KeyDestroy {
+            get {
+                return ResourceManager.GetString("KeyDestroy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Escape.
+        /// </summary>
+        public static string KeyEscape {
+            get {
+                return ResourceManager.GetString("KeyEscape", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Force Interaction.
+        /// </summary>
+        public static string KeyForceInteract {
+            get {
+                return ResourceManager.GetString("KeyForceInteract", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Forwards.
+        /// </summary>
+        public static string KeyForwards {
+            get {
+                return ResourceManager.GetString("KeyForwards", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fullscreen.
+        /// </summary>
+        public static string KeyFullscreen {
+            get {
+                return ResourceManager.GetString("KeyFullscreen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Interact / Place.
+        /// </summary>
+        public static string KeyInteractOrPlace {
+            get {
+                return ResourceManager.GetString("KeyInteractOrPlace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Jump.
+        /// </summary>
+        public static string KeyJump {
+            get {
+                return ResourceManager.GetString("KeyJump", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Next Placement.
+        /// </summary>
+        public static string KeyNextPlacement {
+            get {
+                return ResourceManager.GetString("KeyNextPlacement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Placement Mode.
+        /// </summary>
+        public static string KeyPlacementMode {
+            get {
+                return ResourceManager.GetString("KeyPlacementMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Previous Placement.
+        /// </summary>
+        public static string KeyPreviousPlacement {
+            get {
+                return ResourceManager.GetString("KeyPreviousPlacement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Screenshot.
+        /// </summary>
+        public static string KeyScreenshot {
+            get {
+                return ResourceManager.GetString("KeyScreenshot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sprint.
+        /// </summary>
+        public static string KeySprint {
+            get {
+                return ResourceManager.GetString("KeySprint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Strafe Left.
+        /// </summary>
+        public static string KeyStrafeLeft {
+            get {
+                return ResourceManager.GetString("KeyStrafeLeft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Strafe Right.
+        /// </summary>
+        public static string KeyStrafeRight {
+            get {
+                return ResourceManager.GetString("KeyStrafeRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Toggle UI.
+        /// </summary>
+        public static string KeyToggleUI {
+            get {
+                return ResourceManager.GetString("KeyToggleUI", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wireframe.
+        /// </summary>
+        public static string KeyWireframe {
+            get {
+                return ResourceManager.GetString("KeyWireframe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Ladder.
         /// </summary>
         public static string Ladder {
@@ -615,6 +777,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Potatoes {
             get {
                 return ResourceManager.GetString("Potatoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Press any key or button....
+        /// </summary>
+        public static string PressAnyKeyOrButton {
+            get {
+                return ResourceManager.GetString("PressAnyKeyOrButton", resourceCulture);
             }
         }
         

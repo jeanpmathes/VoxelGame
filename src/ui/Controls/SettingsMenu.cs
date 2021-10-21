@@ -12,8 +12,8 @@ using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Providers;
-using VoxelGame.UI.Providers.Settings;
-using VoxelGame.UI.Utility;
+using VoxelGame.UI.Settings;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.UI.Controls
 {
@@ -25,9 +25,9 @@ namespace VoxelGame.UI.Controls
         private readonly List<ISettingsProvider> settingsProviders;
         private int currentCategoryIndex = -1;
 
-        public SettingsMenu(ControlBase parent, List<ISettingsProvider> settingsProviders, FontHolder fonts) : base(
+        internal SettingsMenu(ControlBase parent, List<ISettingsProvider> settingsProviders, Context context) : base(
             parent,
-            fonts)
+            context)
         {
             this.settingsProviders = settingsProviders;
             CreateContent();
@@ -87,7 +87,7 @@ namespace VoxelGame.UI.Controls
 
                 VerticalLayout settings = new(scroll);
 
-                foreach (Setting setting in settingsProvider.Settings) setting.CreateControl(settings);
+                foreach (Setting setting in settingsProvider.Settings) setting.CreateControl(settings, Context);
 
                 categories.Add(category);
                 category.Hide();

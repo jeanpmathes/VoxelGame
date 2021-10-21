@@ -8,12 +8,13 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.UI.Controls
 {
-    internal class GameUI : UserInterfaceControl
+    internal class GameUI : ControlBase
     {
-        internal GameUI(UserInterface parent) : base(parent)
+        internal GameUI(GameUserInterface parent) : base(parent.Root)
         {
             Dock = Dock.Fill;
 

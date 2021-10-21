@@ -40,7 +40,7 @@ namespace VoxelGame.Client.Scenes
 
             Screen.SetCursor(visible: false, locked: true);
 
-            ui = new GameUserInterface(client, drawBackground: false);
+            ui = new GameUserInterface(client, client.Keybinds.Input.Listener, drawBackground: false);
 
             World = world;
             counter = world.UpdateCounter;

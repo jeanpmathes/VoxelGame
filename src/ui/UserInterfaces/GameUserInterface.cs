@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using OpenToolkit.Windowing.Desktop;
+using VoxelGame.Input;
 using VoxelGame.UI.Controls;
 
 namespace VoxelGame.UI.UserInterfaces
@@ -13,8 +14,9 @@ namespace VoxelGame.UI.UserInterfaces
     {
         private GameUI? control;
 
-        public GameUserInterface(GameWindow window, bool drawBackground) : base(
+        public GameUserInterface(GameWindow window, InputListener inputListener, bool drawBackground) : base(
             window,
+            inputListener,
             drawBackground) {}
 
         public bool IsHidden

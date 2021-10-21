@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net.Control;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.Controls
@@ -16,7 +17,7 @@ namespace VoxelGame.UI.Controls
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
     internal class MainMenu : VoxelMenu
     {
-        internal MainMenu(ControlBase parent, FontHolder fonts) : base(parent, fonts)
+        internal MainMenu(ControlBase parent, Context context) : base(parent, context)
         {
             CreateContent();
         }

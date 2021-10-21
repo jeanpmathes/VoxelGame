@@ -36,7 +36,8 @@ namespace VoxelGame.UI.Utility
                         yes();
 
                         break;
-                    case MessageBoxResult.No:
+
+                    default:
                         no();
 
                         break;

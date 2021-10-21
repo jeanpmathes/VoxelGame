@@ -27,7 +27,17 @@ namespace VoxelGame.Client.Scenes
             worldProvider = new WorldProvider(client.worldsDirectory);
             worldProvider.WorldActivation += client.LoadGameScene;
 
-            ui = new StartUserInterface(client, worldProvider, new List<ISettingsProvider>(), drawBackground: true);
+            List<ISettingsProvider> settingsProviders = new()
+            {
+                Application.Client.Instance.Keybinds
+            };
+
+            ui = new StartUserInterface(
+                client,
+                client.Keybinds.Input.Listener,
+                worldProvider,
+                settingsProviders,
+                drawBackground: true);
         }
 
         public void Load()
