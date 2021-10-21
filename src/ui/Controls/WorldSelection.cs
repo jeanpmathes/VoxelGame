@@ -44,7 +44,7 @@ namespace VoxelGame.UI.Controls
                 Text = Language.Back
             };
 
-            back.Clicked += (_, _) =>
+            back.Pressed += (_, _) =>
             {
                 worldCreationWindow?.Close();
                 Cancel?.Invoke();
@@ -87,7 +87,7 @@ namespace VoxelGame.UI.Controls
                 Text = Language.CreateNewWorld
             };
 
-            newWorld.Clicked += (_, _) => OpenWorldCreationWindow();
+            newWorld.Pressed += (_, _) => OpenWorldCreationWindow();
         }
 
         public void Refresh()
@@ -137,22 +137,25 @@ namespace VoxelGame.UI.Controls
                     TextColor = Color.Grey
                 };
 
-                Button load = new(layout)
+                HorizontalLayout buttons = new(layout)
                 {
-                    ImageName = Source.GetIconName("load"),
-                    ImageSize = new Size(width: 40, height: 40),
-                    ToolTipText = Language.Load,
                     HorizontalAlignment = HorizontalAlignment.Right,
                     VerticalAlignment = VerticalAlignment.Center
                 };
 
-                Button delete = new(layout)
+                Button load = new(buttons)
+                {
+                    ImageName = Source.GetIconName("load"),
+                    ImageSize = new Size(width: 40, height: 40),
+                    ToolTipText = Language.Load
+
+                };
+
+                Button delete = new(buttons)
                 {
                     ImageName = Source.GetIconName("delete"),
                     ImageSize = new Size(width: 40, height: 40),
-                    ToolTipText = Language.Delete,
-                    HorizontalAlignment = HorizontalAlignment.Right,
-                    VerticalAlignment = VerticalAlignment.Center
+                    ToolTipText = Language.Delete
                 };
 
                 load.Pressed += (_, _) => worldProvider.LoadWorld(info, path);

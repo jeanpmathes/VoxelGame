@@ -37,7 +37,7 @@ namespace VoxelGame.UI.Settings
                 Text = get().ToString()
             };
 
-            rebind.Clicked += (_, _) =>
+            rebind.Clicked += (_, _) => // Using pressed instead of clicked causes that the mouse is used as new bind.
             {
                 rebind.Text = Language.PressAnyKeyOrButton;
 

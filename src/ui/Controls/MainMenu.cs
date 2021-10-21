@@ -40,14 +40,14 @@ namespace VoxelGame.UI.Controls
                 Text = Language.Settings
             };
 
-            settings.Clicked += (_, _) => SelectSettings?.Invoke();
+            settings.Pressed += (_, _) => SelectSettings?.Invoke();
 
             Button exit = new(menu)
             {
                 Text = Language.Exit
             };
 
-            exit.Clicked += (_, _) => SelectExit?.Invoke();
+            exit.Pressed += (_, _) => SelectExit?.Invoke();
         }
 
         protected override void CreateDisplay(ControlBase display)

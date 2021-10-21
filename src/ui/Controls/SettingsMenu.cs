@@ -44,7 +44,7 @@ namespace VoxelGame.UI.Controls
 
                 int categoryIndex = i;
 
-                category.Clicked += (_, _) =>
+                category.Pressed += (_, _) =>
                 {
                     if (currentCategoryIndex >= 0) categories[currentCategoryIndex].Hide();
 
@@ -58,7 +58,7 @@ namespace VoxelGame.UI.Controls
                 Text = Language.Back
             };
 
-            back.Clicked += (_, _) => Cancel?.Invoke();
+            back.Pressed += (_, _) => Cancel?.Invoke();
         }
 
         protected override void CreateDisplay(ControlBase display)
