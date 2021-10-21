@@ -14,16 +14,16 @@ namespace VoxelGame.Input
 {
     public class InputManager
     {
-        public Mouse Mouse { get; }
-
-        internal GameWindow Window { get; }
-
         public InputManager(GameWindow window)
         {
             Window = window;
 
             Mouse = new Mouse(this);
         }
+
+        public Mouse Mouse { get; }
+
+        internal GameWindow Window { get; }
 
         internal CombinedState CurrentState { get; private set; }
 

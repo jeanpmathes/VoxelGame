@@ -19,15 +19,15 @@ namespace VoxelGame.Client.Scenes
         private readonly Application.Client client;
         private readonly StartUserInterface ui;
 
-        private readonly WorldManager worldManager;
+        private readonly WorldProvider worldProvider;
 
         internal StartScene(Application.Client client)
         {
             this.client = client;
-            worldManager = new WorldManager(client.worldsDirectory);
-            worldManager.WorldActivation += client.LoadGameScene;
+            worldProvider = new WorldProvider(client.worldsDirectory);
+            worldProvider.WorldActivation += client.LoadGameScene;
 
-            ui = new StartUserInterface(client, worldManager, new List<ISettingsProvider>(), drawBackground: true);
+            ui = new StartUserInterface(client, worldProvider, new List<ISettingsProvider>(), drawBackground: true);
         }
 
         public void Load()

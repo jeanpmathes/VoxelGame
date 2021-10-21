@@ -1,4 +1,4 @@
-﻿// <copyright file="WorldManager.cs" company="VoxelGame">
+﻿// <copyright file="WorldProvider.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -17,15 +17,15 @@ using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Application
 {
-    public class WorldManager : IWorldProvider
+    public class WorldProvider : IWorldProvider
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldManager>();
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldProvider>();
 
         private readonly List<(WorldInformation info, string path)> worlds = new();
 
         private readonly string worldsDirectory;
 
-        public WorldManager(string worldsDirectory)
+        public WorldProvider(string worldsDirectory)
         {
             this.worldsDirectory = worldsDirectory;
         }
