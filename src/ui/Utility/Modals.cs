@@ -15,6 +15,8 @@ namespace VoxelGame.UI.Utility
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
     public static class Modals
     {
+        private static readonly Color background = new(a: 100, r: 0, g: 0, b: 0);
+
         public static void OpenBooleanModal(ControlBase parent, string query, Action yes, Action no)
         {
             MessageBox messageBox = new(parent, query, buttons: MessageBoxButtons.YesNo)
@@ -22,9 +24,6 @@ namespace VoxelGame.UI.Utility
                 Resizing = Resizing.None,
                 IsDraggingEnabled = false
             };
-
-            Color background = Color.Black;
-            background.A = 100;
 
             messageBox.MakeModal(dim: true, background);
 
@@ -43,6 +42,29 @@ namespace VoxelGame.UI.Utility
                         break;
                 }
             };
+        }
+
+        public static CloseHandel OpenBlockingModal(ControlBase parent, string message)
+        {
+            Window modal = new(parent)
+            {
+                IsClosable = false,
+                DeleteOnClose = true,
+                StartPosition = StartPosition.CenterCanvas,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Resizing = Resizing.None,
+                IsDraggingEnabled = false
+            };
+
+            modal.MakeModal(dim: true, background);
+
+            Label label = new(modal)
+            {
+                Text = message
+            };
+
+            return new CloseHandel(modal);
         }
     }
 }

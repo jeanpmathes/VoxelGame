@@ -10,6 +10,7 @@ using Gwen.Net.Control;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Input.Internal;
 using VoxelGame.UI.UserInterfaces;
+using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.Settings
 {
@@ -39,11 +40,13 @@ namespace VoxelGame.UI.Settings
 
             rebind.Clicked += (_, _) => // Using pressed instead of clicked causes that the mouse is used as new bind.
             {
-                rebind.Text = Language.PressAnyKeyOrButton;
+                CloseHandel modal = Modals.OpenBlockingModal(rebind, Language.PressAnyKeyOrButton);
 
                 context.Input.ListenForAnyKeyOrButton(
                     keyOrButton =>
                     {
+                        modal.Close();
+
                         set(keyOrButton);
                         rebind.Text = keyOrButton.ToString();
                     });
