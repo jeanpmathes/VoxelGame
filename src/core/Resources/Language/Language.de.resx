@@ -483,4 +483,13 @@
     <data name="PressAnyKeyOrButton" xml:space="preserve">
     <value>Betätige eine beliebige Taste..</value>
   </data>
+    <data name="Graphics" xml:space="preserve">
+    <value>Grafik</value>
+  </data>
+    <data name="GraphicsSampleCount" xml:space="preserve">
+    <value>Abtastzahl (MSAA)</value>
+  </data>
+    <data name="GraphicsMaxFPS" xml:space="preserve">
+    <value>Maximale BpS</value>
+  </data>
 </root>

@@ -385,6 +385,33 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Graphics.
+        /// </summary>
+        public static string Graphics {
+            get {
+                return ResourceManager.GetString("Graphics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Max FPS.
+        /// </summary>
+        public static string GraphicsMaxFPS {
+            get {
+                return ResourceManager.GetString("GraphicsMaxFPS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sample Count (MSAA).
+        /// </summary>
+        public static string GraphicsSampleCount {
+            get {
+                return ResourceManager.GetString("GraphicsSampleCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Grass.
         /// </summary>
         public static string Grass {

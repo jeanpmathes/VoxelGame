@@ -29,7 +29,8 @@ namespace VoxelGame.Client.Scenes
 
             List<ISettingsProvider> settingsProviders = new()
             {
-                Application.Client.Instance.Keybinds
+                Application.Client.Instance.Keybinds,
+                client.Graphics
             };
 
             ui = new StartUserInterface(

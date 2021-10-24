@@ -474,13 +474,22 @@
     <data name="KeyPlacementMode" xml:space="preserve">
     <value>Placement Mode</value>
   </data>
-    <data name="KeyNextPlacement" xml:space="preserve">
+  <data name="KeyNextPlacement" xml:space="preserve">
     <value>Next Placement</value>
   </data>
-    <data name="KeyPreviousPlacement" xml:space="preserve">
+  <data name="KeyPreviousPlacement" xml:space="preserve">
     <value>Previous Placement</value>
   </data>
-    <data name="PressAnyKeyOrButton" xml:space="preserve">
+  <data name="PressAnyKeyOrButton" xml:space="preserve">
     <value>Press any key or button...</value>
+  </data>
+  <data name="Graphics" xml:space="preserve">
+    <value>Graphics</value>
+  </data>
+  <data name="GraphicsSampleCount" xml:space="preserve">
+    <value>Sample Count (MSAA)</value>
+  </data>
+  <data name="GraphicsMaxFPS" xml:space="preserve">
+    <value>Max FPS</value>
   </data>
 </root>

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Desktop;
 using Properties;
+using VoxelGame.Client.Application;
 using VoxelGame.Core;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
@@ -65,10 +66,12 @@ namespace VoxelGame.Client
             Console.WriteLine(Language.StartingGame);
             Console.WriteLine(Language.Version + @" " + Version);
 
+            GraphicsSettings graphicsSettings = new(Settings.Default);
+
             GameWindowSettings gameWindowSettings = new()
             {
                 IsMultiThreaded = false,
-                RenderFrequency = Settings.Default.MaxFPS,
+                RenderFrequency = graphicsSettings.MaxFPS,
                 UpdateFrequency = 60.0
             };
 
@@ -84,6 +87,7 @@ namespace VoxelGame.Client
             using (Application.Client client = new(
                 gameWindowSettings,
                 nativeWindowSettings,
+                graphicsSettings,
                 appDataDirectory,
                 screenshotDirectory))
             {

@@ -33,5 +33,11 @@ namespace VoxelGame.UI.Settings
         {
             return new KeyOrButtonSetting(name, get, set);
         }
+
+        public static Setting CreateIntegerSetting(string name, Func<int> get, Action<int> set, int min = int.MinValue,
+            int max = int.MaxValue)
+        {
+            return new IntegerSetting(name, min, max, get, set);
+        }
     }
 }

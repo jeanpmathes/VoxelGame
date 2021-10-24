@@ -14,7 +14,6 @@ using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
-using Properties;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
@@ -49,7 +48,7 @@ namespace VoxelGame.Client.Rendering
             #region MULTISAMPLED FBO
 
             int maxSamples = GL.GetInteger(GetPName.MaxSamples);
-            samples = Settings.Default.SampleCount;
+            samples = Math.Clamp(Client.Graphics.SampleCount, min: 1, maxSamples);
 
             logger.LogDebug(
                 Events.VisualQuality,
