@@ -28,11 +28,11 @@ namespace VoxelGame.Client.Entities
         private readonly Vector3 cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
 
         private readonly Texture crosshair;
-        private readonly Vector3 crosshairColor = client.Default.CrosshairColor.ToVector3();
+        private readonly Vector3 crosshairColor = Settings.Default.CrosshairColor.ToVector3();
 
         private readonly Vector2 crosshairPosition = new(x: 0.5f, y: 0.5f);
         private readonly ScreenElementRenderer crosshairRenderer;
-        private readonly float crosshairScale = client.Default.CrosshairScale;
+        private readonly float crosshairScale = Settings.Default.CrosshairScale;
 
         private readonly float interactionCooldown = 0.25f;
         private readonly float jumpForce = 25000f;

@@ -59,24 +59,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="client.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>client.settings</DependentUpon>
+    <Compile Update="Settings.Designer.cs">
+        <DesignTimeSharedInput>True</DesignTimeSharedInput>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="core.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>core.Designer.cs</LastGenOutput>
-      <CustomToolNamespace>Properties</CustomToolNamespace>
-    </EmbeddedResource>
-    <None Update="client.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>client.Designer.cs</LastGenOutput>
-      <CustomToolNamespace>Properties</CustomToolNamespace>
-    </None>
+      <None Update="Settings.settings">
+          <Generator>SettingsSingleFileGenerator</Generator>
+          <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+          <CustomToolNamespace>Properties</CustomToolNamespace>
+      </None>
     <None Update="Resources\Models\bars_extension.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

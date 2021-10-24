@@ -9,7 +9,6 @@ using System.Configuration;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Windowing.Common.Input;
-using Properties;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Input;
 using VoxelGame.Input.Actions;
@@ -45,7 +44,7 @@ namespace VoxelGame.Client.Application
             InitializeUsages();
             InitializeSettings();
 
-            LookBind = new LookInput(Input.Mouse, client.Default.MouseSensitivity);
+            LookBind = new LookInput(Input.Mouse, Properties.Settings.Default.MouseSensitivity);
         }
 
         public InputManager Input { get; }
@@ -96,27 +95,27 @@ namespace VoxelGame.Client.Application
                     PropertyType = typeof(KeyButtonPair),
                     IsReadOnly = false,
                     DefaultValue = KeyButtonPair.DefaultValue,
-                    Provider = client.Default.Providers["LocalFileSettingsProvider"],
+                    Provider = Properties.Settings.Default.Providers["LocalFileSettingsProvider"],
                     SerializeAs = SettingsSerializeAs.Xml
                 };
 
                 property.Attributes.Add(typeof(UserScopedSettingAttribute), new UserScopedSettingAttribute());
 
-                client.Default.Properties.Add(property);
+                Properties.Settings.Default.Properties.Add(property);
             }
 
-            client.Default.Reload();
+            Properties.Settings.Default.Reload();
 
             foreach ((Keybind keybind, Button button) in keybinds)
             {
                 string key = PropertyName(keybind);
-                var state = (KeyButtonPair) client.Default[key];
+                var state = (KeyButtonPair) Properties.Settings.Default[key];
 
-                if (state.Default) client.Default[key] = button.KeyOrButton.Settings;
+                if (state.Default) Properties.Settings.Default[key] = button.KeyOrButton.Settings;
                 else button.SetBinding(new KeyOrButton(state));
             }
 
-            client.Default.Save();
+            Properties.Settings.Default.Save();
 
             logger.LogInformation(Events.InputSystem, "Finished initializing keybind settings");
         }
@@ -155,8 +154,8 @@ namespace VoxelGame.Client.Application
             keybinds[bind].SetBinding(keyOrButton);
             Input.AddPullDown(keyOrButton);
 
-            client.Default[PropertyName(bind)] = keyOrButton.Settings;
-            client.Default.Save();
+            Properties.Settings.Default[PropertyName(bind)] = keyOrButton.Settings;
+            Properties.Settings.Default.Save();
 
             logger.LogInformation(Events.SetKeyBind, "Rebind '{Bind}' to: {Key}", bind, keyOrButton);
 

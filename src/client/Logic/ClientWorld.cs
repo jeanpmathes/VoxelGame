@@ -65,8 +65,8 @@ namespace VoxelGame.Client.Logic
         /// </summary>
         public ClientWorld(WorldInformation information, string path) : base(information, path) {}
 
-        private static int MaxMeshingTasks { get; } = client.Default.MaxMeshingTasks;
-        private static int MaxMeshDataSends { get; } = client.Default.MaxMeshDataSends;
+        private static int MaxMeshingTasks { get; } = Settings.Default.MaxMeshingTasks;
+        private static int MaxMeshDataSends { get; } = Settings.Default.MaxMeshDataSends;
 
         public void Render()
         {

@@ -68,7 +68,7 @@ namespace VoxelGame.Client
             GameWindowSettings gameWindowSettings = new()
             {
                 IsMultiThreaded = false,
-                RenderFrequency = client.Default.MaxFPS,
+                RenderFrequency = Settings.Default.MaxFPS,
                 UpdateFrequency = 60.0
             };
 
@@ -76,7 +76,7 @@ namespace VoxelGame.Client
             nativeWindowSettings.WindowBorder = WindowBorder.Hidden;
             nativeWindowSettings.Profile = ContextProfile.Core;
             nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
-            nativeWindowSettings.Size = client.Default.ScreenSize.ToVector2i();
+            nativeWindowSettings.Size = Settings.Default.ScreenSize.ToVector2i();
             nativeWindowSettings.StartFocused = false;
 
             logger.LogInformation(Events.ApplicationInformation, "Starting game on version: {Version}", Version);

@@ -97,10 +97,10 @@ namespace VoxelGame.Core.Logic
 
         public UpdateCounter UpdateCounter { get; }
 
-        protected int MaxGenerationTasks { get; } = core.Default.MaxGenerationTasks;
-        protected int MaxLoadingTasks { get; } = core.Default.MaxLoadingTasks;
+        protected int MaxGenerationTasks { get; } = Settings.Default.MaxGenerationTasks;
+        protected int MaxLoadingTasks { get; } = Settings.Default.MaxLoadingTasks;
 
-        protected int MaxSavingTasks { get; } = core.Default.MaxSavingTasks;
+        protected int MaxSavingTasks { get; } = Settings.Default.MaxSavingTasks;
 
         protected string WorldDirectory { get; }
         protected string ChunkDirectory { get; }
