@@ -492,4 +492,10 @@
     <data name="GraphicsMaxFPS" xml:space="preserve">
     <value>Maximale BpS</value>
   </data>
+    <data name="GraphicsSettingsDescription" xml:space="preserve">
+    <value>Wähle verschiedene Grafikeinstellungen, welche Auswirkungen auf die Grafikqualität des Spiels haben. Manche Einstellungen sind erst nach einem Neustart aktiv.</value>
+  </data>
+    <data name="KeybindsSettingsDescription" xml:space="preserve">
+    <value>Lege die Tasten für verschiedene Aktionen fest.</value>
+  </data>
 </root>

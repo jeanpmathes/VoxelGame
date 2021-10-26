@@ -13,6 +13,8 @@ namespace VoxelGame.UI.Providers
     {
         public string Category { get; }
 
+        public string Description { get; }
+
         public IEnumerable<Setting> Settings { get; }
     }
 }

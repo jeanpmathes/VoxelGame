@@ -10,6 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
+using Gwen.Net.RichText;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
@@ -77,12 +78,20 @@ namespace VoxelGame.UI.Controls
                     Dock = Dock.Fill
                 };
 
-                ScrollControl scroll = new(category)
+                GridLayout categoryLayout = new(category);
+                categoryLayout.SetColumnWidths(1f);
+                categoryLayout.SetRowHeights(0.10f, 0.90f);
+
+                RichLabel description = new(categoryLayout)
+                {
+                    Document = new Document(settingsProvider.Description)
+                };
+
+                ScrollControl scroll = new(categoryLayout)
                 {
                     AutoHideBars = true,
                     CanScrollH = false,
-                    CanScrollV = true,
-                    Dock = Dock.Fill
+                    CanScrollV = true
                 };
 
                 VerticalLayout settings = new(scroll);

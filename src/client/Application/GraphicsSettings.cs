@@ -55,6 +55,8 @@ namespace VoxelGame.Client.Application
         }
 
         public string Category => Language.Graphics;
+        public string Description => Language.GraphicsSettingsDescription;
+
         public IEnumerable<Setting> Settings => settings;
     }
 }

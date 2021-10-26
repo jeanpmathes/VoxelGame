@@ -492,4 +492,10 @@
   <data name="GraphicsMaxFPS" xml:space="preserve">
     <value>Max FPS</value>
   </data>
+  <data name="GraphicsSettingsDescription" xml:space="preserve">
+    <value>Set different graphics settings that can affect the quality of the game visuals. Some settings require a restart to apply.</value>
+  </data>
+  <data name="KeybindsSettingsDescription" xml:space="preserve">
+    <value>Bind keys for different actions.</value>
+  </data>
 </root>

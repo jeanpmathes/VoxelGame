@@ -412,6 +412,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Set different graphics settings that can affect the quality of the game visuals. Some settings require a restart to apply..
+        /// </summary>
+        public static string GraphicsSettingsDescription {
+            get {
+                return ResourceManager.GetString("GraphicsSettingsDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Grass.
         /// </summary>
         public static string Grass {
@@ -471,6 +480,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Keybinds {
             get {
                 return ResourceManager.GetString("Keybinds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bind keys for different actions..
+        /// </summary>
+        public static string KeybindsSettingsDescription {
+            get {
+                return ResourceManager.GetString("KeybindsSettingsDescription", resourceCulture);
             }
         }
         

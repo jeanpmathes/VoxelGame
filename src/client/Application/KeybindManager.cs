@@ -53,7 +53,8 @@ namespace VoxelGame.Client.Application
 
         public LookInput LookBind { get; }
 
-        public string Category { get; } = Language.Keybinds;
+        public string Category => Language.Keybinds;
+        public string Description => Language.KeybindsSettingsDescription;
 
         public IEnumerable<Setting> Settings => settings;
 
