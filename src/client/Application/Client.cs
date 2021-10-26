@@ -58,6 +58,7 @@ namespace VoxelGame.Client.Application
                 WindowPointer = WindowPtr;
             }
 
+            Settings = new GeneralSettings();
             Graphics = graphicsSettings;
 
             glDebug = new Debug();
@@ -86,6 +87,7 @@ namespace VoxelGame.Client.Application
         public KeybindManager Keybinds { get; }
         public Mouse Mouse => input.Mouse;
 
+        public GeneralSettings Settings { get; }
         public GraphicsSettings Graphics { get; }
 
         private double Time { get; set; }

@@ -358,6 +358,24 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to General.
+        /// </summary>
+        public static string General {
+            get {
+                return ResourceManager.GetString("General", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change general settings..
+        /// </summary>
+        public static string GeneralSettingsDescription {
+            get {
+                return ResourceManager.GetString("GeneralSettingsDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Glass.
         /// </summary>
         public static string Glass {

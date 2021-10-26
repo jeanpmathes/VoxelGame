@@ -498,4 +498,10 @@
   <data name="KeybindsSettingsDescription" xml:space="preserve">
     <value>Bind keys for different actions.</value>
   </data>
+  <data name="General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="GeneralSettingsDescription" xml:space="preserve">
+    <value>Change general settings.</value>
+  </data>
 </root>

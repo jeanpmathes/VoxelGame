@@ -489,13 +489,19 @@
     <data name="GraphicsSampleCount" xml:space="preserve">
     <value>Abtastzahl (MSAA)</value>
   </data>
-    <data name="GraphicsMaxFPS" xml:space="preserve">
+  <data name="GraphicsMaxFPS" xml:space="preserve">
     <value>Maximale BpS</value>
   </data>
-    <data name="GraphicsSettingsDescription" xml:space="preserve">
+  <data name="GraphicsSettingsDescription" xml:space="preserve">
     <value>Wähle verschiedene Grafikeinstellungen, welche Auswirkungen auf die Grafikqualität des Spiels haben. Manche Einstellungen sind erst nach einem Neustart aktiv.</value>
   </data>
-    <data name="KeybindsSettingsDescription" xml:space="preserve">
+  <data name="KeybindsSettingsDescription" xml:space="preserve">
     <value>Lege die Tasten für verschiedene Aktionen fest.</value>
+  </data>
+  <data name="General" xml:space="preserve">
+    <value>Allgemein</value>
+  </data>
+  <data name="GeneralSettingsDescription" xml:space="preserve">
+    <value>Ändere allgemeine Einstellungen.</value>
   </data>
 </root>
