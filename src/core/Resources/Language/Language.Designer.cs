@@ -241,6 +241,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Crosshair Color.
+        /// </summary>
+        public static string CrosshairColor {
+            get {
+                return ResourceManager.GetString("CrosshairColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Crude Oil.
         /// </summary>
         public static string CrudeOil {
@@ -930,6 +939,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Sand {
             get {
                 return ResourceManager.GetString("Sand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select.
+        /// </summary>
+        public static string Select {
+            get {
+                return ResourceManager.GetString("Select", resourceCulture);
             }
         }
         

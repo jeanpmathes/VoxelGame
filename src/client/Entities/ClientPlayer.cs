@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Drawing;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using Properties;
@@ -28,7 +29,6 @@ namespace VoxelGame.Client.Entities
         private readonly Vector3 cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
 
         private readonly Texture crosshair;
-        private readonly Vector3 crosshairColor = Settings.Default.CrosshairColor.ToVector3();
 
         private readonly Vector2 crosshairPosition = new(x: 0.5f, y: 0.5f);
         private readonly ScreenElementRenderer crosshairRenderer;
@@ -83,7 +83,9 @@ namespace VoxelGame.Client.Entities
 
             crosshairRenderer = new ScreenElementRenderer();
             crosshairRenderer.SetTexture(crosshair);
-            crosshairRenderer.SetColor(crosshairColor);
+            crosshairRenderer.SetColor(Application.Client.Instance.Settings.CrosshairColor.ToVector3());
+
+            Application.Client.Instance.Settings.CrosshairColorChanged += UpdateCrosshairColor;
 
             activeBlock = Block.Grass;
             activeLiquid = Liquid.Water;
@@ -126,6 +128,11 @@ namespace VoxelGame.Client.Entities
         public Frustum Frustum => camera.Frustum;
 
         public override Vector3 Movement => movement;
+
+        private void UpdateCrosshairColor(GeneralSettings settings, SettingChangedArgs<Color> args)
+        {
+            crosshairRenderer.SetColor(settings.CrosshairColor.ToVector3());
+        }
 
         /// <summary>
         ///     Gets the view matrix of the camera of this player.
@@ -380,6 +387,8 @@ namespace VoxelGame.Client.Entities
                 selectionRenderer.Dispose();
                 crosshairRenderer.Dispose();
                 overlay.Dispose();
+
+                Application.Client.Instance.Settings.CrosshairColorChanged -= UpdateCrosshairColor;
             }
 
             disposed = true;

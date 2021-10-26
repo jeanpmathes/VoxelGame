@@ -58,7 +58,7 @@ namespace VoxelGame.Client.Application
                 WindowPointer = WindowPtr;
             }
 
-            Settings = new GeneralSettings();
+            Settings = new GeneralSettings(Properties.Settings.Default);
             Graphics = graphicsSettings;
 
             glDebug = new Debug();

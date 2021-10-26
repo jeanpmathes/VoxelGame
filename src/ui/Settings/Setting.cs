@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Drawing;
 using Gwen.Net.Control;
 using VoxelGame.Input.Internal;
 using VoxelGame.UI.UserInterfaces;
@@ -38,6 +39,11 @@ namespace VoxelGame.UI.Settings
             int max = int.MaxValue)
         {
             return new IntegerSetting(name, min, max, get, set);
+        }
+
+        public static Setting CreateColorSetting(string name, Func<Color> get, Action<Color> set)
+        {
+            return new ColorSettings(name, get, set);
         }
     }
 }

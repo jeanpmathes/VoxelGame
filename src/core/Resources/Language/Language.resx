@@ -504,4 +504,10 @@
   <data name="GeneralSettingsDescription" xml:space="preserve">
     <value>Change general settings.</value>
   </data>
+  <data name="CrosshairColor" xml:space="preserve">
+    <value>Crosshair Color</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Select</value>
+  </data>
 </root>

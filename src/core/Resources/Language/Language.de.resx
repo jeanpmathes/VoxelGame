@@ -504,4 +504,10 @@
   <data name="GeneralSettingsDescription" xml:space="preserve">
     <value>Ändere allgemeine Einstellungen.</value>
   </data>
+  <data name="CrosshairColor" xml:space="preserve">
+    <value>Fadenkreuz-Farbe</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Auswählen</value>
+  </data>
 </root>
