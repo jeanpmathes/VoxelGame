@@ -35,8 +35,8 @@ namespace VoxelGame.UI.Settings
             return new KeyOrButtonSetting(name, get, set);
         }
 
-        public static Setting CreateIntegerSetting(string name, Func<int> get, Action<int> set, int min = int.MinValue,
-            int max = int.MaxValue)
+        public static Setting CreateIntegerSetting(string name, Func<int> get, Action<int> set,
+            int min = int.MinValue, int max = int.MaxValue)
         {
             return new IntegerSetting(name, min, max, get, set);
         }
@@ -44,6 +44,12 @@ namespace VoxelGame.UI.Settings
         public static Setting CreateColorSetting(string name, Func<Color> get, Action<Color> set)
         {
             return new ColorSettings(name, get, set);
+        }
+
+        public static Setting CreateFloatRangeSetting(string name, Func<float> get, Action<float> set,
+            float min = float.MinValue, float max = float.MaxValue)
+        {
+            return new FloatRangeSetting(name, min, max, get, set);
         }
     }
 }

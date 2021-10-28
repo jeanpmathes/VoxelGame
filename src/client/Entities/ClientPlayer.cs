@@ -7,7 +7,6 @@
 using System.Drawing;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
-using Properties;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Entities;
@@ -32,7 +31,6 @@ namespace VoxelGame.Client.Entities
 
         private readonly Vector2 crosshairPosition = new(x: 0.5f, y: 0.5f);
         private readonly ScreenElementRenderer crosshairRenderer;
-        private readonly float crosshairScale = Settings.Default.CrosshairScale;
 
         private readonly float interactionCooldown = 0.25f;
         private readonly float jumpForce = 25000f;
@@ -54,6 +52,7 @@ namespace VoxelGame.Client.Entities
         private Liquid activeLiquid;
 
         private bool blockMode = true;
+        private float crosshairScale = Application.Client.Instance.Settings.CrosshairScale;
 
         private bool firstUpdate = true;
 
@@ -86,6 +85,7 @@ namespace VoxelGame.Client.Entities
             crosshairRenderer.SetColor(Application.Client.Instance.Settings.CrosshairColor.ToVector3());
 
             Application.Client.Instance.Settings.CrosshairColorChanged += UpdateCrosshairColor;
+            Application.Client.Instance.Settings.CrosshairScaleChanged += SettingsOnCrosshairScaleChanged;
 
             activeBlock = Block.Grass;
             activeLiquid = Liquid.Water;
@@ -132,6 +132,11 @@ namespace VoxelGame.Client.Entities
         private void UpdateCrosshairColor(GeneralSettings settings, SettingChangedArgs<Color> args)
         {
             crosshairRenderer.SetColor(settings.CrosshairColor.ToVector3());
+        }
+
+        private void SettingsOnCrosshairScaleChanged(GeneralSettings settings, SettingChangedArgs<float> args)
+        {
+            crosshairScale = args.NewValue;
         }
 
         /// <summary>

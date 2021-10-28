@@ -501,13 +501,19 @@
   <data name="General" xml:space="preserve">
     <value>Allgemein</value>
   </data>
-  <data name="GeneralSettingsDescription" xml:space="preserve">
+    <data name="GeneralSettingsDescription" xml:space="preserve">
     <value>Ändere allgemeine Einstellungen.</value>
   </data>
-  <data name="CrosshairColor" xml:space="preserve">
+    <data name="CrosshairColor" xml:space="preserve">
     <value>Fadenkreuz-Farbe</value>
   </data>
-  <data name="Select" xml:space="preserve">
+    <data name="Select" xml:space="preserve">
     <value>Auswählen</value>
+  </data>
+    <data name="CrosshairScale" xml:space="preserve">
+    <value>Fadenkreuz-Skalierung</value>
+  </data>
+    <data name="MouseSensitivity" xml:space="preserve">
+    <value>Mausempfindlichkeit</value>
   </data>
 </root>

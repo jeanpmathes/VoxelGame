@@ -250,6 +250,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Crosshair Scale.
+        /// </summary>
+        public static string CrosshairScale {
+            get {
+                return ResourceManager.GetString("CrosshairScale", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Crude Oil.
         /// </summary>
         public static string CrudeOil {
@@ -759,6 +768,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Milk {
             get {
                 return ResourceManager.GetString("Milk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mouse Sensitivity.
+        /// </summary>
+        public static string MouseSensitivity {
+            get {
+                return ResourceManager.GetString("MouseSensitivity", resourceCulture);
             }
         }
         

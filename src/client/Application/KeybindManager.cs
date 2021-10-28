@@ -44,7 +44,8 @@ namespace VoxelGame.Client.Application
             InitializeUsages();
             InitializeSettings();
 
-            LookBind = new LookInput(Input.Mouse, Properties.Settings.Default.MouseSensitivity);
+            LookBind = new LookInput(Input.Mouse, Client.Instance.Settings.MouseSensitivity);
+            Client.Instance.Settings.MouseSensitivityChanged += (_, args) => LookBind.SetSensitivity(args.NewValue);
         }
 
         public InputManager Input { get; }
