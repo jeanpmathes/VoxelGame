@@ -16,5 +16,10 @@ namespace VoxelGame.UI.Providers
         public string Description { get; }
 
         public IEnumerable<Setting> Settings { get; }
+
+        internal void Validate()
+        {
+            foreach (Setting setting in Settings) setting.Validate();
+        }
     }
 }

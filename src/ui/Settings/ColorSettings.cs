@@ -46,7 +46,11 @@ namespace VoxelGame.UI.Settings
                 Text = Language.Select
             };
 
-            select.Pressed += (_, _) => { set(ConvertColor(colorPicker.SelectedColor)); };
+            select.Pressed += (_, _) =>
+            {
+                set(ConvertColor(colorPicker.SelectedColor));
+                Provider.Validate();
+            };
         }
 
         private static Color ConvertColor(Gwen.Net.Color color)

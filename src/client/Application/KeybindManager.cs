@@ -189,9 +189,11 @@ namespace VoxelGame.Client.Application
             foreach (Keybind bind in Binds)
             {
                 var setting = Setting.CreateKeyOrButtonSetting(
+                    this,
                     bind.Name,
                     () => GetCurrentBind(bind),
-                    keyOrButton => Rebind(bind, keyOrButton));
+                    keyOrButton => Rebind(bind, keyOrButton),
+                    () => usageMap.GetUsageCount(GetCurrentBind(bind)) <= 1);
 
                 settings.Add(setting);
             }

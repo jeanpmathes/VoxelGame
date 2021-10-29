@@ -100,6 +100,8 @@ namespace VoxelGame.UI.Controls
 
                 categories.Add(category);
                 category.Hide();
+
+                settingsProvider.Validate();
             }
         }
 

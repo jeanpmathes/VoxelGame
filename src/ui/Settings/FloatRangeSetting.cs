@@ -62,7 +62,11 @@ namespace VoxelGame.UI.Settings
                 Text = Language.Select
             };
 
-            select.Pressed += (_, _) => { set(floatRange.Value); };
+            select.Pressed += (_, _) =>
+            {
+                set(floatRange.Value);
+                Provider.Validate();
+            };
 
             floatRange.ValueChanged += (_, _) => { SetText(); };
 

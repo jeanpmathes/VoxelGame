@@ -217,8 +217,8 @@ namespace VoxelGame.UI.Controls
                 isValid = worldProvider.IsWorldNameValid(input);
 
                 name.TextColor = isValid ? Color.White : Color.Red;
-                create.IsDisabled = !isValid;
 
+                create.IsDisabled = !isValid;
                 create.UpdateColors();
             }
 

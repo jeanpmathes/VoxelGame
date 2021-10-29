@@ -26,12 +26,14 @@ namespace VoxelGame.Client.Application
 
             settings.Add(
                 Setting.CreateColorSetting(
+                    this,
                     Language.CrosshairColor,
                     () => CrosshairColor,
                     color => CrosshairColor = color));
 
             settings.Add(
                 Setting.CreateFloatRangeSetting(
+                    this,
                     Language.CrosshairScale,
                     () => CrosshairScale,
                     f => CrosshairScale = f,
@@ -40,6 +42,7 @@ namespace VoxelGame.Client.Application
 
             settings.Add(
                 Setting.CreateFloatRangeSetting(
+                    this,
                     Language.MouseSensitivity,
                     () => MouseSensitivity,
                     f => MouseSensitivity = f,

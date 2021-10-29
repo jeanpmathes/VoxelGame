@@ -8,6 +8,7 @@ using System;
 using System.Drawing;
 using Gwen.Net.Control;
 using VoxelGame.Input.Internal;
+using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.UI.Settings
@@ -15,6 +16,8 @@ namespace VoxelGame.UI.Settings
     public abstract class Setting
     {
         protected abstract string Name { get; }
+
+        protected ISettingsProvider Provider { get; init; } = null!;
 
         internal ControlBase CreateControl(ControlBase parent, Context context)
         {
@@ -28,28 +31,46 @@ namespace VoxelGame.UI.Settings
             return box;
         }
 
+        internal virtual void Validate() {}
+
         private protected abstract void FillControl(ControlBase control, Context context);
 
-        public static Setting CreateKeyOrButtonSetting(string name, Func<KeyOrButton> get, Action<KeyOrButton> set)
+        public static Setting CreateKeyOrButtonSetting(ISettingsProvider provider, string name, Func<KeyOrButton> get,
+            Action<KeyOrButton> set, Func<bool> validate)
         {
-            return new KeyOrButtonSetting(name, get, set);
+            return new KeyOrButtonSetting(name, get, set, validate)
+            {
+                Provider = provider
+            };
         }
 
-        public static Setting CreateIntegerSetting(string name, Func<int> get, Action<int> set,
+        public static Setting CreateIntegerSetting(ISettingsProvider provider, string name, Func<int> get,
+            Action<int> set,
             int min = int.MinValue, int max = int.MaxValue)
         {
-            return new IntegerSetting(name, min, max, get, set);
+            return new IntegerSetting(name, min, max, get, set)
+            {
+                Provider = provider
+            };
         }
 
-        public static Setting CreateColorSetting(string name, Func<Color> get, Action<Color> set)
+        public static Setting CreateColorSetting(ISettingsProvider provider, string name, Func<Color> get,
+            Action<Color> set)
         {
-            return new ColorSettings(name, get, set);
+            return new ColorSettings(name, get, set)
+            {
+                Provider = provider
+            };
         }
 
-        public static Setting CreateFloatRangeSetting(string name, Func<float> get, Action<float> set,
+        public static Setting CreateFloatRangeSetting(ISettingsProvider provider, string name, Func<float> get,
+            Action<float> set,
             float min = float.MinValue, float max = float.MaxValue)
         {
-            return new FloatRangeSetting(name, min, max, get, set);
+            return new FloatRangeSetting(name, min, max, get, set)
+            {
+                Provider = provider
+            };
         }
     }
 }

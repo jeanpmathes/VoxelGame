@@ -24,12 +24,14 @@ namespace VoxelGame.Client.Application
 
             settings.Add(
                 Setting.CreateIntegerSetting(
+                    this,
                     Language.GraphicsSampleCount,
                     () => SampleCount,
                     i => SampleCount = i,
                     min: 1));
 
-            settings.Add(Setting.CreateIntegerSetting(Language.GraphicsMaxFPS, () => MaxFPS, i => MaxFPS = i, min: 0));
+            settings.Add(
+                Setting.CreateIntegerSetting(this, Language.GraphicsMaxFPS, () => MaxFPS, i => MaxFPS = i, min: 0));
         }
 
         public int SampleCount

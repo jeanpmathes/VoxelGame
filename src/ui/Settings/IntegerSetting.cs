@@ -48,6 +48,7 @@ namespace VoxelGame.UI.Settings
             {
                 var value = (int) Math.Round(integer.Value);
                 set(value);
+                Provider.Validate();
             };
         }
     }
