@@ -193,7 +193,8 @@ namespace VoxelGame.Client.Application
                     bind.Name,
                     () => GetCurrentBind(bind),
                     keyOrButton => Rebind(bind, keyOrButton),
-                    () => usageMap.GetUsageCount(GetCurrentBind(bind)) <= 1);
+                    () => usageMap.GetUsageCount(GetCurrentBind(bind)) <= 1,
+                    () => Rebind(bind, bind.Default));
 
                 settings.Add(setting);
             }

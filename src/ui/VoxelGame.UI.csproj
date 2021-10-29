@@ -40,6 +40,9 @@
       <None Update="Resources\GUI\Icons\delete.png">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Resources\GUI\Icons\reset.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
   </ItemGroup>
 
   <ItemGroup>

@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
+using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Input.Internal;
 using VoxelGame.UI.UserInterfaces;
@@ -21,16 +22,21 @@ namespace VoxelGame.UI.Settings
     internal class KeyOrButtonSetting : Setting
     {
         private readonly Func<KeyOrButton> get;
+        private readonly Action reset;
         private readonly Action<KeyOrButton> set;
+
         private readonly Func<bool> validate;
 
         private Button rebind = null!;
 
-        internal KeyOrButtonSetting(string name, Func<KeyOrButton> get, Action<KeyOrButton> set, Func<bool> validate)
+        internal KeyOrButtonSetting(string name, Func<KeyOrButton> get, Action<KeyOrButton> set, Func<bool> validate,
+            Action reset)
         {
             this.get = get;
             this.set = set;
+
             this.validate = validate;
+            this.reset = reset;
 
             Name = name;
         }
@@ -39,9 +45,12 @@ namespace VoxelGame.UI.Settings
 
         private protected override void FillControl(ControlBase control, Context context)
         {
-            rebind = new Button(control)
+            DockLayout layout = new(control);
+
+            rebind = new Button(layout)
             {
-                Text = get().ToString()
+                Text = get().ToString(),
+                Dock = Dock.Fill
             };
 
             rebind.Clicked += (_, _) => // Using pressed instead of clicked causes that the mouse is used as new bind.
@@ -58,6 +67,20 @@ namespace VoxelGame.UI.Settings
 
                         Provider.Validate();
                     });
+            };
+
+            Button resetBind = new(layout)
+            {
+                ImageName = Source.GetIconName("reset"),
+                Size = new Size(width: 40, height: 40),
+                ToolTipText = Language.Reset,
+                Dock = Dock.Right
+            };
+
+            resetBind.Pressed += (_, _) =>
+            {
+                reset();
+                rebind.Text = get().ToString();
             };
         }
 

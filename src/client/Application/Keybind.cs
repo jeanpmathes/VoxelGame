@@ -18,9 +18,9 @@ namespace VoxelGame.Client.Application
         private readonly string id;
         private readonly Binding type;
 
-        private readonly KeyOrButton defaultKeyOrButton;
-
         public string Name { get; }
+
+        public KeyOrButton Default { get; }
 
         private enum Binding
         {
@@ -35,7 +35,7 @@ namespace VoxelGame.Client.Application
             Name = name;
             this.type = type;
 
-            this.defaultKeyOrButton = defaultKeyOrButton;
+            Default = defaultKeyOrButton;
         }
 
         public override bool Equals(object? obj)
@@ -148,17 +148,17 @@ namespace VoxelGame.Client.Application
             switch (type)
             {
                 case Binding.PushButton:
-                    manager.Add(this, new PushButton(defaultKeyOrButton, manager.Input));
+                    manager.Add(this, new PushButton(Default, manager.Input));
 
                     break;
 
                 case Binding.ToggleButton:
-                    manager.Add(this, new ToggleButton(defaultKeyOrButton, manager.Input));
+                    manager.Add(this, new ToggleButton(Default, manager.Input));
 
                     break;
 
                 case Binding.SimpleButton:
-                    manager.Add(this, new SimpleButton(defaultKeyOrButton, manager.Input));
+                    manager.Add(this, new SimpleButton(Default, manager.Input));
 
                     break;
 

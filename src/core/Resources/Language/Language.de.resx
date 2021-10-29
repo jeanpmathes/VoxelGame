@@ -516,4 +516,7 @@
     <data name="MouseSensitivity" xml:space="preserve">
     <value>Mausempfindlichkeit</value>
   </data>
+    <data name="Reset" xml:space="preserve">
+    <value>Zurücksetzen</value>
+  </data>
 </root>

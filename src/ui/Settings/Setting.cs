@@ -36,9 +36,9 @@ namespace VoxelGame.UI.Settings
         private protected abstract void FillControl(ControlBase control, Context context);
 
         public static Setting CreateKeyOrButtonSetting(ISettingsProvider provider, string name, Func<KeyOrButton> get,
-            Action<KeyOrButton> set, Func<bool> validate)
+            Action<KeyOrButton> set, Func<bool> validate, Action reset)
         {
-            return new KeyOrButtonSetting(name, get, set, validate)
+            return new KeyOrButtonSetting(name, get, set, validate, reset)
             {
                 Provider = provider
             };
