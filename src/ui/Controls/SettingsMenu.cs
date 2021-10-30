@@ -20,7 +20,7 @@ namespace VoxelGame.UI.Controls
 {
     [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-    public class SettingsMenu : VoxelMenu
+    public class SettingsMenu : StandardMenu
     {
         private readonly List<ControlBase> categories = new();
         private readonly List<ISettingsProvider> settingsProviders;
