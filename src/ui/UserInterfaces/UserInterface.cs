@@ -71,12 +71,15 @@ namespace VoxelGame.UI.UserInterfaces
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing) gui.Dispose();
+            if (disposed) return;
 
-                disposed = true;
+            if (disposing)
+            {
+                gui.Dispose();
+                Context.Dispose();
             }
+
+            disposed = true;
         }
 
         public void Dispose()

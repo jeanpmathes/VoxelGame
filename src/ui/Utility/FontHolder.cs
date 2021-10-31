@@ -4,12 +4,13 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using Gwen.Net;
 using Gwen.Net.Skin;
 
 namespace VoxelGame.UI.Utility
 {
-    public class FontHolder
+    public sealed class FontHolder : IDisposable
     {
         private const string FontName = "Arial";
 
@@ -32,5 +33,27 @@ namespace VoxelGame.UI.Utility
         public Font Subtitle { get; }
         public Font Small { get; }
         public Font Path { get; }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!disposing) return;
+
+            skin.Dispose();
+            Title.Dispose();
+            Subtitle.Dispose();
+            Small.Dispose();
+            Path.Dispose();
+        }
+
+        ~FontHolder()
+        {
+            Dispose(disposing: false);
+        }
     }
 }
