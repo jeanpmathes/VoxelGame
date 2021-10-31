@@ -25,6 +25,7 @@ namespace VoxelGame.UI.Controls
         internal event Action? SelectExit;
         internal event Action? SelectWorlds;
         internal event Action? SelectSettings;
+        internal event Action? SelectCredits;
 
         protected override void CreateMenu(ControlBase menu)
         {
@@ -41,6 +42,13 @@ namespace VoxelGame.UI.Controls
             };
 
             settings.Pressed += (_, _) => SelectSettings?.Invoke();
+
+            Button credits = new(menu)
+            {
+                Text = Language.Credits
+            };
+
+            credits.Pressed += (_, _) => SelectCredits?.Invoke();
 
             Button exit = new(menu)
             {

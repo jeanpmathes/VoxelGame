@@ -18,7 +18,14 @@ namespace VoxelGame.UI.Controls
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
     internal class StartUI : ControlBase
     {
+        private const int MainMenuIndex = 0;
+        private const int SettingsMenuIndex = 1;
+        private const int WorldSelectionMenuIndex = 2;
+        private const int CreditsMenuIndex = 3;
+        private readonly CreditsMenu creditsMenu;
         private readonly MainMenu mainMenu;
+
+        private readonly List<StandardMenu> menus = new();
         private readonly SettingsMenu settingsMenu;
         private readonly WorldSelection worldSelection;
 
@@ -29,42 +36,34 @@ namespace VoxelGame.UI.Controls
 
             mainMenu = new MainMenu(this, parent.Context);
             mainMenu.SelectExit += () => Exit?.Invoke();
-            mainMenu.SelectWorlds += OpenWorldSelection;
-            mainMenu.SelectSettings += OpenSettingsMenu;
-
-            worldSelection = new WorldSelection(this, worldProvider, parent.Context);
-            worldSelection.Cancel += OpenMainMenu;
+            mainMenu.SelectSettings += () => OpenMenu(SettingsMenuIndex);
+            mainMenu.SelectWorlds += () => OpenMenu(WorldSelectionMenuIndex);
+            mainMenu.SelectCredits += () => OpenMenu(CreditsMenuIndex);
 
             settingsMenu = new SettingsMenu(this, settingsProviders, parent.Context);
-            settingsMenu.Cancel += OpenMainMenu;
+            settingsMenu.Cancel += () => OpenMenu(MainMenuIndex);
 
-            OpenMainMenu();
+            worldSelection = new WorldSelection(this, worldProvider, parent.Context);
+            worldSelection.Cancel += () => OpenMenu(MainMenuIndex);
+
+            creditsMenu = new CreditsMenu(this, parent.Context);
+            creditsMenu.Cancel += () => OpenMenu(MainMenuIndex);
+
+            menus.Add(mainMenu);
+            menus.Add(settingsMenu);
+            menus.Add(worldSelection);
+            menus.Add(creditsMenu);
+
+            OpenMenu(MainMenuIndex);
         }
 
-        private void OpenWorldSelection()
+        private void OpenMenu(int index)
         {
-            mainMenu.Hide();
-            settingsMenu.Hide();
+            foreach (StandardMenu menu in menus) menu.Hide();
 
-            worldSelection.Show();
+            menus[index].Show();
 
-            worldSelection.Refresh();
-        }
-
-        private void OpenMainMenu()
-        {
-            worldSelection.Hide();
-            settingsMenu.Hide();
-
-            mainMenu.Show();
-        }
-
-        private void OpenSettingsMenu()
-        {
-            mainMenu.Hide();
-            settingsMenu.Hide();
-
-            settingsMenu.Show();
+            if (index == WorldSelectionMenuIndex) worldSelection.Refresh();
         }
 
         public event Action? Exit;

@@ -519,4 +519,7 @@
     <data name="Reset" xml:space="preserve">
     <value>Zurücksetzen</value>
   </data>
+    <data name="Credits" xml:space="preserve">
+    <value>Anerkennung</value>
+  </data>
 </root>

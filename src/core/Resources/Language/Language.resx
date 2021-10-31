@@ -510,13 +510,16 @@
     <data name="Select" xml:space="preserve">
     <value>Select</value>
   </data>
-    <data name="MouseSensitivity" xml:space="preserve">
+  <data name="MouseSensitivity" xml:space="preserve">
     <value>Mouse Sensitivity</value>
   </data>
-    <data name="CrosshairScale" xml:space="preserve">
+  <data name="CrosshairScale" xml:space="preserve">
     <value>Crosshair Scale</value>
   </data>
-    <data name="Reset" xml:space="preserve">
+  <data name="Reset" xml:space="preserve">
     <value>Reset</value>
+  </data>
+  <data name="Credits" xml:space="preserve">
+    <value>Credits</value>
   </data>
 </root>

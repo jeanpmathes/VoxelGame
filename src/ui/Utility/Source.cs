@@ -4,10 +4,20 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using Microsoft.Extensions.Logging;
+using VoxelGame.Logging;
+
 namespace VoxelGame.UI.Utility
 {
-    public static class Source
+    [SuppressMessage("ReSharper", "ConvertToStaticClass")]
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+    public sealed class Source
     {
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<Source>();
+        private Source() {}
+
         public static string GetImageName(string name)
         {
             return $"Resources/GUI/{name}.png";
@@ -16,6 +26,20 @@ namespace VoxelGame.UI.Utility
         public static string GetIconName(string name)
         {
             return $"Resources/GUI/Icons/{name}.png";
+        }
+
+        public static string GetTextContent(string path)
+        {
+            try
+            {
+                return File.ReadAllText(path);
+            }
+            catch (IOException e)
+            {
+                logger.LogError(Events.FileIO, e, "Could not load text content");
+
+                return "";
+            }
         }
     }
 }
