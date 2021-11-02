@@ -4,12 +4,14 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.UI.Controls
@@ -20,12 +22,15 @@ namespace VoxelGame.UI.Controls
     {
         private readonly InGameDisplay hud;
         private readonly GameUserInterface parent;
+        private readonly List<ISettingsProvider> settingsProviders;
 
         private bool isMenuOpen;
 
-        internal GameUI(GameUserInterface parent) : base(parent.Root)
+        internal GameUI(GameUserInterface parent, List<ISettingsProvider> settingsProviders) : base(parent.Root)
         {
             this.parent = parent;
+            this.settingsProviders = settingsProviders;
+
             hud = new InGameDisplay(this);
         }
 
@@ -87,7 +92,7 @@ namespace VoxelGame.UI.Controls
                 Text = Language.Settings
             };
 
-            settings.Pressed += (_, _) => {};
+            settings.Pressed += (_, _) => { OpenSettings(); };
 
             Button exit = new(layout)
             {
@@ -105,6 +110,20 @@ namespace VoxelGame.UI.Controls
                 Text = $"{Language.VoxelGame} - {GameInformation.Instance.Version}",
                 Font = parent.Context.Fonts.Subtitle
             };
+        }
+
+        private void OpenSettings()
+        {
+            Window settings = new(this)
+            {
+                Title = Language.Settings,
+                IsClosable = false,
+                Resizing = Resizing.None,
+                IsDraggingEnabled = false
+            };
+
+            SettingsMenu menu = new(settings, settingsProviders, parent.Context);
+            menu.Cancel += settings.Close;
         }
     }
 }

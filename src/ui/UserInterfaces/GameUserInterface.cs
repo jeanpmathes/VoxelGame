@@ -5,20 +5,29 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using OpenToolkit.Windowing.Desktop;
 using VoxelGame.Input;
 using VoxelGame.UI.Controls;
+using VoxelGame.UI.Providers;
 
 namespace VoxelGame.UI.UserInterfaces
 {
     public class GameUserInterface : UserInterface
     {
+        private readonly List<ISettingsProvider> settingsProviders;
+
         private GameUI? control;
 
-        public GameUserInterface(GameWindow window, InputListener inputListener, bool drawBackground) : base(
+        public GameUserInterface(GameWindow window,
+            InputListener inputListener, List<ISettingsProvider> settingsProviders,
+            bool drawBackground) : base(
             window,
             inputListener,
-            drawBackground) {}
+            drawBackground)
+        {
+            this.settingsProviders = settingsProviders;
+        }
 
         public bool IsHidden
         {
@@ -33,7 +42,7 @@ namespace VoxelGame.UI.UserInterfaces
         public override void CreateControl()
         {
             control?.Dispose();
-            control = new GameUI(this);
+            control = new GameUI(this, settingsProviders);
         }
 
         public event Action? WorldExit;
