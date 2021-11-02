@@ -41,6 +41,10 @@ namespace VoxelGame.Client.Scenes
             Screen.SetCursor(visible: false, locked: true);
 
             ui = new GameUserInterface(client, client.Keybinds.Input.Listener, drawBackground: false);
+            ui.WorldExit += client.LoadStartScene;
+
+            ui.MenuOpen += () => Screen.SetCursor(visible: true, locked: false);
+            ui.MenuClose += () => Screen.SetCursor(visible: false, locked: true);
 
             World = world;
             counter = world.UpdateCounter;
@@ -112,7 +116,7 @@ namespace VoxelGame.Client.Scenes
 
                 if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
 
-                if (escapeButton.Pushed) client.LoadStartScene();
+                if (escapeButton.Pushed) ui.OpenInGameMenu();
             }
         }
 

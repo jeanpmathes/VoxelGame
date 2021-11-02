@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using OpenToolkit.Windowing.Desktop;
 using VoxelGame.Input;
 using VoxelGame.UI.Controls;
@@ -35,6 +36,11 @@ namespace VoxelGame.UI.UserInterfaces
             control = new GameUI(this);
         }
 
+        public event Action? WorldExit;
+
+        public event Action? MenuOpen;
+        public event Action? MenuClose;
+
         public void SetUpdateRate(double fps, double ups)
         {
             control?.SetUpdateRate(fps, ups);
@@ -43,6 +49,24 @@ namespace VoxelGame.UI.UserInterfaces
         public void SetPlayerSelection(string category, string selection)
         {
             control?.SetPlayerSelection($"{category}: {selection}");
+        }
+
+        public void OpenInGameMenu()
+        {
+            if (control == null) return;
+
+            control.OpenInGameMenu();
+            MenuOpen?.Invoke();
+        }
+
+        internal void HandleInGameMenuClosed()
+        {
+            MenuClose?.Invoke();
+        }
+
+        internal void ExitWorld()
+        {
+            WorldExit?.Invoke();
         }
     }
 }
