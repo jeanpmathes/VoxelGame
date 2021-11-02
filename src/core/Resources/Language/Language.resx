@@ -120,9 +120,6 @@
   <data name="Air" xml:space="preserve">
     <value>Air</value>
   </data>
-  <data name="AllChunksSaving" xml:space="preserve">
-    <value>Saving all active chunks of the world.</value>
-  </data>
   <data name="Ash" xml:space="preserve">
     <value>Ash</value>
   </data>
@@ -312,9 +309,6 @@
   <data name="SpiderWeb" xml:space="preserve">
     <value>Spider Web</value>
   </data>
-  <data name="StartingGame" xml:space="preserve">
-    <value>Starting game...</value>
-  </data>
   <data name="Steam" xml:space="preserve">
     <value>Steam</value>
   </data>
@@ -350,9 +344,6 @@
   </data>
   <data name="Vase" xml:space="preserve">
     <value>Vase</value>
-  </data>
-  <data name="Version" xml:space="preserve">
-    <value>Version</value>
   </data>
   <data name="VeryTallGrass" xml:space="preserve">
     <value>Very Tall Grass</value>

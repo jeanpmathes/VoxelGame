@@ -63,8 +63,7 @@ namespace VoxelGame.Client
             GameInformation.Initialize(Version);
             Console.Title = Language.VoxelGame + @" " + Version;
 
-            Console.WriteLine(Language.StartingGame);
-            Console.WriteLine(Language.Version + @" " + Version);
+            logger.LogInformation(Events.ApplicationInformation, "Starting game on version: {Version}", Version);
 
             GraphicsSettings graphicsSettings = new(Settings.Default);
 
@@ -82,7 +81,7 @@ namespace VoxelGame.Client
             nativeWindowSettings.Size = Settings.Default.ScreenSize.ToVector2i();
             nativeWindowSettings.StartFocused = false;
 
-            logger.LogInformation(Events.ApplicationInformation, "Starting game on version: {Version}", Version);
+            logger.LogDebug("Opening window");
 
             using (Application.Client client = new(
                 gameWindowSettings,

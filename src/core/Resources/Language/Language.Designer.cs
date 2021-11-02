@@ -70,15 +70,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Saving all active chunks of the world..
-        /// </summary>
-        public static string AllChunksSaving {
-            get {
-                return ResourceManager.GetString("AllChunksSaving", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Ash.
         /// </summary>
         public static string Ash {
@@ -1033,15 +1024,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Starting game....
-        /// </summary>
-        public static string StartingGame {
-            get {
-                return ResourceManager.GetString("StartingGame", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Steam.
         /// </summary>
         public static string Steam {
@@ -1146,15 +1128,6 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Vase {
             get {
                 return ResourceManager.GetString("Vase", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Version.
-        /// </summary>
-        public static string Version {
-            get {
-                return ResourceManager.GetString("Version", resourceCulture);
             }
         }
         
