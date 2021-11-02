@@ -42,7 +42,10 @@ namespace VoxelGame.UI.Controls
         private void CloseInGameMenu()
         {
             isMenuOpen = false;
+
+            parent.Context.Input.AbsorbMousePress();
             parent.HandleInGameMenuClosed();
+
             hud.Show();
         }
 

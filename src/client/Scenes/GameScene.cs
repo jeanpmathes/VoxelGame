@@ -43,8 +43,17 @@ namespace VoxelGame.Client.Scenes
             ui = new GameUserInterface(client, client.Keybinds.Input.Listener, drawBackground: false);
             ui.WorldExit += client.LoadStartScene;
 
-            ui.MenuOpen += () => Screen.SetCursor(visible: true, locked: false);
-            ui.MenuClose += () => Screen.SetCursor(visible: false, locked: true);
+            ui.MenuOpen += () =>
+            {
+                Player.LockInput();
+                Screen.SetCursor(visible: true, locked: false);
+            };
+
+            ui.MenuClose += () =>
+            {
+                Player.UnlockInput();
+                Screen.SetCursor(visible: false, locked: true);
+            };
 
             World = world;
             counter = world.UpdateCounter;

@@ -118,6 +118,8 @@ namespace VoxelGame.Client.Entities
             selectionAxis = new InputAxis(nextButton, previousButton);
         }
 
+        private bool IsInputLocked { get; set; }
+
         public override Vector3 LookingDirection => camera.Front;
 
         public override BlockSide TargetSide => selectedSide;
@@ -128,6 +130,16 @@ namespace VoxelGame.Client.Entities
         public Frustum Frustum => camera.Frustum;
 
         public override Vector3 Movement => movement;
+
+        public void LockInput()
+        {
+            IsInputLocked = true;
+        }
+
+        public void UnlockInput()
+        {
+            IsInputLocked = false;
+        }
 
         private void UpdateCrosshairColor(GeneralSettings settings, SettingChangedArgs<Color> args)
         {
@@ -195,11 +207,13 @@ namespace VoxelGame.Client.Entities
             // Do input handling.
             if (Screen.IsFocused)
             {
-                HandleMovementInput();
-                HandleLookInput();
+                if (!IsInputLocked)
+                {
+                    HandleMovementInput();
+                    HandleLookInput();
+                }
 
                 BlockLiquidSelection(firstUpdate);
-
                 WorldInteraction();
 
                 Vector3i headPosition = camera.Position.Floor();
@@ -258,6 +272,8 @@ namespace VoxelGame.Client.Entities
 
         private void WorldInteraction()
         {
+            if (IsInputLocked) return;
+
             Block? target = World.GetBlock(selectedPosition, out _);
 
             if (target == null) return;

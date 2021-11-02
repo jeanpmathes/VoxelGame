@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using OpenToolkit.Windowing.Common.Input;
 using VoxelGame.Input.Internal;
 
 namespace VoxelGame.Input
@@ -14,7 +15,12 @@ namespace VoxelGame.Input
     {
         private readonly List<Action<KeyOrButton>> callbackListForAnyPress = new();
 
-        internal InputListener() {}
+        private readonly InputManager manager;
+
+        internal InputListener(InputManager manager)
+        {
+            this.manager = manager;
+        }
 
         internal void ProcessInput(CombinedState state)
         {
@@ -26,6 +32,11 @@ namespace VoxelGame.Input
 
                 callbackListForAnyPress.Clear();
             }
+        }
+
+        public void AbsorbMousePress()
+        {
+            manager.AddPullDown(new KeyOrButton(MouseButton.Button1));
         }
 
         public void ListenForAnyKeyOrButton(Action<KeyOrButton> callback)

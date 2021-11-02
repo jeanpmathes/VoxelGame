@@ -23,7 +23,7 @@ namespace VoxelGame.Input
             Window = window;
 
             Mouse = new Mouse(this);
-            Listener = new InputListener();
+            Listener = new InputListener(this);
         }
 
         public Mouse Mouse { get; }
