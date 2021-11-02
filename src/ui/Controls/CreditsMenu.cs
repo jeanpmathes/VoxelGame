@@ -29,7 +29,7 @@ namespace VoxelGame.UI.Controls
         {
             Button exit = new(menu)
             {
-                Text = Language.Exit
+                Text = Language.Back
             };
 
             exit.Pressed += (_, _) => Cancel?.Invoke();
