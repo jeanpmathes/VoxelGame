@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using Properties;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.WorldGeneration;
 using VoxelGame.Logging;
@@ -97,10 +96,10 @@ namespace VoxelGame.Core.Logic
 
         public UpdateCounter UpdateCounter { get; }
 
-        protected int MaxGenerationTasks { get; } = core.Default.MaxGenerationTasks;
-        protected int MaxLoadingTasks { get; } = core.Default.MaxLoadingTasks;
+        protected int MaxGenerationTasks { get; } = Settings.Default.MaxGenerationTasks;
+        protected int MaxLoadingTasks { get; } = Settings.Default.MaxLoadingTasks;
 
-        protected int MaxSavingTasks { get; } = core.Default.MaxSavingTasks;
+        protected int MaxSavingTasks { get; } = Settings.Default.MaxSavingTasks;
 
         protected string WorldDirectory { get; }
         protected string ChunkDirectory { get; }
@@ -647,9 +646,6 @@ namespace VoxelGame.Core.Logic
         /// <returns>A task that represents all tasks saving the chunks.</returns>
         public Task Save()
         {
-            Console.WriteLine(Language.AllChunksSaving);
-            Console.WriteLine();
-
             logger.LogInformation(Events.WorldIO, "Saving world");
 
             List<Task> savingTasks = new(activeChunks.Count);

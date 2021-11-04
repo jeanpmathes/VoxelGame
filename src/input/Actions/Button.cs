@@ -10,16 +10,16 @@ namespace VoxelGame.Input.Actions
 {
     public abstract class Button : InputAction
     {
+        protected Button(KeyOrButton keyOrButton, InputManager input) : base(input)
+        {
+            KeyOrButton = keyOrButton;
+        }
+
         public KeyOrButton KeyOrButton { get; private set; }
 
         public bool IsDown { get; private protected set; }
 
         public bool IsUp => !IsDown;
-
-        protected Button(KeyOrButton keyOrButton, InputManager input) : base(input)
-        {
-            KeyOrButton = keyOrButton;
-        }
 
         public void SetBinding(KeyOrButton keyOrButton)
         {

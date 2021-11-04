@@ -48,7 +48,7 @@ namespace VoxelGame.Client.Rendering
             #region MULTISAMPLED FBO
 
             int maxSamples = GL.GetInteger(GetPName.MaxSamples);
-            samples = Properties.client.Default.SampleCount;
+            samples = Math.Clamp(Client.Graphics.SampleCount, min: 1, maxSamples);
 
             logger.LogDebug(
                 Events.VisualQuality,

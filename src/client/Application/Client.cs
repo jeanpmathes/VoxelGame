@@ -48,6 +48,7 @@ namespace VoxelGame.Client.Application
         private Screen screen = null!;
 
         public Client(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings,
+            GraphicsSettings graphicsSettings,
             string appDataDirectory, string screenshotDirectory) : base(gameWindowSettings, nativeWindowSettings)
         {
             Instance = this;
@@ -56,6 +57,9 @@ namespace VoxelGame.Client.Application
             {
                 WindowPointer = WindowPtr;
             }
+
+            Settings = new GeneralSettings(Properties.Settings.Default);
+            Graphics = graphicsSettings;
 
             glDebug = new Debug();
 
@@ -82,6 +86,9 @@ namespace VoxelGame.Client.Application
         public static Client Instance { get; private set; } = null!;
         public KeybindManager Keybinds { get; }
         public Mouse Mouse => input.Mouse;
+
+        public GeneralSettings Settings { get; }
+        public GraphicsSettings Graphics { get; }
 
         private double Time { get; set; }
         public unsafe Window* WindowPointer { get; }

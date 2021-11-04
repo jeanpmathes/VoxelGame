@@ -4,9 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Drawing;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
-using Properties;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Entities;
@@ -28,11 +28,9 @@ namespace VoxelGame.Client.Entities
         private readonly Vector3 cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
 
         private readonly Texture crosshair;
-        private readonly Vector3 crosshairColor = client.Default.CrosshairColor.ToVector3();
 
         private readonly Vector2 crosshairPosition = new(x: 0.5f, y: 0.5f);
         private readonly ScreenElementRenderer crosshairRenderer;
-        private readonly float crosshairScale = client.Default.CrosshairScale;
 
         private readonly float interactionCooldown = 0.25f;
         private readonly float jumpForce = 25000f;
@@ -54,6 +52,7 @@ namespace VoxelGame.Client.Entities
         private Liquid activeLiquid;
 
         private bool blockMode = true;
+        private float crosshairScale = Application.Client.Instance.Settings.CrosshairScale;
 
         private bool firstUpdate = true;
 
@@ -83,7 +82,10 @@ namespace VoxelGame.Client.Entities
 
             crosshairRenderer = new ScreenElementRenderer();
             crosshairRenderer.SetTexture(crosshair);
-            crosshairRenderer.SetColor(crosshairColor);
+            crosshairRenderer.SetColor(Application.Client.Instance.Settings.CrosshairColor.ToVector3());
+
+            Application.Client.Instance.Settings.CrosshairColorChanged += UpdateCrosshairColor;
+            Application.Client.Instance.Settings.CrosshairScaleChanged += SettingsOnCrosshairScaleChanged;
 
             activeBlock = Block.Grass;
             activeLiquid = Liquid.Water;
@@ -116,6 +118,8 @@ namespace VoxelGame.Client.Entities
             selectionAxis = new InputAxis(nextButton, previousButton);
         }
 
+        private bool IsInputLocked { get; set; }
+
         public override Vector3 LookingDirection => camera.Front;
 
         public override BlockSide TargetSide => selectedSide;
@@ -126,6 +130,26 @@ namespace VoxelGame.Client.Entities
         public Frustum Frustum => camera.Frustum;
 
         public override Vector3 Movement => movement;
+
+        public void LockInput()
+        {
+            IsInputLocked = true;
+        }
+
+        public void UnlockInput()
+        {
+            IsInputLocked = false;
+        }
+
+        private void UpdateCrosshairColor(GeneralSettings settings, SettingChangedArgs<Color> args)
+        {
+            crosshairRenderer.SetColor(settings.CrosshairColor.ToVector3());
+        }
+
+        private void SettingsOnCrosshairScaleChanged(GeneralSettings settings, SettingChangedArgs<float> args)
+        {
+            crosshairScale = args.NewValue;
+        }
 
         /// <summary>
         ///     Gets the view matrix of the camera of this player.
@@ -183,11 +207,13 @@ namespace VoxelGame.Client.Entities
             // Do input handling.
             if (Screen.IsFocused)
             {
-                HandleMovementInput();
-                HandleLookInput();
+                if (!IsInputLocked)
+                {
+                    HandleMovementInput();
+                    HandleLookInput();
+                }
 
                 BlockLiquidSelection(firstUpdate);
-
                 WorldInteraction();
 
                 Vector3i headPosition = camera.Position.Floor();
@@ -246,6 +272,8 @@ namespace VoxelGame.Client.Entities
 
         private void WorldInteraction()
         {
+            if (IsInputLocked) return;
+
             Block? target = World.GetBlock(selectedPosition, out _);
 
             if (target == null) return;
@@ -380,6 +408,8 @@ namespace VoxelGame.Client.Entities
                 selectionRenderer.Dispose();
                 crosshairRenderer.Dispose();
                 overlay.Dispose();
+
+                Application.Client.Instance.Settings.CrosshairColorChanged -= UpdateCrosshairColor;
             }
 
             disposed = true;

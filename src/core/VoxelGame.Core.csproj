@@ -69,10 +69,10 @@
     <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="core.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>core.Designer.cs</LastGenOutput>
-      <CustomToolNamespace>Properties</CustomToolNamespace>
+    <None Update="Settings.settings">
+        <Generator>SettingsSingleFileGenerator</Generator>
+        <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+        <CustomToolNamespace>Properties</CustomToolNamespace>
     </None>
     <None Update="Utilities\modelexporter.py">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
@@ -97,11 +97,11 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="core.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>core.settings</DependentUpon>
-    </Compile>
+      <Compile Update="Settings.Designer.cs">
+          <DesignTimeSharedInput>True</DesignTimeSharedInput>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>Settings.settings</DependentUpon>
+      </Compile>
     <Compile Update="Resources\Language\Language.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

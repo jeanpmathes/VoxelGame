@@ -18,7 +18,9 @@ namespace VoxelGame.Client.Application
         private readonly string id;
         private readonly Binding type;
 
-        private readonly KeyOrButton defaultKeyOrButton;
+        public string Name { get; }
+
+        public KeyOrButton Default { get; }
 
         private enum Binding
         {
@@ -27,12 +29,13 @@ namespace VoxelGame.Client.Application
             SimpleButton
         }
 
-        private Keybind(string id, Binding type, KeyOrButton defaultKeyOrButton)
+        private Keybind(string id, string name, Binding type, KeyOrButton defaultKeyOrButton)
         {
             this.id = id;
+            Name = name;
             this.type = type;
 
-            this.defaultKeyOrButton = defaultKeyOrButton;
+            Default = defaultKeyOrButton;
         }
 
         public override bool Equals(object? obj)
@@ -67,57 +70,63 @@ namespace VoxelGame.Client.Application
             return id;
         }
 
-        public static Keybind RegisterButton(string id, Key defaultKey)
+        public static Keybind RegisterButton(string id, string name, Key defaultKey)
         {
             return Register(
                 id,
+                name,
                 Binding.SimpleButton,
                 new KeyOrButton(defaultKey));
         }
 
-        public static Keybind RegisterButton(string id, MouseButton defaultButton)
+        public static Keybind RegisterButton(string id, string name, MouseButton defaultButton)
         {
             return Register(
                 id,
+                name,
                 Binding.SimpleButton,
                 new KeyOrButton(defaultButton));
         }
 
-        public static Keybind RegisterToggle(string id, Key defaultKey)
+        public static Keybind RegisterToggle(string id, string name, Key defaultKey)
         {
             return Register(
                 id,
+                name,
                 Binding.ToggleButton,
                 new KeyOrButton(defaultKey));
         }
 
-        public static Keybind RegisterToggle(string id, MouseButton defaultButton)
+        public static Keybind RegisterToggle(string id, string name, MouseButton defaultButton)
         {
             return Register(
                 id,
+                name,
                 Binding.ToggleButton,
                 new KeyOrButton(defaultButton));
         }
 
-        public static Keybind RegisterPushButton(string id, Key defaultKey)
+        public static Keybind RegisterPushButton(string id, string name, Key defaultKey)
         {
             return Register(
                 id,
+                name,
                 Binding.PushButton,
                 new KeyOrButton(defaultKey));
         }
 
-        public static Keybind RegisterPushButton(string id, MouseButton defaultButton)
+        public static Keybind RegisterPushButton(string id, string name, MouseButton defaultButton)
         {
             return Register(
                 id,
+                name,
                 Binding.PushButton,
                 new KeyOrButton(defaultButton));
         }
 
-        private static Keybind Register(string id, Binding type, KeyOrButton defaultKeyOrButton)
+        private static Keybind Register(string id, string name, Binding type, KeyOrButton defaultKeyOrButton)
         {
-            var bind = new Keybind(id, type, defaultKeyOrButton);
+            var bind = new Keybind(id, name, type, defaultKeyOrButton);
 
             Debug.Assert(!bindings.Contains(bind), $"The binding '{bind.id}' is already defined.");
             bindings.Add(bind);
@@ -139,17 +148,17 @@ namespace VoxelGame.Client.Application
             switch (type)
             {
                 case Binding.PushButton:
-                    manager.Add(this, new PushButton(defaultKeyOrButton, manager.Input));
+                    manager.Add(this, new PushButton(Default, manager.Input));
 
                     break;
 
                 case Binding.ToggleButton:
-                    manager.Add(this, new ToggleButton(defaultKeyOrButton, manager.Input));
+                    manager.Add(this, new ToggleButton(Default, manager.Input));
 
                     break;
 
                 case Binding.SimpleButton:
-                    manager.Add(this, new SimpleButton(defaultKeyOrButton, manager.Input));
+                    manager.Add(this, new SimpleButton(Default, manager.Input));
 
                     break;
 

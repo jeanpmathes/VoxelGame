@@ -11,16 +11,18 @@ using Gwen.Net.OpenTk;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Desktop;
+using VoxelGame.Input;
+using VoxelGame.UI.Utility;
 
-namespace VoxelGame.UI
+namespace VoxelGame.UI.UserInterfaces
 {
     public abstract class UserInterface : IDisposable
     {
         private readonly bool drawBackground;
-
         private readonly IGwenGui gui;
+        private readonly InputListener inputListener;
 
-        protected UserInterface(GameWindow window, bool drawBackground)
+        protected UserInterface(GameWindow window, InputListener inputListener, bool drawBackground)
         {
             gui = GwenGuiFactory.CreateFromGame(
                 window,
@@ -32,7 +34,10 @@ namespace VoxelGame.UI
                     }));
 
             this.drawBackground = drawBackground;
+            this.inputListener = inputListener;
         }
+
+        internal Context Context { get; private set; } = null!;
 
         public ControlBase Root => gui.Root;
 
@@ -40,7 +45,8 @@ namespace VoxelGame.UI
         {
             gui.Load();
             gui.Root.ShouldDrawBackground = drawBackground;
-            gui.Root.Skin.DefaultFont.Size = 15;
+
+            Context = new Context(new FontHolder(gui.Root.Skin), inputListener);
         }
 
         public abstract void CreateControl();
@@ -65,12 +71,15 @@ namespace VoxelGame.UI
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing) gui.Dispose();
+            if (disposed) return;
 
-                disposed = true;
+            if (disposing)
+            {
+                gui.Dispose();
+                Context.Dispose();
             }
+
+            disposed = true;
         }
 
         public void Dispose()

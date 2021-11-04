@@ -25,9 +25,27 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="lib\**" />
-    <EmbeddedResource Remove="lib\**" />
-    <None Remove="lib\**" />
+      <Compile Remove="lib\**"/>
+      <EmbeddedResource Remove="lib\**"/>
+      <None Remove="lib\**"/>
+      <None Update="DefaultSkin2.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\GUI\start.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\GUI\Icons\load.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\GUI\Icons\delete.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\GUI\Icons\reset.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\GUI\Icons\attribution.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -50,22 +68,17 @@
 
   <ItemGroup>
     <ProjectReference Include="..\core\VoxelGame.Core.csproj" />
+      <ProjectReference Include="..\input\VoxelGame.Input.csproj"/>
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Gwen.Net">
-      <HintPath>..\..\lib\Gwen.Net\Gwen.Net.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Gwen.Net.OpenTk">
-      <HintPath>..\..\lib\Gwen.Net\Gwen.Net.OpenTk.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="DefaultSkin2.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <Reference Include="Gwen.Net">
+            <HintPath>..\..\lib\Gwen.Net\Gwen.Net.dll</HintPath>
+            <Private>true</Private>
+        </Reference>
+        <Reference Include="Gwen.Net.OpenTk">
+            <HintPath>..\..\lib\Gwen.Net\Gwen.Net.OpenTk.dll</HintPath>
+            <Private>true</Private>
+        </Reference>
+    </ItemGroup>
 </Project>

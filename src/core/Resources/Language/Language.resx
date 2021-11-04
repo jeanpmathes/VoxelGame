@@ -120,9 +120,6 @@
   <data name="Air" xml:space="preserve">
     <value>Air</value>
   </data>
-  <data name="AllChunksSaving" xml:space="preserve">
-    <value>Saving all active chunks of the world.</value>
-  </data>
   <data name="Ash" xml:space="preserve">
     <value>Ash</value>
   </data>
@@ -168,9 +165,6 @@
   <data name="Concrete" xml:space="preserve">
     <value>Concrete</value>
   </data>
-  <data name="CreatedOn" xml:space="preserve">
-    <value>Created on</value>
-  </data>
   <data name="CrudeOil" xml:space="preserve">
     <value>Crude Oil</value>
   </data>
@@ -182,12 +176,6 @@
   </data>
   <data name="Dirt" xml:space="preserve">
     <value>Dirt</value>
-  </data>
-  <data name="EnterIndexOfWorld" xml:space="preserve">
-    <value>Enter the index of the world to load:</value>
-  </data>
-  <data name="EnterNameOfWorld" xml:space="preserve">
-    <value>Enter the name of the world to create:</value>
   </data>
   <data name="EternalFlame" xml:space="preserve">
     <value>Eternal Flame</value>
@@ -243,9 +231,6 @@
   <data name="Liquid" xml:space="preserve">
     <value>Liquid</value>
   </data>
-  <data name="ListingWorlds" xml:space="preserve">
-    <value>Listing all worlds: </value>
-  </data>
   <data name="Log" xml:space="preserve">
     <value>Log</value>
   </data>
@@ -266,9 +251,6 @@
   </data>
   <data name="NaturalGas" xml:space="preserve">
     <value>Natural Gas</value>
-  </data>
-  <data name="NewWorldPrompt" xml:space="preserve">
-    <value>Do you want to create a new world?</value>
   </data>
   <data name="NoLiquid" xml:space="preserve">
     <value>No Liquid</value>
@@ -327,9 +309,6 @@
   <data name="SpiderWeb" xml:space="preserve">
     <value>Spider Web</value>
   </data>
-  <data name="StartingGame" xml:space="preserve">
-    <value>Starting game...</value>
-  </data>
   <data name="Steam" xml:space="preserve">
     <value>Steam</value>
   </data>
@@ -365,9 +344,6 @@
   </data>
   <data name="Vase" xml:space="preserve">
     <value>Vase</value>
-  </data>
-  <data name="Version" xml:space="preserve">
-    <value>Version</value>
   </data>
   <data name="VeryTallGrass" xml:space="preserve">
     <value>Very Tall Grass</value>
@@ -408,7 +384,136 @@
   <data name="WorkedStone" xml:space="preserve">
     <value>Worked Stone</value>
   </data>
-  <data name="WorldNotFound" xml:space="preserve">
-    <value>World not found!</value>
+  <data name="Worlds" xml:space="preserve">
+    <value>Worlds</value>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Load" xml:space="preserve">
+    <value>Load</value>
+  </data>
+  <data name="CreateNewWorld" xml:space="preserve">
+    <value>Create New World</value>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>Options</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+    <data name="EnterWorldName" xml:space="preserve">
+    <value>Enter a world name</value>
+  </data>
+    <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+    <data name="DeleteWorldQuery" xml:space="preserve">
+    <value>Delete World?</value>
+  </data>
+    <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+    <data name="Keybinds" xml:space="preserve">
+    <value>Keybinds</value>
+  </data>
+    <data name="KeyFullscreen" xml:space="preserve">
+    <value>Fullscreen</value>
+  </data>
+    <data name="KeyWireframe" xml:space="preserve">
+    <value>Wireframe</value>
+  </data>
+    <data name="KeyToggleUI" xml:space="preserve">
+    <value>Toggle UI</value>
+  </data>
+    <data name="KeyScreenshot" xml:space="preserve">
+    <value>Screenshot</value>
+  </data>
+    <data name="KeyEscape" xml:space="preserve">
+    <value>Escape</value>
+  </data>
+    <data name="KeyForwards" xml:space="preserve">
+    <value>Forwards</value>
+  </data>
+    <data name="KeyBackwards" xml:space="preserve">
+    <value>Backwards</value>
+  </data>
+    <data name="KeyStrafeRight" xml:space="preserve">
+    <value>Strafe Right</value>
+  </data>
+    <data name="KeyStrafeLeft" xml:space="preserve">
+    <value>Strafe Left</value>
+  </data>
+    <data name="KeySprint" xml:space="preserve">
+    <value>Sprint</value>
+  </data>
+    <data name="KeyJump" xml:space="preserve">
+    <value>Jump</value>
+  </data>
+    <data name="KeyInteractOrPlace" xml:space="preserve">
+    <value>Interact / Place</value>
+  </data>
+    <data name="KeyDestroy" xml:space="preserve">
+    <value>Destroy</value>
+  </data>
+    <data name="KeyForceInteract" xml:space="preserve">
+    <value>Force Interaction</value>
+  </data>
+    <data name="KeyPlacementMode" xml:space="preserve">
+    <value>Placement Mode</value>
+  </data>
+  <data name="KeyNextPlacement" xml:space="preserve">
+    <value>Next Placement</value>
+  </data>
+  <data name="KeyPreviousPlacement" xml:space="preserve">
+    <value>Previous Placement</value>
+  </data>
+  <data name="PressAnyKeyOrButton" xml:space="preserve">
+    <value>Press any key or button...</value>
+  </data>
+  <data name="Graphics" xml:space="preserve">
+    <value>Graphics</value>
+  </data>
+  <data name="GraphicsSampleCount" xml:space="preserve">
+    <value>Sample Count (MSAA)</value>
+  </data>
+  <data name="GraphicsMaxFPS" xml:space="preserve">
+    <value>Max FPS</value>
+  </data>
+  <data name="GraphicsSettingsDescription" xml:space="preserve">
+    <value>Set different graphics settings that can affect the quality of the game visuals. Some settings require a restart to apply.</value>
+  </data>
+  <data name="KeybindsSettingsDescription" xml:space="preserve">
+    <value>Bind keys for different actions.</value>
+  </data>
+  <data name="General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="GeneralSettingsDescription" xml:space="preserve">
+    <value>Change general settings.</value>
+  </data>
+  <data name="CrosshairColor" xml:space="preserve">
+    <value>Crosshair Color</value>
+  </data>
+    <data name="Select" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="MouseSensitivity" xml:space="preserve">
+    <value>Mouse Sensitivity</value>
+  </data>
+    <data name="CrosshairScale" xml:space="preserve">
+    <value>Crosshair Scale</value>
+  </data>
+    <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+    <data name="Credits" xml:space="preserve">
+    <value>Credits</value>
+  </data>
+    <data name="Resume" xml:space="preserve">
+    <value>Resume</value>
   </data>
 </root>

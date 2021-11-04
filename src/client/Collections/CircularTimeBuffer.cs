@@ -10,22 +10,25 @@ using System.Linq;
 namespace VoxelGame.Client.Collections
 {
     /// <summary>
-    /// A simple class for storing a set amount of time values. They cannot be read, but operations to calculate the average and similar are available.
+    ///     A simple class for storing a set amount of time values. They cannot be read, but operations to calculate the
+    ///     average and similar are available.
     /// </summary>
     public class CircularTimeBuffer
     {
-        private readonly int capacity;
         private readonly double[] buffer;
+        private readonly int capacity;
         private int writeIndex;
 
         public CircularTimeBuffer(int capacity)
         {
             if (capacity < 1)
-                throw new ArgumentOutOfRangeException(nameof(capacity), "Capacity has to be larger than zero.");
+                throw new ArgumentOutOfRangeException(nameof(capacity), @"Capacity has to be larger than zero.");
 
             this.capacity = capacity;
             buffer = new double[capacity];
         }
+
+        public double Average => buffer.Sum() / capacity;
 
         public void Write(double time)
         {
@@ -33,7 +36,5 @@ namespace VoxelGame.Client.Collections
             writeIndex++;
             writeIndex %= capacity;
         }
-
-        public double Average => buffer.Sum() / capacity;
     }
 }

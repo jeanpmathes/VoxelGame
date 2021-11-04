@@ -5,30 +5,41 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using OpenToolkit.Windowing.Desktop;
+using VoxelGame.Input;
 using VoxelGame.UI.Controls;
+using VoxelGame.UI.Providers;
 
 namespace VoxelGame.UI.UserInterfaces
 {
     public class StartUserInterface : UserInterface
     {
-        private StartControl? control;
+        private readonly List<ISettingsProvider> settingsProviders;
+        private readonly IWorldProvider worldProvider;
 
-        public StartUserInterface(GameWindow window, bool drawBackground) : base(
+        private StartUI? control;
+
+        public StartUserInterface(GameWindow window, InputListener inputListener, IWorldProvider worldProvider,
+            List<ISettingsProvider> settingsProviders, bool drawBackground) : base(
             window,
-            drawBackground) {}
+            inputListener,
+            drawBackground)
+        {
+            this.worldProvider = worldProvider;
+            this.settingsProviders = settingsProviders;
+        }
 
         public override void CreateControl()
         {
             control?.Dispose();
-            control = new StartControl(this);
+            control = new StartUI(this, worldProvider, settingsProviders);
         }
 
-        public void SetActions(Action start, Action exit)
+        public void SetExitAction(Action exit)
         {
             if (control == null) return;
 
-            control.Start += start;
             control.Exit += exit;
         }
     }

@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Platforms>x64</Platforms>
-    <ApplicationIcon>vg_icon.ico</ApplicationIcon>
-    <Nullable>enable</Nullable>
-    <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
-    <LangVersion>9</LangVersion>
+      <TargetFramework>netcoreapp3.1</TargetFramework>
+      <Platforms>x64</Platforms>
+      <ApplicationIcon>vg_icon.ico</ApplicationIcon>
+      <Nullable>enable</Nullable>
+      <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
+      <LangVersion>9</LangVersion>
+      <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      <FileVersion>1.2.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

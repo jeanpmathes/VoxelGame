@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using VoxelGame.Client.Entities;
@@ -14,6 +15,7 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Core.Updates;
 using VoxelGame.Input.Actions;
 using VoxelGame.Logging;
+using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes
@@ -40,7 +42,31 @@ namespace VoxelGame.Client.Scenes
 
             Screen.SetCursor(visible: false, locked: true);
 
-            ui = new GameUserInterface(client, drawBackground: false);
+            List<ISettingsProvider> settingsProviders = new()
+            {
+                client.Settings,
+                Application.Client.Instance.Keybinds
+            };
+
+            ui = new GameUserInterface(
+                client,
+                client.Keybinds.Input.Listener,
+                settingsProviders,
+                drawBackground: false);
+
+            ui.WorldExit += client.LoadStartScene;
+
+            ui.MenuOpen += () =>
+            {
+                Player.LockInput();
+                Screen.SetCursor(visible: true, locked: false);
+            };
+
+            ui.MenuClose += () =>
+            {
+                Player.UnlockInput();
+                Screen.SetCursor(visible: false, locked: true);
+            };
 
             World = world;
             counter = world.UpdateCounter;
@@ -112,7 +138,7 @@ namespace VoxelGame.Client.Scenes
 
                 if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
 
-                if (escapeButton.Pushed) client.LoadStartScene();
+                if (escapeButton.Pushed) ui.OpenInGameMenu();
             }
         }
 

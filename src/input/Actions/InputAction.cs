@@ -8,14 +8,14 @@ namespace VoxelGame.Input.Actions
 {
     public abstract class InputAction
     {
-        protected InputManager Input { get; }
-
         protected InputAction(InputManager input)
         {
             Input = input;
 
             input.OnUpdate += Update;
         }
+
+        protected InputManager Input { get; }
 
         protected abstract void Update();
     }

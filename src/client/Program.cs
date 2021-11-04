@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Desktop;
 using Properties;
+using VoxelGame.Client.Application;
 using VoxelGame.Core;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
@@ -62,28 +63,30 @@ namespace VoxelGame.Client
             GameInformation.Initialize(Version);
             Console.Title = Language.VoxelGame + @" " + Version;
 
-            Console.WriteLine(Language.StartingGame);
-            Console.WriteLine(Language.Version + @" " + Version);
+            logger.LogInformation(Events.ApplicationInformation, "Starting game on version: {Version}", Version);
+
+            GraphicsSettings graphicsSettings = new(Settings.Default);
 
             GameWindowSettings gameWindowSettings = new()
             {
                 IsMultiThreaded = false,
-                RenderFrequency = client.Default.MaxFPS,
+                RenderFrequency = graphicsSettings.MaxFPS,
                 UpdateFrequency = 60.0
             };
 
             NativeWindowSettings nativeWindowSettings = NativeWindowSettings.Default;
             nativeWindowSettings.WindowBorder = WindowBorder.Hidden;
-            nativeWindowSettings.Profile = ContextProfile.Compatability;
+            nativeWindowSettings.Profile = ContextProfile.Core;
             nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
-            nativeWindowSettings.Size = client.Default.ScreenSize.ToVector2i();
+            nativeWindowSettings.Size = Settings.Default.ScreenSize.ToVector2i();
             nativeWindowSettings.StartFocused = false;
 
-            logger.LogInformation(Events.ApplicationInformation, "Starting game on version: {Version}", Version);
+            logger.LogDebug("Opening window");
 
             using (Application.Client client = new(
                 gameWindowSettings,
                 nativeWindowSettings,
+                graphicsSettings,
                 appDataDirectory,
                 screenshotDirectory))
             {
