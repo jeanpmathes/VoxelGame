@@ -46,6 +46,7 @@ namespace VoxelGame.UI.Controls
                 .Text(Source.GetTextContent("Resources/GUI/Icons/attribution.txt")).LineBreak()
                 .Text("Code").LineBreak()
                 .Text("Noise Generation: https://github.com/Auburns/FastNoise_CSharp").LineBreak()
+                .Text("glsl Generation: https://github.com/stegu/webgl-noise").LineBreak()
                 .Text("OpenTK Tutorials: https://opentk.net/learn/index.html").LineBreak();
 
             credits.Paragraphs.Add(content);
