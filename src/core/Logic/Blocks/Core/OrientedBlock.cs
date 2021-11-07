@@ -35,7 +35,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            world.SetBlock(this, (uint) (entity?.LookingDirection.ToOrientation() ?? Orientation.North), position);
+            world.SetBlock(
+                this.AsInstance((uint) (entity?.LookingDirection.ToOrientation() ?? Orientation.North)),
+                position);
         }
 
         private static int TranslateIndex(BlockSide side, Orientation orientation)

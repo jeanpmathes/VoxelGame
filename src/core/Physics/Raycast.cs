@@ -153,19 +153,20 @@ namespace VoxelGame.Core.Physics
 
         private static bool BlockIntersectionCheck(World world, Ray ray, Vector3i position)
         {
-            Block? block = world.GetBlock(position, out _);
+            BlockInstance? block = world.GetBlock(position);
 
             // Check if the ray intersects the bounding box of the block.
-            return block != null && block != Block.Air && block.GetBoundingBox(world, position).Intersects(ray);
+            return block != null && block.Block != Block.Air &&
+                   block.Block.GetBoundingBox(world, position).Intersects(ray);
         }
 
         private static bool LiquidIntersectionCheck(World world, Ray ray, Vector3i position)
         {
-            Liquid? liquid = world.GetLiquid(position, out LiquidLevel level, out _);
+            LiquidInstance? liquid = world.GetLiquid(position);
 
             // Check if the ray intersects the bounding box of the liquid.
-            return liquid != null && liquid != Liquid.None &&
-                   Liquid.GetBoundingBox(position, level).Intersects(ray);
+            return liquid != null && liquid.Liquid != Liquid.None &&
+                   Liquid.GetBoundingBox(position, liquid.Level).Intersects(ray);
         }
     }
 }

@@ -44,9 +44,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public bool IsConnectable(World world, BlockSide side, Vector3i position)
         {
-            world.GetBlock(position, out uint data);
+            BlockInstance? block = world.GetBlock(position);
 
-            return GetHeight(data) == IHeightVariable.MaximumHeight;
+            return block != null && GetHeight(block.Data) == IHeightVariable.MaximumHeight;
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
@@ -70,20 +70,20 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            world.SetBlock(this, Encode(BlockColor.Default, IHeightVariable.MaximumHeight), position);
+            world.SetBlock(this.AsInstance(Encode(BlockColor.Default, IHeightVariable.MaximumHeight)), position);
         }
 
         public void Place(World world, LiquidLevel level, Vector3i position)
         {
             if (base.Place(world, position))
-                world.SetBlock(this, Encode(BlockColor.Default, level.GetBlockHeight()), position);
+                world.SetBlock(this.AsInstance(Encode(BlockColor.Default, level.GetBlockHeight())), position);
         }
 
         protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
             Decode(data, out BlockColor color, out int height);
             var next = (BlockColor) ((int) color + 1);
-            entity.World.SetBlock(this, Encode(next, height), position);
+            entity.World.SetBlock(this.AsInstance(Encode(next, height)), position);
         }
 
         private static uint Encode(BlockColor color, int height)

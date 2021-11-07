@@ -53,9 +53,10 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void RandomUpdate(World world, Vector3i position, uint data)
         {
-            Liquid? liquid = world.GetLiquid(position, out LiquidLevel level, out _);
+            LiquidInstance? liquid = world.GetLiquid(position);
 
-            if (liquid == Liquid.Water && level == LiquidLevel.Eight) world.SetBlock(Mud, data: 0, position);
+            if (liquid?.Liquid == Liquid.Water && liquid.Level == LiquidLevel.Eight)
+                world.SetBlock(Mud.AsInstance(), position);
         }
     }
 }

@@ -16,9 +16,9 @@ namespace VoxelGame.Core.Logic.Interfaces
     {
         public bool SpreadGrass(World world, Vector3i position, Block grass)
         {
-            if (world.GetBlock(position, out _) != this || world.HasOpaqueTop(position)) return false;
+            if (world.GetBlock(position)?.Block != this || world.HasOpaqueTop(position)) return false;
 
-            world.SetBlock(grass, data: 0, position);
+            world.SetBlock(grass.AsInstance(), position);
 
             return false;
         }

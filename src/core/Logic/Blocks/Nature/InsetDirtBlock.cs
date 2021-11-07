@@ -44,7 +44,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public void CoverWithAsh(World world, Vector3i position)
         {
-            world.SetBlock(GrassBurned, data: 0, position);
+            world.SetBlock(GrassBurned.AsInstance(), position);
         }
 
         public int GetHeight(uint data)
@@ -56,7 +56,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public void BecomeSolid(World world, Vector3i position)
         {
-            world.SetBlock(Dirt, data: 0, position);
+            world.SetBlock(Dirt.AsInstance(), position);
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
@@ -87,7 +87,7 @@ namespace VoxelGame.Core.Logic.Blocks
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             if (world.HasOpaqueTop(position)) Dirt.Place(world, position, entity);
-            else world.SetBlock(this, data: 0, position);
+            else world.SetBlock(this.AsInstance(), position);
         }
 
         internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)

@@ -73,18 +73,18 @@ namespace VoxelGame.Core.Logic
 
             public void Tick(World world)
             {
-                Block? block = world.GetBlock((x, y, z), out uint data);
+                BlockInstance? block = world.GetBlock((x, y, z));
 
-                if (block?.Id == target)
+                if (block?.Block.Id == target)
                     switch (operation)
                     {
                         case TickOperation.Tick:
-                            block.ScheduledUpdate(world, (x, y, z), data);
+                            block.Block.ScheduledUpdate(world, (x, y, z), block.Data);
 
                             break;
 
                         case TickOperation.Destroy:
-                            block.Destroy(world, (x, y, z));
+                            block.Block.Destroy(world, (x, y, z));
 
                             break;
                     }

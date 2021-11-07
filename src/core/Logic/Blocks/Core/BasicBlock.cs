@@ -23,7 +23,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                flags with {IsFull = true, IsReplaceable = false},
+                flags with { IsFull = true, IsReplaceable = false },
                 BoundingBox.Block,
                 TargetBuffer.Simple)
         {

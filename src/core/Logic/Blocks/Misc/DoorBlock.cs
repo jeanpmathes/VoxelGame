@@ -125,7 +125,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return world.GetBlock(position.Above(), out _)?.IsReplaceable == true &&
+            return world.GetBlock(position.Above())?.Block.IsReplaceable == true &&
                    world.HasSolidGround(position, solidify: true);
         }
 
@@ -143,8 +143,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 Orientation toNeighbor = orientation.Rotate().Opposite();
                 Vector3i neighborPosition = toNeighbor.Offset(position);
 
-                Block neighbor = world.GetBlock(neighborPosition, out uint data) ?? Air;
-                isLeftSided = neighbor != this || (data & 0b00_1011) != (int) orientation;
+                (Block block, uint data) = world.GetBlock(neighborPosition) ?? BlockInstance.Default;
+                isLeftSided = block != this || (data & 0b00_1011) != (int) orientation;
             }
             else
             {
@@ -155,11 +155,10 @@ namespace VoxelGame.Core.Logic.Blocks
                     orientation == Orientation.West && side != BlockSide.Front;
             }
 
-            world.SetBlock(this, (uint) ((isLeftSided ? 0b0000 : 0b1000) | (int) orientation), position);
+            world.SetBlock(this.AsInstance((uint) ((isLeftSided ? 0b0000 : 0b1000) | (int) orientation)), position);
 
             world.SetBlock(
-                this,
-                (uint) ((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int) orientation),
+                this.AsInstance((uint) ((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int) orientation)),
                 position.Above());
         }
 
@@ -181,8 +180,8 @@ namespace VoxelGame.Core.Logic.Blocks
                     new Vector3(x: 0.5f, y: 1f, z: 0.5f) + otherPosition.ToVector3(),
                     new Vector3(x: 0.5f, y: 1f, z: 0.5f)))) return;
 
-            entity.World.SetBlock(this, data ^ 0b1_0000, position);
-            entity.World.SetBlock(this, data ^ 0b1_0100, otherPosition);
+            entity.World.SetBlock(this.AsInstance(data ^ 0b1_0000), position);
+            entity.World.SetBlock(this.AsInstance(data ^ 0b1_0100), otherPosition);
 
             // Open a neighboring door, if available.
             bool isLeftSided = (data & 0b00_1000) == 0;
@@ -195,10 +194,10 @@ namespace VoxelGame.Core.Logic.Blocks
 
             void OpenNeighbor(Vector3i neighborPosition)
             {
-                Block neighbor = entity.World.GetBlock(neighborPosition, out uint neighborData) ?? Air;
+                (Block block, uint u) = entity.World.GetBlock(neighborPosition) ?? BlockInstance.Default;
 
-                if (neighbor == this && (data & 0b01_1011) == ((neighborData ^ 0b00_1000) & 0b01_1011))
-                    neighbor.EntityInteract(entity, neighborPosition);
+                if (block == this && (data & 0b01_1011) == ((u ^ 0b00_1000) & 0b01_1011))
+                    block.EntityInteract(entity, neighborPosition);
             }
         }
 

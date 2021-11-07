@@ -27,7 +27,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public bool Burn(World world, Vector3i position, Block fire)
         {
-            world.SetBlock(GrassBurned, data: 0, position);
+            world.SetBlock(GrassBurned.AsInstance(), position);
             fire.Place(world, position.Above());
 
             return false;
@@ -35,16 +35,17 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override void RandomUpdate(World world, Vector3i position, uint data)
         {
-            Liquid? liquid = world.GetLiquid(position, out LiquidLevel level, out _);
+            LiquidInstance? liquid = world.GetLiquid(position);
 
-            if (liquid == Liquid.Water && level == LiquidLevel.Eight) world.SetBlock(Mud, data: 0, position);
+            if (liquid?.Liquid == Liquid.Water && liquid.Level == LiquidLevel.Eight)
+                world.SetBlock(Mud.AsInstance(), position);
 
             for (int yOffset = -1; yOffset <= 1; yOffset++)
                 foreach (Orientation orientation in Orientations.All)
                 {
                     Vector3i otherPosition = orientation.Offset(position) + Vector3i.UnitY * yOffset;
 
-                    if (world.GetBlock(otherPosition, out _) is IGrassSpreadable grassSpreadable)
+                    if (world.GetBlock(otherPosition)?.Block is IGrassSpreadable grassSpreadable)
                         grassSpreadable.SpreadGrass(world, otherPosition, this);
                 }
         }

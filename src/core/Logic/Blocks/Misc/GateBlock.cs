@@ -51,9 +51,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public bool IsConnectable(World world, BlockSide side, Vector3i position)
         {
-            if (world.GetBlock(position, out uint data) == this)
+            BlockInstance? block = world.GetBlock(position);
+
+            if (block?.Block == this)
             {
-                var orientation = (Orientation) (data & 0b00_0011);
+                var orientation = (Orientation) (block.Data & 0b00_0011);
 
                 return orientation switch
                 {
@@ -223,14 +225,14 @@ namespace VoxelGame.Core.Logic.Blocks
             if (orientation.IsZ() && !connectX) orientation = orientation.Rotate();
             else if (orientation.IsX() && !connectZ) orientation = orientation.Rotate();
 
-            world.SetBlock(this, (uint) orientation, position);
+            world.SetBlock(this.AsInstance((uint) orientation), position);
         }
 
         private static bool CheckOrientation(World world, Vector3i position, Orientation orientation)
         {
             Vector3i otherPosition = orientation.Offset(position);
 
-            return world.GetBlock(otherPosition, out _) is IWideConnectable connectable &&
+            return world.GetBlock(otherPosition)?.Block is IWideConnectable connectable &&
                    connectable.IsConnectable(world, orientation.ToBlockSide().Opposite(), otherPosition);
         }
 
@@ -259,8 +261,7 @@ namespace VoxelGame.Core.Logic.Blocks
             if (entity.BoundingBox.Intersects(new BoundingBox(center + position.ToVector3(), extents))) return;
 
             entity.World.SetBlock(
-                this,
-                (uint) ((isClosed ? 0b00_0100 : 0b00_0000) | (int) orientation.Opposite()),
+                this.AsInstance((uint) ((isClosed ? 0b00_0100 : 0b00_0000) | (int) orientation.Opposite())),
                 position);
         }
 

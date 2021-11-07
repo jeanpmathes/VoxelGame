@@ -39,7 +39,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            world.SetBlock(this, (uint) (entity?.TargetSide ?? BlockSide.Front).Axis(), position);
+            world.SetBlock(this.AsInstance((uint) (entity?.TargetSide ?? BlockSide.Front).Axis()), position);
         }
 
         private static Axis ToAxis(uint data)

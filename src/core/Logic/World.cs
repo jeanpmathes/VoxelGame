@@ -411,86 +411,107 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        ///     Returns the block at a given position in block coordinates. The block is only searched in active chunks.
+        ///     Returns the block instance at a given position in block coordinates. The block is only searched in active chunks.
         /// </summary>
         /// <param name="position">The block position.</param>
-        /// <param name="data">The block data at the position.</param>
-        /// <returns>The Block at the given position or null if the block was not found.</returns>
+        /// <returns>The block instance at the given position or null if the block was not found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Block? GetBlock(Vector3i position, out uint data)
+        public BlockInstance? GetBlock(Vector3i position)
         {
-            return GetBlock(position, out data, out _, out _, out _);
+            RetrieveContent(position, out Block? block, out uint data, out _, out _, out _);
+
+            return block?.AsInstance(data);
         }
 
         /// <summary>
-        ///     Returns the block at a given position in block coordinates. The block is only searched in active chunks.
+        /// Retrieve the content at a given position. The content can only be retrieved from active chunks.
         /// </summary>
-        /// <param name="position">The block position.</param>
-        /// <param name="data">The block data at the position.</param>
-        /// <param name="liquid">The liquid at the position.</param>
-        /// <param name="level">The liquid level of the position.</param>
-        /// <param name="isStatic">If the liquid at that position is static.</param>
-        /// <returns>The Block at x, y, z or null if the block was not found.</returns>
+        /// <param name="position">The position.</param>
+        /// <param name="block">The block at the given position.</param>
+        /// <param name="data">The data of the block.</param>
+        /// <param name="liquid">The liquid at the given position.</param>
+        /// <param name="level">The level of the liquid.</param>
+        /// <param name="isStatic">Whether the liquid is static.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Block? GetBlock(Vector3i position, out uint data, out Liquid? liquid, out LiquidLevel level,
-            out bool isStatic)
+        private void RetrieveContent(Vector3i position,
+            out Block? block, out uint data,
+            out Liquid? liquid, out LiquidLevel level, out bool isStatic)
         {
             Chunk? chunk = GetChunkWithBlock(position);
 
             if (chunk != null)
             {
                 uint val = chunk.GetSection(position.Y >> Section.SectionSizeExp).GetContent(position);
+                Section.Decode(val, out block, out data, out liquid, out level, out isStatic);
 
-                Section.Decode(val, out Block block, out data, out liquid, out level, out isStatic);
-
-                return block;
+                return;
             }
 
+            block = null;
             data = 0;
             liquid = null;
             level = 0;
             isStatic = false;
-
-            return null;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Liquid? GetLiquid(Vector3i position, out LiquidLevel level, out bool isStatic)
+        public LiquidInstance? GetLiquid(Vector3i position)
         {
-            return GetPositionContent(position, out _, out level, out isStatic).liquid;
+            RetrieveContent(
+                position,
+                out Block? _,
+                out uint _,
+                out Liquid? liquid,
+                out LiquidLevel level,
+                out bool isStatic);
+
+            return liquid?.AsInstance(level, isStatic);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public (Block? block, Liquid? liquid) GetPositionContent(Vector3i position, out uint data,
-            out LiquidLevel level,
-            out bool isStatic)
+        public (BlockInstance? block, LiquidInstance? liquid) GetContent(Vector3i position)
         {
-            Block? block = GetBlock(position, out data, out Liquid? liquid, out level, out isStatic);
+            RetrieveContent(
+                position,
+                out Block? block,
+                out uint data,
+                out Liquid? liquid,
+                out LiquidLevel level,
+                out bool isStatic);
 
-            return (block, liquid);
+            return (block?.AsInstance(data), liquid?.AsInstance(level, isStatic));
         }
 
         /// <summary>
-        ///     Sets a block in the world, adds the changed sections to the re-mesh set and sends block updates to the neighbors of
+        ///     Sets a block in the world, adds the changed sections to the re-mesh set and sends updates to the neighbors of
         ///     the changed block.
         /// </summary>
         /// <param name="block">The block which should be set at the position.</param>
-        /// <param name="data">The block data which should be set at the position.</param>
         /// <param name="position">The block position.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetBlock(Block block, uint data, Vector3i position)
+        public void SetBlock(BlockInstance block, Vector3i position)
         {
-            Liquid liquid = GetPositionContent(position, out _, out LiquidLevel level, out bool isStatic).liquid ??
-                            Liquid.None;
+            LiquidInstance? liquid = GetLiquid(position);
 
-            SetPosition(block, data, liquid, level, isStatic, position, tickLiquid: true);
+            if (liquid is null) return;
+
+            SetContent(block, liquid, position, tickLiquid: true);
         }
 
+        /// <summary>
+        ///     Sets a liquid in the world, adds the changed sections to the re-mesh set and sends updates to the neighbors of the
+        ///     changed block.
+        /// </summary>
+        /// <param name="liquid"></param>
+        /// <param name="position"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetLiquid(Liquid liquid, LiquidLevel level, bool isStatic, Vector3i position)
+        public void SetLiquid(LiquidInstance liquid, Vector3i position)
         {
-            Block block = GetBlock(position, out uint data, out _, out _, out _) ?? Block.Air;
-            SetPosition(block, data, liquid, level, isStatic, position, tickLiquid: false);
+            BlockInstance? block = GetBlock(position);
+
+            if (block is null) return;
+
+            SetContent(block, liquid, position, tickLiquid: true);
         }
 
         /// <summary>
@@ -502,8 +523,13 @@ namespace VoxelGame.Core.Logic
             ModifyWorldData(position, ~Section.StaticMask, isStatic ? Section.StaticMask : 0);
         }
 
+        private void SetContent(BlockInstance block, LiquidInstance liquid, Vector3i position, bool tickLiquid)
+        {
+            SetContent(block.Block, block.Data, liquid.Liquid, liquid.Level, liquid.IsStatic, position, tickLiquid);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic,
+        private void SetContent(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic,
             Vector3i position, bool tickLiquid)
         {
             Chunk? chunk = GetChunkWithBlock(position);
@@ -522,14 +548,10 @@ namespace VoxelGame.Core.Logic
             {
                 Vector3i neighborPosition = side.Offset(position);
 
-                (Block? blockNeighbor, Liquid? liquidNeighbor) = GetPositionContent(
-                    neighborPosition,
-                    out data,
-                    out _,
-                    out isStatic);
+                (BlockInstance? blockNeighbor, LiquidInstance? liquidNeighbor) = GetContent(position);
 
-                blockNeighbor?.BlockUpdate(this, neighborPosition, data, side.Opposite());
-                liquidNeighbor?.TickSoon(this, neighborPosition, isStatic);
+                blockNeighbor?.Block.BlockUpdate(this, neighborPosition, data, side.Opposite());
+                liquidNeighbor?.Liquid.TickSoon(this, neighborPosition, isStatic);
             }
 
             ProcessChangedSection(chunk, position);
@@ -539,7 +561,7 @@ namespace VoxelGame.Core.Logic
         public void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic,
             Vector3i position)
         {
-            SetPosition(block, data, liquid, level, isStatic, position, tickLiquid: true);
+            SetContent(block, data, liquid, level, isStatic, position, tickLiquid: true);
         }
 
         protected abstract void ProcessChangedSection(Chunk chunk, Vector3i position);
@@ -566,12 +588,12 @@ namespace VoxelGame.Core.Logic
 
         public void SetDefaultBlock(Vector3i position)
         {
-            SetBlock(Block.Air, data: 0, position);
+            SetBlock(BlockInstance.Default, position);
         }
 
         public void SetDefaultLiquid(Vector3i position)
         {
-            SetLiquid(Liquid.None, LiquidLevel.Eight, isStatic: true, position);
+            SetLiquid(LiquidInstance.Default, position);
         }
 
         /// <summary>

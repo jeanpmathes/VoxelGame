@@ -143,7 +143,7 @@ namespace VoxelGame.Core.Logic.Blocks
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
             Vector3i otherPosition = orientation.Offset(position);
 
-            return world.GetBlock(otherPosition, out _)?.IsReplaceable == true &&
+            return world.GetBlock(otherPosition)?.Block.IsReplaceable == true &&
                    world.HasSolidGround(otherPosition, solidify: true);
         }
 
@@ -152,8 +152,8 @@ namespace VoxelGame.Core.Logic.Blocks
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
             Vector3i otherPosition = orientation.Offset(position);
 
-            world.SetBlock(this, (uint) orientation << 1, position);
-            world.SetBlock(this, (uint) (((int) orientation << 1) | 1), otherPosition);
+            world.SetBlock(this.AsInstance((uint) orientation << 1), position);
+            world.SetBlock(this.AsInstance((uint) (((int) orientation << 1) | 1)), otherPosition);
 
             world.SetSpawnPosition(new Vector3(position.X, y: 1024f, position.Z));
         }
@@ -175,11 +175,10 @@ namespace VoxelGame.Core.Logic.Blocks
             var orientation = (Orientation) ((data & 0b00_0110) >> 1);
             Orientation placementOrientation = isHead ? orientation.Opposite() : orientation;
 
-            entity.World.SetBlock(this, (data + 0b00_1000) & 0b11_1111, position);
+            entity.World.SetBlock(this.AsInstance((data + 0b00_1000) & 0b11_1111), position);
 
             entity.World.SetBlock(
-                this,
-                ((data + 0b00_1000) & 0b11_1111) ^ 0b00_0001,
+                this.AsInstance(((data + 0b00_1000) & 0b11_1111) ^ 0b00_0001),
                 placementOrientation.Offset(position));
         }
 

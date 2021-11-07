@@ -24,7 +24,7 @@ namespace VoxelGame.Core.Utilities
     public static class Orientations
     {
         private static readonly ReadOnlyCollection<Orientation> orientations = new List<Orientation>
-            {Orientation.North, Orientation.East, Orientation.South, Orientation.West}.AsReadOnly();
+            { Orientation.North, Orientation.East, Orientation.South, Orientation.West }.AsReadOnly();
 
         public static IEnumerable<Orientation> All => orientations;
 

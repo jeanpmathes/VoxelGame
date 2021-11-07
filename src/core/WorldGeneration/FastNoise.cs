@@ -2612,7 +2612,7 @@ namespace VoxelGame.Core.WorldGeneration
             int yr = FastRound(y);
             int zr = FastRound(z);
 
-            FN_DECIMAL[] distance = {999999, 999999, 999999, 999999};
+            FN_DECIMAL[] distance = { 999999, 999999, 999999, 999999 };
 
             switch (m_cellularDistanceFunction)
             {
@@ -2839,7 +2839,7 @@ namespace VoxelGame.Core.WorldGeneration
             int xr = FastRound(x);
             int yr = FastRound(y);
 
-            FN_DECIMAL[] distance = {999999, 999999, 999999, 999999};
+            FN_DECIMAL[] distance = { 999999, 999999, 999999, 999999 };
 
             switch (m_cellularDistanceFunction)
             {

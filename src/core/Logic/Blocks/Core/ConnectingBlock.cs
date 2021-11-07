@@ -35,7 +35,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            world.SetBlock(this, IConnectable.GetConnectionData<TConnectable>(world, position), position);
+            world.SetBlock(this.AsInstance(IConnectable.GetConnectionData<TConnectable>(world, position)), position);
         }
 
         internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
@@ -45,11 +45,11 @@ namespace VoxelGame.Core.Logic.Blocks
             if (side.IsLateral())
                 newData = CheckNeighbor(side.Offset(position), side.Opposite(), side.ToOrientation().ToFlag(), newData);
 
-            if (newData != data) world.SetBlock(this, newData, position);
+            if (newData != data) world.SetBlock(this.AsInstance(newData), position);
 
             uint CheckNeighbor(Vector3i neighborPosition, BlockSide neighborSide, uint mask, uint oldData)
             {
-                if (world.GetBlock(neighborPosition, out _) is TConnectable neighbor &&
+                if (world.GetBlock(neighborPosition)?.Block is TConnectable neighbor &&
                     neighbor.IsConnectable(world, neighborSide, neighborPosition)) oldData |= mask;
                 else oldData &= ~mask;
 

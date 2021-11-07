@@ -37,7 +37,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                flags with {IsFull = false, IsOpaque = false},
+                flags with { IsFull = false, IsOpaque = false },
                 boundingBox,
                 TargetBuffer.CrossPlant)
         {
@@ -66,20 +66,20 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            Block ground = world.GetBlock(position.Below(), out _) ?? Air;
+            BlockInstance? ground = world.GetBlock(position.Below());
 
-            return ground is IPlantable;
+            return ground?.Block is IPlantable;
         }
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             bool isLowered = world.IsLowered(position);
-            world.SetBlock(this, isLowered ? 1u : 0u, position);
+            world.SetBlock(this.AsInstance(isLowered ? 1u : 0u), position);
         }
 
         internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && (world.GetBlock(position.Below(), out _) ?? Air) is not IPlantable)
+            if (side == BlockSide.Bottom && (world.GetBlock(position.Below())?.Block ?? Air) is not IPlantable)
                 Destroy(world, position);
         }
     }

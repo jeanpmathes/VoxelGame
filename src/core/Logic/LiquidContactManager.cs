@@ -40,13 +40,13 @@ namespace VoxelGame.Core.Logic
                 Liquid.Wine);
         }
 
-        public bool HandleContact(World world, Liquid liquidA, Vector3i posA, LiquidLevel levelA, Liquid liquidB,
-            Vector3i posB, LiquidLevel levelB, bool isStaticB)
+        public bool HandleContact(World world, LiquidInstance liquidA, Vector3i posA, LiquidInstance liquidB,
+            Vector3i posB)
         {
             Debug.Assert(liquidA != liquidB);
 
-            var a = new ContactInformation(liquidA, posA, levelA);
-            var b = new ContactInformation(liquidB, posB, levelB, isStaticB);
+            var a = new ContactInformation(liquidA, posA);
+            var b = new ContactInformation(liquidB, posB);
 
             return map.Resolve(a.liquid, b.liquid) switch
             {
@@ -62,7 +62,7 @@ namespace VoxelGame.Core.Logic
         {
             Select(a, b, Liquid.Lava, out ContactInformation lava, out ContactInformation coolant);
 
-            Block lavaBlock = world.GetBlock(lava.position, out _) ?? Block.Air;
+            Block lavaBlock = world.GetBlock(lava.position)?.Block ?? Block.Air;
 
             if (lavaBlock.IsReplaceable || lavaBlock.Destroy(world, lava.position))
                 world.SetPosition(
@@ -74,9 +74,7 @@ namespace VoxelGame.Core.Logic
                     lava.position);
 
             world.SetLiquid(
-                Liquid.Steam,
-                coolant.level,
-                isStatic: false,
+                Liquid.Steam.AsInstance(coolant.level, isStatic: false),
                 coolant.position);
 
             Liquid.Steam.TickSoon(world, coolant.position, isStatic: true);
@@ -103,10 +101,10 @@ namespace VoxelGame.Core.Logic
             if ((a.position.Y <= b.position.Y || a.liquid.Density <= b.liquid.Density) &&
                 (a.position.Y >= b.position.Y || a.liquid.Density >= b.liquid.Density)) return false;
 
-            world.SetLiquid(a.liquid, a.level, isStatic: false, b.position);
+            world.SetLiquid(a.liquid.AsInstance(a.level, isStatic: false), b.position);
             a.liquid.TickSoon(world, b.position, isStatic: true);
 
-            world.SetLiquid(b.liquid, b.level, isStatic: false, a.position);
+            world.SetLiquid(b.liquid.AsInstance(b.level, isStatic: false), a.position);
             b.liquid.TickSoon(world, a.position, isStatic: true);
 
             return true;
@@ -132,23 +130,18 @@ namespace VoxelGame.Core.Logic
 
             Vector3i aboveLightPosition = light.position - light.liquid.FlowDirection;
 
-            (Block? aboveLightBlock, Liquid? aboveLightLiquid) = world.GetPositionContent(
-                light.position - light.liquid.FlowDirection,
-                out _,
-                out _,
-                out _);
+            (BlockInstance? aboveLightBlock, LiquidInstance? aboveLightLiquid) = world.GetContent(
+                light.position - light.liquid.FlowDirection);
 
-            if (aboveLightBlock is IFillable fillable && fillable.AllowInflow(
-                                                          world,
-                                                          aboveLightPosition,
-                                                          light.liquid.Direction.EntrySide().Opposite(),
-                                                          light.liquid)
-                                                      && aboveLightLiquid == Liquid.None)
+            if (aboveLightBlock?.Block is IFillable fillable && fillable.AllowInflow(
+                                                                 world,
+                                                                 aboveLightPosition,
+                                                                 light.liquid.Direction.EntrySide().Opposite(),
+                                                                 light.liquid)
+                                                             && aboveLightLiquid?.Liquid == Liquid.None)
             {
                 world.SetLiquid(
-                    light.liquid,
-                    light.level,
-                    isStatic: true,
+                    light.liquid.AsInstance(light.level, isStatic: true),
                     aboveLightPosition);
 
                 light.liquid.TickSoon(
@@ -157,17 +150,13 @@ namespace VoxelGame.Core.Logic
                     isStatic: true);
 
                 world.SetLiquid(
-                    dense.liquid,
-                    LiquidLevel.One,
-                    isStatic: true,
+                    dense.liquid.AsInstance(LiquidLevel.One, isStatic: true),
                     light.position);
 
                 dense.liquid.TickSoon(world, light.position, isStatic: true);
 
                 world.SetLiquid(
-                    dense.liquid,
-                    dense.level - 1,
-                    isStatic: true,
+                    dense.liquid.AsInstance(dense.level - 1, isStatic: true),
                     dense.position);
 
                 dense.liquid.TickSoon(world, dense.position, isStatic: true);
@@ -185,9 +174,7 @@ namespace VoxelGame.Core.Logic
             other.liquid.TickSoon(world, other.position, other.isStatic);
 
             world.SetLiquid(
-                Liquid.Water,
-                concrete.level,
-                isStatic: true,
+                Liquid.Water.AsInstance(concrete.level, isStatic: true),
                 concrete.position);
 
             Liquid.Water.TickSoon(world, concrete.position, isStatic: true);
@@ -225,12 +212,13 @@ namespace VoxelGame.Core.Logic
             public readonly LiquidLevel level;
             public readonly bool isStatic;
 
-            public ContactInformation(Liquid liquid, Vector3i position, LiquidLevel level, bool isStatic = true)
+            public ContactInformation(LiquidInstance liquid, Vector3i position)
             {
-                this.liquid = liquid;
+                this.liquid = liquid.Liquid;
                 this.position = position;
-                this.level = level;
-                this.isStatic = isStatic;
+
+                level = liquid.Level;
+                isStatic = liquid.IsStatic;
             }
         }
     }

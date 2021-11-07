@@ -26,22 +26,22 @@ namespace VoxelGame.Core.Utilities
             return IsSolid(world, position, out _);
         }
 
-        private static bool IsSolid(this World world, Vector3i position, out Block block)
+        private static bool IsSolid(this World world, Vector3i position, out BlockInstance block)
         {
-            block = world.GetBlock(position, out uint data) ?? Block.Air;
+            block = world.GetBlock(position) ?? BlockInstance.Default;
 
-            return block.IsSolidAndFull
-                   || block is IHeightVariable varHeight &&
-                   varHeight.GetHeight(data) == IHeightVariable.MaximumHeight;
+            return block.Block.IsSolidAndFull
+                   || block.Block is IHeightVariable varHeight &&
+                   varHeight.GetHeight(block.Data) == IHeightVariable.MaximumHeight;
         }
 
         public static bool HasSolidGround(this World world, Vector3i position, bool solidify = false)
         {
             Vector3i groundPosition = position.Below();
 
-            bool isSolid = world.IsSolid(groundPosition, out Block ground);
+            bool isSolid = world.IsSolid(groundPosition, out BlockInstance ground);
 
-            if (!solidify || isSolid || ground is not IPotentiallySolid solidifiable) return isSolid;
+            if (!solidify || isSolid || ground.Block is not IPotentiallySolid solidifiable) return isSolid;
 
             solidifiable.BecomeSolid(world, groundPosition);
 
@@ -55,7 +55,7 @@ namespace VoxelGame.Core.Utilities
 
         public static bool HasOpaqueTop(this World world, Vector3i position)
         {
-            Block top = world.GetBlock(position.Above(), out _) ?? Block.Air;
+            Block top = world.GetBlock(position.Above())?.Block ?? Block.Air;
 
             return top.IsSolidAndFull && top.IsOpaque
                    || top is IHeightVariable;
@@ -63,8 +63,10 @@ namespace VoxelGame.Core.Utilities
 
         public static bool IsLowered(this World world, Vector3i position)
         {
-            return world.GetBlock(position.Below(), out uint data) is IHeightVariable block
-                   && block.GetHeight(data) == IHeightVariable.MaximumHeight - 1;
+            BlockInstance? below = world.GetBlock(position.Below());
+
+            return below?.Block is IHeightVariable block
+                   && block.GetHeight(below.Data) == IHeightVariable.MaximumHeight - 1;
         }
     }
 }

@@ -25,7 +25,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                BlockFlags.Basic with {IsInteractable = true},
+                BlockFlags.Basic with { IsInteractable = true },
                 closed)
         {
             this.open = open;
@@ -33,9 +33,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
         {
-            world.GetBlock(position, out uint data);
+            BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 
-            return (data & 0b00_0001) == 1;
+            return (block.Data & 0b00_0001) == 1;
         }
 
         protected override void Setup(ITextureIndexProvider indexProvider)
@@ -57,7 +57,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
-            entity.World.SetBlock(this, data ^ 0b00_0001, position);
+            entity.World.SetBlock(this.AsInstance(data ^ 0b00_0001), position);
         }
     }
 }

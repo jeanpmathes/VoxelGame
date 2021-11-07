@@ -55,7 +55,9 @@ namespace VoxelGame.Client
             }
             else
             {
-                logger.LogInformation(Events.Meta, "Debug messages will not be logged. Use '-logDebug' to log debug messages");
+                logger.LogInformation(
+                    Events.Meta,
+                    "Debug messages will not be logged. Use '-logDebug' to log debug messages");
             }
 #endif
 

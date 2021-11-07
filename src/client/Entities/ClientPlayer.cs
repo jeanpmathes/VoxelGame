@@ -173,12 +173,12 @@ namespace VoxelGame.Client.Entities
         {
             if (selectedPosition.Y >= 0)
             {
-                Block selectedBlock = World.GetBlock(selectedPosition, out _) ?? Block.Air;
+                var (selectedBlock, _) = World.GetBlock(selectedPosition) ?? BlockInstance.Default;
 
 #if DEBUG
                 if (selectedBlock != Block.Air)
 #else
-                if (!selectedBlock.IsReplaceable)
+                if (!block.IsReplaceable)
 #endif
                 {
                     BoundingBox selectedBox = selectedBlock.GetBoundingBox(World, selectedPosition);
@@ -218,13 +218,12 @@ namespace VoxelGame.Client.Entities
 
                 Vector3i headPosition = camera.Position.Floor();
 
-                if (World.GetBlock(headPosition, out _) is IOverlayTextureProvider overlayBlockTextureProvider)
+                if (World.GetBlock(headPosition)?.Block is IOverlayTextureProvider overlayBlockTextureProvider)
                 {
                     overlay.SetBlockTexture(overlayBlockTextureProvider.TextureIdentifier);
                     renderOverlay = true;
                 }
-                else if (World.GetLiquid(headPosition, out _, out _) is IOverlayTextureProvider
-                    overlayLiquidTextureProvider)
+                else if (World.GetLiquid(headPosition)?.Liquid is IOverlayTextureProvider overlayLiquidTextureProvider)
                 {
                     overlay.SetLiquidTexture(overlayLiquidTextureProvider.TextureIdentifier);
                     renderOverlay = true;
@@ -274,12 +273,12 @@ namespace VoxelGame.Client.Entities
         {
             if (IsInputLocked) return;
 
-            Block? target = World.GetBlock(selectedPosition, out _);
+            BlockInstance? target = World.GetBlock(selectedPosition);
 
             if (target == null) return;
 
-            PlaceInteract(target);
-            DestroyInteract(target);
+            PlaceInteract(target.Block);
+            DestroyInteract(target.Block);
         }
 
         private void PlaceInteract(Block target)
@@ -327,7 +326,7 @@ namespace VoxelGame.Client.Entities
                 if (!target.IsReplaceable)
                     position = selectedSide.Offset(position);
 
-                World.GetLiquid(position, out _, out _)?.Take(World, position, ref level);
+                World.GetLiquid(position)?.Liquid.Take(World, position, ref level);
             }
         }
 

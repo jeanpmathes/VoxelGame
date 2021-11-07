@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                BlockFlags.Basic with {IsOpaque = false},
+                BlockFlags.Basic with { IsOpaque = false },
                 layout) {}
     }
 }

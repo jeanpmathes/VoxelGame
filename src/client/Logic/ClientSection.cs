@@ -414,7 +414,7 @@ namespace VoxelGame.Client.Logic
                 }
 
                 if (currentLiquid.RenderType != RenderType.NotRendered &&
-                    (currentBlock is IFillable {RenderLiquid: true} ||
+                    (currentBlock is IFillable { RenderLiquid: true } ||
                      currentBlock is not IFillable && !currentBlock.IsSolidAndFull))
                 {
                     VaryingHeightMeshFaceHolder[] liquidMeshFaceHolders =
@@ -458,7 +458,7 @@ namespace VoxelGame.Client.Logic
                         }
 
                         bool isNeighborLiquidMeshed =
-                            blockToCheck is IFillable {RenderLiquid: true};
+                            blockToCheck is IFillable { RenderLiquid: true };
 
                         if (liquidToCheck != currentLiquid || !isNeighborLiquidMeshed) sideHeight = -1;
 

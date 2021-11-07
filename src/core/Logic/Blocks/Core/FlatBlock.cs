@@ -111,7 +111,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             BlockSide side = entity?.TargetSide ?? BlockSide.Front;
             if (!side.IsLateral()) side = BlockSide.Back;
-            world.SetBlock(this, (uint) side.ToOrientation(), position);
+            world.SetBlock(this.AsInstance((uint) side.ToOrientation()), position);
         }
 
         protected override void EntityCollision(PhysicsEntity entity, Vector3i position, uint data)

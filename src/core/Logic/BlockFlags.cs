@@ -17,12 +17,12 @@ namespace VoxelGame.Core.Logic
         public bool IsReplaceable { get; init; }
         public bool IsInteractable { get; init; }
 
-        public static BlockFlags Empty => new() {IsReplaceable = true};
-        public static BlockFlags Basic => new() {IsOpaque = true, IsSolid = true};
-        public static BlockFlags Solid => new() {IsSolid = true};
-        public static BlockFlags Replaceable => new() {IsReplaceable = true};
-        public static BlockFlags Functional => new() {IsSolid = true, IsInteractable = true};
-        public static BlockFlags Collider => new() {IsSolid = true, ReceiveCollisions = true};
-        public static BlockFlags Trigger => new() {IsTrigger = true, ReceiveCollisions = true};
+        public static BlockFlags Empty => new() { IsReplaceable = true };
+        public static BlockFlags Basic => new() { IsOpaque = true, IsSolid = true };
+        public static BlockFlags Solid => new() { IsSolid = true };
+        public static BlockFlags Replaceable => new() { IsReplaceable = true };
+        public static BlockFlags Functional => new() { IsSolid = true, IsInteractable = true };
+        public static BlockFlags Collider => new() { IsSolid = true, ReceiveCollisions = true };
+        public static BlockFlags Trigger => new() { IsTrigger = true, ReceiveCollisions = true };
     }
 }

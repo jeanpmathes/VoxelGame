@@ -38,7 +38,7 @@ namespace VoxelGame.Core.Logic.Interfaces
             {
                 Vector3i neighborPosition = orientation.Offset(position);
 
-                if (world.GetBlock(neighborPosition, out _) is TConnectable connectable &&
+                if (world.GetBlock(neighborPosition)?.Block is TConnectable connectable &&
                     connectable.IsConnectable(world, orientation.ToBlockSide().Opposite(), neighborPosition))
                     data |= orientation.ToFlag();
             }

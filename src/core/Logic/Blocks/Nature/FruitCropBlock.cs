@@ -91,7 +91,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            Block ground = world.GetBlock(position.Below(), out _) ?? Air;
+            Block ground = world.GetBlock(position.Below())?.Block ?? Air;
 
             return ground is IPlantable;
         }
@@ -99,25 +99,25 @@ namespace VoxelGame.Core.Logic.Blocks
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             bool isLowered = world.IsLowered(position);
-            world.SetBlock(this, isLowered ? 1u : 0u, position);
+            world.SetBlock(this.AsInstance(isLowered ? 1u : 0u), position);
         }
 
         internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && (world.GetBlock(position.Below(), out _) ?? Air) is not IPlantable)
+            if (side == BlockSide.Bottom && (world.GetBlock(position.Below())?.Block ?? Air) is not IPlantable)
                 Destroy(world, position);
         }
 
         internal override void RandomUpdate(World world, Vector3i position, uint data)
         {
-            if (world.GetBlock(position.Below(), out _) is not IPlantable ground) return;
+            if (world.GetBlock(position.Below())?.Block is not IPlantable ground) return;
 
             var stage = (GrowthStage) ((data >> 1) & 0b111);
 
             switch (stage)
             {
                 case < GrowthStage.Ready:
-                    world.SetBlock(this, (uint) ((int) (stage + 1) << 1), position);
+                    world.SetBlock(this.AsInstance((uint) ((int) (stage + 1) << 1)), position);
 
                     break;
                 case GrowthStage.Ready when ground.SupportsFullGrowth && ground.TryGrow(
@@ -129,7 +129,7 @@ namespace VoxelGame.Core.Logic.Blocks
                     foreach (Orientation orientation in Orientations.ShuffledStart(position))
                     {
                         if (!fruit.Place(world, orientation.Offset(position))) continue;
-                        world.SetBlock(this, (uint) GrowthStage.Second << 1, position);
+                        world.SetBlock(this.AsInstance((uint) GrowthStage.Second << 1), position);
 
                         break;
                     }
@@ -137,7 +137,7 @@ namespace VoxelGame.Core.Logic.Blocks
                     break;
                 }
                 case GrowthStage.Ready when ground.SupportsFullGrowth:
-                    world.SetBlock(this, (uint) GrowthStage.Dead << 1, position);
+                    world.SetBlock(this.AsInstance((uint) GrowthStage.Dead << 1), position);
 
                     break;
             }

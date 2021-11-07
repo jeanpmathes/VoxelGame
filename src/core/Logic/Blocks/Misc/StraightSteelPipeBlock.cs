@@ -75,14 +75,14 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            world.SetBlock(this, (uint) (entity?.TargetSide ?? BlockSide.Front).Axis(), position);
+            world.SetBlock(this.AsInstance((uint) (entity?.TargetSide ?? BlockSide.Front).Axis()), position);
         }
 
         private static bool IsSideOpen(World world, Vector3i position, BlockSide side)
         {
-            world.GetBlock(position, out uint data);
+            BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 
-            return side.Axis() == (Axis) (data & 0b00_0011);
+            return side.Axis() == (Axis) (block.Data & 0b00_0011);
         }
     }
 }

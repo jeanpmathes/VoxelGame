@@ -25,7 +25,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                flags with {IsInteractable = true},
+                flags with { IsInteractable = true },
                 modelName,
                 boundingBox) {}
 
@@ -36,7 +36,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
-            entity.World.SetBlock(this, (data + 1) & 0b01_1111, position);
+            entity.World.SetBlock(this.AsInstance((data + 1) & 0b01_1111), position);
         }
     }
 }
