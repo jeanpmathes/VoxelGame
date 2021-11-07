@@ -53,7 +53,7 @@ namespace VoxelGame.Core.Logic
             Language.Steam,
             nameof(Steam),
             density: -0.015f,
-            (int) (0.25 * mPas),
+            (int)(0.25 * mPas),
             neutralTint: false,
             TextureLayout.Liquid("steam_moving_side", "steam_moving"),
             TextureLayout.Liquid("steam_static_side", "steam_static"),
@@ -81,7 +81,7 @@ namespace VoxelGame.Core.Logic
             Language.NaturalGas,
             nameof(NaturalGas),
             density: -0.8f,
-            (int) (0.5 * mPas),
+            (int)(0.5 * mPas),
             neutralTint: false,
             TextureLayout.Liquid("gas_moving_side", "gas_moving"),
             TextureLayout.Liquid("gas_static_side", "gas_static"),
@@ -109,7 +109,7 @@ namespace VoxelGame.Core.Logic
             Language.Petrol,
             nameof(Petrol),
             density: 740f,
-            (int) (0.9 * mPas),
+            (int)(0.9 * mPas),
             neutralTint: false,
             TextureLayout.Liquid("petrol_moving_side", "petrol_moving"),
             TextureLayout.Liquid("petrol_static_side", "petrol_static"),
@@ -119,7 +119,7 @@ namespace VoxelGame.Core.Logic
             Language.Wine,
             nameof(Wine),
             density: 1090f,
-            (int) (1.4 * mPas),
+            (int)(1.4 * mPas),
             neutralTint: false,
             TextureLayout.Liquid("wine_moving_side", "wine_moving"),
             TextureLayout.Liquid("wine_static_side", "wine_static"),
@@ -129,7 +129,7 @@ namespace VoxelGame.Core.Logic
             Language.Beer,
             nameof(Beer),
             density: 1030f,
-            (int) (1.5 * mPas),
+            (int)(1.5 * mPas),
             neutralTint: false,
             TextureLayout.Liquid("beer_moving_side", "beer_moving"),
             TextureLayout.Liquid("beer_static_side", "beer_static"),
@@ -149,7 +149,7 @@ namespace VoxelGame.Core.Logic
         /// <returns>The block with the ID or air if the ID is not valid.</returns>
         public static Liquid TranslateID(uint id)
         {
-            if (liquidList.Count > id) return liquidList[(int) id];
+            if (liquidList.Count > id) return liquidList[(int)id];
 
             logger.LogWarning(
                 Events.UnknownLiquid,
@@ -197,12 +197,12 @@ namespace VoxelGame.Core.Logic
         public static void Elevate(World world, Vector3i position, int pumpDistance)
         {
             (Block? start, Liquid? toElevate) =
-                world.GetPosition(position, out _, out LiquidLevel initialLevel, out _);
+                world.GetPositionContent(position, out _, out LiquidLevel initialLevel, out _);
 
             if (start == null || toElevate == null) return;
             if (toElevate == None || toElevate.IsGas) return;
 
-            var currentLevel = (int) initialLevel;
+            var currentLevel = (int)initialLevel;
 
             if (start is not IFillable startFillable ||
                 !startFillable.AllowOutflow(world, position, BlockSide.Top)) return;
@@ -215,7 +215,7 @@ namespace VoxelGame.Core.Logic
 
                 if (currentBlock == null) break;
 
-                toElevate.Fill(world, elevatedPosition, (LiquidLevel) currentLevel, BlockSide.Bottom, out currentLevel);
+                toElevate.Fill(world, elevatedPosition, (LiquidLevel)currentLevel, BlockSide.Bottom, out currentLevel);
 
                 if (!currentBlock.AllowOutflow(world, elevatedPosition, BlockSide.Top)) break;
             }

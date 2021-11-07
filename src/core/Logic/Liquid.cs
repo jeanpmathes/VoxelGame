@@ -46,7 +46,7 @@ namespace VoxelGame.Core.Logic
                 liquidList.Add(this);
                 namedLiquidDictionary.Add(namedId, this);
 
-                Id = (uint) (liquidList.Count - 1);
+                Id = (uint)(liquidList.Count - 1);
             }
             else
             {
@@ -125,7 +125,7 @@ namespace VoxelGame.Core.Logic
 
         public static BoundingBox GetBoundingBox(Vector3i position, LiquidLevel level)
         {
-            float halfHeight = ((int) level + 1) * 0.0625f;
+            float halfHeight = ((int)level + 1) * 0.0625f;
 
             return new BoundingBox(
                 position.ToVector3() + (0f, halfHeight, 0f),
@@ -147,7 +147,7 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public bool Fill(World world, Vector3i position, LiquidLevel level, BlockSide entrySide, out int remaining)
         {
-            (Block? block, Liquid? target) = world.GetPosition(
+            (Block? block, Liquid? target) = world.GetPositionContent(
                 position,
                 out _,
                 out LiquidLevel current,
@@ -157,13 +157,13 @@ namespace VoxelGame.Core.Logic
             {
                 if (target == this && current != LiquidLevel.Eight)
                 {
-                    int filled = (int) current + (int) level + 1;
+                    int filled = (int)current + (int)level + 1;
                     filled = filled > 7 ? 7 : filled;
 
-                    SetLiquid(world, this, (LiquidLevel) filled, isStatic: false, fillable, position);
+                    SetLiquid(world, this, (LiquidLevel)filled, isStatic: false, fillable, position);
                     if (isStatic) ScheduleTick(world, position);
 
-                    remaining = (int) level - (filled - (int) current);
+                    remaining = (int)level - (filled - (int)current);
 
                     return true;
                 }
@@ -179,7 +179,7 @@ namespace VoxelGame.Core.Logic
                 }
             }
 
-            remaining = (int) level;
+            remaining = (int)level;
 
             return false;
         }
@@ -189,7 +189,7 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public bool Take(World world, Vector3i position, ref LiquidLevel level)
         {
-            (Block? block, Liquid? liquid) = world.GetPosition(
+            (Block? block, Liquid? liquid) = world.GetPositionContent(
                 position,
                 out _,
                 out LiquidLevel available,
@@ -206,7 +206,7 @@ namespace VoxelGame.Core.Logic
                 SetLiquid(
                     world,
                     this,
-                    (LiquidLevel) ((int) available - (int) level - 1),
+                    (LiquidLevel)((int)available - (int)level - 1),
                     isStatic: false,
                     block as IFillable,
                     position);
@@ -219,7 +219,7 @@ namespace VoxelGame.Core.Logic
 
         public bool TryTakeExact(World world, Vector3i position, LiquidLevel level)
         {
-            (Block? block, Liquid? liquid) = world.GetPosition(
+            (Block? block, Liquid? liquid) = world.GetPositionContent(
                 position,
                 out _,
                 out LiquidLevel available,
@@ -236,7 +236,7 @@ namespace VoxelGame.Core.Logic
                     SetLiquid(
                         world,
                         this,
-                        (LiquidLevel) ((int) available - (int) level - 1),
+                        (LiquidLevel)((int)available - (int)level - 1),
                         isStatic: false,
                         block as IFillable,
                         position);
@@ -268,7 +268,7 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         protected bool HasNeighborWithLevel(World world, LiquidLevel level, Vector3i position)
         {
-            if ((int) level == -1) return false;
+            if ((int)level == -1) return false;
 
             if (world.GetBlock(position, out _) is not IFillable currentFillable) return false;
 
@@ -276,7 +276,7 @@ namespace VoxelGame.Core.Logic
             {
                 Vector3i neighborPosition = orientation.Offset(position);
 
-                (Block? neighborBlock, Liquid? neighborLiquid) = world.GetPosition(
+                (Block? neighborBlock, Liquid? neighborLiquid) = world.GetPositionContent(
                     neighborPosition,
                     out _,
                     out LiquidLevel neighborLevel,
@@ -298,7 +298,7 @@ namespace VoxelGame.Core.Logic
             {
                 Vector3i neighborPosition = orientation.Offset(position);
 
-                (Block? neighborBlock, Liquid? neighborLiquid) = world.GetPosition(
+                (Block? neighborBlock, Liquid? neighborLiquid) = world.GetPositionContent(
                     neighborPosition,
                     out _,
                     out LiquidLevel _,
@@ -331,7 +331,7 @@ namespace VoxelGame.Core.Logic
             Queue<(Vector3i position, IFillable fillable)> queue = new();
             Queue<(Vector3i position, IFillable fillable)> nextQueue = new();
 
-            (Block? startBlock, Liquid? startLiquid) = world.GetPosition(position, out _, out _, out _);
+            (Block? startBlock, Liquid? startLiquid) = world.GetPositionContent(position, out _, out _, out _);
 
             if (startBlock is not IFillable startFillable || startLiquid != this) return null;
 
@@ -347,7 +347,7 @@ namespace VoxelGame.Core.Logic
 
                     if (IsMarked(nextPosition)) continue;
 
-                    (Block? nextBlock, Liquid? nextLiquid) = world.GetPosition(
+                    (Block? nextBlock, Liquid? nextLiquid) = world.GetPositionContent(
                         nextPosition,
                         out _,
                         out LiquidLevel nextLevel,

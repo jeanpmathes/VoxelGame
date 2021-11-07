@@ -56,7 +56,7 @@ namespace VoxelGame.Core.Logic
                 blockList.Add(this);
                 namedBlockDictionary.Add(namedId, this);
 
-                Id = (uint) (blockList.Count - 1);
+                Id = (uint)(blockList.Count - 1);
             }
             else
             {
@@ -133,7 +133,7 @@ namespace VoxelGame.Core.Logic
 
         public bool Place(World world, Vector3i position, PhysicsEntity? entity = null)
         {
-            (Block? block, Liquid? liquid) = world.GetPosition(position, out _, out LiquidLevel level, out _);
+            (Block? block, Liquid? liquid) = world.GetPositionContent(position, out _, out LiquidLevel level, out _);
 
             bool canPlace = block?.IsReplaceable == true && CanPlace(world, position, entity);
 

@@ -132,7 +132,7 @@ namespace VoxelGame.Core.Logic
 
             Vector3i aboveLightPosition = light.position - light.liquid.FlowDirection;
 
-            (Block? aboveLightBlock, Liquid? aboveLightLiquid) = world.GetPosition(
+            (Block? aboveLightBlock, Liquid? aboveLightLiquid) = world.GetPositionContent(
                 light.position - light.liquid.FlowDirection,
                 out _,
                 out _,

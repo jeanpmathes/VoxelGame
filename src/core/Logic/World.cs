@@ -457,11 +457,12 @@ namespace VoxelGame.Core.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Liquid? GetLiquid(Vector3i position, out LiquidLevel level, out bool isStatic)
         {
-            return GetPosition(position, out _, out level, out isStatic).liquid;
+            return GetPositionContent(position, out _, out level, out isStatic).liquid;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public (Block? block, Liquid? liquid) GetPosition(Vector3i position, out uint data, out LiquidLevel level,
+        public (Block? block, Liquid? liquid) GetPositionContent(Vector3i position, out uint data,
+            out LiquidLevel level,
             out bool isStatic)
         {
             Block? block = GetBlock(position, out data, out Liquid? liquid, out level, out isStatic);
@@ -479,7 +480,7 @@ namespace VoxelGame.Core.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetBlock(Block block, uint data, Vector3i position)
         {
-            Liquid liquid = GetPosition(position, out _, out LiquidLevel level, out bool isStatic).liquid ??
+            Liquid liquid = GetPositionContent(position, out _, out LiquidLevel level, out bool isStatic).liquid ??
                             Liquid.None;
 
             SetPosition(block, data, liquid, level, isStatic, position, tickLiquid: true);
@@ -521,7 +522,7 @@ namespace VoxelGame.Core.Logic
             {
                 Vector3i neighborPosition = side.Offset(position);
 
-                (Block? blockNeighbor, Liquid? liquidNeighbor) = GetPosition(
+                (Block? blockNeighbor, Liquid? liquidNeighbor) = GetPositionContent(
                     neighborPosition,
                     out data,
                     out _,

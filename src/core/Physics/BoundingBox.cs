@@ -260,7 +260,7 @@ namespace VoxelGame.Core.Physics
             float highestExtent = Extents.X > Extents.Y ? Extents.X : Extents.Y;
             highestExtent = highestExtent > Extents.Z ? highestExtent : Extents.Z;
 
-            int range = (int) Math.Round(highestExtent * 2, MidpointRounding.AwayFromZero) + 1;
+            int range = (int)Math.Round(highestExtent * 2, MidpointRounding.AwayFromZero) + 1;
 
             if (range % 2 == 0) range++;
 
@@ -274,7 +274,7 @@ namespace VoxelGame.Core.Physics
             {
                 Vector3i position = center + new Vector3i(x, y, z);
 
-                (Block? currentBlock, Liquid? currentLiquid) = world.GetPosition(
+                (Block? currentBlock, Liquid? currentLiquid) = world.GetPositionContent(
                     position,
                     out _,
                     out LiquidLevel level,
