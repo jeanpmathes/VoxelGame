@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         protected void ScheduleTick(World world, Vector3i position)
         {
-            Chunk? chunk = world.GetChunkOfPosition(position);
+            Chunk? chunk = world.GetChunkWithPosition(position);
             chunk?.ScheduleLiquidTick(new LiquidTick(position, this), Viscosity);
         }
 

@@ -77,8 +77,9 @@ namespace VoxelGame.Client.Logic
             // Fill the render list.
             for (int x = -Application.Client.Player.LoadDistance; x <= Application.Client.Player.LoadDistance; x++)
             for (int z = -Application.Client.Player.LoadDistance; z <= Application.Client.Player.LoadDistance; z++)
-                if (activeChunks.TryGetValue(
-                    (Application.Client.Player.ChunkX + x, Application.Client.Player.ChunkZ + z),
+                if (TryGetChunk(
+                    Application.Client.Player.ChunkX + x,
+                    Application.Client.Player.ChunkZ + z,
                     out Chunk? chunk))
                     ((ClientChunk) chunk).AddCulledToRenderList(Application.Client.Player.Frustum, renderList);
 
@@ -120,7 +121,7 @@ namespace VoxelGame.Client.Logic
             if (IsReady)
             {
                 // Tick objects in world.
-                foreach (Chunk chunk in activeChunks.Values) chunk.Tick();
+                foreach (Chunk chunk in ActiveChunks) chunk.Tick();
 
                 Application.Client.Player.Tick(deltaTime);
 
@@ -131,7 +132,7 @@ namespace VoxelGame.Client.Logic
             }
             else
             {
-                if (activeChunks.Count >= 25 && activeChunks.ContainsKey((0, 0)))
+                if (ActiveChunkCount >= 25 && IsChunkActive(x: 0, z: 0))
                 {
                     IsReady = true;
 
@@ -151,16 +152,16 @@ namespace VoxelGame.Client.Logic
             chunksToMesh.Enqueue((ClientChunk) activatedChunk);
 
             // Schedule to mesh the chunks around this chunk
-            if (activeChunks.TryGetValue((activatedChunk.X + 1, activatedChunk.Z), out Chunk? neighbor))
+            if (TryGetChunk(activatedChunk.X + 1, activatedChunk.Z, out Chunk? neighbor))
                 chunksToMesh.Enqueue((ClientChunk) neighbor);
 
-            if (activeChunks.TryGetValue((activatedChunk.X - 1, activatedChunk.Z), out neighbor))
+            if (TryGetChunk(activatedChunk.X - 1, activatedChunk.Z, out neighbor))
                 chunksToMesh.Enqueue((ClientChunk) neighbor);
 
-            if (activeChunks.TryGetValue((activatedChunk.X, activatedChunk.Z + 1), out neighbor))
+            if (TryGetChunk(activatedChunk.X, activatedChunk.Z + 1, out neighbor))
                 chunksToMesh.Enqueue((ClientChunk) neighbor);
 
-            if (activeChunks.TryGetValue((activatedChunk.X, activatedChunk.Z - 1), out neighbor))
+            if (TryGetChunk(activatedChunk.X, activatedChunk.Z - 1, out neighbor))
                 chunksToMesh.Enqueue((ClientChunk) neighbor);
         }
 
@@ -269,12 +270,15 @@ namespace VoxelGame.Client.Logic
             switch (position.X & (Section.SectionSize - 1))
             {
                 // Next on x axis.
-                case 0 when activeChunks.TryGetValue(
-                    ((position.X - 1) >> Section.SectionSizeExp, position.Z >> Section.SectionSizeExp),
+                case 0 when TryGetChunk(
+                    (position.X - 1) >> Section.SectionSizeExp,
+                    position.Z >> Section.SectionSizeExp,
                     out neighbor):
-                case Section.SectionSize - 1 when activeChunks.TryGetValue(
-                    ((position.X + 1) >> Section.SectionSizeExp, position.Z >> Section.SectionSizeExp),
+                case Section.SectionSize - 1 when TryGetChunk(
+                    (position.X + 1) >> Section.SectionSizeExp,
+                    position.Z >> Section.SectionSizeExp,
                     out neighbor):
+
                     sectionsToMesh.Add(((ClientChunk) neighbor, position.Y >> Section.SectionSizeExp));
 
                     break;
@@ -283,12 +287,15 @@ namespace VoxelGame.Client.Logic
             switch (position.Z & (Section.SectionSize - 1))
             {
                 // Next on z axis.
-                case 0 when activeChunks.TryGetValue(
-                    (position.X >> Section.SectionSizeExp, (position.Z - 1) >> Section.SectionSizeExp),
+                case 0 when TryGetChunk(
+                    position.X >> Section.SectionSizeExp,
+                    (position.Z - 1) >> Section.SectionSizeExp,
                     out neighbor):
-                case Section.SectionSize - 1 when activeChunks.TryGetValue(
-                    (position.X >> Section.SectionSizeExp, (position.Z + 1) >> Section.SectionSizeExp),
+                case Section.SectionSize - 1 when TryGetChunk(
+                    position.X >> Section.SectionSizeExp,
+                    (position.Z + 1) >> Section.SectionSizeExp,
                     out neighbor):
+
                     sectionsToMesh.Add(((ClientChunk) neighbor, position.Y >> Section.SectionSizeExp));
 
                     break;
