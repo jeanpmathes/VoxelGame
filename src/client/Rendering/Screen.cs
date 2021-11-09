@@ -187,8 +187,8 @@ namespace VoxelGame.Client.Rendering
 
         public void Clear()
         {
-            GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Color, drawbuffer: 0, new[] {0.5f, 0.8f, 0.9f, 1.0f});
-            GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, drawbuffer: 0, new[] {1f});
+            GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Color, drawbuffer: 0, new[] { 0.5f, 0.8f, 0.9f, 1.0f });
+            GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, drawbuffer: 0, new[] { 1f });
         }
 
         public void Draw()
@@ -408,7 +408,7 @@ namespace VoxelGame.Client.Rendering
             GL.ActiveTexture(TextureUnit.Texture20);
             GL.BindTexture(TextureTarget.Texture2D, Instance.depthTex);
 
-            GL.ClearNamedFramebuffer(Instance.depthFBO, ClearBuffer.Depth, drawbuffer: 0, new[] {1f});
+            GL.ClearNamedFramebuffer(Instance.depthFBO, ClearBuffer.Depth, drawbuffer: 0, new[] { 1f });
 
             GL.BlitNamedFramebuffer(
                 Instance.msFBO,

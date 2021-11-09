@@ -133,30 +133,29 @@ namespace VoxelGame.Core.Logic
 
         public bool Place(World world, Vector3i position, PhysicsEntity? entity = null)
         {
-            (Block? block, Liquid? liquid) = world.GetPosition(position, out _, out LiquidLevel level, out _);
+            (BlockInstance? block, LiquidInstance? liquid) = world.GetContent(position);
 
-            bool canPlace = block?.IsReplaceable == true && CanPlace(world, position, entity);
+            bool canPlace = block?.Block.IsReplaceable == true && CanPlace(world, position, entity);
 
             if (canPlace) DoPlace(world, position, entity);
 
-            liquid ??= Liquid.None;
+            liquid ??= LiquidInstance.Default;
 
-            if (liquid != Liquid.None && this is IFillable fillable)
-                fillable.LiquidChange(world, position, liquid, level);
+            if (liquid.Liquid != Liquid.None && this is IFillable fillable)
+                fillable.LiquidChange(world, position, liquid.Liquid, liquid.Level);
 
             return canPlace;
         }
 
         public bool Destroy(World world, Vector3i position, PhysicsEntity? entity = null)
         {
-            if (world.GetBlock(position, out uint data) == this && CanDestroy(world, position, data, entity))
-            {
-                DoDestroy(world, position, data, entity);
+            BlockInstance? block = world.GetBlock(position);
 
-                return true;
-            }
+            if (block?.Block != this || !CanDestroy(world, position, block.Data, entity)) return false;
 
-            return false;
+            DoDestroy(world, position, block.Data, entity);
+
+            return true;
         }
 
         string IIdentifiable<string>.Id => NamedId;
@@ -177,8 +176,9 @@ namespace VoxelGame.Core.Logic
         /// <returns>The bounding box.</returns>
         public BoundingBox GetBoundingBox(World world, Vector3i position)
         {
-            return (world.GetBlock(position, out uint data) == this ? GetBoundingBox(data) : boundingBox).Translated(
-                position);
+            BlockInstance? instance = world.GetBlock(position);
+
+            return (instance?.Block == this ? GetBoundingBox(instance.Data) : boundingBox).Translated(position);
         }
 
         protected virtual BoundingBox GetBoundingBox(uint data)
@@ -200,15 +200,15 @@ namespace VoxelGame.Core.Logic
 
         protected virtual void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            world.SetBlock(this, data: 0, position);
+            world.SetBlock(this.AsInstance(), position);
         }
 
-        internal virtual bool CanDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+        protected virtual bool CanDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             return true;
         }
 
-        internal virtual void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+        protected virtual void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             world.SetDefaultBlock(position);
         }
@@ -220,7 +220,8 @@ namespace VoxelGame.Core.Logic
         /// <param name="position">The block position.</param>
         public void EntityCollision(PhysicsEntity entity, Vector3i position)
         {
-            if (entity.World.GetBlock(position, out uint data) == this) EntityCollision(entity, position, data);
+            BlockInstance? block = entity.World.GetBlock(position);
+            if (block?.Block == this) EntityCollision(entity, position, block.Data);
         }
 
         protected virtual void EntityCollision(PhysicsEntity entity, Vector3i position, uint data) {}
@@ -232,7 +233,8 @@ namespace VoxelGame.Core.Logic
         /// <param name="position">The block position.</param>
         public void EntityInteract(PhysicsEntity entity, Vector3i position)
         {
-            if (entity.World.GetBlock(position, out uint data) == this) EntityInteract(entity, position, data);
+            BlockInstance? block = entity.World.GetBlock(position);
+            if (block?.Block == this) EntityInteract(entity, position, block.Data);
         }
 
         protected virtual void EntityInteract(PhysicsEntity entity, Vector3i position, uint data) {}

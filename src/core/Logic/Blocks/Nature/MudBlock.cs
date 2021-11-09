@@ -22,7 +22,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                BlockFlags.Collider with {IsOpaque = true},
+                BlockFlags.Collider with { IsOpaque = true },
                 layout)
         {
             this.maxVelocity = maxVelocity;

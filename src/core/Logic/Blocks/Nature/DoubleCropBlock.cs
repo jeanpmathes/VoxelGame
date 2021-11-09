@@ -119,7 +119,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return world.GetBlock(position.Below(), out _) is IPlantable;
+            return world.GetBlock(position.Below())?.Block is IPlantable;
         }
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
@@ -129,10 +129,10 @@ namespace VoxelGame.Core.Logic.Blocks
             var data = (uint) GrowthStage.Initial;
             if (isLowered) data |= 0b01_0000;
 
-            world.SetBlock(this, data, position);
+            world.SetBlock(this.AsInstance(data), position);
         }
 
-        internal override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+        protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             world.SetDefaultBlock(position);
 
@@ -146,7 +146,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             // Check if this block is the lower part and if the ground supports plant growth.
             if (side == BlockSide.Bottom && (data & 0b00_1000) == 0 &&
-                (world.GetBlock(position.Below(), out _) ?? Air) is not IPlantable) Destroy(world, position);
+                (world.GetBlock(position.Below())?.Block ?? Air) is not IPlantable) Destroy(world, position);
         }
 
         internal override void RandomUpdate(World world, Vector3i position, uint data)
@@ -157,7 +157,7 @@ namespace VoxelGame.Core.Logic.Blocks
             // If this block is the upper part, the random update is ignored.
             if ((data & 0b00_1000) != 0) return;
 
-            if (world.GetBlock(position.Below(), out _) is IPlantable plantable)
+            if (world.GetBlock(position.Below())?.Block is IPlantable plantable)
             {
                 if ((int) stage > 2 && !plantable.SupportsFullGrowth) return;
 
@@ -165,27 +165,26 @@ namespace VoxelGame.Core.Logic.Blocks
                 {
                     if (stage >= GrowthStage.Third)
                     {
-                        Block? above = world.GetBlock(position.Above(), out _);
+                        BlockInstance? above = world.GetBlock(position.Above());
 
                         if (plantable.TryGrow(world, position.Below(), Liquid.Water, LiquidLevel.One) &&
-                            ((above?.IsReplaceable ?? false) || above == this))
+                            ((above?.Block.IsReplaceable ?? false) || above?.Block == this))
                         {
-                            world.SetBlock(this, lowered | (uint) (stage + 1), position);
+                            world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
 
                             world.SetBlock(
-                                this,
-                                lowered | (uint) (0b00_1000 | ((int) stage + 1)),
+                                this.AsInstance(lowered | (uint) (0b00_1000 | ((int) stage + 1))),
                                 position.Above());
                         }
                         else
                         {
-                            world.SetBlock(this, lowered | (uint) GrowthStage.Dead, position);
+                            world.SetBlock(this.AsInstance(lowered | (uint) GrowthStage.Dead), position);
                             if (stage != GrowthStage.Third) world.SetDefaultBlock(position.Above());
                         }
                     }
                     else
                     {
-                        world.SetBlock(this, lowered | (uint) (stage + 1), position);
+                        world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
                     }
                 }
             }

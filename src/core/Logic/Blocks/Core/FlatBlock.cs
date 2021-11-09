@@ -20,6 +20,14 @@ namespace VoxelGame.Core.Logic.Blocks
     // o = orientation
     public class FlatBlock : Block, IFillable
     {
+        private static readonly float[][] sideVertices =
+        {
+            CreateSide(Orientation.North),
+            CreateSide(Orientation.East),
+            CreateSide(Orientation.South),
+            CreateSide(Orientation.West)
+        };
+
         private readonly float climbingVelocity;
         private readonly float slidingVelocity;
 
@@ -27,7 +35,6 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private uint[] indices = null!;
 
-        private float[][] sideVertices = null!;
         private int[] textureIndices = null!;
 
         /// <summary>
@@ -53,23 +60,15 @@ namespace VoxelGame.Core.Logic.Blocks
             this.texture = texture;
         }
 
+        private static float[] CreateSide(Orientation orientation)
+        {
+            return BlockModels.CreateFlatModel(orientation.ToBlockSide().Opposite(), offset: 0.01f);
+        }
+
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
-            sideVertices = new[]
-            {
-                GetVertices(Orientation.North),
-                GetVertices(Orientation.East),
-                GetVertices(Orientation.South),
-                GetVertices(Orientation.West)
-            };
-
             indices = BlockModels.GenerateIndexDataArray(faces: 2);
             textureIndices = BlockModels.GenerateTextureDataArray(indexProvider.GetTextureIndex(texture), length: 8);
-
-            static float[] GetVertices(Orientation orientation)
-            {
-                return BlockModels.CreateFlatModel(orientation.ToBlockSide().Opposite(), offset: 0.01f);
-            }
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
@@ -111,7 +110,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             BlockSide side = entity?.TargetSide ?? BlockSide.Front;
             if (!side.IsLateral()) side = BlockSide.Back;
-            world.SetBlock(this, (uint) side.ToOrientation(), position);
+            world.SetBlock(this.AsInstance((uint) side.ToOrientation()), position);
         }
 
         protected override void EntityCollision(PhysicsEntity entity, Vector3i position, uint data)

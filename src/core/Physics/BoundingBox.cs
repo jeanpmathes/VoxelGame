@@ -274,30 +274,26 @@ namespace VoxelGame.Core.Physics
             {
                 Vector3i position = center + new Vector3i(x, y, z);
 
-                (Block? currentBlock, Liquid? currentLiquid) = world.GetPosition(
-                    position,
-                    out _,
-                    out LiquidLevel level,
-                    out _);
+                (BlockInstance? currentBlock, LiquidInstance? currentLiquid) = world.GetContent(position);
 
                 if (currentBlock != null)
                 {
-                    BoundingBox currentBoundingBox = currentBlock.GetBoundingBox(
+                    BoundingBox currentBoundingBox = currentBlock.Block.GetBoundingBox(
                         world,
                         position);
 
                     bool newX = false, newY = false, newZ = false;
 
                     // Check for intersection
-                    if ((currentBlock.IsSolid || currentBlock.IsTrigger) && Intersects(
+                    if ((currentBlock.Block.IsSolid || currentBlock.Block.IsTrigger) && Intersects(
                         currentBoundingBox,
                         ref newX,
                         ref newY,
                         ref newZ))
                     {
-                        blockIntersections.Add((position, currentBlock));
+                        blockIntersections.Add((position, currentBlock.Block));
 
-                        if (currentBlock.IsSolid)
+                        if (currentBlock.Block.IsSolid)
                         {
                             intersects = true;
 
@@ -308,12 +304,12 @@ namespace VoxelGame.Core.Physics
                     }
                 }
 
-                if (currentLiquid?.CheckContact == true)
+                if (currentLiquid?.Liquid.CheckContact == true)
                 {
-                    BoundingBox currentBoundingBox = Liquid.GetBoundingBox(position, level);
+                    BoundingBox currentBoundingBox = Liquid.GetBoundingBox(position, currentLiquid.Level);
 
                     if (Intersects(currentBoundingBox))
-                        liquidIntersections.Add((position, currentLiquid, level));
+                        liquidIntersections.Add((position, currentLiquid.Liquid, currentLiquid.Level));
                 }
             }
 

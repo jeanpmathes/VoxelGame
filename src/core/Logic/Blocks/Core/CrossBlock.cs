@@ -29,7 +29,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                flags with {IsFull = false, IsOpaque = false, IsSolid = false},
+                flags with { IsFull = false, IsOpaque = false, IsSolid = false },
                 boundingBox,
                 TargetBuffer.Complex)
         {

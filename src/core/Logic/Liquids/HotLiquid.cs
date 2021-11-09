@@ -30,7 +30,7 @@ namespace VoxelGame.Core.Logic.Liquids
 
         protected override void ScheduledUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic)
         {
-            if (world.GetBlock(position, out _) is IFlammable block) block.Burn(world, position, Block.Fire);
+            if (world.GetBlock(position)?.Block is IFlammable block) block.Burn(world, position, Block.Fire);
 
             BurnAround(world, position);
 
@@ -48,7 +48,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 Vector3i offsetPosition = side.Offset(position);
 
-                if (world.GetBlock(offsetPosition, out _) is IFlammable block &&
+                if (world.GetBlock(offsetPosition)?.Block is IFlammable block &&
                     block.Burn(world, offsetPosition, Block.Fire))
                     Block.Fire.Place(world, offsetPosition);
 

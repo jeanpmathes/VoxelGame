@@ -119,7 +119,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             OpenOpposingSide(ref data);
 
-            world.SetBlock(this, data, position);
+            world.SetBlock(this.AsInstance(data), position);
         }
 
         internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
@@ -127,7 +127,7 @@ namespace VoxelGame.Core.Logic.Blocks
             uint updatedData = GetConnectionData(world, position);
             OpenOpposingSide(ref updatedData);
 
-            if (updatedData != data) world.SetBlock(this, updatedData, position);
+            if (updatedData != data) world.SetBlock(this.AsInstance(updatedData), position);
         }
 
         private uint GetConnectionData(World world, Vector3i position)
@@ -137,9 +137,9 @@ namespace VoxelGame.Core.Logic.Blocks
             foreach (BlockSide side in BlockSide.All.Sides())
             {
                 Vector3i otherPosition = side.Offset(position);
-                Block? otherBlock = world.GetBlock(otherPosition, out _);
+                BlockInstance? otherBlock = world.GetBlock(otherPosition);
 
-                if (otherBlock == this || otherBlock is TConnect connectable &&
+                if (otherBlock?.Block == this || otherBlock?.Block is TConnect connectable &&
                     connectable.IsConnectable(world, side, otherPosition)) data |= side.ToFlag();
             }
 
@@ -159,9 +159,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private static bool IsSideOpen(World world, Vector3i position, BlockSide side)
         {
-            world.GetBlock(position, out uint data);
+            BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 
-            return side.IsSet(data);
+            return side.IsSet(block.Data);
         }
     }
 }

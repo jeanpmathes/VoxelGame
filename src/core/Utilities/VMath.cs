@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Diagnostics;
 using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Core.Utilities
@@ -117,6 +118,25 @@ namespace VoxelGame.Core.Utilities
         public static Vector3i Above(this Vector3i vector)
         {
             return vector + Vector3i.UnitY;
+        }
+
+        /// <summary>
+        ///     Clamp a value between two values. If the given value is outside of the range, it will be clamped to the limit on
+        ///     the other side.
+        /// </summary>
+        /// <param name="value">The value to clamp.</param>
+        /// <param name="min">The lower end of the range. (inclusive)</param>
+        /// <param name="max">The upper end of the range. (exclusive)</param>
+        /// <returns>A value in the given range.</returns>
+        public static long ClampRotating(long value, long min, long max)
+        {
+            Debug.Assert(min < max);
+
+            if (value >= max) return min;
+
+            if (value < min) return max - 1;
+
+            return value;
         }
     }
 }

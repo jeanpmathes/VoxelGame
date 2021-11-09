@@ -65,9 +65,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
         public bool IsConnectable(World world, BlockSide side, Vector3i position)
         {
-            world.GetBlock(position, out uint data);
+            BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 
-            return side.Axis() == (Axis) (data & 0b00_0011);
+            return side.Axis() == (Axis) (block.Data & 0b00_0011);
         }
 
         protected override BoundingBox GetBoundingBox(uint data)
@@ -87,21 +87,21 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            world.SetBlock(this, (uint) (entity?.TargetSide ?? BlockSide.Front).Axis(), position);
+            world.SetBlock(this.AsInstance((uint) (entity?.TargetSide ?? BlockSide.Front).Axis()), position);
         }
 
         protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
-            entity.World.SetBlock(this, data ^ 0b00_0100, position);
+            entity.World.SetBlock(this.AsInstance(data ^ 0b00_0100), position);
         }
 
         private static bool IsSideOpen(World world, Vector3i position, BlockSide side)
         {
-            world.GetBlock(position, out uint data);
+            BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 
-            if ((data & 0b00_0100) != 0) return false;
+            if ((block.Data & 0b00_0100) != 0) return false;
 
-            return side.Axis() == (Axis) (data & 0b00_0011);
+            return side.Axis() == (Axis) (block.Data & 0b00_0011);
         }
     }
 }

@@ -71,12 +71,12 @@ namespace VoxelGame.Core.Logic.Blocks
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             if (world.HasOpaqueTop(position)) Dirt.Place(world, position, entity);
-            else world.SetBlock(this, data: 0, position);
+            else world.SetBlock(this.AsInstance(), position);
         }
 
         internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            if (side == BlockSide.Top && world.HasOpaqueTop(position)) world.SetBlock(Dirt, data: 0, position);
+            if (side == BlockSide.Top && world.HasOpaqueTop(position)) world.SetBlock(Dirt.AsInstance(), position);
         }
     }
 }

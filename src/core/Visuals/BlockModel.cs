@@ -84,8 +84,8 @@ namespace VoxelGame.Core.Visuals
                 if (Vector3.Dot(quad.Center - position, normal) > 0) quadsA.Add(quad);
                 else quadsB.Add(quad);
 
-            a = new BlockModel {TextureNames = TextureNames};
-            b = new BlockModel {TextureNames = TextureNames};
+            a = new BlockModel { TextureNames = TextureNames };
+            b = new BlockModel { TextureNames = TextureNames };
 
             a.Quads = quadsA.ToArray();
             b.Quads = quadsB.ToArray();
@@ -129,7 +129,7 @@ namespace VoxelGame.Core.Visuals
 
         public void OverwriteTexture(string newTexture)
         {
-            TextureNames = new[] {newTexture};
+            TextureNames = new[] { newTexture };
 
             for (var i = 0; i < Quads.Length; i++)
             {
@@ -382,7 +382,7 @@ namespace VoxelGame.Core.Visuals
         {
             if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
-            JsonSerializerOptions options = new() {IgnoreReadOnlyProperties = true, WriteIndented = true};
+            JsonSerializerOptions options = new() { IgnoreReadOnlyProperties = true, WriteIndented = true };
 
             string json = JsonSerializer.Serialize(this, options);
             File.WriteAllText(Path.Combine(path, name + ".json"), json);
@@ -422,80 +422,80 @@ namespace VoxelGame.Core.Visuals
         {
             return new()
             {
-                TextureNames = new[] {"missing_texture"},
+                TextureNames = new[] { "missing_texture" },
                 Quads = new[]
                 {
                     new Quad
                     {
                         TextureId = 0,
                         Vert0 = new Vertex
-                            {X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.000f, N = -1f, O = 0f, P = 0f},
+                            { X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.000f, N = -1f, O = 0f, P = 0f },
                         Vert1 = new Vertex
-                            {X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.000f, N = -1f, O = 0f, P = 0f},
+                            { X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.000f, N = -1f, O = 0f, P = 0f },
                         Vert2 = new Vertex
-                            {X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.250f, N = -1f, O = 0f, P = 0f},
+                            { X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.250f, N = -1f, O = 0f, P = 0f },
                         Vert3 = new Vertex
-                            {X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.250f, N = -1f, O = 0f, P = 0f}
+                            { X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.250f, N = -1f, O = 0f, P = 0f }
                     },
                     new Quad
                     {
                         TextureId = 0,
                         Vert0 = new Vertex
-                            {X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.250f, N = 0f, O = 0f, P = 1f},
+                            { X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.250f, N = 0f, O = 0f, P = 1f },
                         Vert1 = new Vertex
-                            {X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.250f, N = 0f, O = 0f, P = 1f},
+                            { X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.250f, N = 0f, O = 0f, P = 1f },
                         Vert2 = new Vertex
-                            {X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 0f, O = 0f, P = 1f},
+                            { X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 0f, O = 0f, P = 1f },
                         Vert3 = new Vertex
-                            {X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 0f, O = 0f, P = 1f}
+                            { X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 0f, O = 0f, P = 1f }
                     },
                     new Quad
                     {
                         TextureId = 0,
                         Vert0 = new Vertex
-                            {X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 1f, O = 0f, P = 0f},
+                            { X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 1f, O = 0f, P = 0f },
                         Vert1 = new Vertex
-                            {X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 1f, O = 0f, P = 0f},
+                            { X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 1f, O = 0f, P = 0f },
                         Vert2 = new Vertex
-                            {X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 1f, O = 0f, P = 0f},
+                            { X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 1f, O = 0f, P = 0f },
                         Vert3 = new Vertex
-                            {X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 1f, O = 0f, P = 0f}
+                            { X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 1f, O = 0f, P = 0f }
                     },
                     new Quad
                     {
                         TextureId = 0,
                         Vert0 = new Vertex
-                            {X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 0f, O = 0f, P = -1f},
+                            { X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 0f, O = 0f, P = -1f },
                         Vert1 = new Vertex
-                            {X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 0f, O = 0f, P = -1f},
+                            { X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 0f, O = 0f, P = -1f },
                         Vert2 = new Vertex
-                            {X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 1.000f, N = 0f, O = 0f, P = -1f},
+                            { X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 1.000f, N = 0f, O = 0f, P = -1f },
                         Vert3 = new Vertex
-                            {X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 1.000f, N = 0f, O = 0f, P = -1f}
+                            { X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 1.000f, N = 0f, O = 0f, P = -1f }
                     },
                     new Quad
                     {
                         TextureId = 0,
                         Vert0 = new Vertex
-                            {X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.125f, V = 0.500f, N = 0f, O = -1f, P = 0f},
+                            { X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.125f, V = 0.500f, N = 0f, O = -1f, P = 0f },
                         Vert1 = new Vertex
-                            {X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 0f, O = -1f, P = 0f},
+                            { X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 0f, O = -1f, P = 0f },
                         Vert2 = new Vertex
-                            {X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 0f, O = -1f, P = 0f},
+                            { X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 0f, O = -1f, P = 0f },
                         Vert3 = new Vertex
-                            {X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.125f, V = 0.750f, N = 0f, O = -1f, P = 0f}
+                            { X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.125f, V = 0.750f, N = 0f, O = -1f, P = 0f }
                     },
                     new Quad
                     {
                         TextureId = 0,
                         Vert0 = new Vertex
-                            {X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 0f, O = 1f, P = 0f},
+                            { X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 0f, O = 1f, P = 0f },
                         Vert1 = new Vertex
-                            {X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.875f, V = 0.500f, N = 0f, O = 1f, P = 0f},
+                            { X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.875f, V = 0.500f, N = 0f, O = 1f, P = 0f },
                         Vert2 = new Vertex
-                            {X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.875f, V = 0.750f, N = 0f, O = 1f, P = 0f},
+                            { X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.875f, V = 0.750f, N = 0f, O = 1f, P = 0f },
                         Vert3 = new Vertex
-                            {X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 0f, O = 1f, P = 0f}
+                            { X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 0f, O = 1f, P = 0f }
                     }
                 }
             };

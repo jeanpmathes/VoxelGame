@@ -173,12 +173,12 @@ namespace VoxelGame.Client.Entities
         {
             if (selectedPosition.Y >= 0)
             {
-                Block selectedBlock = World.GetBlock(selectedPosition, out _) ?? Block.Air;
+                var (selectedBlock, _) = World.GetBlock(selectedPosition) ?? BlockInstance.Default;
 
 #if DEBUG
                 if (selectedBlock != Block.Air)
 #else
-                if (!selectedBlock.IsReplaceable)
+                if (!block.IsReplaceable)
 #endif
                 {
                     BoundingBox selectedBox = selectedBlock.GetBoundingBox(World, selectedPosition);
@@ -218,13 +218,12 @@ namespace VoxelGame.Client.Entities
 
                 Vector3i headPosition = camera.Position.Floor();
 
-                if (World.GetBlock(headPosition, out _) is IOverlayTextureProvider overlayBlockTextureProvider)
+                if (World.GetBlock(headPosition)?.Block is IOverlayTextureProvider overlayBlockTextureProvider)
                 {
                     overlay.SetBlockTexture(overlayBlockTextureProvider.TextureIdentifier);
                     renderOverlay = true;
                 }
-                else if (World.GetLiquid(headPosition, out _, out _) is IOverlayTextureProvider
-                    overlayLiquidTextureProvider)
+                else if (World.GetLiquid(headPosition)?.Liquid is IOverlayTextureProvider overlayLiquidTextureProvider)
                 {
                     overlay.SetLiquidTexture(overlayLiquidTextureProvider.TextureIdentifier);
                     renderOverlay = true;
@@ -274,12 +273,12 @@ namespace VoxelGame.Client.Entities
         {
             if (IsInputLocked) return;
 
-            Block? target = World.GetBlock(selectedPosition, out _);
+            BlockInstance? target = World.GetBlock(selectedPosition);
 
             if (target == null) return;
 
-            PlaceInteract(target);
-            DestroyInteract(target);
+            PlaceInteract(target.Block);
+            DestroyInteract(target.Block);
         }
 
         private void PlaceInteract(Block target)
@@ -327,7 +326,7 @@ namespace VoxelGame.Client.Entities
                 if (!target.IsReplaceable)
                     position = selectedSide.Offset(position);
 
-                World.GetLiquid(position, out _, out _)?.Take(World, position, ref level);
+                World.GetLiquid(position)?.Liquid.Take(World, position, ref level);
             }
         }
 
@@ -341,40 +340,28 @@ namespace VoxelGame.Client.Entities
 
             if (selectionAxis.Value != 0)
             {
-                if (selectionAxis.Value > 0)
-                {
-                    if (blockMode)
-                        activeBlock = activeBlock.Id != Block.Count - 1
-                            ? Block.TranslateID(activeBlock.Id + 1)
-                            : Block.TranslateID(id: 1);
-                    else
-                        activeLiquid = activeLiquid.Id != Liquid.Count - 1
-                            ? Liquid.TranslateID(activeLiquid.Id + 1)
-                            : Liquid.TranslateID(id: 1);
+                int change = selectionAxis.Value > 0 ? 1 : -1;
 
-                    updateUI = true;
+                if (blockMode)
+                {
+                    long nextBlockId = activeBlock.Id + change;
+                    nextBlockId = VMath.ClampRotating(nextBlockId, min: 1, Block.Count);
+                    activeBlock = Block.TranslateID((uint) nextBlockId);
+                }
+                else
+                {
+                    long nextLiquidId = activeLiquid.Id + change;
+                    nextLiquidId = VMath.ClampRotating(nextLiquidId, min: 1, Liquid.Count);
+                    activeLiquid = Liquid.TranslateID((uint) nextLiquidId);
                 }
 
-                if (selectionAxis.Value < 0)
-                {
-                    if (blockMode)
-                        activeBlock = activeBlock.Id != 1
-                            ? Block.TranslateID(activeBlock.Id - 1)
-                            : Block.TranslateID((uint) (Block.Count - 1));
-                    else
-                        activeLiquid = activeLiquid.Id != 1
-                            ? Liquid.TranslateID(activeLiquid.Id - 1)
-                            : Liquid.TranslateID((uint) (Liquid.Count - 1));
-
-                    updateUI = true;
-                }
+                updateUI = true;
             }
 
-            if (updateUI)
-            {
-                if (blockMode) ui.SetPlayerSelection(Language.Block, activeBlock.Name);
-                else ui.SetPlayerSelection(Language.Liquid, activeLiquid.Name);
-            }
+            if (!updateUI) return;
+
+            if (blockMode) ui.SetPlayerSelection(Language.Block, activeBlock.Name);
+            else ui.SetPlayerSelection(Language.Liquid, activeLiquid.Name);
         }
 
         #region INPUT ACTIONS

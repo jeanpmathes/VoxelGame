@@ -26,7 +26,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                flags with {IsFull = false, IsOpaque = false},
+                flags with { IsFull = false, IsOpaque = false },
                 boundingBox,
                 TargetBuffer.Complex)
         {

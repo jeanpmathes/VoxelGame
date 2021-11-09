@@ -96,7 +96,7 @@ namespace VoxelGame.Client.Application
                 if (!CheckChar(c))
                     return false;
 
-            foreach (char c in new[] {'.', ',', '{', '}'})
+            foreach (char c in new[] { '.', ',', '{', '}' })
                 if (!CheckChar(c))
                     return false;
 

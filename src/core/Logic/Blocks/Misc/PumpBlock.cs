@@ -22,7 +22,7 @@ namespace VoxelGame.Core.Logic.Blocks
             base(
                 name,
                 namedId,
-                BlockFlags.Basic with {IsInteractable = true},
+                BlockFlags.Basic with { IsInteractable = true },
                 layout)
         {
             this.pumpDistance = pumpDistance;

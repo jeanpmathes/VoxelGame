@@ -10,7 +10,7 @@ using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.UserInterfaces
 {
-    internal class Context : IDisposable
+    internal sealed class Context : IDisposable
     {
         internal Context(FontHolder fonts, InputListener input)
         {

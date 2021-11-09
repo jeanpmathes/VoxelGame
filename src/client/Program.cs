@@ -22,6 +22,10 @@ namespace VoxelGame.Client
     {
         public static string Version { get; private set; } = null!;
 
+        internal static string AppDataDirectory { get; private set; } = null!;
+        internal static string ScreenshotDirectory { get; private set; } = null!;
+        internal static string WorldsDirectory { get; private set; } = null!;
+
         [STAThread]
 #if DEBUG
         private static void Main()
@@ -29,16 +33,19 @@ namespace VoxelGame.Client
         private static void Main(string[] args)
 #endif
         {
-            string appDataDirectory = Path.Combine(
+            AppDataDirectory = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "voxel");
 
-            string screenshotDirectory = Path.Combine(
+            ScreenshotDirectory = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
                 "VoxelGame");
 
-            Directory.CreateDirectory(appDataDirectory);
-            Directory.CreateDirectory(screenshotDirectory);
+            WorldsDirectory = Path.Combine(AppDataDirectory, "Worlds");
+
+            Directory.CreateDirectory(AppDataDirectory);
+            Directory.CreateDirectory(ScreenshotDirectory);
+            Directory.CreateDirectory(WorldsDirectory);
 
 #if DEBUG
             const bool logDebug = true;
@@ -46,7 +53,7 @@ namespace VoxelGame.Client
             bool logDebug = args.Length > 0 && args[0] == "-logDebug";
 #endif
 
-            ILogger logger = LoggingHelper.SetupLogging(nameof(Program), logDebug, appDataDirectory);
+            ILogger logger = LoggingHelper.SetupLogging(nameof(Program), logDebug, AppDataDirectory);
 
 #if !DEBUG
             if (logDebug)
@@ -55,7 +62,9 @@ namespace VoxelGame.Client
             }
             else
             {
-                logger.LogInformation(Events.Meta, "Debug messages will not be logged. Use '-logDebug' to log debug messages");
+                logger.LogInformation(
+                    Events.Meta,
+                    "Debug messages will not be logged. Use '-logDebug' to log debug messages");
             }
 #endif
 
@@ -86,9 +95,7 @@ namespace VoxelGame.Client
             using (Application.Client client = new(
                 gameWindowSettings,
                 nativeWindowSettings,
-                graphicsSettings,
-                appDataDirectory,
-                screenshotDirectory))
+                graphicsSettings))
             {
                 client.Run();
             }

@@ -108,7 +108,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return world.GetBlock(position.Below(), out _) is IPlantable;
+            return world.GetBlock(position.Below())?.Block is IPlantable;
         }
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
@@ -118,12 +118,12 @@ namespace VoxelGame.Core.Logic.Blocks
             var data = (uint) GrowthStage.Initial;
             if (isLowered) data |= 0b00_1000;
 
-            world.SetBlock(this, data, position);
+            world.SetBlock(this.AsInstance(data), position);
         }
 
         internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            if (side == BlockSide.Bottom && world.GetBlock(position.Below(), out _) is not IPlantable)
+            if (side == BlockSide.Bottom && world.GetBlock(position.Below())?.Block is not IPlantable)
                 Destroy(world, position);
         }
 
@@ -133,7 +133,7 @@ namespace VoxelGame.Core.Logic.Blocks
             uint lowered = data & 0b00_1000;
 
             if (stage != GrowthStage.Final && stage != GrowthStage.Dead &&
-                world.GetBlock(position.Below(), out _) is IPlantable plantable)
+                world.GetBlock(position.Below())?.Block is IPlantable plantable)
             {
                 if ((int) stage > 2)
                 {
@@ -141,13 +141,13 @@ namespace VoxelGame.Core.Logic.Blocks
 
                     if (!plantable.TryGrow(world, position.Below(), Liquid.Water, LiquidLevel.One))
                     {
-                        world.SetBlock(this, lowered | (uint) GrowthStage.Dead, position);
+                        world.SetBlock(this.AsInstance(lowered | (uint) GrowthStage.Dead), position);
 
                         return;
                     }
                 }
 
-                world.SetBlock(this, lowered | (uint) (stage + 1), position);
+                world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
             }
         }
 

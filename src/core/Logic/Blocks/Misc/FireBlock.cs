@@ -142,7 +142,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            world.SetBlock(this, world.HasSolidGround(position) ? 0 : GetData(world, position), position);
+            world.SetBlock(this.AsInstance(world.HasSolidGround(position) ? 0 : GetData(world, position)), position);
             ScheduleTick(world, position, GetDelay(position));
         }
 
@@ -185,7 +185,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             void SetData(uint dataToSet)
             {
-                if (dataToSet != 0) world.SetBlock(this, dataToSet, position);
+                if (dataToSet != 0) world.SetBlock(this.AsInstance(dataToSet), position);
                 else Destroy(world, position);
             }
         }
@@ -213,11 +213,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
             bool BurnAt(Vector3i burnPosition)
             {
-                if (world.GetBlock(burnPosition, out _) is IFlammable block)
+                if (world.GetBlock(burnPosition)?.Block is IFlammable block)
                 {
                     if (block.Burn(world, burnPosition, this))
                     {
-                        if (world.GetBlock(burnPosition.Below(), out _) is IAshCoverable coverable)
+                        if (world.GetBlock(burnPosition.Below())?.Block is IAshCoverable coverable)
                             coverable.CoverWithAsh(world, burnPosition.Below());
 
                         Place(world, burnPosition);

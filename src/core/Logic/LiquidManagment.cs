@@ -196,32 +196,36 @@ namespace VoxelGame.Core.Logic
 
         public static void Elevate(World world, Vector3i position, int pumpDistance)
         {
-            (Block? start, Liquid? toElevate) =
-                world.GetPosition(position, out _, out LiquidLevel initialLevel, out _);
+            (BlockInstance? start, LiquidInstance? toElevate) = world.GetContent(position);
 
             if (start == null || toElevate == null) return;
-            if (toElevate == None || toElevate.IsGas) return;
+            if (toElevate.Liquid == None || toElevate.Liquid.IsGas) return;
 
-            var currentLevel = (int) initialLevel;
+            var currentLevel = (int) toElevate.Level;
 
-            if (start is not IFillable startFillable ||
+            if (start.Block is not IFillable startFillable ||
                 !startFillable.AllowOutflow(world, position, BlockSide.Top)) return;
 
             for (var offset = 1; offset <= pumpDistance && currentLevel > -1; offset++)
             {
                 Vector3i elevatedPosition = position + (0, offset, 0);
 
-                var currentBlock = world.GetBlock(elevatedPosition, out _) as IFillable;
+                var currentBlock = world.GetBlock(elevatedPosition)?.Block as IFillable;
 
                 if (currentBlock == null) break;
 
-                toElevate.Fill(world, elevatedPosition, (LiquidLevel) currentLevel, BlockSide.Bottom, out currentLevel);
+                toElevate.Liquid.Fill(
+                    world,
+                    elevatedPosition,
+                    (LiquidLevel) currentLevel,
+                    BlockSide.Bottom,
+                    out currentLevel);
 
                 if (!currentBlock.AllowOutflow(world, elevatedPosition, BlockSide.Top)) break;
             }
 
-            LiquidLevel elevated = initialLevel - (currentLevel + 1);
-            toElevate.Take(world, position, ref elevated);
+            LiquidLevel elevated = toElevate.Level - (currentLevel + 1);
+            toElevate.Liquid.Take(world, position, ref elevated);
         }
     }
 }

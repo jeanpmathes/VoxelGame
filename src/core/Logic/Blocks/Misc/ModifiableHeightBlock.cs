@@ -45,7 +45,7 @@ namespace VoxelGame.Core.Logic.Blocks
             uint height = data & 0b00_1111;
             height++;
 
-            if (height <= IHeightVariable.MaximumHeight) entity.World.SetBlock(this, height, position);
+            if (height <= IHeightVariable.MaximumHeight) entity.World.SetBlock(this.AsInstance(height), position);
         }
     }
 }
