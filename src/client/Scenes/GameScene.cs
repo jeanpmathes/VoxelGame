@@ -20,7 +20,7 @@ using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes
 {
-    public class GameScene : IScene
+    public sealed class GameScene : IScene
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
 
@@ -39,6 +39,8 @@ namespace VoxelGame.Client.Scenes
         internal GameScene(Application.Client client, ClientWorld world)
         {
             this.client = client;
+
+            Player = null!;
 
             Screen.SetCursor(visible: false, locked: true);
 
@@ -79,7 +81,7 @@ namespace VoxelGame.Client.Scenes
         }
 
         public ClientWorld World { get; private set; }
-        public ClientPlayer Player { get; private set; } = null!;
+        public ClientPlayer Player { get; private set; }
 
         public void Load()
         {
@@ -170,7 +172,7 @@ namespace VoxelGame.Client.Scenes
 
         private bool disposed;
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -184,6 +186,11 @@ namespace VoxelGame.Client.Scenes
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+        }
+
+        ~GameScene()
+        {
+            Dispose(disposing: false);
         }
 
         #endregion IDisposable Support.

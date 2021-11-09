@@ -14,17 +14,15 @@ using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes
 {
-    public class StartScene : IScene
+    public sealed class StartScene : IScene
     {
         private readonly Application.Client client;
         private readonly StartUserInterface ui;
 
-        private readonly WorldProvider worldProvider;
-
         internal StartScene(Application.Client client)
         {
             this.client = client;
-            worldProvider = new WorldProvider(client.worldsDirectory);
+            WorldProvider worldProvider = new(client.worldsDirectory);
             worldProvider.WorldActivation += client.LoadGameScene;
 
             List<ISettingsProvider> settingsProviders = new()
@@ -78,7 +76,7 @@ namespace VoxelGame.Client.Scenes
 
         private bool disposed;
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -92,6 +90,11 @@ namespace VoxelGame.Client.Scenes
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+        }
+
+        ~StartScene()
+        {
+            Dispose(disposing: false);
         }
 
         #endregion IDisposable Support
