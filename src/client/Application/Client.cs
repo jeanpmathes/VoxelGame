@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
@@ -41,15 +40,12 @@ namespace VoxelGame.Client.Application
         private readonly CircularTimeBuffer renderDeltaBuffer = new(DeltaBufferCapacity);
         private readonly SceneManager sceneManager;
 
-        public readonly string screenshotDirectory;
         private readonly CircularTimeBuffer updateDeltaBuffer = new(DeltaBufferCapacity);
-        public readonly string worldsDirectory;
 
         private Screen screen = null!;
 
         public Client(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings,
-            GraphicsSettings graphicsSettings,
-            string appDataDirectory, string screenshotDirectory) : base(gameWindowSettings, nativeWindowSettings)
+            GraphicsSettings graphicsSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             Instance = this;
 
@@ -62,11 +58,6 @@ namespace VoxelGame.Client.Application
             Graphics = graphicsSettings;
 
             glDebug = new Debug();
-
-            this.screenshotDirectory = screenshotDirectory;
-
-            worldsDirectory = Path.Combine(appDataDirectory, "Worlds");
-            Directory.CreateDirectory(worldsDirectory);
 
             sceneManager = new SceneManager();
 

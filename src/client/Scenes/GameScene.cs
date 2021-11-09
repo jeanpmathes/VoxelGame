@@ -134,7 +134,7 @@ namespace VoxelGame.Client.Scenes
                 if (!Screen.IsFocused) // check to see if the window is focused
                     return;
 
-                if (screenshotButton.Pushed) Screen.TakeScreenshot(client.screenshotDirectory);
+                if (screenshotButton.Pushed) Screen.TakeScreenshot(Program.ScreenshotDirectory);
 
                 if (wireframeToggle.Changed) Screen.SetWireFrame(wireframeToggle.State);
 
