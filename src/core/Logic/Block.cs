@@ -203,12 +203,12 @@ namespace VoxelGame.Core.Logic
             world.SetBlock(this.AsInstance(), position);
         }
 
-        internal virtual bool CanDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+        protected virtual bool CanDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             return true;
         }
 
-        internal virtual void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+        protected virtual void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             world.SetDefaultBlock(position);
         }

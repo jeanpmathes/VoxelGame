@@ -132,7 +132,7 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetBlock(this.AsInstance(data), position);
         }
 
-        internal override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+        protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             world.SetDefaultBlock(position);
 

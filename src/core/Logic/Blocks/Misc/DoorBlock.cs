@@ -162,7 +162,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 position.Above());
         }
 
-        internal override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+        protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             bool isBase = (data & 0b00_0100) == 0;
 

@@ -158,7 +158,7 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetSpawnPosition(new Vector3(position.X, y: 1024f, position.Z));
         }
 
-        internal override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+        protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             bool isHead = (data & 0b1) == 1;
             var orientation = (Orientation) ((data & 0b00_0110) >> 1);

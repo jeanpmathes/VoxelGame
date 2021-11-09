@@ -42,7 +42,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return false;
         }
 
-        internal override bool CanDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+        protected override bool CanDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             return false;
         }
