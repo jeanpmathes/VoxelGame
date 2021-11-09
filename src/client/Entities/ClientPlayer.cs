@@ -340,40 +340,28 @@ namespace VoxelGame.Client.Entities
 
             if (selectionAxis.Value != 0)
             {
-                if (selectionAxis.Value > 0)
-                {
-                    if (blockMode)
-                        activeBlock = activeBlock.Id != Block.Count - 1
-                            ? Block.TranslateID(activeBlock.Id + 1)
-                            : Block.TranslateID(id: 1);
-                    else
-                        activeLiquid = activeLiquid.Id != Liquid.Count - 1
-                            ? Liquid.TranslateID(activeLiquid.Id + 1)
-                            : Liquid.TranslateID(id: 1);
+                int change = selectionAxis.Value > 0 ? 1 : -1;
 
-                    updateUI = true;
+                if (blockMode)
+                {
+                    long nextBlockId = activeBlock.Id + change;
+                    nextBlockId = VMath.ClampRotating(nextBlockId, min: 1, Block.Count);
+                    activeBlock = Block.TranslateID((uint) nextBlockId);
+                }
+                else
+                {
+                    long nextLiquidId = activeLiquid.Id + change;
+                    nextLiquidId = VMath.ClampRotating(nextLiquidId, min: 1, Liquid.Count);
+                    activeLiquid = Liquid.TranslateID((uint) nextLiquidId);
                 }
 
-                if (selectionAxis.Value < 0)
-                {
-                    if (blockMode)
-                        activeBlock = activeBlock.Id != 1
-                            ? Block.TranslateID(activeBlock.Id - 1)
-                            : Block.TranslateID((uint) (Block.Count - 1));
-                    else
-                        activeLiquid = activeLiquid.Id != 1
-                            ? Liquid.TranslateID(activeLiquid.Id - 1)
-                            : Liquid.TranslateID((uint) (Liquid.Count - 1));
-
-                    updateUI = true;
-                }
+                updateUI = true;
             }
 
-            if (updateUI)
-            {
-                if (blockMode) ui.SetPlayerSelection(Language.Block, activeBlock.Name);
-                else ui.SetPlayerSelection(Language.Liquid, activeLiquid.Name);
-            }
+            if (!updateUI) return;
+
+            if (blockMode) ui.SetPlayerSelection(Language.Block, activeBlock.Name);
+            else ui.SetPlayerSelection(Language.Liquid, activeLiquid.Name);
         }
 
         #region INPUT ACTIONS
