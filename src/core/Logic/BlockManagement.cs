@@ -155,6 +155,24 @@ namespace VoxelGame.Core.Logic
             nameof(Rubble),
             TextureLayout.Uniform("rubble"));
 
+        public static readonly Block Mud = new MudBlock(
+            Language.Mud,
+            nameof(Mud),
+            TextureLayout.Uniform("mud"),
+            maxVelocity: 0.1f);
+
+        public static readonly Block Pumice = new BasicBlock(
+            Language.Pumice,
+            nameof(Pumice),
+            BlockFlags.Basic,
+            TextureLayout.Uniform("pumice"));
+
+        public static readonly Block Obsidian = new BasicBlock(
+            Language.Obsidian,
+            nameof(Obsidian),
+            BlockFlags.Basic,
+            TextureLayout.Uniform("obsidian"));
+
         public static readonly Block Snow = new ModifiableHeightBlock(
             Language.Snow,
             nameof(Snow),
@@ -208,6 +226,12 @@ namespace VoxelGame.Core.Logic
             nameof(OreGold),
             BlockFlags.Basic,
             TextureLayout.Uniform("ore_gold"));
+
+        public static readonly Block Ash = new BasicBlock(
+            Language.Ash,
+            nameof(Ash),
+            BlockFlags.Basic,
+            TextureLayout.Uniform("ash"));
 
         #endregion NATURAL BLOCKS
 
@@ -327,6 +351,11 @@ namespace VoxelGame.Core.Logic
             nameof(Glass),
             TextureLayout.Uniform("glass"));
 
+        public static readonly Block GlassTiled = new GlassBlock(
+            Language.TiledGlass,
+            nameof(GlassTiled),
+            TextureLayout.Uniform("glass_tiled"));
+
         public static readonly Block Steel = new ConstructionBlock(
             Language.Steel,
             nameof(Steel),
@@ -377,6 +406,16 @@ namespace VoxelGame.Core.Logic
             nameof(PavingStone),
             TextureLayout.Uniform("paving_stone"));
 
+        public static readonly Block RedPlastic = new ConstructionBlock(
+            Language.RedPlastic,
+            nameof(RedPlastic),
+            TextureLayout.Uniform("red_plastic"));
+
+        public static readonly Block Concrete = new ConcreteBlock(
+            Language.Concrete,
+            nameof(Concrete),
+            TextureLayout.Uniform("concrete"));
+
         #endregion BUILDING BLOCKS
 
         #region DECORATION BLOCKS
@@ -401,12 +440,38 @@ namespace VoxelGame.Core.Logic
             nameof(Wool),
             TextureLayout.Uniform("wool"));
 
+        public static readonly Block WoolDecorated = new OrganicTintedBlock(
+            Language.DecoratedWool,
+            nameof(WoolDecorated),
+            TextureLayout.Uniform("wool_decorated"));
+
         public static readonly Block Carpet = new TintedCustomModelBlock(
             Language.Carpet,
             nameof(Carpet),
             BlockFlags.Solid,
             "carpet",
             new BoundingBox(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
+
+        public static readonly Block CarpetDecorated = new TintedCustomModelBlock(
+            Language.DecoratedCarpet,
+            nameof(CarpetDecorated),
+            BlockFlags.Solid,
+            "carpet_decorated",
+            new BoundingBox(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
+
+        public static readonly Block GlassPane = new ThinConnectingBlock(
+            Language.GlassPane,
+            nameof(GlassPane),
+            "pane_glass_post",
+            "pane_glass_side",
+            "pane_glass_extension");
+
+        public static readonly Block Bars = new ThinConnectingBlock(
+            Language.Bars,
+            nameof(Bars),
+            "bars_post",
+            "bars_side",
+            "bars_extension");
 
         #endregion DECORATION BLOCKS
 
@@ -455,77 +520,13 @@ namespace VoxelGame.Core.Logic
 
         #endregion ACCESS BLOCKS
 
-        #region SPECIAL BLOCKS
-
-        public static readonly Block Fire = new FireBlock(
-            Language.Fire,
-            nameof(Fire),
-            "fire_complete",
-            "fire_side",
-            "fire_top");
-
-        public static readonly Block Pulsating = new TintedBlock(
-            Language.PulsatingBlock,
-            nameof(Pulsating),
-            BlockFlags.Basic,
-            TextureLayout.Uniform("pulsating"),
-            isAnimated: true);
-
-        public static readonly Block EternalFlame = new EternalFlame(
-            Language.EternalFlame,
-            nameof(EternalFlame),
-            TextureLayout.Uniform("eternal_flame"));
-
-        #endregion SPECIAL BLOCKS
-
-        #region NEW BLOCKS
-
-        public static readonly Block Ash = new BasicBlock(
-            Language.Ash,
-            nameof(Ash),
-            BlockFlags.Basic,
-            TextureLayout.Uniform("ash"));
-
-        public static readonly Block GlassTiled = new GlassBlock(
-            Language.TiledGlass,
-            nameof(GlassTiled),
-            TextureLayout.Uniform("glass_tiled"));
-
-        public static readonly Block WoolDecorated = new OrganicTintedBlock(
-            Language.DecoratedWool,
-            nameof(WoolDecorated),
-            TextureLayout.Uniform("wool_decorated"));
-
-        public static readonly Block CarpetDecorated = new TintedCustomModelBlock(
-            Language.DecoratedCarpet,
-            nameof(CarpetDecorated),
-            BlockFlags.Solid,
-            "carpet_decorated",
-            new BoundingBox(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
+        #region LIQUID FLOW BLOCKS
 
         public static readonly Block LiquidBarrier = new LiquidBarrierBlock(
             Language.Barrier,
             nameof(LiquidBarrier),
             TextureLayout.Uniform("liquid_barrier_closed"),
             TextureLayout.Uniform("liquid_barrier_open"));
-
-        public static readonly Block Mud = new MudBlock(
-            Language.Mud,
-            nameof(Mud),
-            TextureLayout.Uniform("mud"),
-            maxVelocity: 0.1f);
-
-        public static readonly Block Pumice = new BasicBlock(
-            Language.Pumice,
-            nameof(Pumice),
-            BlockFlags.Basic,
-            TextureLayout.Uniform("pumice"));
-
-        public static readonly Block Obsidian = new BasicBlock(
-            Language.Obsidian,
-            nameof(Obsidian),
-            BlockFlags.Basic,
-            TextureLayout.Uniform("obsidian"));
 
         public static readonly Block SteelPipe = new PipeBlock<IIndustrialPipeConnectable>(
             Language.SteelPipe,
@@ -556,16 +557,34 @@ namespace VoxelGame.Core.Logic
             "steel_pipe_valve_open",
             "steel_pipe_valve_closed");
 
-        public static readonly Block RedPlastic = new ConstructionBlock(
-            Language.RedPlastic,
-            nameof(RedPlastic),
-            TextureLayout.Uniform("red_plastic"));
-
         public static readonly Block Pump = new PumpBlock(
             Language.Pump,
             nameof(Pump),
             pumpDistance: 16,
             TextureLayout.Uniform("pump"));
+
+        #endregion LIQUID FLOW BLOCKS
+
+        #region SPECIAL BLOCKS
+
+        public static readonly Block Fire = new FireBlock(
+            Language.Fire,
+            nameof(Fire),
+            "fire_complete",
+            "fire_side",
+            "fire_top");
+
+        public static readonly Block Pulsating = new TintedBlock(
+            Language.PulsatingBlock,
+            nameof(Pulsating),
+            BlockFlags.Basic,
+            TextureLayout.Uniform("pulsating"),
+            isAnimated: true);
+
+        public static readonly Block EternalFlame = new EternalFlame(
+            Language.EternalFlame,
+            nameof(EternalFlame),
+            TextureLayout.Uniform("eternal_flame"));
 
         public static readonly Block Path = new InsetDirtBlock(
             Language.Path,
@@ -574,24 +593,11 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("dirt_wet"),
             supportsFullGrowth: false);
 
-        public static readonly Block Concrete = new ConcreteBlock(
-            Language.Concrete,
-            nameof(Concrete),
-            TextureLayout.Uniform("concrete"));
+        #endregion SPECIAL BLOCKS
 
-        public static readonly Block GlassPane = new ThinConnectingBlock(
-            Language.GlassPane,
-            nameof(GlassPane),
-            "pane_glass_post",
-            "pane_glass_side",
-            "pane_glass_extension");
+        #region NEW BLOCKS
 
-        public static readonly Block Bars = new ThinConnectingBlock(
-            Language.Bars,
-            nameof(Bars),
-            "bars_post",
-            "bars_side",
-            "bars_extension");
+        // Will be filled soon...
 
         #endregion NEW BLOCKS
     }
