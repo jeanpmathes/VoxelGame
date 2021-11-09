@@ -17,7 +17,7 @@ namespace VoxelGame.Input.Internal
 
         private readonly Dictionary<KeyOrButton, bool> overrides;
 
-        public bool IsAnyKeyOrButtonDown => Keyboard.IsAnyKeyDown | Mouse.IsAnyButtonDown;
+        public bool IsAnyKeyOrButtonDown => Keyboard.IsAnyKeyDown || Mouse.IsAnyButtonDown;
 
         public KeyOrButton Any
         {
