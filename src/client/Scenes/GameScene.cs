@@ -58,13 +58,13 @@ namespace VoxelGame.Client.Scenes
 
             ui.WorldExit += client.LoadStartScene;
 
-            ui.MenuOpen += () =>
+            ui.AnyOverlayOpen += () =>
             {
                 Player.LockInput();
                 Screen.SetCursor(visible: true, locked: false);
             };
 
-            ui.MenuClose += () =>
+            ui.AnyOverlayClosed += () =>
             {
                 Player.UnlockInput();
                 Screen.SetCursor(visible: false, locked: true);
@@ -140,7 +140,7 @@ namespace VoxelGame.Client.Scenes
 
                 if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
 
-                if (escapeButton.Pushed) ui.OpenInGameMenu();
+                if (escapeButton.Pushed) ui.DoEscape();
             }
         }
 

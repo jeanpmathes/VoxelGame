@@ -47,8 +47,8 @@ namespace VoxelGame.UI.UserInterfaces
 
         public event Action? WorldExit;
 
-        public event Action? MenuOpen;
-        public event Action? MenuClose;
+        public event Action? AnyOverlayOpen;
+        public event Action? AnyOverlayClosed;
 
         public void SetUpdateRate(double fps, double ups)
         {
@@ -60,22 +60,27 @@ namespace VoxelGame.UI.UserInterfaces
             control?.SetPlayerSelection($"{category}: {selection}");
         }
 
-        public void OpenInGameMenu()
+        public void DoEscape()
         {
             if (control == null) return;
 
-            control.OpenInGameMenu();
-            MenuOpen?.Invoke();
+            if (control.IsGameMenuOpen) control.CloseInGameMenu();
+            else control.OpenInGameMenu();
         }
 
-        internal void HandleInGameMenuClosed()
-        {
-            MenuClose?.Invoke();
-        }
-
-        internal void ExitWorld()
+        internal void DoWorldExit()
         {
             WorldExit?.Invoke();
+        }
+
+        internal void DoOverlayOpen()
+        {
+            AnyOverlayOpen?.Invoke();
+        }
+
+        internal void DoOverlayClose()
+        {
+            AnyOverlayClosed?.Invoke();
         }
     }
 }

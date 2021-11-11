@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
@@ -24,7 +25,8 @@ namespace VoxelGame.UI.Controls
         private readonly GameUserInterface parent;
         private readonly List<ISettingsProvider> settingsProviders;
 
-        private bool isMenuOpen;
+        private Window? gameMenu;
+        private bool isSettingsMenuOpen;
 
         internal GameUI(GameUserInterface parent, List<ISettingsProvider> settingsProviders) : base(parent.Root)
         {
@@ -33,6 +35,8 @@ namespace VoxelGame.UI.Controls
 
             hud = new InGameDisplay(this);
         }
+
+        internal bool IsGameMenuOpen => gameMenu != null;
 
         internal void SetUpdateRate(double fps, double ups)
         {
@@ -44,24 +48,28 @@ namespace VoxelGame.UI.Controls
             hud.SetPlayerSelection(text);
         }
 
-        private void CloseInGameMenu()
+        internal void CloseInGameMenu()
         {
-            isMenuOpen = false;
+            if (!IsGameMenuOpen || isSettingsMenuOpen) return;
 
             parent.Context.Input.AbsorbMousePress();
-            parent.HandleInGameMenuClosed();
+
+            Debug.Assert(gameMenu != null);
+            gameMenu.Close();
 
             hud.Show();
+            gameMenu = null;
+
+            parent.DoOverlayClose();
         }
 
         internal void OpenInGameMenu()
         {
-            if (isMenuOpen) return;
-            isMenuOpen = true;
+            if (IsGameMenuOpen) return;
 
             hud.Hide();
 
-            Window menu = new(this)
+            gameMenu = new Window(this)
             {
                 StartPosition = StartPosition.CenterCanvas,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -71,10 +79,9 @@ namespace VoxelGame.UI.Controls
                 IsDraggingEnabled = false
             };
 
-            menu.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
-            menu.Closed += (_, _) => CloseInGameMenu();
+            gameMenu.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
 
-            VerticalLayout layout = new(menu)
+            VerticalLayout layout = new(gameMenu)
             {
                 Margin = Margin.Ten,
                 Padding = Padding.Five
@@ -85,7 +92,7 @@ namespace VoxelGame.UI.Controls
                 Text = Language.Resume
             };
 
-            resume.Pressed += (_, _) => menu.Close();
+            resume.Pressed += (_, _) => CloseInGameMenu();
 
             Button settings = new(layout)
             {
@@ -101,8 +108,8 @@ namespace VoxelGame.UI.Controls
 
             exit.Pressed += (_, _) =>
             {
-                menu.Close();
-                parent.ExitWorld();
+                CloseInGameMenu();
+                parent.DoWorldExit();
             };
 
             Label info = new(layout)
@@ -110,6 +117,8 @@ namespace VoxelGame.UI.Controls
                 Text = $"{Language.VoxelGame} - {GameInformation.Instance.Version}",
                 Font = parent.Context.Fonts.Subtitle
             };
+
+            parent.DoOverlayOpen();
         }
 
         private void OpenSettings()
@@ -123,7 +132,14 @@ namespace VoxelGame.UI.Controls
             };
 
             SettingsMenu menu = new(settings, settingsProviders, parent.Context);
-            menu.Cancel += settings.Close;
+
+            menu.Cancel += () =>
+            {
+                settings.Close();
+                isSettingsMenuOpen = false;
+            };
+
+            isSettingsMenuOpen = true;
         }
     }
 }
