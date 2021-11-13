@@ -79,6 +79,8 @@ namespace VoxelGame.Client.Scenes
             screenshotButton = client.Keybinds.GetPushButton(client.Keybinds.Screenshot);
             consoleToggle = client.Keybinds.GetToggle(client.Keybinds.Console);
             escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
+
+            wireframeToggle.Clear();
         }
 
         public ClientWorld World { get; private set; }
@@ -118,8 +120,10 @@ namespace VoxelGame.Client.Scenes
             {
                 ui.SetUpdateRate(Application.Client.Fps, Application.Client.Ups);
 
+                Screen.EnterGameDrawMode();
                 World.Render();
 
+                Screen.EnterUIDrawMode();
                 ui.Render();
             }
         }

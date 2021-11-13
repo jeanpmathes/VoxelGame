@@ -21,7 +21,7 @@ namespace VoxelGame.Client.Rendering
     /// <summary>
     ///     Common functionality associated with the screen.
     /// </summary>
-    public class Screen : IDisposable
+    public sealed class Screen : IDisposable
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
         private readonly int depthFBO;
@@ -36,6 +36,9 @@ namespace VoxelGame.Client.Rendering
 
         private readonly int screenshotFBO;
         private readonly int screenshotRBO;
+        private bool isWireframeActive;
+
+        private bool useWireframe;
 
         internal Screen(Application.Client client)
         {
@@ -263,6 +266,22 @@ namespace VoxelGame.Client.Rendering
             logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", e.Size);
         }
 
+        private void EnableWireframe()
+        {
+            GL.LineWidth(width: 5f);
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+
+            isWireframeActive = true;
+        }
+
+        private void DisableWireframe()
+        {
+            GL.LineWidth(width: 1f);
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
+            isWireframeActive = false;
+        }
+
         #region PUBLIC STATIC PROPERTIES
 
         /// <summary>
@@ -342,21 +361,27 @@ namespace VoxelGame.Client.Rendering
         }
 
         /// <summary>
-        ///     Set the wire-frame mode.
+        ///     Set the wire-frame mode. Wireframe is only active when in game draw mode.
         /// </summary>
         /// <param name="wireframe">True to activate wireframe, false to deactivate it.</param>
         public static void SetWireFrame(bool wireframe)
         {
-            if (wireframe)
+            if (Instance.isWireframeActive && !wireframe)
             {
-                GL.LineWidth(width: 5f);
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                Instance.DisableWireframe();
             }
-            else
-            {
-                GL.LineWidth(width: 1f);
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-            }
+
+            Instance.useWireframe = wireframe;
+        }
+
+        public static void EnterGameDrawMode()
+        {
+            if (Instance.useWireframe) Instance.EnableWireframe();
+        }
+
+        public static void EnterUIDrawMode()
+        {
+            Instance.DisableWireframe();
         }
 
         /// <summary>
@@ -433,7 +458,7 @@ namespace VoxelGame.Client.Rendering
 
         private bool disposed;
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposed) return;
 

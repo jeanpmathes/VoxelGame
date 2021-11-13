@@ -44,6 +44,7 @@ namespace VoxelGame.Client.Scenes
         {
             Screen.SetCursor(visible: true);
             Screen.SetWireFrame(wireframe: false);
+            Screen.EnterUIDrawMode();
 
             ui.Load();
             ui.Resize(Screen.Size);
