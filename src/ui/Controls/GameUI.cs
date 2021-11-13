@@ -21,10 +21,14 @@ namespace VoxelGame.UI.Controls
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
     internal class GameUI : ControlBase
     {
-        private const int MaxInputLogLength = 30;
-        private readonly InGameDisplay hud;
+        private const int MaxConsoleLogLength = 200;
+        private static readonly Color inputColor = Color.Gray;
+        private static readonly Color outputColor = Color.White;
+        private static readonly Color errorColor = Color.Red;
 
-        private readonly LinkedList<string> inputLog = new();
+        private readonly LinkedList<(string input, Color color)> consoleLog = new();
+        private readonly IConsoleProvider consoleProvider;
+        private readonly InGameDisplay hud;
         private readonly GameUserInterface parent;
         private readonly List<ISettingsProvider> settingsProviders;
 
@@ -33,10 +37,12 @@ namespace VoxelGame.UI.Controls
         private Window? gameMenu;
         private bool isSettingsMenuOpen;
 
-        internal GameUI(GameUserInterface parent, List<ISettingsProvider> settingsProviders) : base(parent.Root)
+        internal GameUI(GameUserInterface parent, List<ISettingsProvider> settingsProviders,
+            IConsoleProvider consoleProvider) : base(parent.Root)
         {
             this.parent = parent;
             this.settingsProviders = settingsProviders;
+            this.consoleProvider = consoleProvider;
 
             hud = new InGameDisplay(this);
         }
@@ -224,7 +230,7 @@ namespace VoxelGame.UI.Controls
 
             parent.DoOverlayOpen();
 
-            foreach (string input in inputLog) consoleOutput.AddRow(input);
+            foreach ((string entry, Color color) in consoleLog) consoleOutput.AddRow(entry).SetTextColor(color);
 
             consoleOutput.ScrollToBottom();
 
@@ -233,10 +239,19 @@ namespace VoxelGame.UI.Controls
                 string input = consoleInput.Text;
                 consoleInput.SetText("");
 
-                inputLog.AddLast(input);
-                if (inputLog.Count > MaxInputLogLength) inputLog.RemoveFirst();
+                consoleOutput.AddRow(input).SetTextColor(inputColor);
+                consoleLog.AddLast((input, inputColor));
 
-                consoleOutput.AddRow(input);
+                consoleOutput.ScrollToBottom();
+
+                (string response, bool isError) = consoleProvider.ProcessInput(input);
+                Color responseColor = isError ? errorColor : outputColor;
+
+                consoleOutput.AddRow(response).SetTextColor(responseColor);
+                consoleLog.AddLast((response, responseColor));
+
+                while (consoleLog.Count > MaxConsoleLogLength) consoleLog.RemoveFirst();
+
                 consoleOutput.ScrollToBottom();
             }
         }

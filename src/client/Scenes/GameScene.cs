@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
+using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Rendering;
@@ -52,6 +53,7 @@ namespace VoxelGame.Client.Scenes
                 client,
                 client.Keybinds.Input.Listener,
                 settingsProviders,
+                new GameConsole(),
                 drawBackground: false);
 
             ui.WorldExit += client.LoadStartScene;

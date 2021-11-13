@@ -15,18 +15,20 @@ namespace VoxelGame.UI.UserInterfaces
 {
     public class GameUserInterface : UserInterface
     {
+        private readonly IConsoleProvider consoleProvider;
         private readonly List<ISettingsProvider> settingsProviders;
 
         private GameUI? control;
 
         public GameUserInterface(GameWindow window,
-            InputListener inputListener, List<ISettingsProvider> settingsProviders,
+            InputListener inputListener, List<ISettingsProvider> settingsProviders, IConsoleProvider consoleProvider,
             bool drawBackground) : base(
             window,
             inputListener,
             drawBackground)
         {
             this.settingsProviders = settingsProviders;
+            this.consoleProvider = consoleProvider;
         }
 
         public bool IsHidden
@@ -42,7 +44,7 @@ namespace VoxelGame.UI.UserInterfaces
         public override void CreateControl()
         {
             control?.Dispose();
-            control = new GameUI(this, settingsProviders);
+            control = new GameUI(this, settingsProviders, consoleProvider);
         }
 
         public event Action? WorldExit;
