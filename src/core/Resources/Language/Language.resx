@@ -507,13 +507,19 @@
     <data name="CrosshairScale" xml:space="preserve">
     <value>Crosshair Scale</value>
   </data>
-    <data name="Reset" xml:space="preserve">
+  <data name="Reset" xml:space="preserve">
     <value>Reset</value>
   </data>
-    <data name="Credits" xml:space="preserve">
+  <data name="Credits" xml:space="preserve">
     <value>Credits</value>
   </data>
-    <data name="Resume" xml:space="preserve">
+  <data name="Resume" xml:space="preserve">
     <value>Resume</value>
+  </data>
+  <data name="KeyConsole" xml:space="preserve">
+    <value>Console</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>Submit</value>
   </data>
 </root>

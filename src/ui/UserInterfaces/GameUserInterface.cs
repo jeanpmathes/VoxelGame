@@ -62,10 +62,12 @@ namespace VoxelGame.UI.UserInterfaces
 
         public void DoEscape()
         {
-            if (control == null) return;
+            control?.ToggleInGameMenu();
+        }
 
-            if (control.IsGameMenuOpen) control.CloseInGameMenu();
-            else control.OpenInGameMenu();
+        public void ToggleConsole()
+        {
+            control?.ToggleConsole();
         }
 
         internal void DoWorldExit()

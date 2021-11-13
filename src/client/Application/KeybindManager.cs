@@ -208,6 +208,7 @@ namespace VoxelGame.Client.Application
         public Keybind UI { get; } = Keybind.RegisterToggle("ui", Language.KeyToggleUI, Key.J);
 
         public Keybind Screenshot { get; } = Keybind.RegisterPushButton("screenshot", Language.KeyScreenshot, Key.F12);
+        public Keybind Console { get; } = Keybind.RegisterToggle("console", Language.KeyConsole, Key.F1);
         public Keybind Escape { get; } = Keybind.RegisterPushButton("escape", Language.KeyEscape, Key.Escape);
 
         public Keybind Forwards { get; } = Keybind.RegisterButton("forwards", Language.KeyForwards, Key.W);

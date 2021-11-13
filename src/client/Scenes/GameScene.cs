@@ -24,7 +24,7 @@ namespace VoxelGame.Client.Scenes
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
 
-        private readonly Application.Client client;
+        private readonly ToggleButton consoleToggle;
 
         private readonly UpdateCounter counter;
         private readonly PushButton escapeButton;
@@ -38,8 +38,6 @@ namespace VoxelGame.Client.Scenes
 
         internal GameScene(Application.Client client, ClientWorld world)
         {
-            this.client = client;
-
             Player = null!;
 
             Screen.SetCursor(visible: false, locked: true);
@@ -77,6 +75,7 @@ namespace VoxelGame.Client.Scenes
             uiToggle = client.Keybinds.GetToggle(client.Keybinds.UI);
 
             screenshotButton = client.Keybinds.GetPushButton(client.Keybinds.Screenshot);
+            consoleToggle = client.Keybinds.GetToggle(client.Keybinds.Console);
             escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
         }
 
@@ -141,6 +140,8 @@ namespace VoxelGame.Client.Scenes
                 if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
 
                 if (escapeButton.Pushed) ui.DoEscape();
+
+                if (consoleToggle.Changed) ui.ToggleConsole();
             }
         }
 
