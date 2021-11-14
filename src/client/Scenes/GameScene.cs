@@ -64,13 +64,13 @@ namespace VoxelGame.Client.Scenes
 
             ui.AnyOverlayOpen += () =>
             {
-                Player.LockInput();
+                Screen.SetOverlayLock();
                 Screen.SetCursor(visible: true, locked: false);
             };
 
             ui.AnyOverlayClosed += () =>
             {
-                Player.UnlockInput();
+                Screen.ClearOverlayLock();
                 Screen.SetCursor(visible: false, locked: true);
             };
 
@@ -145,11 +145,14 @@ namespace VoxelGame.Client.Scenes
                 if (!Screen.IsFocused) // check to see if the window is focused
                     return;
 
-                if (screenshotButton.Pushed) Screen.TakeScreenshot(Program.ScreenshotDirectory);
+                if (!Screen.IsOverlayLockActive)
+                {
+                    if (screenshotButton.Pushed) Screen.TakeScreenshot(Program.ScreenshotDirectory);
 
-                if (wireframeToggle.Changed) Screen.SetWireFrame(wireframeToggle.State);
+                    if (wireframeToggle.Changed) Screen.SetWireFrame(wireframeToggle.State);
 
-                if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
+                    if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
+                }
 
                 if (escapeButton.Pushed) ui.DoEscape();
 

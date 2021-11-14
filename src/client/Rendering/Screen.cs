@@ -309,6 +309,11 @@ namespace VoxelGame.Client.Rendering
         /// </summary>
         public static bool IsFocused => Instance.Client.IsFocused;
 
+        /// <summary>
+        ///     Gets whether an overlay is open and therefore input should be ignored.
+        /// </summary>
+        public static bool IsOverlayLockActive { get; private set; }
+
         #endregion PUBLIC STATIC PROPERTIES
 
         #region PUBLIC STATIC METHODS
@@ -450,6 +455,16 @@ namespace VoxelGame.Client.Rendering
                 BlitFramebufferFilter.Nearest);
 
             GL.ActiveTexture(TextureUnit.Texture0);
+        }
+
+        public static void SetOverlayLock()
+        {
+            IsOverlayLockActive = true;
+        }
+
+        public static void ClearOverlayLock()
+        {
+            IsOverlayLockActive = false;
         }
 
         #endregion PUBLIC STATIC METHODS
