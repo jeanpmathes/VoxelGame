@@ -11,6 +11,7 @@ using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Desktop;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Client.Collections;
+using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Rendering;
@@ -80,6 +81,8 @@ namespace VoxelGame.Client.Application
 
         public GeneralSettings Settings { get; }
         public GraphicsSettings Graphics { get; }
+
+        public ConsoleWrapper Console { get; } = new();
 
         private double Time { get; set; }
         public unsafe Window* WindowPointer { get; }

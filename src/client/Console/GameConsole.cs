@@ -4,17 +4,24 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using Microsoft.Extensions.Logging;
+using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Console
 {
     public class GameConsole : IConsoleProvider
     {
-        private int counter;
+        private static readonly ILogger logger = LoggingHelper.CreateLogger<GameConsole>();
 
-        public (string response, bool isError) ProcessInput(string input)
+        private static ConsoleWrapper Console => Application.Client.Instance.Console;
+
+        public void ProcessInput(string input)
         {
-            return ("Test", counter++ % 2 == 0);
+            logger.LogDebug("Console command: {Command}", input);
+
+            Console.WriteResponse("Test Response!");
+            Console.WriteError("Test Error!");
         }
     }
 }

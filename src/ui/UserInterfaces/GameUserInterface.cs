@@ -31,6 +31,8 @@ namespace VoxelGame.UI.UserInterfaces
             this.consoleProvider = consoleProvider;
         }
 
+        public ConsoleInterface? Console => control?.Console;
+
         public bool IsHidden
         {
             get => control?.IsHidden ?? false;

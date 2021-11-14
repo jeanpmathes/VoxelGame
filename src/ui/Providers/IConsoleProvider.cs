@@ -8,6 +8,6 @@ namespace VoxelGame.UI.Providers
 {
     public interface IConsoleProvider
     {
-        (string response, bool isError) ProcessInput(string input);
+        void ProcessInput(string input);
     }
 }

@@ -25,6 +25,8 @@ namespace VoxelGame.Client.Scenes
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
 
+        private readonly Application.Client client;
+
         private readonly ToggleButton consoleToggle;
 
         private readonly UpdateCounter counter;
@@ -39,6 +41,8 @@ namespace VoxelGame.Client.Scenes
 
         internal GameScene(Application.Client client, ClientWorld world)
         {
+            this.client = client;
+
             Player = null!;
 
             Screen.SetCursor(visible: false, locked: true);
@@ -99,10 +103,12 @@ namespace VoxelGame.Client.Scenes
                 new BoundingBox(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.25f, y: 0.9f, z: 0.25f)),
                 ui);
 
+            // UI setup.
             ui.Load();
             ui.Resize(Screen.Size);
 
             ui.CreateControl();
+            client.Console.SetInterface(ui.Console!);
 
             counter.ResetUpdate();
 
@@ -173,6 +179,8 @@ namespace VoxelGame.Client.Scenes
 
             World = null!;
             Player = null!;
+
+            client.Console.ClearInterface();
         }
 
         #region IDisposable Support.

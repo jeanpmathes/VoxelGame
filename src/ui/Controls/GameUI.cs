@@ -21,18 +21,9 @@ namespace VoxelGame.UI.Controls
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
     internal class GameUI : ControlBase
     {
-        private const int MaxConsoleLogLength = 200;
-        private static readonly Color inputColor = Color.Gray;
-        private static readonly Color outputColor = Color.White;
-        private static readonly Color errorColor = Color.Red;
-
-        private readonly LinkedList<(string input, Color color)> consoleLog = new();
-        private readonly IConsoleProvider consoleProvider;
         private readonly InGameDisplay hud;
         private readonly GameUserInterface parent;
         private readonly List<ISettingsProvider> settingsProviders;
-
-        private Window? console;
 
         private Window? gameMenu;
         private bool isSettingsMenuOpen;
@@ -42,14 +33,14 @@ namespace VoxelGame.UI.Controls
         {
             this.parent = parent;
             this.settingsProviders = settingsProviders;
-            this.consoleProvider = consoleProvider;
 
+            Console = new ConsoleInterface(this, consoleProvider, parent.Context);
             hud = new InGameDisplay(this);
         }
 
-        private bool IsGameMenuOpen => gameMenu != null;
+        internal ConsoleInterface Console { get; }
 
-        private bool IsConsoleOpen => console != null;
+        private bool IsGameMenuOpen => gameMenu != null;
 
         internal void SetUpdateRate(double fps, double ups)
         {
@@ -63,7 +54,7 @@ namespace VoxelGame.UI.Controls
 
         internal void ToggleInGameMenu()
         {
-            if (IsConsoleOpen) return;
+            if (Console.IsOpen) return;
 
             if (IsGameMenuOpen) CloseInGameMenu();
             else OpenInGameMenu();
@@ -73,7 +64,7 @@ namespace VoxelGame.UI.Controls
         {
             if (IsGameMenuOpen) return;
 
-            if (IsConsoleOpen) CloseConsole();
+            if (Console.IsOpen) CloseConsole();
             else OpenConsole();
         }
 
@@ -173,100 +164,20 @@ namespace VoxelGame.UI.Controls
 
         private void OpenConsole()
         {
-            if (IsConsoleOpen) return;
+            if (Console.IsOpen) return;
 
             hud.Hide();
-
-            console = new Window(this)
-            {
-                StartPosition = StartPosition.Manual,
-                Position = new Point(x: 0, y: 0),
-                Size = new Size(width: 900, height: 400),
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Bottom,
-                Resizing = Resizing.None,
-                IsDraggingEnabled = false
-            };
-
-            console.Closed += (_, _) => CloseConsole(closeConsoleWindow: false);
-            console.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
-
-            GridLayout layout = new(console)
-            {
-                Dock = Dock.Fill,
-                Margin = Margin.Ten
-            };
-
-            layout.SetColumnWidths(1f);
-            layout.SetRowHeights(0.9f, 0.1f);
-
-            ListBox consoleOutput = new(layout)
-            {
-                AlternateColor = false,
-                CanScrollH = false,
-                CanScrollV = true,
-                Dock = Dock.Fill,
-                Margin = Margin.One
-            };
-
-            DockLayout bottomBar = new(layout)
-            {
-                Margin = Margin.One
-            };
-
-            TextBox consoleInput = new(bottomBar)
-            {
-                Dock = Dock.Fill
-            };
-
-            Button consoleSubmit = new(bottomBar)
-            {
-                Dock = Dock.Right,
-                Text = Language.Submit
-            };
-
-            consoleInput.SubmitPressed += (_, _) => Submit();
-            consoleSubmit.Pressed += (_, _) => Submit();
+            Console.OpenWindow();
 
             parent.DoOverlayOpen();
-
-            foreach ((string entry, Color color) in consoleLog) consoleOutput.AddRow(entry).SetTextColor(color);
-
-            consoleOutput.ScrollToBottom();
-
-            void Submit()
-            {
-                string input = consoleInput.Text;
-                consoleInput.SetText("");
-
-                consoleOutput.AddRow(input).SetTextColor(inputColor);
-                consoleLog.AddLast((input, inputColor));
-
-                consoleOutput.ScrollToBottom();
-
-                (string response, bool isError) = consoleProvider.ProcessInput(input);
-                Color responseColor = isError ? errorColor : outputColor;
-
-                consoleOutput.AddRow(response).SetTextColor(responseColor);
-                consoleLog.AddLast((response, responseColor));
-
-                while (consoleLog.Count > MaxConsoleLogLength) consoleLog.RemoveFirst();
-
-                consoleOutput.ScrollToBottom();
-            }
         }
 
-        private void CloseConsole(bool closeConsoleWindow = true)
+        private void CloseConsole()
         {
-            if (!IsConsoleOpen) return;
+            if (!Console.IsOpen) return;
 
-            parent.Context.Input.AbsorbMousePress();
-
-            Debug.Assert(console != null);
-            if (closeConsoleWindow) console.Close();
-
+            Console.CloseWindow();
             hud.Show();
-            console = null;
 
             parent.DoOverlayClose();
         }
