@@ -257,7 +257,7 @@ namespace VoxelGame.Core.Logic
             {
                 Vector3i neighborPosition = side.Offset(position);
 
-                (BlockInstance? blockNeighbor, LiquidInstance? liquidNeighbor) = GetContent(position);
+                (BlockInstance? blockNeighbor, LiquidInstance? liquidNeighbor) = GetContent(neighborPosition);
 
                 blockNeighbor?.Block.BlockUpdate(this, neighborPosition, data, side.Opposite());
                 liquidNeighbor?.Liquid.TickSoon(this, neighborPosition, isStatic);
