@@ -92,20 +92,21 @@ namespace VoxelGame.Client.Console
                 commandName.Append(c);
             }
 
-            List<StringBuilder> args = new() { new StringBuilder() };
+            List<StringBuilder> args = new();
 
-            var isInQuotes = false;
+            var isNextArg = true;
+            var isQuoted = false;
             var isEscaped = false;
 
-            foreach (char c in input[commandName.Length..])
+            foreach (char c in input[(commandName.Length + 1)..])
                 switch (c)
                 {
-                    case ' ' when !isInQuotes:
-                        args.Add(new StringBuilder());
+                    case ' ' when !isQuoted:
+                        isNextArg = true;
 
                         break;
                     case '"' when !isEscaped:
-                        isInQuotes = !isInQuotes;
+                        isQuoted = !isQuoted;
 
                         break;
                     case '\\':
@@ -113,6 +114,12 @@ namespace VoxelGame.Client.Console
 
                         break;
                     default:
+                        if (isNextArg)
+                        {
+                            args.Add(new StringBuilder());
+                            isNextArg = false;
+                        }
+
                         args[^1].Append(c);
 
                         break;
