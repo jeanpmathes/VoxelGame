@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -140,12 +141,16 @@ namespace VoxelGame.UI.UserInterfaces
             consoleWindow.Close();
         }
 
+        internal event Action? WindowClosed;
+
         private void CleanupAfterClose()
         {
             consoleWindow = null;
             consoleOutput = null;
 
             context.Input.AbsorbMousePress();
+
+            WindowClosed?.Invoke();
         }
     }
      #pragma warning restore CA1001
