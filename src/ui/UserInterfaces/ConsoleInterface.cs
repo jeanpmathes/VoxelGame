@@ -86,6 +86,7 @@ namespace VoxelGame.UI.UserInterfaces
 
             TextBox consoleInput = new(bottomBar)
             {
+                LooseFocusOnSubmit = false,
                 Dock = Dock.Fill
             };
 
@@ -97,6 +98,8 @@ namespace VoxelGame.UI.UserInterfaces
 
             consoleInput.SubmitPressed += (_, _) => Submit();
             consoleSubmit.Pressed += (_, _) => Submit();
+
+            consoleInput.Focus();
 
             foreach ((string entry, Color color) in consoleLog) consoleOutput.AddRow(entry).SetTextColor(color);
 

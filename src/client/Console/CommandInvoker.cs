@@ -98,7 +98,10 @@ namespace VoxelGame.Client.Console
             var isQuoted = false;
             var isEscaped = false;
 
-            foreach (char c in input[(commandName.Length + 1)..])
+            int nextIndex = commandName.Length + 1;
+            string remaining = input.Length > nextIndex ? input[nextIndex..] : "";
+
+            foreach (char c in remaining)
                 switch (c)
                 {
                     case ' ' when !isQuoted:
