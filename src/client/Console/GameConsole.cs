@@ -26,15 +26,15 @@ namespace VoxelGame.Client.Console
 
         public void ProcessInput(string input)
         {
-            logger.LogDebug("Console command: {Command}", input);
-            commandInvoker.InvokeCommand(input, new Context(Console));
+            logger.LogDebug(Events.Console, "Console command: {Command}", input);
+            commandInvoker.InvokeCommand(input, new CommandContext(Console));
         }
 
         public static CommandInvoker BuildInvoker()
         {
             CommandInvoker invoker = new();
 
-            invoker.AddParser(Parser.BuildParser(s => true, s => s));
+            invoker.AddParser(Parser.BuildParser(_ => true, s => s));
 
             invoker.AddParser(
                 Parser.BuildParser(

@@ -6,5 +6,5 @@
 
 namespace VoxelGame.Client.Console
 {
-    public record Context(ConsoleWrapper Console);
+    public record CommandContext(ConsoleWrapper Console);
 }

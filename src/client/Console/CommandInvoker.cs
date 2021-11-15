@@ -28,7 +28,7 @@ namespace VoxelGame.Client.Console
 
         public void SearchCommands()
         {
-            logger.LogDebug("Searching commands");
+            logger.LogDebug(Events.Console, "Searching commands");
 
             var count = 0;
 
@@ -51,11 +51,11 @@ namespace VoxelGame.Client.Console
                 List<MethodInfo> overloads = GetOverloads(type);
 
                 commandGroups[command.Name] = new CommandGroup(command, overloads);
-                logger.LogDebug("Found command '{Name}'", command.Name);
+                logger.LogDebug(Events.Console, "Found command '{Name}'", command.Name);
                 count++;
             }
 
-            logger.LogInformation("Found {Count} commands", count);
+            logger.LogInformation(Events.Console, "Found {Count} commands", count);
         }
 
         public void AddCommand(ICommand command)
@@ -64,7 +64,7 @@ namespace VoxelGame.Client.Console
             commandGroups[command.Name] = new CommandGroup(command, overloads);
         }
 
-        public void InvokeCommand(string input, Context context)
+        public void InvokeCommand(string input, CommandContext context)
         {
             (string commandName, string[] args) = ParseInput(input);
 
@@ -74,11 +74,11 @@ namespace VoxelGame.Client.Console
 
                 if (method != null) Invoke(commandGroup.Command, method, args, context);
                 else
-                    logger.LogWarning("No overload found for command '{Command}'", commandName);
+                    logger.LogWarning(Events.Console, "No overload found for command '{Command}'", commandName);
             }
             else
             {
-                logger.LogWarning("Command '{Command}' not found", commandName);
+                logger.LogWarning(Events.Console, "Command '{Command}' not found", commandName);
             }
         }
 
@@ -154,7 +154,7 @@ namespace VoxelGame.Client.Console
             return null;
         }
 
-        private void Invoke(ICommand command, MethodBase method, IReadOnlyList<string> args, Context context)
+        private void Invoke(ICommand command, MethodBase method, IReadOnlyList<string> args, CommandContext context)
         {
             ParameterInfo[] parameters = method.GetParameters();
 
@@ -168,11 +168,15 @@ namespace VoxelGame.Client.Console
                 command.SetContext(context);
                 method.Invoke(command, parsedArgs);
 
-                logger.LogDebug("Called command '{Command}'", command.Name);
+                logger.LogDebug(Events.Console, "Called command '{Command}'", command.Name);
             }
             catch (TargetInvocationException e)
             {
-                logger.LogError(e.InnerException, "Error while executing command '{Command}'", method.Name);
+                logger.LogError(
+                    Events.Console,
+                    e.InnerException,
+                    "Error while executing command '{Command}'",
+                    method.Name);
             }
         }
 

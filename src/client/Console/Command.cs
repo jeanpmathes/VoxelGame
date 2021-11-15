@@ -12,11 +12,11 @@ namespace VoxelGame.Client.Console
     /// </summary>
     public abstract class Command : ICommand
     {
-        protected Context Context { get; private set; } = null!;
+        protected CommandContext Context { get; private set; } = null!;
         public abstract string Name { get; }
         public abstract string HelpText { get; }
 
-        void ICommand.SetContext(Context context)
+        void ICommand.SetContext(CommandContext context)
         {
             Context = context;
         }
@@ -26,6 +26,6 @@ namespace VoxelGame.Client.Console
     {
         public string Name { get; }
         public string HelpText { get; }
-        void SetContext(Context context);
+        void SetContext(CommandContext context);
     }
 }
