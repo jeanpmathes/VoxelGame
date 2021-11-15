@@ -39,7 +39,7 @@ namespace VoxelGame.Client.Scenes
 
         private readonly ToggleButton wireframeToggle;
 
-        internal GameScene(Application.Client client, ClientWorld world)
+        internal GameScene(Application.Client client, ClientWorld world, GameConsole console)
         {
             this.client = client;
 
@@ -57,7 +57,7 @@ namespace VoxelGame.Client.Scenes
                 client,
                 client.Keybinds.Input.Listener,
                 settingsProviders,
-                new GameConsole(),
+                console,
                 drawBackground: false);
 
             ui.WorldExit += client.LoadStartScene;

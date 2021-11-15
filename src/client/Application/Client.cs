@@ -32,6 +32,8 @@ namespace VoxelGame.Client.Application
         private const int DeltaBufferCapacity = 30;
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
+        private readonly CommandInvoker commandInvoker;
+
         private readonly ToggleButton fullscreenToggle;
 
         private readonly Debug glDebug;
@@ -73,6 +75,8 @@ namespace VoxelGame.Client.Application
             Keybinds = new KeybindManager(input);
 
             fullscreenToggle = Keybinds.GetToggle(Keybinds.Fullscreen);
+
+            commandInvoker = GameConsole.BuildInvoker();
         }
 
         public static Client Instance { get; private set; } = null!;
@@ -207,7 +211,7 @@ namespace VoxelGame.Client.Application
 
         public void LoadGameScene(ClientWorld world)
         {
-            GameScene gameScene = new(Instance, world);
+            GameScene gameScene = new(Instance, world, new GameConsole(commandInvoker));
 
             sceneManager.Load(gameScene);
 
