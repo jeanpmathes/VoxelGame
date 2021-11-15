@@ -32,6 +32,8 @@ namespace VoxelGame.UI.UserInterfaces
         private readonly Context context;
 
         private readonly ControlBase root;
+        private TextBox? consoleInput;
+
         private ListBox? consoleOutput;
 
         private Window? consoleWindow;
@@ -84,7 +86,7 @@ namespace VoxelGame.UI.UserInterfaces
                 Margin = Margin.One
             };
 
-            TextBox consoleInput = new(bottomBar)
+            consoleInput = new TextBox(bottomBar)
             {
                 LooseFocusOnSubmit = false,
                 Dock = Dock.Fill
@@ -141,6 +143,9 @@ namespace VoxelGame.UI.UserInterfaces
         internal void CloseWindow()
         {
             Debug.Assert(consoleWindow != null);
+            Debug.Assert(consoleInput != null);
+
+            consoleInput.Blur();
             consoleWindow.Close();
         }
 
@@ -149,6 +154,7 @@ namespace VoxelGame.UI.UserInterfaces
         private void CleanupAfterClose()
         {
             consoleWindow = null;
+            consoleInput = null;
             consoleOutput = null;
 
             context.Input.AbsorbMousePress();
