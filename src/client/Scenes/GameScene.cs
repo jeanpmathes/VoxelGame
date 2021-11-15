@@ -149,7 +149,7 @@ namespace VoxelGame.Client.Scenes
                 {
                     if (screenshotButton.Pushed) Screen.TakeScreenshot(Program.ScreenshotDirectory);
 
-                    if (wireframeToggle.Changed) Screen.SetWireFrame(wireframeToggle.State);
+                    if (wireframeToggle.Changed) Screen.SetWireframe(wireframeToggle.State);
 
                     if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
                 }

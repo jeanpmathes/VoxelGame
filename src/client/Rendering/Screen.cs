@@ -369,7 +369,7 @@ namespace VoxelGame.Client.Rendering
         ///     Set the wire-frame mode. Wireframe is only active when in game draw mode.
         /// </summary>
         /// <param name="wireframe">True to activate wireframe, false to deactivate it.</param>
-        public static void SetWireFrame(bool wireframe)
+        public static void SetWireframe(bool wireframe)
         {
             if (Instance.isWireframeActive && !wireframe)
             {

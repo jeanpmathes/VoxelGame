@@ -43,7 +43,7 @@ namespace VoxelGame.Client.Scenes
         public void Load()
         {
             Screen.SetCursor(visible: true);
-            Screen.SetWireFrame(wireframe: false);
+            Screen.SetWireframe(wireframe: false);
             Screen.EnterUIDrawMode();
 
             ui.Load();
