@@ -22,5 +22,10 @@ namespace VoxelGame.Client.Console.Commands
 
         public override string Name => "help";
         public override string HelpText => "Provides help with using the commands.";
+
+        public void Invoke()
+        {
+            Context.Console.WriteResponse("Use 'help' to get information on available commands.");
+        }
     }
 }

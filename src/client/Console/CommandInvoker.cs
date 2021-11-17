@@ -77,7 +77,7 @@ namespace VoxelGame.Client.Console
                 {
                     command = (ICommand?) Activator.CreateInstance(type);
                 }
-                catch (MethodAccessException)
+                catch (Exception e) when (e is MethodAccessException or MemberAccessException)
                 {
                     // Commands that have no public constructor are ignored but can be added manually.
                 }

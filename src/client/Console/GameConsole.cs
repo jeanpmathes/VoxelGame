@@ -6,6 +6,7 @@
 
 using System.Globalization;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Client.Console.Commands;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 
@@ -49,6 +50,7 @@ namespace VoxelGame.Client.Console
             invoker.AddParser(Parser.BuildParser(s => bool.TryParse(s, out _), bool.Parse));
 
             invoker.SearchCommands();
+            invoker.AddCommand(new Help(invoker));
 
             return invoker;
         }
