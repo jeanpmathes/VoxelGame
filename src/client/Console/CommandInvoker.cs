@@ -21,6 +21,42 @@ namespace VoxelGame.Client.Console
         private readonly Dictionary<string, CommandGroup> commandGroups = new();
         private readonly Dictionary<Type, Parser> parsers = new();
 
+        public IEnumerable<string> CommandNames => commandGroups.Keys;
+
+        public event Action? CommandsUpdated;
+
+        public string GetCommandHelpText(string commandName)
+        {
+            return commandGroups.TryGetValue(commandName, out var commandGroup)
+                ? commandGroup.Command.HelpText
+                : throw new ArgumentException("Command not found.");
+        }
+
+        public IEnumerable<string> GetCommandSignatures(string commandName)
+        {
+            if (!commandGroups.TryGetValue(commandName, out var commandGroup))
+                throw new ArgumentException("Command not found.");
+
+            foreach (MethodInfo commandOverload in commandGroup.Overloads)
+            {
+                StringBuilder signature = new();
+                signature.Append(commandOverload.Name);
+
+                foreach (ParameterInfo parameter in commandOverload.GetParameters())
+                {
+                    signature.Append(value: ' ');
+
+                    signature.Append(value: '<');
+                    signature.Append(parameter.Name);
+                    signature.Append(" : ");
+                    signature.Append(parameter.ParameterType.Name);
+                    signature.Append(value: '>');
+                }
+
+                yield return signature.ToString();
+            }
+        }
+
         public void AddParser(Parser parser)
         {
             parsers[parser.ParsedType] = parser;
@@ -56,12 +92,16 @@ namespace VoxelGame.Client.Console
             }
 
             logger.LogInformation(Events.Console, "Found {Count} commands", count);
+            CommandsUpdated?.Invoke();
         }
 
         public void AddCommand(ICommand command)
         {
             List<MethodInfo> overloads = GetOverloads(command.GetType());
             commandGroups[command.Name] = new CommandGroup(command, overloads);
+
+            logger.LogDebug(Events.Console, "Added command '{Name}'", command.Name);
+            CommandsUpdated?.Invoke();
         }
 
         public void InvokeCommand(string input, CommandContext context)
