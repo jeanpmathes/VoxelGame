@@ -17,20 +17,29 @@ namespace VoxelGame.Client.Console.Commands
     {
         private const int PageSize = 5;
         private readonly CommandInvoker commandInvoker;
+        private Dictionary<string, List<string>> commandDescriptions = new();
 
         private List<List<string>> commandPages = new();
 
         public Help(CommandInvoker invoker)
         {
             commandInvoker = invoker;
-            commandInvoker.CommandsUpdated += BuildPages;
+            commandInvoker.CommandsUpdated += BuildInfos;
         }
 
         public override string Name => "help";
         public override string HelpText => "Provides help with using the commands.";
 
+        private void BuildInfos()
+        {
+            BuildPages();
+            BuildCommandDetails();
+        }
+
         private void BuildPages()
         {
+            commandPages.Clear();
+
             List<string> commands = commandInvoker.CommandNames
                 .Select(command => $"{command} # {commandInvoker.GetCommandHelpText(command)}").ToList();
 
@@ -44,10 +53,24 @@ namespace VoxelGame.Client.Console.Commands
             }
         }
 
+        private void BuildCommandDetails()
+        {
+            commandDescriptions.Clear();
+
+            foreach (string command in commandInvoker.CommandNames)
+            {
+                List<string> description = new() { $"{command} # {commandInvoker.GetCommandHelpText(command)}" };
+                description.AddRange(commandInvoker.GetCommandSignatures(command));
+
+                commandDescriptions.Add(command, description);
+            }
+        }
+
         public void Invoke()
         {
             Context.Console.WriteResponse("Use 'help' to get information on available commands.");
-            Context.Console.WriteResponse("Use 'help <page : int>' to get a specific command list page.");
+            Context.Console.WriteResponse("Use 'help <page : Int32>' to get a specific command list page.");
+            Context.Console.WriteResponse("Use 'help <command : String>' to get info for a specific command.");
         }
 
         public void Invoke(int page)
@@ -61,6 +84,13 @@ namespace VoxelGame.Client.Console.Commands
                 Context.Console.WriteResponse($"Page {page} of {commandPages.Count}:");
                 commandPages[page - 1].ForEach(Context.Console.WriteResponse);
             }
+        }
+
+        public void Invoke(string command)
+        {
+            if (commandDescriptions.TryGetValue(command, out List<string>? description))
+                description.ForEach(Context.Console.WriteResponse);
+            else Context.Console.WriteError($"Command '{command}' not found.");
         }
     }
 }

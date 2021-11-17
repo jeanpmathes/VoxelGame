@@ -40,7 +40,7 @@ namespace VoxelGame.Client.Console
             foreach (MethodInfo commandOverload in commandGroup.Overloads)
             {
                 StringBuilder signature = new();
-                signature.Append(commandOverload.Name);
+                signature.Append(commandName);
 
                 foreach (ParameterInfo parameter in commandOverload.GetParameters())
                 {
