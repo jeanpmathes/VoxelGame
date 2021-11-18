@@ -114,10 +114,14 @@ namespace VoxelGame.Client.Console
 
                 if (method != null) Invoke(commandGroup.Command, method, args, context);
                 else
+                {
+                    context.Console.WriteError($"No overload found, use 'help {commandName}' for more info.");
                     logger.LogWarning(Events.Console, "No overload found for command '{Command}'", commandName);
+                }
             }
             else
             {
+                context.Console.WriteError($"No command '{commandName}' found, use 'help' for more info.");
                 logger.LogWarning(Events.Console, "Command '{Command}' not found", commandName);
             }
         }
