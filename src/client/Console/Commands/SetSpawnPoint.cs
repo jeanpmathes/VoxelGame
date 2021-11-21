@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using JetBrains.Annotations;
+using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Client.Console.Commands
 {
@@ -19,7 +20,17 @@ namespace VoxelGame.Client.Console.Commands
 
         public void Invoke(float x, float y, float z)
         {
-            Context.Player.World.SetSpawnPosition((x, y, z));
+            SetSpawnPosition((x, y, z));
+        }
+
+        public void Invoke()
+        {
+            SetSpawnPosition(Context.Player.Position);
+        }
+
+        private void SetSpawnPosition(Vector3 newSpawnPoint)
+        {
+            Context.Player.World.SetSpawnPosition(newSpawnPoint);
         }
     }
 }
