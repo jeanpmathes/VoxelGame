@@ -4,7 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using VoxelGame.Core.Entities;
+
 namespace VoxelGame.Client.Console
 {
-    public record CommandContext(ConsoleWrapper Console);
+    public record CommandContext(ConsoleWrapper Console, Player Player);
 }

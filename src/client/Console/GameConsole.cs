@@ -28,7 +28,7 @@ namespace VoxelGame.Client.Console
         public void ProcessInput(string input)
         {
             logger.LogDebug(Events.Console, "Console command: {Command}", input);
-            commandInvoker.InvokeCommand(input, new CommandContext(Console));
+            commandInvoker.InvokeCommand(input, new CommandContext(Console, Application.Client.Player));
         }
 
         public static CommandInvoker BuildInvoker()
