@@ -165,6 +165,12 @@ namespace VoxelGame.UI.UserInterfaces
 
             WindowClosed?.Invoke();
         }
+
+        public void Clear()
+        {
+            consoleOutput?.Clear();
+            consoleLog.Clear();
+        }
     }
      #pragma warning restore CA1001
 }

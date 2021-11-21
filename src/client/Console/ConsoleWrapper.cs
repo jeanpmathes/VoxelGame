@@ -31,5 +31,10 @@ namespace VoxelGame.Client.Console
         {
             consoleInterface?.WriteError(error);
         }
+
+        public void Clear()
+        {
+            consoleInterface?.Clear();
+        }
     }
 }
