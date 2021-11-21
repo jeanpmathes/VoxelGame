@@ -199,10 +199,10 @@ namespace VoxelGame.Client.Entities
                 {
                     HandleMovementInput();
                     HandleLookInput();
-                }
 
-                BlockLiquidSelection(firstUpdate);
-                WorldInteraction();
+                    BlockLiquidSelection(firstUpdate);
+                    WorldInteraction();
+                }
 
                 Vector3i headPosition = camera.Position.Floor();
 
@@ -259,8 +259,6 @@ namespace VoxelGame.Client.Entities
 
         private void WorldInteraction()
         {
-            if (Screen.IsOverlayLockActive) return;
-
             BlockInstance? target = World.GetBlock(selectedPosition);
 
             if (target == null) return;

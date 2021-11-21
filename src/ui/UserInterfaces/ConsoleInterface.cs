@@ -112,6 +112,8 @@ namespace VoxelGame.UI.UserInterfaces
                 string input = consoleInput.Text;
                 consoleInput.SetText("");
 
+                if (input.Length == 0) return;
+
                 Write(input, inputColor);
                 console.ProcessInput(input);
             }
@@ -143,9 +145,6 @@ namespace VoxelGame.UI.UserInterfaces
         internal void CloseWindow()
         {
             Debug.Assert(consoleWindow != null);
-            Debug.Assert(consoleInput != null);
-
-            consoleInput.Blur();
             consoleWindow.Close();
         }
 
@@ -153,6 +152,11 @@ namespace VoxelGame.UI.UserInterfaces
 
         private void CleanupAfterClose()
         {
+            Debug.Assert(consoleInput != null);
+            consoleInput.Blur();
+
+            root.RemoveChild(consoleWindow, dispose: true);
+
             consoleWindow = null;
             consoleInput = null;
             consoleOutput = null;
