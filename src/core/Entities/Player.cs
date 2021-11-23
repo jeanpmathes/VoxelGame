@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Entities
             drag,
             boundingBox)
         {
-            Position = World.Information.SpawnInformation.Position;
+            Position = World.GetSpawnPosition();
 
             // Request chunks around current position
             ChunkX = (int) Math.Floor(Position.X) >> Section.SectionSizeExp;

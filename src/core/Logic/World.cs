@@ -92,7 +92,7 @@ namespace VoxelGame.Core.Logic
             Setup();
         }
 
-        public WorldInformation Information { get; }
+        private WorldInformation Information { get; }
 
         public UpdateCounter UpdateCounter { get; }
 
@@ -314,6 +314,15 @@ namespace VoxelGame.Core.Logic
             Information.SpawnInformation = new SpawnInformation(position);
 
             logger.LogInformation(Events.WorldData, "World spawn position has been set to: {Position}", position);
+        }
+
+        /// <summary>
+        ///     Get the spawn position of this world.
+        /// </summary>
+        /// <returns>The spawn position.</returns>
+        public Vector3 GetSpawnPosition()
+        {
+            return Information.SpawnInformation.Position;
         }
 
         /// <summary>
