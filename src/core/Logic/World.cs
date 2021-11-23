@@ -220,7 +220,7 @@ namespace VoxelGame.Core.Logic
 
             if (block is null) return;
 
-            SetContent(block, liquid, position, tickLiquid: true);
+            SetContent(block, liquid, position, tickLiquid: false);
         }
 
         /// <summary>
