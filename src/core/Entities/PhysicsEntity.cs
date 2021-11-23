@@ -72,6 +72,8 @@ namespace VoxelGame.Core.Entities
         public abstract Vector3 LookingDirection { get; }
         public abstract BlockSide TargetSide { get; }
 
+        public abstract Vector3i TargetPosition { get; }
+
         public BoundingBox BoundingBox => boundingBox;
 
         /// <summary>

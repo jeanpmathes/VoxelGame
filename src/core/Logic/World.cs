@@ -305,6 +305,16 @@ namespace VoxelGame.Core.Logic
             SetLiquid(LiquidInstance.Default, position);
         }
 
+        public bool DoRandomUpdate(Vector3i position)
+        {
+            (BlockInstance? block, LiquidInstance? liquid) = GetContent(position);
+
+            block?.Block.RandomUpdate(this, position, block.Data);
+            liquid?.Liquid.RandomUpdate(this, position, liquid.Level, liquid.IsStatic);
+
+            return block != null && liquid != null;
+        }
+
         /// <summary>
         ///     Sets the spawn position of this world.
         /// </summary>

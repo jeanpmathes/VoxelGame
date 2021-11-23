@@ -122,6 +122,8 @@ namespace VoxelGame.Client.Entities
 
         public override BlockSide TargetSide => selectedSide;
 
+        public override Vector3i TargetPosition => selectedPosition;
+
         /// <summary>
         ///     Gets the frustum of the player camera.
         /// </summary>
