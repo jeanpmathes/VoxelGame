@@ -160,17 +160,11 @@ namespace VoxelGame.Core.Logic
             return None;
         }
 
-        public static Liquid TranslateNamedID(string namedId)
+        public static Liquid? TranslateNamedID(string namedId)
         {
-            if (namedLiquidDictionary.TryGetValue(namedId, out Liquid? liquid)) return liquid;
+            namedLiquidDictionary.TryGetValue(namedId, out Liquid? liquid);
 
-            logger.LogWarning(
-                Events.UnknownLiquid,
-                "No Liquid with named ID '{ID}' could be found, returning {Fallback} instead",
-                namedId,
-                nameof(None));
-
-            return None;
+            return liquid;
         }
 
         /// <summary>
