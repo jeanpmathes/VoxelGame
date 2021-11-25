@@ -56,7 +56,17 @@ namespace VoxelGame.UI.Controls
 
         internal void UpdatePlayerData()
         {
-            hud.SetPlayerSelection(playerDataProvider.Mode, playerDataProvider.Selection);
+            hud.SetPlayerData(playerDataProvider);
+        }
+
+        internal void UpdatePlayerDebugData()
+        {
+            hud.SetPlayerDebugData(playerDataProvider);
+        }
+
+        internal void ToggleDebugDataView()
+        {
+            hud.ToggleDebugDataView();
         }
 
         internal void ToggleInGameMenu()

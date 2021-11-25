@@ -538,6 +538,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Debug View.
+        /// </summary>
+        public static string KeyDebugView {
+            get {
+                return ResourceManager.GetString("KeyDebugView", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Destroy.
         /// </summary>
         public static string KeyDestroy {

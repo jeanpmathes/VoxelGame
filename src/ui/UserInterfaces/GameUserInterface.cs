@@ -86,6 +86,16 @@ namespace VoxelGame.UI.UserInterfaces
             control?.UpdatePlayerData();
         }
 
+        public void UpdatePlayerDebugData()
+        {
+            control?.UpdatePlayerDebugData();
+        }
+
+        public void ToggleDebugDataView()
+        {
+            control?.ToggleDebugDataView();
+        }
+
         public void DoEscape()
         {
             control?.ToggleInGameMenu();

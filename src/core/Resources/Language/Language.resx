@@ -522,4 +522,7 @@
   <data name="Submit" xml:space="preserve">
     <value>Submit</value>
   </data>
+  <data name="KeyDebugView" xml:space="preserve">
+    <value>Debug View</value>
+  </data>
 </root>
