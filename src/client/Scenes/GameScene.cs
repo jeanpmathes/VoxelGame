@@ -47,18 +47,20 @@ namespace VoxelGame.Client.Scenes
 
             Screen.SetCursor(visible: false, locked: true);
 
+            ui = new GameUserInterface(
+                client,
+                client.Keybinds.Input.Listener,
+                drawBackground: false);
+
             List<ISettingsProvider> settingsProviders = new()
             {
                 client.Settings,
                 Application.Client.Instance.Keybinds
             };
 
-            ui = new GameUserInterface(
-                client,
-                client.Keybinds.Input.Listener,
-                settingsProviders,
-                console,
-                drawBackground: false);
+            ui.SetSettingsProviders(settingsProviders);
+            ui.SetConsoleProvider(console);
+            ui.SetPerformanceProvider(client);
 
             ui.WorldExit += client.LoadStartScene;
 
@@ -103,6 +105,8 @@ namespace VoxelGame.Client.Scenes
                 new BoundingBox(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.25f, y: 0.9f, z: 0.25f)),
                 ui);
 
+            ui.SetPlayerDataProvider(Player);
+
             // UI setup.
             ui.Load();
             ui.Resize(Screen.Size);
@@ -124,12 +128,11 @@ namespace VoxelGame.Client.Scenes
         {
             using (logger.BeginScope("GameScene Render"))
             {
-                ui.SetUpdateRate(Application.Client.Fps, Application.Client.Ups);
-
                 Screen.EnterGameDrawMode();
                 World.Render();
 
                 Screen.EnterUIDrawMode();
+                ui.UpdatePerformanceData();
                 ui.Render();
             }
         }

@@ -23,16 +23,21 @@ namespace VoxelGame.UI.Controls
     {
         private readonly InGameDisplay hud;
         private readonly GameUserInterface parent;
+        private readonly IPerformanceProvider performanceProvider;
+        private readonly IPlayerDataProvider playerDataProvider;
         private readonly List<ISettingsProvider> settingsProviders;
 
         private Window? gameMenu;
         private bool isSettingsMenuOpen;
 
         internal GameUI(GameUserInterface parent, List<ISettingsProvider> settingsProviders,
-            IConsoleProvider consoleProvider) : base(parent.Root)
+            IConsoleProvider consoleProvider, IPlayerDataProvider playerDataProvider,
+            IPerformanceProvider performanceProvider) : base(parent.Root)
         {
             this.parent = parent;
             this.settingsProviders = settingsProviders;
+            this.playerDataProvider = playerDataProvider;
+            this.performanceProvider = performanceProvider;
 
             Console = new ConsoleInterface(this, consoleProvider, parent.Context);
             hud = new InGameDisplay(this);
@@ -44,14 +49,14 @@ namespace VoxelGame.UI.Controls
 
         private bool IsGameMenuOpen => gameMenu != null;
 
-        internal void SetUpdateRate(double fps, double ups)
+        internal void UpdatePerformanceData()
         {
-            hud.SetUpdateRate(fps, ups);
+            hud.SetUpdateRate(performanceProvider.FPS, performanceProvider.UPS);
         }
 
-        internal void SetPlayerSelection(string text)
+        internal void UpdatePlayerData()
         {
-            hud.SetPlayerSelection(text);
+            hud.SetPlayerSelection(playerDataProvider.Mode, playerDataProvider.Selection);
         }
 
         internal void ToggleInGameMenu()

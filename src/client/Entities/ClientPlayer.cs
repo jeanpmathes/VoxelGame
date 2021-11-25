@@ -18,11 +18,12 @@ using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Input.Actions;
 using VoxelGame.Input.Composite;
+using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Entities
 {
-    public class ClientPlayer : Player
+    public class ClientPlayer : Player, IPlayerDataProvider
     {
         private readonly Camera camera;
         private readonly Vector3 cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
@@ -130,6 +131,10 @@ namespace VoxelGame.Client.Entities
         public Frustum Frustum => camera.Frustum;
 
         public override Vector3 Movement => movement;
+
+        string IPlayerDataProvider.Selection => blockMode ? activeBlock.Name : activeLiquid.Name;
+
+        string IPlayerDataProvider.Mode => blockMode ? Language.Block : Language.Liquid;
 
         private void UpdateCrosshairColor(GeneralSettings settings, SettingChangedArgs<Color> args)
         {
@@ -346,10 +351,7 @@ namespace VoxelGame.Client.Entities
                 updateUI = true;
             }
 
-            if (!updateUI) return;
-
-            if (blockMode) ui.SetPlayerSelection(Language.Block, activeBlock.Name);
-            else ui.SetPlayerSelection(Language.Liquid, activeLiquid.Name);
+            if (updateUI) ui.UpdatePlayerData();
         }
 
         #region INPUT ACTIONS

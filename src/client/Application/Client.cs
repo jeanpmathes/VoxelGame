@@ -23,11 +23,12 @@ using VoxelGame.Input;
 using VoxelGame.Input.Actions;
 using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
+using VoxelGame.UI.Providers;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
 namespace VoxelGame.Client.Application
 {
-    internal class Client : GameWindow
+    internal class Client : GameWindow, IPerformanceProvider
     {
         private const int DeltaBufferCapacity = 30;
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
@@ -90,6 +91,9 @@ namespace VoxelGame.Client.Application
 
         private double Time { get; set; }
         public unsafe Window* WindowPointer { get; }
+
+        double IPerformanceProvider.FPS => Fps;
+        double IPerformanceProvider.UPS => Ups;
 
         private new void OnLoad()
         {

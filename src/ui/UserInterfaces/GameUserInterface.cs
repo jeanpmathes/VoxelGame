@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using OpenToolkit.Windowing.Desktop;
 using VoxelGame.Input;
 using VoxelGame.UI.Controls;
@@ -15,21 +16,17 @@ namespace VoxelGame.UI.UserInterfaces
 {
     public class GameUserInterface : UserInterface
     {
-        private readonly IConsoleProvider consoleProvider;
-        private readonly List<ISettingsProvider> settingsProviders;
+        private IConsoleProvider? consoleProvider;
 
         private GameUI? control;
+        private IPerformanceProvider? performanceProvider;
+        private IPlayerDataProvider? playerDataProvider;
+        private List<ISettingsProvider>? settingsProviders;
 
-        public GameUserInterface(GameWindow window,
-            InputListener inputListener, List<ISettingsProvider> settingsProviders, IConsoleProvider consoleProvider,
-            bool drawBackground) : base(
+        public GameUserInterface(GameWindow window, InputListener inputListener, bool drawBackground) : base(
             window,
             inputListener,
-            drawBackground)
-        {
-            this.settingsProviders = settingsProviders;
-            this.consoleProvider = consoleProvider;
-        }
+            drawBackground) {}
 
         public ConsoleInterface? Console => control?.Console;
 
@@ -43,10 +40,35 @@ namespace VoxelGame.UI.UserInterfaces
             }
         }
 
+        public void SetConsoleProvider(IConsoleProvider newConsoleProvider)
+        {
+            consoleProvider = newConsoleProvider;
+        }
+
+        public void SetSettingsProviders(List<ISettingsProvider> newSettingsProviders)
+        {
+            settingsProviders = newSettingsProviders;
+        }
+
+        public void SetPlayerDataProvider(IPlayerDataProvider newPlayerDataProvider)
+        {
+            playerDataProvider = newPlayerDataProvider;
+        }
+
+        public void SetPerformanceProvider(IPerformanceProvider newPerformanceProvider)
+        {
+            performanceProvider = newPerformanceProvider;
+        }
+
         public override void CreateControl()
         {
+            Debug.Assert(settingsProviders != null);
+            Debug.Assert(consoleProvider != null);
+            Debug.Assert(playerDataProvider != null);
+            Debug.Assert(performanceProvider != null);
+
             control?.Dispose();
-            control = new GameUI(this, settingsProviders, consoleProvider);
+            control = new GameUI(this, settingsProviders, consoleProvider, playerDataProvider, performanceProvider);
         }
 
         public event Action? WorldExit;
@@ -54,14 +76,14 @@ namespace VoxelGame.UI.UserInterfaces
         public event Action? AnyOverlayOpen;
         public event Action? AnyOverlayClosed;
 
-        public void SetUpdateRate(double fps, double ups)
+        public void UpdatePerformanceData()
         {
-            control?.SetUpdateRate(fps, ups);
+            control?.UpdatePerformanceData();
         }
 
-        public void SetPlayerSelection(string category, string selection)
+        public void UpdatePlayerData()
         {
-            control?.SetPlayerSelection($"{category}: {selection}");
+            control?.UpdatePlayerData();
         }
 
         public void DoEscape()
