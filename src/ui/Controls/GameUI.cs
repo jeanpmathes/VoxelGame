@@ -37,11 +37,7 @@ namespace VoxelGame.UI.Controls
             Console = new ConsoleInterface(this, consoleProvider, parent.Context);
             hud = new InGameDisplay(this);
 
-            Console.WindowClosed += () =>
-            {
-                hud.Show();
-                parent.DoOverlayClose();
-            };
+            Console.WindowClosed += parent.DoOverlayClose;
         }
 
         internal ConsoleInterface Console { get; }
@@ -172,9 +168,7 @@ namespace VoxelGame.UI.Controls
         {
             if (Console.IsOpen) return;
 
-            hud.Hide();
             Console.OpenWindow();
-
             parent.DoOverlayOpen();
         }
 
@@ -183,7 +177,7 @@ namespace VoxelGame.UI.Controls
             if (!Console.IsOpen) return;
 
             Console.CloseWindow();
-            // Hud and parent are informed when the console close event is invoked.
+            // Parent is informed when the console close event is invoked.
         }
     }
 }
