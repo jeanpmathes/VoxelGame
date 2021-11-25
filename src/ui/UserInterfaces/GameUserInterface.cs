@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using OpenToolkit.Windowing.Desktop;
 using VoxelGame.Input;
 using VoxelGame.UI.Controls;
@@ -15,19 +16,19 @@ namespace VoxelGame.UI.UserInterfaces
 {
     public class GameUserInterface : UserInterface
     {
-        private readonly List<ISettingsProvider> settingsProviders;
+        private IConsoleProvider? consoleProvider;
 
         private GameUI? control;
+        private IPerformanceProvider? performanceProvider;
+        private IPlayerDataProvider? playerDataProvider;
+        private List<ISettingsProvider>? settingsProviders;
 
-        public GameUserInterface(GameWindow window,
-            InputListener inputListener, List<ISettingsProvider> settingsProviders,
-            bool drawBackground) : base(
+        public GameUserInterface(GameWindow window, InputListener inputListener, bool drawBackground) : base(
             window,
             inputListener,
-            drawBackground)
-        {
-            this.settingsProviders = settingsProviders;
-        }
+            drawBackground) {}
+
+        public ConsoleInterface? Console => control?.Console;
 
         public bool IsHidden
         {
@@ -39,43 +40,85 @@ namespace VoxelGame.UI.UserInterfaces
             }
         }
 
+        public void SetConsoleProvider(IConsoleProvider newConsoleProvider)
+        {
+            consoleProvider = newConsoleProvider;
+        }
+
+        public void SetSettingsProviders(List<ISettingsProvider> newSettingsProviders)
+        {
+            settingsProviders = newSettingsProviders;
+        }
+
+        public void SetPlayerDataProvider(IPlayerDataProvider newPlayerDataProvider)
+        {
+            playerDataProvider = newPlayerDataProvider;
+        }
+
+        public void SetPerformanceProvider(IPerformanceProvider newPerformanceProvider)
+        {
+            performanceProvider = newPerformanceProvider;
+        }
+
         public override void CreateControl()
         {
+            Debug.Assert(settingsProviders != null);
+            Debug.Assert(consoleProvider != null);
+            Debug.Assert(playerDataProvider != null);
+            Debug.Assert(performanceProvider != null);
+
             control?.Dispose();
-            control = new GameUI(this, settingsProviders);
+            control = new GameUI(this, settingsProviders, consoleProvider, playerDataProvider, performanceProvider);
         }
 
         public event Action? WorldExit;
 
-        public event Action? MenuOpen;
-        public event Action? MenuClose;
+        public event Action? AnyOverlayOpen;
+        public event Action? AnyOverlayClosed;
 
-        public void SetUpdateRate(double fps, double ups)
+        public void UpdatePerformanceData()
         {
-            control?.SetUpdateRate(fps, ups);
+            control?.UpdatePerformanceData();
         }
 
-        public void SetPlayerSelection(string category, string selection)
+        public void UpdatePlayerData()
         {
-            control?.SetPlayerSelection($"{category}: {selection}");
+            control?.UpdatePlayerData();
         }
 
-        public void OpenInGameMenu()
+        public void UpdatePlayerDebugData()
         {
-            if (control == null) return;
-
-            control.OpenInGameMenu();
-            MenuOpen?.Invoke();
+            control?.UpdatePlayerDebugData();
         }
 
-        internal void HandleInGameMenuClosed()
+        public void ToggleDebugDataView()
         {
-            MenuClose?.Invoke();
+            control?.ToggleDebugDataView();
         }
 
-        internal void ExitWorld()
+        public void DoEscape()
+        {
+            control?.ToggleInGameMenu();
+        }
+
+        public void ToggleConsole()
+        {
+            control?.ToggleConsole();
+        }
+
+        internal void DoWorldExit()
         {
             WorldExit?.Invoke();
+        }
+
+        internal void DoOverlayOpen()
+        {
+            AnyOverlayOpen?.Invoke();
+        }
+
+        internal void DoOverlayClose()
+        {
+            AnyOverlayClosed?.Invoke();
         }
     }
 }

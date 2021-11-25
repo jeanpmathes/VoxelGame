@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
+using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Rendering;
@@ -26,6 +27,8 @@ namespace VoxelGame.Client.Scenes
 
         private readonly Application.Client client;
 
+        private readonly ToggleButton consoleToggle;
+
         private readonly UpdateCounter counter;
         private readonly PushButton escapeButton;
 
@@ -36,7 +39,7 @@ namespace VoxelGame.Client.Scenes
 
         private readonly ToggleButton wireframeToggle;
 
-        internal GameScene(Application.Client client, ClientWorld world)
+        internal GameScene(Application.Client client, ClientWorld world, GameConsole console)
         {
             this.client = client;
 
@@ -44,29 +47,32 @@ namespace VoxelGame.Client.Scenes
 
             Screen.SetCursor(visible: false, locked: true);
 
+            ui = new GameUserInterface(
+                client,
+                client.Keybinds.Input.Listener,
+                drawBackground: false);
+
             List<ISettingsProvider> settingsProviders = new()
             {
                 client.Settings,
                 Application.Client.Instance.Keybinds
             };
 
-            ui = new GameUserInterface(
-                client,
-                client.Keybinds.Input.Listener,
-                settingsProviders,
-                drawBackground: false);
+            ui.SetSettingsProviders(settingsProviders);
+            ui.SetConsoleProvider(console);
+            ui.SetPerformanceProvider(client);
 
             ui.WorldExit += client.LoadStartScene;
 
-            ui.MenuOpen += () =>
+            ui.AnyOverlayOpen += () =>
             {
-                Player.LockInput();
+                Screen.SetOverlayLock();
                 Screen.SetCursor(visible: true, locked: false);
             };
 
-            ui.MenuClose += () =>
+            ui.AnyOverlayClosed += () =>
             {
-                Player.UnlockInput();
+                Screen.ClearOverlayLock();
                 Screen.SetCursor(visible: false, locked: true);
             };
 
@@ -77,7 +83,10 @@ namespace VoxelGame.Client.Scenes
             uiToggle = client.Keybinds.GetToggle(client.Keybinds.UI);
 
             screenshotButton = client.Keybinds.GetPushButton(client.Keybinds.Screenshot);
+            consoleToggle = client.Keybinds.GetToggle(client.Keybinds.Console);
             escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
+
+            wireframeToggle.Clear();
         }
 
         public ClientWorld World { get; private set; }
@@ -96,10 +105,14 @@ namespace VoxelGame.Client.Scenes
                 new BoundingBox(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.25f, y: 0.9f, z: 0.25f)),
                 ui);
 
+            ui.SetPlayerDataProvider(Player);
+
+            // UI setup.
             ui.Load();
             ui.Resize(Screen.Size);
 
             ui.CreateControl();
+            client.Console.SetInterface(ui.Console!);
 
             counter.ResetUpdate();
 
@@ -115,10 +128,11 @@ namespace VoxelGame.Client.Scenes
         {
             using (logger.BeginScope("GameScene Render"))
             {
-                ui.SetUpdateRate(Application.Client.Fps, Application.Client.Ups);
-
+                Screen.EnterGameDrawMode();
                 World.Render();
 
+                Screen.EnterUIDrawMode();
+                ui.UpdatePerformanceData();
                 ui.Render();
             }
         }
@@ -134,13 +148,18 @@ namespace VoxelGame.Client.Scenes
                 if (!Screen.IsFocused) // check to see if the window is focused
                     return;
 
-                if (screenshotButton.Pushed) Screen.TakeScreenshot(Program.ScreenshotDirectory);
+                if (!Screen.IsOverlayLockActive)
+                {
+                    if (screenshotButton.Pushed) Screen.TakeScreenshot(Program.ScreenshotDirectory);
 
-                if (wireframeToggle.Changed) Screen.SetWireFrame(wireframeToggle.State);
+                    if (wireframeToggle.Changed) Screen.SetWireframe(wireframeToggle.State);
 
-                if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
+                    if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
+                }
 
-                if (escapeButton.Pushed) ui.OpenInGameMenu();
+                if (escapeButton.Pushed) ui.DoEscape();
+
+                if (consoleToggle.Changed) ui.ToggleConsole();
             }
         }
 
@@ -166,6 +185,8 @@ namespace VoxelGame.Client.Scenes
 
             World = null!;
             Player = null!;
+
+            client.Console.ClearInterface();
         }
 
         #region IDisposable Support.

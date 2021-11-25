@@ -48,17 +48,11 @@ namespace VoxelGame.Core.Logic
             return Air;
         }
 
-        public static Block TranslateNamedID(string namedId)
+        public static Block? TranslateNamedID(string namedId)
         {
-            if (namedBlockDictionary.TryGetValue(namedId, out Block? block)) return block;
+            namedBlockDictionary.TryGetValue(namedId, out Block? block);
 
-            logger.LogWarning(
-                Events.UnknownBlock,
-                "No Block with the named ID {ID} could be found, returning {Fallback} instead",
-                namedId,
-                nameof(Air));
-
-            return Air;
+            return block;
         }
 
         /// <summary>

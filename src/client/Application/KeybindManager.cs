@@ -205,9 +205,10 @@ namespace VoxelGame.Client.Application
         public Keybind Fullscreen { get; } = Keybind.RegisterToggle("fullscreen", Language.KeyFullscreen, Key.F11);
 
         public Keybind Wireframe { get; } = Keybind.RegisterToggle("wireframe", Language.KeyWireframe, Key.K);
-        public Keybind UI { get; } = Keybind.RegisterToggle("ui", Language.KeyToggleUI, Key.J);
-
+        public Keybind UI { get; } = Keybind.RegisterToggle("ui", Language.KeyToggleUI, Key.F10);
         public Keybind Screenshot { get; } = Keybind.RegisterPushButton("screenshot", Language.KeyScreenshot, Key.F12);
+        public Keybind Console { get; } = Keybind.RegisterToggle("console", Language.KeyConsole, Key.F1);
+        public Keybind DebugView { get; } = Keybind.RegisterPushButton("debug_view", Language.KeyDebugView, Key.F2);
         public Keybind Escape { get; } = Keybind.RegisterPushButton("escape", Language.KeyEscape, Key.Escape);
 
         public Keybind Forwards { get; } = Keybind.RegisterButton("forwards", Language.KeyForwards, Key.W);

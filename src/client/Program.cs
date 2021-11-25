@@ -70,7 +70,7 @@ namespace VoxelGame.Client
 
             Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";
             GameInformation.Initialize(Version);
-            Console.Title = Language.VoxelGame + @" " + Version;
+            System.Console.Title = Language.VoxelGame + @" " + Version;
 
             logger.LogInformation(Events.ApplicationInformation, "Starting game on version: {Version}", Version);
 

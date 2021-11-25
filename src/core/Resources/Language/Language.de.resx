@@ -516,4 +516,13 @@
     <data name="Resume" xml:space="preserve">
     <value>Fortsetzen</value>
   </data>
+    <data name="KeyConsole" xml:space="preserve">
+    <value>Konsole</value>
+  </data>
+    <data name="Submit" xml:space="preserve">
+    <value>Eingeben</value>
+  </data>
+    <data name="KeyDebugView" xml:space="preserve">
+    <value>Entwickleransicht</value>
+  </data>
 </root>

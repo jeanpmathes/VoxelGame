@@ -9,6 +9,7 @@
       <LangVersion>9</LangVersion>
       <AssemblyVersion>1.2.0.0</AssemblyVersion>
       <FileVersion>1.2.0.0</FileVersion>
+      <PackageVersion>1.2.0</PackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

@@ -52,6 +52,11 @@ namespace VoxelGame.Logging
         public const int UserInteraction = 60;
 
         /// <summary>
+        ///     Events related to the in-game console.
+        /// </summary>
+        public const int Console = 65;
+
+        /// <summary>
         ///     Occurs with events or information connected to the successful loading of resources.
         /// </summary>
         public const int ResourceLoad = 100;

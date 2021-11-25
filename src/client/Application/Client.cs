@@ -11,6 +11,7 @@ using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Desktop;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Client.Collections;
+using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Rendering;
@@ -22,14 +23,17 @@ using VoxelGame.Input;
 using VoxelGame.Input.Actions;
 using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
+using VoxelGame.UI.Providers;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
 namespace VoxelGame.Client.Application
 {
-    internal class Client : GameWindow
+    internal class Client : GameWindow, IPerformanceProvider
     {
         private const int DeltaBufferCapacity = 30;
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
+
+        private readonly CommandInvoker commandInvoker;
 
         private readonly ToggleButton fullscreenToggle;
 
@@ -72,6 +76,8 @@ namespace VoxelGame.Client.Application
             Keybinds = new KeybindManager(input);
 
             fullscreenToggle = Keybinds.GetToggle(Keybinds.Fullscreen);
+
+            commandInvoker = GameConsole.BuildInvoker();
         }
 
         public static Client Instance { get; private set; } = null!;
@@ -81,8 +87,13 @@ namespace VoxelGame.Client.Application
         public GeneralSettings Settings { get; }
         public GraphicsSettings Graphics { get; }
 
+        public ConsoleWrapper Console { get; } = new();
+
         private double Time { get; set; }
         public unsafe Window* WindowPointer { get; }
+
+        double IPerformanceProvider.FPS => Fps;
+        double IPerformanceProvider.UPS => Ups;
 
         private new void OnLoad()
         {
@@ -204,7 +215,7 @@ namespace VoxelGame.Client.Application
 
         public void LoadGameScene(ClientWorld world)
         {
-            GameScene gameScene = new(Instance, world);
+            GameScene gameScene = new(Instance, world, new GameConsole(commandInvoker));
 
             sceneManager.Load(gameScene);
 

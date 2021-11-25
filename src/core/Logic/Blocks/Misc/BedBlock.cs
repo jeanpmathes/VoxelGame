@@ -36,7 +36,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             BlockModel blockModel = BlockModel.Load(model);
 
-            blockModel.PlaneSplit(Vector3.UnitZ, Vector3.UnitZ, out BlockModel head, out BlockModel foot);
+            blockModel.PlaneSplit(Vector3.UnitZ, Vector3.UnitZ, out BlockModel foot, out BlockModel head);
             foot.Move(-Vector3.UnitZ);
 
             (BlockModel north, BlockModel east, BlockModel south, BlockModel west) headParts =

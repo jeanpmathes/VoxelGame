@@ -57,16 +57,16 @@ namespace VoxelGame.Core.Logic.Blocks
 
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            var stage = (GrowthStage) ((data >> 2) & 0b111);
+            var stage = (GrowthStage) ((data >> 1) & 0b111);
 
-            return stage < GrowthStage.First
+            return stage <= GrowthStage.First
                 ? new BoundingBox(new Vector3(x: 0.5f, y: 0.25f, z: 0.5f), new Vector3(x: 0.175f, y: 0.25f, z: 0.175f))
                 : new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f));
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
-            var stage = (GrowthStage) ((info.Data >> 2) & 0b111);
+            var stage = (GrowthStage) ((info.Data >> 1) & 0b111);
 
             int index = stage switch
             {
@@ -113,11 +113,12 @@ namespace VoxelGame.Core.Logic.Blocks
             if (world.GetBlock(position.Below())?.Block is not IPlantable ground) return;
 
             var stage = (GrowthStage) ((data >> 1) & 0b111);
+            uint isLowered = data & 0b1;
 
             switch (stage)
             {
                 case < GrowthStage.Ready:
-                    world.SetBlock(this.AsInstance((uint) ((int) (stage + 1) << 1)), position);
+                    world.SetBlock(this.AsInstance((uint) ((int) (stage + 1) << 1) | isLowered), position);
 
                     break;
                 case GrowthStage.Ready when ground.SupportsFullGrowth && ground.TryGrow(
@@ -129,7 +130,7 @@ namespace VoxelGame.Core.Logic.Blocks
                     foreach (Orientation orientation in Orientations.ShuffledStart(position))
                     {
                         if (!fruit.Place(world, orientation.Offset(position))) continue;
-                        world.SetBlock(this.AsInstance((uint) GrowthStage.Second << 1), position);
+                        world.SetBlock(this.AsInstance(((uint) GrowthStage.Second << 1) | isLowered), position);
 
                         break;
                     }
@@ -137,7 +138,7 @@ namespace VoxelGame.Core.Logic.Blocks
                     break;
                 }
                 case GrowthStage.Ready when ground.SupportsFullGrowth:
-                    world.SetBlock(this.AsInstance((uint) GrowthStage.Dead << 1), position);
+                    world.SetBlock(this.AsInstance(((uint) GrowthStage.Dead << 1) | isLowered), position);
 
                     break;
             }

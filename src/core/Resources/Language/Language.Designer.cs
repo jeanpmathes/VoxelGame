@@ -529,6 +529,24 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Console.
+        /// </summary>
+        public static string KeyConsole {
+            get {
+                return ResourceManager.GetString("KeyConsole", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Debug View.
+        /// </summary>
+        public static string KeyDebugView {
+            get {
+                return ResourceManager.GetString("KeyDebugView", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Destroy.
         /// </summary>
         public static string KeyDestroy {
@@ -1083,6 +1101,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string StoneFace {
             get {
                 return ResourceManager.GetString("StoneFace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Submit.
+        /// </summary>
+        public static string Submit {
+            get {
+                return ResourceManager.GetString("Submit", resourceCulture);
             }
         }
         

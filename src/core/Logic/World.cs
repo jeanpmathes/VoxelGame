@@ -92,7 +92,7 @@ namespace VoxelGame.Core.Logic
             Setup();
         }
 
-        public WorldInformation Information { get; }
+        private WorldInformation Information { get; }
 
         public UpdateCounter UpdateCounter { get; }
 
@@ -220,7 +220,7 @@ namespace VoxelGame.Core.Logic
 
             if (block is null) return;
 
-            SetContent(block, liquid, position, tickLiquid: true);
+            SetContent(block, liquid, position, tickLiquid: false);
         }
 
         /// <summary>
@@ -257,7 +257,7 @@ namespace VoxelGame.Core.Logic
             {
                 Vector3i neighborPosition = side.Offset(position);
 
-                (BlockInstance? blockNeighbor, LiquidInstance? liquidNeighbor) = GetContent(position);
+                (BlockInstance? blockNeighbor, LiquidInstance? liquidNeighbor) = GetContent(neighborPosition);
 
                 blockNeighbor?.Block.BlockUpdate(this, neighborPosition, data, side.Opposite());
                 liquidNeighbor?.Liquid.TickSoon(this, neighborPosition, isStatic);
@@ -305,6 +305,16 @@ namespace VoxelGame.Core.Logic
             SetLiquid(LiquidInstance.Default, position);
         }
 
+        public bool DoRandomUpdate(Vector3i position)
+        {
+            (BlockInstance? block, LiquidInstance? liquid) = GetContent(position);
+
+            block?.Block.RandomUpdate(this, position, block.Data);
+            liquid?.Liquid.RandomUpdate(this, position, liquid.Level, liquid.IsStatic);
+
+            return block != null && liquid != null;
+        }
+
         /// <summary>
         ///     Sets the spawn position of this world.
         /// </summary>
@@ -314,6 +324,15 @@ namespace VoxelGame.Core.Logic
             Information.SpawnInformation = new SpawnInformation(position);
 
             logger.LogInformation(Events.WorldData, "World spawn position has been set to: {Position}", position);
+        }
+
+        /// <summary>
+        ///     Get the spawn position of this world.
+        /// </summary>
+        /// <returns>The spawn position.</returns>
+        public Vector3 GetSpawnPosition()
+        {
+            return Information.SpawnInformation.Position;
         }
 
         /// <summary>

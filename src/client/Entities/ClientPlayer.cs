@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Diagnostics;
 using System.Drawing;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
@@ -18,11 +19,12 @@ using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Input.Actions;
 using VoxelGame.Input.Composite;
+using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Entities
 {
-    public class ClientPlayer : Player
+    public class ClientPlayer : Player, IPlayerDataProvider
     {
         private readonly Camera camera;
         private readonly Vector3 cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
@@ -55,13 +57,16 @@ namespace VoxelGame.Client.Entities
         private float crosshairScale = Application.Client.Instance.Settings.CrosshairScale;
 
         private bool firstUpdate = true;
+        private Vector3i headPosition;
 
         private Vector3 movement;
 
         private bool renderOverlay;
+        private BlockInstance? targetBlock;
+        private LiquidInstance? targetLiquid;
 
-        private Vector3i selectedPosition = new(x: 0, y: -1, z: 0);
-        private BlockSide selectedSide;
+        private Vector3i targetPosition = new(x: 0, y: -1, z: 0);
+        private BlockSide targetSide;
 
         private float timer;
 
@@ -116,13 +121,13 @@ namespace VoxelGame.Client.Entities
             Button nextButton = keybind.GetPushButton(keybind.NextPlacement);
             Button previousButton = keybind.GetPushButton(keybind.PreviousPlacement);
             selectionAxis = new InputAxis(nextButton, previousButton);
-        }
 
-        private bool IsInputLocked { get; set; }
+            debugViewButton = keybind.GetPushButton(keybind.DebugView);
+        }
 
         public override Vector3 LookingDirection => camera.Front;
 
-        public override BlockSide TargetSide => selectedSide;
+        public override BlockSide TargetSide => targetSide;
 
         /// <summary>
         ///     Gets the frustum of the player camera.
@@ -131,15 +136,17 @@ namespace VoxelGame.Client.Entities
 
         public override Vector3 Movement => movement;
 
-        public void LockInput()
-        {
-            IsInputLocked = true;
-        }
+        public override Vector3i TargetPosition => targetPosition;
 
-        public void UnlockInput()
-        {
-            IsInputLocked = false;
-        }
+        Vector3i IPlayerDataProvider.HeadPosition => headPosition;
+
+        BlockInstance IPlayerDataProvider.TargetBlock => targetBlock ?? BlockInstance.Default;
+
+        LiquidInstance IPlayerDataProvider.TargetLiquid => targetLiquid ?? LiquidInstance.Default;
+
+        string IPlayerDataProvider.Selection => blockMode ? activeBlock.Name : activeLiquid.Name;
+
+        string IPlayerDataProvider.Mode => blockMode ? Language.Block : Language.Liquid;
 
         private void UpdateCrosshairColor(GeneralSettings settings, SettingChangedArgs<Color> args)
         {
@@ -171,9 +178,9 @@ namespace VoxelGame.Client.Entities
 
         public void Render()
         {
-            if (selectedPosition.Y >= 0)
+            if (targetPosition.Y >= 0)
             {
-                var (selectedBlock, _) = World.GetBlock(selectedPosition) ?? BlockInstance.Default;
+                var (selectedBlock, _) = World.GetBlock(targetPosition) ?? BlockInstance.Default;
 
 #if DEBUG
                 if (selectedBlock != Block.Air)
@@ -181,7 +188,7 @@ namespace VoxelGame.Client.Entities
                 if (!block.IsReplaceable)
 #endif
                 {
-                    BoundingBox selectedBox = selectedBlock.GetBoundingBox(World, selectedPosition);
+                    BoundingBox selectedBox = selectedBlock.GetBoundingBox(World, targetPosition);
 
                     Shaders.Selection.SetVector3("color", new Vector3(x: 0.1f, y: 0.1f, z: 0.1f));
 
@@ -201,22 +208,23 @@ namespace VoxelGame.Client.Entities
 
             camera.Position = Position + cameraOffset;
 
-            var ray = new Ray(camera.Position, camera.Front, length: 6f);
-            Raycast.CastBlock(World, ray, out selectedPosition, out selectedSide);
+            UpdateTargets();
 
             // Do input handling.
             if (Screen.IsFocused)
             {
-                if (!IsInputLocked)
+                if (!Screen.IsOverlayLockActive)
                 {
                     HandleMovementInput();
                     HandleLookInput();
+
+                    BlockLiquidSelection(firstUpdate);
+                    DoWorldInteraction();
+
+                    SelectDebugView();
                 }
 
-                BlockLiquidSelection(firstUpdate);
-                WorldInteraction();
-
-                Vector3i headPosition = camera.Position.Floor();
+                headPosition = camera.Position.Floor();
 
                 if (World.GetBlock(headPosition)?.Block is IOverlayTextureProvider overlayBlockTextureProvider)
                 {
@@ -236,7 +244,23 @@ namespace VoxelGame.Client.Entities
                 firstUpdate = false;
             }
 
+            ui.UpdatePlayerDebugData();
+
             timer += deltaTime;
+        }
+
+        private void SelectDebugView()
+        {
+            if (debugViewButton.IsDown) ui.ToggleDebugDataView();
+        }
+
+        private void UpdateTargets()
+        {
+            var ray = new Ray(camera.Position, camera.Front, length: 6f);
+            bool hit = Raycast.CastBlock(World, ray, out targetPosition, out targetSide);
+
+            if (hit) (targetBlock, targetLiquid) = World.GetContent(targetPosition);
+            else (targetBlock, targetLiquid) = (null, null);
         }
 
         private void HandleMovementInput()
@@ -269,27 +293,26 @@ namespace VoxelGame.Client.Entities
             Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
         }
 
-        private void WorldInteraction()
+        private void DoWorldInteraction()
         {
-            if (IsInputLocked) return;
+            if (targetBlock == null || targetLiquid == null) return;
 
-            BlockInstance? target = World.GetBlock(selectedPosition);
-
-            if (target == null) return;
-
-            PlaceInteract(target.Block);
-            DestroyInteract(target.Block);
+            PlaceInteract();
+            DestroyInteract();
         }
 
-        private void PlaceInteract(Block target)
+        private void PlaceInteract()
         {
+            Debug.Assert(targetBlock != null);
+            Debug.Assert(targetLiquid != null);
+
             if (timer < interactionCooldown || interactOrPlaceButton.IsUp) return;
 
-            Vector3i placePosition = selectedPosition;
+            Vector3i placePosition = targetPosition;
 
-            if (blockInteractButton.IsDown || !target.IsInteractable)
+            if (blockInteractButton.IsDown || !targetBlock.Block.IsInteractable)
             {
-                if (!target.IsReplaceable) placePosition = selectedSide.Offset(placePosition);
+                if (!targetBlock.Block.IsReplaceable) placePosition = targetSide.Offset(placePosition);
 
                 // Prevent block placement if the block would intersect the player.
                 if (!blockMode || !activeBlock.IsSolid || !BoundingBox.Intersects(
@@ -301,20 +324,23 @@ namespace VoxelGame.Client.Entities
                     timer = 0;
                 }
             }
-            else if (target.IsInteractable)
+            else if (targetBlock.Block.IsInteractable)
             {
-                target.EntityInteract(this, selectedPosition);
+                targetBlock.Block.EntityInteract(this, targetPosition);
 
                 timer = 0;
             }
         }
 
-        private void DestroyInteract(Block target)
+        private void DestroyInteract()
         {
+            Debug.Assert(targetBlock != null);
+            Debug.Assert(targetLiquid != null);
+
             if (timer >= interactionCooldown && destroyButton.IsDown)
             {
-                if (blockMode) target.Destroy(World, selectedPosition, this);
-                else TakeLiquid(selectedPosition);
+                if (blockMode) targetBlock.Block.Destroy(World, targetPosition, this);
+                else TakeLiquid(targetPosition);
 
                 timer = 0;
             }
@@ -323,8 +349,8 @@ namespace VoxelGame.Client.Entities
             {
                 var level = LiquidLevel.One;
 
-                if (!target.IsReplaceable)
-                    position = selectedSide.Offset(position);
+                if (!targetBlock.Block.IsReplaceable)
+                    position = targetSide.Offset(position);
 
                 World.GetLiquid(position)?.Liquid.Take(World, position, ref level);
             }
@@ -358,10 +384,7 @@ namespace VoxelGame.Client.Entities
                 updateUI = true;
             }
 
-            if (!updateUI) return;
-
-            if (blockMode) ui.SetPlayerSelection(Language.Block, activeBlock.Name);
-            else ui.SetPlayerSelection(Language.Liquid, activeLiquid.Name);
+            if (updateUI) ui.UpdatePlayerData();
         }
 
         #region INPUT ACTIONS
@@ -376,6 +399,8 @@ namespace VoxelGame.Client.Entities
 
         private readonly ToggleButton placementModeToggle;
         private readonly InputAxis selectionAxis;
+
+        private readonly Button debugViewButton;
 
         #endregion INPUT ACTIONS
 
