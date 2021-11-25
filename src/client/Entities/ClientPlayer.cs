@@ -62,11 +62,11 @@ namespace VoxelGame.Client.Entities
         private Vector3 movement;
 
         private bool renderOverlay;
-
-        private Vector3i selectedPosition = new(x: 0, y: -1, z: 0);
-        private BlockSide selectedSide;
         private BlockInstance? targetBlock;
         private LiquidInstance? targetLiquid;
+
+        private Vector3i targetPosition = new(x: 0, y: -1, z: 0);
+        private BlockSide targetSide;
 
         private float timer;
 
@@ -127,7 +127,7 @@ namespace VoxelGame.Client.Entities
 
         public override Vector3 LookingDirection => camera.Front;
 
-        public override BlockSide TargetSide => selectedSide;
+        public override BlockSide TargetSide => targetSide;
 
         /// <summary>
         ///     Gets the frustum of the player camera.
@@ -136,7 +136,7 @@ namespace VoxelGame.Client.Entities
 
         public override Vector3 Movement => movement;
 
-        public override Vector3i TargetPosition => selectedPosition;
+        public override Vector3i TargetPosition => targetPosition;
 
         Vector3i IPlayerDataProvider.HeadPosition => headPosition;
 
@@ -178,9 +178,9 @@ namespace VoxelGame.Client.Entities
 
         public void Render()
         {
-            if (selectedPosition.Y >= 0)
+            if (targetPosition.Y >= 0)
             {
-                var (selectedBlock, _) = World.GetBlock(selectedPosition) ?? BlockInstance.Default;
+                var (selectedBlock, _) = World.GetBlock(targetPosition) ?? BlockInstance.Default;
 
 #if DEBUG
                 if (selectedBlock != Block.Air)
@@ -188,7 +188,7 @@ namespace VoxelGame.Client.Entities
                 if (!block.IsReplaceable)
 #endif
                 {
-                    BoundingBox selectedBox = selectedBlock.GetBoundingBox(World, selectedPosition);
+                    BoundingBox selectedBox = selectedBlock.GetBoundingBox(World, targetPosition);
 
                     Shaders.Selection.SetVector3("color", new Vector3(x: 0.1f, y: 0.1f, z: 0.1f));
 
@@ -257,9 +257,9 @@ namespace VoxelGame.Client.Entities
         private void UpdateTargets()
         {
             var ray = new Ray(camera.Position, camera.Front, length: 6f);
-            bool hit = Raycast.CastBlock(World, ray, out selectedPosition, out selectedSide);
+            bool hit = Raycast.CastBlock(World, ray, out targetPosition, out targetSide);
 
-            if (hit) (targetBlock, targetLiquid) = World.GetContent(selectedPosition);
+            if (hit) (targetBlock, targetLiquid) = World.GetContent(targetPosition);
             else (targetBlock, targetLiquid) = (null, null);
         }
 
@@ -308,11 +308,11 @@ namespace VoxelGame.Client.Entities
 
             if (timer < interactionCooldown || interactOrPlaceButton.IsUp) return;
 
-            Vector3i placePosition = selectedPosition;
+            Vector3i placePosition = targetPosition;
 
             if (blockInteractButton.IsDown || !targetBlock.Block.IsInteractable)
             {
-                if (!targetBlock.Block.IsReplaceable) placePosition = selectedSide.Offset(placePosition);
+                if (!targetBlock.Block.IsReplaceable) placePosition = targetSide.Offset(placePosition);
 
                 // Prevent block placement if the block would intersect the player.
                 if (!blockMode || !activeBlock.IsSolid || !BoundingBox.Intersects(
@@ -326,7 +326,7 @@ namespace VoxelGame.Client.Entities
             }
             else if (targetBlock.Block.IsInteractable)
             {
-                targetBlock.Block.EntityInteract(this, selectedPosition);
+                targetBlock.Block.EntityInteract(this, targetPosition);
 
                 timer = 0;
             }
@@ -339,8 +339,8 @@ namespace VoxelGame.Client.Entities
 
             if (timer >= interactionCooldown && destroyButton.IsDown)
             {
-                if (blockMode) targetBlock.Block.Destroy(World, selectedPosition, this);
-                else TakeLiquid(selectedPosition);
+                if (blockMode) targetBlock.Block.Destroy(World, targetPosition, this);
+                else TakeLiquid(targetPosition);
 
                 timer = 0;
             }
@@ -350,7 +350,7 @@ namespace VoxelGame.Client.Entities
                 var level = LiquidLevel.One;
 
                 if (!targetBlock.Block.IsReplaceable)
-                    position = selectedSide.Offset(position);
+                    position = targetSide.Offset(position);
 
                 World.GetLiquid(position)?.Liquid.Take(World, position, ref level);
             }
