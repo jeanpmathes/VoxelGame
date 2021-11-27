@@ -6,6 +6,7 @@ out vec3 normal;
 
 flat out int texIndex;
 out vec2 texCoord;
+flat out ivec2 texCordMax;
 
 out vec4 tint;
 flat out int anim;
@@ -30,8 +31,13 @@ void main()
     texCoord = vec2((aData.x >> 31) & 1, (aData.x >> 30) & 1);
 
     // Texture Repetition
-    texCoord.x *= ((aData.x >> 24) & 15) + 1;
-    texCoord.y *= ((aData.x >> 20) & 15) + 1;
+    int xLen = ((aData.x >> 24) & 15) + 1;
+    int yLen = ((aData.x >> 20) & 15) + 1;
+
+    texCordMax = ivec2(xLen, yLen);
+
+    texCoord.x *= xLen;
+    texCoord.y *= yLen;
 
     // Tint
     tint = vec4(((aData.y >> 29) & 7) / 7.0, ((aData.y >> 26) & 7) / 7.0, ((aData.y >> 23) & 7) / 7.0, 1.0);

@@ -6,6 +6,7 @@ out vec3 normal;
 
 flat out int texIndex;
 out vec2 texCoord;
+flat out ivec2 texCordMax;
 
 out vec4 tint;
 flat out int anim;
@@ -54,8 +55,13 @@ void main()
     }
 
     // Texture Repetition
-    texCoord.x *= ((aData.x >> 24) & 15) + 1;
-    texCoord.y *= ((aData.x >> 20) & 15) + 1;
+    int xLen = ((aData.x >> 24) & 15) + 1;
+    int yLen = ((aData.x >> 20) & 15) + 1;
 
-	gl_Position = vec4(position, 1.0) * model * view * projection;
+    texCordMax = ivec2(xLen, yLen);
+
+    texCoord.x *= xLen;
+    texCoord.y *= yLen;
+
+    gl_Position = vec4(position, 1.0) * model * view * projection;
 }
