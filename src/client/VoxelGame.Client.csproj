@@ -595,5 +595,8 @@
       <None Update="Resources\Models\fire_top.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Resources\Shaders\decode.glsl">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
   </ItemGroup>
 </Project>

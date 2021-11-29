@@ -16,31 +16,28 @@ uniform mat4 projection;
 uniform float time;
 
 #pragma include("noise")
+#pragma include("decode")
 
 void main()
 {
-    // Normal.
     normal = vec3(0, 0, 0);
+    texIndex = dc_texIndex();
 
-    // Texture Index
-    texIndex = aData.y & 8191;
-
-    // Texture Coordinate
-    int u = (aData.x >> 31) & 1;
-    int v = (aData.x >> 30) & 1;
+    // Texture Coordinate.
+    int u = dc_i1(aData.x, 31);
+    int v = dc_i1(aData.x, 30);
     texCoord = vec2(u, v);
 
-    // Tint
-    tint = vec4(((aData.y >> 29) & 7) / 7.0, ((aData.y >> 26) & 7) / 7.0, ((aData.y >> 23) & 7) / 7.0, 1.0);
+    tint = dc_tint(aData.y, 23);
 
     // Cross plant information.
-    bool isUpper = ((aData.y >> 20) & 1) == 1;
-    bool isLowered = ((aData.y >> 21) & 1) == 1;
-    bool hasUpper = ((aData.y >> 22) & 1) == 1;
+    bool isUpper = dc_bool(aData.y, 20);
+    bool isLowered = dc_bool(aData.y, 21);
+    bool hasUpper = dc_bool(aData.y, 22);
 
-    // Position
-    vec3 position = vec3((aData.x >> 10) & 31, (aData.x >> 5) & 31, aData.x & 31);
-    int orientation = (aData.x >> 28) & 1;
+    // Position.
+    vec3 position = vec3(dc_i5(aData.x, 10), dc_i5(aData.x, 5), dc_i5(aData.x, 0));
+    int orientation = dc_i1(aData.x, 28);
 
     float xOffset = (u == 0 ? +1 : -1) * 0.145;
     float zOffset = (u == 0 ? -1 : +1) * 0.145;

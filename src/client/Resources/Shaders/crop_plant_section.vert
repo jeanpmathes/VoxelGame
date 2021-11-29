@@ -16,34 +16,32 @@ uniform mat4 projection;
 uniform float time;
 
 #pragma include("noise")
+#pragma include("decode")
 
 void main()
 {
-    // Normal.
     normal = vec3(0, 0, 0);
-
-    // Texture Index
-    texIndex = aData.y & 8191;
+    texIndex = dc_texIndex();
 
     // Texture Coordinate
-    int u = (aData.x >> 31) & 1;
-    int v = (aData.x >> 30) & 1;
+    int u = dc_i1(aData.x, 31);
+    int v = dc_i1(aData.x, 30);
     texCoord = vec2(u, v);
 
     // Tint
     tint = vec4(((aData.y >> 29) & 7) / 7.0, ((aData.y >> 26) & 7) / 7.0, ((aData.y >> 23) & 7) / 7.0, 1.0);
 
     // Crop plant information.
-    bool isUpper = ((aData.y >> 20) & 1) == 1;
-    bool isLowered = ((aData.y >> 21) & 1) == 1;
-    bool hasUpper = ((aData.y >> 22) & 1) == 1;
-    int type = (aData.y >> 16) & 1;
+    bool isUpper = dc_bool(aData.y, 20);
+    bool isLowered = dc_bool(aData.y, 21);
+    bool hasUpper = dc_bool(aData.y, 22);
+    int type = dc_i1(aData.y, 16);
 
     // Position
-    vec3 position = vec3((aData.x >> 10) & 31, (aData.x >> 5) & 31, aData.x & 31);
+    vec3 position = vec3(dc_i5(aData.x, 10), dc_i5(aData.x, 5), dc_i5(aData.x, 0));
 
-    int nShift = (aData.x >> 24) & 3;
-    int orientation = (aData.x >> 26) & 1;
+    int nShift = dc_i2(aData.x, 24);
+    int orientation = dc_i1(aData.x, 26);
 
     nShift += type * nShift;
     nShift++;
