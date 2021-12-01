@@ -40,7 +40,7 @@ namespace VoxelGame.Graphics.Groups
 
         public static ArrayIDataDrawGroup Create(int size)
         {
-            return new(size);
+            return new ArrayIDataDrawGroup(size);
         }
 
         public void SetData(int vertexDataCount, int[] vertexData)
