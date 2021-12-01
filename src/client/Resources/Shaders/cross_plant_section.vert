@@ -21,7 +21,7 @@ uniform float time;
 void main()
 {
     normal = vec3(0, 0, 0);
-    texIndex = dc_texIndex();
+    texIndex = dc_texIndex(aData.y);
 
     // Texture Coordinate.
     int u = dc_i1(aData.x, 31);

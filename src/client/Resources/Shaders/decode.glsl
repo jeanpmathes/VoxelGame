@@ -32,24 +32,14 @@ bool dc_bool(int data, int bit)
     return dc_i1(data, bit) == 1;
 }
 
-int dc_textureIndex(int data)
+int dc_texIndex(int data)
 {
     return data & 8191;
 }
 
-int dc_texIndex()
-{
-    return dc_textureIndex(aData.y);
-}
-
-int dc_liquidTextureIndex(int data)
+int dc_liquidTexIndex(int data)
 {
     return (((data & 127) - 1) << 4) + 1;
-}
-
-int dc_liquidTexIndex()
-{
-    return dc_liquidTextureIndex(aData.y);
 }
 
 vec2 dc_texCoord(int data, int bit)

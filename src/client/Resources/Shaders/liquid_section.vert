@@ -26,7 +26,7 @@ void main()
     int n = dc_i3(aData.y, 16);
     vec3 normal = dc_sideToNormal(n);
 
-    texIndex = dc_liquidTexIndex();
+    texIndex = dc_liquidTexIndex(aData.y);
     texCoord = dc_texCoord(aData.x, 30);
 
     tint = dc_tint(aData.y, 23);
