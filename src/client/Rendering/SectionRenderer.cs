@@ -8,6 +8,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
@@ -17,7 +18,7 @@ namespace VoxelGame.Client.Rendering
     /// <summary>
     ///     A renderer for <see cref="VoxelGame.Core.Logic.Section" />.
     /// </summary>
-    public class SectionRenderer : IDisposable
+    public sealed class SectionRenderer : IDisposable
     {
         public const int DrawStageCount = 7;
 
@@ -32,7 +33,7 @@ namespace VoxelGame.Client.Rendering
 
         private readonly ElementPositionDataDrawGroup complexDrawGroup;
         private readonly ArrayIDataDrawGroup cropPlantDrawGroup;
-        private readonly ArrayIDataDrawGroup crossPlantDrawGroup;
+        private readonly ElementInstancedIDataDrawGroup crossPlantDrawGroup;
         private readonly ElementIDataDrawGroup opaqueLiquidDrawGroup;
 
         private readonly ArrayIDataDrawGroup simpleDrawGroup;
@@ -43,8 +44,11 @@ namespace VoxelGame.Client.Rendering
         public SectionRenderer()
         {
             simpleDrawGroup = ArrayIDataDrawGroup.Create(size: 2);
-            crossPlantDrawGroup = ArrayIDataDrawGroup.Create(size: 2);
             cropPlantDrawGroup = ArrayIDataDrawGroup.Create(size: 2);
+
+            crossPlantDrawGroup = ElementInstancedIDataDrawGroup.Create(
+                BlockModels.CreateCrossPlantModel(),
+                instanceSize: 2);
 
             complexDrawGroup = ElementPositionDataDrawGroup.Create(positionSize: 3, dataSize: 2);
 
@@ -65,12 +69,18 @@ namespace VoxelGame.Client.Rendering
 
             #region CROSS PLANT BUFFER SETUP
 
-            crossPlantDrawGroup.VertexArrayBindBuffer();
+            crossPlantDrawGroup.VertexArrayBindBuffer(modelSize: 5);
 
             Shaders.CrossPlantSection.Use();
-            dataLocation = Shaders.CrossPlantSection.GetAttributeLocation("aData");
 
-            crossPlantDrawGroup.VertexArrayAttributeBinding(dataLocation);
+            dataLocation = Shaders.CrossPlantSection.GetAttributeLocation("aVertexPosition");
+            crossPlantDrawGroup.VertexArrayModelAttributeBinding(dataLocation, size: 3, offset: 0);
+
+            dataLocation = Shaders.CrossPlantSection.GetAttributeLocation("aTexCoord");
+            crossPlantDrawGroup.VertexArrayModelAttributeBinding(dataLocation, size: 2, offset: 3);
+
+            dataLocation = Shaders.CrossPlantSection.GetAttributeLocation("aInstanceData");
+            crossPlantDrawGroup.VertexArrayInstanceAttributeBinding(dataLocation);
 
             #endregion CROSS PLANT BUFFER SETUP
 
@@ -138,7 +148,7 @@ namespace VoxelGame.Client.Rendering
 
             simpleDrawGroup.SetData(meshData.simpleVertexData.Count, meshData.simpleVertexData.ExposeArray());
 
-            crossPlantDrawGroup.SetData(
+            crossPlantDrawGroup.SetInstanceData(
                 meshData.crossPlantVertexData.Count,
                 meshData.crossPlantVertexData.ExposeArray());
 
@@ -356,7 +366,7 @@ namespace VoxelGame.Client.Rendering
 
         private bool disposed;
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposed)
                 return;

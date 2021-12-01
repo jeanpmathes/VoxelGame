@@ -326,38 +326,16 @@ namespace VoxelGame.Client.Logic
                         BlockMeshData mesh =
                             currentBlock.GetMesh(BlockMeshInfo.CrossPlant(data, currentLiquid));
 
-                        // int: uv-o ---- ---- ---- -xxx xxyy yyyz zzzz (uv: texture coords; xyz: position;)
-                        int upperDataA = (0 << 31) | (0 << 30) | ((x + 0) << 10) | ((y + 0) << 5);
-                        int upperDataB = (0 << 31) | (1 << 30) | ((x + 0) << 10) | ((y + 1) << 5);
-                        int upperDataC = (1 << 31) | (1 << 30) | ((x + 1) << 10) | ((y + 1) << 5);
-                        int upperDataD = (1 << 31) | (0 << 30) | ((x + 1) << 10) | ((y + 0) << 5);
+                        // int: ---- ---- ---- ---- -xxx xxyy yyyz zzzz (xyz: position)
+                        int upperData = (x << 10) | (y << 5) | z;
 
                         // int: tttt tttt tulh ---- ---i iiii iiii iiii (t: tint; u: has upper; l: lowered; h: height; i: texture index)
                         int lowerData = (mesh.Tint.GetBits(blockTint) << 23) | ((mesh.HasUpper ? 1 : 0) << 22) |
                                         ((mesh.IsLowered ? 1 : 0) << 21) | ((mesh.IsUpper ? 1 : 0) << 20) |
                                         mesh.TextureIndex;
 
-                        // Z position.
-                        int lowZ = z;
-                        int highZ = z + 1;
-
-                        AddFace(orientation: 0, highZ, lowZ);
-                        AddFace(1 << 28, lowZ, highZ);
-
-                        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                        void AddFace(int orientation, int zA, int zB)
-                        {
-                            crossPlantVertexData.AddRange(
-                                new[]
-                                {
-                                    upperDataA | orientation | zA, lowerData,
-                                    upperDataC | orientation | zB, lowerData,
-                                    upperDataB | orientation | zA, lowerData,
-                                    upperDataA | orientation | zA, lowerData,
-                                    upperDataD | orientation | zB, lowerData,
-                                    upperDataC | orientation | zB, lowerData
-                                });
-                        }
+                        crossPlantVertexData.Add(upperData);
+                        crossPlantVertexData.Add(lowerData);
 
                         break;
                     }

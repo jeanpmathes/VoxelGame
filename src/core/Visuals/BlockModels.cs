@@ -57,6 +57,43 @@ namespace VoxelGame.Core.Visuals
             return (vertices, indices, textureIndices);
         }
 
+        public static (float[] vertices, uint[] indices) CreateCrossPlantModel()
+        {
+            float[] vertices =
+            {
+                // Two sides: /
+                0.145f, 0f, 0.855f, 0f, 0f,
+                0.145f, 1f, 0.855f, 0f, 1f,
+                0.855f, 1f, 0.145f, 1f, 1f,
+                0.855f, 0f, 0.145f, 1f, 0f,
+
+                // Two sides: \
+                0.145f, 0f, 0.145f, 0f, 0f,
+                0.145f, 1f, 0.145f, 0f, 1f,
+                0.855f, 1f, 0.855f, 1f, 1f,
+                0.855f, 0f, 0.855f, 1f, 0f
+            };
+
+            uint[] indices =
+            {
+                // Direction: /
+                0, 2, 1,
+                0, 3, 2,
+
+                0, 1, 2,
+                0, 2, 3,
+
+                // Direction: \
+                4, 6, 5,
+                4, 7, 6,
+
+                4, 5, 6,
+                4, 6, 7
+            };
+
+            return (vertices, indices);
+        }
+
         public static float[] CreateFlatModel(BlockSide side, float offset)
         {
             side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
