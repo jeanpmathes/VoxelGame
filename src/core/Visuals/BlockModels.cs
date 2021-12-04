@@ -94,6 +94,28 @@ namespace VoxelGame.Core.Visuals
             return (vertices, indices);
         }
 
+        public static (float[] vertices, uint[] indices) CreateCropPlantModel()
+        {
+            float[] vertices =
+            {
+                0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
+                0f, 1f, 0f, 0f, 1f, 0f, 0f, 1f,
+                1f, 1f, 0f, 0f, 1f, 1f, 1f, 1f,
+                1f, 0f, 0f, 0f, 0f, 1f, 1f, 0f
+            };
+
+            uint[] indices =
+            {
+                0, 2, 1,
+                0, 3, 2,
+
+                0, 1, 2,
+                0, 2, 3
+            };
+
+            return (vertices, indices);
+        }
+
         public static float[] CreateFlatModel(BlockSide side, float offset)
         {
             side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);

@@ -32,7 +32,7 @@ namespace VoxelGame.Client.Rendering
         private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
 
         private readonly ElementPositionDataDrawGroup complexDrawGroup;
-        private readonly ArrayIDataDrawGroup cropPlantDrawGroup;
+        private readonly ElementInstancedIDataDrawGroup cropPlantDrawGroup;
         private readonly ElementInstancedIDataDrawGroup crossPlantDrawGroup;
         private readonly ElementIDataDrawGroup opaqueLiquidDrawGroup;
 
@@ -44,10 +44,13 @@ namespace VoxelGame.Client.Rendering
         public SectionRenderer()
         {
             simpleDrawGroup = ArrayIDataDrawGroup.Create(size: 2);
-            cropPlantDrawGroup = ArrayIDataDrawGroup.Create(size: 2);
 
             crossPlantDrawGroup = ElementInstancedIDataDrawGroup.Create(
                 BlockModels.CreateCrossPlantModel(),
+                instanceSize: 2);
+
+            cropPlantDrawGroup = ElementInstancedIDataDrawGroup.Create(
+                BlockModels.CreateCropPlantModel(),
                 instanceSize: 2);
 
             complexDrawGroup = ElementPositionDataDrawGroup.Create(positionSize: 3, dataSize: 2);
@@ -86,12 +89,21 @@ namespace VoxelGame.Client.Rendering
 
             #region CROP PLANT BUFFER SETUP
 
-            cropPlantDrawGroup.VertexArrayBindBuffer();
+            cropPlantDrawGroup.VertexArrayBindBuffer(modelSize: 8);
 
             Shaders.CropPlantSection.Use();
-            dataLocation = Shaders.CropPlantSection.GetAttributeLocation("aData");
 
-            cropPlantDrawGroup.VertexArrayAttributeBinding(dataLocation);
+            dataLocation = Shaders.CropPlantSection.GetAttributeLocation("aVertexPositionNS");
+            cropPlantDrawGroup.VertexArrayModelAttributeBinding(dataLocation, size: 3, offset: 0);
+
+            dataLocation = Shaders.CropPlantSection.GetAttributeLocation("aVertexPositionEW");
+            cropPlantDrawGroup.VertexArrayModelAttributeBinding(dataLocation, size: 3, offset: 3);
+
+            dataLocation = Shaders.CropPlantSection.GetAttributeLocation("aTexCoord");
+            cropPlantDrawGroup.VertexArrayModelAttributeBinding(dataLocation, size: 2, offset: 6);
+
+            dataLocation = Shaders.CropPlantSection.GetAttributeLocation("aInstanceData");
+            cropPlantDrawGroup.VertexArrayInstanceAttributeBinding(dataLocation);
 
             #endregion CROP PLANT BUFFER SETUP
 
@@ -152,7 +164,9 @@ namespace VoxelGame.Client.Rendering
                 meshData.crossPlantVertexData.Count,
                 meshData.crossPlantVertexData.ExposeArray());
 
-            cropPlantDrawGroup.SetData(meshData.cropPlantVertexData.Count, meshData.cropPlantVertexData.ExposeArray());
+            cropPlantDrawGroup.SetInstanceData(
+                meshData.cropPlantVertexData.Count,
+                meshData.cropPlantVertexData.ExposeArray());
 
             complexDrawGroup.SetData(
                 meshData.complexVertexPositions.Count,
