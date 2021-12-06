@@ -40,10 +40,7 @@ namespace VoxelGame.UI.Settings
 
             qualitySelection.SelectedItem = items[(int) get()];
 
-            qualitySelection.ItemSelected += (sender, args) =>
-            {
-                set((Quality) ((MenuItem) args.SelectedItem).UserData);
-            };
+            qualitySelection.ItemSelected += (_, args) => { set((Quality) ((MenuItem) args.SelectedItem).UserData); };
         }
     }
 }

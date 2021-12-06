@@ -57,7 +57,15 @@ namespace VoxelGame.Core.Visuals
             return (vertices, indices, textureIndices);
         }
 
-        public static (float[] vertices, uint[] indices) CreateCrossPlantModel()
+        public static (float[] vertices, uint[] indices) CreateCrossPlantModel(Quality quality)
+        {
+            return quality switch
+            {
+                _ => CreateLowCrossPlantModel()
+            };
+        }
+
+        private static (float[] vertices, uint[] indices) CreateLowCrossPlantModel()
         {
             float[] vertices =
             {
@@ -94,7 +102,15 @@ namespace VoxelGame.Core.Visuals
             return (vertices, indices);
         }
 
-        public static (float[] vertices, uint[] indices) CreateCropPlantModel()
+        public static (float[] vertices, uint[] indices) CreateCropPlantModel(Quality quality)
+        {
+            return quality switch
+            {
+                _ => CreateLowCropPlantModel()
+            };
+        }
+
+        private static (float[] vertices, uint[] indices) CreateLowCropPlantModel()
         {
             float[] vertices =
             {

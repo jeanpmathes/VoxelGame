@@ -69,7 +69,7 @@
 
   <ItemGroup>
       <None Update="Settings.settings">
-          <Generator>PublicSettingsSingleFileGenerator</Generator>
+        <Generator>SettingsSingleFileGenerator</Generator>
           <LastGenOutput>Settings.Designer.cs</LastGenOutput>
           <CustomToolNamespace>Properties</CustomToolNamespace>
       </None>

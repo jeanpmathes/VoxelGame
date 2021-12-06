@@ -46,11 +46,11 @@ namespace VoxelGame.Client.Rendering
             simpleDrawGroup = ArrayIDataDrawGroup.Create(size: 2);
 
             crossPlantDrawGroup = ElementInstancedIDataDrawGroup.Create(
-                BlockModels.CreateCrossPlantModel(),
+                BlockModels.CreateCrossPlantModel(Application.Client.Instance.Graphics.FoliageQuality),
                 instanceSize: 2);
 
             cropPlantDrawGroup = ElementInstancedIDataDrawGroup.Create(
-                BlockModels.CreateCropPlantModel(),
+                BlockModels.CreateCropPlantModel(Application.Client.Instance.Graphics.FoliageQuality),
                 instanceSize: 2);
 
             complexDrawGroup = ElementPositionDataDrawGroup.Create(positionSize: 3, dataSize: 2);
