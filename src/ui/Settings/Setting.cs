@@ -7,6 +7,7 @@
 using System;
 using System.Drawing;
 using Gwen.Net.Control;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Input.Internal;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
@@ -68,6 +69,15 @@ namespace VoxelGame.UI.Settings
             float min = float.MinValue, float max = float.MaxValue)
         {
             return new FloatRangeSetting(name, min, max, get, set)
+            {
+                Provider = provider
+            };
+        }
+
+        public static Setting CreateQualitySetting(ISettingsProvider provider, string name, Func<Quality> get,
+            Action<Quality> set)
+        {
+            return new QualitySetting(name, get, set)
             {
                 Provider = provider
             };

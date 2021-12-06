@@ -516,13 +516,16 @@
   <data name="Resume" xml:space="preserve">
     <value>Resume</value>
   </data>
-  <data name="KeyConsole" xml:space="preserve">
+    <data name="KeyConsole" xml:space="preserve">
     <value>Console</value>
   </data>
-  <data name="Submit" xml:space="preserve">
+    <data name="Submit" xml:space="preserve">
     <value>Submit</value>
   </data>
-  <data name="KeyDebugView" xml:space="preserve">
+    <data name="KeyDebugView" xml:space="preserve">
     <value>Debug View</value>
+  </data>
+    <data name="GraphicsFoliageQuality" xml:space="preserve">
+    <value>Foliage Quality</value>
   </data>
 </root>

@@ -12,12 +12,12 @@ namespace Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.8.1.0")]
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
+    public sealed partial class client : global::System.Configuration.ApplicationSettingsBase {
         
-        private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
+        private static client defaultInstance = ((client)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new client())));
         
-        public static Settings Default {
+        public static client Default {
             get {
                 return defaultInstance;
             }
@@ -116,6 +116,18 @@ namespace Properties {
             }
             set {
                 this["MaxMeshDataSends"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Medium")]
+        public global::VoxelGame.Core.Visuals.Quality FoliageQuality {
+            get {
+                return ((global::VoxelGame.Core.Visuals.Quality)(this["FoliageQuality"]));
+            }
+            set {
+                this["FoliageQuality"] = value;
             }
         }
     }

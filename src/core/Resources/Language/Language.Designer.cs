@@ -430,6 +430,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Foliage Quality.
+        /// </summary>
+        public static string GraphicsFoliageQuality {
+            get {
+                return ResourceManager.GetString("GraphicsFoliageQuality", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Max FPS.
         /// </summary>
         public static string GraphicsMaxFPS {
