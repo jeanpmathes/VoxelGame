@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Linq;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic;
 
@@ -45,6 +46,8 @@ namespace VoxelGame.Core.Visuals
         {
             return quality switch
             {
+                Quality.Low => CreateLowCrossPlantModel(),
+                Quality.Medium => CreateMediumCrossPlantModel(),
                 _ => CreateLowCrossPlantModel()
             };
         }
@@ -53,13 +56,13 @@ namespace VoxelGame.Core.Visuals
         {
             float[] vertices =
             {
-                // Two sides: /
+                // First part: /
                 0.145f, 0f, 0.855f, 0f, 0f,
                 0.145f, 1f, 0.855f, 0f, 1f,
                 0.855f, 1f, 0.145f, 1f, 1f,
                 0.855f, 0f, 0.145f, 1f, 0f,
 
-                // Two sides: \
+                // Second part: \
                 0.145f, 0f, 0.145f, 0f, 0f,
                 0.145f, 1f, 0.145f, 0f, 1f,
                 0.855f, 1f, 0.855f, 1f, 1f,
@@ -71,10 +74,44 @@ namespace VoxelGame.Core.Visuals
             return (vertices, indices);
         }
 
+        private static (float[] vertices, uint[] indices) CreateMediumCrossPlantModel()
+        {
+            float[] vertices =
+            {
+                // First part: /
+                0.145f, 0f, 0.855f, 0.0f, 0f,
+                0.145f, 1f, 0.855f, 0.0f, 1f,
+                0.500f, 1f, 0.500f, 0.5f, 1f,
+                0.500f, 0f, 0.500f, 0.5f, 0f,
+
+                0.500f, 0f, 0.500f, 0.5f, 0f,
+                0.500f, 1f, 0.500f, 0.5f, 1f,
+                0.855f, 1f, 0.145f, 1.0f, 1f,
+                0.855f, 0f, 0.145f, 1.0f, 0f,
+
+                // Second part: \
+                0.145f, 0f, 0.145f, 0.0f, 0f,
+                0.145f, 1f, 0.145f, 0.0f, 1f,
+                0.500f, 1f, 0.500f, 0.5f, 1f,
+                0.500f, 0f, 0.500f, 0.5f, 0f,
+
+                0.500f, 0f, 0.500f, 0.5f, 0f,
+                0.500f, 1f, 0.500f, 0.5f, 1f,
+                0.855f, 1f, 0.855f, 1.0f, 1f,
+                0.855f, 0f, 0.855f, 1.0f, 0f
+            };
+
+            uint[] indices = GenerateDoubleSidedIndexDataArray(faces: 4);
+
+            return (vertices, indices);
+        }
+
         public static (float[] vertices, uint[] indices) CreateCropPlantModel(Quality quality)
         {
             return quality switch
             {
+                Quality.Low => CreateLowCropPlantModel(),
+                Quality.Medium => CreateMediumCropPlantModel(),
                 _ => CreateLowCropPlantModel()
             };
         }
@@ -90,6 +127,36 @@ namespace VoxelGame.Core.Visuals
             };
 
             uint[] indices = GenerateDoubleSidedIndexDataArray(faces: 1);
+
+            return (vertices, indices);
+        }
+
+        private static (float[] vertices, uint[] indices) CreateMediumCropPlantModel()
+        {
+            const int faceCount = 4;
+            float[][] faces = new float[faceCount][];
+
+            for (var f = 0; f < faceCount; f++)
+            {
+                const float xzStep = 1f / 16f * (16f / faceCount);
+                float a = f * xzStep;
+                float b = (f + 1) * xzStep;
+
+                const float uvStep = 1f / faceCount;
+                float p = f * uvStep;
+                float q = (f + 1) * uvStep;
+
+                faces[f] = new[]
+                {
+                    a, 0f, 0f, 0f, 0f, a, p, 0f,
+                    a, 1f, 0f, 0f, 1f, a, p, 1f,
+                    b, 1f, 0f, 0f, 1f, b, q, 1f,
+                    b, 0f, 0f, 0f, 0f, b, q, 0f
+                };
+            }
+
+            float[] vertices = faces.SelectMany(f => f).ToArray();
+            uint[] indices = GenerateDoubleSidedIndexDataArray(faceCount);
 
             return (vertices, indices);
         }
