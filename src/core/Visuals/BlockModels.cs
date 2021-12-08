@@ -35,23 +35,7 @@ namespace VoxelGame.Core.Visuals
                 0.855f, 0f, 0.855f, 1f, 0f, 0f, 0f, 0f
             };
 
-            uint[] indices =
-            {
-                // Direction: /
-                0, 2, 1,
-                0, 3, 2,
-
-                0, 1, 2,
-                0, 2, 3,
-
-                // Direction: \
-                4, 6, 5,
-                4, 7, 6,
-
-                4, 5, 6,
-                4, 6, 7
-            };
-
+            uint[] indices = GenerateDoubleSidedIndexDataArray(faces: 2);
             int[] textureIndices = GenerateTextureDataArray(textureIndex, length: 8);
 
             return (vertices, indices, textureIndices);
@@ -82,22 +66,7 @@ namespace VoxelGame.Core.Visuals
                 0.855f, 0f, 0.855f, 1f, 0f
             };
 
-            uint[] indices =
-            {
-                // Direction: /
-                0, 2, 1,
-                0, 3, 2,
-
-                0, 1, 2,
-                0, 2, 3,
-
-                // Direction: \
-                4, 6, 5,
-                4, 7, 6,
-
-                4, 5, 6,
-                4, 6, 7
-            };
+            uint[] indices = GenerateDoubleSidedIndexDataArray(faces: 2);
 
             return (vertices, indices);
         }
@@ -120,14 +89,7 @@ namespace VoxelGame.Core.Visuals
                 1f, 0f, 0f, 0f, 0f, 1f, 1f, 0f
             };
 
-            uint[] indices =
-            {
-                0, 2, 1,
-                0, 3, 2,
-
-                0, 1, 2,
-                0, 2, 3
-            };
+            uint[] indices = GenerateDoubleSidedIndexDataArray(faces: 1);
 
             return (vertices, indices);
         }
@@ -183,6 +145,32 @@ namespace VoxelGame.Core.Visuals
             Array.Fill(data, tex);
 
             return data;
+        }
+
+        public static uint[] GenerateDoubleSidedIndexDataArray(int faces)
+        {
+            uint[] indices = new uint[faces * 12];
+
+            for (var f = 0; f < faces; f++)
+            {
+                var offset = (uint) (f * 4);
+
+                indices[f * 12 + 0] = 0 + offset;
+                indices[f * 12 + 1] = 2 + offset;
+                indices[f * 12 + 2] = 1 + offset;
+                indices[f * 12 + 3] = 0 + offset;
+                indices[f * 12 + 4] = 3 + offset;
+                indices[f * 12 + 5] = 2 + offset;
+
+                indices[f * 12 + 6] = 0 + offset;
+                indices[f * 12 + 7] = 1 + offset;
+                indices[f * 12 + 8] = 2 + offset;
+                indices[f * 12 + 9] = 0 + offset;
+                indices[f * 12 + 10] = 2 + offset;
+                indices[f * 12 + 11] = 3 + offset;
+            }
+
+            return indices;
         }
 
         public static uint[] GenerateIndexDataArray(int faces)
