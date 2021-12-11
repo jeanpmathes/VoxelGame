@@ -122,49 +122,43 @@ namespace VoxelGame.Core.Visuals
         {
             return quality switch
             {
-                Quality.Low => CreateLowCropPlantModel(),
-                Quality.Medium => CreateMediumCropPlantModel(),
-                _ => CreateLowCropPlantModel()
+                Quality.Low => CreateCropPlantModel(horizontalSteps: 1, verticalSteps: 1),
+                Quality.Medium => CreateCropPlantModel(horizontalSteps: 4, verticalSteps: 1),
+                Quality.High => CreateCropPlantModel(horizontalSteps: 4, verticalSteps: 2),
+                Quality.Ultra => CreateCropPlantModel(horizontalSteps: 4, verticalSteps: 2),
+                _ => throw new NotImplementedException()
             };
         }
 
-        private static (float[] vertices, uint[] indices) CreateLowCropPlantModel()
+        private static (float[] vertices, uint[] indices) CreateCropPlantModel(
+            int horizontalSteps, int verticalSteps)
         {
-            float[] vertices =
-            {
-                0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f,
-                0f, 1f, 0f, 0f, 1f, 0f, 0f, 1f,
-                1f, 1f, 0f, 0f, 1f, 1f, 1f, 1f,
-                1f, 0f, 0f, 0f, 0f, 1f, 1f, 0f
-            };
-
-            uint[] indices = GenerateDoubleSidedIndexDataArray(faces: 1);
-
-            return (vertices, indices);
-        }
-
-        private static (float[] vertices, uint[] indices) CreateMediumCropPlantModel()
-        {
-            const int faceCount = 4;
+            int faceCount = horizontalSteps * verticalSteps;
             float[][] faces = new float[faceCount][];
 
-            for (var f = 0; f < faceCount; f++)
+            float hStep = 1f / horizontalSteps;
+            float vStep = 1f / verticalSteps;
+            var face = 0;
+
+            for (var h = 0; h < horizontalSteps; h++)
+            for (var v = 0; v < verticalSteps; v++)
             {
-                const float xzStep = 1f / 16f * (16f / faceCount);
-                float a = f * xzStep;
-                float b = (f + 1) * xzStep;
+                float z1, z2;
+                float x1 = z1 = h * hStep;
+                float x2 = z2 = (h + 1) * hStep;
 
-                const float uvStep = 1f / faceCount;
-                float p = f * uvStep;
-                float q = (f + 1) * uvStep;
+                float y1 = v * vStep;
+                float y2 = (v + 1) * vStep;
 
-                faces[f] = new[]
+                faces[face] = new[]
                 {
-                    a, 0f, 0f, 0f, 0f, a, p, 0f,
-                    a, 1f, 0f, 0f, 1f, a, p, 1f,
-                    b, 1f, 0f, 0f, 1f, b, q, 1f,
-                    b, 0f, 0f, 0f, 0f, b, q, 0f
+                    x1, y1, 0f, 0f, y1, z1, x1, y1,
+                    x1, y2, 0f, 0f, y2, z1, x1, y2,
+                    x2, y2, 0f, 0f, y2, z2, x2, y2,
+                    x2, y1, 0f, 0f, y1, z2, x2, y1
                 };
+
+                face++;
             }
 
             float[] vertices = faces.SelectMany(f => f).ToArray();
