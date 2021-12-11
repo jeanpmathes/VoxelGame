@@ -15,29 +15,16 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+#pragma include("noise")
+#pragma include("decode")
+
 void main()
 {
-    // Normal
-    int nx = (aData.x >> 27) & 31;
-    int ny = (aData.x >> 22) & 31;
-    int nz = (aData.x >> 17) & 31;
-    normal = vec3((nx < 16) ? nx : (nx & 15) * -1, (ny < 16) ? ny : (ny & 15) * -1, (nz < 16) ? nz : (nz & 15) * -1);
-    normal /= 15.0;
-    normal = normalize(normal);
-    normal = (isnan(normal.x) || isnan(normal.y) || isnan(normal.z)) ? vec3(0.0, 0.0, 0.0) : normal;
+    normal = dc_normal(aData.x, 17);
+    texIndex = dc_texIndex(aData.y);
+    texCoord = vec2(dc_i5(aData.x, 5) / 16.0, dc_i5(aData.x, 0) / 16.0);
+    tint = dc_tint(aData.y, 23);
+    anim = dc_i1(aData.y, 16);
 
-    // Texture Index
-    texIndex = aData.y & 8191;
-
-    // Texture Coordinate
-    texCoord = vec2(((aData.x >> 5) & 31) / 16.0, (aData.x & 31) / 16.0);
-
-    // Tint
-    tint = vec4(((aData.y >> 29) & 7) / 7.0, ((aData.y >> 26) & 7) / 7.0, ((aData.y >> 23) & 7) / 7.0, 1.0);
-
-    // Animation
-    anim = (aData.y >> 16) & 1;
-
-    // Position
     gl_Position = vec4(aPosition, 1.0) * model * view * projection;
 }

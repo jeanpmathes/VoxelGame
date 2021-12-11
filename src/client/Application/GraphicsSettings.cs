@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using Properties;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Visuals;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
 
@@ -32,6 +33,13 @@ namespace VoxelGame.Client.Application
 
             settings.Add(
                 Setting.CreateIntegerSetting(this, Language.GraphicsMaxFPS, () => MaxFPS, i => MaxFPS = i, min: 0));
+
+            settings.Add(
+                Setting.CreateQualitySetting(
+                    this,
+                    Language.GraphicsFoliageQuality,
+                    () => FoliageQuality,
+                    quality => FoliageQuality = quality));
         }
 
         public int SampleCount
@@ -52,6 +60,17 @@ namespace VoxelGame.Client.Application
             private set
             {
                 clientSettings.MaxFPS = value;
+                clientSettings.Save();
+            }
+        }
+
+        public Quality FoliageQuality
+        {
+            get => clientSettings.FoliageQuality;
+
+            private set
+            {
+                clientSettings.FoliageQuality = value;
                 clientSettings.Save();
             }
         }

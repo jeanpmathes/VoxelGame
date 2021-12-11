@@ -185,7 +185,7 @@ namespace VoxelGame.Client.Entities
 #if DEBUG
                 if (selectedBlock != Block.Air)
 #else
-                if (!block.IsReplaceable)
+                if (!selectedBlock.IsReplaceable)
 #endif
                 {
                     BoundingBox selectedBox = selectedBlock.GetBoundingBox(World, targetPosition);

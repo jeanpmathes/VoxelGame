@@ -525,4 +525,7 @@
     <data name="KeyDebugView" xml:space="preserve">
     <value>Entwickleransicht</value>
   </data>
+    <data name="GraphicsFoliageQuality" xml:space="preserve">
+    <value>Pflanzenqualität</value>
+  </data>
 </root>

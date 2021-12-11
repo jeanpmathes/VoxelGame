@@ -1,6 +1,9 @@
 ﻿#version 430
 
-in ivec2 aData;
+in vec3 aVertexPositionNS;
+in vec3 aVertexPositionEW;
+in vec2 aTexCoord;
+in ivec2 aInstanceData;
 
 out vec3 normal;
 
@@ -16,49 +19,37 @@ uniform mat4 projection;
 uniform float time;
 
 #pragma include("noise")
+#pragma include("decode")
 
 void main()
 {
-    // Normal.
     normal = vec3(0, 0, 0);
-
-    // Texture Index
-    texIndex = aData.y & 8191;
-
-    // Texture Coordinate
-    int u = (aData.x >> 31) & 1;
-    int v = (aData.x >> 30) & 1;
-    texCoord = vec2(u, v);
-
-    // Tint
-    tint = vec4(((aData.y >> 29) & 7) / 7.0, ((aData.y >> 26) & 7) / 7.0, ((aData.y >> 23) & 7) / 7.0, 1.0);
+    texIndex = dc_texIndex(aInstanceData.y);
+    texCoord = aTexCoord;
+    tint = dc_tint(aInstanceData.y, 23);
 
     // Crop plant information.
-    bool isUpper = ((aData.y >> 20) & 1) == 1;
-    bool isLowered = ((aData.y >> 21) & 1) == 1;
-    bool hasUpper = ((aData.y >> 22) & 1) == 1;
-    int type = (aData.y >> 16) & 1;
+    bool isUpper = dc_bool(aInstanceData.y, 20);
+    bool isLowered = dc_bool(aInstanceData.y, 21);
+    bool hasUpper = dc_bool(aInstanceData.y, 22);
+
+    int nShift = dc_i4(aInstanceData.x, 24);
+    int orientation = dc_i1(aInstanceData.x, 31);
 
     // Position
-    vec3 position = vec3((aData.x >> 10) & 31, (aData.x >> 5) & 31, aData.x & 31);
+    vec3 selectedPosition = orientation == 1 ? aVertexPositionNS : aVertexPositionEW;
+    vec3 blockPosition = vec3(dc_i5(aInstanceData.x, 10), dc_i5(aInstanceData.x, 5), dc_i5(aInstanceData.x, 0));
+    vec3 vertexPosition = selectedPosition + blockPosition;
+    if (isLowered) vertexPosition.y -= 0.0625;
 
-    int nShift = (aData.x >> 24) & 3;
-    int orientation = (aData.x >> 26) & 1;
+    const float shift = 1.0 / 16.0;
 
-    nShift += type * nShift;
-    nShift++;
-
-    const float plantShift = 1.0 / 4.0;
-
-    float offset = nShift * (((1 - type) * plantShift) + ((type) * plantShift));
-
+    float offset = nShift * shift;
     float xOffset = (1 - orientation) * (offset);
     float zOffset = (orientation) * (offset);
 
-    position.x += xOffset;
-    position.z += zOffset;
-
-    if (isLowered) position.y -= 0.0625;
+    vertexPosition.x += xOffset;
+    vertexPosition.z += zOffset;
 
     // Sway in wind.
     const float swayAmplitude = 0.1;
@@ -68,7 +59,7 @@ void main()
     float swayStrength = texCoord.y;
     if (hasUpper) swayStrength = (swayStrength + (isUpper ? 1.0 : 0.0)) / 2.0;
 
-    position += wind * noise(vec2(position.xz + wind.xz * time * swaySpeed)) * swayAmplitude * swayStrength;
+    vertexPosition += wind * noise(vec2(vertexPosition.xz + wind.xz * time * swaySpeed)) * swayAmplitude * swayStrength;
 
-    gl_Position = vec4(position, 1.0) * model * view * projection;
+    gl_Position = vec4(vertexPosition, 1.0) * model * view * projection;
 }

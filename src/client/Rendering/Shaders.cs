@@ -51,6 +51,7 @@ namespace VoxelGame.Client.Rendering
             using (logger.BeginScope("Shader setup"))
             {
                 loader.LoadIncludable("noise", "noise.glsl");
+                loader.LoadIncludable("decode", "decode.glsl");
 
                 SimpleSection = loader.Load("simple_section.vert", "section.frag");
                 ComplexSection = loader.Load("complex_section.vert", "section.frag");

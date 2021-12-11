@@ -6,6 +6,7 @@ out vec3 normal;
 
 flat out int texIndex;
 out vec2 texCoord;
+flat out ivec2 texCordMax;
 
 out vec4 tint;
 flat out int anim;
@@ -14,36 +15,29 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-void main() 
+#pragma include("decode")
+
+void main()
 {
-    int height = (aData.y >> 16) & 15;
+    int height = dc_i4(aData.y, 16);
     float upperBound = (height + 1) * 0.0625;
 
-	// Normal
-    int n = (aData.y >> 20) & 7;
-    normal = vec3(0.0, 0.0, 0.0);
-    normal[((n >> 1) + 3 & 2) | (n >> 2)] = -1.0 + (2 * (n & 1));
-    normal.z *= -1.0;
-    normal = normalize(normal);
+    int n = dc_i3(aData.y, 20);
+    normal = dc_sideToNormal(n);
 
-    // Texture Index
-    texIndex = aData.y & 8191;
+    texIndex = dc_texIndex(aData.y);
+    texCoord = dc_texCoord(aData.x, 30);
 
-    // Texture Coordinate
-    texCoord = vec2((aData.x >> 31) & 1, (aData.x >> 30) & 1);
+    tint = dc_tint(aData.y, 23);
 
-    // Tint
-    tint = vec4(((aData.y >> 29) & 7) / 7.0, ((aData.y >> 26) & 7) / 7.0, ((aData.y >> 23) & 7) / 7.0, 1.0);
+    int end = dc_i1(aData.x, 9);
+    vec3 position = vec3(dc_i5(aData.x, 10), dc_i4(aData.x, 5), dc_i5(aData.x, 0));
 
-    // Position and Texture
-    int end = (aData.x >> 9) & 1;
-    vec3 position = vec3((aData.x >> 10) & 31, (aData.x >> 5) & 15, aData.x & 31);
-
-    if (n == 4) // Side: Bottom
+    if (n == 4)// Side: Bottom
     {
         position.y += 0.0;
     }
-    else if (n == 5) // Side: Top
+    else if (n == 5)// Side: Top
     {
         position.y += upperBound;
     }
@@ -54,8 +48,13 @@ void main()
     }
 
     // Texture Repetition
-    texCoord.x *= ((aData.x >> 24) & 15) + 1;
-    texCoord.y *= ((aData.x >> 20) & 15) + 1;
+    int xLen = dc_i4(aData.x, 24) + 1;
+    int yLen = dc_i4(aData.x, 20) + 1;
 
-	gl_Position = vec4(position, 1.0) * model * view * projection;
+    texCordMax = ivec2(xLen, yLen);
+
+    texCoord.x *= xLen;
+    texCoord.y *= yLen;
+
+    gl_Position = vec4(position, 1.0) * model * view * projection;
 }

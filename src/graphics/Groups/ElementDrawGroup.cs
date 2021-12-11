@@ -26,7 +26,7 @@ namespace VoxelGame.Graphics.Groups
 
         public static ElementDrawGroup Create()
         {
-            return new();
+            return new ElementDrawGroup();
         }
 
         public void SetStorage(int elements, int vertexDataCount, float[] vertexData, int indexDataCount,

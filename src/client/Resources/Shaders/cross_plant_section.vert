@@ -1,6 +1,8 @@
 ﻿#version 430
 
-in ivec2 aData;
+in vec3 aVertexPosition;
+in vec2 aTexCoord;
+in ivec2 aInstanceData;
 
 out vec3 normal;
 
@@ -16,50 +18,34 @@ uniform mat4 projection;
 uniform float time;
 
 #pragma include("noise")
+#pragma include("decode")
 
 void main()
 {
-    // Normal.
     normal = vec3(0, 0, 0);
-
-    // Texture Index
-    texIndex = aData.y & 8191;
-
-    // Texture Coordinate
-    int u = (aData.x >> 31) & 1;
-    int v = (aData.x >> 30) & 1;
-    texCoord = vec2(u, v);
-
-    // Tint
-    tint = vec4(((aData.y >> 29) & 7) / 7.0, ((aData.y >> 26) & 7) / 7.0, ((aData.y >> 23) & 7) / 7.0, 1.0);
+    texIndex = dc_texIndex(aInstanceData.y);
+    texCoord = aTexCoord;
+    tint = dc_tint(aInstanceData.y, 23);
 
     // Cross plant information.
-    bool isUpper = ((aData.y >> 20) & 1) == 1;
-    bool isLowered = ((aData.y >> 21) & 1) == 1;
-    bool hasUpper = ((aData.y >> 22) & 1) == 1;
+    bool isUpper = dc_bool(aInstanceData.y, 20);
+    bool isLowered = dc_bool(aInstanceData.y, 21);
+    bool hasUpper = dc_bool(aInstanceData.y, 22);
 
-    // Position
-    vec3 position = vec3((aData.x >> 10) & 31, (aData.x >> 5) & 31, aData.x & 31);
-    int orientation = (aData.x >> 28) & 1;
-
-    float xOffset = (u == 0 ? +1 : -1) * 0.145;
-    float zOffset = (u == 0 ? -1 : +1) * 0.145;
-    if (orientation == 1) zOffset = xOffset;
-
-    position.x += xOffset;
-    position.z += zOffset;
-
-    if (isLowered) position.y -= 0.0625;
+    // Position.
+    vec3 blockPosition = vec3(dc_i5(aInstanceData.x, 10), dc_i5(aInstanceData.x, 5), dc_i5(aInstanceData.x, 0));
+    vec3 vertexPosition = aVertexPosition + blockPosition;
+    if (isLowered) vertexPosition.y -= 0.0625;
 
     // Sway in wind.
     const float swayAmplitude = 0.1;
     const float swaySpeed = 0.8;
 
-    vec3 wind = vec3(0.7, 0, 0.7);
+    vec3 wind = vec3(0.7, 0.0, 0.7);
     float swayStrength = texCoord.y;
     if (hasUpper) swayStrength = (swayStrength + (isUpper ? 1.0 : 0.0)) / 2.0;
 
-    position += wind * noise(vec2(position.xz + wind.xz * time * swaySpeed)) * swayAmplitude * swayStrength;
+    vertexPosition += wind * noise(vec2(vertexPosition.xz + wind.xz * time * swaySpeed)) * swayAmplitude * swayStrength;
 
-    gl_Position = vec4(position, 1.0) * model * view * projection;
+    gl_Position = vec4(vertexPosition, 1.0) * model * view * projection;
 }

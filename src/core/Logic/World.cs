@@ -259,8 +259,8 @@ namespace VoxelGame.Core.Logic
 
                 (BlockInstance? blockNeighbor, LiquidInstance? liquidNeighbor) = GetContent(neighborPosition);
 
-                blockNeighbor?.Block.BlockUpdate(this, neighborPosition, data, side.Opposite());
-                liquidNeighbor?.Liquid.TickSoon(this, neighborPosition, isStatic);
+                blockNeighbor?.Block.BlockUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
+                liquidNeighbor?.Liquid.TickSoon(this, neighborPosition, liquidNeighbor.IsStatic);
             }
 
             ProcessChangedSection(chunk, position);

@@ -118,5 +118,17 @@ namespace Properties {
                 this["MaxMeshDataSends"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Medium")]
+        public global::VoxelGame.Core.Visuals.Quality FoliageQuality {
+            get {
+                return ((global::VoxelGame.Core.Visuals.Quality)(this["FoliageQuality"]));
+            }
+            set {
+                this["FoliageQuality"] = value;
+            }
+        }
     }
 }
