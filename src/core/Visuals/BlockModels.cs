@@ -46,64 +46,76 @@ namespace VoxelGame.Core.Visuals
         {
             return quality switch
             {
-                Quality.Low => CreateLowCrossPlantModel(),
-                Quality.Medium => CreateMediumCrossPlantModel(),
-                _ => CreateLowCrossPlantModel()
+                Quality.Low => CreateCrossPlantModel(
+                    horizontalSteps: 1,
+                    verticalSteps: 1,
+                    ((0.145f, 0.855f), (0.855f, 0.145f)),
+                    ((0.145f, 0.145f), (0.855f, 0.855f))),
+                Quality.Medium => CreateCrossPlantModel(
+                    horizontalSteps: 2,
+                    verticalSteps: 1,
+                    ((0.145f, 0.855f), (0.855f, 0.145f)),
+                    ((0.145f, 0.145f), (0.855f, 0.855f))),
+                Quality.High => CreateCrossPlantModel(
+                    horizontalSteps: 2,
+                    verticalSteps: 2,
+                    ((0.145f, 0.855f), (0.855f, 0.145f)),
+                    ((0.145f, 0.145f), (0.855f, 0.855f))),
+                Quality.Ultra => CreateCrossPlantModel(
+                    horizontalSteps: 2,
+                    verticalSteps: 2,
+                    ((0.145f, 0.855f), (0.855f, 0.145f)),
+                    ((0.145f, 0.145f), (0.855f, 0.855f)),
+                    ((0.0f, 0.5f), (1.0f, 0.5f)),
+                    ((0.5f, 0.0f), (0.5f, 1.0f))),
+                _ => throw new NotImplementedException()
             };
         }
 
-        private static (float[] vertices, uint[] indices) CreateLowCrossPlantModel()
+        private static (float[] vertices, uint[] indices) CreateCrossPlantModel(
+            int horizontalSteps, int verticalSteps,
+            params ((float x, float z) a, (float x, float z) b)[] parts)
         {
-            float[] vertices =
-            {
-                // First part: /
-                0.145f, 0f, 0.855f, 0f, 0f,
-                0.145f, 1f, 0.855f, 0f, 1f,
-                0.855f, 1f, 0.145f, 1f, 1f,
-                0.855f, 0f, 0.145f, 1f, 0f,
+            int faceCount = parts.Length * horizontalSteps * verticalSteps;
+            float[][] faces = new float[faceCount][];
 
-                // Second part: \
-                0.145f, 0f, 0.145f, 0f, 0f,
-                0.145f, 1f, 0.145f, 0f, 1f,
-                0.855f, 1f, 0.855f, 1f, 1f,
-                0.855f, 0f, 0.855f, 1f, 0f
-            };
+            float hStep = 1f / horizontalSteps;
+            float vStep = 1f / verticalSteps;
+            var face = 0;
 
-            uint[] indices = GenerateDoubleSidedIndexDataArray(faces: 2);
+            foreach (((float x, float z) a, (float x, float z) b) in parts)
+                for (var h = 0; h < horizontalSteps; h++)
+                for (var v = 0; v < verticalSteps; v++)
+                {
+                    float x1 = h * hStep;
+                    float x2 = (h + 1) * hStep;
+
+                    float y1 = v * vStep;
+                    float y2 = (v + 1) * vStep;
+
+                    (float x, float z) begin = Lerp(a, b, x1);
+                    (float x, float z) finis = Lerp(a, b, x2);
+
+                    faces[face] = new[]
+                    {
+                        begin.x, y1, begin.z, x1, y1,
+                        begin.x, y2, begin.z, x1, y2,
+                        finis.x, y2, finis.z, x2, y2,
+                        finis.x, y1, finis.z, x2, y1
+                    };
+
+                    face++;
+                }
+
+            float[] vertices = faces.SelectMany(f => f).ToArray();
+            uint[] indices = GenerateDoubleSidedIndexDataArray(faceCount);
 
             return (vertices, indices);
-        }
 
-        private static (float[] vertices, uint[] indices) CreateMediumCrossPlantModel()
-        {
-            float[] vertices =
+            (float x, float z) Lerp((float x, float z) a, (float x, float z) b, float t)
             {
-                // First part: /
-                0.145f, 0f, 0.855f, 0.0f, 0f,
-                0.145f, 1f, 0.855f, 0.0f, 1f,
-                0.500f, 1f, 0.500f, 0.5f, 1f,
-                0.500f, 0f, 0.500f, 0.5f, 0f,
-
-                0.500f, 0f, 0.500f, 0.5f, 0f,
-                0.500f, 1f, 0.500f, 0.5f, 1f,
-                0.855f, 1f, 0.145f, 1.0f, 1f,
-                0.855f, 0f, 0.145f, 1.0f, 0f,
-
-                // Second part: \
-                0.145f, 0f, 0.145f, 0.0f, 0f,
-                0.145f, 1f, 0.145f, 0.0f, 1f,
-                0.500f, 1f, 0.500f, 0.5f, 1f,
-                0.500f, 0f, 0.500f, 0.5f, 0f,
-
-                0.500f, 0f, 0.500f, 0.5f, 0f,
-                0.500f, 1f, 0.500f, 0.5f, 1f,
-                0.855f, 1f, 0.855f, 1.0f, 1f,
-                0.855f, 0f, 0.855f, 1.0f, 0f
-            };
-
-            uint[] indices = GenerateDoubleSidedIndexDataArray(faces: 4);
-
-            return (vertices, indices);
+                return (a.x + (b.x - a.x) * t, a.z + (b.z - a.z) * t);
+            }
         }
 
         public static (float[] vertices, uint[] indices) CreateCropPlantModel(Quality quality)
