@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenToolkit.Mathematics;
@@ -19,20 +18,36 @@ namespace VoxelGame.Core.Logic
 {
     public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string>
     {
-        protected Liquid(string name, string namedId, float density, int viscosity, bool checkContact,
-            bool receiveContact, RenderType renderType)
+        protected const float AirDensity = 1.2f;
+        private const float GasLiquidThreshold = 10f;
+
+        protected Liquid(string name, string namedId, float density, int viscosity,
+            bool checkContact, bool receiveContact, RenderType renderType)
         {
+            Debug.Assert(density > 0);
+
             Name = name;
             NamedId = namedId;
 
-            Density = Math.Abs(density);
+            Density = density;
 
-            Direction = Math.Sign(density) switch
+            Direction = (density - AirDensity) switch
             {
-                > 0 => VerticalFlow.Downwards,
-                0 => VerticalFlow.Static,
-                < 0 => VerticalFlow.Upwards
+                > +0.001f => VerticalFlow.Downwards,
+                < -0.001f => VerticalFlow.Upwards,
+                _ => VerticalFlow.Static
             };
+
+            if (Direction == VerticalFlow.Static)
+            {
+                IsLiquid = false;
+                IsGas = false;
+            }
+            else
+            {
+                IsLiquid = density > GasLiquidThreshold;
+                IsGas = density <= GasLiquidThreshold;
+            }
 
             Viscosity = viscosity;
 
@@ -75,7 +90,7 @@ namespace VoxelGame.Core.Logic
         public float Density { get; }
 
         /// <summary>
-        ///     Gets the flowing direction of this liquid. Positive means down, negative means up.
+        ///     Gets the flowing direction of this liquid.
         /// </summary>
         public VerticalFlow Direction { get; }
 
@@ -102,12 +117,12 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         ///     Get whether this fluids is a liquid.
         /// </summary>
-        public bool IsLiquid => Direction == VerticalFlow.Downwards;
+        public bool IsLiquid { get; }
 
         /// <summary>
         ///     Get whether this fluid is a gas.
         /// </summary>
-        public bool IsGas => Direction == VerticalFlow.Upwards;
+        public bool IsGas { get; }
 
         public Vector3i FlowDirection => Direction.Direction();
 
