@@ -37,8 +37,6 @@ namespace VoxelGame.Client.Scenes
         private readonly GameUserInterface ui;
         private readonly ToggleButton uiToggle;
 
-        private readonly ToggleButton wireframeToggle;
-
         internal GameScene(Application.Client client, ClientWorld world, GameConsole console)
         {
             this.client = client;
@@ -79,14 +77,11 @@ namespace VoxelGame.Client.Scenes
             World = world;
             counter = world.UpdateCounter;
 
-            wireframeToggle = client.Keybinds.GetToggle(client.Keybinds.Wireframe);
             uiToggle = client.Keybinds.GetToggle(client.Keybinds.UI);
 
             screenshotButton = client.Keybinds.GetPushButton(client.Keybinds.Screenshot);
             consoleToggle = client.Keybinds.GetToggle(client.Keybinds.Console);
             escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
-
-            wireframeToggle.Clear();
         }
 
         public ClientWorld World { get; private set; }
@@ -151,8 +146,6 @@ namespace VoxelGame.Client.Scenes
                 if (!Screen.IsOverlayLockActive)
                 {
                     if (screenshotButton.Pushed) Screen.TakeScreenshot(Program.ScreenshotDirectory);
-
-                    if (wireframeToggle.Changed) Screen.SetWireframe(wireframeToggle.State);
 
                     if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
                 }
