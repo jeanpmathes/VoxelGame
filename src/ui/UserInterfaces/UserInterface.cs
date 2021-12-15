@@ -18,6 +18,7 @@ namespace VoxelGame.UI.UserInterfaces
 {
     public abstract class UserInterface : IDisposable
     {
+        private static readonly Vector2i targetSize = new(x: 1920, y: 1080);
         private readonly bool drawBackground;
         private readonly IGwenGui gui;
         private readonly InputListener inputListener;
@@ -63,6 +64,9 @@ namespace VoxelGame.UI.UserInterfaces
         public void Resize(Vector2i size)
         {
             gui.Resize(size);
+
+            float scale = Math.Min((float) size.X / targetSize.X, (float) size.Y / targetSize.Y);
+            gui.Root.Scale = scale;
         }
 
         #region IDisposable Support
