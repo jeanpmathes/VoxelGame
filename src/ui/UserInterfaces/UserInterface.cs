@@ -48,6 +48,8 @@ namespace VoxelGame.UI.UserInterfaces
             gui.Root.ShouldDrawBackground = drawBackground;
 
             Context = new Context(new FontHolder(gui.Root.Skin), inputListener);
+
+            SetSize(targetSize);
         }
 
         public abstract void CreateControl();
@@ -62,6 +64,11 @@ namespace VoxelGame.UI.UserInterfaces
         }
 
         public void Resize(Vector2i size)
+        {
+            SetSize(size);
+        }
+
+        private void SetSize(Vector2i size)
         {
             gui.Resize(size);
 

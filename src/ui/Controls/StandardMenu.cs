@@ -52,7 +52,7 @@ namespace VoxelGame.UI.Controls
             MakeFiller(bar);
 
             bar.SetColumnWidths(1.0f);
-            bar.SetRowHeights(0.05f, 0.15f, 0.55f, 0.15f, 0.10f);
+            bar.SetRowHeights(0.05f, 0.15f, 0.55f, 0.20f, 0.05f);
 
             CreateDisplay(start);
         }
