@@ -178,6 +178,8 @@ namespace VoxelGame.Client.Entities
 
         public void Render()
         {
+            crosshairRenderer.Draw(crosshairPosition, crosshairScale);
+
             if (targetPosition.Y >= 0)
             {
                 var (selectedBlock, _) = World.GetBlock(targetPosition) ?? BlockInstance.Default;
@@ -198,8 +200,6 @@ namespace VoxelGame.Client.Entities
             }
 
             if (renderOverlay) overlay.Draw();
-
-            crosshairRenderer.Draw(crosshairPosition, crosshairScale);
         }
 
         protected override void OnUpdate(float deltaTime)
