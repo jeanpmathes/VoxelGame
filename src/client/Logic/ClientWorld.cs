@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using Properties;
+using VoxelGame.Client.Entities;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
@@ -55,6 +56,8 @@ namespace VoxelGame.Client.Logic
         private readonly HashSet<(ClientChunk chunk, int index)> sectionsToMesh =
             new();
 
+        private ClientPlayer? player;
+
         /// <summary>
         ///     This constructor is meant for worlds that are new.
         /// </summary>
@@ -67,6 +70,11 @@ namespace VoxelGame.Client.Logic
 
         private static int MaxMeshingTasks { get; } = Settings.Default.MaxMeshingTasks;
         private static int MaxMeshDataSends { get; } = Settings.Default.MaxMeshDataSends;
+
+        public void AddPlayer(ClientPlayer newPlayer)
+        {
+            player = newPlayer;
+        }
 
         public void Render()
         {
@@ -95,8 +103,8 @@ namespace VoxelGame.Client.Logic
                 SectionRenderer.FinishStage(stage);
             }
 
-            // Render the player
-            Application.Client.Player.Render();
+            // Render all players in this world
+            player?.Render();
         }
 
         protected override Chunk CreateChunk(int x, int z)

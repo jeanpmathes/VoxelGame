@@ -100,6 +100,8 @@ namespace VoxelGame.Client.Scenes
                 new BoundingBox(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.25f, y: 0.9f, z: 0.25f)),
                 ui);
 
+            World.AddPlayer(Player);
+
             ui.SetPlayerDataProvider(Player);
 
             // UI setup.
@@ -124,11 +126,19 @@ namespace VoxelGame.Client.Scenes
             using (logger.BeginScope("GameScene Render"))
             {
                 Screen.EnterGameDrawMode();
-                World.Render();
+
+                {
+                    World.Render();
+                }
 
                 Screen.EnterUIDrawMode();
-                ui.UpdatePerformanceData();
-                ui.Render();
+
+                {
+                    Application.Client.Player.RenderOverlays();
+
+                    ui.UpdatePerformanceData();
+                    ui.Render();
+                }
             }
         }
 
