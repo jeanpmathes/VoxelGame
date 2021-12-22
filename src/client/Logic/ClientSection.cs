@@ -39,7 +39,7 @@ namespace VoxelGame.Client.Logic
 
         public void CreateAndSetMesh(int sectionX, int sectionY, int sectionZ)
         {
-            CreateMeshData(sectionX, sectionY, sectionZ, out SectionMeshData meshData);
+            SectionMeshData meshData = CreateMeshData(sectionX, sectionY, sectionZ);
             SetMeshData(meshData);
         }
 
@@ -47,7 +47,7 @@ namespace VoxelGame.Client.Logic
             "Blocker Code Smell",
             "S2437:Silly bit operations should not be performed",
             Justification = "Improves readability.")]
-        public void CreateMeshData(int sectionX, int sectionY, int sectionZ, out SectionMeshData meshData)
+        public SectionMeshData CreateMeshData(int sectionX, int sectionY, int sectionZ)
         {
             // Set the neutral tint colors.
             TintColor blockTint = TintColor.Green;
@@ -535,7 +535,7 @@ namespace VoxelGame.Client.Logic
                 transparentLiquidIndices);
 
             // Finish up.
-            meshData = new SectionMeshData(
+            SectionMeshData meshData = new(
                 simpleVertexData,
                 complexVertexPositions,
                 complexVertexData,
@@ -556,6 +556,8 @@ namespace VoxelGame.Client.Logic
             ReturnToPool(varyingHeightMeshFaceHolders);
             ReturnToPool(opaqueLiquidMeshFaceHolders);
             ReturnToPool(transparentLiquidMeshFaceHolders);
+
+            return meshData;
         }
 
         private ClientSection?[] GetNeighborSections(Vector3i sectionPosition)
