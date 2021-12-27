@@ -17,8 +17,8 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     Similar to <see cref="CrossPlantBlock" />, but is two blocks high.
     ///     Data bit usage: <c>----lh</c>
     /// </summary>
-    // l = lowered
-    // h = height
+    // l: lowered
+    // h: height
     public class DoubleCrossPlantBlock : Block, IFlammable, IFillable
     {
         private readonly string bottomTexture;

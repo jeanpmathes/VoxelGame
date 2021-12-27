@@ -18,9 +18,9 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block that is two blocks long and allows setting the spawn point.
     ///     Data bit usage: <c>cccoop</c>
     /// </summary>
-    // c = color
-    // o = orientation
-    // p = position
+    // c: color
+    // o: orientation
+    // p: position
     public class BedBlock : Block, IFlammable, IFillable
     {
         private readonly List<BlockMesh> footMeshes = new(capacity: 4);

@@ -17,9 +17,9 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block which grows on farmland and has multiple growth stages, of which some are two blocks tall.
     ///     Data bit usage: <c>-lhsss</c>
     /// </summary>
-    // l = lowered
-    // s = stage
-    // h = height
+    // l: lowered
+    // s: stage
+    // h: height
     public class DoubleCropBlock : Block, IFlammable, IFillable
     {
         private readonly string texture;

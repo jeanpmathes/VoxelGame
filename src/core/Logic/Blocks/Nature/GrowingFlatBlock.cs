@@ -15,8 +15,8 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block that grows downwards and can hang freely. This block is affected by neutral tint.
     ///     Data bit usage: <c>-aaaoo</c>
     /// </summary>
-    // o = orientation
-    // a = age
+    // o: orientation
+    // a: age
     public class GrowingFlatBlock : FlatBlock, IFlammable, IFillable
     {
         internal GrowingFlatBlock(string name, string namedId, string texture, float climbingVelocity,

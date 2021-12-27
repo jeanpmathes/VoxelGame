@@ -20,11 +20,11 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     An animated block that attaches to sides.
     ///     Data bit usage: <c>-fblrt</c>
     /// </summary>
-    // f = front
-    // b = back
-    // l = left
-    // r = right
-    // t = top
+    // f: front
+    // b: back
+    // l: left
+    // r: right
+    // t: top
     public class FireBlock : Block, IFillable
     {
         private const int TickOffset = 150;

@@ -18,10 +18,10 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     Data bit usage: <c>--nesw</c>
     /// </summary>
     /// <typeparam name="TConnectable">The connection interface.</typeparam>
-    // n = connected north
-    // e = connected east
-    // s = connected south
-    // w = connected west
+    // n: connected north
+    // e: connected east
+    // s: connected south
+    // w: connected west
     public abstract class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable : IConnectable
     {
         protected ConnectingBlock(string name, string namedId, BlockFlags flags, BoundingBox boundingBox,

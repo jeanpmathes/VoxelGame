@@ -19,8 +19,8 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block that only connects to steel pipes at specific sides and can be closed.
     ///     Data bit usage: <c>---oaa</c>
     /// </summary>
-    // aa = axis
-    // o = open
+    // aa: axis
+    // o: open
     internal class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable
     {
         private readonly float diameter;

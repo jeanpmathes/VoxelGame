@@ -17,8 +17,8 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block that places a fruit block when reaching the final growth stage.
     ///     Data bit usage: <c>--sssl</c>
     /// </summary>
-    // l = lowered
-    // s = stage
+    // l: lowered
+    // s: stage
     public class FruitCropBlock : Block, IFlammable, IFillable
     {
         private readonly Block fruit;

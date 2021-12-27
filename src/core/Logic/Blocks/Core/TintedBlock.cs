@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block that has differently colored versions. Animation can be activated.
     ///     Data bit usage: <c>-ccccc</c>
     /// </summary>
-    // c = color
+    // c: color
     public class TintedBlock : BasicBlock, IWideConnectable
     {
         private readonly bool isAnimated;

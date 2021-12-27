@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block which can be rotated to be oriented on different axis. The y axis is the default orientation.
     ///     Data bit usage: <c>----aa</c>
     /// </summary>
-    // a = axis
+    // a: axis
     public class RotatedBlock : BasicBlock, IFlammable
     {
         internal RotatedBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :

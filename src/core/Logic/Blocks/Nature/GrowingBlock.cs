@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block that grows upwards and is destroyed if a certain ground block is not given.
     ///     Data bit usage: <c>---aaa</c>
     /// </summary>
-    // a = age
+    // a: age
     public class GrowingBlock : BasicBlock, IFlammable
     {
         private readonly int maxHeight;

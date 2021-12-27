@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block which can be rotated on the y axis.
     ///     Data bit usage: <c>----oo</c>
     /// </summary>
-    // o = orientation
+    // o: orientation
     public class OrientedBlock : BasicBlock
     {
         internal OrientedBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :

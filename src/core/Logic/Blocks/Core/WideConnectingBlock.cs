@@ -15,10 +15,10 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A base class for blocks that connect to other blocks as wide connectables, like fences or walls.
     ///     Data bit usage: <c>--nesw</c>
     /// </summary>
-    // n = connected north
-    // e = connected east
-    // s = connected south
-    // w = connected west
+    // n: connected north
+    // e: connected east
+    // s: connected south
+    // w: connected west
     public abstract class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConnectable
     {
         private readonly List<BlockMesh> meshes = new(capacity: 16);

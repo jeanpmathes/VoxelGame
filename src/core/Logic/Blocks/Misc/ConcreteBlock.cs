@@ -17,8 +17,8 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block that can have different heights and colors. The heights correspond to liquid heights.
     ///     Data bit usage: <c>ccchhh</c>
     /// </summary>
-    // c = color
-    // h = height
+    // c: color
+    // h: height
     public class ConcreteBlock : Block, IHeightVariable, IWideConnectable, IThinConnectable
     {
         private readonly TextureLayout layout;

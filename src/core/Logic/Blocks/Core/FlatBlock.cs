@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     This class represents a block with a single face that sticks to other blocks.
     ///     Data bit usage: <c>----oo</c>
     /// </summary>
-    // o = orientation
+    // o: orientation
     public class FlatBlock : Block, IFillable
     {
         private static readonly float[][] sideVertices =

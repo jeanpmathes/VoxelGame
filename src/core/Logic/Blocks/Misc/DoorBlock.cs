@@ -18,10 +18,10 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A two units high block that can be opened and closed.
     ///     Data bit usage: <c>-csboo</c>
     /// </summary>
-    // c = closed
-    // s = side
-    // b = base
-    // o = orientation
+    // c: closed
+    // s: side
+    // b: base
+    // o: orientation
     public class DoorBlock : Block, IFillable
     {
         private readonly List<BlockMesh> baseClosedMeshes = new();

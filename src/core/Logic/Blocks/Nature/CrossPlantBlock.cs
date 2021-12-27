@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A plant made out of two intersecting planes. It uses neutral tint.
     ///     Data bit usage: <c>-----l</c>
     /// </summary>
-    // l = lowered
+    // l: lowered
     public class CrossPlantBlock : Block, IFlammable, IFillable
     {
         private readonly string texture;

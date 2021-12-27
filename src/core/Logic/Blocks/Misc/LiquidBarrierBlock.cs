@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block that lets liquids through but can be closed by interacting with it.
     ///     Data bit usage: <c>-----o</c>
     /// </summary>
-    // o = open
+    // o: open
     public class LiquidBarrierBlock : BasicBlock, IFillable, IFlammable
     {
         private readonly TextureLayout open;

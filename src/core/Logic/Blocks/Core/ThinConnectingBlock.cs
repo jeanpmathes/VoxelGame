@@ -17,10 +17,10 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A thin block that connects to other blocks.
     ///     Data bit usage: <c>--nesw</c>
     /// </summary>
-    // n = connected north
-    // e = connected east
-    // s = connected south
-    // w = connected west
+    // n: connected north
+    // e: connected east
+    // s: connected south
+    // w: connected west
     public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConnectable
     {
         private readonly List<BlockMesh> meshes = new(capacity: 16);

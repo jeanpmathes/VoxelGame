@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block that can have different heights.
     ///     Data bit usage: <c>--hhhh</c>
     /// </summary>
-    // h = height
+    // h: height
     public class VaryingHeightBlock : Block, IHeightVariable
     {
         private readonly TextureLayout layout;

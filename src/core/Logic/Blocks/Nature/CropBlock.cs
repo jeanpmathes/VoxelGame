@@ -17,8 +17,8 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block which grows on farmland and has multiple growth stages.
     ///     Data bit usage: <c>--lsss</c>
     /// </summary>
-    // l = lowered
-    // s = stage
+    // l: lowered
+    // s: stage
     public class CropBlock : Block, IFlammable, IFillable
     {
         private readonly string texture;
