@@ -37,8 +37,6 @@ namespace VoxelGame.Client.Scenes
         private readonly GameUserInterface ui;
         private readonly ToggleButton uiToggle;
 
-        private readonly ToggleButton wireframeToggle;
-
         internal GameScene(Application.Client client, ClientWorld world, GameConsole console)
         {
             this.client = client;
@@ -79,14 +77,11 @@ namespace VoxelGame.Client.Scenes
             World = world;
             counter = world.UpdateCounter;
 
-            wireframeToggle = client.Keybinds.GetToggle(client.Keybinds.Wireframe);
             uiToggle = client.Keybinds.GetToggle(client.Keybinds.UI);
 
             screenshotButton = client.Keybinds.GetPushButton(client.Keybinds.Screenshot);
             consoleToggle = client.Keybinds.GetToggle(client.Keybinds.Console);
             escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
-
-            wireframeToggle.Clear();
         }
 
         public ClientWorld World { get; private set; }
@@ -104,6 +99,8 @@ namespace VoxelGame.Client.Scenes
                 camera,
                 new BoundingBox(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.25f, y: 0.9f, z: 0.25f)),
                 ui);
+
+            World.AddPlayer(Player);
 
             ui.SetPlayerDataProvider(Player);
 
@@ -129,11 +126,19 @@ namespace VoxelGame.Client.Scenes
             using (logger.BeginScope("GameScene Render"))
             {
                 Screen.EnterGameDrawMode();
-                World.Render();
+
+                {
+                    World.Render();
+                }
 
                 Screen.EnterUIDrawMode();
-                ui.UpdatePerformanceData();
-                ui.Render();
+
+                {
+                    Application.Client.Player.RenderOverlays();
+
+                    ui.UpdatePerformanceData();
+                    ui.Render();
+                }
             }
         }
 
@@ -151,8 +156,6 @@ namespace VoxelGame.Client.Scenes
                 if (!Screen.IsOverlayLockActive)
                 {
                     if (screenshotButton.Pushed) Screen.TakeScreenshot(Program.ScreenshotDirectory);
-
-                    if (wireframeToggle.Changed) Screen.SetWireframe(wireframeToggle.State);
 
                     if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
                 }

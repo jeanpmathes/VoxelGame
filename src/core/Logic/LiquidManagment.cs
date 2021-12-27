@@ -52,7 +52,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Liquid Steam = new BasicLiquid(
             Language.Steam,
             nameof(Steam),
-            density: -0.015f,
+            density: 0.5f,
             (int) (0.25 * mPas),
             neutralTint: false,
             TextureLayout.Liquid("steam_moving_side", "steam_moving"),
@@ -80,7 +80,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Liquid NaturalGas = new BasicLiquid(
             Language.NaturalGas,
             nameof(NaturalGas),
-            density: -0.8f,
+            density: 0.8f,
             (int) (0.5 * mPas),
             neutralTint: false,
             TextureLayout.Liquid("gas_moving_side", "gas_moving"),

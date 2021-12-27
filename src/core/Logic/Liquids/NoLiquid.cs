@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Liquids
             base(
                 name,
                 namedId,
-                density: 0f,
+                AirDensity,
                 viscosity: 1,
                 checkContact: false,
                 receiveContact: false,

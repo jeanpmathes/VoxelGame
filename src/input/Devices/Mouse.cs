@@ -12,8 +12,9 @@ namespace VoxelGame.Input.Devices
     {
         private readonly InputManager input;
         private Vector2 correction;
-
         private Vector2 oldDelta;
+
+        private bool wasUnlocked;
 
         internal Mouse(InputManager input)
         {
@@ -44,11 +45,15 @@ namespace VoxelGame.Input.Devices
 
                 correction = input.Window.MousePosition - lockPosition;
                 input.Window.MousePosition = lockPosition;
+
+                if (wasUnlocked) Delta = oldDelta = correction = Vector2.Zero;
             }
             else
             {
                 correction = Vector2.Zero;
             }
+
+            wasUnlocked = !Locked;
         }
     }
 }

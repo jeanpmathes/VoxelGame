@@ -15,6 +15,7 @@ using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Logging;
+using Monitor = OpenToolkit.Windowing.GraphicsLibraryFramework.Monitor;
 
 namespace VoxelGame.Client.Rendering
 {
@@ -37,6 +38,9 @@ namespace VoxelGame.Client.Rendering
         private readonly int screenshotFBO;
         private readonly int screenshotRBO;
         private bool isWireframeActive;
+        private Vector2i previousScreenLocation;
+
+        private Vector2i previousScreenSize;
 
         private bool useWireframe;
 
@@ -190,6 +194,8 @@ namespace VoxelGame.Client.Rendering
 
         public void Clear()
         {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, msFBO);
+
             GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Color, drawbuffer: 0, new[] { 0.5f, 0.8f, 0.9f, 1.0f });
             GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, drawbuffer: 0, new[] { 1f });
         }
@@ -209,6 +215,8 @@ namespace VoxelGame.Client.Rendering
                 Size.Y,
                 ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit,
                 BlitFramebufferFilter.Nearest);
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer: 0);
         }
 
         private void OnResize(ResizeEventArgs e)
@@ -325,9 +333,6 @@ namespace VoxelGame.Client.Rendering
             Instance.Client.CursorGrabbed = grabbed;
         }
 
-        private static Vector2i previousScreenSize;
-        private static Vector2i previousScreenLocation;
-
         /// <summary>
         ///     Set if the screen should be in fullscreen.
         /// </summary>
@@ -338,28 +343,32 @@ namespace VoxelGame.Client.Rendering
 
             if (fullscreen)
             {
-                previousScreenSize = Instance.Client.Size;
-                previousScreenLocation = Instance.Client.Location;
+                Instance.previousScreenSize = Instance.Client.Size;
+                Instance.previousScreenLocation = Instance.Client.Location;
 
-                Instance.Client.WindowState = WindowState.Fullscreen;
+                Vector2i monitorSize;
+
+                unsafe
+                {
+                    Monitor* monitor = GLFW.GetPrimaryMonitor();
+                    VideoMode* mode = GLFW.GetVideoMode(monitor);
+
+                    monitorSize = new Vector2i(mode->Width, mode->Height);
+                }
+
+                Instance.Client.Size = monitorSize;
+
                 Instance.Client.IsFullscreen = true;
+
                 logger.LogDebug(Events.WindowState, "Fullscreen: Switched to fullscreen mode");
+
             }
             else
             {
-                unsafe
-                {
-                    GLFW.SetWindowMonitor(
-                        Instance.Client.WindowPointer,
-                        monitor: null,
-                        previousScreenLocation.X,
-                        previousScreenLocation.Y,
-                        previousScreenSize.X,
-                        previousScreenSize.Y,
-                        (int) Instance.Client.RenderFrequency);
-                }
-
                 Instance.Client.IsFullscreen = false;
+
+                Instance.Client.Size = Instance.previousScreenSize;
+                Instance.Client.Location = Instance.previousScreenLocation;
 
                 logger.LogDebug(Events.WindowState, "Fullscreen: Switched to normal mode");
             }

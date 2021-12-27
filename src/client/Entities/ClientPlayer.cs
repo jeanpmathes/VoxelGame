@@ -176,8 +176,24 @@ namespace VoxelGame.Client.Entities
             return camera.GetProjectionMatrix();
         }
 
+ #pragma warning disable CA1822
+        /// <summary>
+        ///     Render the visual content of this player.
+        /// </summary>
         public void Render()
+ #pragma warning restore CA1822
         {
+            // intentionally empty, as player has no mesh to render
+            // this render method is for content that has to be rendered on every player
+        }
+
+        /// <summary>
+        ///     Render content that is specific to the local player.
+        /// </summary>
+        public void RenderOverlays()
+        {
+            crosshairRenderer.Draw(crosshairPosition, crosshairScale);
+
             if (targetPosition.Y >= 0)
             {
                 var (selectedBlock, _) = World.GetBlock(targetPosition) ?? BlockInstance.Default;
@@ -198,8 +214,6 @@ namespace VoxelGame.Client.Entities
             }
 
             if (renderOverlay) overlay.Draw();
-
-            crosshairRenderer.Draw(crosshairPosition, crosshairScale);
         }
 
         protected override void OnUpdate(float deltaTime)

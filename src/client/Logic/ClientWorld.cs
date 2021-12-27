@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using Properties;
+using VoxelGame.Client.Entities;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
@@ -42,7 +43,7 @@ namespace VoxelGame.Client.Logic
         /// <summary>
         ///     A list of chunks where the mesh data has to be set.
         /// </summary>
-        private readonly List<(ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask)> chunksToSendMeshData =
+        private readonly List<(ClientChunk chunk, SectionMeshData[] meshData)> chunksToSendMeshData =
             new();
 
         private readonly Stopwatch readyStopwatch = Stopwatch.StartNew();
@@ -54,6 +55,8 @@ namespace VoxelGame.Client.Logic
         /// </summary>
         private readonly HashSet<(ClientChunk chunk, int index)> sectionsToMesh =
             new();
+
+        private ClientPlayer? player;
 
         /// <summary>
         ///     This constructor is meant for worlds that are new.
@@ -67,6 +70,11 @@ namespace VoxelGame.Client.Logic
 
         private static int MaxMeshingTasks { get; } = Settings.Default.MaxMeshingTasks;
         private static int MaxMeshDataSends { get; } = Settings.Default.MaxMeshDataSends;
+
+        public void AddPlayer(ClientPlayer newPlayer)
+        {
+            player = newPlayer;
+        }
 
         public void Render()
         {
@@ -95,8 +103,8 @@ namespace VoxelGame.Client.Logic
                 SectionRenderer.FinishStage(stage);
             }
 
-            // Render the player
-            Application.Client.Player.Render();
+            // Render all players in this world
+            player?.Render();
         }
 
         protected override Chunk CreateChunk(int x, int z)
@@ -204,13 +212,15 @@ namespace VoxelGame.Client.Logic
 
             if (index != -1)
             {
-                (ClientChunk chunk, Task<SectionMeshData[]> chunkMeshingTask) entry = chunksToSendMeshData[index];
+                var (clientChunk, meshData) = chunksToSendMeshData[index];
                 chunksToSendMeshData.RemoveAt(index);
 
-                foreach (SectionMeshData data in entry.chunkMeshingTask.Result) data.Discard();
+                foreach (SectionMeshData data in meshData) data.Discard();
+
+                clientChunk.ResetMeshDataSetSteps();
             }
 
-            chunksToSendMeshData.Add((chunk, completed));
+            chunksToSendMeshData.Add((chunk, completed.Result));
         }
 
         private void StartMeshingChunks()
@@ -233,11 +243,11 @@ namespace VoxelGame.Client.Logic
 
                 for (var count = 0; count < MaxMeshDataSends && chunkIndex < chunksToSendMeshData.Count; count++)
                 {
-                    (Chunk chunk, var chunkMeshingTask) = chunksToSendMeshData[chunkIndex];
+                    (Chunk chunk, var meshData) = chunksToSendMeshData[chunkIndex];
 
                     var clientChunk = (ClientChunk) chunk;
 
-                    if (clientChunk.DoMeshDataSetStep(chunkMeshingTask.Result))
+                    if (clientChunk.DoMeshDataSetStep(meshData))
                         chunksToSendMeshData.RemoveAt(chunkIndex);
                     else if (chunksToSendMeshData.Count > 1) chunkIndex++;
                 }

@@ -53,7 +53,7 @@ namespace VoxelGame.Client.Logic
             SectionMeshData[] sectionMeshes = new SectionMeshData[VerticalSectionCount];
 
             for (var y = 0; y < VerticalSectionCount; y++)
-                ((ClientSection) sections[y]).CreateMeshData(X, y, Z, out sectionMeshes[y]);
+                sectionMeshes[y] = ((ClientSection) sections[y]).CreateMeshData(X, y, Z);
 
             meshDataIndex = 0;
 
