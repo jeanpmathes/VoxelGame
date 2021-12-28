@@ -13,13 +13,22 @@ using VoxelGame.Input.Internal;
 
 namespace VoxelGame.Client.Application
 {
+    /// <summary>
+    ///     Represents a keybind, that associates a key with a binding.
+    /// </summary>
     public readonly struct Keybind : IEquatable<Keybind>
     {
         private readonly string id;
         private readonly Binding type;
 
+        /// <summary>
+        ///     Get the name of the keybind.
+        /// </summary>
         public string Name { get; }
 
+        /// <summary>
+        ///     Get the key used by the keybind per default.
+        /// </summary>
         public KeyOrButton Default { get; }
 
         private enum Binding
@@ -38,6 +47,7 @@ namespace VoxelGame.Client.Application
             Default = defaultKeyOrButton;
         }
 
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             if (obj is Keybind other) return this == other;
@@ -45,31 +55,53 @@ namespace VoxelGame.Client.Application
             return false;
         }
 
+        /// <inheritdoc />
         public bool Equals(Keybind other)
         {
             return id.Equals(other.id, StringComparison.InvariantCulture);
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             return id.GetHashCode(StringComparison.InvariantCulture);
         }
 
+        /// <summary>
+        ///     Check equality of two keybinds.
+        /// </summary>
+        /// <param name="left">The first keybind.</param>
+        /// <param name="right">The second keybind.</param>
+        /// <returns>True if both keybinds are equal.</returns>
         public static bool operator ==(Keybind left, Keybind right)
         {
             return left.Equals(right);
         }
 
+        /// <summary>
+        ///     Check inequality of two keybinds.
+        /// </summary>
+        /// <param name="left">The first keybind.</param>
+        /// <param name="right">The second keybind.</param>
+        /// <returns>True if both keybinds are not equal.</returns>
         public static bool operator !=(Keybind left, Keybind right)
         {
             return !(left == right);
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return id;
         }
 
+        /// <summary>
+        ///     Register a keybind that is bound to a button.
+        /// </summary>
+        /// <param name="id">The id of the keybind. Must be unique.</param>
+        /// <param name="name">The display name of the keybind. Can be localized.</param>
+        /// <param name="defaultKey">The default key to use initially.</param>
+        /// <returns>The registered keybind.</returns>
         public static Keybind RegisterButton(string id, string name, Key defaultKey)
         {
             return Register(
@@ -79,6 +111,13 @@ namespace VoxelGame.Client.Application
                 new KeyOrButton(defaultKey));
         }
 
+        /// <summary>
+        ///     Register a keybind that is bound to a button.
+        /// </summary>
+        /// <param name="id">The id of the keybind. Must be unique.</param>
+        /// <param name="name">The display name of the keybind. Can be localized.</param>
+        /// <param name="defaultButton">The default button to use initially.</param>
+        /// <returns>The registered keybind.</returns>
         public static Keybind RegisterButton(string id, string name, MouseButton defaultButton)
         {
             return Register(
@@ -88,6 +127,13 @@ namespace VoxelGame.Client.Application
                 new KeyOrButton(defaultButton));
         }
 
+        /// <summary>
+        ///     Register a keybind that is bound to a toggle.
+        /// </summary>
+        /// <param name="id">The id of the keybind. Must be unique.</param>
+        /// <param name="name">The display name of the keybind. Can be localized.</param>
+        /// <param name="defaultKey">The default key to use initially.</param>
+        /// <returns>The registered keybind.</returns>
         public static Keybind RegisterToggle(string id, string name, Key defaultKey)
         {
             return Register(
@@ -97,6 +143,13 @@ namespace VoxelGame.Client.Application
                 new KeyOrButton(defaultKey));
         }
 
+        /// <summary>
+        ///     Register a keybind that is bound to a toggle.
+        /// </summary>
+        /// <param name="id">The id of the keybind. Must be unique.</param>
+        /// <param name="name">The display name of the keybind. Can be localized.</param>
+        /// <param name="defaultButton">The default button to use initially.</param>
+        /// <returns>The registered keybind.</returns>
         public static Keybind RegisterToggle(string id, string name, MouseButton defaultButton)
         {
             return Register(
@@ -106,6 +159,13 @@ namespace VoxelGame.Client.Application
                 new KeyOrButton(defaultButton));
         }
 
+        /// <summary>
+        ///     Register a keybind that is bound to a push button.
+        /// </summary>
+        /// <param name="id">The id of the keybind. Must be unique.</param>
+        /// <param name="name">The display name of the keybind. Can be localized.</param>
+        /// <param name="defaultKey">The default key to use initially.</param>
+        /// <returns>The registered keybind.</returns>
         public static Keybind RegisterPushButton(string id, string name, Key defaultKey)
         {
             return Register(
@@ -115,6 +175,13 @@ namespace VoxelGame.Client.Application
                 new KeyOrButton(defaultKey));
         }
 
+        /// <summary>
+        ///     Register a keybind that is bound to a push button.
+        /// </summary>
+        /// <param name="id">The id of the keybind. Must be unique.</param>
+        /// <param name="name">The display name of the keybind. Can be localized.</param>
+        /// <param name="defaultButton">The default button to use initially.</param>
+        /// <returns>The registered keybind.</returns>
         public static Keybind RegisterPushButton(string id, string name, MouseButton defaultButton)
         {
             return Register(

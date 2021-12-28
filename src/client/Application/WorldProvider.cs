@@ -17,6 +17,10 @@ using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Application
 {
+    /// <summary>
+    ///     Provides worlds that are either loaded from disk or newly created.
+    ///     The world provider itself does not active worlds.
+    /// </summary>
     public class WorldProvider : IWorldProvider
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldProvider>();
@@ -25,13 +29,19 @@ namespace VoxelGame.Client.Application
 
         private readonly string worldsDirectory;
 
+        /// <summary>
+        ///     Create a new world provider.
+        /// </summary>
+        /// <param name="worldsDirectory">The directory where worlds are loaded from and saved to.</param>
         public WorldProvider(string worldsDirectory)
         {
             this.worldsDirectory = worldsDirectory;
         }
 
+        /// <inheritdoc />
         public IEnumerable<(WorldInformation info, string path)> Worlds => worlds;
 
+        /// <inheritdoc />
         public void Refresh()
         {
             worlds.Clear();
@@ -62,6 +72,7 @@ namespace VoxelGame.Client.Application
                 worlds.Count);
         }
 
+        /// <inheritdoc />
         [SuppressMessage("ReSharper", "CA2000")]
         public void LoadWorld(WorldInformation information, string path)
         {
@@ -71,6 +82,7 @@ namespace VoxelGame.Client.Application
             WorldActivation(world);
         }
 
+        /// <inheritdoc />
         [SuppressMessage("ReSharper", "CA2000")]
         public void CreateWorld(string name)
         {
@@ -86,6 +98,7 @@ namespace VoxelGame.Client.Application
             WorldActivation(world);
         }
 
+        /// <inheritdoc />
         public bool IsWorldNameValid(string name)
         {
             if (name.Length == 0) return false;
@@ -108,6 +121,7 @@ namespace VoxelGame.Client.Application
             }
         }
 
+        /// <inheritdoc />
         public void DeleteWorld(string path)
         {
             try
@@ -156,6 +170,9 @@ namespace VoxelGame.Client.Application
             }
         }
 
+        /// <summary>
+        ///     Is invoked when a world is requested to be activated.
+        /// </summary>
         public event Action<ClientWorld>? WorldActivation;
     }
 }

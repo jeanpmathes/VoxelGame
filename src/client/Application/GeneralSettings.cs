@@ -13,8 +13,16 @@ using VoxelGame.UI.Settings;
 
 namespace VoxelGame.Client.Application
 {
+    /// <summary>
+    ///     General game settings that are not part of any other settings category.
+    ///     Changed settings in this class will be saved.
+    /// </summary>
     public class GeneralSettings : ISettingsProvider
     {
+        /// <summary>
+        ///     A handler for when settings have been changed.
+        /// </summary>
+        /// <typeparam name="T">The type of the settings value.</typeparam>
         public delegate void GeneralSettingChangedHandler<T>(GeneralSettings settings, SettingChangedArgs<T> args);
 
         private readonly Settings clientSettings;
@@ -50,6 +58,9 @@ namespace VoxelGame.Client.Application
                     max: 1f));
         }
 
+        /// <summary>
+        ///     Get or set the crosshair color setting.
+        /// </summary>
         public Color CrosshairColor
         {
             get => clientSettings.CrosshairColor;
@@ -64,6 +75,9 @@ namespace VoxelGame.Client.Application
             }
         }
 
+        /// <summary>
+        ///     Get or set the crosshair scale setting.
+        /// </summary>
         public float CrosshairScale
         {
             get => clientSettings.CrosshairScale;
@@ -78,6 +92,9 @@ namespace VoxelGame.Client.Application
             }
         }
 
+        /// <summary>
+        ///     Get or set the mouse sensitivity setting.
+        /// </summary>
         public float MouseSensitivity
         {
             get => clientSettings.MouseSensitivity;
@@ -92,13 +109,28 @@ namespace VoxelGame.Client.Application
             }
         }
 
+        /// <inheritdoc />
         public string Category => Language.General;
+
+        /// <inheritdoc />
         public string Description => Language.GeneralSettingsDescription;
 
+        /// <inheritdoc />
         public IEnumerable<Setting> Settings => settings;
 
+        /// <summary>
+        ///     Is invoked when the crosshair color setting has been changed.
+        /// </summary>
         public event GeneralSettingChangedHandler<Color>? CrosshairColorChanged;
+
+        /// <summary>
+        ///     Is invoked when the crosshair scale setting has been changed.
+        /// </summary>
         public event GeneralSettingChangedHandler<float>? CrosshairScaleChanged;
+
+        /// <summary>
+        ///     Is invoked when the mouse sensitivity setting has been changed.
+        /// </summary>
         public event GeneralSettingChangedHandler<float>? MouseSensitivityChanged;
     }
 }

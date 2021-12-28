@@ -9,7 +9,6 @@ using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Desktop;
-using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Client.Collections;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;
@@ -28,6 +27,9 @@ using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
 namespace VoxelGame.Client.Application
 {
+    /// <summary>
+    ///     The game window and also the class that represents the running game instance.
+    /// </summary>
     internal class Client : GameWindow, IPerformanceProvider
     {
         private const int DeltaBufferCapacity = 30;
@@ -52,11 +54,6 @@ namespace VoxelGame.Client.Application
             GraphicsSettings graphicsSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             Instance = this;
-
-            unsafe
-            {
-                WindowPointer = WindowPtr;
-            }
 
             Settings = new GeneralSettings(Properties.Settings.Default);
             Graphics = graphicsSettings;
@@ -90,7 +87,6 @@ namespace VoxelGame.Client.Application
         public ConsoleWrapper Console { get; } = new();
 
         private double Time { get; set; }
-        public unsafe Window* WindowPointer { get; }
 
         double IPerformanceProvider.FPS => Fps;
         double IPerformanceProvider.UPS => Ups;
