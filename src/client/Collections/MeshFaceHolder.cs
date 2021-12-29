@@ -4,12 +4,15 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Client.Collections
 {
+    /// <summary>
+    ///     Holds and combines mesh faces, that then can be used to create a final mesh.
+    /// </summary>
     public abstract class MeshFaceHolder
     {
         private protected readonly BlockSide side;
