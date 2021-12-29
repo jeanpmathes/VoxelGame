@@ -14,6 +14,9 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Console
 {
+    /// <summary>
+    ///     Discovers and executes commands using the <see cref="Command" /> class.
+    /// </summary>
     public class CommandInvoker
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<CommandInvoker>();
@@ -21,10 +24,21 @@ namespace VoxelGame.Client.Console
         private readonly Dictionary<string, CommandGroup> commandGroups = new();
         private readonly Dictionary<Type, Parser> parsers = new();
 
+        /// <summary>
+        ///     Get the names of all registered commands.
+        /// </summary>
         public IEnumerable<string> CommandNames => commandGroups.Keys;
 
+        /// <summary>
+        ///     Invoked when new commands are added or discovered.
+        /// </summary>
         public event Action? CommandsUpdated;
 
+        /// <summary>
+        ///     Get the help text for a command.
+        /// </summary>
+        /// <param name="commandName">The name of the command. Must correspond to a discovered command.</param>
+        /// <returns>The help text.</returns>
         public string GetCommandHelpText(string commandName)
         {
             return commandGroups.TryGetValue(commandName, out var commandGroup)
@@ -32,6 +46,11 @@ namespace VoxelGame.Client.Console
                 : throw new ArgumentException("Command not found.");
         }
 
+        /// <summary>
+        ///     Get all signatures for a command.
+        /// </summary>
+        /// <param name="commandName">The name of the command. Must correspond to a discovered command.</param>
+        /// <returns>All signatures for the command.</returns>
         public IEnumerable<string> GetCommandSignatures(string commandName)
         {
             if (!commandGroups.TryGetValue(commandName, out var commandGroup))
@@ -57,11 +76,18 @@ namespace VoxelGame.Client.Console
             }
         }
 
+        /// <summary>
+        ///     Add a parser to parse arguments.
+        /// </summary>
+        /// <param name="parser">The parser to add. Will replace any existing parser for the same type.</param>
         public void AddParser(Parser parser)
         {
             parsers[parser.ParsedType] = parser;
         }
 
+        /// <summary>
+        ///     Search and discover all commands in the calling assembly.
+        /// </summary>
         public void SearchCommands()
         {
             logger.LogDebug(Events.Console, "Searching commands");
@@ -95,6 +121,10 @@ namespace VoxelGame.Client.Console
             CommandsUpdated?.Invoke();
         }
 
+        /// <summary>
+        ///     Add a command to the list of available commands for this invoker.
+        /// </summary>
+        /// <param name="command">The command to add.</param>
         public void AddCommand(ICommand command)
         {
             List<MethodInfo> overloads = GetOverloads(command.GetType());
@@ -104,6 +134,11 @@ namespace VoxelGame.Client.Console
             CommandsUpdated?.Invoke();
         }
 
+        /// <summary>
+        ///     Try to invoke a command using console input. In case of failure, messages are written to the console.
+        /// </summary>
+        /// <param name="input">The console input.</param>
+        /// <param name="context">The command context in which the command should be executed.</param>
         public void InvokeCommand(string input, CommandContext context)
         {
             (string commandName, string[] args) = ParseInput(input);

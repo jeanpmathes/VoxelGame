@@ -12,17 +12,25 @@ namespace VoxelGame.Client.Console.Commands
 {
     #pragma warning disable CA1822
 
+    /// <summary>
+    ///     Sets the liquid at the target position. Can cause invalid liquid state.
+    /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class SetLiquid : Command
     {
+        /// <inheritdoc />
         public override string Name => "set-liquid";
+
+        /// <inheritdoc />
         public override string HelpText => "Sets the liquid at the target position. Can cause invalid liquid state.";
 
+        /// <exclude />
         public void Invoke(string namedID, int level, int x, int y, int z)
         {
             Set(namedID, level, (x, y, z));
         }
 
+        /// <exclude />
         public void Invoke(string namedID, int level)
         {
             Set(namedID, level, Context.Player.TargetPosition);

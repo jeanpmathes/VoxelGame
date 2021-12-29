@@ -11,13 +11,19 @@ namespace VoxelGame.Client.Console.Commands
 {
      #pragma warning disable CA1822
 
+    /// <summary>
+    ///     Allows to enable or disable wireframe rendering.
+    /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class SetWireframe : Command
     {
+        /// <inheritdoc />
         public override string Name => "set-wireframe";
 
+        /// <inheritdoc />
         public override string HelpText => "Allows to enable or disable wireframe rendering.";
 
+        /// <exclude />
         public void Invoke(bool enable)
         {
             Screen.SetWireframe(enable);

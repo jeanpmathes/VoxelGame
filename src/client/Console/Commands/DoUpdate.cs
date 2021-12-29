@@ -11,17 +11,25 @@ namespace VoxelGame.Client.Console.Commands
 {
     #pragma warning disable CA1822
 
+    /// <summary>
+    ///     Cause a random update to occur for a targeted position.
+    /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class DoUpdate : Command
     {
+        /// <inheritdoc />
         public override string Name => "do-update";
+
+        /// <inheritdoc />
         public override string HelpText => "Cause a random update to occur for a targeted position.";
 
+        /// <exclude />
         public void Invoke()
         {
             Update(Context.Player.TargetPosition);
         }
 
+        /// <exclude />
         public void Invoke(int x, int y, int z)
         {
             Update((x, y, z));
