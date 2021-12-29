@@ -20,6 +20,9 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Logic
 {
+    /// <summary>
+    ///     The game world, specifically for the client.
+    /// </summary>
     public class ClientWorld : World
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<ClientWorld>();
@@ -71,11 +74,18 @@ namespace VoxelGame.Client.Logic
         private static int MaxMeshingTasks { get; } = Settings.Default.MaxMeshingTasks;
         private static int MaxMeshDataSends { get; } = Settings.Default.MaxMeshDataSends;
 
+        /// <summary>
+        ///     Add a client player to the world.
+        /// </summary>
+        /// <param name="newPlayer">The new player.</param>
         public void AddPlayer(ClientPlayer newPlayer)
         {
             player = newPlayer;
         }
 
+        /// <summary>
+        ///     Render this world and everything in it.
+        /// </summary>
         public void Render()
         {
             if (!IsReady) return;
@@ -107,11 +117,13 @@ namespace VoxelGame.Client.Logic
             player?.Render();
         }
 
+        /// <inheritdoc />
         protected override Chunk CreateChunk(int x, int z)
         {
             return new ClientChunk(this, x, z, UpdateCounter);
         }
 
+        /// <inheritdoc />
         public override void Update(float deltaTime)
         {
             StartActivatingChunks();
@@ -155,6 +167,7 @@ namespace VoxelGame.Client.Logic
             StartSavingChunks();
         }
 
+        /// <inheritdoc />
         protected override void ProcessNewlyActivatedChunk(Chunk activatedChunk)
         {
             chunksToMesh.Enqueue((ClientChunk) activatedChunk);
@@ -254,6 +267,7 @@ namespace VoxelGame.Client.Logic
             }
         }
 
+        /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void ProcessChangedSection(Chunk chunk, Vector3i position)
         {
@@ -312,6 +326,7 @@ namespace VoxelGame.Client.Logic
             }
         }
 
+        /// <inheritdoc />
         protected override void AddAllTasks(List<Task> tasks)
         {
             base.AddAllTasks(tasks);

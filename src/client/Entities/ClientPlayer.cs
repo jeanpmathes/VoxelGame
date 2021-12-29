@@ -24,6 +24,9 @@ using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Entities
 {
+    /// <summary>
+    ///     The client player, controlled by the user. There can only be one client player.
+    /// </summary>
     public class ClientPlayer : Player, IPlayerDataProvider
     {
         private readonly Camera camera;
@@ -70,6 +73,15 @@ namespace VoxelGame.Client.Entities
 
         private float timer;
 
+        /// <summary>
+        ///     Create a client player.
+        /// </summary>
+        /// <param name="world">The world in which the client player will be placed.</param>
+        /// <param name="mass">The mass of the player.</param>
+        /// <param name="drag">The drag affecting the player.</param>
+        /// <param name="camera">The camera to use for this player.</param>
+        /// <param name="boundingBox">The bounding box of the player.</param>
+        /// <param name="ui">The ui used to display player information.</param>
         public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingBox boundingBox,
             GameUserInterface ui) : base(world, mass, drag, boundingBox)
         {
@@ -125,8 +137,10 @@ namespace VoxelGame.Client.Entities
             debugViewButton = keybind.GetPushButton(keybind.DebugView);
         }
 
+        /// <inheritdoc />
         public override Vector3 LookingDirection => camera.Front;
 
+        /// <inheritdoc />
         public override BlockSide TargetSide => targetSide;
 
         /// <summary>
@@ -134,8 +148,10 @@ namespace VoxelGame.Client.Entities
         /// </summary>
         public Frustum Frustum => camera.Frustum;
 
+        /// <inheritdoc />
         public override Vector3 Movement => movement;
 
+        /// <inheritdoc cref="PhysicsEntity" />
         public override Vector3i TargetPosition => targetPosition;
 
         Vector3i IPlayerDataProvider.HeadPosition => headPosition;
@@ -216,6 +232,7 @@ namespace VoxelGame.Client.Entities
             if (renderOverlay) overlay.Draw();
         }
 
+        /// <inheritdoc />
         protected override void OnUpdate(float deltaTime)
         {
             movement = Vector3.Zero;
@@ -422,6 +439,7 @@ namespace VoxelGame.Client.Entities
 
         private bool disposed;
 
+        /// <inheritdoc />
         protected override void Dispose(bool disposing)
         {
             if (disposed)

@@ -15,6 +15,9 @@ using VoxelGame.Core.Updates;
 
 namespace VoxelGame.Client.Logic
 {
+    /// <summary>
+    ///     A chunk of the world, specifically for the client.
+    /// </summary>
     [Serializable]
     public class ClientChunk : Chunk
     {
@@ -23,13 +26,24 @@ namespace VoxelGame.Client.Logic
         [NonSerialized] private bool hasMeshData;
         [NonSerialized] private int meshDataIndex;
 
+        /// <summary>
+        ///     Create a new client chunk.
+        /// </summary>
+        /// <param name="world">The world that contains the chunk.</param>
+        /// <param name="x">The chunk x position, in chunk coordinates.</param>
+        /// <param name="z">The chunk z position, in chunk coordinates.</param>
+        /// <param name="updateCounter"></param>
         public ClientChunk(World world, int x, int z, UpdateCounter updateCounter) : base(world, x, z, updateCounter) {}
 
+        /// <inheritdoc />
         protected override Section CreateSection()
         {
             return new ClientSection(World);
         }
 
+        /// <summary>
+        ///     Create a mesh for this chunk and activate it.
+        /// </summary>
         public void CreateAndSetMesh()
         {
             for (var y = 0; y < VerticalSectionCount; y++) ((ClientSection) sections[y]).CreateAndSetMesh(X, y, Z);
@@ -38,11 +52,19 @@ namespace VoxelGame.Client.Logic
             meshDataIndex = 0;
         }
 
+        /// <summary>
+        ///     Create a mesh for a section of this chunk and activate it.
+        /// </summary>
+        /// <param name="y"></param>
         public void CreateAndSetMesh(int y)
         {
             ((ClientSection) sections[y]).CreateAndSetMesh(X, y, Z);
         }
 
+        /// <summary>
+        ///     Start a task that will create mesh data for this chunk.
+        /// </summary>
+        /// <returns>The meshing task.</returns>
         public Task<SectionMeshData[]> CreateMeshDataTask()
         {
             return Task.Run(CreateMeshData);
@@ -60,12 +82,20 @@ namespace VoxelGame.Client.Logic
             return sectionMeshes;
         }
 
+        /// <summary>
+        ///     Reset the mesh data set-step.
+        /// </summary>
         public void ResetMeshDataSetSteps()
         {
             hasMeshData = false;
             meshDataIndex = 0;
         }
 
+        /// <summary>
+        ///     Do a mesh data set-step. This will apply a part of the mesh data and activate the part.
+        /// </summary>
+        /// <param name="sectionMeshes">The mesh data to apply.</param>
+        /// <returns>True if this step was the final step.</returns>
         public bool DoMeshDataSetStep(SectionMeshData[] sectionMeshes)
         {
             hasMeshData = false;
@@ -135,6 +165,7 @@ namespace VoxelGame.Client.Logic
 
         [NonSerialized] private bool disposed; // To detect redundant calls
 
+        /// <inheritdoc />
         protected override void Dispose(bool disposing)
         {
             if (!disposed)
