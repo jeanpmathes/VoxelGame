@@ -9,6 +9,9 @@ using VoxelGame.Core.Collections;
 
 namespace VoxelGame.Client.Rendering
 {
+    /// <summary>
+    ///     Contains the mesh data for a section.
+    /// </summary>
     public class SectionMeshData
     {
         internal readonly PooledList<uint> complexIndices;
@@ -33,7 +36,7 @@ namespace VoxelGame.Client.Rendering
 
         private bool isReturnedToPool;
 
-        public SectionMeshData(PooledList<int> simpleVertexData,
+        internal SectionMeshData(PooledList<int> simpleVertexData,
             PooledList<float> complexVertexPositions, PooledList<int> complexVertexData,
             PooledList<uint> complexIndices,
             PooledList<int> varyingHeightVertexData, PooledList<uint> varyingHeightIndices,
@@ -84,13 +87,22 @@ namespace VoxelGame.Client.Rendering
             transparentLiquidIndices = new PooledList<uint>();
         }
 
+        /// <summary>
+        ///     Create an empty mesh data instance.
+        /// </summary>
         public static SectionMeshData Empty => new();
 
+        /// <summary>
+        ///     Get whether this mesh data is empty.
+        /// </summary>
         public bool IsFilled => complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 ||
                                 varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 ||
                                 cropPlantVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 ||
                                 transparentLiquidVertexData.Count != 0;
 
+        /// <summary>
+        ///     Return all pooled lists to the pool. The data can only be returned once.
+        /// </summary>
         public void ReturnPooled()
         {
             Debug.Assert(!isReturnedToPool);
@@ -117,6 +129,9 @@ namespace VoxelGame.Client.Rendering
             isReturnedToPool = true;
         }
 
+        /// <summary>
+        ///     Discard this mesh data.
+        /// </summary>
         public void Discard()
         {
             if (isReturnedToPool) return;

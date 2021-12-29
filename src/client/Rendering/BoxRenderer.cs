@@ -17,7 +17,7 @@ namespace VoxelGame.Client.Rendering
     /// <summary>
     ///     A renderer that renders instances of the <see cref="BoundingBox" /> struct.
     /// </summary>
-    public class BoxRenderer : IDisposable
+    public sealed class BoxRenderer : IDisposable
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<BoxRenderer>();
 
@@ -25,6 +25,9 @@ namespace VoxelGame.Client.Rendering
 
         private BoundingBox currentBoundingBox;
 
+        /// <summary>
+        ///     Create a new <see cref="BoxRenderer" />.
+        /// </summary>
         public BoxRenderer()
         {
             drawGroup = ElementDrawGroup.Create();
@@ -37,6 +40,10 @@ namespace VoxelGame.Client.Rendering
             drawGroup.VertexArrayBindAttribute(vertexLocation, size: 3, offset: 0);
         }
 
+        /// <summary>
+        ///     Set the bounding box to render.
+        /// </summary>
+        /// <param name="boundingBox">The bounding box.</param>
         public void SetBoundingBox(BoundingBox boundingBox)
         {
             if (disposed) return;
@@ -133,6 +140,10 @@ namespace VoxelGame.Client.Rendering
             return 24;
         }
 
+        /// <summary>
+        ///     Draw the bounding box.
+        /// </summary>
+        /// <param name="position">The position at which the box should be drawn.</param>
         public void Draw(Vector3 position)
         {
             if (disposed) return;
@@ -156,7 +167,7 @@ namespace VoxelGame.Client.Rendering
 
         private bool disposed;
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposed)
                 return;
@@ -175,6 +186,9 @@ namespace VoxelGame.Client.Rendering
             Dispose(disposing: false);
         }
 
+        /// <summary>
+        ///     Dispose of this renderer.
+        /// </summary>
         public void Dispose()
         {
             Dispose(disposing: true);

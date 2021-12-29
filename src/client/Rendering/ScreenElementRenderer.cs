@@ -15,7 +15,10 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
 {
-    public class ScreenElementRenderer : IDisposable
+    /// <summary>
+    ///     Renders textures on the screen.
+    /// </summary>
+    public sealed class ScreenElementRenderer : IDisposable
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<ScreenElementRenderer>();
 
@@ -24,6 +27,9 @@ namespace VoxelGame.Client.Rendering
 
         private int texUnit;
 
+        /// <summary>
+        ///     Create a new <see cref="ScreenElementRenderer" />.
+        /// </summary>
         public ScreenElementRenderer()
         {
             (float[] vertices, uint[] indices) = BlockModels.CreatePlaneModel();
@@ -42,6 +48,10 @@ namespace VoxelGame.Client.Rendering
             drawGroup.VertexArrayBindAttribute(texCordLocation, size: 2, offset: 3);
         }
 
+        /// <summary>
+        ///     Set the texture to use for rendering.
+        /// </summary>
+        /// <param name="texture">The texture.</param>
         public void SetTexture(Texture texture)
         {
             if (disposed) return;
@@ -49,6 +59,10 @@ namespace VoxelGame.Client.Rendering
             texUnit = texture.TextureUnit - TextureUnit.Texture0;
         }
 
+        /// <summary>
+        ///     Set the color to apply to the texture.
+        /// </summary>
+        /// <param name="newColor">The color, as an RGB vector.</param>
         public void SetColor(Vector3 newColor)
         {
             if (disposed) return;
@@ -56,6 +70,11 @@ namespace VoxelGame.Client.Rendering
             color = newColor;
         }
 
+        /// <summary>
+        ///     Draw the screen element.
+        /// </summary>
+        /// <param name="offset">The relative position on the screen.</param>
+        /// <param name="scaling">The scale of the screen element.</param>
         public void Draw(Vector2 offset, float scaling)
         {
             if (disposed) return;
@@ -84,7 +103,7 @@ namespace VoxelGame.Client.Rendering
 
         private bool disposed;
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposed)
                 return;
@@ -103,6 +122,9 @@ namespace VoxelGame.Client.Rendering
             Dispose(disposing: false);
         }
 
+        /// <summary>
+        ///     Dispose of the renderer.
+        /// </summary>
         public void Dispose()
         {
             Dispose(disposing: true);
