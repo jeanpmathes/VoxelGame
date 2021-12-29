@@ -50,6 +50,12 @@ namespace VoxelGame.Client.Application
 
         private Screen screen = null!;
 
+        /// <summary>
+        ///     Create a new game instance.
+        /// </summary>
+        /// <param name="gameWindowSettings">The game window settings.</param>
+        /// <param name="nativeWindowSettings">The native window settings.</param>
+        /// <param name="graphicsSettings">The graphics settings.</param>
         public Client(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings,
             GraphicsSettings graphicsSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
@@ -77,8 +83,19 @@ namespace VoxelGame.Client.Application
             commandInvoker = GameConsole.BuildInvoker();
         }
 
+        /// <summary>
+        ///     Get the game client instance.
+        /// </summary>
         public static Client Instance { get; private set; } = null!;
+
+        /// <summary>
+        ///     Get the keybinds bound for the game.
+        /// </summary>
         public KeybindManager Keybinds { get; }
+
+        /// <summary>
+        ///     Get the mouse used by the client,
+        /// </summary>
         public Mouse Mouse => input.Mouse;
 
         public GeneralSettings Settings { get; }
@@ -209,6 +226,10 @@ namespace VoxelGame.Client.Application
 
         #region SCENE MANAGEMENT
 
+        /// <summary>
+        ///     Load the game scene.
+        /// </summary>
+        /// <param name="world">The world to play in.</param>
         public void LoadGameScene(ClientWorld world)
         {
             GameScene gameScene = new(Instance, world, new GameConsole(commandInvoker));
@@ -218,6 +239,9 @@ namespace VoxelGame.Client.Application
             Player = gameScene.Player;
         }
 
+        /// <summary>
+        ///     Load the start scene.
+        /// </summary>
         public void LoadStartScene()
         {
             sceneManager.Load(new StartScene(Instance));

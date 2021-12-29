@@ -14,6 +14,9 @@ using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes
 {
+    /// <summary>
+    ///     The scene the game starts in. It contains the main menu.
+    /// </summary>
     public sealed class StartScene : IScene
     {
         private readonly Application.Client client;
@@ -40,6 +43,7 @@ namespace VoxelGame.Client.Scenes
                 drawBackground: true);
         }
 
+        /// <inheritdoc />
         public void Load()
         {
             Screen.SetCursor(visible: true);
@@ -53,21 +57,25 @@ namespace VoxelGame.Client.Scenes
             ui.SetExitAction(() => client.Close());
         }
 
+        /// <inheritdoc />
         public void Update(float deltaTime)
         {
             // Method intentionally left empty.
         }
 
+        /// <inheritdoc />
         public void OnResize(Vector2i size)
         {
             ui.Resize(size);
         }
 
+        /// <inheritdoc />
         public void Render(float deltaTime)
         {
             ui.Render();
         }
 
+        /// <inheritdoc />
         public void Unload()
         {
             // Method intentionally left empty.
@@ -87,6 +95,9 @@ namespace VoxelGame.Client.Scenes
             }
         }
 
+        /// <summary>
+        ///     Disposes of the scene.
+        /// </summary>
         public void Dispose()
         {
             Dispose(disposing: true);
