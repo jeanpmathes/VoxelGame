@@ -13,6 +13,10 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Collections
 {
+    /// <summary>
+    ///     Manages scheduled ticks.
+    /// </summary>
+    /// <typeparam name="T">The type of tickables to manage.</typeparam>
     [Serializable]
     public class ScheduledTickManager<T> where T : ITickable
     {
@@ -24,6 +28,12 @@ namespace VoxelGame.Core.Collections
 
         [NonSerialized] private World world;
 
+        /// <summary>
+        ///     Create a new scheduled tick manager.
+        /// </summary>
+        /// <param name="maxTicks">The maximum amount of ticks per frame.</param>
+        /// <param name="world">The world in which ticks are issued.</param>
+        /// <param name="updateCounter">The current game update counter.</param>
         public ScheduledTickManager(int maxTicks, World world, UpdateCounter updateCounter)
         {
             this.maxTicks = maxTicks;
@@ -32,6 +42,11 @@ namespace VoxelGame.Core.Collections
             this.updateCounter = updateCounter;
         }
 
+        /// <summary>
+        ///     Setup the manager after deserialization.
+        /// </summary>
+        /// <param name="containingWorld">The world in which ticks are issued.</param>
+        /// <param name="counter">The current game update counter.</param>
         public void Setup(World containingWorld, UpdateCounter counter)
         {
             world = containingWorld;
@@ -40,6 +55,11 @@ namespace VoxelGame.Core.Collections
             Load();
         }
 
+        /// <summary>
+        ///     Add a tickable to the manager.
+        /// </summary>
+        /// <param name="tick">The tickable to add.</param>
+        /// <param name="tickOffset">The offset from the current update until the tickable should be ticked.</param>
         public void Add(T tick, int tickOffset)
         {
             TicksHolder ticks;
@@ -104,6 +124,9 @@ namespace VoxelGame.Core.Collections
             return newLastTicks;
         }
 
+        /// <summary>
+        ///     Tick all tickables that are scheduled for the current update or earlier.
+        /// </summary>
         public void Process()
         {
             if (nextTicks != null && nextTicks.targetUpdate <= updateCounter.CurrentUpdate)

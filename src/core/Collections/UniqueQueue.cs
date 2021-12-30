@@ -33,6 +33,7 @@ namespace VoxelGame.Core.Collections
         /// </summary>
         public int Count => hashSet.Count;
 
+        /// <inheritdoc />
         public IEnumerator<T> GetEnumerator()
         {
             return queue.GetEnumerator();

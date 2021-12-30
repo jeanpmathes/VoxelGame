@@ -10,6 +10,10 @@ using System.Diagnostics;
 
 namespace VoxelGame.Core.Collections
 {
+    /// <summary>
+    ///     A list that that uses a pool for its internal storage.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
     public class PooledList<T>
     {
