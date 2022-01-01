@@ -17,6 +17,11 @@ namespace VoxelGame.Core.Logic
         private static ITextureIndexProvider blockTextureIndexProvider = null!;
         private static ITextureIndexProvider liquidTextureIndexProvider = null!;
 
+        /// <summary>
+        ///     Set the texture index providers to get the texture index for a texture name.
+        /// </summary>
+        /// <param name="blockTextureProvider">The block texture index provider.</param>
+        /// <param name="liquidTextureProvider">The liquid texture index provider.</param>
         public static void SetProviders(ITextureIndexProvider blockTextureProvider,
             ITextureIndexProvider liquidTextureProvider)
         {
@@ -24,13 +29,39 @@ namespace VoxelGame.Core.Logic
             liquidTextureIndexProvider = liquidTextureProvider;
         }
 
+        /// <summary>
+        ///     The front texture index.
+        /// </summary>
         public int Front { get; }
+
+        /// <summary>
+        ///     The back texture index.
+        /// </summary>
         public int Back { get; }
+
+        /// <summary>
+        ///     The left texture index.
+        /// </summary>
         public int Left { get; }
+
+        /// <summary>
+        ///     The right texture index.
+        /// </summary>
         public int Right { get; }
+
+        /// <summary>
+        ///     The bottom texture index.
+        /// </summary>
         public int Bottom { get; }
+
+        /// <summary>
+        ///     The top texture index.
+        /// </summary>
         public int Top { get; }
 
+        /// <summary>
+        ///     Create a new texture layout, with all texture indices directly set to a specific value.
+        /// </summary>
         public TextureLayout(int front, int back, int left, int right, int bottom, int top)
         {
             Front = front;
@@ -135,38 +166,14 @@ namespace VoxelGame.Core.Logic
             return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, endIndex, endIndex);
         }
 
-        public int[][] GetTexIndexArrays()
-        {
-            return new[]
-            {
-                new[]
-                {
-                    Front, Front, Front, Front
-                },
-                new[]
-                {
-                    Back, Back, Back, Back
-                },
-                new[]
-                {
-                    Left, Left, Left, Left
-                },
-                new[]
-                {
-                    Right, Right, Right, Right
-                },
-                new[]
-                {
-                    Bottom, Bottom, Bottom, Bottom
-                },
-                new[]
-                {
-                    Top, Top, Top, Top
-                }
-            };
-        }
-
-        public readonly int[] GetTexIndexArray()
+        /// <summary>
+        ///     Get the texture index array for the given texture layout.
+        /// </summary>
+        /// <returns>
+        ///     The texture index array. The array is of length 6, with the indices in the side order defined by
+        ///     <see cref="BlockSide" />.
+        /// </returns>
+        public int[] GetTexIndexArray()
         {
             return new[]
             {
@@ -179,21 +186,29 @@ namespace VoxelGame.Core.Logic
             };
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(Front, Back, Left, Right, Bottom, Top);
         }
 
+        /// <summary>
+        ///     Check equality between two texture layouts.
+        /// </summary>
         public static bool operator ==(TextureLayout left, TextureLayout right)
         {
             return left.Equals(right);
         }
 
+        /// <summary>
+        ///     Check inequality between two texture layouts.
+        /// </summary>
         public static bool operator !=(TextureLayout left, TextureLayout right)
         {
             return !(left == right);
         }
 
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             if (obj is TextureLayout other) return Equals(other);
@@ -201,6 +216,7 @@ namespace VoxelGame.Core.Logic
             return false;
         }
 
+        /// <inheritdoc />
         public bool Equals(TextureLayout other)
         {
             return Front == other.Front &&

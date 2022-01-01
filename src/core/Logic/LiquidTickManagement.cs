@@ -12,6 +12,9 @@ namespace VoxelGame.Core.Logic
 {
     public partial class Liquid
     {
+        /// <summary>
+        ///     The maximum amount of liquid ticks per frame.
+        /// </summary>
         public const int MaxLiquidTicksPerFrameAndChunk = 1024;
 
         /// <summary>
@@ -34,6 +37,9 @@ namespace VoxelGame.Core.Logic
             ScheduleTick(world, position);
         }
 
+        /// <summary>
+        ///     Will schedule a tick for a liquid in the next possible update.
+        /// </summary>
         internal void TickNow(World world, Vector3i position, LiquidLevel level, bool isStatic)
         {
             if (this == None) return;

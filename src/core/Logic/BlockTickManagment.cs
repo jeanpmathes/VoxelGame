@@ -12,7 +12,11 @@ namespace VoxelGame.Core.Logic
 {
     public partial class Block
     {
-        public const int MaxLiquidTicksPerFrameAndChunk = 1024;
+        /// <summary>
+        ///     The maximum amount of block ticks that should be processed per frame.
+        /// </summary>
+        public const int MaxBlockTicksPerFrameAndChunk = 1024;
+
         private const int ScheduledDestroyOffset = 5;
 
         /// <summary>

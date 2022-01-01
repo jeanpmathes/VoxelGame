@@ -23,11 +23,13 @@ namespace VoxelGame.Core.Logic.Blocks
                 BlockFlags.Basic,
                 layout) {}
 
+        /// <inheritdoc />
         public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
         {
             return liquid.Viscosity < 100;
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return base.GetMesh(info).Modified(info.Liquid.IsLiquid ? TintColor.LightGray : TintColor.None);

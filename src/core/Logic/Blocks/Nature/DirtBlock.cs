@@ -29,11 +29,13 @@ namespace VoxelGame.Core.Logic.Blocks
             this.wet = wet;
         }
 
+        /// <inheritdoc />
         public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
         {
             return liquid.Viscosity < 100;
         }
 
+        /// <inheritdoc />
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
             base.Setup(indexProvider);
@@ -41,6 +43,7 @@ namespace VoxelGame.Core.Logic.Blocks
             wetTextureIndices = wet.GetTexIndexArray();
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             BlockMeshData mesh = base.GetMesh(info);
@@ -51,6 +54,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return mesh;
         }
 
+        /// <inheritdoc />
         internal override void RandomUpdate(World world, Vector3i position, uint data)
         {
             LiquidInstance? liquid = world.GetLiquid(position);

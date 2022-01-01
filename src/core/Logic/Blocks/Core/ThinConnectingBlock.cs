@@ -25,6 +25,7 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private readonly List<BlockMesh> meshes = new(capacity: 16);
 
+        /// <inheritdoc />
         public ThinConnectingBlock(string name, string namedId, string postModel, string sideModel,
             string extensionModel) :
             base(
@@ -58,6 +59,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
+        /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
             List<BoundingBox> connectors = new(BitHelper.CountSetBits(data));
@@ -92,6 +94,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 connectors.ToArray());
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             BlockMesh mesh = meshes[(int) info.Data & 0b00_1111];

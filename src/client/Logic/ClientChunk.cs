@@ -11,7 +11,6 @@ using OpenToolkit.Mathematics;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Updates;
 
 namespace VoxelGame.Client.Logic
 {
@@ -32,8 +31,7 @@ namespace VoxelGame.Client.Logic
         /// <param name="world">The world that contains the chunk.</param>
         /// <param name="x">The chunk x position, in chunk coordinates.</param>
         /// <param name="z">The chunk z position, in chunk coordinates.</param>
-        /// <param name="updateCounter"></param>
-        public ClientChunk(World world, int x, int z, UpdateCounter updateCounter) : base(world, x, z, updateCounter) {}
+        public ClientChunk(World world, int x, int z) : base(world, x, z) {}
 
         /// <inheritdoc />
         protected override Section CreateSection()

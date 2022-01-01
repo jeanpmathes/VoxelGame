@@ -25,6 +25,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 hasNeutralTint: true,
                 supportsFullGrowth: false) {}
 
+        /// <inheritdoc />
         public bool Burn(World world, Vector3i position, Block fire)
         {
             world.SetBlock(GrassBurned.AsInstance(), position);
@@ -33,6 +34,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return false;
         }
 
+        /// <inheritdoc />
         internal override void RandomUpdate(World world, Vector3i position, uint data)
         {
             LiquidInstance? liquid = world.GetLiquid(position);

@@ -18,6 +18,9 @@ namespace VoxelGame.Core.Logic
 {
     public abstract partial class Liquid
     {
+        /// <summary>
+        ///     The maximum amount of different liquids that can be registered.
+        /// </summary>
         public const int LiquidLimit = 32;
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -28,8 +31,14 @@ namespace VoxelGame.Core.Logic
         private static readonly List<Liquid> liquidList = new();
         private static readonly Dictionary<string, Liquid> namedLiquidDictionary = new();
 
+        /// <summary>
+        ///     No liquid.
+        /// </summary>
         public static readonly Liquid None = new NoLiquid(Language.NoLiquid, nameof(None));
 
+        /// <summary>
+        ///     Simple water.
+        /// </summary>
         public static readonly Liquid Water = new BasicLiquid(
             Language.Water,
             nameof(Water),
@@ -40,6 +49,9 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("water_static_side", "water_static"),
             RenderType.Transparent);
 
+        /// <summary>
+        ///     Milk.
+        /// </summary>
         public static readonly Liquid Milk = new BasicLiquid(
             Language.Milk,
             nameof(Milk),
@@ -49,6 +61,9 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("milk_moving_side", "milk_moving"),
             TextureLayout.Liquid("milk_static_side", "milk_static"));
 
+        /// <summary>
+        ///     Steam.
+        /// </summary>
         public static readonly Liquid Steam = new BasicLiquid(
             Language.Steam,
             nameof(Steam),
@@ -59,6 +74,9 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("steam_static_side", "steam_static"),
             RenderType.Transparent);
 
+        /// <summary>
+        ///     Lava. Reacts in contact with water and other liquids.
+        /// </summary>
         public static readonly Liquid Lava = new HotLiquid(
             Language.Lava,
             nameof(Lava),
@@ -68,6 +86,9 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("lava_moving_side", "lava_moving"),
             TextureLayout.Liquid("lava_static_side", "lava_static"));
 
+        /// <summary>
+        ///     Crude oil.
+        /// </summary>
         public static readonly Liquid CrudeOil = new BasicLiquid(
             Language.CrudeOil,
             nameof(CrudeOil),
@@ -77,6 +98,9 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("oil_moving_side", "oil_moving"),
             TextureLayout.Liquid("oil_static_side", "oil_static"));
 
+        /// <summary>
+        ///     Natural gas.
+        /// </summary>
         public static readonly Liquid NaturalGas = new BasicLiquid(
             Language.NaturalGas,
             nameof(NaturalGas),
@@ -87,6 +111,9 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("gas_static_side", "gas_static"),
             RenderType.Transparent);
 
+        /// <summary>
+        ///     Concrete, hardens after a while.
+        /// </summary>
         public static readonly Liquid Concrete = new ConcreteLiquid(
             Language.Concrete,
             nameof(Concrete),
@@ -95,6 +122,9 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("concrete_moving_side", "concrete_moving"),
             TextureLayout.Liquid("concrete_static_side", "concrete_static"));
 
+        /// <summary>
+        ///     Honey.
+        /// </summary>
         public static readonly Liquid Honey = new BasicLiquid(
             Language.Honey,
             nameof(Honey),
@@ -105,6 +135,9 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("honey_static_side", "honey_static"),
             RenderType.Transparent);
 
+        /// <summary>
+        ///     Petrol.
+        /// </summary>
         public static readonly Liquid Petrol = new BasicLiquid(
             Language.Petrol,
             nameof(Petrol),
@@ -115,6 +148,9 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("petrol_static_side", "petrol_static"),
             RenderType.Transparent);
 
+        /// <summary>
+        ///     Wine.
+        /// </summary>
         public static readonly Liquid Wine = new BasicLiquid(
             Language.Wine,
             nameof(Wine),
@@ -125,6 +161,9 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("wine_static_side", "wine_static"),
             RenderType.Transparent);
 
+        /// <summary>
+        ///     Beer.
+        /// </summary>
         public static readonly Liquid Beer = new BasicLiquid(
             Language.Beer,
             nameof(Beer),
@@ -135,6 +174,9 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("beer_static_side", "beer_static"),
             RenderType.Transparent);
 
+        /// <summary>
+        ///     The contact manager instance.
+        /// </summary>
         protected static readonly LiquidContactManager ContactManager = new();
 
         /// <summary>
@@ -160,6 +202,11 @@ namespace VoxelGame.Core.Logic
             return None;
         }
 
+        /// <summary>
+        ///     Translate a named ID to the liquid with that ID.
+        /// </summary>
+        /// <param name="namedId">The named ID to translate.</param>
+        /// <returns>The liquid, or null.</returns>
         public static Liquid? TranslateNamedID(string namedId)
         {
             namedLiquidDictionary.TryGetValue(namedId, out Liquid? liquid);
@@ -188,6 +235,12 @@ namespace VoxelGame.Core.Logic
             }
         }
 
+        /// <summary>
+        ///     Elevate a liquid. This tries to move the liquid up, to the next suitable position.
+        /// </summary>
+        /// <param name="world">The world.</param>
+        /// <param name="position">The position of the liquid.</param>
+        /// <param name="pumpDistance">The maximum amount of elevation.</param>
         public static void Elevate(World world, Vector3i position, int pumpDistance)
         {
             (BlockInstance? start, LiquidInstance? toElevate) = world.GetContent(position);

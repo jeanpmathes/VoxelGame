@@ -61,6 +61,7 @@ namespace VoxelGame.Core.Logic.Blocks
             footMeshes.Add(footParts.west.GetMesh());
         }
 
+        /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
             bool isBase = (data & 0b1) == 1;
@@ -125,6 +126,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 legs);
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             bool isHead = (info.Data & 0b1) == 1;
@@ -147,6 +149,7 @@ namespace VoxelGame.Core.Logic.Blocks
                    world.HasSolidGround(otherPosition, solidify: true);
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
@@ -158,6 +161,7 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetSpawnPosition(new Vector3(position.X, y: 1024f, position.Z));
         }
 
+        /// <inheritdoc />
         protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             bool isHead = (data & 0b1) == 1;
@@ -168,6 +172,7 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetDefaultBlock(placementOrientation.Offset(position));
         }
 
+        /// <inheritdoc />
         protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
             bool isHead = (data & 0b1) == 1;

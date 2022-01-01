@@ -46,6 +46,7 @@ namespace VoxelGame.Core.Logic.Blocks
             straightZ = straightZModel.GetMesh();
         }
 
+        /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
             bool north = (data & 0b00_1000) != 0;
@@ -109,6 +110,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 children);
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             bool north = (info.Data & 0b00_1000) != 0;

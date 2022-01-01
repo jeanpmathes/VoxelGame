@@ -26,6 +26,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 flags,
                 layout) {}
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return BlockMeshData.Basic(
@@ -33,6 +34,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isTextureRotated: false);
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             world.SetBlock(

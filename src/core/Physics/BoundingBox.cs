@@ -256,7 +256,7 @@ namespace VoxelGame.Core.Physics
             yCollision = false;
             zCollision = false;
 
-            // Calculate the range of blocks to check
+            // Calculate the range of blocks to check.
             float highestExtent = Extents.X > Extents.Y ? Extents.X : Extents.Y;
             highestExtent = highestExtent > Extents.Z ? highestExtent : Extents.Z;
 
@@ -264,10 +264,10 @@ namespace VoxelGame.Core.Physics
 
             if (range % 2 == 0) range++;
 
-            // Get the current position in world coordinates
+            // Get the current position in world coordinates.
             Vector3i center = Center.Floor();
 
-            // Loop through the world and check for collisions
+            // Loop through the world and check for collisions.
             for (int x = (range - 1) / -2; x <= (range - 1) / 2; x++)
             for (int y = (range - 1) / -2; y <= (range - 1) / 2; y++)
             for (int z = (range - 1) / -2; z <= (range - 1) / 2; z++)

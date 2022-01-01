@@ -13,16 +13,42 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic
 {
+    /// <summary>
+    ///     Basic information about a world.
+    /// </summary>
     public class WorldInformation
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldInformation>();
 
+        /// <summary>
+        ///     The name of the world.
+        /// </summary>
         public string Name { get; set; } = "No Name";
+
+        /// <summary>
+        ///     The seed of the world.
+        /// </summary>
         public int Seed { get; set; } = 2133;
+
+        /// <summary>
+        ///     The creation date of the world.
+        /// </summary>
         public DateTime Creation { get; set; } = DateTime.MinValue;
+
+        /// <summary>
+        ///     The game version in which the world was created.
+        /// </summary>
         public string Version { get; set; } = "missing";
+
+        /// <summary>
+        ///     The spawn information of the world.
+        /// </summary>
         public SpawnInformation SpawnInformation { get; set; } = new(new Vector3(x: 0f, y: 1024f, z: 0f));
 
+        /// <summary>
+        ///     Save this world information to a file.
+        /// </summary>
+        /// <param name="path">The save path.</param>
         public void Save(string path)
         {
             JsonSerializerOptions options = new()
@@ -35,6 +61,11 @@ namespace VoxelGame.Core.Logic
             File.WriteAllText(path, json);
         }
 
+        /// <summary>
+        ///     Load a world information from a file. If loading fails, a default world information is returned.
+        /// </summary>
+        /// <param name="path">The path to load from.</param>
+        /// <returns>The loaded world information.</returns>
         public static WorldInformation Load(string path)
         {
             try
@@ -63,13 +94,31 @@ namespace VoxelGame.Core.Logic
 
 #pragma warning disable CA1815 // Override equals and operator equals on value types
 
+    /// <summary>
+    ///     World spawn information.
+    /// </summary>
     public struct SpawnInformation
 #pragma warning restore CA1815 // Override equals and operator equals on value types
     {
+        /// <summary>
+        ///     The x position of the spawn.
+        /// </summary>
         public float X { get; set; }
+
+        /// <summary>
+        ///     The y position of the spawn.
+        /// </summary>
         public float Y { get; set; }
+
+        /// <summary>
+        ///     The z position of the spawn.
+        /// </summary>
         public float Z { get; set; }
 
+        /// <summary>
+        ///     Create spawn information from a vector.
+        /// </summary>
+        /// <param name="position">The position.</param>
         public SpawnInformation(Vector3 position)
         {
             X = position.X;
@@ -77,6 +126,9 @@ namespace VoxelGame.Core.Logic
             Z = position.Z;
         }
 
+        /// <summary>
+        ///     Get the position of the spawn information.
+        /// </summary>
         public Vector3 Position => new(X, Y, Z);
     }
 }

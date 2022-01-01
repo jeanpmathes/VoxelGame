@@ -24,6 +24,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
         /// <summary>
         ///     Initializes a new instance of a cross block; a block made out of two intersecting planes.
+        /// Cross blocks are never full, solid, or opaque.
         /// </summary>
         protected CrossBlock(string name, string namedId, string texture, BlockFlags flags, BoundingBox boundingBox) :
             base(
@@ -36,11 +37,13 @@ namespace VoxelGame.Core.Logic.Blocks
             this.texture = texture;
         }
 
+        /// <inheritdoc />
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
             (vertices, indices, textureIndices) = BlockModels.CreateCrossModel(indexProvider.GetTextureIndex(texture));
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return BlockMeshData.Complex(vertexCount: 8, vertices, textureIndices, indices);

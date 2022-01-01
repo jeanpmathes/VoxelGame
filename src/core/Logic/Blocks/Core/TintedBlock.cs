@@ -32,11 +32,13 @@ namespace VoxelGame.Core.Logic.Blocks
             this.isAnimated = isAnimated;
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return base.GetMesh(info).Modified(((BlockColor) (0b01_1111 & info.Data)).ToTintColor(), isAnimated);
         }
 
+        /// <inheritdoc />
         protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
             entity.World.SetBlock(this.AsInstance((data + 1) & 0b01_1111), position);

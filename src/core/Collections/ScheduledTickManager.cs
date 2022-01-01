@@ -66,7 +66,7 @@ namespace VoxelGame.Core.Collections
 
             do
             {
-                long targetUpdate = updateCounter.CurrentUpdate + tickOffset;
+                long targetUpdate = updateCounter.Current + tickOffset;
                 ticks = FindOrCreateTargetTick(targetUpdate);
 
                 if (ticks.tickables.Count < maxTicks) break;
@@ -129,7 +129,7 @@ namespace VoxelGame.Core.Collections
         /// </summary>
         public void Process()
         {
-            if (nextTicks != null && nextTicks.targetUpdate <= updateCounter.CurrentUpdate)
+            if (nextTicks != null && nextTicks.targetUpdate <= updateCounter.Current)
             {
                 foreach (T scheduledTick in nextTicks.tickables) scheduledTick.Tick(world);
 
@@ -146,7 +146,7 @@ namespace VoxelGame.Core.Collections
 
             while (current != null)
             {
-                current.targetUpdate -= updateCounter.CurrentUpdate;
+                current.targetUpdate -= updateCounter.Current;
                 current = current.next;
             }
         }
@@ -160,7 +160,7 @@ namespace VoxelGame.Core.Collections
 
             while (current != null)
             {
-                current.targetUpdate += updateCounter.CurrentUpdate;
+                current.targetUpdate += updateCounter.Current;
                 current = current.next;
             }
         }

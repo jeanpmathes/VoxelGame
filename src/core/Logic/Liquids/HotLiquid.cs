@@ -15,6 +15,9 @@ namespace VoxelGame.Core.Logic.Liquids
     /// </summary>
     public class HotLiquid : BasicLiquid
     {
+        /// <summary>
+        ///     Create a new <see cref="HotLiquid" />.
+        /// </summary>
         public HotLiquid(string name, string namedId, float density, int viscosity, bool neutralTint,
             TextureLayout movingLayout, TextureLayout staticLayout,
             RenderType renderType = RenderType.Opaque) :
@@ -28,6 +31,7 @@ namespace VoxelGame.Core.Logic.Liquids
                 staticLayout,
                 renderType) {}
 
+        /// <inheritdoc />
         protected override void ScheduledUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic)
         {
             if (world.GetBlock(position)?.Block is IFlammable block) block.Burn(world, position, Block.Fire);
@@ -37,6 +41,7 @@ namespace VoxelGame.Core.Logic.Liquids
             base.ScheduledUpdate(world, position, level, isStatic);
         }
 
+        /// <inheritdoc />
         internal override void RandomUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic)
         {
             BurnAround(world, position);

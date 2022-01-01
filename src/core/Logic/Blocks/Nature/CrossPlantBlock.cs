@@ -44,16 +44,19 @@ namespace VoxelGame.Core.Logic.Blocks
             this.texture = texture;
         }
 
+        /// <inheritdoc />
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
             if (liquid.IsLiquid && level > LiquidLevel.Four) Destroy(world, position);
         }
 
+        /// <inheritdoc />
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
             textureIndex = indexProvider.GetTextureIndex(texture);
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return BlockMeshData.CrossPlant(
@@ -64,6 +67,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isUpper: false);
         }
 
+        /// <inheritdoc />
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             BlockInstance? ground = world.GetBlock(position.Below());
@@ -71,12 +75,14 @@ namespace VoxelGame.Core.Logic.Blocks
             return ground?.Block is IPlantable;
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             bool isLowered = world.IsLowered(position);
             world.SetBlock(this.AsInstance(isLowered ? 1u : 0u), position);
         }
 
+        /// <inheritdoc />
         internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom && (world.GetBlock(position.Below())?.Block ?? Air) is not IPlantable)

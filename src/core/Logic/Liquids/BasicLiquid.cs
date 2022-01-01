@@ -11,6 +11,9 @@ using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Liquids
 {
+    /// <summary>
+    ///     A normal liquid with simple flowing behavior.
+    /// </summary>
     public class BasicLiquid : Liquid, IOverlayTextureProvider
     {
         private readonly TextureLayout movingLayout;
@@ -20,6 +23,17 @@ namespace VoxelGame.Core.Logic.Liquids
         private int[] movingTex = null!;
         private int[] staticTex = null!;
 
+        /// <summary>
+        ///     Create a new basic liquid.
+        /// </summary>
+        /// <param name="name">The name of the basic liquid.</param>
+        /// <param name="namedId">The named ID of the liquid.</param>
+        /// <param name="density">The density of the liquid.</param>
+        /// <param name="viscosity">The viscosity of the liquid.</param>
+        /// <param name="neutralTint">Whether this liquid has a neutral tint.</param>
+        /// <param name="movingLayout">The texture layout when this liquid is moving.</param>
+        /// <param name="staticLayout">The texture layout when this liquid is static.</param>
+        /// <param name="renderType">The render type of the liquid.</param>
         public BasicLiquid(string name, string namedId, float density, int viscosity, bool neutralTint,
             TextureLayout movingLayout, TextureLayout staticLayout, RenderType renderType = RenderType.Opaque) :
             base(
@@ -37,14 +51,19 @@ namespace VoxelGame.Core.Logic.Liquids
             this.staticLayout = staticLayout;
         }
 
+        /// <summary>
+        ///     The texture to use for the liquid overlay.
+        /// </summary>
         public int TextureIdentifier => staticLayout.Front;
 
+        /// <inheritdoc />
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
             movingTex = movingLayout.GetTexIndexArray();
             staticTex = staticLayout.GetTexIndexArray();
         }
 
+        /// <inheritdoc />
         public override LiquidMeshData GetMesh(LiquidMeshInfo info)
         {
             return LiquidMeshData.Basic(
@@ -52,6 +71,7 @@ namespace VoxelGame.Core.Logic.Liquids
                 neutralTint ? TintColor.Neutral : TintColor.None);
         }
 
+        /// <inheritdoc />
         protected override void ScheduledUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic)
         {
             if (CheckVerticalWorldBounds(world, position)) return;

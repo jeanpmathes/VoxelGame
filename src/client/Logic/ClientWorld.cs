@@ -120,7 +120,7 @@ namespace VoxelGame.Client.Logic
         /// <inheritdoc />
         protected override Chunk CreateChunk(int x, int z)
         {
-            return new ClientChunk(this, x, z, UpdateCounter);
+            return new ClientChunk(this, x, z);
         }
 
         /// <inheritdoc />

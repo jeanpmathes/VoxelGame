@@ -24,6 +24,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 hasNeutralTint,
                 supportsFullGrowth: false) {}
 
+        /// <inheritdoc />
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
             if (liquid.IsLiquid) world.SetBlock(Dirt.AsInstance(), position);

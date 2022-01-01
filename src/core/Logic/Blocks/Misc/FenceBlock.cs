@@ -21,6 +21,14 @@ namespace VoxelGame.Core.Logic.Blocks
     // w: connected west
     public class FenceBlock : WideConnectingBlock, IFlammable
     {
+        /// <summary>
+        ///     Create a new <see cref="FenceBlock" />.
+        /// </summary>
+        /// <param name="name">The name of the block.</param>
+        /// <param name="namedId">The named ID of the block.</param>
+        /// <param name="texture">The texture to apply to the model.</param>
+        /// <param name="postModel">The name of the post model. All model textures are ignored.</param>
+        /// <param name="extensionModel">The name of the extension model. All model textures are ignored.</param>
         internal FenceBlock(string name, string namedId, string texture, string postModel, string extensionModel) :
             base(
                 name,
@@ -32,6 +40,7 @@ namespace VoxelGame.Core.Logic.Blocks
                     new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
                     new Vector3(x: 0.1875f, y: 0.5f, z: 0.1875f))) {}
 
+        /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
             bool north = (data & 0b00_1000) != 0;

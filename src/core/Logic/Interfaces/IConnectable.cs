@@ -9,6 +9,9 @@ using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Interfaces
 {
+    /// <summary>
+    ///     Allows connection of blocks.
+    /// </summary>
     public interface IConnectable : IBlockBase
     {
         /// <summary>

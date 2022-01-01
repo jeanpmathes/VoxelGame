@@ -26,6 +26,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 flags,
                 layout) {}
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             Axis axis = ToAxis(info.Data);

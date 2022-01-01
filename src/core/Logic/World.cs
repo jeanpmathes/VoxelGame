@@ -19,6 +19,9 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic
 {
+    /// <summary>
+    ///     The world class. Contains everything that is in the world, e.g. chunks, entities, etc.
+    /// </summary>
     public abstract partial class World : IDisposable
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
@@ -94,15 +97,25 @@ namespace VoxelGame.Core.Logic
 
         private WorldInformation Information { get; }
 
+        /// <summary>
+        ///     The update counter counting the world updates.
+        /// </summary>
         public UpdateCounter UpdateCounter { get; }
 
-        protected int MaxGenerationTasks { get; } = Settings.Default.MaxGenerationTasks;
-        protected int MaxLoadingTasks { get; } = Settings.Default.MaxLoadingTasks;
+        private int MaxGenerationTasks { get; } = Settings.Default.MaxGenerationTasks;
+        private int MaxLoadingTasks { get; } = Settings.Default.MaxLoadingTasks;
 
-        protected int MaxSavingTasks { get; } = Settings.Default.MaxSavingTasks;
+        private int MaxSavingTasks { get; } = Settings.Default.MaxSavingTasks;
 
-        protected string WorldDirectory { get; }
-        protected string ChunkDirectory { get; }
+        /// <summary>
+        ///     The directory in which this world is stored.
+        /// </summary>
+        private string WorldDirectory { get; }
+
+        /// <summary>
+        ///     The directory in which all chunks of this world are stored.
+        /// </summary>
+        private string ChunkDirectory { get; }
 
         /// <summary>
         ///     Gets whether this world is ready for physics ticking and rendering.
@@ -117,6 +130,10 @@ namespace VoxelGame.Core.Logic
             positionsToActivate.Add((0, 0));
         }
 
+        /// <summary>
+        ///     Called every update cycle.
+        /// </summary>
+        /// <param name="deltaTime">The time since the last update cycle.</param>
         public abstract void Update(float deltaTime);
 
         /// <summary>
@@ -163,6 +180,11 @@ namespace VoxelGame.Core.Logic
             isStatic = false;
         }
 
+        /// <summary>
+        ///     Get the liquid at a given position. The liquid can only be retrieved from active chunks.
+        /// </summary>
+        /// <param name="position">The position in the world.</param>
+        /// <returns>The liquid instance, if there is any.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LiquidInstance? GetLiquid(Vector3i position)
         {
@@ -177,6 +199,12 @@ namespace VoxelGame.Core.Logic
             return liquid?.AsInstance(level, isStatic);
         }
 
+        /// <summary>
+        ///     Get both the liquid and block instance at a given position.
+        ///     The content can only be retrieved from active chunks.
+        /// </summary>
+        /// <param name="position">The world position.</param>
+        /// <returns>The content, if there is any.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (BlockInstance? block, LiquidInstance? liquid) GetContent(Vector3i position)
         {
@@ -266,6 +294,9 @@ namespace VoxelGame.Core.Logic
             ProcessChangedSection(chunk, position);
         }
 
+        /// <summary>
+        ///     Set all data at a world position.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic,
             Vector3i position)
@@ -273,6 +304,11 @@ namespace VoxelGame.Core.Logic
             SetContent(block, data, liquid, level, isStatic, position, tickLiquid: true);
         }
 
+        /// <summary>
+        ///     Process that a section was changed.
+        /// </summary>
+        /// <param name="chunk">The chunk containing the section.</param>
+        /// <param name="position">The position of the block that caused the section change.</param>
         protected abstract void ProcessChangedSection(Chunk chunk, Vector3i position);
 
         /// <summary>
@@ -295,16 +331,27 @@ namespace VoxelGame.Core.Logic
             ProcessChangedSection(chunk, position);
         }
 
+        /// <summary>
+        ///     Set a position to the default block.
+        /// </summary>
         public void SetDefaultBlock(Vector3i position)
         {
             SetBlock(BlockInstance.Default, position);
         }
 
+        /// <summary>
+        ///     Set a position to the default liquid.
+        /// </summary>
         public void SetDefaultLiquid(Vector3i position)
         {
             SetLiquid(LiquidInstance.Default, position);
         }
 
+        /// <summary>
+        ///     Force a random update at a position.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <returns>True if both the liquid and block at the position received a random update.</returns>
         public bool DoRandomUpdate(Vector3i position)
         {
             (BlockInstance? block, LiquidInstance? liquid) = GetContent(position);
@@ -371,6 +418,10 @@ namespace VoxelGame.Core.Logic
             return Task.WhenAll(tasks);
         }
 
+        /// <summary>
+        ///     Add all tasks to the list. This is used to wait for all tasks to finish when calling <see cref="FinishAll" />.
+        /// </summary>
+        /// <param name="tasks">The task list.</param>
         protected virtual void AddAllTasks(List<Task> tasks)
         {
             tasks.AddRange(chunkGenerateTasks);
@@ -382,6 +433,10 @@ namespace VoxelGame.Core.Logic
 
         private bool disposed;
 
+        /// <summary>
+        ///     Dispose of the world.
+        /// </summary>
+        /// <param name="disposing">True when disposing intentionally.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposed)
@@ -404,6 +459,9 @@ namespace VoxelGame.Core.Logic
             Dispose(disposing: false);
         }
 
+        /// <summary>
+        ///     Dispose of the world.
+        /// </summary>
         public void Dispose()
         {
             Dispose(disposing: true);

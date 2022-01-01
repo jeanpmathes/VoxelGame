@@ -29,11 +29,13 @@ namespace VoxelGame.Core.Logic.Blocks
                 modelName,
                 boundingBox) {}
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return base.GetMesh(info).Modified(((BlockColor) (0b01_1111 & info.Data)).ToTintColor());
         }
 
+        /// <inheritdoc />
         protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
             entity.World.SetBlock(this.AsInstance((data + 1) & 0b01_1111), position);

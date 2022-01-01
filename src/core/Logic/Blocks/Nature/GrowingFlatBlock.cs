@@ -28,16 +28,19 @@ namespace VoxelGame.Core.Logic.Blocks
                 climbingVelocity,
                 slidingVelocity) {}
 
+        /// <inheritdoc />
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
             if (liquid.IsLiquid && level > LiquidLevel.Two) ScheduleDestroy(world, position);
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return base.GetMesh(info).Modified(TintColor.Neutral);
         }
 
+        /// <inheritdoc />
         internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             var orientation = (Orientation) (data & 0b00_0011);
@@ -53,6 +56,7 @@ namespace VoxelGame.Core.Logic.Blocks
             CheckBack(world, position, side, orientation, schedule: true);
         }
 
+        /// <inheritdoc />
         internal override void RandomUpdate(World world, Vector3i position, uint data)
         {
             var orientation = (Orientation) (data & 0b00_0011);

@@ -122,7 +122,7 @@ namespace VoxelGame.Client.Scenes
             ui.CreateControl();
             client.Console.SetInterface(ui.Console!);
 
-            counter.ResetUpdate();
+            counter.Reset();
 
             logger.LogInformation(Events.SceneChange, "Loaded GameScene");
         }
@@ -160,7 +160,7 @@ namespace VoxelGame.Client.Scenes
         {
             using (logger.BeginScope("GameScene Update"))
             {
-                counter.IncrementUpdate();
+                counter.Increment();
 
                 World.Update(deltaTime);
 

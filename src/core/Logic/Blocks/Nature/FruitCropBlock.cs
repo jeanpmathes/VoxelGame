@@ -38,11 +38,13 @@ namespace VoxelGame.Core.Logic.Blocks
             this.fruit = fruit;
         }
 
+        /// <inheritdoc />
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
             if (liquid.IsLiquid && level > LiquidLevel.Three) ScheduleDestroy(world, position);
         }
 
+        /// <inheritdoc />
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
             int baseTextureIndex = indexProvider.GetTextureIndex(texture);
@@ -55,6 +57,7 @@ namespace VoxelGame.Core.Logic.Blocks
             );
         }
 
+        /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
             var stage = (GrowthStage) ((data >> 1) & 0b111);
@@ -64,6 +67,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 : new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f));
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             var stage = (GrowthStage) ((info.Data >> 1) & 0b111);
@@ -89,6 +93,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isUpper: false);
         }
 
+        /// <inheritdoc />
         internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             Block ground = world.GetBlock(position.Below())?.Block ?? Air;
@@ -96,6 +101,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return ground is IPlantable;
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             bool isLowered = world.IsLowered(position);

@@ -20,6 +20,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly TextureLayout layout;
         private int[] textureIndices = null!;
 
+        /// <inheritdoc />
         protected VaryingHeightBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
             base(
                 name,
@@ -31,21 +32,25 @@ namespace VoxelGame.Core.Logic.Blocks
             this.layout = layout;
         }
 
+        /// <inheritdoc />
         public virtual int GetHeight(uint data)
         {
             return (int) (data & 0b00_1111);
         }
 
+        /// <inheritdoc />
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
             textureIndices = layout.GetTexIndexArray();
         }
 
+        /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
             return BoundingBox.BlockWithHeight(GetHeight(data));
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return BlockMeshData.VaryingHeight(textureIndices[(int) info.Side], TintColor.None);

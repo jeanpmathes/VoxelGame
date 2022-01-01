@@ -40,17 +40,20 @@ namespace VoxelGame.Core.Logic.Blocks
             this.topTexOffset = topTexOffset;
         }
 
+        /// <inheritdoc />
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
             if (liquid.IsLiquid && level > LiquidLevel.Five) ScheduleDestroy(world, position);
         }
 
+        /// <inheritdoc />
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
             bottomTextureIndex = indexProvider.GetTextureIndex(bottomTexture);
             topTextureIndex = bottomTextureIndex + topTexOffset;
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             bool isUpper = (info.Data & 0b01) != 0;
@@ -70,6 +73,7 @@ namespace VoxelGame.Core.Logic.Blocks
                    (world.GetBlock(position.Below())?.Block ?? Air) is IPlantable;
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             bool isLowered = world.IsLowered(position);
@@ -80,6 +84,7 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetBlock(this.AsInstance(data | 1), position.Above());
         }
 
+        /// <inheritdoc />
         protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             bool isBase = (data & 0b1) == 0;

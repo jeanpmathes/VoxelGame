@@ -32,6 +32,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 BoundingBox.Block,
                 TargetBuffer.NotRendered) {}
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return BlockMeshData.Empty();
@@ -42,6 +43,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return false;
         }
 
+        /// <inheritdoc />
         protected override bool CanDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             return false;
