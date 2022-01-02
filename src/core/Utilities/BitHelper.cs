@@ -6,6 +6,9 @@
 
 namespace VoxelGame.Core.Utilities
 {
+    /// <summary>
+    ///     A utility class for bit manipulation.
+    /// </summary>
     public static class BitHelper
     {
         /// <summary>

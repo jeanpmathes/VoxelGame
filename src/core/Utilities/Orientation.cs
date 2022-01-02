@@ -13,21 +13,50 @@ using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Utilities
 {
+    /// <summary>
+    ///     An orientation in 3D space.
+    /// </summary>
     public enum Orientation
     {
+        /// <summary>
+        ///     The north orientation.
+        /// </summary>
         North = 0b00,
+
+        /// <summary>
+        ///     The east orientation.
+        /// </summary>
         East = 0b01,
+
+        /// <summary>
+        ///     The south orientation.
+        /// </summary>
         South = 0b10,
+
+        /// <summary>
+        ///     The west orientation.
+        /// </summary>
         West = 0b11
     }
 
+    /// <summary>
+    ///     Utility methods for orientations.
+    /// </summary>
     public static class Orientations
     {
         private static readonly ReadOnlyCollection<Orientation> orientations = new List<Orientation>
             { Orientation.North, Orientation.East, Orientation.South, Orientation.West }.AsReadOnly();
 
+        /// <summary>
+        ///     Get all orientations.
+        /// </summary>
         public static IEnumerable<Orientation> All => orientations;
 
+        /// <summary>
+        ///     Loop trough all orientations, starting depending on a position.
+        /// </summary>
+        /// <param name="position">The position to calculate the first orientation.</param>
+        /// <returns>All orientations.</returns>
         public static IEnumerable<Orientation> ShuffledStart(Vector3i position)
         {
             int start = BlockUtilities.GetPositionDependentNumber(position, mod: 4);
@@ -36,8 +65,14 @@ namespace VoxelGame.Core.Utilities
         }
     }
 
+    /// <summary>
+    ///     Extension methods for <see cref="Orientation" />.
+    /// </summary>
     public static class OrientationExtensions
     {
+        /// <summary>
+        ///     Convert a vector to an orientation.
+        /// </summary>
         public static Orientation ToOrientation(this Vector3 vector)
         {
             if (Math.Abs(vector.Z) > Math.Abs(vector.X)) return vector.Z > 0 ? Orientation.South : Orientation.North;
@@ -45,11 +80,17 @@ namespace VoxelGame.Core.Utilities
             return vector.X > 0 ? Orientation.East : Orientation.West;
         }
 
+        /// <summary>
+        ///     Convert an orientation to a vector.
+        /// </summary>
         public static Vector3 ToVector3(this Orientation orientation)
         {
             return orientation.ToVector3i().ToVector3();
         }
 
+        /// <summary>
+        ///     Convert an orientation to an integer vector.
+        /// </summary>
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         public static Vector3i ToVector3i(this Orientation orientation)
         {
@@ -63,6 +104,9 @@ namespace VoxelGame.Core.Utilities
             };
         }
 
+        /// <summary>
+        ///     Convert an orientation to a <see cref="BlockSide" />.
+        /// </summary>
         public static BlockSide ToBlockSide(this Orientation orientation)
         {
             return orientation switch
@@ -75,6 +119,9 @@ namespace VoxelGame.Core.Utilities
             };
         }
 
+        /// <summary>
+        ///     Get the opposite orientation.
+        /// </summary>
         public static Orientation Opposite(this Orientation orientation)
         {
             return orientation switch
@@ -87,6 +134,9 @@ namespace VoxelGame.Core.Utilities
             };
         }
 
+        /// <summary>
+        ///     Rotate an orientation clockwise.
+        /// </summary>
         public static Orientation Rotate(this Orientation orientation)
         {
             return orientation switch
@@ -99,11 +149,17 @@ namespace VoxelGame.Core.Utilities
             };
         }
 
+        /// <summary>
+        ///     Offset a vector along an orientation.
+        /// </summary>
         public static Vector3i Offset(this Orientation orientation, Vector3i vector)
         {
             return vector + orientation.ToVector3i();
         }
 
+        /// <summary>
+        ///     Pick an element from a tuple based on an orientation.
+        /// </summary>
         public static T Pick<T>(this Orientation orientation, (T north, T east, T south, T west) tuple)
         {
             return orientation switch
@@ -116,6 +172,9 @@ namespace VoxelGame.Core.Utilities
             };
         }
 
+        /// <summary>
+        ///     Convert an orientation to an integer flag.
+        /// </summary>
         public static uint ToFlag(this Orientation orientation)
         {
             return orientation switch
@@ -144,6 +203,9 @@ namespace VoxelGame.Core.Utilities
             return orientation.Axis() == Utilities.Axis.Z;
         }
 
+        /// <summary>
+        ///     Get the axis of this orientation.
+        /// </summary>
         public static Axis Axis(this Orientation orientation)
         {
             return orientation switch

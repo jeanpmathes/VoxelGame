@@ -105,16 +105,25 @@ namespace VoxelGame.Core.Utilities
             return new((int) Math.Floor(vector.X), (int) Math.Floor(vector.Y), (int) Math.Floor(vector.Z));
         }
 
+        /// <summary>
+        ///     Get the position below a given position.
+        /// </summary>
         public static Vector3i Below(this Vector3i vector)
         {
             return vector - Vector3i.UnitY;
         }
 
+        /// <summary>
+        ///     Get the position below a given position, with a given offset.
+        /// </summary>
         public static Vector3i Below(this Vector3i vector, int offset)
         {
             return vector - Vector3i.UnitY * offset;
         }
 
+        /// <summary>
+        ///     Get the position above a given position.
+        /// </summary>
         public static Vector3i Above(this Vector3i vector)
         {
             return vector + Vector3i.UnitY;

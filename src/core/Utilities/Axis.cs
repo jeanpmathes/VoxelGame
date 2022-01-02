@@ -9,15 +9,35 @@ using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Core.Utilities
 {
+    /// <summary>
+    ///     An axis.
+    /// </summary>
     public enum Axis
     {
+        /// <summary>
+        ///     The x axis.
+        /// </summary>
         X = 0b00,
+
+        /// <summary>
+        ///     The y axis.
+        /// </summary>
         Y = 0b01,
+
+        /// <summary>
+        ///     The z axis.
+        /// </summary>
         Z = 0b10
     }
 
+    /// <summary>
+    ///     Extension methods for <see cref="Axis" />.
+    /// </summary>
     public static class AxisExtensions
     {
+        /// <summary>
+        ///     Rotate an axis around the y axis.
+        /// </summary>
         public static Axis Rotate(this Axis axis)
         {
             return axis switch
@@ -29,6 +49,9 @@ namespace VoxelGame.Core.Utilities
             };
         }
 
+        /// <summary>
+        ///     Get the axis as a <see cref="Vector3" />.
+        /// </summary>
         public static Vector3 Vector3(this Axis axis, float onAxis, float other)
         {
             return axis switch
