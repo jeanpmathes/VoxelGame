@@ -13,20 +13,47 @@ using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Physics
 {
+    /// <summary>
+    ///     An axis-aligned bounding box.
+    /// </summary>
     public struct BoundingBox : IEquatable<BoundingBox>
     {
+        /// <summary>
+        ///     Get the center of the bounding box.
+        /// </summary>
         public Vector3 Center { get; set; }
+
+        /// <summary>
+        ///     Get the extents of the bounding box.
+        /// </summary>
         public Vector3 Extents { get; }
 
+        /// <summary>
+        ///     The minimum point of the bounding box.
+        /// </summary>
         public Vector3 Min => Center + -Extents;
+
+        /// <summary>
+        ///     The maximum point of the bounding box.
+        /// </summary>
         public Vector3 Max => Center + Extents;
 
         private readonly BoundingBox[] children;
 
+        /// <summary>
+        ///     Get a child bounding box.
+        /// </summary>
+        /// <param name="i">The index of the child.</param>
         public BoundingBox this[int i] => children[i];
 
+        /// <summary>
+        ///     Get the number of children.
+        /// </summary>
         public int ChildCount => children.Length;
 
+        /// <summary>
+        ///     Create a bounding box.
+        /// </summary>
         public BoundingBox(Vector3 center, Vector3 extents)
         {
             Center = center;
@@ -35,6 +62,9 @@ namespace VoxelGame.Core.Physics
             children = Array.Empty<BoundingBox>();
         }
 
+        /// <summary>
+        ///     Create a bounding box with children.
+        /// </summary>
         public BoundingBox(Vector3 center, Vector3 extents, params BoundingBox[] boundingBoxes)
         {
             Center = center;
@@ -353,21 +383,23 @@ namespace VoxelGame.Core.Physics
             return isIntersecting;
         }
 
+        /// <summary>
+        ///     Compare two <see cref="BoundingBox" />es for equality.
+        /// </summary>
         public static bool operator ==(BoundingBox left, BoundingBox right)
         {
             return left.Equals(right);
         }
 
+        /// <summary>
+        ///     Compare two <see cref="BoundingBox" />es for inequality.
+        /// </summary>
         public static bool operator !=(BoundingBox left, BoundingBox right)
         {
             return !(left == right);
         }
 
-        public static bool Equals(BoundingBox left, BoundingBox right)
-        {
-            return left.Extents == right.Extents && left.Center == right.Center;
-        }
-
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             if (obj is BoundingBox other) return Equals(other);
@@ -375,11 +407,13 @@ namespace VoxelGame.Core.Physics
             return false;
         }
 
+        /// <inheritdoc />
         public bool Equals(BoundingBox other)
         {
             return Extents == other.Extents && Center == other.Center && children.SequenceEqual(other.children);
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(Center.GetHashCode(), Extents.GetHashCode(), children);
