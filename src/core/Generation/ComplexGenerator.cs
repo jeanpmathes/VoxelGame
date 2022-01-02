@@ -9,8 +9,11 @@ using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic;
 using VoxelGame.Logging;
 
-namespace VoxelGame.Core.WorldGeneration
+namespace VoxelGame.Core.Generation
 {
+    /// <summary>
+    ///     Generate a complex and rich world. The main generator used.
+    /// </summary>
     public class ComplexGenerator : IWorldGenerator
     {
         private const int HalfHeight = Chunk.ChunkHeight / 2;
@@ -27,6 +30,10 @@ namespace VoxelGame.Core.WorldGeneration
 
         private readonly FastNoise noise;
 
+        /// <summary>
+        ///     Create a new complex world generator.
+        /// </summary>
+        /// <param name="seed">The seed to use.</param>
         public ComplexGenerator(int seed)
         {
             noise = new FastNoise(seed);
@@ -43,6 +50,7 @@ namespace VoxelGame.Core.WorldGeneration
             logger.LogInformation(Events.WorldGeneration, "Created complex world generator");
         }
 
+        /// <inheritdoc />
         public IEnumerable<Block> GenerateColumn(int x, int z)
         {
             int height = (int) (Amplitude * HalfHeight * noise.GetPerlinFractal(x, z)) + HalfHeight;

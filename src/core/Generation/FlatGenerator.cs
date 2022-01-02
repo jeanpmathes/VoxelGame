@@ -7,19 +7,28 @@
 using System.Collections.Generic;
 using VoxelGame.Core.Logic;
 
-namespace VoxelGame.Core.WorldGeneration
+namespace VoxelGame.Core.Generation
 {
+    /// <summary>
+    ///     Generates a completely flat world.
+    /// </summary>
     public class FlatGenerator : IWorldGenerator
     {
         private readonly int heightAir;
         private readonly int heightDirt;
 
+        /// <summary>
+        ///     Creates a new flat world generator.
+        /// </summary>
+        /// <param name="heightAir">The height at which air starts.</param>
+        /// <param name="heightDirt">The height at which dirt is used.</param>
         public FlatGenerator(int heightAir, int heightDirt)
         {
             this.heightAir = heightAir;
             this.heightDirt = heightDirt;
         }
 
+        /// <inheritdoc />
         public IEnumerable<Block> GenerateColumn(int x, int z)
         {
             for (var y = 0; y < Section.SectionSize * Chunk.VerticalSectionCount; y++)

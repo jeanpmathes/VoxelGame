@@ -13,8 +13,8 @@ using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using Properties;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Generation;
 using VoxelGame.Core.Updates;
-using VoxelGame.Core.WorldGeneration;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic

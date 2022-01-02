@@ -13,9 +13,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Generation;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.WorldGeneration;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic

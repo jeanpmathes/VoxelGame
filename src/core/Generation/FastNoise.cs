@@ -38,7 +38,7 @@ using FN_DECIMAL = System.Single;
 using System;
 using System.Runtime.CompilerServices;
 
-namespace VoxelGame.Core.WorldGeneration
+namespace VoxelGame.Core.Generation
 {
     public class FastNoise
     {
