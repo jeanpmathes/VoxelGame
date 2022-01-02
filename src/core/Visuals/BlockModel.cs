@@ -18,6 +18,9 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Visuals
 {
+    /// <summary>
+    ///     A block model for complex blocks, can be loaded from disk.
+    /// </summary>
     [SuppressMessage(
         "Performance",
         "CA1819:Properties should not return arrays",
@@ -41,6 +44,9 @@ namespace VoxelGame.Core.Visuals
 
         private float[] lockedVertices = null!;
 
+        /// <summary>
+        ///     Create an empty block model.
+        /// </summary>
         public BlockModel() {}
 
         /// <summary>
@@ -53,13 +59,25 @@ namespace VoxelGame.Core.Visuals
             Quads = (Quad[]) original.Quads.Clone();
         }
 
-        // Has to be public for serialization.
+        /// <summary>
+        ///     The names of the textures used by this model.
+        /// </summary>
         public string[] TextureNames { get; set; } = Array.Empty<string>();
 
+        /// <summary>
+        ///     The quads that make up this model.
+        /// </summary>
         public Quad[] Quads { get; set; } = Array.Empty<Quad>();
 
+        /// <summary>
+        ///     The vertex count of this model.
+        /// </summary>
         public int VertexCount => Quads.Length * 4;
 
+        /// <summary>
+        ///     Set the texture index provider.
+        /// </summary>
+        /// <param name="blockTextureProvider">The block texture index provider.</param>
         public static void SetBlockTextureIndexProvider(ITextureIndexProvider blockTextureProvider)
         {
             blockTextureIndexProvider = blockTextureProvider;
@@ -127,6 +145,10 @@ namespace VoxelGame.Core.Visuals
             for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyRotationMatrixY(xyz, nop, rotations);
         }
 
+        /// <summary>
+        ///     Overwrites the textures of the model, replacing them with a single texture.
+        /// </summary>
+        /// <param name="newTexture">The replacement texture.</param>
         public void OverwriteTexture(string newTexture)
         {
             TextureNames = new[] { newTexture };
@@ -169,6 +191,10 @@ namespace VoxelGame.Core.Visuals
             return result;
         }
 
+        /// <summary>
+        ///     Create versions of this model for each axis.
+        /// </summary>
+        /// <returns>The model versions.</returns>
         public (BlockModel x, BlockModel y, BlockModel z) CreateAllAxis()
         {
             (BlockModel x, BlockModel y, BlockModel z) result;
@@ -181,6 +207,11 @@ namespace VoxelGame.Core.Visuals
             return result;
         }
 
+        /// <summary>
+        ///     Create models for each orientation.
+        /// </summary>
+        /// <param name="rotateTopAndBottomTexture">Whether the top and bottom textures should be rotated.</param>
+        /// <returns>All model versions.</returns>
         public (BlockModel north, BlockModel east, BlockModel south, BlockModel west) CreateAllOrientations(
             bool rotateTopAndBottomTexture)
         {
@@ -275,6 +306,9 @@ namespace VoxelGame.Core.Visuals
             for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].RotateTextureCoordinates(axis, rotations);
         }
 
+        /// <summary>
+        ///     Get this model as data that can be used for rendering.
+        /// </summary>
         public void ToData(out float[] vertices, out int[] textureIndices, out uint[] indices)
         {
             if (isLocked)
@@ -362,6 +396,9 @@ namespace VoxelGame.Core.Visuals
             }
         }
 
+        /// <summary>
+        ///     Get the model as a block mesh.
+        /// </summary>
         public BlockMesh GetMesh()
         {
             ToData(out float[] vertices, out int[] textureIndices, out uint[] indices);
@@ -369,6 +406,9 @@ namespace VoxelGame.Core.Visuals
             return new BlockMesh((uint) VertexCount, vertices, textureIndices, indices);
         }
 
+        /// <summary>
+        ///     Lock the model. This will prevent modifications to the model, but combining with other models will be faster.
+        /// </summary>
         public void Lock()
         {
             if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
@@ -378,6 +418,10 @@ namespace VoxelGame.Core.Visuals
             isLocked = true;
         }
 
+        /// <summary>
+        ///     Save this model to a file.
+        /// </summary>
+        /// <param name="name">The path to the file.</param>
         public void Save(string name)
         {
             if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
@@ -388,13 +432,22 @@ namespace VoxelGame.Core.Visuals
             File.WriteAllText(Path.Combine(path, name + ".json"), json);
         }
 
+        /// <summary>
+        ///     Get a copy of this model.
+        /// </summary>
+        /// <returns>The copy.</returns>
         public BlockModel Copy()
         {
-            return new(this);
+            return new BlockModel(this);
         }
 
         #region STATIC METHODS
 
+        /// <summary>
+        ///     Load a block model from file. All models are loaded from a specific directory.
+        /// </summary>
+        /// <param name="name">The name of the file.</param>
+        /// <returns>The loaded model.</returns>
         public static BlockModel Load(string name)
         {
             try
@@ -501,6 +554,12 @@ namespace VoxelGame.Core.Visuals
             };
         }
 
+        /// <summary>
+        ///     Combine the data of multiple block models.
+        /// </summary>
+        /// <param name="vertexCount">The resulting vertex count.</param>
+        /// <param name="models">The models to combine.</param>
+        /// <returns>The combined data.</returns>
         public static (float[] vertices, int[] textureIndices, uint[] indices) CombineData(out uint vertexCount,
             params BlockModel[] models)
         {
@@ -577,6 +636,11 @@ namespace VoxelGame.Core.Visuals
             }
         }
 
+        /// <summary>
+        ///     Get the combined mesh of multiple block models.
+        /// </summary>
+        /// <param name="models">The models to combine.</param>
+        /// <returns>The combined mesh.</returns>
         public static BlockMesh GetCombinedMesh(params BlockModel[] models)
         {
             (float[] vertices, int[] textureIndices, uint[] indices) = CombineData(out uint vertexCount, models);
@@ -587,17 +651,40 @@ namespace VoxelGame.Core.Visuals
         #endregion STATIC METHODS
     }
 
+    /// <summary>
+    ///     A quad.
+    /// </summary>
 #pragma warning disable CA1815 // Override equals and operator equals on value types
-
     public struct Quad
     {
+        /// <summary>
+        ///     The texture id used for this quad.
+        /// </summary>
         public int TextureId { get; set; }
 
+        /// <summary>
+        ///     The first vertex.
+        /// </summary>
         public Vertex Vert0 { get; set; }
+
+        /// <summary>
+        ///     The second vertex.
+        /// </summary>
         public Vertex Vert1 { get; set; }
+
+        /// <summary>
+        ///     The third vertex.
+        /// </summary>
         public Vertex Vert2 { get; set; }
+
+        /// <summary>
+        ///     The fourth vertex.
+        /// </summary>
         public Vertex Vert3 { get; set; }
 
+        /// <summary>
+        ///     The center of the quad.
+        /// </summary>
         public Vector3 Center => (Vert0.Position + Vert1.Position + Vert2.Position + Vert3.Position) / 4;
 
         /// <summary>
@@ -615,6 +702,12 @@ namespace VoxelGame.Core.Visuals
             return this;
         }
 
+        /// <summary>
+        ///     Apply a matrix to this quad.
+        /// </summary>
+        /// <param name="xyz">The matrix to apply to the position.</param>
+        /// <param name="nop">The matrix to apply to the normals.</param>
+        /// <returns>The quad with the matrices applied.</returns>
         public Quad ApplyMatrix(Matrix4 xyz, Matrix4 nop)
         {
             Vert0 = Vert0.ApplyMatrix(xyz, nop);
@@ -625,6 +718,9 @@ namespace VoxelGame.Core.Visuals
             return this;
         }
 
+        /// <summary>
+        ///     Apply a rotation matrix to this quad.
+        /// </summary>
         public Quad ApplyRotationMatrixY(Matrix4 xyz, Matrix4 nop, int rotations)
         {
             // Rotate positions and normals.
@@ -646,6 +742,9 @@ namespace VoxelGame.Core.Visuals
             return this;
         }
 
+        /// <summary>
+        ///     Rotate the texture coordinates.
+        /// </summary>
         public Quad RotateTextureCoordinates(Vector3 axis, int rotations)
         {
             if (new Vector3(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(digits: 2) != axis) return this;
@@ -666,21 +765,59 @@ namespace VoxelGame.Core.Visuals
 
 #pragma warning disable CA1815 // Override equals and operator equals on value types
 
+    /// <summary>
+    ///     A vertex.
+    /// </summary>
     public struct Vertex
     {
+        /// <summary>
+        ///     The x position.
+        /// </summary>
         public float X { get; set; }
+
+        /// <summary>
+        ///     The y position.
+        /// </summary>
         public float Y { get; set; }
+
+        /// <summary>
+        ///     The z position.
+        /// </summary>
         public float Z { get; set; }
 
+        /// <summary>
+        ///     The u texture coordinate.
+        /// </summary>
         public float U { get; set; }
+
+        /// <summary>
+        ///     The v texture coordinate.
+        /// </summary>
         public float V { get; set; }
 
+        /// <summary>
+        ///     The first normal component.
+        /// </summary>
         public float N { get; set; }
+
+        /// <summary>
+        ///     The second normal component.
+        /// </summary>
         public float O { get; set; }
+
+        /// <summary>
+        ///     The third normal component.
+        /// </summary>
         public float P { get; set; }
 
+        /// <summary>
+        ///     The position of the vertex.
+        /// </summary>
         public Vector3 Position => new(X, Y, Z);
 
+        /// <summary>
+        ///     Apply a translation matrix to this vertex.
+        /// </summary>
         public Vertex ApplyTranslationMatrix(Matrix4 xyz)
         {
             Vector4 position = new Vector4(X, Y, Z, w: 1f) * xyz;
@@ -692,6 +829,9 @@ namespace VoxelGame.Core.Visuals
             return this;
         }
 
+        /// <summary>
+        ///     Apply a matrix to this vertex.
+        /// </summary>
         public Vertex ApplyMatrix(Matrix4 xyz, Matrix4 nop)
         {
             Vector4 position = new Vector4(X, Y, Z, w: 1f) * xyz;
@@ -708,6 +848,9 @@ namespace VoxelGame.Core.Visuals
             return this;
         }
 
+        /// <summary>
+        ///     Rotate the texture coordinates.
+        /// </summary>
         public Vertex RotateUV()
         {
             Vertex old = this;
@@ -721,8 +864,15 @@ namespace VoxelGame.Core.Visuals
 
     #pragma warning restore CA1815 // Override equals and operator equals on value types
 
+    /// <summary>
+    ///     Extension methods for <see cref="BlockModel" />.
+    /// </summary>
     public static class BlockModelExtensions
     {
+        /// <summary>
+        ///     Lock a group of models.
+        /// </summary>
+        /// <param name="group">The models to lock.</param>
         public static void Lock(
             this (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel
                 top) group)
@@ -735,6 +885,10 @@ namespace VoxelGame.Core.Visuals
             group.top.Lock();
         }
 
+        /// <summary>
+        ///     Lock a group of models.
+        /// </summary>
+        /// <param name="group">The group to lock.</param>
         public static void Lock(this (BlockModel north, BlockModel east, BlockModel south, BlockModel west) group)
         {
             group.north.Lock();

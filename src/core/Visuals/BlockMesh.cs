@@ -6,6 +6,9 @@
 
 namespace VoxelGame.Core.Visuals
 {
+    /// <summary>
+    ///     A mesh for a complex block, capable of defining more complex shapes than just a cube.
+    /// </summary>
     public class BlockMesh
     {
         private readonly uint[] indices;
@@ -13,6 +16,13 @@ namespace VoxelGame.Core.Visuals
         private readonly uint vertexCount;
         private readonly float[] vertices;
 
+        /// <summary>
+        ///     Create a new block mesh.
+        /// </summary>
+        /// <param name="vertexCount">The vertex count.</param>
+        /// <param name="vertices">The vertices, eight floats per vertex. Every octet contains position, normal and UV coordinates.</param>
+        /// <param name="textureIndices">The texture indices.</param>
+        /// <param name="indices">The indices defining the triangles.</param>
         public BlockMesh(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices)
         {
             this.vertexCount = vertexCount;
@@ -21,6 +31,9 @@ namespace VoxelGame.Core.Visuals
             this.indices = indices;
         }
 
+        /// <summary>
+        ///     Get complex mesh data from this mesh.
+        /// </summary>
         public BlockMeshData GetComplexMeshData(TintColor? tint = null, bool isAnimated = false)
         {
             return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices, tint, isAnimated);

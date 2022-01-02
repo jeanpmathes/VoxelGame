@@ -8,6 +8,10 @@ using System;
 
 namespace VoxelGame.Core.Visuals
 {
+    /// <summary>
+    ///     Block mesh data, describing how a block should be meshed.
+    ///     Many properties and methods are only meaningful for the correct meshing type.
+    /// </summary>
     public sealed class BlockMeshData
     {
         private readonly uint[] indices;
@@ -37,52 +41,97 @@ namespace VoxelGame.Core.Visuals
             IsDoubleCropPlant = isDoubleCropPlant;
         }
 
+        /// <summary>
+        ///     Get the vertex count.
+        /// </summary>
         public uint VertexCount { get; }
 
+        /// <summary>
+        ///     Get the texture index.
+        /// </summary>
         public int TextureIndex { get; }
 
+        /// <summary>
+        ///     Whether the texture is rotated.
+        /// </summary>
         public bool IsTextureRotated { get; }
 
+        /// <summary>
+        ///     The block tint.
+        /// </summary>
         public TintColor Tint { get; }
 
+        /// <summary>
+        ///     Whether the block is animated.
+        /// </summary>
         public bool IsAnimated { get; }
 
+        /// <summary>
+        ///     Whether the plant has an upper part.
+        /// </summary>
         public bool HasUpper { get; }
 
+        /// <summary>
+        ///     Whether the plant is lowered.
+        /// </summary>
         public bool IsLowered { get; }
 
+        /// <summary>
+        ///     Whether the plant is an upper part.
+        /// </summary>
         public bool IsUpper { get; }
 
+        /// <summary>
+        ///     Whether the plant is a double crop plant.
+        /// </summary>
         public bool IsDoubleCropPlant { get; }
 
+        /// <summary>
+        ///     Get the vertices.
+        /// </summary>
         public float[] GetVertices()
         {
             return vertices;
         }
 
+        /// <summary>
+        ///     Get the texture indices.
+        /// </summary>
         public int[] GetTextureIndices()
         {
             return textureIndices;
         }
 
+        /// <summary>
+        ///     Get the indices.
+        /// </summary>
         public uint[] GetIndices()
         {
             return indices;
         }
 
+        /// <summary>
+        ///     Get the animation bit.
+        /// </summary>
         public int GetAnimationBit(int texture, int shift)
         {
             return IsAnimated && textureIndices[texture] != 0 ? 1 << shift : 0;
         }
 
+        /// <summary>
+        ///     Get the animation bit.
+        /// </summary>
         public int GetAnimationBit(int shift)
         {
             return IsAnimated && TextureIndex != 0 ? 1 << shift : 0;
         }
 
+        /// <summary>
+        ///     Get a modified version of this mesh data.
+        /// </summary>
         public BlockMeshData Modified(TintColor tint)
         {
-            return new(
+            return new BlockMeshData(
                 VertexCount,
                 vertices,
                 textureIndices,
@@ -97,9 +146,12 @@ namespace VoxelGame.Core.Visuals
                 IsDoubleCropPlant);
         }
 
+        /// <summary>
+        ///     Get a modified version of this mesh data.
+        /// </summary>
         public BlockMeshData Modified(TintColor tint, bool isAnimated)
         {
-            return new(
+            return new BlockMeshData(
                 VertexCount,
                 vertices,
                 textureIndices,
@@ -114,9 +166,12 @@ namespace VoxelGame.Core.Visuals
                 IsDoubleCropPlant);
         }
 
+        /// <summary>
+        ///     Swap out the texture indices.
+        /// </summary>
         public BlockMeshData SwapTextureIndices(int[] newTextureIndices)
         {
-            return new(
+            return new BlockMeshData(
                 VertexCount,
                 vertices,
                 newTextureIndices,
@@ -131,9 +186,12 @@ namespace VoxelGame.Core.Visuals
                 IsDoubleCropPlant);
         }
 
+        /// <summary>
+        ///     Swap out the texture index.
+        /// </summary>
         public BlockMeshData SwapTextureIndex(int newTextureIndex)
         {
-            return new(
+            return new BlockMeshData(
                 VertexCount,
                 vertices,
                 textureIndices,
@@ -148,15 +206,21 @@ namespace VoxelGame.Core.Visuals
                 IsDoubleCropPlant);
         }
 
+        /// <summary>
+        ///     Get mesh data for a basic block.
+        /// </summary>
         public static BlockMeshData Basic(int textureIndex, bool isTextureRotated)
         {
-            return new(vertexCount: 4, textureIndex: textureIndex, isTextureRotated: isTextureRotated);
+            return new BlockMeshData(vertexCount: 4, textureIndex: textureIndex, isTextureRotated: isTextureRotated);
         }
 
+        /// <summary>
+        ///     Get mesh data for a complex block.
+        /// </summary>
         public static BlockMeshData Complex(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices,
             TintColor? tint = null, bool isAnimated = false)
         {
-            return new(
+            return new BlockMeshData(
                 vertexCount,
                 vertices,
                 textureIndices,
@@ -165,15 +229,21 @@ namespace VoxelGame.Core.Visuals
                 isAnimated: isAnimated);
         }
 
+        /// <summary>
+        ///     Get mesh data for a varying height block.
+        /// </summary>
         public static BlockMeshData VaryingHeight(int textureIndex, TintColor tint)
         {
-            return new(vertexCount: 4, textureIndex: textureIndex, tint: tint);
+            return new BlockMeshData(vertexCount: 4, textureIndex: textureIndex, tint: tint);
         }
 
+        /// <summary>
+        ///     Get mesh data for a cross plant.
+        /// </summary>
         public static BlockMeshData CrossPlant(int textureIndex, TintColor tint, bool hasUpper, bool isLowered,
             bool isUpper)
         {
-            return new(
+            return new BlockMeshData(
                 vertexCount: 8,
                 textureIndex: textureIndex,
                 tint: tint,
@@ -182,9 +252,12 @@ namespace VoxelGame.Core.Visuals
                 isUpper: isUpper);
         }
 
+        /// <summary>
+        ///     Get mesh data for a crop plant.
+        /// </summary>
         public static BlockMeshData CropPlant(int textureIndex, TintColor tint, bool isLowered, bool isUpper)
         {
-            return new(
+            return new BlockMeshData(
                 vertexCount: 0,
                 textureIndex: textureIndex,
                 tint: tint,
@@ -194,10 +267,13 @@ namespace VoxelGame.Core.Visuals
                 isDoubleCropPlant: false);
         }
 
+        /// <summary>
+        ///     Get mesh data for a double crop plant.
+        /// </summary>
         public static BlockMeshData DoubleCropPlant(int textureIndex, TintColor tint, bool hasUpper, bool isLowered,
             bool isUpper)
         {
-            return new(
+            return new BlockMeshData(
                 vertexCount: 0,
                 textureIndex: textureIndex,
                 tint: tint,
@@ -207,9 +283,12 @@ namespace VoxelGame.Core.Visuals
                 isDoubleCropPlant: true);
         }
 
+        /// <summary>
+        ///     Get empty mesh data.
+        /// </summary>
         public static BlockMeshData Empty()
         {
-            return new();
+            return new BlockMeshData();
         }
     }
 }

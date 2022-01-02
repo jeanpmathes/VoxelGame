@@ -11,6 +11,9 @@ using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Visuals
 {
+    /// <summary>
+    ///     Utility methods to get different commonly used models.
+    /// </summary>
     public static class BlockModels
     {
         private static readonly int[][] defaultBlockUVs =
@@ -19,6 +22,11 @@ namespace VoxelGame.Core.Visuals
         private static readonly int[][] rotatedBlockUVs =
             { new[] { 0, 1 }, new[] { 1, 1 }, new[] { 1, 0 }, new[] { 0, 0 } };
 
+        /// <summary>
+        ///     Create a cross block model.
+        /// </summary>
+        /// <param name="textureIndex">The texture index to use.</param>
+        /// <returns>The created model.</returns>
         public static (float[] vertices, uint[] indices, int[] textureIndices) CreateCrossModel(int textureIndex)
         {
             float[] vertices =
@@ -42,6 +50,11 @@ namespace VoxelGame.Core.Visuals
             return (vertices, indices, textureIndices);
         }
 
+        /// <summary>
+        ///     Create a cross plant model for a given quality level.
+        /// </summary>
+        /// <param name="quality">The quality level.</param>
+        /// <returns>The model data.</returns>
         public static (float[] vertices, uint[] indices) CreateCrossPlantModel(Quality quality)
         {
             return quality switch
@@ -118,6 +131,11 @@ namespace VoxelGame.Core.Visuals
             }
         }
 
+        /// <summary>
+        ///     Create a crop plant model for a given quality level.
+        /// </summary>
+        /// <param name="quality">The quality level.</param>
+        /// <returns>The model data.</returns>
         public static (float[] vertices, uint[] indices) CreateCropPlantModel(Quality quality)
         {
             return quality switch
@@ -167,6 +185,12 @@ namespace VoxelGame.Core.Visuals
             return (vertices, indices);
         }
 
+        /// <summary>
+        ///     Create a flat model.
+        /// </summary>
+        /// <param name="side">The side the model is attached to.</param>
+        /// <param name="offset">The offset from the block side.</param>
+        /// <returns>The created vertices.</returns>
         public static float[] CreateFlatModel(BlockSide side, float offset)
         {
             side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
@@ -193,6 +217,10 @@ namespace VoxelGame.Core.Visuals
             };
         }
 
+        /// <summary>
+        ///     Create a plane model.
+        /// </summary>
+        /// <returns>The model data.</returns>
         public static (float[] vertices, uint[] indices) CreatePlaneModel()
         {
             float[] vertices =
@@ -212,6 +240,12 @@ namespace VoxelGame.Core.Visuals
             return (vertices, indices);
         }
 
+        /// <summary>
+        ///     Generate a texture data array.
+        /// </summary>
+        /// <param name="tex">The texture index.</param>
+        /// <param name="length">The length of the array.</param>
+        /// <returns>An array of the given length, filled with the texture index.</returns>
         public static int[] GenerateTextureDataArray(int tex, int length)
         {
             int[] data = new int[length];
@@ -220,6 +254,10 @@ namespace VoxelGame.Core.Visuals
             return data;
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="faces"></param>
+        /// <returns></returns>
         public static uint[] GenerateDoubleSidedIndexDataArray(int faces)
         {
             uint[] indices = new uint[faces * 12];
@@ -246,6 +284,11 @@ namespace VoxelGame.Core.Visuals
             return indices;
         }
 
+        /// <summary>
+        ///     Generate a index data array for a number of faces that do not share vertices.
+        /// </summary>
+        /// <param name="faces">The number of faces.</param>
+        /// <returns>The index arrays.</returns>
         public static uint[] GenerateIndexDataArray(int faces)
         {
             uint[] indices = new uint[faces * 6];
@@ -265,6 +308,11 @@ namespace VoxelGame.Core.Visuals
             return indices;
         }
 
+        /// <summary>
+        ///     Get block uvs.
+        /// </summary>
+        /// <param name="isRotated">Whether the block is rotated.</param>
+        /// <returns>The block uvs.</returns>
         public static int[][] GetBlockUVs(bool isRotated)
         {
             return isRotated ? rotatedBlockUVs : defaultBlockUVs;
