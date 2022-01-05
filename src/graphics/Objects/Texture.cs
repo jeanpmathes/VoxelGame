@@ -14,6 +14,9 @@ using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace VoxelGame.Graphics.Objects
 {
+    /// <summary>
+    ///     A texture.
+    /// </summary>
     public class Texture : IDisposable
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Texture>();

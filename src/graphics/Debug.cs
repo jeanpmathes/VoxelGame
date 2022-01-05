@@ -12,6 +12,9 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Graphics
 {
+    /// <summary>
+    ///     Offers support for modern OpenGL debugging.
+    /// </summary>
     public class Debug
     {
         private const string LoggingTemplate =
@@ -26,6 +29,9 @@ namespace VoxelGame.Graphics
 
 #pragma warning restore S1450
 
+        /// <summary>
+        ///     Enable the debugging features.
+        /// </summary>
         public void Enable()
         {
             GL.Enable(EnableCap.DebugOutput);

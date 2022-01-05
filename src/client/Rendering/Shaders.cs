@@ -88,6 +88,21 @@ namespace VoxelGame.Client.Rendering
             instance.LoadAll();
         }
 
+        internal static void Delete()
+        {
+            SimpleSection.Delete();
+            ComplexSection.Delete();
+            VaryingHeightSection.Delete();
+            CrossPlantSection.Delete();
+            CropPlantSection.Delete();
+            OpaqueLiquidSection.Delete();
+            TransparentLiquidSection.Delete();
+
+            Overlay.Delete();
+            Selection.Delete();
+            ScreenElement.Delete();
+        }
+
         private void LoadAll()
         {
             using (logger.BeginScope("Shader setup"))

@@ -203,6 +203,7 @@ namespace VoxelGame.Client.Application
             logger.LogInformation(Events.WindowState, "Closing window");
 
             sceneManager.Unload();
+            Shaders.Delete();
         }
 
         #region STATIC PROPERTIES

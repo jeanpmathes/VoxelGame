@@ -11,10 +11,19 @@ namespace VoxelGame.Graphics.Groups
     /// </summary>
     public interface IDrawGroup
     {
+        /// <summary>
+        ///     Check whether the group has data.
+        /// </summary>
         public bool IsFilled { get; }
 
+        /// <summary>
+        ///     Bind the vertex array. This must be called before drawing.
+        /// </summary>
         public void BindVertexArray();
 
+        /// <summary>
+        ///     Draw the group.
+        /// </summary>
         public void Draw();
     }
 }
