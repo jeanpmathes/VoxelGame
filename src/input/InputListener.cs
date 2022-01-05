@@ -11,6 +11,9 @@ using VoxelGame.Input.Internal;
 
 namespace VoxelGame.Input
 {
+    /// <summary>
+    ///     Listens for requested inputs. Can then notify or absorb the input.
+    /// </summary>
     public class InputListener
     {
         private readonly List<Action<KeyOrButton>> callbackListForAnyPress = new();
@@ -34,11 +37,18 @@ namespace VoxelGame.Input
             }
         }
 
+        /// <summary>
+        ///     Listen for the next mouse press and absorb it.
+        /// </summary>
         public void AbsorbMousePress()
         {
             manager.AddPullDown(new KeyOrButton(MouseButton.Button1));
         }
 
+        /// <summary>
+        ///     Listen for any key or button press and notify the callback.
+        /// </summary>
+        /// <param name="callback">The callback to call.</param>
         public void ListenForAnyKeyOrButton(Action<KeyOrButton> callback)
         {
             callbackListForAnyPress.Add(callback);

@@ -10,23 +10,38 @@ using OpenToolkit.Windowing.Common.Input;
 
 namespace VoxelGame.Input.Internal
 {
+    /// <summary>
+    ///     Represents a key or a button.
+    /// </summary>
     public readonly struct KeyOrButton
     {
         private readonly Key? key;
         private readonly MouseButton? button;
 
+        /// <summary>
+        ///     Create a new <see cref="KeyOrButton" /> from a <see cref="Key" />.
+        /// </summary>
+        /// <param name="key">The key to use.</param>
         public KeyOrButton(Key key)
         {
             this.key = key;
             button = null;
         }
 
+        /// <summary>
+        ///     Create a new <see cref="KeyOrButton" /> from a <see cref="MouseButton" />.
+        /// </summary>
+        /// <param name="button">The button to use.</param>
         public KeyOrButton(MouseButton button)
         {
             key = null;
             this.button = button;
         }
 
+        /// <summary>
+        ///     Create a new <see cref="KeyOrButton" /> from a loaded pair.
+        /// </summary>
+        /// <param name="settings">The settings to load from.</param>
         public KeyOrButton(KeyButtonPair settings)
         {
             Debug.Assert(!settings.Default);
@@ -55,8 +70,12 @@ namespace VoxelGame.Input.Internal
             return false;
         }
 
+        /// <summary>
+        ///     Get serializable settings for this key or button.
+        /// </summary>
         public KeyButtonPair Settings => new() { Key = key ?? Key.Unknown, Button = button ?? MouseButton.LastButton };
 
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             if (obj is KeyOrButton other) return key == other.key && button == other.button;
@@ -64,11 +83,13 @@ namespace VoxelGame.Input.Internal
             return false;
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(key, button);
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             if (IsKeyboardKey) return key.ToString()!;
