@@ -33,7 +33,7 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <param name="wet">The texture layout when wet.</param>
         /// <param name="hasNeutralTint">Whether the block has a neutral tint.</param>
         /// <param name="supportsFullGrowth">Whether the block supports full growth.</param>
-        protected internal CoveredDirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet,
+        protected CoveredDirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet,
             bool hasNeutralTint, bool supportsFullGrowth) :
             base(
                 name,
@@ -76,7 +76,8 @@ namespace VoxelGame.Core.Logic.Blocks
             return mesh;
         }
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return !world.HasOpaqueTop(position) || Dirt.CanPlace(world, position, entity);
         }
@@ -88,7 +89,8 @@ namespace VoxelGame.Core.Logic.Blocks
             else world.SetBlock(this.AsInstance(), position);
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             if (side == BlockSide.Top && world.HasOpaqueTop(position)) world.SetBlock(Dirt.AsInstance(), position);
         }

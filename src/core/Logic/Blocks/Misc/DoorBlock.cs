@@ -126,7 +126,7 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return world.GetBlock(position.Above())?.Block.IsReplaceable == true &&
                    world.HasSolidGround(position, solidify: true);
@@ -182,9 +182,9 @@ namespace VoxelGame.Core.Logic.Blocks
             Vector3i otherPosition = position + (isBase ? Vector3i.UnitY : -Vector3i.UnitY);
 
             if (entity.BoundingBox.Intersects(
-                new BoundingBox(
-                    new Vector3(x: 0.5f, y: 1f, z: 0.5f) + otherPosition.ToVector3(),
-                    new Vector3(x: 0.5f, y: 1f, z: 0.5f)))) return;
+                    new BoundingBox(
+                        new Vector3(x: 0.5f, y: 1f, z: 0.5f) + otherPosition.ToVector3(),
+                        new Vector3(x: 0.5f, y: 1f, z: 0.5f)))) return;
 
             entity.World.SetBlock(this.AsInstance(data ^ 0b1_0000), position);
             entity.World.SetBlock(this.AsInstance(data ^ 0b1_0100), otherPosition);
@@ -207,7 +207,8 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom && (data & 0b00_0100) == 0 && !world.HasSolidGround(position))
                 Destroy(world, position);

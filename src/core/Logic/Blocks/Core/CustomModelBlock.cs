@@ -47,12 +47,14 @@ namespace VoxelGame.Core.Logic.Blocks
             return mesh.GetComplexMeshData();
         }
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return world.HasSolidGround(position, solidify: true);
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom && !world.HasSolidGround(position)) Destroy(world, position);
         }

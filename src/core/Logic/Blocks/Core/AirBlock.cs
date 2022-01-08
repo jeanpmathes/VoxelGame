@@ -38,7 +38,8 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.Empty();
         }
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return false;
         }

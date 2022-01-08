@@ -87,7 +87,7 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return !world.HasOpaqueTop(position) || Dirt.CanPlace(world, position, entity);
         }
@@ -99,7 +99,8 @@ namespace VoxelGame.Core.Logic.Blocks
             else world.SetBlock(this.AsInstance(), position);
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             if (side == BlockSide.Top && world.HasOpaqueTop(position)) BecomeSolid(world, position);
         }

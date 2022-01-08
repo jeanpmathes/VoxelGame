@@ -26,7 +26,7 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly List<BlockMesh> meshes = new(capacity: 16);
 
         /// <inheritdoc />
-        public ThinConnectingBlock(string name, string namedId, string postModel, string sideModel,
+        internal ThinConnectingBlock(string name, string namedId, string postModel, string sideModel,
             string extensionModel) :
             base(
                 name,

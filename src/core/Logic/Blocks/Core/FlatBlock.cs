@@ -99,7 +99,8 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.Complex(vertexCount: 8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
         }
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             BlockSide side = entity?.TargetSide ?? BlockSide.Front;
 
@@ -135,7 +136,8 @@ namespace VoxelGame.Core.Logic.Blocks
                     entity.Velocity.Z);
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             CheckBack(world, position, side, (Orientation) (data & 0b00_0011), schedule: false);
         }

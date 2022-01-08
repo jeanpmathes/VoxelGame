@@ -35,7 +35,7 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        internal override void RandomUpdate(World world, Vector3i position, uint data)
+        public override void RandomUpdate(World world, Vector3i position, uint data)
         {
             LiquidInstance? liquid = world.GetLiquid(position);
 

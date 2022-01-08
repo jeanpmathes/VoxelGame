@@ -122,7 +122,8 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetBlock(this.AsInstance(data), position);
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             uint updatedData = GetConnectionData(world, position);
             OpenOpposingSide(ref updatedData);

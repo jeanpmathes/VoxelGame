@@ -67,7 +67,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 isUpper);
         }
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return world.GetBlock(position.Above())?.Block.IsReplaceable == true &&
                    (world.GetBlock(position.Below())?.Block ?? Air) is IPlantable;
@@ -93,7 +94,8 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetDefaultBlock(isBase ? position.Above() : position.Below());
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
             if (side == BlockSide.Bottom && (data & 0b1) == 0 &&

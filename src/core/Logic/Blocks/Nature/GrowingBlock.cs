@@ -33,7 +33,7 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             Block down = world.GetBlock(position.Below())?.Block ?? Air;
 
@@ -41,7 +41,7 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom)
             {
@@ -52,7 +52,7 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        internal override void RandomUpdate(World world, Vector3i position, uint data)
+        public override void RandomUpdate(World world, Vector3i position, uint data)
         {
             var age = (int) (data & 0b00_0111);
 

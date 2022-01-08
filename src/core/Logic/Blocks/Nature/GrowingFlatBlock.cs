@@ -41,7 +41,7 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             var orientation = (Orientation) (data & 0b00_0011);
 
@@ -57,7 +57,7 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        internal override void RandomUpdate(World world, Vector3i position, uint data)
+        public override void RandomUpdate(World world, Vector3i position, uint data)
         {
             var orientation = (Orientation) (data & 0b00_0011);
             var age = (int) ((data & 0b1_1100) >> 2);

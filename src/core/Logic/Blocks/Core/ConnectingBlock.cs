@@ -32,7 +32,7 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <param name="flags">The flags describing the block.</param>
         /// <param name="boundingBox">The block bounding box.</param>
         /// <param name="targetBuffer">The target rendering buffer.</param>
-        protected internal ConnectingBlock(string name, string namedId, BlockFlags flags, BoundingBox boundingBox,
+        protected ConnectingBlock(string name, string namedId, BlockFlags flags, BoundingBox boundingBox,
             TargetBuffer targetBuffer) :
             base(
                 name,
@@ -47,7 +47,8 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetBlock(this.AsInstance(IConnectable.GetConnectionData<TConnectable>(world, position)), position);
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             uint newData = data;
 

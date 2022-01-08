@@ -111,7 +111,7 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return world.GetBlock(position.Below())?.Block is IPlantable;
         }
@@ -128,14 +128,14 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom && world.GetBlock(position.Below())?.Block is not IPlantable)
                 Destroy(world, position);
         }
 
         /// <inheritdoc />
-        internal override void RandomUpdate(World world, Vector3i position, uint data)
+        public override void RandomUpdate(World world, Vector3i position, uint data)
         {
             var stage = (GrowthStage) (data & 0b00_0111);
             uint lowered = data & 0b00_1000;

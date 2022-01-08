@@ -204,7 +204,8 @@ namespace VoxelGame.Core.Logic.Blocks
             return meshes[(int) info.Data & 0b00_0111].GetComplexMeshData();
         }
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             bool connectX = CheckOrientation(world, position, Orientation.East) ||
                             CheckOrientation(world, position, Orientation.West);
@@ -270,7 +271,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 position);
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             var blockOrientation = (Orientation) (data & 0b00_0011);
 

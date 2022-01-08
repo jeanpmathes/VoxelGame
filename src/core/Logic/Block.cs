@@ -228,7 +228,7 @@ namespace VoxelGame.Core.Logic
         /// <param name="position">The position at which the placement is requested.</param>
         /// <param name="entity">The entity that performs placement.</param>
         /// <returns>True if placement is possible.</returns>
-        internal virtual bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        public virtual bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return true;
         }
@@ -316,12 +316,12 @@ namespace VoxelGame.Core.Logic
         /// <param name="position">The block position.</param>
         /// <param name="data">The data of the block next to the changed position.</param>
         /// <param name="side">The side of the block where the change happened.</param>
-        internal virtual void BlockUpdate(World world, Vector3i position, uint data, BlockSide side) {}
+        public virtual void BlockUpdate(World world, Vector3i position, uint data, BlockSide side) {}
 
         /// <summary>
         ///     This method is called randomly on some blocks every update.
         /// </summary>
-        internal virtual void RandomUpdate(World world, Vector3i position, uint data) {}
+        public virtual void RandomUpdate(World world, Vector3i position, uint data) {}
 
         /// <summary>
         ///     This method is called for scheduled updates.

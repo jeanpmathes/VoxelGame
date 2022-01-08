@@ -32,7 +32,7 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <param name="postModel">The name of the model for the central post.</param>
         /// <param name="extensionModel">The name of the model for the connections between posts.</param>
         /// <param name="boundingBox">The bounding box of the post.</param>
-        protected internal WideConnectingBlock(string name, string namedId, string texture, string postModel,
+        protected WideConnectingBlock(string name, string namedId, string texture, string postModel,
             string extensionModel,
             BoundingBox boundingBox) :
             base(
