@@ -17,15 +17,16 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A thin block that connects to other blocks.
     ///     Data bit usage: <c>--nesw</c>
     /// </summary>
-    // n = connected north
-    // e = connected east
-    // s = connected south
-    // w = connected west
+    // n: connected north
+    // e: connected east
+    // s: connected south
+    // w: connected west
     public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConnectable
     {
         private readonly List<BlockMesh> meshes = new(capacity: 16);
 
-        public ThinConnectingBlock(string name, string namedId, string postModel, string sideModel,
+        /// <inheritdoc />
+        internal ThinConnectingBlock(string name, string namedId, string postModel, string sideModel,
             string extensionModel) :
             base(
                 name,
@@ -58,6 +59,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
+        /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
             List<BoundingBox> connectors = new(BitHelper.CountSetBits(data));
@@ -92,6 +94,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 connectors.ToArray());
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             BlockMesh mesh = meshes[(int) info.Data & 0b00_1111];

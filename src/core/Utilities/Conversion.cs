@@ -10,6 +10,9 @@ using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Core.Utilities
 {
+    /// <summary>
+    ///     A utility class for different conversion methods.
+    /// </summary>
     public static class Conversion
     {
         /// <summary>

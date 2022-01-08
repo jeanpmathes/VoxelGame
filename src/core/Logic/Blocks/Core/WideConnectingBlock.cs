@@ -15,14 +15,23 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A base class for blocks that connect to other blocks as wide connectables, like fences or walls.
     ///     Data bit usage: <c>--nesw</c>
     /// </summary>
-    // n = connected north
-    // e = connected east
-    // s = connected south
-    // w = connected west
+    // n: connected north
+    // e: connected east
+    // s: connected south
+    // w: connected west
     public abstract class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConnectable
     {
         private readonly List<BlockMesh> meshes = new(capacity: 16);
 
+        /// <summary>
+        ///     Create a new <see cref="WideConnectingBlock" />.
+        /// </summary>
+        /// <param name="name">The name of the block.</param>
+        /// <param name="namedId">The named ID.</param>
+        /// <param name="texture">The texture to use.</param>
+        /// <param name="postModel">The name of the model for the central post.</param>
+        /// <param name="extensionModel">The name of the model for the connections between posts.</param>
+        /// <param name="boundingBox">The bounding box of the post.</param>
         protected WideConnectingBlock(string name, string namedId, string texture, string postModel,
             string extensionModel,
             BoundingBox boundingBox) :
@@ -66,6 +75,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return meshes[(int) info.Data & 0b00_1111].GetComplexMeshData();

@@ -17,8 +17,17 @@ namespace VoxelGame.Core.Visuals
         private readonly float g;
         private readonly float b;
 
+        /// <summary>
+        ///     Whether the tint is neutral. It will then be replaced with a tint defined externally.
+        /// </summary>
         public bool IsNeutral { get; }
 
+        /// <summary>
+        ///     Create a new tint color.
+        /// </summary>
+        /// <param name="r">The red value, in the range [0, 1].</param>
+        /// <param name="g">The green value, in the range [0, 1].</param>
+        /// <param name="b">The blue value, in the range [0, 1].</param>
         public TintColor(float r, float g, float b)
         {
             this.r = r;
@@ -28,7 +37,7 @@ namespace VoxelGame.Core.Visuals
             IsNeutral = false;
         }
 
-        public TintColor(float r, float g, float b, bool isNeutral)
+        private TintColor(float r, float g, float b, bool isNeutral)
         {
             this.r = r;
             this.g = g;
@@ -37,8 +46,14 @@ namespace VoxelGame.Core.Visuals
             IsNeutral = isNeutral;
         }
 
+        /// <summary>
+        ///     Create a tint color that indicates no tint.
+        /// </summary>
         public static TintColor None => new(r: 1f, g: 1f, b: 1f);
 
+        /// <summary>
+        ///     Create a tint color that indicates neutral tint.
+        /// </summary>
         public static TintColor Neutral => new(r: 0f, g: 0f, b: 0f, isNeutral: true);
 
         #region PREDEFINED COLORS
@@ -210,13 +225,19 @@ namespace VoxelGame.Core.Visuals
 
         #endregion PREDEFINED COLORS
 
-        public int ToBits => ((int) (r * 7f) << 6) | ((int) (g * 7f) << 3) | (int) (b * 7f);
+        private int ToBits => ((int) (r * 7f) << 6) | ((int) (g * 7f) << 3) | (int) (b * 7f);
 
+        /// <summary>
+        ///     Get the tint encoded into bits.
+        /// </summary>
+        /// <param name="neutral">The tint color to use as for neutral tint.</param>
+        /// <returns>The tint bits.</returns>
         public int GetBits(TintColor neutral)
         {
             return IsNeutral ? neutral.ToBits : ToBits;
         }
 
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             if (obj is TintColor other) return Equals(other);
@@ -224,21 +245,29 @@ namespace VoxelGame.Core.Visuals
             return false;
         }
 
+        /// <inheritdoc />
         public bool Equals(TintColor other)
         {
             return ToBits == other.ToBits && other.IsNeutral == IsNeutral;
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             return (IsNeutral ? 1 : 0 << 9) | ((int) (r * 7f) << 6) | ((int) (g * 7f) << 3) | (int) (b * 7f);
         }
 
+        /// <summary>
+        ///     Compare two tints for equality.
+        /// </summary>
         public static bool operator ==(TintColor left, TintColor right)
         {
             return left.Equals(right);
         }
 
+        /// <summary>
+        ///     Compare two tints for inequality.
+        /// </summary>
         public static bool operator !=(TintColor left, TintColor right)
         {
             return !(left == right);

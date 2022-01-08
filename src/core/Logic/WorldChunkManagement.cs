@@ -100,9 +100,19 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         protected int ActiveChunkCount => activeChunks.Count;
 
+        /// <summary>
+        ///     All active chunks.
+        /// </summary>
         protected IEnumerable<Chunk> ActiveChunks => activeChunks.Values;
+
+        /// <summary>
+        ///     Creates a chunk for a chunk position.
+        /// </summary>
         protected abstract Chunk CreateChunk(int x, int z);
 
+        /// <summary>
+        ///     Start activating chunks. This will either load or generate chunks that are set to be activated.
+        /// </summary>
         protected void StartActivatingChunks()
         {
             foreach ((int x, int z) in positionsToActivate)
@@ -129,6 +139,9 @@ namespace VoxelGame.Core.Logic
             positionsToActivate.Clear();
         }
 
+        /// <summary>
+        ///     Finish generating chunks. This will check the generation result of chunks that have been generated.
+        /// </summary>
         protected void FinishGeneratingChunks()
         {
             if (chunkGenerateTasks.Count > 0)
@@ -160,6 +173,9 @@ namespace VoxelGame.Core.Logic
                     }
         }
 
+        /// <summary>
+        ///     Start generating chunks. This will start generation tasks for chunks that are set to be generated.
+        /// </summary>
         protected void StartGeneratingChunks()
         {
             while (chunksToGenerate.Count > 0 && chunkGenerateTasks.Count < MaxGenerationTasks)
@@ -172,6 +188,9 @@ namespace VoxelGame.Core.Logic
             }
         }
 
+        /// <summary>
+        ///     Finish loading chunks. This will check the loading result of chunks that have been loaded.
+        /// </summary>
         protected void FinishLoadingChunks()
         {
             if (chunkLoadingTasks.Count > 0)
@@ -241,6 +260,9 @@ namespace VoxelGame.Core.Logic
                     }
         }
 
+        /// <summary>
+        ///     Start loading chunks. This will load chunks that are scheduled for loading.
+        /// </summary>
         protected void StartLoadingChunks()
         {
             while (positionsToLoad.Count > 0 && chunkLoadingTasks.Count < MaxLoadingTasks)
@@ -266,6 +288,9 @@ namespace VoxelGame.Core.Logic
             }
         }
 
+        /// <summary>
+        ///     Finish saving chunks. This will check the result of the chunk saving tasks.
+        /// </summary>
         protected void FinishSavingChunks()
         {
             if (chunkSavingTasks.Count > 0)
@@ -315,8 +340,14 @@ namespace VoxelGame.Core.Logic
                     }
         }
 
+        /// <summary>
+        ///     Process a chunk that has been just activated.
+        /// </summary>
         protected abstract void ProcessNewlyActivatedChunk(Chunk activatedChunk);
 
+        /// <summary>
+        ///     Start saving chunks. This will start saving tasks for chunks selected for saving.
+        /// </summary>
         protected void StartSavingChunks()
         {
             while (chunksToSave.Count > 0 && chunkSavingTasks.Count < MaxSavingTasks)

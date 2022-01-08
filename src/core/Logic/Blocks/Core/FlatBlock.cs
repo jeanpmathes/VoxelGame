@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     This class represents a block with a single face that sticks to other blocks.
     ///     Data bit usage: <c>----oo</c>
     /// </summary>
-    // o = orientation
+    // o: orientation
     public class FlatBlock : Block, IFillable
     {
         private static readonly float[][] sideVertices =
@@ -65,12 +65,14 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockModels.CreateFlatModel(orientation.ToBlockSide().Opposite(), offset: 0.01f);
         }
 
+        /// <inheritdoc />
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
             indices = BlockModels.GenerateIndexDataArray(faces: 2);
             textureIndices = BlockModels.GenerateTextureDataArray(indexProvider.GetTextureIndex(texture), length: 8);
         }
 
+        /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
             return (Orientation) (data & 0b00_0011) switch
@@ -91,12 +93,14 @@ namespace VoxelGame.Core.Logic.Blocks
             };
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return BlockMeshData.Complex(vertexCount: 8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
         }
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             BlockSide side = entity?.TargetSide ?? BlockSide.Front;
 
@@ -106,6 +110,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return world.IsSolid(orientation.Opposite().Offset(position));
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             BlockSide side = entity?.TargetSide ?? BlockSide.Front;
@@ -113,6 +118,7 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetBlock(this.AsInstance((uint) side.ToOrientation()), position);
         }
 
+        /// <inheritdoc />
         protected override void EntityCollision(PhysicsEntity entity, Vector3i position, uint data)
         {
             Vector3 forwardMovement = Vector3.Dot(entity.Movement, entity.Forward) * entity.Forward;
@@ -130,12 +136,14 @@ namespace VoxelGame.Core.Logic.Blocks
                     entity.Velocity.Z);
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             CheckBack(world, position, side, (Orientation) (data & 0b00_0011), schedule: false);
         }
 
-        protected void CheckBack(World world, Vector3i position, BlockSide side, Orientation blockOrientation,
+
+        private protected void CheckBack(World world, Vector3i position, BlockSide side, Orientation blockOrientation,
             bool schedule)
         {
             if (!side.IsLateral()) return;

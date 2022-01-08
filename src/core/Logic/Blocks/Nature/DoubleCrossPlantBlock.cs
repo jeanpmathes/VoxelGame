@@ -17,8 +17,8 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     Similar to <see cref="CrossPlantBlock" />, but is two blocks high.
     ///     Data bit usage: <c>----lh</c>
     /// </summary>
-    // l = lowered
-    // h = height
+    // l: lowered
+    // h: height
     public class DoubleCrossPlantBlock : Block, IFlammable, IFillable
     {
         private readonly string bottomTexture;
@@ -40,17 +40,20 @@ namespace VoxelGame.Core.Logic.Blocks
             this.topTexOffset = topTexOffset;
         }
 
+        /// <inheritdoc />
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
             if (liquid.IsLiquid && level > LiquidLevel.Five) ScheduleDestroy(world, position);
         }
 
+        /// <inheritdoc />
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
             bottomTextureIndex = indexProvider.GetTextureIndex(bottomTexture);
             topTextureIndex = bottomTextureIndex + topTexOffset;
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             bool isUpper = (info.Data & 0b01) != 0;
@@ -64,12 +67,14 @@ namespace VoxelGame.Core.Logic.Blocks
                 isUpper);
         }
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return world.GetBlock(position.Above())?.Block.IsReplaceable == true &&
                    (world.GetBlock(position.Below())?.Block ?? Air) is IPlantable;
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             bool isLowered = world.IsLowered(position);
@@ -80,6 +85,7 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetBlock(this.AsInstance(data | 1), position.Above());
         }
 
+        /// <inheritdoc />
         protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             bool isBase = (data & 0b1) == 0;
@@ -88,7 +94,8 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetDefaultBlock(isBase ? position.Above() : position.Below());
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             // Check if this block is the lower part and if the ground supports plant growth.
             if (side == BlockSide.Bottom && (data & 0b1) == 0 &&

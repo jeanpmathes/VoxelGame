@@ -18,8 +18,16 @@ using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace VoxelGame.Client.Rendering
 {
-    public class ArrayTexture : IDisposable, ITextureIndexProvider
+    /// <summary>
+    ///     Represents an array texture.
+    /// </summary>
+    public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
     {
+        /// <summary>
+        ///     The size of a single array texture unit.
+        /// </summary>
+        public const int UnitSize = 2048;
+
         private static readonly ILogger logger = LoggingHelper.CreateLogger<ArrayTexture>();
 
         private readonly Dictionary<string, int> textureIndices = new();
@@ -28,14 +36,28 @@ namespace VoxelGame.Client.Rendering
         private int[] handles = null!;
         private TextureUnit[] textureUnits = null!;
 
+        /// <summary>
+        ///     Create a new array texture. It will be filled with all textures found in the given directory.
+        /// </summary>
+        /// <param name="path">The path to load textures from.</param>
+        /// <param name="resolution">The resolution of the array. Textures that do not fit are excluded.</param>
+        /// <param name="useCustomMipmapGeneration">
+        ///     True if custom mipmap generation should be used instead of the standard OpenGL
+        ///     one. The custom algorithm is better for textures with complete transparency.
+        /// </param>
+        /// <param name="textureUnits">The texture units to bind the array to.</param>
         public ArrayTexture(string path, int resolution, bool useCustomMipmapGeneration,
             params TextureUnit[] textureUnits)
         {
             Initialize(path, resolution, useCustomMipmapGeneration, textureUnits);
         }
 
+        /// <summary>
+        ///     Get the number of textures in the array.
+        /// </summary>
         public int Count { get; private set; }
 
+        /// <inheritdoc />
         public int GetTextureIndex(string name)
         {
             if (name == "missing_texture") return 0;
@@ -50,6 +72,9 @@ namespace VoxelGame.Client.Rendering
             return 0;
         }
 
+        /// <summary>
+        ///     Bind this array to the texture units.
+        /// </summary>
         public void Use()
         {
             for (var i = 0; i < arrayCount; i++) GL.BindTextureUnit(textureUnits[i] - TextureUnit.Texture0, handles[i]);
@@ -102,12 +127,12 @@ namespace VoxelGame.Client.Rendering
             LoadBitmaps(resolution, texturePaths, ref textures);
 
             // Check if the arrays could hold all textures
-            if (textures.Count > 2048 * handles.Length)
+            if (textures.Count > UnitSize * handles.Length)
             {
                 logger.LogCritical(
                     "The number of textures found ({Count}) is higher than the number of textures ({Max}) that are allowed for an ArrayTexture using {Units} units",
                     textures.Count,
-                    2048 * handles.Length,
+                    UnitSize * handles.Length,
                     units.Length);
 
                 throw new ArgumentException("Too many textures in directory for this ArrayTexture!");
@@ -127,10 +152,10 @@ namespace VoxelGame.Client.Rendering
                     resolution,
                     textures,
                     loadedTextures,
-                    loadedTextures + (remainingTextures < 2048 ? remainingTextures : 2048),
+                    loadedTextures + (remainingTextures < UnitSize ? remainingTextures : UnitSize),
                     useCustomMipmapGeneration);
 
-                loadedTextures += 2048;
+                loadedTextures += UnitSize;
             }
 
             // Cleanup
@@ -346,7 +371,7 @@ namespace VoxelGame.Client.Rendering
 
         private bool disposed;
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposed) return;
 
@@ -361,11 +386,17 @@ namespace VoxelGame.Client.Rendering
             disposed = true;
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~ArrayTexture()
         {
             Dispose(disposing: false);
         }
 
+        /// <summary>
+        ///     Dispose of this texture.
+        /// </summary>
         public void Dispose()
         {
             Dispose(disposing: true);

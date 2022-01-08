@@ -9,6 +9,9 @@ using OpenToolkit.Graphics.OpenGL4;
 
 namespace VoxelGame.Graphics.Groups
 {
+    /// <summary>
+    ///     Draw group for meshes defined as elements of positions and integer data.
+    /// </summary>
     public class ElementPositionDataDrawGroup : IDrawGroup
     {
         private readonly int dataSize;
@@ -32,23 +35,41 @@ namespace VoxelGame.Graphics.Groups
             GL.CreateVertexArrays(n: 1, out vao);
         }
 
+        /// <inheritdoc />
         public bool IsFilled { get; private set; }
 
+        /// <inheritdoc />
         public void BindVertexArray()
         {
             GL.BindVertexArray(vao);
         }
 
+        /// <inheritdoc />
         public void Draw()
         {
             DrawElements();
         }
 
+        /// <summary>
+        ///     Create a new <see cref="ElementPositionDataDrawGroup" />.
+        /// </summary>
+        /// <param name="positionSize">The size of position data units.</param>
+        /// <param name="dataSize">The size of data units.</param>
+        /// <returns>The created draw group.</returns>
         public static ElementPositionDataDrawGroup Create(int positionSize, int dataSize)
         {
             return new ElementPositionDataDrawGroup(positionSize, dataSize);
         }
 
+        /// <summary>
+        ///     Set the data.
+        /// </summary>
+        /// <param name="positionCount">The number of entries in the position array.</param>
+        /// <param name="positions">The position array.</param>
+        /// <param name="dataCount">The number of entries in the data array.</param>
+        /// <param name="data">The data array.</param>
+        /// <param name="indexCount">The number of entries in the index array.</param>
+        /// <param name="indices">The index array.</param>
         public void SetData(int positionCount, float[] positions, int dataCount, int[] data, int indexCount,
             uint[] indices)
         {
@@ -68,6 +89,9 @@ namespace VoxelGame.Graphics.Groups
             GL.NamedBufferData(ebo, indexCount * sizeof(uint), indices, BufferUsageHint.DynamicDraw);
         }
 
+        /// <summary>
+        ///     Bind the vertex array.
+        /// </summary>
         public void VertexArrayBindBuffer()
         {
             GL.VertexArrayVertexBuffer(vao, bindingindex: 0, positionVBO, IntPtr.Zero, positionSize * sizeof(float));
@@ -75,6 +99,11 @@ namespace VoxelGame.Graphics.Groups
             GL.VertexArrayElementBuffer(vao, ebo);
         }
 
+        /// <summary>
+        ///     Bind all required vertex attributes.
+        /// </summary>
+        /// <param name="positionAttribute">The position attribute.</param>
+        /// <param name="dataAttribute">The data attribute.</param>
         public void VertexArrayAttributeBinding(int positionAttribute, int dataAttribute)
         {
             GL.EnableVertexArrayAttrib(vao, positionAttribute);
@@ -94,11 +123,17 @@ namespace VoxelGame.Graphics.Groups
             GL.VertexArrayAttribBinding(vao, dataAttribute, bindingindex: 1);
         }
 
+        /// <summary>
+        ///     Draw all elements.
+        /// </summary>
         public void DrawElements()
         {
             GL.DrawElements(PrimitiveType.Triangles, elementCount, DrawElementsType.UnsignedInt, indices: 0);
         }
 
+        /// <summary>
+        ///     Delete all used resources.
+        /// </summary>
         public void Delete()
         {
             GL.DeleteBuffer(positionVBO);

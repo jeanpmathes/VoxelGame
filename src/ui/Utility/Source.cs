@@ -11,9 +11,15 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.UI.Utility
 {
-    [SuppressMessage("ReSharper", "ConvertToStaticClass")]
+    #pragma warning disable CA1812 // Pure static classes cannot have a logger.
+
+    /// <summary>
+    ///     A utility class to access image resources.
+    /// </summary>
+    // todo: could be replaced with strongly typed resources
+    [SuppressMessage("ReSharper", "ConvertToStaticClass", Justification = "Pure static classes cannot have a logger.")]
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-    public sealed class Source
+    internal sealed class Source
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Source>();
         private Source() {}

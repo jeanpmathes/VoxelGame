@@ -21,6 +21,14 @@ namespace VoxelGame.Core.Logic
     {
         private readonly BoundingBox boundingBox;
 
+        /// <summary>
+        ///     Create a new block.
+        /// </summary>
+        /// <param name="name">The name of the block. Can be localized.</param>
+        /// <param name="namedId">The named ID of the block. A unique and unlocalized identifier.</param>
+        /// <param name="flags">The block flags setting specific options.</param>
+        /// <param name="boundingBox">The base bounding box for this block. Is used for placement checks.</param>
+        /// <param name="targetBuffer">The target rendering buffer.</param>
         protected Block(string name, string namedId, BlockFlags flags, BoundingBox boundingBox,
             TargetBuffer targetBuffer)
         {
@@ -131,6 +139,13 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public bool IsSolidAndFull => IsSolid && IsFull;
 
+        /// <summary>
+        ///     Attempt to place the block in the world.
+        /// </summary>
+        /// <param name="world">The world in which to place the block.</param>
+        /// <param name="position">The position at which to place the block.</param>
+        /// <param name="entity">The entity that is placing the block.</param>
+        /// <returns>True if placement was successful.</returns>
         public bool Place(World world, Vector3i position, PhysicsEntity? entity = null)
         {
             (BlockInstance? block, LiquidInstance? liquid) = world.GetContent(position);
@@ -147,6 +162,14 @@ namespace VoxelGame.Core.Logic
             return canPlace;
         }
 
+        /// <summary>
+        ///     Attempt to destroy the block in the world.
+        ///     Will always fail if there is a different block at the given position.
+        /// </summary>
+        /// <param name="world">The world in which to destroy the block.</param>
+        /// <param name="position">The position at which to destroy to block.</param>
+        /// <param name="entity">The entity destroying the block.</param>
+        /// <returns>True if destruction was successful.</returns>
         public bool Destroy(World world, Vector3i position, PhysicsEntity? entity = null)
         {
             BlockInstance? block = world.GetBlock(position);
@@ -181,6 +204,11 @@ namespace VoxelGame.Core.Logic
             return (instance?.Block == this ? GetBoundingBox(instance.Data) : boundingBox).Translated(position);
         }
 
+        /// <summary>
+        ///     Override this to provide a custom bounding box for this block, depending on the block data.
+        /// </summary>
+        /// <param name="data">The block data.</param>
+        /// <returns>The bounding box for the given data.</returns>
         protected virtual BoundingBox GetBoundingBox(uint data)
         {
             return boundingBox;
@@ -193,21 +221,51 @@ namespace VoxelGame.Core.Logic
         /// <returns>The mesh data.</returns>
         public abstract BlockMeshData GetMesh(BlockMeshInfo info);
 
-        internal virtual bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <summary>
+        ///     Override this to provide change the block placement checks.
+        /// </summary>
+        /// <param name="world">The world in which the placement occurs.</param>
+        /// <param name="position">The position at which the placement is requested.</param>
+        /// <param name="entity">The entity that performs placement.</param>
+        /// <returns>True if placement is possible.</returns>
+        public virtual bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return true;
         }
 
+        /// <summary>
+        ///     Override this to change the block placement logic.
+        ///     The block placement must always be successful. If checks are required, override <see cref="CanPlace" />.
+        /// </summary>
+        /// <param name="world">The world in which the placement occurs.</param>
+        /// <param name="position">The position at which the placement is requested.</param>
+        /// <param name="entity">The entity that performs placement.</param>
         protected virtual void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             world.SetBlock(this.AsInstance(), position);
         }
 
+        /// <summary>
+        ///     Override this to change the block destruction checks.
+        /// </summary>
+        /// <param name="world">The world in which the placement occurs.</param>
+        /// <param name="position">The position at which the placement is requested.</param>
+        /// <param name="data">The block data.</param>
+        /// <param name="entity">The entity that performs placement.</param>
+        /// <returns></returns>
         protected virtual bool CanDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             return true;
         }
 
+        /// <summary>
+        ///     Override this to change the block destruction logic.
+        ///     The block destruction must always be successful. If checks are required, override <see cref="CanDestroy" />.
+        /// </summary>
+        /// <param name="world">The world in which the placement occurs.</param>
+        /// <param name="position">The position at which the placement is requested.</param>
+        /// <param name="data">The block data.</param>
+        /// <param name="entity">The entity that performs placement.</param>
         protected virtual void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             world.SetDefaultBlock(position);
@@ -224,6 +282,12 @@ namespace VoxelGame.Core.Logic
             if (block?.Block == this) EntityCollision(entity, position, block.Data);
         }
 
+        /// <summary>
+        ///     Override to provide custom entity collision logic.
+        /// </summary>
+        /// <param name="entity">The entity that collided with this block.</param>
+        /// <param name="position">The position of the block.</param>
+        /// <param name="data">The block data of this block.</param>
         protected virtual void EntityCollision(PhysicsEntity entity, Vector3i position, uint data) {}
 
         /// <summary>
@@ -237,6 +301,12 @@ namespace VoxelGame.Core.Logic
             if (block?.Block == this) EntityInteract(entity, position, block.Data);
         }
 
+        /// <summary>
+        ///     Override to provide custom entity interaction logic.
+        /// </summary>
+        /// <param name="entity">The entity that interacted with this block.</param>
+        /// <param name="position">The position of the block.</param>
+        /// <param name="data">The block data of this block.</param>
         protected virtual void EntityInteract(PhysicsEntity entity, Vector3i position, uint data) {}
 
         /// <summary>
@@ -246,15 +316,19 @@ namespace VoxelGame.Core.Logic
         /// <param name="position">The block position.</param>
         /// <param name="data">The data of the block next to the changed position.</param>
         /// <param name="side">The side of the block where the change happened.</param>
-        internal virtual void BlockUpdate(World world, Vector3i position, uint data, BlockSide side) {}
+        public virtual void BlockUpdate(World world, Vector3i position, uint data, BlockSide side) {}
 
         /// <summary>
         ///     This method is called randomly on some blocks every update.
         /// </summary>
-        internal virtual void RandomUpdate(World world, Vector3i position, uint data) {}
+        public virtual void RandomUpdate(World world, Vector3i position, uint data) {}
 
+        /// <summary>
+        ///     This method is called for scheduled updates.
+        /// </summary>
         protected virtual void ScheduledUpdate(World world, Vector3i position, uint data) {}
 
+        /// <inheritdoc />
         public sealed override string ToString()
         {
             return NamedId;

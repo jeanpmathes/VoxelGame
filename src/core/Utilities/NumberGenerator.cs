@@ -8,8 +8,14 @@ using System;
 
 namespace VoxelGame.Core.Utilities
 {
+    /// <summary>
+    ///     A utility class for generating random numbers.
+    /// </summary>
     public static class NumberGenerator
     {
+        /// <summary>
+        ///     The random number generator.
+        /// </summary>
         public static Random Random { get; } = new();
     }
 }

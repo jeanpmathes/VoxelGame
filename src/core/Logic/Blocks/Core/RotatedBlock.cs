@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block which can be rotated to be oriented on different axis. The y axis is the default orientation.
     ///     Data bit usage: <c>----aa</c>
     /// </summary>
-    // a = axis
+    // a: axis
     public class RotatedBlock : BasicBlock, IFlammable
     {
         internal RotatedBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
@@ -26,6 +26,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 flags,
                 layout) {}
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             Axis axis = ToAxis(info.Data);
@@ -37,6 +38,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.Basic(sideTextureIndices[TranslateIndex(info.Side, axis)], rotated);
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             world.SetBlock(this.AsInstance((uint) (entity?.TargetSide ?? BlockSide.Front).Axis()), position);

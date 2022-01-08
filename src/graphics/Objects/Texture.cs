@@ -14,10 +14,20 @@ using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace VoxelGame.Graphics.Objects
 {
-    public class Texture : IDisposable
+    /// <summary>
+    ///     A texture.
+    /// </summary>
+    public sealed class Texture : IDisposable
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Texture>();
 
+        /// <summary>
+        ///     Creates a new texture from an image.
+        ///     If the image cannot be loaded, a fallback texture is used.
+        /// </summary>
+        /// <param name="path">The path to an image.</param>
+        /// <param name="unit">The texture unit to bind this texture to.</param>
+        /// <param name="fallbackResolution">The resolution to use for the fallback texture.</param>
         public Texture(string path, TextureUnit unit, int fallbackResolution = 16)
         {
             TextureUnit = unit;
@@ -57,6 +67,9 @@ namespace VoxelGame.Graphics.Objects
 
         private int Handle { get; }
 
+        /// <summary>
+        ///     Get the texture unit this texture is bound to.
+        /// </summary>
         public TextureUnit TextureUnit { get; private set; }
 
         private void SetupTexture(Bitmap bitmap)
@@ -82,12 +95,17 @@ namespace VoxelGame.Graphics.Objects
                 data.Scan0);
         }
 
-        public void Use(TextureUnit unit = TextureUnit.Texture0)
+        private void Use(TextureUnit unit = TextureUnit.Texture0)
         {
             GL.BindTextureUnit(unit - TextureUnit.Texture0, Handle);
             TextureUnit = unit;
         }
 
+        /// <summary>
+        ///     Creates a fallback image.
+        /// </summary>
+        /// <param name="resolution">The resolution of the image to create.</param>
+        /// <returns>The created fallback image.</returns>
         public static Bitmap CreateFallback(int resolution)
         {
             var fallback = new Bitmap(resolution, resolution, PixelFormat.Format32bppArgb);
@@ -107,7 +125,7 @@ namespace VoxelGame.Graphics.Objects
 
         private bool disposed;
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -121,11 +139,17 @@ namespace VoxelGame.Graphics.Objects
             }
         }
 
+        /// <summary>
+        ///     Texture finalizer.
+        /// </summary>
         ~Texture()
         {
             Dispose(disposing: false);
         }
 
+        /// <summary>
+        ///     Dispose of the texture.
+        /// </summary>
         public void Dispose()
         {
             Dispose(disposing: true);

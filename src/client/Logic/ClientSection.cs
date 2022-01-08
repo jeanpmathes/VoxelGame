@@ -21,14 +21,23 @@ using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Logic
 {
+    /// <summary>
+    ///     A section of the world, specifically for the client.
+    ///     Sections do not know their exact position in the world.
+    /// </summary>
     [Serializable]
     public class ClientSection : Section
     {
         [NonSerialized] private bool hasMesh;
         [NonSerialized] private SectionRenderer? renderer;
 
+        /// <summary>
+        ///     Create a new client section.
+        /// </summary>
+        /// <param name="world">The world containing the client section.</param>
         public ClientSection(World world) : base(world) {}
 
+        /// <inheritdoc />
         protected override void Setup()
         {
             renderer = new SectionRenderer();
@@ -37,12 +46,25 @@ namespace VoxelGame.Client.Logic
             disposed = false;
         }
 
+        /// <summary>
+        ///     Create a mesh for this section and activate it.
+        /// </summary>
+        /// <param name="sectionX">The x position, in section coordinates.</param>
+        /// <param name="sectionY">The y position, in section coordinates.</param>
+        /// <param name="sectionZ">The z position, in section coordinates.</param>
         public void CreateAndSetMesh(int sectionX, int sectionY, int sectionZ)
         {
             SectionMeshData meshData = CreateMeshData(sectionX, sectionY, sectionZ);
             SetMeshData(meshData);
         }
 
+        /// <summary>
+        ///     Create mesh data for this section.
+        /// </summary>
+        /// <param name="sectionX">The x position, in section coordinates.</param>
+        /// <param name="sectionY">The y position, in section coordinates.</param>
+        /// <param name="sectionZ">The z position, in section coordinates.</param>
+        /// <returns>The created mesh data.</returns>
         [SuppressMessage(
             "Blocker Code Smell",
             "S2437:Silly bit operations should not be performed",
@@ -637,6 +659,10 @@ namespace VoxelGame.Client.Logic
                    position.Z is < 0 or >= SectionSize;
         }
 
+        /// <summary>
+        ///     Set the mesh data for this section. The mesh must be generated from this section.
+        /// </summary>
+        /// <param name="meshData">The mesh data to use and activate.</param>
         public void SetMeshData(SectionMeshData meshData)
         {
             Debug.Assert(renderer != null);
@@ -645,6 +671,11 @@ namespace VoxelGame.Client.Logic
             renderer.SetData(meshData);
         }
 
+        /// <summary>
+        ///     Render this section.
+        /// </summary>
+        /// <param name="stage">The current render stage.</param>
+        /// <param name="position">The position of this section in world coordinates.</param>
         public void Render(int stage, Vector3 position)
         {
             if (hasMesh) renderer?.DrawStage(stage, position);
@@ -654,6 +685,7 @@ namespace VoxelGame.Client.Logic
 
         [NonSerialized] private bool disposed;
 
+        /// <inheritdoc />
         protected override void Dispose(bool disposing)
         {
             if (!disposed)

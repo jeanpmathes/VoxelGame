@@ -9,15 +9,28 @@ using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Core.Physics
 {
+    /// <summary>
+    ///     A camera view frustum.
+    /// </summary>
 #pragma warning disable CA1815 // Override equals and operator equals on value types
-
     public readonly struct Frustum
 #pragma warning restore CA1815 // Override equals and operator equals on value types
     {
         private readonly Plane[] planes;
 
-        public Frustum(float fovy, float ratio, float near, float far, Vector3 pos, Vector3 dir, Vector3 up,
-            Vector3 right)
+        /// <summary>
+        ///     Create a new frustum.
+        /// </summary>
+        /// <param name="fovy">The field-of-view value, on the y axis.</param>
+        /// <param name="ratio">The screen ratio.</param>
+        /// <param name="near">The distance to the near clipping plane.</param>
+        /// <param name="far">The distance to the far clipping plane.</param>
+        /// <param name="pos">The position of the camera.</param>
+        /// <param name="dir">The view direction.</param>
+        /// <param name="up">The up direction.</param>
+        /// <param name="right">The right direction.</param>
+        public Frustum(float fovy, float ratio, float near, float far,
+            Vector3 pos, Vector3 dir, Vector3 up, Vector3 right)
         {
             dir = dir.Normalized();
             up = up.Normalized();

@@ -20,6 +20,10 @@ namespace VoxelGame.Client.Collections
 
         private int count;
 
+        /// <summary>
+        ///     Create a new instance of the <see cref="BlockMeshFaceHolder" /> class for a given block side.
+        /// </summary>
+        /// <param name="side">The block side that the faces will correspond too.</param>
         public BlockMeshFaceHolder(BlockSide side) : base(side)
         {
             // Initialize layers.
@@ -34,6 +38,13 @@ namespace VoxelGame.Client.Collections
             }
         }
 
+        /// <summary>
+        ///     Add a new face to the holder.
+        /// </summary>
+        /// <param name="pos">The position of the face, relative to the section origin.</param>
+        /// <param name="vertexData">The binary encoded vertex data to use for every vertex.</param>
+        /// <param name="vertices">The binary encoded vertices of the face.</param>
+        /// <param name="isRotated">True if the face is rotated.</param>
         public void AddFace(Vector3i pos, int vertexData, (int vertA, int vertB, int vertC, int vertD) vertices,
             bool isRotated)
         {
@@ -151,6 +162,10 @@ namespace VoxelGame.Client.Collections
             }
         }
 
+        /// <summary>
+        ///     Generate the mesh using all faces held by this holder.
+        /// </summary>
+        /// <param name="meshData">The list where the meshData will be added to.</param>
         public void GenerateMesh(PooledList<int> meshData)
         {
             if (count == 0) return;
@@ -207,6 +222,9 @@ namespace VoxelGame.Client.Collections
                 : (length << heightShift) | (height << lengthShift);
         }
 
+        /// <summary>
+        ///     Return all pooled resources used.
+        /// </summary>
         public void ReturnToPool()
         {
             for (var i = 0; i < Section.SectionSize; i++) ArrayPool<MeshFace>.Shared.Return(lastFaces[i]!);

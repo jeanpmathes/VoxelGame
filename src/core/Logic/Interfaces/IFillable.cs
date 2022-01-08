@@ -8,8 +8,14 @@ using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Core.Logic.Interfaces
 {
+    /// <summary>
+    ///     Allows blocks to be filled with fluid.
+    /// </summary>
     public interface IFillable : IBlockBase
     {
+        /// <summary>
+        ///     Whether the fluid filling this block should be rendered.
+        /// </summary>
         bool RenderLiquid => !IsSolidAndFull;
 
         /// <summary>

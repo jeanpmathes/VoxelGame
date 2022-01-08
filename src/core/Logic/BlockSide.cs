@@ -19,15 +19,45 @@ namespace VoxelGame.Core.Logic
     /// </summary>
     public enum BlockSide
     {
+        /// <summary>
+        ///     All sides. Only allowed for special cases.
+        /// </summary>
         All = -1,
+
+        /// <summary>
+        ///     The front side.
+        /// </summary>
         Front = 0,
+
+        /// <summary>
+        ///     The back side.
+        /// </summary>
         Back = 1,
+
+        /// <summary>
+        ///     The left side.
+        /// </summary>
         Left = 2,
+
+        /// <summary>
+        ///     The right side.
+        /// </summary>
         Right = 3,
+
+        /// <summary>
+        ///     The bottom side.
+        /// </summary>
         Bottom = 4,
+
+        /// <summary>
+        ///     The top side.
+        /// </summary>
         Top = 5
     }
 
+    /// <summary>
+    ///     Extension methods for <see cref="BlockSide" />.
+    /// </summary>
     public static class BlockSideExtensions
     {
         // Corners of a block.
@@ -68,6 +98,9 @@ namespace VoxelGame.Core.Logic
             return sides;
         }
 
+        /// <summary>
+        ///     Get the opposite side of a block.
+        /// </summary>
         public static BlockSide Opposite(this BlockSide side)
         {
             return side switch
@@ -83,6 +116,9 @@ namespace VoxelGame.Core.Logic
             };
         }
 
+        /// <summary>
+        ///     Get the side as <see cref="Orientation" />.
+        /// </summary>
         public static Orientation ToOrientation(this BlockSide side)
         {
             return side switch
@@ -95,6 +131,9 @@ namespace VoxelGame.Core.Logic
             };
         }
 
+        /// <summary>
+        ///     Check whether this side is a lateral side, meaning not at the top or bottom.
+        /// </summary>
         public static bool IsLateral(this BlockSide side)
         {
             return side switch
@@ -110,6 +149,9 @@ namespace VoxelGame.Core.Logic
             };
         }
 
+        /// <summary>
+        ///     Get the side as a direction vector.
+        /// </summary>
         public static Vector3i Direction(this BlockSide side)
         {
             int index = (int) side + 1;
@@ -119,11 +161,17 @@ namespace VoxelGame.Core.Logic
             return directions[index];
         }
 
+        /// <summary>
+        ///     Offset a vector by the direction of this side.
+        /// </summary>
         public static Vector3i Offset(this BlockSide side, Vector3i v)
         {
             return v + side.Direction();
         }
 
+        /// <summary>
+        ///     Convert this side to the axis it is on.
+        /// </summary>
         public static Axis Axis(this BlockSide side)
         {
             return side switch
@@ -139,6 +187,9 @@ namespace VoxelGame.Core.Logic
             };
         }
 
+        /// <summary>
+        ///     Get a bit flag representing this side.
+        /// </summary>
         public static uint ToFlag(this BlockSide side)
         {
             return side switch
@@ -154,11 +205,18 @@ namespace VoxelGame.Core.Logic
             };
         }
 
+        /// <summary>
+        ///     Check if the bit flag of a side is set.
+        /// </summary>
         public static bool IsSet(this BlockSide side, uint flags)
         {
             return (flags & side.ToFlag()) != 0;
         }
 
+        /// <summary>
+        ///     Get the corners of this side of a block.
+        ///     Every of the four corners is represented by an integer array with three elements.
+        /// </summary>
         public static void Corners(this BlockSide side, out int[] a, out int[] b, out int[] c, out int[] d)
         {
             switch (side)

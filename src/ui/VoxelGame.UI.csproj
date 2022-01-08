@@ -1,36 +1,40 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Nullable>enable</Nullable>
-    <Version>1.2.0</Version>
-    <Platforms>x64</Platforms>
-    <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
-    <ApplicationIcon>vg_icon.ico</ApplicationIcon>
-    <LangVersion>9</LangVersion>
-    <Configurations>Debug;Release</Configurations>
-    <PackageLicenseExpression>MIT License</PackageLicenseExpression>
+      <TargetFramework>netcoreapp3.1</TargetFramework>
+      <Nullable>enable</Nullable>
+      <Version>1.2.0</Version>
+      <Platforms>x64</Platforms>
+      <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
+      <ApplicationIcon>vg_icon.ico</ApplicationIcon>
+      <LangVersion>9</LangVersion>
+      <Configurations>Debug;Release</Configurations>
+      <PackageLicenseExpression>MIT License</PackageLicenseExpression>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <WarningsAsErrors>nullable</WarningsAsErrors>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-  </PropertyGroup>
+    <PropertyGroup>
+        <DocumentationFile>bin\debug\VoxelGame.UI.xml</DocumentationFile>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <WarningsAsErrors>nullable</WarningsAsErrors>
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+        <WarningsAsErrors>nullable</WarningsAsErrors>
+        <OutputPath>bin\x64\Debug\</OutputPath>
+    </PropertyGroup>
 
-  <ItemGroup>
-      <Compile Remove="lib\**"/>
-      <EmbeddedResource Remove="lib\**"/>
-      <None Remove="lib\**"/>
-      <None Update="DefaultSkin2.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+        <WarningsAsErrors>nullable</WarningsAsErrors>
+        <OutputPath>bin\x64\Release\</OutputPath>
+        <DebugType>full</DebugType>
+        <DebugSymbols>true</DebugSymbols>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Remove="lib\**"/>
+        <EmbeddedResource Remove="lib\**"/>
+        <None Remove="lib\**"/>
+        <None Update="DefaultSkin2.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
       <None Update="Resources\GUI\start.png">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>

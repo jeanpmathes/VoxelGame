@@ -10,6 +10,9 @@ using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Physics
 {
+    /// <summary>
+    ///     Utility class for raycasts.
+    /// </summary>
     public static class Raycast
     {
         /// <summary>

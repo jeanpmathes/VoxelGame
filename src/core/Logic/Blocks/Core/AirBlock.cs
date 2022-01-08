@@ -32,16 +32,19 @@ namespace VoxelGame.Core.Logic.Blocks
                 BoundingBox.Block,
                 TargetBuffer.NotRendered) {}
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return BlockMeshData.Empty();
         }
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return false;
         }
 
+        /// <inheritdoc />
         protected override bool CanDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             return false;

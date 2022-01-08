@@ -16,9 +16,12 @@ using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.Controls
 {
+    /// <summary>
+    ///     An abstract menu that can be used to create menus with a standard layout.
+    /// </summary>
     [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-    public abstract class StandardMenu : ControlBase
+    internal abstract class StandardMenu : ControlBase
     {
         private protected StandardMenu(ControlBase parent, Context context) : base(parent)
         {

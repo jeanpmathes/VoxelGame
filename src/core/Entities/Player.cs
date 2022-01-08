@@ -10,8 +10,18 @@ using VoxelGame.Core.Physics;
 
 namespace VoxelGame.Core.Entities
 {
+    /// <summary>
+    ///     A player, that can interact with the world.
+    /// </summary>
     public abstract class Player : PhysicsEntity
     {
+        /// <summary>
+        ///     Create a new player.
+        /// </summary>
+        /// <param name="world">The world the player is in.</param>
+        /// <param name="mass">The mass the player has.</param>
+        /// <param name="drag">The drag that affects the player.</param>
+        /// <param name="boundingBox">The bounding box of the player.</param>
         protected Player(World world, float mass, float drag, BoundingBox boundingBox) : base(
             world,
             mass,
@@ -49,17 +59,23 @@ namespace VoxelGame.Core.Entities
         /// </summary>
         public int ChunkZ { get; private set; }
 
+        /// <inheritdoc />
         protected sealed override void Update(float deltaTime)
         {
             OnUpdate(deltaTime);
-
-            // Check if the current chunk has changed and request new chunks if needed / release unneeded chunks.
-            ChunkChange();
+            ProcessChunkChange();
         }
 
+        /// <summary>
+        ///     Called every time the player is updated.
+        /// </summary>
+        /// <param name="deltaTime">The time since the last update cycle.</param>
         protected abstract void OnUpdate(float deltaTime);
 
-        private void ChunkChange()
+        /// <summary>
+        ///     Check if the current chunk has changed and request new chunks if needed / release unneeded chunks.
+        /// </summary>
+        private void ProcessChunkChange()
         {
             int currentChunkX = (int) Math.Floor(Position.X) >> Section.SectionSizeExp;
             int currentChunkZ = (int) Math.Floor(Position.Z) >> Section.SectionSizeExp;

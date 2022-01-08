@@ -2,7 +2,10 @@
 
 namespace VoxelGame.Core.Logic.Interfaces
 {
-    internal interface IPipeConnectable : IBlockBase
+    /// <summary>
+    ///     Allows a block to connect to pipes.
+    /// </summary>
+    public interface IPipeConnectable : IBlockBase
     {
         /// <summary>
         ///     Checks if this block supports connection at a specific side.

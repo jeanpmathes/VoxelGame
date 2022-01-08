@@ -6,21 +6,30 @@
 
 namespace VoxelGame.Core.Updates
 {
+    /// <summary>
+    ///     A counter for update cycles.
+    /// </summary>
     public class UpdateCounter
     {
         /// <summary>
         /// The number of the current update cycle. It is incremented every time a new cycle begins.
         /// </summary>
-        public long CurrentUpdate { get; private set; }
+        public long Current { get; private set; }
 
-        public void IncrementUpdate()
+        /// <summary>
+        ///     Increment the update counter.
+        /// </summary>
+        public void Increment()
         {
-            CurrentUpdate++;
+            Current++;
         }
 
-        public void ResetUpdate()
+        /// <summary>
+        ///     Reset the update counter.
+        /// </summary>
+        public void Reset()
         {
-            CurrentUpdate = 0;
+            Current = 0;
         }
     }
 }

@@ -9,11 +9,20 @@ using System.Diagnostics;
 
 namespace VoxelGame.Core.Collections
 {
+    /// <summary>
+    ///     Maps unordered pairs to a single value.
+    /// </summary>
+    /// <typeparam name="TE">The identifiable element type for the pairs.</typeparam>
+    /// <typeparam name="TV">The result type of the mapping.</typeparam>
     public class CombinationMap<TE, TV> where TE : IIdentifiable<uint>
     {
         private readonly bool[][] flags;
         private readonly TV[][] table;
 
+        /// <summary>
+        ///     Create a new combination map.
+        /// </summary>
+        /// <param name="range">The maximum range of element values.</param>
         public CombinationMap(int range)
         {
             flags = new bool[range][];
@@ -24,19 +33,6 @@ namespace VoxelGame.Core.Collections
                 flags[i] = new bool[i];
                 table[i] = new TV[i];
             }
-        }
-
-        public void AddCombination(TE e, TV v, params TE[] others)
-        {
-            foreach (TE other in others)
-            {
-                this[e, other] = v;
-            }
-        }
-
-        public TV Resolve(TE a, TE b)
-        {
-            return this[a, b];
         }
 
         private TV this[TE a, TE b]
@@ -62,6 +58,35 @@ namespace VoxelGame.Core.Collections
 
                 table[i][j] = value;
             }
+        }
+
+        /// <summary>
+        ///     Add a combination between one element and each of the others.
+        ///     After a mapping has been set, it cannot be changed.
+        /// </summary>
+        /// <param name="e">The first element that is part of the mapping.</param>
+        /// <param name="v">The value to map to.</param>
+        /// <param name="others">The other elements, each combined to a pair with the first element.</param>
+        public void AddCombination(TE e, TV v, params TE[] others)
+        {
+            Debug.Assert(others.Length > 0);
+
+            foreach (TE other in others)
+            {
+                this[e, other] = v;
+            }
+        }
+
+        /// <summary>
+        ///     Resolve the mapping for the given elements.
+        ///     The order of the elements is not relevant.
+        /// </summary>
+        /// <param name="a">The first element.</param>
+        /// <param name="b">The second element.</param>
+        /// <returns></returns>
+        public TV Resolve(TE a, TE b)
+        {
+            return this[a, b];
         }
     }
 }

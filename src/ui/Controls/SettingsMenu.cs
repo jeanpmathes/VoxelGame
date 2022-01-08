@@ -18,9 +18,12 @@ using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.UI.Controls
 {
+    /// <summary>
+    ///     A menu that allows settings to be changed.
+    /// </summary>
     [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-    public class SettingsMenu : StandardMenu
+    internal class SettingsMenu : StandardMenu
     {
         private readonly List<ControlBase> categories = new();
         private readonly List<ISettingsProvider> settingsProviders;

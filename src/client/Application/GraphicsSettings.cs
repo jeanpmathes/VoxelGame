@@ -13,6 +13,9 @@ using VoxelGame.UI.Settings;
 
 namespace VoxelGame.Client.Application
 {
+    /// <summary>
+    ///     Game settings concerning the game graphics and visuals.
+    /// </summary>
     public class GraphicsSettings : ISettingsProvider
     {
         private readonly Settings clientSettings;
@@ -42,6 +45,9 @@ namespace VoxelGame.Client.Application
                     quality => FoliageQuality = quality));
         }
 
+        /// <summary>
+        ///     Get or set the sample count setting. This is the number of samples used for anti-aliasing.
+        /// </summary>
         public int SampleCount
         {
             get => clientSettings.SampleCount;
@@ -53,6 +59,9 @@ namespace VoxelGame.Client.Application
             }
         }
 
+        /// <summary>
+        ///     Get or set the maximum FPS setting. This is the maximum FPS that are passed to the window on creation.
+        /// </summary>
         public int MaxFPS
         {
             get => clientSettings.MaxFPS;
@@ -64,6 +73,9 @@ namespace VoxelGame.Client.Application
             }
         }
 
+        /// <summary>
+        ///     Get or set the foliage quality setting.
+        /// </summary>
         public Quality FoliageQuality
         {
             get => clientSettings.FoliageQuality;
@@ -75,9 +87,13 @@ namespace VoxelGame.Client.Application
             }
         }
 
+        /// <inheritdoc />
         public string Category => Language.Graphics;
+
+        /// <inheritdoc />
         public string Description => Language.GraphicsSettingsDescription;
 
+        /// <inheritdoc />
         public IEnumerable<Setting> Settings => settings;
     }
 }

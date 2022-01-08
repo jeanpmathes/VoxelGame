@@ -17,10 +17,10 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     post is used and indices are not ignored, else indices are ignored.
     ///     Data bit usage: <c>--nesw</c>
     /// </summary>
-    // n = connected north
-    // e = connected east
-    // s = connected south
-    // w = connected west
+    // n: connected north
+    // e: connected east
+    // s: connected south
+    // w: connected west
     public class WallBlock : WideConnectingBlock
     {
         private readonly BlockMesh straightX;
@@ -46,6 +46,7 @@ namespace VoxelGame.Core.Logic.Blocks
             straightZ = straightZModel.GetMesh();
         }
 
+        /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
             bool north = (data & 0b00_1000) != 0;
@@ -109,6 +110,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 children);
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             bool north = (info.Data & 0b00_1000) != 0;

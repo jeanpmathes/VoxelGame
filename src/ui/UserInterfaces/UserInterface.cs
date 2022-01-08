@@ -16,6 +16,9 @@ using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.UserInterfaces
 {
+    /// <summary>
+    ///     A user interface that can be rendered to the screen.
+    /// </summary>
     public abstract class UserInterface : IDisposable
     {
         private static readonly Vector2i targetSize = new(x: 1920, y: 1080);
@@ -23,6 +26,12 @@ namespace VoxelGame.UI.UserInterfaces
         private readonly IGwenGui gui;
         private readonly InputListener inputListener;
 
+        /// <summary>
+        ///     Creates a new user interface.
+        /// </summary>
+        /// <param name="window">The target window.</param>
+        /// <param name="inputListener">The input listener.</param>
+        /// <param name="drawBackground">Whether to draw background of the ui.</param>
         protected UserInterface(GameWindow window, InputListener inputListener, bool drawBackground)
         {
             gui = GwenGuiFactory.CreateFromGame(
@@ -40,8 +49,14 @@ namespace VoxelGame.UI.UserInterfaces
 
         internal Context Context { get; private set; } = null!;
 
+        /// <summary>
+        ///     The gui root control.
+        /// </summary>
         public ControlBase Root => gui.Root;
 
+        /// <summary>
+        ///     Load the user interface.
+        /// </summary>
         public void Load()
         {
             gui.Load();
@@ -52,8 +67,14 @@ namespace VoxelGame.UI.UserInterfaces
             SetSize(targetSize);
         }
 
+        /// <summary>
+        ///     Create the user interface controls.
+        /// </summary>
         public abstract void CreateControl();
 
+        /// <summary>
+        ///     Render the user interface.
+        /// </summary>
         public void Render()
         {
             GL.Disable(EnableCap.CullFace);
@@ -63,6 +84,10 @@ namespace VoxelGame.UI.UserInterfaces
             GL.Enable(EnableCap.CullFace);
         }
 
+        /// <summary>
+        ///     Resize the user interface.
+        /// </summary>
+        /// <param name="size">The new size.</param>
         public void Resize(Vector2i size)
         {
             SetSize(size);
@@ -80,6 +105,10 @@ namespace VoxelGame.UI.UserInterfaces
 
         private bool disposed;
 
+        /// <summary>
+        ///     Override to dispose of resources.
+        /// </summary>
+        /// <param name="disposing">True if dispose was called by custom code.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposed) return;
@@ -93,6 +122,9 @@ namespace VoxelGame.UI.UserInterfaces
             disposed = true;
         }
 
+        /// <summary>
+        ///     Dispose of resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(disposing: true);

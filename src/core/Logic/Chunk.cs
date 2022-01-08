@@ -13,33 +13,60 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Generation;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.WorldGeneration;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic
 {
+    /// <summary>
+    ///     A chunk, a group of sections.
+    /// </summary>
     [Serializable]
     public abstract class Chunk : IDisposable
     {
+        /// <summary>
+        ///     The number of sections in a chunk. The chunk is a large column of sections.
+        /// </summary>
         public const int VerticalSectionCount = 64;
 
         private const int RandomTickBatchSize = VerticalSectionCount / 2;
 
+        /// <summary>
+        ///     The width of a chunk in blocks.
+        /// </summary>
         public const int ChunkWidth = Section.SectionSize;
+
+        /// <summary>
+        ///     The height of a chunk in blocks.
+        /// </summary>
         public const int ChunkHeight = Section.SectionSize * VerticalSectionCount;
+
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
+
+        /// <summary>
+        ///     Result of <c>lb(VerticalSectionCount)</c> as int.
+        /// </summary>
         public static readonly int VerticalSectionCountExp = (int) Math.Log(VerticalSectionCount, newBase: 2);
 
         private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
         private readonly ScheduledTickManager<Liquid.LiquidTick> liquidTickManager;
 
+        /// <summary>
+        ///     The sections in this chunk.
+        /// </summary>
 #pragma warning disable CA1051 // Do not declare visible instance fields
         protected readonly Section[] sections = new Section[VerticalSectionCount];
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-        protected Chunk(World world, int x, int z, UpdateCounter updateCounter)
+        /// <summary>
+        ///     Create a new chunk.
+        /// </summary>
+        /// <param name="world">The world.</param>
+        /// <param name="x">The x chunk coordinate.</param>
+        /// <param name="z">The z chunk coordinate.</param>
+        protected Chunk(World world, int x, int z)
         {
             World = world;
 
@@ -56,14 +83,14 @@ namespace VoxelGame.Core.Logic
             }
 
             blockTickManager = new ScheduledTickManager<Block.BlockTick>(
-                Block.MaxLiquidTicksPerFrameAndChunk,
+                Block.MaxBlockTicksPerFrameAndChunk,
                 World,
-                updateCounter);
+                World.UpdateCounter);
 
             liquidTickManager = new ScheduledTickManager<Liquid.LiquidTick>(
                 Liquid.MaxLiquidTicksPerFrameAndChunk,
                 World,
-                updateCounter);
+                World.UpdateCounter);
         }
 
         /// <summary>
@@ -84,10 +111,19 @@ namespace VoxelGame.Core.Logic
             ChunkHeight / 2f,
             Z * ChunkWidth + ChunkWidth / 2f);
 
+        /// <summary>
+        ///     The extents of a chunk.
+        /// </summary>
         public static Vector3 ChunkExtents => new(ChunkWidth / 2f, ChunkHeight / 2f, ChunkWidth / 2f);
 
+        /// <summary>
+        ///     The world this chunk is in.
+        /// </summary>
         [field: NonSerialized] protected World World { get; private set; }
 
+        /// <summary>
+        ///     Creates a section.
+        /// </summary>
         protected abstract Section CreateSection();
 
         /// <summary>
@@ -184,6 +220,10 @@ namespace VoxelGame.Core.Logic
             return Task.Run(() => Save(path));
         }
 
+        /// <summary>
+        ///     Generate the chunk content.
+        /// </summary>
+        /// <param name="generator">The generator to use.</param>
         public void Generate(IWorldGenerator generator)
         {
             logger.LogDebug(
@@ -199,8 +239,8 @@ namespace VoxelGame.Core.Logic
                 var y = 0;
 
                 foreach (Block block in generator.GenerateColumn(
-                    x + X * Section.SectionSize,
-                    z + Z * Section.SectionSize))
+                             x + X * Section.SectionSize,
+                             z + Z * Section.SectionSize))
                 {
                     sections[y >> Section.SectionSizeExp][x, y & (Section.SectionSize - 1), z] = block.Id;
 
@@ -209,6 +249,11 @@ namespace VoxelGame.Core.Logic
             }
         }
 
+        /// <summary>
+        ///     Run a chunk generation task.
+        /// </summary>
+        /// <param name="generator">The generator to use.</param>
+        /// <returns>The task.</returns>
         public Task GenerateTask(IWorldGenerator generator)
         {
             return Task.Run(() => Generate(generator));
@@ -224,6 +269,8 @@ namespace VoxelGame.Core.Logic
             liquidTickManager.Add(tick, tickOffset);
         }
 
+        /// <summary>
+        /// </summary>
         public void Tick()
         {
             blockTickManager.Process();
@@ -238,16 +285,23 @@ namespace VoxelGame.Core.Logic
             }
         }
 
+        /// <summary>
+        ///     Get the section at the specified index.
+        /// </summary>
+        /// <param name="y">The section index. Must be in the range [0, VerticalSectionCount)</param>
+        /// <returns>The section.</returns>
         public Section GetSection(int y)
         {
             return sections[y];
         }
 
+        /// <inheritdoc />
         public sealed override string ToString()
         {
             return $"Chunk ({X}|{Z})";
         }
 
+        /// <inheritdoc />
         public sealed override bool Equals(object? obj)
         {
             if (obj is Chunk other) return other.X == X && other.Z == Z;
@@ -255,6 +309,7 @@ namespace VoxelGame.Core.Logic
             return false;
         }
 
+        /// <inheritdoc />
         public sealed override int GetHashCode()
         {
             return HashCode.Combine(X, Z);
@@ -262,13 +317,22 @@ namespace VoxelGame.Core.Logic
 
         #region IDisposable Support
 
+        /// <summary>
+        ///     Dispose of this chunk.
+        /// </summary>
         protected abstract void Dispose(bool disposing);
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~Chunk()
         {
             Dispose(disposing: false);
         }
 
+        /// <summary>
+        ///     Dispose of this chunk.
+        /// </summary>
         public void Dispose()
         {
             Dispose(disposing: true);

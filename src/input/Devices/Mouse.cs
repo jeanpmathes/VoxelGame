@@ -8,6 +8,9 @@ using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Input.Devices
 {
+    /// <summary>
+    ///     Represents of the mouse.
+    /// </summary>
     public class Mouse
     {
         private readonly InputManager input;
@@ -21,7 +24,14 @@ namespace VoxelGame.Input.Devices
             this.input = input;
         }
 
+        /// <summary>
+        ///     Get or set whether the mouse is locked to the center of the screen.
+        /// </summary>
         public bool Locked { get; set; }
+
+        /// <summary>
+        ///     Get the mouse delta of the current frame.
+        /// </summary>
         public Vector2 Delta { get; private set; }
 
         private Vector2i LockPosition => new(input.Window.Size.X / 2, input.Window.Size.Y / 2);

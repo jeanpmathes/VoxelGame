@@ -192,6 +192,9 @@ namespace VoxelGame.Client.Rendering
 
         private Application.Client Client { get; }
 
+        /// <summary>
+        ///     Clear the screen buffer content.
+        /// </summary>
         public void Clear()
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, msFBO);
@@ -200,6 +203,9 @@ namespace VoxelGame.Client.Rendering
             GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, drawbuffer: 0, new[] { 1f });
         }
 
+        /// <summary>
+        ///     Draw all rendered content to the screen buffer.
+        /// </summary>
         public void Draw()
         {
             GL.BlitNamedFramebuffer(
@@ -326,6 +332,12 @@ namespace VoxelGame.Client.Rendering
 
         #region PUBLIC STATIC METHODS
 
+        /// <summary>
+        ///     Set the cursor options.
+        /// </summary>
+        /// <param name="visible">Whether the cursor should be visible.</param>
+        /// <param name="locked">Whether the cursor should be locked to the center of the screen.</param>
+        /// <param name="grabbed">Whether the cursor should be restricted to the game window.</param>
         public static void SetCursor(bool visible, bool locked = false, bool grabbed = false)
         {
             Instance.Client.CursorVisible = visible;
@@ -388,11 +400,17 @@ namespace VoxelGame.Client.Rendering
             Instance.useWireframe = wireframe;
         }
 
+        /// <summary>
+        ///     Enter the game drawing mode, to use when drawing world content.
+        /// </summary>
         public static void EnterGameDrawMode()
         {
             if (Instance.useWireframe) Instance.EnableWireframe();
         }
 
+        /// <summary>
+        ///     Enter the ui drawing mode, to use when drawing ui or overlays.
+        /// </summary>
         public static void EnterUIDrawMode()
         {
             Instance.DisableWireframe();
@@ -442,6 +460,9 @@ namespace VoxelGame.Client.Rendering
             Marshal.FreeHGlobal(data);
         }
 
+        /// <summary>
+        ///     Fill the depth texture with the current depth data..
+        /// </summary>
         public static void FillDepthTexture()
         {
             GL.ActiveTexture(TextureUnit.Texture20);
@@ -466,11 +487,17 @@ namespace VoxelGame.Client.Rendering
             GL.ActiveTexture(TextureUnit.Texture0);
         }
 
+        /// <summary>
+        ///     Set the overlay lock, to indicate that an ui overlay is currently active.
+        /// </summary>
         public static void SetOverlayLock()
         {
             IsOverlayLockActive = true;
         }
 
+        /// <summary>
+        ///     Clear the overlay lock, to indicate that no ui overlay is currently active.
+        /// </summary>
         public static void ClearOverlayLock()
         {
             IsOverlayLockActive = false;
@@ -504,11 +531,17 @@ namespace VoxelGame.Client.Rendering
             disposed = true;
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~Screen()
         {
             Dispose(disposing: false);
         }
 
+        /// <summary>
+        ///     Dispose of the screen object.
+        /// </summary>
         public void Dispose()
         {
             Dispose(disposing: true);

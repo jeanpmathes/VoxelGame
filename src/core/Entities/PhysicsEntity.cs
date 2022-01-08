@@ -28,6 +28,13 @@ namespace VoxelGame.Core.Entities
 
         private Vector3 force;
 
+        /// <summary>
+        ///     Create a new physics entity.
+        /// </summary>
+        /// <param name="world">The world in which the physics entity is located.</param>
+        /// <param name="mass">The mass of the entity.</param>
+        /// <param name="drag">The drag affecting the entity.</param>
+        /// <param name="boundingBox">The bounding box of the entity.</param>
         protected PhysicsEntity(World world, float mass, float drag, BoundingBox boundingBox)
         {
             World = world;
@@ -56,24 +63,64 @@ namespace VoxelGame.Core.Entities
         /// </summary>
         public Vector3 Velocity { get; set; }
 
+        /// <summary>
+        ///     Get the position of the physics entity.
+        /// </summary>
         public Vector3 Position { get; set; }
+
+        /// <summary>
+        ///     Get the rotation of the physics entity.
+        /// </summary>
         public Quaternion Rotation { get; set; }
 
+        /// <summary>
+        ///     Get whether the physics entity touches the ground.
+        /// </summary>
         public bool IsGrounded { get; private set; }
+
+        /// <summary>
+        ///     Get whether the physics entity is in a liquid.
+        /// </summary>
         public bool IsSwimming { get; private set; }
 
+        /// <summary>
+        ///     Get the forward vector of the physics entity.
+        /// </summary>
         public Vector3 Forward => Rotation * Vector3.UnitX;
 
+        /// <summary>
+        ///     Get the right vector of the physics entity.
+        /// </summary>
         public Vector3 Right => Rotation * Vector3.UnitZ;
 
+        /// <summary>
+        ///     Get the world in which the physics entity is located.
+        /// </summary>
         public World World { get; }
 
+        /// <summary>
+        ///     Get the target movement of the physics entity.
+        /// </summary>
         public abstract Vector3 Movement { get; }
+
+        /// <summary>
+        ///     Get the lookin direction of the physics entity.
+        /// </summary>
         public abstract Vector3 LookingDirection { get; }
+
+        /// <summary>
+        ///     Get the block side targeted by the physics entity.
+        /// </summary>
         public abstract BlockSide TargetSide { get; }
 
+        /// <summary>
+        ///     Get the block position targeted by the physics entity.
+        /// </summary>
         public abstract Vector3i TargetPosition { get; }
 
+        /// <summary>
+        ///     Get the bounding box of the physics entity.
+        /// </summary>
         public BoundingBox BoundingBox => boundingBox;
 
         /// <summary>
@@ -99,6 +146,10 @@ namespace VoxelGame.Core.Entities
             AddForce(VMath.ClampComponents(requiredForce, -maxForce, maxForce));
         }
 
+        /// <summary>
+        ///     Tick this physics entity. An entity is ticked every update.
+        /// </summary>
+        /// <param name="deltaTime">The time since the last update.</param>
         public void Tick(float deltaTime)
         {
             IsGrounded = false;
@@ -160,12 +211,12 @@ namespace VoxelGame.Core.Entities
             boundingBox.Center += movement;
 
             if (BoundingBox.IntersectsTerrain(
-                World,
-                out bool xCollision,
-                out bool yCollision,
-                out bool zCollision,
-                blockIntersections,
-                liquidIntersections))
+                    World,
+                    out bool xCollision,
+                    out bool yCollision,
+                    out bool zCollision,
+                    blockIntersections,
+                    liquidIntersections))
             {
                 if (yCollision)
                 {
@@ -190,21 +241,35 @@ namespace VoxelGame.Core.Entities
             Position += movement;
         }
 
-        #region IDisposable Support
-
+        /// <summary>
+        ///     Receives the entity update every tick.
+        /// </summary>
+        /// <param name="deltaTime"></param>
         protected abstract void Update(float deltaTime);
 
+        #region IDisposable Support
+
+        /// <summary>
+        ///     Disposes this entity.
+        /// </summary>
         public void Dispose()
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~PhysicsEntity()
         {
             Dispose(disposing: false);
         }
 
+        /// <summary>
+        ///     Disposes this entity.
+        /// </summary>
+        /// <param name="disposing">True if called by code.</param>
         protected abstract void Dispose(bool disposing);
 
         #endregion IDisposable Support

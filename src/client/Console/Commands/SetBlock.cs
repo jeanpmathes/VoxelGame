@@ -12,17 +12,25 @@ namespace VoxelGame.Client.Console.Commands
 {
     #pragma warning disable CA1822
 
+    /// <summary>
+    ///     Sets the block at the target position. Can cause invalid block state.
+    /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class SetBlock : Command
     {
+        /// <inheritdoc />
         public override string Name => "set-block";
+
+        /// <inheritdoc />
         public override string HelpText => "Sets the block at the target position. Can cause invalid block state.";
 
+        /// <exclude />
         public void Invoke(string namedID, int data, int x, int y, int z)
         {
             Set(namedID, data, (x, y, z));
         }
 
+        /// <exclude />
         public void Invoke(string namedID, int data)
         {
             Set(namedID, data, Context.Player.TargetPosition);

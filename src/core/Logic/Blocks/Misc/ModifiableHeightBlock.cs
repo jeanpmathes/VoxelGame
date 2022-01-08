@@ -24,12 +24,14 @@ namespace VoxelGame.Core.Logic.Blocks
                 BlockFlags.Functional,
                 layout) {}
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return world.HasSolidGround(position, solidify: true);
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom && !world.HasSolidGround(position))
             {
@@ -40,6 +42,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
+        /// <inheritdoc />
         protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
             uint height = data & 0b00_1111;

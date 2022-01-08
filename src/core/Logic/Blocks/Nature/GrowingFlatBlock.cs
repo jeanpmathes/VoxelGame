@@ -15,8 +15,8 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block that grows downwards and can hang freely. This block is affected by neutral tint.
     ///     Data bit usage: <c>-aaaoo</c>
     /// </summary>
-    // o = orientation
-    // a = age
+    // o: orientation
+    // a: age
     public class GrowingFlatBlock : FlatBlock, IFlammable, IFillable
     {
         internal GrowingFlatBlock(string name, string namedId, string texture, float climbingVelocity,
@@ -28,17 +28,20 @@ namespace VoxelGame.Core.Logic.Blocks
                 climbingVelocity,
                 slidingVelocity) {}
 
+        /// <inheritdoc />
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
             if (liquid.IsLiquid && level > LiquidLevel.Two) ScheduleDestroy(world, position);
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return base.GetMesh(info).Modified(TintColor.Neutral);
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             var orientation = (Orientation) (data & 0b00_0011);
 
@@ -53,7 +56,8 @@ namespace VoxelGame.Core.Logic.Blocks
             CheckBack(world, position, side, orientation, schedule: true);
         }
 
-        internal override void RandomUpdate(World world, Vector3i position, uint data)
+        /// <inheritdoc />
+        public override void RandomUpdate(World world, Vector3i position, uint data)
         {
             var orientation = (Orientation) (data & 0b00_0011);
             var age = (int) ((data & 0b1_1100) >> 2);

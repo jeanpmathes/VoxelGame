@@ -22,6 +22,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 BlockFlags.Basic,
                 layout) {}
 
+        /// <inheritdoc />
         public bool Burn(World world, Vector3i position, Block fire)
         {
             return false;

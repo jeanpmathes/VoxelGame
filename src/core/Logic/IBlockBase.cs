@@ -15,22 +15,6 @@ namespace VoxelGame.Core.Logic
     public interface IBlockBase
     {
         /// <summary>
-        ///     Gets whether this block completely fills a 1x1x1 volume or not. If a block is not full, it cannot be opaque.
-        /// </summary>
-        public bool IsFull { get; }
-
-        /// <summary>
-        ///     Gets whether it is possible to see through this block. This will affect the rendering of this block and the blocks
-        ///     around it.
-        /// </summary>
-        public bool IsOpaque { get; }
-
-        /// <summary>
-        ///     Gets whether this block hinders movement.
-        /// </summary>
-        public bool IsSolid { get; }
-
-        /// <summary>
         ///     Gets whether this block is solid and full.
         /// </summary>
         public bool IsSolidAndFull { get; }

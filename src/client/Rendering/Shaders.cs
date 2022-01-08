@@ -13,7 +13,10 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
 {
-    internal sealed class Shaders
+    /// <summary>
+    ///     A utility class for loading, compiling and managing shaders used by the game.
+    /// </summary>
+    public sealed class Shaders
     {
         private const string TimeUniform = "time";
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Shaders>();
@@ -29,21 +32,75 @@ namespace VoxelGame.Client.Rendering
             loader = new ShaderLoader(directory, (timedSet, TimeUniform));
         }
 
+        /// <summary>
+        ///     The shader used for simple blocks.
+        /// </summary>
         public static Shader SimpleSection { get; private set; } = null!;
+
+        /// <summary>
+        ///     The shader used for complex blocks.
+        /// </summary>
         public static Shader ComplexSection { get; private set; } = null!;
+
+        /// <summary>
+        ///     The shader used for varying height blocks.
+        /// </summary>
         public static Shader VaryingHeightSection { get; private set; } = null!;
+
+        /// <summary>
+        ///     The shader used for cross plant blocks.
+        /// </summary>
         public static Shader CrossPlantSection { get; private set; } = null!;
+
+        /// <summary>
+        ///     The shader used for crop plant blocks.
+        /// </summary>
         public static Shader CropPlantSection { get; private set; } = null!;
+
+        /// <summary>
+        ///     The shader used for opaque liquids.
+        /// </summary>
         public static Shader OpaqueLiquidSection { get; private set; } = null!;
+
+        /// <summary>
+        ///     The shader used for transparent liquids.
+        /// </summary>
         public static Shader TransparentLiquidSection { get; private set; } = null!;
+
+        /// <summary>
+        ///     The shader used for block/liquid texture overlays.
+        /// </summary>
         public static Shader Overlay { get; private set; } = null!;
+
+        /// <summary>
+        ///     The shader used for the selection box.
+        /// </summary>
         public static Shader Selection { get; private set; } = null!;
+
+        /// <summary>
+        ///     The shader used for simply screen elements.
+        /// </summary>
         public static Shader ScreenElement { get; private set; } = null!;
 
         internal static void Load(string directory)
         {
             instance ??= new Shaders(directory);
             instance.LoadAll();
+        }
+
+        internal static void Delete()
+        {
+            SimpleSection.Delete();
+            ComplexSection.Delete();
+            VaryingHeightSection.Delete();
+            CrossPlantSection.Delete();
+            CropPlantSection.Delete();
+            OpaqueLiquidSection.Delete();
+            TransparentLiquidSection.Delete();
+
+            Overlay.Delete();
+            Selection.Delete();
+            ScreenElement.Delete();
         }
 
         private void LoadAll()
@@ -71,6 +128,9 @@ namespace VoxelGame.Client.Rendering
             }
         }
 
+        /// <summary>
+        ///     Update all orthographic projection matrices.
+        /// </summary>
         public static void UpdateOrthographicProjection()
         {
             Overlay.SetMatrix4(
@@ -82,6 +142,10 @@ namespace VoxelGame.Client.Rendering
                 Matrix4.CreateOrthographic(Screen.Size.X, Screen.Size.Y, depthNear: 0f, depthFar: 1f));
         }
 
+        /// <summary>
+        ///     Update the current time.
+        /// </summary>
+        /// <param name="time">The current time, since the game has started.</param>
         public static void SetTime(float time)
         {
             if (instance == null) return;

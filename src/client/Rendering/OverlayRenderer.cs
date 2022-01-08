@@ -13,7 +13,10 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering
 {
-    public class OverlayRenderer : IDisposable
+    /// <summary>
+    ///     A renderer for overlay textures. Any block or liquid texture can be used as an overlay.
+    /// </summary>
+    public sealed class OverlayRenderer : IDisposable
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<OverlayRenderer>();
 
@@ -22,6 +25,9 @@ namespace VoxelGame.Client.Rendering
 
         private int textureId;
 
+        /// <summary>
+        ///     Create a new overlay renderer.
+        /// </summary>
         public OverlayRenderer()
         {
             (float[] vertices, uint[] indices) = BlockModels.CreatePlaneModel();
@@ -40,18 +46,29 @@ namespace VoxelGame.Client.Rendering
             drawGroup.VertexArrayBindAttribute(texCordLocation, size: 2, offset: 3);
         }
 
+        /// <summary>
+        ///     Set the texture to a block texture.
+        /// </summary>
+        /// <param name="number">The number of the block texture.</param>
         public void SetBlockTexture(int number)
         {
-            samplerId = number / 2048 + 1;
-            textureId = number % 2048;
+            samplerId = number / ArrayTexture.UnitSize + 1;
+            textureId = number % ArrayTexture.UnitSize;
         }
 
+        /// <summary>
+        ///     Set the texture to a liquid texture.
+        /// </summary>
+        /// <param name="number">The number of the liquid texture.</param>
         public void SetLiquidTexture(int number)
         {
             samplerId = 5;
             textureId = number;
         }
 
+        /// <summary>
+        ///     Draw the overlay.
+        /// </summary>
         public void Draw()
         {
             if (disposed) return;
@@ -77,7 +94,7 @@ namespace VoxelGame.Client.Rendering
 
         private bool disposed;
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposed)
                 return;
@@ -91,11 +108,17 @@ namespace VoxelGame.Client.Rendering
             disposed = true;
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~OverlayRenderer()
         {
             Dispose(disposing: false);
         }
 
+        /// <summary>
+        ///     Dispose of the renderer.
+        /// </summary>
         public void Dispose()
         {
             Dispose(disposing: true);

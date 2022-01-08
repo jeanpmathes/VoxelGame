@@ -14,6 +14,9 @@ using VoxelGame.UI.Providers;
 
 namespace VoxelGame.UI.Controls
 {
+    /// <summary>
+    ///     A display that is shown while playing the game, as a form of HUD.
+    /// </summary>
     [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
     internal class InGameDisplay : ControlBase

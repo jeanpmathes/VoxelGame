@@ -11,18 +11,25 @@ namespace VoxelGame.Client.Console.Commands
 {
     #pragma warning disable CA1822
 
+    /// <summary>
+    ///     Sets the spawn position for the current world.
+    /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class SetSpawnPoint : Command
     {
+        /// <inheritdoc />
         public override string Name => "set-spawnpoint";
 
+        /// <inheritdoc />
         public override string HelpText => "Sets the spawn position for the current world.";
 
+        /// <exclude />
         public void Invoke(float x, float y, float z)
         {
             SetSpawnPosition((x, y, z));
         }
 
+        /// <exclude />
         public void Invoke()
         {
             SetSpawnPosition(Context.Player.Position);

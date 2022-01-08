@@ -28,11 +28,13 @@ namespace VoxelGame.Core.Logic.Blocks
             this.maxVelocity = maxVelocity;
         }
 
+        /// <inheritdoc />
         public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
         {
             return liquid.Viscosity < 200;
         }
 
+        /// <inheritdoc />
         protected override void EntityCollision(PhysicsEntity entity, Vector3i position, uint data)
         {
             entity.Velocity = VMath.Clamp(entity.Velocity, min: -1f, maxVelocity);

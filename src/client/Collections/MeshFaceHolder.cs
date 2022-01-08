@@ -4,21 +4,35 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
 using System;
+using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Client.Collections
 {
+    /// <summary>
+    ///     Holds and combines mesh faces, that then can be used to create a final mesh.
+    /// </summary>
     public abstract class MeshFaceHolder
     {
         private protected readonly BlockSide side;
 
+        /// <summary>
+        ///     Create a new <see cref="MeshFaceHolder" />
+        /// </summary>
+        /// <param name="side">The block side to target.</param>
         protected MeshFaceHolder(BlockSide side)
         {
             this.side = side;
         }
 
+        /// <summary>
+        ///     Extract the layer and row indices from the given block position.
+        /// </summary>
+        /// <param name="pos">The block position.</param>
+        /// <param name="layer">The extracted layer index.</param>
+        /// <param name="row">The extracted row index.</param>
+        /// <param name="position">The extracted position in the row.</param>
         protected void ExtractIndices(Vector3i pos, out int layer, out int row, out int position)
         {
             switch (side)

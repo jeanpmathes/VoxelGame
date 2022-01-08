@@ -12,6 +12,9 @@ namespace VoxelGame.Client.Console.Commands
 {
     #pragma warning disable CA1822
 
+    /// <summary>
+    ///     Provides help with using the commands.
+    /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class Help : Command
     {
@@ -21,13 +24,20 @@ namespace VoxelGame.Client.Console.Commands
 
         private List<List<string>> commandPages = new();
 
+        /// <summary>
+        ///     Create a help command for all commands discovered by a <see cref="CommandInvoker" />.
+        /// </summary>
+        /// <param name="invoker">The invoker providing the commands.</param>
         public Help(CommandInvoker invoker)
         {
             commandInvoker = invoker;
             commandInvoker.CommandsUpdated += BuildInfos;
         }
 
+        /// <inheritdoc />
         public override string Name => "help";
+
+        /// <inheritdoc />
         public override string HelpText => "Provides help with using the commands.";
 
         private void BuildInfos()
@@ -66,6 +76,7 @@ namespace VoxelGame.Client.Console.Commands
             }
         }
 
+        /// <exclude />
         public void Invoke()
         {
             Context.Console.WriteResponse("Use 'help' to get information on available commands.");
@@ -73,6 +84,7 @@ namespace VoxelGame.Client.Console.Commands
             Context.Console.WriteResponse("Use 'help <command : String>' to get info for a specific command.");
         }
 
+        /// <exclude />
         public void Invoke(int page)
         {
             if (page > commandPages.Count || page <= 0)
@@ -86,6 +98,7 @@ namespace VoxelGame.Client.Console.Commands
             }
         }
 
+        /// <exclude />
         public void Invoke(string command)
         {
             if (commandDescriptions.TryGetValue(command, out List<string>? description))

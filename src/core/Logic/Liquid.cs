@@ -16,11 +16,28 @@ using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic
 {
+    /// <summary>
+    ///     The base class of all liquids.
+    /// </summary>
     public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string>
     {
+        /// <summary>
+        ///     The density of air.
+        /// </summary>
         protected const float AirDensity = 1.2f;
+
         private const float GasLiquidThreshold = 10f;
 
+        /// <summary>
+        ///     Create a new liquid.
+        /// </summary>
+        /// <param name="name">The name of the liquid. Can be localized.</param>
+        /// <param name="namedId">The named ID of the liquid. This is a unique and unlocalized identifier.</param>
+        /// <param name="density">The density of the fluid. This determines whether this is a gas or a liquid.</param>
+        /// <param name="viscosity">The viscosity of the fluid. This determines the flow speed.</param>
+        /// <param name="checkContact">Whether entity contact must be checked.</param>
+        /// <param name="receiveContact">Whether entity contact should be passed to the liquid.</param>
+        /// <param name="renderType">The render type of the liquid.</param>
         protected Liquid(string name, string namedId, float density, int viscosity,
             bool checkContact, bool receiveContact, RenderType renderType)
         {
@@ -124,6 +141,9 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public bool IsGas { get; }
 
+        /// <summary>
+        ///     The flow direction of this liquid.
+        /// </summary>
         public Vector3i FlowDirection => Direction.Direction();
 
         string IIdentifiable<string>.Id => NamedId;
@@ -136,8 +156,19 @@ namespace VoxelGame.Core.Logic
         /// <param name="indexProvider"></param>
         protected virtual void Setup(ITextureIndexProvider indexProvider) {}
 
+        /// <summary>
+        ///     Get the mesh for this liquid.
+        /// </summary>
+        /// <param name="info">Information about the liquid instance.</param>
+        /// <returns>The mesh data.</returns>
         public abstract LiquidMeshData GetMesh(LiquidMeshInfo info);
 
+        /// <summary>
+        ///     Creates a bounding box for liquids.
+        /// </summary>
+        /// <param name="position">The position of the liquid.</param>
+        /// <param name="level">The level of the liquid.</param>
+        /// <returns>The bounding box for the specified liquid.</returns>
         public static BoundingBox GetBoundingBox(Vector3i position, LiquidLevel level)
         {
             float halfHeight = ((int) level + 1) * 0.0625f;
@@ -147,6 +178,11 @@ namespace VoxelGame.Core.Logic
                 new Vector3(x: 0.5f, halfHeight, z: 0.5f));
         }
 
+        /// <summary>
+        ///     Notify this liquid that an entity has come in contact with it.
+        /// </summary>
+        /// <param name="entity">The entity that contacts the liquid.</param>
+        /// <param name="position">The position of the liquid.</param>
         public void EntityContact(PhysicsEntity entity, Vector3i position)
         {
             LiquidInstance? liquid = entity.World.GetLiquid(position);
@@ -155,6 +191,9 @@ namespace VoxelGame.Core.Logic
                 EntityContact(entity, position, liquid.Level, liquid.IsStatic);
         }
 
+        /// <summary>
+        ///     Override to provide custom contact handling.
+        /// </summary>
         protected virtual void EntityContact(PhysicsEntity entity, Vector3i position, LiquidLevel level,
             bool isStatic) {}
 
@@ -226,6 +265,13 @@ namespace VoxelGame.Core.Logic
             return true;
         }
 
+        /// <summary>
+        ///     Try to take an exact amount of liquid.
+        /// </summary>
+        /// <param name="world">The world.</param>
+        /// <param name="position">The liquid position.</param>
+        /// <param name="level">The amount of liquid to take.</param>
+        /// <returns>True if taking the liquid was successful.</returns>
         public bool TryTakeExact(World world, Vector3i position, LiquidLevel level)
         {
             (BlockInstance? block, LiquidInstance? liquid) = world.GetContent(position);
@@ -255,6 +301,9 @@ namespace VoxelGame.Core.Logic
             return false;
         }
 
+        /// <summary>
+        ///     Override for scheduled update handling.
+        /// </summary>
         protected abstract void ScheduledUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic);
 
         /// <summary>
@@ -292,6 +341,12 @@ namespace VoxelGame.Core.Logic
             return false;
         }
 
+        /// <summary>
+        ///     Check if a position has a neighboring position with no liquid.
+        /// </summary>
+        /// <param name="world">The world.</param>
+        /// <param name="position">The position to check.</param>
+        /// <returns>True if there is a neighboring position.</returns>
         protected bool HasNeighborWithEmpty(World world, Vector3i position)
         {
             if (world.GetBlock(position)?.Block is not IFillable currentFillable) return false;
@@ -318,6 +373,14 @@ namespace VoxelGame.Core.Logic
             return false;
         }
 
+        /// <summary>
+        ///     Search a flow target for a liquid.
+        /// </summary>
+        /// <param name="world">The world.</param>
+        /// <param name="position">The current liquid position.</param>
+        /// <param name="maximumLevel">The maximum level of a potential position.</param>
+        /// <param name="range">The search range.</param>
+        /// <returns>A potential target, if there is any.</returns>
         protected (Vector3i position, LiquidInstance liquid, IFillable fillable)? SearchFlowTarget(
             World world, Vector3i position, LiquidLevel maximumLevel, int range)
         {
@@ -389,6 +452,12 @@ namespace VoxelGame.Core.Logic
             }
         }
 
+        /// <summary>
+        ///     Check if a liquid at a given position is at the surface.
+        /// </summary>
+        /// <param name="world">The world.</param>
+        /// <param name="position">The position of the liquid.</param>
+        /// <returns>True if the liquid is at the surface.</returns>
         protected bool IsAtSurface(World world, Vector3i position)
         {
             return world.GetLiquid(position - FlowDirection)?.Liquid != this;
@@ -396,6 +465,7 @@ namespace VoxelGame.Core.Logic
 
         internal virtual void RandomUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic) {}
 
+        /// <inheritdoc />
         public sealed override string ToString()
         {
             return NamedId;

@@ -17,8 +17,8 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block which grows on farmland and has multiple growth stages.
     ///     Data bit usage: <c>--lsss</c>
     /// </summary>
-    // l = lowered
-    // s = stage
+    // l: lowered
+    // s: stage
     public class CropBlock : Block, IFlammable, IFillable
     {
         private readonly string texture;
@@ -44,11 +44,13 @@ namespace VoxelGame.Core.Logic.Blocks
             this.dead = dead;
         }
 
+        /// <inheritdoc />
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
             if (liquid.IsLiquid && level > LiquidLevel.Three) ScheduleDestroy(world, position);
         }
 
+        /// <inheritdoc />
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
             int baseIndex = indexProvider.GetTextureIndex(texture);
@@ -68,6 +70,7 @@ namespace VoxelGame.Core.Logic.Blocks
             };
         }
 
+        /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
             switch ((GrowthStage) (data & 0b00_0111))
@@ -98,6 +101,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return BoundingBox.Block;
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             int textureIndex = stageTextureIndices[info.Data & 0b00_0111];
@@ -106,11 +110,13 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.CropPlant(textureIndex, TintColor.None, isLowered, isUpper: false);
         }
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return world.GetBlock(position.Below())?.Block is IPlantable;
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             bool isLowered = world.IsLowered(position);
@@ -121,13 +127,15 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetBlock(this.AsInstance(data), position);
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom && world.GetBlock(position.Below())?.Block is not IPlantable)
                 Destroy(world, position);
         }
 
-        internal override void RandomUpdate(World world, Vector3i position, uint data)
+        /// <inheritdoc />
+        public override void RandomUpdate(World world, Vector3i position, uint data)
         {
             var stage = (GrowthStage) (data & 0b00_0111);
             uint lowered = data & 0b00_1000;

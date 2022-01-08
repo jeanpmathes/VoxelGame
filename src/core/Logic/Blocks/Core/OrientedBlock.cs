@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block which can be rotated on the y axis.
     ///     Data bit usage: <c>----oo</c>
     /// </summary>
-    // o = orientation
+    // o: orientation
     public class OrientedBlock : BasicBlock
     {
         internal OrientedBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
@@ -26,6 +26,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 flags,
                 layout) {}
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return BlockMeshData.Basic(
@@ -33,6 +34,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 isTextureRotated: false);
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             world.SetBlock(

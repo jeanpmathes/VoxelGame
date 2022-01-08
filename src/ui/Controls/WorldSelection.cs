@@ -19,9 +19,12 @@ using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.Controls
 {
+    /// <summary>
+    ///     The menu displaying worlds, allowing to select and create worlds.
+    /// </summary>
     [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-    public class WorldSelection : StandardMenu
+    internal class WorldSelection : StandardMenu
     {
         private readonly IWorldProvider worldProvider;
 

@@ -1,4 +1,7 @@
 ﻿namespace VoxelGame.Core.Logic.Interfaces
 {
-    internal interface IIndustrialPipeConnectable : IPipeConnectable {}
+    /// <summary>
+    ///     Allows a block to connect to industrial pipes.
+    /// </summary>
+    public interface IIndustrialPipeConnectable : IPipeConnectable {}
 }

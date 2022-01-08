@@ -49,6 +49,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
+        /// <inheritdoc />
         public bool IsConnectable(World world, BlockSide side, Vector3i position)
         {
             BlockInstance? block = world.GetBlock(position);
@@ -70,6 +71,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return false;
         }
 
+        /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
             bool isClosed = (data & 0b00_0100) == 0;
@@ -196,12 +198,14 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             return meshes[(int) info.Data & 0b00_0111].GetComplexMeshData();
         }
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             bool connectX = CheckOrientation(world, position, Orientation.East) ||
                             CheckOrientation(world, position, Orientation.West);
@@ -212,6 +216,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return connectX || connectZ;
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
@@ -236,6 +241,7 @@ namespace VoxelGame.Core.Logic.Blocks
                    connectable.IsConnectable(world, orientation.ToBlockSide().Opposite(), otherPosition);
         }
 
+        /// <inheritdoc />
         protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
             var orientation = (Orientation) (data & 0b00_0011);
@@ -265,7 +271,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 position);
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             var blockOrientation = (Orientation) (data & 0b00_0011);
 

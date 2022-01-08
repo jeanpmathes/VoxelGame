@@ -18,10 +18,10 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A two units high block that can be opened and closed.
     ///     Data bit usage: <c>-csboo</c>
     /// </summary>
-    // c = closed
-    // s = side
-    // b = base
-    // o = orientation
+    // c: closed
+    // s: side
+    // b: base
+    // o: orientation
     public class DoorBlock : Block, IFillable
     {
         private readonly List<BlockMesh> baseClosedMeshes = new();
@@ -71,6 +71,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
+        /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
             var orientation = (Orientation) (data & 0b00_0011);
@@ -97,6 +98,7 @@ namespace VoxelGame.Core.Logic.Blocks
             };
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             var orientation = (Orientation) (info.Data & 0b00_0011);
@@ -123,12 +125,14 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             return world.GetBlock(position.Above())?.Block.IsReplaceable == true &&
                    world.HasSolidGround(position, solidify: true);
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
@@ -162,6 +166,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 position.Above());
         }
 
+        /// <inheritdoc />
         protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
         {
             bool isBase = (data & 0b00_0100) == 0;
@@ -170,15 +175,16 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetDefaultBlock(position + (isBase ? Vector3i.UnitY : -Vector3i.UnitY));
         }
 
+        /// <inheritdoc />
         protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
             bool isBase = (data & 0b00_0100) == 0;
             Vector3i otherPosition = position + (isBase ? Vector3i.UnitY : -Vector3i.UnitY);
 
             if (entity.BoundingBox.Intersects(
-                new BoundingBox(
-                    new Vector3(x: 0.5f, y: 1f, z: 0.5f) + otherPosition.ToVector3(),
-                    new Vector3(x: 0.5f, y: 1f, z: 0.5f)))) return;
+                    new BoundingBox(
+                        new Vector3(x: 0.5f, y: 1f, z: 0.5f) + otherPosition.ToVector3(),
+                        new Vector3(x: 0.5f, y: 1f, z: 0.5f)))) return;
 
             entity.World.SetBlock(this.AsInstance(data ^ 0b1_0000), position);
             entity.World.SetBlock(this.AsInstance(data ^ 0b1_0100), otherPosition);
@@ -201,7 +207,8 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom && (data & 0b00_0100) == 0 && !world.HasSolidGround(position))
                 Destroy(world, position);

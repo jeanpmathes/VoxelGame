@@ -6,9 +6,19 @@
 
 namespace VoxelGame.UI.Providers
 {
+    /// <summary>
+    ///     Provides game performance information.
+    /// </summary>
     public interface IPerformanceProvider
     {
+        /// <summary>
+        ///     The current FPS (frames per second).
+        /// </summary>
         public double FPS { get; }
+
+        /// <summary>
+        ///     The current UPS (updates per second).
+        /// </summary>
         public double UPS { get; }
     }
 }

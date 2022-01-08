@@ -20,11 +20,11 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     An animated block that attaches to sides.
     ///     Data bit usage: <c>-fblrt</c>
     /// </summary>
-    // f = front
-    // b = back
-    // l = left
-    // r = right
-    // t = top
+    // f: front
+    // b: back
+    // l: left
+    // r: right
+    // t: top
     public class FireBlock : Block, IFillable
     {
         private const int TickOffset = 150;
@@ -48,6 +48,7 @@ namespace VoxelGame.Core.Logic.Blocks
             PrepareMeshes(complete, side, top);
         }
 
+        /// <inheritdoc />
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
             if (liquid != Liquid.None) Destroy(world, position);
@@ -90,6 +91,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
+        /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
             if (data == 0) return BoundingBox.Block;
@@ -126,6 +128,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             BlockMesh mesh = meshes[(int) info.Data & 0b01_1111];
@@ -133,13 +136,15 @@ namespace VoxelGame.Core.Logic.Blocks
             return mesh.GetComplexMeshData(isAnimated: true);
         }
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             if (world.HasSolidGround(position)) return true;
 
             return GetData(world, position) != 0;
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             world.SetBlock(this.AsInstance(world.HasSolidGround(position) ? 0 : GetData(world, position)), position);
@@ -160,7 +165,8 @@ namespace VoxelGame.Core.Logic.Blocks
             return data;
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom)
             {
@@ -190,6 +196,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
+        /// <inheritdoc />
         protected override void ScheduledUpdate(World world, Vector3i position, uint data)
         {
             var canBurn = false;

@@ -10,6 +10,9 @@ using OpenToolkit.Windowing.Common.Input;
 
 namespace VoxelGame.Input.Internal
 {
+    /// <summary>
+    ///     The combined state of mouse and keyboard.
+    /// </summary>
     internal readonly struct CombinedState
     {
         internal KeyboardState Keyboard { get; }

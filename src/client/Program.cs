@@ -20,10 +20,24 @@ namespace VoxelGame.Client
 {
     internal static class Program
     {
+        /// <summary>
+        ///     Get the version of the program.
+        /// </summary>
         public static string Version { get; private set; } = null!;
 
+        /// <summary>
+        ///     Get the app data directory.
+        /// </summary>
         internal static string AppDataDirectory { get; private set; } = null!;
+
+        /// <summary>
+        ///     Get the screenshot directory.
+        /// </summary>
         internal static string ScreenshotDirectory { get; private set; } = null!;
+
+        /// <summary>
+        ///     Get the world directory.
+        /// </summary>
         internal static string WorldsDirectory { get; private set; } = null!;
 
         [STAThread]

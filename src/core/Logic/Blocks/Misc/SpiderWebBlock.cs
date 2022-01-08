@@ -38,11 +38,13 @@ namespace VoxelGame.Core.Logic.Blocks
             this.maxVelocity = maxVelocity;
         }
 
+        /// <inheritdoc />
         public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
         {
             if (liquid.IsLiquid) ScheduleDestroy(world, position);
         }
 
+        /// <inheritdoc />
         protected override void EntityCollision(PhysicsEntity entity, Vector3i position, uint data)
         {
             entity.Velocity = VMath.Clamp(entity.Velocity, min: -1f, maxVelocity);

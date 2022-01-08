@@ -21,6 +21,9 @@ using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes
 {
+    /// <summary>
+    ///     The scene that is active when the game is played.
+    /// </summary>
     public sealed class GameScene : IScene
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
@@ -84,9 +87,17 @@ namespace VoxelGame.Client.Scenes
             escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
         }
 
+        /// <summary>
+        ///     Get the active world.
+        /// </summary>
         public ClientWorld World { get; private set; }
+
+        /// <summary>
+        ///     Get the active player.
+        /// </summary>
         public ClientPlayer Player { get; private set; }
 
+        /// <inheritdoc />
         public void Load()
         {
             // Player setup.
@@ -111,16 +122,18 @@ namespace VoxelGame.Client.Scenes
             ui.CreateControl();
             client.Console.SetInterface(ui.Console!);
 
-            counter.ResetUpdate();
+            counter.Reset();
 
             logger.LogInformation(Events.SceneChange, "Loaded GameScene");
         }
 
+        /// <inheritdoc />
         public void OnResize(Vector2i size)
         {
             ui.Resize(size);
         }
 
+        /// <inheritdoc />
         public void Render(float deltaTime)
         {
             using (logger.BeginScope("GameScene Render"))
@@ -142,11 +155,12 @@ namespace VoxelGame.Client.Scenes
             }
         }
 
+        /// <inheritdoc />
         public void Update(float deltaTime)
         {
             using (logger.BeginScope("GameScene Update"))
             {
-                counter.IncrementUpdate();
+                counter.Increment();
 
                 World.Update(deltaTime);
 
@@ -166,6 +180,7 @@ namespace VoxelGame.Client.Scenes
             }
         }
 
+        /// <inheritdoc />
         public void Unload()
         {
             logger.LogInformation(Events.WorldIO, "Unloading world");
@@ -206,12 +221,18 @@ namespace VoxelGame.Client.Scenes
             }
         }
 
+        /// <summary>
+        ///     Dispose of the scene.
+        /// </summary>
         public void Dispose()
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~GameScene()
         {
             Dispose(disposing: false);

@@ -18,12 +18,20 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     Data bit usage: <c>--nesw</c>
     /// </summary>
     /// <typeparam name="TConnectable">The connection interface.</typeparam>
-    // n = connected north
-    // e = connected east
-    // s = connected south
-    // w = connected west
+    // n: connected north
+    // e: connected east
+    // s: connected south
+    // w: connected west
     public abstract class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable : IConnectable
     {
+        /// <summary>
+        ///     Create a new connecting block.
+        /// </summary>
+        /// <param name="name">The name of the blocks.</param>
+        /// <param name="namedId">The string ID of the block.</param>
+        /// <param name="flags">The flags describing the block.</param>
+        /// <param name="boundingBox">The block bounding box.</param>
+        /// <param name="targetBuffer">The target rendering buffer.</param>
         protected ConnectingBlock(string name, string namedId, BlockFlags flags, BoundingBox boundingBox,
             TargetBuffer targetBuffer) :
             base(
@@ -33,12 +41,14 @@ namespace VoxelGame.Core.Logic.Blocks
                 boundingBox,
                 targetBuffer) {}
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             world.SetBlock(this.AsInstance(IConnectable.GetConnectionData<TConnectable>(world, position)), position);
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             uint newData = data;
 

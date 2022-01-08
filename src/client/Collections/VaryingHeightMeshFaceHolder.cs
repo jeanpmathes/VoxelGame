@@ -28,6 +28,10 @@ namespace VoxelGame.Client.Collections
 
         private int count;
 
+        /// <summary>
+        ///     Create a new <see cref="VaryingHeightMeshFaceHolder" /> for a given block side.
+        /// </summary>
+        /// <param name="side">The side the faces held belong too.</param>
         public VaryingHeightMeshFaceHolder(BlockSide side) : base(side)
         {
             // Initialize layers.
@@ -42,6 +46,14 @@ namespace VoxelGame.Client.Collections
             }
         }
 
+        /// <summary>
+        ///     Add a face to the holder.
+        /// </summary>
+        /// <param name="pos">The position of the face, in section block coordinates.</param>
+        /// <param name="vertexData">The encoded data to use for this face.</param>
+        /// <param name="vertices">The encoded data for each vertex.</param>
+        /// <param name="isSingleSided">True if this face is single sided, false if double sided.</param>
+        /// <param name="isFull">True if this face is full, filling a complete block side.</param>
         public void AddFace(Vector3i pos, int vertexData, (int vertA, int vertB, int vertC, int vertD) vertices,
             bool isSingleSided, bool isFull)
         {
@@ -165,6 +177,12 @@ namespace VoxelGame.Client.Collections
             }
         }
 
+        /// <summary>
+        ///     Generate the mesh with all held faces.
+        /// </summary>
+        /// <param name="vertexCount">The current vertex count, will be incremented for all added vertices.</param>
+        /// <param name="meshData">The list that will be filled with mesh data.</param>
+        /// <param name="meshIndices">The list that will be filled with indices.</param>
         public void GenerateMesh(ref uint vertexCount, PooledList<int> meshData, PooledList<uint> meshIndices)
         {
             if (count == 0) return;
@@ -216,6 +234,9 @@ namespace VoxelGame.Client.Collections
                 : (length << heightShift) | (height << lengthShift);
         }
 
+        /// <summary>
+        ///     Return all pooled resources.
+        /// </summary>
         public void ReturnToPool()
         {
             for (var i = 0; i < Section.SectionSize; i++) ArrayPool<MeshFace>.Shared.Return(lastFaces[i]!);

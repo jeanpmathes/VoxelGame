@@ -8,7 +8,10 @@ using Gwen.Net.Control;
 
 namespace VoxelGame.UI.Utility
 {
-    public class CloseHandel
+    /// <summary>
+    ///     A handel that allows to close a window.
+    /// </summary>
+    internal class CloseHandel
     {
         private readonly Window window;
 
@@ -17,6 +20,9 @@ namespace VoxelGame.UI.Utility
             this.window = window;
         }
 
+        /// <summary>
+        ///     Closes the window.
+        /// </summary>
         public void Close()
         {
             window.Close();

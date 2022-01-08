@@ -17,8 +17,8 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block that can have different heights and colors. The heights correspond to liquid heights.
     ///     Data bit usage: <c>ccchhh</c>
     /// </summary>
-    // c = color
-    // h = height
+    // c: color
+    // h: height
     public class ConcreteBlock : Block, IHeightVariable, IWideConnectable, IThinConnectable
     {
         private readonly TextureLayout layout;
@@ -35,6 +35,7 @@ namespace VoxelGame.Core.Logic.Blocks
             this.layout = layout;
         }
 
+        /// <inheritdoc />
         public int GetHeight(uint data)
         {
             Decode(data, out _, out int height);
@@ -42,6 +43,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return height;
         }
 
+        /// <inheritdoc />
         public bool IsConnectable(World world, BlockSide side, Vector3i position)
         {
             BlockInstance? block = world.GetBlock(position);
@@ -49,11 +51,13 @@ namespace VoxelGame.Core.Logic.Blocks
             return block != null && GetHeight(block.Data) == IHeightVariable.MaximumHeight;
         }
 
+        /// <inheritdoc />
         protected override void Setup(ITextureIndexProvider indexProvider)
         {
             textures = layout.GetTexIndexArray();
         }
 
+        /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
             Decode(data, out _, out int height);
@@ -61,6 +65,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return BoundingBox.BlockWithHeight(height);
         }
 
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             Decode(info.Data, out BlockColor color, out _);
@@ -68,17 +73,26 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.VaryingHeight(textures[(int) info.Side], color.ToTintColor());
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             world.SetBlock(this.AsInstance(Encode(BlockColor.Default, IHeightVariable.MaximumHeight)), position);
         }
 
+        /// <summary>
+        ///     Try to place a concrete block at the given position.
+        ///     The block will only be actually placed if the placement conditions are met, e.g. the position is replaceable.
+        /// </summary>
+        /// <param name="world">The world in which the block will be placed.</param>
+        /// <param name="level">The height of the block, given in liquid levels.</param>
+        /// <param name="position">The position where the block will be placed.</param>
         public void Place(World world, LiquidLevel level, Vector3i position)
         {
             if (base.Place(world, position))
                 world.SetBlock(this.AsInstance(Encode(BlockColor.Default, level.GetBlockHeight())), position);
         }
 
+        /// <inheritdoc />
         protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
         {
             Decode(data, out BlockColor color, out int height);

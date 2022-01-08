@@ -14,6 +14,9 @@ using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.Controls
 {
+    /// <summary>
+    ///     The menu that shows the credits.
+    /// </summary>
     [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
     internal class CreditsMenu : StandardMenu

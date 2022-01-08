@@ -12,12 +12,20 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Graphics.Objects
 {
+    /// <summary>
+    ///     A shader.
+    /// </summary>
     public class Shader
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Shader>();
 
         private readonly Dictionary<string, int> uniformLocations;
 
+        /// <summary>
+        ///     Create a new shader from given source files.
+        /// </summary>
+        /// <param name="vertSource">The path to the vertex shader source file.</param>
+        /// <param name="fragSource">The path to the fragment shader source file.</param>
         public Shader(string vertSource, string fragSource)
         {
             string shaderSource = vertSource;
@@ -104,16 +112,29 @@ namespace VoxelGame.Graphics.Objects
             logger.LogDebug(Events.ShaderSetup, "Successfully linked Program({Program})", program);
         }
 
+        /// <summary>
+        ///     Prepare the shader for usage.
+        /// </summary>
         public void Use()
         {
             GL.UseProgram(Handle);
         }
 
+        /// <summary>
+        ///     Get an attribute location.
+        /// </summary>
+        /// <param name="attributeName">The name of the attribute.</param>
+        /// <returns>The attribute location.</returns>
         public int GetAttributeLocation(string attributeName)
         {
             return GL.GetAttribLocation(Handle, attributeName);
         }
 
+        /// <summary>
+        ///     Check if a uniform is present.
+        /// </summary>
+        /// <param name="name">The name of the uniform.</param>
+        /// <returns>True if it is defined.</returns>
         public bool IsUniformDefined(string name)
         {
             return uniformLocations.ContainsKey(name);
@@ -166,6 +187,14 @@ namespace VoxelGame.Graphics.Objects
         {
             GL.UseProgram(Handle);
             GL.Uniform3(uniformLocations[name], data);
+        }
+
+        /// <summary>
+        ///     Delete the shader.
+        /// </summary>
+        public void Delete()
+        {
+            GL.DeleteProgram(Handle);
         }
     }
 }

@@ -9,7 +9,6 @@ using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Desktop;
-using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Client.Collections;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;
@@ -28,6 +27,9 @@ using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 
 namespace VoxelGame.Client.Application
 {
+    /// <summary>
+    ///     The game window and also the class that represents the running game instance.
+    /// </summary>
     internal class Client : GameWindow, IPerformanceProvider
     {
         private const int DeltaBufferCapacity = 30;
@@ -48,15 +50,16 @@ namespace VoxelGame.Client.Application
 
         private Screen screen = null!;
 
+        /// <summary>
+        ///     Create a new game instance.
+        /// </summary>
+        /// <param name="gameWindowSettings">The game window settings.</param>
+        /// <param name="nativeWindowSettings">The native window settings.</param>
+        /// <param name="graphicsSettings">The graphics settings.</param>
         public Client(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings,
             GraphicsSettings graphicsSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             Instance = this;
-
-            unsafe
-            {
-                WindowPointer = WindowPtr;
-            }
 
             Settings = new GeneralSettings(Properties.Settings.Default);
             Graphics = graphicsSettings;
@@ -80,8 +83,19 @@ namespace VoxelGame.Client.Application
             commandInvoker = GameConsole.BuildInvoker();
         }
 
+        /// <summary>
+        ///     Get the game client instance.
+        /// </summary>
         public static Client Instance { get; private set; } = null!;
+
+        /// <summary>
+        ///     Get the keybinds bound for the game.
+        /// </summary>
         public KeybindManager Keybinds { get; }
+
+        /// <summary>
+        ///     Get the mouse used by the client,
+        /// </summary>
         public Mouse Mouse => input.Mouse;
 
         public GeneralSettings Settings { get; }
@@ -90,7 +104,6 @@ namespace VoxelGame.Client.Application
         public ConsoleWrapper Console { get; } = new();
 
         private double Time { get; set; }
-        public unsafe Window* WindowPointer { get; }
 
         double IPerformanceProvider.FPS => Fps;
         double IPerformanceProvider.UPS => Ups;
@@ -190,6 +203,7 @@ namespace VoxelGame.Client.Application
             logger.LogInformation(Events.WindowState, "Closing window");
 
             sceneManager.Unload();
+            Shaders.Delete();
         }
 
         #region STATIC PROPERTIES
@@ -213,6 +227,10 @@ namespace VoxelGame.Client.Application
 
         #region SCENE MANAGEMENT
 
+        /// <summary>
+        ///     Load the game scene.
+        /// </summary>
+        /// <param name="world">The world to play in.</param>
         public void LoadGameScene(ClientWorld world)
         {
             GameScene gameScene = new(Instance, world, new GameConsole(commandInvoker));
@@ -222,6 +240,9 @@ namespace VoxelGame.Client.Application
             Player = gameScene.Player;
         }
 
+        /// <summary>
+        ///     Load the start scene.
+        /// </summary>
         public void LoadStartScene()
         {
             sceneManager.Load(new StartScene(Instance));

@@ -8,11 +8,24 @@ using VoxelGame.Input.Internal;
 
 namespace VoxelGame.Input.Actions
 {
+    /// <summary>
+    ///     A button that can only be pressed again when it is released.
+    /// </summary>
     public class PushButton : Button
     {
         private bool hasReleased;
         private bool pushed;
 
+        /// <summary>
+        ///     Create a new push button.
+        /// </summary>
+        /// <param name="keyOrButton">The key or button to target.</param>
+        /// <param name="input">The input manager.</param>
+        public PushButton(KeyOrButton keyOrButton, InputManager input) : base(keyOrButton, input) {}
+
+        /// <summary>
+        ///     Get whether the button is pushed this frame.
+        /// </summary>
         public bool Pushed
         {
             get => pushed;
@@ -23,8 +36,7 @@ namespace VoxelGame.Input.Actions
             }
         }
 
-        public PushButton(KeyOrButton keyOrButton, InputManager input) : base(keyOrButton, input) {}
-
+        /// <inheritdoc />
         protected override void Update()
         {
             CombinedState state = Input.CurrentState;

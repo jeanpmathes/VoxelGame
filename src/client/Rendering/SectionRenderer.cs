@@ -20,6 +20,9 @@ namespace VoxelGame.Client.Rendering
     /// </summary>
     public sealed class SectionRenderer : IDisposable
     {
+        /// <summary>
+        ///     The number of draw stages.
+        /// </summary>
         public const int DrawStageCount = 7;
 
         private const int Simple = 0;
@@ -41,6 +44,9 @@ namespace VoxelGame.Client.Rendering
 
         private readonly ElementIDataDrawGroup varyingHeightDrawGroup;
 
+        /// <summary>
+        ///     Creates a new <see cref="SectionRenderer" />.
+        /// </summary>
         public SectionRenderer()
         {
             simpleDrawGroup = ArrayIDataDrawGroup.Create(size: 2);
@@ -154,6 +160,10 @@ namespace VoxelGame.Client.Rendering
 
         }
 
+        /// <summary>
+        ///     Set the section mesh data to render. Must not be discarded.
+        /// </summary>
+        /// <param name="meshData">The mesh data to use.</param>
         public void SetData(SectionMeshData meshData)
         {
             if (disposed) return;
@@ -197,6 +207,10 @@ namespace VoxelGame.Client.Rendering
             meshData.ReturnPooled();
         }
 
+        /// <summary>
+        ///     Prepare drawing a specific stage.
+        /// </summary>
+        /// <param name="stage">The draw stage to prepare.</param>
         public static void PrepareStage(int stage)
         {
             Matrix4 view = Application.Client.Player.GetViewMatrix();
@@ -302,6 +316,11 @@ namespace VoxelGame.Client.Rendering
             shader.SetMatrix4("projection", projection);
         }
 
+        /// <summary>
+        ///     Draw a specific stage.
+        /// </summary>
+        /// <param name="stage">The stage to draw.</param>
+        /// <param name="position">The position at which the section should be drawn.</param>
         public void DrawStage(int stage, Vector3 position)
         {
             if (disposed) return;
@@ -350,6 +369,10 @@ namespace VoxelGame.Client.Rendering
             drawGroup.Draw();
         }
 
+        /// <summary>
+        ///     Finish drawing a specific stage.
+        /// </summary>
+        /// <param name="stage">The stage to finish.</param>
         public static void FinishStage(int stage)
         {
             switch (stage)
@@ -405,11 +428,17 @@ namespace VoxelGame.Client.Rendering
             disposed = true;
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~SectionRenderer()
         {
             Dispose(disposing: false);
         }
 
+        /// <summary>
+        ///     Dispose of the renderer.
+        /// </summary>
         public void Dispose()
         {
             Dispose(disposing: true);

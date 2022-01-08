@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     A block that grows upwards and is destroyed if a certain ground block is not given.
     ///     Data bit usage: <c>---aaa</c>
     /// </summary>
-    // a = age
+    // a: age
     public class GrowingBlock : BasicBlock, IFlammable
     {
         private readonly int maxHeight;
@@ -32,14 +32,16 @@ namespace VoxelGame.Core.Logic.Blocks
             this.maxHeight = maxHeight;
         }
 
-        internal override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+        /// <inheritdoc />
+        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             Block down = world.GetBlock(position.Below())?.Block ?? Air;
 
             return down == requiredGround || down == this;
         }
 
-        internal override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        /// <inheritdoc />
+        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
             if (side == BlockSide.Bottom)
             {
@@ -49,7 +51,8 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        internal override void RandomUpdate(World world, Vector3i position, uint data)
+        /// <inheritdoc />
+        public override void RandomUpdate(World world, Vector3i position, uint data)
         {
             var age = (int) (data & 0b00_0111);
 

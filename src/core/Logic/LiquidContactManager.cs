@@ -12,11 +12,17 @@ using VoxelGame.Core.Logic.Interfaces;
 
 namespace VoxelGame.Core.Logic
 {
+    /// <summary>
+    ///     Handles contacts between liquids.
+    /// </summary>
     public class LiquidContactManager
     {
         private readonly CombinationMap<Liquid, ContactAction> map =
             new(Liquid.Count);
 
+        /// <summary>
+        ///     Create a new liquid contact manager.
+        /// </summary>
         public LiquidContactManager()
         {
             map.AddCombination(
@@ -29,7 +35,7 @@ namespace VoxelGame.Core.Logic
                 Liquid.Wine,
                 Liquid.Honey);
 
-            map.AddCombination(Liquid.Lava, ContactAction.LavaBurn, Liquid.CrudeOil, Liquid.NaturalGas);
+            map.AddCombination(Liquid.Lava, ContactAction.LavaBurn, Liquid.CrudeOil, Liquid.NaturalGas, Liquid.Petrol);
 
             map.AddCombination(
                 Liquid.Concrete,
@@ -40,6 +46,15 @@ namespace VoxelGame.Core.Logic
                 Liquid.Wine);
         }
 
+        /// <summary>
+        ///     Handle the contact between two liquids.
+        /// </summary>
+        /// <param name="world">The world.</param>
+        /// <param name="liquidA">The liquid that caused the contact.</param>
+        /// <param name="posA">The position of liquid A.</param>
+        /// <param name="liquidB">The other liquid.</param>
+        /// <param name="posB">The position of liquid B.</param>
+        /// <returns>If contact handling was successful and the flow step is complete.</returns>
         public bool HandleContact(World world, LiquidInstance liquidA, Vector3i posA, LiquidInstance liquidB,
             Vector3i posB)
         {

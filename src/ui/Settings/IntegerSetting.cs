@@ -11,6 +11,9 @@ using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.UI.Settings
 {
+    /// <summary>
+    ///     Settings that allow to pick an integer value.
+    /// </summary>
     [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
     internal class IntegerSetting : Setting

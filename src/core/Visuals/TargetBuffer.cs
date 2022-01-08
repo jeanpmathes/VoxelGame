@@ -6,6 +6,9 @@
 
 namespace VoxelGame.Core.Visuals
 {
+    /// <summary>
+    ///     The meshing and rendering buffer of a block.
+    /// </summary>
     public enum TargetBuffer
     {
         /// <summary>

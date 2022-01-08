@@ -8,11 +8,18 @@ using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Client.Scenes
 {
-    internal class SceneManager
+    /// <summary>
+    ///     Manages scenes, switching between them.
+    /// </summary>
+    public class SceneManager
     {
         private IScene? current;
 
-        public void Load(in IScene scene)
+        /// <summary>
+        ///     Load a scene.
+        /// </summary>
+        /// <param name="scene">The scene to load.</param>
+        public void Load(IScene scene)
         {
             Unload();
 
@@ -26,6 +33,9 @@ namespace VoxelGame.Client.Scenes
             current?.Load();
         }
 
+        /// <summary>
+        ///     Unload the current scene.
+        /// </summary>
         public void Unload()
         {
             if (current == null) return;
@@ -34,16 +44,28 @@ namespace VoxelGame.Client.Scenes
             current.Dispose();
         }
 
+        /// <summary>
+        ///     Render the current scene.
+        /// </summary>
+        /// <param name="deltaTime">The time since the last update.</param>
         public void Render(float deltaTime)
         {
             current?.Render(deltaTime);
         }
 
+        /// <summary>
+        ///     Notify the current scene of the window being resized.
+        /// </summary>
+        /// <param name="size">The new window size.</param>
         public void OnResize(Vector2i size)
         {
             current?.OnResize(size);
         }
 
+        /// <summary>
+        ///     Update the current scene.
+        /// </summary>
+        /// <param name="deltaTime">The time since the last update.</param>
         public void Update(float deltaTime)
         {
             current?.Update(deltaTime);
