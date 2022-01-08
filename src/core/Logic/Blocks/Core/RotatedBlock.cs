@@ -38,6 +38,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return BlockMeshData.Basic(sideTextureIndices[TranslateIndex(info.Side, axis)], rotated);
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             world.SetBlock(this.AsInstance((uint) (entity?.TargetSide ?? BlockSide.Front).Axis()), position);

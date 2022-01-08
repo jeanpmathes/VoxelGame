@@ -6,20 +6,33 @@
 
 namespace VoxelGame.Core
 {
+    /// <summary>
+    ///     Information about a running game.
+    /// </summary>
     public class GameInformation
     {
-        public static GameInformation Instance { get; private set; } = null!;
-
-        public static void Initialize(string version)
-        {
-            Instance = new GameInformation(version);
-        }
-
-        public string Version { get; }
-
         private GameInformation(string version)
         {
             Version = version;
+        }
+
+        /// <summary>
+        ///     Information about the current game.
+        /// </summary>
+        public static GameInformation Instance { get; private set; } = null!;
+
+        /// <summary>
+        ///     Get the game version.
+        /// </summary>
+        public string Version { get; }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="GameInformation" /> class.
+        /// </summary>
+        /// <param name="version">The active game version.</param>
+        public static void Initialize(string version)
+        {
+            Instance = new GameInformation(version);
         }
     }
 }

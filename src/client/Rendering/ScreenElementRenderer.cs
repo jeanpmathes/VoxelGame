@@ -117,6 +117,9 @@ namespace VoxelGame.Client.Rendering
             disposed = true;
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~ScreenElementRenderer()
         {
             Dispose(disposing: false);

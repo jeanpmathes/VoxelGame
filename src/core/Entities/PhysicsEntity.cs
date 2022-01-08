@@ -211,12 +211,12 @@ namespace VoxelGame.Core.Entities
             boundingBox.Center += movement;
 
             if (BoundingBox.IntersectsTerrain(
-                World,
-                out bool xCollision,
-                out bool yCollision,
-                out bool zCollision,
-                blockIntersections,
-                liquidIntersections))
+                    World,
+                    out bool xCollision,
+                    out bool yCollision,
+                    out bool zCollision,
+                    blockIntersections,
+                    liquidIntersections))
             {
                 if (yCollision)
                 {
@@ -258,6 +258,9 @@ namespace VoxelGame.Core.Entities
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~PhysicsEntity()
         {
             Dispose(disposing: false);

@@ -108,6 +108,9 @@ namespace VoxelGame.Client.Rendering
             disposed = true;
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~OverlayRenderer()
         {
             Dispose(disposing: false);

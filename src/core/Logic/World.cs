@@ -454,6 +454,9 @@ namespace VoxelGame.Core.Logic
             }
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~World()
         {
             Dispose(disposing: false);

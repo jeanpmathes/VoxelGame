@@ -181,6 +181,9 @@ namespace VoxelGame.Client.Rendering
             disposed = true;
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~BoxRenderer()
         {
             Dispose(disposing: false);

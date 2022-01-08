@@ -428,6 +428,9 @@ namespace VoxelGame.Client.Rendering
             disposed = true;
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~SectionRenderer()
         {
             Dispose(disposing: false);

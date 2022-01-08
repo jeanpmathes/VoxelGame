@@ -11,6 +11,8 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.UI.Utility
 {
+    #pragma warning disable CA1812 // Pure static classes cannot have a logger.
+
     /// <summary>
     ///     A utility class to access image resources.
     /// </summary>

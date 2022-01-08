@@ -274,6 +274,9 @@ namespace VoxelGame.Core.Logic
         /// <param name="disposing">Whether disposing is intentional or caused by GC.</param>
         protected abstract void Dispose(bool disposing);
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~Section()
         {
             Dispose(disposing: false);

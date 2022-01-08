@@ -6,6 +6,11 @@
 
 using VoxelGame.Core.Entities;
 
+// XML-Documentation for Records seems to not really work...
+#pragma warning disable CS1591
+#pragma warning disable CS1572
+#pragma warning disable CS1573
+
 namespace VoxelGame.Client.Console
 {
     /// <summary>

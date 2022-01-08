@@ -386,6 +386,9 @@ namespace VoxelGame.Client.Rendering
             disposed = true;
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~ArrayTexture()
         {
             Dispose(disposing: false);

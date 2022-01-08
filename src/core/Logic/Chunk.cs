@@ -239,8 +239,8 @@ namespace VoxelGame.Core.Logic
                 var y = 0;
 
                 foreach (Block block in generator.GenerateColumn(
-                    x + X * Section.SectionSize,
-                    z + Z * Section.SectionSize))
+                             x + X * Section.SectionSize,
+                             z + Z * Section.SectionSize))
                 {
                     sections[y >> Section.SectionSizeExp][x, y & (Section.SectionSize - 1), z] = block.Id;
 
@@ -322,6 +322,9 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         protected abstract void Dispose(bool disposing);
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~Chunk()
         {
             Dispose(disposing: false);

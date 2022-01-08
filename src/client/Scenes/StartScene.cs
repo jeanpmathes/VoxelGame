@@ -104,6 +104,9 @@ namespace VoxelGame.Client.Scenes
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~StartScene()
         {
             Dispose(disposing: false);
