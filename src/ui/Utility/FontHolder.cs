@@ -10,7 +10,10 @@ using Gwen.Net.Skin;
 
 namespace VoxelGame.UI.Utility
 {
-    public sealed class FontHolder : IDisposable
+    /// <summary>
+    ///     Holds all fonts used by the user interface.
+    /// </summary>
+    internal sealed class FontHolder : IDisposable
     {
         private const string FontName = "Arial";
 

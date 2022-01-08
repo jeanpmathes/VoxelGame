@@ -13,6 +13,9 @@ using VoxelGame.UI.Providers;
 
 namespace VoxelGame.UI.UserInterfaces
 {
+    /// <summary>
+    ///     The user interface used for the start menu.
+    /// </summary>
     public class StartUserInterface : UserInterface
     {
         private readonly List<ISettingsProvider> settingsProviders;
@@ -20,6 +23,14 @@ namespace VoxelGame.UI.UserInterfaces
 
         private StartUI? control;
 
+        /// <summary>
+        ///     Creates a new start user interface.
+        /// </summary>
+        /// <param name="window">The game window.</param>
+        /// <param name="inputListener">The input listener.</param>
+        /// <param name="worldProvider">The world provider.</param>
+        /// <param name="settingsProviders">The settings provider.</param>
+        /// <param name="drawBackground">Whether to draw the ui background.</param>
         public StartUserInterface(GameWindow window, InputListener inputListener, IWorldProvider worldProvider,
             List<ISettingsProvider> settingsProviders, bool drawBackground) : base(
             window,
@@ -30,12 +41,17 @@ namespace VoxelGame.UI.UserInterfaces
             this.settingsProviders = settingsProviders;
         }
 
+        /// <inheritdoc />
         public override void CreateControl()
         {
             control?.Dispose();
             control = new StartUI(this, worldProvider, settingsProviders);
         }
 
+        /// <summary>
+        ///     Set the action to invoke when the user requests a game exit.
+        /// </summary>
+        /// <param name="exit">The action to invoke.</param>
         public void SetExitAction(Action exit)
         {
             if (control == null) return;

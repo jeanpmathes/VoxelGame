@@ -10,7 +10,10 @@ using Gwen.Net.Control;
 
 namespace VoxelGame.UI.Controls
 {
-    public class TrueRatioImagePanel : ControlBase
+    /// <summary>
+    ///     An image panel that keeps the ratio of the image, by scaling and cutting off parts of the image.
+    /// </summary>
+    internal class TrueRatioImagePanel : ControlBase
     {
         private readonly ImagePanel imagePanel;
 

@@ -18,6 +18,9 @@ namespace VoxelGame.UI.UserInterfaces
 {
      #pragma warning disable CA1001
 
+    /// <summary>
+    ///     Allows accessing the ui game console.
+    /// </summary>
     [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
     public class ConsoleInterface
@@ -119,6 +122,11 @@ namespace VoxelGame.UI.UserInterfaces
             }
         }
 
+        /// <summary>
+        ///     Write a colored message to the console.
+        /// </summary>
+        /// <param name="message">The message text.</param>
+        /// <param name="color">The message color.</param>
         public void Write(string message, Color color)
         {
             if (IsOpen)
@@ -132,11 +140,19 @@ namespace VoxelGame.UI.UserInterfaces
             while (consoleLog.Count > MaxConsoleLogLength) consoleLog.RemoveFirst();
         }
 
+        /// <summary>
+        ///     Write a response message to the console.
+        /// </summary>
+        /// <param name="message">The message text.</param>
         public void WriteResponse(string message)
         {
             Write(message, responseColor);
         }
 
+        /// <summary>
+        ///     Write an error message to the console.
+        /// </summary>
+        /// <param name="message">The message text.</param>
         public void WriteError(string message)
         {
             Write(message, errorColor);
@@ -166,6 +182,9 @@ namespace VoxelGame.UI.UserInterfaces
             WindowClosed?.Invoke();
         }
 
+        /// <summary>
+        ///     Clear all console messages.
+        /// </summary>
         public void Clear()
         {
             consoleOutput?.Clear();

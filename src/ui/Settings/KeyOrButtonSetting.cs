@@ -16,6 +16,9 @@ using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.Settings
 {
+    /// <summary>
+    ///     Settings that allow to pick a key or button.
+    /// </summary>
     [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
     [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
     [SuppressMessage("ReSharper", "CA1001")]

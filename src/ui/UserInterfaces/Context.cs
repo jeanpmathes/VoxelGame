@@ -10,6 +10,9 @@ using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.UserInterfaces
 {
+    /// <summary>
+    ///     The context in which the user interface is running.
+    /// </summary>
     internal sealed class Context : IDisposable
     {
         internal Context(FontHolder fonts, InputListener input)
