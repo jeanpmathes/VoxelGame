@@ -10,7 +10,7 @@
     <Platforms>x64</Platforms>
     <ApplicationIcon>vg_icon.ico</ApplicationIcon>
     <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
-    <Configurations>Debug;Release</Configurations>
+    <Configurations>Debug;Release;Manual</Configurations>
     <StartupObject>VoxelGame.Client.Program</StartupObject>
     <PackageLicenseExpression>MIT License</PackageLicenseExpression>
     <LangVersion>9</LangVersion>
@@ -26,6 +26,14 @@
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <OutputPath>bin\x64\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Manual|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>DEBUG;TRACE;MANUAL</DefineConstants>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <OutputPath>bin\x64\Manual\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -59,6 +67,7 @@
     <ProjectReference Include="..\core\VoxelGame.Core.csproj" />
     <ProjectReference Include="..\graphics\VoxelGame.Graphics.csproj" />
     <ProjectReference Include="..\input\VoxelGame.Input.csproj" />
+    <ProjectReference Include="..\manual\VoxelGame.Manual.csproj"/>
     <ProjectReference Include="..\ui\VoxelGame.UI.csproj" />
   </ItemGroup>
 

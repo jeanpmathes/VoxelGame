@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
@@ -24,6 +25,9 @@ using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
+#if MANUAL
+using VoxelGame.Manual;
+#endif
 
 namespace VoxelGame.Client.Application
 {
@@ -159,6 +163,11 @@ namespace VoxelGame.Client.Application
                 sceneManager.Load(new StartScene(this));
 
                 logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
+
+#if MANUAL
+                // Optional generation of manual.
+                GenerateManual();
+#endif
             }
         }
 
@@ -204,6 +213,14 @@ namespace VoxelGame.Client.Application
 
             sceneManager.Unload();
             Shaders.Delete();
+        }
+
+        private void GenerateManual()
+        {
+            const string path = "./../../../../../../Setup/Resources/Manual";
+
+            Includable controls = new("controls", path);
+            controls.Generate();
         }
 
         #region STATIC PROPERTIES

@@ -45,6 +45,7 @@
     <Content Include="Resources\Icons\vg_icon.ico"/>
     <Content Include="Resources\Images\banner.bmp"/>
     <Content Include="Resources\Images\dialog.bmp"/>
+    <Content Include="Resources\Manual\controls.tex"/>
     <Content Include="Resources\Manual\manual.pdf"/>
     <Content Include="Resources\Manual\manual.tex"/>
     <Content Include="Transform.xslt"/>
@@ -61,7 +62,6 @@
     <Folder Include="Resources"/>
     <Folder Include="Resources\Images"/>
     <Folder Include="Resources\Icons"/>
-    <Folder Include="Resources\Manual"/>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' "/>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') "/>
