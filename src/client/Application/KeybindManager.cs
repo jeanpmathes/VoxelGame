@@ -50,9 +50,12 @@ namespace VoxelGame.Client.Application
 
         public InputManager Input { get; }
 
-        private IEnumerable<Keybind> Binds => keybinds.Keys;
-
         public LookInput LookBind { get; }
+
+        /// <summary>
+        ///     All keybinds managed by this class.
+        /// </summary>
+        public IEnumerable<Keybind> Binds => keybinds.Keys;
 
         public string Category => Language.Keybinds;
         public string Description => Language.KeybindsSettingsDescription;

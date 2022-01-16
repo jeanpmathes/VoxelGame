@@ -24,6 +24,7 @@ using VoxelGame.Input.Actions;
 using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
+using Section = VoxelGame.Manual.Section;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 #if MANUAL
 using VoxelGame.Manual;
@@ -220,6 +221,12 @@ namespace VoxelGame.Client.Application
             const string path = "./../../../../../../Setup/Resources/Manual";
 
             Includable controls = new("controls", path);
+
+            controls.CreateSections(
+                Keybinds.Binds,
+                keybind => Section.Create(keybind.Name)
+                    .Text("The key is bound to").Key(keybind.Default).Text("per default."));
+
             controls.Generate();
         }
 
