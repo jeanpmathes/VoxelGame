@@ -15,6 +15,7 @@ namespace VoxelGame.Manual
     /// </summary>
     public class Includable
     {
+        private readonly string name;
         private readonly string outputPath;
 
         private readonly List<Section> sections = new();
@@ -26,6 +27,7 @@ namespace VoxelGame.Manual
         /// <param name="outputPath">The output path to produce a file at.</param>
         public Includable(string name, string outputPath)
         {
+            this.name = name;
             this.outputPath = Path.Combine(outputPath, $"{name}.tex");
         }
 
@@ -71,7 +73,7 @@ namespace VoxelGame.Manual
 
             foreach (Section section in sections)
             {
-                section.Generate(writer);
+                section.Generate(writer, name);
                 writer.WriteLine();
             }
         }
