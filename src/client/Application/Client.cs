@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
@@ -16,6 +17,7 @@ using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Client.Scenes;
+using VoxelGame.Core;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics;
@@ -23,6 +25,7 @@ using VoxelGame.Input;
 using VoxelGame.Input.Actions;
 using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
+using VoxelGame.Manual.Utility;
 using VoxelGame.UI.Providers;
 using Section = VoxelGame.Manual.Section;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
@@ -220,14 +223,43 @@ namespace VoxelGame.Client.Application
         {
             const string path = "./../../../../../../Setup/Resources/Manual";
 
+            Documentation documentation = new(typeof(GameInformation).Assembly);
+
             Includable controls = new("controls", path);
 
             controls.CreateSections(
                 Keybinds.Binds,
                 keybind => Section.Create(keybind.Name)
-                    .Text("The key is bound to").Key(keybind.Default).Text("per default."));
+                    .Text("The key is bound to").Key(keybind.Default).Text("per default.").EndSection());
 
             controls.Generate();
+
+            Includable blocks = new("blocks", path);
+
+            blocks.CreateSections(
+                typeof(Block).GetStaticValues<Block>(documentation),
+                ((Block block, string description) s) => Section.Create(s.block.Name)
+                    .Text(s.description).NewLine()
+                    .BeginList()
+                    .Item("ID:").Text(s.block.NamedId)
+                    .Item("Solid:").Text(s.block.IsSolid.ToString())
+                    .End().EndSection());
+
+            blocks.Generate();
+
+            Includable liquids = new("liquids", path);
+
+            liquids.CreateSections(
+                typeof(Liquid).GetStaticValues<Liquid>(documentation),
+                ((Liquid liquid, string description) s) => Section.Create(s.liquid.Name)
+                    .Text(s.description).NewLine()
+                    .BeginList()
+                    .Item("ID:").Text(s.liquid.NamedId)
+                    .Item("Viscosity:").Text(s.liquid.Viscosity.ToString(CultureInfo.InvariantCulture))
+                    .Item("Density:").Text(s.liquid.Density.ToString(CultureInfo.InvariantCulture))
+                    .End().EndSection());
+
+            liquids.Generate();
         }
 
         #region STATIC PROPERTIES
