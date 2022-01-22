@@ -13,9 +13,9 @@ namespace VoxelGame.Manual
     /// <summary>
     ///     A section of a document, describing a topic.
     /// </summary>
-    public class Section
+    public class Section : Chainable
     {
-        private readonly List<Element> elements = new();
+        private readonly List<IElement> elements = new();
         private readonly string title;
 
         private Section(string title)
@@ -33,27 +33,14 @@ namespace VoxelGame.Manual
             return new Section(title);
         }
 
-        /// <summary>
-        ///     Add text content to the section.
-        /// </summary>
-        /// <param name="content">The text content to add.</param>
-        /// <returns>This section.</returns>
-        public Section Text(string content)
+        internal override void AddElement(IElement element)
         {
-            elements.Add(new Text(content));
-
-            return this;
+            elements.Add(element);
         }
 
-        /// <summary>
-        ///     Add a key box to the section.
-        /// </summary>
-        /// <param name="key">The key to describe.</param>
-        /// <returns>This section.</returns>
-        public Section Key(object key)
+        /// <inheritdoc />
+        public override Section EndSection()
         {
-            elements.Add(new Key(key));
-
             return this;
         }
 
@@ -61,9 +48,7 @@ namespace VoxelGame.Manual
         {
             writer.WriteLine(@$"\subsection{{{title}}}\label{{subsec:{parent.ToLower()}_{title.ToLower()}}}");
 
-            foreach (Element element in elements) element.Generate(writer);
-
-            writer.WriteLine();
+            foreach (IElement element in elements) element.Generate(writer);
         }
     }
 }

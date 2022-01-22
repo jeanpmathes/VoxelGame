@@ -11,7 +11,7 @@ namespace VoxelGame.Manual.Elements
     /// <summary>
     ///     A nicely formatted key box.
     /// </summary>
-    internal class Key : Element
+    internal class Key : IElement
     {
         private readonly object key;
 
@@ -20,9 +20,9 @@ namespace VoxelGame.Manual.Elements
             this.key = key;
         }
 
-        public override void Generate(StreamWriter writer)
+        void IElement.Generate(StreamWriter writer)
         {
-            writer.Write(@$" \keys{{{key}}} ");
+            writer.WriteLine(@$" \keys{{{key}}} ");
         }
     }
 }

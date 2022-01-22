@@ -1,4 +1,4 @@
-﻿// <copyright file="Element.cs" company="VoxelGame">
+﻿// <copyright file="IElement.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -11,8 +11,8 @@ namespace VoxelGame.Manual.Elements
     /// <summary>
     ///     Defines an element of a document section.
     /// </summary>
-    internal abstract class Element
+    internal interface IElement
     {
-        public abstract void Generate(StreamWriter writer);
+        internal void Generate(StreamWriter writer);
     }
 }

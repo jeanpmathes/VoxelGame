@@ -1,4 +1,4 @@
-﻿// <copyright file="Text.cs" company="VoxelGame">
+﻿// <copyright file="Item.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -9,20 +9,13 @@ using System.IO;
 namespace VoxelGame.Manual.Elements
 {
     /// <summary>
-    ///     A simple text element.
+    ///     An item for lists.
     /// </summary>
-    internal class Text : IElement
+    internal class Item : IElement
     {
-        public Text(string text)
-        {
-            Content = text;
-        }
-
-        private string Content { get; }
-
         void IElement.Generate(StreamWriter writer)
         {
-            writer.WriteLine(Content);
+            writer.Write(@"\item ");
         }
     }
 }
