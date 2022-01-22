@@ -56,10 +56,11 @@ namespace VoxelGame.Manual
         /// <summary>
         ///     Add an item to a list.
         /// </summary>
+        /// <param name="bullet">An optional bullet leading the item.</param>
         /// <returns>This.</returns>
-        public Chainable Item()
+        public Chainable Item(string? bullet = null)
         {
-            AddElement(new Item());
+            AddElement(new Item(bullet));
 
             return this;
         }

@@ -13,9 +13,18 @@ namespace VoxelGame.Manual.Elements
     /// </summary>
     internal class Item : IElement
     {
+        private readonly string? bullet;
+
+        internal Item(string? bullet)
+        {
+            this.bullet = bullet;
+        }
+
         void IElement.Generate(StreamWriter writer)
         {
-            writer.Write(@"\item ");
+            writer.Write(@"\item");
+            if (bullet != null) writer.Write($"[{bullet}]");
+            writer.Write(" ");
         }
     }
 }
