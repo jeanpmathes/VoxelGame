@@ -42,6 +42,17 @@ namespace VoxelGame.Manual
         }
 
         /// <summary>
+        ///     Start a new line.
+        /// </summary>
+        /// <returns>This.</returns>
+        public Chainable NewLine()
+        {
+            AddElement(new NewLine());
+
+            return this;
+        }
+
+        /// <summary>
         ///     Begin a list, and increase the level.
         /// </summary>
         /// <returns>The list chainable. Must be ended.</returns>
