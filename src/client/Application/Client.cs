@@ -25,6 +25,7 @@ using VoxelGame.Input;
 using VoxelGame.Input.Actions;
 using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
+using VoxelGame.Manual.Modifiers;
 using VoxelGame.Manual.Utility;
 using VoxelGame.UI.Providers;
 using Section = VoxelGame.Manual.Section;
@@ -241,8 +242,10 @@ namespace VoxelGame.Client.Application
                 ((Block block, string description) s) => Section.Create(s.block.Name)
                     .Text(s.description).NewLine()
                     .BeginList()
-                    .Item("ID:").Text(s.block.NamedId)
-                    .Item("Solid:").Text(s.block.IsSolid.ToString())
+                    .Item("ID:").Text(s.block.NamedId, TextStyle.Monospace)
+                    .Item("Solid:").Boolean(s.block.IsSolid)
+                    .Item("Interactions:").Boolean(s.block.IsInteractable)
+                    .Item("Replaceable:").Boolean(s.block.IsReplaceable)
                     .End().EndSection());
 
             blocks.Generate();
@@ -254,7 +257,7 @@ namespace VoxelGame.Client.Application
                 ((Liquid liquid, string description) s) => Section.Create(s.liquid.Name)
                     .Text(s.description).NewLine()
                     .BeginList()
-                    .Item("ID:").Text(s.liquid.NamedId)
+                    .Item("ID:").Text(s.liquid.NamedId, TextStyle.Monospace)
                     .Item("Viscosity:").Text(s.liquid.Viscosity.ToString(CultureInfo.InvariantCulture))
                     .Item("Density:").Text(s.liquid.Density.ToString(CultureInfo.InvariantCulture))
                     .End().EndSection());
