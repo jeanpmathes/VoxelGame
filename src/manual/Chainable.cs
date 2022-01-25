@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using VoxelGame.Manual.Elements;
 using VoxelGame.Manual.Modifiers;
+using Boolean = VoxelGame.Manual.Elements.Boolean;
 
 namespace VoxelGame.Manual
 {
@@ -50,6 +51,18 @@ namespace VoxelGame.Manual
         public Chainable NewLine()
         {
             AddElement(new NewLine());
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Add a representation of a boolean value.
+        /// </summary>
+        /// <param name="value">The value to represent.</param>
+        /// <returns>This.</returns>
+        public Chainable Boolean(bool value)
+        {
+            AddElement(new Boolean(value));
 
             return this;
         }
