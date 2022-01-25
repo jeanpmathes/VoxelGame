@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.IO;
+using VoxelGame.Manual.Modifiers;
 
 namespace VoxelGame.Manual.Elements
 {
@@ -13,16 +14,31 @@ namespace VoxelGame.Manual.Elements
     /// </summary>
     internal class Text : IElement
     {
-        public Text(string text)
+        private readonly TextStyle style;
+
+        public Text(string text, TextStyle style)
         {
             Content = text;
+            this.style = style;
         }
 
         private string Content { get; }
 
         void IElement.Generate(StreamWriter writer)
         {
-            writer.WriteLine(Content);
+            switch (style)
+            {
+                case TextStyle.Monospace:
+                    writer.WriteLine($@"\texttt{{{Content}}}");
+
+                    break;
+
+                default:
+                case TextStyle.Normal:
+                    writer.WriteLine(Content);
+
+                    break;
+            }
         }
     }
 }

@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using VoxelGame.Manual.Elements;
+using VoxelGame.Manual.Modifiers;
 
 namespace VoxelGame.Manual
 {
@@ -21,10 +22,11 @@ namespace VoxelGame.Manual
         ///     Add text content to the section.
         /// </summary>
         /// <param name="content">The text content to add.</param>
+        /// <param name="style">The style of the text to add.</param>
         /// <returns>The current chain.</returns>
-        public Chainable Text(string content)
+        public Chainable Text(string content, TextStyle style = TextStyle.Normal)
         {
-            AddElement(new Text(content));
+            AddElement(new Text(content, style));
 
             return this;
         }
