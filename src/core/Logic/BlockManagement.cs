@@ -315,7 +315,7 @@ namespace VoxelGame.Core.Logic
         #region PLANT BLOCKS
 
         /// <summary>
-        ///     A slow growing cactus.
+        ///     A cactus slowly grows upwards. It can only be placed on sand.
         /// </summary>
         public static readonly Block Cactus = new GrowingBlock(
             Language.Cactus,
@@ -325,7 +325,7 @@ namespace VoxelGame.Core.Logic
             maxHeight: 4);
 
         /// <summary>
-        ///     The pumpkin plant fruit.
+        ///     Pumpkins are the fruit of the pumpkin plant. They have to be placed on solid ground.
         /// </summary>
         public static readonly Block Pumpkin = new GroundedBlock(
             Language.Pumpkin,
@@ -334,7 +334,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Column("pumpkin_side", "pumpkin_top"));
 
         /// <summary>
-        ///     The melon plant fruit.
+        ///     Melons are the fruit of the melon plant. They have to be placed on solid ground.
         /// </summary>
         public static readonly Block Melon = new GroundedBlock(
             Language.Melon,
@@ -343,7 +343,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Column("melon_side", "melon_top"));
 
         /// <summary>
-        ///     A sticky web that hinders movement.
+        ///     Spiderwebs slow the movement of entities and can be used to trap enemies.
         /// </summary>
         public static readonly Block Spiderweb = new SpiderWebBlock(
             Language.SpiderWeb,
@@ -352,7 +352,7 @@ namespace VoxelGame.Core.Logic
             maxVelocity: 0.01f);
 
         /// <summary>
-        ///     Vines, that grow and allow climbing.
+        ///     Vines grow downwards, and can hang freely. It is possible to climb them.
         /// </summary>
         public static readonly Block Vines = new GrowingFlatBlock(
             Language.Vines,
@@ -362,7 +362,7 @@ namespace VoxelGame.Core.Logic
             slidingVelocity: 1f);
 
         /// <summary>
-        ///     Flax.
+        ///     Flax is a crop plant that grows on farmland. It requires water to fully grow.
         /// </summary>
         public static readonly Block Flax = new CropBlock(
             Language.Flax,
@@ -377,7 +377,7 @@ namespace VoxelGame.Core.Logic
             dead: 5);
 
         /// <summary>
-        ///     Potatoes.
+        ///     Potatoes are a crop plant that grows on farmland. They requires water to fully grow.
         /// </summary>
         public static readonly Block Potatoes = new CropBlock(
             Language.Potatoes,
@@ -392,7 +392,7 @@ namespace VoxelGame.Core.Logic
             dead: 5);
 
         /// <summary>
-        ///     Onions.
+        ///     Onions are a crop plant that grows on farmland. They requires water to fully grow.
         /// </summary>
         public static readonly Block Onions = new CropBlock(
             Language.Onions,
@@ -407,7 +407,7 @@ namespace VoxelGame.Core.Logic
             dead: 4);
 
         /// <summary>
-        ///     Wheat.
+        ///     Wheat is a crop plant that grows on farmland. It requires water to fully grow.
         /// </summary>
         public static readonly Block Wheat = new CropBlock(
             Language.Wheat,
@@ -422,7 +422,8 @@ namespace VoxelGame.Core.Logic
             dead: 4);
 
         /// <summary>
-        ///     Maize.
+        ///     Maize is a crop plant that grows on farmland.
+        ///     Maize grows two blocks high. It requires water to fully grow.
         /// </summary>
         public static readonly Block Maize = new DoubleCropBlock(
             Language.Maize,
@@ -438,7 +439,7 @@ namespace VoxelGame.Core.Logic
             (5, 8));
 
         /// <summary>
-        ///     Pumpkin plant.
+        ///     The pumpkin plant grows pumpkin fruits.
         /// </summary>
         public static readonly Block PumpkinPlant = new FruitCropBlock(
             Language.PumpkinPlant,
@@ -447,7 +448,7 @@ namespace VoxelGame.Core.Logic
             Pumpkin);
 
         /// <summary>
-        ///     Melon plant.
+        ///     The melon plant grows melon fruits.
         /// </summary>
         public static readonly Block MelonPlant = new FruitCropBlock(
             Language.MelonPlant,
