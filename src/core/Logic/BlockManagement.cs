@@ -98,7 +98,8 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Air = new AirBlock(Language.Air, nameof(Air));
 
         /// <summary>
-        ///     Dirt with some grass on top.
+        ///     Dirt with some grass on top. Plants can be placed on top of this.
+        ///     The grass can burn, creating ash.
         /// </summary>
         public static readonly Block Grass = new GrassBlock(
             Language.Grass,
@@ -107,7 +108,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.UnqiueColumn("grass_side_wet", "dirt_wet", "grass_wet"));
 
         /// <summary>
-        ///     Grass that was burned.
+        ///     Grass that was burned. Water can burn the ash away.
         /// </summary>
         public static readonly Block GrassBurned = new CoveredGrassSpreadableBlock(
             Language.AshCoveredDirt,
@@ -116,7 +117,7 @@ namespace VoxelGame.Core.Logic
             hasNeutralTint: false);
 
         /// <summary>
-        ///     Simple dirt block.
+        ///     Simple dirt. Grass next to it can spread over it.
         /// </summary>
         public static readonly Block Dirt = new DirtBlock(
             Language.Dirt,
@@ -126,6 +127,7 @@ namespace VoxelGame.Core.Logic
 
         /// <summary>
         ///     Tilled dirt that allows many plants to grow.
+        ///     While plants can also grow on normal grass, this block allows full growth.
         /// </summary>
         public static readonly Block Farmland = new InsetDirtBlock(
             Language.Farmland,
@@ -135,7 +137,7 @@ namespace VoxelGame.Core.Logic
             supportsFullGrowth: true);
 
         /// <summary>
-        ///     Tall grass.
+        ///     A tall grassy plant. Fluids will destroy it, if the level is too high.
         /// </summary>
         public static readonly Block TallGrass = new CrossPlantBlock(
             Language.TallGrass,
@@ -145,7 +147,7 @@ namespace VoxelGame.Core.Logic
             BoundingBox.CrossBlock);
 
         /// <summary>
-        ///     Very tall grass.
+        ///     A much larger version of the normal tall grass.
         /// </summary>
         public static readonly Block VeryTallGrass = new DoubleCrossPlantBlock(
             Language.VeryTallGrass,
@@ -155,7 +157,7 @@ namespace VoxelGame.Core.Logic
             BoundingBox.CrossBlock);
 
         /// <summary>
-        ///     A flower.
+        ///     A simple flower.
         /// </summary>
         public static readonly Block Flower = new CrossPlantBlock(
             Language.Flower,
@@ -175,7 +177,7 @@ namespace VoxelGame.Core.Logic
             BoundingBox.CrossBlock);
 
         /// <summary>
-        ///     Stone, that makes up most of the world.
+        ///     This stone block makes up large parts of the world. Below the dirt layers, the ground is solid stone.
         /// </summary>
         public static readonly Block Stone = new BasicBlock(
             Language.Stone,
@@ -184,7 +186,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("stone"));
 
         /// <summary>
-        ///     Broken stone.
+        ///     When stone is destroyed, rubble is what remains.
         /// </summary>
         public static readonly Block Rubble = new ConstructionBlock(
             Language.Rubble,
@@ -192,7 +194,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("rubble"));
 
         /// <summary>
-        ///     A mix of dirt and water.
+        ///     Mud is created when water and dirt mix.
         /// </summary>
         public static readonly Block Mud = new MudBlock(
             Language.Mud,
@@ -201,7 +203,7 @@ namespace VoxelGame.Core.Logic
             maxVelocity: 0.1f);
 
         /// <summary>
-        ///     A type of stone that forms from lava that comes in contact with water.
+        ///     Pumice is created when lava rapidly cools down, while being in contact with a lot of water.
         /// </summary>
         public static readonly Block Pumice = new BasicBlock(
             Language.Pumice,
@@ -210,7 +212,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("pumice"));
 
         /// <summary>
-        ///     A black type of stone.
+        ///     Obsidian is a dark type of stone, that forms from lava.
         /// </summary>
         public static readonly Block Obsidian = new BasicBlock(
             Language.Obsidian,
@@ -219,7 +221,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("obsidian"));
 
         /// <summary>
-        ///     Snow.
+        ///     Snow covers the ground, and can have different heights.
         /// </summary>
         public static readonly Block Snow = new ModifiableHeightBlock(
             Language.Snow,
@@ -227,7 +229,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("snow"));
 
         /// <summary>
-        ///     Leaves, a part of trees.
+        ///     Leaves are transparent parts of the tree. They are flammable.
         /// </summary>
         public static readonly Block Leaves = new NaturalBlock(
             Language.Leaves,
@@ -240,7 +242,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("leaves"));
 
         /// <summary>
-        ///     Wood as part of a log.
+        ///     Log is the unprocessed, wooden part of a tree. As it is made of wood, it is flammable.
         /// </summary>
         public static readonly Block Log = new RotatedBlock(
             Language.Log,
@@ -249,7 +251,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Column("log", sideOffset: 0, endOffset: 1));
 
         /// <summary>
-        ///     Raw wood, extracted from logs.
+        ///     Processed wood that can be used as construction material. It is flammable.
         /// </summary>
         public static readonly Block Wood = new OrganicConstructionBlock(
             Language.Wood,
@@ -257,7 +259,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("wood"));
 
         /// <summary>
-        ///     Sand. Allows water to flow through it.
+        ///     Sand naturally forms and allows water to flow through it.
         /// </summary>
         public static readonly Block Sand = new PermeableBlock(
             Language.Sand,
@@ -265,7 +267,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("sand"));
 
         /// <summary>
-        ///     Gravel. Allows water to flow through it.
+        ///     Gravel, which is made out of small pebbles, allows water to flow through it.
         /// </summary>
         public static readonly Block Gravel = new PermeableBlock(
             Language.Gravel,
@@ -273,7 +275,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("gravel"));
 
         /// <summary>
-        ///     Coal ore.
+        ///     Coal ore is stone that contains coal.
         /// </summary>
         public static readonly Block OreCoal = new BasicBlock(
             Language.CoalOre,
@@ -282,7 +284,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("ore_coal"));
 
         /// <summary>
-        ///     Iron ore.
+        ///     Iron ore is stone that contains iron.
         /// </summary>
         public static readonly Block OreIron = new BasicBlock(
             Language.IronOre,
@@ -291,7 +293,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("ore_iron"));
 
         /// <summary>
-        ///     Gold ore.
+        ///     Gold ore is stone that contains gold.
         /// </summary>
         public static readonly Block OreGold = new BasicBlock(
             Language.GoldOre,
@@ -300,7 +302,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("ore_gold"));
 
         /// <summary>
-        ///     Ash.
+        ///     Ahs is the remainder of burning processes.
         /// </summary>
         public static readonly Block Ash = new BasicBlock(
             Language.Ash,
