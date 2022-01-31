@@ -461,7 +461,7 @@ namespace VoxelGame.Core.Logic
         #region BUILDING BLOCKS
 
         /// <summary>
-        ///     Glass, a see-through block.
+        ///     Glass is transparent block.
         /// </summary>
         public static readonly Block Glass = new GlassBlock(
             Language.Glass,
@@ -469,7 +469,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("glass"));
 
         /// <summary>
-        ///     Tiled glass, a see-through block.
+        ///     Tiled glass is like glass, but made out of four tiles.
         /// </summary>
         public static readonly Block GlassTiled = new GlassBlock(
             Language.TiledGlass,
@@ -477,7 +477,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("glass_tiled"));
 
         /// <summary>
-        ///     Steel block.
+        ///     The steel block is a metal construction block.
         /// </summary>
         public static readonly Block Steel = new ConstructionBlock(
             Language.Steel,
@@ -485,7 +485,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("steel"));
 
         /// <summary>
-        ///     Worked stone.
+        ///     Worked stone is a processed stone block.
         /// </summary>
         public static readonly Block StoneWorked = new BasicBlock(
             Language.WorkedStone,
@@ -494,7 +494,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("stone_worked"));
 
         /// <summary>
-        ///     Ladder, a block that can be climbed.
+        ///     A ladder allows climbing up and down.
         /// </summary>
         public static readonly Block Ladder = new FlatBlock(
             Language.Ladder,
@@ -504,7 +504,7 @@ namespace VoxelGame.Core.Logic
             slidingVelocity: 1f);
 
         /// <summary>
-        ///     Small tiles.
+        ///     Small tiles for construction of floors and walls.
         /// </summary>
         public static readonly Block TilesSmall = new ConstructionBlock(
             Language.SmallTiles,
@@ -512,7 +512,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("small_tiles"));
 
         /// <summary>
-        ///     Large tiles.
+        ///     Large tiles for construction of floors and walls.
         /// </summary>
         public static readonly Block TilesLarge = new ConstructionBlock(
             Language.LargeTiles,
@@ -520,7 +520,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("large_tiles"));
 
         /// <summary>
-        ///     Black checkerboard tiles, their color can be changed.
+        ///     Black checkerboard tiles come in different colors.
         /// </summary>
         public static readonly Block TilesCheckerboardBlack = new TintedBlock(
             Language.CheckerboardTilesBlack,
@@ -529,7 +529,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("checkerboard_tiles_black"));
 
         /// <summary>
-        ///     White checkerboard tiles, their color can be changed.
+        ///     White checkerboard tiles come in different colors.
         /// </summary>
         public static readonly Block TilesCheckerboardWhite = new TintedBlock(
             Language.CheckerboardTilesWhite,
@@ -538,7 +538,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("checkerboard_tiles_white"));
 
         /// <summary>
-        ///     Simple bricks.
+        ///     Bricks are a simple construction material.
         /// </summary>
         public static readonly Block Bricks = new ConstructionBlock(
             Language.Bricks,
@@ -546,7 +546,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("bricks"));
 
         /// <summary>
-        ///     Paving stone.
+        ///     Paving stone is a simple construction material, ideal for paths.
         /// </summary>
         public static readonly Block PavingStone = new ConstructionBlock(
             Language.PavingStone,
@@ -554,7 +554,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("paving_stone"));
 
         /// <summary>
-        ///     Red plastic.
+        ///     Red plastic is a construction material.
         /// </summary>
         public static readonly Block RedPlastic = new ConstructionBlock(
             Language.RedPlastic,
@@ -562,7 +562,8 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("red_plastic"));
 
         /// <summary>
-        ///     Concrete. The color can be changed.
+        ///     Concrete is a flexible construction material that can have different heights and colors.
+        ///     It can be build using liquid concrete.
         /// </summary>
         public static readonly Block Concrete = new ConcreteBlock(
             Language.Concrete,
