@@ -575,7 +575,7 @@ namespace VoxelGame.Core.Logic
         #region DECORATION BLOCKS
 
         /// <summary>
-        ///     A face in stone.
+        ///     This block is like a processed stone block, but with a decorative face added.
         /// </summary>
         public static readonly Block StoneFace = new OrientedBlock(
             Language.StoneFace,
@@ -584,7 +584,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.UnqiueFront("stone_worked_face", "stone_worked"));
 
         /// <summary>
-        ///     A vase.
+        ///     The vase is a decorative block that must be placed on solid ground.
         /// </summary>
         public static readonly Block Vase = new CustomModelBlock(
             Language.Vase,
@@ -594,12 +594,13 @@ namespace VoxelGame.Core.Logic
             new BoundingBox(new Vector3(x: 0.5f, y: 0.375f, z: 0.5f), new Vector3(x: 0.25f, y: 0.375f, z: 0.25f)));
 
         /// <summary>
-        ///     A bed. Placing it sets the spawn point.
+        ///     The bed can be placed to set a different spawn point.
+        ///     It is possible to change to color of a bed.
         /// </summary>
         public static readonly Block Bed = new BedBlock(Language.Bed, nameof(Bed), "bed");
 
         /// <summary>
-        ///     Wool. The color can be changed.
+        ///     Wool is a flammable material, that allows its color to be changed.
         /// </summary>
         public static readonly Block Wool = new OrganicTintedBlock(
             Language.Wool,
@@ -607,7 +608,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("wool"));
 
         /// <summary>
-        ///     Wool with decorations. The color can be changed.
+        ///     Decorated wool is similar to wool, decorated with golden ornaments.
         /// </summary>
         public static readonly Block WoolDecorated = new OrganicTintedBlock(
             Language.DecoratedWool,
@@ -615,7 +616,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("wool_decorated"));
 
         /// <summary>
-        ///     Carper. The color can be changed.
+        ///     Carpets can be used to cover the floor. Their color can be changed.
         /// </summary>
         public static readonly Block Carpet = new TintedCustomModelBlock(
             Language.Carpet,
@@ -625,7 +626,7 @@ namespace VoxelGame.Core.Logic
             new BoundingBox(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
 
         /// <summary>
-        ///     Decorated carpet, the color can be changed.
+        ///     Decorated carpets are similar to carpets, decorated with golden ornaments.
         /// </summary>
         public static readonly Block CarpetDecorated = new TintedCustomModelBlock(
             Language.DecoratedCarpet,
@@ -635,7 +636,8 @@ namespace VoxelGame.Core.Logic
             new BoundingBox(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
 
         /// <summary>
-        ///     A thin glass panel.
+        ///     Glass panes are a thin alternative to glass blocks.
+        ///     They connect to some neighboring blocks.
         /// </summary>
         public static readonly Block GlassPane = new ThinConnectingBlock(
             Language.GlassPane,
@@ -645,7 +647,7 @@ namespace VoxelGame.Core.Logic
             "pane_glass_extension");
 
         /// <summary>
-        ///     Steel bars.
+        ///     Steel bars are a thin, but strong barrier.
         /// </summary>
         public static readonly Block Bars = new ThinConnectingBlock(
             Language.Bars,
