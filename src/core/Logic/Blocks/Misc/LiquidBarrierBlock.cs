@@ -34,6 +34,8 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <inheritdoc />
         public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
         {
+            if (liquid.IsGas) return true;
+
             BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 
             return (block.Data & 0b00_0001) == 1;
