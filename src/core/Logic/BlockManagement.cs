@@ -728,7 +728,8 @@ namespace VoxelGame.Core.Logic
         #region LIQUID FLOW BLOCKS
 
         /// <summary>
-        ///     A barrier to control flow of liquids.
+        ///     The liquid barrier can be used to control liquid flow. It can be opened and closed.
+        ///     It does not prevent gasses from flowing through it.
         /// </summary>
         public static readonly Block LiquidBarrier = new LiquidBarrierBlock(
             Language.Barrier,
@@ -737,7 +738,8 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("liquid_barrier_open"));
 
         /// <summary>
-        ///     An industrial steel pipe.
+        ///     The industrial steel pipe can be used to control liquid flow.
+        ///     It connects to other pipes.
         /// </summary>
         public static readonly Block SteelPipe = new PipeBlock<IIndustrialPipeConnectable>(
             Language.SteelPipe,
@@ -748,7 +750,8 @@ namespace VoxelGame.Core.Logic
             "steel_pipe_surface");
 
         /// <summary>
-        ///     A primitive wooden pipe.
+        ///     The wooden pipe offers a primitive way of controlling liquid flow.
+        ///     It connects to other pipes.
         /// </summary>
         public static readonly Block WoodenPipe = new PipeBlock<IPrimitivePipeConnectable>(
             Language.WoodenPipe,
@@ -759,7 +762,8 @@ namespace VoxelGame.Core.Logic
             "wood_pipe_surface");
 
         /// <summary>
-        ///     A special steel pipe that can only form straight connections.
+        ///     This pipe is a special steel pipe that can only form straight connections.
+        ///     It is ideal for parallel pipes.
         /// </summary>
         public static readonly Block StraightSteelPipe = new StraightSteelPipeBlock(
             Language.SteelPipeStraight,
@@ -768,7 +772,7 @@ namespace VoxelGame.Core.Logic
             "steel_pipe_straight");
 
         /// <summary>
-        ///     A special steel pipe that can be closed.
+        ///     This is a special steel pipe that can be closed. It prevents all fluid flow.
         /// </summary>
         public static readonly Block PipeValve = new SteelPipeValveBlock(
             Language.ValvePipe,
@@ -778,7 +782,8 @@ namespace VoxelGame.Core.Logic
             "steel_pipe_valve_closed");
 
         /// <summary>
-        ///     A pump that lifts up liquids when interacted with.
+        ///     The pump can lift liquids up when interacted with.
+        ///     It can only lift up to a threshold of 16 blocks.
         /// </summary>
         public static readonly Block Pump = new PumpBlock(
             Language.Pump,
