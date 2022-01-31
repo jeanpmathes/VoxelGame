@@ -796,7 +796,8 @@ namespace VoxelGame.Core.Logic
         #region SPECIAL BLOCKS
 
         /// <summary>
-        ///     Fire. Burns flammable blocks.
+        ///     Fire is a dangerous block that spreads onto nearby flammable blocks.
+        ///     When spreading, fire burns blocks which can destroy them.
         /// </summary>
         public static readonly Block Fire = new FireBlock(
             Language.Fire,
@@ -806,7 +807,7 @@ namespace VoxelGame.Core.Logic
             "fire_top");
 
         /// <summary>
-        ///     A magical pulsating block.
+        ///     This is a magical pulsating block.
         /// </summary>
         public static readonly Block Pulsating = new TintedBlock(
             Language.PulsatingBlock,
@@ -816,7 +817,7 @@ namespace VoxelGame.Core.Logic
             isAnimated: true);
 
         /// <summary>
-        ///     A block that, once ignited, will burn for ever time.
+        ///     The eternal flame, once lit, will never go out naturally.
         /// </summary>
         public static readonly Block EternalFlame = new EternalFlame(
             Language.EternalFlame,
@@ -824,7 +825,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("eternal_flame"));
 
         /// <summary>
-        ///     A walkable path.
+        ///     The path is a dirt block with its top layer trampled.
         /// </summary>
         public static readonly Block Path = new InsetDirtBlock(
             Language.Path,
