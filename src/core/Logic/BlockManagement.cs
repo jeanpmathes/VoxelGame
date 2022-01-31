@@ -661,7 +661,8 @@ namespace VoxelGame.Core.Logic
         #region ACCESS BLOCKS
 
         /// <summary>
-        ///     A wooden fence.
+        ///     The wooden fence can be used as way of marking areas. It does not prevent jumping over it.
+        ///     As this fence is made out of wood, it is flammable. Fences can connect to other blocks.
         /// </summary>
         public static readonly Block FenceWood = new FenceBlock(
             Language.WoodenFence,
@@ -671,7 +672,8 @@ namespace VoxelGame.Core.Logic
             "fence_extension");
 
         /// <summary>
-        ///     A wall made out of Rubble.
+        ///    The rubble wall is a stone barrier that can be used as a way of marking areas.
+        ///     They do not prevent jumping over it, and can connect to other blocks.
         /// </summary>
         public static readonly Block WallRubble = new WallBlock(
             Language.RubbleWall,
@@ -682,7 +684,8 @@ namespace VoxelGame.Core.Logic
             "wall_extension_straight");
 
         /// <summary>
-        ///     A wall made out of brick.
+        ///     The brick wall is similar to all other walls, and made out of bricks.
+        ///     They do not prevent jumping over them, and can connect to other blocks.
         /// </summary>
         public static readonly Block WallBricks = new WallBlock(
             Language.BrickWall,
@@ -693,7 +696,7 @@ namespace VoxelGame.Core.Logic
             "wall_extension_straight");
 
         /// <summary>
-        ///     A door out of steel.
+        ///     The steel door allows closing of a room. It can be opened and closed.
         /// </summary>
         public static readonly Block DoorSteel = new DoorBlock(
             Language.SteelDoor,
@@ -702,7 +705,8 @@ namespace VoxelGame.Core.Logic
             "door_steel_open");
 
         /// <summary>
-        ///     A door out of wood.
+        ///     The wooden door allows closing of a room. It can be opened and closed.
+        ///     As this door is made out of wood, it is flammable.
         /// </summary>
         public static readonly Block DoorWood = new OrganicDoorBlock(
             Language.WoodenDoor,
@@ -711,7 +715,7 @@ namespace VoxelGame.Core.Logic
             "door_wood_open");
 
         /// <summary>
-        ///     A fence gate.
+        ///     Fence gates are meant as a passage trough fences and walls.
         /// </summary>
         public static readonly Block GateWood = new GateBlock(
             Language.WoodenGate,
