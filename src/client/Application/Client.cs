@@ -5,7 +5,8 @@
 // <author>pershingthesecond</author>
 
 
-using System.Globalization;
+using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
@@ -17,7 +18,6 @@ using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Client.Scenes;
-using VoxelGame.Core;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics;
@@ -25,10 +25,7 @@ using VoxelGame.Input;
 using VoxelGame.Input.Actions;
 using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
-using VoxelGame.Manual.Modifiers;
-using VoxelGame.Manual.Utility;
 using VoxelGame.UI.Providers;
-using Section = VoxelGame.Manual.Section;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 #if MANUAL
 using VoxelGame.Manual;
@@ -220,8 +217,12 @@ namespace VoxelGame.Client.Application
             Shaders.Delete();
         }
 
+
+        [UsedImplicitly]
+        [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Used in other build type.")]
         private void GenerateManual()
         {
+#if MANUAL
             const string path = "./../../../../../../Setup/Resources/Manual";
 
             Documentation documentation = new(typeof(GameInformation).Assembly);
@@ -263,6 +264,7 @@ namespace VoxelGame.Client.Application
                     .End().EndSection());
 
             liquids.Generate();
+#endif
         }
 
         #region STATIC PROPERTIES
