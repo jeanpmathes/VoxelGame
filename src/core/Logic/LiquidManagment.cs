@@ -32,12 +32,12 @@ namespace VoxelGame.Core.Logic
         private static readonly Dictionary<string, Liquid> namedLiquidDictionary = new();
 
         /// <summary>
-        ///     No liquid.
+        ///     The absence of a liquid.
         /// </summary>
         public static readonly Liquid None = new NoLiquid(Language.NoLiquid, nameof(None));
 
         /// <summary>
-        ///     Simple water.
+        ///     Water is a basic fluid, that allows the player to swim relatively easily.
         /// </summary>
         public static readonly Liquid Water = new BasicLiquid(
             Language.Water,
@@ -50,7 +50,7 @@ namespace VoxelGame.Core.Logic
             RenderType.Transparent);
 
         /// <summary>
-        ///     Milk.
+        ///     Milk is a white liquid that is obtained from animals.
         /// </summary>
         public static readonly Liquid Milk = new BasicLiquid(
             Language.Milk,
@@ -62,7 +62,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("milk_static_side", "milk_static"));
 
         /// <summary>
-        ///     Steam.
+        ///     Steam is a gas created when water is heated.
         /// </summary>
         public static readonly Liquid Steam = new BasicLiquid(
             Language.Steam,
@@ -75,7 +75,7 @@ namespace VoxelGame.Core.Logic
             RenderType.Transparent);
 
         /// <summary>
-        ///     Lava. Reacts in contact with water and other liquids.
+        ///     Lava is a hot liquid, made out of molten stone. It burns flammable objects.
         /// </summary>
         public static readonly Liquid Lava = new HotLiquid(
             Language.Lava,
@@ -87,7 +87,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("lava_static_side", "lava_static"));
 
         /// <summary>
-        ///     Crude oil.
+        ///     Crude oil is a flammable liquid with a high viscosity. It is lighter than water.
         /// </summary>
         public static readonly Liquid CrudeOil = new BasicLiquid(
             Language.CrudeOil,
@@ -99,7 +99,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("oil_static_side", "oil_static"));
 
         /// <summary>
-        ///     Natural gas.
+        ///     Natural gas is a flammable gas.
         /// </summary>
         public static readonly Liquid NaturalGas = new BasicLiquid(
             Language.NaturalGas,
@@ -112,7 +112,7 @@ namespace VoxelGame.Core.Logic
             RenderType.Transparent);
 
         /// <summary>
-        ///     Concrete, hardens after a while.
+        ///     Concrete is a liquid that hardens when staying still for some time, forming concrete blocks.
         /// </summary>
         public static readonly Liquid Concrete = new ConcreteLiquid(
             Language.Concrete,
@@ -123,7 +123,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Liquid("concrete_static_side", "concrete_static"));
 
         /// <summary>
-        ///     Honey.
+        ///     Honey is a thick liquid.
         /// </summary>
         public static readonly Liquid Honey = new BasicLiquid(
             Language.Honey,
@@ -136,7 +136,7 @@ namespace VoxelGame.Core.Logic
             RenderType.Transparent);
 
         /// <summary>
-        ///     Petrol.
+        ///     Petrol is a flammable liquid.
         /// </summary>
         public static readonly Liquid Petrol = new BasicLiquid(
             Language.Petrol,
@@ -149,7 +149,7 @@ namespace VoxelGame.Core.Logic
             RenderType.Transparent);
 
         /// <summary>
-        ///     Wine.
+        ///     Wine is a reddish liquid.
         /// </summary>
         public static readonly Liquid Wine = new BasicLiquid(
             Language.Wine,
@@ -162,7 +162,7 @@ namespace VoxelGame.Core.Logic
             RenderType.Transparent);
 
         /// <summary>
-        ///     Beer.
+        ///     Beer is a brown liquid.
         /// </summary>
         public static readonly Liquid Beer = new BasicLiquid(
             Language.Beer,

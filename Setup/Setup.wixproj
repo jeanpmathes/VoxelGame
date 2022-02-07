@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" InitialTargets="EnsureWixToolsetInstalled" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>3.10</ProductVersion>
+    <ProjectGuid>a528b57b-6ae1-49b9-b725-4ba1ba264d71</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputName>Setup</OutputName>
+    <OutputType>Package</OutputType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>Debug</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DefineConstants>Debug</DefineConstants>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DefineConstants>Debug</DefineConstants>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+      <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+        <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+        <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="dependencies.wxs"/>
+        <Compile Include="VoxelGame.wxs"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="Resources\Icons\chunk_icon.ico"/>
+        <Content Include="Resources\Icons\vg_icon.ico"/>
+        <Content Include="Resources\Images\banner.bmp"/>
+        <Content Include="Resources\Images\dialog.bmp"/>
+        <Content Include="Resources\Manual\blocks.tex"/>
+        <Content Include="Resources\Manual\controls.tex"/>
+        <Content Include="Resources\Manual\liquids.tex"/>
+        <Content Include="Resources\Manual\manual.pdf"/>
+        <Content Include="Resources\Manual\manual.tex"/>
+        <Content Include="Transform.xslt"/>
+        <Content Include="VoxelGame.wxi"/>
+        <Content Include="Resources\license.rtf"/>
+    </ItemGroup>
+    <ItemGroup>
+        <WixExtension Include="WixUIExtension">
+            <HintPath>$(WixExtDir)\WixUIExtension.dll</HintPath>
+            <Name>WixUIExtension</Name>
+        </WixExtension>
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Resources"/>
+        <Folder Include="Resources\Images"/>
+        <Folder Include="Resources\Icons"/>
+    </ItemGroup>
+    <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' "/>
+    <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') "/>
+    <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">
+        <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/"/>
+    </Target>
+    <PropertyGroup>
+        <PreBuildEvent>heat.exe dir $(SolutionDir)Publish -srd -sreg -nologo -cg Dependencies -dr INSTALLFOLDER -wixvar -var wix.PublishDir -gg -g1 -o $(ProjectDir)dependencies.wxs -t $(ProjectDir)Transform.xslt</PreBuildEvent>
+    </PropertyGroup>
+</Project>

@@ -141,9 +141,7 @@ publish/
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
-# TODO: Comment the next line if you want to checkin your web deploy settings
-# but database connection strings (with potential passwords) will be unencrypted
-#*.pubxml
+*.pubxml
 *.publishproj
 
 # Microsoft Azure Web App publish settings. Comment the next line if you want to
@@ -259,18 +257,32 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-/Setup
+
+# Latex files
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+
+# Latex build tools
+*.fdb_latexmk
+*.synctex
+*.synctex(busy)
+*.synctex.gz
+*.synctex.gz(busy)
+*.pdfsync
+
+# Custom Ignore
 /.editorconfig
-/MigrationBackup/b72498c1/VoxelGame
-/VoxelGame/VoxelGame.csproj.old
-/VoxelGame/GlobalSuppressions.cs
-/.sonarlint
-/Publish-linux
-/core/GlobalSuppressions.cs
-/client/GlobalSuppressions.cs
-*.licenseheader
-/client/Properties/PublishProfiles
-/src/ui/GlobalSuppressions.cs
-/src/core/GlobalSuppressions.cs
-/src/client/Properties/PublishProfiles
+.sonarlint/
 *.DotSettings
+*.xcf
+Setup/dependencies.wxs

@@ -4,6 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+
+using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
@@ -24,6 +27,14 @@ using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
+#if MANUAL
+using System.Globalization;
+using VoxelGame.Core;
+using Section = VoxelGame.Manual.Section;
+using VoxelGame.Manual;
+using VoxelGame.Manual.Modifiers;
+using VoxelGame.Manual.Utility;
+#endif
 
 namespace VoxelGame.Client.Application
 {
@@ -159,6 +170,11 @@ namespace VoxelGame.Client.Application
                 sceneManager.Load(new StartScene(this));
 
                 logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
+
+#if MANUAL
+                // Optional generation of manual.
+                GenerateManual();
+#endif
             }
         }
 
@@ -204,6 +220,56 @@ namespace VoxelGame.Client.Application
 
             sceneManager.Unload();
             Shaders.Delete();
+        }
+
+
+        [UsedImplicitly]
+        [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Used in other build type.")]
+        private void GenerateManual()
+        {
+#if MANUAL
+            const string path = "./../../../../../../Setup/Resources/Manual";
+
+            Documentation documentation = new(typeof(GameInformation).Assembly);
+
+            Includable controls = new("controls", path);
+
+            controls.CreateSections(
+                Keybinds.Binds,
+                keybind => Section.Create(keybind.Name)
+                    .Text("The key is bound to").Key(keybind.Default).Text("per default.").EndSection());
+
+            controls.Generate();
+
+            Includable blocks = new("blocks", path);
+
+            blocks.CreateSections(
+                typeof(Block).GetStaticValues<Block>(documentation),
+                ((Block block, string description) s) => Section.Create(s.block.Name)
+                    .Text(s.description).NewLine()
+                    .BeginList()
+                    .Item("ID:").Text(s.block.NamedId, TextStyle.Monospace)
+                    .Item("Solid:").Boolean(s.block.IsSolid)
+                    .Item("Interactions:").Boolean(s.block.IsInteractable)
+                    .Item("Replaceable:").Boolean(s.block.IsReplaceable)
+                    .End().EndSection());
+
+            blocks.Generate();
+
+            Includable liquids = new("liquids", path);
+
+            liquids.CreateSections(
+                typeof(Liquid).GetStaticValues<Liquid>(documentation),
+                ((Liquid liquid, string description) s) => Section.Create(s.liquid.Name)
+                    .Text(s.description).NewLine()
+                    .BeginList()
+                    .Item("ID:").Text(s.liquid.NamedId, TextStyle.Monospace)
+                    .Item("Viscosity:").Text(s.liquid.Viscosity.ToString(CultureInfo.InvariantCulture))
+                    .Item("Density:").Text(s.liquid.Density.ToString(CultureInfo.InvariantCulture))
+                    .End().EndSection());
+
+            liquids.Generate();
+#endif
         }
 
         #region STATIC PROPERTIES

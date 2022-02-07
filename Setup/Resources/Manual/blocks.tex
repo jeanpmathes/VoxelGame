@@ -1,0 +1,607 @@
+\subsection{Air}\label{subsec:blocks_air}
+The air block that fills the world. Could also be interpreted as "no block".
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Air}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \Checkmark
+\end{itemize}
+
+\subsection{Grass}\label{subsec:blocks_grass}
+Dirt with some grass on top. Plants can be placed on top of this.
+The grass can burn, creating ash.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Grass}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Ash-covered Dirt}\label{subsec:blocks_ash-covered dirt}
+Grass that was burned. Water can burn the ash away.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{GrassBurned}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Dirt}\label{subsec:blocks_dirt}
+Simple dirt. Grass next to it can spread over it.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Dirt}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Farmland}\label{subsec:blocks_farmland}
+Tilled dirt that allows many plants to grow.
+While plants can also grow on normal grass, this block allows full growth.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Farmland}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Tall Grass}\label{subsec:blocks_tall grass}
+A tall grassy plant. Fluids will destroy it, if the level is too high.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{TallGrass}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \Checkmark
+\end{itemize}
+
+\subsection{Very Tall Grass}\label{subsec:blocks_very tall grass}
+A much larger version of the normal tall grass.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{VeryTallGrass}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Flower}\label{subsec:blocks_flower}
+A simple flower.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Flower}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \Checkmark
+\end{itemize}
+
+\subsection{Tall Flower}\label{subsec:blocks_tall flower}
+A very tall flower.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{TallFlower}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Stone}\label{subsec:blocks_stone}
+This stone block makes up large parts of the world. Below the dirt layers, the ground is solid stone.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Stone}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Rubble}\label{subsec:blocks_rubble}
+When stone is destroyed, rubble is what remains.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Rubble}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Mud}\label{subsec:blocks_mud}
+Mud is created when water and dirt mix.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Mud}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Pumice}\label{subsec:blocks_pumice}
+Pumice is created when lava rapidly cools down, while being in contact with a lot of water.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Pumice}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Obsidian}\label{subsec:blocks_obsidian}
+Obsidian is a dark type of stone, that forms from lava.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Obsidian}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Snow}\label{subsec:blocks_snow}
+Snow covers the ground, and can have different heights.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Snow}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Leaves}\label{subsec:blocks_leaves}
+Leaves are transparent parts of the tree. They are flammable.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Leaves}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Log}\label{subsec:blocks_log}
+Log is the unprocessed, wooden part of a tree. As it is made of wood, it is flammable.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Log}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Wood}\label{subsec:blocks_wood}
+Processed wood that can be used as construction material. It is flammable.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Wood}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Sand}\label{subsec:blocks_sand}
+Sand naturally forms and allows water to flow through it.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Sand}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Gravel}\label{subsec:blocks_gravel}
+Gravel, which is made out of small pebbles, allows water to flow through it.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Gravel}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Coal Ore}\label{subsec:blocks_coal ore}
+Coal ore is stone that contains coal.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{OreCoal}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Iron Ore}\label{subsec:blocks_iron ore}
+Iron ore is stone that contains iron.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{OreIron}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Gold Ore}\label{subsec:blocks_gold ore}
+Gold ore is stone that contains gold.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{OreGold}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Ash}\label{subsec:blocks_ash}
+Ahs is the remainder of burning processes.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Ash}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Cactus}\label{subsec:blocks_cactus}
+A cactus slowly grows upwards. It can only be placed on sand.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Cactus}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Pumpkin}\label{subsec:blocks_pumpkin}
+Pumpkins are the fruit of the pumpkin plant. They have to be placed on solid ground.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Pumpkin}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Melon}\label{subsec:blocks_melon}
+Melons are the fruit of the melon plant. They have to be placed on solid ground.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Melon}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Spider Web}\label{subsec:blocks_spider web}
+Spiderwebs slow the movement of entities and can be used to trap enemies.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Spiderweb}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Vines}\label{subsec:blocks_vines}
+Vines grow downwards, and can hang freely. It is possible to climb them.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Vines}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Flax}\label{subsec:blocks_flax}
+Flax is a crop plant that grows on farmland. It requires water to fully grow.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Flax}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Potatoes}\label{subsec:blocks_potatoes}
+Potatoes are a crop plant that grows on farmland. They requires water to fully grow.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Potatoes}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Onions}\label{subsec:blocks_onions}
+Onions are a crop plant that grows on farmland. They requires water to fully grow.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Onions}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Wheat}\label{subsec:blocks_wheat}
+Wheat is a crop plant that grows on farmland. It requires water to fully grow.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Wheat}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Maize}\label{subsec:blocks_maize}
+Maize is a crop plant that grows on farmland.
+Maize grows two blocks high. It requires water to fully grow.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Maize}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Pumpkin Plant}\label{subsec:blocks_pumpkin plant}
+The pumpkin plant grows pumpkin fruits.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{PumpkinPlant}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Melon Plant}\label{subsec:blocks_melon plant}
+The melon plant grows melon fruits.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{MelonPlant}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Glass}\label{subsec:blocks_glass}
+Glass is transparent block.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Glass}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Tiled Glass}\label{subsec:blocks_tiled glass}
+Tiled glass is like glass, but made out of four tiles.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{GlassTiled}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Steel}\label{subsec:blocks_steel}
+The steel block is a metal construction block.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Steel}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Worked Stone}\label{subsec:blocks_worked stone}
+Worked stone is a processed stone block.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{StoneWorked}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Ladder}\label{subsec:blocks_ladder}
+A ladder allows climbing up and down.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Ladder}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Small Tiles}\label{subsec:blocks_small tiles}
+Small tiles for construction of floors and walls.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{TilesSmall}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Large Tiles}\label{subsec:blocks_large tiles}
+Large tiles for construction of floors and walls.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{TilesLarge}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Black Checkerboard Tiles}\label{subsec:blocks_black checkerboard tiles}
+Black checkerboard tiles come in different colors.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{TilesCheckerboardBlack}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{White Checkerboard Tiles}\label{subsec:blocks_white checkerboard tiles}
+White checkerboard tiles come in different colors.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{TilesCheckerboardWhite}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Bricks}\label{subsec:blocks_bricks}
+Bricks are a simple construction material.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Bricks}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Paving Stone}\label{subsec:blocks_paving stone}
+Paving stone is a simple construction material, ideal for paths.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{PavingStone}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Red Plastic}\label{subsec:blocks_red plastic}
+Red plastic is a construction material.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{RedPlastic}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Concrete}\label{subsec:blocks_concrete}
+Concrete is a flexible construction material that can have different heights and colors.
+It can be build using liquid concrete.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Concrete}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Stone Face}\label{subsec:blocks_stone face}
+This block is like a processed stone block, but with a decorative face added.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{StoneFace}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Vase}\label{subsec:blocks_vase}
+The vase is a decorative block that must be placed on solid ground.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Vase}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Bed}\label{subsec:blocks_bed}
+The bed can be placed to set a different spawn point.
+It is possible to change to color of a bed.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Bed}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Wool}\label{subsec:blocks_wool}
+Wool is a flammable material, that allows its color to be changed.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Wool}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Decorated Wool}\label{subsec:blocks_decorated wool}
+Decorated wool is similar to wool, decorated with golden ornaments.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{WoolDecorated}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Carpet}\label{subsec:blocks_carpet}
+Carpets can be used to cover the floor. Their color can be changed.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Carpet}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Decorated Carpet}\label{subsec:blocks_decorated carpet}
+Decorated carpets are similar to carpets, decorated with golden ornaments.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{CarpetDecorated}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Glass Pane}\label{subsec:blocks_glass pane}
+Glass panes are a thin alternative to glass blocks.
+They connect to some neighboring blocks.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{GlassPane}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Bars}\label{subsec:blocks_bars}
+Steel bars are a thin, but strong barrier.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Bars}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Wooden Fence}\label{subsec:blocks_wooden fence}
+The wooden fence can be used as way of marking areas. It does not prevent jumping over it.
+As this fence is made out of wood, it is flammable. Fences can connect to other blocks.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{FenceWood}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Rubble Wall}\label{subsec:blocks_rubble wall}
+The rubble wall is a stone barrier that can be used as a way of marking areas.
+They do not prevent jumping over it, and can connect to other blocks.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{WallRubble}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Brick Wall}\label{subsec:blocks_brick wall}
+The brick wall is similar to all other walls, and made out of bricks.
+They do not prevent jumping over them, and can connect to other blocks.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{WallBricks}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Steel Door}\label{subsec:blocks_steel door}
+The steel door allows closing of a room. It can be opened and closed.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{DoorSteel}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Wooden Door}\label{subsec:blocks_wooden door}
+The wooden door allows closing of a room. It can be opened and closed.
+As this door is made out of wood, it is flammable.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{DoorWood}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Wooden Gate}\label{subsec:blocks_wooden gate}
+Fence gates are meant as a passage trough fences and walls.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{GateWood}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Barrier}\label{subsec:blocks_barrier}
+The liquid barrier can be used to control liquid flow. It can be opened and closed.
+It does not prevent gasses from flowing through it.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{LiquidBarrier}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Steel Pipe}\label{subsec:blocks_steel pipe}
+The industrial steel pipe can be used to control liquid flow.
+It connects to other pipes.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{SteelPipe}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Wooden Pipe}\label{subsec:blocks_wooden pipe}
+The wooden pipe offers a primitive way of controlling liquid flow.
+It connects to other pipes.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{WoodenPipe}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Straight Steelpipe}\label{subsec:blocks_straight steelpipe}
+This pipe is a special steel pipe that can only form straight connections.
+It is ideal for parallel pipes.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{StraightSteelPipe}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Valve Pipe}\label{subsec:blocks_valve pipe}
+This is a special steel pipe that can be closed. It prevents all fluid flow.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{PipeValve}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Pump}\label{subsec:blocks_pump}
+The pump can lift liquids up when interacted with.
+It can only lift up to a threshold of 16 blocks.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Pump}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Fire}\label{subsec:blocks_fire}
+Fire is a dangerous block that spreads onto nearby flammable blocks.
+When spreading, fire burns blocks which can destroy them.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Fire}
+    \item[Solid:]  \XSolidBrush \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \Checkmark
+\end{itemize}
+
+\subsection{Pulsating Block}\label{subsec:blocks_pulsating block}
+This is a magical pulsating block.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Pulsating}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \Checkmark \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Eternal Flame}\label{subsec:blocks_eternal flame}
+The eternal flame, once lit, will never go out naturally.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{EternalFlame}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}
+
+\subsection{Path}\label{subsec:blocks_path}
+The path is a dirt block with its top layer trampled.
+\newline
+\begin{itemize}[nosep]
+    \item[ID:] \texttt{Path}
+    \item[Solid:]  \Checkmark \item[Interactions:]  \XSolidBrush \item[Replaceable:]  \XSolidBrush
+\end{itemize}

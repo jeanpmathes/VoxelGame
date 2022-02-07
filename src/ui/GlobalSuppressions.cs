@@ -5,4 +5,9 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "Not a public API.", Scope = "module")]
+[assembly:
+    SuppressMessage(
+        "Design",
+        "CA1062:Validate arguments of public methods",
+        Justification = "Not a public API.",
+        Scope = "module")]

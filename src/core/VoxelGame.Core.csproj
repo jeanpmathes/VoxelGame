@@ -44,7 +44,6 @@
         <NeutralLanguage>en</NeutralLanguage>
         <AssemblyVersion>1.2.0.0</AssemblyVersion>
         <FileVersion>1.2.0.0</FileVersion>
-        <AssemblyName>VoxelGame</AssemblyName>
         <Authors>pershinghtesecond</Authors>
         <Company>pershinghtesecond</Company>
     <PackageLicenseExpression>MIT LICENSE</PackageLicenseExpression>

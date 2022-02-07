@@ -98,7 +98,8 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Air = new AirBlock(Language.Air, nameof(Air));
 
         /// <summary>
-        ///     Dirt with some grass on top.
+        ///     Dirt with some grass on top. Plants can be placed on top of this.
+        ///     The grass can burn, creating ash.
         /// </summary>
         public static readonly Block Grass = new GrassBlock(
             Language.Grass,
@@ -107,7 +108,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.UnqiueColumn("grass_side_wet", "dirt_wet", "grass_wet"));
 
         /// <summary>
-        ///     Grass that was burned.
+        ///     Grass that was burned. Water can burn the ash away.
         /// </summary>
         public static readonly Block GrassBurned = new CoveredGrassSpreadableBlock(
             Language.AshCoveredDirt,
@@ -116,7 +117,7 @@ namespace VoxelGame.Core.Logic
             hasNeutralTint: false);
 
         /// <summary>
-        ///     Simple dirt block.
+        ///     Simple dirt. Grass next to it can spread over it.
         /// </summary>
         public static readonly Block Dirt = new DirtBlock(
             Language.Dirt,
@@ -126,6 +127,7 @@ namespace VoxelGame.Core.Logic
 
         /// <summary>
         ///     Tilled dirt that allows many plants to grow.
+        ///     While plants can also grow on normal grass, this block allows full growth.
         /// </summary>
         public static readonly Block Farmland = new InsetDirtBlock(
             Language.Farmland,
@@ -135,7 +137,7 @@ namespace VoxelGame.Core.Logic
             supportsFullGrowth: true);
 
         /// <summary>
-        ///     Tall grass.
+        ///     A tall grassy plant. Fluids will destroy it, if the level is too high.
         /// </summary>
         public static readonly Block TallGrass = new CrossPlantBlock(
             Language.TallGrass,
@@ -145,7 +147,7 @@ namespace VoxelGame.Core.Logic
             BoundingBox.CrossBlock);
 
         /// <summary>
-        ///     Very tall grass.
+        ///     A much larger version of the normal tall grass.
         /// </summary>
         public static readonly Block VeryTallGrass = new DoubleCrossPlantBlock(
             Language.VeryTallGrass,
@@ -155,7 +157,7 @@ namespace VoxelGame.Core.Logic
             BoundingBox.CrossBlock);
 
         /// <summary>
-        ///     A flower.
+        ///     A simple flower.
         /// </summary>
         public static readonly Block Flower = new CrossPlantBlock(
             Language.Flower,
@@ -175,7 +177,7 @@ namespace VoxelGame.Core.Logic
             BoundingBox.CrossBlock);
 
         /// <summary>
-        ///     Stone, that makes up most of the world.
+        ///     This stone block makes up large parts of the world. Below the dirt layers, the ground is solid stone.
         /// </summary>
         public static readonly Block Stone = new BasicBlock(
             Language.Stone,
@@ -184,7 +186,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("stone"));
 
         /// <summary>
-        ///     Broken stone.
+        ///     When stone is destroyed, rubble is what remains.
         /// </summary>
         public static readonly Block Rubble = new ConstructionBlock(
             Language.Rubble,
@@ -192,7 +194,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("rubble"));
 
         /// <summary>
-        ///     A mix of dirt and water.
+        ///     Mud is created when water and dirt mix.
         /// </summary>
         public static readonly Block Mud = new MudBlock(
             Language.Mud,
@@ -201,7 +203,7 @@ namespace VoxelGame.Core.Logic
             maxVelocity: 0.1f);
 
         /// <summary>
-        ///     A type of stone that forms from lava that comes in contact with water.
+        ///     Pumice is created when lava rapidly cools down, while being in contact with a lot of water.
         /// </summary>
         public static readonly Block Pumice = new BasicBlock(
             Language.Pumice,
@@ -210,7 +212,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("pumice"));
 
         /// <summary>
-        ///     A black type of stone.
+        ///     Obsidian is a dark type of stone, that forms from lava.
         /// </summary>
         public static readonly Block Obsidian = new BasicBlock(
             Language.Obsidian,
@@ -219,7 +221,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("obsidian"));
 
         /// <summary>
-        ///     Snow.
+        ///     Snow covers the ground, and can have different heights.
         /// </summary>
         public static readonly Block Snow = new ModifiableHeightBlock(
             Language.Snow,
@@ -227,7 +229,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("snow"));
 
         /// <summary>
-        ///     Leaves, a part of trees.
+        ///     Leaves are transparent parts of the tree. They are flammable.
         /// </summary>
         public static readonly Block Leaves = new NaturalBlock(
             Language.Leaves,
@@ -240,7 +242,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("leaves"));
 
         /// <summary>
-        ///     Wood as part of a log.
+        ///     Log is the unprocessed, wooden part of a tree. As it is made of wood, it is flammable.
         /// </summary>
         public static readonly Block Log = new RotatedBlock(
             Language.Log,
@@ -249,7 +251,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Column("log", sideOffset: 0, endOffset: 1));
 
         /// <summary>
-        ///     Raw wood, extracted from logs.
+        ///     Processed wood that can be used as construction material. It is flammable.
         /// </summary>
         public static readonly Block Wood = new OrganicConstructionBlock(
             Language.Wood,
@@ -257,7 +259,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("wood"));
 
         /// <summary>
-        ///     Sand. Allows water to flow through it.
+        ///     Sand naturally forms and allows water to flow through it.
         /// </summary>
         public static readonly Block Sand = new PermeableBlock(
             Language.Sand,
@@ -265,7 +267,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("sand"));
 
         /// <summary>
-        ///     Gravel. Allows water to flow through it.
+        ///     Gravel, which is made out of small pebbles, allows water to flow through it.
         /// </summary>
         public static readonly Block Gravel = new PermeableBlock(
             Language.Gravel,
@@ -273,7 +275,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("gravel"));
 
         /// <summary>
-        ///     Coal ore.
+        ///     Coal ore is stone that contains coal.
         /// </summary>
         public static readonly Block OreCoal = new BasicBlock(
             Language.CoalOre,
@@ -282,7 +284,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("ore_coal"));
 
         /// <summary>
-        ///     Iron ore.
+        ///     Iron ore is stone that contains iron.
         /// </summary>
         public static readonly Block OreIron = new BasicBlock(
             Language.IronOre,
@@ -291,7 +293,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("ore_iron"));
 
         /// <summary>
-        ///     Gold ore.
+        ///     Gold ore is stone that contains gold.
         /// </summary>
         public static readonly Block OreGold = new BasicBlock(
             Language.GoldOre,
@@ -300,7 +302,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("ore_gold"));
 
         /// <summary>
-        ///     Ash.
+        ///     Ahs is the remainder of burning processes.
         /// </summary>
         public static readonly Block Ash = new BasicBlock(
             Language.Ash,
@@ -313,7 +315,7 @@ namespace VoxelGame.Core.Logic
         #region PLANT BLOCKS
 
         /// <summary>
-        ///     A slow growing cactus.
+        ///     A cactus slowly grows upwards. It can only be placed on sand.
         /// </summary>
         public static readonly Block Cactus = new GrowingBlock(
             Language.Cactus,
@@ -323,7 +325,7 @@ namespace VoxelGame.Core.Logic
             maxHeight: 4);
 
         /// <summary>
-        ///     The pumpkin plant fruit.
+        ///     Pumpkins are the fruit of the pumpkin plant. They have to be placed on solid ground.
         /// </summary>
         public static readonly Block Pumpkin = new GroundedBlock(
             Language.Pumpkin,
@@ -332,7 +334,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Column("pumpkin_side", "pumpkin_top"));
 
         /// <summary>
-        ///     The melon plant fruit.
+        ///     Melons are the fruit of the melon plant. They have to be placed on solid ground.
         /// </summary>
         public static readonly Block Melon = new GroundedBlock(
             Language.Melon,
@@ -341,7 +343,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Column("melon_side", "melon_top"));
 
         /// <summary>
-        ///     A sticky web that hinders movement.
+        ///     Spiderwebs slow the movement of entities and can be used to trap enemies.
         /// </summary>
         public static readonly Block Spiderweb = new SpiderWebBlock(
             Language.SpiderWeb,
@@ -350,7 +352,7 @@ namespace VoxelGame.Core.Logic
             maxVelocity: 0.01f);
 
         /// <summary>
-        ///     Vines, that grow and allow climbing.
+        ///     Vines grow downwards, and can hang freely. It is possible to climb them.
         /// </summary>
         public static readonly Block Vines = new GrowingFlatBlock(
             Language.Vines,
@@ -360,7 +362,7 @@ namespace VoxelGame.Core.Logic
             slidingVelocity: 1f);
 
         /// <summary>
-        ///     Flax.
+        ///     Flax is a crop plant that grows on farmland. It requires water to fully grow.
         /// </summary>
         public static readonly Block Flax = new CropBlock(
             Language.Flax,
@@ -375,7 +377,7 @@ namespace VoxelGame.Core.Logic
             dead: 5);
 
         /// <summary>
-        ///     Potatoes.
+        ///     Potatoes are a crop plant that grows on farmland. They requires water to fully grow.
         /// </summary>
         public static readonly Block Potatoes = new CropBlock(
             Language.Potatoes,
@@ -390,7 +392,7 @@ namespace VoxelGame.Core.Logic
             dead: 5);
 
         /// <summary>
-        ///     Onions.
+        ///     Onions are a crop plant that grows on farmland. They requires water to fully grow.
         /// </summary>
         public static readonly Block Onions = new CropBlock(
             Language.Onions,
@@ -405,7 +407,7 @@ namespace VoxelGame.Core.Logic
             dead: 4);
 
         /// <summary>
-        ///     Wheat.
+        ///     Wheat is a crop plant that grows on farmland. It requires water to fully grow.
         /// </summary>
         public static readonly Block Wheat = new CropBlock(
             Language.Wheat,
@@ -420,7 +422,8 @@ namespace VoxelGame.Core.Logic
             dead: 4);
 
         /// <summary>
-        ///     Maize.
+        ///     Maize is a crop plant that grows on farmland.
+        ///     Maize grows two blocks high. It requires water to fully grow.
         /// </summary>
         public static readonly Block Maize = new DoubleCropBlock(
             Language.Maize,
@@ -436,7 +439,7 @@ namespace VoxelGame.Core.Logic
             (5, 8));
 
         /// <summary>
-        ///     Pumpkin plant.
+        ///     The pumpkin plant grows pumpkin fruits.
         /// </summary>
         public static readonly Block PumpkinPlant = new FruitCropBlock(
             Language.PumpkinPlant,
@@ -445,7 +448,7 @@ namespace VoxelGame.Core.Logic
             Pumpkin);
 
         /// <summary>
-        ///     Melon plant.
+        ///     The melon plant grows melon fruits.
         /// </summary>
         public static readonly Block MelonPlant = new FruitCropBlock(
             Language.MelonPlant,
@@ -458,7 +461,7 @@ namespace VoxelGame.Core.Logic
         #region BUILDING BLOCKS
 
         /// <summary>
-        ///     Glass, a see-through block.
+        ///     Glass is transparent block.
         /// </summary>
         public static readonly Block Glass = new GlassBlock(
             Language.Glass,
@@ -466,7 +469,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("glass"));
 
         /// <summary>
-        ///     Tiled glass, a see-through block.
+        ///     Tiled glass is like glass, but made out of four tiles.
         /// </summary>
         public static readonly Block GlassTiled = new GlassBlock(
             Language.TiledGlass,
@@ -474,7 +477,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("glass_tiled"));
 
         /// <summary>
-        ///     Steel block.
+        ///     The steel block is a metal construction block.
         /// </summary>
         public static readonly Block Steel = new ConstructionBlock(
             Language.Steel,
@@ -482,7 +485,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("steel"));
 
         /// <summary>
-        ///     Worked stone.
+        ///     Worked stone is a processed stone block.
         /// </summary>
         public static readonly Block StoneWorked = new BasicBlock(
             Language.WorkedStone,
@@ -491,7 +494,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("stone_worked"));
 
         /// <summary>
-        ///     Ladder, a block that can be climbed.
+        ///     A ladder allows climbing up and down.
         /// </summary>
         public static readonly Block Ladder = new FlatBlock(
             Language.Ladder,
@@ -501,7 +504,7 @@ namespace VoxelGame.Core.Logic
             slidingVelocity: 1f);
 
         /// <summary>
-        ///     Small tiles.
+        ///     Small tiles for construction of floors and walls.
         /// </summary>
         public static readonly Block TilesSmall = new ConstructionBlock(
             Language.SmallTiles,
@@ -509,7 +512,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("small_tiles"));
 
         /// <summary>
-        ///     Large tiles.
+        ///     Large tiles for construction of floors and walls.
         /// </summary>
         public static readonly Block TilesLarge = new ConstructionBlock(
             Language.LargeTiles,
@@ -517,7 +520,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("large_tiles"));
 
         /// <summary>
-        ///     Black checkerboard tiles, their color can be changed.
+        ///     Black checkerboard tiles come in different colors.
         /// </summary>
         public static readonly Block TilesCheckerboardBlack = new TintedBlock(
             Language.CheckerboardTilesBlack,
@@ -526,7 +529,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("checkerboard_tiles_black"));
 
         /// <summary>
-        ///     White checkerboard tiles, their color can be changed.
+        ///     White checkerboard tiles come in different colors.
         /// </summary>
         public static readonly Block TilesCheckerboardWhite = new TintedBlock(
             Language.CheckerboardTilesWhite,
@@ -535,7 +538,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("checkerboard_tiles_white"));
 
         /// <summary>
-        ///     Simple bricks.
+        ///     Bricks are a simple construction material.
         /// </summary>
         public static readonly Block Bricks = new ConstructionBlock(
             Language.Bricks,
@@ -543,7 +546,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("bricks"));
 
         /// <summary>
-        ///     Paving stone.
+        ///     Paving stone is a simple construction material, ideal for paths.
         /// </summary>
         public static readonly Block PavingStone = new ConstructionBlock(
             Language.PavingStone,
@@ -551,7 +554,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("paving_stone"));
 
         /// <summary>
-        ///     Red plastic.
+        ///     Red plastic is a construction material.
         /// </summary>
         public static readonly Block RedPlastic = new ConstructionBlock(
             Language.RedPlastic,
@@ -559,7 +562,8 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("red_plastic"));
 
         /// <summary>
-        ///     Concrete. The color can be changed.
+        ///     Concrete is a flexible construction material that can have different heights and colors.
+        ///     It can be build using liquid concrete.
         /// </summary>
         public static readonly Block Concrete = new ConcreteBlock(
             Language.Concrete,
@@ -571,7 +575,7 @@ namespace VoxelGame.Core.Logic
         #region DECORATION BLOCKS
 
         /// <summary>
-        ///     A face in stone.
+        ///     This block is like a processed stone block, but with a decorative face added.
         /// </summary>
         public static readonly Block StoneFace = new OrientedBlock(
             Language.StoneFace,
@@ -580,7 +584,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.UnqiueFront("stone_worked_face", "stone_worked"));
 
         /// <summary>
-        ///     A vase.
+        ///     The vase is a decorative block that must be placed on solid ground.
         /// </summary>
         public static readonly Block Vase = new CustomModelBlock(
             Language.Vase,
@@ -590,12 +594,13 @@ namespace VoxelGame.Core.Logic
             new BoundingBox(new Vector3(x: 0.5f, y: 0.375f, z: 0.5f), new Vector3(x: 0.25f, y: 0.375f, z: 0.25f)));
 
         /// <summary>
-        ///     A bed. Placing it sets the spawn point.
+        ///     The bed can be placed to set a different spawn point.
+        ///     It is possible to change to color of a bed.
         /// </summary>
         public static readonly Block Bed = new BedBlock(Language.Bed, nameof(Bed), "bed");
 
         /// <summary>
-        ///     Wool. The color can be changed.
+        ///     Wool is a flammable material, that allows its color to be changed.
         /// </summary>
         public static readonly Block Wool = new OrganicTintedBlock(
             Language.Wool,
@@ -603,7 +608,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("wool"));
 
         /// <summary>
-        ///     Wool with decorations. The color can be changed.
+        ///     Decorated wool is similar to wool, decorated with golden ornaments.
         /// </summary>
         public static readonly Block WoolDecorated = new OrganicTintedBlock(
             Language.DecoratedWool,
@@ -611,7 +616,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("wool_decorated"));
 
         /// <summary>
-        ///     Carper. The color can be changed.
+        ///     Carpets can be used to cover the floor. Their color can be changed.
         /// </summary>
         public static readonly Block Carpet = new TintedCustomModelBlock(
             Language.Carpet,
@@ -621,7 +626,7 @@ namespace VoxelGame.Core.Logic
             new BoundingBox(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
 
         /// <summary>
-        ///     Decorated carpet, the color can be changed.
+        ///     Decorated carpets are similar to carpets, decorated with golden ornaments.
         /// </summary>
         public static readonly Block CarpetDecorated = new TintedCustomModelBlock(
             Language.DecoratedCarpet,
@@ -631,7 +636,8 @@ namespace VoxelGame.Core.Logic
             new BoundingBox(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
 
         /// <summary>
-        ///     A thin glass panel.
+        ///     Glass panes are a thin alternative to glass blocks.
+        ///     They connect to some neighboring blocks.
         /// </summary>
         public static readonly Block GlassPane = new ThinConnectingBlock(
             Language.GlassPane,
@@ -641,7 +647,7 @@ namespace VoxelGame.Core.Logic
             "pane_glass_extension");
 
         /// <summary>
-        ///     Steel bars.
+        ///     Steel bars are a thin, but strong barrier.
         /// </summary>
         public static readonly Block Bars = new ThinConnectingBlock(
             Language.Bars,
@@ -655,7 +661,8 @@ namespace VoxelGame.Core.Logic
         #region ACCESS BLOCKS
 
         /// <summary>
-        ///     A wooden fence.
+        ///     The wooden fence can be used as way of marking areas. It does not prevent jumping over it.
+        ///     As this fence is made out of wood, it is flammable. Fences can connect to other blocks.
         /// </summary>
         public static readonly Block FenceWood = new FenceBlock(
             Language.WoodenFence,
@@ -665,7 +672,8 @@ namespace VoxelGame.Core.Logic
             "fence_extension");
 
         /// <summary>
-        ///     A wall made out of Rubble.
+        ///    The rubble wall is a stone barrier that can be used as a way of marking areas.
+        ///     They do not prevent jumping over it, and can connect to other blocks.
         /// </summary>
         public static readonly Block WallRubble = new WallBlock(
             Language.RubbleWall,
@@ -676,7 +684,8 @@ namespace VoxelGame.Core.Logic
             "wall_extension_straight");
 
         /// <summary>
-        ///     A wall made out of brick.
+        ///     The brick wall is similar to all other walls, and made out of bricks.
+        ///     They do not prevent jumping over them, and can connect to other blocks.
         /// </summary>
         public static readonly Block WallBricks = new WallBlock(
             Language.BrickWall,
@@ -687,7 +696,7 @@ namespace VoxelGame.Core.Logic
             "wall_extension_straight");
 
         /// <summary>
-        ///     A door out of steel.
+        ///     The steel door allows closing of a room. It can be opened and closed.
         /// </summary>
         public static readonly Block DoorSteel = new DoorBlock(
             Language.SteelDoor,
@@ -696,7 +705,8 @@ namespace VoxelGame.Core.Logic
             "door_steel_open");
 
         /// <summary>
-        ///     A door out of wood.
+        ///     The wooden door allows closing of a room. It can be opened and closed.
+        ///     As this door is made out of wood, it is flammable.
         /// </summary>
         public static readonly Block DoorWood = new OrganicDoorBlock(
             Language.WoodenDoor,
@@ -705,7 +715,7 @@ namespace VoxelGame.Core.Logic
             "door_wood_open");
 
         /// <summary>
-        ///     A fence gate.
+        ///     Fence gates are meant as a passage trough fences and walls.
         /// </summary>
         public static readonly Block GateWood = new GateBlock(
             Language.WoodenGate,
@@ -718,7 +728,8 @@ namespace VoxelGame.Core.Logic
         #region LIQUID FLOW BLOCKS
 
         /// <summary>
-        ///     A barrier to control flow of liquids.
+        ///     The liquid barrier can be used to control liquid flow. It can be opened and closed.
+        ///     It does not prevent gasses from flowing through it.
         /// </summary>
         public static readonly Block LiquidBarrier = new LiquidBarrierBlock(
             Language.Barrier,
@@ -727,7 +738,8 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("liquid_barrier_open"));
 
         /// <summary>
-        ///     An industrial steel pipe.
+        ///     The industrial steel pipe can be used to control liquid flow.
+        ///     It connects to other pipes.
         /// </summary>
         public static readonly Block SteelPipe = new PipeBlock<IIndustrialPipeConnectable>(
             Language.SteelPipe,
@@ -738,7 +750,8 @@ namespace VoxelGame.Core.Logic
             "steel_pipe_surface");
 
         /// <summary>
-        ///     A primitive wooden pipe.
+        ///     The wooden pipe offers a primitive way of controlling liquid flow.
+        ///     It connects to other pipes.
         /// </summary>
         public static readonly Block WoodenPipe = new PipeBlock<IPrimitivePipeConnectable>(
             Language.WoodenPipe,
@@ -749,7 +762,8 @@ namespace VoxelGame.Core.Logic
             "wood_pipe_surface");
 
         /// <summary>
-        ///     A special steel pipe that can only form straight connections.
+        ///     This pipe is a special steel pipe that can only form straight connections.
+        ///     It is ideal for parallel pipes.
         /// </summary>
         public static readonly Block StraightSteelPipe = new StraightSteelPipeBlock(
             Language.SteelPipeStraight,
@@ -758,7 +772,7 @@ namespace VoxelGame.Core.Logic
             "steel_pipe_straight");
 
         /// <summary>
-        ///     A special steel pipe that can be closed.
+        ///     This is a special steel pipe that can be closed. It prevents all fluid flow.
         /// </summary>
         public static readonly Block PipeValve = new SteelPipeValveBlock(
             Language.ValvePipe,
@@ -768,7 +782,8 @@ namespace VoxelGame.Core.Logic
             "steel_pipe_valve_closed");
 
         /// <summary>
-        ///     A pump that lifts up liquids when interacted with.
+        ///     The pump can lift liquids up when interacted with.
+        ///     It can only lift up to a threshold of 16 blocks.
         /// </summary>
         public static readonly Block Pump = new PumpBlock(
             Language.Pump,
@@ -781,7 +796,8 @@ namespace VoxelGame.Core.Logic
         #region SPECIAL BLOCKS
 
         /// <summary>
-        ///     Fire. Burns flammable blocks.
+        ///     Fire is a dangerous block that spreads onto nearby flammable blocks.
+        ///     When spreading, fire burns blocks which can destroy them.
         /// </summary>
         public static readonly Block Fire = new FireBlock(
             Language.Fire,
@@ -791,7 +807,7 @@ namespace VoxelGame.Core.Logic
             "fire_top");
 
         /// <summary>
-        ///     A magical pulsating block.
+        ///     This is a magical pulsating block.
         /// </summary>
         public static readonly Block Pulsating = new TintedBlock(
             Language.PulsatingBlock,
@@ -801,7 +817,7 @@ namespace VoxelGame.Core.Logic
             isAnimated: true);
 
         /// <summary>
-        ///     A block that, once ignited, will burn for ever time.
+        ///     The eternal flame, once lit, will never go out naturally.
         /// </summary>
         public static readonly Block EternalFlame = new EternalFlame(
             Language.EternalFlame,
@@ -809,7 +825,7 @@ namespace VoxelGame.Core.Logic
             TextureLayout.Uniform("eternal_flame"));
 
         /// <summary>
-        ///     A walkable path.
+        ///     The path is a dirt block with its top layer trampled.
         /// </summary>
         public static readonly Block Path = new InsetDirtBlock(
             Language.Path,
