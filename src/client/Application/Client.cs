@@ -28,7 +28,12 @@ using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 #if MANUAL
+using System.Globalization;
+using VoxelGame.Core;
+using Section = VoxelGame.Manual.Section;
 using VoxelGame.Manual;
+using VoxelGame.Manual.Modifiers;
+using VoxelGame.Manual.Utility;
 #endif
 
 namespace VoxelGame.Client.Application
