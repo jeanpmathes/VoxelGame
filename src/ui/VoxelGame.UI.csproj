@@ -10,6 +10,9 @@
       <LangVersion>9</LangVersion>
       <Configurations>Debug;Release</Configurations>
       <PackageLicenseExpression>MIT License</PackageLicenseExpression>
+      <PackageVersion>1.3.0</PackageVersion>
+      <AssemblyVersion>1.3.0.0</AssemblyVersion>
+      <FileVersion>1.3.0.0</FileVersion>
   </PropertyGroup>
 
     <PropertyGroup>
@@ -35,22 +38,22 @@
         <None Update="DefaultSkin2.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-      <None Update="Resources\GUI\start.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\GUI\Icons\load.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\GUI\Icons\delete.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\GUI\Icons\reset.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\GUI\Icons\attribution.txt">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-  </ItemGroup>
+        <None Update="Resources\GUI\start.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\GUI\Icons\load.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\GUI\Icons\delete.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\GUI\Icons\reset.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\GUI\Icons\attribution.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml" />
