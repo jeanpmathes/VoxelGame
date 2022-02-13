@@ -3,7 +3,7 @@
   <!--NAMES-->
   <?define ProductName = "VoxelGame"?>
   <?define Manufacturer = "pershingthesecond"?>
-  <?define Version = "1.2.0"?>
+  <?define Version = "1.3.0"?>
   <!--VOXELGAME PROJECT-->
   <?define ApplicationPath = "..\Publish\$(var.ProductName).Client.exe"?>
   <!--RESOURCES-->
