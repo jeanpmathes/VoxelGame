@@ -2,8 +2,8 @@
 <?include VoxelGame.wxi?>
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="1.2.0" Manufacturer="$(var.Manufacturer)"
-           UpgradeCode="0d51e74a-6ec8-4fb6-bfac-89a483374ed5">
+  <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)"
+           UpgradeCode="017E7E7E-DE39-49AF-BE55-Af2EB194E8E7">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine"
              Comments="The $(var.ProductName) installer." Platform="x64"/>
 
