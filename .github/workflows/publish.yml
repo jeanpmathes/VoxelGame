@@ -18,7 +18,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Publish
-      run:  dotnet publish -c Release -o Publish --self-contained
+      run:  dotnet publish -c Release -o Publish -r win-x64 --self-contained
     - name: Build installer
       run: dotnet build --configuration Installer
     - name: Upload Installer
