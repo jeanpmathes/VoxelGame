@@ -122,6 +122,11 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         public bool IsReady { get; protected set; }
 
+        /// <summary>
+        ///     Get the world creation seed.
+        /// </summary>
+        public int Seed => Information.Seed;
+
         private void Setup()
         {
             Directory.CreateDirectory(WorldDirectory);
