@@ -19,7 +19,6 @@
             <Value>true</Value>
         </Setting>
     </Settings>
-    <Rules>
         <Rule>
             <Key>S107</Key>
             <Parameters>
