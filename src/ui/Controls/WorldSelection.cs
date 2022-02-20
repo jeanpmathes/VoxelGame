@@ -130,7 +130,7 @@ namespace VoxelGame.UI.Controls
                 {
                     Text = info.Version,
                     Font = Fonts.Small,
-                    TextColor = GameInformation.Instance.Version == info.Version ? Color.Green : Color.Red
+                    TextColor = ApplicationInformation.Instance.Version == info.Version ? Color.Green : Color.Red
                 };
 
                 Label file = new(infoPanel)

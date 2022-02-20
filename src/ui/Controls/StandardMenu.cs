@@ -76,7 +76,7 @@ namespace VoxelGame.UI.Controls
 
             Label subtitle = new(bar)
             {
-                Text = GameInformation.Instance.Version,
+                Text = ApplicationInformation.Instance.Version,
                 Font = Fonts.Subtitle,
                 Alignment = Alignment.Center
             };

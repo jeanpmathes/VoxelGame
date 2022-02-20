@@ -139,7 +139,7 @@ namespace VoxelGame.UI.Controls
 
             Label info = new(layout)
             {
-                Text = $"{Language.VoxelGame} - {GameInformation.Instance.Version}",
+                Text = $"{Language.VoxelGame} - {ApplicationInformation.Instance.Version}",
                 Font = parent.Context.Fonts.Subtitle
             };
 

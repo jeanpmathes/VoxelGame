@@ -1,4 +1,4 @@
-﻿// <copyright file="Game.cs" company="VoxelGame">
+﻿// <copyright file="ApplicationInformation.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -7,11 +7,11 @@
 namespace VoxelGame.Core
 {
     /// <summary>
-    ///     Information about a running game.
+    ///     Information about the current application.
     /// </summary>
-    public class GameInformation
+    public class ApplicationInformation
     {
-        private GameInformation(string version)
+        private ApplicationInformation(string version)
         {
             Version = version;
         }
@@ -19,7 +19,7 @@ namespace VoxelGame.Core
         /// <summary>
         ///     Information about the current game.
         /// </summary>
-        public static GameInformation Instance { get; private set; } = null!;
+        public static ApplicationInformation Instance { get; private set; } = null!;
 
         /// <summary>
         ///     Get the game version.
@@ -27,12 +27,12 @@ namespace VoxelGame.Core
         public string Version { get; }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="GameInformation" /> class.
+        ///     Initializes a new instance of the <see cref="ApplicationInformation" /> class.
         /// </summary>
-        /// <param name="version">The active game version.</param>
+        /// <param name="version">The current application version.</param>
         public static void Initialize(string version)
         {
-            Instance = new GameInformation(version);
+            Instance = new ApplicationInformation(version);
         }
     }
 }
