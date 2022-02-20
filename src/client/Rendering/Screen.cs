@@ -275,7 +275,7 @@ namespace VoxelGame.Client.Rendering
 
             Client.OnResize(Size);
 
-            Shaders.UpdateOrthographicProjection();
+            Application.Client.Resources.Shaders.UpdateOrthographicProjection();
 
             logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", e.Size);
         }

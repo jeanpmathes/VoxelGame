@@ -368,7 +368,7 @@ namespace VoxelGame.Client.Rendering
             }
         }
 
-        #region IDisposalbe Support
+        #region IDisposable Support
 
         private bool disposed;
 
@@ -379,10 +379,10 @@ namespace VoxelGame.Client.Rendering
             if (disposing)
                 for (var i = 0; i < arrayCount; i++)
                     GL.DeleteTexture(handles[i]);
-
-            logger.LogWarning(
-                Events.UndeletedTexture,
-                "Texture disposed by GC without freeing storage");
+            else
+                logger.LogWarning(
+                    Events.UndeletedTexture,
+                    "Texture disposed by GC without freeing storage");
 
             disposed = true;
         }
@@ -404,6 +404,6 @@ namespace VoxelGame.Client.Rendering
             GC.SuppressFinalize(this);
         }
 
-        #endregion IDisposalbe Support
+        #endregion IDisposable Support
     }
 }

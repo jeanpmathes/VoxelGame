@@ -160,6 +160,8 @@ namespace VoxelGame.Client.Rendering
 
         }
 
+        private static Shaders Shaders => Application.Client.Resources.Shaders;
+
         /// <summary>
         ///     Set the section mesh data to render. Must not be discarded.
         /// </summary>
@@ -251,14 +253,14 @@ namespace VoxelGame.Client.Rendering
 
         private static void PrepareSimpleBuffer(Matrix4 view, Matrix4 projection)
         {
-            Application.Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+            Application.Client.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
             SetupShader(Shaders.SimpleSection, view, projection);
         }
 
         private static void PrepareCrossPlantBuffer(Matrix4 view, Matrix4 projection)
         {
-            Application.Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
+            Application.Client.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
             GL.Disable(EnableCap.CullFace);
 
@@ -267,7 +269,7 @@ namespace VoxelGame.Client.Rendering
 
         private static void PrepareCropPlantBuffer(Matrix4 view, Matrix4 projection)
         {
-            Application.Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
+            Application.Client.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
             GL.Disable(EnableCap.CullFace);
 
@@ -276,21 +278,21 @@ namespace VoxelGame.Client.Rendering
 
         private static void PrepareComplexBuffer(Matrix4 view, Matrix4 projection)
         {
-            Application.Client.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
+            Application.Client.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
             SetupShader(Shaders.ComplexSection, view, projection);
         }
 
         private static void PrepareVaryingHeightBuffer(Matrix4 view, Matrix4 projection)
         {
-            Application.Client.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+            Application.Client.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
             SetupShader(Shaders.VaryingHeightSection, view, projection);
         }
 
         private static void PrepareOpaqueLiquidBuffer(Matrix4 view, Matrix4 projection)
         {
-            Application.Client.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+            Application.Client.Resources.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
             SetupShader(Shaders.OpaqueLiquidSection, view, projection);
         }
@@ -299,7 +301,7 @@ namespace VoxelGame.Client.Rendering
         {
             Screen.FillDepthTexture();
 
-            Application.Client.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+            Application.Client.Resources.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
             GL.Enable(EnableCap.Blend);
             GL.DepthMask(flag: false);

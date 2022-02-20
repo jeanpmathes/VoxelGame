@@ -8,23 +8,17 @@
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Desktop;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
-using VoxelGame.Client.Rendering;
 using VoxelGame.Client.Scenes;
-using VoxelGame.Core.Logic;
-using VoxelGame.Core.Visuals;
-using VoxelGame.Graphics;
 using VoxelGame.Input;
 using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
-using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
 #if MANUAL
 using System.Globalization;
 using VoxelGame.Core;
@@ -45,14 +39,11 @@ namespace VoxelGame.Client.Application
 
         private readonly CommandInvoker commandInvoker;
 
-
-        private readonly Debug glDebug;
-
         private readonly InputManager input;
 
+        private readonly GameResources resources;
 
         private readonly SceneManager sceneManager;
-
 
         private ScreenBehaviour screenBehaviour = null!;
 
@@ -70,7 +61,7 @@ namespace VoxelGame.Client.Application
             Settings = new GeneralSettings(Properties.Settings.Default);
             Graphics = graphicsSettings;
 
-            glDebug = new Debug();
+            resources = new GameResources();
 
             sceneManager = new SceneManager();
 
@@ -118,50 +109,12 @@ namespace VoxelGame.Client.Application
         {
             using (logger.BeginScope("Client OnLoad"))
             {
-                // GL debug setup.
-                glDebug.Enable();
+                resources.Prepare();
 
-                // Screen setup.
                 screenBehaviour = new ScreenBehaviour(this);
 
-                // Texture setup.
-                BlockTextureArray = new ArrayTexture(
-                    "Resources/Textures/Blocks",
-                    resolution: 16,
-                    useCustomMipmapGeneration: true,
-                    TextureUnit.Texture1,
-                    TextureUnit.Texture2,
-                    TextureUnit.Texture3,
-                    TextureUnit.Texture4);
+                resources.Load();
 
-                logger.LogInformation(Events.ResourceLoad, "Block textures loaded");
-
-                LiquidTextureArray = new ArrayTexture(
-                    "Resources/Textures/Liquids",
-                    resolution: 16,
-                    useCustomMipmapGeneration: false,
-                    TextureUnit.Texture5);
-
-                logger.LogInformation(Events.ResourceLoad, "Liquid textures loaded");
-
-                TextureLayout.SetProviders(BlockTextureArray, LiquidTextureArray);
-                BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
-
-                // Shader setup.
-                Shaders.Load("Resources/Shaders");
-
-                // Block setup.
-                Block.LoadBlocks(BlockTextureArray);
-
-                logger.LogDebug(
-                    Events.ResourceLoad,
-                    "Texture/Block ratio: {Ratio:F02}",
-                    BlockTextureArray.Count / (float) Block.Count);
-
-                // Liquid setup.
-                Liquid.LoadLiquids(LiquidTextureArray);
-
-                // Scene setup.
                 sceneManager.Load(new StartScene(this));
 
                 logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
@@ -179,7 +132,7 @@ namespace VoxelGame.Client.Application
             {
                 Time += e.Time;
 
-                Shaders.SetTime((float) Time);
+                resources.Shaders.SetTime((float) Time);
 
                 screenBehaviour.Clear();
 
@@ -209,7 +162,7 @@ namespace VoxelGame.Client.Application
             logger.LogInformation(Events.WindowState, "Closing window");
 
             sceneManager.Unload();
-            Shaders.Delete();
+            resources.Unload();
         }
 
 
@@ -265,14 +218,9 @@ namespace VoxelGame.Client.Application
         #region STATIC PROPERTIES
 
         /// <summary>
-        ///     Gets the <see cref="ArrayTexture" /> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
+        /// Get the resources of the game.
         /// </summary>
-        public static ArrayTexture BlockTextureArray { get; private set; } = null!;
-
-        /// <summary>
-        ///     Gets the <see cref="ArrayTexture" /> that contains all liquid textures. It is bound to unit 5.
-        /// </summary>
-        public static ArrayTexture LiquidTextureArray { get; private set; } = null!;
+        public static GameResources Resources => Instance.resources;
 
         public static ClientPlayer Player { get; private set; } = null!;
 

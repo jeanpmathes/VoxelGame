@@ -40,6 +40,8 @@ namespace VoxelGame.Client.Rendering
             drawGroup.VertexArrayBindAttribute(vertexLocation, size: 3, offset: 0);
         }
 
+        private static Shaders Shaders => Application.Client.Resources.Shaders;
+
         /// <summary>
         ///     Set the bounding box to render.
         /// </summary>
