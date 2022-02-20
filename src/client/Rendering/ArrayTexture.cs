@@ -350,18 +350,19 @@ namespace VoxelGame.Client.Rendering
                     three = c3.A == 0 ? 0 : 1,
                     four = c4.A == 0 ? 0 : 1;
 
-                double relevantPixels = minAlpha != 0 ? 4 : one + two + three + four;
+                int relevantPixelCount = minAlpha != 0 ? 4 : one + two + three + four;
+                double pixelDivisor = relevantPixelCount;
 
-                Color average = relevantPixels == 0
+                Color average = relevantPixelCount == 0
                     ? Color.FromArgb(alpha: 0, red: 0, green: 0, blue: 0)
                     : Color.FromArgb(
                         maxAlpha,
                         (int) Math.Sqrt(
-                            (c1.R * c1.R + c2.R * c2.R + c3.R * c3.R + c4.R * c4.R) / relevantPixels),
+                            (c1.R * c1.R + c2.R * c2.R + c3.R * c3.R + c4.R * c4.R) / pixelDivisor),
                         (int) Math.Sqrt(
-                            (c1.G * c1.G + c2.G * c2.G + c3.G * c3.G + c4.G * c4.G) / relevantPixels),
+                            (c1.G * c1.G + c2.G * c2.G + c3.G * c3.G + c4.G * c4.G) / pixelDivisor),
                         (int) Math.Sqrt(
-                            (c1.B * c1.B + c2.B * c2.B + c3.B * c3.B + c4.B * c4.B) / relevantPixels));
+                            (c1.B * c1.B + c2.B * c2.B + c3.B * c3.B + c4.B * c4.B) / pixelDivisor));
 
                 lowerLevel.SetPixel(w, h, average);
             }
