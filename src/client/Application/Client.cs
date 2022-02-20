@@ -47,7 +47,7 @@ namespace VoxelGame.Client.Application
         /// <param name="gameWindowSettings">The game window settings.</param>
         /// <param name="nativeWindowSettings">The native window settings.</param>
         /// <param name="graphicsSettings">The graphics settings.</param>
-        public Client(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings,
+        internal Client(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings,
             GraphicsSettings graphicsSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             Instance = this;
@@ -74,30 +74,30 @@ namespace VoxelGame.Client.Application
         /// <summary>
         ///     Get the game client instance.
         /// </summary>
-        public static Client Instance { get; private set; } = null!;
+        internal static Client Instance { get; private set; } = null!;
 
         /// <summary>
         ///     Get the keybinds bound for the game.
         /// </summary>
-        public KeybindManager Keybinds { get; }
+        internal KeybindManager Keybinds { get; }
 
         /// <summary>
         ///     Get the mouse used by the client,
         /// </summary>
-        public Mouse Mouse => input.Mouse;
+        internal Mouse Mouse => input.Mouse;
 
-        public GeneralSettings Settings { get; }
-        public GraphicsSettings Graphics { get; }
+        internal GeneralSettings Settings { get; }
+        internal GraphicsSettings Graphics { get; }
 
         /// <summary>
         ///     Get the resources of the game.
         /// </summary>
-        public GameResources Resources { get; }
+        internal GameResources Resources { get; }
 
         /// <summary>
         ///     Get the current game, if there is one.
         /// </summary>
-        public Game? CurrentGame { get; private set; }
+        internal Game? CurrentGame { get; private set; }
 
         private double Time { get; set; }
 
@@ -172,6 +172,8 @@ namespace VoxelGame.Client.Application
         [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Used in other build type.")]
         private void GenerateManual()
         {
+            // Not actually empty.
+
 #if MANUAL
             const string path = "./../../../../../../Setup/Resources/Manual";
 
@@ -221,7 +223,7 @@ namespace VoxelGame.Client.Application
         /// Start a game in a world. A game can only be started when no other game is running.
         /// </summary>
         /// <param name="world">The world to start the game in.</param>
-        public void StartGame(ClientWorld world)
+        internal void StartGame(ClientWorld world)
         {
             IScene gameScene = sceneFactory.CreateGameScene(world, out Game game);
             sceneManager.Load(gameScene);
@@ -232,7 +234,7 @@ namespace VoxelGame.Client.Application
         /// <summary>
         /// Exit the current game.
         /// </summary>
-        public void ExitGame()
+        internal void ExitGame()
         {
             IScene startScene = sceneFactory.CreateStartScene();
             sceneManager.Load(startScene);
@@ -240,7 +242,7 @@ namespace VoxelGame.Client.Application
             CurrentGame = null;
         }
 
-        public void OnResize(Vector2i size)
+        internal void OnResize(Vector2i size)
         {
             sceneManager.OnResize(size);
         }
