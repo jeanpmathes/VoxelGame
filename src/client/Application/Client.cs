@@ -1,4 +1,4 @@
-﻿// <copyright file="World.cs" company="VoxelGame">
+﻿// <copyright file="Client.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -12,7 +12,6 @@ using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Desktop;
-using VoxelGame.Client.Collections;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
@@ -22,7 +21,6 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics;
 using VoxelGame.Input;
-using VoxelGame.Input.Actions;
 using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
@@ -43,23 +41,20 @@ namespace VoxelGame.Client.Application
     /// </summary>
     internal class Client : GameWindow, IPerformanceProvider
     {
-        private const int DeltaBufferCapacity = 30;
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
         private readonly CommandInvoker commandInvoker;
 
-        private readonly ToggleButton fullscreenToggle;
 
         private readonly Debug glDebug;
 
         private readonly InputManager input;
 
-        private readonly CircularTimeBuffer renderDeltaBuffer = new(DeltaBufferCapacity);
+
         private readonly SceneManager sceneManager;
 
-        private readonly CircularTimeBuffer updateDeltaBuffer = new(DeltaBufferCapacity);
 
-        private Screen screen = null!;
+        private ScreenBehaviour screenBehaviour = null!;
 
         /// <summary>
         ///     Create a new game instance.
@@ -89,7 +84,7 @@ namespace VoxelGame.Client.Application
             input = new InputManager(this);
             Keybinds = new KeybindManager(input);
 
-            fullscreenToggle = Keybinds.GetToggle(Keybinds.Fullscreen);
+
 
             commandInvoker = GameConsole.BuildInvoker();
         }
@@ -127,7 +122,7 @@ namespace VoxelGame.Client.Application
                 glDebug.Enable();
 
                 // Screen setup.
-                screen = new Screen(this);
+                screenBehaviour = new ScreenBehaviour(this);
 
                 // Texture setup.
                 BlockTextureArray = new ArrayTexture(
@@ -186,15 +181,13 @@ namespace VoxelGame.Client.Application
 
                 Shaders.SetTime((float) Time);
 
-                screen.Clear();
+                screenBehaviour.Clear();
 
                 sceneManager.Render((float) e.Time);
 
-                screen.Draw();
+                screenBehaviour.Draw(e.Time);
 
                 SwapBuffers();
-
-                renderDeltaBuffer.Write(e.Time);
             }
         }
 
@@ -207,10 +200,7 @@ namespace VoxelGame.Client.Application
                 input.UpdateState(KeyboardState, MouseState);
 
                 sceneManager.Update(deltaTime);
-
-                if (IsFocused && fullscreenToggle.Changed) Screen.SetFullscreen(!Instance.IsFullscreen);
-
-                updateDeltaBuffer.Write(e.Time);
+                screenBehaviour.Update(e.Time);
             }
         }
 
@@ -286,8 +276,9 @@ namespace VoxelGame.Client.Application
 
         public static ClientPlayer Player { get; private set; } = null!;
 
-        public static double Fps => 1.0 / Instance.renderDeltaBuffer.Average;
-        public static double Ups => 1.0 / Instance.updateDeltaBuffer.Average;
+        private static double Fps => Instance.screenBehaviour.Fps;
+
+        private static double Ups => Instance.screenBehaviour.Ups;
 
         #endregion STATIC PROPERTIES
 
