@@ -147,5 +147,28 @@ namespace VoxelGame.Core.Utilities
 
             return value;
         }
+
+        /// <summary>
+        ///     Check if two floating-point values are nearly equal.
+        /// </summary>
+        /// <param name="a">The first value.</param>
+        /// <param name="b">The second value.</param>
+        /// <param name="epsilon">The epsilon value, defining what difference is seen as equal.</param>
+        /// <returns>True if the two values are nearly equal.</returns>
+        public static bool NearlyEqual(float a, float b, float epsilon = 0.00001f)
+        {
+            return Math.Abs(a - b) < epsilon;
+        }
+
+        /// <summary>
+        ///     Check near equality to zero.
+        /// </summary>
+        /// <param name="a">The value to check for near equality with zero.</param>
+        /// <param name="epsilon">The epsilon distance.</param>
+        /// <returns>True if the given value is nearly zero.</returns>
+        public static bool NearlyZero(float a, float epsilon = 0.00001f)
+        {
+            return NearlyEqual(a, b: 0, epsilon);
+        }
     }
 }

@@ -249,7 +249,7 @@ namespace VoxelGame.Client.Entities
                     HandleMovementInput();
                     HandleLookInput();
 
-                    BlockLiquidSelection(firstUpdate);
+                    BlockLiquidSelection();
                     DoWorldInteraction();
 
                     SelectDebugView();
@@ -347,7 +347,7 @@ namespace VoxelGame.Client.Entities
 
                 // Prevent block placement if the block would intersect the player.
                 if (!blockMode || !activeBlock.IsSolid || !BoundingBox.Intersects(
-                    activeBlock.GetBoundingBox(World, placePosition)))
+                        activeBlock.GetBoundingBox(World, placePosition)))
                 {
                     if (blockMode) activeBlock.Place(World, placePosition, this);
                     else activeLiquid.Fill(World, placePosition, LiquidLevel.One, BlockSide.Top, out _);
@@ -387,15 +387,17 @@ namespace VoxelGame.Client.Entities
             }
         }
 
-        private void BlockLiquidSelection(bool updateUI)
+        private void BlockLiquidSelection()
         {
+            var updateUI = false;
+
             if (placementModeToggle.Changed)
             {
                 blockMode = !blockMode;
                 updateUI = true;
             }
 
-            if (selectionAxis.Value != 0)
+            if (!VMath.NearlyZero(selectionAxis.Value))
             {
                 int change = selectionAxis.Value > 0 ? 1 : -1;
 
@@ -415,7 +417,7 @@ namespace VoxelGame.Client.Entities
                 updateUI = true;
             }
 
-            if (updateUI) ui.UpdatePlayerData();
+            if (updateUI || firstUpdate) ui.UpdatePlayerData();
         }
 
         #region INPUT ACTIONS
