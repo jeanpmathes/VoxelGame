@@ -155,7 +155,7 @@ namespace VoxelGame.Core.Utilities
         /// <param name="b">The second value.</param>
         /// <param name="epsilon">The epsilon value, defining what difference is seen as equal.</param>
         /// <returns>True if the two values are nearly equal.</returns>
-        public static bool NearlyEqual(float a, float b, float epsilon = 0.00001f)
+        public static bool NearlyEqual(float a, float b, float epsilon = 128 * float.Epsilon)
         {
             return Math.Abs(a - b) < epsilon;
         }
