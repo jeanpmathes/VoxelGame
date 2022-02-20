@@ -37,12 +37,12 @@ namespace VoxelGame.Client.Application
         /// <summary>
         ///     Get the fps of the screen.
         /// </summary>
-        public double Fps => 1.0 / renderDeltaBuffer.Average;
+        public double FPS => 1.0 / renderDeltaBuffer.Average;
 
         /// <summary>
         ///     Get the ups of the screen.
         /// </summary>
-        public double Ups => 1.0 / updateDeltaBuffer.Average;
+        public double UPS => 1.0 / updateDeltaBuffer.Average;
 
         /// <summary>
         ///     Clear the screen.

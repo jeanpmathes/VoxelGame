@@ -222,7 +222,7 @@ namespace VoxelGame.Client.Entities
                 {
                     BoundingBox selectedBox = selectedBlock.GetBoundingBox(World, targetPosition);
 
-                    Application.Client.Resources.Shaders.Selection.SetVector3(
+                    Application.Client.Instance.Resources.Shaders.Selection.SetVector3(
                         "color",
                         new Vector3(x: 0.1f, y: 0.1f, z: 0.1f));
 

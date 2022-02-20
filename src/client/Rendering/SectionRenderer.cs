@@ -160,7 +160,7 @@ namespace VoxelGame.Client.Rendering
 
         }
 
-        private static Shaders Shaders => Application.Client.Resources.Shaders;
+        private static Shaders Shaders => Application.Client.Instance.Resources.Shaders;
 
         /// <summary>
         ///     Set the section mesh data to render. Must not be discarded.
@@ -215,8 +215,8 @@ namespace VoxelGame.Client.Rendering
         /// <param name="stage">The draw stage to prepare.</param>
         public static void PrepareStage(int stage)
         {
-            Matrix4 view = Application.Client.Player.GetViewMatrix();
-            Matrix4 projection = Application.Client.Player.GetProjectionMatrix();
+            Matrix4 view = Application.Client.Instance.CurrentGame!.Player.GetViewMatrix();
+            Matrix4 projection = Application.Client.Instance.CurrentGame!.Player.GetProjectionMatrix();
 
             switch (stage)
             {
@@ -253,14 +253,14 @@ namespace VoxelGame.Client.Rendering
 
         private static void PrepareSimpleBuffer(Matrix4 view, Matrix4 projection)
         {
-            Application.Client.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+            Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
             SetupShader(Shaders.SimpleSection, view, projection);
         }
 
         private static void PrepareCrossPlantBuffer(Matrix4 view, Matrix4 projection)
         {
-            Application.Client.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
+            Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
             GL.Disable(EnableCap.CullFace);
 
@@ -269,7 +269,7 @@ namespace VoxelGame.Client.Rendering
 
         private static void PrepareCropPlantBuffer(Matrix4 view, Matrix4 projection)
         {
-            Application.Client.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
+            Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
             GL.Disable(EnableCap.CullFace);
 
@@ -278,21 +278,21 @@ namespace VoxelGame.Client.Rendering
 
         private static void PrepareComplexBuffer(Matrix4 view, Matrix4 projection)
         {
-            Application.Client.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
+            Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
             SetupShader(Shaders.ComplexSection, view, projection);
         }
 
         private static void PrepareVaryingHeightBuffer(Matrix4 view, Matrix4 projection)
         {
-            Application.Client.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+            Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
             SetupShader(Shaders.VaryingHeightSection, view, projection);
         }
 
         private static void PrepareOpaqueLiquidBuffer(Matrix4 view, Matrix4 projection)
         {
-            Application.Client.Resources.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+            Application.Client.Instance.Resources.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
             SetupShader(Shaders.OpaqueLiquidSection, view, projection);
         }
@@ -301,7 +301,7 @@ namespace VoxelGame.Client.Rendering
         {
             Screen.FillDepthTexture();
 
-            Application.Client.Resources.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+            Application.Client.Instance.Resources.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
             GL.Enable(EnableCap.Blend);
             GL.DepthMask(flag: false);

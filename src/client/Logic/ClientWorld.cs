@@ -93,13 +93,13 @@ namespace VoxelGame.Client.Logic
             renderList.Clear();
 
             // Fill the render list.
-            for (int x = -Application.Client.Player.LoadDistance; x <= Application.Client.Player.LoadDistance; x++)
-            for (int z = -Application.Client.Player.LoadDistance; z <= Application.Client.Player.LoadDistance; z++)
+            for (int x = -player!.LoadDistance; x <= player!.LoadDistance; x++)
+            for (int z = -player!.LoadDistance; z <= player!.LoadDistance; z++)
                 if (TryGetChunk(
-                    Application.Client.Player.ChunkX + x,
-                    Application.Client.Player.ChunkZ + z,
-                    out Chunk? chunk))
-                    ((ClientChunk) chunk).AddCulledToRenderList(Application.Client.Player.Frustum, renderList);
+                        player!.ChunkX + x,
+                        player!.ChunkZ + z,
+                        out Chunk? chunk))
+                    ((ClientChunk) chunk).AddCulledToRenderList(player!.Frustum, renderList);
 
             // Render the collected sections.
             for (var stage = 0; stage < SectionRenderer.DrawStageCount; stage++)
@@ -143,7 +143,7 @@ namespace VoxelGame.Client.Logic
                 // Tick objects in world.
                 foreach (Chunk chunk in ActiveChunks) chunk.Tick();
 
-                Application.Client.Player.Tick(deltaTime);
+                player!.Tick(deltaTime);
 
                 // Mesh all listed sections.
                 foreach ((Chunk chunk, int index) in sectionsToMesh) ((ClientChunk) chunk).CreateAndSetMesh(index);

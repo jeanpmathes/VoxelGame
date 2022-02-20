@@ -26,7 +26,7 @@ namespace VoxelGame.Client.Scenes
         {
             this.client = client;
             WorldProvider worldProvider = new(Program.WorldsDirectory);
-            worldProvider.WorldActivation += client.LoadGameScene;
+            worldProvider.WorldActivation += client.StartGame;
 
             List<ISettingsProvider> settingsProviders = new()
             {

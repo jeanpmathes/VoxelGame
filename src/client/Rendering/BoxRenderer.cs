@@ -40,7 +40,7 @@ namespace VoxelGame.Client.Rendering
             drawGroup.VertexArrayBindAttribute(vertexLocation, size: 3, offset: 0);
         }
 
-        private static Shaders Shaders => Application.Client.Resources.Shaders;
+        private static Shaders Shaders => Application.Client.Instance.Resources.Shaders;
 
         /// <summary>
         ///     Set the bounding box to render.
@@ -156,8 +156,11 @@ namespace VoxelGame.Client.Rendering
 
             Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
             Shaders.Selection.SetMatrix4("model", model);
-            Shaders.Selection.SetMatrix4("view", Application.Client.Player.GetViewMatrix());
-            Shaders.Selection.SetMatrix4("projection", Application.Client.Player.GetProjectionMatrix());
+            Shaders.Selection.SetMatrix4("view", Application.Client.Instance.CurrentGame!.Player.GetViewMatrix());
+
+            Shaders.Selection.SetMatrix4(
+                "projection",
+                Application.Client.Instance.CurrentGame!.Player.GetProjectionMatrix());
 
             drawGroup.DrawElements(PrimitiveType.Lines);
 

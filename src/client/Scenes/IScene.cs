@@ -38,7 +38,7 @@ namespace VoxelGame.Client.Scenes
         void Render(float deltaTime);
 
         /// <summary>
-        ///     Unload this scene.
+        ///     Unload this scene. After unloading, a scene must not be used anymore.
         /// </summary>
         void Unload();
     }

@@ -6,8 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
+using VoxelGame.Client.Application;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
@@ -44,8 +46,6 @@ namespace VoxelGame.Client.Scenes
         {
             this.client = client;
 
-            Player = null!;
-
             Screen.SetCursor(visible: false, locked: true);
 
             ui = new GameUserInterface(
@@ -63,7 +63,7 @@ namespace VoxelGame.Client.Scenes
             ui.SetConsoleProvider(console);
             ui.SetPerformanceProvider(client);
 
-            ui.WorldExit += client.LoadStartScene;
+            ui.WorldExit += client.ExitGame;
 
             ui.AnyOverlayOpen += () =>
             {
@@ -77,7 +77,6 @@ namespace VoxelGame.Client.Scenes
                 Screen.SetCursor(visible: false, locked: true);
             };
 
-            World = world;
             counter = world.UpdateCounter;
 
             uiToggle = client.Keybinds.GetToggle(client.Keybinds.UI);
@@ -85,42 +84,40 @@ namespace VoxelGame.Client.Scenes
             screenshotButton = client.Keybinds.GetPushButton(client.Keybinds.Screenshot);
             consoleToggle = client.Keybinds.GetToggle(client.Keybinds.Console);
             escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
-        }
 
-        /// <summary>
-        ///     Get the active world.
-        /// </summary>
-        public ClientWorld World { get; private set; }
-
-        /// <summary>
-        ///     Get the active player.
-        /// </summary>
-        public ClientPlayer Player { get; private set; }
-
-        /// <inheritdoc />
-        public void Load()
-        {
-            // Player setup.
             Camera camera = new(new Vector3());
 
-            Player = new ClientPlayer(
-                World,
+            ClientPlayer player = new(
+                world,
                 mass: 70f,
                 drag: 0.25f,
                 camera,
                 new BoundingBox(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.25f, y: 0.9f, z: 0.25f)),
                 ui);
 
-            World.AddPlayer(Player);
+            world.AddPlayer(player);
 
-            ui.SetPlayerDataProvider(Player);
+            Game = new Game(world, player);
+        }
+
+        /// <summary>
+        ///     Get the game played in this scene.
+        /// </summary>
+        public Game Game { get; private set; }
+
+        /// <inheritdoc />
+        public void Load()
+        {
+            Debug.Assert(Game != null, "Scene has been unloaded.");
+
+            ui.SetPlayerDataProvider(Game.Player);
 
             // UI setup.
             ui.Load();
             ui.Resize(Screen.Size);
 
             ui.CreateControl();
-            client.Console.SetInterface(ui.Console!);
+            Game.InitializeConsole(new ConsoleWrapper(ui.Console!));
 
             counter.Reset();
 
@@ -141,13 +138,13 @@ namespace VoxelGame.Client.Scenes
                 Screen.EnterGameDrawMode();
 
                 {
-                    World.Render();
+                    Game.World.Render();
                 }
 
                 Screen.EnterUIDrawMode();
 
                 {
-                    Application.Client.Player.RenderOverlays();
+                    Game.Player.RenderOverlays();
 
                     ui.UpdatePerformanceData();
                     ui.Render();
@@ -162,7 +159,7 @@ namespace VoxelGame.Client.Scenes
             {
                 counter.Increment();
 
-                World.Update(deltaTime);
+                Game.World.Update(deltaTime);
 
                 if (!Screen.IsFocused) // check to see if the window is focused
                     return;
@@ -187,8 +184,8 @@ namespace VoxelGame.Client.Scenes
 
             try
             {
-                World.FinishAll().Wait();
-                World.Save().Wait();
+                Game.World.FinishAll().Wait();
+                Game.World.Save().Wait();
             }
             catch (AggregateException exception)
             {
@@ -198,13 +195,8 @@ namespace VoxelGame.Client.Scenes
                     "Exception occurred while saving world");
             }
 
-            World.Dispose();
-            Player.Dispose();
-
-            World = null!;
-            Player = null!;
-
-            client.Console.ClearInterface();
+            Game.Dispose();
+            Game = null!;
         }
 
         #region IDisposable Support.

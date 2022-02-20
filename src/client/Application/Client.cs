@@ -4,15 +4,12 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Desktop;
-using VoxelGame.Client.Console;
-using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Input;
@@ -37,11 +34,8 @@ namespace VoxelGame.Client.Application
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
-        private readonly CommandInvoker commandInvoker;
-
         private readonly InputManager input;
-
-        private readonly GameResources resources;
+        private readonly SceneFactory sceneFactory;
 
         private readonly SceneManager sceneManager;
 
@@ -61,9 +55,10 @@ namespace VoxelGame.Client.Application
             Settings = new GeneralSettings(Properties.Settings.Default);
             Graphics = graphicsSettings;
 
-            resources = new GameResources();
+            Resources = new GameResources();
 
             sceneManager = new SceneManager();
+            sceneFactory = new SceneFactory(this);
 
             Load += OnLoad;
 
@@ -74,10 +69,6 @@ namespace VoxelGame.Client.Application
 
             input = new InputManager(this);
             Keybinds = new KeybindManager(input);
-
-
-
-            commandInvoker = GameConsole.BuildInvoker();
         }
 
         /// <summary>
@@ -98,24 +89,35 @@ namespace VoxelGame.Client.Application
         public GeneralSettings Settings { get; }
         public GraphicsSettings Graphics { get; }
 
-        public ConsoleWrapper Console { get; } = new();
+        /// <summary>
+        ///     Get the resources of the game.
+        /// </summary>
+        public GameResources Resources { get; }
+
+        /// <summary>
+        ///     Get the current game, if there is one.
+        /// </summary>
+        public Game? CurrentGame { get; private set; }
 
         private double Time { get; set; }
 
-        double IPerformanceProvider.FPS => Fps;
-        double IPerformanceProvider.UPS => Ups;
+        internal double FPS => screenBehaviour.FPS;
+        internal double UPS => screenBehaviour.UPS;
+
+        double IPerformanceProvider.FPS => FPS;
+        double IPerformanceProvider.UPS => UPS;
 
         private new void OnLoad()
         {
             using (logger.BeginScope("Client OnLoad"))
             {
-                resources.Prepare();
+                Resources.Prepare();
 
                 screenBehaviour = new ScreenBehaviour(this);
 
-                resources.Load();
+                Resources.Load();
 
-                sceneManager.Load(new StartScene(this));
+                sceneManager.Load(sceneFactory.CreateStartScene());
 
                 logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
 
@@ -132,7 +134,7 @@ namespace VoxelGame.Client.Application
             {
                 Time += e.Time;
 
-                resources.Shaders.SetTime((float) Time);
+                Resources.Shaders.SetTime((float) Time);
 
                 screenBehaviour.Clear();
 
@@ -162,7 +164,7 @@ namespace VoxelGame.Client.Application
             logger.LogInformation(Events.WindowState, "Closing window");
 
             sceneManager.Unload();
-            resources.Unload();
+            Resources.Unload();
         }
 
 
@@ -215,51 +217,32 @@ namespace VoxelGame.Client.Application
 #endif
         }
 
-        #region STATIC PROPERTIES
-
         /// <summary>
-        /// Get the resources of the game.
+        /// Start a game in a world. A game can only be started when no other game is running.
         /// </summary>
-        public static GameResources Resources => Instance.resources;
-
-        public static ClientPlayer Player { get; private set; } = null!;
-
-        private static double Fps => Instance.screenBehaviour.Fps;
-
-        private static double Ups => Instance.screenBehaviour.Ups;
-
-        #endregion STATIC PROPERTIES
-
-        #region SCENE MANAGEMENT
-
-        /// <summary>
-        ///     Load the game scene.
-        /// </summary>
-        /// <param name="world">The world to play in.</param>
-        public void LoadGameScene(ClientWorld world)
+        /// <param name="world">The world to start the game in.</param>
+        public void StartGame(ClientWorld world)
         {
-            GameScene gameScene = new(Instance, world, new GameConsole(commandInvoker));
-
+            IScene gameScene = sceneFactory.CreateGameScene(world, out Game game);
             sceneManager.Load(gameScene);
 
-            Player = gameScene.Player;
+            CurrentGame = game;
         }
 
         /// <summary>
-        ///     Load the start scene.
+        /// Exit the current game.
         /// </summary>
-        public void LoadStartScene()
+        public void ExitGame()
         {
-            sceneManager.Load(new StartScene(Instance));
+            IScene startScene = sceneFactory.CreateStartScene();
+            sceneManager.Load(startScene);
 
-            Player = null!;
+            CurrentGame = null;
         }
 
         public void OnResize(Vector2i size)
         {
             sceneManager.OnResize(size);
         }
-
-        #endregion SCENE MANAGEMENT
     }
 }
