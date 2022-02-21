@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.Buffers;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Collections;
@@ -66,36 +67,7 @@ namespace VoxelGame.Client.Collections
                 currentFace.Return();
                 currentFace = lastFaces[layer][row]!;
 
-                switch (side)
-                {
-                    case BlockSide.Front:
-                    case BlockSide.Back:
-                    case BlockSide.Bottom:
-                        currentFace.vertex01 = vertices.vertB;
-                        currentFace.vertex11 = vertices.vertC;
-
-                        break;
-
-                    case BlockSide.Left:
-                        currentFace.vertex11 = vertices.vertC;
-                        currentFace.vertex10 = vertices.vertD;
-
-                        break;
-
-                    case BlockSide.Right:
-                        currentFace.vertex00 = vertices.vertA;
-                        currentFace.vertex01 = vertices.vertB;
-
-                        break;
-
-                    case BlockSide.Top:
-                        currentFace.vertex00 = vertices.vertA;
-                        currentFace.vertex10 = vertices.vertD;
-
-                        break;
-                }
-
-                currentFace.length++;
+                ExtendFace(currentFace, vertices);
             }
             else
             {
@@ -115,31 +87,7 @@ namespace VoxelGame.Client.Collections
             {
                 if (combinationRowFace.IsCombinable(currentFace))
                 {
-                    switch (side)
-                    {
-                        case BlockSide.Front:
-                        case BlockSide.Bottom:
-                        case BlockSide.Top:
-                            currentFace.vertex00 = combinationRowFace.vertex00;
-                            currentFace.vertex01 = combinationRowFace.vertex01;
-
-                            break;
-
-                        case BlockSide.Back:
-                            currentFace.vertex11 = combinationRowFace.vertex11;
-                            currentFace.vertex10 = combinationRowFace.vertex10;
-
-                            break;
-
-                        case BlockSide.Left:
-                        case BlockSide.Right:
-                            currentFace.vertex00 = combinationRowFace.vertex00;
-                            currentFace.vertex10 = combinationRowFace.vertex10;
-
-                            break;
-                    }
-
-                    currentFace.height = combinationRowFace.height + 1;
+                    CombineFace(currentFace, combinationRowFace);
 
                     if (lastCombinationRowFace == null)
                     {
@@ -160,6 +108,73 @@ namespace VoxelGame.Client.Collections
                 lastCombinationRowFace = combinationRowFace;
                 combinationRowFace = combinationRowFace.previousFace;
             }
+        }
+
+        private void ExtendFace(MeshFace face, (int vertA, int vertB, int vertC, int vertD) vertices)
+        {
+            switch (side)
+            {
+                case BlockSide.Front:
+                case BlockSide.Back:
+                case BlockSide.Bottom:
+                    face.vertex01 = vertices.vertB;
+                    face.vertex11 = vertices.vertC;
+
+                    break;
+
+                case BlockSide.Left:
+                    face.vertex11 = vertices.vertC;
+                    face.vertex10 = vertices.vertD;
+
+                    break;
+
+                case BlockSide.Right:
+                    face.vertex00 = vertices.vertA;
+                    face.vertex01 = vertices.vertB;
+
+                    break;
+
+                case BlockSide.Top:
+                    face.vertex00 = vertices.vertA;
+                    face.vertex10 = vertices.vertD;
+
+                    break;
+
+                default: throw new InvalidOperationException();
+            }
+
+            face.length++;
+        }
+
+        private void CombineFace(MeshFace newFace, MeshFace combinationFace)
+        {
+            switch (side)
+            {
+                case BlockSide.Front:
+                case BlockSide.Bottom:
+                case BlockSide.Top:
+                    newFace.vertex00 = combinationFace.vertex00;
+                    newFace.vertex01 = combinationFace.vertex01;
+
+                    break;
+
+                case BlockSide.Back:
+                    newFace.vertex11 = combinationFace.vertex11;
+                    newFace.vertex10 = combinationFace.vertex10;
+
+                    break;
+
+                case BlockSide.Left:
+                case BlockSide.Right:
+                    newFace.vertex00 = combinationFace.vertex00;
+                    newFace.vertex10 = combinationFace.vertex10;
+
+                    break;
+
+                default: throw new InvalidOperationException();
+            }
+
+            newFace.height = combinationFace.height + 1;
         }
 
         /// <summary>
@@ -234,7 +249,7 @@ namespace VoxelGame.Client.Collections
 
 #pragma warning disable CA1812
 
-        private class MeshFace
+        private sealed class MeshFace
         {
             public int height;
 
