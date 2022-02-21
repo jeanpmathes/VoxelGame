@@ -51,10 +51,6 @@ namespace VoxelGame.Client.Application
                     f => MouseSensitivity = f,
                     min: 0f,
                     max: 1f));
-
-            CrosshairColorChanged += (_, _) => {};
-            CrosshairScaleChanged += (_, _) => {};
-            MouseSensitivityChanged += (_, _) => {};
         }
 
         /// <summary>
@@ -120,16 +116,16 @@ namespace VoxelGame.Client.Application
         /// <summary>
         ///     Is invoked when the crosshair color setting has been changed.
         /// </summary>
-        public event EventHandler<SettingChangedArgs<Color>> CrosshairColorChanged;
+        public event EventHandler<SettingChangedArgs<Color>> CrosshairColorChanged = delegate {};
 
         /// <summary>
         ///     Is invoked when the crosshair scale setting has been changed.
         /// </summary>
-        public event EventHandler<SettingChangedArgs<float>> CrosshairScaleChanged;
+        public event EventHandler<SettingChangedArgs<float>> CrosshairScaleChanged = delegate {};
 
         /// <summary>
         ///     Is invoked when the mouse sensitivity setting has been changed.
         /// </summary>
-        public event EventHandler<SettingChangedArgs<float>> MouseSensitivityChanged;
+        public event EventHandler<SettingChangedArgs<float>> MouseSensitivityChanged = delegate {};
     }
 }
