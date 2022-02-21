@@ -130,10 +130,10 @@ namespace VoxelGame.Client.Logic
 
                 for (int y = start; y < VerticalSectionCount; y++)
                     if (frustum.BoxInFrustum(
-                        new BoundingBox(
-                            new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
-                            Section.Extents,
-                            Section.Extents)))
+                            new BoundingBox(
+                                new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
+                                Section.Extents,
+                                Section.Extents)))
                     {
                         start = y;
 
@@ -142,10 +142,10 @@ namespace VoxelGame.Client.Logic
 
                 for (int y = end; y >= 0; y--)
                     if (frustum.BoxInFrustum(
-                        new BoundingBox(
-                            new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
-                            Section.Extents,
-                            Section.Extents)))
+                            new BoundingBox(
+                                new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
+                                Section.Extents,
+                                Section.Extents)))
                     {
                         end = y;
 

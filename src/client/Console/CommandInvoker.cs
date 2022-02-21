@@ -95,7 +95,7 @@ namespace VoxelGame.Client.Console
             var count = 0;
 
             foreach (Type type in Assembly.GetCallingAssembly().GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(Command))))
+                         .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(Command))))
             {
                 ICommand? command = null;
 

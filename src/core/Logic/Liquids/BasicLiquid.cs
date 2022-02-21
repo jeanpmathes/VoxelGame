@@ -108,17 +108,18 @@ namespace VoxelGame.Core.Logic.Liquids
         private void ValidLocationFlow(World world, Vector3i position, LiquidLevel level, IFillable current)
         {
             if (FlowVertical(
-                world,
-                position,
-                current,
-                level,
-                Direction,
-                handleContact: true,
-                out _)) return;
+                    world,
+                    position,
+                    current,
+                    level,
+                    Direction,
+                    handleContact: true,
+                    out _)) return;
 
             if (level != LiquidLevel.One
-                ? FlowHorizontal(world, position, level, current) || FarFlowHorizontal(world, position, level, current)
-                : TryPuddleFlow(world, position, current)) return;
+                    ? FlowHorizontal(world, position, level, current) ||
+                      FarFlowHorizontal(world, position, level, current)
+                    : TryPuddleFlow(world, position, current)) return;
 
             world.ModifyLiquid(isStatic: true, position);
         }
@@ -283,9 +284,9 @@ namespace VoxelGame.Core.Logic.Liquids
 
             foreach (Orientation orientation in Orientations.ShuffledStart(position))
                 if (CheckNeighbor(
-                    currentFillable.AllowOutflow(world, position, orientation.ToBlockSide()),
-                    orientation.Offset(position),
-                    orientation.Opposite().ToBlockSide()))
+                        currentFillable.AllowOutflow(world, position, orientation.ToBlockSide()),
+                        orientation.Offset(position),
+                        orientation.Opposite().ToBlockSide()))
                     return true;
 
             if (horizontalPosition == position) return false;
@@ -369,11 +370,11 @@ namespace VoxelGame.Core.Logic.Liquids
                 if (liquidNeighbor != null && liquidNeighbor.Liquid != this)
                 {
                     if (ContactManager.HandleContact(
-                        world,
-                        this.AsInstance(level),
-                        position,
-                        liquidNeighbor,
-                        neighborPosition)) return true;
+                            world,
+                            this.AsInstance(level),
+                            position,
+                            liquidNeighbor,
+                            neighborPosition)) return true;
                 }
                 else if (liquidNeighbor?.Liquid == this && level > liquidNeighbor.Level &&
                          liquidNeighbor.Level < levelHorizontal)

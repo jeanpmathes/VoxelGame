@@ -316,10 +316,10 @@ namespace VoxelGame.Core.Physics
 
                     // Check for intersection
                     if ((currentBlock.Block.IsSolid || currentBlock.Block.IsTrigger) && Intersects(
-                        currentBoundingBox,
-                        ref newX,
-                        ref newY,
-                        ref newZ))
+                            currentBoundingBox,
+                            ref newX,
+                            ref newY,
+                            ref newZ))
                     {
                         blockIntersections.Add((position, currentBlock.Block));
 
