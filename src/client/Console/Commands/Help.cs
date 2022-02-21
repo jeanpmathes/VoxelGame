@@ -31,7 +31,7 @@ namespace VoxelGame.Client.Console.Commands
         public Help(CommandInvoker invoker)
         {
             commandInvoker = invoker;
-            commandInvoker.CommandsUpdated += BuildInfos;
+            commandInvoker.CommandsUpdated += (_, _) => BuildInfos();
         }
 
         /// <inheritdoc />

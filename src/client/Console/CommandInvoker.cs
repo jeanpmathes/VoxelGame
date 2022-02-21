@@ -32,7 +32,7 @@ namespace VoxelGame.Client.Console
         /// <summary>
         ///     Invoked when new commands are added or discovered.
         /// </summary>
-        public event Action? CommandsUpdated;
+        public event EventHandler CommandsUpdated = delegate {};
 
         /// <summary>
         ///     Get the help text for a command.
@@ -53,9 +53,14 @@ namespace VoxelGame.Client.Console
         /// <returns>All signatures for the command.</returns>
         public IEnumerable<string> GetCommandSignatures(string commandName)
         {
-            if (!commandGroups.TryGetValue(commandName, out var commandGroup))
+            if (!commandGroups.TryGetValue(commandName, out CommandGroup? commandGroup))
                 throw new ArgumentException("Command not found.");
 
+            return GetCommandSignatures(commandName, commandGroup);
+        }
+
+        private static IEnumerable<string> GetCommandSignatures(string commandName, CommandGroup commandGroup)
+        {
             foreach (MethodInfo commandOverload in commandGroup.Overloads)
             {
                 StringBuilder signature = new();
@@ -118,7 +123,7 @@ namespace VoxelGame.Client.Console
             }
 
             logger.LogInformation(Events.Console, "Found {Count} commands", count);
-            CommandsUpdated?.Invoke();
+            CommandsUpdated.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -131,7 +136,7 @@ namespace VoxelGame.Client.Console
             commandGroups[command.Name] = new CommandGroup(command, overloads);
 
             logger.LogDebug(Events.Console, "Added command '{Name}'", command.Name);
-            CommandsUpdated?.Invoke();
+            CommandsUpdated.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -249,7 +254,7 @@ namespace VoxelGame.Client.Console
 
             try
             {
-                object[] parsedArgs = new object[args.Count];
+                var parsedArgs = new object[args.Count];
 
                 for (var i = 0; i < args.Count; i++)
                     parsedArgs[i] = parsers[parameters[i].ParameterType].Parse(args[i]);
@@ -275,6 +280,6 @@ namespace VoxelGame.Client.Console
                 .Where(m => m.Name.Equals("Invoke", StringComparison.InvariantCulture) && !m.IsStatic).ToList();
         }
 
-        private record CommandGroup(ICommand Command, List<MethodInfo> Overloads);
+        private sealed record CommandGroup(ICommand Command, List<MethodInfo> Overloads);
     }
 }
