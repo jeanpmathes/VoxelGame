@@ -156,11 +156,11 @@ namespace VoxelGame.Client.Rendering
 
             Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
             Shaders.Selection.SetMatrix4("model", model);
-            Shaders.Selection.SetMatrix4("view", Application.Client.Instance.CurrentGame!.Player.GetViewMatrix());
+            Shaders.Selection.SetMatrix4("view", Application.Client.Instance.CurrentGame!.Player.ViewMatrix);
 
             Shaders.Selection.SetMatrix4(
                 "projection",
-                Application.Client.Instance.CurrentGame!.Player.GetProjectionMatrix());
+                Application.Client.Instance.CurrentGame!.Player.ProjectionMatrix);
 
             drawGroup.DrawElements(PrimitiveType.Lines);
 

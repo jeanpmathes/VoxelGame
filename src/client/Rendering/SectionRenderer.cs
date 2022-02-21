@@ -215,8 +215,8 @@ namespace VoxelGame.Client.Rendering
         /// <param name="stage">The draw stage to prepare.</param>
         public static void PrepareStage(int stage)
         {
-            Matrix4 view = Application.Client.Instance.CurrentGame!.Player.GetViewMatrix();
-            Matrix4 projection = Application.Client.Instance.CurrentGame!.Player.GetProjectionMatrix();
+            Matrix4 view = Application.Client.Instance.CurrentGame!.Player.ViewMatrix;
+            Matrix4 projection = Application.Client.Instance.CurrentGame!.Player.ProjectionMatrix;
 
             switch (stage)
             {
