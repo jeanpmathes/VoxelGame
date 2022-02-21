@@ -19,10 +19,10 @@ namespace VoxelGame.Client.Console.Commands
     public class Help : Command
     {
         private const int PageSize = 5;
+        private readonly Dictionary<string, List<string>> commandDescriptions = new();
         private readonly CommandInvoker commandInvoker;
-        private Dictionary<string, List<string>> commandDescriptions = new();
 
-        private List<List<string>> commandPages = new();
+        private readonly List<List<string>> commandPages = new();
 
         /// <summary>
         ///     Create a help command for all commands discovered by a <see cref="CommandInvoker" />.
