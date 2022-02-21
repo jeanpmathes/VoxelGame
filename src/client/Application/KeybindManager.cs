@@ -34,7 +34,7 @@ namespace VoxelGame.Client.Application
 
         private readonly KeyMap usageMap = new();
 
-        public KeybindManager(InputManager input)
+        internal KeybindManager(InputManager input)
         {
             Input = input;
 
@@ -48,33 +48,33 @@ namespace VoxelGame.Client.Application
             Client.Instance.Settings.MouseSensitivityChanged += (_, args) => LookBind.SetSensitivity(args.NewValue);
         }
 
-        public InputManager Input { get; }
+        internal InputManager Input { get; }
 
-        public LookInput LookBind { get; }
+        internal LookInput LookBind { get; }
 
         /// <summary>
         ///     All keybinds managed by this class.
         /// </summary>
-        public IEnumerable<Keybind> Binds => keybinds.Keys;
+        internal IEnumerable<Keybind> Binds => keybinds.Keys;
 
         public string Category => Language.Keybinds;
         public string Description => Language.KeybindsSettingsDescription;
 
         public IEnumerable<Setting> Settings => settings;
 
-        public void Add(Keybind bind, ToggleButton button)
+        internal void Add(Keybind bind, ToggleButton button)
         {
             AddKeybind(bind, button);
             toggleButtons.Add(bind, button);
         }
 
-        public void Add(Keybind bind, SimpleButton button)
+        internal void Add(Keybind bind, SimpleButton button)
         {
             AddKeybind(bind, button);
             simpleButtons.Add(bind, button);
         }
 
-        public void Add(Keybind bind, PushButton button)
+        internal void Add(Keybind bind, PushButton button)
         {
             AddKeybind(bind, button);
             pushButtons.Add(bind, button);
@@ -130,28 +130,28 @@ namespace VoxelGame.Client.Application
             foreach (KeyValuePair<Keybind, Button> pair in keybinds) UpdateAddedBind(pair.Value.KeyOrButton);
         }
 
-        public ToggleButton GetToggle(Keybind bind)
+        internal ToggleButton GetToggle(Keybind bind)
         {
             Debug.Assert(toggleButtons.ContainsKey(bind), "No toggle associated with this keybind.");
 
             return toggleButtons[bind];
         }
 
-        public Button GetButton(Keybind bind)
+        internal Button GetButton(Keybind bind)
         {
             Debug.Assert(simpleButtons.ContainsKey(bind), "No simple button associated with this keybind.");
 
             return simpleButtons[bind];
         }
 
-        public PushButton GetPushButton(Keybind bind)
+        internal PushButton GetPushButton(Keybind bind)
         {
             Debug.Assert(pushButtons.ContainsKey(bind), "No push button associated with this keybind.");
 
             return pushButtons[bind];
         }
 
-        public void Rebind(Keybind bind, KeyOrButton keyOrButton)
+        internal void Rebind(Keybind bind, KeyOrButton keyOrButton)
         {
             Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
 
@@ -172,7 +172,7 @@ namespace VoxelGame.Client.Application
             return $"Input_{bind}";
         }
 
-        public KeyOrButton GetCurrentBind(Keybind bind)
+        internal KeyOrButton GetCurrentBind(Keybind bind)
         {
             Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
 
@@ -205,43 +205,46 @@ namespace VoxelGame.Client.Application
 
         #region KEYBINDS
 
-        public Keybind Fullscreen { get; } = Keybind.RegisterToggle("fullscreen", Language.KeyFullscreen, Key.F11);
+        internal Keybind Fullscreen { get; } = Keybind.RegisterToggle("fullscreen", Language.KeyFullscreen, Key.F11);
 
-        public Keybind UI { get; } = Keybind.RegisterToggle("ui", Language.KeyToggleUI, Key.F10);
-        public Keybind Screenshot { get; } = Keybind.RegisterPushButton("screenshot", Language.KeyScreenshot, Key.F12);
-        public Keybind Console { get; } = Keybind.RegisterToggle("console", Language.KeyConsole, Key.F1);
-        public Keybind DebugView { get; } = Keybind.RegisterPushButton("debug_view", Language.KeyDebugView, Key.F2);
-        public Keybind Escape { get; } = Keybind.RegisterPushButton("escape", Language.KeyEscape, Key.Escape);
+        internal Keybind UI { get; } = Keybind.RegisterToggle("ui", Language.KeyToggleUI, Key.F10);
 
-        public Keybind Forwards { get; } = Keybind.RegisterButton("forwards", Language.KeyForwards, Key.W);
-        public Keybind Backwards { get; } = Keybind.RegisterButton("backwards", Language.KeyBackwards, Key.S);
-        public Keybind StrafeRight { get; } = Keybind.RegisterButton("strafe_right", Language.KeyStrafeRight, Key.D);
-        public Keybind StrafeLeft { get; } = Keybind.RegisterButton("strafe_left", Language.KeyStrafeLeft, Key.A);
+        internal Keybind Screenshot { get; } =
+            Keybind.RegisterPushButton("screenshot", Language.KeyScreenshot, Key.F12);
 
-        public Keybind Sprint { get; } = Keybind.RegisterButton("sprint", Language.KeySprint, Key.ShiftLeft);
-        public Keybind Jump { get; } = Keybind.RegisterButton("jump", Language.KeyJump, Key.Space);
+        internal Keybind Console { get; } = Keybind.RegisterToggle("console", Language.KeyConsole, Key.F1);
+        internal Keybind DebugView { get; } = Keybind.RegisterPushButton("debug_view", Language.KeyDebugView, Key.F2);
+        internal Keybind Escape { get; } = Keybind.RegisterPushButton("escape", Language.KeyEscape, Key.Escape);
 
-        public Keybind InteractOrPlace { get; } = Keybind.RegisterButton(
+        internal Keybind Forwards { get; } = Keybind.RegisterButton("forwards", Language.KeyForwards, Key.W);
+        internal Keybind Backwards { get; } = Keybind.RegisterButton("backwards", Language.KeyBackwards, Key.S);
+        internal Keybind StrafeRight { get; } = Keybind.RegisterButton("strafe_right", Language.KeyStrafeRight, Key.D);
+        internal Keybind StrafeLeft { get; } = Keybind.RegisterButton("strafe_left", Language.KeyStrafeLeft, Key.A);
+
+        internal Keybind Sprint { get; } = Keybind.RegisterButton("sprint", Language.KeySprint, Key.ShiftLeft);
+        internal Keybind Jump { get; } = Keybind.RegisterButton("jump", Language.KeyJump, Key.Space);
+
+        internal Keybind InteractOrPlace { get; } = Keybind.RegisterButton(
             "interact_or_place",
             Language.KeyInteractOrPlace,
             MouseButton.Right);
 
-        public Keybind Destroy { get; } = Keybind.RegisterButton("destroy", Language.KeyDestroy, MouseButton.Left);
+        internal Keybind Destroy { get; } = Keybind.RegisterButton("destroy", Language.KeyDestroy, MouseButton.Left);
 
-        public Keybind BlockInteract { get; } = Keybind.RegisterButton(
+        internal Keybind BlockInteract { get; } = Keybind.RegisterButton(
             "block_interact",
             Language.KeyForceInteract,
             Key.ControlLeft);
 
-        public Keybind PlacementMode { get; } =
+        internal Keybind PlacementMode { get; } =
             Keybind.RegisterToggle("placement_mode", Language.KeyPlacementMode, Key.R);
 
-        public Keybind NextPlacement { get; } = Keybind.RegisterPushButton(
+        internal Keybind NextPlacement { get; } = Keybind.RegisterPushButton(
             "select_next_placement",
             Language.KeyNextPlacement,
             Key.KeypadPlus);
 
-        public Keybind PreviousPlacement { get; } =
+        internal Keybind PreviousPlacement { get; } =
             Keybind.RegisterPushButton("select_previous_placement", Language.KeyPreviousPlacement, Key.KeypadMinus);
 
         #endregion KEYBINDS
