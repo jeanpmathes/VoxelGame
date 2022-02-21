@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Properties;
@@ -19,12 +20,6 @@ namespace VoxelGame.Client.Application
     /// </summary>
     public class GeneralSettings : ISettingsProvider
     {
-        /// <summary>
-        ///     A handler for when settings have been changed.
-        /// </summary>
-        /// <typeparam name="T">The type of the settings value.</typeparam>
-        public delegate void GeneralSettingChangedHandler<T>(GeneralSettings settings, SettingChangedArgs<T> args);
-
         private readonly Settings clientSettings;
         private readonly List<Setting> settings = new();
 
@@ -56,6 +51,10 @@ namespace VoxelGame.Client.Application
                     f => MouseSensitivity = f,
                     min: 0f,
                     max: 1f));
+
+            CrosshairColorChanged += (_, _) => {};
+            CrosshairScaleChanged += (_, _) => {};
+            MouseSensitivityChanged += (_, _) => {};
         }
 
         /// <summary>
@@ -71,7 +70,7 @@ namespace VoxelGame.Client.Application
                 clientSettings.CrosshairColor = value;
                 clientSettings.Save();
 
-                CrosshairColorChanged?.Invoke(this, new SettingChangedArgs<Color>(old, value));
+                CrosshairColorChanged.Invoke(this, new SettingChangedArgs<Color>(this, old, value));
             }
         }
 
@@ -88,7 +87,7 @@ namespace VoxelGame.Client.Application
                 clientSettings.CrosshairScale = value;
                 clientSettings.Save();
 
-                CrosshairScaleChanged?.Invoke(this, new SettingChangedArgs<float>(old, value));
+                CrosshairScaleChanged.Invoke(this, new SettingChangedArgs<float>(this, old, value));
             }
         }
 
@@ -105,7 +104,7 @@ namespace VoxelGame.Client.Application
                 clientSettings.MouseSensitivity = value;
                 clientSettings.Save();
 
-                MouseSensitivityChanged?.Invoke(this, new SettingChangedArgs<float>(old, value));
+                MouseSensitivityChanged.Invoke(this, new SettingChangedArgs<float>(this, old, value));
             }
         }
 
@@ -121,16 +120,16 @@ namespace VoxelGame.Client.Application
         /// <summary>
         ///     Is invoked when the crosshair color setting has been changed.
         /// </summary>
-        public event GeneralSettingChangedHandler<Color>? CrosshairColorChanged;
+        public event EventHandler<SettingChangedArgs<Color>> CrosshairColorChanged;
 
         /// <summary>
         ///     Is invoked when the crosshair scale setting has been changed.
         /// </summary>
-        public event GeneralSettingChangedHandler<float>? CrosshairScaleChanged;
+        public event EventHandler<SettingChangedArgs<float>> CrosshairScaleChanged;
 
         /// <summary>
         ///     Is invoked when the mouse sensitivity setting has been changed.
         /// </summary>
-        public event GeneralSettingChangedHandler<float>? MouseSensitivityChanged;
+        public event EventHandler<SettingChangedArgs<float>> MouseSensitivityChanged;
     }
 }

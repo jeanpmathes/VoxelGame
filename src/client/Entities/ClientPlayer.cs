@@ -164,12 +164,12 @@ namespace VoxelGame.Client.Entities
 
         string IPlayerDataProvider.Mode => blockMode ? Language.Block : Language.Liquid;
 
-        private void UpdateCrosshairColor(GeneralSettings settings, SettingChangedArgs<Color> args)
+        private void UpdateCrosshairColor(object? sender, SettingChangedArgs<Color> args)
         {
-            crosshairRenderer.SetColor(settings.CrosshairColor.ToVector3());
+            crosshairRenderer.SetColor(args.Settings.CrosshairColor.ToVector3());
         }
 
-        private void SettingsOnCrosshairScaleChanged(GeneralSettings settings, SettingChangedArgs<float> args)
+        private void SettingsOnCrosshairScaleChanged(object? sender, SettingChangedArgs<float> args)
         {
             crosshairScale = args.NewValue;
         }
