@@ -23,7 +23,7 @@ namespace VoxelGame.Client
         /// <summary>
         ///     Get the version of the program.
         /// </summary>
-        public static string Version { get; private set; } = null!;
+        internal static string Version { get; private set; } = null!;
 
         /// <summary>
         ///     Get the app data directory.
