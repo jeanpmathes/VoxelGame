@@ -20,10 +20,7 @@ namespace VoxelGame.Client.Rendering
     /// </summary>
     public sealed class SectionRenderer : IDisposable
     {
-        /// <summary>
-        ///     The number of draw stages.
-        /// </summary>
-        public const int DrawStageCount = 7;
+        private const string DataAttribute = "aData";
 
         private const int Simple = 0;
         private const int CrossPlant = 1;
@@ -70,7 +67,7 @@ namespace VoxelGame.Client.Rendering
             simpleDrawGroup.VertexArrayBindBuffer();
 
             Shaders.SimpleSection.Use();
-            int dataLocation = Shaders.SimpleSection.GetAttributeLocation("aData");
+            int dataLocation = Shaders.SimpleSection.GetAttributeLocation(DataAttribute);
 
             simpleDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
@@ -119,7 +116,7 @@ namespace VoxelGame.Client.Rendering
 
             Shaders.ComplexSection.Use();
             int positionLocation = Shaders.ComplexSection.GetAttributeLocation("aPosition");
-            dataLocation = Shaders.ComplexSection.GetAttributeLocation("aData");
+            dataLocation = Shaders.ComplexSection.GetAttributeLocation(DataAttribute);
 
             complexDrawGroup.VertexArrayAttributeBinding(positionLocation, dataLocation);
 
@@ -130,7 +127,7 @@ namespace VoxelGame.Client.Rendering
             varyingHeightDrawGroup.VertexArrayBindBuffer();
 
             Shaders.VaryingHeightSection.Use();
-            dataLocation = Shaders.VaryingHeightSection.GetAttributeLocation("aData");
+            dataLocation = Shaders.VaryingHeightSection.GetAttributeLocation(DataAttribute);
 
             varyingHeightDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
@@ -141,7 +138,7 @@ namespace VoxelGame.Client.Rendering
             opaqueLiquidDrawGroup.VertexArrayBindBuffer();
 
             Shaders.OpaqueLiquidSection.Use();
-            dataLocation = Shaders.OpaqueLiquidSection.GetAttributeLocation("aData");
+            dataLocation = Shaders.OpaqueLiquidSection.GetAttributeLocation(DataAttribute);
 
             opaqueLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
@@ -152,13 +149,18 @@ namespace VoxelGame.Client.Rendering
             transparentLiquidDrawGroup.VertexArrayBindBuffer();
 
             Shaders.TransparentLiquidSection.Use();
-            dataLocation = Shaders.TransparentLiquidSection.GetAttributeLocation("aData");
+            dataLocation = Shaders.TransparentLiquidSection.GetAttributeLocation(DataAttribute);
 
             transparentLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
             #endregion TRANSPARENT LIQUID BUFFER SETUP
 
         }
+
+        /// <summary>
+        ///     The number of draw stages.
+        /// </summary>
+        public static int DrawStageCount => 7;
 
         private static Shaders Shaders => Application.Client.Instance.Resources.Shaders;
 
@@ -248,6 +250,8 @@ namespace VoxelGame.Client.Rendering
                     PrepareTransparentLiquidBuffer(view, projection);
 
                     break;
+
+                default: throw new InvalidOperationException();
             }
         }
 
@@ -359,6 +363,8 @@ namespace VoxelGame.Client.Rendering
                     Draw(transparentLiquidDrawGroup, Shaders.TransparentLiquidSection, model);
 
                     break;
+
+                default: throw new InvalidOperationException();
             }
         }
 
@@ -385,6 +391,11 @@ namespace VoxelGame.Client.Rendering
                     break;
                 case TransparentLiquid:
                     FinishTransparentLiquidBuffer();
+
+                    break;
+
+                default:
+                    if (stage < 0 || stage >= DrawStageCount) throw new InvalidOperationException();
 
                     break;
             }
