@@ -63,7 +63,7 @@ namespace VoxelGame.Client.Logic
         ///     Start a task that will create mesh data for this chunk.
         /// </summary>
         /// <returns>The meshing task.</returns>
-        public Task<SectionMeshData[]> CreateMeshDataTask()
+        public Task<SectionMeshData[]> CreateMeshDataAsync()
         {
             return Task.Run(CreateMeshData);
         }
@@ -122,41 +122,42 @@ namespace VoxelGame.Client.Logic
         /// </summary>
         /// <param name="frustum">The view frustum to use for culling.</param>
         /// <param name="renderList">The list to add the chunks and positions too.</param>
-        public void AddCulledToRenderList(Frustum frustum, List<(ClientSection section, Vector3 position)> renderList)
+        public void AddCulledToRenderList(Frustum frustum,
+            ICollection<(ClientSection section, Vector3 position)> renderList)
         {
-            if (hasMeshData && frustum.BoxInFrustum(new BoundingBox(ChunkPoint, ChunkExtents)))
-            {
-                int start = 0, end = VerticalSectionCount - 1;
+            if (!hasMeshData || !frustum.BoxInFrustum(new BoundingBox(ChunkPoint, ChunkExtents))) return;
 
-                for (int y = start; y < VerticalSectionCount; y++)
-                    if (frustum.BoxInFrustum(
-                            new BoundingBox(
-                                new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
-                                Section.Extents,
-                                Section.Extents)))
-                    {
-                        start = y;
+            var start = 0;
+            int end = VerticalSectionCount - 1;
 
-                        break;
-                    }
+            for (int y = start; y < VerticalSectionCount; y++)
+                if (frustum.BoxInFrustum(
+                        new BoundingBox(
+                            new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
+                            Section.Extents,
+                            Section.Extents)))
+                {
+                    start = y;
 
-                for (int y = end; y >= 0; y--)
-                    if (frustum.BoxInFrustum(
-                            new BoundingBox(
-                                new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
-                                Section.Extents,
-                                Section.Extents)))
-                    {
-                        end = y;
+                    break;
+                }
 
-                        break;
-                    }
+            for (int y = end; y >= 0; y--)
+                if (frustum.BoxInFrustum(
+                        new BoundingBox(
+                            new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
+                            Section.Extents,
+                            Section.Extents)))
+                {
+                    end = y;
 
-                for (int y = start; y <= end; y++)
-                    renderList.Add(
-                        ((ClientSection) sections[y],
-                            new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize)));
-            }
+                    break;
+                }
+
+            for (int y = start; y <= end; y++)
+                renderList.Add(
+                    ((ClientSection) sections[y],
+                        new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize)));
         }
 
         #region IDisposable Support

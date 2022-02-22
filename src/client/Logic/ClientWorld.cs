@@ -241,7 +241,7 @@ namespace VoxelGame.Client.Logic
             while (chunksToMesh.Count > 0 && chunkMeshingTasks.Count < MaxMeshingTasks)
             {
                 ClientChunk current = chunksToMesh.Dequeue();
-                Task<SectionMeshData[]> currentTask = current.CreateMeshDataTask();
+                Task<SectionMeshData[]> currentTask = current.CreateMeshDataAsync();
 
                 chunkMeshingTasks.Add(currentTask);
                 chunksMeshing.Add(currentTask.Id, current);
