@@ -18,6 +18,8 @@ namespace VoxelGame.Client.Rendering
     /// </summary>
     public sealed class Shaders
     {
+        private const string SectionFragmentShader = "section.frag";
+
         private const string TimeUniform = "time";
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Shaders>();
 
@@ -115,11 +117,11 @@ namespace VoxelGame.Client.Rendering
                 loader.LoadIncludable("noise", "noise.glsl");
                 loader.LoadIncludable("decode", "decode.glsl");
 
-                SimpleSection = loader.Load("simple_section.vert", "section.frag");
-                ComplexSection = loader.Load("complex_section.vert", "section.frag");
-                VaryingHeightSection = loader.Load("varying_height_section.vert", "section.frag");
-                CrossPlantSection = loader.Load("cross_plant_section.vert", "section.frag");
-                CropPlantSection = loader.Load("crop_plant_section.vert", "section.frag");
+                SimpleSection = loader.Load("simple_section.vert", SectionFragmentShader);
+                ComplexSection = loader.Load("complex_section.vert", SectionFragmentShader);
+                VaryingHeightSection = loader.Load("varying_height_section.vert", SectionFragmentShader);
+                CrossPlantSection = loader.Load("cross_plant_section.vert", SectionFragmentShader);
+                CropPlantSection = loader.Load("crop_plant_section.vert", SectionFragmentShader);
                 OpaqueLiquidSection = loader.Load("liquid_section.vert", "opaque_liquid_section.frag");
                 TransparentLiquidSection = loader.Load("liquid_section.vert", "transparent_liquid_section.frag");
 
