@@ -11,6 +11,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Graphics.OpenGL4;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
@@ -23,11 +24,6 @@ namespace VoxelGame.Client.Rendering
     /// </summary>
     public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
     {
-        /// <summary>
-        ///     The size of a single array texture unit.
-        /// </summary>
-        public const int UnitSize = 2048;
-
         private static readonly ILogger logger = LoggingHelper.CreateLogger<ArrayTexture>();
 
         private readonly Dictionary<string, int> textureIndices = new();
@@ -51,6 +47,11 @@ namespace VoxelGame.Client.Rendering
         {
             Initialize(path, resolution, useCustomMipmapGeneration, textureUnits);
         }
+
+        /// <summary>
+        ///     The size of a single array texture unit.
+        /// </summary>
+        public static int UnitSize => 2048;
 
         /// <summary>
         ///     Get the number of textures in the array.
@@ -96,7 +97,7 @@ namespace VoxelGame.Client.Rendering
         {
             if (resolution <= 0 || (resolution & (resolution - 1)) != 0)
                 throw new ArgumentException(
-                    $"The resolution '{resolution}' is either negative or not a power of two, which is not allowed.");
+                    $"The {nameof(resolution)} '{resolution}' is either negative or not a power of two, which is not allowed.");
 
             arrayCount = units.Length;
 
@@ -124,7 +125,7 @@ namespace VoxelGame.Client.Rendering
             textures.Add(fallback);
 
             // Split all images into separate bitmaps and create a list.
-            LoadBitmaps(resolution, texturePaths, ref textures);
+            LoadBitmaps(resolution, texturePaths, textures);
 
             // Check if the arrays could hold all textures
             if (textures.Count > UnitSize * handles.Length)
@@ -141,14 +142,15 @@ namespace VoxelGame.Client.Rendering
             Count = textures.Count;
 
             var loadedTextures = 0;
+            var currentUnit = 0;
 
-            for (var i = 0; loadedTextures < textures.Count; i++)
+            while (loadedTextures < textures.Count)
             {
                 int remainingTextures = textures.Count - loadedTextures;
 
                 SetupArrayTexture(
-                    handles[i],
-                    units[i],
+                    handles[currentUnit],
+                    units[currentUnit],
                     resolution,
                     textures,
                     loadedTextures,
@@ -156,6 +158,7 @@ namespace VoxelGame.Client.Rendering
                     useCustomMipmapGeneration);
 
                 loadedTextures += UnitSize;
+                currentUnit++;
             }
 
             // Cleanup
@@ -238,7 +241,7 @@ namespace VoxelGame.Client.Rendering
         /// <remarks>
         ///     Textures provided have to have the height given by the resolution, and the width must be a multiple of it.
         /// </remarks>
-        private void LoadBitmaps(int resolution, IReadOnlyCollection<string> paths, ref List<Bitmap> bitmaps)
+        private void LoadBitmaps(int resolution, IReadOnlyCollection<string> paths, ICollection<Bitmap> bitmaps)
         {
             if (paths.Count == 0) return;
 
@@ -345,27 +348,30 @@ namespace VoxelGame.Client.Rendering
                 int minAlpha = Math.Min(Math.Min(c1.A, c2.A), Math.Min(c3.A, c4.A));
                 int maxAlpha = Math.Max(Math.Max(c1.A, c2.A), Math.Max(c3.A, c4.A));
 
-                int one = c1.A == 0 ? 0 : 1,
-                    two = c2.A == 0 ? 0 : 1,
-                    three = c3.A == 0 ? 0 : 1,
-                    four = c4.A == 0 ? 0 : 1;
+                int one = c1.HasOpaqueness().ToInt();
+                int two = c2.HasOpaqueness().ToInt();
+                int three = c3.HasOpaqueness().ToInt();
+                int four = c4.HasOpaqueness().ToInt();
 
                 int relevantPixelCount = minAlpha != 0 ? 4 : one + two + three + four;
-                double pixelDivisor = relevantPixelCount;
 
                 Color average = relevantPixelCount == 0
                     ? Color.FromArgb(alpha: 0, red: 0, green: 0, blue: 0)
                     : Color.FromArgb(
                         maxAlpha,
-                        (int) Math.Sqrt(
-                            (c1.R * c1.R + c2.R * c2.R + c3.R * c3.R + c4.R * c4.R) / pixelDivisor),
-                        (int) Math.Sqrt(
-                            (c1.G * c1.G + c2.G * c2.G + c3.G * c3.G + c4.G * c4.G) / pixelDivisor),
-                        (int) Math.Sqrt(
-                            (c1.B * c1.B + c2.B * c2.B + c3.B * c3.B + c4.B * c4.B) / pixelDivisor));
+                        CalculateAveragedColorChannel(c1.R, c2.R, c3.R, c4.R, relevantPixelCount),
+                        CalculateAveragedColorChannel(c1.G, c2.G, c3.G, c4.G, relevantPixelCount),
+                        CalculateAveragedColorChannel(c1.B, c2.B, c3.B, c4.B, relevantPixelCount));
 
                 lowerLevel.SetPixel(w, h, average);
             }
+        }
+
+        private static int CalculateAveragedColorChannel(int c1, int c2, int c3, int c4, int relevantPixelCount)
+        {
+            double divisor = relevantPixelCount;
+
+            return (int) Math.Sqrt((c1 * c1 + c2 * c2 + c3 * c3 + c4 * c4) / divisor);
         }
 
         #region IDisposable Support

@@ -35,5 +35,13 @@ namespace VoxelGame.Core.Utilities
         {
             return new(size.Width, size.Height);
         }
+
+        /// <summary>
+        ///     Convert a bool to an int.
+        /// </summary>
+        public static int ToInt(this bool b)
+        {
+            return b ? 1 : 0;
+        }
     }
 }

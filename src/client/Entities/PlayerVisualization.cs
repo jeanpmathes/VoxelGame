@@ -162,6 +162,9 @@ namespace VoxelGame.Client.Entities
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        ///     Finalizer.
+        /// </summary>
         ~PlayerVisualization()
         {
             Dispose(disposing: false);
