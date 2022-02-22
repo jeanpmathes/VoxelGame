@@ -68,7 +68,7 @@ namespace VoxelGame.Client.Scenes
             ui.AnyOverlayOpen += () =>
             {
                 Screen.SetOverlayLock();
-                Screen.SetCursor(visible: true, locked: false);
+                Screen.SetCursor(visible: true);
             };
 
             ui.AnyOverlayClosed += () =>
@@ -136,19 +136,10 @@ namespace VoxelGame.Client.Scenes
             using (logger.BeginScope("GameScene Render"))
             {
                 Screen.EnterGameDrawMode();
-
-                {
-                    Game.World.Render();
-                }
+                RenderGame();
 
                 Screen.EnterUIDrawMode();
-
-                {
-                    Game.Player.RenderOverlays();
-
-                    ui.UpdatePerformanceData();
-                    ui.Render();
-                }
+                RenderUI();
             }
         }
 
@@ -197,6 +188,19 @@ namespace VoxelGame.Client.Scenes
 
             Game.Dispose();
             Game = null!;
+        }
+
+        private void RenderGame()
+        {
+            Game.World.Render();
+        }
+
+        private void RenderUI()
+        {
+            Game.Player.RenderOverlays();
+
+            ui.UpdatePerformanceData();
+            ui.Render();
         }
 
         #region IDisposable Support.
