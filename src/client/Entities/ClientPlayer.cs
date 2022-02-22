@@ -124,12 +124,12 @@ namespace VoxelGame.Client.Entities
         /// <summary>
         ///     Gets the view matrix of the camera of this player.
         /// </summary>
-        public Matrix4 ViewMatrix => camera.GetViewMatrix();
+        public Matrix4 ViewMatrix => camera.ViewMatrix;
 
         /// <summary>
         ///     Gets the projection matrix of the camera of this player.
         /// </summary>
-        public Matrix4 ProjectionMatrix => camera.GetProjectionMatrix();
+        public Matrix4 ProjectionMatrix => camera.ProjectionMatrix;
 
         /// <inheritdoc cref="PhysicsEntity" />
         public override Vector3i TargetPosition => targetPosition;

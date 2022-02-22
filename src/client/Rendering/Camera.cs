@@ -100,20 +100,16 @@ namespace VoxelGame.Client.Rendering
         /// <summary>
         ///     Get the camera's view matrix.
         /// </summary>
-        /// <returns>The view matrix.</returns>
-        public Matrix4 GetViewMatrix()
-        {
-            return Matrix4.LookAt(Position, Position + Front, Up);
-        }
+        public Matrix4 ViewMatrix => Matrix4.LookAt(Position, Position + Front, Up);
 
         /// <summary>
         ///     Get the camera's projection matrix.
         /// </summary>
-        /// <returns>The projection matrix.</returns>
-        public Matrix4 GetProjectionMatrix()
-        {
-            return Matrix4.CreatePerspectiveFieldOfView(fov, Screen.AspectRatio, nearClipping, farClipping);
-        }
+        public Matrix4 ProjectionMatrix => Matrix4.CreatePerspectiveFieldOfView(
+            fov,
+            Screen.AspectRatio,
+            nearClipping,
+            farClipping);
 
         private void UpdateVectors()
         {
