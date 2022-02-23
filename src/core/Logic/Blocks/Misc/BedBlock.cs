@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.Collections.Generic;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
@@ -118,6 +119,8 @@ namespace VoxelGame.Core.Logic.Blocks
                         new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
 
                     break;
+
+                default: throw new InvalidOperationException();
             }
 
             return new BoundingBox(
