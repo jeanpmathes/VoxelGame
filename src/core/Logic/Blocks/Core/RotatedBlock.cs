@@ -32,8 +32,11 @@ namespace VoxelGame.Core.Logic.Blocks
             Axis axis = ToAxis(info.Data);
 
             // Check if the texture has to be rotated.
-            bool rotated = axis == Axis.X && info.Side != BlockSide.Left && info.Side != BlockSide.Right ||
-                           axis == Axis.Z && info.Side is BlockSide.Left or BlockSide.Right;
+            bool isLeftOrRightSide = info.Side is BlockSide.Left or BlockSide.Right;
+            bool onXAndRotated = axis == Axis.X && !isLeftOrRightSide;
+            bool onZAndRotated = axis == Axis.Z && isLeftOrRightSide;
+
+            bool rotated = onXAndRotated || onZAndRotated;
 
             return BlockMeshData.Basic(sideTextureIndices[TranslateIndex(info.Side, axis)], rotated);
         }
