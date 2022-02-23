@@ -15,6 +15,7 @@ using Properties;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Logging;
 
@@ -93,8 +94,8 @@ namespace VoxelGame.Client.Logic
             renderList.Clear();
 
             // Fill the render list.
-            for (int x = -player!.LoadDistance; x <= player!.LoadDistance; x++)
-            for (int z = -player!.LoadDistance; z <= player!.LoadDistance; z++)
+            for (int x = -Player.LoadDistance; x <= Player.LoadDistance; x++)
+            for (int z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
                 if (TryGetChunk(
                         player!.ChunkX + x,
                         player!.ChunkZ + z,

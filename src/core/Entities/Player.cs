@@ -42,12 +42,7 @@ namespace VoxelGame.Core.Entities
         /// <summary>
         ///     Gets the extents of how many chunks should be around this player.
         /// </summary>
-        public int LoadDistance { get; } = 4;
-
-        /// <summary>
-        ///     Gets whether this player has moved to a different chunk in the last frame.
-        /// </summary>
-        public bool ChunkHasChanged { get; private set; }
+        public static int LoadDistance => 4;
 
         /// <summary>
         ///     The x coordinate of the current chunk this player is in.
@@ -82,53 +77,67 @@ namespace VoxelGame.Core.Entities
 
             if (currentChunkX == ChunkX && currentChunkZ == ChunkZ) return;
 
-            ChunkHasChanged = true;
-
             int deltaX = Math.Abs(currentChunkX - ChunkX);
             int deltaZ = Math.Abs(currentChunkZ - ChunkZ);
-
-            int signX = currentChunkX - ChunkX >= 0 ? 1 : -1;
-            int signZ = currentChunkZ - ChunkZ >= 0 ? 1 : -1;
 
             // Check if player moved completely out of claimed chunks
             if (deltaX > 2 * LoadDistance || deltaZ > 2 * LoadDistance)
             {
-                for (int x = -LoadDistance; x <= LoadDistance; x++)
-                for (int z = -LoadDistance; z <= LoadDistance; z++)
-                {
-                    World.ReleaseChunk(ChunkX + x, ChunkZ + z);
-                    World.RequestChunk(currentChunkX + x, currentChunkZ + z);
-                }
+                ReleaseAndRequestAll(currentChunkX, currentChunkZ);
             }
             else
             {
-                for (var x = 0; x < deltaX; x++)
-                for (var z = 0; z < 2 * LoadDistance + 1; z++)
-                {
-                    World.ReleaseChunk(
-                        ChunkX + (LoadDistance - x) * -signX,
-                        ChunkZ + (LoadDistance - z) * -signZ);
-
-                    World.RequestChunk(
-                        currentChunkX + (LoadDistance - x) * signX,
-                        currentChunkZ + (LoadDistance - z) * signZ);
-                }
-
-                for (var z = 0; z < deltaZ; z++)
-                for (var x = 0; x < 2 * LoadDistance + 1; x++)
-                {
-                    World.ReleaseChunk(
-                        ChunkX + (LoadDistance - x) * -signX,
-                        ChunkZ + (LoadDistance - z) * -signZ);
-
-                    World.RequestChunk(
-                        currentChunkX + (LoadDistance - x) * signX,
-                        currentChunkZ + (LoadDistance - z) * signZ);
-                }
+                ReleaseAndRequestShifting(currentChunkX, currentChunkZ, deltaX, deltaZ);
             }
 
             ChunkX = currentChunkX;
             ChunkZ = currentChunkZ;
+        }
+
+        /// <summary>
+        ///     Release all previously claimed chunks and request all chunks around the player.
+        /// </summary>
+        private void ReleaseAndRequestAll(int currentChunkX, int currentChunkZ)
+        {
+            for (int x = -LoadDistance; x <= LoadDistance; x++)
+            for (int z = -LoadDistance; z <= LoadDistance; z++)
+            {
+                World.ReleaseChunk(ChunkX + x, ChunkZ + z);
+                World.RequestChunk(currentChunkX + x, currentChunkZ + z);
+            }
+        }
+
+        /// <summary>
+        ///     Release and request chunks around the player using a shifted window.
+        /// </summary>
+        private void ReleaseAndRequestShifting(int currentChunkX, int currentChunkZ, int deltaX, int deltaZ)
+        {
+            int signX = currentChunkX - ChunkX >= 0 ? 1 : -1;
+            int signZ = currentChunkZ - ChunkZ >= 0 ? 1 : -1;
+
+            for (var x = 0; x < deltaX; x++)
+            for (var z = 0; z < 2 * LoadDistance + 1; z++)
+            {
+                World.ReleaseChunk(
+                    ChunkX + (LoadDistance - x) * -signX,
+                    ChunkZ + (LoadDistance - z) * -signZ);
+
+                World.RequestChunk(
+                    currentChunkX + (LoadDistance - x) * signX,
+                    currentChunkZ + (LoadDistance - z) * signZ);
+            }
+
+            for (var z = 0; z < deltaZ; z++)
+            for (var x = 0; x < 2 * LoadDistance + 1; x++)
+            {
+                World.ReleaseChunk(
+                    ChunkX + (LoadDistance - x) * -signX,
+                    ChunkZ + (LoadDistance - z) * -signZ);
+
+                World.RequestChunk(
+                    currentChunkX + (LoadDistance - x) * signX,
+                    currentChunkZ + (LoadDistance - z) * signZ);
+            }
         }
     }
 }
