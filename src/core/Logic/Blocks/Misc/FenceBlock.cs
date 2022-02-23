@@ -7,6 +7,7 @@
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Blocks
 {
@@ -48,9 +49,9 @@ namespace VoxelGame.Core.Logic.Blocks
             bool south = (data & 0b00_0010) != 0;
             bool west = (data & 0b00_0001) != 0;
 
-            int extensions = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
+            int extensions = BitHelper.CountSetBooleans(north, east, south, west);
 
-            BoundingBox[] children = new BoundingBox[2 * extensions];
+            var children = new BoundingBox[2 * extensions];
             extensions = 0;
 
             if (north)
