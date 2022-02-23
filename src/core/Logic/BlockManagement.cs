@@ -22,7 +22,7 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         ///     The maximum amount of different blocks that can be registered.
         /// </summary>
-        public const int BlockLimit = 1 << Section.DataShift;
+        private const int BlockLimit = 1 << Section.DataShift;
 
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Block>();
 
