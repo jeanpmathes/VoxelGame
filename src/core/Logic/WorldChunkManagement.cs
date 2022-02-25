@@ -181,7 +181,7 @@ namespace VoxelGame.Core.Logic
             while (chunksToGenerate.Count > 0 && chunkGenerateTasks.Count < MaxGenerationTasks)
             {
                 Chunk current = chunksToGenerate.Dequeue();
-                Task currentTask = current.GenerateTask(generator);
+                Task currentTask = current.GenerateAsync(generator);
 
                 chunkGenerateTasks.Add(currentTask);
                 chunksGenerating.Add(currentTask.Id, current);
@@ -275,7 +275,7 @@ namespace VoxelGame.Core.Logic
                     if (!positionsSaving.Contains((x, z)))
                     {
                         string pathToChunk = ChunkDirectory + $@"\x{x}z{z}.chunk";
-                        Task<Chunk?> currentTask = Chunk.LoadTask(pathToChunk, x, z);
+                        Task<Chunk?> currentTask = Chunk.LoadAsync(pathToChunk, x, z);
 
                         chunkLoadingTasks.Add(currentTask);
                         positionsLoading.Add(currentTask.Id, (x, z));
@@ -353,7 +353,7 @@ namespace VoxelGame.Core.Logic
             while (chunksToSave.Count > 0 && chunkSavingTasks.Count < MaxSavingTasks)
             {
                 Chunk current = chunksToSave.Dequeue();
-                Task currentTask = current.SaveTask(ChunkDirectory);
+                Task currentTask = current.SaveAsync(ChunkDirectory);
 
                 chunkSavingTasks.Add(currentTask);
                 chunksSaving.Add(currentTask.Id, current);

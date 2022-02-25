@@ -44,7 +44,7 @@ namespace VoxelGame.Client.Logic
         /// </summary>
         public void CreateAndSetMesh()
         {
-            for (var y = 0; y < VerticalSectionCount; y++) ((ClientSection) sections[y]).CreateAndSetMesh(X, y, Z);
+            for (var y = 0; y < HeightInSections; y++) ((ClientSection) sections[y]).CreateAndSetMesh(X, y, Z);
 
             hasMeshData = true;
             meshDataIndex = 0;
@@ -70,9 +70,9 @@ namespace VoxelGame.Client.Logic
 
         private SectionMeshData[] CreateMeshData()
         {
-            SectionMeshData[] sectionMeshes = new SectionMeshData[VerticalSectionCount];
+            var sectionMeshes = new SectionMeshData[HeightInSections];
 
-            for (var y = 0; y < VerticalSectionCount; y++)
+            for (var y = 0; y < HeightInSections; y++)
                 sectionMeshes[y] = ((ClientSection) sections[y]).CreateMeshData(X, y, Z);
 
             meshDataIndex = 0;
@@ -103,7 +103,7 @@ namespace VoxelGame.Client.Logic
                 ((ClientSection) sections[meshDataIndex]).SetMeshData(sectionMeshes[meshDataIndex]);
 
                 // The index has reached the end, all sections have received their mesh data.
-                if (meshDataIndex == VerticalSectionCount - 1)
+                if (meshDataIndex == HeightInSections - 1)
                 {
                     hasMeshData = true;
                     meshDataIndex = 0;
@@ -128,9 +128,9 @@ namespace VoxelGame.Client.Logic
             if (!hasMeshData || !frustum.BoxInFrustum(new BoundingBox(ChunkPoint, ChunkExtents))) return;
 
             var start = 0;
-            int end = VerticalSectionCount - 1;
+            int end = HeightInSections - 1;
 
-            for (int y = start; y < VerticalSectionCount; y++)
+            for (int y = start; y < HeightInSections; y++)
                 if (frustum.BoxInFrustum(
                         new BoundingBox(
                             new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
@@ -170,7 +170,7 @@ namespace VoxelGame.Client.Logic
             if (!disposed)
             {
                 if (disposing)
-                    for (var y = 0; y < VerticalSectionCount; y++)
+                    for (var y = 0; y < HeightInSections; y++)
                         sections[y].Dispose();
 
                 disposed = true;

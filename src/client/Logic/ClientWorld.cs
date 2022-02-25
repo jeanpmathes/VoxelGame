@@ -284,7 +284,7 @@ namespace VoxelGame.Client.Logic
 
                     break;
                 case Section.SectionSize - 1
-                    when (position.Y + 1) >> Section.SectionSizeExp < Chunk.VerticalSectionCount:
+                    when (position.Y + 1) >> Section.SectionSizeExp < Chunk.HeightInSections:
                     sectionsToMesh.Add(((ClientChunk) chunk, (position.Y + 1) >> Section.SectionSizeExp));
 
                     break;

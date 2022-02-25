@@ -399,7 +399,7 @@ namespace VoxelGame.Core.Logic
 
             foreach (Chunk chunk in activeChunks.Values)
                 if (!positionsSaving.Contains((chunk.X, chunk.Z)))
-                    savingTasks.Add(chunk.SaveTask(ChunkDirectory));
+                    savingTasks.Add(chunk.SaveAsync(ChunkDirectory));
 
             Information.Version = ApplicationInformation.Instance.Version;
 
