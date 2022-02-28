@@ -189,7 +189,7 @@ namespace VoxelGame.Core.Logic
             other.liquid.TickSoon(world, other.position, other.isStatic);
 
             world.SetLiquid(
-                Liquid.Water.AsInstance(concrete.level, isStatic: true),
+                Liquid.Water.AsInstance(concrete.level),
                 concrete.position);
 
             Liquid.Water.TickSoon(world, concrete.position, isStatic: true);
