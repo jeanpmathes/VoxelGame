@@ -332,8 +332,11 @@ namespace VoxelGame.Core.Logic
 
                 (BlockInstance? neighborBlock, LiquidInstance? neighborLiquid) = world.GetContent(neighborPosition);
 
-                if (neighborLiquid?.Liquid == this && neighborLiquid.Level == level &&
-                    neighborBlock?.Block is IFillable neighborFillable
+                bool isNeighborThisLiquid = neighborLiquid?.Liquid == this && neighborLiquid.Level == level;
+
+                if (!isNeighborThisLiquid) continue;
+
+                if (neighborBlock?.Block is IFillable neighborFillable
                     && neighborFillable.AllowInflow(world, neighborPosition, orientation.Opposite().ToBlockSide(), this)
                     && currentFillable.AllowOutflow(world, position, orientation.ToBlockSide())) return true;
             }
@@ -389,7 +392,7 @@ namespace VoxelGame.Core.Logic
             Vector3i center = (extendedRange, 0, extendedRange);
 
             #pragma warning disable CA1814
-            bool[,] mark = new bool[extents, extents];
+            var mark = new bool[extents, extents];
             #pragma warning restore CA1814
 
             Queue<(Vector3i position, IFillable fillable)> queue = new();
