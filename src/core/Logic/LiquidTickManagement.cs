@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         ///     The maximum amount of liquid ticks per frame.
         /// </summary>
-        public const int MaxLiquidTicksPerFrameAndChunk = 1024;
+        internal const int MaxLiquidTicksPerFrameAndChunk = 1024;
 
         /// <summary>
         ///     Schedules a tick according to the viscosity.
@@ -52,7 +52,10 @@ namespace VoxelGame.Core.Logic
         internal struct LiquidTick : ITickable
 #pragma warning restore CA1815 // Override equals and operator equals on value types
         {
-            private readonly int x, y, z;
+            private readonly int x;
+            private readonly int y;
+            private readonly int z;
+
             private readonly uint target;
 
             public LiquidTick(Vector3i position, Liquid target)
