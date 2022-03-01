@@ -119,10 +119,11 @@ namespace VoxelGame.Core.Physics
         /// </summary>
         public bool Contains(Vector3 point)
         {
-            bool containedInParent =
-                Min.X <= point.X && Max.X >= point.X &&
-                Min.Y <= point.Y && Max.Y >= point.Y &&
-                Min.Z <= point.Z && Max.Z >= point.Z;
+            bool containedInX = Min.X <= point.X && Max.X >= point.X;
+            bool containedInY = Min.Y <= point.Y && Max.Y >= point.Y;
+            bool containedInZ = Min.Z <= point.Z && Max.Z >= point.Z;
+
+            bool containedInParent = containedInX && containedInY && containedInZ;
 
             if (containedInParent)
                 return true;
@@ -138,9 +139,11 @@ namespace VoxelGame.Core.Physics
 
         private bool Intersects_NonRecursive(BoundingBox other, ref bool x, ref bool y, ref bool z)
         {
-            if (Min.X <= other.Max.X && Max.X >= other.Min.X &&
-                Min.Y <= other.Max.Y && Max.Y >= other.Min.Y &&
-                Min.Z <= other.Max.Z && Max.Z >= other.Min.Z)
+            bool containedInX = Min.X <= other.Max.X && Max.X >= other.Min.X;
+            bool containedInY = Min.Y <= other.Max.Y && Max.Y >= other.Min.Y;
+            bool containedInZ = Min.Z <= other.Max.Z && Max.Z >= other.Min.Z;
+
+            if (containedInX && containedInY && containedInZ)
             {
                 float inverseOverlap;
 
@@ -194,12 +197,12 @@ namespace VoxelGame.Core.Physics
             float t5 = (Min.Z - ray.Origin.Z) * dirfrac.Z;
             float t6 = (Max.Z - ray.Origin.Z) * dirfrac.Z;
 
-            float tmin = Math.Max(Math.Max(Math.Min(t1, t2), Math.Min(t3, t4)), Math.Min(t5, t6));
-            float tmax = Math.Min(Math.Min(Math.Max(t1, t2), Math.Max(t3, t4)), Math.Max(t5, t6));
+            float tMin = Math.Max(Math.Max(Math.Min(t1, t2), Math.Min(t3, t4)), Math.Min(t5, t6));
+            float tMax = Math.Min(Math.Min(Math.Max(t1, t2), Math.Max(t3, t4)), Math.Max(t5, t6));
 
-            if (tmax < 0f) return false;
+            if (tMax < 0f) return false;
 
-            return tmin <= tmax;
+            return tMin <= tMax;
         }
 
         private bool Intersects_OneWithAll(BoundingBox one, ref bool x, ref bool y, ref bool z)
@@ -215,9 +218,11 @@ namespace VoxelGame.Core.Physics
 
         private bool Intersects_OneWithAll(BoundingBox one)
         {
-            if (Min.X <= one.Max.X && Max.X >= one.Min.X &&
-                Min.Y <= one.Max.Y && Max.Y >= one.Min.Y &&
-                Min.Z <= one.Max.Z && Max.Z >= one.Min.Z) return true;
+            bool intersectsX = Min.X <= one.Max.X && Max.X >= one.Min.X;
+            bool intersectsY = Min.Y <= one.Max.Y && Max.Y >= one.Min.Y;
+            bool intersectsZ = Min.Z <= one.Max.Z && Max.Z >= one.Min.Z;
+
+            if (intersectsX && intersectsY && intersectsZ) return true;
 
             for (var i = 0; i < ChildCount; i++)
                 if (children[i].Intersects_OneWithAll(one))
@@ -312,7 +317,9 @@ namespace VoxelGame.Core.Physics
                         world,
                         position);
 
-                    bool newX = false, newY = false, newZ = false;
+                    var newX = false;
+                    var newY = false;
+                    var newZ = false;
 
                     // Check for intersection
                     if ((currentBlock.Block.IsSolid || currentBlock.Block.IsTrigger) && Intersects(
