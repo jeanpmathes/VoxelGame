@@ -39,7 +39,7 @@ namespace VoxelGame.Core.Utilities
         /// <returns>The absolute vector.</returns>
         public static Vector3 Absolute(this Vector3 vector)
         {
-            return new(Math.Abs(vector.X), Math.Abs(vector.Y), Math.Abs(vector.Z));
+            return new Vector3(Math.Abs(vector.X), Math.Abs(vector.Y), Math.Abs(vector.Z));
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace VoxelGame.Core.Utilities
         /// <returns>The rounded vector.</returns>
         public static Vector3 Rounded(this Vector3 vector, int digits = 0)
         {
-            return new(
+            return new Vector3(
                 (float) Math.Round(vector.X, digits),
                 (float) Math.Round(vector.Y, digits),
                 (float) Math.Round(vector.Z, digits));
@@ -65,7 +65,7 @@ namespace VoxelGame.Core.Utilities
         /// <returns>The vector with clamped components</returns>
         public static Vector3 ClampComponents(Vector3 vector, Vector3 min, Vector3 max)
         {
-            return new(
+            return new Vector3(
                 MathHelper.Clamp(vector.X, min.X, max.X),
                 MathHelper.Clamp(vector.Y, min.Y, max.Y),
                 MathHelper.Clamp(vector.Z, min.Z, max.Z));
@@ -78,21 +78,21 @@ namespace VoxelGame.Core.Utilities
         /// <returns>The sign vector</returns>
         public static Vector3 Sign(this Vector3 vector)
         {
-            return new(Math.Sign(vector.X), Math.Sign(vector.Y), Math.Sign(vector.Z));
+            return new Vector3(Math.Sign(vector.X), Math.Sign(vector.Y), Math.Sign(vector.Z));
         }
 
         /// <summary>
-        ///     Returns a vector where every component is the modulo of mod.
+        ///     Returns a vector where every component is the modulo of m.
         /// </summary>
         /// <param name="vector">The vector to use.</param>
-        /// <param name="mod">The number dividing.</param>
+        /// <param name="m">The number m.</param>
         /// <returns>The modulo vector.</returns>
-        public static Vector3i Mod(this Vector3i vector, int mod)
+        public static Vector3i Mod(this Vector3i vector, int m)
         {
-            return new(
-                (vector.X % mod + mod) % mod,
-                (vector.Y % mod + mod) % mod,
-                (vector.Z % mod + mod) % mod);
+            return new Vector3i(
+                (vector.X % m + m) % m,
+                (vector.Y % m + m) % m,
+                (vector.Z % m + m) % m);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace VoxelGame.Core.Utilities
         /// <returns>The component-wise floored vector.</returns>
         public static Vector3i Floor(this Vector3 vector)
         {
-            return new((int) Math.Floor(vector.X), (int) Math.Floor(vector.Y), (int) Math.Floor(vector.Z));
+            return new Vector3i((int) Math.Floor(vector.X), (int) Math.Floor(vector.Y), (int) Math.Floor(vector.Z));
         }
 
         /// <summary>
