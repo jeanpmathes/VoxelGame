@@ -29,14 +29,14 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         ///     The number of sections in a chunk. The chunk is a large column of sections.
         /// </summary>
-        internal const int VerticalSectionCount = 64;
+        public const int VerticalSectionCount = 64;
 
         private const int RandomTickBatchSize = VerticalSectionCount / 2;
 
         /// <summary>
         ///     The width of a chunk in blocks.
         /// </summary>
-        internal const int ChunkWidth = Section.SectionSize;
+        public const int ChunkWidth = Section.SectionSize;
 
         /// <summary>
         ///     The height of a chunk in blocks.

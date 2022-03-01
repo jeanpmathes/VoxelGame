@@ -5,9 +5,9 @@
 // <author>pershingthesecond</author>
 
 using System;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Logic;
 
-namespace VoxelGame.Core.Logic
+namespace VoxelGame.Core.Visuals
 {
     /// <summary>
     ///     Provides functionality to define the textures of a default six-sided block or a liquid.
@@ -123,7 +123,7 @@ namespace VoxelGame.Core.Logic
         ///     Returns a texture layout where three textures are used, one for top, one for bottom, the other for the sides around
         ///     it.
         /// </summary>
-        public static TextureLayout UnqiueColumn(string sides, string bottom, string top)
+        public static TextureLayout UniqueColumn(string sides, string bottom, string top)
         {
             int sideIndex = blockTextureIndexProvider.GetTextureIndex(sides);
             int bottomIndex = blockTextureIndexProvider.GetTextureIndex(bottom);
@@ -135,7 +135,7 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         ///     Returns a texture layout where all sides but the front have the same texture.
         /// </summary>
-        public static TextureLayout UnqiueFront(string front, string rest)
+        public static TextureLayout UniqueFront(string front, string rest)
         {
             int frontIndex = blockTextureIndexProvider.GetTextureIndex(front);
             int restIndex = blockTextureIndexProvider.GetTextureIndex(rest);
@@ -146,7 +146,7 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         ///     Returns a texture layout where all sides but the top side have the same texture.
         /// </summary>
-        public static TextureLayout UnqiueTop(string rest, string top)
+        public static TextureLayout UniqueTop(string rest, string top)
         {
             int topIndex = blockTextureIndexProvider.GetTextureIndex(top);
             int restIndex = blockTextureIndexProvider.GetTextureIndex(rest);
@@ -186,6 +186,24 @@ namespace VoxelGame.Core.Logic
             };
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="layout"></param>
+        /// <returns></returns>
+        public static implicit operator (int, int, int, int, int, int)(TextureLayout layout)
+        {
+            return layout.ToValueTuple();
+        }
+
+        /// <summary>
+        ///     Get this texture layout as a value tuple.
+        /// </summary>
+        /// <returns>The tuple containing the texture numbers.</returns>
+        public (int, int, int, int, int, int) ToValueTuple()
+        {
+            return (Front, Back, Left, Right, Bottom, Top);
+        }
+
         /// <inheritdoc />
         public override int GetHashCode()
         {
@@ -219,12 +237,7 @@ namespace VoxelGame.Core.Logic
         /// <inheritdoc />
         public bool Equals(TextureLayout other)
         {
-            return Front == other.Front &&
-                   Back == other.Back &&
-                   Left == other.Left &&
-                   Right == other.Right &&
-                   Bottom == other.Bottom &&
-                   Top == other.Top;
+            return ToValueTuple() == other.ToValueTuple();
         }
     }
 }

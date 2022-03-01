@@ -11,7 +11,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics;
 using VoxelGame.Logging;
-using TextureLayout = VoxelGame.Core.Logic.TextureLayout;
+using TextureLayout = VoxelGame.Core.Visuals.TextureLayout;
 
 namespace VoxelGame.Client.Application
 {

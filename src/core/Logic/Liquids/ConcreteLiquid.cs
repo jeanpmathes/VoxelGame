@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using OpenToolkit.Mathematics;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Liquids
 {
