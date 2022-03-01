@@ -328,10 +328,10 @@ namespace VoxelGame.Client.Logic
         }
 
         /// <inheritdoc />
-        protected override void AddAllTasks(List<Task> tasks)
+        protected override void AddAllTasks(IList<Task> tasks)
         {
             base.AddAllTasks(tasks);
-            tasks.AddRange(chunkMeshingTasks);
+            chunkMeshingTasks.ForEach(tasks.Add);
         }
     }
 }

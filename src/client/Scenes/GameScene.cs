@@ -175,8 +175,8 @@ namespace VoxelGame.Client.Scenes
 
             try
             {
-                Game.World.FinishAll().Wait();
-                Game.World.Save().Wait();
+                Game.World.FinishAllAsync().Wait();
+                Game.World.SaveAsync().Wait();
             }
             catch (AggregateException exception)
             {
