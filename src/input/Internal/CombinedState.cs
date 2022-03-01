@@ -54,7 +54,7 @@ namespace VoxelGame.Input.Internal
 
         internal bool IsKeyOrButtonDown(KeyOrButton keyOrButton)
         {
-            return overrides.ContainsKey(keyOrButton) ? overrides[keyOrButton] : keyOrButton.State(this);
+            return overrides.ContainsKey(keyOrButton) ? overrides[keyOrButton] : keyOrButton.GetState(this);
         }
 
         internal bool IsKeyOrButtonUp(KeyOrButton keyOrButton)
