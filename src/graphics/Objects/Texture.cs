@@ -115,8 +115,7 @@ namespace VoxelGame.Graphics.Objects
 
             for (var x = 0; x < fallback.Width; x++)
             for (var y = 0; y < fallback.Height; y++)
-                if ((x % 2 == 0) ^ (y % 2 == 0)) fallback.SetPixel(x, y, magenta);
-                else fallback.SetPixel(x, y, black);
+                fallback.SetPixel(x, y, (x % 2 == 0) ^ (y % 2 == 0) ? magenta : black);
 
             return fallback;
         }
