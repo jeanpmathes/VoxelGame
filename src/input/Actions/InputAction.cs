@@ -4,6 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
+
 namespace VoxelGame.Input.Actions
 {
     /// <summary>
@@ -30,6 +32,8 @@ namespace VoxelGame.Input.Actions
         /// <summary>
         ///     Called every frame.
         /// </summary>
-        protected abstract void Update();
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected abstract void Update(object? sender, EventArgs e);
     }
 }

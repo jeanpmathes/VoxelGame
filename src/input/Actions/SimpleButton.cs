@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using VoxelGame.Input.Internal;
 
 namespace VoxelGame.Input.Actions
@@ -20,8 +21,10 @@ namespace VoxelGame.Input.Actions
         /// <param name="input">The input manager.</param>
         public SimpleButton(KeyOrButton keyOrButton, InputManager input) : base(keyOrButton, input) {}
 
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         /// <inheritdoc />
-        protected override void Update()
+        protected override void Update(object? sender, EventArgs e)
         {
             CombinedState state = Input.CurrentState;
             IsDown = state.IsKeyOrButtonDown(KeyOrButton);
