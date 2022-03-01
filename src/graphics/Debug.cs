@@ -46,18 +46,40 @@ namespace VoxelGame.Graphics
         {
             if (id is 131169 or 131185 or 131218 or 131204) return;
 
-            string sourceShort = source switch
-            {
-                DebugSource.DebugSourceApi => "API",
-                DebugSource.DebugSourceApplication => "APPLICATION",
-                DebugSource.DebugSourceOther => "OTHER",
-                DebugSource.DebugSourceShaderCompiler => "SHADER COMPILER",
-                DebugSource.DebugSourceThirdParty => "THIRD PARTY",
-                DebugSource.DebugSourceWindowSystem => "WINDOWS SYSTEM",
-                _ => "NONE"
-            };
+            string sourceName = GetSourceName(source);
+            string typeName = GetTypeName(type);
+            (string idResolved, int eventId) = ResolveEvent(id);
+            LogLevel level = GetLevel(severity);
 
-            string typeShort = type switch
+            logger.Log(
+                level,
+                eventId,
+                LoggingTemplate,
+                sourceName,
+                typeName,
+                idResolved,
+                Marshal.PtrToStringAnsi(message, length));
+        }
+
+        private static (string, int) ResolveEvent(int id)
+        {
+            return id switch
+            {
+                0x500 => ("GL_INVALID_ENUM", Events.GlInvalidEnum),
+                0x501 => ("GL_INVALID_ENUM", Events.GlInvalidEnum),
+                0x502 => ("GL_INVALID_OPERATION", Events.GlInvalidOperation),
+                0x503 => ("GL_STACK_OVERFLOW", Events.GlStackOverflow),
+                0x504 => ("GL_STACK_UNDERFLOW", Events.GlStackUnderflow),
+                0x505 => ("GL_OUT_OF_MEMORY", Events.GlOutOfMemory),
+                0x506 => ("GL_INVALID_FRAMEBUFFER_OPERATION", Events.GlInvalidFramebufferOperation),
+                0x507 => ("GL_CONTEXT_LOST", Events.GlContextLost),
+                _ => ("-", 0)
+            };
+        }
+
+        private static string GetTypeName(DebugType type)
+        {
+            return type switch
             {
                 DebugType.DebugTypeDeprecatedBehavior => "DEPRECATED BEHAVIOR",
                 DebugType.DebugTypeError => "ERROR",
@@ -70,78 +92,33 @@ namespace VoxelGame.Graphics
                 DebugType.DebugTypeUndefinedBehavior => "UNDEFINED BEHAVIOR",
                 _ => "NONE"
             };
+        }
 
-            (string idResolved, int eventId) = id switch
+        private static string GetSourceName(DebugSource source)
+        {
+            return source switch
             {
-                0x500 => ("GL_INVALID_ENUM", Events.GlInvalidEnum),
-                0x501 => ("GL_INVALID_ENUM", Events.GlInvalidEnum),
-                0x502 => ("GL_INVALID_OPERATION", Events.GlInvalidOperation),
-                0x503 => ("GL_STACK_OVERFLOW", Events.GlStackOverflow),
-                0x504 => ("GL_STACK_UNDERFLOW", Events.GlStackUnderflow),
-                0x505 => ("GL_OUT_OF_MEMORY", Events.GlOutOfMemory),
-                0x506 => ("GL_INVALID_FRAMEBUFFER_OPERATION", Events.GlInvalidFramebufferOperation),
-                0x507 => ("GL_CONTEXT_LOST", Events.GlContextLost),
-                _ => ("-", 0)
+                DebugSource.DebugSourceApi => "API",
+                DebugSource.DebugSourceApplication => "APPLICATION",
+                DebugSource.DebugSourceOther => "OTHER",
+                DebugSource.DebugSourceShaderCompiler => "SHADER COMPILER",
+                DebugSource.DebugSourceThirdParty => "THIRD PARTY",
+                DebugSource.DebugSourceWindowSystem => "WINDOWS SYSTEM",
+                _ => "NONE"
             };
+        }
 
-            switch (severity)
+        private static LogLevel GetLevel(DebugSeverity severity)
+        {
+            return severity switch
             {
-                case DebugSeverity.DebugSeverityNotification:
-                case DebugSeverity.DontCare:
-                    logger.LogInformation(
-                        eventId,
-                        LoggingTemplate,
-                        sourceShort,
-                        typeShort,
-                        idResolved,
-                        Marshal.PtrToStringAnsi(message, length));
-
-                    break;
-
-                case DebugSeverity.DebugSeverityLow:
-                    logger.LogWarning(
-                        eventId,
-                        LoggingTemplate,
-                        sourceShort,
-                        typeShort,
-                        idResolved,
-                        Marshal.PtrToStringAnsi(message, length));
-
-                    break;
-
-                case DebugSeverity.DebugSeverityMedium:
-                    logger.LogError(
-                        eventId,
-                        LoggingTemplate,
-                        sourceShort,
-                        typeShort,
-                        idResolved,
-                        Marshal.PtrToStringAnsi(message, length));
-
-                    break;
-
-                case DebugSeverity.DebugSeverityHigh:
-                    logger.LogCritical(
-                        eventId,
-                        LoggingTemplate,
-                        sourceShort,
-                        typeShort,
-                        idResolved,
-                        Marshal.PtrToStringAnsi(message, length));
-
-                    break;
-
-                default:
-                    logger.LogInformation(
-                        eventId,
-                        LoggingTemplate,
-                        sourceShort,
-                        typeShort,
-                        idResolved,
-                        Marshal.PtrToStringAnsi(message, length));
-
-                    break;
-            }
+                DebugSeverity.DebugSeverityNotification => LogLevel.Information,
+                DebugSeverity.DontCare => LogLevel.Information,
+                DebugSeverity.DebugSeverityLow => LogLevel.Warning,
+                DebugSeverity.DebugSeverityMedium => LogLevel.Error,
+                DebugSeverity.DebugSeverityHigh => LogLevel.Critical,
+                _ => LogLevel.Information
+            };
         }
     }
 }
