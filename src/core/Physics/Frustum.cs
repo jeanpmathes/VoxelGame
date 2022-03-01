@@ -21,41 +21,40 @@ namespace VoxelGame.Core.Physics
         /// <summary>
         ///     Create a new frustum.
         /// </summary>
-        /// <param name="fovy">The field-of-view value, on the y axis.</param>
+        /// <param name="fovY">The field-of-view value, on the y axis.</param>
         /// <param name="ratio">The screen ratio.</param>
-        /// <param name="near">The distance to the near clipping plane.</param>
-        /// <param name="far">The distance to the far clipping plane.</param>
-        /// <param name="pos">The position of the camera.</param>
-        /// <param name="dir">The view direction.</param>
+        /// <param name="clip">The distances to the near and far clipping planes.</param>
+        /// <param name="position">The position of the camera.</param>
+        /// <param name="direction">The view direction.</param>
         /// <param name="up">The up direction.</param>
         /// <param name="right">The right direction.</param>
-        public Frustum(float fovy, float ratio, float near, float far,
-            Vector3 pos, Vector3 dir, Vector3 up, Vector3 right)
+        public Frustum(float fovY, float ratio, (float near, float far) clip,
+            Vector3 position, Vector3 direction, Vector3 up, Vector3 right)
         {
-            dir = dir.Normalized();
+            direction = direction.Normalized();
             up = up.Normalized();
             right = right.Normalized();
 
-            var hnear = (float) (2f * Math.Tan(fovy / 2f) * near);
-            float wnear = hnear * ratio;
+            var hNear = (float) (2f * Math.Tan(fovY / 2f) * clip.near);
+            float wNear = hNear * ratio;
 
-            Vector3 nc = pos + dir * near;
-            Vector3 fc = pos + dir * far;
+            Vector3 nc = position + direction * clip.near;
+            Vector3 fc = position + direction * clip.far;
 
-            Vector3 nl = Vector3.Cross((nc - right * wnear / 2f - pos).Normalized(), up);
-            Vector3 nr = Vector3.Cross(up, (nc + right * wnear / 2f - pos).Normalized());
+            Vector3 nl = Vector3.Cross((nc - right * wNear / 2f - position).Normalized(), up);
+            Vector3 nr = Vector3.Cross(up, (nc + right * wNear / 2f - position).Normalized());
 
-            Vector3 nb = Vector3.Cross(right, (nc - up * hnear / 2f - pos).Normalized());
-            Vector3 nt = Vector3.Cross((nc + up * hnear / 2f - pos).Normalized(), right);
+            Vector3 nb = Vector3.Cross(right, (nc - up * hNear / 2f - position).Normalized());
+            Vector3 nt = Vector3.Cross((nc + up * hNear / 2f - position).Normalized(), right);
 
             planes = new[]
             {
-                new Plane(dir, nc), // Near.
-                new Plane(-dir, fc), // Far.
-                new Plane(nl, pos), // Left.
-                new Plane(nr, pos), // Right.
-                new Plane(nb, pos), // Bottom.
-                new Plane(nt, pos) // Top.
+                new Plane(direction, nc), // Near.
+                new Plane(-direction, fc), // Far.
+                new Plane(nl, position), // Left.
+                new Plane(nr, position), // Right.
+                new Plane(nb, position), // Bottom.
+                new Plane(nt, position) // Top.
             };
         }
 
@@ -65,18 +64,11 @@ namespace VoxelGame.Core.Physics
         /// <returns>true if the <see cref="BoundingBox" /> is inside; false if not.</returns>
         public bool BoxInFrustum(BoundingBox box)
         {
-            float px, py, pz;
-
             for (var i = 0; i < 6; i++)
             {
-                if (planes[i].Normal.X < 0) px = box.Min.X;
-                else px = box.Max.X;
-
-                if (planes[i].Normal.Y < 0) py = box.Min.Y;
-                else py = box.Max.Y;
-
-                if (planes[i].Normal.Z < 0) pz = box.Min.Z;
-                else pz = box.Max.Z;
+                float px = planes[i].Normal.X < 0 ? box.Min.X : box.Max.X;
+                float py = planes[i].Normal.Y < 0 ? box.Min.Y : box.Max.Y;
+                float pz = planes[i].Normal.Z < 0 ? box.Min.Z : box.Max.Z;
 
                 if (planes[i].Distance(new Vector3(px, py, pz)) < 0) return false;
             }

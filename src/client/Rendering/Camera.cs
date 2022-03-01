@@ -40,7 +40,7 @@ namespace VoxelGame.Client.Rendering
         /// <summary>
         ///     Get the view frustum of the camera.
         /// </summary>
-        public Frustum Frustum => new(fov, Screen.AspectRatio, nearClipping, farClipping, Position, front, Up, Right);
+        public Frustum Frustum => new(fov, Screen.AspectRatio, (nearClipping, farClipping), Position, front, Up, Right);
 
         /// <summary>
         ///     Get the front vector of the camera.
