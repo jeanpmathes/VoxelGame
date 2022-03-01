@@ -38,7 +38,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 boundingBox,
                 TargetBuffer.Complex)
         {
-            mesh = BlockModel.Load(modelName).GetMesh();
+            mesh = BlockModel.Load(modelName).Mesh;
         }
 
         /// <inheritdoc />

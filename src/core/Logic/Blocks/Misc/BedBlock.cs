@@ -49,17 +49,17 @@ namespace VoxelGame.Core.Logic.Blocks
             headParts.Lock();
             footParts.Lock();
 
-            headMeshes.Add(headParts.north.GetMesh());
-            footMeshes.Add(footParts.north.GetMesh());
+            headMeshes.Add(headParts.north.Mesh);
+            footMeshes.Add(footParts.north.Mesh);
 
-            headMeshes.Add(headParts.east.GetMesh());
-            footMeshes.Add(footParts.east.GetMesh());
+            headMeshes.Add(headParts.east.Mesh);
+            footMeshes.Add(footParts.east.Mesh);
 
-            headMeshes.Add(headParts.south.GetMesh());
-            footMeshes.Add(footParts.south.GetMesh());
+            headMeshes.Add(headParts.south.Mesh);
+            footMeshes.Add(footParts.south.Mesh);
 
-            headMeshes.Add(headParts.west.GetMesh());
-            footMeshes.Add(footParts.west.GetMesh());
+            headMeshes.Add(headParts.west.Mesh);
+            footMeshes.Add(footParts.west.Mesh);
         }
 
         /// <inheritdoc />

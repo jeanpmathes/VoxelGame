@@ -62,7 +62,7 @@ namespace VoxelGame.Core.Logic.Blocks
             for (uint data = 0b00_0000; data <= 0b01_1111; data++)
                 if (data == 0)
                 {
-                    meshes.Add(complete.GetMesh());
+                    meshes.Add(complete.Mesh);
                 }
                 else
                 {

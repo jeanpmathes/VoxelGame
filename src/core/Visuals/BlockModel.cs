@@ -75,6 +75,19 @@ namespace VoxelGame.Core.Visuals
         public int VertexCount => Quads.Length * 4;
 
         /// <summary>
+        ///     Get the model as a block mesh.
+        /// </summary>
+        public BlockMesh Mesh
+        {
+            get
+            {
+                ToData(out float[] vertices, out int[] textureIndices, out uint[] indices);
+
+                return new BlockMesh((uint) VertexCount, vertices, textureIndices, indices);
+            }
+        }
+
+        /// <summary>
         ///     Set the texture index provider.
         /// </summary>
         /// <param name="blockTextureProvider">The block texture index provider.</param>
@@ -394,16 +407,6 @@ namespace VoxelGame.Core.Visuals
                 indices[i * 6 + 4] = 3 + offset;
                 indices[i * 6 + 5] = 2 + offset;
             }
-        }
-
-        /// <summary>
-        ///     Get the model as a block mesh.
-        /// </summary>
-        public BlockMesh GetMesh()
-        {
-            ToData(out float[] vertices, out int[] textureIndices, out uint[] indices);
-
-            return new BlockMesh((uint) VertexCount, vertices, textureIndices, indices);
         }
 
         /// <summary>

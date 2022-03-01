@@ -64,10 +64,10 @@ namespace VoxelGame.Core.Logic.Blocks
                 (BlockModel north, BlockModel east, BlockModel south, BlockModel west) =
                     model.CreateAllOrientations(rotateTopAndBottomTexture: true);
 
-                meshList.Add(north.GetMesh());
-                meshList.Add(east.GetMesh());
-                meshList.Add(south.GetMesh());
-                meshList.Add(west.GetMesh());
+                meshList.Add(north.Mesh);
+                meshList.Add(east.Mesh);
+                meshList.Add(south.Mesh);
+                meshList.Add(west.Mesh);
             }
         }
 

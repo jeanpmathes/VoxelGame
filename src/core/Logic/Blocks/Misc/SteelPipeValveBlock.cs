@@ -40,14 +40,14 @@ namespace VoxelGame.Core.Logic.Blocks
             (BlockModel openX, BlockModel openY, BlockModel openZ) = BlockModel.Load(openModel).CreateAllAxis();
             (BlockModel closedX, BlockModel closedY, BlockModel closedZ) = BlockModel.Load(closedModel).CreateAllAxis();
 
-            meshes.Add(openX.GetMesh());
-            meshes.Add(openY.GetMesh());
-            meshes.Add(openZ.GetMesh());
+            meshes.Add(openX.Mesh);
+            meshes.Add(openY.Mesh);
+            meshes.Add(openZ.Mesh);
             meshes.Add(item: null);
 
-            meshes.Add(closedX.GetMesh());
-            meshes.Add(closedY.GetMesh());
-            meshes.Add(closedZ.GetMesh());
+            meshes.Add(closedX.Mesh);
+            meshes.Add(closedY.Mesh);
+            meshes.Add(closedZ.Mesh);
             meshes.Add(item: null);
         }
 

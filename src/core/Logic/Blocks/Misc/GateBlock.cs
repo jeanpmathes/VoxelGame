@@ -44,7 +44,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 var orientation = (Orientation) (data & 0b00_0011);
                 bool isClosed = (data & 0b00_0100) == 0;
 
-                BlockMesh mesh = orientation.Pick(isClosed ? closedModels : openModels).GetMesh();
+                BlockMesh mesh = orientation.Pick(isClosed ? closedModels : openModels).Mesh;
                 meshes.Add(mesh);
             }
         }
