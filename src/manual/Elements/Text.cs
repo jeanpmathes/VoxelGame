@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.IO;
 using VoxelGame.Manual.Modifiers;
 
@@ -16,7 +17,7 @@ namespace VoxelGame.Manual.Elements
     {
         private readonly TextStyle style;
 
-        public Text(string text, TextStyle style)
+        internal Text(string text, TextStyle style)
         {
             Content = text;
             this.style = style;
@@ -33,11 +34,13 @@ namespace VoxelGame.Manual.Elements
 
                     break;
 
-                default:
                 case TextStyle.Normal:
                     writer.WriteLine(Content);
 
                     break;
+
+                default:
+                    throw new NotSupportedException();
             }
         }
     }
