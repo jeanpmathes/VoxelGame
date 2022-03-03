@@ -41,12 +41,12 @@ namespace VoxelGame.Manual.Utility
 
         private static Dictionary<string, string> ReadDocumentation(Assembly assembly)
         {
-            Dictionary<string, string> documentation = new();
+            Dictionary<string, string> loadedDocumentation = new();
 
             XmlDocument doc = new();
             doc.Load(GetDocumentationFile(assembly));
 
-            if (doc.DocumentElement == null) return documentation;
+            if (doc.DocumentElement == null) return loadedDocumentation;
 
             IEnumerable<XmlElement> members =
                 doc.DocumentElement["members"]?.ChildNodes?.OfType<XmlElement>() ?? Enumerable.Empty<XmlElement>();
@@ -60,10 +60,10 @@ namespace VoxelGame.Manual.Utility
 
                 if (value == null) continue;
 
-                documentation.Add(name, value.Trim());
+                loadedDocumentation.Add(name, value.Trim());
             }
 
-            return documentation;
+            return loadedDocumentation;
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace VoxelGame.Manual.Utility
         /// </summary>
         /// <param name="field">The field to get the summary for.</param>
         /// <returns>The summary.</returns>
-        public string GetFieldSummary(FieldInfo field)
+        public string GetFieldSummary(MemberInfo field)
         {
             return documentation.TryGetValue(
                 $"F:{field.DeclaringType?.FullName ?? ""}.{field.Name}",
