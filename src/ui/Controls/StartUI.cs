@@ -50,7 +50,7 @@ namespace VoxelGame.UI.Controls
             worldSelection.Cancel += () => OpenMenu(MainMenuIndex);
 
             creditsMenu = new CreditsMenu(this, parent.Context);
-            creditsMenu.Cancel += () => OpenMenu(MainMenuIndex);
+            creditsMenu.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
             menus.Add(mainMenu);
             menus.Add(settingsMenu);
