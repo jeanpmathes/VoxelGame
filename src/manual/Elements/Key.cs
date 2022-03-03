@@ -15,7 +15,7 @@ namespace VoxelGame.Manual.Elements
     {
         private readonly object key;
 
-        public Key(object key)
+        internal Key(object key)
         {
             this.key = key;
         }
