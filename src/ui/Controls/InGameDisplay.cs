@@ -88,7 +88,7 @@ namespace VoxelGame.UI.Controls
             playerSelection.Text = $"{playerDataProvider.Mode}: {playerDataProvider.Selection}";
         }
 
-        public void SetPlayerDebugData(IPlayerDataProvider playerDataProvider)
+        internal void SetPlayerDebugData(IPlayerDataProvider playerDataProvider)
         {
             if (!debugMode) return;
 
@@ -104,7 +104,7 @@ namespace VoxelGame.UI.Controls
             targetLiquid.Text = $"L: {liquid.NamedId}[{liquid.Id}], {level}, {isStatic}";
         }
 
-        public void ToggleDebugDataView()
+        internal void ToggleDebugDataView()
         {
             debugMode = !debugMode;
             debugViewContainer.IsHidden = !debugMode;
