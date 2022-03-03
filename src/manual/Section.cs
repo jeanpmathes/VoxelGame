@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using VoxelGame.Manual.Elements;
 
@@ -46,7 +47,8 @@ namespace VoxelGame.Manual
 
         internal void Generate(StreamWriter writer, string parent)
         {
-            writer.WriteLine(@$"\subsection{{{title}}}\label{{subsec:{parent.ToLower()}_{title.ToLower()}}}");
+            writer.WriteLine(
+                @$"\subsection{{{title}}}\label{{subsec:{parent.ToLower(CultureInfo.InvariantCulture)}_{title.ToLower(CultureInfo.InvariantCulture)}}}");
 
             foreach (IElement element in elements) element.Generate(writer);
         }
