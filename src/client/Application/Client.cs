@@ -18,6 +18,7 @@ using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 #if MANUAL
 using System.Globalization;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core;
 using Section = VoxelGame.Manual.Section;
 using VoxelGame.Manual;
@@ -177,7 +178,7 @@ namespace VoxelGame.Client.Application
 #if MANUAL
             const string path = "./../../../../../../Setup/Resources/Manual";
 
-            Documentation documentation = new(typeof(GameInformation).Assembly);
+            Documentation documentation = new(typeof(ApplicationInformation).Assembly);
 
             Includable controls = new("controls", path);
 
