@@ -62,7 +62,7 @@ namespace VoxelGame.UI.Controls
                 Text = Language.Back
             };
 
-            back.Pressed += (_, _) => Cancel?.Invoke();
+            back.Pressed += (_, _) => Cancel(this, EventArgs.Empty);
         }
 
         protected override void CreateDisplay(ControlBase display)
@@ -108,6 +108,6 @@ namespace VoxelGame.UI.Controls
             }
         }
 
-        public event Action? Cancel;
+        internal event EventHandler Cancel = delegate {};
     }
 }

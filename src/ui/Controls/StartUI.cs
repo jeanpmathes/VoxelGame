@@ -44,7 +44,7 @@ namespace VoxelGame.UI.Controls
             mainMenu.SelectCredits += (_, _) => OpenMenu(CreditsMenuIndex);
 
             settingsMenu = new SettingsMenu(this, settingsProviders, parent.Context);
-            settingsMenu.Cancel += () => OpenMenu(MainMenuIndex);
+            settingsMenu.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
             worldSelection = new WorldSelection(this, worldProvider, parent.Context);
             worldSelection.Cancel += () => OpenMenu(MainMenuIndex);

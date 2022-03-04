@@ -158,7 +158,7 @@ namespace VoxelGame.UI.Controls
 
             SettingsMenu menu = new(settings, settingsProviders, parent.Context);
 
-            menu.Cancel += () =>
+            menu.Cancel += (_, _) =>
             {
                 settings.Close();
                 isSettingsMenuOpen = false;
