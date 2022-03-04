@@ -38,10 +38,10 @@ namespace VoxelGame.UI.Controls
             Dock = Dock.Fill;
 
             mainMenu = new MainMenu(this, parent.Context);
-            mainMenu.SelectExit += () => Exit?.Invoke();
-            mainMenu.SelectSettings += () => OpenMenu(SettingsMenuIndex);
-            mainMenu.SelectWorlds += () => OpenMenu(WorldSelectionMenuIndex);
-            mainMenu.SelectCredits += () => OpenMenu(CreditsMenuIndex);
+            mainMenu.SelectExit += (_, _) => Exit?.Invoke();
+            mainMenu.SelectSettings += (_, _) => OpenMenu(SettingsMenuIndex);
+            mainMenu.SelectWorlds += (_, _) => OpenMenu(WorldSelectionMenuIndex);
+            mainMenu.SelectCredits += (_, _) => OpenMenu(CreditsMenuIndex);
 
             settingsMenu = new SettingsMenu(this, settingsProviders, parent.Context);
             settingsMenu.Cancel += () => OpenMenu(MainMenuIndex);
