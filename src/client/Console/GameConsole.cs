@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Console.Commands;
@@ -30,13 +31,18 @@ namespace VoxelGame.Client.Console
             this.commandInvoker = commandInvoker;
         }
 
-        private static ConsoleWrapper Console => Application.Client.Instance.Console;
+        private static ConsoleWrapper Console => Application.Client.Instance.CurrentGame!.Console;
 
         /// <inheritdoc />
         public void ProcessInput(string input)
         {
+            Debug.Assert(Application.Client.Instance.CurrentGame != null, "Game must be running to use console.");
+
             logger.LogDebug(Events.Console, "Console command: {Command}", input);
-            commandInvoker.InvokeCommand(input, new CommandContext(Console, Application.Client.Player));
+
+            commandInvoker.InvokeCommand(
+                input,
+                new CommandContext(Console, Application.Client.Instance.CurrentGame.Player));
         }
 
         /// <summary>

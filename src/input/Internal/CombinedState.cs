@@ -20,9 +20,9 @@ namespace VoxelGame.Input.Internal
 
         private readonly Dictionary<KeyOrButton, bool> overrides;
 
-        public bool IsAnyKeyOrButtonDown => Keyboard.IsAnyKeyDown || Mouse.IsAnyButtonDown;
+        internal bool IsAnyKeyOrButtonDown => Keyboard.IsAnyKeyDown || Mouse.IsAnyButtonDown;
 
-        public KeyOrButton Any
+        internal KeyOrButton Any
         {
             get
             {
@@ -52,12 +52,12 @@ namespace VoxelGame.Input.Internal
             this.overrides = overrides;
         }
 
-        public bool IsKeyOrButtonDown(KeyOrButton keyOrButton)
+        internal bool IsKeyOrButtonDown(KeyOrButton keyOrButton)
         {
-            return overrides.ContainsKey(keyOrButton) ? overrides[keyOrButton] : keyOrButton.State(this);
+            return overrides.ContainsKey(keyOrButton) ? overrides[keyOrButton] : keyOrButton.GetState(this);
         }
 
-        public bool IsKeyOrButtonUp(KeyOrButton keyOrButton)
+        internal bool IsKeyOrButtonUp(KeyOrButton keyOrButton)
         {
             return !IsKeyOrButtonDown(keyOrButton);
         }

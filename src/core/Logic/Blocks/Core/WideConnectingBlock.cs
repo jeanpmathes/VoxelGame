@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks
     // e: connected east
     // s: connected south
     // w: connected west
-    public abstract class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConnectable
+    public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConnectable
     {
         private readonly List<BlockMesh> meshes = new(capacity: 16);
 

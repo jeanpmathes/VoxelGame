@@ -61,7 +61,7 @@ namespace VoxelGame.Input.Internal
         private bool IsKeyboardKey => key != null;
         private bool IsMouseButton => button != null;
 
-        internal bool State(CombinedState state)
+        internal bool GetState(CombinedState state)
         {
             if (IsKeyboardKey) return state.Keyboard[(Key) key!];
 

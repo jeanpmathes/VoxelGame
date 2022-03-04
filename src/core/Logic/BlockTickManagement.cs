@@ -1,4 +1,4 @@
-﻿// <copyright file="BlockTickManagment.cs" company="VoxelGame">
+﻿// <copyright file="BlockTickManagement.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -12,12 +12,12 @@ namespace VoxelGame.Core.Logic
 {
     public partial class Block
     {
+        private const int ScheduledDestroyOffset = 5;
+
         /// <summary>
         ///     The maximum amount of block ticks that should be processed per frame.
         /// </summary>
-        public const int MaxBlockTicksPerFrameAndChunk = 1024;
-
-        private const int ScheduledDestroyOffset = 5;
+        public static int MaxBlockTicksPerFrameAndChunk => 1024;
 
         /// <summary>
         ///     Schedules a tick according to the given tick offset;
@@ -60,7 +60,10 @@ namespace VoxelGame.Core.Logic
         internal struct BlockTick : ITickable
 #pragma warning restore CA1815 // Override equals and operator equals on value types
         {
-            private readonly int x, y, z;
+            private readonly int x;
+            private readonly int y;
+            private readonly int z;
+
             private readonly uint target;
             private readonly TickOperation operation;
 
@@ -79,19 +82,22 @@ namespace VoxelGame.Core.Logic
             {
                 BlockInstance? block = world.GetBlock((x, y, z));
 
-                if (block?.Block.Id == target)
-                    switch (operation)
-                    {
-                        case TickOperation.Tick:
-                            block.Block.ScheduledUpdate(world, (x, y, z), block.Data);
+                if (block?.Block.Id != target) return;
 
-                            break;
+                switch (operation)
+                {
+                    case TickOperation.Tick:
+                        block.Block.ScheduledUpdate(world, (x, y, z), block.Data);
 
-                        case TickOperation.Destroy:
-                            block.Block.Destroy(world, (x, y, z));
+                        break;
 
-                            break;
-                    }
+                    case TickOperation.Destroy:
+                        block.Block.Destroy(world, (x, y, z));
+
+                        break;
+
+                    default: throw new InvalidOperationException();
+                }
             }
         }
     }

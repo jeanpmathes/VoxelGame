@@ -50,7 +50,7 @@ namespace VoxelGame.UI.Controls
             back.Pressed += (_, _) =>
             {
                 worldCreationWindow?.Close();
-                Cancel?.Invoke();
+                Cancel(this, EventArgs.Empty);
             };
         }
 
@@ -93,7 +93,7 @@ namespace VoxelGame.UI.Controls
             newWorld.Pressed += (_, _) => OpenWorldCreationWindow();
         }
 
-        public void Refresh()
+        internal void Refresh()
         {
             worldProvider.Refresh();
             FillWorldList();
@@ -130,7 +130,7 @@ namespace VoxelGame.UI.Controls
                 {
                     Text = info.Version,
                     Font = Fonts.Small,
-                    TextColor = GameInformation.Instance.Version == info.Version ? Color.Green : Color.Red
+                    TextColor = ApplicationInformation.Instance.Version == info.Version ? Color.Green : Color.Red
                 };
 
                 Label file = new(infoPanel)
@@ -233,6 +233,6 @@ namespace VoxelGame.UI.Controls
             }
         }
 
-        public event Action? Cancel;
+        internal event EventHandler Cancel = delegate {};
     }
 }

@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks
     /// </summary>
     public class InsetDirtBlock : Block, IHeightVariable, IFillable, IPlantable, IPotentiallySolid, IAshCoverable
     {
-        private const int Height = IHeightVariable.MaximumHeight - 1;
+        private static readonly int height = IHeightVariable.MaximumHeight - 1;
 
         private readonly TextureLayout dryLayout;
         private readonly TextureLayout wetLayout;
@@ -51,7 +51,7 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <inheritdoc />
         public int GetHeight(uint data)
         {
-            return Height;
+            return height;
         }
 
         /// <inheritdoc />
@@ -73,7 +73,7 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <inheritdoc />
         protected override BoundingBox GetBoundingBox(uint data)
         {
-            return BoundingBox.BlockWithHeight(Height);
+            return BoundingBox.BlockWithHeight(height);
         }
 
         /// <inheritdoc />

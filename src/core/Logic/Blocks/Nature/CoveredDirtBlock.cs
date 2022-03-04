@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     specified in the constructor.
     ///     Data bit usage: <c>------</c>
     /// </summary>
-    public abstract class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
+    public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     {
         private readonly bool hasNeutralTint;
         private readonly TextureLayout wet;

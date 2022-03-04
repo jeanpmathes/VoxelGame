@@ -42,8 +42,8 @@ namespace VoxelGame.Core.Logic.Blocks
             BlockModel straightXModel = straightZModel.Copy();
             straightXModel.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
 
-            straightX = straightXModel.GetMesh();
-            straightZ = straightZModel.GetMesh();
+            straightX = straightXModel.Mesh;
+            straightZ = straightZModel.Mesh;
         }
 
         /// <inheritdoc />

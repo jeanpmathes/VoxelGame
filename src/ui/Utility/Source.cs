@@ -16,7 +16,6 @@ namespace VoxelGame.UI.Utility
     /// <summary>
     ///     A utility class to access image resources.
     /// </summary>
-    // todo: could be replaced with strongly typed resources
     [SuppressMessage("ReSharper", "ConvertToStaticClass", Justification = "Pure static classes cannot have a logger.")]
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     internal sealed class Source
@@ -24,17 +23,17 @@ namespace VoxelGame.UI.Utility
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Source>();
         private Source() {}
 
-        public static string GetImageName(string name)
+        internal static string GetImageName(string name)
         {
             return $"Resources/GUI/{name}.png";
         }
 
-        public static string GetIconName(string name)
+        internal static string GetIconName(string name)
         {
             return $"Resources/GUI/Icons/{name}.png";
         }
 
-        public static string GetTextContent(string path)
+        internal static string GetTextContent(string path)
         {
             try
             {

@@ -56,7 +56,7 @@ namespace VoxelGame.Client.Console.Commands
                 return;
             }
 
-            Context.Player.World.SetLiquid(liquid.AsInstance(level, isStatic: true), position);
+            Context.Player.World.SetLiquid(liquid.AsInstance(level), position);
         }
     }
 }

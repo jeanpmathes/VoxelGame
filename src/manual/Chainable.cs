@@ -5,7 +5,6 @@
 // <author>pershingthesecond</author>
 
 using System;
-using System.IO;
 using VoxelGame.Manual.Elements;
 using VoxelGame.Manual.Modifiers;
 using Boolean = VoxelGame.Manual.Elements.Boolean;
@@ -35,11 +34,11 @@ namespace VoxelGame.Manual
         /// <summary>
         ///     Add a key box to the section.
         /// </summary>
-        /// <param name="key">The key to describe.</param>
+        /// <param name="k">The key to describe.</param>
         /// <returns>The current chain.</returns>
-        public Chainable Key(object key)
+        public Chainable Key(object k)
         {
-            AddElement(new Key(key));
+            AddElement(new Key(k));
 
             return this;
         }
@@ -107,11 +106,6 @@ namespace VoxelGame.Manual
         public virtual Section EndSection()
         {
             throw new InvalidOperationException();
-        }
-
-        internal void WriteItem(StreamWriter writer)
-        {
-            writer.Write(@"\item");
         }
     }
 }

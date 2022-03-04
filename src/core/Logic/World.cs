@@ -38,7 +38,7 @@ namespace VoxelGame.Core.Logic
                     Name = name,
                     Seed = seed,
                     Creation = DateTime.Now,
-                    Version = GameInformation.Instance.Version
+                    Version = ApplicationInformation.Instance.Version
                 },
                 path,
                 path + "/Chunks",
@@ -120,12 +120,25 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         ///     Gets whether this world is ready for physics ticking and rendering.
         /// </summary>
-        public bool IsReady { get; protected set; }
+        protected bool IsReady { get; set; }
 
         /// <summary>
         ///     Get the world creation seed.
         /// </summary>
         public int Seed => Information.Seed;
+
+        /// <summary>
+        /// Get or set the spawn position in this world.
+        /// </summary>
+        public Vector3 SpawnPosition
+        {
+            get => Information.SpawnInformation.Position;
+            set
+            {
+                Information.SpawnInformation = new SpawnInformation(value);
+                logger.LogInformation(Events.WorldData, "World spawn position has been set to: {Position}", value);
+            }
+        }
 
         private void Setup()
         {
@@ -368,30 +381,10 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        ///     Sets the spawn position of this world.
-        /// </summary>
-        /// <param name="position">The position to set as spawn.</param>
-        public void SetSpawnPosition(Vector3 position)
-        {
-            Information.SpawnInformation = new SpawnInformation(position);
-
-            logger.LogInformation(Events.WorldData, "World spawn position has been set to: {Position}", position);
-        }
-
-        /// <summary>
-        ///     Get the spawn position of this world.
-        /// </summary>
-        /// <returns>The spawn position.</returns>
-        public Vector3 GetSpawnPosition()
-        {
-            return Information.SpawnInformation.Position;
-        }
-
-        /// <summary>
         ///     Saves all active chunks that are not currently saved.
         /// </summary>
         /// <returns>A task that represents all tasks saving the chunks.</returns>
-        public Task Save()
+        public Task SaveAsync()
         {
             logger.LogInformation(Events.WorldIO, "Saving world");
 
@@ -399,9 +392,9 @@ namespace VoxelGame.Core.Logic
 
             foreach (Chunk chunk in activeChunks.Values)
                 if (!positionsSaving.Contains((chunk.X, chunk.Z)))
-                    savingTasks.Add(chunk.SaveTask(ChunkDirectory));
+                    savingTasks.Add(chunk.SaveAsync(ChunkDirectory));
 
-            Information.Version = GameInformation.Instance.Version;
+            Information.Version = ApplicationInformation.Instance.Version;
 
             savingTasks.Add(Task.Run(() => Information.Save(Path.Combine(WorldDirectory, "meta.json"))));
 
@@ -412,7 +405,7 @@ namespace VoxelGame.Core.Logic
         ///     Wait for all world tasks to finish.
         /// </summary>
         /// <returns>A task that is finished when all world tasks are finished.</returns>
-        public Task FinishAll()
+        public Task FinishAllAsync()
         {
             // This method is just a quick hack to fix a possible cause of crashes.
             // It would be better to also process the finished tasks.
@@ -424,14 +417,14 @@ namespace VoxelGame.Core.Logic
         }
 
         /// <summary>
-        ///     Add all tasks to the list. This is used to wait for all tasks to finish when calling <see cref="FinishAll" />.
+        ///     Add all tasks to the list. This is used to wait for all tasks to finish when calling <see cref="FinishAllAsync" />.
         /// </summary>
         /// <param name="tasks">The task list.</param>
-        protected virtual void AddAllTasks(List<Task> tasks)
+        protected virtual void AddAllTasks(IList<Task> tasks)
         {
-            tasks.AddRange(chunkGenerateTasks);
-            tasks.AddRange(chunkLoadingTasks);
-            tasks.AddRange(chunkSavingTasks);
+            chunkGenerateTasks.ForEach(tasks.Add);
+            chunkLoadingTasks.ForEach(tasks.Add);
+            chunkSavingTasks.ForEach(tasks.Add);
         }
 
         #region IDisposable Support

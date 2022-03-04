@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using OpenToolkit.Mathematics;
@@ -82,7 +81,7 @@ namespace VoxelGame.Core.Logic
             (0, 1, 0)
         };
 
-        private static readonly ReadOnlyCollection<BlockSide> sides = new List<BlockSide>
+        private static readonly IReadOnlyCollection<BlockSide> sides = new List<BlockSide>
                 { BlockSide.Front, BlockSide.Back, BlockSide.Left, BlockSide.Right, BlockSide.Bottom, BlockSide.Top }
             .AsReadOnly();
 

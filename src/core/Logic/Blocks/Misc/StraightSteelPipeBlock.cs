@@ -37,9 +37,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
             (BlockModel x, BlockModel y, BlockModel z) = BlockModel.Load(model).CreateAllAxis();
 
-            meshes.Add(x.GetMesh());
-            meshes.Add(y.GetMesh());
-            meshes.Add(z.GetMesh());
+            meshes.Add(x.Mesh);
+            meshes.Add(y.Mesh);
+            meshes.Add(z.Mesh);
         }
 
         public bool RenderLiquid => false;

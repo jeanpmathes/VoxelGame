@@ -22,7 +22,7 @@ namespace VoxelGame.Manual.Utility
         /// <param name="type">The type to get all fields from.</param>
         /// <param name="filterType">The type to filter for.</param>
         /// <returns>The found fields.</returns>
-        public static IEnumerable<FieldInfo> GetStaticFields(this Type type, Type filterType)
+        public static IEnumerable<FieldInfo> GetStaticFields(this IReflect type, Type filterType)
         {
             return type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
                 .Where(info => info.FieldType == filterType);
@@ -31,7 +31,7 @@ namespace VoxelGame.Manual.Utility
         /// <summary>
         ///     Get the static values for all fields with a certain type, and the corresponding field documentation.
         /// </summary>
-        public static IEnumerable<(T, string)> GetStaticValues<T>(this Type type, Documentation documentation)
+        public static IEnumerable<(T, string)> GetStaticValues<T>(this IReflect type, Documentation documentation)
         {
             return type.GetStaticFields(typeof(T))
                 .Where(info => info.GetValue(obj: null) != null)

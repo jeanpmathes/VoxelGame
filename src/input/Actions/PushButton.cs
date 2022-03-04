@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using VoxelGame.Input.Internal;
 
 namespace VoxelGame.Input.Actions
@@ -36,8 +37,10 @@ namespace VoxelGame.Input.Actions
             }
         }
 
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         /// <inheritdoc />
-        protected override void Update()
+        protected override void Update(object? sender, EventArgs e)
         {
             CombinedState state = Input.CurrentState;
 

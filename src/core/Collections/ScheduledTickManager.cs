@@ -166,7 +166,7 @@ namespace VoxelGame.Core.Collections
         }
 
         [Serializable]
-        private class TicksHolder
+        private sealed class TicksHolder
         {
             public TicksHolder? next;
             public long targetUpdate;

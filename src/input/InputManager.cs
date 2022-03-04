@@ -58,7 +58,7 @@ namespace VoxelGame.Input
             CurrentState = new CombinedState(keyboard, mouse, overrides);
 
             Mouse.Update();
-            OnUpdate?.Invoke();
+            OnUpdate.Invoke(this, EventArgs.Empty);
 
             Listener.ProcessInput(CurrentState);
         }
@@ -89,6 +89,6 @@ namespace VoxelGame.Input
         /// <summary>
         ///     Called when the input manager updates.
         /// </summary>
-        public event Action? OnUpdate;
+        public event EventHandler OnUpdate = delegate {};
     }
 }

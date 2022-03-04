@@ -81,7 +81,7 @@ namespace VoxelGame.Core.Visuals
                     ((0.145f, 0.145f), (0.855f, 0.855f)),
                     ((0.0f, 0.5f), (1.0f, 0.5f)),
                     ((0.5f, 0.0f), (0.5f, 1.0f))),
-                _ => throw new NotImplementedException()
+                _ => throw new NotSupportedException()
             };
         }
 
@@ -144,7 +144,7 @@ namespace VoxelGame.Core.Visuals
                 Quality.Medium => CreateCropPlantModel(horizontalSteps: 4, verticalSteps: 1),
                 Quality.High => CreateCropPlantModel(horizontalSteps: 4, verticalSteps: 2),
                 Quality.Ultra => CreateCropPlantModel(horizontalSteps: 4, verticalSteps: 2),
-                _ => throw new NotImplementedException()
+                _ => throw new NotSupportedException()
             };
         }
 
@@ -161,7 +161,9 @@ namespace VoxelGame.Core.Visuals
             for (var h = 0; h < horizontalSteps; h++)
             for (var v = 0; v < verticalSteps; v++)
             {
-                float z1, z2;
+                float z1;
+                float z2;
+
                 float x1 = z1 = h * hStep;
                 float x2 = z2 = (h + 1) * hStep;
 

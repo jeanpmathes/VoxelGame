@@ -13,7 +13,7 @@ namespace VoxelGame.Client.Collections
     /// <summary>
     ///     Holds and combines mesh faces, that then can be used to create a final mesh.
     /// </summary>
-    public abstract class MeshFaceHolder
+    public class MeshFaceHolder
     {
         private protected readonly BlockSide side;
 

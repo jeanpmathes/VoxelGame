@@ -40,7 +40,7 @@ namespace VoxelGame.Client.Console.Commands
                     break;
 
                 case "spawn":
-                    SetPlayerPosition(Context.Player.World.GetSpawnPosition());
+                    SetPlayerPosition(Context.Player.World.SpawnPosition);
 
                     break;
 

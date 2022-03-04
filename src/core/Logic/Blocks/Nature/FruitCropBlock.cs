@@ -149,6 +149,12 @@ namespace VoxelGame.Core.Logic.Blocks
                     world.SetBlock(this.AsInstance(((uint) GrowthStage.Dead << 1) | isLowered), position);
 
                     break;
+
+                #pragma warning disable
+                default:
+                    // Ground does not support full growth.
+                    break;
+                #pragma warning restore
             }
         }
 

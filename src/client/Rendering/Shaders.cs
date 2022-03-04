@@ -18,10 +18,10 @@ namespace VoxelGame.Client.Rendering
     /// </summary>
     public sealed class Shaders
     {
+        private const string SectionFragmentShader = "section.frag";
+
         private const string TimeUniform = "time";
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Shaders>();
-
-        private static Shaders? instance;
 
         private readonly ShaderLoader loader;
 
@@ -35,60 +35,67 @@ namespace VoxelGame.Client.Rendering
         /// <summary>
         ///     The shader used for simple blocks.
         /// </summary>
-        public static Shader SimpleSection { get; private set; } = null!;
+        public Shader SimpleSection { get; private set; } = null!;
 
         /// <summary>
         ///     The shader used for complex blocks.
         /// </summary>
-        public static Shader ComplexSection { get; private set; } = null!;
+        public Shader ComplexSection { get; private set; } = null!;
 
         /// <summary>
         ///     The shader used for varying height blocks.
         /// </summary>
-        public static Shader VaryingHeightSection { get; private set; } = null!;
+        public Shader VaryingHeightSection { get; private set; } = null!;
 
         /// <summary>
         ///     The shader used for cross plant blocks.
         /// </summary>
-        public static Shader CrossPlantSection { get; private set; } = null!;
+        public Shader CrossPlantSection { get; private set; } = null!;
 
         /// <summary>
         ///     The shader used for crop plant blocks.
         /// </summary>
-        public static Shader CropPlantSection { get; private set; } = null!;
+        public Shader CropPlantSection { get; private set; } = null!;
 
         /// <summary>
         ///     The shader used for opaque liquids.
         /// </summary>
-        public static Shader OpaqueLiquidSection { get; private set; } = null!;
+        public Shader OpaqueLiquidSection { get; private set; } = null!;
 
         /// <summary>
         ///     The shader used for transparent liquids.
         /// </summary>
-        public static Shader TransparentLiquidSection { get; private set; } = null!;
+        public Shader TransparentLiquidSection { get; private set; } = null!;
 
         /// <summary>
         ///     The shader used for block/liquid texture overlays.
         /// </summary>
-        public static Shader Overlay { get; private set; } = null!;
+        public Shader Overlay { get; private set; } = null!;
 
         /// <summary>
         ///     The shader used for the selection box.
         /// </summary>
-        public static Shader Selection { get; private set; } = null!;
+        public Shader Selection { get; private set; } = null!;
 
         /// <summary>
         ///     The shader used for simply screen elements.
         /// </summary>
-        public static Shader ScreenElement { get; private set; } = null!;
+        public Shader ScreenElement { get; private set; } = null!;
 
-        internal static void Load(string directory)
+        /// <summary>
+        ///     Load all shaders in the given directory.
+        /// </summary>
+        /// <param name="directory">The directory containing all shaders.</param>
+        /// <returns>An object representing all loaded shaders.</returns>
+        internal static Shaders Load(string directory)
         {
-            instance ??= new Shaders(directory);
-            instance.LoadAll();
+            Shaders shaders = new(directory);
+            shaders.LoadAll();
+
+            return shaders;
         }
 
-        internal static void Delete()
+        internal void Delete()
         {
             SimpleSection.Delete();
             ComplexSection.Delete();
@@ -110,11 +117,11 @@ namespace VoxelGame.Client.Rendering
                 loader.LoadIncludable("noise", "noise.glsl");
                 loader.LoadIncludable("decode", "decode.glsl");
 
-                SimpleSection = loader.Load("simple_section.vert", "section.frag");
-                ComplexSection = loader.Load("complex_section.vert", "section.frag");
-                VaryingHeightSection = loader.Load("varying_height_section.vert", "section.frag");
-                CrossPlantSection = loader.Load("cross_plant_section.vert", "section.frag");
-                CropPlantSection = loader.Load("crop_plant_section.vert", "section.frag");
+                SimpleSection = loader.Load("simple_section.vert", SectionFragmentShader);
+                ComplexSection = loader.Load("complex_section.vert", SectionFragmentShader);
+                VaryingHeightSection = loader.Load("varying_height_section.vert", SectionFragmentShader);
+                CrossPlantSection = loader.Load("cross_plant_section.vert", SectionFragmentShader);
+                CropPlantSection = loader.Load("crop_plant_section.vert", SectionFragmentShader);
                 OpaqueLiquidSection = loader.Load("liquid_section.vert", "opaque_liquid_section.frag");
                 TransparentLiquidSection = loader.Load("liquid_section.vert", "transparent_liquid_section.frag");
 
@@ -131,7 +138,7 @@ namespace VoxelGame.Client.Rendering
         /// <summary>
         ///     Update all orthographic projection matrices.
         /// </summary>
-        public static void UpdateOrthographicProjection()
+        public void UpdateOrthographicProjection()
         {
             Overlay.SetMatrix4(
                 "projection",
@@ -146,11 +153,9 @@ namespace VoxelGame.Client.Rendering
         ///     Update the current time.
         /// </summary>
         /// <param name="time">The current time, since the game has started.</param>
-        public static void SetTime(float time)
+        public void SetTime(float time)
         {
-            if (instance == null) return;
-
-            foreach (Shader shader in instance.timedSet) shader.SetFloat(TimeUniform, time);
+            foreach (Shader shader in timedSet) shader.SetFloat(TimeUniform, time);
         }
     }
 }

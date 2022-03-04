@@ -25,10 +25,10 @@ namespace VoxelGame.UI.Controls
             CreateContent();
         }
 
-        internal event Action? SelectExit;
-        internal event Action? SelectWorlds;
-        internal event Action? SelectSettings;
-        internal event Action? SelectCredits;
+        internal event EventHandler SelectExit = delegate {};
+        internal event EventHandler SelectWorlds = delegate {};
+        internal event EventHandler SelectSettings = delegate {};
+        internal event EventHandler SelectCredits = delegate {};
 
         protected override void CreateMenu(ControlBase menu)
         {
@@ -37,28 +37,28 @@ namespace VoxelGame.UI.Controls
                 Text = Language.Worlds
             };
 
-            worlds.Clicked += (_, _) => SelectWorlds?.Invoke();
+            worlds.Clicked += (_, _) => SelectWorlds(this, EventArgs.Empty);
 
             Button settings = new(menu)
             {
                 Text = Language.Settings
             };
 
-            settings.Pressed += (_, _) => SelectSettings?.Invoke();
+            settings.Pressed += (_, _) => SelectSettings(this, EventArgs.Empty);
 
             Button credits = new(menu)
             {
                 Text = Language.Credits
             };
 
-            credits.Pressed += (_, _) => SelectCredits?.Invoke();
+            credits.Pressed += (_, _) => SelectCredits(this, EventArgs.Empty);
 
             Button exit = new(menu)
             {
                 Text = Language.Exit
             };
 
-            exit.Pressed += (_, _) => SelectExit?.Invoke();
+            exit.Pressed += (_, _) => SelectExit(this, EventArgs.Empty);
         }
 
         protected override void CreateDisplay(ControlBase display)

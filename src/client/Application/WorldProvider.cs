@@ -79,7 +79,7 @@ namespace VoxelGame.Client.Application
             if (WorldActivation == null) throw new InvalidOperationException();
 
             ClientWorld world = new(information, path);
-            WorldActivation(world);
+            WorldActivation(this, world);
         }
 
         /// <inheritdoc />
@@ -95,7 +95,7 @@ namespace VoxelGame.Client.Application
             while (Directory.Exists(path.ToString())) path.Append(value: '_');
 
             ClientWorld world = new(name, path.ToString(), DateTime.Now.GetHashCode());
-            WorldActivation(world);
+            WorldActivation(world, world);
         }
 
         /// <inheritdoc />
@@ -173,6 +173,6 @@ namespace VoxelGame.Client.Application
         /// <summary>
         ///     Is invoked when a world is requested to be activated.
         /// </summary>
-        public event Action<ClientWorld>? WorldActivation;
+        public event EventHandler<ClientWorld> WorldActivation = null!;
     }
 }

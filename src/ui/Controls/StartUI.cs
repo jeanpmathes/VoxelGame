@@ -33,24 +33,26 @@ namespace VoxelGame.UI.Controls
         private readonly WorldSelection worldSelection;
 
         internal StartUI(StartUserInterface parent, IWorldProvider worldProvider,
-            List<ISettingsProvider> settingsProviders) : base(parent.Root)
+            ICollection<ISettingsProvider> settingsProviders) : base(parent.Root)
         {
             Dock = Dock.Fill;
 
+            Exit = delegate {};
+
             mainMenu = new MainMenu(this, parent.Context);
-            mainMenu.SelectExit += () => Exit?.Invoke();
-            mainMenu.SelectSettings += () => OpenMenu(SettingsMenuIndex);
-            mainMenu.SelectWorlds += () => OpenMenu(WorldSelectionMenuIndex);
-            mainMenu.SelectCredits += () => OpenMenu(CreditsMenuIndex);
+            mainMenu.SelectExit += (_, _) => Exit(this, EventArgs.Empty);
+            mainMenu.SelectSettings += (_, _) => OpenMenu(SettingsMenuIndex);
+            mainMenu.SelectWorlds += (_, _) => OpenMenu(WorldSelectionMenuIndex);
+            mainMenu.SelectCredits += (_, _) => OpenMenu(CreditsMenuIndex);
 
             settingsMenu = new SettingsMenu(this, settingsProviders, parent.Context);
-            settingsMenu.Cancel += () => OpenMenu(MainMenuIndex);
+            settingsMenu.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
             worldSelection = new WorldSelection(this, worldProvider, parent.Context);
-            worldSelection.Cancel += () => OpenMenu(MainMenuIndex);
+            worldSelection.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
             creditsMenu = new CreditsMenu(this, parent.Context);
-            creditsMenu.Cancel += () => OpenMenu(MainMenuIndex);
+            creditsMenu.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
             menus.Add(mainMenu);
             menus.Add(settingsMenu);
@@ -69,6 +71,6 @@ namespace VoxelGame.UI.Controls
             if (index == WorldSelectionMenuIndex) worldSelection.Refresh();
         }
 
-        public event Action? Exit;
+        internal event EventHandler Exit;
     }
 }

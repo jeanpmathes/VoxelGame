@@ -45,8 +45,7 @@ namespace VoxelGame.Core.Collections
                     nameof(capacity),
                     $@"Value '{capacity}' is negative, which is not allowed.");
 
-            if (capacity == 0) items = Array.Empty<T>();
-            else items = arrayPool.Rent(capacity);
+            items = capacity == 0 ? Array.Empty<T>() : arrayPool.Rent(capacity);
         }
 
         /// <summary>

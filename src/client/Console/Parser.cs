@@ -45,7 +45,7 @@ namespace VoxelGame.Client.Console
             return new SimpleParser<T>(check, parse);
         }
 
-        private class SimpleParser<T> : Parser
+        private sealed class SimpleParser<T> : Parser
         {
             private readonly Func<string, bool> check;
             private readonly Func<string, T> parse;

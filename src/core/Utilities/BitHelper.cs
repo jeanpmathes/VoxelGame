@@ -4,6 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Linq;
+
 namespace VoxelGame.Core.Utilities
 {
     /// <summary>
@@ -45,6 +47,16 @@ namespace VoxelGame.Core.Utilities
             }
 
             return count;
+        }
+
+        /// <summary>
+        ///     Count the number of set boolean values in an array.
+        /// </summary>
+        /// <param name="bools">The array or parameter to count the true values in.</param>
+        /// <returns>Return the count.</returns>
+        public static int CountSetBooleans(params bool[] bools)
+        {
+            return bools.Sum(b => b.ToInt());
         }
     }
 }

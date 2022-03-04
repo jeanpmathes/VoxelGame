@@ -18,12 +18,11 @@ namespace VoxelGame.Manual.Elements
             Value = value;
         }
 
-        internal bool Value { get; }
+        private bool Value { get; }
 
         void IElement.Generate(StreamWriter writer)
         {
-            if (Value) writer.Write(@" \Checkmark ");
-            else writer.Write(@" \XSolidBrush ");
+            writer.Write(Value ? @" \Checkmark " : @" \XSolidBrush ");
         }
     }
 }

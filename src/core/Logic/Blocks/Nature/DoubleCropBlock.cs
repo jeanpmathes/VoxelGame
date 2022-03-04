@@ -24,8 +24,10 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private readonly string texture;
 
-        private int dead, first, second, third;
-        private (int low, int top) fourth, fifth, sixth, final;
+        private (
+            int dead, int first, int second, int third,
+            (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final
+            ) stages;
 
         private int[] stageTextureIndicesLow = null!;
         private int[] stageTextureIndicesTop = null!;
@@ -42,15 +44,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             this.texture = texture;
 
-            this.dead = dead;
-            this.first = first;
-            this.second = second;
-            this.third = third;
-
-            this.fourth = fourth;
-            this.fifth = fifth;
-            this.sixth = sixth;
-            this.final = final;
+            stages = (dead, first, second, third, fourth, fifth, sixth, final);
         }
 
         /// <inheritdoc />
@@ -66,20 +60,19 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if (baseIndex == 0)
             {
-                dead = first = second = third = 0;
-                fourth = fifth = sixth = final = (0, 0);
+                stages = (0, 0, 0, 0, (0, 0), (0, 0), (0, 0), (0, 0));
             }
 
             stageTextureIndicesLow = new[]
             {
-                baseIndex + dead,
-                baseIndex + first,
-                baseIndex + second,
-                baseIndex + third,
-                baseIndex + fourth.low,
-                baseIndex + fifth.low,
-                baseIndex + sixth.low,
-                baseIndex + final.low
+                baseIndex + stages.dead,
+                baseIndex + stages.first,
+                baseIndex + stages.second,
+                baseIndex + stages.third,
+                baseIndex + stages.fourth.low,
+                baseIndex + stages.fifth.low,
+                baseIndex + stages.sixth.low,
+                baseIndex + stages.final.low
             };
 
             stageTextureIndicesTop = new[]
@@ -88,10 +81,10 @@ namespace VoxelGame.Core.Logic.Blocks
                 0,
                 0,
                 0,
-                baseIndex + fourth.top,
-                baseIndex + fifth.top,
-                baseIndex + sixth.top,
-                baseIndex + final.top
+                baseIndex + stages.fourth.top,
+                baseIndex + stages.fifth.top,
+                baseIndex + stages.sixth.top,
+                baseIndex + stages.final.top
             };
         }
 
@@ -100,8 +93,10 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             var stage = (GrowthStage) (data & 0b00_0111);
 
-            if ((data & 0b00_1000) == 0 && stage == GrowthStage.Initial ||
-                (data & 0b00_1000) != 0 && stage is GrowthStage.Fourth or GrowthStage.Fifth)
+            bool isLowerAndStillGrowing = (data & 0b00_1000) == 0 && stage == GrowthStage.Initial;
+            bool isUpperAndStillGrowing = (data & 0b00_1000) != 0 && stage is GrowthStage.Fourth or GrowthStage.Fifth;
+
+            if (isLowerAndStillGrowing || isUpperAndStillGrowing)
                 return BoundingBox.BlockWithHeight(height: 7);
 
             return BoundingBox.BlockWithHeight(height: 15);
@@ -166,36 +161,32 @@ namespace VoxelGame.Core.Logic.Blocks
             // If this block is the upper part, the random update is ignored.
             if ((data & 0b00_1000) != 0) return;
 
-            if (world.GetBlock(position.Below())?.Block is IPlantable plantable)
+            if (world.GetBlock(position.Below())?.Block is not IPlantable plantable) return;
+            if ((int) stage > 2 && !plantable.SupportsFullGrowth) return;
+            if (stage is GrowthStage.Final or GrowthStage.Dead) return;
+
+            if (stage >= GrowthStage.Third) GrowBothParts(world, position, plantable, lowered, stage);
+            else world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
+        }
+
+        private void GrowBothParts(World world, Vector3i position, IPlantable plantable, uint lowered,
+            GrowthStage stage)
+        {
+            BlockInstance? above = world.GetBlock(position.Above());
+
+            if (plantable.TryGrow(world, position.Below(), Liquid.Water, LiquidLevel.One) &&
+                ((above?.Block.IsReplaceable ?? false) || above?.Block == this))
             {
-                if ((int) stage > 2 && !plantable.SupportsFullGrowth) return;
+                world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
 
-                if (stage != GrowthStage.Final && stage != GrowthStage.Dead)
-                {
-                    if (stage >= GrowthStage.Third)
-                    {
-                        BlockInstance? above = world.GetBlock(position.Above());
-
-                        if (plantable.TryGrow(world, position.Below(), Liquid.Water, LiquidLevel.One) &&
-                            ((above?.Block.IsReplaceable ?? false) || above?.Block == this))
-                        {
-                            world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
-
-                            world.SetBlock(
-                                this.AsInstance(lowered | (uint) (0b00_1000 | ((int) stage + 1))),
-                                position.Above());
-                        }
-                        else
-                        {
-                            world.SetBlock(this.AsInstance(lowered | (uint) GrowthStage.Dead), position);
-                            if (stage != GrowthStage.Third) world.SetDefaultBlock(position.Above());
-                        }
-                    }
-                    else
-                    {
-                        world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
-                    }
-                }
+                world.SetBlock(
+                    this.AsInstance(lowered | (uint) (0b00_1000 | ((int) stage + 1))),
+                    position.Above());
+            }
+            else
+            {
+                world.SetBlock(this.AsInstance(lowered | (uint) GrowthStage.Dead), position);
+                if (stage != GrowthStage.Third) world.SetDefaultBlock(position.Above());
             }
         }
 

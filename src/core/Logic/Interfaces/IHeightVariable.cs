@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Interfaces
         /// <summary>
         ///     The maximum height. A block with this height completely fills a position.
         /// </summary>
-        public const int MaximumHeight = 15;
+        public static int MaximumHeight => 15;
 
         /// <summary>
         ///     Get the height of a block, given the block data.

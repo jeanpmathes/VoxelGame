@@ -18,7 +18,7 @@ namespace VoxelGame.UI.UserInterfaces
     /// </summary>
     public class StartUserInterface : UserInterface
     {
-        private readonly List<ISettingsProvider> settingsProviders;
+        private readonly ICollection<ISettingsProvider> settingsProviders;
         private readonly IWorldProvider worldProvider;
 
         private StartUI? control;
@@ -29,10 +29,10 @@ namespace VoxelGame.UI.UserInterfaces
         /// <param name="window">The game window.</param>
         /// <param name="inputListener">The input listener.</param>
         /// <param name="worldProvider">The world provider.</param>
-        /// <param name="settingsProviders">The settings provider.</param>
+        /// <param name="settingsProviders">The settings providers.</param>
         /// <param name="drawBackground">Whether to draw the ui background.</param>
         public StartUserInterface(GameWindow window, InputListener inputListener, IWorldProvider worldProvider,
-            List<ISettingsProvider> settingsProviders, bool drawBackground) : base(
+            ICollection<ISettingsProvider> settingsProviders, bool drawBackground) : base(
             window,
             inputListener,
             drawBackground)
@@ -56,7 +56,7 @@ namespace VoxelGame.UI.UserInterfaces
         {
             if (control == null) return;
 
-            control.Exit += exit;
+            control.Exit += (_, _) => exit();
         }
     }
 }

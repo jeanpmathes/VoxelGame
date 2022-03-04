@@ -13,23 +13,15 @@ namespace VoxelGame.Client.Console
     /// </summary>
     public class ConsoleWrapper
     {
-        private ConsoleInterface? consoleInterface;
+        private readonly ConsoleInterface consoleInterface;
 
         /// <summary>
-        ///     Set the console interface.
+        /// Create a new console wrapper.
         /// </summary>
-        /// <param name="activeInterface">The console interface provided by the UI.</param>
-        public void SetInterface(ConsoleInterface activeInterface)
+        /// <param name="consoleInterface">The interface to wrap.</param>
+        public ConsoleWrapper(ConsoleInterface consoleInterface)
         {
-            consoleInterface = activeInterface;
-        }
-
-        /// <summary>
-        ///     Clear the console interface.
-        /// </summary>
-        public void ClearInterface()
-        {
-            consoleInterface = null;
+            this.consoleInterface = consoleInterface;
         }
 
         /// <summary>
@@ -38,7 +30,7 @@ namespace VoxelGame.Client.Console
         /// <param name="response">The response to write.</param>
         public void WriteResponse(string response)
         {
-            consoleInterface?.WriteResponse(response);
+            consoleInterface.WriteResponse(response);
         }
 
         /// <summary>
@@ -47,7 +39,7 @@ namespace VoxelGame.Client.Console
         /// <param name="error">The error to write.</param>
         public void WriteError(string error)
         {
-            consoleInterface?.WriteError(error);
+            consoleInterface.WriteError(error);
         }
 
         /// <summary>
@@ -55,7 +47,7 @@ namespace VoxelGame.Client.Console
         /// </summary>
         public void Clear()
         {
-            consoleInterface?.Clear();
+            consoleInterface.Clear();
         }
     }
 }

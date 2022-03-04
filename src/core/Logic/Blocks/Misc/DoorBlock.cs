@@ -64,10 +64,10 @@ namespace VoxelGame.Core.Logic.Blocks
                 (BlockModel north, BlockModel east, BlockModel south, BlockModel west) =
                     model.CreateAllOrientations(rotateTopAndBottomTexture: true);
 
-                meshList.Add(north.GetMesh());
-                meshList.Add(east.GetMesh());
-                meshList.Add(south.GetMesh());
-                meshList.Add(west.GetMesh());
+                meshList.Add(north.Mesh);
+                meshList.Add(east.Mesh);
+                meshList.Add(south.Mesh);
+                meshList.Add(west.Mesh);
             }
         }
 
@@ -138,6 +138,17 @@ namespace VoxelGame.Core.Logic.Blocks
             Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
             BlockSide side = entity?.TargetSide ?? BlockSide.Top;
 
+            bool isLeftSided = ChooseIfLeftSided(world, position, side, orientation);
+
+            world.SetBlock(this.AsInstance((uint) ((isLeftSided ? 0b0000 : 0b1000) | (int) orientation)), position);
+
+            world.SetBlock(
+                this.AsInstance((uint) ((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int) orientation)),
+                position.Above());
+        }
+
+        private bool ChooseIfLeftSided(World world, Vector3i position, BlockSide side, Orientation orientation)
+        {
             bool isLeftSided;
 
             if (side == BlockSide.Top)
@@ -152,18 +163,10 @@ namespace VoxelGame.Core.Logic.Blocks
             }
             else
             {
-                isLeftSided =
-                    orientation == Orientation.North && side != BlockSide.Left ||
-                    orientation == Orientation.East && side != BlockSide.Back ||
-                    orientation == Orientation.South && side != BlockSide.Right ||
-                    orientation == Orientation.West && side != BlockSide.Front;
+                isLeftSided = orientation.Rotate().Opposite().ToBlockSide() != side;
             }
 
-            world.SetBlock(this.AsInstance((uint) ((isLeftSided ? 0b0000 : 0b1000) | (int) orientation)), position);
-
-            world.SetBlock(
-                this.AsInstance((uint) ((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int) orientation)),
-                position.Above());
+            return isLeftSided;
         }
 
         /// <inheritdoc />

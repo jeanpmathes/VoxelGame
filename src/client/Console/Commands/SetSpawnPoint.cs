@@ -37,7 +37,7 @@ namespace VoxelGame.Client.Console.Commands
 
         private void SetSpawnPosition(Vector3 newSpawnPoint)
         {
-            Context.Player.World.SetSpawnPosition(newSpawnPoint);
+            Context.Player.World.SpawnPosition = newSpawnPoint;
         }
     }
 }

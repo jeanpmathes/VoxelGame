@@ -23,7 +23,7 @@ namespace VoxelGame.Client
         /// <summary>
         ///     Get the version of the program.
         /// </summary>
-        public static string Version { get; private set; } = null!;
+        internal static string Version { get; private set; } = null!;
 
         /// <summary>
         ///     Get the app data directory.
@@ -83,7 +83,7 @@ namespace VoxelGame.Client
 #endif
 
             Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";
-            GameInformation.Initialize(Version);
+            ApplicationInformation.Initialize(Version);
             System.Console.Title = Language.VoxelGame + @" " + Version;
 
             logger.LogInformation(Events.ApplicationInformation, "Starting game on version: {Version}", Version);
@@ -107,9 +107,9 @@ namespace VoxelGame.Client
             logger.LogDebug("Opening window");
 
             using (Application.Client client = new(
-                gameWindowSettings,
-                nativeWindowSettings,
-                graphicsSettings))
+                       gameWindowSettings,
+                       nativeWindowSettings,
+                       graphicsSettings))
             {
                 client.Run();
             }

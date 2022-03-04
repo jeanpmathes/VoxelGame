@@ -26,7 +26,7 @@ namespace VoxelGame.UI.Controls
             CreateContent();
         }
 
-        internal event Action? Cancel;
+        internal event EventHandler Cancel = delegate {};
 
         protected override void CreateMenu(ControlBase menu)
         {
@@ -35,7 +35,7 @@ namespace VoxelGame.UI.Controls
                 Text = Language.Back
             };
 
-            exit.Pressed += (_, _) => Cancel?.Invoke();
+            exit.Pressed += (_, _) => Cancel(this, EventArgs.Empty);
         }
 
         protected override void CreateDisplay(ControlBase display)

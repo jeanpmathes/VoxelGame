@@ -48,6 +48,8 @@ namespace VoxelGame.Client.Rendering
             drawGroup.VertexArrayBindAttribute(texCordLocation, size: 2, offset: 3);
         }
 
+        private static Shaders Shaders => Application.Client.Instance.Resources.Shaders;
+
         /// <summary>
         ///     Set the texture to use for rendering.
         /// </summary>

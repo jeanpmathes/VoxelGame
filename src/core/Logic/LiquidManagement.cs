@@ -1,4 +1,4 @@
-﻿// <copyright file="LiquidManagment.cs" company="VoxelGame">
+﻿// <copyright file="LiquidManagement.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         ///     The maximum amount of different liquids that can be registered.
         /// </summary>
-        public const int LiquidLimit = 32;
+        private const int LiquidLimit = 32;
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         private const int mPas = 15;

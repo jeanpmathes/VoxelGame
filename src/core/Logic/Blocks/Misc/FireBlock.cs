@@ -62,7 +62,7 @@ namespace VoxelGame.Core.Logic.Blocks
             for (uint data = 0b00_0000; data <= 0b01_1111; data++)
                 if (data == 0)
                 {
-                    meshes.Add(complete.GetMesh());
+                    meshes.Add(complete.Mesh);
                 }
                 else
                 {
@@ -172,12 +172,7 @@ namespace VoxelGame.Core.Logic.Blocks
             {
                 if (data != 0) return;
 
-                foreach (BlockSide sideToCheck in BlockSide.All.Sides())
-                {
-                    if (sideToCheck == BlockSide.Bottom) continue;
-
-                    if (world.IsSolid(sideToCheck.Offset(position))) data |= GetFlag(sideToCheck);
-                }
+                data |= CreateSideData(world, position);
 
                 SetData(data);
             }
@@ -194,6 +189,20 @@ namespace VoxelGame.Core.Logic.Blocks
                 if (dataToSet != 0) world.SetBlock(this.AsInstance(dataToSet), position);
                 else Destroy(world, position);
             }
+        }
+
+        private static uint CreateSideData(World world, Vector3i position)
+        {
+            uint data = 0;
+
+            foreach (BlockSide sideToCheck in BlockSide.All.Sides())
+            {
+                if (sideToCheck == BlockSide.Bottom) continue;
+
+                if (world.IsSolid(sideToCheck.Offset(position))) data |= GetFlag(sideToCheck);
+            }
+
+            return data;
         }
 
         /// <inheritdoc />

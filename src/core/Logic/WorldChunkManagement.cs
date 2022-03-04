@@ -119,19 +119,10 @@ namespace VoxelGame.Core.Logic
                 if (!positionsActivating.Contains((x, z)) && !activeChunks.ContainsKey((x, z)))
                 {
                     string pathToChunk = ChunkDirectory + $@"\x{x}z{z}.chunk";
-                    bool isActivating;
 
-                    // Check if a file for the chunk position exists
-                    if (File.Exists(pathToChunk))
-                    {
-                        isActivating = positionsToLoad.Enqueue((x, z));
-                    }
-                    else
-                    {
-#pragma warning disable CA2000 // Dispose objects before losing scope
-                        isActivating = chunksToGenerate.Enqueue(CreateChunk(x, z));
-#pragma warning restore CA2000 // Dispose objects before losing scope
-                    }
+                    bool isActivating = File.Exists(pathToChunk)
+                        ? positionsToLoad.Enqueue((x, z))
+                        : chunksToGenerate.Enqueue(CreateChunk(x, z));
 
                     if (isActivating) positionsActivating.Add((x, z));
                 }
@@ -181,7 +172,7 @@ namespace VoxelGame.Core.Logic
             while (chunksToGenerate.Count > 0 && chunkGenerateTasks.Count < MaxGenerationTasks)
             {
                 Chunk current = chunksToGenerate.Dequeue();
-                Task currentTask = current.GenerateTask(generator);
+                Task currentTask = current.GenerateAsync(generator);
 
                 chunkGenerateTasks.Add(currentTask);
                 chunksGenerating.Add(currentTask.Id, current);
@@ -275,7 +266,7 @@ namespace VoxelGame.Core.Logic
                     if (!positionsSaving.Contains((x, z)))
                     {
                         string pathToChunk = ChunkDirectory + $@"\x{x}z{z}.chunk";
-                        Task<Chunk?> currentTask = Chunk.LoadTask(pathToChunk, x, z);
+                        Task<Chunk?> currentTask = Chunk.LoadAsync(pathToChunk, x, z);
 
                         chunkLoadingTasks.Add(currentTask);
                         positionsLoading.Add(currentTask.Id, (x, z));
@@ -353,7 +344,7 @@ namespace VoxelGame.Core.Logic
             while (chunksToSave.Count > 0 && chunkSavingTasks.Count < MaxSavingTasks)
             {
                 Chunk current = chunksToSave.Dequeue();
-                Task currentTask = current.SaveTask(ChunkDirectory);
+                Task currentTask = current.SaveAsync(ChunkDirectory);
 
                 chunkSavingTasks.Add(currentTask);
                 chunksSaving.Add(currentTask.Id, current);
@@ -454,7 +445,7 @@ namespace VoxelGame.Core.Logic
         /// <param name="z">The y position of the chunk in chunk coordinates.</param>
         /// <param name="chunk">The chunk at the given position or null if no active chunk was found.</param>
         /// <returns>True if an active chunk was found.</returns>
-        public bool TryGetChunk(int x, int z, [NotNullWhen(returnValue: true)] out Chunk? chunk)
+        protected bool TryGetChunk(int x, int z, [NotNullWhen(returnValue: true)] out Chunk? chunk)
         {
             return activeChunks.TryGetValue((x, z), out chunk);
         }

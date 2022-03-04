@@ -28,12 +28,12 @@ namespace VoxelGame.UI.Controls
         private readonly GameUserInterface parent;
         private readonly IPerformanceProvider performanceProvider;
         private readonly IPlayerDataProvider playerDataProvider;
-        private readonly List<ISettingsProvider> settingsProviders;
+        private readonly ICollection<ISettingsProvider> settingsProviders;
 
         private Window? gameMenu;
         private bool isSettingsMenuOpen;
 
-        internal GameUI(GameUserInterface parent, List<ISettingsProvider> settingsProviders,
+        internal GameUI(GameUserInterface parent, ICollection<ISettingsProvider> settingsProviders,
             IConsoleProvider consoleProvider, IPlayerDataProvider playerDataProvider,
             IPerformanceProvider performanceProvider) : base(parent.Root)
         {
@@ -45,7 +45,7 @@ namespace VoxelGame.UI.Controls
             Console = new ConsoleInterface(this, consoleProvider, parent.Context);
             hud = new InGameDisplay(this);
 
-            Console.WindowClosed += parent.DoOverlayClose;
+            Console.WindowClosed += (_, _) => parent.DoOverlayClose();
         }
 
         internal ConsoleInterface Console { get; }
@@ -139,7 +139,7 @@ namespace VoxelGame.UI.Controls
 
             Label info = new(layout)
             {
-                Text = $"{Language.VoxelGame} - {GameInformation.Instance.Version}",
+                Text = $"{Language.VoxelGame} - {ApplicationInformation.Instance.Version}",
                 Font = parent.Context.Fonts.Subtitle
             };
 
@@ -158,7 +158,7 @@ namespace VoxelGame.UI.Controls
 
             SettingsMenu menu = new(settings, settingsProviders, parent.Context);
 
-            menu.Cancel += () =>
+            menu.Cancel += (_, _) =>
             {
                 settings.Close();
                 isSettingsMenuOpen = false;

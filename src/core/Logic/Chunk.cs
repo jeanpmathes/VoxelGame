@@ -41,7 +41,7 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         ///     The height of a chunk in blocks.
         /// </summary>
-        public const int ChunkHeight = Section.SectionSize * VerticalSectionCount;
+        internal const int ChunkHeight = Section.SectionSize * VerticalSectionCount;
 
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
 
@@ -92,6 +92,21 @@ namespace VoxelGame.Core.Logic
                 World,
                 World.UpdateCounter);
         }
+
+        /// <summary>
+        ///     Get the height of a chunk in sections.
+        /// </summary>
+        public static int HeightInSections => VerticalSectionCount;
+
+        /// <summary>
+        ///     Get the width of a chunk in blocks.
+        /// </summary>
+        public static int WidthInBlocks => ChunkWidth;
+
+        /// <summary>
+        ///     Get the height of a chunk in blocks.
+        /// </summary>
+        public static int HeightInBlocks => ChunkHeight;
 
         /// <summary>
         ///     The X position of this chunk in chunk units
@@ -184,7 +199,7 @@ namespace VoxelGame.Core.Logic
         /// <param name="x">The x coordinate of the chunk.</param>
         /// <param name="z">The z coordinate of the chunk.</param>
         /// <returns>A task containing the loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
-        public static Task<Chunk?> LoadTask(string path, int x, int z)
+        public static Task<Chunk?> LoadAsync(string path, int x, int z)
         {
             return Task.Run(() => Load(path, x, z));
         }
@@ -215,7 +230,7 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         /// <param name="path">The path of the directory where this chunk should be saved.</param>
         /// <returns>A task.</returns>
-        public Task SaveTask(string path)
+        public Task SaveAsync(string path)
         {
             return Task.Run(() => Save(path));
         }
@@ -254,7 +269,7 @@ namespace VoxelGame.Core.Logic
         /// </summary>
         /// <param name="generator">The generator to use.</param>
         /// <returns>The task.</returns>
-        public Task GenerateTask(IWorldGenerator generator)
+        public Task GenerateAsync(IWorldGenerator generator)
         {
             return Task.Run(() => Generate(generator));
         }

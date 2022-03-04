@@ -22,7 +22,7 @@ namespace VoxelGame.Core.Logic
         /// <summary>
         ///     The maximum amount of different blocks that can be registered.
         /// </summary>
-        public const int BlockLimit = 1 << Section.DataShift;
+        private const int BlockLimit = 1 << Section.DataShift;
 
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Block>();
 
@@ -104,8 +104,8 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Grass = new GrassBlock(
             Language.Grass,
             nameof(Grass),
-            TextureLayout.UnqiueColumn("grass_side", "dirt", "grass"),
-            TextureLayout.UnqiueColumn("grass_side_wet", "dirt_wet", "grass_wet"));
+            TextureLayout.UniqueColumn("grass_side", "dirt", "grass"),
+            TextureLayout.UniqueColumn("grass_side_wet", "dirt_wet", "grass_wet"));
 
         /// <summary>
         ///     Grass that was burned. Water can burn the ash away.
@@ -113,7 +113,7 @@ namespace VoxelGame.Core.Logic
         public static readonly Block GrassBurned = new CoveredGrassSpreadableBlock(
             Language.AshCoveredDirt,
             nameof(GrassBurned),
-            TextureLayout.UnqiueColumn("ash_side", "dirt", "ash"),
+            TextureLayout.UniqueColumn("ash_side", "dirt", "ash"),
             hasNeutralTint: false);
 
         /// <summary>
@@ -132,8 +132,8 @@ namespace VoxelGame.Core.Logic
         public static readonly Block Farmland = new InsetDirtBlock(
             Language.Farmland,
             nameof(Farmland),
-            TextureLayout.UnqiueTop("dirt", "farmland"),
-            TextureLayout.UnqiueTop("dirt_wet", "farmland_wet"),
+            TextureLayout.UniqueTop("dirt", "farmland"),
+            TextureLayout.UniqueTop("dirt_wet", "farmland_wet"),
             supportsFullGrowth: true);
 
         /// <summary>
@@ -581,7 +581,7 @@ namespace VoxelGame.Core.Logic
             Language.StoneFace,
             nameof(StoneFace),
             BlockFlags.Basic,
-            TextureLayout.UnqiueFront("stone_worked_face", "stone_worked"));
+            TextureLayout.UniqueFront("stone_worked_face", "stone_worked"));
 
         /// <summary>
         ///     The vase is a decorative block that must be placed on solid ground.

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.Collections.Generic;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
@@ -48,17 +49,17 @@ namespace VoxelGame.Core.Logic.Blocks
             headParts.Lock();
             footParts.Lock();
 
-            headMeshes.Add(headParts.north.GetMesh());
-            footMeshes.Add(footParts.north.GetMesh());
+            headMeshes.Add(headParts.north.Mesh);
+            footMeshes.Add(footParts.north.Mesh);
 
-            headMeshes.Add(headParts.east.GetMesh());
-            footMeshes.Add(footParts.east.GetMesh());
+            headMeshes.Add(headParts.east.Mesh);
+            footMeshes.Add(footParts.east.Mesh);
 
-            headMeshes.Add(headParts.south.GetMesh());
-            footMeshes.Add(footParts.south.GetMesh());
+            headMeshes.Add(headParts.south.Mesh);
+            footMeshes.Add(footParts.south.Mesh);
 
-            headMeshes.Add(headParts.west.GetMesh());
-            footMeshes.Add(footParts.west.GetMesh());
+            headMeshes.Add(headParts.west.Mesh);
+            footMeshes.Add(footParts.west.Mesh);
         }
 
         /// <inheritdoc />
@@ -118,6 +119,8 @@ namespace VoxelGame.Core.Logic.Blocks
                         new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
 
                     break;
+
+                default: throw new InvalidOperationException();
             }
 
             return new BoundingBox(
@@ -159,7 +162,7 @@ namespace VoxelGame.Core.Logic.Blocks
             world.SetBlock(this.AsInstance((uint) orientation << 1), position);
             world.SetBlock(this.AsInstance((uint) (((int) orientation << 1) | 1)), otherPosition);
 
-            world.SetSpawnPosition(new Vector3(position.X, y: 1024f, position.Z));
+            world.SpawnPosition = new Vector3(position.X, y: 1024f, position.Z);
         }
 
         /// <inheritdoc />

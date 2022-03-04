@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -22,7 +23,7 @@ namespace VoxelGame.Core.Logic.Blocks
     public class CropBlock : Block, IFlammable, IFillable
     {
         private readonly string texture;
-        private int second, third, fourth, fifth, sixth, final, dead;
+        private (int second, int third, int fourth, int fifth, int sixth, int final, int dead) stages;
         private int[] stageTextureIndices = null!;
 
         internal CropBlock(string name, string namedId, string texture, int second, int third, int fourth, int fifth,
@@ -35,13 +36,8 @@ namespace VoxelGame.Core.Logic.Blocks
                 TargetBuffer.CropPlant)
         {
             this.texture = texture;
-            this.second = second;
-            this.third = third;
-            this.fourth = fourth;
-            this.fifth = fifth;
-            this.sixth = sixth;
-            this.final = final;
-            this.dead = dead;
+
+            stages = (second, third, fourth, fifth, sixth, final, dead);
         }
 
         /// <inheritdoc />
@@ -55,18 +51,18 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             int baseIndex = indexProvider.GetTextureIndex(texture);
 
-            if (baseIndex == 0) second = third = fourth = fifth = sixth = final = dead = 0;
+            if (baseIndex == 0) stages = (0, 0, 0, 0, 0, 0, 0);
 
             stageTextureIndices = new[]
             {
                 baseIndex,
-                baseIndex + second,
-                baseIndex + third,
-                baseIndex + fourth,
-                baseIndex + fifth,
-                baseIndex + sixth,
-                baseIndex + final,
-                baseIndex + dead
+                baseIndex + stages.second,
+                baseIndex + stages.third,
+                baseIndex + stages.fourth,
+                baseIndex + stages.fifth,
+                baseIndex + stages.sixth,
+                baseIndex + stages.final,
+                baseIndex + stages.dead
             };
         }
 
@@ -96,9 +92,9 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 case GrowthStage.Final:
                     return BoundingBox.BlockWithHeight(height: 15);
-            }
 
-            return BoundingBox.Block;
+                default: throw new InvalidOperationException();
+            }
         }
 
         /// <inheritdoc />

@@ -39,12 +39,12 @@ namespace VoxelGame.Core.Logic.Blocks
             (BlockModel north, BlockModel east, BlockModel south, BlockModel west) openModels =
                 open.CreateAllOrientations(rotateTopAndBottomTexture: false);
 
-            for (uint data = 0b00_0000; data <= 0b_00_0111; data++)
+            for (uint data = 0b00_0000; data <= 0b00_0111; data++)
             {
                 var orientation = (Orientation) (data & 0b00_0011);
                 bool isClosed = (data & 0b00_0100) == 0;
 
-                BlockMesh mesh = orientation.Pick(isClosed ? closedModels : openModels).GetMesh();
+                BlockMesh mesh = orientation.Pick(isClosed ? closedModels : openModels).Mesh;
                 meshes.Add(mesh);
             }
         }

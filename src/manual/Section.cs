@@ -46,7 +46,8 @@ namespace VoxelGame.Manual
 
         internal void Generate(StreamWriter writer, string parent)
         {
-            writer.WriteLine(@$"\subsection{{{title}}}\label{{subsec:{parent.ToLower()}_{title.ToLower()}}}");
+            writer.WriteLine(
+                @$"\subsection{{{title}}}\label{{subsec:{parent.ToLowerInvariant()}_{title.ToLowerInvariant()}}}");
 
             foreach (IElement element in elements) element.Generate(writer);
         }

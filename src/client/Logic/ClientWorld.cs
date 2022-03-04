@@ -15,6 +15,7 @@ using Properties;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Logging;
 
@@ -93,13 +94,13 @@ namespace VoxelGame.Client.Logic
             renderList.Clear();
 
             // Fill the render list.
-            for (int x = -Application.Client.Player.LoadDistance; x <= Application.Client.Player.LoadDistance; x++)
-            for (int z = -Application.Client.Player.LoadDistance; z <= Application.Client.Player.LoadDistance; z++)
+            for (int x = -Player.LoadDistance; x <= Player.LoadDistance; x++)
+            for (int z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
                 if (TryGetChunk(
-                    Application.Client.Player.ChunkX + x,
-                    Application.Client.Player.ChunkZ + z,
-                    out Chunk? chunk))
-                    ((ClientChunk) chunk).AddCulledToRenderList(Application.Client.Player.Frustum, renderList);
+                        player!.ChunkX + x,
+                        player!.ChunkZ + z,
+                        out Chunk? chunk))
+                    ((ClientChunk) chunk).AddCulledToRenderList(player!.Frustum, renderList);
 
             // Render the collected sections.
             for (var stage = 0; stage < SectionRenderer.DrawStageCount; stage++)
@@ -143,7 +144,7 @@ namespace VoxelGame.Client.Logic
                 // Tick objects in world.
                 foreach (Chunk chunk in ActiveChunks) chunk.Tick();
 
-                Application.Client.Player.Tick(deltaTime);
+                player!.Tick(deltaTime);
 
                 // Mesh all listed sections.
                 foreach ((Chunk chunk, int index) in sectionsToMesh) ((ClientChunk) chunk).CreateAndSetMesh(index);
@@ -241,7 +242,7 @@ namespace VoxelGame.Client.Logic
             while (chunksToMesh.Count > 0 && chunkMeshingTasks.Count < MaxMeshingTasks)
             {
                 ClientChunk current = chunksToMesh.Dequeue();
-                Task<SectionMeshData[]> currentTask = current.CreateMeshDataTask();
+                Task<SectionMeshData[]> currentTask = current.CreateMeshDataAsync();
 
                 chunkMeshingTasks.Add(currentTask);
                 chunksMeshing.Add(currentTask.Id, current);
@@ -283,7 +284,7 @@ namespace VoxelGame.Client.Logic
 
                     break;
                 case Section.SectionSize - 1
-                    when (position.Y + 1) >> Section.SectionSizeExp < Chunk.VerticalSectionCount:
+                    when (position.Y + 1) >> Section.SectionSizeExp < Chunk.HeightInSections:
                     sectionsToMesh.Add(((ClientChunk) chunk, (position.Y + 1) >> Section.SectionSizeExp));
 
                     break;
@@ -327,10 +328,10 @@ namespace VoxelGame.Client.Logic
         }
 
         /// <inheritdoc />
-        protected override void AddAllTasks(List<Task> tasks)
+        protected override void AddAllTasks(IList<Task> tasks)
         {
             base.AddAllTasks(tasks);
-            tasks.AddRange(chunkMeshingTasks);
+            chunkMeshingTasks.ForEach(tasks.Add);
         }
     }
 }
