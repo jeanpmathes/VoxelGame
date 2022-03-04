@@ -1,0 +1,31 @@
+name: publish
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  publish:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Setup msbuild
+      uses: microsoft/setup-msbuild@v1.1
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Publish
+      run:  dotnet publish -c Release -o Publish -r win-x64 --self-contained
+    - name: Build installer
+      run: msbuild /p:Configuration=Installer
+    - name: Upload Installer
+      uses: actions/upload-artifact@v2
+      with:
+        name: installer
+        path: Setup/bin/x64/Release/Setup.msi
+        retention-days: 3
