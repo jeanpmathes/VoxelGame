@@ -14,7 +14,7 @@ namespace VoxelGame.Client.Application
     /// <summary>
     ///     The behaviour of the screen. This class offers data like FPS and UPS.
     /// </summary>
-    internal class ScreenBehaviour : IDisposable
+    internal sealed class ScreenBehaviour : IDisposable
     {
         private const int DeltaBufferCapacity = 30;
         private readonly Client client;
@@ -37,12 +37,12 @@ namespace VoxelGame.Client.Application
         /// <summary>
         ///     Get the fps of the screen.
         /// </summary>
-        public double FPS => 1.0 / renderDeltaBuffer.Average;
+        internal double FPS => 1.0 / renderDeltaBuffer.Average;
 
         /// <summary>
         ///     Get the ups of the screen.
         /// </summary>
-        public double UPS => 1.0 / updateDeltaBuffer.Average;
+        internal double UPS => 1.0 / updateDeltaBuffer.Average;
 
         /// <summary>
         ///     Clear the screen.

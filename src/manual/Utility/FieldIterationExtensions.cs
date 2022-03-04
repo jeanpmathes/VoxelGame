@@ -31,7 +31,7 @@ namespace VoxelGame.Manual.Utility
         /// <summary>
         ///     Get the static values for all fields with a certain type, and the corresponding field documentation.
         /// </summary>
-        public static IEnumerable<(T, string)> GetStaticValues<T>(this Type type, Documentation documentation)
+        public static IEnumerable<(T, string)> GetStaticValues<T>(this IReflect type, Documentation documentation)
         {
             return type.GetStaticFields(typeof(T))
                 .Where(info => info.GetValue(obj: null) != null)

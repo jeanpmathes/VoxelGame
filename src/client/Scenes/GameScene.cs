@@ -30,8 +30,6 @@ namespace VoxelGame.Client.Scenes
     {
         private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
 
-        private readonly Application.Client client;
-
         private readonly ToggleButton consoleToggle;
 
         private readonly UpdateCounter counter;
@@ -44,7 +42,6 @@ namespace VoxelGame.Client.Scenes
 
         internal GameScene(Application.Client client, ClientWorld world, GameConsole console)
         {
-            this.client = client;
 
             Screen.SetCursor(visible: false, locked: true);
 
