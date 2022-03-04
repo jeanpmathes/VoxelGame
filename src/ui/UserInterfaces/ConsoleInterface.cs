@@ -164,7 +164,7 @@ namespace VoxelGame.UI.UserInterfaces
             consoleWindow.Close();
         }
 
-        internal event Action? WindowClosed;
+        internal event EventHandler WindowClosed = delegate {};
 
         private void CleanupAfterClose()
         {
@@ -179,7 +179,7 @@ namespace VoxelGame.UI.UserInterfaces
 
             context.Input.AbsorbMousePress();
 
-            WindowClosed?.Invoke();
+            WindowClosed(this, EventArgs.Empty);
         }
 
         /// <summary>
