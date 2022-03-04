@@ -28,12 +28,12 @@ namespace VoxelGame.UI.Controls
         private readonly GameUserInterface parent;
         private readonly IPerformanceProvider performanceProvider;
         private readonly IPlayerDataProvider playerDataProvider;
-        private readonly List<ISettingsProvider> settingsProviders;
+        private readonly ICollection<ISettingsProvider> settingsProviders;
 
         private Window? gameMenu;
         private bool isSettingsMenuOpen;
 
-        internal GameUI(GameUserInterface parent, List<ISettingsProvider> settingsProviders,
+        internal GameUI(GameUserInterface parent, ICollection<ISettingsProvider> settingsProviders,
             IConsoleProvider consoleProvider, IPlayerDataProvider playerDataProvider,
             IPerformanceProvider performanceProvider) : base(parent.Root)
         {

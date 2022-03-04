@@ -29,11 +29,12 @@ namespace VoxelGame.UI.Controls
         private readonly List<ISettingsProvider> settingsProviders;
         private int currentCategoryIndex = -1;
 
-        internal SettingsMenu(ControlBase parent, List<ISettingsProvider> settingsProviders, Context context) : base(
+        internal SettingsMenu(ControlBase parent, IEnumerable<ISettingsProvider> settingsProviders,
+            Context context) : base(
             parent,
             context)
         {
-            this.settingsProviders = settingsProviders;
+            this.settingsProviders = new List<ISettingsProvider>(settingsProviders);
             CreateContent();
         }
 

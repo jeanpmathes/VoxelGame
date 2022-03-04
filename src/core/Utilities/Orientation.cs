@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Logic;
@@ -44,7 +43,7 @@ namespace VoxelGame.Core.Utilities
     /// </summary>
     public static class Orientations
     {
-        private static readonly ReadOnlyCollection<Orientation> orientations = new List<Orientation>
+        private static readonly IReadOnlyList<Orientation> orientations = new List<Orientation>
             { Orientation.North, Orientation.East, Orientation.South, Orientation.West }.AsReadOnly();
 
         /// <summary>

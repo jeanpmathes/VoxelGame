@@ -63,15 +63,15 @@ namespace VoxelGame.Client.Scenes
             ui.SetConsoleProvider(console);
             ui.SetPerformanceProvider(client);
 
-            ui.WorldExit += client.ExitGame;
+            ui.WorldExit += (_, _) => client.ExitGame();
 
-            ui.AnyOverlayOpen += () =>
+            ui.AnyOverlayOpen += (_, _) =>
             {
                 Screen.SetOverlayLock();
                 Screen.SetCursor(visible: true);
             };
 
-            ui.AnyOverlayClosed += () =>
+            ui.AnyOverlayClosed += (_, _) =>
             {
                 Screen.ClearOverlayLock();
                 Screen.SetCursor(visible: false, locked: true);

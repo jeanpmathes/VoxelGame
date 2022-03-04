@@ -24,7 +24,7 @@ namespace VoxelGame.UI.UserInterfaces
         private GameUI? control;
         private IPerformanceProvider? performanceProvider;
         private IPlayerDataProvider? playerDataProvider;
-        private List<ISettingsProvider>? settingsProviders;
+        private ICollection<ISettingsProvider>? settingsProviders;
 
         /// <summary>
         ///     Creates a new game user interface.
@@ -66,7 +66,7 @@ namespace VoxelGame.UI.UserInterfaces
         /// <summary>
         ///     Set the settings providers.
         /// </summary>
-        public void SetSettingsProviders(List<ISettingsProvider> newSettingsProviders)
+        public void SetSettingsProviders(ICollection<ISettingsProvider> newSettingsProviders)
         {
             settingsProviders = newSettingsProviders;
         }
@@ -103,17 +103,17 @@ namespace VoxelGame.UI.UserInterfaces
         /// <summary>
         ///     Invoked when the world is exited.
         /// </summary>
-        public event Action? WorldExit;
+        public event EventHandler WorldExit = delegate {};
 
         /// <summary>
         ///     Invoked when any overlay is opened.
         /// </summary>
-        public event Action? AnyOverlayOpen;
+        public event EventHandler AnyOverlayOpen = delegate {};
 
         /// <summary>
         ///     Invoked when any overlay is closed.
         /// </summary>
-        public event Action? AnyOverlayClosed;
+        public event EventHandler AnyOverlayClosed = delegate {};
 
         /// <summary>
         ///     Update the displayed performance data.
@@ -165,17 +165,17 @@ namespace VoxelGame.UI.UserInterfaces
 
         internal void DoWorldExit()
         {
-            WorldExit?.Invoke();
+            WorldExit(this, EventArgs.Empty);
         }
 
         internal void DoOverlayOpen()
         {
-            AnyOverlayOpen?.Invoke();
+            AnyOverlayOpen(this, EventArgs.Empty);
         }
 
         internal void DoOverlayClose()
         {
-            AnyOverlayClosed?.Invoke();
+            AnyOverlayClosed(this, EventArgs.Empty);
         }
     }
 }
