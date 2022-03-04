@@ -23,7 +23,7 @@ namespace VoxelGame.UI.Utility
         /// <summary>
         ///     Opens a modal window with the options yes/no.
         /// </summary>
-        public static void OpenBooleanModal(ControlBase parent, string query, Action yes, Action no)
+        internal static void OpenBooleanModal(ControlBase parent, string query, Action yes, Action no)
         {
             MessageBox messageBox = new(parent, query, buttons: MessageBoxButtons.YesNo)
             {
@@ -33,27 +33,13 @@ namespace VoxelGame.UI.Utility
 
             messageBox.MakeModal(dim: true, background);
 
-            messageBox.Dismissed += (_, args) =>
-            {
-                switch (args.Result)
-                {
-                    case MessageBoxResult.Yes:
-                        yes();
-
-                        break;
-
-                    default:
-                        no();
-
-                        break;
-                }
-            };
+            messageBox.Dismissed += (_, args) => { (args.Result == MessageBoxResult.Yes ? yes : no)(); };
         }
 
         /// <summary>
         ///     Opens a modal that blocks access to the ui, until it is closed.
         /// </summary>
-        public static CloseHandel OpenBlockingModal(ControlBase parent, string message)
+        internal static CloseHandel OpenBlockingModal(ControlBase parent, string message)
         {
             Window modal = new(parent)
             {
