@@ -24,7 +24,7 @@ namespace VoxelGame.UI.Settings
         private readonly MenuItem[] items = new MenuItem[Qualities.Count];
         private readonly Action<Quality> set;
 
-        public QualitySetting(string name, Func<Quality> get, Action<Quality> set)
+        internal QualitySetting(string name, Func<Quality> get, Action<Quality> set)
         {
             this.get = get;
             this.set = set;
