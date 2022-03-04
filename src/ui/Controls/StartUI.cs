@@ -33,7 +33,7 @@ namespace VoxelGame.UI.Controls
         private readonly WorldSelection worldSelection;
 
         internal StartUI(StartUserInterface parent, IWorldProvider worldProvider,
-            List<ISettingsProvider> settingsProviders) : base(parent.Root)
+            ICollection<ISettingsProvider> settingsProviders) : base(parent.Root)
         {
             Dock = Dock.Fill;
 
