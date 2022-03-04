@@ -37,8 +37,10 @@ namespace VoxelGame.UI.Controls
         {
             Dock = Dock.Fill;
 
+            Exit = delegate {};
+
             mainMenu = new MainMenu(this, parent.Context);
-            mainMenu.SelectExit += (_, _) => Exit?.Invoke();
+            mainMenu.SelectExit += (_, _) => Exit(this, EventArgs.Empty);
             mainMenu.SelectSettings += (_, _) => OpenMenu(SettingsMenuIndex);
             mainMenu.SelectWorlds += (_, _) => OpenMenu(WorldSelectionMenuIndex);
             mainMenu.SelectCredits += (_, _) => OpenMenu(CreditsMenuIndex);
@@ -69,6 +71,6 @@ namespace VoxelGame.UI.Controls
             if (index == WorldSelectionMenuIndex) worldSelection.Refresh();
         }
 
-        public event Action? Exit;
+        internal event EventHandler Exit;
     }
 }

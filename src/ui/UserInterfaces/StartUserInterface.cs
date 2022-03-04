@@ -56,7 +56,7 @@ namespace VoxelGame.UI.UserInterfaces
         {
             if (control == null) return;
 
-            control.Exit += exit;
+            control.Exit += (_, _) => exit();
         }
     }
 }
