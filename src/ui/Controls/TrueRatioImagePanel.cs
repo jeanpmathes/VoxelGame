@@ -17,13 +17,13 @@ namespace VoxelGame.UI.Controls
     {
         private readonly ImagePanel imagePanel;
 
-        public TrueRatioImagePanel(ControlBase parent) : base(parent)
+        internal TrueRatioImagePanel(ControlBase parent) : base(parent)
         {
             imagePanel = new ImagePanel(this);
             FitImage();
         }
 
-        public string ImageName
+        internal string ImageName
         {
             get => imagePanel.ImageName;
             set
@@ -50,7 +50,8 @@ namespace VoxelGame.UI.Controls
             float desiredRatio = imageSize.Width / (float) imageSize.Height;
             float availableRatio = availableSize.Width / (float) availableSize.Height;
 
-            float fittedWidth, fittedHeight;
+            float fittedWidth;
+            float fittedHeight;
 
             if (desiredRatio > availableRatio)
             {
