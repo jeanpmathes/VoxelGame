@@ -25,17 +25,17 @@ namespace VoxelGame.UI.Utility
             skin.DefaultFont.Size = 15;
 
             Title = Font.Create(skin.Renderer, FontName, size: 30);
-            Subtitle = Font.Create(skin.Renderer, FontName, size: 10);
+            Subtitle = Font.Create(skin.Renderer, FontName);
             Small = Font.Create(skin.Renderer, FontName, size: 12);
             Path = Font.Create(skin.Renderer, FontName, size: 10, FontStyle.Italic);
         }
 
-        public Font Default => skin.DefaultFont;
+        internal Font Default => skin.DefaultFont;
 
-        public Font Title { get; }
-        public Font Subtitle { get; }
-        public Font Small { get; }
-        public Font Path { get; }
+        internal Font Title { get; }
+        internal Font Subtitle { get; }
+        internal Font Small { get; }
+        internal Font Path { get; }
 
         public void Dispose()
         {
