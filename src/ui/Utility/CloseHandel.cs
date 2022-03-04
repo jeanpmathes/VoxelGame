@@ -15,7 +15,7 @@ namespace VoxelGame.UI.Utility
     {
         private readonly Window window;
 
-        public CloseHandel(Window window)
+        internal CloseHandel(Window window)
         {
             this.window = window;
         }
@@ -23,7 +23,7 @@ namespace VoxelGame.UI.Utility
         /// <summary>
         ///     Closes the window.
         /// </summary>
-        public void Close()
+        internal void Close()
         {
             window.Close();
         }
