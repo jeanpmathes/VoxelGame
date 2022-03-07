@@ -71,7 +71,7 @@ namespace VoxelGame.Client.Collections
             }
             else
             {
-                currentFace.previousFace = lastFaces[layer][row];
+                currentFace.previous = lastFaces[layer][row];
                 lastFaces[layer][row] = currentFace;
 
                 count++;
@@ -91,12 +91,12 @@ namespace VoxelGame.Client.Collections
 
                     if (lastCombinationRowFace == null)
                     {
-                        lastFaces[layer][row - 1] = combinationRowFace.previousFace;
+                        lastFaces[layer][row - 1] = combinationRowFace.previous;
                         combinationRowFace.Return();
                     }
                     else
                     {
-                        lastCombinationRowFace.previousFace = combinationRowFace.previousFace;
+                        lastCombinationRowFace.previous = combinationRowFace.previous;
                         combinationRowFace.Return();
                     }
 
@@ -106,7 +106,7 @@ namespace VoxelGame.Client.Collections
                 }
 
                 lastCombinationRowFace = combinationRowFace;
-                combinationRowFace = combinationRowFace.previousFace;
+                combinationRowFace = combinationRowFace.previous;
             }
         }
 
@@ -220,7 +220,7 @@ namespace VoxelGame.Client.Collections
                     meshData.Add(vertTexRepetition | currentFace.vertex11);
                     meshData.Add(currentFace.vertData);
 
-                    MeshFace? next = currentFace.previousFace;
+                    MeshFace? next = currentFace.previous;
                     currentFace.Return();
                     currentFace = next;
                 }
@@ -257,7 +257,7 @@ namespace VoxelGame.Client.Collections
             public int length;
 
             private int position;
-            public MeshFace? previousFace;
+            public MeshFace? previous;
 
             public int vertData;
 
@@ -289,7 +289,7 @@ namespace VoxelGame.Client.Collections
             {
                 MeshFace instance = ObjectPool<MeshFace>.Shared.Get();
 
-                instance.previousFace = null;
+                instance.previous = null;
 
                 instance.vertex00 = vert00;
                 instance.vertex01 = vert01;

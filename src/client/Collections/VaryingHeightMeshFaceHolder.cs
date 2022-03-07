@@ -83,7 +83,7 @@ namespace VoxelGame.Client.Collections
             }
             else
             {
-                currentFace.previousFace = lastFaces[layer][row];
+                currentFace.previous = lastFaces[layer][row];
                 lastFaces[layer][row] = currentFace;
 
                 count++;
@@ -103,17 +103,7 @@ namespace VoxelGame.Client.Collections
                 if (combinationRowFace.IsCombinable(currentFace))
                 {
                     CombineFace(currentFace, combinationRowFace);
-
-                    if (lastCombinationRowFace == null)
-                    {
-                        lastFaces[layer][row - 1] = combinationRowFace.previousFace;
-                        combinationRowFace.Return();
-                    }
-                    else
-                    {
-                        lastCombinationRowFace.previousFace = combinationRowFace.previousFace;
-                        combinationRowFace.Return();
-                    }
+                    RemoveFace(combinationRowFace, lastCombinationRowFace, layer, row - 1);
 
                     count--;
 
@@ -121,7 +111,15 @@ namespace VoxelGame.Client.Collections
                 }
 
                 lastCombinationRowFace = combinationRowFace;
-                combinationRowFace = combinationRowFace.previousFace;
+                combinationRowFace = combinationRowFace.previous;
+            }
+
+            void RemoveFace(MeshFace toRemove, MeshFace? last, int l, int r)
+            {
+                if (last == null) lastFaces[l][r] = toRemove.previous;
+                else last.previous = toRemove.previous;
+
+                toRemove.Return();
             }
         }
 
@@ -232,7 +230,7 @@ namespace VoxelGame.Client.Collections
 
                     vertexCount += 4;
 
-                    MeshFace? next = currentFace.previousFace;
+                    MeshFace? next = currentFace.previous;
                     currentFace.Return();
                     currentFace = next;
                 }
@@ -269,7 +267,7 @@ namespace VoxelGame.Client.Collections
             public int length;
 
             private int position;
-            public MeshFace? previousFace;
+            public MeshFace? previous;
 
             public int vertexA;
             public int vertexB;
@@ -301,7 +299,7 @@ namespace VoxelGame.Client.Collections
             {
                 MeshFace instance = ObjectPool<MeshFace>.Shared.Get();
 
-                instance.previousFace = null;
+                instance.previous = null;
 
                 instance.vertexA = vert00;
                 instance.vertexB = vert01;
