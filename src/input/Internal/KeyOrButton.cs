@@ -13,7 +13,7 @@ namespace VoxelGame.Input.Internal
     /// <summary>
     ///     Represents a key or a button.
     /// </summary>
-    public readonly struct KeyOrButton
+    public readonly struct KeyOrButton : IEquatable<KeyOrButton>
     {
         private readonly Key? key;
         private readonly MouseButton? button;
@@ -78,9 +78,7 @@ namespace VoxelGame.Input.Internal
         /// <inheritdoc />
         public override bool Equals(object? obj)
         {
-            if (obj is KeyOrButton other) return key == other.key && button == other.button;
-
-            return false;
+            return obj is KeyOrButton other && Equals(other);
         }
 
         /// <inheritdoc />
@@ -97,6 +95,28 @@ namespace VoxelGame.Input.Internal
             if (IsMouseButton) return button.ToString()!;
 
             return "unknown";
+        }
+
+        /// <inheritdoc />
+        public bool Equals(KeyOrButton other)
+        {
+            return key == other.key && button == other.button;
+        }
+
+        /// <summary>
+        ///     Checks if two <see cref="KeyOrButton" />s are equal.
+        /// </summary>
+        public static bool operator ==(KeyOrButton left, KeyOrButton right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Checks if two <see cref="KeyOrButton" />s are not equal.
+        /// </summary>
+        public static bool operator !=(KeyOrButton left, KeyOrButton right)
+        {
+            return !left.Equals(right);
         }
     }
 }
