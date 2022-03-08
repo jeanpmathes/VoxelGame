@@ -48,9 +48,7 @@ namespace VoxelGame.Core.Logic
         }
 
         [Serializable]
-#pragma warning disable CA1815 // Override equals and operator equals on value types
-        internal struct LiquidTick : ITickable
-#pragma warning restore CA1815 // Override equals and operator equals on value types
+        internal struct LiquidTick : ITickable, IEquatable<LiquidTick>
         {
             private readonly int x;
             private readonly int y;
@@ -73,6 +71,31 @@ namespace VoxelGame.Core.Logic
 
                 if (liquid?.Liquid.Id == target)
                     liquid.Liquid.ScheduledUpdate(world, (x, y, z), liquid.Level, liquid.IsStatic);
+            }
+
+            public bool Equals(LiquidTick other)
+            {
+                return x == other.x && y == other.y && z == other.z && target == other.target;
+            }
+
+            public override bool Equals(object? obj)
+            {
+                return obj is LiquidTick other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(x, y, z, target);
+            }
+
+            public static bool operator ==(LiquidTick left, LiquidTick right)
+            {
+                return left.Equals(right);
+            }
+
+            public static bool operator !=(LiquidTick left, LiquidTick right)
+            {
+                return !left.Equals(right);
             }
         }
     }
