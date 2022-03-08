@@ -657,8 +657,7 @@ namespace VoxelGame.Core.Visuals
     /// <summary>
     ///     A quad.
     /// </summary>
-#pragma warning disable CA1815 // Override equals and operator equals on value types
-    public struct Quad
+    public struct Quad : IEquatable<Quad>
     {
         /// <summary>
         ///     The texture id used for this quad.
@@ -762,16 +761,47 @@ namespace VoxelGame.Core.Visuals
 
             return this;
         }
+
+        /// <inheritdoc />
+        public bool Equals(Quad other)
+        {
+            return (TextureId, Vert0, Vert1, Vert2, Vert3) ==
+                   (other.TextureId, other.Vert0, other.Vert1, other.Vert2, other.Vert3);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is Quad other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(TextureId, Vert0, Vert1, Vert2, Vert3);
+        }
+
+        /// <summary>
+        ///     Checks if two quads are equal.
+        /// </summary>
+        public static bool operator ==(Quad left, Quad right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Checks if two quads are not equal.
+        /// </summary>
+        public static bool operator !=(Quad left, Quad right)
+        {
+            return !left.Equals(right);
+        }
     }
-
-    #pragma warning restore CA1815 // Override equals and operator equals on value types
-
-#pragma warning disable CA1815 // Override equals and operator equals on value types
 
     /// <summary>
     ///     A vertex.
     /// </summary>
-    public struct Vertex
+    public struct Vertex : IEquatable<Vertex>
     {
         /// <summary>
         ///     The x position.
@@ -863,9 +893,41 @@ namespace VoxelGame.Core.Visuals
 
             return this;
         }
-    }
 
-    #pragma warning restore CA1815 // Override equals and operator equals on value types
+        /// <inheritdoc />
+        public bool Equals(Vertex other)
+        {
+            return (X, Y, Z, U, V, N, O, P) == (other.X, other.Y, other.Z, other.U, other.V, other.N, other.O, other.P);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is Vertex other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X, Y, Z, U, V, N, O, P);
+        }
+
+        /// <summary>
+        ///     Checks if two vertices are equal.
+        /// </summary>
+        public static bool operator ==(Vertex left, Vertex right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Checks if two vertices are not equal.
+        /// </summary>
+        public static bool operator !=(Vertex left, Vertex right)
+        {
+            return !left.Equals(right);
+        }
+    }
 
     /// <summary>
     ///     Extension methods for <see cref="BlockModel" />.
