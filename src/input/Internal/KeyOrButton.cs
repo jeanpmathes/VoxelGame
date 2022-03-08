@@ -76,18 +76,6 @@ namespace VoxelGame.Input.Internal
         public KeyButtonPair Settings => new() { Key = key ?? Key.Unknown, Button = button ?? MouseButton.LastButton };
 
         /// <inheritdoc />
-        public override bool Equals(object? obj)
-        {
-            return obj is KeyOrButton other && Equals(other);
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(key, button);
-        }
-
-        /// <inheritdoc />
         public override string ToString()
         {
             if (IsKeyboardKey) return key.ToString()!;
@@ -101,6 +89,18 @@ namespace VoxelGame.Input.Internal
         public bool Equals(KeyOrButton other)
         {
             return key == other.key && button == other.button;
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is KeyOrButton other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(key, button);
         }
 
         /// <summary>

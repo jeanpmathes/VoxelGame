@@ -100,8 +100,7 @@ namespace VoxelGame.Core.Logic
 
             public bool Equals(BlockTick other)
             {
-                return x == other.x && y == other.y && z == other.z && target == other.target &&
-                       operation == other.operation;
+                return (x, y, z, target, operation) == (other.x, other.y, other.z, other.target, other.operation);
             }
 
             public override bool Equals(object? obj)
