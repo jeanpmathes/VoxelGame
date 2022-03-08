@@ -13,7 +13,7 @@ namespace VoxelGame.Input.Internal
     /// <summary>
     ///     The combined state of mouse and keyboard.
     /// </summary>
-    internal readonly struct CombinedState
+    internal readonly struct CombinedState : IEquatable<CombinedState>
     {
         internal KeyboardState Keyboard { get; }
         internal MouseState Mouse { get; }
@@ -60,6 +60,34 @@ namespace VoxelGame.Input.Internal
         internal bool IsKeyOrButtonUp(KeyOrButton keyOrButton)
         {
             return !IsKeyOrButtonDown(keyOrButton);
+        }
+
+        /// <inheritdoc />
+        public bool Equals(CombinedState other)
+        {
+            return overrides.Equals(other.overrides) && Keyboard.Equals(other.Keyboard) && Mouse.Equals(other.Mouse);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is CombinedState other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(overrides, Keyboard, Mouse);
+        }
+
+        public static bool operator ==(CombinedState left, CombinedState right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(CombinedState left, CombinedState right)
+        {
+            return !left.Equals(right);
         }
     }
 }
