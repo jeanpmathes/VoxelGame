@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Linq;
 using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Core.Physics
@@ -12,9 +13,7 @@ namespace VoxelGame.Core.Physics
     /// <summary>
     ///     A camera view frustum.
     /// </summary>
-#pragma warning disable CA1815 // Override equals and operator equals on value types
-    public readonly struct Frustum
-#pragma warning restore CA1815 // Override equals and operator equals on value types
+    public readonly struct Frustum : IEquatable<Frustum>
     {
         private readonly Plane[] planes;
 
@@ -74,6 +73,40 @@ namespace VoxelGame.Core.Physics
             }
 
             return true;
+        }
+
+        /// <inheritdoc />
+        public bool Equals(Frustum other)
+        {
+            return planes.SequenceEqual(other.planes);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is Frustum other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return planes.GetHashCode();
+        }
+
+        /// <summary>
+        ///     Checks whether two <see cref="Frustum" /> are equal.
+        /// </summary>
+        public static bool operator ==(Frustum left, Frustum right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Checks whether two <see cref="Frustum" /> are not equal.
+        /// </summary>
+        public static bool operator !=(Frustum left, Frustum right)
+        {
+            return !left.Equals(right);
         }
     }
 }

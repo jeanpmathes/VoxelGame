@@ -13,7 +13,7 @@ namespace VoxelGame.Input.Internal
     /// <summary>
     ///     Represents a key or a button.
     /// </summary>
-    public readonly struct KeyOrButton
+    public readonly struct KeyOrButton : IEquatable<KeyOrButton>
     {
         private readonly Key? key;
         private readonly MouseButton? button;
@@ -76,11 +76,25 @@ namespace VoxelGame.Input.Internal
         public KeyButtonPair Settings => new() { Key = key ?? Key.Unknown, Button = button ?? MouseButton.LastButton };
 
         /// <inheritdoc />
+        public override string ToString()
+        {
+            if (IsKeyboardKey) return key.ToString()!;
+
+            if (IsMouseButton) return button.ToString()!;
+
+            return "unknown";
+        }
+
+        /// <inheritdoc />
+        public bool Equals(KeyOrButton other)
+        {
+            return key == other.key && button == other.button;
+        }
+
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
-            if (obj is KeyOrButton other) return key == other.key && button == other.button;
-
-            return false;
+            return obj is KeyOrButton other && Equals(other);
         }
 
         /// <inheritdoc />
@@ -89,14 +103,20 @@ namespace VoxelGame.Input.Internal
             return HashCode.Combine(key, button);
         }
 
-        /// <inheritdoc />
-        public override string ToString()
+        /// <summary>
+        ///     Checks if two <see cref="KeyOrButton" />s are equal.
+        /// </summary>
+        public static bool operator ==(KeyOrButton left, KeyOrButton right)
         {
-            if (IsKeyboardKey) return key.ToString()!;
+            return left.Equals(right);
+        }
 
-            if (IsMouseButton) return button.ToString()!;
-
-            return "unknown";
+        /// <summary>
+        ///     Checks if two <see cref="KeyOrButton" />s are not equal.
+        /// </summary>
+        public static bool operator !=(KeyOrButton left, KeyOrButton right)
+        {
+            return !left.Equals(right);
         }
     }
 }

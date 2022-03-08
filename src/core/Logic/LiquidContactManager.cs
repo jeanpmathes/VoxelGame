@@ -156,7 +156,7 @@ namespace VoxelGame.Core.Logic
                                                              && aboveLightLiquid?.Liquid == Liquid.None)
             {
                 world.SetLiquid(
-                    light.liquid.AsInstance(light.level, isStatic: true),
+                    light.liquid.AsInstance(light.level),
                     aboveLightPosition);
 
                 light.liquid.TickSoon(
@@ -165,13 +165,13 @@ namespace VoxelGame.Core.Logic
                     isStatic: true);
 
                 world.SetLiquid(
-                    dense.liquid.AsInstance(LiquidLevel.One, isStatic: true),
+                    dense.liquid.AsInstance(LiquidLevel.One),
                     light.position);
 
                 dense.liquid.TickSoon(world, light.position, isStatic: true);
 
                 world.SetLiquid(
-                    dense.liquid.AsInstance(dense.level - 1, isStatic: true),
+                    dense.liquid.AsInstance(dense.level - 1),
                     dense.position);
 
                 dense.liquid.TickSoon(world, dense.position, isStatic: true);

@@ -56,9 +56,7 @@ namespace VoxelGame.Core.Logic
         }
 
         [Serializable]
-#pragma warning disable CA1815 // Override equals and operator equals on value types
-        internal struct BlockTick : ITickable
-#pragma warning restore CA1815 // Override equals and operator equals on value types
+        internal struct BlockTick : ITickable, IEquatable<BlockTick>
         {
             private readonly int x;
             private readonly int y;
@@ -98,6 +96,31 @@ namespace VoxelGame.Core.Logic
 
                     default: throw new InvalidOperationException();
                 }
+            }
+
+            public bool Equals(BlockTick other)
+            {
+                return (x, y, z, target, operation) == (other.x, other.y, other.z, other.target, other.operation);
+            }
+
+            public override bool Equals(object? obj)
+            {
+                return obj is BlockTick other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(x, y, z, target, (int) operation);
+            }
+
+            public static bool operator ==(BlockTick left, BlockTick right)
+            {
+                return left.Equals(right);
+            }
+
+            public static bool operator !=(BlockTick left, BlockTick right)
+            {
+                return !(left == right);
             }
         }
     }

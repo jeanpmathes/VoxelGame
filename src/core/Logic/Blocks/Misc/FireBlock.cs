@@ -216,12 +216,10 @@ namespace VoxelGame.Core.Logic.Blocks
                 data = 0b01_1111;
             }
 
-            foreach (BlockSide side in BlockSide.All.Sides())
-            {
-                if (side == BlockSide.Bottom) continue;
-
-                if (IsFlagSet(data, side)) canBurn |= BurnAt(side.Offset(position));
-            }
+            canBurn = BlockSide.All.Sides()
+                .Where(side => side != BlockSide.Bottom)
+                .Where(side => IsFlagSet(data, side))
+                .Aggregate(canBurn, (current, side) => current | BurnAt(side.Offset(position)));
 
             if (!canBurn) Destroy(world, position);
 

@@ -16,6 +16,8 @@ using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
+[assembly: CLSCompliant(isCompliant: false)]
+
 namespace VoxelGame.Client
 {
     internal static class Program

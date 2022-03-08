@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using OpenToolkit.Mathematics;
 
 namespace VoxelGame.Core.Physics
@@ -11,9 +12,7 @@ namespace VoxelGame.Core.Physics
     /// <summary>
     ///     A plane in 3D space.
     /// </summary>
-#pragma warning disable CA1815 // Override equals and operator equals on value types
-    public struct Plane
-#pragma warning restore CA1815 // Override equals and operator equals on value types
+    public readonly struct Plane : IEquatable<Plane>
     {
         /// <summary>
         ///     The normal of the plane.
@@ -48,6 +47,40 @@ namespace VoxelGame.Core.Physics
         public float Distance(Vector3 point)
         {
             return Vector3.Dot(point, Normal) + d;
+        }
+
+        /// <inheritdoc />
+        public bool Equals(Plane other)
+        {
+            return Normal.Equals(other.Normal) && Point.Equals(other.Point);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is Plane other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Normal, Point);
+        }
+
+        /// <summary>
+        ///     Checks if two planes are equal.
+        /// </summary>
+        public static bool operator ==(Plane left, Plane right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Checks if two planes are not equal.
+        /// </summary>
+        public static bool operator !=(Plane left, Plane right)
+        {
+            return !left.Equals(right);
         }
     }
 }

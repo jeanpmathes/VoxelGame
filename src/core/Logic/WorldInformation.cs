@@ -92,13 +92,10 @@ namespace VoxelGame.Core.Logic
         }
     }
 
-#pragma warning disable CA1815 // Override equals and operator equals on value types
-
     /// <summary>
     ///     World spawn information.
     /// </summary>
-    public struct SpawnInformation
-#pragma warning restore CA1815 // Override equals and operator equals on value types
+    public struct SpawnInformation : IEquatable<SpawnInformation>
     {
         /// <summary>
         ///     The x position of the spawn.
@@ -130,5 +127,39 @@ namespace VoxelGame.Core.Logic
         ///     Get the position of the spawn information.
         /// </summary>
         public Vector3 Position => new(X, Y, Z);
+
+        /// <inheritdoc />
+        public bool Equals(SpawnInformation other)
+        {
+            return X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is SpawnInformation other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X, Y, Z);
+        }
+
+        /// <summary>
+        ///     Determine equality between two spawn information.
+        /// </summary>
+        public static bool operator ==(SpawnInformation left, SpawnInformation right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Determine inequality between two spawn information.
+        /// </summary>
+        public static bool operator !=(SpawnInformation left, SpawnInformation right)
+        {
+            return !left.Equals(right);
+        }
     }
 }
