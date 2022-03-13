@@ -70,16 +70,13 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <inheritdoc />
         public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            BlockInstance? ground = world.GetBlock(position.Below());
-
-            return ground?.Block is IPlantable;
+            return PlantBehaviour.CanPlace(world, position);
         }
 
         /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            bool isLowered = world.IsLowered(position);
-            world.SetBlock(this.AsInstance(isLowered ? 1u : 0u), position);
+            PlantBehaviour.DoPlace(this, world, position);
         }
 
         /// <inheritdoc />
