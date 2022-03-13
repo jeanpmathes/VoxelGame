@@ -476,83 +476,53 @@ namespace VoxelGame.Core.Visuals
 
         private static BlockModel CreateFallback()
         {
-            return new()
+            const float begin = 0.375f;
+            const float size = 0.5f;
+
+            int[][] uvs = BlockModels.GetBlockUVs(isRotated: false);
+
+            Quad BuildQuad(BlockSide side)
+            {
+                Vector3i normal = side.Direction();
+
+                Vertex BuildVertex(int[] corner, int[] uv)
+                {
+                    return new Vertex
+                    {
+                        X = begin + corner[0] * size,
+                        Y = begin + corner[1] * size,
+                        Z = begin + corner[2] * size,
+                        U = begin + uv[0] * size,
+                        V = begin + uv[1] * size,
+                        N = normal.X,
+                        O = normal.Y,
+                        P = normal.Z
+                    };
+                }
+
+                side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
+
+                return new Quad
+                {
+                    TextureId = 0,
+                    Vert0 = BuildVertex(a, uvs[0]),
+                    Vert1 = BuildVertex(b, uvs[1]),
+                    Vert2 = BuildVertex(c, uvs[2]),
+                    Vert3 = BuildVertex(d, uvs[3])
+                };
+            }
+
+            return new BlockModel
             {
                 TextureNames = new[] { "missing_texture" },
                 Quads = new[]
                 {
-                    new Quad
-                    {
-                        TextureId = 0,
-                        Vert0 = new Vertex
-                            { X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.000f, N = -1f, O = 0f, P = 0f },
-                        Vert1 = new Vertex
-                            { X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.000f, N = -1f, O = 0f, P = 0f },
-                        Vert2 = new Vertex
-                            { X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.250f, N = -1f, O = 0f, P = 0f },
-                        Vert3 = new Vertex
-                            { X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.250f, N = -1f, O = 0f, P = 0f }
-                    },
-                    new Quad
-                    {
-                        TextureId = 0,
-                        Vert0 = new Vertex
-                            { X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.250f, N = 0f, O = 0f, P = 1f },
-                        Vert1 = new Vertex
-                            { X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.250f, N = 0f, O = 0f, P = 1f },
-                        Vert2 = new Vertex
-                            { X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 0f, O = 0f, P = 1f },
-                        Vert3 = new Vertex
-                            { X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 0f, O = 0f, P = 1f }
-                    },
-                    new Quad
-                    {
-                        TextureId = 0,
-                        Vert0 = new Vertex
-                            { X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 1f, O = 0f, P = 0f },
-                        Vert1 = new Vertex
-                            { X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 1f, O = 0f, P = 0f },
-                        Vert2 = new Vertex
-                            { X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 1f, O = 0f, P = 0f },
-                        Vert3 = new Vertex
-                            { X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 1f, O = 0f, P = 0f }
-                    },
-                    new Quad
-                    {
-                        TextureId = 0,
-                        Vert0 = new Vertex
-                            { X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 0f, O = 0f, P = -1f },
-                        Vert1 = new Vertex
-                            { X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 0f, O = 0f, P = -1f },
-                        Vert2 = new Vertex
-                            { X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 1.000f, N = 0f, O = 0f, P = -1f },
-                        Vert3 = new Vertex
-                            { X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 1.000f, N = 0f, O = 0f, P = -1f }
-                    },
-                    new Quad
-                    {
-                        TextureId = 0,
-                        Vert0 = new Vertex
-                            { X = 0.375f, Y = 0.375f, Z = 0.625f, U = 0.125f, V = 0.500f, N = 0f, O = -1f, P = 0f },
-                        Vert1 = new Vertex
-                            { X = 0.625f, Y = 0.375f, Z = 0.625f, U = 0.375f, V = 0.500f, N = 0f, O = -1f, P = 0f },
-                        Vert2 = new Vertex
-                            { X = 0.625f, Y = 0.375f, Z = 0.375f, U = 0.375f, V = 0.750f, N = 0f, O = -1f, P = 0f },
-                        Vert3 = new Vertex
-                            { X = 0.375f, Y = 0.375f, Z = 0.375f, U = 0.125f, V = 0.750f, N = 0f, O = -1f, P = 0f }
-                    },
-                    new Quad
-                    {
-                        TextureId = 0,
-                        Vert0 = new Vertex
-                            { X = 0.625f, Y = 0.625f, Z = 0.625f, U = 0.625f, V = 0.500f, N = 0f, O = 1f, P = 0f },
-                        Vert1 = new Vertex
-                            { X = 0.375f, Y = 0.625f, Z = 0.625f, U = 0.875f, V = 0.500f, N = 0f, O = 1f, P = 0f },
-                        Vert2 = new Vertex
-                            { X = 0.375f, Y = 0.625f, Z = 0.375f, U = 0.875f, V = 0.750f, N = 0f, O = 1f, P = 0f },
-                        Vert3 = new Vertex
-                            { X = 0.625f, Y = 0.625f, Z = 0.375f, U = 0.625f, V = 0.750f, N = 0f, O = 1f, P = 0f }
-                    }
+                    BuildQuad(BlockSide.Front),
+                    BuildQuad(BlockSide.Back),
+                    BuildQuad(BlockSide.Left),
+                    BuildQuad(BlockSide.Right),
+                    BuildQuad(BlockSide.Bottom),
+                    BuildQuad(BlockSide.Top)
                 }
             };
         }
