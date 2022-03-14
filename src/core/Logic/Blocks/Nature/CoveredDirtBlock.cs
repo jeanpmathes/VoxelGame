@@ -7,7 +7,6 @@
 using OpenToolkit.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks
@@ -79,20 +78,19 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <inheritdoc />
         public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            return !world.HasOpaqueTop(position) || Dirt.CanPlace(world, position, entity);
+            return DirtBehaviour.CanPlaceCovered(world, position, entity);
         }
 
         /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
-            if (world.HasOpaqueTop(position)) Dirt.Place(world, position, entity);
-            else world.SetBlock(this.AsInstance(), position);
+            DirtBehaviour.DoPlaceCovered(this, world, position, entity);
         }
 
         /// <inheritdoc />
         public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
         {
-            if (side == BlockSide.Top && world.HasOpaqueTop(position)) world.SetBlock(Dirt.AsInstance(), position);
+            DirtBehaviour.BlockUpdateCovered(world, position, side);
         }
     }
 }
