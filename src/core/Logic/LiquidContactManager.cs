@@ -220,7 +220,7 @@ namespace VoxelGame.Core.Logic
             ConcreteDissolve
         }
 
-        private readonly struct ContactInformation
+        private readonly struct ContactInformation : IEquatable<ContactInformation>
         {
             public readonly Liquid liquid;
             public readonly Vector3i position;
@@ -234,6 +234,32 @@ namespace VoxelGame.Core.Logic
 
                 level = liquid.Level;
                 isStatic = liquid.IsStatic;
+            }
+
+            public bool Equals(ContactInformation other)
+            {
+                return liquid.Equals(other.liquid) && position.Equals(other.position) && level == other.level &&
+                       isStatic == other.isStatic;
+            }
+
+            public override bool Equals(object? obj)
+            {
+                return obj is ContactInformation other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(liquid, position, (int) level, isStatic);
+            }
+
+            public static bool operator ==(ContactInformation left, ContactInformation right)
+            {
+                return left.Equals(right);
+            }
+
+            public static bool operator !=(ContactInformation left, ContactInformation right)
+            {
+                return !left.Equals(right);
             }
         }
     }
