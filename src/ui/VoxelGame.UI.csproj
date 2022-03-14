@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-      <TargetFramework>netcoreapp3.1</TargetFramework>
+      <TargetFramework>net6.0</TargetFramework>
       <Nullable>enable</Nullable>
       <Version>1.2.0</Version>
       <Platforms>x64</Platforms>
       <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
       <ApplicationIcon>vg_icon.ico</ApplicationIcon>
-      <LangVersion>9</LangVersion>
+      <LangVersion>10</LangVersion>
       <Configurations>Debug;Release</Configurations>
       <PackageLicenseExpression>MIT License</PackageLicenseExpression>
       <PackageVersion>1.3.0</PackageVersion>

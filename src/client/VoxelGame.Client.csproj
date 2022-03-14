@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-      <TargetFramework>netcoreapp3.1</TargetFramework>
+      <TargetFramework>net6.0</TargetFramework>
       <OutputType>Exe</OutputType>
       <Nullable>enable</Nullable>
       <AssemblyVersion>1.3.0.0</AssemblyVersion>
@@ -13,7 +13,7 @@
       <Configurations>Debug;Release;Manual</Configurations>
       <StartupObject>VoxelGame.Client.Program</StartupObject>
       <PackageLicenseExpression>MIT License</PackageLicenseExpression>
-      <LangVersion>9</LangVersion>
+      <LangVersion>10</LangVersion>
       <PackageVersion>1.3.0</PackageVersion>
   </PropertyGroup>
 
