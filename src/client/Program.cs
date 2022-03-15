@@ -103,7 +103,7 @@ namespace VoxelGame.Client
             nativeWindowSettings.Profile = ContextProfile.Core;
             nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
             nativeWindowSettings.Size = Settings.Default.ScreenSize.ToVector2i();
-            nativeWindowSettings.StartFocused = false;
+            nativeWindowSettings.StartFocused = true;
 
             logger.LogDebug("Opening window");
 
