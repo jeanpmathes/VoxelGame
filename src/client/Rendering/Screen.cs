@@ -13,7 +13,9 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Logging;
+using Monitor = OpenTK.Windowing.GraphicsLibraryFramework.Monitor;
 
 namespace VoxelGame.Client.Rendering
 {
@@ -37,7 +39,11 @@ namespace VoxelGame.Client.Rendering
         private readonly int screenshotRBO;
         private bool isWireframeActive;
 
+        private Vector2i previousScreenLocation;
+        private Vector2i previousScreenSize;
+
         private bool useWireframe;
+        private WindowState windowState = WindowState.Normal;
 
         internal Screen(Application.Client client)
         {
@@ -311,7 +317,7 @@ namespace VoxelGame.Client.Rendering
         /// <summary>
         ///     Gets whether the screen is in fullscreen.
         /// </summary>
-        public static bool IsFullscreen => Instance.Client.IsFullscreen;
+        public static bool IsFullscreen => Instance.windowState != WindowState.Normal;
 
         /// <summary>
         ///     Gets whether the screen is focused.
@@ -346,21 +352,61 @@ namespace VoxelGame.Client.Rendering
         /// <param name="fullscreen">If fullscreen should be active.</param>
         public static void SetFullscreen(bool fullscreen)
         {
-            if (fullscreen == Instance.Client.IsFullscreen) return;
+            WindowState targetState = fullscreen ? WindowState.WindowedFullscreen : WindowState.Normal;
 
-            if (fullscreen)
+            if (targetState == Instance.windowState) return;
+            Instance.windowState = targetState;
+
+            switch (targetState)
             {
-                Instance.Client.WindowState = WindowState.Maximized;
+                case WindowState.Normal:
+                    EnterNormalWindowState();
 
-                logger.LogDebug(Events.WindowState, "Fullscreen: Switched to fullscreen mode");
+                    break;
 
+                case WindowState.WindowedFullscreen:
+                    EnterWindowedFullscreen();
+
+                    break;
+
+                default:
+                    throw new NotSupportedException();
             }
-            else
+        }
+
+        private static void EnterWindowedFullscreen()
+        {
+            Instance.previousScreenSize = Instance.Client.Size;
+            Instance.previousScreenLocation = Instance.Client.Location;
+
+            Vector2i monitorSize;
+
+            unsafe
             {
-                Instance.Client.WindowState = WindowState.Normal;
+                Monitor* monitor = GLFW.GetPrimaryMonitor();
+                VideoMode* mode = GLFW.GetVideoMode(monitor);
 
-                logger.LogDebug(Events.WindowState, "Fullscreen: Switched to normal mode");
+                monitorSize = new Vector2i(mode->Width, mode->Height);
             }
+
+            Instance.Client.Size = monitorSize;
+
+
+            logger.LogDebug(Events.WindowState, "Fullscreen: Switched to windowed fullscreen mode");
+        }
+
+        private static void EnterNormalWindowState()
+        {
+            Instance.Client.Size = Instance.previousScreenSize;
+            Instance.Client.Location = Instance.previousScreenLocation;
+
+            logger.LogDebug(Events.WindowState, "Fullscreen: Switched to normal mode");
+        }
+
+        private enum WindowState
+        {
+            WindowedFullscreen,
+            Normal
         }
 
         /// <summary>
