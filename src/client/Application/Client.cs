@@ -4,27 +4,24 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System.Diagnostics.CodeAnalysis;
-using JetBrains.Annotations;
+using System.Diagnostics;
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Desktop;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
+using VoxelGame.Core;
+using VoxelGame.Core.Logic;
 using VoxelGame.Input;
 using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
-using VoxelGame.UI.Providers;
-#if MANUAL
-using System.Globalization;
-using VoxelGame.Core.Logic;
-using VoxelGame.Core;
-using Section = VoxelGame.Manual.Section;
 using VoxelGame.Manual;
 using VoxelGame.Manual.Modifiers;
 using VoxelGame.Manual.Utility;
-#endif
+using VoxelGame.UI.Providers;
+using Section = VoxelGame.Manual.Section;
 
 namespace VoxelGame.Client.Application
 {
@@ -122,10 +119,8 @@ namespace VoxelGame.Client.Application
 
                 logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
 
-#if MANUAL
                 // Optional generation of manual.
                 GenerateManual();
-#endif
             }
         }
 
@@ -169,13 +164,9 @@ namespace VoxelGame.Client.Application
         }
 
 
-        [UsedImplicitly]
-        [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Used in other build type.")]
+        [Conditional("MANUAL")]
         private void GenerateManual()
         {
-            // Not actually empty.
-
-#if MANUAL
             const string path = "./../../../../../../Setup/Resources/Manual";
 
             Documentation documentation = new(typeof(ApplicationInformation).Assembly);
@@ -200,7 +191,7 @@ namespace VoxelGame.Client.Application
                     .Item("Solid:").Boolean(s.block.IsSolid)
                     .Item("Interactions:").Boolean(s.block.IsInteractable)
                     .Item("Replaceable:").Boolean(s.block.IsReplaceable)
-                    .End().EndSection());
+                    .Finish().EndSection());
 
             blocks.Generate();
 
@@ -214,10 +205,9 @@ namespace VoxelGame.Client.Application
                     .Item("ID:").Text(s.liquid.NamedId, TextStyle.Monospace)
                     .Item("Viscosity:").Text(s.liquid.Viscosity.ToString(CultureInfo.InvariantCulture))
                     .Item("Density:").Text(s.liquid.Density.ToString(CultureInfo.InvariantCulture))
-                    .End().EndSection());
+                    .Finish().EndSection());
 
             liquids.Generate();
-#endif
         }
 
         /// <summary>
