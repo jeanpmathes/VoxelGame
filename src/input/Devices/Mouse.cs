@@ -4,7 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 
 namespace VoxelGame.Input.Devices
 {
@@ -38,7 +38,7 @@ namespace VoxelGame.Input.Devices
 
         internal void Update()
         {
-            Vector2 delta = input.Window.MouseDelta - correction;
+            Vector2 delta = input.Window.MouseState.Delta - correction;
 
             float xScale = 1f / input.Window.Size.X;
             float yScale = 1f / input.Window.Size.Y;

@@ -4,7 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;

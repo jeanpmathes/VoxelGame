@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using OpenToolkit.Windowing.Common.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace VoxelGame.Input.Internal
 {
@@ -15,14 +15,14 @@ namespace VoxelGame.Input.Internal
     /// </summary>
     public readonly struct KeyOrButton : IEquatable<KeyOrButton>
     {
-        private readonly Key? key;
+        private readonly Keys? key;
         private readonly MouseButton? button;
 
         /// <summary>
-        ///     Create a new <see cref="KeyOrButton" /> from a <see cref="Key" />.
+        ///     Create a new <see cref="KeyOrButton" /> from a <see cref="Keys" />.
         /// </summary>
         /// <param name="key">The key to use.</param>
-        public KeyOrButton(Key key)
+        public KeyOrButton(Keys key)
         {
             this.key = key;
             button = null;
@@ -46,7 +46,7 @@ namespace VoxelGame.Input.Internal
         {
             Debug.Assert(!settings.Default);
 
-            if (settings.Key != Key.Unknown)
+            if (settings.Key != Keys.Unknown)
             {
                 key = settings.Key;
                 button = null;
@@ -63,7 +63,7 @@ namespace VoxelGame.Input.Internal
 
         internal bool GetState(CombinedState state)
         {
-            if (IsKeyboardKey) return state.Keyboard[(Key) key!];
+            if (IsKeyboardKey) return state.Keyboard[(Keys) key!];
 
             if (IsMouseButton) return state.Mouse[(MouseButton) button!];
 
@@ -73,7 +73,7 @@ namespace VoxelGame.Input.Internal
         /// <summary>
         ///     Get serializable settings for this key or button.
         /// </summary>
-        public KeyButtonPair Settings => new() { Key = key ?? Key.Unknown, Button = button ?? MouseButton.LastButton };
+        public KeyButtonPair Settings => new() { Key = key ?? Keys.Unknown, Button = button ?? MouseButton.Last };
 
         /// <inheritdoc />
         public override string ToString()

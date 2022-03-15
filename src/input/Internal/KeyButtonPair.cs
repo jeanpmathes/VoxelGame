@@ -5,7 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
-using OpenToolkit.Windowing.Common.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace VoxelGame.Input.Internal
 {
@@ -23,7 +23,7 @@ namespace VoxelGame.Input.Internal
         /// <summary>
         ///     The key value.
         /// </summary>
-        public Key Key { get; set; } = Key.Unknown;
+        public Keys Key { get; set; } = Keys.Unknown;
 
         /// <summary>
         ///     The button value.

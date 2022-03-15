@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using OpenToolkit.Windowing.Common.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Input.Actions;
 using VoxelGame.Input.Internal;
 
@@ -102,7 +102,7 @@ namespace VoxelGame.Client.Application
         /// <param name="name">The display name of the keybind. Can be localized.</param>
         /// <param name="defaultKey">The default key to use initially.</param>
         /// <returns>The registered keybind.</returns>
-        public static Keybind RegisterButton(string id, string name, Key defaultKey)
+        public static Keybind RegisterButton(string id, string name, Keys defaultKey)
         {
             return Register(
                 id,
@@ -134,7 +134,7 @@ namespace VoxelGame.Client.Application
         /// <param name="name">The display name of the keybind. Can be localized.</param>
         /// <param name="defaultKey">The default key to use initially.</param>
         /// <returns>The registered keybind.</returns>
-        public static Keybind RegisterToggle(string id, string name, Key defaultKey)
+        public static Keybind RegisterToggle(string id, string name, Keys defaultKey)
         {
             return Register(
                 id,
@@ -166,7 +166,7 @@ namespace VoxelGame.Client.Application
         /// <param name="name">The display name of the keybind. Can be localized.</param>
         /// <param name="defaultKey">The default key to use initially.</param>
         /// <returns>The registered keybind.</returns>
-        public static Keybind RegisterPushButton(string id, string name, Key defaultKey)
+        public static Keybind RegisterPushButton(string id, string name, Keys defaultKey)
         {
             return Register(
                 id,

@@ -5,8 +5,8 @@
 
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
-using OpenToolkit.Mathematics;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using VoxelGame.Graphics.Utility;
 using VoxelGame.Logging;
 

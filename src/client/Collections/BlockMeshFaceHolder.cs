@@ -6,7 +6,7 @@
 
 using System;
 using System.Buffers;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 

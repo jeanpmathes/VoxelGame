@@ -4,12 +4,13 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Mathematics;
-using OpenToolkit.Windowing.Common;
-using OpenToolkit.Windowing.Desktop;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core;
@@ -63,7 +64,7 @@ namespace VoxelGame.Client.Application
             RenderFrame += OnRenderFrame;
             UpdateFrame += OnUpdateFrame;
 
-            Closed += OnClosed;
+            Closing += OnClosing;
 
             input = new InputManager(this);
             Keybinds = new KeybindManager(input);
@@ -155,7 +156,7 @@ namespace VoxelGame.Client.Application
             }
         }
 
-        private new void OnClosed()
+        private new void OnClosing(CancelEventArgs e)
         {
             logger.LogInformation(Events.WindowState, "Closing window");
 

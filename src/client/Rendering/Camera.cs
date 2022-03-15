@@ -4,7 +4,7 @@
 // <author>pershingthesecond</author>
 
 using System;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
 
 namespace VoxelGame.Client.Rendering

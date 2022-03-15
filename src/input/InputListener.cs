@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using OpenToolkit.Windowing.Common.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Input.Internal;
 
 namespace VoxelGame.Input

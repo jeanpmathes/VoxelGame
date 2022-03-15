@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using OpenToolkit.Windowing.Desktop;
+using OpenTK.Windowing.Desktop;
 using VoxelGame.Input;
 using VoxelGame.UI.Controls;
 using VoxelGame.UI.Providers;

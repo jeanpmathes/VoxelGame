@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using OpenToolkit.Windowing.Common.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace VoxelGame.Input.Internal
 {
@@ -26,16 +26,16 @@ namespace VoxelGame.Input.Internal
         {
             get
             {
-                foreach (Key key in (Key[]) Enum.GetValues(typeof(Key)))
+                foreach (Keys key in (Keys[]) Enum.GetValues(typeof(Keys)))
                 {
-                    if (key == Key.Unknown) continue;
+                    if (key == Keys.Unknown) continue;
 
                     if (Keyboard[key]) return new KeyOrButton(key);
                 }
 
                 foreach (MouseButton mouseButton in (MouseButton[]) Enum.GetValues(typeof(MouseButton)))
                 {
-                    if (mouseButton == MouseButton.LastButton) continue;
+                    if (mouseButton == MouseButton.Last) continue;
 
                     if (Mouse[mouseButton]) return new KeyOrButton(mouseButton);
                 }

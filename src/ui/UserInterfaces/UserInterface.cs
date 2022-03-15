@@ -8,9 +8,9 @@ using System;
 using System.IO;
 using Gwen.Net.Control;
 using Gwen.Net.OpenTk;
-using OpenToolkit.Graphics.OpenGL4;
-using OpenToolkit.Mathematics;
-using OpenToolkit.Windowing.Desktop;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Desktop;
 using VoxelGame.Input;
 using VoxelGame.UI.Utility;
 

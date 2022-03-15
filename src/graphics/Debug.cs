@@ -7,7 +7,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL4;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Graphics

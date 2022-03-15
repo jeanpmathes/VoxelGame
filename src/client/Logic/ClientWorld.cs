@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using Properties;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Rendering;

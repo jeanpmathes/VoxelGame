@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;

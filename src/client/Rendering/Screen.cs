@@ -10,12 +10,10 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
-using OpenToolkit.Mathematics;
-using OpenToolkit.Windowing.Common;
-using OpenToolkit.Windowing.GraphicsLibraryFramework;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
 using VoxelGame.Logging;
-using Monitor = OpenToolkit.Windowing.GraphicsLibraryFramework.Monitor;
 
 namespace VoxelGame.Client.Rendering
 {
@@ -38,9 +36,6 @@ namespace VoxelGame.Client.Rendering
         private readonly int screenshotFBO;
         private readonly int screenshotRBO;
         private bool isWireframeActive;
-        private Vector2i previousScreenLocation;
-
-        private Vector2i previousScreenSize;
 
         private bool useWireframe;
 
@@ -355,32 +350,14 @@ namespace VoxelGame.Client.Rendering
 
             if (fullscreen)
             {
-                Instance.previousScreenSize = Instance.Client.Size;
-                Instance.previousScreenLocation = Instance.Client.Location;
-
-                Vector2i monitorSize;
-
-                unsafe
-                {
-                    Monitor* monitor = GLFW.GetPrimaryMonitor();
-                    VideoMode* mode = GLFW.GetVideoMode(monitor);
-
-                    monitorSize = new Vector2i(mode->Width, mode->Height);
-                }
-
-                Instance.Client.Size = monitorSize;
-
-                Instance.Client.IsFullscreen = true;
+                Instance.Client.WindowState = WindowState.Maximized;
 
                 logger.LogDebug(Events.WindowState, "Fullscreen: Switched to fullscreen mode");
 
             }
             else
             {
-                Instance.Client.IsFullscreen = false;
-
-                Instance.Client.Size = Instance.previousScreenSize;
-                Instance.Client.Location = Instance.previousScreenLocation;
+                Instance.Client.WindowState = WindowState.Normal;
 
                 logger.LogDebug(Events.WindowState, "Fullscreen: Switched to normal mode");
             }

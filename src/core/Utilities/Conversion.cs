@@ -6,7 +6,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Utilities
 {
