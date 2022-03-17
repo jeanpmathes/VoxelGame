@@ -40,10 +40,21 @@ namespace VoxelGame.Client.Scenes
         private readonly GameUserInterface ui;
         private readonly ToggleButton uiToggle;
 
-        internal GameScene(Application.Client client, ClientWorld world, GameConsole console)
+        internal GameScene(Application.Client client, ClientWorld world, IConsoleProvider console)
         {
+            void OnOverlayClose()
+            {
+                Screen.ClearOverlayLock();
+                Screen.SetCursor(visible: false, grabbed: true);
+            }
 
-            Screen.SetCursor(visible: false, locked: true);
+            void OnOverlayOpen()
+            {
+                Screen.SetOverlayLock();
+                Screen.SetCursor(visible: true);
+            }
+
+            OnOverlayClose();
 
             ui = new GameUserInterface(
                 client,
@@ -62,17 +73,8 @@ namespace VoxelGame.Client.Scenes
 
             ui.WorldExit += (_, _) => client.ExitGame();
 
-            ui.AnyOverlayOpen += (_, _) =>
-            {
-                Screen.SetOverlayLock();
-                Screen.SetCursor(visible: true);
-            };
-
-            ui.AnyOverlayClosed += (_, _) =>
-            {
-                Screen.ClearOverlayLock();
-                Screen.SetCursor(visible: false, locked: true);
-            };
+            ui.AnyOverlayOpen += (_, _) => OnOverlayOpen();
+            ui.AnyOverlayClosed += (_, _) => OnOverlayClose();
 
             counter = world.UpdateCounter;
 

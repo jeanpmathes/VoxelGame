@@ -337,12 +337,10 @@ namespace VoxelGame.Client.Rendering
         ///     Set the cursor options.
         /// </summary>
         /// <param name="visible">Whether the cursor should be visible.</param>
-        /// <param name="locked">Whether the cursor should be locked to the center of the screen.</param>
         /// <param name="grabbed">Whether the cursor should be restricted to the game window.</param>
-        public static void SetCursor(bool visible, bool locked = false, bool grabbed = false)
+        public static void SetCursor(bool visible, bool grabbed = false)
         {
             Instance.Client.CursorVisible = visible;
-            Instance.Client.Mouse.Locked = locked;
             Instance.Client.CursorGrabbed = grabbed;
         }
 
