@@ -390,7 +390,7 @@ namespace VoxelGame.Client.Rendering
             }
 
             Instance.Client.Size = monitorSize;
-
+            Instance.Client.Location = Vector2i.Zero;
 
             logger.LogDebug(Events.WindowState, "Fullscreen: Switched to windowed fullscreen mode");
         }

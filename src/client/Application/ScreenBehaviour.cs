@@ -68,7 +68,7 @@ namespace VoxelGame.Client.Application
         /// <param name="time">The time since the last update operation.</param>
         internal void Update(double time)
         {
-            if (client.IsFocused && fullscreenToggle.Changed) Screen.SetFullscreen(!client.IsFullscreen);
+            if (client.IsFocused && fullscreenToggle.Changed) Screen.SetFullscreen(!Screen.IsFullscreen);
 
             updateDeltaBuffer.Write(time);
         }
