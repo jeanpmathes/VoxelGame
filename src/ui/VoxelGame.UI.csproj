@@ -55,27 +55,27 @@
         </None>
     </ItemGroup>
 
-  <ItemGroup>
-    <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml" />
-  </ItemGroup>
+    <ItemGroup>
+        <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml"/>
+    </ItemGroup>
 
-  <ItemGroup>
-      <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
-      <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0"/>
-      <PackageReference Include="OpenTK" Version="4.7.1"/>
-      <PackageReference Include="Serilog.Extensions.Logging.File" Version="2.0.0"/>
-      <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0"/>
-      <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0"/>
+        <PackageReference Include="OpenTK" Version="4.7.1"/>
+        <PackageReference Include="Serilog.Extensions.Logging.File" Version="2.0.0"/>
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0"/>
+        <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\core\VoxelGame.Core.csproj" />
-      <ProjectReference Include="..\input\VoxelGame.Input.csproj"/>
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\core\VoxelGame.Core.csproj"/>
+        <ProjectReference Include="..\input\VoxelGame.Input.csproj"/>
+    </ItemGroup>
 
     <ItemGroup>
         <Reference Include="Gwen.Net">
