@@ -17,6 +17,8 @@ namespace VoxelGame.Input.Devices
         private Vector2 oldDelta;
         private Vector2 oldPosition;
 
+        private Vector2? storedPosition;
+
         internal Mouse(InputManager input)
         {
             this.input = input;
@@ -41,6 +43,23 @@ namespace VoxelGame.Input.Devices
             oldDelta = Delta;
             oldPosition = input.Window.MouseState.Position;
             Delta = delta;
+        }
+
+        /// <summary>
+        ///     Store the mouse position to restore it later. If there is already a stored position, it will be overwritten.
+        /// </summary>
+        public void StorePosition()
+        {
+            storedPosition = input.Window.MouseState.Position;
+        }
+
+        /// <summary>
+        ///     Restore the stored mouse position. If there is no stored position, nothing will happen.
+        /// </summary>
+        public void RestorePosition()
+        {
+            if (storedPosition == null) return;
+            input.Window.MousePosition = storedPosition.Value;
         }
     }
 }

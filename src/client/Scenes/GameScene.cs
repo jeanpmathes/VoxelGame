@@ -45,13 +45,13 @@ namespace VoxelGame.Client.Scenes
             void OnOverlayClose()
             {
                 Screen.ClearOverlayLock();
-                Screen.SetCursor(visible: false, grabbed: true);
+                Screen.SetCursor(locked: true);
             }
 
             void OnOverlayOpen()
             {
                 Screen.SetOverlayLock();
-                Screen.SetCursor(visible: true);
+                Screen.SetCursor(locked: false);
             }
 
             OnOverlayClose();

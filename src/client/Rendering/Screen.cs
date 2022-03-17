@@ -334,14 +334,20 @@ namespace VoxelGame.Client.Rendering
         #region PUBLIC STATIC METHODS
 
         /// <summary>
-        ///     Set the cursor options.
+        /// Set the cursor state. Locking the cursor will store the position, unlocking restores it.
         /// </summary>
-        /// <param name="visible">Whether the cursor should be visible.</param>
-        /// <param name="grabbed">Whether the cursor should be restricted to the game window.</param>
-        public static void SetCursor(bool visible, bool grabbed = false)
+        /// <param name="locked">Whether the cursor should be locked.</param>
+        public static void SetCursor(bool locked)
         {
+            if (locked) Instance.Client.Mouse.StorePosition();
+
+            bool visible = !locked;
+            bool grabbed = locked;
+
             Instance.Client.CursorVisible = visible;
             Instance.Client.CursorGrabbed = grabbed;
+
+            if (!locked) Instance.Client.Mouse.RestorePosition();
         }
 
         /// <summary>

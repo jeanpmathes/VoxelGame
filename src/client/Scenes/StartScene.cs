@@ -46,7 +46,7 @@ namespace VoxelGame.Client.Scenes
         /// <inheritdoc />
         public void Load()
         {
-            Screen.SetCursor(visible: true);
+            Screen.SetCursor(locked: false);
             Screen.SetWireframe(wireframe: false);
             Screen.EnterUIDrawMode();
 
