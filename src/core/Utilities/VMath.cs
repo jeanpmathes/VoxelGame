@@ -15,6 +15,8 @@ namespace VoxelGame.Core.Utilities
     /// </summary>
     public static class VMath
     {
+        private const float Epsilon = 128 * float.Epsilon;
+
         /// <summary>
         ///     Clamps a vector between a minimum and maximum length.
         /// </summary>
@@ -155,7 +157,7 @@ namespace VoxelGame.Core.Utilities
         /// <param name="b">The second value.</param>
         /// <param name="epsilon">The epsilon value, defining what difference is seen as equal.</param>
         /// <returns>True if the two values are nearly equal.</returns>
-        public static bool NearlyEqual(float a, float b, float epsilon = 128 * float.Epsilon)
+        public static bool NearlyEqual(float a, float b, float epsilon = Epsilon)
         {
             return Math.Abs(a - b) < epsilon;
         }
@@ -166,7 +168,7 @@ namespace VoxelGame.Core.Utilities
         /// <param name="a">The value to check for near equality with zero.</param>
         /// <param name="epsilon">The epsilon distance.</param>
         /// <returns>True if the given value is nearly zero.</returns>
-        public static bool NearlyZero(float a, float epsilon = 0.00001f)
+        public static bool NearlyZero(float a, float epsilon = Epsilon)
         {
             return NearlyEqual(a, b: 0, epsilon);
         }

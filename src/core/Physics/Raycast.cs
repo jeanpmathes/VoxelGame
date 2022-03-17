@@ -7,7 +7,6 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Physics
 {
@@ -82,23 +81,20 @@ namespace VoxelGame.Core.Physics
             double nextVoxelBoundaryY = stepY > 0 ? y + stepY : y;
             double nextVoxelBoundaryZ = stepZ > 0 ? z + stepZ : z;
 
+            /*
+             * Important: The floating-point equality comparison with zero must be exact, do not use the nearly-methods.
+             * Using them can lead to unexpected results, like endless loops.
+             */
+
             // Calculate the distance to the next voxel border.
-            double tMaxX = !VMath.NearlyZero(direction.X)
-                ? (nextVoxelBoundaryX - ray.Origin.X) / direction.X
-                : double.MaxValue;
-
-            double tMaxY = !VMath.NearlyZero(direction.Y)
-                ? (nextVoxelBoundaryY - ray.Origin.Y) / direction.Y
-                : double.MaxValue;
-
-            double tMaxZ = !VMath.NearlyZero(direction.Z)
-                ? (nextVoxelBoundaryZ - ray.Origin.Z) / direction.Z
-                : double.MaxValue;
+            double tMaxX = direction.X != 0 ? (nextVoxelBoundaryX - ray.Origin.X) / direction.X : double.MaxValue;
+            double tMaxY = direction.Y != 0 ? (nextVoxelBoundaryY - ray.Origin.Y) / direction.Y : double.MaxValue;
+            double tMaxZ = direction.Z != 0 ? (nextVoxelBoundaryZ - ray.Origin.Z) / direction.Z : double.MaxValue;
 
             // Calculate distance so component equals voxel border.
-            double tDeltaX = !VMath.NearlyZero(direction.X) ? stepX / direction.X : double.MaxValue;
-            double tDeltaY = !VMath.NearlyZero(direction.Y) ? stepY / direction.Y : double.MaxValue;
-            double tDeltaZ = !VMath.NearlyZero(direction.Z) ? stepZ / direction.Z : double.MaxValue;
+            double tDeltaX = direction.X != 0 ? stepX / direction.X : double.MaxValue;
+            double tDeltaY = direction.Y != 0 ? stepY / direction.Y : double.MaxValue;
+            double tDeltaZ = direction.Z != 0 ? stepZ / direction.Z : double.MaxValue;
 
             // Check if the ray intersects the bounding box of the voxel.
             if (rayIntersectionCheck(ray, (x, y, z)))
