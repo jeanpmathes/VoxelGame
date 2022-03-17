@@ -94,7 +94,7 @@ namespace VoxelGame.Manual
         ///     Decrease the level.
         /// </summary>
         /// <returns>The chainable of a lower level.</returns>
-        public virtual Chainable End()
+        public virtual Chainable Finish()
         {
             throw new InvalidOperationException();
         }

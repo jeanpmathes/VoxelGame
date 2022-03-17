@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;
@@ -40,10 +40,21 @@ namespace VoxelGame.Client.Scenes
         private readonly GameUserInterface ui;
         private readonly ToggleButton uiToggle;
 
-        internal GameScene(Application.Client client, ClientWorld world, GameConsole console)
+        internal GameScene(Application.Client client, ClientWorld world, IConsoleProvider console)
         {
+            void OnOverlayClose()
+            {
+                Screen.ClearOverlayLock();
+                Screen.SetCursor(locked: true);
+            }
 
-            Screen.SetCursor(visible: false, locked: true);
+            void OnOverlayOpen()
+            {
+                Screen.SetOverlayLock();
+                Screen.SetCursor(locked: false);
+            }
+
+            OnOverlayClose();
 
             ui = new GameUserInterface(
                 client,
@@ -62,17 +73,8 @@ namespace VoxelGame.Client.Scenes
 
             ui.WorldExit += (_, _) => client.ExitGame();
 
-            ui.AnyOverlayOpen += (_, _) =>
-            {
-                Screen.SetOverlayLock();
-                Screen.SetCursor(visible: true);
-            };
-
-            ui.AnyOverlayClosed += (_, _) =>
-            {
-                Screen.ClearOverlayLock();
-                Screen.SetCursor(visible: false, locked: true);
-            };
+            ui.AnyOverlayOpen += (_, _) => OnOverlayOpen();
+            ui.AnyOverlayClosed += (_, _) => OnOverlayClose();
 
             counter = world.UpdateCounter;
 

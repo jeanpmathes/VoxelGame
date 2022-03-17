@@ -10,7 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL4;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Objects;
@@ -212,7 +212,7 @@ namespace VoxelGame.Client.Rendering
                 resolution,
                 resolution,
                 length,
-                OpenToolkit.Graphics.OpenGL4.PixelFormat.Bgra,
+                OpenTK.Graphics.OpenGL4.PixelFormat.Bgra,
                 PixelType.UnsignedByte,
                 data.Scan0);
 
@@ -323,7 +323,7 @@ namespace VoxelGame.Client.Rendering
                 bitmap.Width,
                 bitmap.Width,
                 length,
-                OpenToolkit.Graphics.OpenGL4.PixelFormat.Bgra,
+                OpenTK.Graphics.OpenGL4.PixelFormat.Bgra,
                 PixelType.UnsignedByte,
                 data.Scan0);
 

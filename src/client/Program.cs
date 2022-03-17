@@ -7,8 +7,8 @@
 using System;
 using System.IO;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Windowing.Common;
-using OpenToolkit.Windowing.Desktop;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
 using Properties;
 using VoxelGame.Client.Application;
 using VoxelGame.Core;
@@ -94,17 +94,16 @@ namespace VoxelGame.Client
 
             GameWindowSettings gameWindowSettings = new()
             {
-                IsMultiThreaded = false,
                 RenderFrequency = graphicsSettings.MaxFPS,
                 UpdateFrequency = 60.0
             };
 
-            NativeWindowSettings nativeWindowSettings = NativeWindowSettings.Default;
+            var nativeWindowSettings = NativeWindowSettings.Default;
             nativeWindowSettings.WindowBorder = WindowBorder.Hidden;
             nativeWindowSettings.Profile = ContextProfile.Core;
             nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
             nativeWindowSettings.Size = Settings.Default.ScreenSize.ToVector2i();
-            nativeWindowSettings.StartFocused = false;
+            nativeWindowSettings.StartFocused = true;
 
             logger.LogDebug("Opening window");
 

@@ -3,11 +3,11 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
-using OpenToolkit.Mathematics;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+using VoxelGame.Graphics.Utility;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Graphics.Objects
@@ -73,14 +73,14 @@ namespace VoxelGame.Graphics.Objects
 
             if (code != (int) All.True)
             {
-                var e = new Exception($"Error occurred whilst compiling Shader({shader})");
+                var e = new ShaderException(shader);
 
                 logger.LogCritical(
                     Events.ShaderError,
                     e,
                     "Error occurred whilst compiling Shader({Shader}): {Info}",
-                    shader,
-                    GL.GetShaderInfoLog(shader));
+                    e.Shader,
+                    e.Info);
 
                 throw e;
             }
@@ -97,14 +97,14 @@ namespace VoxelGame.Graphics.Objects
 
             if (code != (int) All.True)
             {
-                var e = new Exception($"Error occurred whilst linking Program({program})");
+                var e = new ProgramException(program);
 
                 logger.LogCritical(
                     Events.ShaderError,
                     e,
                     "Error occurred whilst linking Program({Program}): {Info}",
-                    program,
-                    GL.GetProgramInfoLog(program));
+                    e.Program,
+                    e.Info);
 
                 throw e;
             }

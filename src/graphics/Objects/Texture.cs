@@ -8,7 +8,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL4;
 using VoxelGame.Logging;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
@@ -90,7 +90,7 @@ namespace VoxelGame.Graphics.Objects
                 yoffset: 0,
                 bitmap.Width,
                 bitmap.Height,
-                OpenToolkit.Graphics.OpenGL4.PixelFormat.Bgra,
+                OpenTK.Graphics.OpenGL4.PixelFormat.Bgra,
                 PixelType.UnsignedByte,
                 data.Scan0);
         }

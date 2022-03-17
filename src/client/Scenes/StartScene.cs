@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
 using VoxelGame.UI.Providers;
@@ -46,7 +46,7 @@ namespace VoxelGame.Client.Scenes
         /// <inheritdoc />
         public void Load()
         {
-            Screen.SetCursor(visible: true);
+            Screen.SetCursor(locked: false);
             Screen.SetWireframe(wireframe: false);
             Screen.EnterUIDrawMode();
 

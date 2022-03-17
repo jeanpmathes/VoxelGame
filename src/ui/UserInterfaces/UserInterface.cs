@@ -8,9 +8,10 @@ using System;
 using System.IO;
 using Gwen.Net.Control;
 using Gwen.Net.OpenTk;
-using OpenToolkit.Graphics.OpenGL4;
-using OpenToolkit.Mathematics;
-using OpenToolkit.Windowing.Desktop;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Desktop;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Input;
 using VoxelGame.UI.Utility;
 
@@ -98,6 +99,8 @@ namespace VoxelGame.UI.UserInterfaces
             gui.Resize(size);
 
             float scale = Math.Min((float) size.X / targetSize.X, (float) size.Y / targetSize.Y);
+
+            if (VMath.NearlyZero(scale)) return;
             gui.Root.Scale = scale;
         }
 

@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Visuals

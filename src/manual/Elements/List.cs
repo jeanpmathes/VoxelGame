@@ -36,7 +36,7 @@ namespace VoxelGame.Manual.Elements
             elements.Add(element);
         }
 
-        public override Chainable End()
+        public override Chainable Finish()
         {
             return parent;
         }

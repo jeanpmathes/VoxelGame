@@ -5,7 +5,7 @@
 // <author>pershingthesecond</author>
 
 using JetBrains.Annotations;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 
 namespace VoxelGame.Client.Console.Commands
 {

@@ -8,7 +8,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic

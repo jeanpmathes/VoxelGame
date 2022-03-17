@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Graphics.Utility;
 using VoxelGame.Logging;

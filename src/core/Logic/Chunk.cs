@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Updates;
@@ -176,8 +176,10 @@ namespace VoxelGame.Core.Logic
             {
                 IFormatter formatter = new BinaryFormatter();
 
-                chunk = (Chunk) formatter.Deserialize(
-                    stream); // Allocation issue flagged here, remove suppression when serialization and deserialization is reworked.
+ #pragma warning disable // Will be replaced with custom serialization
+                // Allocation issue flagged here, remove suppression when serialization and deserialization is reworked.
+                chunk = (Chunk) formatter.Deserialize(stream);
+ #pragma warning restore
             }
 
             // Checking the chunk
@@ -219,7 +221,9 @@ namespace VoxelGame.Core.Logic
 
             using Stream stream = new FileStream(chunkFile, FileMode.Create, FileAccess.Write, FileShare.Read);
             IFormatter formatter = new BinaryFormatter();
+#pragma warning disable // Will be replaced with custom serialization
             formatter.Serialize(stream, this);
+#pragma warning restore
 
             blockTickManager.Load();
             liquidTickManager.Load();

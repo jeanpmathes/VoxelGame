@@ -6,7 +6,7 @@
 
 using System;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL4;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Logging;

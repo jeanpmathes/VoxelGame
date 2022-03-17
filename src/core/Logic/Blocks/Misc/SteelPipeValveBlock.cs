@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;

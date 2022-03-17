@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using OpenToolkit.Windowing.Desktop;
+using OpenTK.Windowing.Desktop;
 using VoxelGame.Input;
 using VoxelGame.UI.Controls;
 using VoxelGame.UI.Providers;

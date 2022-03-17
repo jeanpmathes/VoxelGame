@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Windowing.Common.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Input;
 using VoxelGame.Input.Actions;
@@ -205,24 +205,24 @@ namespace VoxelGame.Client.Application
 
         #region KEYBINDS
 
-        internal Keybind Fullscreen { get; } = Keybind.RegisterToggle("fullscreen", Language.KeyFullscreen, Key.F11);
+        internal Keybind Fullscreen { get; } = Keybind.RegisterToggle("fullscreen", Language.KeyFullscreen, Keys.F11);
 
-        internal Keybind UI { get; } = Keybind.RegisterToggle("ui", Language.KeyToggleUI, Key.F10);
+        internal Keybind UI { get; } = Keybind.RegisterToggle("ui", Language.KeyToggleUI, Keys.F10);
 
         internal Keybind Screenshot { get; } =
-            Keybind.RegisterPushButton("screenshot", Language.KeyScreenshot, Key.F12);
+            Keybind.RegisterPushButton("screenshot", Language.KeyScreenshot, Keys.F12);
 
-        internal Keybind Console { get; } = Keybind.RegisterToggle("console", Language.KeyConsole, Key.F1);
-        internal Keybind DebugView { get; } = Keybind.RegisterPushButton("debug_view", Language.KeyDebugView, Key.F2);
-        internal Keybind Escape { get; } = Keybind.RegisterPushButton("escape", Language.KeyEscape, Key.Escape);
+        internal Keybind Console { get; } = Keybind.RegisterToggle("console", Language.KeyConsole, Keys.F1);
+        internal Keybind DebugView { get; } = Keybind.RegisterPushButton("debug_view", Language.KeyDebugView, Keys.F2);
+        internal Keybind Escape { get; } = Keybind.RegisterPushButton("escape", Language.KeyEscape, Keys.Escape);
 
-        internal Keybind Forwards { get; } = Keybind.RegisterButton("forwards", Language.KeyForwards, Key.W);
-        internal Keybind Backwards { get; } = Keybind.RegisterButton("backwards", Language.KeyBackwards, Key.S);
-        internal Keybind StrafeRight { get; } = Keybind.RegisterButton("strafe_right", Language.KeyStrafeRight, Key.D);
-        internal Keybind StrafeLeft { get; } = Keybind.RegisterButton("strafe_left", Language.KeyStrafeLeft, Key.A);
+        internal Keybind Forwards { get; } = Keybind.RegisterButton("forwards", Language.KeyForwards, Keys.W);
+        internal Keybind Backwards { get; } = Keybind.RegisterButton("backwards", Language.KeyBackwards, Keys.S);
+        internal Keybind StrafeRight { get; } = Keybind.RegisterButton("strafe_right", Language.KeyStrafeRight, Keys.D);
+        internal Keybind StrafeLeft { get; } = Keybind.RegisterButton("strafe_left", Language.KeyStrafeLeft, Keys.A);
 
-        internal Keybind Sprint { get; } = Keybind.RegisterButton("sprint", Language.KeySprint, Key.ShiftLeft);
-        internal Keybind Jump { get; } = Keybind.RegisterButton("jump", Language.KeyJump, Key.Space);
+        internal Keybind Sprint { get; } = Keybind.RegisterButton("sprint", Language.KeySprint, Keys.LeftShift);
+        internal Keybind Jump { get; } = Keybind.RegisterButton("jump", Language.KeyJump, Keys.Space);
 
         internal Keybind InteractOrPlace { get; } = Keybind.RegisterButton(
             "interact_or_place",
@@ -234,18 +234,18 @@ namespace VoxelGame.Client.Application
         internal Keybind BlockInteract { get; } = Keybind.RegisterButton(
             "block_interact",
             Language.KeyForceInteract,
-            Key.ControlLeft);
+            Keys.LeftControl);
 
         internal Keybind PlacementMode { get; } =
-            Keybind.RegisterToggle("placement_mode", Language.KeyPlacementMode, Key.R);
+            Keybind.RegisterToggle("placement_mode", Language.KeyPlacementMode, Keys.R);
 
         internal Keybind NextPlacement { get; } = Keybind.RegisterPushButton(
             "select_next_placement",
             Language.KeyNextPlacement,
-            Key.KeypadPlus);
+            Keys.KeyPadAdd);
 
         internal Keybind PreviousPlacement { get; } =
-            Keybind.RegisterPushButton("select_previous_placement", Language.KeyPreviousPlacement, Key.KeypadMinus);
+            Keybind.RegisterPushButton("select_previous_placement", Language.KeyPreviousPlacement, Keys.KeyPadSubtract);
 
         #endregion KEYBINDS
     }

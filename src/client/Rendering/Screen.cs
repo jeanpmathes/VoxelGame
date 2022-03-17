@@ -10,12 +10,12 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
-using OpenToolkit.Mathematics;
-using OpenToolkit.Windowing.Common;
-using OpenToolkit.Windowing.GraphicsLibraryFramework;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Logging;
-using Monitor = OpenToolkit.Windowing.GraphicsLibraryFramework.Monitor;
+using Monitor = OpenTK.Windowing.GraphicsLibraryFramework.Monitor;
 
 namespace VoxelGame.Client.Rendering
 {
@@ -38,11 +38,12 @@ namespace VoxelGame.Client.Rendering
         private readonly int screenshotFBO;
         private readonly int screenshotRBO;
         private bool isWireframeActive;
-        private Vector2i previousScreenLocation;
 
+        private Vector2i previousScreenLocation;
         private Vector2i previousScreenSize;
 
         private bool useWireframe;
+        private WindowState windowState = WindowState.Normal;
 
         internal Screen(Application.Client client)
         {
@@ -316,7 +317,7 @@ namespace VoxelGame.Client.Rendering
         /// <summary>
         ///     Gets whether the screen is in fullscreen.
         /// </summary>
-        public static bool IsFullscreen => Instance.Client.IsFullscreen;
+        public static bool IsFullscreen => Instance.windowState != WindowState.Normal;
 
         /// <summary>
         ///     Gets whether the screen is focused.
@@ -333,16 +334,20 @@ namespace VoxelGame.Client.Rendering
         #region PUBLIC STATIC METHODS
 
         /// <summary>
-        ///     Set the cursor options.
+        /// Set the cursor state. Locking the cursor will store the position, unlocking restores it.
         /// </summary>
-        /// <param name="visible">Whether the cursor should be visible.</param>
-        /// <param name="locked">Whether the cursor should be locked to the center of the screen.</param>
-        /// <param name="grabbed">Whether the cursor should be restricted to the game window.</param>
-        public static void SetCursor(bool visible, bool locked = false, bool grabbed = false)
+        /// <param name="locked">Whether the cursor should be locked.</param>
+        public static void SetCursor(bool locked)
         {
+            if (locked) Instance.Client.Mouse.StorePosition();
+
+            bool visible = !locked;
+            bool grabbed = locked;
+
             Instance.Client.CursorVisible = visible;
-            Instance.Client.Mouse.Locked = locked;
             Instance.Client.CursorGrabbed = grabbed;
+
+            if (!locked) Instance.Client.Mouse.RestorePosition();
         }
 
         /// <summary>
@@ -351,39 +356,61 @@ namespace VoxelGame.Client.Rendering
         /// <param name="fullscreen">If fullscreen should be active.</param>
         public static void SetFullscreen(bool fullscreen)
         {
-            if (fullscreen == Instance.Client.IsFullscreen) return;
+            WindowState targetState = fullscreen ? WindowState.WindowedFullscreen : WindowState.Normal;
 
-            if (fullscreen)
+            if (targetState == Instance.windowState) return;
+            Instance.windowState = targetState;
+
+            switch (targetState)
             {
-                Instance.previousScreenSize = Instance.Client.Size;
-                Instance.previousScreenLocation = Instance.Client.Location;
+                case WindowState.Normal:
+                    EnterNormalWindowState();
 
-                Vector2i monitorSize;
+                    break;
 
-                unsafe
-                {
-                    Monitor* monitor = GLFW.GetPrimaryMonitor();
-                    VideoMode* mode = GLFW.GetVideoMode(monitor);
+                case WindowState.WindowedFullscreen:
+                    EnterWindowedFullscreen();
 
-                    monitorSize = new Vector2i(mode->Width, mode->Height);
-                }
+                    break;
 
-                Instance.Client.Size = monitorSize;
-
-                Instance.Client.IsFullscreen = true;
-
-                logger.LogDebug(Events.WindowState, "Fullscreen: Switched to fullscreen mode");
-
+                default:
+                    throw new NotSupportedException();
             }
-            else
+        }
+
+        private static void EnterWindowedFullscreen()
+        {
+            Instance.previousScreenSize = Instance.Client.Size;
+            Instance.previousScreenLocation = Instance.Client.Location;
+
+            Vector2i monitorSize;
+
+            unsafe
             {
-                Instance.Client.IsFullscreen = false;
+                Monitor* monitor = GLFW.GetPrimaryMonitor();
+                VideoMode* mode = GLFW.GetVideoMode(monitor);
 
-                Instance.Client.Size = Instance.previousScreenSize;
-                Instance.Client.Location = Instance.previousScreenLocation;
-
-                logger.LogDebug(Events.WindowState, "Fullscreen: Switched to normal mode");
+                monitorSize = new Vector2i(mode->Width, mode->Height);
             }
+
+            Instance.Client.Size = monitorSize;
+            Instance.Client.Location = Vector2i.Zero;
+
+            logger.LogDebug(Events.WindowState, "Fullscreen: Switched to windowed fullscreen mode");
+        }
+
+        private static void EnterNormalWindowState()
+        {
+            Instance.Client.Size = Instance.previousScreenSize;
+            Instance.Client.Location = Instance.previousScreenLocation;
+
+            logger.LogDebug(Events.WindowState, "Fullscreen: Switched to normal mode");
+        }
+
+        private enum WindowState
+        {
+            WindowedFullscreen,
+            Normal
         }
 
         /// <summary>

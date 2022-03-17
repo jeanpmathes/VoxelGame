@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using OpenToolkit.Windowing.Common.Input;
-using OpenToolkit.Windowing.Desktop;
+using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Input.Devices;
 using VoxelGame.Input.Internal;
 

@@ -5,7 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
-using OpenToolkit.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL4;
 
 namespace VoxelGame.Graphics.Groups
 {

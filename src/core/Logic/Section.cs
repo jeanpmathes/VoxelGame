@@ -6,7 +6,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic

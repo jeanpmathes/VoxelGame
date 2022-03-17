@@ -49,7 +49,7 @@ namespace VoxelGame.Manual.Utility
             if (doc.DocumentElement == null) return loadedDocumentation;
 
             IEnumerable<XmlElement> members =
-                doc.DocumentElement["members"]?.ChildNodes?.OfType<XmlElement>() ?? Enumerable.Empty<XmlElement>();
+                doc.DocumentElement["members"]?.ChildNodes.OfType<XmlElement>() ?? Enumerable.Empty<XmlElement>();
 
             foreach (XmlElement member in members)
             {

@@ -1,4 +1,4 @@
-﻿using OpenToolkit.Mathematics;
+﻿using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Logic.Interfaces
 {

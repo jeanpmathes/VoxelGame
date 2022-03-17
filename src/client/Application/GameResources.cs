@@ -5,7 +5,7 @@
 // <author>pershingthesecond</author>
 
 using Microsoft.Extensions.Logging;
-using OpenToolkit.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL4;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
