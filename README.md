@@ -2,7 +2,7 @@
 
 # VoxelGame
 Trying to create a voxel game in C#...
-System requirements are a Windows PC and decnt hardware, because the performance is no great.
+System requirements are a Windows PC and decnt hardware, because the performance is not great.
 
 # Used Tutorials and Resources
 https://opentk.net/learn/index.html
