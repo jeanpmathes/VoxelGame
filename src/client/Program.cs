@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -17,6 +18,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 [assembly: CLSCompliant(isCompliant: false)]
+[assembly: ComVisible(visibility: false)]
 
 namespace VoxelGame.Client
 {

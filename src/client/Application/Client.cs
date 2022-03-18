@@ -5,24 +5,16 @@
 // <author>pershingthesecond</author>
 
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Globalization;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
-using VoxelGame.Core;
-using VoxelGame.Core.Logic;
 using VoxelGame.Input;
 using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
-using VoxelGame.Manual;
-using VoxelGame.Manual.Modifiers;
-using VoxelGame.Manual.Utility;
 using VoxelGame.UI.Providers;
-using Section = VoxelGame.Manual.Section;
 
 namespace VoxelGame.Client.Application
 {
@@ -121,7 +113,7 @@ namespace VoxelGame.Client.Application
                 logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
 
                 // Optional generation of manual.
-                GenerateManual();
+                ManualBuilder.EmitManual();
             }
         }
 
@@ -162,53 +154,6 @@ namespace VoxelGame.Client.Application
 
             sceneManager.Unload();
             Resources.Unload();
-        }
-
-
-        [Conditional("MANUAL")]
-        private void GenerateManual()
-        {
-            const string path = "./../../../../../../Setup/Resources/Manual";
-
-            Documentation documentation = new(typeof(ApplicationInformation).Assembly);
-
-            Includable controls = new("controls", path);
-
-            controls.CreateSections(
-                Keybinds.Binds,
-                keybind => Section.Create(keybind.Name)
-                    .Text("The key is bound to").Key(keybind.Default).Text("per default.").EndSection());
-
-            controls.Generate();
-
-            Includable blocks = new("blocks", path);
-
-            blocks.CreateSections(
-                typeof(Block).GetStaticValues<Block>(documentation),
-                ((Block block, string description) s) => Section.Create(s.block.Name)
-                    .Text(s.description).NewLine()
-                    .BeginList()
-                    .Item("ID:").Text(s.block.NamedId, TextStyle.Monospace)
-                    .Item("Solid:").Boolean(s.block.IsSolid)
-                    .Item("Interactions:").Boolean(s.block.IsInteractable)
-                    .Item("Replaceable:").Boolean(s.block.IsReplaceable)
-                    .Finish().EndSection());
-
-            blocks.Generate();
-
-            Includable liquids = new("liquids", path);
-
-            liquids.CreateSections(
-                typeof(Liquid).GetStaticValues<Liquid>(documentation),
-                ((Liquid liquid, string description) s) => Section.Create(s.liquid.Name)
-                    .Text(s.description).NewLine()
-                    .BeginList()
-                    .Item("ID:").Text(s.liquid.NamedId, TextStyle.Monospace)
-                    .Item("Viscosity:").Text(s.liquid.Viscosity.ToString(CultureInfo.InvariantCulture))
-                    .Item("Density:").Text(s.liquid.Density.ToString(CultureInfo.InvariantCulture))
-                    .Finish().EndSection());
-
-            liquids.Generate();
         }
 
         /// <summary>

@@ -12,7 +12,7 @@ namespace VoxelGame.Graphics.Utility;
 /// <summary>
 ///     Exception thrown when a a program fails to link.
 /// </summary>
-public class ProgramException : ApplicationException
+public class ProgramException : Exception
 {
     /// <summary>
     ///     Creates a new shader exception.

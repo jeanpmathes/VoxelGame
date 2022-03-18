@@ -12,7 +12,7 @@ namespace VoxelGame.Graphics.Utility;
 /// <summary>
 ///     Exception thrown when a shader fails to compile.
 /// </summary>
-public class ShaderException : ApplicationException
+public class ShaderException : Exception
 {
     /// <summary>
     ///     Creates a new shader exception.
