@@ -99,11 +99,11 @@ namespace VoxelGame.Client.Entities
             placementModeToggle = keybind.GetToggle(keybind.PlacementMode);
             placementModeToggle.Clear();
 
+            selectTargetedButton = keybind.GetPushButton(keybind.SelectTargeted);
+
             Button nextButton = keybind.GetPushButton(keybind.NextPlacement);
             Button previousButton = keybind.GetPushButton(keybind.PreviousPlacement);
             selectionAxis = new InputAxis(nextButton, previousButton);
-
-
         }
 
         /// <inheritdoc />
@@ -202,7 +202,7 @@ namespace VoxelGame.Client.Entities
                     HandleMovementInput();
                     HandleLookInput();
 
-                    BlockLiquidSelection();
+                    DoBlockLiquidSelection();
                     DoWorldInteraction();
 
                     visualization.UpdateInput();
@@ -322,37 +322,55 @@ namespace VoxelGame.Client.Entities
             }
         }
 
-        private void BlockLiquidSelection()
+        private void DoBlockLiquidSelection()
         {
             var updateData = false;
 
-            if (placementModeToggle.Changed)
-            {
-                blockMode = !blockMode;
-                updateData = true;
-            }
-
-            if (!VMath.NearlyZero(selectionAxis.Value))
-            {
-                int change = selectionAxis.Value > 0 ? 1 : -1;
-
-                if (blockMode)
-                {
-                    long nextBlockId = activeBlock.Id + change;
-                    nextBlockId = VMath.ClampRotating(nextBlockId, min: 1, Block.Count);
-                    activeBlock = Block.TranslateID((uint) nextBlockId);
-                }
-                else
-                {
-                    long nextLiquidId = activeLiquid.Id + change;
-                    nextLiquidId = VMath.ClampRotating(nextLiquidId, min: 1, Liquid.Count);
-                    activeLiquid = Liquid.TranslateID((uint) nextLiquidId);
-                }
-
-                updateData = true;
-            }
+            updateData |= SelectMode();
+            updateData |= SelectFromList();
+            updateData |= SelectTargeted();
 
             if (updateData || firstUpdate) visualization.UpdateData();
+        }
+
+        private bool SelectMode()
+        {
+            if (!placementModeToggle.Changed) return false;
+
+            blockMode = !blockMode;
+
+            return true;
+        }
+
+        private bool SelectFromList()
+        {
+            if (VMath.NearlyZero(selectionAxis.Value)) return false;
+
+            int change = selectionAxis.Value > 0 ? 1 : -1;
+
+            if (blockMode)
+            {
+                long nextBlockId = activeBlock.Id + change;
+                nextBlockId = VMath.ClampRotating(nextBlockId, min: 1, Block.Count);
+                activeBlock = Block.TranslateID((uint) nextBlockId);
+            }
+            else
+            {
+                long nextLiquidId = activeLiquid.Id + change;
+                nextLiquidId = VMath.ClampRotating(nextLiquidId, min: 1, Liquid.Count);
+                activeLiquid = Liquid.TranslateID((uint) nextLiquidId);
+            }
+
+            return true;
+        }
+
+        private bool SelectTargeted()
+        {
+            if (selectTargetedButton.IsUp || !blockMode) return false;
+
+            activeBlock = targetBlock?.Block ?? activeBlock;
+
+            return true;
         }
 
         #region INPUT ACTIONS
@@ -366,6 +384,7 @@ namespace VoxelGame.Client.Entities
         private readonly Button blockInteractButton;
 
         private readonly ToggleButton placementModeToggle;
+        private readonly PushButton selectTargetedButton;
         private readonly InputAxis selectionAxis;
 
         #endregion INPUT ACTIONS

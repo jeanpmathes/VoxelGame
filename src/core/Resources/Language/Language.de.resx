@@ -528,4 +528,7 @@
     <data name="GraphicsFoliageQuality" xml:space="preserve">
     <value>Pflanzenqualität</value>
   </data>
+    <data name="KeySelectTargeted" xml:space="preserve">
+    <value>Wähle Angezieltes</value>
+  </data>
 </root>
