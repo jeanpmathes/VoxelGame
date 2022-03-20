@@ -247,6 +247,11 @@ namespace VoxelGame.Client.Application
         internal Keybind PreviousPlacement { get; } =
             Keybind.RegisterPushButton("select_previous_placement", Language.KeyPreviousPlacement, Keys.KeyPadSubtract);
 
+        internal Keybind SelectTargeted { get; } = Keybind.RegisterPushButton(
+            "select_targeted",
+            Language.KeySelectTargeted,
+            MouseButton.Button3);
+
         #endregion KEYBINDS
     }
 }

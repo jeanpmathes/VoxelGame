@@ -655,6 +655,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Select Targeted.
+        /// </summary>
+        public static string KeySelectTargeted {
+            get {
+                return ResourceManager.GetString("KeySelectTargeted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sprint.
         /// </summary>
         public static string KeySprint {
