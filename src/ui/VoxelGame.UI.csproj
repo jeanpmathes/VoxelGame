@@ -60,6 +60,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Gwen.Net" Version="0.2.0"/>
+        <PackageReference Include="Gwen.Net.OpenTk" Version="0.2.0"/>
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -75,16 +77,5 @@
     <ItemGroup>
         <ProjectReference Include="..\core\VoxelGame.Core.csproj"/>
         <ProjectReference Include="..\input\VoxelGame.Input.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Reference Include="Gwen.Net">
-            <HintPath>..\..\lib\Gwen.Net\Gwen.Net.dll</HintPath>
-            <Private>true</Private>
-        </Reference>
-        <Reference Include="Gwen.Net.OpenTk">
-            <HintPath>..\..\lib\Gwen.Net\Gwen.Net.OpenTk.dll</HintPath>
-            <Private>true</Private>
-        </Reference>
     </ItemGroup>
 </Project>
