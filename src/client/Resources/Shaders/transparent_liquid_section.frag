@@ -6,11 +6,14 @@ flat in int texIndex;
 in vec2 texCoord;
 
 in vec4 tint;
+in vec3 normal;
+in vec3 worldPosition;
 
 layout(binding = 5) uniform sampler2DArray arrayTexture;
 layout(binding = 20) uniform sampler2D depthTex;
 
 uniform float time;
+uniform vec3 viewPosition;
 
 float linearize_depth(float z_b, float zNear, float zFar)
 {
@@ -40,7 +43,10 @@ void main()
 	float fogAmount = clamp(thickness / 4.0, 0.1, 0.9);
 	vec4 fogColor = vec4(saturate(color.rgb, 0.8), 1.0);
 
-	color = mix(color, fogColor, fogAmount);
+	float plane = dot(normal, viewPosition - worldPosition);
+	bool isAboveWater = plane > 0.0;
+
+	color = isAboveWater ? mix(color, fogColor, fogAmount) : color;
 
 	outputColor = color;
 }
