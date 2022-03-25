@@ -23,6 +23,7 @@ namespace VoxelGame.Client.Rendering
 
         private const string TimeUniform = "time";
         private const string ViewDirectionUniform = "viewDirection";
+        private const string ViewPositionUniform = "viewPosition";
 
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Shaders>();
 
@@ -30,10 +31,15 @@ namespace VoxelGame.Client.Rendering
 
         private readonly ISet<Shader> timedSet = new HashSet<Shader>();
         private readonly ISet<Shader> viewDirectionSet = new HashSet<Shader>();
+        private readonly ISet<Shader> viewPositionSet = new HashSet<Shader>();
 
         private Shaders(string directory)
         {
-            loader = new ShaderLoader(directory, (timedSet, TimeUniform), (viewDirectionSet, ViewDirectionUniform));
+            loader = new ShaderLoader(
+                directory,
+                (timedSet, TimeUniform),
+                (viewDirectionSet, ViewDirectionUniform),
+                (viewPositionSet, ViewPositionUniform));
         }
 
         /// <summary>
@@ -169,6 +175,7 @@ namespace VoxelGame.Client.Rendering
         public void UpdateGameDependentValues(Game game)
         {
             SetViewDirection(game.Player.LookingDirection);
+            SetViewPosition(game.Player.LookingPosition);
         }
 
         /// <summary>
@@ -178,6 +185,15 @@ namespace VoxelGame.Client.Rendering
         private void SetViewDirection(Vector3 viewDirection)
         {
             foreach (Shader shader in viewDirectionSet) shader.SetVector3(ViewDirectionUniform, viewDirection);
+        }
+
+        /// <summary>
+        ///     Update the current view position.
+        /// </summary>
+        /// <param name="viewPosition">The current view position.</param>
+        private void SetViewPosition(Vector3 viewPosition)
+        {
+            foreach (Shader shader in viewPositionSet) shader.SetVector3(ViewPositionUniform, viewPosition);
         }
     }
 }
