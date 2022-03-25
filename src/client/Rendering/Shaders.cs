@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Client.Application;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Graphics.Utility;
 using VoxelGame.Logging;
@@ -21,15 +22,18 @@ namespace VoxelGame.Client.Rendering
         private const string SectionFragmentShader = "section.frag";
 
         private const string TimeUniform = "time";
+        private const string ViewDirectionUniform = "viewDirection";
+
         private static readonly ILogger logger = LoggingHelper.CreateLogger<Shaders>();
 
         private readonly ShaderLoader loader;
 
         private readonly ISet<Shader> timedSet = new HashSet<Shader>();
+        private readonly ISet<Shader> viewDirectionSet = new HashSet<Shader>();
 
         private Shaders(string directory)
         {
-            loader = new ShaderLoader(directory, (timedSet, TimeUniform));
+            loader = new ShaderLoader(directory, (timedSet, TimeUniform), (viewDirectionSet, ViewDirectionUniform));
         }
 
         /// <summary>
@@ -156,6 +160,24 @@ namespace VoxelGame.Client.Rendering
         public void SetTime(float time)
         {
             foreach (Shader shader in timedSet) shader.SetFloat(TimeUniform, time);
+        }
+
+        /// <summary>
+        ///     Update shader uniforms while in-game.
+        /// </summary>
+        /// <param name="game">The game that is currently active.</param>
+        public void UpdateGameDependentValues(Game game)
+        {
+            SetViewDirection(game.Player.LookingDirection);
+        }
+
+        /// <summary>
+        ///     Update the current view direction.
+        /// </summary>
+        /// <param name="viewDirection">The current view direction.</param>
+        private void SetViewDirection(Vector3 viewDirection)
+        {
+            foreach (Shader shader in viewDirectionSet) shader.SetVector3(ViewDirectionUniform, viewDirection);
         }
     }
 }
