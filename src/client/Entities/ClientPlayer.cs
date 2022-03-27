@@ -109,6 +109,11 @@ namespace VoxelGame.Client.Entities
         /// <inheritdoc />
         public override Vector3 LookingDirection => camera.Front;
 
+        /// <summary>
+        ///     Get the looking position of the player.
+        /// </summary>
+        public Vector3 LookingPosition => camera.Position;
+
         /// <inheritdoc />
         public override BlockSide TargetSide => targetSide;
 

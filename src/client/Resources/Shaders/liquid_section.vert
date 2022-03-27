@@ -6,6 +6,8 @@ flat out int texIndex;
 out vec2 texCoord;
 
 out vec4 tint;
+out vec3 normal;
+out vec3 worldPosition;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -24,7 +26,7 @@ void main()
     float lowerBound = ((direction > 0) ? (sideHeight + 1) : (7 - level)) * 0.125;
 
     int n = dc_i3(aData.y, 16);
-    vec3 normal = dc_sideToNormal(n);
+    normal = dc_sideToNormal(n);
 
     texIndex = dc_liquidTexIndex(aData.y);
     texCoord = dc_texCoord(aData.x, 30);
@@ -53,4 +55,5 @@ void main()
     texCoord.y *= dc_i4(aData.x, 20) + 1;
 
     gl_Position = vec4(position - (normal * 0.001), 1.0) * model * view * projection;
+    worldPosition = (vec4(position, 1.0) * model).xyz;
 }
