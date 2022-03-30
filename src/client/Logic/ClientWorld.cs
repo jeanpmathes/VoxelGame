@@ -17,6 +17,7 @@ using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Physics;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Logic
@@ -93,6 +94,8 @@ namespace VoxelGame.Client.Logic
 
             renderList.Clear();
 
+            Frustum frustum = player!.Frustum;
+
             // Fill the render list.
             for (int x = -Player.LoadDistance; x <= Player.LoadDistance; x++)
             for (int z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
@@ -100,7 +103,7 @@ namespace VoxelGame.Client.Logic
                         player!.ChunkX + x,
                         player!.ChunkZ + z,
                         out Chunk? chunk))
-                    ((ClientChunk) chunk).AddCulledToRenderList(player!.Frustum, renderList);
+                    ((ClientChunk) chunk).AddCulledToRenderList(frustum, renderList);
 
             // Render the collected sections.
             for (var stage = 0; stage < SectionRenderer.DrawStageCount; stage++)
