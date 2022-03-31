@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
@@ -89,6 +90,10 @@ namespace VoxelGame.Core.Logic
         ///     Creates a new section.
         /// </summary>
         /// <param name="world">The world.</param>
+        [SuppressMessage(
+            "ReSharper.DPA",
+            "DPA0002: Excessive memory allocations in SOH",
+            MessageId = "type: System.UInt32[]")]
         protected Section(World world)
         {
             blocks = new uint[SectionSize * SectionSize * SectionSize];

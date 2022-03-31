@@ -35,13 +35,13 @@ using FN_DECIMAL = System.Double;
 
 using FN_DECIMAL = System.Single;
 #endif
+
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace VoxelGame.Core.Generation
 {
-    [SuppressMessage("ReSharper.DPA", "DPA0001: Memory allocation issues")]
     public class FastNoise
     {
         public enum CellularDistanceFunction
