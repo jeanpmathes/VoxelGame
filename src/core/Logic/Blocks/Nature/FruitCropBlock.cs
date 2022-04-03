@@ -31,7 +31,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 new BlockFlags(),
-                new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f)),
+                new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f)),
                 TargetBuffer.CrossPlant)
         {
             this.texture = texture;
@@ -58,13 +58,17 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        protected override BoundingBox GetBoundingBox(uint data)
+        protected override BoundingVolume GetBoundingVolume(uint data)
         {
             var stage = (GrowthStage) ((data >> 1) & 0b111);
 
             return stage <= GrowthStage.First
-                ? new BoundingBox(new Vector3(x: 0.5f, y: 0.25f, z: 0.5f), new Vector3(x: 0.175f, y: 0.25f, z: 0.175f))
-                : new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f));
+                ? new BoundingVolume(
+                    new Vector3(x: 0.5f, y: 0.25f, z: 0.5f),
+                    new Vector3(x: 0.175f, y: 0.25f, z: 0.175f))
+                : new BoundingVolume(
+                    new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
+                    new Vector3(x: 0.175f, y: 0.5f, z: 0.175f));
         }
 
         /// <inheritdoc />

@@ -32,7 +32,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 flags with { IsFull = true, IsReplaceable = false },
-                BoundingBox.Block,
+                BoundingVolume.Block,
                 TargetBuffer.Simple)
         {
             this.layout = layout;

@@ -26,12 +26,13 @@ namespace VoxelGame.Core.Logic.Blocks
         ///     Initializes a new instance of a cross block; a block made out of two intersecting planes.
         /// Cross blocks are never full, solid, or opaque.
         /// </summary>
-        protected CrossBlock(string name, string namedId, string texture, BlockFlags flags, BoundingBox boundingBox) :
+        protected CrossBlock(string name, string namedId, string texture, BlockFlags flags,
+            BoundingVolume boundingVolume) :
             base(
                 name,
                 namedId,
                 flags with { IsFull = false, IsOpaque = false, IsSolid = false },
-                boundingBox,
+                boundingVolume,
                 TargetBuffer.Complex)
         {
             this.texture = texture;

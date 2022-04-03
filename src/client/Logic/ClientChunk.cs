@@ -125,14 +125,14 @@ namespace VoxelGame.Client.Logic
         public void AddCulledToRenderList(Frustum frustum,
             ICollection<(ClientSection section, Vector3 position)> renderList)
         {
-            if (!hasMeshData || !frustum.BoxInFrustum(new BoundingBox(ChunkPoint, ChunkExtents))) return;
+            if (!hasMeshData || !frustum.BoxInFrustum(new BoundingVolume(ChunkPoint, ChunkExtents))) return;
 
             var start = 0;
             int end = HeightInSections - 1;
 
             for (int y = start; y < HeightInSections; y++)
                 if (frustum.BoxInFrustum(
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
                             Section.Extents,
                             Section.Extents)))
@@ -144,7 +144,7 @@ namespace VoxelGame.Client.Logic
 
             for (int y = end; y >= 0; y--)
                 if (frustum.BoxInFrustum(
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
                             Section.Extents,
                             Section.Extents)))

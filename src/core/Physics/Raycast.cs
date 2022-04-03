@@ -165,7 +165,7 @@ namespace VoxelGame.Core.Physics
 
             // Check if the ray intersects the bounding box of the block.
             return block != null && block.Block != Block.Air &&
-                   block.Block.GetBoundingBox(world, position).Intersects(ray);
+                   block.Block.GetCollider(world, position).Intersects(ray);
         }
 
         private static bool LiquidIntersectionCheck(World world, Ray ray, Vector3i position)
@@ -174,7 +174,7 @@ namespace VoxelGame.Core.Physics
 
             // Check if the ray intersects the bounding box of the liquid.
             return liquid != null && liquid.Liquid != Liquid.None &&
-                   Liquid.GetBoundingBox(position, liquid.Level).Intersects(ray);
+                   Liquid.GetCollider(position, liquid.Level).Intersects(ray);
         }
     }
 }

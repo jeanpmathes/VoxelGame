@@ -84,11 +84,11 @@ namespace VoxelGame.Client.Entities
         /// <summary>
         ///     Draw a selection box.
         /// </summary>
-        /// <param name="box">The box to draw.</param>
-        public void DrawBox(BoundingBox box)
+        /// <param name="collider">The collider to draw.</param>
+        public void DrawSelectionBox(BoxCollider collider)
         {
-            selectionRenderer.SetBoundingBox(box);
-            selectionRenderer.Draw(box.Center);
+            selectionRenderer.SetVolume(collider.Volume);
+            selectionRenderer.Draw(collider.Position);
         }
 
         /// <summary>

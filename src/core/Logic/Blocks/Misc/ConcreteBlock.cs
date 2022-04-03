@@ -29,7 +29,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 BlockFlags.Functional,
-                BoundingBox.Block,
+                BoundingVolume.Block,
                 TargetBuffer.VaryingHeight)
         {
             this.layout = layout;
@@ -58,11 +58,11 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        protected override BoundingBox GetBoundingBox(uint data)
+        protected override BoundingVolume GetBoundingVolume(uint data)
         {
             Decode(data, out _, out int height);
 
-            return BoundingBox.BlockWithHeight(height);
+            return BoundingVolume.BlockWithHeight(height);
         }
 
         /// <inheritdoc />

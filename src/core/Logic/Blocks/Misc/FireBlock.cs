@@ -37,7 +37,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 BlockFlags.Replaceable,
-                BoundingBox.Block,
+                BoundingVolume.Block,
                 TargetBuffer.Complex)
         {
             BlockModel complete = BlockModel.Load(completeModel);
@@ -92,14 +92,14 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        protected override BoundingBox GetBoundingBox(uint data)
+        protected override BoundingVolume GetBoundingVolume(uint data)
         {
-            if (data == 0) return BoundingBox.Block;
+            if (data == 0) return BoundingVolume.Block;
 
             int count = BitHelper.CountSetBits(data);
 
-            var parent = new BoundingBox();
-            var children = new BoundingBox[count - 1];
+            var parent = BoundingVolume.Empty;
+            var children = new BoundingVolume[count - 1];
 
             foreach (BlockSide side in BlockSide.All.Sides())
             {
@@ -109,7 +109,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 {
                     Vector3 offset = side.Direction().ToVector3() * 0.4f;
 
-                    var child = new BoundingBox(
+                    var child = new BoundingVolume(
                         new Vector3(x: 0.5f, y: 0.5f, z: 0.5f) + offset,
                         new Vector3(x: 0.5f, y: 0.5f, z: 0.5f) - offset.Absolute());
 
@@ -117,9 +117,9 @@ namespace VoxelGame.Core.Logic.Blocks
                 }
             }
 
-            return children.Length == 0 ? parent : new BoundingBox(parent.Center, parent.Extents, children);
+            return children.Length == 0 ? parent : new BoundingVolume(parent.Center, parent.Extents, children);
 
-            void IncludeChild(BoundingBox child)
+            void IncludeChild(BoundingVolume child)
             {
                 count--;
 

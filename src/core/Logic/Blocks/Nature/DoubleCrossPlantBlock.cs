@@ -28,12 +28,12 @@ namespace VoxelGame.Core.Logic.Blocks
         private int topTextureIndex;
 
         internal DoubleCrossPlantBlock(string name, string namedId, string bottomTexture, int topTexOffset,
-            BoundingBox boundingBox) :
+            BoundingVolume boundingVolume) :
             base(
                 name,
                 namedId,
                 new BlockFlags(),
-                boundingBox,
+                boundingVolume,
                 TargetBuffer.CrossPlant)
         {
             this.bottomTexture = bottomTexture;

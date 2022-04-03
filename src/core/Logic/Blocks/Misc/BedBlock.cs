@@ -32,7 +32,9 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 BlockFlags.Functional,
-                new BoundingBox(new Vector3(x: 0.5f, y: 0.21875f, z: 0.5f), new Vector3(x: 0.5f, y: 0.21875f, z: 0.5f)),
+                new BoundingVolume(
+                    new Vector3(x: 0.5f, y: 0.21875f, z: 0.5f),
+                    new Vector3(x: 0.5f, y: 0.21875f, z: 0.5f)),
                 TargetBuffer.Complex)
         {
             BlockModel blockModel = BlockModel.Load(model);
@@ -63,22 +65,22 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        protected override BoundingBox GetBoundingBox(uint data)
+        protected override BoundingVolume GetBoundingVolume(uint data)
         {
             bool isBase = (data & 0b1) == 1;
             var orientation = (Orientation) ((data & 0b00_0110) >> 1);
 
-            BoundingBox[] legs = new BoundingBox[2];
+            var legs = new BoundingVolume[2];
 
             switch (isBase ? orientation : orientation.Opposite())
             {
                 case Orientation.North:
 
-                    legs[0] = new BoundingBox(
+                    legs[0] = new BoundingVolume(
                         new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f),
                         new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
 
-                    legs[1] = new BoundingBox(
+                    legs[1] = new BoundingVolume(
                         new Vector3(x: 0.90625f, y: 0.09375f, z: 0.09375f),
                         new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
 
@@ -86,11 +88,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 case Orientation.East:
 
-                    legs[0] = new BoundingBox(
+                    legs[0] = new BoundingVolume(
                         new Vector3(x: 0.90625f, y: 0.09375f, z: 0.09375f),
                         new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
 
-                    legs[1] = new BoundingBox(
+                    legs[1] = new BoundingVolume(
                         new Vector3(x: 0.90625f, y: 0.09375f, z: 0.90625f),
                         new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
 
@@ -98,11 +100,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 case Orientation.South:
 
-                    legs[0] = new BoundingBox(
+                    legs[0] = new BoundingVolume(
                         new Vector3(x: 0.09375f, y: 0.09375f, z: 0.90625f),
                         new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
 
-                    legs[1] = new BoundingBox(
+                    legs[1] = new BoundingVolume(
                         new Vector3(x: 0.90625f, y: 0.09375f, z: 0.90625f),
                         new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
 
@@ -110,11 +112,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 case Orientation.West:
 
-                    legs[0] = new BoundingBox(
+                    legs[0] = new BoundingVolume(
                         new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f),
                         new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
 
-                    legs[1] = new BoundingBox(
+                    legs[1] = new BoundingVolume(
                         new Vector3(x: 0.09375f, y: 0.09375f, z: 0.90625f),
                         new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
 
@@ -123,7 +125,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 default: throw new InvalidOperationException();
             }
 
-            return new BoundingBox(
+            return new BoundingVolume(
                 new Vector3(x: 0.5f, y: 0.3125f, z: 0.5f),
                 new Vector3(x: 0.5f, y: 0.125f, z: 0.5f),
                 legs);

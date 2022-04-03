@@ -144,7 +144,7 @@ namespace VoxelGame.Core.Logic
             nameof(TallGrass),
             "tall_grass",
             BlockFlags.Replaceable,
-            BoundingBox.CrossBlock);
+            BoundingVolume.CrossBlock);
 
         /// <summary>
         ///     A much larger version of the normal tall grass.
@@ -154,7 +154,7 @@ namespace VoxelGame.Core.Logic
             nameof(VeryTallGrass),
             "very_tall_grass",
             topTexOffset: 1,
-            BoundingBox.CrossBlock);
+            BoundingVolume.CrossBlock);
 
         /// <summary>
         ///     A simple flower.
@@ -164,7 +164,7 @@ namespace VoxelGame.Core.Logic
             nameof(Flower),
             "flower",
             BlockFlags.Replaceable,
-            new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f)));
+            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f)));
 
         /// <summary>
         ///     A very tall flower.
@@ -174,7 +174,7 @@ namespace VoxelGame.Core.Logic
             nameof(TallFlower),
             "tall_flower",
             topTexOffset: 1,
-            BoundingBox.CrossBlock);
+            BoundingVolume.CrossBlock);
 
         /// <summary>
         ///     This stone block makes up large parts of the world. Below the dirt layers, the ground is solid stone.
@@ -591,7 +591,7 @@ namespace VoxelGame.Core.Logic
             nameof(Vase),
             BlockFlags.Solid,
             "vase",
-            new BoundingBox(new Vector3(x: 0.5f, y: 0.375f, z: 0.5f), new Vector3(x: 0.25f, y: 0.375f, z: 0.25f)));
+            new BoundingVolume(new Vector3(x: 0.5f, y: 0.375f, z: 0.5f), new Vector3(x: 0.25f, y: 0.375f, z: 0.25f)));
 
         /// <summary>
         ///     The bed can be placed to set a different spawn point.
@@ -623,7 +623,7 @@ namespace VoxelGame.Core.Logic
             nameof(Carpet),
             BlockFlags.Solid,
             "carpet",
-            new BoundingBox(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
+            new BoundingVolume(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
 
         /// <summary>
         ///     Decorated carpets are similar to carpets, decorated with golden ornaments.
@@ -633,7 +633,7 @@ namespace VoxelGame.Core.Logic
             nameof(CarpetDecorated),
             BlockFlags.Solid,
             "carpet_decorated",
-            new BoundingBox(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
+            new BoundingVolume(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
 
         /// <summary>
         ///     Glass panes are a thin alternative to glass blocks.

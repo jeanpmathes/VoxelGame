@@ -39,7 +39,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 new BlockFlags(),
-                BoundingBox.Block,
+                BoundingVolume.Block,
                 TargetBuffer.CropPlant)
         {
             this.texture = texture;
@@ -89,7 +89,7 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        protected override BoundingBox GetBoundingBox(uint data)
+        protected override BoundingVolume GetBoundingVolume(uint data)
         {
             var stage = (GrowthStage) (data & 0b00_0111);
 
@@ -97,9 +97,9 @@ namespace VoxelGame.Core.Logic.Blocks
             bool isUpperAndStillGrowing = (data & 0b00_1000) != 0 && stage is GrowthStage.Fourth or GrowthStage.Fifth;
 
             if (isLowerAndStillGrowing || isUpperAndStillGrowing)
-                return BoundingBox.BlockWithHeight(height: 7);
+                return BoundingVolume.BlockWithHeight(height: 7);
 
-            return BoundingBox.BlockWithHeight(height: 15);
+            return BoundingVolume.BlockWithHeight(height: 15);
         }
 
         /// <inheritdoc />

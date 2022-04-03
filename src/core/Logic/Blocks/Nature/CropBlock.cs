@@ -32,7 +32,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 new BlockFlags(),
-                BoundingBox.Block,
+                BoundingVolume.Block,
                 TargetBuffer.CropPlant)
         {
             this.texture = texture;
@@ -67,31 +67,31 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        protected override BoundingBox GetBoundingBox(uint data)
+        protected override BoundingVolume GetBoundingVolume(uint data)
         {
             switch ((GrowthStage) (data & 0b00_0111))
             {
                 case GrowthStage.Initial:
                 case GrowthStage.Dead:
-                    return BoundingBox.BlockWithHeight(height: 3);
+                    return BoundingVolume.BlockWithHeight(height: 3);
 
                 case GrowthStage.Second:
-                    return BoundingBox.BlockWithHeight(height: 5);
+                    return BoundingVolume.BlockWithHeight(height: 5);
 
                 case GrowthStage.Third:
-                    return BoundingBox.BlockWithHeight(height: 7);
+                    return BoundingVolume.BlockWithHeight(height: 7);
 
                 case GrowthStage.Fourth:
-                    return BoundingBox.BlockWithHeight(height: 9);
+                    return BoundingVolume.BlockWithHeight(height: 9);
 
                 case GrowthStage.Fifth:
-                    return BoundingBox.BlockWithHeight(height: 11);
+                    return BoundingVolume.BlockWithHeight(height: 11);
 
                 case GrowthStage.Sixth:
-                    return BoundingBox.BlockWithHeight(height: 13);
+                    return BoundingVolume.BlockWithHeight(height: 13);
 
                 case GrowthStage.Final:
-                    return BoundingBox.BlockWithHeight(height: 15);
+                    return BoundingVolume.BlockWithHeight(height: 15);
 
                 default: throw new InvalidOperationException();
             }

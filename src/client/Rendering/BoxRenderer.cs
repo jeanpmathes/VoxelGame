@@ -15,7 +15,8 @@ using VoxelGame.Logging;
 namespace VoxelGame.Client.Rendering
 {
     /// <summary>
-    ///     A renderer that renders instances of the <see cref="BoundingBox" /> struct.
+    ///     A renderer that renders instances of the <see cref="BoundingVolume" /> struct.
+    ///     For this multiple boxes are drawn.
     /// </summary>
     public sealed class BoxRenderer : IDisposable
     {
@@ -23,7 +24,7 @@ namespace VoxelGame.Client.Rendering
 
         private readonly ElementDrawGroup drawGroup;
 
-        private BoundingBox currentBoundingBox;
+        private BoundingVolume? currentBoundingVolume;
 
         /// <summary>
         ///     Create a new <see cref="BoxRenderer" />.
@@ -45,31 +46,30 @@ namespace VoxelGame.Client.Rendering
         /// <summary>
         ///     Set the bounding box to render.
         /// </summary>
-        /// <param name="boundingBox">The bounding box.</param>
-        public void SetBoundingBox(BoundingBox boundingBox)
+        /// <param name="boundingVolume">The bounding box.</param>
+        public void SetVolume(BoundingVolume boundingVolume)
         {
             if (disposed) return;
 
-            if (currentBoundingBox == boundingBox) return;
+            if (ReferenceEquals(currentBoundingVolume, boundingVolume)) return;
 
-            currentBoundingBox = boundingBox;
+            currentBoundingVolume = boundingVolume;
 
-            int elementCount = BuildMeshData(currentBoundingBox, boundingBox, out float[] vertices, out uint[] indices);
+            int elementCount = BuildMeshData(boundingVolume, out float[] vertices, out uint[] indices);
             drawGroup.SetData(elementCount, vertices.Length, vertices, indices.Length, indices);
         }
 
-        private static int BuildMeshData(BoundingBox currentBoundingBox, BoundingBox boundingBox,
+        private static int BuildMeshData(BoundingVolume boundingVolume,
             out float[] vertices, out uint[] indices)
         {
-            int points = BuildMeshData_NonRecursive(currentBoundingBox, boundingBox, out vertices, out indices);
+            int points = BuildMeshData_NonRecursive(boundingVolume, out vertices, out indices);
 
-            if (boundingBox.ChildCount == 0) return points;
+            if (boundingVolume.ChildCount == 0) return points;
 
-            for (var i = 0; i < boundingBox.ChildCount; i++)
+            for (var i = 0; i < boundingVolume.ChildCount; i++)
             {
                 int newElements = BuildMeshData(
-                    currentBoundingBox,
-                    boundingBox[i],
+                    boundingVolume[i],
                     out float[] addVertices,
                     out uint[] addIndices);
 
@@ -95,27 +95,25 @@ namespace VoxelGame.Client.Rendering
             return points;
         }
 
-        private static int BuildMeshData_NonRecursive(BoundingBox currentBoundingBox, BoundingBox boundingBox,
+        private static int BuildMeshData_NonRecursive(BoundingVolume boundingVolume,
             out float[] vertices, out uint[] indices)
         {
-            Vector3 offset = boundingBox.Center - currentBoundingBox.Center;
-
-            Vector3 min = -boundingBox.Extents + offset;
-            Vector3 max = boundingBox.Extents + offset;
+            (float minX, float minY, float minZ) = boundingVolume.Min;
+            (float maxX, float maxY, float maxZ) = boundingVolume.Max;
 
             vertices = new[]
             {
                 // Bottom
-                min.X, min.Y, min.Z,
-                max.X, min.Y, min.Z,
-                max.X, min.Y, max.Z,
-                min.X, min.Y, max.Z,
+                minX, minY, minZ,
+                maxX, minY, minZ,
+                maxX, minY, maxZ,
+                minX, minY, maxZ,
 
                 // Top
-                min.X, max.Y, min.Z,
-                max.X, max.Y, min.Z,
-                max.X, max.Y, max.Z,
-                min.X, max.Y, max.Z
+                minX, maxY, minZ,
+                maxX, maxY, minZ,
+                maxX, maxY, maxZ,
+                minX, maxY, maxZ
             };
 
             indices = new uint[]

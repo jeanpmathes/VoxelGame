@@ -29,7 +29,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 BlockFlags.Empty,
-                BoundingBox.Block,
+                BoundingVolume.Block,
                 TargetBuffer.NotRendered) {}
 
         /// <inheritdoc />

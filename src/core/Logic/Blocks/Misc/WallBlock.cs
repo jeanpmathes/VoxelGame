@@ -34,7 +34,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 texture,
                 postModel,
                 extensionModel,
-                new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.25f, y: 0.5f, z: 0.25f)))
+                new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.25f, y: 0.5f, z: 0.25f)))
         {
             BlockModel straightZModel = BlockModel.Load(extensionStraight);
             straightZModel.OverwriteTexture(texture);
@@ -47,7 +47,7 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        protected override BoundingBox GetBoundingBox(uint data)
+        protected override BoundingVolume GetBoundingVolume(uint data)
         {
             bool north = (data & 0b00_1000) != 0;
             bool east = (data & 0b00_0100) != 0;
@@ -58,23 +58,23 @@ namespace VoxelGame.Core.Logic.Blocks
             bool useStraightX = !north && !south && east && west;
 
             if (useStraightZ)
-                return new BoundingBox(
+                return new BoundingVolume(
                     new Vector3(x: 0.5f, y: 0.46875f, z: 0.5f),
                     new Vector3(x: 0.1875f, y: 0.46875f, z: 0.5f));
 
             if (useStraightX)
-                return new BoundingBox(
+                return new BoundingVolume(
                     new Vector3(x: 0.5f, y: 0.46875f, z: 0.5f),
                     new Vector3(x: 0.5f, y: 0.46875f, z: 0.1875f));
 
             int extensions = BitHelper.CountSetBits(data & 0b1111);
 
-            BoundingBox[] children = new BoundingBox[extensions];
+            var children = new BoundingVolume[extensions];
             extensions = 0;
 
             if (north)
             {
-                children[extensions] = new BoundingBox(
+                children[extensions] = new BoundingVolume(
                     new Vector3(x: 0.5f, y: 0.46875f, z: 0.125f),
                     new Vector3(x: 0.1875f, y: 0.46875f, z: 0.125f));
 
@@ -83,7 +83,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if (east)
             {
-                children[extensions] = new BoundingBox(
+                children[extensions] = new BoundingVolume(
                     new Vector3(x: 0.875f, y: 0.46875f, z: 0.5f),
                     new Vector3(x: 0.125f, y: 0.46875f, z: 0.1875f));
 
@@ -92,7 +92,7 @@ namespace VoxelGame.Core.Logic.Blocks
 
             if (south)
             {
-                children[extensions] = new BoundingBox(
+                children[extensions] = new BoundingVolume(
                     new Vector3(x: 0.5f, y: 0.46875f, z: 0.875f),
                     new Vector3(x: 0.1875f, y: 0.46875f, z: 0.125f));
 
@@ -100,11 +100,11 @@ namespace VoxelGame.Core.Logic.Blocks
             }
 
             if (west)
-                children[extensions] = new BoundingBox(
+                children[extensions] = new BoundingVolume(
                     new Vector3(x: 0.125f, y: 0.46875f, z: 0.5f),
                     new Vector3(x: 0.125f, y: 0.46875f, z: 0.1875f));
 
-            return new BoundingBox(
+            return new BoundingVolume(
                 new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
                 new Vector3(x: 0.25f, y: 0.5f, z: 0.25f),
                 children);

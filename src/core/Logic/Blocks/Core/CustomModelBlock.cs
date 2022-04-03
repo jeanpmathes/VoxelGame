@@ -28,14 +28,14 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <param name="namedId">The named ID of the block.</param>
         /// <param name="flags">The block flags.</param>
         /// <param name="modelName">The name of the model to use for this block.</param>
-        /// <param name="boundingBox">The bounding box of the block.</param>
+        /// <param name="boundingVolume">The bounding box of the block.</param>
         internal CustomModelBlock(string name, string namedId, BlockFlags flags, string modelName,
-            BoundingBox boundingBox) :
+            BoundingVolume boundingVolume) :
             base(
                 name,
                 namedId,
                 flags with { IsFull = false, IsOpaque = false },
-                boundingBox,
+                boundingVolume,
                 TargetBuffer.Complex)
         {
             mesh = BlockModel.Load(modelName).Mesh;

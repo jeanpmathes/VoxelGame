@@ -23,8 +23,9 @@ namespace VoxelGame.Core.Entities
         /// </summary>
         public const float Gravity = -9.81f;
 
+        private readonly BoundingVolume boundingVolume;
+
         private readonly int physicsIterations = 10;
-        private BoundingBox boundingBox;
 
         private Vector3 force;
 
@@ -34,8 +35,8 @@ namespace VoxelGame.Core.Entities
         /// <param name="world">The world in which the physics entity is located.</param>
         /// <param name="mass">The mass of the entity.</param>
         /// <param name="drag">The drag affecting the entity.</param>
-        /// <param name="boundingBox">The bounding box of the entity.</param>
-        protected PhysicsEntity(World world, float mass, float drag, BoundingBox boundingBox)
+        /// <param name="boundingVolume">The bounding box of the entity.</param>
+        protected PhysicsEntity(World world, float mass, float drag, BoundingVolume boundingVolume)
         {
             World = world;
 
@@ -43,9 +44,7 @@ namespace VoxelGame.Core.Entities
 
             Mass = mass;
             Drag = drag;
-            this.boundingBox = boundingBox;
-
-            boundingBox.Center = Position;
+            this.boundingVolume = boundingVolume;
         }
 
         /// <summary>
@@ -119,9 +118,9 @@ namespace VoxelGame.Core.Entities
         public abstract Vector3i TargetPosition { get; }
 
         /// <summary>
-        ///     Get the bounding box of the physics entity.
+        /// Get the collider of this physics entity.
         /// </summary>
-        public BoundingBox BoundingBox => boundingBox;
+        public BoxCollider Collider => boundingVolume.GetColliderAt(Position);
 
         /// <summary>
         ///     Applies force to this entity.
@@ -158,6 +157,8 @@ namespace VoxelGame.Core.Entities
             force -= Velocity.Sign() * (Velocity * Velocity) * Drag;
             Velocity += force / Mass * deltaTime;
 
+            BoxCollider collider = Collider;
+
             Vector3 movement = Velocity * deltaTime;
             movement *= 1f / physicsIterations;
 
@@ -165,7 +166,7 @@ namespace VoxelGame.Core.Entities
             HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections = new();
 
             for (var i = 0; i < physicsIterations; i++)
-                DoPhysicsStep(ref movement, blockIntersections, liquidIntersections);
+                DoPhysicsStep(ref collider, ref movement, blockIntersections, liquidIntersections);
 
             foreach ((Vector3i position, Block block) in blockIntersections)
                 if (block.ReceiveCollisions)
@@ -196,21 +197,19 @@ namespace VoxelGame.Core.Entities
                 if (!IsGrounded && noGas) IsSwimming = true;
             }
 
-            boundingBox.Center = Position;
-
             force = new Vector3(x: 0f, Gravity * Mass, z: 0f);
             force -= liquidDrag;
 
             Update(deltaTime);
         }
 
-        private void DoPhysicsStep(ref Vector3 movement,
+        private void DoPhysicsStep(ref BoxCollider collider, ref Vector3 movement,
             HashSet<(Vector3i position, Block block)> blockIntersections,
             HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections)
         {
-            boundingBox.Center += movement;
+            collider.Position += movement;
 
-            if (BoundingBox.IntersectsTerrain(
+            if (collider.IntersectsTerrain(
                     World,
                     out bool xCollision,
                     out bool yCollision,
@@ -220,10 +219,10 @@ namespace VoxelGame.Core.Entities
             {
                 if (yCollision)
                 {
-                    Vector3i boundingBoxCenter = BoundingBox.Center.Floor();
+                    Vector3i boundingBoxCenter = collider.Center.Floor();
 
                     IsGrounded = !World.GetBlock(
-                            boundingBoxCenter + (0, (int) Math.Round(BoundingBox.Extents.Y), 0))
+                            boundingBoxCenter + (0, (int) Math.Round(collider.Volume.Extents.Y), 0))
                         ?.Block.IsSolid ?? true;
                 }
 

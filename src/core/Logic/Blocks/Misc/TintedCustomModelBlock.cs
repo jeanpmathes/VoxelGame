@@ -21,13 +21,13 @@ namespace VoxelGame.Core.Logic.Blocks
     public class TintedCustomModelBlock : CustomModelBlock, IFlammable
     {
         internal TintedCustomModelBlock(string name, string namedId, BlockFlags flags, string modelName,
-            BoundingBox boundingBox) :
+            BoundingVolume boundingVolume) :
             base(
                 name,
                 namedId,
                 flags with { IsInteractable = true },
                 modelName,
-                boundingBox) {}
+                boundingVolume) {}
 
         /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)

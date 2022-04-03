@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic
     /// </summary>
     public abstract partial class Block : IIdentifiable<uint>, IIdentifiable<string>
     {
-        private readonly BoundingBox boundingBox;
+        private readonly BoundingVolume boundingVolume;
 
         /// <summary>
         ///     Create a new block.
@@ -27,9 +27,9 @@ namespace VoxelGame.Core.Logic
         /// <param name="name">The name of the block. Can be localized.</param>
         /// <param name="namedId">The named ID of the block. A unique and unlocalized identifier.</param>
         /// <param name="flags">The block flags setting specific options.</param>
-        /// <param name="boundingBox">The base bounding box for this block. Is used for placement checks.</param>
+        /// <param name="boundingVolume">The base bounding volume for this block. Is used for placement checks.</param>
         /// <param name="targetBuffer">The target rendering buffer.</param>
-        protected Block(string name, string namedId, BlockFlags flags, BoundingBox boundingBox,
+        protected Block(string name, string namedId, BlockFlags flags, BoundingVolume boundingVolume,
             TargetBuffer targetBuffer)
         {
             Name = name;
@@ -44,7 +44,7 @@ namespace VoxelGame.Core.Logic
             IsReplaceable = flags.IsReplaceable;
             IsInteractable = flags.IsInteractable;
 
-            this.boundingBox = boundingBox;
+            this.boundingVolume = boundingVolume;
 
             TargetBuffer = targetBuffer;
 
@@ -192,26 +192,28 @@ namespace VoxelGame.Core.Logic
         protected virtual void Setup(ITextureIndexProvider indexProvider) {}
 
         /// <summary>
-        ///     Returns the bounding box of this block if it would be at the given position.
+        ///     Returns the collider for a given position.
         /// </summary>
         /// <param name="world">The world in which the block is.</param>
         /// <param name="position">The position of the block.</param>
-        /// <returns>The bounding box.</returns>
-        public BoundingBox GetBoundingBox(World world, Vector3i position)
+        /// <returns>The bounding volume.</returns>
+        public BoxCollider GetCollider(World world, Vector3i position)
         {
             BlockInstance? instance = world.GetBlock(position);
 
-            return (instance?.Block == this ? GetBoundingBox(instance.Data) : boundingBox).Translated(position);
+            return (instance?.Block == this ? GetBoundingVolume(instance.Data) : boundingVolume)
+                .GetColliderAt(position);
         }
 
         /// <summary>
-        ///     Override this to provide a custom bounding box for this block, depending on the block data.
+        ///     Override this to provide a custom bounding volume for this block, depending on the block data.
+        ///     The bounding volume should be pre-calculated.
         /// </summary>
         /// <param name="data">The block data.</param>
-        /// <returns>The bounding box for the given data.</returns>
-        protected virtual BoundingBox GetBoundingBox(uint data)
+        /// <returns>The bounding volume for the given data.</returns>
+        protected virtual BoundingVolume GetBoundingVolume(uint data)
         {
-            return boundingBox;
+            return boundingVolume;
         }
 
         /// <summary>

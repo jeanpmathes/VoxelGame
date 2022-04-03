@@ -51,7 +51,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 BlockFlags.Trigger,
-                BoundingBox.Block,
+                BoundingVolume.Block,
                 TargetBuffer.Complex)
         {
             this.climbingVelocity = climbingVelocity;
@@ -73,23 +73,25 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        protected override BoundingBox GetBoundingBox(uint data)
+        protected override BoundingVolume GetBoundingVolume(uint data)
         {
             return (Orientation) (data & 0b00_0011) switch
             {
-                Orientation.North => new BoundingBox(
+                Orientation.North => new BoundingVolume(
                     new Vector3(x: 0.5f, y: 0.5f, z: 0.95f),
                     new Vector3(x: 0.45f, y: 0.5f, z: 0.05f)),
-                Orientation.South => new BoundingBox(
+                Orientation.South => new BoundingVolume(
                     new Vector3(x: 0.5f, y: 0.5f, z: 0.05f),
                     new Vector3(x: 0.45f, y: 0.5f, z: 0.05f)),
-                Orientation.West => new BoundingBox(
+                Orientation.West => new BoundingVolume(
                     new Vector3(x: 0.95f, y: 0.5f, z: 0.5f),
                     new Vector3(x: 0.05f, y: 0.5f, z: 0.45f)),
-                Orientation.East => new BoundingBox(
+                Orientation.East => new BoundingVolume(
                     new Vector3(x: 0.05f, y: 0.5f, z: 0.5f),
                     new Vector3(x: 0.05f, y: 0.5f, z: 0.45f)),
-                _ => new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.95f), new Vector3(x: 0.5f, y: 0.5f, z: 0.05f))
+                _ => new BoundingVolume(
+                    new Vector3(x: 0.5f, y: 0.5f, z: 0.95f),
+                    new Vector3(x: 0.5f, y: 0.5f, z: 0.05f))
             };
         }
 

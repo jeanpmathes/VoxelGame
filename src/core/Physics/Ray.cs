@@ -40,6 +40,14 @@ namespace VoxelGame.Core.Physics
         }
 
         /// <summary>
+        ///     Get a translated ray.
+        /// </summary>
+        public Ray Translated(Vector3 translation)
+        {
+            return new Ray(Origin + translation, Direction, Length);
+        }
+
+        /// <summary>
         ///     The end point of the ray.
         /// </summary>
         public Vector3 EndPoint => Origin + Direction * Length;

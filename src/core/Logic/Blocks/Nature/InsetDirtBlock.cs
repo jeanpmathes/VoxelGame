@@ -32,7 +32,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 BlockFlags.Solid,
-                BoundingBox.Block,
+                BoundingVolume.Block,
                 TargetBuffer.VaryingHeight)
         {
             dryLayout = dry;
@@ -70,9 +70,9 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        protected override BoundingBox GetBoundingBox(uint data)
+        protected override BoundingVolume GetBoundingVolume(uint data)
         {
-            return BoundingBox.BlockWithHeight(height);
+            return BoundingVolume.BlockWithHeight(height);
         }
 
         /// <inheritdoc />

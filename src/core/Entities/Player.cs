@@ -21,12 +21,12 @@ namespace VoxelGame.Core.Entities
         /// <param name="world">The world the player is in.</param>
         /// <param name="mass">The mass the player has.</param>
         /// <param name="drag">The drag that affects the player.</param>
-        /// <param name="boundingBox">The bounding box of the player.</param>
-        protected Player(World world, float mass, float drag, BoundingBox boundingBox) : base(
+        /// <param name="boundingVolume">The bounding box of the player.</param>
+        protected Player(World world, float mass, float drag, BoundingVolume boundingVolume) : base(
             world,
             mass,
             drag,
-            boundingBox)
+            boundingVolume)
         {
             Position = World.SpawnPosition;
 

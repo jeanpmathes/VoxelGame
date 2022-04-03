@@ -31,14 +31,14 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <param name="namedId">The unique and unlocalized name of this block.</param>
         /// <param name="texture">The name of the texture of this block.</param>
         /// <param name="flags">The block flags.</param>
-        /// <param name="boundingBox">The bounding box of this block.</param>
+        /// <param name="boundingVolume">The bounding box of this block.</param>
         internal CrossPlantBlock(string name, string namedId, string texture, BlockFlags flags,
-            BoundingBox boundingBox) :
+            BoundingVolume boundingVolume) :
             base(
                 name,
                 namedId,
                 flags with { IsFull = false, IsOpaque = false },
-                boundingBox,
+                boundingVolume,
                 TargetBuffer.CrossPlant)
         {
             this.texture = texture;

@@ -91,7 +91,7 @@ namespace VoxelGame.Client.Scenes
                 mass: 70f,
                 drag: 0.25f,
                 camera,
-                new BoundingBox(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.25f, y: 0.9f, z: 0.25f)),
+                new BoundingVolume(new Vector3(x: 0.25f, y: 0.9f, z: 0.25f)),
                 ui);
 
             world.AddPlayer(player);

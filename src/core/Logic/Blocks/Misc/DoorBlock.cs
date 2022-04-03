@@ -26,6 +26,11 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private readonly List<BlockMesh> baseClosedMeshes = new();
         private readonly List<BlockMesh> baseOpenMeshes = new();
+
+        private readonly BoundingVolume doorVolume = new(
+            new Vector3(x: 0.5f, y: 1f, z: 0.5f),
+            new Vector3(x: 0.5f, y: 1f, z: 0.5f));
+
         private readonly List<BlockMesh> topClosedMeshes = new();
         private readonly List<BlockMesh> topOpenMeshes = new();
 
@@ -34,7 +39,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 BlockFlags.Functional,
-                new BoundingBox(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.5f, y: 1f, z: 0.5f)),
+                new BoundingVolume(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.5f, y: 1f, z: 0.5f)),
                 TargetBuffer.Complex)
         {
             BlockModel.Load(closedModel).PlaneSplit(
@@ -72,7 +77,7 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        protected override BoundingBox GetBoundingBox(uint data)
+        protected override BoundingVolume GetBoundingVolume(uint data)
         {
             var orientation = (Orientation) (data & 0b00_0011);
 
@@ -82,19 +87,19 @@ namespace VoxelGame.Core.Logic.Blocks
 
             return orientation switch
             {
-                Orientation.North => new BoundingBox(
+                Orientation.North => new BoundingVolume(
                     new Vector3(x: 0.5f, y: 0.5f, z: 0.9375f),
                     new Vector3(x: 0.5f, y: 0.5f, z: 0.0625f)),
-                Orientation.East => new BoundingBox(
+                Orientation.East => new BoundingVolume(
                     new Vector3(x: 0.0625f, y: 0.5f, z: 0.5f),
                     new Vector3(x: 0.0625f, y: 0.5f, z: 0.5f)),
-                Orientation.South => new BoundingBox(
+                Orientation.South => new BoundingVolume(
                     new Vector3(x: 0.5f, y: 0.5f, z: 0.0625f),
                     new Vector3(x: 0.5f, y: 0.5f, z: 0.0625f)),
-                Orientation.West => new BoundingBox(
+                Orientation.West => new BoundingVolume(
                     new Vector3(x: 0.9375f, y: 0.5f, z: 0.5f),
                     new Vector3(x: 0.0625f, y: 0.5f, z: 0.5f)),
-                _ => new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.5f, y: 0.5f, z: 0.5f))
+                _ => new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.5f, y: 0.5f, z: 0.5f))
             };
         }
 
@@ -184,10 +189,7 @@ namespace VoxelGame.Core.Logic.Blocks
             bool isBase = (data & 0b00_0100) == 0;
             Vector3i otherPosition = position + (isBase ? Vector3i.UnitY : -Vector3i.UnitY);
 
-            if (entity.BoundingBox.Intersects(
-                    new BoundingBox(
-                        new Vector3(x: 0.5f, y: 1f, z: 0.5f) + otherPosition.ToVector3(),
-                        new Vector3(x: 0.5f, y: 1f, z: 0.5f)))) return;
+            if (entity.Collider.Intersects(doorVolume.GetColliderAt(otherPosition))) return;
 
             entity.World.SetBlock(this.AsInstance(data ^ 0b1_0000), position);
             entity.World.SetBlock(this.AsInstance(data ^ 0b1_0100), otherPosition);

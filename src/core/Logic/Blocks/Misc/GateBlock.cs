@@ -27,7 +27,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 BlockFlags.Functional,
-                BoundingBox.Block,
+                BoundingVolume.Block,
                 TargetBuffer.Complex)
         {
             BlockModel closed = BlockModel.Load(closedModel);
@@ -72,7 +72,7 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        protected override BoundingBox GetBoundingBox(uint data)
+        protected override BoundingVolume GetBoundingVolume(uint data)
         {
             bool isClosed = (data & 0b00_0100) == 0;
 
@@ -85,114 +85,114 @@ namespace VoxelGame.Core.Logic.Blocks
                 _ => NorthSouth(offset: 0.375f)
             };
 
-            BoundingBox NorthSouth(float offset)
+            BoundingVolume NorthSouth(float offset)
             {
                 if (isClosed)
-                    return new BoundingBox(
+                    return new BoundingVolume(
                         new Vector3(x: 0.96875f, y: 0.71875f, z: 0.5f),
                         new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f),
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(x: 0.96875f, y: 0.28125f, z: 0.5f),
                             new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f)),
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(x: 0.03125f, y: 0.71875f, z: 0.5f),
                             new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f)),
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(x: 0.03125f, y: 0.28125f, z: 0.5f),
                             new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f)),
                         // Moving parts.
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(x: 0.75f, y: 0.71875f, z: 0.5f),
                             new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(x: 0.75f, y: 0.28125f, z: 0.5f),
                             new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(x: 0.25f, y: 0.71875f, z: 0.5f),
                             new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(x: 0.25f, y: 0.28125f, z: 0.5f),
                             new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)));
 
-                return new BoundingBox(
+                return new BoundingVolume(
                     new Vector3(x: 0.96875f, y: 0.71875f, z: 0.5f),
                     new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f),
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(x: 0.96875f, y: 0.28125f, z: 0.5f),
                         new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f)),
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(x: 0.03125f, y: 0.71875f, z: 0.5f),
                         new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f)),
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(x: 0.03125f, y: 0.28125f, z: 0.5f),
                         new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f)),
                     // Moving parts.
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(x: 0.875f, y: 0.71875f, offset),
                         new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(x: 0.875f, y: 0.28125f, offset),
                         new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(x: 0.125f, y: 0.71875f, offset),
                         new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(x: 0.125f, y: 0.28125f, offset),
                         new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)));
             }
 
-            BoundingBox WestEast(float offset)
+            BoundingVolume WestEast(float offset)
             {
                 if (isClosed)
-                    return new BoundingBox(
+                    return new BoundingVolume(
                         new Vector3(x: 0.5f, y: 0.71875f, z: 0.96875f),
                         new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f),
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(x: 0.5f, y: 0.28125f, z: 0.96875f),
                             new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f)),
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(x: 0.5f, y: 0.71875f, z: 0.03125f),
                             new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f)),
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(x: 0.5f, y: 0.28125f, z: 0.03125f),
                             new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f)),
                         // Moving parts.
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(x: 0.5f, y: 0.71875f, z: 0.75f),
                             new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(x: 0.5f, y: 0.28125f, z: 0.75f),
                             new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(x: 0.5f, y: 0.71875f, z: 0.25f),
                             new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
-                        new BoundingBox(
+                        new BoundingVolume(
                             new Vector3(x: 0.5f, y: 0.28125f, z: 0.25f),
                             new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)));
 
-                return new BoundingBox(
+                return new BoundingVolume(
                     new Vector3(x: 0.5f, y: 0.71875f, z: 0.96875f),
                     new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f),
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(x: 0.5f, y: 0.28125f, z: 0.96875f),
                         new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f)),
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(x: 0.5f, y: 0.71875f, z: 0.03125f),
                         new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f)),
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(x: 0.5f, y: 0.28125f, z: 0.03125f),
                         new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f)),
                     // Moving parts.
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(offset, y: 0.71875f, z: 0.875f),
                         new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(offset, y: 0.28125f, z: 0.875f),
                         new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(offset, y: 0.71875f, z: 0.125f),
                         new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(offset, y: 0.28125f, z: 0.125f),
                         new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)));
             }
@@ -264,7 +264,9 @@ namespace VoxelGame.Core.Logic.Blocks
                 ? new Vector3(x: 0.5f, y: 0.375f, 0.125f + closedOffset)
                 : new Vector3(0.125f + closedOffset, y: 0.375f, z: 0.5f);
 
-            if (entity.BoundingBox.Intersects(new BoundingBox(center + position.ToVector3(), extents))) return;
+            BoundingVolume volume = new(center, extents);
+
+            if (entity.Collider.Intersects(volume.GetColliderAt(position))) return;
 
             entity.World.SetBlock(
                 this.AsInstance((uint) ((isClosed ? 0b00_0100 : 0b00_0000) | (int) orientation.Opposite())),

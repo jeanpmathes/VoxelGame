@@ -58,16 +58,16 @@ namespace VoxelGame.Core.Physics
         }
 
         /// <summary>
-        ///     Check whether a <see cref="BoundingBox" /> is inside this <see cref="Frustum" />.
+        ///     Check whether a <see cref="BoundingVolume" /> is inside this <see cref="Frustum" />.
         /// </summary>
-        /// <returns>true if the <see cref="BoundingBox" /> is inside; false if not.</returns>
-        public bool BoxInFrustum(BoundingBox box)
+        /// <returns>true if the <see cref="BoundingVolume" /> is inside; false if not.</returns>
+        public bool BoxInFrustum(BoundingVolume volume)
         {
             for (var i = 0; i < 6; i++)
             {
-                float px = planes[i].Normal.X < 0 ? box.Min.X : box.Max.X;
-                float py = planes[i].Normal.Y < 0 ? box.Min.Y : box.Max.Y;
-                float pz = planes[i].Normal.Z < 0 ? box.Min.Z : box.Max.Z;
+                float px = planes[i].Normal.X < 0 ? volume.Min.X : volume.Max.X;
+                float py = planes[i].Normal.Y < 0 ? volume.Min.Y : volume.Max.Y;
+                float pz = planes[i].Normal.Z < 0 ? volume.Min.Z : volume.Max.Z;
 
                 if (planes[i].Distance(new Vector3(px, py, pz)) < 0) return false;
             }

@@ -35,7 +35,9 @@ namespace VoxelGame.Core.Logic.Blocks
                 {
                     IsSolid = true
                 },
-                new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.0625f, y: 0.5f, z: 0.0625f)),
+                new BoundingVolume(
+                    new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
+                    new Vector3(x: 0.0625f, y: 0.5f, z: 0.0625f)),
                 TargetBuffer.Complex)
         {
             BlockModel post = BlockModel.Load(postModel);
@@ -60,35 +62,35 @@ namespace VoxelGame.Core.Logic.Blocks
         }
 
         /// <inheritdoc />
-        protected override BoundingBox GetBoundingBox(uint data)
+        protected override BoundingVolume GetBoundingVolume(uint data)
         {
-            List<BoundingBox> connectors = new(BitHelper.CountSetBits(data));
+            List<BoundingVolume> connectors = new(BitHelper.CountSetBits(data));
 
             if ((data & 0b00_1000) != 0)
                 connectors.Add(
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(x: 0.5f, y: 0.5f, z: 0.21875f),
                         new Vector3(x: 0.0625f, y: 0.5f, z: 0.21875f)));
 
             if ((data & 0b00_0100) != 0)
                 connectors.Add(
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(x: 0.78125f, y: 0.5f, z: 0.5f),
                         new Vector3(x: 0.21875f, y: 0.5f, z: 0.0625f)));
 
             if ((data & 0b00_0010) != 0)
                 connectors.Add(
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(x: 0.5f, y: 0.5f, z: 0.78125f),
                         new Vector3(x: 0.0625f, y: 0.5f, z: 0.21875f)));
 
             if ((data & 0b00_0001) != 0)
                 connectors.Add(
-                    new BoundingBox(
+                    new BoundingVolume(
                         new Vector3(x: 0.21875f, y: 0.5f, z: 0.5f),
                         new Vector3(x: 0.21875f, y: 0.5f, z: 0.0625f)));
 
-            return new BoundingBox(
+            return new BoundingVolume(
                 new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
                 new Vector3(x: 0.0625f, y: 0.5f, z: 0.0625f),
                 connectors.ToArray());

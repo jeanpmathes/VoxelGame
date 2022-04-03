@@ -35,7 +35,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 BlockFlags.Solid,
-                new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, diameter)),
+                new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, diameter)),
                 TargetBuffer.Complex)
         {
             this.diameter = diameter;
@@ -82,9 +82,9 @@ namespace VoxelGame.Core.Logic.Blocks
             return IsSideOpen(world, position, side);
         }
 
-        protected override BoundingBox GetBoundingBox(uint data)
+        protected override BoundingVolume GetBoundingVolume(uint data)
         {
-            List<BoundingBox> connectors = new(BitHelper.CountSetBits(data));
+            List<BoundingVolume> connectors = new(BitHelper.CountSetBits(data));
 
             float connectorWidth = (0.5f - diameter) / 2f;
 
@@ -95,12 +95,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 var direction = side.Direction().ToVector3();
 
                 connectors.Add(
-                    new BoundingBox(
+                    new BoundingVolume(
                         (0.5f, 0.5f, 0.5f) + direction * (0.5f - connectorWidth),
                         (diameter, diameter, diameter) + direction.Absolute() * (connectorWidth - diameter)));
             }
 
-            return new BoundingBox(
+            return new BoundingVolume(
                 new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
                 new Vector3(diameter, diameter, diameter),
                 connectors.ToArray());

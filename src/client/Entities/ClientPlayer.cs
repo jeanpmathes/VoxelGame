@@ -65,10 +65,10 @@ namespace VoxelGame.Client.Entities
         /// <param name="mass">The mass of the player.</param>
         /// <param name="drag">The drag affecting the player.</param>
         /// <param name="camera">The camera to use for this player.</param>
-        /// <param name="boundingBox">The bounding box of the player.</param>
+        /// <param name="boundingVolume">The bounding box of the player.</param>
         /// <param name="ui">The ui used to display player information.</param>
-        public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingBox boundingBox,
-            GameUserInterface ui) : base(world, mass, drag, boundingBox)
+        public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingVolume boundingVolume,
+            GameUserInterface ui) : base(world, mass, drag, boundingVolume)
         {
             this.camera = camera;
             camera.Position = Position;
@@ -177,13 +177,11 @@ namespace VoxelGame.Client.Entities
                 if (!selectedBlock.IsReplaceable)
 #endif
                 {
-                    BoundingBox selectedBox = selectedBlock.GetBoundingBox(World, targetPosition);
-
                     Application.Client.Instance.Resources.Shaders.Selection.SetVector3(
                         "color",
                         new Vector3(x: 0.1f, y: 0.1f, z: 0.1f));
 
-                    visualization.DrawBox(selectedBox);
+                    visualization.DrawSelectionBox(selectedBlock.GetCollider(World, targetPosition));
                 }
             }
 
@@ -286,8 +284,8 @@ namespace VoxelGame.Client.Entities
                 if (!targetBlock.Block.IsReplaceable) placePosition = targetSide.Offset(placePosition);
 
                 // Prevent block placement if the block would intersect the player.
-                if (!blockMode || !activeBlock.IsSolid || !BoundingBox.Intersects(
-                        activeBlock.GetBoundingBox(World, placePosition)))
+                if (!blockMode || !activeBlock.IsSolid || !Collider.Intersects(
+                        activeBlock.GetCollider(World, placePosition)))
                 {
                     if (blockMode) activeBlock.Place(World, placePosition, this);
                     else activeLiquid.Fill(World, placePosition, LiquidLevel.One, BlockSide.Top, out _);

@@ -31,10 +31,10 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <param name="texture">The texture to use.</param>
         /// <param name="postModel">The name of the model for the central post.</param>
         /// <param name="extensionModel">The name of the model for the connections between posts.</param>
-        /// <param name="boundingBox">The bounding box of the post.</param>
+        /// <param name="boundingVolume">The bounding box of the post.</param>
         protected WideConnectingBlock(string name, string namedId, string texture, string postModel,
             string extensionModel,
-            BoundingBox boundingBox) :
+            BoundingVolume boundingVolume) :
             base(
                 name,
                 namedId,
@@ -44,7 +44,7 @@ namespace VoxelGame.Core.Logic.Blocks
                     IsOpaque = false,
                     IsSolid = true
                 },
-                boundingBox,
+                boundingVolume,
                 TargetBuffer.Complex)
         {
             BlockModel post = BlockModel.Load(postModel);

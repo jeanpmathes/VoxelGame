@@ -28,6 +28,24 @@ namespace VoxelGame.Core.Logic
 
         private const float GasLiquidThreshold = 10f;
 
+        private static readonly BoundingVolume[] volumes;
+
+        static Liquid()
+        {
+            BoundingVolume CreateVolume(LiquidLevel level)
+            {
+                float halfHeight = ((int) level + 1) * 0.0625f;
+
+                return new BoundingVolume(
+                    new Vector3(x: 0f, halfHeight, z: 0f),
+                    new Vector3(x: 0.5f, halfHeight, z: 0.5f));
+            }
+
+            volumes = new BoundingVolume[8];
+
+            for (var i = 0; i < 8; i++) volumes[i] = CreateVolume((LiquidLevel) i);
+        }
+
         /// <summary>
         ///     Create a new liquid.
         /// </summary>
@@ -164,18 +182,14 @@ namespace VoxelGame.Core.Logic
         public abstract LiquidMeshData GetMesh(LiquidMeshInfo info);
 
         /// <summary>
-        ///     Creates a bounding box for liquids.
+        ///     Get the collider for liquids.
         /// </summary>
         /// <param name="position">The position of the liquid.</param>
         /// <param name="level">The level of the liquid.</param>
-        /// <returns>The bounding box for the specified liquid.</returns>
-        public static BoundingBox GetBoundingBox(Vector3i position, LiquidLevel level)
+        /// <returns>The collider.</returns>
+        public static BoxCollider GetCollider(Vector3i position, LiquidLevel level)
         {
-            float halfHeight = ((int) level + 1) * 0.0625f;
-
-            return new BoundingBox(
-                position.ToVector3() + (0f, halfHeight, 0f),
-                new Vector3(x: 0.5f, halfHeight, z: 0.5f));
+            return volumes[(int) level].GetColliderAt(position);
         }
 
         /// <summary>

@@ -32,7 +32,7 @@ namespace VoxelGame.Core.Logic.Blocks
                 name,
                 namedId,
                 BlockFlags.Functional,
-                new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, z: 0.5f)),
+                new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, z: 0.5f)),
                 TargetBuffer.Complex)
         {
             this.diameter = diameter;
@@ -70,11 +70,11 @@ namespace VoxelGame.Core.Logic.Blocks
             return side.Axis() == (Axis) (block.Data & 0b00_0011);
         }
 
-        protected override BoundingBox GetBoundingBox(uint data)
+        protected override BoundingVolume GetBoundingVolume(uint data)
         {
             var axis = (Axis) (data & 0b00_0011);
 
-            return new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), axis.Vector3(onAxis: 0.5f, diameter));
+            return new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), axis.Vector3(onAxis: 0.5f, diameter));
         }
 
         public override BlockMeshData GetMesh(BlockMeshInfo info)

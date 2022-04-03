@@ -30,15 +30,15 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <param name="name">The name of the blocks.</param>
         /// <param name="namedId">The string ID of the block.</param>
         /// <param name="flags">The flags describing the block.</param>
-        /// <param name="boundingBox">The block bounding box.</param>
+        /// <param name="boundingVolume">The block bounding box.</param>
         /// <param name="targetBuffer">The target rendering buffer.</param>
-        protected ConnectingBlock(string name, string namedId, BlockFlags flags, BoundingBox boundingBox,
+        protected ConnectingBlock(string name, string namedId, BlockFlags flags, BoundingVolume boundingVolume,
             TargetBuffer targetBuffer) :
             base(
                 name,
                 namedId,
                 flags,
-                boundingBox,
+                boundingVolume,
                 targetBuffer) {}
 
         /// <inheritdoc />
