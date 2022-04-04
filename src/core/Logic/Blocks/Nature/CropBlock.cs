@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -23,6 +24,8 @@ namespace VoxelGame.Core.Logic.Blocks
     public class CropBlock : Block, IFlammable, IFillable
     {
         private readonly string texture;
+
+        private readonly List<BoundingVolume> volumes = new();
         private (int second, int third, int fourth, int fifth, int sixth, int final, int dead) stages;
         private int[] stageTextureIndices = null!;
 
@@ -38,6 +41,8 @@ namespace VoxelGame.Core.Logic.Blocks
             this.texture = texture;
 
             stages = (second, third, fourth, fifth, sixth, final, dead);
+
+            for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
         }
 
         /// <inheritdoc />
@@ -66,8 +71,7 @@ namespace VoxelGame.Core.Logic.Blocks
             };
         }
 
-        /// <inheritdoc />
-        protected override BoundingVolume GetBoundingVolume(uint data)
+        private static BoundingVolume CreateVolume(uint data)
         {
             switch ((GrowthStage) (data & 0b00_0111))
             {
@@ -95,6 +99,12 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 default: throw new InvalidOperationException();
             }
+        }
+
+        /// <inheritdoc />
+        protected override BoundingVolume GetBoundingVolume(uint data)
+        {
+            return volumes[(int) data & 0b00_1111];
         }
 
         /// <inheritdoc />

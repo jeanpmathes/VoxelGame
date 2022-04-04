@@ -21,6 +21,8 @@ namespace VoxelGame.Core.Logic.Blocks
         private static readonly int height = IHeightVariable.MaximumHeight - 1;
 
         private readonly TextureLayout dryLayout;
+
+        private readonly BoundingVolume volume;
         private readonly TextureLayout wetLayout;
 
         private int[] dryTextureIndices = null!;
@@ -39,6 +41,8 @@ namespace VoxelGame.Core.Logic.Blocks
             wetLayout = wet;
 
             SupportsFullGrowth = supportsFullGrowth;
+
+            volume = BoundingVolume.BlockWithHeight(height);
         }
 
         /// <inheritdoc />
@@ -72,7 +76,7 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <inheritdoc />
         protected override BoundingVolume GetBoundingVolume(uint data)
         {
-            return BoundingVolume.BlockWithHeight(height);
+            return volume;
         }
 
         /// <inheritdoc />

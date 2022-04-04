@@ -24,10 +24,12 @@ namespace VoxelGame.Core.Logic.Blocks
     // r: right
     // d: bottom
     // t: top
-    internal class PipeBlock<TConnect> : Block, IFillable where TConnect : IPipeConnectable
+    public class PipeBlock<TConnect> : Block, IFillable where TConnect : IPipeConnectable
     {
         private readonly float diameter;
         private readonly List<BlockMesh> meshes = new(capacity: 64);
+
+        private readonly List<BoundingVolume> volumes = new();
 
         internal PipeBlock(string name, string namedId, float diameter, string centerModel, string connectorModel,
             string surfaceModel) :
@@ -67,22 +69,27 @@ namespace VoxelGame.Core.Logic.Blocks
                     BlockSide.Top.IsSet(data) ? connectors.top : surfaces.top);
 
                 meshes.Add(mesh);
+
+                volumes.Add(CreateVolume(data));
             }
         }
 
+        /// <inheritdoc />
         public bool RenderLiquid => false;
 
+        /// <inheritdoc />
         public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
         {
             return IsSideOpen(world, position, side);
         }
 
+        /// <inheritdoc />
         public bool AllowOutflow(World world, Vector3i position, BlockSide side)
         {
             return IsSideOpen(world, position, side);
         }
 
-        protected override BoundingVolume GetBoundingVolume(uint data)
+        private BoundingVolume CreateVolume(uint data)
         {
             List<BoundingVolume> connectors = new(BitHelper.CountSetBits(data));
 
@@ -106,6 +113,13 @@ namespace VoxelGame.Core.Logic.Blocks
                 connectors.ToArray());
         }
 
+        /// <inheritdoc />
+        protected override BoundingVolume GetBoundingVolume(uint data)
+        {
+            return volumes[(int) data & 0b11_1111];
+        }
+
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             BlockMesh mesh = meshes[(int) info.Data];
@@ -113,6 +127,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return mesh.GetComplexMeshData();
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             uint data = GetConnectionData(world, position);

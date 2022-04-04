@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -24,6 +25,8 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly Block fruit;
         private readonly string texture;
 
+        private readonly List<BoundingVolume> volumes = new();
+
         private (int dead, int initial, int last) textureIndex;
 
         internal FruitCropBlock(string name, string namedId, string texture, Block fruit) :
@@ -36,6 +39,8 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             this.texture = texture;
             this.fruit = fruit;
+
+            for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
         }
 
         /// <inheritdoc />
@@ -57,8 +62,7 @@ namespace VoxelGame.Core.Logic.Blocks
             );
         }
 
-        /// <inheritdoc />
-        protected override BoundingVolume GetBoundingVolume(uint data)
+        private static BoundingVolume CreateVolume(uint data)
         {
             var stage = (GrowthStage) ((data >> 1) & 0b111);
 
@@ -69,6 +73,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 : new BoundingVolume(
                     new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
                     new Vector3(x: 0.175f, y: 0.5f, z: 0.175f));
+        }
+
+        /// <inheritdoc />
+        protected override BoundingVolume GetBoundingVolume(uint data)
+        {
+            return volumes[(int) data & 0b00_1111];
         }
 
         /// <inheritdoc />

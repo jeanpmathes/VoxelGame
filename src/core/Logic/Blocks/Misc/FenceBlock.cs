@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -22,6 +23,8 @@ namespace VoxelGame.Core.Logic.Blocks
     // w: connected west
     public class FenceBlock : WideConnectingBlock, IFlammable
     {
+        private readonly List<BoundingVolume> volumes = new();
+
         /// <summary>
         ///     Create a new <see cref="FenceBlock" />.
         /// </summary>
@@ -39,10 +42,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 extensionModel,
                 new BoundingVolume(
                     new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
-                    new Vector3(x: 0.1875f, y: 0.5f, z: 0.1875f))) {}
+                    new Vector3(x: 0.1875f, y: 0.5f, z: 0.1875f)))
+        {
+            for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
+        }
 
-        /// <inheritdoc />
-        protected override BoundingVolume GetBoundingVolume(uint data)
+        private static BoundingVolume CreateVolume(uint data)
         {
             bool north = (data & 0b00_1000) != 0;
             bool east = (data & 0b00_0100) != 0;
@@ -108,6 +113,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
                 new Vector3(x: 0.1875f, y: 0.5f, z: 0.1875f),
                 children);
+        }
+
+        /// <inheritdoc />
+        protected override BoundingVolume GetBoundingVolume(uint data)
+        {
+            return volumes[(int) data & 0b00_1111];
         }
     }
 }

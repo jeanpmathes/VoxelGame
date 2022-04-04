@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -18,6 +19,8 @@ namespace VoxelGame.Core.Logic.Blocks
     public class VaryingHeightBlock : Block, IHeightVariable
     {
         private readonly TextureLayout layout;
+
+        private readonly List<BoundingVolume> volumes = new();
         private int[] textureIndices = null!;
 
         /// <inheritdoc />
@@ -30,12 +33,19 @@ namespace VoxelGame.Core.Logic.Blocks
                 TargetBuffer.VaryingHeight)
         {
             this.layout = layout;
+
+            CreateVolumes();
         }
 
         /// <inheritdoc />
         public virtual int GetHeight(uint data)
         {
             return (int) (data & 0b00_1111);
+        }
+
+        private void CreateVolumes()
+        {
+            for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(BoundingVolume.BlockWithHeight(GetHeight(data)));
         }
 
         /// <inheritdoc />
@@ -47,7 +57,7 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <inheritdoc />
         protected override BoundingVolume GetBoundingVolume(uint data)
         {
-            return BoundingVolume.BlockWithHeight(GetHeight(data));
+            return volumes[(int) data & 0b00_1111];
         }
 
         /// <inheritdoc />

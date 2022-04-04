@@ -34,6 +34,8 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly List<BlockMesh> topClosedMeshes = new();
         private readonly List<BlockMesh> topOpenMeshes = new();
 
+        private readonly List<BoundingVolume> volumes = new();
+
         internal DoorBlock(string name, string namedId, string closedModel, string openModel) :
             base(
                 name,
@@ -74,10 +76,11 @@ namespace VoxelGame.Core.Logic.Blocks
                 meshList.Add(south.Mesh);
                 meshList.Add(west.Mesh);
             }
+
+            for (uint data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
         }
 
-        /// <inheritdoc />
-        protected override BoundingVolume GetBoundingVolume(uint data)
+        private static BoundingVolume CreateVolume(uint data)
         {
             var orientation = (Orientation) (data & 0b00_0011);
 
@@ -101,6 +104,12 @@ namespace VoxelGame.Core.Logic.Blocks
                     new Vector3(x: 0.0625f, y: 0.5f, z: 0.5f)),
                 _ => new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.5f, y: 0.5f, z: 0.5f))
             };
+        }
+
+        /// <inheritdoc />
+        protected override BoundingVolume GetBoundingVolume(uint data)
+        {
+            return volumes[(int) data & 0b01_1111];
         }
 
         /// <inheritdoc />

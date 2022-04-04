@@ -22,6 +22,8 @@ namespace VoxelGame.Core.Logic.Blocks
     {
         private readonly List<BlockMesh> meshes = new(capacity: 8);
 
+        private readonly List<BoundingVolume> volumes = new();
+
         internal GateBlock(string name, string namedId, string closedModel, string openModel) :
             base(
                 name,
@@ -46,6 +48,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
                 BlockMesh mesh = orientation.Pick(isClosed ? closedModels : openModels).Mesh;
                 meshes.Add(mesh);
+
+                volumes.Add(CreateVolume(data));
             }
         }
 
@@ -71,8 +75,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return false;
         }
 
-        /// <inheritdoc />
-        protected override BoundingVolume GetBoundingVolume(uint data)
+        private static BoundingVolume CreateVolume(uint data)
         {
             bool isClosed = (data & 0b00_0100) == 0;
 
@@ -196,6 +199,12 @@ namespace VoxelGame.Core.Logic.Blocks
                         new Vector3(offset, y: 0.28125f, z: 0.125f),
                         new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)));
             }
+        }
+
+        /// <inheritdoc />
+        protected override BoundingVolume GetBoundingVolume(uint data)
+        {
+            return volumes[(int) data & 0b00_0111];
         }
 
         /// <inheritdoc />

@@ -24,6 +24,7 @@ namespace VoxelGame.Core.Logic.Blocks
     public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConnectable
     {
         private readonly List<BlockMesh> meshes = new(capacity: 16);
+        private readonly List<BoundingVolume> volumes = new();
 
         /// <inheritdoc />
         internal ThinConnectingBlock(string name, string namedId, string postModel, string sideModel,
@@ -58,11 +59,12 @@ namespace VoxelGame.Core.Logic.Blocks
                     (data & 0b00_0001) == 0 ? sides.west : extensions.west);
 
                 meshes.Add(mesh);
+
+                volumes.Add(CreateVolume(data));
             }
         }
 
-        /// <inheritdoc />
-        protected override BoundingVolume GetBoundingVolume(uint data)
+        private static BoundingVolume CreateVolume(uint data)
         {
             List<BoundingVolume> connectors = new(BitHelper.CountSetBits(data));
 
@@ -94,6 +96,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
                 new Vector3(x: 0.0625f, y: 0.5f, z: 0.0625f),
                 connectors.ToArray());
+        }
+
+        /// <inheritdoc />
+        protected override BoundingVolume GetBoundingVolume(uint data)
+        {
+            return volumes[(int) data & 0b00_1111];
         }
 
         /// <inheritdoc />

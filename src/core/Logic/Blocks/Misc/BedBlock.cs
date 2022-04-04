@@ -27,6 +27,8 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly List<BlockMesh> footMeshes = new(capacity: 4);
         private readonly List<BlockMesh> headMeshes = new(capacity: 4);
 
+        private readonly List<BoundingVolume> volumes = new();
+
         internal BedBlock(string name, string namedId, string model) :
             base(
                 name,
@@ -62,10 +64,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
             headMeshes.Add(headParts.west.Mesh);
             footMeshes.Add(footParts.west.Mesh);
+
+            for (uint data = 0; data <= 0b11_1111; data++) volumes.Add(CreateVolume(data));
         }
 
-        /// <inheritdoc />
-        protected override BoundingVolume GetBoundingVolume(uint data)
+        private static BoundingVolume CreateVolume(uint data)
         {
             bool isBase = (data & 0b1) == 1;
             var orientation = (Orientation) ((data & 0b00_0110) >> 1);
@@ -129,6 +132,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 new Vector3(x: 0.5f, y: 0.3125f, z: 0.5f),
                 new Vector3(x: 0.5f, y: 0.125f, z: 0.5f),
                 legs);
+        }
+
+        /// <inheritdoc />
+        protected override BoundingVolume GetBoundingVolume(uint data)
+        {
+            return volumes[(int) data & 0b11_1111];
         }
 
         /// <inheritdoc />

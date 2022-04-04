@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -22,6 +23,8 @@ namespace VoxelGame.Core.Logic.Blocks
     public class ConcreteBlock : Block, IHeightVariable, IWideConnectable, IThinConnectable
     {
         private readonly TextureLayout layout;
+
+        private readonly List<BoundingVolume> volumes = new();
         private int[] textures = null!;
 
         internal ConcreteBlock(string name, string namedId, TextureLayout layout) :
@@ -33,6 +36,15 @@ namespace VoxelGame.Core.Logic.Blocks
                 TargetBuffer.VaryingHeight)
         {
             this.layout = layout;
+
+            static BoundingVolume CreateVolume(uint data)
+            {
+                Decode(data, out _, out int height);
+
+                return BoundingVolume.BlockWithHeight(height);
+            }
+
+            for (uint data = 0; data <= 0b11_1111; data++) volumes.Add(CreateVolume(data));
         }
 
         /// <inheritdoc />
@@ -60,9 +72,7 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <inheritdoc />
         protected override BoundingVolume GetBoundingVolume(uint data)
         {
-            Decode(data, out _, out int height);
-
-            return BoundingVolume.BlockWithHeight(height);
+            return volumes[(int) data & 0b11_1111];
         }
 
         /// <inheritdoc />

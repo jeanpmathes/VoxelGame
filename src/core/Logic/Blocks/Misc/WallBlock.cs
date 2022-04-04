@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -26,6 +27,8 @@ namespace VoxelGame.Core.Logic.Blocks
         private readonly BlockMesh straightX;
         private readonly BlockMesh straightZ;
 
+        private readonly List<BoundingVolume> volumes = new();
+
         internal WallBlock(string name, string namedId, string texture, string postModel, string extensionModel,
             string extensionStraight) :
             base(
@@ -44,10 +47,11 @@ namespace VoxelGame.Core.Logic.Blocks
 
             straightX = straightXModel.Mesh;
             straightZ = straightZModel.Mesh;
+
+            for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
         }
 
-        /// <inheritdoc />
-        protected override BoundingVolume GetBoundingVolume(uint data)
+        private static BoundingVolume CreateVolume(uint data)
         {
             bool north = (data & 0b00_1000) != 0;
             bool east = (data & 0b00_0100) != 0;
@@ -108,6 +112,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
                 new Vector3(x: 0.25f, y: 0.5f, z: 0.25f),
                 children);
+        }
+
+        /// <inheritdoc />
+        protected override BoundingVolume GetBoundingVolume(uint data)
+        {
+            return volumes[(int) data & 0b00_1111];
         }
 
         /// <inheritdoc />

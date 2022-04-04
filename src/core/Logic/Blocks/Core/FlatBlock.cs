@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -33,6 +34,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private readonly string texture;
 
+        private readonly List<BoundingVolume> volumes = new();
+
         private uint[] indices = null!;
 
         private int[] textureIndices = null!;
@@ -58,6 +61,30 @@ namespace VoxelGame.Core.Logic.Blocks
             this.slidingVelocity = slidingVelocity;
 
             this.texture = texture;
+
+            for (uint data = 0; data <= 0b00_0011; data++)
+            {
+                BoundingVolume volume = (Orientation) (data & 0b00_0011) switch
+                {
+                    Orientation.North => new BoundingVolume(
+                        new Vector3(x: 0.5f, y: 0.5f, z: 0.95f),
+                        new Vector3(x: 0.45f, y: 0.5f, z: 0.05f)),
+                    Orientation.South => new BoundingVolume(
+                        new Vector3(x: 0.5f, y: 0.5f, z: 0.05f),
+                        new Vector3(x: 0.45f, y: 0.5f, z: 0.05f)),
+                    Orientation.West => new BoundingVolume(
+                        new Vector3(x: 0.95f, y: 0.5f, z: 0.5f),
+                        new Vector3(x: 0.05f, y: 0.5f, z: 0.45f)),
+                    Orientation.East => new BoundingVolume(
+                        new Vector3(x: 0.05f, y: 0.5f, z: 0.5f),
+                        new Vector3(x: 0.05f, y: 0.5f, z: 0.45f)),
+                    _ => new BoundingVolume(
+                        new Vector3(x: 0.5f, y: 0.5f, z: 0.95f),
+                        new Vector3(x: 0.5f, y: 0.5f, z: 0.05f))
+                };
+
+                volumes.Add(volume);
+            }
         }
 
         private static float[] CreateSide(Orientation orientation)
@@ -75,24 +102,7 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <inheritdoc />
         protected override BoundingVolume GetBoundingVolume(uint data)
         {
-            return (Orientation) (data & 0b00_0011) switch
-            {
-                Orientation.North => new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.5f, z: 0.95f),
-                    new Vector3(x: 0.45f, y: 0.5f, z: 0.05f)),
-                Orientation.South => new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.5f, z: 0.05f),
-                    new Vector3(x: 0.45f, y: 0.5f, z: 0.05f)),
-                Orientation.West => new BoundingVolume(
-                    new Vector3(x: 0.95f, y: 0.5f, z: 0.5f),
-                    new Vector3(x: 0.05f, y: 0.5f, z: 0.45f)),
-                Orientation.East => new BoundingVolume(
-                    new Vector3(x: 0.05f, y: 0.5f, z: 0.5f),
-                    new Vector3(x: 0.05f, y: 0.5f, z: 0.45f)),
-                _ => new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.5f, z: 0.95f),
-                    new Vector3(x: 0.5f, y: 0.5f, z: 0.05f))
-            };
+            return volumes[(int) (data & 0b00_0011)];
         }
 
         /// <inheritdoc />

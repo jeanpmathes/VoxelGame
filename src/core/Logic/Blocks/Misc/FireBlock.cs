@@ -32,6 +32,8 @@ namespace VoxelGame.Core.Logic.Blocks
 
         private readonly List<BlockMesh> meshes = new(capacity: 32);
 
+        private readonly List<BoundingVolume> volumes = new();
+
         internal FireBlock(string name, string namedId, string completeModel, string sideModel, string topModel) :
             base(
                 name,
@@ -46,6 +48,8 @@ namespace VoxelGame.Core.Logic.Blocks
             BlockModel top = BlockModel.Load(topModel);
 
             PrepareMeshes(complete, side, top);
+
+            for (uint data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
         }
 
         /// <inheritdoc />
@@ -91,8 +95,7 @@ namespace VoxelGame.Core.Logic.Blocks
             }
         }
 
-        /// <inheritdoc />
-        protected override BoundingVolume GetBoundingVolume(uint data)
+        private static BoundingVolume CreateVolume(uint data)
         {
             if (data == 0) return BoundingVolume.Block;
 
@@ -126,6 +129,12 @@ namespace VoxelGame.Core.Logic.Blocks
                 if (count == 0) parent = child;
                 else children[count - 1] = child;
             }
+        }
+
+        /// <inheritdoc />
+        protected override BoundingVolume GetBoundingVolume(uint data)
+        {
+            return volumes[(int) data & 0b01_1111];
         }
 
         /// <inheritdoc />

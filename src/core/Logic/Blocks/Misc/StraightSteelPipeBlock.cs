@@ -19,11 +19,12 @@ namespace VoxelGame.Core.Logic.Blocks
     ///     Data bit usage: <c>----aa</c>
     /// </summary>
     // aa: axis
-    internal class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectable
+    public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectable
     {
         private readonly float diameter;
 
         private readonly List<BlockMesh> meshes = new(capacity: 3);
+        private readonly List<BoundingVolume> volumes = new();
 
         internal StraightSteelPipeBlock(string name, string namedId, float diameter, string model) :
             base(
@@ -40,32 +41,50 @@ namespace VoxelGame.Core.Logic.Blocks
             meshes.Add(x.Mesh);
             meshes.Add(y.Mesh);
             meshes.Add(z.Mesh);
+
+            for (uint data = 0; data <= 0b00_0011; data++)
+            {
+                if (data == 0b00_0011) continue; // End condition not changed to keep consistent with other blocks.
+
+                volumes.Add(CreateVolume(data));
+            }
         }
 
+        /// <inheritdoc />
         public bool RenderLiquid => false;
 
+        /// <inheritdoc />
         public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
         {
             return IsSideOpen(world, position, side);
         }
 
+        /// <inheritdoc />
         public bool AllowOutflow(World world, Vector3i position, BlockSide side)
         {
             return IsSideOpen(world, position, side);
         }
 
+        /// <inheritdoc />
         public bool IsConnectable(World world, BlockSide side, Vector3i position)
         {
             return IsSideOpen(world, position, side);
         }
 
-        protected override BoundingVolume GetBoundingVolume(uint data)
+        private BoundingVolume CreateVolume(uint data)
         {
             var axis = (Axis) (data & 0b00_0011);
 
             return new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), axis.Vector3(onAxis: 0.5f, diameter));
         }
 
+        /// <inheritdoc />
+        protected override BoundingVolume GetBoundingVolume(uint data)
+        {
+            return volumes[(int) data & 0b00_0011];
+        }
+
+        /// <inheritdoc />
         public override BlockMeshData GetMesh(BlockMeshInfo info)
         {
             BlockMesh mesh = meshes[(int) info.Data & 0b00_0011];
@@ -73,6 +92,7 @@ namespace VoxelGame.Core.Logic.Blocks
             return mesh.GetComplexMeshData();
         }
 
+        /// <inheritdoc />
         protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
         {
             world.SetBlock(this.AsInstance((uint) (entity?.TargetSide ?? BlockSide.Front).Axis()), position);
