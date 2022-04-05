@@ -145,41 +145,40 @@ namespace VoxelGame.Core.Logic
 
             Vector3i aboveLightPosition = light.position - light.liquid.FlowDirection;
 
-            (BlockInstance? aboveLightBlock, LiquidInstance? aboveLightLiquid) = world.GetContent(
+            (BlockInstance, LiquidInstance)? content = world.GetContent(
                 light.position - light.liquid.FlowDirection);
 
-            if (aboveLightBlock?.Block is IFillable fillable && fillable.AllowInflow(
-                                                                 world,
-                                                                 aboveLightPosition,
-                                                                 light.liquid.Direction.EntrySide().Opposite(),
-                                                                 light.liquid)
-                                                             && aboveLightLiquid?.Liquid == Liquid.None)
-            {
-                world.SetLiquid(
-                    light.liquid.AsInstance(light.level),
-                    aboveLightPosition);
+            if (content is not ({ Block: IFillable fillable }, {} aboveLightLiquid)) return false;
 
-                light.liquid.TickSoon(
+            if (!fillable.AllowInflow(
                     world,
                     aboveLightPosition,
-                    isStatic: true);
+                    light.liquid.Direction.EntrySide().Opposite(),
+                    light.liquid) || aboveLightLiquid.Liquid != Liquid.None) return false;
 
-                world.SetLiquid(
-                    dense.liquid.AsInstance(LiquidLevel.One),
-                    light.position);
+            world.SetLiquid(
+                light.liquid.AsInstance(light.level),
+                aboveLightPosition);
 
-                dense.liquid.TickSoon(world, light.position, isStatic: true);
+            light.liquid.TickSoon(
+                world,
+                aboveLightPosition,
+                isStatic: true);
 
-                world.SetLiquid(
-                    dense.liquid.AsInstance(dense.level - 1),
-                    dense.position);
+            world.SetLiquid(
+                dense.liquid.AsInstance(LiquidLevel.One),
+                light.position);
 
-                dense.liquid.TickSoon(world, dense.position, isStatic: true);
+            dense.liquid.TickSoon(world, light.position, isStatic: true);
 
-                return true;
-            }
+            world.SetLiquid(
+                dense.liquid.AsInstance(dense.level - 1),
+                dense.position);
 
-            return false;
+            dense.liquid.TickSoon(world, dense.position, isStatic: true);
+
+            return true;
+
         }
 
         private static bool ConcreteDissolve(World world, ContactInformation a, ContactInformation b)

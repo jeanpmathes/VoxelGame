@@ -213,8 +213,8 @@ namespace VoxelGame.Client.Entities
 
                 headPosition = camera.Position.Floor();
 
-                (BlockInstance? block, LiquidInstance? liquid) = World.GetContent(headPosition);
-                visualization.SetOverlay(block?.Block, liquid?.Liquid);
+                (BlockInstance block, LiquidInstance liquid)? content = World.GetContent(headPosition);
+                visualization.SetOverlay(content?.block.Block, content?.liquid.Liquid);
 
                 firstUpdate = false;
             }
@@ -229,7 +229,8 @@ namespace VoxelGame.Client.Entities
             var ray = new Ray(camera.Position, camera.Front, length: 6f);
             bool hit = Raycast.CastBlock(World, ray, out targetPosition, out targetSide);
 
-            if (hit) (targetBlock, targetLiquid) = World.GetContent(targetPosition);
+            if (hit && World.GetContent(targetPosition) is ({} block, {} liquid))
+                (targetBlock, targetLiquid) = (block, liquid);
             else (targetBlock, targetLiquid) = (null, null);
         }
 

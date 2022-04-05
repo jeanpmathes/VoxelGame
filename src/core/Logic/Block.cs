@@ -148,13 +148,15 @@ namespace VoxelGame.Core.Logic
         /// <returns>True if placement was successful.</returns>
         public bool Place(World world, Vector3i position, PhysicsEntity? entity = null)
         {
-            (BlockInstance? block, LiquidInstance? liquid) = world.GetContent(position);
+            (BlockInstance, LiquidInstance)? content = world.GetContent(position);
 
-            bool canPlace = block?.Block.IsReplaceable == true && CanPlace(world, position, entity);
+            if (content == null) return false;
+
+            (BlockInstance block, LiquidInstance liquid) = content.Value;
+
+            bool canPlace = block.Block.IsReplaceable && CanPlace(world, position, entity);
 
             if (canPlace) DoPlace(world, position, entity);
-
-            liquid ??= LiquidInstance.Default;
 
             if (liquid.Liquid != Liquid.None && this is IFillable fillable)
                 fillable.LiquidChange(world, position, liquid.Liquid, liquid.Level);

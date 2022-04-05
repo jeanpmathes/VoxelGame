@@ -243,9 +243,9 @@ namespace VoxelGame.Core.Logic
         /// <param name="pumpDistance">The maximum amount of elevation.</param>
         public static void Elevate(World world, Vector3i position, int pumpDistance)
         {
-            (BlockInstance? start, LiquidInstance? toElevate) = world.GetContent(position);
+            (BlockInstance, LiquidInstance)? content = world.GetContent(position);
 
-            if (start == null || toElevate == null) return;
+            if (content is not ({} start, {} toElevate)) return;
             if (toElevate.Liquid == None || toElevate.Liquid.IsGas) return;
 
             var currentLevel = (int) toElevate.Level;

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -224,7 +225,7 @@ namespace VoxelGame.Core.Logic
         /// <param name="position">The world position.</param>
         /// <returns>The content, if there is any.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public (BlockInstance? block, LiquidInstance? liquid) GetContent(Vector3i position)
+        public (BlockInstance block, LiquidInstance liquid)? GetContent(Vector3i position)
         {
             RetrieveContent(
                 position,
@@ -234,7 +235,12 @@ namespace VoxelGame.Core.Logic
                 out LiquidLevel level,
                 out bool isStatic);
 
-            return (block?.AsInstance(data), liquid?.AsInstance(level, isStatic));
+            if (block == null || liquid == null) return null;
+
+            Debug.Assert(block != null);
+            Debug.Assert(liquid != null);
+
+            return (block.AsInstance(data), liquid.AsInstance(level, isStatic));
         }
 
         /// <summary>
@@ -303,10 +309,13 @@ namespace VoxelGame.Core.Logic
             {
                 Vector3i neighborPosition = side.Offset(position);
 
-                (BlockInstance? blockNeighbor, LiquidInstance? liquidNeighbor) = GetContent(neighborPosition);
+                (BlockInstance, LiquidInstance)? content = GetContent(neighborPosition);
 
-                blockNeighbor?.Block.BlockUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
-                liquidNeighbor?.Liquid.TickSoon(this, neighborPosition, liquidNeighbor.IsStatic);
+                if (content == null) continue;
+                (BlockInstance blockNeighbor, LiquidInstance liquidNeighbor) = content.Value;
+
+                blockNeighbor.Block.BlockUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
+                liquidNeighbor.Liquid.TickSoon(this, neighborPosition, liquidNeighbor.IsStatic);
             }
 
             ProcessChangedSection(chunk, position);
@@ -372,12 +381,15 @@ namespace VoxelGame.Core.Logic
         /// <returns>True if both the liquid and block at the position received a random update.</returns>
         public bool DoRandomUpdate(Vector3i position)
         {
-            (BlockInstance? block, LiquidInstance? liquid) = GetContent(position);
+            (BlockInstance, LiquidInstance)? content = GetContent(position);
 
-            block?.Block.RandomUpdate(this, position, block.Data);
-            liquid?.Liquid.RandomUpdate(this, position, liquid.Level, liquid.IsStatic);
+            if (content == null) return false;
+            (BlockInstance block, LiquidInstance liquid) = content.Value;
 
-            return block != null && liquid != null;
+            block.Block.RandomUpdate(this, position, block.Data);
+            liquid.Liquid.RandomUpdate(this, position, liquid.Level, liquid.IsStatic);
+
+            return true;
         }
 
         /// <summary>

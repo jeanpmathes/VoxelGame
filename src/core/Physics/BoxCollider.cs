@@ -141,43 +141,42 @@ public struct BoxCollider
         {
             Vector3i position = center + new Vector3i(x, y, z);
 
-            (BlockInstance? currentBlock, LiquidInstance? currentLiquid) = world.GetContent(position);
+            (BlockInstance, LiquidInstance)? content = world.GetContent(position);
 
-            if (currentBlock != null)
+            if (content == null) continue;
+            (BlockInstance currentBlock, LiquidInstance currentLiquid) = content.Value;
+
+            BoxCollider blockCollider = currentBlock.Block.GetCollider(
+                world,
+                position);
+
+            var newX = false;
+            var newY = false;
+            var newZ = false;
+
+            if ((currentBlock.Block.IsSolid || currentBlock.Block.IsTrigger) && Intersects(
+                    blockCollider,
+                    ref newX,
+                    ref newY,
+                    ref newZ))
             {
-                BoxCollider currentCollider = currentBlock.Block.GetCollider(
-                    world,
-                    position);
+                blockIntersections.Add((position, currentBlock.Block));
 
-                var newX = false;
-                var newY = false;
-                var newZ = false;
-
-                // Check for intersection
-                if ((currentBlock.Block.IsSolid || currentBlock.Block.IsTrigger) && Intersects(
-                        currentCollider,
-                        ref newX,
-                        ref newY,
-                        ref newZ))
+                if (currentBlock.Block.IsSolid)
                 {
-                    blockIntersections.Add((position, currentBlock.Block));
+                    intersects = true;
 
-                    if (currentBlock.Block.IsSolid)
-                    {
-                        intersects = true;
-
-                        xCollision |= newX;
-                        yCollision |= newY;
-                        zCollision |= newZ;
-                    }
+                    xCollision |= newX;
+                    yCollision |= newY;
+                    zCollision |= newZ;
                 }
             }
 
-            if (currentLiquid?.Liquid.CheckContact == true)
+            if (currentLiquid.Liquid.CheckContact)
             {
-                BoxCollider currentCollider = Liquid.GetCollider(position, currentLiquid.Level);
+                BoxCollider liquidCollider = Liquid.GetCollider(position, currentLiquid.Level);
 
-                if (Intersects(currentCollider))
+                if (Intersects(liquidCollider))
                     liquidIntersections.Add((position, currentLiquid.Liquid, currentLiquid.Level));
             }
         }
