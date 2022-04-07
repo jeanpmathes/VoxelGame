@@ -78,9 +78,10 @@ namespace VoxelGame.Core.Logic
 
             public void Tick(World world)
             {
-                BlockInstance? block = world.GetBlock((x, y, z));
+                BlockInstance? potentialBlock = world.GetBlock((x, y, z));
 
-                if (block?.Block.Id != target) return;
+                if (potentialBlock is not {} block) return;
+                if (block.Block.Id != target) return;
 
                 switch (operation)
                 {

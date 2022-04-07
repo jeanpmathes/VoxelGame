@@ -56,23 +56,20 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <inheritdoc />
         public bool IsConnectable(World world, BlockSide side, Vector3i position)
         {
-            BlockInstance? block = world.GetBlock(position);
+            BlockInstance? potentialBlock = world.GetBlock(position);
 
-            if (block?.Block == this)
+            if (potentialBlock is not {} block || block.Block != this) return false;
+
+            var orientation = (Orientation) (block.Data & 0b00_0011);
+
+            return orientation switch
             {
-                var orientation = (Orientation) (block.Data & 0b00_0011);
-
-                return orientation switch
-                {
-                    Orientation.North => side is BlockSide.Left or BlockSide.Right,
-                    Orientation.East => side is BlockSide.Front or BlockSide.Back,
-                    Orientation.South => side is BlockSide.Left or BlockSide.Right,
-                    Orientation.West => side is BlockSide.Front or BlockSide.Back,
-                    _ => false
-                };
-            }
-
-            return false;
+                Orientation.North => side is BlockSide.Left or BlockSide.Right,
+                Orientation.East => side is BlockSide.Front or BlockSide.Back,
+                Orientation.South => side is BlockSide.Left or BlockSide.Right,
+                Orientation.West => side is BlockSide.Front or BlockSide.Back,
+                _ => false
+            };
         }
 
         private static BoundingVolume CreateVolume(uint data)

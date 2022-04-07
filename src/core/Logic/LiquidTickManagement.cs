@@ -67,9 +67,11 @@ namespace VoxelGame.Core.Logic
 
             public void Tick(World world)
             {
-                LiquidInstance? liquid = world.GetLiquid((x, y, z));
+                LiquidInstance? potentialLiquid = world.GetLiquid((x, y, z));
 
-                if (liquid?.Liquid.Id == target)
+                if (potentialLiquid is not {} liquid) return;
+
+                if (liquid.Liquid.Id == target)
                     liquid.Liquid.ScheduledUpdate(world, (x, y, z), liquid.Level, liquid.IsStatic);
             }
 

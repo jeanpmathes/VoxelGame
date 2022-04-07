@@ -96,7 +96,7 @@ namespace VoxelGame.Core.Utilities
             BlockInstance? below = world.GetBlock(position.Below());
 
             return below?.Block is IHeightVariable block
-                   && block.GetHeight(below.Data) == IHeightVariable.MaximumHeight - 1;
+                   && block.GetHeight(below.Value.Data) == IHeightVariable.MaximumHeight - 1;
         }
     }
 }

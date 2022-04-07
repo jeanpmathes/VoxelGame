@@ -199,9 +199,9 @@ namespace VoxelGame.Core.Logic
         /// <param name="position">The position of the liquid.</param>
         public void EntityContact(PhysicsEntity entity, Vector3i position)
         {
-            LiquidInstance? liquid = entity.World.GetLiquid(position);
+            LiquidInstance? potentialLiquid = entity.World.GetLiquid(position);
 
-            if (liquid?.Liquid == this)
+            if (potentialLiquid is {} liquid && liquid.Liquid == this)
                 EntityContact(entity, position, liquid.Level, liquid.IsStatic);
         }
 

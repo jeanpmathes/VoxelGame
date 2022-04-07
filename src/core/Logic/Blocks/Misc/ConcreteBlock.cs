@@ -58,9 +58,11 @@ namespace VoxelGame.Core.Logic.Blocks
         /// <inheritdoc />
         public bool IsConnectable(World world, BlockSide side, Vector3i position)
         {
-            BlockInstance? block = world.GetBlock(position);
+            BlockInstance? potentialBlock = world.GetBlock(position);
 
-            return block != null && GetHeight(block.Data) == IHeightVariable.MaximumHeight;
+            if (potentialBlock is not {} block) return false;
+
+            return GetHeight(block.Data) == IHeightVariable.MaximumHeight;
         }
 
         /// <inheritdoc />

@@ -269,7 +269,7 @@ namespace VoxelGame.Core.Logic.Liquids
             {
                 (BlockInstance, LiquidInstance)? lowerContent = world.GetContent(lowerPosition);
 
-                if (lowerContent is not ({ Block: IFillable fillable }, {} lowerLiquid)) return false;
+                if (lowerContent is not ({ Block: IFillable fillable }, var lowerLiquid)) return false;
 
                 bool canFlowWithoutCapacity = liquidBelowIsNone && lowerLiquid.Liquid != this;
 
@@ -512,9 +512,9 @@ namespace VoxelGame.Core.Logic.Liquids
                        outgoingSide);
         }
 
-        private bool HasCapacity(LiquidInstance? liquid)
+        private bool HasCapacity(LiquidInstance liquid)
         {
-            return liquid?.Liquid == this && liquid.Level != LiquidLevel.Eight;
+            return liquid.Liquid == this && liquid.Level != LiquidLevel.Eight;
         }
     }
 }

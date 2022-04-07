@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic
     /// </summary>
     /// <param name="Block">The block.</param>
     /// <param name="Data">The data of the block.</param>
-    public record BlockInstance(Block Block, uint Data)
+    public record struct BlockInstance(Block Block, uint Data)
     {
         /// <summary>
         ///     Get the default block instance.
@@ -31,7 +31,7 @@ namespace VoxelGame.Core.Logic
     /// <param name="Liquid">The liquid.</param>
     /// <param name="Level">The level of the liquid.</param>
     /// <param name="IsStatic">Whether the liquid is static.</param>
-    public record LiquidInstance(Liquid Liquid, LiquidLevel Level, bool IsStatic)
+    public record struct LiquidInstance(Liquid Liquid, LiquidLevel Level, bool IsStatic)
     {
         /// <summary>
         ///     Get the default liquid instance.

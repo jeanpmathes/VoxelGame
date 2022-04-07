@@ -174,9 +174,10 @@ namespace VoxelGame.Core.Logic
         /// <returns>True if destruction was successful.</returns>
         public bool Destroy(World world, Vector3i position, PhysicsEntity? entity = null)
         {
-            BlockInstance? block = world.GetBlock(position);
+            BlockInstance? potentialBlock = world.GetBlock(position);
 
-            if (block?.Block != this || !CanDestroy(world, position, block.Data, entity)) return false;
+            if (potentialBlock is not {} block) return false;
+            if (block.Block != this || !CanDestroy(world, position, block.Data, entity)) return false;
 
             DoDestroy(world, position, block.Data, entity);
 
@@ -201,9 +202,9 @@ namespace VoxelGame.Core.Logic
         /// <returns>The bounding volume.</returns>
         public BoxCollider GetCollider(World world, Vector3i position)
         {
-            BlockInstance? instance = world.GetBlock(position);
+            BlockInstance? potentialBlock = world.GetBlock(position);
 
-            return (instance?.Block == this ? GetBoundingVolume(instance.Data) : boundingVolume)
+            return (potentialBlock?.Block == this ? GetBoundingVolume(potentialBlock.Value.Data) : boundingVolume)
                 .GetColliderAt(position);
         }
 
@@ -282,8 +283,8 @@ namespace VoxelGame.Core.Logic
         /// <param name="position">The block position.</param>
         public void EntityCollision(PhysicsEntity entity, Vector3i position)
         {
-            BlockInstance? block = entity.World.GetBlock(position);
-            if (block?.Block == this) EntityCollision(entity, position, block.Data);
+            BlockInstance? potentialBlock = entity.World.GetBlock(position);
+            if (potentialBlock?.Block == this) EntityCollision(entity, position, potentialBlock.Value.Data);
         }
 
         /// <summary>
@@ -301,8 +302,8 @@ namespace VoxelGame.Core.Logic
         /// <param name="position">The block position.</param>
         public void EntityInteract(PhysicsEntity entity, Vector3i position)
         {
-            BlockInstance? block = entity.World.GetBlock(position);
-            if (block?.Block == this) EntityInteract(entity, position, block.Data);
+            BlockInstance? potentialBlock = entity.World.GetBlock(position);
+            if (potentialBlock?.Block == this) EntityInteract(entity, position, potentialBlock.Value.Data);
         }
 
         /// <summary>

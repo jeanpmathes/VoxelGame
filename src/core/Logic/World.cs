@@ -252,9 +252,9 @@ namespace VoxelGame.Core.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetBlock(BlockInstance block, Vector3i position)
         {
-            LiquidInstance? liquid = GetLiquid(position);
+            LiquidInstance? potentialLiquid = GetLiquid(position);
 
-            if (liquid is null) return;
+            if (potentialLiquid is not {} liquid) return;
 
             SetContent(block, liquid, position, tickLiquid: true);
         }
@@ -268,9 +268,9 @@ namespace VoxelGame.Core.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetLiquid(LiquidInstance liquid, Vector3i position)
         {
-            BlockInstance? block = GetBlock(position);
+            BlockInstance? potentialBlock = GetBlock(position);
 
-            if (block is null) return;
+            if (potentialBlock is not {} block) return;
 
             SetContent(block, liquid, position, tickLiquid: false);
         }

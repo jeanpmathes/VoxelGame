@@ -276,13 +276,15 @@ namespace VoxelGame.Client.Entities
             Debug.Assert(targetBlock != null);
             Debug.Assert(targetLiquid != null);
 
+            BlockInstance currentTarget = targetBlock.Value;
+
             if (timer < interactionCooldown || interactOrPlaceButton.IsUp) return;
 
             Vector3i placePosition = targetPosition;
 
-            if (blockInteractButton.IsDown || !targetBlock.Block.IsInteractable)
+            if (blockInteractButton.IsDown || !currentTarget.Block.IsInteractable)
             {
-                if (!targetBlock.Block.IsReplaceable) placePosition = targetSide.Offset(placePosition);
+                if (!currentTarget.Block.IsReplaceable) placePosition = targetSide.Offset(placePosition);
 
                 // Prevent block placement if the block would intersect the player.
                 if (!blockMode || !activeBlock.IsSolid || !Collider.Intersects(
@@ -294,9 +296,9 @@ namespace VoxelGame.Client.Entities
                     timer = 0;
                 }
             }
-            else if (targetBlock.Block.IsInteractable)
+            else if (currentTarget.Block.IsInteractable)
             {
-                targetBlock.Block.EntityInteract(this, targetPosition);
+                currentTarget.Block.EntityInteract(this, targetPosition);
 
                 timer = 0;
             }
@@ -307,9 +309,11 @@ namespace VoxelGame.Client.Entities
             Debug.Assert(targetBlock != null);
             Debug.Assert(targetLiquid != null);
 
+            BlockInstance currentTarget = targetBlock.Value;
+
             if (timer >= interactionCooldown && destroyButton.IsDown)
             {
-                if (blockMode) targetBlock.Block.Destroy(World, targetPosition, this);
+                if (blockMode) currentTarget.Block.Destroy(World, targetPosition, this);
                 else TakeLiquid(targetPosition);
 
                 timer = 0;
@@ -319,7 +323,7 @@ namespace VoxelGame.Client.Entities
             {
                 var level = LiquidLevel.One;
 
-                if (!targetBlock.Block.IsReplaceable)
+                if (!currentTarget.Block.IsReplaceable)
                     position = targetSide.Offset(position);
 
                 World.GetLiquid(position)?.Liquid.Take(World, position, ref level);

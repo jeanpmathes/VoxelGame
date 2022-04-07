@@ -40,7 +40,7 @@ namespace VoxelGame.Core.Logic.Blocks
         {
             LiquidInstance? liquid = world.GetLiquid(position);
 
-            if (liquid?.Liquid == Liquid.Water && liquid.Level == LiquidLevel.Eight)
+            if (liquid?.Liquid == Liquid.Water && liquid.Value.Level == LiquidLevel.Eight)
                 world.SetBlock(Mud.AsInstance(), position);
 
             for (int yOffset = -1; yOffset <= 1; yOffset++)
