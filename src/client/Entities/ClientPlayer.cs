@@ -346,7 +346,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         return true;
     }
 
-    private class InputBehaviour
+    private sealed class InputBehaviour
     {
         private readonly Button blockInteractButton;
         private readonly Button destroyButton;
