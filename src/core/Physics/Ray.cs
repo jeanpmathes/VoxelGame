@@ -7,85 +7,84 @@
 using System;
 using OpenTK.Mathematics;
 
-namespace VoxelGame.Core.Physics
+namespace VoxelGame.Core.Physics;
+
+/// <summary>
+///     A ray trough 3D space.
+/// </summary>
+public readonly struct Ray : IEquatable<Ray>
 {
     /// <summary>
-    ///     A ray trough 3D space.
+    ///     The origin of the ray.
     /// </summary>
-    public readonly struct Ray : IEquatable<Ray>
+    public Vector3 Origin { get; }
+
+    /// <summary>
+    ///     The direction of the ray.
+    /// </summary>
+    public Vector3 Direction { get; }
+
+    /// <summary>
+    ///     The length of the ray.
+    /// </summary>
+    public float Length { get; }
+
+    /// <summary>
+    ///     Create a new ray trough 3D space.
+    /// </summary>
+    public Ray(Vector3 origin, Vector3 direction, float length)
     {
-        /// <summary>
-        ///     The origin of the ray.
-        /// </summary>
-        public Vector3 Origin { get; }
+        Origin = origin;
+        Direction = direction.Normalized();
+        Length = length;
+    }
 
-        /// <summary>
-        ///     The direction of the ray.
-        /// </summary>
-        public Vector3 Direction { get; }
+    /// <summary>
+    ///     Get a translated ray.
+    /// </summary>
+    public Ray Translated(Vector3 translation)
+    {
+        return new Ray(Origin + translation, Direction, Length);
+    }
 
-        /// <summary>
-        ///     The length of the ray.
-        /// </summary>
-        public float Length { get; }
+    /// <summary>
+    ///     The end point of the ray.
+    /// </summary>
+    public Vector3 EndPoint => Origin + Direction * Length;
 
-        /// <summary>
-        ///     Create a new ray trough 3D space.
-        /// </summary>
-        public Ray(Vector3 origin, Vector3 direction, float length)
-        {
-            Origin = origin;
-            Direction = direction.Normalized();
-            Length = length;
-        }
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Origin.GetHashCode(), Direction.GetHashCode());
+    }
 
-        /// <summary>
-        ///     Get a translated ray.
-        /// </summary>
-        public Ray Translated(Vector3 translation)
-        {
-            return new Ray(Origin + translation, Direction, Length);
-        }
+    /// <summary>
+    ///     Compare two rays for equality.
+    /// </summary>
+    public static bool operator ==(Ray left, Ray right)
+    {
+        return left.Equals(right);
+    }
 
-        /// <summary>
-        ///     The end point of the ray.
-        /// </summary>
-        public Vector3 EndPoint => Origin + Direction * Length;
+    /// <summary>
+    ///     Compare two rays for inequality.
+    /// </summary>
+    public static bool operator !=(Ray left, Ray right)
+    {
+        return !(left == right);
+    }
 
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Origin.GetHashCode(), Direction.GetHashCode());
-        }
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        if (obj is Ray ray) return Equals(ray);
 
-        /// <summary>
-        ///     Compare two rays for equality.
-        /// </summary>
-        public static bool operator ==(Ray left, Ray right)
-        {
-            return left.Equals(right);
-        }
+        return false;
+    }
 
-        /// <summary>
-        ///     Compare two rays for inequality.
-        /// </summary>
-        public static bool operator !=(Ray left, Ray right)
-        {
-            return !(left == right);
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-        {
-            if (obj is Ray ray) return Equals(ray);
-
-            return false;
-        }
-
-        /// <inheritdoc />
-        public bool Equals(Ray other)
-        {
-            return Origin.Equals(other.Origin) && Direction.Equals(other.Direction);
-        }
+    /// <inheritdoc />
+    public bool Equals(Ray other)
+    {
+        return Origin.Equals(other.Origin) && Direction.Equals(other.Direction);
     }
 }

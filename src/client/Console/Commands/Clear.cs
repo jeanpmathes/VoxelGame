@@ -6,26 +6,24 @@
 
 using JetBrains.Annotations;
 
-namespace VoxelGame.Client.Console.Commands
-{
+namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
 
-    /// <summary>
-    ///     Clears the console.
-    /// </summary>
-    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public class Clear : Command
+/// <summary>
+///     Clears the console.
+/// </summary>
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+public class Clear : Command
+{
+    /// <inheritdoc />
+    public override string Name => "clear";
+
+    /// <inheritdoc />
+    public override string HelpText => "Clear the console.";
+
+    /// <exclude />
+    public void Invoke()
     {
-        /// <inheritdoc />
-        public override string Name => "clear";
-
-        /// <inheritdoc />
-        public override string HelpText => "Clear the console.";
-
-        /// <exclude />
-        public void Invoke()
-        {
-            Context.Console.Clear();
-        }
+        Context.Console.Clear();
     }
 }

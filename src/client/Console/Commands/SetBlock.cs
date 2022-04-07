@@ -8,53 +8,51 @@ using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 
-namespace VoxelGame.Client.Console.Commands
-{
+namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
 
-    /// <summary>
-    ///     Sets the block at the target position. Can cause invalid block state.
-    /// </summary>
-    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public class SetBlock : Command
+/// <summary>
+///     Sets the block at the target position. Can cause invalid block state.
+/// </summary>
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+public class SetBlock : Command
+{
+    /// <inheritdoc />
+    public override string Name => "set-block";
+
+    /// <inheritdoc />
+    public override string HelpText => "Sets the block at the target position. Can cause invalid block state.";
+
+    /// <exclude />
+    public void Invoke(string namedID, int data, int x, int y, int z)
     {
-        /// <inheritdoc />
-        public override string Name => "set-block";
+        Set(namedID, data, (x, y, z));
+    }
 
-        /// <inheritdoc />
-        public override string HelpText => "Sets the block at the target position. Can cause invalid block state.";
+    /// <exclude />
+    public void Invoke(string namedID, int data)
+    {
+        Set(namedID, data, Context.Player.TargetPosition);
+    }
 
-        /// <exclude />
-        public void Invoke(string namedID, int data, int x, int y, int z)
+    private void Set(string namedID, int data, Vector3i position)
+    {
+        Block? block = Block.TranslateNamedID(namedID);
+
+        if (block == null)
         {
-            Set(namedID, data, (x, y, z));
+            Context.Console.WriteError("Cannot find block.");
+
+            return;
         }
 
-        /// <exclude />
-        public void Invoke(string namedID, int data)
+        if (data is < 0 or > 0b11_1111)
         {
-            Set(namedID, data, Context.Player.TargetPosition);
+            Context.Console.WriteError("Invalid data value.");
+
+            return;
         }
 
-        private void Set(string namedID, int data, Vector3i position)
-        {
-            Block? block = Block.TranslateNamedID(namedID);
-
-            if (block == null)
-            {
-                Context.Console.WriteError("Cannot find block.");
-
-                return;
-            }
-
-            if (data is < 0 or > 0b11_1111)
-            {
-                Context.Console.WriteError("Invalid data value.");
-
-                return;
-            }
-
-            Context.Player.World.SetBlock(block.AsInstance((uint) data), position);
-        }
+        Context.Player.World.SetBlock(block.AsInstance((uint) data), position);
     }
 }

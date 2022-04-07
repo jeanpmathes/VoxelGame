@@ -6,30 +6,29 @@
 
 using OpenTK.Mathematics;
 
-namespace VoxelGame.Input.Composite
+namespace VoxelGame.Input.Composite;
+
+/// <summary>
+///     A two-dimensional axis.
+/// </summary>
+public class InputAxis2
 {
+    private readonly InputAxis x;
+    private readonly InputAxis y;
+
     /// <summary>
-    ///     A two-dimensional axis.
+    ///     Create a new axis.
     /// </summary>
-    public class InputAxis2
+    /// <param name="x">The x axis.</param>
+    /// <param name="y">The y axis.</param>
+    public InputAxis2(InputAxis x, InputAxis y)
     {
-        private readonly InputAxis x;
-        private readonly InputAxis y;
-
-        /// <summary>
-        ///     Create a new axis.
-        /// </summary>
-        /// <param name="x">The x axis.</param>
-        /// <param name="y">The y axis.</param>
-        public InputAxis2(InputAxis x, InputAxis y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-
-        /// <summary>
-        ///     The current value of the axis.
-        /// </summary>
-        public Vector2 Value => new(x.Value, y.Value);
+        this.x = x;
+        this.y = y;
     }
+
+    /// <summary>
+    ///     The current value of the axis.
+    /// </summary>
+    public Vector2 Value => new(x.Value, y.Value);
 }

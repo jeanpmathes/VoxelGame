@@ -8,43 +8,42 @@ using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Logic;
 
-namespace VoxelGame.Core.Generation
+namespace VoxelGame.Core.Generation;
+
+/// <summary>
+///     Creates worlds using sine waves.
+/// </summary>
+public class SineGenerator : IWorldGenerator
 {
+    private readonly float a;
+    private readonly int amplitude;
+    private readonly float b;
+    private readonly int mid;
+
     /// <summary>
-    ///     Creates worlds using sine waves.
+    ///     Creates a new sine generator.
     /// </summary>
-    public class SineGenerator : IWorldGenerator
+    /// <param name="amplitude">The amplitude of the sine wave.</param>
+    /// <param name="mid">The mid point around which the sine wave is constructed.</param>
+    /// <param name="a">Stretch factor a.</param>
+    /// <param name="b">Stretch factor b.</param>
+    public SineGenerator(int amplitude, int mid, float a = 1f, float b = 1f)
     {
-        private readonly float a;
-        private readonly int amplitude;
-        private readonly float b;
-        private readonly int mid;
+        this.amplitude = amplitude;
+        this.mid = mid;
+        this.a = a;
+        this.b = b;
+    }
 
-        /// <summary>
-        ///     Creates a new sine generator.
-        /// </summary>
-        /// <param name="amplitude">The amplitude of the sine wave.</param>
-        /// <param name="mid">The mid point around which the sine wave is constructed.</param>
-        /// <param name="a">Stretch factor a.</param>
-        /// <param name="b">Stretch factor b.</param>
-        public SineGenerator(int amplitude, int mid, float a = 1f, float b = 1f)
-        {
-            this.amplitude = amplitude;
-            this.mid = mid;
-            this.a = a;
-            this.b = b;
-        }
+    /// <inheritdoc />
+    public IEnumerable<Block> GenerateColumn(int x, int z)
+    {
+        int height = (int) (amplitude * (Math.Sin(a * x) - Math.Sin(b * z))) + mid;
 
-        /// <inheritdoc />
-        public IEnumerable<Block> GenerateColumn(int x, int z)
-        {
-            int height = (int) (amplitude * (Math.Sin(a * x) - Math.Sin(b * z))) + mid;
-
-            for (var y = 0; y < Section.SectionSize * Chunk.VerticalSectionCount; y++)
-                if (y > height) yield return Block.Air;
-                else if (y == height) yield return Block.Grass;
-                else if (y > height - 5) yield return Block.Dirt;
-                else yield return Block.Stone;
-        }
+        for (var y = 0; y < Section.SectionSize * Chunk.VerticalSectionCount; y++)
+            if (y > height) yield return Block.Air;
+            else if (y == height) yield return Block.Grass;
+            else if (y > height - 5) yield return Block.Dirt;
+            else yield return Block.Stone;
     }
 }

@@ -6,69 +6,68 @@
 
 using OpenTK.Mathematics;
 
-namespace VoxelGame.Client.Scenes
+namespace VoxelGame.Client.Scenes;
+
+/// <summary>
+///     Manages scenes, switching between them.
+/// </summary>
+public class SceneManager
 {
+    private IScene? current;
+
     /// <summary>
-    ///     Manages scenes, switching between them.
+    ///     Load a scene.
     /// </summary>
-    public class SceneManager
+    /// <param name="scene">The scene to load.</param>
+    public void Load(IScene scene)
     {
-        private IScene? current;
+        Unload();
 
-        /// <summary>
-        ///     Load a scene.
-        /// </summary>
-        /// <param name="scene">The scene to load.</param>
-        public void Load(IScene scene)
-        {
-            Unload();
+        current = scene;
 
-            current = scene;
+        Load();
+    }
 
-            Load();
-        }
+    private void Load()
+    {
+        current?.Load();
+    }
 
-        private void Load()
-        {
-            current?.Load();
-        }
+    /// <summary>
+    ///     Unload the current scene.
+    /// </summary>
+    public void Unload()
+    {
+        if (current == null) return;
 
-        /// <summary>
-        ///     Unload the current scene.
-        /// </summary>
-        public void Unload()
-        {
-            if (current == null) return;
+        current.Unload();
+        current.Dispose();
+    }
 
-            current.Unload();
-            current.Dispose();
-        }
+    /// <summary>
+    ///     Render the current scene.
+    /// </summary>
+    /// <param name="deltaTime">The time since the last update.</param>
+    public void Render(float deltaTime)
+    {
+        current?.Render(deltaTime);
+    }
 
-        /// <summary>
-        ///     Render the current scene.
-        /// </summary>
-        /// <param name="deltaTime">The time since the last update.</param>
-        public void Render(float deltaTime)
-        {
-            current?.Render(deltaTime);
-        }
+    /// <summary>
+    ///     Notify the current scene of the window being resized.
+    /// </summary>
+    /// <param name="size">The new window size.</param>
+    public void OnResize(Vector2i size)
+    {
+        current?.OnResize(size);
+    }
 
-        /// <summary>
-        ///     Notify the current scene of the window being resized.
-        /// </summary>
-        /// <param name="size">The new window size.</param>
-        public void OnResize(Vector2i size)
-        {
-            current?.OnResize(size);
-        }
-
-        /// <summary>
-        ///     Update the current scene.
-        /// </summary>
-        /// <param name="deltaTime">The time since the last update.</param>
-        public void Update(float deltaTime)
-        {
-            current?.Update(deltaTime);
-        }
+    /// <summary>
+    ///     Update the current scene.
+    /// </summary>
+    /// <param name="deltaTime">The time since the last update.</param>
+    public void Update(float deltaTime)
+    {
+        current?.Update(deltaTime);
     }
 }

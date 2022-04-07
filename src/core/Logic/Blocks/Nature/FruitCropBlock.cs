@@ -12,173 +12,172 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Blocks
+namespace VoxelGame.Core.Logic.Blocks;
+
+/// <summary>
+///     A block that places a fruit block when reaching the final growth stage.
+///     Data bit usage: <c>--sssl</c>
+/// </summary>
+// l: lowered
+// s: stage
+public class FruitCropBlock : Block, IFlammable, IFillable
 {
-    /// <summary>
-    ///     A block that places a fruit block when reaching the final growth stage.
-    ///     Data bit usage: <c>--sssl</c>
-    /// </summary>
-    // l: lowered
-    // s: stage
-    public class FruitCropBlock : Block, IFlammable, IFillable
+    private readonly Block fruit;
+    private readonly string texture;
+
+    private readonly List<BoundingVolume> volumes = new();
+
+    private (int dead, int initial, int last) textureIndex;
+
+    internal FruitCropBlock(string name, string namedId, string texture, Block fruit) :
+        base(
+            name,
+            namedId,
+            new BlockFlags(),
+            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f)),
+            TargetBuffer.CrossPlant)
     {
-        private readonly Block fruit;
-        private readonly string texture;
+        this.texture = texture;
+        this.fruit = fruit;
 
-        private readonly List<BoundingVolume> volumes = new();
+        for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
+    }
 
-        private (int dead, int initial, int last) textureIndex;
+    /// <inheritdoc />
+    public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
+    {
+        if (liquid.IsLiquid && level > LiquidLevel.Three) ScheduleDestroy(world, position);
+    }
 
-        internal FruitCropBlock(string name, string namedId, string texture, Block fruit) :
-            base(
-                name,
-                namedId,
-                new BlockFlags(),
-                new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f)),
-                TargetBuffer.CrossPlant)
+    /// <inheritdoc />
+    protected override void Setup(ITextureIndexProvider indexProvider)
+    {
+        int baseTextureIndex = indexProvider.GetTextureIndex(texture);
+
+        textureIndex =
+        (
+            baseTextureIndex + 0,
+            baseTextureIndex + 1,
+            baseTextureIndex + 2
+        );
+    }
+
+    private static BoundingVolume CreateVolume(uint data)
+    {
+        var stage = (GrowthStage) ((data >> 1) & 0b111);
+
+        return stage <= GrowthStage.First
+            ? new BoundingVolume(
+                new Vector3(x: 0.5f, y: 0.25f, z: 0.5f),
+                new Vector3(x: 0.175f, y: 0.25f, z: 0.175f))
+            : new BoundingVolume(
+                new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
+                new Vector3(x: 0.175f, y: 0.5f, z: 0.175f));
+    }
+
+    /// <inheritdoc />
+    protected override BoundingVolume GetBoundingVolume(uint data)
+    {
+        return volumes[(int) data & 0b00_1111];
+    }
+
+    /// <inheritdoc />
+    public override BlockMeshData GetMesh(BlockMeshInfo info)
+    {
+        var stage = (GrowthStage) ((info.Data >> 1) & 0b111);
+
+        int index = stage switch
         {
-            this.texture = texture;
-            this.fruit = fruit;
+            GrowthStage.Initial => textureIndex.initial,
+            GrowthStage.First => textureIndex.initial,
+            GrowthStage.Second => textureIndex.last,
+            GrowthStage.Third => textureIndex.last,
+            GrowthStage.Fourth => textureIndex.last,
+            GrowthStage.Fifth => textureIndex.last,
+            GrowthStage.Ready => textureIndex.last,
+            GrowthStage.Dead => textureIndex.dead,
+            _ => 0
+        };
 
-            for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
-        }
+        return BlockMeshData.CrossPlant(
+            index,
+            TintColor.None,
+            hasUpper: false,
+            (info.Data & 0b1) == 1,
+            isUpper: false);
+    }
 
-        /// <inheritdoc />
-        public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
+    /// <inheritdoc />
+    public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    {
+        return PlantBehaviour.CanPlace(world, position);
+    }
+
+    /// <inheritdoc />
+    protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    {
+        PlantBehaviour.DoPlace(this, world, position);
+    }
+
+    /// <inheritdoc />
+    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    {
+        if (side == BlockSide.Bottom && (world.GetBlock(position.Below())?.Block ?? Air) is not IPlantable)
+            Destroy(world, position);
+    }
+
+    /// <inheritdoc />
+    public override void RandomUpdate(World world, Vector3i position, uint data)
+    {
+        if (world.GetBlock(position.Below())?.Block is not IPlantable ground) return;
+
+        var stage = (GrowthStage) ((data >> 1) & 0b111);
+        uint isLowered = data & 0b1;
+
+        switch (stage)
         {
-            if (liquid.IsLiquid && level > LiquidLevel.Three) ScheduleDestroy(world, position);
-        }
+            case < GrowthStage.Ready:
+                world.SetBlock(this.AsInstance((uint) ((int) (stage + 1) << 1) | isLowered), position);
 
-        /// <inheritdoc />
-        protected override void Setup(ITextureIndexProvider indexProvider)
-        {
-            int baseTextureIndex = indexProvider.GetTextureIndex(texture);
-
-            textureIndex =
-            (
-                baseTextureIndex + 0,
-                baseTextureIndex + 1,
-                baseTextureIndex + 2
-            );
-        }
-
-        private static BoundingVolume CreateVolume(uint data)
-        {
-            var stage = (GrowthStage) ((data >> 1) & 0b111);
-
-            return stage <= GrowthStage.First
-                ? new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.25f, z: 0.5f),
-                    new Vector3(x: 0.175f, y: 0.25f, z: 0.175f))
-                : new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
-                    new Vector3(x: 0.175f, y: 0.5f, z: 0.175f));
-        }
-
-        /// <inheritdoc />
-        protected override BoundingVolume GetBoundingVolume(uint data)
-        {
-            return volumes[(int) data & 0b00_1111];
-        }
-
-        /// <inheritdoc />
-        public override BlockMeshData GetMesh(BlockMeshInfo info)
-        {
-            var stage = (GrowthStage) ((info.Data >> 1) & 0b111);
-
-            int index = stage switch
+                break;
+            case GrowthStage.Ready when ground.SupportsFullGrowth && ground.TryGrow(
+                world,
+                position.Below(),
+                Liquid.Water,
+                LiquidLevel.Two):
             {
-                GrowthStage.Initial => textureIndex.initial,
-                GrowthStage.First => textureIndex.initial,
-                GrowthStage.Second => textureIndex.last,
-                GrowthStage.Third => textureIndex.last,
-                GrowthStage.Fourth => textureIndex.last,
-                GrowthStage.Fifth => textureIndex.last,
-                GrowthStage.Ready => textureIndex.last,
-                GrowthStage.Dead => textureIndex.dead,
-                _ => 0
-            };
-
-            return BlockMeshData.CrossPlant(
-                index,
-                TintColor.None,
-                hasUpper: false,
-                (info.Data & 0b1) == 1,
-                isUpper: false);
-        }
-
-        /// <inheritdoc />
-        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
-        {
-            return PlantBehaviour.CanPlace(world, position);
-        }
-
-        /// <inheritdoc />
-        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
-        {
-            PlantBehaviour.DoPlace(this, world, position);
-        }
-
-        /// <inheritdoc />
-        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
-        {
-            if (side == BlockSide.Bottom && (world.GetBlock(position.Below())?.Block ?? Air) is not IPlantable)
-                Destroy(world, position);
-        }
-
-        /// <inheritdoc />
-        public override void RandomUpdate(World world, Vector3i position, uint data)
-        {
-            if (world.GetBlock(position.Below())?.Block is not IPlantable ground) return;
-
-            var stage = (GrowthStage) ((data >> 1) & 0b111);
-            uint isLowered = data & 0b1;
-
-            switch (stage)
-            {
-                case < GrowthStage.Ready:
-                    world.SetBlock(this.AsInstance((uint) ((int) (stage + 1) << 1) | isLowered), position);
-
-                    break;
-                case GrowthStage.Ready when ground.SupportsFullGrowth && ground.TryGrow(
-                    world,
-                    position.Below(),
-                    Liquid.Water,
-                    LiquidLevel.Two):
+                foreach (Orientation orientation in Orientations.ShuffledStart(position))
                 {
-                    foreach (Orientation orientation in Orientations.ShuffledStart(position))
-                    {
-                        if (!fruit.Place(world, orientation.Offset(position))) continue;
-                        world.SetBlock(this.AsInstance(((uint) GrowthStage.Second << 1) | isLowered), position);
-
-                        break;
-                    }
+                    if (!fruit.Place(world, orientation.Offset(position))) continue;
+                    world.SetBlock(this.AsInstance(((uint) GrowthStage.Second << 1) | isLowered), position);
 
                     break;
                 }
-                case GrowthStage.Ready when ground.SupportsFullGrowth:
-                    world.SetBlock(this.AsInstance(((uint) GrowthStage.Dead << 1) | isLowered), position);
 
-                    break;
+                break;
+            }
+            case GrowthStage.Ready when ground.SupportsFullGrowth:
+                world.SetBlock(this.AsInstance(((uint) GrowthStage.Dead << 1) | isLowered), position);
+
+                break;
 
                 #pragma warning disable
-                default:
-                    // Ground does not support full growth.
-                    break;
+            default:
+                // Ground does not support full growth.
+                break;
                 #pragma warning restore
-            }
         }
+    }
 
-        private enum GrowthStage
-        {
-            Initial,
-            First,
-            Second,
-            Third,
-            Fourth,
-            Fifth,
-            Ready,
-            Dead
-        }
+    private enum GrowthStage
+    {
+        Initial,
+        First,
+        Second,
+        Third,
+        Fourth,
+        Fifth,
+        Ready,
+        Dead
     }
 }

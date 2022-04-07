@@ -10,69 +10,68 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Blocks
+namespace VoxelGame.Core.Logic.Blocks;
+
+/// <summary>
+///     A block that grows upwards and is destroyed if a certain ground block is not given.
+///     Data bit usage: <c>---aaa</c>
+/// </summary>
+// a: age
+public class GrowingBlock : BasicBlock, IFlammable
 {
-    /// <summary>
-    ///     A block that grows upwards and is destroyed if a certain ground block is not given.
-    ///     Data bit usage: <c>---aaa</c>
-    /// </summary>
-    // a: age
-    public class GrowingBlock : BasicBlock, IFlammable
+    private readonly int maxHeight;
+    private readonly Block requiredGround;
+
+    internal GrowingBlock(string name, string namedId, TextureLayout layout, Block ground, int maxHeight) :
+        base(
+            name,
+            namedId,
+            BlockFlags.Basic,
+            layout)
     {
-        private readonly int maxHeight;
-        private readonly Block requiredGround;
+        requiredGround = ground;
+        this.maxHeight = maxHeight;
+    }
 
-        internal GrowingBlock(string name, string namedId, TextureLayout layout, Block ground, int maxHeight) :
-            base(
-                name,
-                namedId,
-                BlockFlags.Basic,
-                layout)
+    /// <inheritdoc />
+    public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    {
+        Block down = world.GetBlock(position.Below())?.Block ?? Air;
+
+        return down == requiredGround || down == this;
+    }
+
+    /// <inheritdoc />
+    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    {
+        if (side == BlockSide.Bottom)
         {
-            requiredGround = ground;
-            this.maxHeight = maxHeight;
+            Block below = world.GetBlock(position.Below())?.Block ?? Air;
+
+            if (below != requiredGround && below != this) ScheduleDestroy(world, position);
         }
+    }
 
-        /// <inheritdoc />
-        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    /// <inheritdoc />
+    public override void RandomUpdate(World world, Vector3i position, uint data)
+    {
+        var age = (int) (data & 0b00_0111);
+
+        if (age < 7)
         {
-            Block down = world.GetBlock(position.Below())?.Block ?? Air;
-
-            return down == requiredGround || down == this;
+            world.SetBlock(this.AsInstance((uint) (age + 1)), position);
         }
-
-        /// <inheritdoc />
-        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+        else
         {
-            if (side == BlockSide.Bottom)
-            {
-                Block below = world.GetBlock(position.Below())?.Block ?? Air;
+            if (!(world.GetBlock(position.Above())?.Block.IsReplaceable ?? false)) return;
 
-                if (below != requiredGround && below != this) ScheduleDestroy(world, position);
-            }
-        }
+            var height = 0;
 
-        /// <inheritdoc />
-        public override void RandomUpdate(World world, Vector3i position, uint data)
-        {
-            var age = (int) (data & 0b00_0111);
+            for (var offset = 0; offset < maxHeight; offset++)
+                if (world.GetBlock(position.Below(offset))?.Block == this) height++;
+                else break;
 
-            if (age < 7)
-            {
-                world.SetBlock(this.AsInstance((uint) (age + 1)), position);
-            }
-            else
-            {
-                if (!(world.GetBlock(position.Above())?.Block.IsReplaceable ?? false)) return;
-
-                var height = 0;
-
-                for (var offset = 0; offset < maxHeight; offset++)
-                    if (world.GetBlock(position.Below(offset))?.Block == this) height++;
-                    else break;
-
-                if (height < maxHeight) Place(world, position.Above());
-            }
+            if (height < maxHeight) Place(world, position.Above());
         }
     }
 }

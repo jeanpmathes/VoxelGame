@@ -12,65 +12,64 @@ using Gwen.Net.Control;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
-namespace VoxelGame.UI.Controls
+namespace VoxelGame.UI.Controls;
+
+/// <summary>
+///     Controls the ui of the start scene.
+/// </summary>
+[SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
+[SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
+internal class StartUI : ControlBase
 {
-    /// <summary>
-    ///     Controls the ui of the start scene.
-    /// </summary>
-    [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
-    [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-    internal class StartUI : ControlBase
+    private const int MainMenuIndex = 0;
+    private const int SettingsMenuIndex = 1;
+    private const int WorldSelectionMenuIndex = 2;
+    private const int CreditsMenuIndex = 3;
+    private readonly CreditsMenu creditsMenu;
+    private readonly MainMenu mainMenu;
+
+    private readonly List<StandardMenu> menus = new();
+    private readonly SettingsMenu settingsMenu;
+    private readonly WorldSelection worldSelection;
+
+    internal StartUI(StartUserInterface parent, IWorldProvider worldProvider,
+        ICollection<ISettingsProvider> settingsProviders) : base(parent.Root)
     {
-        private const int MainMenuIndex = 0;
-        private const int SettingsMenuIndex = 1;
-        private const int WorldSelectionMenuIndex = 2;
-        private const int CreditsMenuIndex = 3;
-        private readonly CreditsMenu creditsMenu;
-        private readonly MainMenu mainMenu;
+        Dock = Dock.Fill;
 
-        private readonly List<StandardMenu> menus = new();
-        private readonly SettingsMenu settingsMenu;
-        private readonly WorldSelection worldSelection;
+        Exit = delegate {};
 
-        internal StartUI(StartUserInterface parent, IWorldProvider worldProvider,
-            ICollection<ISettingsProvider> settingsProviders) : base(parent.Root)
-        {
-            Dock = Dock.Fill;
+        mainMenu = new MainMenu(this, parent.Context);
+        mainMenu.SelectExit += (_, _) => Exit(this, EventArgs.Empty);
+        mainMenu.SelectSettings += (_, _) => OpenMenu(SettingsMenuIndex);
+        mainMenu.SelectWorlds += (_, _) => OpenMenu(WorldSelectionMenuIndex);
+        mainMenu.SelectCredits += (_, _) => OpenMenu(CreditsMenuIndex);
 
-            Exit = delegate {};
+        settingsMenu = new SettingsMenu(this, settingsProviders, parent.Context);
+        settingsMenu.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
-            mainMenu = new MainMenu(this, parent.Context);
-            mainMenu.SelectExit += (_, _) => Exit(this, EventArgs.Empty);
-            mainMenu.SelectSettings += (_, _) => OpenMenu(SettingsMenuIndex);
-            mainMenu.SelectWorlds += (_, _) => OpenMenu(WorldSelectionMenuIndex);
-            mainMenu.SelectCredits += (_, _) => OpenMenu(CreditsMenuIndex);
+        worldSelection = new WorldSelection(this, worldProvider, parent.Context);
+        worldSelection.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
-            settingsMenu = new SettingsMenu(this, settingsProviders, parent.Context);
-            settingsMenu.Cancel += (_, _) => OpenMenu(MainMenuIndex);
+        creditsMenu = new CreditsMenu(this, parent.Context);
+        creditsMenu.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
-            worldSelection = new WorldSelection(this, worldProvider, parent.Context);
-            worldSelection.Cancel += (_, _) => OpenMenu(MainMenuIndex);
+        menus.Add(mainMenu);
+        menus.Add(settingsMenu);
+        menus.Add(worldSelection);
+        menus.Add(creditsMenu);
 
-            creditsMenu = new CreditsMenu(this, parent.Context);
-            creditsMenu.Cancel += (_, _) => OpenMenu(MainMenuIndex);
-
-            menus.Add(mainMenu);
-            menus.Add(settingsMenu);
-            menus.Add(worldSelection);
-            menus.Add(creditsMenu);
-
-            OpenMenu(MainMenuIndex);
-        }
-
-        private void OpenMenu(int index)
-        {
-            foreach (StandardMenu menu in menus) menu.Hide();
-
-            menus[index].Show();
-
-            if (index == WorldSelectionMenuIndex) worldSelection.Refresh();
-        }
-
-        internal event EventHandler Exit;
+        OpenMenu(MainMenuIndex);
     }
+
+    private void OpenMenu(int index)
+    {
+        foreach (StandardMenu menu in menus) menu.Hide();
+
+        menus[index].Show();
+
+        if (index == WorldSelectionMenuIndex) worldSelection.Refresh();
+    }
+
+    internal event EventHandler Exit;
 }

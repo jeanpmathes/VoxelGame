@@ -20,58 +20,58 @@ using VoxelGame.Logging;
 [assembly: CLSCompliant(isCompliant: false)]
 [assembly: ComVisible(visibility: false)]
 
-namespace VoxelGame.Client
+namespace VoxelGame.Client;
+
+internal static class Program
 {
-    internal static class Program
-    {
-        /// <summary>
-        ///     Get the version of the program.
-        /// </summary>
-        internal static string Version { get; private set; } = null!;
+    /// <summary>
+    ///     Get the version of the program.
+    /// </summary>
+    internal static string Version { get; private set; } = null!;
 
-        /// <summary>
-        ///     Get the app data directory.
-        /// </summary>
-        internal static string AppDataDirectory { get; private set; } = null!;
+    /// <summary>
+    ///     Get the app data directory.
+    /// </summary>
+    internal static string AppDataDirectory { get; private set; } = null!;
 
-        /// <summary>
-        ///     Get the screenshot directory.
-        /// </summary>
-        internal static string ScreenshotDirectory { get; private set; } = null!;
+    /// <summary>
+    ///     Get the screenshot directory.
+    /// </summary>
+    internal static string ScreenshotDirectory { get; private set; } = null!;
 
-        /// <summary>
-        ///     Get the world directory.
-        /// </summary>
-        internal static string WorldsDirectory { get; private set; } = null!;
+    /// <summary>
+    ///     Get the world directory.
+    /// </summary>
+    internal static string WorldsDirectory { get; private set; } = null!;
 
-        [STAThread]
+    [STAThread]
 #if DEBUG
-        private static void Main()
+    private static void Main()
 #else
         private static void Main(string[] args)
 #endif
-        {
-            AppDataDirectory = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "voxel");
+    {
+        AppDataDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "voxel");
 
-            ScreenshotDirectory = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
-                "VoxelGame");
+        ScreenshotDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
+            "VoxelGame");
 
-            WorldsDirectory = Path.Combine(AppDataDirectory, "Worlds");
+        WorldsDirectory = Path.Combine(AppDataDirectory, "Worlds");
 
-            Directory.CreateDirectory(AppDataDirectory);
-            Directory.CreateDirectory(ScreenshotDirectory);
-            Directory.CreateDirectory(WorldsDirectory);
+        Directory.CreateDirectory(AppDataDirectory);
+        Directory.CreateDirectory(ScreenshotDirectory);
+        Directory.CreateDirectory(WorldsDirectory);
 
 #if DEBUG
-            const bool logDebug = true;
+        const bool logDebug = true;
 #else
             bool logDebug = args.Length > 0 && args[0] == "-logDebug";
 #endif
 
-            ILogger logger = LoggingHelper.SetupLogging(nameof(Program), logDebug, AppDataDirectory);
+        ILogger logger = LoggingHelper.SetupLogging(nameof(Program), logDebug, AppDataDirectory);
 
 #if !DEBUG
             if (logDebug)
@@ -86,38 +86,37 @@ namespace VoxelGame.Client
             }
 #endif
 
-            Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";
-            ApplicationInformation.Initialize(Version);
-            System.Console.Title = Language.VoxelGame + @" " + Version;
+        Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";
+        ApplicationInformation.Initialize(Version);
+        System.Console.Title = Language.VoxelGame + @" " + Version;
 
-            logger.LogInformation(Events.ApplicationInformation, "Starting game on version: {Version}", Version);
+        logger.LogInformation(Events.ApplicationInformation, "Starting game on version: {Version}", Version);
 
-            GraphicsSettings graphicsSettings = new(Settings.Default);
+        GraphicsSettings graphicsSettings = new(Settings.Default);
 
-            GameWindowSettings gameWindowSettings = new()
-            {
-                RenderFrequency = graphicsSettings.MaxFPS,
-                UpdateFrequency = 60.0
-            };
+        GameWindowSettings gameWindowSettings = new()
+        {
+            RenderFrequency = graphicsSettings.MaxFPS,
+            UpdateFrequency = 60.0
+        };
 
-            var nativeWindowSettings = NativeWindowSettings.Default;
-            nativeWindowSettings.WindowBorder = WindowBorder.Hidden;
-            nativeWindowSettings.Profile = ContextProfile.Core;
-            nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
-            nativeWindowSettings.Size = Settings.Default.ScreenSize.ToVector2i();
-            nativeWindowSettings.StartFocused = true;
+        var nativeWindowSettings = NativeWindowSettings.Default;
+        nativeWindowSettings.WindowBorder = WindowBorder.Hidden;
+        nativeWindowSettings.Profile = ContextProfile.Core;
+        nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
+        nativeWindowSettings.Size = Settings.Default.ScreenSize.ToVector2i();
+        nativeWindowSettings.StartFocused = true;
 
-            logger.LogDebug("Opening window");
+        logger.LogDebug("Opening window");
 
-            using (Application.Client client = new(
-                       gameWindowSettings,
-                       nativeWindowSettings,
-                       graphicsSettings))
-            {
-                client.Run();
-            }
-
-            logger.LogInformation(Events.ApplicationState, "Exiting");
+        using (Application.Client client = new(
+                   gameWindowSettings,
+                   nativeWindowSettings,
+                   graphicsSettings))
+        {
+            client.Run();
         }
+
+        logger.LogInformation(Events.ApplicationState, "Exiting");
     }
 }

@@ -7,86 +7,82 @@
 using System;
 using System.Diagnostics;
 
-namespace VoxelGame.Core.Collections
+namespace VoxelGame.Core.Collections;
+
+/// <summary>
+///     Maps unordered pairs to a single value.
+/// </summary>
+/// <typeparam name="TE">The identifiable element type for the pairs.</typeparam>
+/// <typeparam name="TV">The result type of the mapping.</typeparam>
+public class CombinationMap<TE, TV> where TE : IIdentifiable<uint>
 {
+    private readonly bool[][] flags;
+    private readonly TV[][] table;
+
     /// <summary>
-    ///     Maps unordered pairs to a single value.
+    ///     Create a new combination map.
     /// </summary>
-    /// <typeparam name="TE">The identifiable element type for the pairs.</typeparam>
-    /// <typeparam name="TV">The result type of the mapping.</typeparam>
-    public class CombinationMap<TE, TV> where TE : IIdentifiable<uint>
+    /// <param name="range">The maximum range of element values.</param>
+    public CombinationMap(int range)
     {
-        private readonly bool[][] flags;
-        private readonly TV[][] table;
+        flags = new bool[range][];
+        table = new TV[range][];
 
-        /// <summary>
-        ///     Create a new combination map.
-        /// </summary>
-        /// <param name="range">The maximum range of element values.</param>
-        public CombinationMap(int range)
+        for (var i = 0; i < range; i++)
         {
-            flags = new bool[range][];
-            table = new TV[range][];
+            flags[i] = new bool[i];
+            table[i] = new TV[i];
+        }
+    }
 
-            for (var i = 0; i < range; i++)
-            {
-                flags[i] = new bool[i];
-                table[i] = new TV[i];
-            }
+    private TV this[TE a, TE b]
+    {
+        get
+        {
+            Debug.Assert(a.Id != b.Id);
+
+            var i = (int) Math.Max(a.Id, b.Id);
+            var j = (int) Math.Min(a.Id, b.Id);
+
+            return table[i][j];
         }
 
-        private TV this[TE a, TE b]
+        set
         {
-            get
-            {
-                Debug.Assert(a.Id != b.Id);
+            Debug.Assert(a.Id != b.Id);
 
-                var i = (int) Math.Max(a.Id, b.Id);
-                var j = (int) Math.Min(a.Id, b.Id);
+            var i = (int) Math.Max(a.Id, b.Id);
+            var j = (int) Math.Min(a.Id, b.Id);
 
-                return table[i][j];
-            }
+            Debug.Assert(!flags[i][j], "This combination is already set.");
 
-            set
-            {
-                Debug.Assert(a.Id != b.Id);
-
-                var i = (int) Math.Max(a.Id, b.Id);
-                var j = (int) Math.Min(a.Id, b.Id);
-
-                Debug.Assert(!flags[i][j], "This combination is already set.");
-
-                table[i][j] = value;
-            }
+            table[i][j] = value;
         }
+    }
 
-        /// <summary>
-        ///     Add a combination between one element and each of the others.
-        ///     After a mapping has been set, it cannot be changed.
-        /// </summary>
-        /// <param name="e">The first element that is part of the mapping.</param>
-        /// <param name="v">The value to map to.</param>
-        /// <param name="others">The other elements, each combined to a pair with the first element.</param>
-        public void AddCombination(TE e, TV v, params TE[] others)
-        {
-            Debug.Assert(others.Length > 0);
+    /// <summary>
+    ///     Add a combination between one element and each of the others.
+    ///     After a mapping has been set, it cannot be changed.
+    /// </summary>
+    /// <param name="e">The first element that is part of the mapping.</param>
+    /// <param name="v">The value to map to.</param>
+    /// <param name="others">The other elements, each combined to a pair with the first element.</param>
+    public void AddCombination(TE e, TV v, params TE[] others)
+    {
+        Debug.Assert(others.Length > 0);
 
-            foreach (TE other in others)
-            {
-                this[e, other] = v;
-            }
-        }
+        foreach (TE other in others) this[e, other] = v;
+    }
 
-        /// <summary>
-        ///     Resolve the mapping for the given elements.
-        ///     The order of the elements is not relevant.
-        /// </summary>
-        /// <param name="a">The first element.</param>
-        /// <param name="b">The second element.</param>
-        /// <returns></returns>
-        public TV Resolve(TE a, TE b)
-        {
-            return this[a, b];
-        }
+    /// <summary>
+    ///     Resolve the mapping for the given elements.
+    ///     The order of the elements is not relevant.
+    /// </summary>
+    /// <param name="a">The first element.</param>
+    /// <param name="b">The second element.</param>
+    /// <returns></returns>
+    public TV Resolve(TE a, TE b)
+    {
+        return this[a, b];
     }
 }

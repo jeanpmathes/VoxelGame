@@ -9,88 +9,87 @@ using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Blocks
+namespace VoxelGame.Core.Logic.Blocks;
+
+/// <summary>
+///     A block that changes into dirt when something is placed on top of it. This block can use a neutral tint if
+///     specified in the constructor.
+///     Data bit usage: <c>------</c>
+/// </summary>
+public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
 {
+    private readonly bool hasNeutralTint;
+    private readonly TextureLayout wet;
+
+    private int[] wetTextureIndices = null!;
+
     /// <summary>
-    ///     A block that changes into dirt when something is placed on top of it. This block can use a neutral tint if
-    ///     specified in the constructor.
-    ///     Data bit usage: <c>------</c>
+    ///     Create a new <see cref="DirtBlock" />.
     /// </summary>
-    public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
+    /// <param name="name">The name of the block.</param>
+    /// <param name="namedId">The named ID of the block.</param>
+    /// <param name="normal">The normal texture layout.</param>
+    /// <param name="wet">The texture layout when wet.</param>
+    /// <param name="hasNeutralTint">Whether the block has a neutral tint.</param>
+    /// <param name="supportsFullGrowth">Whether the block supports full growth.</param>
+    protected CoveredDirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet,
+        bool hasNeutralTint, bool supportsFullGrowth) :
+        base(
+            name,
+            namedId,
+            BlockFlags.Basic,
+            normal)
     {
-        private readonly bool hasNeutralTint;
-        private readonly TextureLayout wet;
+        this.hasNeutralTint = hasNeutralTint;
+        SupportsFullGrowth = supportsFullGrowth;
 
-        private int[] wetTextureIndices = null!;
+        this.wet = wet;
+    }
 
-        /// <summary>
-        ///     Create a new <see cref="DirtBlock" />.
-        /// </summary>
-        /// <param name="name">The name of the block.</param>
-        /// <param name="namedId">The named ID of the block.</param>
-        /// <param name="normal">The normal texture layout.</param>
-        /// <param name="wet">The texture layout when wet.</param>
-        /// <param name="hasNeutralTint">Whether the block has a neutral tint.</param>
-        /// <param name="supportsFullGrowth">Whether the block supports full growth.</param>
-        protected CoveredDirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet,
-            bool hasNeutralTint, bool supportsFullGrowth) :
-            base(
-                name,
-                namedId,
-                BlockFlags.Basic,
-                normal)
-        {
-            this.hasNeutralTint = hasNeutralTint;
-            SupportsFullGrowth = supportsFullGrowth;
+    /// <inheritdoc />
+    public virtual bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
+    {
+        return liquid.Viscosity < 100;
+    }
 
-            this.wet = wet;
-        }
+    /// <inheritdoc />
+    public bool SupportsFullGrowth { get; }
 
-        /// <inheritdoc />
-        public virtual bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
-        {
-            return liquid.Viscosity < 100;
-        }
+    /// <inheritdoc />
+    protected override void Setup(ITextureIndexProvider indexProvider)
+    {
+        base.Setup(indexProvider);
 
-        /// <inheritdoc />
-        public bool SupportsFullGrowth { get; }
+        wetTextureIndices = wet.GetTexIndexArray();
+    }
 
-        /// <inheritdoc />
-        protected override void Setup(ITextureIndexProvider indexProvider)
-        {
-            base.Setup(indexProvider);
+    /// <inheritdoc />
+    public override BlockMeshData GetMesh(BlockMeshInfo info)
+    {
+        BlockMeshData mesh = base.GetMesh(info);
 
-            wetTextureIndices = wet.GetTexIndexArray();
-        }
+        mesh = mesh.Modified(hasNeutralTint ? TintColor.Neutral : TintColor.None);
 
-        /// <inheritdoc />
-        public override BlockMeshData GetMesh(BlockMeshInfo info)
-        {
-            BlockMeshData mesh = base.GetMesh(info);
+        if (info.Liquid.IsLiquid) mesh = mesh.SwapTextureIndex(wetTextureIndices[(int) info.Side]);
 
-            mesh = mesh.Modified(hasNeutralTint ? TintColor.Neutral : TintColor.None);
+        return mesh;
+    }
 
-            if (info.Liquid.IsLiquid) mesh = mesh.SwapTextureIndex(wetTextureIndices[(int) info.Side]);
+    /// <inheritdoc />
+    public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    {
+        return DirtBehaviour.CanPlaceCovered(world, position, entity);
+    }
 
-            return mesh;
-        }
+    /// <inheritdoc />
+    protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    {
+        DirtBehaviour.DoPlaceCovered(this, world, position, entity);
+    }
 
-        /// <inheritdoc />
-        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
-        {
-            return DirtBehaviour.CanPlaceCovered(world, position, entity);
-        }
-
-        /// <inheritdoc />
-        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
-        {
-            DirtBehaviour.DoPlaceCovered(this, world, position, entity);
-        }
-
-        /// <inheritdoc />
-        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
-        {
-            DirtBehaviour.BlockUpdateCovered(world, position, side);
-        }
+    /// <inheritdoc />
+    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    {
+        DirtBehaviour.BlockUpdateCovered(world, position, side);
     }
 }

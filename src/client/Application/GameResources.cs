@@ -13,106 +13,105 @@ using VoxelGame.Graphics;
 using VoxelGame.Logging;
 using TextureLayout = VoxelGame.Core.Visuals.TextureLayout;
 
-namespace VoxelGame.Client.Application
+namespace VoxelGame.Client.Application;
+
+/// <summary>
+///     Prepares, loads and offers game resources.
+/// </summary>
+public class GameResources
 {
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<GameResources>();
+
+    private readonly Debug glDebug;
+
+    private bool prepared;
+
     /// <summary>
-    ///     Prepares, loads and offers game resources.
+    ///     Create the graphics resources.
     /// </summary>
-    public class GameResources
+    public GameResources()
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<GameResources>();
+        glDebug = new Debug();
+    }
 
-        private readonly Debug glDebug;
+    /// <summary>
+    ///     Gets the <see cref="ArrayTexture" /> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
+    /// </summary>
+    public ArrayTexture BlockTextureArray { get; private set; } = null!;
 
-        private bool prepared;
+    /// <summary>
+    ///     Gets the <see cref="ArrayTexture" /> that contains all liquid textures. It is bound to unit 5.
+    /// </summary>
+    public ArrayTexture LiquidTextureArray { get; private set; } = null!;
 
-        /// <summary>
-        ///     Create the graphics resources.
-        /// </summary>
-        public GameResources()
-        {
-            glDebug = new Debug();
-        }
+    /// <summary>
+    ///     Get the shaders of the game.
+    /// </summary>
+    public Shaders Shaders { get; private set; } = null!;
 
-        /// <summary>
-        ///     Gets the <see cref="ArrayTexture" /> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
-        /// </summary>
-        public ArrayTexture BlockTextureArray { get; private set; } = null!;
+    /// <summary>
+    ///     Prepare resource loading and initialization. This requires a valid OpenGL context.
+    /// </summary>
+    public void Prepare()
+    {
+        System.Diagnostics.Debug.Assert(!prepared);
 
-        /// <summary>
-        ///     Gets the <see cref="ArrayTexture" /> that contains all liquid textures. It is bound to unit 5.
-        /// </summary>
-        public ArrayTexture LiquidTextureArray { get; private set; } = null!;
+        glDebug.Enable();
 
-        /// <summary>
-        ///     Get the shaders of the game.
-        /// </summary>
-        public Shaders Shaders { get; private set; } = null!;
+        prepared = true;
+    }
 
-        /// <summary>
-        ///     Prepare resource loading and initialization. This requires a valid OpenGL context.
-        /// </summary>
-        public void Prepare()
-        {
-            System.Diagnostics.Debug.Assert(!prepared);
+    /// <summary>
+    ///     Load the resources. This requires a valid OpenGL context.
+    /// </summary>
+    public void Load()
+    {
+        System.Diagnostics.Debug.Assert(prepared);
 
-            glDebug.Enable();
+        BlockTextureArray = new ArrayTexture(
+            "Resources/Textures/Blocks",
+            resolution: 16,
+            useCustomMipmapGeneration: true,
+            TextureUnit.Texture1,
+            TextureUnit.Texture2,
+            TextureUnit.Texture3,
+            TextureUnit.Texture4);
 
-            prepared = true;
-        }
+        logger.LogInformation(Events.ResourceLoad, "Block textures loaded");
 
-        /// <summary>
-        ///     Load the resources. This requires a valid OpenGL context.
-        /// </summary>
-        public void Load()
-        {
-            System.Diagnostics.Debug.Assert(prepared);
+        LiquidTextureArray = new ArrayTexture(
+            "Resources/Textures/Liquids",
+            resolution: 16,
+            useCustomMipmapGeneration: false,
+            TextureUnit.Texture5);
 
-            BlockTextureArray = new ArrayTexture(
-                "Resources/Textures/Blocks",
-                resolution: 16,
-                useCustomMipmapGeneration: true,
-                TextureUnit.Texture1,
-                TextureUnit.Texture2,
-                TextureUnit.Texture3,
-                TextureUnit.Texture4);
+        logger.LogInformation(Events.ResourceLoad, "Liquid textures loaded");
 
-            logger.LogInformation(Events.ResourceLoad, "Block textures loaded");
+        TextureLayout.SetProviders(BlockTextureArray, LiquidTextureArray);
+        BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
 
-            LiquidTextureArray = new ArrayTexture(
-                "Resources/Textures/Liquids",
-                resolution: 16,
-                useCustomMipmapGeneration: false,
-                TextureUnit.Texture5);
+        Shaders = Shaders.Load("Resources/Shaders");
 
-            logger.LogInformation(Events.ResourceLoad, "Liquid textures loaded");
+        // Block setup.
+        Block.LoadBlocks(BlockTextureArray);
 
-            TextureLayout.SetProviders(BlockTextureArray, LiquidTextureArray);
-            BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
+        logger.LogDebug(
+            Events.ResourceLoad,
+            "Texture/Block ratio: {Ratio:F02}",
+            BlockTextureArray.Count / (float) Block.Count);
 
-            Shaders = Shaders.Load("Resources/Shaders");
+        // Liquid setup.
+        Liquid.LoadLiquids(LiquidTextureArray);
+    }
 
-            // Block setup.
-            Block.LoadBlocks(BlockTextureArray);
+    /// <summary>
+    ///     Unload and free all resources.
+    /// </summary>
+    public void Unload()
+    {
+        Shaders.Delete();
 
-            logger.LogDebug(
-                Events.ResourceLoad,
-                "Texture/Block ratio: {Ratio:F02}",
-                BlockTextureArray.Count / (float) Block.Count);
-
-            // Liquid setup.
-            Liquid.LoadLiquids(LiquidTextureArray);
-        }
-
-        /// <summary>
-        ///     Unload and free all resources.
-        /// </summary>
-        public void Unload()
-        {
-            Shaders.Delete();
-
-            BlockTextureArray.Dispose();
-            LiquidTextureArray.Dispose();
-        }
+        BlockTextureArray.Dispose();
+        LiquidTextureArray.Dispose();
     }
 }

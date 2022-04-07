@@ -4,21 +4,20 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-namespace VoxelGame.UI.Providers
+namespace VoxelGame.UI.Providers;
+
+/// <summary>
+///     Provides game performance information.
+/// </summary>
+public interface IPerformanceProvider
 {
     /// <summary>
-    ///     Provides game performance information.
+    ///     The current FPS (frames per second).
     /// </summary>
-    public interface IPerformanceProvider
-    {
-        /// <summary>
-        ///     The current FPS (frames per second).
-        /// </summary>
-        public double FPS { get; }
+    public double FPS { get; }
 
-        /// <summary>
-        ///     The current UPS (updates per second).
-        /// </summary>
-        public double UPS { get; }
-    }
+    /// <summary>
+    ///     The current UPS (updates per second).
+    /// </summary>
+    public double UPS { get; }
 }

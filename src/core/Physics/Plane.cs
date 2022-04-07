@@ -7,80 +7,79 @@
 using System;
 using OpenTK.Mathematics;
 
-namespace VoxelGame.Core.Physics
+namespace VoxelGame.Core.Physics;
+
+/// <summary>
+///     A plane in 3D space.
+/// </summary>
+public readonly struct Plane : IEquatable<Plane>
 {
     /// <summary>
-    ///     A plane in 3D space.
+    ///     The normal of the plane.
     /// </summary>
-    public readonly struct Plane : IEquatable<Plane>
+    public Vector3 Normal { get; }
+
+    /// <summary>
+    ///     A point that is in the plane.
+    /// </summary>
+    public Vector3 Point { get; }
+
+    private readonly float d;
+
+    /// <summary>
+    ///     Creates a plane. The normal parameter has to be normalized.
+    /// </summary>
+    /// <param name="normal">The normalized normal vector.</param>
+    /// <param name="point">A point in the plane.</param>
+    public Plane(Vector3 normal, Vector3 point)
     {
-        /// <summary>
-        ///     The normal of the plane.
-        /// </summary>
-        public Vector3 Normal { get; }
+        Normal = normal;
+        Point = point;
 
-        /// <summary>
-        ///     A point that is in the plane.
-        /// </summary>
-        public Vector3 Point { get; }
+        d = -Vector3.Dot(normal, point);
+    }
 
-        private readonly float d;
+    /// <summary>
+    ///     Calculate the distance from a point to the plane.
+    /// </summary>
+    /// <param name="point">The point to calculate the distance to.</param>
+    /// <returns>The distance to the point.</returns>
+    public float Distance(Vector3 point)
+    {
+        return Vector3.Dot(point, Normal) + d;
+    }
 
-        /// <summary>
-        /// Creates a plane. The normal parameter has to be normalized.
-        /// </summary>
-        /// <param name="normal">The normalized normal vector.</param>
-        /// <param name="point">A point in the plane.</param>
-        public Plane(Vector3 normal, Vector3 point)
-        {
-            Normal = normal;
-            Point = point;
+    /// <inheritdoc />
+    public bool Equals(Plane other)
+    {
+        return Normal.Equals(other.Normal) && Point.Equals(other.Point);
+    }
 
-            d = -Vector3.Dot(normal, point);
-        }
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        return obj is Plane other && Equals(other);
+    }
 
-        /// <summary>
-        ///     Calculate the distance from a point to the plane.
-        /// </summary>
-        /// <param name="point">The point to calculate the distance to.</param>
-        /// <returns>The distance to the point.</returns>
-        public float Distance(Vector3 point)
-        {
-            return Vector3.Dot(point, Normal) + d;
-        }
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Normal, Point);
+    }
 
-        /// <inheritdoc />
-        public bool Equals(Plane other)
-        {
-            return Normal.Equals(other.Normal) && Point.Equals(other.Point);
-        }
+    /// <summary>
+    ///     Checks if two planes are equal.
+    /// </summary>
+    public static bool operator ==(Plane left, Plane right)
+    {
+        return left.Equals(right);
+    }
 
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-        {
-            return obj is Plane other && Equals(other);
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Normal, Point);
-        }
-
-        /// <summary>
-        ///     Checks if two planes are equal.
-        /// </summary>
-        public static bool operator ==(Plane left, Plane right)
-        {
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        ///     Checks if two planes are not equal.
-        /// </summary>
-        public static bool operator !=(Plane left, Plane right)
-        {
-            return !left.Equals(right);
-        }
+    /// <summary>
+    ///     Checks if two planes are not equal.
+    /// </summary>
+    public static bool operator !=(Plane left, Plane right)
+    {
+        return !left.Equals(right);
     }
 }

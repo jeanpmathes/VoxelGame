@@ -6,34 +6,33 @@
 
 using System;
 
-namespace VoxelGame.Input.Actions
+namespace VoxelGame.Input.Actions;
+
+/// <summary>
+///     The base input action.
+/// </summary>
+public abstract class InputAction
 {
     /// <summary>
-    ///     The base input action.
+    ///     Create a new input action.
     /// </summary>
-    public abstract class InputAction
+    /// <param name="input">The input manager providing the input.</param>
+    protected InputAction(InputManager input)
     {
-        /// <summary>
-        ///     Create a new input action.
-        /// </summary>
-        /// <param name="input">The input manager providing the input.</param>
-        protected InputAction(InputManager input)
-        {
-            Input = input;
+        Input = input;
 
-            input.OnUpdate += Update;
-        }
-
-        /// <summary>
-        ///     Get the input manager providing the input.
-        /// </summary>
-        protected InputManager Input { get; }
-
-        /// <summary>
-        ///     Called every frame.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected abstract void Update(object? sender, EventArgs e);
+        input.OnUpdate += Update;
     }
+
+    /// <summary>
+    ///     Get the input manager providing the input.
+    /// </summary>
+    protected InputManager Input { get; }
+
+    /// <summary>
+    ///     Called every frame.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    protected abstract void Update(object? sender, EventArgs e);
 }

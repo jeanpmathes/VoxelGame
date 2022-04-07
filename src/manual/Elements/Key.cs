@@ -6,23 +6,22 @@
 
 using System.IO;
 
-namespace VoxelGame.Manual.Elements
+namespace VoxelGame.Manual.Elements;
+
+/// <summary>
+///     A nicely formatted key box.
+/// </summary>
+internal class Key : IElement
 {
-    /// <summary>
-    ///     A nicely formatted key box.
-    /// </summary>
-    internal class Key : IElement
+    private readonly object key;
+
+    internal Key(object key)
     {
-        private readonly object key;
+        this.key = key;
+    }
 
-        internal Key(object key)
-        {
-            this.key = key;
-        }
-
-        void IElement.Generate(StreamWriter writer)
-        {
-            writer.WriteLine(@$" \keys{{{key}}} ");
-        }
+    void IElement.Generate(StreamWriter writer)
+    {
+        writer.WriteLine(@$" \keys{{{key}}} ");
     }
 }

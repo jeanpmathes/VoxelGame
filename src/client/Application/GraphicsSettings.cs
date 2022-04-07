@@ -11,89 +11,88 @@ using VoxelGame.Core.Visuals;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
 
-namespace VoxelGame.Client.Application
+namespace VoxelGame.Client.Application;
+
+/// <summary>
+///     Game settings concerning the game graphics and visuals.
+/// </summary>
+public class GraphicsSettings : ISettingsProvider
 {
-    /// <summary>
-    ///     Game settings concerning the game graphics and visuals.
-    /// </summary>
-    public class GraphicsSettings : ISettingsProvider
+    private readonly Settings clientSettings;
+
+    private readonly List<Setting> settings = new();
+
+    internal GraphicsSettings(Settings clientSettings)
     {
-        private readonly Settings clientSettings;
+        this.clientSettings = clientSettings;
 
-        private readonly List<Setting> settings = new();
+        settings.Add(
+            Setting.CreateIntegerSetting(
+                this,
+                Language.GraphicsSampleCount,
+                () => SampleCount,
+                i => SampleCount = i,
+                min: 1));
 
-        internal GraphicsSettings(Settings clientSettings)
-        {
-            this.clientSettings = clientSettings;
+        settings.Add(
+            Setting.CreateIntegerSetting(this, Language.GraphicsMaxFPS, () => MaxFPS, i => MaxFPS = i, min: 0));
 
-            settings.Add(
-                Setting.CreateIntegerSetting(
-                    this,
-                    Language.GraphicsSampleCount,
-                    () => SampleCount,
-                    i => SampleCount = i,
-                    min: 1));
-
-            settings.Add(
-                Setting.CreateIntegerSetting(this, Language.GraphicsMaxFPS, () => MaxFPS, i => MaxFPS = i, min: 0));
-
-            settings.Add(
-                Setting.CreateQualitySetting(
-                    this,
-                    Language.GraphicsFoliageQuality,
-                    () => FoliageQuality,
-                    quality => FoliageQuality = quality));
-        }
-
-        /// <summary>
-        ///     Get or set the sample count setting. This is the number of samples used for anti-aliasing.
-        /// </summary>
-        public int SampleCount
-        {
-            get => clientSettings.SampleCount;
-
-            private set
-            {
-                clientSettings.SampleCount = value;
-                clientSettings.Save();
-            }
-        }
-
-        /// <summary>
-        ///     Get or set the maximum FPS setting. This is the maximum FPS that are passed to the window on creation.
-        /// </summary>
-        public int MaxFPS
-        {
-            get => clientSettings.MaxFPS;
-
-            private set
-            {
-                clientSettings.MaxFPS = value;
-                clientSettings.Save();
-            }
-        }
-
-        /// <summary>
-        ///     Get or set the foliage quality setting.
-        /// </summary>
-        public Quality FoliageQuality
-        {
-            get => clientSettings.FoliageQuality;
-
-            private set
-            {
-                clientSettings.FoliageQuality = value;
-                clientSettings.Save();
-            }
-        }
-
-        /// <inheritdoc />
-        public string Category => Language.Graphics;
-
-        /// <inheritdoc />
-        public string Description => Language.GraphicsSettingsDescription;
-
-        /// <inheritdoc />
-        public IEnumerable<Setting> Settings => settings;
+        settings.Add(
+            Setting.CreateQualitySetting(
+                this,
+                Language.GraphicsFoliageQuality,
+                () => FoliageQuality,
+                quality => FoliageQuality = quality));
     }
+
+    /// <summary>
+    ///     Get or set the sample count setting. This is the number of samples used for anti-aliasing.
+    /// </summary>
+    public int SampleCount
+    {
+        get => clientSettings.SampleCount;
+
+        private set
+        {
+            clientSettings.SampleCount = value;
+            clientSettings.Save();
+        }
+    }
+
+    /// <summary>
+    ///     Get or set the maximum FPS setting. This is the maximum FPS that are passed to the window on creation.
+    /// </summary>
+    public int MaxFPS
+    {
+        get => clientSettings.MaxFPS;
+
+        private set
+        {
+            clientSettings.MaxFPS = value;
+            clientSettings.Save();
+        }
+    }
+
+    /// <summary>
+    ///     Get or set the foliage quality setting.
+    /// </summary>
+    public Quality FoliageQuality
+    {
+        get => clientSettings.FoliageQuality;
+
+        private set
+        {
+            clientSettings.FoliageQuality = value;
+            clientSettings.Save();
+        }
+    }
+
+    /// <inheritdoc />
+    public string Category => Language.Graphics;
+
+    /// <inheritdoc />
+    public string Description => Language.GraphicsSettingsDescription;
+
+    /// <inheritdoc />
+    public IEnumerable<Setting> Settings => settings;
 }

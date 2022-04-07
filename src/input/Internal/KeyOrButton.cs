@@ -8,115 +8,114 @@ using System;
 using System.Diagnostics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-namespace VoxelGame.Input.Internal
-{
-    /// <summary>
-    ///     Represents a key or a button.
-    /// </summary>
-    public readonly struct KeyOrButton : IEquatable<KeyOrButton>
-    {
-        private readonly Keys? key;
-        private readonly MouseButton? button;
+namespace VoxelGame.Input.Internal;
 
-        /// <summary>
-        ///     Create a new <see cref="KeyOrButton" /> from a <see cref="Keys" />.
-        /// </summary>
-        /// <param name="key">The key to use.</param>
-        public KeyOrButton(Keys key)
+/// <summary>
+///     Represents a key or a button.
+/// </summary>
+public readonly struct KeyOrButton : IEquatable<KeyOrButton>
+{
+    private readonly Keys? key;
+    private readonly MouseButton? button;
+
+    /// <summary>
+    ///     Create a new <see cref="KeyOrButton" /> from a <see cref="Keys" />.
+    /// </summary>
+    /// <param name="key">The key to use.</param>
+    public KeyOrButton(Keys key)
+    {
+        this.key = key;
+        button = null;
+    }
+
+    /// <summary>
+    ///     Create a new <see cref="KeyOrButton" /> from a <see cref="MouseButton" />.
+    /// </summary>
+    /// <param name="button">The button to use.</param>
+    public KeyOrButton(MouseButton button)
+    {
+        key = null;
+        this.button = button;
+    }
+
+    /// <summary>
+    ///     Create a new <see cref="KeyOrButton" /> from a loaded pair.
+    /// </summary>
+    /// <param name="settings">The settings to load from.</param>
+    public KeyOrButton(KeyButtonPair settings)
+    {
+        Debug.Assert(!settings.Default);
+
+        if (settings.Key != Keys.Unknown)
         {
-            this.key = key;
+            key = settings.Key;
             button = null;
         }
-
-        /// <summary>
-        ///     Create a new <see cref="KeyOrButton" /> from a <see cref="MouseButton" />.
-        /// </summary>
-        /// <param name="button">The button to use.</param>
-        public KeyOrButton(MouseButton button)
+        else
         {
             key = null;
-            this.button = button;
+            button = settings.Button;
         }
+    }
 
-        /// <summary>
-        ///     Create a new <see cref="KeyOrButton" /> from a loaded pair.
-        /// </summary>
-        /// <param name="settings">The settings to load from.</param>
-        public KeyOrButton(KeyButtonPair settings)
-        {
-            Debug.Assert(!settings.Default);
+    private bool IsKeyboardKey => key != null;
+    private bool IsMouseButton => button != null;
 
-            if (settings.Key != Keys.Unknown)
-            {
-                key = settings.Key;
-                button = null;
-            }
-            else
-            {
-                key = null;
-                button = settings.Button;
-            }
-        }
+    internal bool GetState(CombinedState state)
+    {
+        if (IsKeyboardKey) return state.Keyboard[(Keys) key!];
 
-        private bool IsKeyboardKey => key != null;
-        private bool IsMouseButton => button != null;
+        if (IsMouseButton) return state.Mouse[(MouseButton) button!];
 
-        internal bool GetState(CombinedState state)
-        {
-            if (IsKeyboardKey) return state.Keyboard[(Keys) key!];
+        return false;
+    }
 
-            if (IsMouseButton) return state.Mouse[(MouseButton) button!];
+    /// <summary>
+    ///     Get serializable settings for this key or button.
+    /// </summary>
+    public KeyButtonPair Settings => new() { Key = key ?? Keys.Unknown, Button = button ?? MouseButton.Last };
 
-            return false;
-        }
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        if (IsKeyboardKey) return key.ToString()!;
 
-        /// <summary>
-        ///     Get serializable settings for this key or button.
-        /// </summary>
-        public KeyButtonPair Settings => new() { Key = key ?? Keys.Unknown, Button = button ?? MouseButton.Last };
+        if (IsMouseButton) return button.ToString()!;
 
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            if (IsKeyboardKey) return key.ToString()!;
+        return "unknown";
+    }
 
-            if (IsMouseButton) return button.ToString()!;
+    /// <inheritdoc />
+    public bool Equals(KeyOrButton other)
+    {
+        return key == other.key && button == other.button;
+    }
 
-            return "unknown";
-        }
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        return obj is KeyOrButton other && Equals(other);
+    }
 
-        /// <inheritdoc />
-        public bool Equals(KeyOrButton other)
-        {
-            return key == other.key && button == other.button;
-        }
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(key, button);
+    }
 
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-        {
-            return obj is KeyOrButton other && Equals(other);
-        }
+    /// <summary>
+    ///     Checks if two <see cref="KeyOrButton" />s are equal.
+    /// </summary>
+    public static bool operator ==(KeyOrButton left, KeyOrButton right)
+    {
+        return left.Equals(right);
+    }
 
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(key, button);
-        }
-
-        /// <summary>
-        ///     Checks if two <see cref="KeyOrButton" />s are equal.
-        /// </summary>
-        public static bool operator ==(KeyOrButton left, KeyOrButton right)
-        {
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        ///     Checks if two <see cref="KeyOrButton" />s are not equal.
-        /// </summary>
-        public static bool operator !=(KeyOrButton left, KeyOrButton right)
-        {
-            return !left.Equals(right);
-        }
+    /// <summary>
+    ///     Checks if two <see cref="KeyOrButton" />s are not equal.
+    /// </summary>
+    public static bool operator !=(KeyOrButton left, KeyOrButton right)
+    {
+        return !left.Equals(right);
     }
 }

@@ -4,32 +4,31 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-namespace VoxelGame.Core.Updates
+namespace VoxelGame.Core.Updates;
+
+/// <summary>
+///     A counter for update cycles.
+/// </summary>
+public class UpdateCounter
 {
     /// <summary>
-    ///     A counter for update cycles.
+    ///     The number of the current update cycle. It is incremented every time a new cycle begins.
     /// </summary>
-    public class UpdateCounter
+    public long Current { get; private set; }
+
+    /// <summary>
+    ///     Increment the update counter.
+    /// </summary>
+    public void Increment()
     {
-        /// <summary>
-        /// The number of the current update cycle. It is incremented every time a new cycle begins.
-        /// </summary>
-        public long Current { get; private set; }
+        Current++;
+    }
 
-        /// <summary>
-        ///     Increment the update counter.
-        /// </summary>
-        public void Increment()
-        {
-            Current++;
-        }
-
-        /// <summary>
-        ///     Reset the update counter.
-        /// </summary>
-        public void Reset()
-        {
-            Current = 0;
-        }
+    /// <summary>
+    ///     Reset the update counter.
+    /// </summary>
+    public void Reset()
+    {
+        Current = 0;
     }
 }

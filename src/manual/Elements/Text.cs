@@ -8,40 +8,39 @@ using System;
 using System.IO;
 using VoxelGame.Manual.Modifiers;
 
-namespace VoxelGame.Manual.Elements
+namespace VoxelGame.Manual.Elements;
+
+/// <summary>
+///     A simple text element.
+/// </summary>
+internal class Text : IElement
 {
-    /// <summary>
-    ///     A simple text element.
-    /// </summary>
-    internal class Text : IElement
+    private readonly TextStyle style;
+
+    internal Text(string text, TextStyle style)
     {
-        private readonly TextStyle style;
+        Content = text;
+        this.style = style;
+    }
 
-        internal Text(string text, TextStyle style)
+    private string Content { get; }
+
+    void IElement.Generate(StreamWriter writer)
+    {
+        switch (style)
         {
-            Content = text;
-            this.style = style;
-        }
+            case TextStyle.Monospace:
+                writer.WriteLine($@"\texttt{{{Content}}}");
 
-        private string Content { get; }
+                break;
 
-        void IElement.Generate(StreamWriter writer)
-        {
-            switch (style)
-            {
-                case TextStyle.Monospace:
-                    writer.WriteLine($@"\texttt{{{Content}}}");
+            case TextStyle.Normal:
+                writer.WriteLine(Content);
 
-                    break;
+                break;
 
-                case TextStyle.Normal:
-                    writer.WriteLine(Content);
-
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
+            default:
+                throw new NotSupportedException();
         }
     }
 }

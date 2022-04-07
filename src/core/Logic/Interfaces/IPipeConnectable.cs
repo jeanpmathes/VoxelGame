@@ -1,22 +1,21 @@
 ﻿using OpenTK.Mathematics;
 
-namespace VoxelGame.Core.Logic.Interfaces
+namespace VoxelGame.Core.Logic.Interfaces;
+
+/// <summary>
+///     Allows a block to connect to pipes.
+/// </summary>
+public interface IPipeConnectable : IBlockBase
 {
     /// <summary>
-    ///     Allows a block to connect to pipes.
+    ///     Checks if this block supports connection at a specific side.
     /// </summary>
-    public interface IPipeConnectable : IBlockBase
+    /// <param name="world">The world this block is in.</param>
+    /// <param name="side">The side to check for connect-ability.</param>
+    /// <param name="position">The position of the block to check.</param>
+    /// <returns>True if connection is supported; false if not.</returns>
+    public bool IsConnectable(World world, BlockSide side, Vector3i position)
     {
-        /// <summary>
-        ///     Checks if this block supports connection at a specific side.
-        /// </summary>
-        /// <param name="world">The world this block is in.</param>
-        /// <param name="side">The side to check for connect-ability.</param>
-        /// <param name="position">The position of the block to check.</param>
-        /// <returns>True if connection is supported; false if not.</returns>
-        public bool IsConnectable(World world, BlockSide side, Vector3i position)
-        {
-            return true;
-        }
+        return true;
     }
 }

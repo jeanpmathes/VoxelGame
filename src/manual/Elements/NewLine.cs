@@ -6,16 +6,15 @@
 
 using System.IO;
 
-namespace VoxelGame.Manual.Elements
+namespace VoxelGame.Manual.Elements;
+
+/// <summary>
+///     Creates a new line.
+/// </summary>
+internal class NewLine : IElement
 {
-    /// <summary>
-    ///     Creates a new line.
-    /// </summary>
-    internal class NewLine : IElement
+    void IElement.Generate(StreamWriter writer)
     {
-        void IElement.Generate(StreamWriter writer)
-        {
-            writer.WriteLine(@"\newline");
-        }
+        writer.WriteLine(@"\newline");
     }
 }

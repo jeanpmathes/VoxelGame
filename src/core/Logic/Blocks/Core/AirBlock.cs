@@ -10,44 +10,43 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Blocks
+namespace VoxelGame.Core.Logic.Blocks;
+
+/// <summary>
+///     AirBlocks are blocks that have no collision and are not rendered. They are used for the air block that stands for
+///     the absence of other blocks.
+///     Data bit usage: <c>------</c>
+/// </summary>
+public class AirBlock : Block, IFillable
 {
     /// <summary>
-    ///     AirBlocks are blocks that have no collision and are not rendered. They are used for the air block that stands for
-    ///     the absence of other blocks.
-    ///     Data bit usage: <c>------</c>
+    ///     Initializes a new instance of the <see cref="AirBlock" /> class.
     /// </summary>
-    public class AirBlock : Block, IFillable
+    /// <param name="name">The name of this block</param>
+    /// <param name="namedId">The unique and unlocalized name of this block.</param>
+    internal AirBlock(string name, string namedId) :
+        base(
+            name,
+            namedId,
+            BlockFlags.Empty,
+            BoundingVolume.Block,
+            TargetBuffer.NotRendered) {}
+
+    /// <inheritdoc />
+    public override BlockMeshData GetMesh(BlockMeshInfo info)
     {
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AirBlock" /> class.
-        /// </summary>
-        /// <param name="name">The name of this block</param>
-        /// <param name="namedId">The unique and unlocalized name of this block.</param>
-        internal AirBlock(string name, string namedId) :
-            base(
-                name,
-                namedId,
-                BlockFlags.Empty,
-                BoundingVolume.Block,
-                TargetBuffer.NotRendered) {}
+        return BlockMeshData.Empty();
+    }
 
-        /// <inheritdoc />
-        public override BlockMeshData GetMesh(BlockMeshInfo info)
-        {
-            return BlockMeshData.Empty();
-        }
+    /// <inheritdoc />
+    public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    {
+        return false;
+    }
 
-        /// <inheritdoc />
-        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
-        {
-            return false;
-        }
-
-        /// <inheritdoc />
-        protected override bool CanDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
-        {
-            return false;
-        }
+    /// <inheritdoc />
+    protected override bool CanDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+    {
+        return false;
     }
 }

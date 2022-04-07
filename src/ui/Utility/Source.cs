@@ -9,42 +9,40 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Logging;
 
-namespace VoxelGame.UI.Utility
-{
+namespace VoxelGame.UI.Utility;
     #pragma warning disable CA1812 // Pure static classes cannot have a logger.
 
-    /// <summary>
-    ///     A utility class to access image resources.
-    /// </summary>
-    [SuppressMessage("ReSharper", "ConvertToStaticClass", Justification = "Pure static classes cannot have a logger.")]
-    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-    internal sealed class Source
+/// <summary>
+///     A utility class to access image resources.
+/// </summary>
+[SuppressMessage("ReSharper", "ConvertToStaticClass", Justification = "Pure static classes cannot have a logger.")]
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+internal sealed class Source
+{
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Source>();
+    private Source() {}
+
+    internal static string GetImageName(string name)
     {
-        private static readonly ILogger logger = LoggingHelper.CreateLogger<Source>();
-        private Source() {}
+        return $"Resources/GUI/{name}.png";
+    }
 
-        internal static string GetImageName(string name)
+    internal static string GetIconName(string name)
+    {
+        return $"Resources/GUI/Icons/{name}.png";
+    }
+
+    internal static string GetTextContent(string path)
+    {
+        try
         {
-            return $"Resources/GUI/{name}.png";
+            return File.ReadAllText(path);
         }
-
-        internal static string GetIconName(string name)
+        catch (IOException e)
         {
-            return $"Resources/GUI/Icons/{name}.png";
-        }
+            logger.LogError(Events.FileIO, e, "Could not load text content");
 
-        internal static string GetTextContent(string path)
-        {
-            try
-            {
-                return File.ReadAllText(path);
-            }
-            catch (IOException e)
-            {
-                logger.LogError(Events.FileIO, e, "Could not load text content");
-
-                return "";
-            }
+            return "";
         }
     }
 }

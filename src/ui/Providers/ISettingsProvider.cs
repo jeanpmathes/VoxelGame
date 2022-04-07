@@ -7,31 +7,30 @@
 using System.Collections.Generic;
 using VoxelGame.UI.Settings;
 
-namespace VoxelGame.UI.Providers
+namespace VoxelGame.UI.Providers;
+
+/// <summary>
+///     Provide the user interface with settings for a given category.
+/// </summary>
+public interface ISettingsProvider
 {
     /// <summary>
-    ///     Provide the user interface with settings for a given category.
+    ///     The name of the settings category.
     /// </summary>
-    public interface ISettingsProvider
+    public string Category { get; }
+
+    /// <summary>
+    ///     A description for the settings category.
+    /// </summary>
+    public string Description { get; }
+
+    /// <summary>
+    ///     Get all settings for this category.
+    /// </summary>
+    public IEnumerable<Setting> Settings { get; }
+
+    internal void Validate()
     {
-        /// <summary>
-        ///     The name of the settings category.
-        /// </summary>
-        public string Category { get; }
-
-        /// <summary>
-        ///     A description for the settings category.
-        /// </summary>
-        public string Description { get; }
-
-        /// <summary>
-        ///     Get all settings for this category.
-        /// </summary>
-        public IEnumerable<Setting> Settings { get; }
-
-        internal void Validate()
-        {
-            foreach (Setting setting in Settings) setting.Validate();
-        }
+        foreach (Setting setting in Settings) setting.Validate();
     }
 }
