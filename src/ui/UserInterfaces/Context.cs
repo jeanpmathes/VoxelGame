@@ -8,36 +8,35 @@ using System;
 using VoxelGame.Input;
 using VoxelGame.UI.Utility;
 
-namespace VoxelGame.UI.UserInterfaces
+namespace VoxelGame.UI.UserInterfaces;
+
+/// <summary>
+///     The context in which the user interface is running.
+/// </summary>
+internal sealed class Context : IDisposable
 {
-    /// <summary>
-    ///     The context in which the user interface is running.
-    /// </summary>
-    internal sealed class Context : IDisposable
+    internal Context(FontHolder fonts, InputListener input)
     {
-        internal Context(FontHolder fonts, InputListener input)
-        {
-            Fonts = fonts;
-            Input = input;
-        }
+        Fonts = fonts;
+        Input = input;
+    }
 
-        internal FontHolder Fonts { get; }
-        internal InputListener Input { get; }
+    internal FontHolder Fonts { get; }
+    internal InputListener Input { get; }
 
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
 
-        private void Dispose(bool disposing)
-        {
-            if (disposing) Fonts.Dispose();
-        }
+    private void Dispose(bool disposing)
+    {
+        if (disposing) Fonts.Dispose();
+    }
 
-        ~Context()
-        {
-            Dispose(disposing: false);
-        }
+    ~Context()
+    {
+        Dispose(disposing: false);
     }
 }

@@ -10,40 +10,39 @@ using Gwen.Net.Control;
 using VoxelGame.Core.Visuals;
 using VoxelGame.UI.UserInterfaces;
 
-namespace VoxelGame.UI.Settings
+namespace VoxelGame.UI.Settings;
+
+/// <summary>
+///     Settings that allow to pick a quality level.
+/// </summary>
+[SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
+[SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
+internal class QualitySetting : Setting
 {
-    /// <summary>
-    ///     Settings that allow to pick a quality level.
-    /// </summary>
-    [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
-    [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-    internal class QualitySetting : Setting
+    private readonly Func<Quality> get;
+
+    private readonly MenuItem[] items = new MenuItem[Qualities.Count];
+    private readonly Action<Quality> set;
+
+    internal QualitySetting(string name, Func<Quality> get, Action<Quality> set)
     {
-        private readonly Func<Quality> get;
+        this.get = get;
+        this.set = set;
 
-        private readonly MenuItem[] items = new MenuItem[Qualities.Count];
-        private readonly Action<Quality> set;
+        Name = name;
+    }
 
-        internal QualitySetting(string name, Func<Quality> get, Action<Quality> set)
-        {
-            this.get = get;
-            this.set = set;
+    protected override string Name { get; }
 
-            Name = name;
-        }
+    private protected override void FillControl(ControlBase control, Context context)
+    {
+        ComboBox qualitySelection = new(control);
 
-        protected override string Name { get; }
+        foreach (Quality quality in Qualities.All())
+            items[(int) quality] = qualitySelection.AddItem(quality.Name(), "", quality);
 
-        private protected override void FillControl(ControlBase control, Context context)
-        {
-            ComboBox qualitySelection = new(control);
+        qualitySelection.SelectedItem = items[(int) get()];
 
-            foreach (Quality quality in Qualities.All())
-                items[(int) quality] = qualitySelection.AddItem(quality.Name(), "", quality);
-
-            qualitySelection.SelectedItem = items[(int) get()];
-
-            qualitySelection.ItemSelected += (_, args) => { set((Quality) ((MenuItem) args.SelectedItem).UserData); };
-        }
+        qualitySelection.ItemSelected += (_, args) => { set((Quality) ((MenuItem) args.SelectedItem).UserData); };
     }
 }

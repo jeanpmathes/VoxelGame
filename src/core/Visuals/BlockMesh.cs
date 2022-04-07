@@ -4,39 +4,38 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-namespace VoxelGame.Core.Visuals
+namespace VoxelGame.Core.Visuals;
+
+/// <summary>
+///     A mesh for a complex block, capable of defining more complex shapes than just a cube.
+/// </summary>
+public class BlockMesh
 {
+    private readonly uint[] indices;
+    private readonly int[] textureIndices;
+    private readonly uint vertexCount;
+    private readonly float[] vertices;
+
     /// <summary>
-    ///     A mesh for a complex block, capable of defining more complex shapes than just a cube.
+    ///     Create a new block mesh.
     /// </summary>
-    public class BlockMesh
+    /// <param name="vertexCount">The vertex count.</param>
+    /// <param name="vertices">The vertices, eight floats per vertex. Every octet contains position, normal and UV coordinates.</param>
+    /// <param name="textureIndices">The texture indices.</param>
+    /// <param name="indices">The indices defining the triangles.</param>
+    public BlockMesh(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices)
     {
-        private readonly uint[] indices;
-        private readonly int[] textureIndices;
-        private readonly uint vertexCount;
-        private readonly float[] vertices;
+        this.vertexCount = vertexCount;
+        this.vertices = vertices;
+        this.textureIndices = textureIndices;
+        this.indices = indices;
+    }
 
-        /// <summary>
-        ///     Create a new block mesh.
-        /// </summary>
-        /// <param name="vertexCount">The vertex count.</param>
-        /// <param name="vertices">The vertices, eight floats per vertex. Every octet contains position, normal and UV coordinates.</param>
-        /// <param name="textureIndices">The texture indices.</param>
-        /// <param name="indices">The indices defining the triangles.</param>
-        public BlockMesh(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices)
-        {
-            this.vertexCount = vertexCount;
-            this.vertices = vertices;
-            this.textureIndices = textureIndices;
-            this.indices = indices;
-        }
-
-        /// <summary>
-        ///     Get complex mesh data from this mesh.
-        /// </summary>
-        public BlockMeshData GetComplexMeshData(TintColor? tint = null, bool isAnimated = false)
-        {
-            return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices, tint, isAnimated);
-        }
+    /// <summary>
+    ///     Get complex mesh data from this mesh.
+    /// </summary>
+    public BlockMeshData GetComplexMeshData(TintColor? tint = null, bool isAnimated = false)
+    {
+        return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices, tint, isAnimated);
     }
 }

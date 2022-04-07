@@ -6,23 +6,22 @@
 
 using OpenTK.Mathematics;
 
-namespace VoxelGame.Core.Logic.Interfaces
+namespace VoxelGame.Core.Logic.Interfaces;
+
+/// <summary>
+///     Marks a block as able to be burned.
+/// </summary>
+public interface IFlammable : IBlockBase
 {
     /// <summary>
-    ///     Marks a block as able to be burned.
+    ///     Try to burn a block at a given position.
     /// </summary>
-    public interface IFlammable : IBlockBase
+    /// <param name="world">The world this block is in.</param>
+    /// <param name="position">The position of the block.</param>
+    /// <param name="fire">The fire block that caused the burning.</param>
+    /// <returns>true if the block was destroyed, false if not.</returns>
+    public bool Burn(World world, Vector3i position, Block fire)
     {
-        /// <summary>
-        ///     Try to burn a block at a given position.
-        /// </summary>
-        /// <param name="world">The world this block is in.</param>
-        /// <param name="position">The position of the block.</param>
-        /// <param name="fire">The fire block that caused the burning.</param>
-        /// <returns>true if the block was destroyed, false if not.</returns>
-        public bool Burn(World world, Vector3i position, Block fire)
-        {
-            return Destroy(world, position);
-        }
+        return Destroy(world, position);
     }
 }

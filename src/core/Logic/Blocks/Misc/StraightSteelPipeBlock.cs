@@ -12,77 +12,96 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Blocks
+namespace VoxelGame.Core.Logic.Blocks;
+
+/// <summary>
+///     A block that only connects to steel pipes at specific sides.
+///     Data bit usage: <c>----aa</c>
+/// </summary>
+// aa: axis
+public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectable
 {
-    /// <summary>
-    ///     A block that only connects to steel pipes at specific sides.
-    ///     Data bit usage: <c>----aa</c>
-    /// </summary>
-    // aa: axis
-    internal class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectable
+    private readonly float diameter;
+
+    private readonly List<BlockMesh> meshes = new(capacity: 3);
+    private readonly List<BoundingVolume> volumes = new();
+
+    internal StraightSteelPipeBlock(string name, string namedId, float diameter, string model) :
+        base(
+            name,
+            namedId,
+            BlockFlags.Solid,
+            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, z: 0.5f)),
+            TargetBuffer.Complex)
     {
-        private readonly float diameter;
+        this.diameter = diameter;
 
-        private readonly List<BlockMesh> meshes = new(capacity: 3);
+        (BlockModel x, BlockModel y, BlockModel z) = BlockModel.Load(model).CreateAllAxis();
 
-        internal StraightSteelPipeBlock(string name, string namedId, float diameter, string model) :
-            base(
-                name,
-                namedId,
-                BlockFlags.Solid,
-                new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, z: 0.5f)),
-                TargetBuffer.Complex)
+        meshes.Add(x.Mesh);
+        meshes.Add(y.Mesh);
+        meshes.Add(z.Mesh);
+
+        for (uint data = 0; data <= 0b00_0011; data++)
         {
-            this.diameter = diameter;
+            if (data == 0b00_0011) continue; // End condition not changed to keep consistent with other blocks.
 
-            (BlockModel x, BlockModel y, BlockModel z) = BlockModel.Load(model).CreateAllAxis();
-
-            meshes.Add(x.Mesh);
-            meshes.Add(y.Mesh);
-            meshes.Add(z.Mesh);
+            volumes.Add(CreateVolume(data));
         }
+    }
 
-        public bool RenderLiquid => false;
+    /// <inheritdoc />
+    public bool RenderLiquid => false;
 
-        public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
-        {
-            return IsSideOpen(world, position, side);
-        }
+    /// <inheritdoc />
+    public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
+    {
+        return IsSideOpen(world, position, side);
+    }
 
-        public bool AllowOutflow(World world, Vector3i position, BlockSide side)
-        {
-            return IsSideOpen(world, position, side);
-        }
+    /// <inheritdoc />
+    public bool AllowOutflow(World world, Vector3i position, BlockSide side)
+    {
+        return IsSideOpen(world, position, side);
+    }
 
-        public bool IsConnectable(World world, BlockSide side, Vector3i position)
-        {
-            return IsSideOpen(world, position, side);
-        }
+    /// <inheritdoc />
+    public bool IsConnectable(World world, BlockSide side, Vector3i position)
+    {
+        return IsSideOpen(world, position, side);
+    }
 
-        protected override BoundingBox GetBoundingBox(uint data)
-        {
-            var axis = (Axis) (data & 0b00_0011);
+    private BoundingVolume CreateVolume(uint data)
+    {
+        var axis = (Axis) (data & 0b00_0011);
 
-            return new BoundingBox(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), axis.Vector3(onAxis: 0.5f, diameter));
-        }
+        return new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), axis.Vector3(onAxis: 0.5f, diameter));
+    }
 
-        public override BlockMeshData GetMesh(BlockMeshInfo info)
-        {
-            BlockMesh mesh = meshes[(int) info.Data & 0b00_0011];
+    /// <inheritdoc />
+    protected override BoundingVolume GetBoundingVolume(uint data)
+    {
+        return volumes[(int) data & 0b00_0011];
+    }
 
-            return mesh.GetComplexMeshData();
-        }
+    /// <inheritdoc />
+    public override BlockMeshData GetMesh(BlockMeshInfo info)
+    {
+        BlockMesh mesh = meshes[(int) info.Data & 0b00_0011];
 
-        protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
-        {
-            world.SetBlock(this.AsInstance((uint) (entity?.TargetSide ?? BlockSide.Front).Axis()), position);
-        }
+        return mesh.GetComplexMeshData();
+    }
 
-        private static bool IsSideOpen(World world, Vector3i position, BlockSide side)
-        {
-            BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
+    /// <inheritdoc />
+    protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    {
+        world.SetBlock(this.AsInstance((uint) (entity?.TargetSide ?? BlockSide.Front).Axis()), position);
+    }
 
-            return side.Axis() == (Axis) (block.Data & 0b00_0011);
-        }
+    private static bool IsSideOpen(World world, Vector3i position, BlockSide side)
+    {
+        BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
+
+        return side.Axis() == (Axis) (block.Data & 0b00_0011);
     }
 }

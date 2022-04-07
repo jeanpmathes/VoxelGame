@@ -6,19 +6,18 @@
 
 using VoxelGame.Core.Logic.Interfaces;
 
-namespace VoxelGame.Core.Logic.Blocks
+namespace VoxelGame.Core.Logic.Blocks;
+
+/// <summary>
+///     A <see cref="DoorBlock" /> that is flammable.
+///     Data bit usage: <c>-csboo</c>
+/// </summary>
+public class OrganicDoorBlock : DoorBlock, IFlammable
 {
-    /// <summary>
-    /// A <see cref="DoorBlock"/> that is flammable.
-    /// Data bit usage: <c>-csboo</c>
-    /// </summary>
-    public class OrganicDoorBlock : DoorBlock, IFlammable
-    {
-        internal OrganicDoorBlock(string name, string namedId, string closed, string open) :
-            base(
-                name,
-                namedId,
-                closed,
-                open) {}
-    }
+    internal OrganicDoorBlock(string name, string namedId, string closed, string open) :
+        base(
+            name,
+            namedId,
+            closed,
+            open) {}
 }

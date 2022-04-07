@@ -9,48 +9,47 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Blocks
+namespace VoxelGame.Core.Logic.Blocks;
+
+/// <summary>
+///     Dirt covered with flammable grass.
+///     Data bit usage: <c>------</c>
+/// </summary>
+public class GrassBlock : CoveredDirtBlock, IFlammable
 {
-    /// <summary>
-    ///     Dirt covered with flammable grass.
-    ///     Data bit usage: <c>------</c>
-    /// </summary>
-    public class GrassBlock : CoveredDirtBlock, IFlammable
+    internal GrassBlock(string name, string namedId, TextureLayout normal, TextureLayout wet) :
+        base(
+            name,
+            namedId,
+            normal,
+            wet,
+            hasNeutralTint: true,
+            supportsFullGrowth: false) {}
+
+    /// <inheritdoc />
+    public bool Burn(World world, Vector3i position, Block fire)
     {
-        internal GrassBlock(string name, string namedId, TextureLayout normal, TextureLayout wet) :
-            base(
-                name,
-                namedId,
-                normal,
-                wet,
-                hasNeutralTint: true,
-                supportsFullGrowth: false) {}
+        world.SetBlock(GrassBurned.AsInstance(), position);
+        fire.Place(world, position.Above());
 
-        /// <inheritdoc />
-        public bool Burn(World world, Vector3i position, Block fire)
-        {
-            world.SetBlock(GrassBurned.AsInstance(), position);
-            fire.Place(world, position.Above());
+        return false;
+    }
 
-            return false;
-        }
+    /// <inheritdoc />
+    public override void RandomUpdate(World world, Vector3i position, uint data)
+    {
+        LiquidInstance? liquid = world.GetLiquid(position);
 
-        /// <inheritdoc />
-        public override void RandomUpdate(World world, Vector3i position, uint data)
-        {
-            LiquidInstance? liquid = world.GetLiquid(position);
+        if (liquid?.Liquid == Liquid.Water && liquid.Value.Level == LiquidLevel.Eight)
+            world.SetBlock(Mud.AsInstance(), position);
 
-            if (liquid?.Liquid == Liquid.Water && liquid.Level == LiquidLevel.Eight)
-                world.SetBlock(Mud.AsInstance(), position);
+        for (int yOffset = -1; yOffset <= 1; yOffset++)
+            foreach (Orientation orientation in Orientations.All)
+            {
+                Vector3i otherPosition = orientation.Offset(position) + Vector3i.UnitY * yOffset;
 
-            for (int yOffset = -1; yOffset <= 1; yOffset++)
-                foreach (Orientation orientation in Orientations.All)
-                {
-                    Vector3i otherPosition = orientation.Offset(position) + Vector3i.UnitY * yOffset;
-
-                    if (world.GetBlock(otherPosition)?.Block is IGrassSpreadable grassSpreadable)
-                        grassSpreadable.SpreadGrass(world, otherPosition, this);
-                }
-        }
+                if (world.GetBlock(otherPosition)?.Block is IGrassSpreadable grassSpreadable)
+                    grassSpreadable.SpreadGrass(world, otherPosition, this);
+            }
     }
 }

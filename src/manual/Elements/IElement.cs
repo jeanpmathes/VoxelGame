@@ -6,13 +6,12 @@
 
 using System.IO;
 
-namespace VoxelGame.Manual.Elements
+namespace VoxelGame.Manual.Elements;
+
+/// <summary>
+///     Defines an element of a document section.
+/// </summary>
+internal interface IElement
 {
-    /// <summary>
-    ///     Defines an element of a document section.
-    /// </summary>
-    internal interface IElement
-    {
-        internal void Generate(StreamWriter writer);
-    }
+    internal void Generate(StreamWriter writer);
 }

@@ -7,37 +7,35 @@
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 
-namespace VoxelGame.Client.Console.Commands
-{
+namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
 
-    /// <summary>
-    ///     Sets the spawn position for the current world.
-    /// </summary>
-    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public class SetSpawnPoint : Command
+/// <summary>
+///     Sets the spawn position for the current world.
+/// </summary>
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+public class SetSpawnPoint : Command
+{
+    /// <inheritdoc />
+    public override string Name => "set-spawnpoint";
+
+    /// <inheritdoc />
+    public override string HelpText => "Sets the spawn position for the current world.";
+
+    /// <exclude />
+    public void Invoke(float x, float y, float z)
     {
-        /// <inheritdoc />
-        public override string Name => "set-spawnpoint";
+        SetSpawnPosition((x, y, z));
+    }
 
-        /// <inheritdoc />
-        public override string HelpText => "Sets the spawn position for the current world.";
+    /// <exclude />
+    public void Invoke()
+    {
+        SetSpawnPosition(Context.Player.Position);
+    }
 
-        /// <exclude />
-        public void Invoke(float x, float y, float z)
-        {
-            SetSpawnPosition((x, y, z));
-        }
-
-        /// <exclude />
-        public void Invoke()
-        {
-            SetSpawnPosition(Context.Player.Position);
-        }
-
-        private void SetSpawnPosition(Vector3 newSpawnPoint)
-        {
-            Context.Player.World.SpawnPosition = newSpawnPoint;
-        }
+    private void SetSpawnPosition(Vector3 newSpawnPoint)
+    {
+        Context.Player.World.SpawnPosition = newSpawnPoint;
     }
 }

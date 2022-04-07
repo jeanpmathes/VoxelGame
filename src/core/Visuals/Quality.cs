@@ -6,62 +6,61 @@
 
 using System.Collections.Generic;
 
-namespace VoxelGame.Core.Visuals
+namespace VoxelGame.Core.Visuals;
+
+/// <summary>
+///     Different quality levels to select resources and routines.
+/// </summary>
+public enum Quality
 {
     /// <summary>
-    ///     Different quality levels to select resources and routines.
+    ///     Low quality. Performance is the most important.
     /// </summary>
-    public enum Quality
+    Low,
+
+    /// <summary>
+    ///     Medium quality. Performance and visual quality are equally important.
+    /// </summary>
+    Medium,
+
+    /// <summary>
+    ///     High quality. Visual quality is prioritized.
+    /// </summary>
+    High,
+
+    /// <summary>
+    ///     Ultra quality. Visual quality is the most important.
+    /// </summary>
+    Ultra
+}
+
+/// <summary>
+///     Utility class for quality.
+/// </summary>
+public static class Qualities
+{
+    /// <summary>
+    ///     The number of quality levels.
+    /// </summary>
+    public const int Count = 4;
+
+    /// <summary>
+    ///     Get all quality levels.
+    /// </summary>
+    /// <returns></returns>
+    public static IEnumerable<Quality> All()
     {
-        /// <summary>
-        ///     Low quality. Performance is the most important.
-        /// </summary>
-        Low,
-
-        /// <summary>
-        ///     Medium quality. Performance and visual quality are equally important.
-        /// </summary>
-        Medium,
-
-        /// <summary>
-        ///     High quality. Visual quality is prioritized.
-        /// </summary>
-        High,
-
-        /// <summary>
-        ///     Ultra quality. Visual quality is the most important.
-        /// </summary>
-        Ultra
+        yield return Quality.Low;
+        yield return Quality.Medium;
+        yield return Quality.High;
+        yield return Quality.Ultra;
     }
 
     /// <summary>
-    ///     Utility class for quality.
+    ///     The name of the quality as string.
     /// </summary>
-    public static class Qualities
+    public static string Name(this Quality quality)
     {
-        /// <summary>
-        ///     The number of quality levels.
-        /// </summary>
-        public const int Count = 4;
-
-        /// <summary>
-        ///     Get all quality levels.
-        /// </summary>
-        /// <returns></returns>
-        public static IEnumerable<Quality> All()
-        {
-            yield return Quality.Low;
-            yield return Quality.Medium;
-            yield return Quality.High;
-            yield return Quality.Ultra;
-        }
-
-        /// <summary>
-        ///     The name of the quality as string.
-        /// </summary>
-        public static string Name(this Quality quality)
-        {
-            return quality.ToString();
-        }
+        return quality.ToString();
     }
 }

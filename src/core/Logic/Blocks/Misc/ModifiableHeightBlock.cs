@@ -10,46 +10,45 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Blocks
+namespace VoxelGame.Core.Logic.Blocks;
+
+/// <summary>
+///     A block that allows to change its height by interacting.
+///     Data bit usage: <c>--hhhh</c>
+/// </summary>
+public class ModifiableHeightBlock : VaryingHeightBlock
 {
-    /// <summary>
-    ///     A block that allows to change its height by interacting.
-    ///     Data bit usage: <c>--hhhh</c>
-    /// </summary>
-    public class ModifiableHeightBlock : VaryingHeightBlock
+    internal ModifiableHeightBlock(string name, string namedId, TextureLayout layout) :
+        base(
+            name,
+            namedId,
+            BlockFlags.Functional,
+            layout) {}
+
+    /// <inheritdoc />
+    public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
     {
-        internal ModifiableHeightBlock(string name, string namedId, TextureLayout layout) :
-            base(
-                name,
-                namedId,
-                BlockFlags.Functional,
-                layout) {}
+        return world.HasSolidGround(position, solidify: true);
+    }
 
-        /// <inheritdoc />
-        public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    /// <inheritdoc />
+    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    {
+        if (side == BlockSide.Bottom && !world.HasSolidGround(position))
         {
-            return world.HasSolidGround(position, solidify: true);
+            if (GetHeight(data) == IHeightVariable.MaximumHeight)
+                ScheduleDestroy(world, position);
+            else
+                Destroy(world, position);
         }
+    }
 
-        /// <inheritdoc />
-        public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
-        {
-            if (side == BlockSide.Bottom && !world.HasSolidGround(position))
-            {
-                if (GetHeight(data) == IHeightVariable.MaximumHeight)
-                    ScheduleDestroy(world, position);
-                else
-                    Destroy(world, position);
-            }
-        }
+    /// <inheritdoc />
+    protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
+    {
+        uint height = data & 0b00_1111;
+        height++;
 
-        /// <inheritdoc />
-        protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
-        {
-            uint height = data & 0b00_1111;
-            height++;
-
-            if (height <= IHeightVariable.MaximumHeight) entity.World.SetBlock(this.AsInstance(height), position);
-        }
+        if (height <= IHeightVariable.MaximumHeight) entity.World.SetBlock(this.AsInstance(height), position);
     }
 }

@@ -6,16 +6,15 @@
 
 using System;
 
-namespace VoxelGame.Core.Utilities
+namespace VoxelGame.Core.Utilities;
+
+/// <summary>
+///     A utility class for generating random numbers.
+/// </summary>
+public static class NumberGenerator
 {
     /// <summary>
-    ///     A utility class for generating random numbers.
+    ///     The random number generator.
     /// </summary>
-    public static class NumberGenerator
-    {
-        /// <summary>
-        ///     The random number generator.
-        /// </summary>
-        public static Random Random { get; } = new();
-    }
+    public static Random Random { get; } = new();
 }

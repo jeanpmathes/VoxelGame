@@ -11,34 +11,33 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Blocks
+namespace VoxelGame.Core.Logic.Blocks;
+
+/// <summary>
+///     A custom model block that uses tint.
+///     Data bit usage: <c>-ccccc</c>
+/// </summary>
+// c: color
+public class TintedCustomModelBlock : CustomModelBlock, IFlammable
 {
-    /// <summary>
-    ///     A custom model block that uses tint.
-    ///     Data bit usage: <c>-ccccc</c>
-    /// </summary>
-    // c: color
-    public class TintedCustomModelBlock : CustomModelBlock, IFlammable
+    internal TintedCustomModelBlock(string name, string namedId, BlockFlags flags, string modelName,
+        BoundingVolume boundingVolume) :
+        base(
+            name,
+            namedId,
+            flags with { IsInteractable = true },
+            modelName,
+            boundingVolume) {}
+
+    /// <inheritdoc />
+    public override BlockMeshData GetMesh(BlockMeshInfo info)
     {
-        internal TintedCustomModelBlock(string name, string namedId, BlockFlags flags, string modelName,
-            BoundingBox boundingBox) :
-            base(
-                name,
-                namedId,
-                flags with { IsInteractable = true },
-                modelName,
-                boundingBox) {}
+        return base.GetMesh(info).Modified(((BlockColor) (0b01_1111 & info.Data)).ToTintColor());
+    }
 
-        /// <inheritdoc />
-        public override BlockMeshData GetMesh(BlockMeshInfo info)
-        {
-            return base.GetMesh(info).Modified(((BlockColor) (0b01_1111 & info.Data)).ToTintColor());
-        }
-
-        /// <inheritdoc />
-        protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
-        {
-            entity.World.SetBlock(this.AsInstance((data + 1) & 0b01_1111), position);
-        }
+    /// <inheritdoc />
+    protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
+    {
+        entity.World.SetBlock(this.AsInstance((data + 1) & 0b01_1111), position);
     }
 }

@@ -6,41 +6,40 @@
 
 using VoxelGame.Input.Actions;
 
-namespace VoxelGame.Input.Composite
+namespace VoxelGame.Input.Composite;
+
+/// <summary>
+///     An input axis consisting of two <see cref="Button" />s.
+/// </summary>
+public class InputAxis
 {
+    private readonly Button negative;
+    private readonly Button positive;
+
     /// <summary>
-    ///     An input axis consisting of two <see cref="Button" />s.
+    ///     Create a new input axis.
     /// </summary>
-    public class InputAxis
+    /// <param name="positive">The positive button.</param>
+    /// <param name="negative">The negative button.</param>
+    public InputAxis(Button positive, Button negative)
     {
-        private readonly Button negative;
-        private readonly Button positive;
+        this.positive = positive;
+        this.negative = negative;
+    }
 
-        /// <summary>
-        ///     Create a new input axis.
-        /// </summary>
-        /// <param name="positive">The positive button.</param>
-        /// <param name="negative">The negative button.</param>
-        public InputAxis(Button positive, Button negative)
+    /// <summary>
+    ///     Get the value of the axis.
+    /// </summary>
+    public float Value
+    {
+        get
         {
-            this.positive = positive;
-            this.negative = negative;
-        }
+            var value = 0f;
 
-        /// <summary>
-        ///     Get the value of the axis.
-        /// </summary>
-        public float Value
-        {
-            get
-            {
-                var value = 0f;
+            if (positive.IsDown) value++;
+            if (negative.IsDown) value--;
 
-                if (positive.IsDown) value++;
-                if (negative.IsDown) value--;
-
-                return value;
-            }
+            return value;
         }
     }
 }

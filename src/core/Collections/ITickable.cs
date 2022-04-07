@@ -6,17 +6,16 @@
 
 using VoxelGame.Core.Logic;
 
-namespace VoxelGame.Core.Collections
+namespace VoxelGame.Core.Collections;
+
+/// <summary>
+///     An object that can receive ticks.
+/// </summary>
+public interface ITickable
 {
     /// <summary>
-    ///     An object that can receive ticks.
+    ///     Send a tick to the object.
     /// </summary>
-    public interface ITickable
-    {
-        /// <summary>
-        ///     Send a tick to the object.
-        /// </summary>
-        /// <param name="world">The world in which the tick occurs.</param>
-        void Tick(World world);
-    }
+    /// <param name="world">The world in which the tick occurs.</param>
+    void Tick(World world);
 }

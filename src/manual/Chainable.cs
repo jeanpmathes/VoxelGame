@@ -9,103 +9,102 @@ using VoxelGame.Manual.Elements;
 using VoxelGame.Manual.Modifiers;
 using Boolean = VoxelGame.Manual.Elements.Boolean;
 
-namespace VoxelGame.Manual
+namespace VoxelGame.Manual;
+
+/// <summary>
+///     Allows the simple creating of ordered elements.
+/// </summary>
+public abstract class Chainable
 {
+    internal abstract void AddElement(IElement element);
+
     /// <summary>
-    ///     Allows the simple creating of ordered elements.
+    ///     Add text content to the section.
     /// </summary>
-    public abstract class Chainable
+    /// <param name="content">The text content to add.</param>
+    /// <param name="style">The style of the text to add.</param>
+    /// <returns>The current chain.</returns>
+    public Chainable Text(string content, TextStyle style = TextStyle.Normal)
     {
-        internal abstract void AddElement(IElement element);
+        AddElement(new Text(content, style));
 
-        /// <summary>
-        ///     Add text content to the section.
-        /// </summary>
-        /// <param name="content">The text content to add.</param>
-        /// <param name="style">The style of the text to add.</param>
-        /// <returns>The current chain.</returns>
-        public Chainable Text(string content, TextStyle style = TextStyle.Normal)
-        {
-            AddElement(new Text(content, style));
+        return this;
+    }
 
-            return this;
-        }
+    /// <summary>
+    ///     Add a key box to the section.
+    /// </summary>
+    /// <param name="k">The key to describe.</param>
+    /// <returns>The current chain.</returns>
+    public Chainable Key(object k)
+    {
+        AddElement(new Key(k));
 
-        /// <summary>
-        ///     Add a key box to the section.
-        /// </summary>
-        /// <param name="k">The key to describe.</param>
-        /// <returns>The current chain.</returns>
-        public Chainable Key(object k)
-        {
-            AddElement(new Key(k));
+        return this;
+    }
 
-            return this;
-        }
+    /// <summary>
+    ///     Start a new line.
+    /// </summary>
+    /// <returns>This.</returns>
+    public Chainable NewLine()
+    {
+        AddElement(new NewLine());
 
-        /// <summary>
-        ///     Start a new line.
-        /// </summary>
-        /// <returns>This.</returns>
-        public Chainable NewLine()
-        {
-            AddElement(new NewLine());
+        return this;
+    }
 
-            return this;
-        }
+    /// <summary>
+    ///     Add a representation of a boolean value.
+    /// </summary>
+    /// <param name="value">The value to represent.</param>
+    /// <returns>This.</returns>
+    public Chainable Boolean(bool value)
+    {
+        AddElement(new Boolean(value));
 
-        /// <summary>
-        ///     Add a representation of a boolean value.
-        /// </summary>
-        /// <param name="value">The value to represent.</param>
-        /// <returns>This.</returns>
-        public Chainable Boolean(bool value)
-        {
-            AddElement(new Boolean(value));
+        return this;
+    }
 
-            return this;
-        }
+    /// <summary>
+    ///     Begin a list, and increase the level.
+    /// </summary>
+    /// <returns>The list chainable. Must be ended.</returns>
+    public Chainable BeginList()
+    {
+        List list = new(this);
+        AddElement(list);
 
-        /// <summary>
-        ///     Begin a list, and increase the level.
-        /// </summary>
-        /// <returns>The list chainable. Must be ended.</returns>
-        public Chainable BeginList()
-        {
-            List list = new(this);
-            AddElement(list);
+        return list;
+    }
 
-            return list;
-        }
+    /// <summary>
+    ///     Add an item to a list.
+    /// </summary>
+    /// <param name="bullet">An optional bullet leading the item.</param>
+    /// <returns>This.</returns>
+    public Chainable Item(string? bullet = null)
+    {
+        AddElement(new Item(bullet));
 
-        /// <summary>
-        ///     Add an item to a list.
-        /// </summary>
-        /// <param name="bullet">An optional bullet leading the item.</param>
-        /// <returns>This.</returns>
-        public Chainable Item(string? bullet = null)
-        {
-            AddElement(new Item(bullet));
+        return this;
+    }
 
-            return this;
-        }
+    /// <summary>
+    ///     Decrease the level.
+    /// </summary>
+    /// <returns>The chainable of a lower level.</returns>
+    public virtual Chainable Finish()
+    {
+        throw new InvalidOperationException();
+    }
 
-        /// <summary>
-        ///     Decrease the level.
-        /// </summary>
-        /// <returns>The chainable of a lower level.</returns>
-        public virtual Chainable Finish()
-        {
-            throw new InvalidOperationException();
-        }
-
-        /// <summary>
-        ///     End the chain. Only valid on the lowest level.
-        /// </summary>
-        /// <returns>The section defined by this chain.</returns>
-        public virtual Section EndSection()
-        {
-            throw new InvalidOperationException();
-        }
+    /// <summary>
+    ///     End the chain. Only valid on the lowest level.
+    /// </summary>
+    /// <returns>The section defined by this chain.</returns>
+    public virtual Section EndSection()
+    {
+        throw new InvalidOperationException();
     }
 }

@@ -4,21 +4,20 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-namespace VoxelGame.Manual.Modifiers
+namespace VoxelGame.Manual.Modifiers;
+
+/// <summary>
+///     Style of text.
+/// </summary>
+public enum TextStyle
 {
     /// <summary>
-    ///     Style of text.
+    ///     Normal text.
     /// </summary>
-    public enum TextStyle
-    {
-        /// <summary>
-        ///     Normal text.
-        /// </summary>
-        Normal,
+    Normal,
 
-        /// <summary>
-        ///     Monospaced text.
-        /// </summary>
-        Monospace
-    }
+    /// <summary>
+    ///     Monospaced text.
+    /// </summary>
+    Monospace
 }

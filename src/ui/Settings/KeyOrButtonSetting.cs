@@ -14,83 +14,82 @@ using VoxelGame.Input.Internal;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
 
-namespace VoxelGame.UI.Settings
+namespace VoxelGame.UI.Settings;
+
+/// <summary>
+///     Settings that allow to pick a key or button.
+/// </summary>
+[SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
+[SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
+[SuppressMessage("ReSharper", "CA1001")]
+internal class KeyOrButtonSetting : Setting
 {
-    /// <summary>
-    ///     Settings that allow to pick a key or button.
-    /// </summary>
-    [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
-    [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-    [SuppressMessage("ReSharper", "CA1001")]
-    internal class KeyOrButtonSetting : Setting
+    private readonly Func<KeyOrButton> get;
+    private readonly Action reset;
+    private readonly Action<KeyOrButton> set;
+
+    private readonly Func<bool> validate;
+
+    private Button rebind = null!;
+
+    internal KeyOrButtonSetting(string name, Func<KeyOrButton> get, Action<KeyOrButton> set, Func<bool> validate,
+        Action reset)
     {
-        private readonly Func<KeyOrButton> get;
-        private readonly Action reset;
-        private readonly Action<KeyOrButton> set;
+        this.get = get;
+        this.set = set;
 
-        private readonly Func<bool> validate;
+        this.validate = validate;
+        this.reset = reset;
 
-        private Button rebind = null!;
+        Name = name;
+    }
 
-        internal KeyOrButtonSetting(string name, Func<KeyOrButton> get, Action<KeyOrButton> set, Func<bool> validate,
-            Action reset)
+    protected override string Name { get; }
+
+    private protected override void FillControl(ControlBase control, Context context)
+    {
+        DockLayout layout = new(control);
+
+        rebind = new Button(layout)
         {
-            this.get = get;
-            this.set = set;
+            Text = get().ToString(),
+            Dock = Dock.Fill
+        };
 
-            this.validate = validate;
-            this.reset = reset;
-
-            Name = name;
-        }
-
-        protected override string Name { get; }
-
-        private protected override void FillControl(ControlBase control, Context context)
+        rebind.Clicked += (_, _) => // Using pressed instead of clicked causes that the mouse is used as new bind.
         {
-            DockLayout layout = new(control);
+            CloseHandel modal = Modals.OpenBlockingModal(rebind, Language.PressAnyKeyOrButton);
 
-            rebind = new Button(layout)
-            {
-                Text = get().ToString(),
-                Dock = Dock.Fill
-            };
+            context.Input.ListenForAnyKeyOrButton(
+                keyOrButton =>
+                {
+                    modal.Close();
 
-            rebind.Clicked += (_, _) => // Using pressed instead of clicked causes that the mouse is used as new bind.
-            {
-                CloseHandel modal = Modals.OpenBlockingModal(rebind, Language.PressAnyKeyOrButton);
+                    set(keyOrButton);
+                    rebind.Text = keyOrButton.ToString();
 
-                context.Input.ListenForAnyKeyOrButton(
-                    keyOrButton =>
-                    {
-                        modal.Close();
+                    Provider.Validate();
+                });
+        };
 
-                        set(keyOrButton);
-                        rebind.Text = keyOrButton.ToString();
-
-                        Provider.Validate();
-                    });
-            };
-
-            Button resetBind = new(layout)
-            {
-                ImageName = Source.GetIconName("reset"),
-                Size = new Size(width: 40, height: 40),
-                ToolTipText = Language.Reset,
-                Dock = Dock.Right
-            };
-
-            resetBind.Pressed += (_, _) =>
-            {
-                reset();
-                rebind.Text = get().ToString();
-            };
-        }
-
-        internal override void Validate()
+        Button resetBind = new(layout)
         {
-            bool valid = validate();
-            rebind.TextColorOverride = valid ? Color.White : Color.Red;
-        }
+            ImageName = Source.GetIconName("reset"),
+            Size = new Size(width: 40, height: 40),
+            ToolTipText = Language.Reset,
+            Dock = Dock.Right
+        };
+
+        resetBind.Pressed += (_, _) =>
+        {
+            reset();
+            rebind.Text = get().ToString();
+        };
+    }
+
+    internal override void Validate()
+    {
+        bool valid = validate();
+        rebind.TextColorOverride = valid ? Color.White : Color.Red;
     }
 }

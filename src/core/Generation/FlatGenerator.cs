@@ -7,35 +7,34 @@
 using System.Collections.Generic;
 using VoxelGame.Core.Logic;
 
-namespace VoxelGame.Core.Generation
+namespace VoxelGame.Core.Generation;
+
+/// <summary>
+///     Generates a completely flat world.
+/// </summary>
+public class FlatGenerator : IWorldGenerator
 {
+    private readonly int heightAir;
+    private readonly int heightDirt;
+
     /// <summary>
-    ///     Generates a completely flat world.
+    ///     Creates a new flat world generator.
     /// </summary>
-    public class FlatGenerator : IWorldGenerator
+    /// <param name="heightAir">The height at which air starts.</param>
+    /// <param name="heightDirt">The height at which dirt is used.</param>
+    public FlatGenerator(int heightAir, int heightDirt)
     {
-        private readonly int heightAir;
-        private readonly int heightDirt;
+        this.heightAir = heightAir;
+        this.heightDirt = heightDirt;
+    }
 
-        /// <summary>
-        ///     Creates a new flat world generator.
-        /// </summary>
-        /// <param name="heightAir">The height at which air starts.</param>
-        /// <param name="heightDirt">The height at which dirt is used.</param>
-        public FlatGenerator(int heightAir, int heightDirt)
-        {
-            this.heightAir = heightAir;
-            this.heightDirt = heightDirt;
-        }
-
-        /// <inheritdoc />
-        public IEnumerable<Block> GenerateColumn(int x, int z)
-        {
-            for (var y = 0; y < Section.SectionSize * Chunk.VerticalSectionCount; y++)
-                if (y > heightAir) yield return Block.Air;
-                else if (y == heightAir) yield return Block.Grass;
-                else if (y > heightDirt) yield return Block.Dirt;
-                else yield return Block.Stone;
-        }
+    /// <inheritdoc />
+    public IEnumerable<Block> GenerateColumn(int x, int z)
+    {
+        for (var y = 0; y < Section.SectionSize * Chunk.VerticalSectionCount; y++)
+            if (y > heightAir) yield return Block.Air;
+            else if (y == heightAir) yield return Block.Grass;
+            else if (y > heightDirt) yield return Block.Dirt;
+            else yield return Block.Stone;
     }
 }

@@ -4,26 +4,25 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-namespace VoxelGame.Core.Visuals
+namespace VoxelGame.Core.Visuals;
+
+/// <summary>
+///     The render type of a liquid.
+/// </summary>
+public enum RenderType
 {
     /// <summary>
-    ///     The render type of a liquid.
+    ///     The liquid is not rendered.
     /// </summary>
-    public enum RenderType
-    {
-        /// <summary>
-        ///     The liquid is not rendered.
-        /// </summary>
-        NotRendered,
+    NotRendered,
 
-        /// <summary>
-        ///     The liquid is opaque.
-        /// </summary>
-        Opaque,
+    /// <summary>
+    ///     The liquid is opaque.
+    /// </summary>
+    Opaque,
 
-        /// <summary>
-        ///     The liquid is transparent.
-        /// </summary>
-        Transparent
-    }
+    /// <summary>
+    ///     The liquid is transparent.
+    /// </summary>
+    Transparent
 }

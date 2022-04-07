@@ -6,23 +6,22 @@
 
 using System.IO;
 
-namespace VoxelGame.Manual.Elements
+namespace VoxelGame.Manual.Elements;
+
+/// <summary>
+///     A piece of text that represents a boolean value.
+/// </summary>
+internal class Boolean : IElement
 {
-    /// <summary>
-    ///     A piece of text that represents a boolean value.
-    /// </summary>
-    internal class Boolean : IElement
+    internal Boolean(bool value)
     {
-        internal Boolean(bool value)
-        {
-            Value = value;
-        }
+        Value = value;
+    }
 
-        private bool Value { get; }
+    private bool Value { get; }
 
-        void IElement.Generate(StreamWriter writer)
-        {
-            writer.Write(Value ? @" \Checkmark " : @" \XSolidBrush ");
-        }
+    void IElement.Generate(StreamWriter writer)
+    {
+        writer.Write(Value ? @" \Checkmark " : @" \XSolidBrush ");
     }
 }

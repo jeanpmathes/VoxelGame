@@ -6,48 +6,47 @@
 
 using VoxelGame.UI.UserInterfaces;
 
-namespace VoxelGame.Client.Console
+namespace VoxelGame.Client.Console;
+
+/// <summary>
+///     A wrapper around the console provided by the UI.
+/// </summary>
+public class ConsoleWrapper
 {
+    private readonly ConsoleInterface consoleInterface;
+
     /// <summary>
-    ///     A wrapper around the console provided by the UI.
+    ///     Create a new console wrapper.
     /// </summary>
-    public class ConsoleWrapper
+    /// <param name="consoleInterface">The interface to wrap.</param>
+    public ConsoleWrapper(ConsoleInterface consoleInterface)
     {
-        private readonly ConsoleInterface consoleInterface;
+        this.consoleInterface = consoleInterface;
+    }
 
-        /// <summary>
-        /// Create a new console wrapper.
-        /// </summary>
-        /// <param name="consoleInterface">The interface to wrap.</param>
-        public ConsoleWrapper(ConsoleInterface consoleInterface)
-        {
-            this.consoleInterface = consoleInterface;
-        }
+    /// <summary>
+    ///     Write a response to the console.
+    /// </summary>
+    /// <param name="response">The response to write.</param>
+    public void WriteResponse(string response)
+    {
+        consoleInterface.WriteResponse(response);
+    }
 
-        /// <summary>
-        ///     Write a response to the console.
-        /// </summary>
-        /// <param name="response">The response to write.</param>
-        public void WriteResponse(string response)
-        {
-            consoleInterface.WriteResponse(response);
-        }
+    /// <summary>
+    ///     Write an error to the console.
+    /// </summary>
+    /// <param name="error">The error to write.</param>
+    public void WriteError(string error)
+    {
+        consoleInterface.WriteError(error);
+    }
 
-        /// <summary>
-        ///     Write an error to the console.
-        /// </summary>
-        /// <param name="error">The error to write.</param>
-        public void WriteError(string error)
-        {
-            consoleInterface.WriteError(error);
-        }
-
-        /// <summary>
-        ///     Clear the console content.
-        /// </summary>
-        public void Clear()
-        {
-            consoleInterface.Clear();
-        }
+    /// <summary>
+    ///     Clear the console content.
+    /// </summary>
+    public void Clear()
+    {
+        consoleInterface.Clear();
     }
 }

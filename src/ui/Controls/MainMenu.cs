@@ -11,62 +11,61 @@ using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
 
-namespace VoxelGame.UI.Controls
+namespace VoxelGame.UI.Controls;
+
+/// <summary>
+///     The main menu of the game, allowing to access the different sub-menus.
+/// </summary>
+[SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
+[SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
+internal class MainMenu : StandardMenu
 {
-    /// <summary>
-    ///     The main menu of the game, allowing to access the different sub-menus.
-    /// </summary>
-    [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
-    [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-    internal class MainMenu : StandardMenu
+    internal MainMenu(ControlBase parent, Context context) : base(parent, context)
     {
-        internal MainMenu(ControlBase parent, Context context) : base(parent, context)
+        CreateContent();
+    }
+
+    internal event EventHandler SelectExit = delegate {};
+    internal event EventHandler SelectWorlds = delegate {};
+    internal event EventHandler SelectSettings = delegate {};
+    internal event EventHandler SelectCredits = delegate {};
+
+    protected override void CreateMenu(ControlBase menu)
+    {
+        Button worlds = new(menu)
         {
-            CreateContent();
-        }
+            Text = Language.Worlds
+        };
 
-        internal event EventHandler SelectExit = delegate {};
-        internal event EventHandler SelectWorlds = delegate {};
-        internal event EventHandler SelectSettings = delegate {};
-        internal event EventHandler SelectCredits = delegate {};
+        worlds.Clicked += (_, _) => SelectWorlds(this, EventArgs.Empty);
 
-        protected override void CreateMenu(ControlBase menu)
+        Button settings = new(menu)
         {
-            Button worlds = new(menu)
-            {
-                Text = Language.Worlds
-            };
+            Text = Language.Settings
+        };
 
-            worlds.Clicked += (_, _) => SelectWorlds(this, EventArgs.Empty);
+        settings.Pressed += (_, _) => SelectSettings(this, EventArgs.Empty);
 
-            Button settings = new(menu)
-            {
-                Text = Language.Settings
-            };
-
-            settings.Pressed += (_, _) => SelectSettings(this, EventArgs.Empty);
-
-            Button credits = new(menu)
-            {
-                Text = Language.Credits
-            };
-
-            credits.Pressed += (_, _) => SelectCredits(this, EventArgs.Empty);
-
-            Button exit = new(menu)
-            {
-                Text = Language.Exit
-            };
-
-            exit.Pressed += (_, _) => SelectExit(this, EventArgs.Empty);
-        }
-
-        protected override void CreateDisplay(ControlBase display)
+        Button credits = new(menu)
         {
-            TrueRatioImagePanel image = new(display)
-            {
-                ImageName = Source.GetImageName("start")
-            };
-        }
+            Text = Language.Credits
+        };
+
+        credits.Pressed += (_, _) => SelectCredits(this, EventArgs.Empty);
+
+        Button exit = new(menu)
+        {
+            Text = Language.Exit
+        };
+
+        exit.Pressed += (_, _) => SelectExit(this, EventArgs.Empty);
+    }
+
+    protected override void CreateDisplay(ControlBase display)
+    {
+        TrueRatioImagePanel image = new(display)
+        {
+            ImageName = Source.GetImageName("start")
+        };
     }
 }

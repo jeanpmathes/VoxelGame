@@ -6,26 +6,25 @@
 
 using Gwen.Net.Control;
 
-namespace VoxelGame.UI.Utility
+namespace VoxelGame.UI.Utility;
+
+/// <summary>
+///     A handel that allows to close a window.
+/// </summary>
+internal class CloseHandel
 {
-    /// <summary>
-    ///     A handel that allows to close a window.
-    /// </summary>
-    internal class CloseHandel
+    private readonly Window window;
+
+    internal CloseHandel(Window window)
     {
-        private readonly Window window;
+        this.window = window;
+    }
 
-        internal CloseHandel(Window window)
-        {
-            this.window = window;
-        }
-
-        /// <summary>
-        ///     Closes the window.
-        /// </summary>
-        internal void Close()
-        {
-            window.Close();
-        }
+    /// <summary>
+    ///     Closes the window.
+    /// </summary>
+    internal void Close()
+    {
+        window.Close();
     }
 }

@@ -7,19 +7,18 @@
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Blocks
+namespace VoxelGame.Core.Logic.Blocks;
+
+/// <summary>
+///     A glass block.
+///     Data bit usage: <c>------</c>
+/// </summary>
+public class GlassBlock : BasicBlock, IThinConnectable
 {
-    /// <summary>
-    ///     A glass block.
-    ///     Data bit usage: <c>------</c>
-    /// </summary>
-    public class GlassBlock : BasicBlock, IThinConnectable
-    {
-        internal GlassBlock(string name, string namedId, TextureLayout layout) :
-            base(
-                name,
-                namedId,
-                BlockFlags.Basic with { IsOpaque = false },
-                layout) {}
-    }
+    internal GlassBlock(string name, string namedId, TextureLayout layout) :
+        base(
+            name,
+            namedId,
+            BlockFlags.Basic with { IsOpaque = false },
+            layout) {}
 }

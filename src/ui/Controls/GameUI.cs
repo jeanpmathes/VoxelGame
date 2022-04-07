@@ -15,187 +15,186 @@ using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
-namespace VoxelGame.UI.Controls
+namespace VoxelGame.UI.Controls;
+
+/// <summary>
+///     The top control managing the in-game UI.
+/// </summary>
+[SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
+[SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
+internal class GameUI : ControlBase
 {
-    /// <summary>
-    ///     The top control managing the in-game UI.
-    /// </summary>
-    [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
-    [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-    internal class GameUI : ControlBase
+    private readonly InGameDisplay hud;
+    private readonly GameUserInterface parent;
+    private readonly IPerformanceProvider performanceProvider;
+    private readonly IPlayerDataProvider playerDataProvider;
+    private readonly ICollection<ISettingsProvider> settingsProviders;
+
+    private Window? gameMenu;
+    private bool isSettingsMenuOpen;
+
+    internal GameUI(GameUserInterface parent, ICollection<ISettingsProvider> settingsProviders,
+        IConsoleProvider consoleProvider, IPlayerDataProvider playerDataProvider,
+        IPerformanceProvider performanceProvider) : base(parent.Root)
     {
-        private readonly InGameDisplay hud;
-        private readonly GameUserInterface parent;
-        private readonly IPerformanceProvider performanceProvider;
-        private readonly IPlayerDataProvider playerDataProvider;
-        private readonly ICollection<ISettingsProvider> settingsProviders;
+        this.parent = parent;
+        this.settingsProviders = settingsProviders;
+        this.playerDataProvider = playerDataProvider;
+        this.performanceProvider = performanceProvider;
 
-        private Window? gameMenu;
-        private bool isSettingsMenuOpen;
+        Console = new ConsoleInterface(this, consoleProvider, parent.Context);
+        hud = new InGameDisplay(this);
 
-        internal GameUI(GameUserInterface parent, ICollection<ISettingsProvider> settingsProviders,
-            IConsoleProvider consoleProvider, IPlayerDataProvider playerDataProvider,
-            IPerformanceProvider performanceProvider) : base(parent.Root)
+        Console.WindowClosed += (_, _) => parent.DoOverlayClose();
+    }
+
+    internal ConsoleInterface Console { get; }
+
+    private bool IsGameMenuOpen => gameMenu != null;
+
+    internal void UpdatePerformanceData()
+    {
+        hud.SetUpdateRate(performanceProvider.FPS, performanceProvider.UPS);
+    }
+
+    internal void UpdatePlayerData()
+    {
+        hud.SetPlayerData(playerDataProvider);
+    }
+
+    internal void UpdatePlayerDebugData()
+    {
+        hud.SetPlayerDebugData(playerDataProvider);
+    }
+
+    internal void ToggleDebugDataView()
+    {
+        hud.ToggleDebugDataView();
+    }
+
+    internal void ToggleInGameMenu()
+    {
+        if (Console.IsOpen) return;
+
+        if (IsGameMenuOpen) CloseInGameMenu();
+        else OpenInGameMenu();
+    }
+
+    internal void ToggleConsole()
+    {
+        if (IsGameMenuOpen) return;
+
+        if (Console.IsOpen) CloseConsole();
+        else OpenConsole();
+    }
+
+    private void OpenInGameMenu()
+    {
+        if (IsGameMenuOpen) return;
+
+        hud.Hide();
+
+        gameMenu = new Window(this)
         {
-            this.parent = parent;
-            this.settingsProviders = settingsProviders;
-            this.playerDataProvider = playerDataProvider;
-            this.performanceProvider = performanceProvider;
+            StartPosition = StartPosition.CenterCanvas,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            IsClosable = false,
+            Resizing = Resizing.None,
+            IsDraggingEnabled = false
+        };
 
-            Console = new ConsoleInterface(this, consoleProvider, parent.Context);
-            hud = new InGameDisplay(this);
+        gameMenu.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
 
-            Console.WindowClosed += (_, _) => parent.DoOverlayClose();
-        }
-
-        internal ConsoleInterface Console { get; }
-
-        private bool IsGameMenuOpen => gameMenu != null;
-
-        internal void UpdatePerformanceData()
+        VerticalLayout layout = new(gameMenu)
         {
-            hud.SetUpdateRate(performanceProvider.FPS, performanceProvider.UPS);
-        }
+            Margin = Margin.Ten,
+            Padding = Padding.Five
+        };
 
-        internal void UpdatePlayerData()
+        Button resume = new(layout)
         {
-            hud.SetPlayerData(playerDataProvider);
-        }
+            Text = Language.Resume
+        };
 
-        internal void UpdatePlayerDebugData()
+        resume.Pressed += (_, _) => CloseInGameMenu();
+
+        Button settings = new(layout)
         {
-            hud.SetPlayerDebugData(playerDataProvider);
-        }
+            Text = Language.Settings
+        };
 
-        internal void ToggleDebugDataView()
+        settings.Pressed += (_, _) => { OpenSettings(); };
+
+        Button exit = new(layout)
         {
-            hud.ToggleDebugDataView();
-        }
+            Text = Language.Exit
+        };
 
-        internal void ToggleInGameMenu()
+        exit.Pressed += (_, _) =>
         {
-            if (Console.IsOpen) return;
+            CloseInGameMenu();
+            parent.DoWorldExit();
+        };
 
-            if (IsGameMenuOpen) CloseInGameMenu();
-            else OpenInGameMenu();
-        }
-
-        internal void ToggleConsole()
+        Label info = new(layout)
         {
-            if (IsGameMenuOpen) return;
+            Text = $"{Language.VoxelGame} - {ApplicationInformation.Instance.Version}",
+            Font = parent.Context.Fonts.Subtitle
+        };
 
-            if (Console.IsOpen) CloseConsole();
-            else OpenConsole();
-        }
+        parent.DoOverlayOpen();
+    }
 
-        private void OpenInGameMenu()
+    private void OpenSettings()
+    {
+        Window settings = new(this)
         {
-            if (IsGameMenuOpen) return;
+            Title = Language.Settings,
+            IsClosable = false,
+            Resizing = Resizing.None,
+            IsDraggingEnabled = false
+        };
 
-            hud.Hide();
+        SettingsMenu menu = new(settings, settingsProviders, parent.Context);
 
-            gameMenu = new Window(this)
-            {
-                StartPosition = StartPosition.CenterCanvas,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                IsClosable = false,
-                Resizing = Resizing.None,
-                IsDraggingEnabled = false
-            };
-
-            gameMenu.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
-
-            VerticalLayout layout = new(gameMenu)
-            {
-                Margin = Margin.Ten,
-                Padding = Padding.Five
-            };
-
-            Button resume = new(layout)
-            {
-                Text = Language.Resume
-            };
-
-            resume.Pressed += (_, _) => CloseInGameMenu();
-
-            Button settings = new(layout)
-            {
-                Text = Language.Settings
-            };
-
-            settings.Pressed += (_, _) => { OpenSettings(); };
-
-            Button exit = new(layout)
-            {
-                Text = Language.Exit
-            };
-
-            exit.Pressed += (_, _) =>
-            {
-                CloseInGameMenu();
-                parent.DoWorldExit();
-            };
-
-            Label info = new(layout)
-            {
-                Text = $"{Language.VoxelGame} - {ApplicationInformation.Instance.Version}",
-                Font = parent.Context.Fonts.Subtitle
-            };
-
-            parent.DoOverlayOpen();
-        }
-
-        private void OpenSettings()
+        menu.Cancel += (_, _) =>
         {
-            Window settings = new(this)
-            {
-                Title = Language.Settings,
-                IsClosable = false,
-                Resizing = Resizing.None,
-                IsDraggingEnabled = false
-            };
+            settings.Close();
+            isSettingsMenuOpen = false;
+        };
 
-            SettingsMenu menu = new(settings, settingsProviders, parent.Context);
+        isSettingsMenuOpen = true;
+    }
 
-            menu.Cancel += (_, _) =>
-            {
-                settings.Close();
-                isSettingsMenuOpen = false;
-            };
+    private void CloseInGameMenu()
+    {
+        if (!IsGameMenuOpen || isSettingsMenuOpen) return;
 
-            isSettingsMenuOpen = true;
-        }
+        parent.Context.Input.AbsorbMousePress();
 
-        private void CloseInGameMenu()
-        {
-            if (!IsGameMenuOpen || isSettingsMenuOpen) return;
+        Debug.Assert(gameMenu != null);
+        gameMenu.Close();
 
-            parent.Context.Input.AbsorbMousePress();
+        hud.Show();
+        gameMenu = null;
 
-            Debug.Assert(gameMenu != null);
-            gameMenu.Close();
+        parent.DoOverlayClose();
+    }
 
-            hud.Show();
-            gameMenu = null;
+    private void OpenConsole()
+    {
+        if (Console.IsOpen) return;
 
-            parent.DoOverlayClose();
-        }
+        Console.OpenWindow();
+        parent.DoOverlayOpen();
+    }
 
-        private void OpenConsole()
-        {
-            if (Console.IsOpen) return;
+    private void CloseConsole()
+    {
+        if (!Console.IsOpen) return;
 
-            Console.OpenWindow();
-            parent.DoOverlayOpen();
-        }
-
-        private void CloseConsole()
-        {
-            if (!Console.IsOpen) return;
-
-            Console.CloseWindow();
-            // Parent is informed when the console close event is invoked.
-        }
+        Console.CloseWindow();
+        // Parent is informed when the console close event is invoked.
     }
 }

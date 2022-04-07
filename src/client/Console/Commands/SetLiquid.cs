@@ -8,55 +8,53 @@ using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 
-namespace VoxelGame.Client.Console.Commands
-{
+namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
 
-    /// <summary>
-    ///     Sets the liquid at the target position. Can cause invalid liquid state.
-    /// </summary>
-    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public class SetLiquid : Command
+/// <summary>
+///     Sets the liquid at the target position. Can cause invalid liquid state.
+/// </summary>
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+public class SetLiquid : Command
+{
+    /// <inheritdoc />
+    public override string Name => "set-liquid";
+
+    /// <inheritdoc />
+    public override string HelpText => "Sets the liquid at the target position. Can cause invalid liquid state.";
+
+    /// <exclude />
+    public void Invoke(string namedID, int level, int x, int y, int z)
     {
-        /// <inheritdoc />
-        public override string Name => "set-liquid";
+        Set(namedID, level, (x, y, z));
+    }
 
-        /// <inheritdoc />
-        public override string HelpText => "Sets the liquid at the target position. Can cause invalid liquid state.";
+    /// <exclude />
+    public void Invoke(string namedID, int level)
+    {
+        Set(namedID, level, Context.Player.TargetPosition);
+    }
 
-        /// <exclude />
-        public void Invoke(string namedID, int level, int x, int y, int z)
+    private void Set(string namedID, int levelData, Vector3i position)
+    {
+        Liquid? liquid = Liquid.TranslateNamedID(namedID);
+
+        if (liquid == null)
         {
-            Set(namedID, level, (x, y, z));
+            Context.Console.WriteError("Cannot find liquid.");
+
+            return;
         }
 
-        /// <exclude />
-        public void Invoke(string namedID, int level)
+        var level = (LiquidLevel) levelData;
+
+        if (level is < LiquidLevel.One or > LiquidLevel.Eight)
         {
-            Set(namedID, level, Context.Player.TargetPosition);
+            Context.Console.WriteError("Invalid level.");
+
+            return;
         }
 
-        private void Set(string namedID, int levelData, Vector3i position)
-        {
-            Liquid? liquid = Liquid.TranslateNamedID(namedID);
-
-            if (liquid == null)
-            {
-                Context.Console.WriteError("Cannot find liquid.");
-
-                return;
-            }
-
-            var level = (LiquidLevel) levelData;
-
-            if (level is < LiquidLevel.One or > LiquidLevel.Eight)
-            {
-                Context.Console.WriteError("Invalid level.");
-
-                return;
-            }
-
-            Context.Player.World.SetLiquid(liquid.AsInstance(level), position);
-        }
+        Context.Player.World.SetLiquid(liquid.AsInstance(level), position);
     }
 }

@@ -4,26 +4,25 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-namespace VoxelGame.Graphics.Groups
+namespace VoxelGame.Graphics.Groups;
+
+/// <summary>
+///     An interface with common draw group operations, hiding the actual OpenGL internals.
+/// </summary>
+public interface IDrawGroup
 {
     /// <summary>
-    /// An interface with common draw group operations, hiding the actual OpenGL internals.
+    ///     Check whether the group has data.
     /// </summary>
-    public interface IDrawGroup
-    {
-        /// <summary>
-        ///     Check whether the group has data.
-        /// </summary>
-        public bool IsFilled { get; }
+    public bool IsFilled { get; }
 
-        /// <summary>
-        ///     Bind the vertex array. This must be called before drawing.
-        /// </summary>
-        public void BindVertexArray();
+    /// <summary>
+    ///     Bind the vertex array. This must be called before drawing.
+    /// </summary>
+    public void BindVertexArray();
 
-        /// <summary>
-        ///     Draw the group.
-        /// </summary>
-        public void Draw();
-    }
+    /// <summary>
+    ///     Draw the group.
+    /// </summary>
+    public void Draw();
 }

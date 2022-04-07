@@ -1,13 +1,12 @@
-﻿namespace VoxelGame.Core.Visuals
+﻿namespace VoxelGame.Core.Visuals;
+
+/// <summary>
+///     Provides an overlay texture index.
+/// </summary>
+public interface IOverlayTextureProvider
 {
     /// <summary>
-    ///     Provides an overlay texture index.
+    ///     The texture index for the overlay.
     /// </summary>
-    public interface IOverlayTextureProvider
-    {
-        /// <summary>
-        ///     The texture index for the overlay.
-        /// </summary>
-        int TextureIdentifier { get; }
-    }
+    int TextureIdentifier { get; }
 }

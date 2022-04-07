@@ -8,47 +8,46 @@ using VoxelGame.Client.Application;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
 
-namespace VoxelGame.Client.Scenes
+namespace VoxelGame.Client.Scenes;
+
+/// <summary>
+///     Create scenes.
+/// </summary>
+public class SceneFactory
 {
+    private readonly Application.Client client;
+    private readonly CommandInvoker commandInvoker;
+
     /// <summary>
-    ///     Create scenes.
+    ///     Create a new scene factory.
     /// </summary>
-    public class SceneFactory
+    internal SceneFactory(Application.Client client)
     {
-        private readonly Application.Client client;
-        private readonly CommandInvoker commandInvoker;
+        this.client = client;
 
-        /// <summary>
-        ///     Create a new scene factory.
-        /// </summary>
-        internal SceneFactory(Application.Client client)
-        {
-            this.client = client;
+        commandInvoker = GameConsole.BuildInvoker();
+    }
 
-            commandInvoker = GameConsole.BuildInvoker();
-        }
+    /// <summary>
+    ///     Create a new game scene.
+    /// </summary>
+    /// <param name="world">The world in which the game takes place.</param>
+    /// <param name="game">This will be set to the newly created game.</param>
+    /// <returns>The created game scene.</returns>
+    public IScene CreateGameScene(ClientWorld world, out Game game)
+    {
+        GameScene scene = new(client, world, new GameConsole(commandInvoker));
+        game = scene.Game;
 
-        /// <summary>
-        ///     Create a new game scene.
-        /// </summary>
-        /// <param name="world">The world in which the game takes place.</param>
-        /// <param name="game">This will be set to the newly created game.</param>
-        /// <returns>The created game scene.</returns>
-        public IScene CreateGameScene(ClientWorld world, out Game game)
-        {
-            GameScene scene = new(client, world, new GameConsole(commandInvoker));
-            game = scene.Game;
+        return scene;
+    }
 
-            return scene;
-        }
-
-        /// <summary>
-        ///     Create a new start scene.
-        /// </summary>
-        /// <returns>The created scene.</returns>
-        public IScene CreateStartScene()
-        {
-            return new StartScene(client);
-        }
+    /// <summary>
+    ///     Create a new start scene.
+    /// </summary>
+    /// <returns>The created scene.</returns>
+    public IScene CreateStartScene()
+    {
+        return new StartScene(client);
     }
 }

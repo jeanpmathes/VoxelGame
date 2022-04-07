@@ -7,53 +7,51 @@
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 
-namespace VoxelGame.Client.Console.Commands
-{
+namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
 
-    /// <summary>
-    ///     Teleport to a specified position or target.
-    /// </summary>
-    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public class Teleport : Command
+/// <summary>
+///     Teleport to a specified position or target.
+/// </summary>
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+public class Teleport : Command
+{
+    /// <inheritdoc />
+    public override string Name => "teleport";
+
+    /// <inheritdoc />
+    public override string HelpText => "Teleport to a specified position or target.";
+
+    /// <exclude />
+    public void Invoke(float x, float y, float z)
     {
-        /// <inheritdoc />
-        public override string Name => "teleport";
+        Context.Player.Position = (x, y, z);
+    }
 
-        /// <inheritdoc />
-        public override string HelpText => "Teleport to a specified position or target.";
-
-        /// <exclude />
-        public void Invoke(float x, float y, float z)
+    /// <exclude />
+    public void Invoke(string target)
+    {
+        switch (target)
         {
-            Context.Player.Position = (x, y, z);
+            case "origin":
+                SetPlayerPosition((0, 0, 0));
+
+                break;
+
+            case "spawn":
+                SetPlayerPosition(Context.Player.World.SpawnPosition);
+
+                break;
+
+            default:
+                Context.Console.WriteError($"Unknown target: {target}");
+
+                break;
         }
 
-        /// <exclude />
-        public void Invoke(string target)
+        void SetPlayerPosition(Vector3 position)
         {
-            switch (target)
-            {
-                case "origin":
-                    SetPlayerPosition((0, 0, 0));
-
-                    break;
-
-                case "spawn":
-                    SetPlayerPosition(Context.Player.World.SpawnPosition);
-
-                    break;
-
-                default:
-                    Context.Console.WriteError($"Unknown target: {target}");
-
-                    break;
-            }
-
-            void SetPlayerPosition(Vector3 position)
-            {
-                Context.Player.Position = position;
-            }
+            Context.Player.Position = position;
         }
     }
 }
