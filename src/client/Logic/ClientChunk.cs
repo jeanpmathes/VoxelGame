@@ -11,6 +11,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Logic
 {
@@ -125,14 +126,14 @@ namespace VoxelGame.Client.Logic
         public void AddCulledToRenderList(Frustum frustum,
             ICollection<(ClientSection section, Vector3 position)> renderList)
         {
-            if (!hasMeshData || !frustum.BoxInFrustum(new BoundingVolume(ChunkPoint, ChunkExtents))) return;
+            if (!hasMeshData || !frustum.IsBoxInFrustum(VMath.CreateBox3(ChunkPoint, ChunkExtents))) return;
 
             var start = 0;
             int end = HeightInSections - 1;
 
             for (int y = start; y < HeightInSections; y++)
-                if (frustum.BoxInFrustum(
-                        new BoundingVolume(
+                if (frustum.IsBoxInFrustum(
+                        VMath.CreateBox3(
                             new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
                             Section.Extents,
                             Section.Extents)))
@@ -143,8 +144,8 @@ namespace VoxelGame.Client.Logic
                 }
 
             for (int y = end; y >= 0; y--)
-                if (frustum.BoxInFrustum(
-                        new BoundingVolume(
+                if (frustum.IsBoxInFrustum(
+                        VMath.CreateBox3(
                             new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
                             Section.Extents,
                             Section.Extents)))

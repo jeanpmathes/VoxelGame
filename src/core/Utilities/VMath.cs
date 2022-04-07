@@ -172,5 +172,16 @@ namespace VoxelGame.Core.Utilities
         {
             return NearlyEqual(a, b: 0, epsilon);
         }
+
+        /// <summary>
+        ///     Create a box from a center point and the extents.
+        /// </summary>
+        /// <param name="center">The center point.</param>
+        /// <param name="extents">The extents of the box, which are also half of the box size.</param>
+        /// <returns>The created box.</returns>
+        public static Box3 CreateBox3(Vector3 center, Vector3 extents)
+        {
+            return new(center - extents, center + extents);
+        }
     }
 }

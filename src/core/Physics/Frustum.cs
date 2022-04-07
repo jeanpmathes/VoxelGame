@@ -58,10 +58,10 @@ namespace VoxelGame.Core.Physics
         }
 
         /// <summary>
-        ///     Check whether a <see cref="BoundingVolume" /> is inside this <see cref="Frustum" />.
+        ///     Check whether a <see cref="Box3" /> is inside this <see cref="Frustum" />.
         /// </summary>
-        /// <returns>true if the <see cref="BoundingVolume" /> is inside; false if not.</returns>
-        public bool BoxInFrustum(BoundingVolume volume)
+        /// <returns>true if the <see cref="Box3" /> is inside; false if not.</returns>
+        public bool IsBoxInFrustum(Box3 volume)
         {
             for (var i = 0; i < 6; i++)
             {
