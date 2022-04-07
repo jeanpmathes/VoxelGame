@@ -28,23 +28,7 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
 
     private const float GasLiquidThreshold = 10f;
 
-    private static readonly BoundingVolume[] volumes;
-
-    static Liquid()
-    {
-        BoundingVolume CreateVolume(LiquidLevel level)
-        {
-            float halfHeight = ((int) level + 1) * 0.0625f;
-
-            return new BoundingVolume(
-                new Vector3(x: 0f, halfHeight, z: 0f),
-                new Vector3(x: 0.5f, halfHeight, z: 0.5f));
-        }
-
-        volumes = new BoundingVolume[8];
-
-        for (var i = 0; i < 8; i++) volumes[i] = CreateVolume((LiquidLevel) i);
-    }
+    private static readonly BoundingVolume[] volumes = CreateVolumes();
 
     /// <summary>
     ///     Create a new liquid.
@@ -168,6 +152,24 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
 
     uint IIdentifiable<uint>.Id => Id;
 
+    private static BoundingVolume[] CreateVolumes()
+    {
+        BoundingVolume CreateVolume(LiquidLevel level)
+        {
+            float halfHeight = ((int) level + 1) * 0.0625f;
+
+            return new BoundingVolume(
+                new Vector3(x: 0f, halfHeight, z: 0f),
+                new Vector3(x: 0.5f, halfHeight, z: 0.5f));
+        }
+
+        var liquidVolumes = new BoundingVolume[8];
+
+        for (var i = 0; i < 8; i++) liquidVolumes[i] = CreateVolume((LiquidLevel) i);
+
+        return liquidVolumes;
+    }
+
     /// <summary>
     ///     Called when loading liquids, meant to setup vertex data, indices etc.
     /// </summary>
@@ -219,7 +221,7 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
     {
         (BlockInstance, LiquidInstance)? content = world.GetContent(position);
 
-        if (content is ({ Block: IFillable fillable }, {} target)
+        if (content is ({ Block: IFillable fillable }, var target)
             && fillable.AllowInflow(world, position, entrySide, this))
         {
             if (target.Liquid == this && target.Level != LiquidLevel.Eight)
@@ -258,7 +260,7 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
     {
         (BlockInstance, LiquidInstance)? content = world.GetContent(position);
 
-        if (content is not ({} block, {} liquid) || liquid.Liquid != this || this == None) return false;
+        if (content is not var (block, liquid) || liquid.Liquid != this || this == None) return false;
 
         if (level >= liquid.Level)
         {
@@ -291,7 +293,7 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
     {
         (BlockInstance, LiquidInstance)? content = world.GetContent(position);
 
-        if (content is not ({} block, {} liquid) || liquid.Liquid != this || this == None ||
+        if (content is not var (block, liquid) || liquid.Liquid != this || this == None ||
             level > liquid.Level) return false;
 
         if (level == liquid.Level)
@@ -346,7 +348,7 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
 
             (BlockInstance, LiquidInstance)? neighborContent = world.GetContent(neighborPosition);
 
-            if (neighborContent is not ({} neighborBlock, {} neighborLiquid)) continue;
+            if (neighborContent is not var (neighborBlock, neighborLiquid)) continue;
 
             bool isNeighborThisLiquid = neighborLiquid.Liquid == this && neighborLiquid.Level == level;
 
@@ -376,7 +378,7 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
 
             (BlockInstance, LiquidInstance)? content = world.GetContent(neighborPosition);
 
-            if (content is not ({} neighborBlock, {} neighborLiquid)) continue;
+            if (content is not var (neighborBlock, neighborLiquid)) continue;
 
             if (neighborLiquid.Liquid == None && neighborBlock.Block is IFillable neighborFillable
                                               && neighborFillable.AllowInflow(
@@ -418,7 +420,7 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
 
         (BlockInstance, LiquidInstance)? startContent = world.GetContent(position);
 
-        if (startContent is not ({} startBlock, {} startLiquid)) return null;
+        if (startContent is not var (startBlock, startLiquid)) return null;
         if (startBlock.Block is not IFillable startFillable || startLiquid.Liquid != this) return null;
 
         queue.Enqueue((position, startFillable));
@@ -435,7 +437,7 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
 
                 (BlockInstance, LiquidInstance)? nextContent = world.GetContent(nextPosition);
 
-                if (nextContent is not ({} nextBlock, {} nextLiquid)) continue;
+                if (nextContent is not var (nextBlock, nextLiquid)) continue;
                 if (nextBlock.Block is not IFillable nextFillable || nextLiquid.Liquid != this) continue;
 
                 bool canFlow = e.fillable.AllowOutflow(world, e.position, orientation.ToBlockSide()) &&

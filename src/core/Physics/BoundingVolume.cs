@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Physics;
 /// <summary>
 ///     A bounding volume made up out of many boxes. This class is immutable and position-independent.
 /// </summary>
-public class BoundingVolume : IEquatable<BoundingVolume>
+public sealed class BoundingVolume : IEquatable<BoundingVolume>
 {
     private readonly BoundingVolume[] children;
     private Box3 box;

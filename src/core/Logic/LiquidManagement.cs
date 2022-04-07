@@ -245,7 +245,7 @@ public abstract partial class Liquid
     {
         (BlockInstance, LiquidInstance)? content = world.GetContent(position);
 
-        if (content is not ({} start, {} toElevate)) return;
+        if (content is not var (start, toElevate)) return;
         if (toElevate.Liquid == None || toElevate.Liquid.IsGas) return;
 
         var currentLevel = (int) toElevate.Level;

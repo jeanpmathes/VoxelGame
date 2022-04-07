@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Physics;
 /// <summary>
 ///     A box collider is a specific instance of an bounding box, at a certain position in the world.
 /// </summary>
-public struct BoxCollider
+public struct BoxCollider : IEquatable<BoxCollider>
 {
     /// <summary>
     ///     Get or set the box that this collider uses.
@@ -221,5 +221,39 @@ public struct BoxCollider
         }
 
         return isIntersecting;
+    }
+
+    /// <inheritdoc />
+    public bool Equals(BoxCollider other)
+    {
+        return Volume.Equals(other.Volume) && Position.Equals(other.Position);
+    }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        return obj is BoxCollider other && Equals(other);
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Volume, Position);
+    }
+
+    /// <summary>
+    ///     Equality operator.
+    /// </summary>
+    public static bool operator ==(BoxCollider left, BoxCollider right)
+    {
+        return left.Equals(right);
+    }
+
+    /// <summary>
+    ///     Inequality operator.
+    /// </summary>
+    public static bool operator !=(BoxCollider left, BoxCollider right)
+    {
+        return !left.Equals(right);
     }
 }

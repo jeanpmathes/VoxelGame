@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
@@ -28,7 +29,9 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     private readonly Camera camera;
     private readonly Vector3 cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
 
-    private readonly float interactionCooldown = 0.25f;
+
+    private readonly InputBehaviour input;
+
     private readonly float jumpForce = 25000f;
 
     private readonly Vector3 maxForce = new(x: 500f, y: 0f, z: 500f);
@@ -56,8 +59,6 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     private Vector3i targetPosition = new(x: 0, y: -1, z: 0);
     private BlockSide targetSide;
 
-    private float timer;
-
     /// <summary>
     ///     Create a client player.
     /// </summary>
@@ -74,36 +75,10 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         camera.Position = Position;
 
         visualization = new PlayerVisualization(ui);
+        input = new InputBehaviour(this);
 
         activeBlock = Block.Grass;
         activeLiquid = Liquid.Water;
-
-        KeybindManager keybind = Application.Client.Instance.Keybinds;
-
-        Button forwardsButton = keybind.GetButton(keybind.Forwards);
-        Button backwardsButton = keybind.GetButton(keybind.Backwards);
-        Button strafeRightButton = keybind.GetButton(keybind.StrafeRight);
-        Button strafeLeftButton = keybind.GetButton(keybind.StrafeLeft);
-
-        movementInput = new InputAxis2(
-            new InputAxis(forwardsButton, backwardsButton),
-            new InputAxis(strafeRightButton, strafeLeftButton));
-
-        sprintButton = keybind.GetButton(keybind.Sprint);
-        jumpButton = keybind.GetButton(keybind.Jump);
-
-        interactOrPlaceButton = keybind.GetButton(keybind.InteractOrPlace);
-        destroyButton = keybind.GetButton(keybind.Destroy);
-        blockInteractButton = keybind.GetButton(keybind.BlockInteract);
-
-        placementModeToggle = keybind.GetToggle(keybind.PlacementMode);
-        placementModeToggle.Clear();
-
-        selectTargetedButton = keybind.GetPushButton(keybind.SelectTargeted);
-
-        Button nextButton = keybind.GetPushButton(keybind.NextPlacement);
-        Button previousButton = keybind.GetPushButton(keybind.PreviousPlacement);
-        selectionAxis = new InputAxis(nextButton, previousButton);
     }
 
     /// <inheritdoc />
@@ -124,7 +99,6 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     /// <inheritdoc />
     public override Vector3 Movement => movement;
-
 
     /// <summary>
     ///     Gets the view matrix of the camera of this player.
@@ -220,8 +194,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         }
 
         visualization.Update();
-
-        timer += deltaTime;
+        input.Update(deltaTime);
     }
 
     private void UpdateTargets()
@@ -229,22 +202,16 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         var ray = new Ray(camera.Position, camera.Front, length: 6f);
         bool hit = Raycast.CastBlock(World, ray, out targetPosition, out targetSide);
 
-        if (hit && World.GetContent(targetPosition) is ({} block, {} liquid))
+        if (hit && World.GetContent(targetPosition) is var (block, liquid))
             (targetBlock, targetLiquid) = (block, liquid);
         else (targetBlock, targetLiquid) = (null, null);
     }
 
     private void HandleMovementInput()
     {
-        (float x, float z) = movementInput.Value;
-        movement = x * Forward + z * Right;
+        Move(input.GetMovement(speed, sprintSpeed), maxForce);
 
-        if (movement != Vector3.Zero)
-            movement = sprintButton.IsDown ? movement.Normalized() * sprintSpeed : movement.Normalized() * speed;
-
-        Move(movement, maxForce);
-
-        if (jumpButton.IsDown)
+        if (input.ShouldJump)
         {
             if (IsGrounded) AddForce(new Vector3(x: 0f, jumpForce, z: 0f));
             else if (IsSwimming) Move(Vector3.UnitY * swimSpeed, maxSwimForce);
@@ -276,11 +243,11 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
         BlockInstance currentTarget = targetBlock.Value;
 
-        if (timer < interactionCooldown || interactOrPlaceButton.IsUp) return;
+        if (!input.ShouldInteract) return;
 
         Vector3i placePosition = targetPosition;
 
-        if (blockInteractButton.IsDown || !currentTarget.Block.IsInteractable)
+        if (input.IsInteractionBlocked || !currentTarget.Block.IsInteractable)
         {
             if (!currentTarget.Block.IsReplaceable) placePosition = targetSide.Offset(placePosition);
 
@@ -291,14 +258,14 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
                 if (blockMode) activeBlock.Place(World, placePosition, this);
                 else activeLiquid.Fill(World, placePosition, LiquidLevel.One, BlockSide.Top, out _);
 
-                timer = 0;
+                input.RegisterInteraction();
             }
         }
         else if (currentTarget.Block.IsInteractable)
         {
             currentTarget.Block.EntityInteract(this, targetPosition);
 
-            timer = 0;
+            input.RegisterInteraction();
         }
     }
 
@@ -309,12 +276,12 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
         BlockInstance currentTarget = targetBlock.Value;
 
-        if (timer >= interactionCooldown && destroyButton.IsDown)
+        if (input.ShouldDestroy)
         {
             if (blockMode) currentTarget.Block.Destroy(World, targetPosition, this);
             else TakeLiquid(targetPosition);
 
-            timer = 0;
+            input.RegisterInteraction();
         }
 
         void TakeLiquid(Vector3i position)
@@ -341,7 +308,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     private bool SelectMode()
     {
-        if (!placementModeToggle.Changed) return false;
+        if (!input.ShouldChangePlacementMode) return false;
 
         blockMode = !blockMode;
 
@@ -350,9 +317,9 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     private bool SelectFromList()
     {
-        if (VMath.NearlyZero(selectionAxis.Value)) return false;
+        int change = input.GetSelectionChange();
 
-        int change = selectionAxis.Value > 0 ? 1 : -1;
+        if (change == 0) return false;
 
         if (blockMode)
         {
@@ -372,28 +339,107 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     private bool SelectTargeted()
     {
-        if (selectTargetedButton.IsUp || !blockMode) return false;
+        if (!input.ShouldSelectTargeted || !blockMode) return false;
 
         activeBlock = targetBlock?.Block ?? activeBlock;
 
         return true;
     }
 
-    #region INPUT ACTIONS
+    private class InputBehaviour
+    {
+        private readonly Button blockInteractButton;
+        private readonly Button destroyButton;
 
-    private readonly InputAxis2 movementInput;
-    private readonly Button sprintButton;
-    private readonly Button jumpButton;
+        private readonly float interactionCooldown = 0.25f;
 
-    private readonly Button interactOrPlaceButton;
-    private readonly Button destroyButton;
-    private readonly Button blockInteractButton;
+        private readonly Button interactOrPlaceButton;
+        private readonly Button jumpButton;
+        private readonly InputAxis2 movementInput;
 
-    private readonly ToggleButton placementModeToggle;
-    private readonly PushButton selectTargetedButton;
-    private readonly InputAxis selectionAxis;
+        private readonly ToggleButton placementModeToggle;
 
-    #endregion INPUT ACTIONS
+        private readonly PhysicsEntity player;
+        private readonly InputAxis selectionAxis;
+        private readonly PushButton selectTargetedButton;
+        private readonly Button sprintButton;
+
+        private float timer;
+
+        public InputBehaviour(PhysicsEntity player)
+        {
+            this.player = player;
+
+            KeybindManager keybind = Application.Client.Instance.Keybinds;
+
+            Button forwardsButton = keybind.GetButton(keybind.Forwards);
+            Button backwardsButton = keybind.GetButton(keybind.Backwards);
+            Button strafeRightButton = keybind.GetButton(keybind.StrafeRight);
+            Button strafeLeftButton = keybind.GetButton(keybind.StrafeLeft);
+
+            movementInput = new InputAxis2(
+                new InputAxis(forwardsButton, backwardsButton),
+                new InputAxis(strafeRightButton, strafeLeftButton));
+
+            sprintButton = keybind.GetButton(keybind.Sprint);
+            jumpButton = keybind.GetButton(keybind.Jump);
+
+            interactOrPlaceButton = keybind.GetButton(keybind.InteractOrPlace);
+            destroyButton = keybind.GetButton(keybind.Destroy);
+            blockInteractButton = keybind.GetButton(keybind.BlockInteract);
+
+            placementModeToggle = keybind.GetToggle(keybind.PlacementMode);
+            placementModeToggle.Clear();
+
+            selectTargetedButton = keybind.GetPushButton(keybind.SelectTargeted);
+
+            Button nextButton = keybind.GetPushButton(keybind.NextPlacement);
+            Button previousButton = keybind.GetPushButton(keybind.PreviousPlacement);
+            selectionAxis = new InputAxis(nextButton, previousButton);
+        }
+
+        public bool ShouldJump => jumpButton.IsDown;
+
+        private bool IsCooldownOver => timer >= interactionCooldown;
+
+        public bool ShouldInteract => IsCooldownOver && interactOrPlaceButton.IsDown;
+
+        public bool ShouldDestroy => IsCooldownOver && destroyButton.IsDown;
+
+        public bool ShouldChangePlacementMode => placementModeToggle.Changed;
+
+        public bool ShouldSelectTargeted => selectTargetedButton.IsDown;
+
+        public bool IsInteractionBlocked => blockInteractButton.IsDown;
+
+        public Vector3 GetMovement(float normalSpeed, float sprintSpeed)
+        {
+            (float x, float z) = movementInput.Value;
+            Vector3 movement = x * player.Forward + z * player.Right;
+
+            if (movement != Vector3.Zero)
+                movement = sprintButton.IsDown
+                    ? movement.Normalized() * sprintSpeed
+                    : movement.Normalized() * normalSpeed;
+
+            return movement;
+        }
+
+        public void Update(float deltaTime)
+        {
+            timer += deltaTime;
+        }
+
+        public void RegisterInteraction()
+        {
+            timer = 0;
+        }
+
+        public int GetSelectionChange()
+        {
+            return Math.Sign(selectionAxis.Value);
+        }
+    }
 
     #region IDisposable Support
 
