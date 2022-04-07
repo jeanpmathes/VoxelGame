@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Physics
 {
@@ -31,7 +32,7 @@ namespace VoxelGame.Core.Physics
         /// </summary>
         public BoundingVolume(Vector3 offset, Vector3 extents)
         {
-            box = new Box3(offset - extents, offset + extents);
+            box = VMath.CreateBox3(offset, extents);
             children = Array.Empty<BoundingVolume>();
         }
 
@@ -49,7 +50,7 @@ namespace VoxelGame.Core.Physics
         /// </summary>
         public BoundingVolume(Vector3 offset, Vector3 extents, params BoundingVolume[] boundingBoxes)
         {
-            box = new Box3(offset - extents, offset + extents);
+            box = VMath.CreateBox3(offset, extents);
             children = boundingBoxes;
         }
 
