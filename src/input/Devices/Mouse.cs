@@ -34,6 +34,13 @@ public class Mouse
     {
         Vector2 delta = input.Window.MousePosition - oldPosition;
 
+        if (input.Window.Size.X == 0 || input.Window.Size.Y == 0)
+        {
+            Delta = Vector2.Zero;
+
+            return;
+        }
+
         float xScale = 1f / input.Window.Size.X;
         float yScale = 1f / input.Window.Size.Y;
 

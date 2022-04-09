@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using Properties;
+using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Visuals;
 using VoxelGame.UI.Providers;
@@ -43,6 +44,13 @@ public class GraphicsSettings : ISettingsProvider
                 Language.GraphicsFoliageQuality,
                 () => FoliageQuality,
                 quality => FoliageQuality = quality));
+
+        settings.Add(
+            Setting.CreateBooleanSetting(
+                this,
+                Language.GraphicsUseFullscreenBorderless,
+                () => UseFullscreenBorderless,
+                b => UseFullscreenBorderless = b));
     }
 
     /// <summary>
@@ -84,6 +92,22 @@ public class GraphicsSettings : ISettingsProvider
         {
             clientSettings.FoliageQuality = value;
             clientSettings.Save();
+        }
+    }
+
+    /// <summary>
+    ///     Get or set whether fullscreen borderless should be used instead of normal fullscreen.
+    /// </summary>
+    public bool UseFullscreenBorderless
+    {
+        get => clientSettings.UseFullscreenBorderless;
+
+        private set
+        {
+            clientSettings.UseFullscreenBorderless = value;
+            clientSettings.Save();
+
+            Screen.UpdateScreenState();
         }
     }
 
