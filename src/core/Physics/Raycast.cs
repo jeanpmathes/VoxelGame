@@ -20,16 +20,10 @@ public static class Raycast
     /// </summary>
     /// <param name="world">The world in which to cast the ray.</param>
     /// <param name="ray">The ray.</param>
-    /// <param name="hit">The position where the intersection happens.</param>
-    /// <param name="side">The side of the voxel which is hit first.</param>
-    /// <returns>True if an intersection happens.</returns>
-    public static bool CastBlock(World world, Ray ray, out Vector3i hit, out BlockSide side)
+    /// <returns>Intersection information, if a hit occurred.</returns>
+    public static (Vector3i hit, BlockSide side)? CastBlock(World world, Ray ray)
     {
-        return CastVoxel(
-            ray,
-            out hit,
-            out side,
-            (r, pos) => BlockIntersectionCheck(world, r, pos));
+        return CastVoxel(ray, (r, pos) => BlockIntersectionCheck(world, r, pos));
     }
 
     /// <summary>
@@ -37,21 +31,17 @@ public static class Raycast
     /// </summary>
     /// <param name="world">The world in which to cast the ray.</param>
     /// <param name="ray">The ray.</param>
-    /// <param name="hit">The hit position.</param>
-    /// <param name="side">The side of the voxel which is hit first.</param>
-    /// <returns>True if an intersection happens.</returns>
-    public static bool CastLiquid(World world, Ray ray, out Vector3i hit, out BlockSide side)
+    /// <returns>Intersection information, if a hit occurred.</returns>
+    public static (Vector3i hit, BlockSide side)? CastLiquid(World world, Ray ray)
     {
-        return CastVoxel(
-            ray,
-            out hit,
-            out side,
-            (r, pos) => LiquidIntersectionCheck(world, r, pos));
+        return CastVoxel(ray, (r, pos) => LiquidIntersectionCheck(world, r, pos));
     }
 
-    private static bool CastVoxel(Ray ray, out Vector3i hit, out BlockSide side,
-        Func<Ray, Vector3i, bool> rayIntersectionCheck)
+    private static (Vector3i hit, BlockSide side)? CastVoxel(Ray ray, Func<Ray, Vector3i, bool> rayIntersectionCheck)
     {
+        Vector3i hit;
+        BlockSide side;
+
         /*
          * Voxel Traversal Algorithm
          * Adapted from code by francisengelmann (https://github.com/francisengelmann/fast_voxel_traversal)
@@ -104,7 +94,7 @@ public static class Raycast
             // As the ray starts in this voxel, no side is selected.
             side = BlockSide.All;
 
-            return true;
+            return (hit, side);
         }
 
         while (!(x == endX && y == endY && z == endZ))
@@ -149,14 +139,11 @@ public static class Raycast
             {
                 hit = (x, y, z);
 
-                return true;
+                return (hit, side);
             }
         }
 
-        hit = (-1, -1, -1);
-        side = BlockSide.All;
-
-        return false;
+        return null;
     }
 
     private static bool BlockIntersectionCheck(World world, Ray ray, Vector3i position)
