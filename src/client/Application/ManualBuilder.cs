@@ -6,8 +6,11 @@
 
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Core;
 using VoxelGame.Core.Logic;
+using VoxelGame.Logging;
 using VoxelGame.Manual;
 using VoxelGame.Manual.Modifiers;
 using VoxelGame.Manual.Utility;
@@ -32,6 +35,8 @@ public static class ManualBuilder
     private static void GenerateManual()
     {
         const string path = "./../../../../../../Setup/Resources/Manual";
+
+        Logging.Logger.LogInformation(Events.ApplicationInformation, "Generating game manual");
 
         Documentation documentation = new(typeof(ApplicationInformation).Assembly);
 
@@ -72,5 +77,15 @@ public static class ManualBuilder
                 .Finish().EndSection());
 
         fluids.Generate();
+
+        Logging.Logger.LogInformation(
+            Events.ApplicationInformation,
+            "Saved game manual to {Path}",
+            Path.GetFullPath(path));
+    }
+
+    private class Logging
+    {
+        public static readonly ILogger Logger = LoggingHelper.CreateLogger<Logging>();
     }
 }
