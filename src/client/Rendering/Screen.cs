@@ -230,6 +230,18 @@ public sealed class Screen : IDisposable
     {
         GL.Viewport(x: 0, y: 0, Size.X, Size.Y);
 
+        if (Size != (0, 0)) ResizeStorage();
+
+        Client.OnResize(Size);
+
+        Application.Client.Instance.Resources.Shaders.UpdateOrthographicProjection();
+
+        logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", e.Size);
+    }
+
+    private void ResizeStorage()
+    {
+
         #region MULTISAMPLED FBO
 
         GL.BindTexture(TextureTarget.Texture2DMultisample, msTex);
@@ -274,11 +286,6 @@ public sealed class Screen : IDisposable
 
         #endregion SCREENSHOT FBO
 
-        Client.OnResize(Size);
-
-        Application.Client.Instance.Resources.Shaders.UpdateOrthographicProjection();
-
-        logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", e.Size);
     }
 
     private void EnableWireframe()
