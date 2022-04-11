@@ -29,9 +29,9 @@ public class GrowingFlatBlock : FlatBlock, IFlammable, IFillable
             slidingVelocity) {}
 
     /// <inheritdoc />
-    public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
+    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
-        if (liquid.IsLiquid && level > LiquidLevel.Two) ScheduleDestroy(world, position);
+        if (fluid.IsFluid && level > FluidLevel.Two) ScheduleDestroy(world, position);
     }
 
     /// <inheritdoc />

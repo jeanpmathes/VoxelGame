@@ -39,9 +39,9 @@ public class SpiderWebBlock : CrossBlock, IFlammable, IFillable
     }
 
     /// <inheritdoc />
-    public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
+    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
-        if (liquid.IsLiquid) ScheduleDestroy(world, position);
+        if (fluid.IsFluid) ScheduleDestroy(world, position);
     }
 
     /// <inheritdoc />

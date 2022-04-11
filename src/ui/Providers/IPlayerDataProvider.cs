@@ -15,12 +15,12 @@ namespace VoxelGame.UI.Providers;
 public interface IPlayerDataProvider
 {
     /// <summary>
-    ///     The current block/liquid mode.
+    ///     The current block/fluid mode.
     /// </summary>
     public string Mode { get; }
 
     /// <summary>
-    ///     The current block/liquid selection.
+    ///     The current block/fluid selection.
     /// </summary>
     public string Selection { get; }
 
@@ -40,7 +40,7 @@ public interface IPlayerDataProvider
     public BlockInstance TargetBlock { get; }
 
     /// <summary>
-    ///     The targeted liquid.
+    ///     The targeted fluid.
     /// </summary>
-    public LiquidInstance TargetLiquid { get; }
+    public FluidInstance TargetFluid { get; }
 }

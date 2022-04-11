@@ -1,4 +1,4 @@
-﻿// <copyright file="LiquidMeshData.cs" company="VoxelGame">
+﻿// <copyright file="FluidMeshData.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -7,11 +7,11 @@
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-///     Data for meshing liquids.
+///     Data for meshing fluids.
 /// </summary>
-public sealed class LiquidMeshData
+public sealed class FluidMeshData
 {
-    private LiquidMeshData(int textureIndex, TintColor tint)
+    private FluidMeshData(int textureIndex, TintColor tint)
     {
         TextureIndex = textureIndex;
         Tint = tint;
@@ -28,18 +28,18 @@ public sealed class LiquidMeshData
     public TintColor Tint { get; }
 
     /// <summary>
-    ///     Creates liquid mesh data for an empty liquid.
+    ///     Creates fluid mesh data for an empty fluid.
     /// </summary>
-    public static LiquidMeshData Empty { get; } = new(textureIndex: 0, TintColor.None);
+    public static FluidMeshData Empty { get; } = new(textureIndex: 0, TintColor.None);
 
     /// <summary>
-    ///     Creates liquid mesh data for a basic liquid.
+    ///     Creates fluid mesh data for a basic fluid.
     /// </summary>
     /// <param name="textureIndex">The texture index.</param>
     /// <param name="tint">The tint color.</param>
     /// <returns>The mesh data.</returns>
-    public static LiquidMeshData Basic(int textureIndex, TintColor tint)
+    public static FluidMeshData Basic(int textureIndex, TintColor tint)
     {
-        return new LiquidMeshData(textureIndex, tint);
+        return new FluidMeshData(textureIndex, tint);
     }
 }

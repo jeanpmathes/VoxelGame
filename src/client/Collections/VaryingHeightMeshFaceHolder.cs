@@ -1,4 +1,4 @@
-﻿// <copyright file="LiquidMeshFaceHolder.cs" company="VoxelGame">
+﻿// <copyright file="FluidMeshFaceHolder.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -13,7 +13,7 @@ using VoxelGame.Core.Logic;
 namespace VoxelGame.Client.Collections;
 
 /// <summary>
-///     A specialized class used to compact varying height block faces and liquid faces while meshing.
+///     A specialized class used to compact varying height block faces and fluid faces while meshing.
 /// </summary>
 public class VaryingHeightMeshFaceHolder : MeshFaceHolder
 {
@@ -70,7 +70,7 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
             position,
             isSingleSided);
 
-        // Front and Back faces cannot be extended (along the y axis) when the liquid is not all full level.
+        // Front and Back faces cannot be extended (along the y axis) when the fluid is not all full level.
         bool levelPermitsExtending = !(side is BlockSide.Front or BlockSide.Back && !isFull);
 
         // Check if an already existing face can be extended.
@@ -94,7 +94,7 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
         MeshFace? combinationRowFace = lastFaces[layer][row - 1];
         MeshFace? lastCombinationRowFace = null;
 
-        // Left and right faces cannot be combined (along the y axis) when the liquid is not all full level.
+        // Left and right faces cannot be combined (along the y axis) when the fluid is not all full level.
         if (side is BlockSide.Left or BlockSide.Right && !isFull) return;
 
         // Check if the current face can be combined with a face in the previous row.

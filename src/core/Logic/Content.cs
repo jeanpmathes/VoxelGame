@@ -26,21 +26,21 @@ public record struct BlockInstance(Block Block, uint Data)
 }
 
 /// <summary>
-///     A specific instance of a liquid.
+///     A specific instance of a fluid.
 /// </summary>
-/// <param name="Liquid">The liquid.</param>
-/// <param name="Level">The level of the liquid.</param>
-/// <param name="IsStatic">Whether the liquid is static.</param>
-public record struct LiquidInstance(Liquid Liquid, LiquidLevel Level, bool IsStatic)
+/// <param name="Fluid">The fluid.</param>
+/// <param name="Level">The level of the fluid.</param>
+/// <param name="IsStatic">Whether the fluid is static.</param>
+public record struct FluidInstance(Fluid Fluid, FluidLevel Level, bool IsStatic)
 {
     /// <summary>
-    ///     Get the default liquid instance.
+    ///     Get the default fluid instance.
     /// </summary>
-    public static LiquidInstance Default => new(Liquid.None, LiquidLevel.Eight, IsStatic: true);
+    public static FluidInstance Default => new(Fluid.None, FluidLevel.Eight, IsStatic: true);
 }
 
 /// <summary>
-///     Extends the <see cref="BlockInstance" /> and <see cref="LiquidInstance" /> classes.
+///     Extends the <see cref="BlockInstance" /> and <see cref="FluidInstance" /> classes.
 /// </summary>
 public static class ContentExtensions
 {
@@ -53,11 +53,11 @@ public static class ContentExtensions
     }
 
     /// <summary>
-    ///     Get a liquid as instance.
+    ///     Get a fluid as instance.
     /// </summary>
-    public static LiquidInstance AsInstance(this Liquid? liquid, LiquidLevel level = LiquidLevel.Eight,
+    public static FluidInstance AsInstance(this Fluid? fluid, FluidLevel level = FluidLevel.Eight,
         bool isStatic = true)
     {
-        return liquid is null ? LiquidInstance.Default : new LiquidInstance(liquid, level, isStatic);
+        return fluid is null ? FluidInstance.Default : new FluidInstance(fluid, level, isStatic);
     }
 }

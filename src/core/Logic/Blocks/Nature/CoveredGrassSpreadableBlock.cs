@@ -26,8 +26,8 @@ public class CoveredGrassSpreadableBlock : CoveredDirtBlock, IGrassSpreadable, I
             supportsFullGrowth: false) {}
 
     /// <inheritdoc />
-    public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
+    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
-        if (liquid.IsLiquid) world.SetBlock(Dirt.AsInstance(), position);
+        if (fluid.IsFluid) world.SetBlock(Dirt.AsInstance(), position);
     }
 }

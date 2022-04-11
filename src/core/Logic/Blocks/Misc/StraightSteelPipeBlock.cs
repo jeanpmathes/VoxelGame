@@ -51,10 +51,10 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
     }
 
     /// <inheritdoc />
-    public bool RenderLiquid => false;
+    public bool RenderFluid => false;
 
     /// <inheritdoc />
-    public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
+    public bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return IsSideOpen(world, position, side);
     }

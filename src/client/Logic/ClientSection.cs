@@ -73,7 +73,7 @@ public class ClientSection : Section
     {
         // Set the neutral tint colors.
         TintColor blockTint = TintColor.Green;
-        TintColor liquidTint = TintColor.Blue;
+        TintColor fluidTint = TintColor.Blue;
 
         Vector3i sectionPosition = (sectionX, sectionY, sectionZ);
 
@@ -90,8 +90,8 @@ public class ClientSection : Section
 
         VaryingHeightMeshFaceHolder[] varyingHeightMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
 
-        VaryingHeightMeshFaceHolder[] opaqueLiquidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
-        VaryingHeightMeshFaceHolder[] transparentLiquidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
+        VaryingHeightMeshFaceHolder[] opaqueFluidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
+        VaryingHeightMeshFaceHolder[] transparentFluidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
 
         PooledList<int> crossPlantVertexData = new(capacity: 16);
 
@@ -108,12 +108,12 @@ public class ClientSection : Section
                 val,
                 out Block currentBlock,
                 out uint data,
-                out Liquid currentLiquid,
-                out LiquidLevel level,
+                out Fluid currentFluid,
+                out FluidLevel level,
                 out bool isStatic);
 
             var pos = new Vector3i(x, y, z);
-            bool isFull = level == LiquidLevel.Eight;
+            bool isFull = level == FluidLevel.Eight;
 
             switch (currentBlock.TargetBuffer)
             {
@@ -158,7 +158,7 @@ public class ClientSection : Section
                                                           blockToCheck.RenderFaceAtNonOpaques))
                         {
                             BlockMeshData mesh = currentBlock.GetMesh(
-                                BlockMeshInfo.Simple(side, data, currentLiquid));
+                                BlockMeshInfo.Simple(side, data, currentFluid));
 
                             side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
                             int[][] uvs = BlockModels.GetBlockUVs(mesh.IsTextureRotated);
@@ -192,7 +192,7 @@ public class ClientSection : Section
                 }
                 case TargetBuffer.Complex:
                 {
-                    BlockMeshData mesh = currentBlock.GetMesh(BlockMeshInfo.Complex(data, currentLiquid));
+                    BlockMeshData mesh = currentBlock.GetMesh(BlockMeshInfo.Complex(data, currentFluid));
                     float[] vertices = mesh.GetVertices();
                     int[] textureIndices = mesh.GetTextureIndices();
                     uint[] indices = mesh.GetIndices();
@@ -274,13 +274,13 @@ public class ClientSection : Section
                                               IHeightVariable.MaximumHeight;
 
                             BlockMeshData mesh = currentBlock.GetMesh(
-                                BlockMeshInfo.Simple(side, data, currentLiquid));
+                                BlockMeshInfo.Simple(side, data, currentFluid));
 
                             side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
 
                             if (isModified)
                             {
-                                // Mesh similar to liquids.
+                                // Mesh similar to fluids.
 
                                 int height = ((IHeightVariable) currentBlock).GetHeight(data);
 
@@ -346,7 +346,7 @@ public class ClientSection : Section
                 case TargetBuffer.CrossPlant:
                 {
                     BlockMeshData mesh =
-                        currentBlock.GetMesh(BlockMeshInfo.CrossPlant(data, currentLiquid));
+                        currentBlock.GetMesh(BlockMeshInfo.CrossPlant(data, currentFluid));
 
                     // int: ---- ---- ---- ---- -xxx xxyy yyyz zzzz (xyz: position)
                     int upperData = (x << 10) | (y << 5) | z;
@@ -363,7 +363,7 @@ public class ClientSection : Section
                 }
                 case TargetBuffer.CropPlant:
                 {
-                    BlockMeshData mesh = currentBlock.GetMesh(BlockMeshInfo.CropPlant(data, currentLiquid));
+                    BlockMeshData mesh = currentBlock.GetMesh(BlockMeshInfo.CropPlant(data, currentFluid));
 
                     // int: o--- ssss ---- ---- -xxx xxyy yyyz zzzz (o: orientation; s: shift, xyz: position)
                     int upperData = (x << 10) | (y << 5) | z;
@@ -416,28 +416,28 @@ public class ClientSection : Section
                 }
             }
 
-            if (currentLiquid.RenderType != RenderType.NotRendered &&
-                (currentBlock is IFillable { RenderLiquid: true } ||
+            if (currentFluid.RenderType != RenderType.NotRendered &&
+                (currentBlock is IFillable { RenderFluid: true } ||
                  currentBlock is not IFillable && !currentBlock.IsSolidAndFull))
             {
-                VaryingHeightMeshFaceHolder[] liquidMeshFaceHolders =
-                    currentLiquid.RenderType == RenderType.Opaque
-                        ? opaqueLiquidMeshFaceHolders
-                        : transparentLiquidMeshFaceHolders;
+                VaryingHeightMeshFaceHolder[] fluidMeshFaceHolders =
+                    currentFluid.RenderType == RenderType.Opaque
+                        ? opaqueFluidMeshFaceHolders
+                        : transparentFluidMeshFaceHolders;
 
-                MeshLiquidSide(BlockSide.Front);
-                MeshLiquidSide(BlockSide.Back);
-                MeshLiquidSide(BlockSide.Left);
-                MeshLiquidSide(BlockSide.Right);
-                MeshLiquidSide(BlockSide.Bottom);
-                MeshLiquidSide(BlockSide.Top);
+                MeshFluidSide(BlockSide.Front);
+                MeshFluidSide(BlockSide.Back);
+                MeshFluidSide(BlockSide.Left);
+                MeshFluidSide(BlockSide.Right);
+                MeshFluidSide(BlockSide.Bottom);
+                MeshFluidSide(BlockSide.Top);
 
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                void MeshLiquidSide(BlockSide side)
+                void MeshFluidSide(BlockSide side)
                 {
                     ClientSection? neighbor = neighbors[(int) side];
 
-                    Liquid? liquidToCheck;
+                    Fluid? fluidToCheck;
                     Block? blockToCheck;
 
                     Vector3i checkPos = side.Offset(pos);
@@ -449,38 +449,38 @@ public class ClientSection : Section
                     {
                         checkPos = checkPos.Mod(SectionSize);
 
-                        liquidToCheck = neighbor?.GetLiquid(checkPos, out sideHeight) ??
-                                        (atVerticalEnd ? Liquid.None : null);
+                        fluidToCheck = neighbor?.GetFluid(checkPos, out sideHeight) ??
+                                       (atVerticalEnd ? Fluid.None : null);
 
                         blockToCheck = neighbor?.GetBlock(checkPos) ?? (atVerticalEnd ? Block.Air : null);
                     }
                     else
                     {
-                        liquidToCheck = GetLiquid(checkPos, out sideHeight);
+                        fluidToCheck = GetFluid(checkPos, out sideHeight);
                         blockToCheck = GetBlock(checkPos);
                     }
 
-                    bool isNeighborLiquidMeshed =
-                        blockToCheck is IFillable { RenderLiquid: true };
+                    bool isNeighborFluidMeshed =
+                        blockToCheck is IFillable { RenderFluid: true };
 
-                    if (liquidToCheck != currentLiquid || !isNeighborLiquidMeshed) sideHeight = -1;
+                    if (fluidToCheck != currentFluid || !isNeighborFluidMeshed) sideHeight = -1;
 
                     bool flowsTowardsFace = side == BlockSide.Top
-                        ? currentLiquid.Direction == VerticalFlow.Upwards
-                        : currentLiquid.Direction == VerticalFlow.Downwards;
+                        ? currentFluid.Direction == VerticalFlow.Upwards
+                        : currentFluid.Direction == VerticalFlow.Downwards;
 
                     bool meshAtNormal = (int) level > sideHeight && blockToCheck?.IsOpaque != true;
 
                     bool meshAtEnd =
                         flowsTowardsFace && sideHeight != 7 && blockToCheck?.IsOpaque != true
-                        || !flowsTowardsFace && (level != LiquidLevel.Eight ||
-                                                 liquidToCheck != currentLiquid &&
+                        || !flowsTowardsFace && (level != FluidLevel.Eight ||
+                                                 fluidToCheck != currentFluid &&
                                                  blockToCheck?.IsOpaque != true);
 
                     if (atVerticalEnd ? !meshAtEnd : !meshAtNormal) return;
 
-                    LiquidMeshData mesh =
-                        currentLiquid.GetMesh(LiquidMeshInfo.Liquid(level, side, isStatic));
+                    FluidMeshData mesh =
+                        currentFluid.GetMesh(FluidMeshInfo.Fluid(level, side, isStatic));
 
                     bool singleSided = blockToCheck?.IsOpaque == false &&
                                        blockToCheck.IsSolidAndFull;
@@ -501,13 +501,13 @@ public class ClientSection : Section
                                      (z + d[2]);
 
                     // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-                    int lowerData = (mesh.Tint.GetBits(liquidTint) << 23) | ((int) side << 16) |
+                    int lowerData = (mesh.Tint.GetBits(fluidTint) << 23) | ((int) side << 16) |
                                     ((sideHeight + 1) << 12) |
-                                    (currentLiquid.Direction.GetBit() << 11) | ((int) level << 8) |
+                                    (currentFluid.Direction.GetBit() << 11) | ((int) level << 8) |
                                     (isStatic ? 1 << 7 : 0 << 7) |
                                     ((((mesh.TextureIndex - 1) >> 4) + 1) & 0b0111_1111);
 
-                    liquidMeshFaceHolders[(int) side].AddFace(
+                    fluidMeshFaceHolders[(int) side].AddFace(
                         pos,
                         lowerData,
                         (upperDataA, upperDataB, upperDataC, upperDataD),
@@ -535,26 +535,26 @@ public class ClientSection : Section
             varyingHeightVertexData,
             varyingHeightIndices);
 
-        // Build the liquid mesh data.
-        PooledList<int> opaqueLiquidVertexData = new(capacity: 8);
-        PooledList<uint> opaqueLiquidIndices = new(capacity: 8);
-        uint opaqueLiquidVertexCount = 0;
+        // Build the fluid mesh data.
+        PooledList<int> opaqueFluidVertexData = new(capacity: 8);
+        PooledList<uint> opaqueFluidIndices = new(capacity: 8);
+        uint opaqueFluidVertexCount = 0;
 
         GenerateMesh(
-            opaqueLiquidMeshFaceHolders,
-            ref opaqueLiquidVertexCount,
-            opaqueLiquidVertexData,
-            opaqueLiquidIndices);
+            opaqueFluidMeshFaceHolders,
+            ref opaqueFluidVertexCount,
+            opaqueFluidVertexData,
+            opaqueFluidIndices);
 
-        PooledList<int> transparentLiquidVertexData = new(capacity: 8);
-        PooledList<uint> transparentLiquidIndices = new(capacity: 8);
-        uint transparentLiquidVertexCount = 0;
+        PooledList<int> transparentFluidVertexData = new(capacity: 8);
+        PooledList<uint> transparentFluidIndices = new(capacity: 8);
+        uint transparentFluidVertexCount = 0;
 
         GenerateMesh(
-            transparentLiquidMeshFaceHolders,
-            ref transparentLiquidVertexCount,
-            transparentLiquidVertexData,
-            transparentLiquidIndices);
+            transparentFluidMeshFaceHolders,
+            ref transparentFluidVertexCount,
+            transparentFluidVertexData,
+            transparentFluidIndices);
 
         // Finish up.
         SectionMeshData meshData = new(
@@ -566,18 +566,18 @@ public class ClientSection : Section
             varyingHeightIndices,
             crossPlantVertexData,
             cropPlantVertexData,
-            opaqueLiquidVertexData,
-            opaqueLiquidIndices,
-            transparentLiquidVertexData,
-            transparentLiquidIndices);
+            opaqueFluidVertexData,
+            opaqueFluidIndices,
+            transparentFluidVertexData,
+            transparentFluidIndices);
 
         hasMesh = meshData.IsFilled;
 
         // Cleanup.
         ReturnToPool(blockMeshFaceHolders);
         ReturnToPool(varyingHeightMeshFaceHolders);
-        ReturnToPool(opaqueLiquidMeshFaceHolders);
-        ReturnToPool(transparentLiquidMeshFaceHolders);
+        ReturnToPool(opaqueFluidMeshFaceHolders);
+        ReturnToPool(transparentFluidMeshFaceHolders);
 
         return meshData;
     }

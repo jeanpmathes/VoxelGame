@@ -1,4 +1,4 @@
-﻿// <copyright file="HotLiquid.cs" company="VoxelGame">
+﻿// <copyright file="HotFluid.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -8,17 +8,17 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Liquids;
+namespace VoxelGame.Core.Logic.Fluids;
 
 /// <summary>
-///     A liquid that can burn it's surroundings.
+///     A fluid that can burn it's surroundings.
 /// </summary>
-public class HotLiquid : BasicLiquid
+public class HotFluid : BasicFluid
 {
     /// <summary>
-    ///     Create a new <see cref="HotLiquid" />.
+    ///     Create a new <see cref="HotFluid" />.
     /// </summary>
-    public HotLiquid(string name, string namedId, float density, int viscosity, bool neutralTint,
+    public HotFluid(string name, string namedId, float density, int viscosity, bool neutralTint,
         TextureLayout movingLayout, TextureLayout staticLayout,
         RenderType renderType = RenderType.Opaque) :
         base(
@@ -32,7 +32,7 @@ public class HotLiquid : BasicLiquid
             renderType) {}
 
     /// <inheritdoc />
-    protected override void ScheduledUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic)
+    protected override void ScheduledUpdate(World world, Vector3i position, FluidLevel level, bool isStatic)
     {
         if (world.GetBlock(position)?.Block is IFlammable block) block.Burn(world, position, Block.Fire);
 
@@ -42,7 +42,7 @@ public class HotLiquid : BasicLiquid
     }
 
     /// <inheritdoc />
-    internal override void RandomUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic)
+    internal override void RandomUpdate(World world, Vector3i position, FluidLevel level, bool isStatic)
     {
         BurnAround(world, position);
     }

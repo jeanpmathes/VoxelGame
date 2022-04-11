@@ -14,7 +14,7 @@ using VoxelGame.Logging;
 namespace VoxelGame.Client.Rendering;
 
 /// <summary>
-///     A renderer for overlay textures. Any block or liquid texture can be used as an overlay.
+///     A renderer for overlay textures. Any block or fluid texture can be used as an overlay.
 /// </summary>
 public sealed class OverlayRenderer : IDisposable
 {
@@ -59,10 +59,10 @@ public sealed class OverlayRenderer : IDisposable
     }
 
     /// <summary>
-    ///     Set the texture to a liquid texture.
+    ///     Set the texture to a fluid texture.
     /// </summary>
-    /// <param name="number">The number of the liquid texture.</param>
-    public void SetLiquidTexture(int number)
+    /// <param name="number">The number of the fluid texture.</param>
+    public void SetFluidTexture(int number)
     {
         samplerId = 5;
         textureId = number;

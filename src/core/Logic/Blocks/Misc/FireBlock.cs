@@ -53,9 +53,9 @@ public class FireBlock : Block, IFillable
     }
 
     /// <inheritdoc />
-    public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
+    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
-        if (liquid != Liquid.None) Destroy(world, position);
+        if (fluid != Fluid.None) Destroy(world, position);
     }
 
     private void PrepareMeshes(BlockModel complete, BlockModel side, BlockModel top)

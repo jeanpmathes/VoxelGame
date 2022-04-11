@@ -223,14 +223,14 @@ public static class Events
     #region LIQUIDS
 
     /// <summary>
-    ///     Occurs when loading liquids.
+    ///     Occurs when loading fluids.
     /// </summary>
-    public const int LiquidLoad = 2500;
+    public const int FluidLoad = 2500;
 
     /// <summary>
     ///     Occurs when stored block information refers to unknown blocks.
     /// </summary>
-    public const int UnknownLiquid = 2510;
+    public const int UnknownFluid = 2510;
 
     #endregion LIQUIDS
 

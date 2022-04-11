@@ -37,7 +37,7 @@ int dc_texIndex(int data)
     return data & 8191;
 }
 
-int dc_liquidTexIndex(int data)
+int dc_fluidTexIndex(int data)
 {
     return (((data & 127) - 1) << 4) + 1;
 }

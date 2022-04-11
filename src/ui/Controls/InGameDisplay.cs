@@ -27,7 +27,7 @@ internal class InGameDisplay : ControlBase
     private readonly Label performance;
     private readonly Label playerSelection;
     private readonly Label targetBlock;
-    private readonly Label targetLiquid;
+    private readonly Label targetFluid;
     private readonly Label targetPosition;
 
     private bool debugMode;
@@ -73,7 +73,7 @@ internal class InGameDisplay : ControlBase
         headPosition = new Label(debugViewContainer) { Alignment = Alignment.Right };
         targetPosition = new Label(debugViewContainer) { Alignment = Alignment.Right };
         targetBlock = new Label(debugViewContainer) { Alignment = Alignment.Right };
-        targetLiquid = new Label(debugViewContainer) { Alignment = Alignment.Right };
+        targetFluid = new Label(debugViewContainer) { Alignment = Alignment.Right };
 
         debugViewContainer.Hide();
     }
@@ -100,8 +100,8 @@ internal class InGameDisplay : ControlBase
         targetBlock.Text =
             $"B: {block.NamedId}[{block.Id}], {Convert.ToString(data, toBase: 2).PadLeft(totalWidth: 6, paddingChar: '0')}";
 
-        (Liquid liquid, LiquidLevel level, bool isStatic) = playerDataProvider.TargetLiquid;
-        targetLiquid.Text = $"L: {liquid.NamedId}[{liquid.Id}], {level}, {isStatic}";
+        (Fluid fluid, FluidLevel level, bool isStatic) = playerDataProvider.TargetFluid;
+        targetFluid.Text = $"F: {fluid.NamedId}[{fluid.Id}], {level}, {isStatic}";
     }
 
     internal void ToggleDebugDataView()

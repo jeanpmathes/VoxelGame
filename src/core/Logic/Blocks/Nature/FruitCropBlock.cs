@@ -44,9 +44,9 @@ public class FruitCropBlock : Block, IFlammable, IFillable
     }
 
     /// <inheritdoc />
-    public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
+    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
-        if (liquid.IsLiquid && level > LiquidLevel.Three) ScheduleDestroy(world, position);
+        if (fluid.IsFluid && level > FluidLevel.Three) ScheduleDestroy(world, position);
     }
 
     /// <inheritdoc />
@@ -143,8 +143,8 @@ public class FruitCropBlock : Block, IFlammable, IFillable
             case GrowthStage.Ready when ground.SupportsFullGrowth && ground.TryGrow(
                 world,
                 position.Below(),
-                Liquid.Water,
-                LiquidLevel.Two):
+                Fluid.Water,
+                FluidLevel.Two):
             {
                 foreach (Orientation orientation in Orientations.ShuffledStart(position))
                 {

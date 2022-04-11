@@ -27,17 +27,17 @@ public sealed class SectionRenderer : IDisposable
     private const int CropPlant = 2;
     private const int Complex = 3;
     private const int VaryingHeight = 4;
-    private const int OpaqueLiquid = 5;
-    private const int TransparentLiquid = 6;
+    private const int OpaqueFluid = 5;
+    private const int TransparentFluid = 6;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
 
     private readonly ElementPositionDataDrawGroup complexDrawGroup;
     private readonly ElementInstancedIDataDrawGroup cropPlantDrawGroup;
     private readonly ElementInstancedIDataDrawGroup crossPlantDrawGroup;
-    private readonly ElementIDataDrawGroup opaqueLiquidDrawGroup;
+    private readonly ElementIDataDrawGroup opaqueFluidDrawGroup;
 
     private readonly ArrayIDataDrawGroup simpleDrawGroup;
-    private readonly ElementIDataDrawGroup transparentLiquidDrawGroup;
+    private readonly ElementIDataDrawGroup transparentFluidDrawGroup;
 
     private readonly ElementIDataDrawGroup varyingHeightDrawGroup;
 
@@ -59,8 +59,8 @@ public sealed class SectionRenderer : IDisposable
         complexDrawGroup = ElementPositionDataDrawGroup.Create(positionSize: 3, dataSize: 2);
 
         varyingHeightDrawGroup = ElementIDataDrawGroup.Create(size: 2);
-        opaqueLiquidDrawGroup = ElementIDataDrawGroup.Create(size: 2);
-        transparentLiquidDrawGroup = ElementIDataDrawGroup.Create(size: 2);
+        opaqueFluidDrawGroup = ElementIDataDrawGroup.Create(size: 2);
+        transparentFluidDrawGroup = ElementIDataDrawGroup.Create(size: 2);
 
         #region SIMPLE BUFFER SETUP
 
@@ -135,23 +135,23 @@ public sealed class SectionRenderer : IDisposable
 
         #region OPAQUE LIQUID BUFFER SETUP
 
-        opaqueLiquidDrawGroup.VertexArrayBindBuffer();
+        opaqueFluidDrawGroup.VertexArrayBindBuffer();
 
-        Shaders.OpaqueLiquidSection.Use();
-        dataLocation = Shaders.OpaqueLiquidSection.GetAttributeLocation(DataAttribute);
+        Shaders.OpaqueFluidSection.Use();
+        dataLocation = Shaders.OpaqueFluidSection.GetAttributeLocation(DataAttribute);
 
-        opaqueLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation);
+        opaqueFluidDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
         #endregion OPAQUE LIQUID BUFFER SETUP
 
         #region TRANSPARENT LIQUID BUFFER SETUP
 
-        transparentLiquidDrawGroup.VertexArrayBindBuffer();
+        transparentFluidDrawGroup.VertexArrayBindBuffer();
 
-        Shaders.TransparentLiquidSection.Use();
-        dataLocation = Shaders.TransparentLiquidSection.GetAttributeLocation(DataAttribute);
+        Shaders.TransparentFluidSection.Use();
+        dataLocation = Shaders.TransparentFluidSection.GetAttributeLocation(DataAttribute);
 
-        transparentLiquidDrawGroup.VertexArrayAttributeBinding(dataLocation);
+        transparentFluidDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
         #endregion TRANSPARENT LIQUID BUFFER SETUP
 
@@ -196,17 +196,17 @@ public sealed class SectionRenderer : IDisposable
             meshData.varyingHeightIndices.Count,
             meshData.varyingHeightIndices.ExposeArray());
 
-        opaqueLiquidDrawGroup.SetData(
-            meshData.opaqueLiquidVertexData.Count,
-            meshData.opaqueLiquidVertexData.ExposeArray(),
-            meshData.opaqueLiquidIndices.Count,
-            meshData.opaqueLiquidIndices.ExposeArray());
+        opaqueFluidDrawGroup.SetData(
+            meshData.opaqueFluidVertexData.Count,
+            meshData.opaqueFluidVertexData.ExposeArray(),
+            meshData.opaqueFluidIndices.Count,
+            meshData.opaqueFluidIndices.ExposeArray());
 
-        transparentLiquidDrawGroup.SetData(
-            meshData.transparentLiquidVertexData.Count,
-            meshData.transparentLiquidVertexData.ExposeArray(),
-            meshData.transparentLiquidIndices.Count,
-            meshData.transparentLiquidIndices.ExposeArray());
+        transparentFluidDrawGroup.SetData(
+            meshData.transparentFluidVertexData.Count,
+            meshData.transparentFluidVertexData.ExposeArray(),
+            meshData.transparentFluidIndices.Count,
+            meshData.transparentFluidIndices.ExposeArray());
 
         meshData.ReturnPooled();
     }
@@ -242,12 +242,12 @@ public sealed class SectionRenderer : IDisposable
                 PrepareVaryingHeightBuffer(view, projection);
 
                 break;
-            case OpaqueLiquid:
-                PrepareOpaqueLiquidBuffer(view, projection);
+            case OpaqueFluid:
+                PrepareOpaqueFluidBuffer(view, projection);
 
                 break;
-            case TransparentLiquid:
-                PrepareTransparentLiquidBuffer(view, projection);
+            case TransparentFluid:
+                PrepareTransparentFluidBuffer(view, projection);
 
                 break;
 
@@ -294,24 +294,24 @@ public sealed class SectionRenderer : IDisposable
         SetupShader(Shaders.VaryingHeightSection, view, projection);
     }
 
-    private static void PrepareOpaqueLiquidBuffer(Matrix4 view, Matrix4 projection)
+    private static void PrepareOpaqueFluidBuffer(Matrix4 view, Matrix4 projection)
     {
-        Application.Client.Instance.Resources.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+        Application.Client.Instance.Resources.FluidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-        SetupShader(Shaders.OpaqueLiquidSection, view, projection);
+        SetupShader(Shaders.OpaqueFluidSection, view, projection);
     }
 
-    private static void PrepareTransparentLiquidBuffer(Matrix4 view, Matrix4 projection)
+    private static void PrepareTransparentFluidBuffer(Matrix4 view, Matrix4 projection)
     {
         Screen.FillDepthTexture();
 
-        Application.Client.Instance.Resources.LiquidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+        Application.Client.Instance.Resources.FluidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
         GL.Enable(EnableCap.Blend);
         GL.DepthMask(flag: false);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-        SetupShader(Shaders.TransparentLiquidSection, view, projection);
+        SetupShader(Shaders.TransparentFluidSection, view, projection);
     }
 
     private static void SetupShader(Shader shader, Matrix4 view, Matrix4 projection)
@@ -355,12 +355,12 @@ public sealed class SectionRenderer : IDisposable
                 Draw(varyingHeightDrawGroup, Shaders.VaryingHeightSection, model);
 
                 break;
-            case OpaqueLiquid:
-                Draw(opaqueLiquidDrawGroup, Shaders.OpaqueLiquidSection, model);
+            case OpaqueFluid:
+                Draw(opaqueFluidDrawGroup, Shaders.OpaqueFluidSection, model);
 
                 break;
-            case TransparentLiquid:
-                Draw(transparentLiquidDrawGroup, Shaders.TransparentLiquidSection, model);
+            case TransparentFluid:
+                Draw(transparentFluidDrawGroup, Shaders.TransparentFluidSection, model);
 
                 break;
 
@@ -389,8 +389,8 @@ public sealed class SectionRenderer : IDisposable
                 FinishPlantBuffer();
 
                 break;
-            case TransparentLiquid:
-                FinishTransparentLiquidBuffer();
+            case TransparentFluid:
+                FinishTransparentFluidBuffer();
 
                 break;
 
@@ -406,7 +406,7 @@ public sealed class SectionRenderer : IDisposable
         GL.Enable(EnableCap.CullFace);
     }
 
-    private static void FinishTransparentLiquidBuffer()
+    private static void FinishTransparentFluidBuffer()
     {
         GL.Disable(EnableCap.Blend);
         GL.DepthMask(flag: true);
@@ -428,8 +428,8 @@ public sealed class SectionRenderer : IDisposable
             cropPlantDrawGroup.Delete();
             complexDrawGroup.Delete();
             varyingHeightDrawGroup.Delete();
-            opaqueLiquidDrawGroup.Delete();
-            transparentLiquidDrawGroup.Delete();
+            opaqueFluidDrawGroup.Delete();
+            transparentFluidDrawGroup.Delete();
         }
         else
         {

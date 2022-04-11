@@ -78,7 +78,7 @@ public abstract class PhysicsEntity : IDisposable
     public bool IsGrounded { get; private set; }
 
     /// <summary>
-    ///     Get whether the physics entity is in a liquid.
+    ///     Get whether the physics entity is in a fluid.
     /// </summary>
     public bool IsSwimming { get; private set; }
 
@@ -163,49 +163,49 @@ public abstract class PhysicsEntity : IDisposable
         movement *= 1f / physicsIterations;
 
         HashSet<(Vector3i position, Block block)> blockIntersections = new();
-        HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections = new();
+        HashSet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections = new();
 
         for (var i = 0; i < physicsIterations; i++)
-            DoPhysicsStep(ref collider, ref movement, blockIntersections, liquidIntersections);
+            DoPhysicsStep(ref collider, ref movement, blockIntersections, fluidIntersections);
 
         foreach ((Vector3i position, Block block) in blockIntersections)
             if (block.ReceiveCollisions)
                 block.EntityCollision(this, position);
 
-        Vector3 liquidDrag = Vector3.Zero;
+        Vector3 fluidDrag = Vector3.Zero;
 
-        if (liquidIntersections.Count != 0)
+        if (fluidIntersections.Count != 0)
         {
             var density = 0f;
             int maxLevel = -1;
             var noGas = false;
 
-            foreach ((Vector3i position, Liquid liquid, LiquidLevel level) in liquidIntersections)
+            foreach ((Vector3i position, Fluid fluid, FluidLevel level) in fluidIntersections)
             {
-                if (liquid.ReceiveContact) liquid.EntityContact(this, position);
+                if (fluid.ReceiveContact) fluid.EntityContact(this, position);
 
-                if ((int) level > maxLevel || maxLevel == 7 && liquid.Density > density)
+                if ((int) level > maxLevel || maxLevel == 7 && fluid.Density > density)
                 {
-                    density = liquid.Density;
+                    density = fluid.Density;
                     maxLevel = (int) level;
-                    noGas = liquid.IsLiquid;
+                    noGas = fluid.IsFluid;
                 }
             }
 
-            liquidDrag = 0.5f * density * Velocity.Sign() * (Velocity * Velocity) * ((maxLevel + 1) / 8f) * 0.25f;
+            fluidDrag = 0.5f * density * Velocity.Sign() * (Velocity * Velocity) * ((maxLevel + 1) / 8f) * 0.25f;
 
             if (!IsGrounded && noGas) IsSwimming = true;
         }
 
         force = new Vector3(x: 0f, Gravity * Mass, z: 0f);
-        force -= liquidDrag;
+        force -= fluidDrag;
 
         Update(deltaTime);
     }
 
     private void DoPhysicsStep(ref BoxCollider collider, ref Vector3 movement,
         HashSet<(Vector3i position, Block block)> blockIntersections,
-        HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections)
+        HashSet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections)
     {
         collider.Position += movement;
 
@@ -215,7 +215,7 @@ public abstract class PhysicsEntity : IDisposable
                 out bool yCollision,
                 out bool zCollision,
                 blockIntersections,
-                liquidIntersections))
+                fluidIntersections))
         {
             if (yCollision)
             {

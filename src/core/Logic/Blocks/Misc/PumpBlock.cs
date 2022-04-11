@@ -29,7 +29,7 @@ internal class PumpBlock : BasicBlock, IIndustrialPipeConnectable, IFillable
         this.pumpDistance = pumpDistance;
     }
 
-    public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
+    public bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return side != BlockSide.Top;
     }
@@ -41,6 +41,6 @@ internal class PumpBlock : BasicBlock, IIndustrialPipeConnectable, IFillable
 
     protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
     {
-        Liquid.Elevate(entity.World, position, pumpDistance);
+        Fluid.Elevate(entity.World, position, pumpDistance);
     }
 }

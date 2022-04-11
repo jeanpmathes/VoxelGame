@@ -10,23 +10,23 @@ using VoxelGame.Core.Logic;
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-///     Provides functionality to define the textures of a default six-sided block or a liquid.
+///     Provides functionality to define the textures of a default six-sided block or a fluid.
 /// </summary>
 public readonly struct TextureLayout : IEquatable<TextureLayout>
 {
     private static ITextureIndexProvider blockTextureIndexProvider = null!;
-    private static ITextureIndexProvider liquidTextureIndexProvider = null!;
+    private static ITextureIndexProvider fluidTextureIndexProvider = null!;
 
     /// <summary>
     ///     Set the texture index providers to get the texture index for a texture name.
     /// </summary>
     /// <param name="blockTextureProvider">The block texture index provider.</param>
-    /// <param name="liquidTextureProvider">The liquid texture index provider.</param>
+    /// <param name="fluidTextureProvider">The fluid texture index provider.</param>
     public static void SetProviders(ITextureIndexProvider blockTextureProvider,
-        ITextureIndexProvider liquidTextureProvider)
+        ITextureIndexProvider fluidTextureProvider)
     {
         blockTextureIndexProvider = blockTextureProvider;
-        liquidTextureIndexProvider = liquidTextureProvider;
+        fluidTextureIndexProvider = fluidTextureProvider;
     }
 
     /// <summary>
@@ -155,13 +155,13 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     }
 
     /// <summary>
-    ///     Returns a texture layout using liquid textures. The layout itself is similar to
+    ///     Returns a texture layout using fluid textures. The layout itself is similar to
     ///     <see cref="TextureLayout.Column(string, string)" />.
     /// </summary>
-    public static TextureLayout Liquid(string sides, string ends)
+    public static TextureLayout Fluid(string sides, string ends)
     {
-        int sideIndex = liquidTextureIndexProvider.GetTextureIndex(sides);
-        int endIndex = liquidTextureIndexProvider.GetTextureIndex(ends);
+        int sideIndex = fluidTextureIndexProvider.GetTextureIndex(sides);
+        int endIndex = fluidTextureIndexProvider.GetTextureIndex(ends);
 
         return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, endIndex, endIndex);
     }

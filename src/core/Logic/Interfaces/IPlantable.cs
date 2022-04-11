@@ -23,11 +23,11 @@ public interface IPlantable : IBlockBase
     /// </summary>
     /// <param name="world">The world in which the operation takes place.</param>
     /// <param name="position">The position of the block.</param>
-    /// <param name="liquid">The liquid that is required by the plant.</param>
-    /// <param name="level">The amount of liquid required by the plant.</param>
-    /// <returns>True if enough liquid was available.</returns>
-    public bool TryGrow(World world, Vector3i position, Liquid liquid, LiquidLevel level)
+    /// <param name="fluid">The fluid that is required by the plant.</param>
+    /// <param name="level">The amount of fluid required by the plant.</param>
+    /// <returns>True if enough fluid was available.</returns>
+    public bool TryGrow(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
-        return liquid.TryTakeExact(world, position, level);
+        return fluid.TryTakeExact(world, position, level);
     }
 }

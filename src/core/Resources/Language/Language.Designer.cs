@@ -376,6 +376,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fluid.
+        /// </summary>
+        public static string Fluid {
+            get {
+                return ResourceManager.GetString("Fluid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to General.
         /// </summary>
         public static string General {
@@ -754,15 +763,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Liquid.
-        /// </summary>
-        public static string Liquid {
-            get {
-                return ResourceManager.GetString("Liquid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Load.
         /// </summary>
         public static string Load {
@@ -844,11 +844,11 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No Liquid.
+        ///   Looks up a localized string similar to No Fluid.
         /// </summary>
-        public static string NoLiquid {
+        public static string NoFluid {
             get {
-                return ResourceManager.GetString("NoLiquid", resourceCulture);
+                return ResourceManager.GetString("NoFluid", resourceCulture);
             }
         }
         

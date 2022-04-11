@@ -1,4 +1,4 @@
-﻿// <copyright file="BasicLiquid.cs" company="VoxelGame">
+﻿// <copyright file="BasicFluid.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -10,12 +10,12 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Liquids;
+namespace VoxelGame.Core.Logic.Fluids;
 
 /// <summary>
-///     A normal liquid with simple flowing behavior.
+///     A normal fluid with simple flowing behavior.
 /// </summary>
-public class BasicLiquid : Liquid, IOverlayTextureProvider
+public class BasicFluid : Fluid, IOverlayTextureProvider
 {
     private readonly TextureLayout movingLayout;
     private readonly bool neutralTint;
@@ -25,17 +25,17 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
     private int[] staticTex = null!;
 
     /// <summary>
-    ///     Create a new basic liquid.
+    ///     Create a new basic fluid.
     /// </summary>
-    /// <param name="name">The name of the basic liquid.</param>
-    /// <param name="namedId">The named ID of the liquid.</param>
-    /// <param name="density">The density of the liquid.</param>
-    /// <param name="viscosity">The viscosity of the liquid.</param>
-    /// <param name="neutralTint">Whether this liquid has a neutral tint.</param>
-    /// <param name="movingLayout">The texture layout when this liquid is moving.</param>
-    /// <param name="staticLayout">The texture layout when this liquid is static.</param>
-    /// <param name="renderType">The render type of the liquid.</param>
-    public BasicLiquid(string name, string namedId, float density, int viscosity, bool neutralTint,
+    /// <param name="name">The name of the basic fluid.</param>
+    /// <param name="namedId">The named ID of the fluid.</param>
+    /// <param name="density">The density of the fluid.</param>
+    /// <param name="viscosity">The viscosity of the fluid.</param>
+    /// <param name="neutralTint">Whether this fluid has a neutral tint.</param>
+    /// <param name="movingLayout">The texture layout when this fluid is moving.</param>
+    /// <param name="staticLayout">The texture layout when this fluid is static.</param>
+    /// <param name="renderType">The render type of the fluid.</param>
+    public BasicFluid(string name, string namedId, float density, int viscosity, bool neutralTint,
         TextureLayout movingLayout, TextureLayout staticLayout, RenderType renderType = RenderType.Opaque) :
         base(
             name,
@@ -53,7 +53,7 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
     }
 
     /// <summary>
-    ///     The texture to use for the liquid overlay.
+    ///     The texture to use for the fluid overlay.
     /// </summary>
     public int TextureIdentifier => staticLayout.Front;
 
@@ -65,15 +65,15 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
     }
 
     /// <inheritdoc />
-    public override LiquidMeshData GetMesh(LiquidMeshInfo info)
+    public override FluidMeshData GetMesh(FluidMeshInfo info)
     {
-        return LiquidMeshData.Basic(
+        return FluidMeshData.Basic(
             info.IsStatic ? staticTex[(int) info.Side] : movingTex[(int) info.Side],
             neutralTint ? TintColor.Neutral : TintColor.None);
     }
 
     /// <inheritdoc />
-    protected override void ScheduledUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic)
+    protected override void ScheduledUpdate(World world, Vector3i position, FluidLevel level, bool isStatic)
     {
         if (CheckVerticalWorldBounds(world, position)) return;
 
@@ -83,7 +83,7 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
         else InvalidLocationFlow(world, position, level);
     }
 
-    private void InvalidLocationFlow(World world, Vector3i position, LiquidLevel level)
+    private void InvalidLocationFlow(World world, Vector3i position, FluidLevel level)
     {
         if (FlowVertical(
                 world,
@@ -97,16 +97,16 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
                 world,
                 position,
                 currentFillable: null,
-                (LiquidLevel) remaining,
+                (FluidLevel) remaining,
                 Direction.Opposite(),
                 handleContact: false,
                 out remaining) &&
             remaining == -1) return;
 
-        SpreadOrDestroyLiquid(world, position, (LiquidLevel) remaining);
+        SpreadOrDestroyFluid(world, position, (FluidLevel) remaining);
     }
 
-    private void ValidLocationFlow(World world, Vector3i position, LiquidLevel level, IFillable current)
+    private void ValidLocationFlow(World world, Vector3i position, FluidLevel level, IFillable current)
     {
         if (FlowVertical(
                 world,
@@ -117,12 +117,12 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
                 handleContact: true,
                 out _)) return;
 
-        if (level != LiquidLevel.One
+        if (level != FluidLevel.One
                 ? FlowHorizontal(world, position, level, current) ||
                   FarFlowHorizontal(world, position, level, current)
                 : TryPuddleFlow(world, position, current)) return;
 
-        world.ModifyLiquid(isStatic: true, position);
+        world.ModifyFluid(isStatic: true, position);
     }
 
     private bool CheckVerticalWorldBounds(World world, Vector3i position)
@@ -130,7 +130,7 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
         if (position.Y == 0 && Direction == VerticalFlow.Downwards ||
             position.Y == Section.SectionSize * Chunk.VerticalSectionCount - 1 && Direction == VerticalFlow.Upwards)
         {
-            world.SetDefaultLiquid(position);
+            world.SetDefaultFluid(position);
 
             return true;
         }
@@ -138,13 +138,13 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
         return false;
     }
 
-    private bool FlowVertical(World world, Vector3i position, IFillable? currentFillable, LiquidLevel level,
+    private bool FlowVertical(World world, Vector3i position, IFillable? currentFillable, FluidLevel level,
         VerticalFlow flow, bool handleContact, out int remaining)
     {
-        (BlockInstance, LiquidInstance)? content = world.GetContent(
+        (BlockInstance, FluidInstance)? content = world.GetContent(
             position + flow.Direction());
 
-        if (content is not ({ Block: IFillable verticalFillable }, {} liquidVertical)
+        if (content is not ({ Block: IFillable verticalFillable }, {} fluidVertical)
             || !verticalFillable.AllowInflow(
                 world,
                 position + flow.Direction(),
@@ -157,10 +157,10 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
             return false;
         }
 
-        if (liquidVertical.Liquid == None)
+        if (fluidVertical.Fluid == None)
         {
-            SetLiquid(world, this, level, isStatic: false, verticalFillable, position + flow.Direction());
-            SetLiquid(world, None, LiquidLevel.Eight, isStatic: true, currentFillable, position);
+            SetFluid(world, this, level, isStatic: false, verticalFillable, position + flow.Direction());
+            SetFluid(world, None, FluidLevel.Eight, isStatic: true, currentFillable, position);
 
             ScheduleTick(world, position + flow.Direction());
 
@@ -169,49 +169,49 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
             return true;
         }
 
-        if (liquidVertical.Liquid == this)
+        if (fluidVertical.Fluid == this)
         {
-            if (liquidVertical.Level == LiquidLevel.Eight)
+            if (fluidVertical.Level == FluidLevel.Eight)
             {
                 remaining = (int) level;
 
                 return false;
             }
 
-            int volume = LiquidLevel.Eight - liquidVertical.Level - 1;
+            int volume = FluidLevel.Eight - fluidVertical.Level - 1;
 
             if (volume >= (int) level)
             {
-                SetLiquid(
+                SetFluid(
                     world,
                     this,
-                    liquidVertical.Level + (int) level + 1,
+                    fluidVertical.Level + (int) level + 1,
                     isStatic: false,
                     verticalFillable,
                     position + flow.Direction());
 
-                SetLiquid(world, None, LiquidLevel.Eight, isStatic: true, currentFillable, position);
+                SetFluid(world, None, FluidLevel.Eight, isStatic: true, currentFillable, position);
 
                 remaining = -1;
             }
             else
             {
-                SetLiquid(
+                SetFluid(
                     world,
                     this,
-                    LiquidLevel.Eight,
+                    FluidLevel.Eight,
                     isStatic: false,
                     verticalFillable,
                     position + flow.Direction());
 
-                SetLiquid(world, this, level - volume - 1, isStatic: false, currentFillable, position);
+                SetFluid(world, this, level - volume - 1, isStatic: false, currentFillable, position);
 
                 remaining = (int) (level - volume - 1);
 
                 ScheduleTick(world, position);
             }
 
-            if (liquidVertical.IsStatic) ScheduleTick(world, position + flow.Direction());
+            if (fluidVertical.IsStatic) ScheduleTick(world, position + flow.Direction());
 
             return true;
         }
@@ -224,7 +224,7 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
                 world,
                 this.AsInstance(level),
                 position,
-                liquidVertical,
+                fluidVertical,
                 position + flow.Direction());
         }
 
@@ -235,7 +235,7 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
 
     private bool TryPuddleFlow(World world, Vector3i position, IFillable currentFillable)
     {
-        bool liquidBelowIsNone = world.GetLiquid(position + FlowDirection)?.Liquid == None;
+        bool fluidBelowIsNone = world.GetFluid(position + FlowDirection)?.Fluid == None;
 
         foreach (Orientation orientation in Orientations.All)
         {
@@ -243,20 +243,20 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
 
             Vector3i neighborPosition = orientation.Offset(position);
 
-            (BlockInstance, LiquidInstance)? content = world.GetContent(neighborPosition);
+            (BlockInstance, FluidInstance)? content = world.GetContent(neighborPosition);
 
-            if (content is not ({ Block: IFillable neighborFillable }, {} neighborLiquid)
+            if (content is not ({ Block: IFillable neighborFillable }, {} neighborFluid)
                 || !AllowsFlowTrough(
                     neighborFillable,
                     world,
                     neighborPosition,
                     orientation.Opposite().ToBlockSide(),
                     Direction.ExitSide())
-                || neighborLiquid.Liquid != None
+                || neighborFluid.Fluid != None
                 || !CheckLowerPosition(neighborPosition + FlowDirection)) continue;
 
-            SetLiquid(world, this, LiquidLevel.One, isStatic: false, neighborFillable, neighborPosition);
-            SetLiquid(world, None, LiquidLevel.Eight, isStatic: true, currentFillable, position);
+            SetFluid(world, this, FluidLevel.One, isStatic: false, neighborFillable, neighborPosition);
+            SetFluid(world, None, FluidLevel.Eight, isStatic: true, currentFillable, position);
 
             ScheduleTick(world, neighborPosition);
 
@@ -267,26 +267,26 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
 
         bool CheckLowerPosition(Vector3i lowerPosition)
         {
-            (BlockInstance, LiquidInstance)? lowerContent = world.GetContent(lowerPosition);
+            (BlockInstance, FluidInstance)? lowerContent = world.GetContent(lowerPosition);
 
-            if (lowerContent is not ({ Block: IFillable fillable }, var lowerLiquid)) return false;
+            if (lowerContent is not ({ Block: IFillable fillable }, var lowerFluid)) return false;
 
-            bool canFlowWithoutCapacity = liquidBelowIsNone && lowerLiquid.Liquid != this;
+            bool canFlowWithoutCapacity = fluidBelowIsNone && lowerFluid.Fluid != this;
 
             return fillable.AllowInflow(
                        world,
                        lowerPosition,
                        Direction.EntrySide(),
                        this)
-                   && (HasCapacity(lowerLiquid) || canFlowWithoutCapacity);
+                   && (HasCapacity(lowerFluid) || canFlowWithoutCapacity);
         }
     }
 
-    private bool FlowHorizontal(World world, Vector3i position, LiquidLevel level, IFillable currentFillable)
+    private bool FlowHorizontal(World world, Vector3i position, FluidLevel level, IFillable currentFillable)
     {
         Vector3i horizontalPosition = position;
         var isHorStatic = false;
-        var levelHorizontal = LiquidLevel.Eight;
+        var levelHorizontal = FluidLevel.Eight;
         IFillable? horizontalFillable = null;
 
         if (Orientations.ShuffledStart(position)
@@ -298,16 +298,16 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
 
         if (horizontalPosition == position) return false;
 
-        SetLiquid(world, this, levelHorizontal + 1, isStatic: false, horizontalFillable, horizontalPosition);
+        SetFluid(world, this, levelHorizontal + 1, isStatic: false, horizontalFillable, horizontalPosition);
 
         if (isHorStatic) ScheduleTick(world, horizontalPosition);
 
-        bool hasRemaining = level != LiquidLevel.One;
+        bool hasRemaining = level != FluidLevel.One;
 
-        SetLiquid(
+        SetFluid(
             world,
             hasRemaining ? this : None,
-            hasRemaining ? level - 1 : LiquidLevel.Eight,
+            hasRemaining ? level - 1 : FluidLevel.Eight,
             !hasRemaining,
             currentFillable,
             position);
@@ -318,26 +318,26 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
 
         bool CheckNeighbor(bool outflowAllowed, Vector3i neighborPosition, BlockSide side)
         {
-            (BlockInstance, LiquidInstance)? neighborContent = world.GetContent(neighborPosition);
+            (BlockInstance, FluidInstance)? neighborContent = world.GetContent(neighborPosition);
 
             if (!outflowAllowed ||
-                neighborContent is not ({ Block: IFillable neighborFillable }, {} liquidNeighbor) ||
+                neighborContent is not ({ Block: IFillable neighborFillable }, {} fluidNeighbor) ||
                 !neighborFillable.AllowInflow(world, neighborPosition, side, this)) return false;
 
-            bool isStatic = liquidNeighbor.IsStatic;
+            bool isStatic = fluidNeighbor.IsStatic;
 
-            if (liquidNeighbor.Liquid == None)
+            if (fluidNeighbor.Fluid == None)
             {
                 isStatic = true;
 
                 Vector3i belowNeighborPosition = neighborPosition + FlowDirection;
 
-                (BlockInstance, LiquidInstance)? belowNeighborContent = world.GetContent(belowNeighborPosition);
+                (BlockInstance, FluidInstance)? belowNeighborContent = world.GetContent(belowNeighborPosition);
 
 
 
-                if (belowNeighborContent is ({ Block: IFillable belowNeighborFillable }, {} belowNeighborLiquid)
-                    && belowNeighborLiquid.Liquid == None
+                if (belowNeighborContent is ({ Block: IFillable belowNeighborFillable }, {} belowNeighborFluid)
+                    && belowNeighborFluid.Fluid == None
                     && belowNeighborFillable.AllowInflow(
                         world,
                         belowNeighborPosition,
@@ -348,24 +348,24 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
                         neighborPosition,
                         Direction.ExitSide()))
                 {
-                    SetLiquid(world, this, level, isStatic: false, belowNeighborFillable, belowNeighborPosition);
+                    SetFluid(world, this, level, isStatic: false, belowNeighborFillable, belowNeighborPosition);
 
                     ScheduleTick(world, belowNeighborPosition);
 
-                    SetLiquid(world, None, LiquidLevel.Eight, isStatic: true, currentFillable, position);
+                    SetFluid(world, None, FluidLevel.Eight, isStatic: true, currentFillable, position);
                 }
                 else
                 {
-                    SetLiquid(world, this, LiquidLevel.One, isStatic: false, neighborFillable, neighborPosition);
+                    SetFluid(world, this, FluidLevel.One, isStatic: false, neighborFillable, neighborPosition);
 
                     if (isStatic) ScheduleTick(world, neighborPosition);
 
-                    bool remaining = level != LiquidLevel.One;
+                    bool remaining = level != FluidLevel.One;
 
-                    SetLiquid(
+                    SetFluid(
                         world,
                         remaining ? this : None,
-                        remaining ? level - 1 : LiquidLevel.Eight,
+                        remaining ? level - 1 : FluidLevel.Eight,
                         !remaining,
                         currentFillable,
                         position);
@@ -376,21 +376,21 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
                 return true;
             }
 
-            if (liquidNeighbor.Liquid != this)
+            if (fluidNeighbor.Fluid != this)
             {
                 if (ContactManager.HandleContact(
                         world,
                         this.AsInstance(level),
                         position,
-                        liquidNeighbor,
+                        fluidNeighbor,
                         neighborPosition)) return true;
             }
-            else if (liquidNeighbor.Liquid == this && level > liquidNeighbor.Level &&
-                     liquidNeighbor.Level < levelHorizontal)
+            else if (fluidNeighbor.Fluid == this && level > fluidNeighbor.Level &&
+                     fluidNeighbor.Level < levelHorizontal)
             {
-                bool neighborHasSignificantlyLowerLevel = liquidNeighbor.Level != level - 1;
+                bool neighborHasSignificantlyLowerLevel = fluidNeighbor.Level != level - 1;
 
-                bool neighborHasLessPressure = level == LiquidLevel.Eight && !IsAtSurface(world, position) &&
+                bool neighborHasLessPressure = level == FluidLevel.Eight && !IsAtSurface(world, position) &&
                                                IsAtSurface(world, neighborPosition);
 
                 bool directNeighborAllowsFlow = neighborHasSignificantlyLowerLevel || neighborHasLessPressure;
@@ -401,7 +401,7 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
 
                 if (!allowsFlow) return false;
 
-                levelHorizontal = liquidNeighbor.Level;
+                levelHorizontal = fluidNeighbor.Level;
                 horizontalPosition = neighborPosition;
                 isHorStatic = isStatic;
 
@@ -412,27 +412,27 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
         }
     }
 
-    private bool FarFlowHorizontal(World world, Vector3i position, LiquidLevel level, IFillable currentFillable)
+    private bool FarFlowHorizontal(World world, Vector3i position, FluidLevel level, IFillable currentFillable)
     {
-        if (level < LiquidLevel.Three) return false;
+        if (level < FluidLevel.Three) return false;
 
-        (Vector3i position, LiquidInstance liquid, IFillable fillable)? potentialTarget =
+        (Vector3i position, FluidInstance fluid, IFillable fillable)? potentialTarget =
             SearchFlowTarget(world, position, level - 2, range: 4);
 
         if (potentialTarget == null) return false;
 
-        var target = ((Vector3i position, LiquidInstance liquid, IFillable fillable)) potentialTarget;
+        var target = ((Vector3i position, FluidInstance fluid, IFillable fillable)) potentialTarget;
 
-        SetLiquid(world, this, target.liquid.Level + 1, isStatic: false, target.fillable, target.position);
-        if (target.liquid.IsStatic) ScheduleTick(world, target.position);
+        SetFluid(world, this, target.fluid.Level + 1, isStatic: false, target.fillable, target.position);
+        if (target.fluid.IsStatic) ScheduleTick(world, target.position);
 
-        SetLiquid(world, this, level - 1, isStatic: false, currentFillable, position);
+        SetFluid(world, this, level - 1, isStatic: false, currentFillable, position);
         ScheduleTick(world, position);
 
         return true;
     }
 
-    private void SpreadOrDestroyLiquid(World world, Vector3i position, LiquidLevel level)
+    private void SpreadOrDestroyFluid(World world, Vector3i position, FluidLevel level)
     {
         var remaining = (int) level;
 
@@ -443,26 +443,26 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
             if (remaining == -1) break;
         }
 
-        world.SetDefaultLiquid(position);
+        world.SetDefaultFluid(position);
     }
 
     private void FillNeighbor(World world, Vector3i neighborPosition, BlockSide side, ref int remaining)
     {
-        (BlockInstance, LiquidInstance)? neighborContent = world.GetContent(neighborPosition);
+        (BlockInstance, FluidInstance)? neighborContent = world.GetContent(neighborPosition);
 
-        if (neighborContent is not ({ Block: IFillable neighborFillable }, {} neighborLiquid) ||
+        if (neighborContent is not ({ Block: IFillable neighborFillable }, {} neighborFluid) ||
             !neighborFillable.AllowInflow(world, neighborPosition, side.Opposite(), this)) return;
 
-        bool isStatic = neighborLiquid.IsStatic;
+        bool isStatic = neighborFluid.IsStatic;
 
-        if (neighborLiquid.Liquid == None)
+        if (neighborFluid.Fluid == None)
         {
             isStatic = true;
 
-            SetLiquid(
+            SetFluid(
                 world,
                 this,
-                (LiquidLevel) remaining,
+                (FluidLevel) remaining,
                 isStatic: false,
                 neighborFillable,
                 neighborPosition);
@@ -471,16 +471,16 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
 
             if (isStatic) ScheduleTick(world, neighborPosition);
         }
-        else if (neighborLiquid.Liquid == this)
+        else if (neighborFluid.Fluid == this)
         {
-            int volume = LiquidLevel.Eight - neighborLiquid.Level - 1;
+            int volume = FluidLevel.Eight - neighborFluid.Level - 1;
 
             if (volume >= remaining)
             {
-                SetLiquid(
+                SetFluid(
                     world,
                     this,
-                    neighborLiquid.Level + remaining + 1,
+                    neighborFluid.Level + remaining + 1,
                     isStatic: false,
                     neighborFillable,
                     neighborPosition);
@@ -489,7 +489,7 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
             }
             else
             {
-                SetLiquid(world, this, LiquidLevel.Eight, isStatic: false, neighborFillable, neighborPosition);
+                SetFluid(world, this, FluidLevel.Eight, isStatic: false, neighborFillable, neighborPosition);
 
                 remaining = remaining - volume - 1;
             }
@@ -512,8 +512,8 @@ public class BasicLiquid : Liquid, IOverlayTextureProvider
                    outgoingSide);
     }
 
-    private bool HasCapacity(LiquidInstance liquid)
+    private bool HasCapacity(FluidInstance fluid)
     {
-        return liquid.Liquid == this && liquid.Level != LiquidLevel.Eight;
+        return fluid.Fluid == this && fluid.Level != FluidLevel.Eight;
     }
 }

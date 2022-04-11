@@ -174,73 +174,73 @@ public abstract partial class World : IDisposable
     /// <param name="position">The position.</param>
     /// <param name="block">The block at the given position.</param>
     /// <param name="data">The data of the block.</param>
-    /// <param name="liquid">The liquid at the given position.</param>
-    /// <param name="level">The level of the liquid.</param>
-    /// <param name="isStatic">Whether the liquid is static.</param>
+    /// <param name="fluid">The fluid at the given position.</param>
+    /// <param name="level">The level of the fluid.</param>
+    /// <param name="isStatic">Whether the fluid is static.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void RetrieveContent(Vector3i position,
         out Block? block, out uint data,
-        out Liquid? liquid, out LiquidLevel level, out bool isStatic)
+        out Fluid? fluid, out FluidLevel level, out bool isStatic)
     {
         Chunk? chunk = GetChunkWithPosition(position);
 
         if (chunk != null)
         {
             uint val = chunk.GetSection(position.Y >> Section.SectionSizeExp).GetContent(position);
-            Section.Decode(val, out block, out data, out liquid, out level, out isStatic);
+            Section.Decode(val, out block, out data, out fluid, out level, out isStatic);
 
             return;
         }
 
         block = null;
         data = 0;
-        liquid = null;
+        fluid = null;
         level = 0;
         isStatic = false;
     }
 
     /// <summary>
-    ///     Get the liquid at a given position. The liquid can only be retrieved from active chunks.
+    ///     Get the fluid at a given position. The fluid can only be retrieved from active chunks.
     /// </summary>
     /// <param name="position">The position in the world.</param>
-    /// <returns>The liquid instance, if there is any.</returns>
+    /// <returns>The fluid instance, if there is any.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LiquidInstance? GetLiquid(Vector3i position)
+    public FluidInstance? GetFluid(Vector3i position)
     {
         RetrieveContent(
             position,
             out Block? _,
             out uint _,
-            out Liquid? liquid,
-            out LiquidLevel level,
+            out Fluid? fluid,
+            out FluidLevel level,
             out bool isStatic);
 
-        return liquid?.AsInstance(level, isStatic);
+        return fluid?.AsInstance(level, isStatic);
     }
 
     /// <summary>
-    ///     Get both the liquid and block instance at a given position.
+    ///     Get both the fluid and block instance at a given position.
     ///     The content can only be retrieved from active chunks.
     /// </summary>
     /// <param name="position">The world position.</param>
     /// <returns>The content, if there is any.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public (BlockInstance block, LiquidInstance liquid)? GetContent(Vector3i position)
+    public (BlockInstance block, FluidInstance fluid)? GetContent(Vector3i position)
     {
         RetrieveContent(
             position,
             out Block? block,
             out uint data,
-            out Liquid? liquid,
-            out LiquidLevel level,
+            out Fluid? fluid,
+            out FluidLevel level,
             out bool isStatic);
 
-        if (block == null || liquid == null) return null;
+        if (block == null || fluid == null) return null;
 
         Debug.Assert(block != null);
-        Debug.Assert(liquid != null);
+        Debug.Assert(fluid != null);
 
-        return (block.AsInstance(data), liquid.AsInstance(level, isStatic));
+        return (block.AsInstance(data), fluid.AsInstance(level, isStatic));
     }
 
     /// <summary>
@@ -252,56 +252,56 @@ public abstract partial class World : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetBlock(BlockInstance block, Vector3i position)
     {
-        LiquidInstance? potentialLiquid = GetLiquid(position);
+        FluidInstance? potentialFluid = GetFluid(position);
 
-        if (potentialLiquid is not {} liquid) return;
+        if (potentialFluid is not {} fluid) return;
 
-        SetContent(block, liquid, position, tickLiquid: true);
+        SetContent(block, fluid, position, tickFluid: true);
     }
 
     /// <summary>
-    ///     Sets a liquid in the world, adds the changed sections to the re-mesh set and sends updates to the neighbors of the
+    ///     Sets a fluid in the world, adds the changed sections to the re-mesh set and sends updates to the neighbors of the
     ///     changed block.
     /// </summary>
-    /// <param name="liquid"></param>
+    /// <param name="fluid"></param>
     /// <param name="position"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetLiquid(LiquidInstance liquid, Vector3i position)
+    public void SetFluid(FluidInstance fluid, Vector3i position)
     {
         BlockInstance? potentialBlock = GetBlock(position);
 
         if (potentialBlock is not {} block) return;
 
-        SetContent(block, liquid, position, tickLiquid: false);
+        SetContent(block, fluid, position, tickFluid: false);
     }
 
     /// <summary>
-    ///     Set the <c>isStatic</c> flag of a liquid without causing any updates around this liquid.
+    ///     Set the <c>isStatic</c> flag of a fluid without causing any updates around this fluid.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void ModifyLiquid(bool isStatic, Vector3i position)
+    internal void ModifyFluid(bool isStatic, Vector3i position)
     {
         ModifyWorldData(position, ~Section.StaticMask, isStatic ? Section.StaticMask : 0);
     }
 
-    private void SetContent(BlockInstance block, LiquidInstance liquid, Vector3i position, bool tickLiquid)
+    private void SetContent(BlockInstance block, FluidInstance fluid, Vector3i position, bool tickFluid)
     {
-        SetContent(block.Block, block.Data, liquid.Liquid, liquid.Level, liquid.IsStatic, position, tickLiquid);
+        SetContent(block.Block, block.Data, fluid.Fluid, fluid.Level, fluid.IsStatic, position, tickFluid);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic,
-        Vector3i position, bool tickLiquid)
+    private void SetContent(Block block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
+        Vector3i position, bool tickFluid)
     {
         Chunk? chunk = GetChunkWithPosition(position);
 
         if (chunk == null) return;
 
-        uint val = Section.Encode(block, data, liquid, level, isStatic);
+        uint val = Section.Encode(block, data, fluid, level, isStatic);
 
         chunk.GetSection(position.Y >> Section.SectionSizeExp).SetContent(position, val);
 
-        if (tickLiquid) liquid.TickNow(this, position, level, isStatic);
+        if (tickFluid) fluid.TickNow(this, position, level, isStatic);
 
         // Block updates - Side is passed out of the perspective of the block receiving the block update.
 
@@ -309,13 +309,13 @@ public abstract partial class World : IDisposable
         {
             Vector3i neighborPosition = side.Offset(position);
 
-            (BlockInstance, LiquidInstance)? content = GetContent(neighborPosition);
+            (BlockInstance, FluidInstance)? content = GetContent(neighborPosition);
 
             if (content == null) continue;
-            (BlockInstance blockNeighbor, LiquidInstance liquidNeighbor) = content.Value;
+            (BlockInstance blockNeighbor, FluidInstance fluidNeighbor) = content.Value;
 
             blockNeighbor.Block.BlockUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
-            liquidNeighbor.Liquid.TickSoon(this, neighborPosition, liquidNeighbor.IsStatic);
+            fluidNeighbor.Fluid.TickSoon(this, neighborPosition, fluidNeighbor.IsStatic);
         }
 
         ProcessChangedSection(chunk, position);
@@ -325,10 +325,10 @@ public abstract partial class World : IDisposable
     ///     Set all data at a world position.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetPosition(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic,
+    public void SetPosition(Block block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
         Vector3i position)
     {
-        SetContent(block, data, liquid, level, isStatic, position, tickLiquid: true);
+        SetContent(block, data, fluid, level, isStatic, position, tickFluid: true);
     }
 
     /// <summary>
@@ -367,27 +367,27 @@ public abstract partial class World : IDisposable
     }
 
     /// <summary>
-    ///     Set a position to the default liquid.
+    ///     Set a position to the default fluid.
     /// </summary>
-    public void SetDefaultLiquid(Vector3i position)
+    public void SetDefaultFluid(Vector3i position)
     {
-        SetLiquid(LiquidInstance.Default, position);
+        SetFluid(FluidInstance.Default, position);
     }
 
     /// <summary>
     ///     Force a random update at a position.
     /// </summary>
     /// <param name="position">The position.</param>
-    /// <returns>True if both the liquid and block at the position received a random update.</returns>
+    /// <returns>True if both the fluid and block at the position received a random update.</returns>
     public bool DoRandomUpdate(Vector3i position)
     {
-        (BlockInstance, LiquidInstance)? content = GetContent(position);
+        (BlockInstance, FluidInstance)? content = GetContent(position);
 
         if (content == null) return false;
-        (BlockInstance block, LiquidInstance liquid) = content.Value;
+        (BlockInstance block, FluidInstance fluid) = content.Value;
 
         block.Block.RandomUpdate(this, position, block.Data);
-        liquid.Liquid.RandomUpdate(this, position, liquid.Level, liquid.IsStatic);
+        fluid.Fluid.RandomUpdate(this, position, fluid.Level, fluid.IsStatic);
 
         return true;
     }

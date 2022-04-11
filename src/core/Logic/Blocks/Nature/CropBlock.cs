@@ -46,9 +46,9 @@ public class CropBlock : Block, IFlammable, IFillable
     }
 
     /// <inheritdoc />
-    public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
+    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
-        if (liquid.IsLiquid && level > LiquidLevel.Three) ScheduleDestroy(world, position);
+        if (fluid.IsFluid && level > FluidLevel.Three) ScheduleDestroy(world, position);
     }
 
     /// <inheritdoc />
@@ -153,7 +153,7 @@ public class CropBlock : Block, IFlammable, IFillable
             {
                 if (!plantable.SupportsFullGrowth) return;
 
-                if (!plantable.TryGrow(world, position.Below(), Liquid.Water, LiquidLevel.One))
+                if (!plantable.TryGrow(world, position.Below(), Fluid.Water, FluidLevel.One))
                 {
                     world.SetBlock(this.AsInstance(lowered | (uint) GrowthStage.Dead), position);
 

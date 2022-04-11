@@ -30,9 +30,9 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     }
 
     /// <inheritdoc />
-    public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
+    public bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
-        return liquid.Viscosity < 100;
+        return fluid.Viscosity < 100;
     }
 
     /// <inheritdoc />
@@ -48,7 +48,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     {
         BlockMeshData mesh = base.GetMesh(info);
 
-        if (info.Liquid.IsLiquid)
+        if (info.Fluid.IsFluid)
             mesh = mesh.SwapTextureIndex(wetTextureIndices[(int) info.Side]);
 
         return mesh;
@@ -57,11 +57,11 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     /// <inheritdoc />
     public override void RandomUpdate(World world, Vector3i position, uint data)
     {
-        LiquidInstance? potentialLiquid = world.GetLiquid(position);
+        FluidInstance? potentialFluid = world.GetFluid(position);
 
-        if (potentialLiquid is not {} liquid) return;
+        if (potentialFluid is not {} fluid) return;
 
-        if (liquid.Liquid == Liquid.Water && liquid.Level == LiquidLevel.Eight)
+        if (fluid.Fluid == Fluid.Water && fluid.Level == FluidLevel.Eight)
             world.SetBlock(Mud.AsInstance(), position);
     }
 }

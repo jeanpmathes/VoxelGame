@@ -1,4 +1,4 @@
-﻿// <copyright file="NoLiquid.cs" company="VoxelGame">
+﻿// <copyright file="NoFluid.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -7,19 +7,19 @@
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Liquids;
+namespace VoxelGame.Core.Logic.Fluids;
 
 /// <summary>
-///     This liquid represents the absence of liquids.
+///     This fluid represents the absence of fluids.
 /// </summary>
-public class NoLiquid : Liquid
+public class NoFluid : Fluid
 {
     /// <summary>
-    ///     Creates a new <see cref="NoLiquid" />.
+    ///     Creates a new <see cref="NoFluid" />.
     /// </summary>
-    /// <param name="name">The name of the liquid.</param>
+    /// <param name="name">The name of the fluid.</param>
     /// <param name="namedId">The named ID.</param>
-    public NoLiquid(string name, string namedId) :
+    public NoFluid(string name, string namedId) :
         base(
             name,
             namedId,
@@ -30,11 +30,11 @@ public class NoLiquid : Liquid
             RenderType.NotRendered) {}
 
     /// <inheritdoc />
-    public override LiquidMeshData GetMesh(LiquidMeshInfo info)
+    public override FluidMeshData GetMesh(FluidMeshInfo info)
     {
-        return LiquidMeshData.Empty;
+        return FluidMeshData.Empty;
     }
 
     /// <inheritdoc />
-    protected override void ScheduledUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic) {}
+    protected override void ScheduledUpdate(World world, Vector3i position, FluidLevel level, bool isStatic) {}
 }

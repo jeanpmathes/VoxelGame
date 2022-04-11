@@ -563,7 +563,7 @@ public abstract partial class Block : IBlockBase
 
     /// <summary>
     ///     Concrete is a flexible construction material that can have different heights and colors.
-    ///     It can be build using liquid concrete.
+    ///     It can be build using fluid concrete.
     /// </summary>
     public static readonly Block Concrete = new ConcreteBlock(
         Language.Concrete,
@@ -728,17 +728,17 @@ public abstract partial class Block : IBlockBase
     #region LIQUID FLOW BLOCKS
 
     /// <summary>
-    ///     The liquid barrier can be used to control liquid flow. It can be opened and closed.
+    ///     The fluid barrier can be used to control fluid flow. It can be opened and closed.
     ///     It does not prevent gasses from flowing through it.
     /// </summary>
-    public static readonly Block LiquidBarrier = new LiquidBarrierBlock(
+    public static readonly Block FluidBarrier = new FluidBarrierBlock(
         Language.Barrier,
-        nameof(LiquidBarrier),
-        TextureLayout.Uniform("liquid_barrier_closed"),
-        TextureLayout.Uniform("liquid_barrier_open"));
+        nameof(FluidBarrier),
+        TextureLayout.Uniform("fluid_barrier_closed"),
+        TextureLayout.Uniform("fluid_barrier_open"));
 
     /// <summary>
-    ///     The industrial steel pipe can be used to control liquid flow.
+    ///     The industrial steel pipe can be used to control fluid flow.
     ///     It connects to other pipes.
     /// </summary>
     public static readonly Block SteelPipe = new PipeBlock<IIndustrialPipeConnectable>(
@@ -750,7 +750,7 @@ public abstract partial class Block : IBlockBase
         "steel_pipe_surface");
 
     /// <summary>
-    ///     The wooden pipe offers a primitive way of controlling liquid flow.
+    ///     The wooden pipe offers a primitive way of controlling fluid flow.
     ///     It connects to other pipes.
     /// </summary>
     public static readonly Block WoodenPipe = new PipeBlock<IPrimitivePipeConnectable>(
@@ -782,7 +782,7 @@ public abstract partial class Block : IBlockBase
         "steel_pipe_valve_closed");
 
     /// <summary>
-    ///     The pump can lift liquids up when interacted with.
+    ///     The pump can lift fluids up when interacted with.
     ///     It can only lift up to a threshold of 16 blocks.
     /// </summary>
     public static readonly Block Pump = new PumpBlock(

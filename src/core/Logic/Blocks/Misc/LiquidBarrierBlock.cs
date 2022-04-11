@@ -1,4 +1,4 @@
-﻿// <copyright file="LiquidBarrierBlock.cs" company="VoxelGame">
+﻿// <copyright file="FluidBarrierBlock.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -12,16 +12,16 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks;
 
 /// <summary>
-///     A block that lets liquids through but can be closed by interacting with it.
+///     A block that lets fluids through but can be closed by interacting with it.
 ///     Data bit usage: <c>-----o</c>
 /// </summary>
 // o: open
-public class LiquidBarrierBlock : BasicBlock, IFillable, IFlammable
+public class FluidBarrierBlock : BasicBlock, IFillable, IFlammable
 {
     private readonly TextureLayout open;
     private int[] openTextureIndices = null!;
 
-    internal LiquidBarrierBlock(string name, string namedId, TextureLayout closed, TextureLayout open) :
+    internal FluidBarrierBlock(string name, string namedId, TextureLayout closed, TextureLayout open) :
         base(
             name,
             namedId,
@@ -32,9 +32,9 @@ public class LiquidBarrierBlock : BasicBlock, IFillable, IFlammable
     }
 
     /// <inheritdoc />
-    public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
+    public bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
-        if (liquid.IsGas) return true;
+        if (fluid.IsGas) return true;
 
         BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 

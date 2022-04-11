@@ -1,4 +1,4 @@
-﻿// <copyright file="Liquid.cs" company="VoxelGame">
+﻿// <copyright file="Fluid.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -17,30 +17,30 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
-///     The base class of all liquids.
+///     The base class of all fluids.
 /// </summary>
-public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string>
+public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 {
     /// <summary>
     ///     The density of air.
     /// </summary>
     protected const float AirDensity = 1.2f;
 
-    private const float GasLiquidThreshold = 10f;
+    private const float GasFluidThreshold = 10f;
 
     private static readonly BoundingVolume[] volumes = CreateVolumes();
 
     /// <summary>
-    ///     Create a new liquid.
+    ///     Create a new fluid.
     /// </summary>
-    /// <param name="name">The name of the liquid. Can be localized.</param>
-    /// <param name="namedId">The named ID of the liquid. This is a unique and unlocalized identifier.</param>
-    /// <param name="density">The density of the fluid. This determines whether this is a gas or a liquid.</param>
+    /// <param name="name">The name of the fluid. Can be localized.</param>
+    /// <param name="namedId">The named ID of the fluid. This is a unique and unlocalized identifier.</param>
+    /// <param name="density">The density of the fluid. This determines whether this is a gas or a fluid.</param>
     /// <param name="viscosity">The viscosity of the fluid. This determines the flow speed.</param>
     /// <param name="checkContact">Whether entity contact must be checked.</param>
-    /// <param name="receiveContact">Whether entity contact should be passed to the liquid.</param>
-    /// <param name="renderType">The render type of the liquid.</param>
-    protected Liquid(string name, string namedId, float density, int viscosity,
+    /// <param name="receiveContact">Whether entity contact should be passed to the fluid.</param>
+    /// <param name="renderType">The render type of the fluid.</param>
+    protected Fluid(string name, string namedId, float density, int viscosity,
         bool checkContact, bool receiveContact, RenderType renderType)
     {
         Debug.Assert(density > 0);
@@ -59,13 +59,13 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
 
         if (Direction == VerticalFlow.Static)
         {
-            IsLiquid = false;
+            IsFluid = false;
             IsGas = false;
         }
         else
         {
-            IsLiquid = density > GasLiquidThreshold;
-            IsGas = density <= GasLiquidThreshold;
+            IsFluid = density > GasFluidThreshold;
+            IsGas = density <= GasFluidThreshold;
         }
 
         Viscosity = viscosity;
@@ -75,46 +75,46 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
 
         RenderType = renderType;
 
-        if (liquidList.Count < LiquidLimit)
+        if (fluidList.Count < FluidLimit)
         {
-            liquidList.Add(this);
-            namedLiquidDictionary.Add(namedId, this);
+            fluidList.Add(this);
+            namedFluidDictionary.Add(namedId, this);
 
-            Id = (uint) (liquidList.Count - 1);
+            Id = (uint) (fluidList.Count - 1);
         }
         else
         {
-            Debug.Fail($"Not more than {LiquidLimit} liquids are allowed.");
+            Debug.Fail($"Not more than {FluidLimit} fluids are allowed.");
         }
     }
 
     /// <summary>
-    ///     Gets the liquid id which can be any value from 0 to 31.
+    ///     Gets the fluid id which can be any value from 0 to 31.
     /// </summary>
     public uint Id { get; }
 
     /// <summary>
-    ///     Gets the localized name of the liquid.
+    ///     Gets the localized name of the fluid.
     /// </summary>
     public string Name { get; }
 
     /// <summary>
-    ///     An unlocalized string that identifies this liquid.
+    ///     An unlocalized string that identifies this fluid.
     /// </summary>
     public string NamedId { get; }
 
     /// <summary>
-    ///     Gets the density of this liquid.
+    ///     Gets the density of this fluid.
     /// </summary>
     public float Density { get; }
 
     /// <summary>
-    ///     Gets the flowing direction of this liquid.
+    ///     Gets the flowing direction of this fluid.
     /// </summary>
     public VerticalFlow Direction { get; }
 
     /// <summary>
-    ///     Gets the viscosity of this liquid, meaning the tick offset between two updates.
+    ///     Gets the viscosity of this fluid, meaning the tick offset between two updates.
     /// </summary>
     public int Viscosity { get; }
 
@@ -124,19 +124,19 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
     public bool CheckContact { get; }
 
     /// <summary>
-    ///     Gets whether this liquid receives entity contacts.
+    ///     Gets whether this fluid receives entity contacts.
     /// </summary>
     public bool ReceiveContact { get; }
 
     /// <summary>
-    ///     Gets the <see cref="Visuals.RenderType" /> of this liquid.
+    ///     Gets the <see cref="Visuals.RenderType" /> of this fluid.
     /// </summary>
     public RenderType RenderType { get; }
 
     /// <summary>
-    ///     Get whether this fluids is a liquid.
+    ///     Get whether this fluids is a fluid.
     /// </summary>
-    public bool IsLiquid { get; }
+    public bool IsFluid { get; }
 
     /// <summary>
     ///     Get whether this fluid is a gas.
@@ -144,7 +144,7 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
     public bool IsGas { get; }
 
     /// <summary>
-    ///     The flow direction of this liquid.
+    ///     The flow direction of this fluid.
     /// </summary>
     public Vector3i FlowDirection => Direction.Direction();
 
@@ -154,7 +154,7 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
 
     private static BoundingVolume[] CreateVolumes()
     {
-        BoundingVolume CreateVolume(LiquidLevel level)
+        BoundingVolume CreateVolume(FluidLevel level)
         {
             float halfHeight = ((int) level + 1) * 0.0625f;
 
@@ -163,73 +163,73 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
                 new Vector3(x: 0.5f, halfHeight, z: 0.5f));
         }
 
-        var liquidVolumes = new BoundingVolume[8];
+        var fluidVolumes = new BoundingVolume[8];
 
-        for (var i = 0; i < 8; i++) liquidVolumes[i] = CreateVolume((LiquidLevel) i);
+        for (var i = 0; i < 8; i++) fluidVolumes[i] = CreateVolume((FluidLevel) i);
 
-        return liquidVolumes;
+        return fluidVolumes;
     }
 
     /// <summary>
-    ///     Called when loading liquids, meant to setup vertex data, indices etc.
+    ///     Called when loading fluids, meant to setup vertex data, indices etc.
     /// </summary>
     /// <param name="indexProvider"></param>
     protected virtual void Setup(ITextureIndexProvider indexProvider) {}
 
     /// <summary>
-    ///     Get the mesh for this liquid.
+    ///     Get the mesh for this fluid.
     /// </summary>
-    /// <param name="info">Information about the liquid instance.</param>
+    /// <param name="info">Information about the fluid instance.</param>
     /// <returns>The mesh data.</returns>
-    public abstract LiquidMeshData GetMesh(LiquidMeshInfo info);
+    public abstract FluidMeshData GetMesh(FluidMeshInfo info);
 
     /// <summary>
-    ///     Get the collider for liquids.
+    ///     Get the collider for fluids.
     /// </summary>
-    /// <param name="position">The position of the liquid.</param>
-    /// <param name="level">The level of the liquid.</param>
+    /// <param name="position">The position of the fluid.</param>
+    /// <param name="level">The level of the fluid.</param>
     /// <returns>The collider.</returns>
-    public static BoxCollider GetCollider(Vector3i position, LiquidLevel level)
+    public static BoxCollider GetCollider(Vector3i position, FluidLevel level)
     {
         return volumes[(int) level].GetColliderAt(position);
     }
 
     /// <summary>
-    ///     Notify this liquid that an entity has come in contact with it.
+    ///     Notify this fluid that an entity has come in contact with it.
     /// </summary>
-    /// <param name="entity">The entity that contacts the liquid.</param>
-    /// <param name="position">The position of the liquid.</param>
+    /// <param name="entity">The entity that contacts the fluid.</param>
+    /// <param name="position">The position of the fluid.</param>
     public void EntityContact(PhysicsEntity entity, Vector3i position)
     {
-        LiquidInstance? potentialLiquid = entity.World.GetLiquid(position);
+        FluidInstance? potentialFluid = entity.World.GetFluid(position);
 
-        if (potentialLiquid is {} liquid && liquid.Liquid == this)
-            EntityContact(entity, position, liquid.Level, liquid.IsStatic);
+        if (potentialFluid is {} fluid && fluid.Fluid == this)
+            EntityContact(entity, position, fluid.Level, fluid.IsStatic);
     }
 
     /// <summary>
     ///     Override to provide custom contact handling.
     /// </summary>
-    protected virtual void EntityContact(PhysicsEntity entity, Vector3i position, LiquidLevel level,
+    protected virtual void EntityContact(PhysicsEntity entity, Vector3i position, FluidLevel level,
         bool isStatic) {}
 
     /// <summary>
-    ///     Tries to fill a position with the specified amount of liquid. The remaining liquid is specified, it can be
-    ///     converted to <see cref="LiquidLevel" /> if it is not <c>-1</c>.
+    ///     Tries to fill a position with the specified amount of fluid. The remaining fluid is specified, it can be
+    ///     converted to <see cref="FluidLevel" /> if it is not <c>-1</c>.
     /// </summary>
-    public bool Fill(World world, Vector3i position, LiquidLevel level, BlockSide entrySide, out int remaining)
+    public bool Fill(World world, Vector3i position, FluidLevel level, BlockSide entrySide, out int remaining)
     {
-        (BlockInstance, LiquidInstance)? content = world.GetContent(position);
+        (BlockInstance, FluidInstance)? content = world.GetContent(position);
 
         if (content is ({ Block: IFillable fillable }, var target)
             && fillable.AllowInflow(world, position, entrySide, this))
         {
-            if (target.Liquid == this && target.Level != LiquidLevel.Eight)
+            if (target.Fluid == this && target.Level != FluidLevel.Eight)
             {
                 int filled = (int) target.Level + (int) level + 1;
                 filled = filled > 7 ? 7 : filled;
 
-                SetLiquid(world, this, (LiquidLevel) filled, isStatic: false, fillable, position);
+                SetFluid(world, this, (FluidLevel) filled, isStatic: false, fillable, position);
                 if (target.IsStatic) ScheduleTick(world, position);
 
                 remaining = (int) level - (filled - (int) target.Level);
@@ -237,9 +237,9 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
                 return true;
             }
 
-            if (target.Liquid == None)
+            if (target.Fluid == None)
             {
-                SetLiquid(world, this, level, isStatic: false, fillable, position);
+                SetFluid(world, this, level, isStatic: false, fillable, position);
                 ScheduleTick(world, position);
 
                 remaining = -1;
@@ -254,63 +254,63 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
     }
 
     /// <summary>
-    ///     Tries to take a certain amount of liquid from a position. The actually taken amount is given when finished.
+    ///     Tries to take a certain amount of fluid from a position. The actually taken amount is given when finished.
     /// </summary>
-    public bool Take(World world, Vector3i position, ref LiquidLevel level)
+    public bool Take(World world, Vector3i position, ref FluidLevel level)
     {
-        (BlockInstance, LiquidInstance)? content = world.GetContent(position);
+        (BlockInstance, FluidInstance)? content = world.GetContent(position);
 
-        if (content is not var (block, liquid) || liquid.Liquid != this || this == None) return false;
+        if (content is not var (block, fluid) || fluid.Fluid != this || this == None) return false;
 
-        if (level >= liquid.Level)
+        if (level >= fluid.Level)
         {
-            SetLiquid(world, None, LiquidLevel.Eight, isStatic: true, block.Block as IFillable, position);
+            SetFluid(world, None, FluidLevel.Eight, isStatic: true, block.Block as IFillable, position);
         }
         else
         {
-            SetLiquid(
+            SetFluid(
                 world,
                 this,
-                (LiquidLevel) ((int) liquid.Level - (int) level - 1),
+                (FluidLevel) ((int) fluid.Level - (int) level - 1),
                 isStatic: false,
                 block.Block as IFillable,
                 position);
 
-            if (liquid.IsStatic) ScheduleTick(world, position);
+            if (fluid.IsStatic) ScheduleTick(world, position);
         }
 
         return true;
     }
 
     /// <summary>
-    ///     Try to take an exact amount of liquid.
+    ///     Try to take an exact amount of fluid.
     /// </summary>
     /// <param name="world">The world.</param>
-    /// <param name="position">The liquid position.</param>
-    /// <param name="level">The amount of liquid to take.</param>
-    /// <returns>True if taking the liquid was successful.</returns>
-    public bool TryTakeExact(World world, Vector3i position, LiquidLevel level)
+    /// <param name="position">The fluid position.</param>
+    /// <param name="level">The amount of fluid to take.</param>
+    /// <returns>True if taking the fluid was successful.</returns>
+    public bool TryTakeExact(World world, Vector3i position, FluidLevel level)
     {
-        (BlockInstance, LiquidInstance)? content = world.GetContent(position);
+        (BlockInstance, FluidInstance)? content = world.GetContent(position);
 
-        if (content is not var (block, liquid) || liquid.Liquid != this || this == None ||
-            level > liquid.Level) return false;
+        if (content is not var (block, fluid) || fluid.Fluid != this || this == None ||
+            level > fluid.Level) return false;
 
-        if (level == liquid.Level)
+        if (level == fluid.Level)
         {
-            SetLiquid(world, None, LiquidLevel.Eight, isStatic: true, block.Block as IFillable, position);
+            SetFluid(world, None, FluidLevel.Eight, isStatic: true, block.Block as IFillable, position);
         }
         else
         {
-            SetLiquid(
+            SetFluid(
                 world,
                 this,
-                (LiquidLevel) ((int) liquid.Level - (int) level - 1),
+                (FluidLevel) ((int) fluid.Level - (int) level - 1),
                 isStatic: false,
                 block.Block as IFillable,
                 position);
 
-            if (liquid.IsStatic) ScheduleTick(world, position);
+            if (fluid.IsStatic) ScheduleTick(world, position);
         }
 
         return true;
@@ -320,23 +320,23 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
     /// <summary>
     ///     Override for scheduled update handling.
     /// </summary>
-    protected abstract void ScheduledUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic);
+    protected abstract void ScheduledUpdate(World world, Vector3i position, FluidLevel level, bool isStatic);
 
     /// <summary>
-    ///     Sets the liquid at the position and calls the necessary methods on the <see cref="IFillable" />.
+    ///     Sets the fluid at the position and calls the necessary methods on the <see cref="IFillable" />.
     /// </summary>
-    protected static void SetLiquid(World world, Liquid liquid, LiquidLevel level, bool isStatic,
+    protected static void SetFluid(World world, Fluid fluid, FluidLevel level, bool isStatic,
         IFillable? fillable, Vector3i position)
     {
-        world.SetLiquid(liquid.AsInstance(level, isStatic), position);
-        fillable?.LiquidChange(world, position, liquid, level);
+        world.SetFluid(fluid.AsInstance(level, isStatic), position);
+        fillable?.FluidChange(world, position, fluid, level);
     }
 
     /// <summary>
-    ///     Check if a liquid has a neighbor of the same liquid and this neighbor has a specified level. If the specified level
+    ///     Check if a fluid has a neighbor of the same fluid and this neighbor has a specified level. If the specified level
     ///     is <c>-1</c>, false is directly returned.
     /// </summary>
-    protected bool HasNeighborWithLevel(World world, LiquidLevel level, Vector3i position)
+    protected bool HasNeighborWithLevel(World world, FluidLevel level, Vector3i position)
     {
         if ((int) level == -1) return false;
 
@@ -346,13 +346,13 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
         {
             Vector3i neighborPosition = orientation.Offset(position);
 
-            (BlockInstance, LiquidInstance)? neighborContent = world.GetContent(neighborPosition);
+            (BlockInstance, FluidInstance)? neighborContent = world.GetContent(neighborPosition);
 
-            if (neighborContent is not var (neighborBlock, neighborLiquid)) continue;
+            if (neighborContent is not var (neighborBlock, neighborFluid)) continue;
 
-            bool isNeighborThisLiquid = neighborLiquid.Liquid == this && neighborLiquid.Level == level;
+            bool isNeighborThisFluid = neighborFluid.Fluid == this && neighborFluid.Level == level;
 
-            if (!isNeighborThisLiquid) continue;
+            if (!isNeighborThisFluid) continue;
 
             if (neighborBlock.Block is IFillable neighborFillable
                 && neighborFillable.AllowInflow(world, neighborPosition, orientation.Opposite().ToBlockSide(), this)
@@ -363,7 +363,7 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
     }
 
     /// <summary>
-    ///     Check if a position has a neighboring position with no liquid.
+    ///     Check if a position has a neighboring position with no fluid.
     /// </summary>
     /// <param name="world">The world.</param>
     /// <param name="position">The position to check.</param>
@@ -376,20 +376,20 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
         {
             Vector3i neighborPosition = orientation.Offset(position);
 
-            (BlockInstance, LiquidInstance)? content = world.GetContent(neighborPosition);
+            (BlockInstance, FluidInstance)? content = world.GetContent(neighborPosition);
 
-            if (content is not var (neighborBlock, neighborLiquid)) continue;
+            if (content is not var (neighborBlock, neighborFluid)) continue;
 
-            if (neighborLiquid.Liquid == None && neighborBlock.Block is IFillable neighborFillable
-                                              && neighborFillable.AllowInflow(
-                                                  world,
-                                                  neighborPosition,
-                                                  orientation.Opposite().ToBlockSide(),
-                                                  this)
-                                              && currentFillable.AllowOutflow(
-                                                  world,
-                                                  position,
-                                                  orientation.ToBlockSide()))
+            if (neighborFluid.Fluid == None && neighborBlock.Block is IFillable neighborFillable
+                                            && neighborFillable.AllowInflow(
+                                                world,
+                                                neighborPosition,
+                                                orientation.Opposite().ToBlockSide(),
+                                                this)
+                                            && currentFillable.AllowOutflow(
+                                                world,
+                                                position,
+                                                orientation.ToBlockSide()))
                 return true;
         }
 
@@ -397,15 +397,15 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
     }
 
     /// <summary>
-    ///     Search a flow target for a liquid.
+    ///     Search a flow target for a fluid.
     /// </summary>
     /// <param name="world">The world.</param>
-    /// <param name="position">The current liquid position.</param>
+    /// <param name="position">The current fluid position.</param>
     /// <param name="maximumLevel">The maximum level of a potential position.</param>
     /// <param name="range">The search range.</param>
     /// <returns>A potential target, if there is any.</returns>
-    protected (Vector3i position, LiquidInstance liquid, IFillable fillable)? SearchFlowTarget(
-        World world, Vector3i position, LiquidLevel maximumLevel, int range)
+    protected (Vector3i position, FluidInstance fluid, IFillable fillable)? SearchFlowTarget(
+        World world, Vector3i position, FluidLevel maximumLevel, int range)
     {
         int extendedRange = range + 1;
         int extents = extendedRange * 2 + 1;
@@ -418,10 +418,10 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
         Queue<(Vector3i position, IFillable fillable)> queue = new();
         Queue<(Vector3i position, IFillable fillable)> nextQueue = new();
 
-        (BlockInstance, LiquidInstance)? startContent = world.GetContent(position);
+        (BlockInstance, FluidInstance)? startContent = world.GetContent(position);
 
-        if (startContent is not var (startBlock, startLiquid)) return null;
-        if (startBlock.Block is not IFillable startFillable || startLiquid.Liquid != this) return null;
+        if (startContent is not var (startBlock, startFluid)) return null;
+        if (startBlock.Block is not IFillable startFillable || startFluid.Fluid != this) return null;
 
         queue.Enqueue((position, startFillable));
         Mark(position);
@@ -435,10 +435,10 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
 
                 if (IsMarked(nextPosition)) continue;
 
-                (BlockInstance, LiquidInstance)? nextContent = world.GetContent(nextPosition);
+                (BlockInstance, FluidInstance)? nextContent = world.GetContent(nextPosition);
 
-                if (nextContent is not var (nextBlock, nextLiquid)) continue;
-                if (nextBlock.Block is not IFillable nextFillable || nextLiquid.Liquid != this) continue;
+                if (nextContent is not var (nextBlock, nextFluid)) continue;
+                if (nextBlock.Block is not IFillable nextFillable || nextFluid.Fluid != this) continue;
 
                 bool canFlow = e.fillable.AllowOutflow(world, e.position, orientation.ToBlockSide()) &&
                                nextFillable.AllowInflow(
@@ -449,7 +449,7 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
 
                 if (!canFlow) continue;
 
-                if (nextLiquid.Level <= maximumLevel) return (nextPosition, nextLiquid, nextFillable);
+                if (nextFluid.Level <= maximumLevel) return (nextPosition, nextFluid, nextFillable);
 
                 Mark(nextPosition);
                 nextQueue.Enqueue((nextPosition, nextFillable));
@@ -478,17 +478,17 @@ public abstract partial class Liquid : IIdentifiable<uint>, IIdentifiable<string
     }
 
     /// <summary>
-    ///     Check if a liquid at a given position is at the surface.
+    ///     Check if a fluid at a given position is at the surface.
     /// </summary>
     /// <param name="world">The world.</param>
-    /// <param name="position">The position of the liquid.</param>
-    /// <returns>True if the liquid is at the surface.</returns>
+    /// <param name="position">The position of the fluid.</param>
+    /// <returns>True if the fluid is at the surface.</returns>
     protected bool IsAtSurface(World world, Vector3i position)
     {
-        return world.GetLiquid(position - FlowDirection)?.Liquid != this;
+        return world.GetFluid(position - FlowDirection)?.Fluid != this;
     }
 
-    internal virtual void RandomUpdate(World world, Vector3i position, LiquidLevel level, bool isStatic) {}
+    internal virtual void RandomUpdate(World world, Vector3i position, FluidLevel level, bool isStatic) {}
 
     /// <inheritdoc />
     public sealed override string ToString()

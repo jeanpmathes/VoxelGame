@@ -6,8 +6,11 @@
 
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Core;
 using VoxelGame.Core.Logic;
+using VoxelGame.Logging;
 using VoxelGame.Manual;
 using VoxelGame.Manual.Modifiers;
 using VoxelGame.Manual.Utility;
@@ -32,6 +35,8 @@ public static class ManualBuilder
     private static void GenerateManual()
     {
         const string path = "./../../../../../../Setup/Resources/Manual";
+
+        Logging.Logger.LogInformation(Events.ApplicationInformation, "Generating game manual");
 
         Documentation documentation = new(typeof(ApplicationInformation).Assembly);
 
@@ -59,18 +64,28 @@ public static class ManualBuilder
 
         blocks.Generate();
 
-        Includable liquids = new("liquids", path);
+        Includable fluids = new("fluids", path);
 
-        liquids.CreateSections(
-            typeof(Liquid).GetStaticValues<Liquid>(documentation),
-            ((Liquid liquid, string description) s) => Section.Create(s.liquid.Name)
+        fluids.CreateSections(
+            typeof(Fluid).GetStaticValues<Fluid>(documentation),
+            ((Fluid fluid, string description) s) => Section.Create(s.fluid.Name)
                 .Text(s.description).NewLine()
                 .BeginList()
-                .Item("ID:").Text(s.liquid.NamedId, TextStyle.Monospace)
-                .Item("Viscosity:").Text(s.liquid.Viscosity.ToString(CultureInfo.InvariantCulture))
-                .Item("Density:").Text(s.liquid.Density.ToString(CultureInfo.InvariantCulture))
+                .Item("ID:").Text(s.fluid.NamedId, TextStyle.Monospace)
+                .Item("Viscosity:").Text(s.fluid.Viscosity.ToString(CultureInfo.InvariantCulture))
+                .Item("Density:").Text(s.fluid.Density.ToString(CultureInfo.InvariantCulture))
                 .Finish().EndSection());
 
-        liquids.Generate();
+        fluids.Generate();
+
+        Logging.Logger.LogInformation(
+            Events.ApplicationInformation,
+            "Saved game manual to {Path}",
+            Path.GetFullPath(path));
+    }
+
+    private class Logging
+    {
+        public static readonly ILogger Logger = LoggingHelper.CreateLogger<Logging>();
     }
 }

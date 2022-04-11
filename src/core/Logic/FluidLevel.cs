@@ -1,4 +1,4 @@
-﻿// <copyright file="LiquidLevel.cs" company="VoxelGame">
+﻿// <copyright file="FluidLevel.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -7,9 +7,9 @@
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
-///     The level or amount of liquid. A position is split into 8 equal parts.
+///     The level or amount of fluid. A position is split into 8 equal parts.
 /// </summary>
-public enum LiquidLevel
+public enum FluidLevel
 {
     /// <summary>
     ///     One, or 125L.
@@ -53,14 +53,14 @@ public enum LiquidLevel
 }
 
 /// <summary>
-///     Extension methods for <see cref="LiquidLevel" />.
+///     Extension methods for <see cref="FluidLevel" />.
 /// </summary>
-public static class LiquidLevelExtensions
+public static class FluidLevelExtensions
 {
     /// <summary>
-    ///     Get the liquid level as block height.
+    ///     Get the fluid level as block height.
     /// </summary>
-    public static int GetBlockHeight(this LiquidLevel level)
+    public static int GetBlockHeight(this FluidLevel level)
     {
         return (int) level * 2 + 1;
     }
