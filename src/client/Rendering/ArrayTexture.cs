@@ -357,24 +357,31 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
             int four = c4.HasOpaqueness().ToInt();
 
             int relevantPixelCount = minAlpha != 0 ? 4 : one + two + three + four;
+            (int, int, int, int) factors = (one, two, three, four);
 
             Color average = relevantPixelCount == 0
                 ? Color.FromArgb(alpha: 0, red: 0, green: 0, blue: 0)
                 : Color.FromArgb(
                     maxAlpha,
-                    CalculateAveragedColorChannel(c1.R, c2.R, c3.R, c4.R, relevantPixelCount),
-                    CalculateAveragedColorChannel(c1.G, c2.G, c3.G, c4.G, relevantPixelCount),
-                    CalculateAveragedColorChannel(c1.B, c2.B, c3.B, c4.B, relevantPixelCount));
+                    CalculateAveragedColorChannel(c1.R, c2.R, c3.R, c4.R, factors),
+                    CalculateAveragedColorChannel(c1.G, c2.G, c3.G, c4.G, factors),
+                    CalculateAveragedColorChannel(c1.B, c2.B, c3.B, c4.B, factors));
 
             lowerLevel.SetPixel(w, h, average);
         }
     }
 
-    private static int CalculateAveragedColorChannel(int c1, int c2, int c3, int c4, int relevantPixelCount)
+    private static int CalculateAveragedColorChannel(int c1, int c2, int c3, int c4, (int, int, int, int) factors)
     {
-        double divisor = relevantPixelCount;
+        (int f1, int f2, int f3, int f4) = factors;
+        double divisor = f1 + f2 + f3 + f4;
 
-        return (int) Math.Sqrt((c1 * c1 + c2 * c2 + c3 * c3 + c4 * c4) / divisor);
+        int s1 = c1 * c1 * f1;
+        int s2 = c2 * c2 * f2;
+        int s3 = c3 * c3 * f3;
+        int s4 = c4 * c4 * f4;
+
+        return (int) Math.Sqrt((s1 + s2 + s3 + s4) / divisor);
     }
 
     #region IDisposable Support
