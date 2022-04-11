@@ -142,5 +142,17 @@ namespace Properties {
                 this["UseFullscreenBorderless"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("16")]
+        public int AnisotropicFiltering {
+            get {
+                return ((int)(this["AnisotropicFiltering"]));
+            }
+            set {
+                this["AnisotropicFiltering"] = value;
+            }
+        }
     }
 }

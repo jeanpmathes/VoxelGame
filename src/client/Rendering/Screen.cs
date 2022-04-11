@@ -14,6 +14,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using VoxelGame.Graphics;
 using VoxelGame.Logging;
 using Monitor = OpenTK.Windowing.GraphicsLibraryFramework.Monitor;
 
@@ -55,7 +56,7 @@ public sealed class Screen : IDisposable
 
         #region MULTISAMPLED FBO
 
-        int maxSamples = GL.GetInteger(GetPName.MaxSamples);
+        int maxSamples = Context.MaxTextureSamples;
         samples = Math.Clamp(Client.Graphics.SampleCount, min: 1, maxSamples);
 
         logger.LogDebug(

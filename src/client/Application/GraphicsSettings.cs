@@ -36,6 +36,14 @@ public class GraphicsSettings : ISettingsProvider
                 min: 1));
 
         settings.Add(
+            Setting.CreateIntegerSetting(
+                this,
+                Language.GraphicsAnisotropicFiltering,
+                () => Anisotropy,
+                i => Anisotropy = i,
+                min: 1));
+
+        settings.Add(
             Setting.CreateIntegerSetting(this, Language.GraphicsMaxFPS, () => MaxFPS, i => MaxFPS = i, min: 0));
 
         settings.Add(
@@ -63,6 +71,20 @@ public class GraphicsSettings : ISettingsProvider
         private set
         {
             clientSettings.SampleCount = value;
+            clientSettings.Save();
+        }
+    }
+
+    /// <summary>
+    ///     Get or set the anisotropic filtering value.
+    /// </summary>
+    public int Anisotropy
+    {
+        get => clientSettings.AnisotropicFiltering;
+
+        private set
+        {
+            clientSettings.AnisotropicFiltering = value;
             clientSettings.Save();
         }
     }

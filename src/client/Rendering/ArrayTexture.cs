@@ -41,11 +41,12 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
     ///     True if custom mipmap generation should be used instead of the standard OpenGL
     ///     one. The custom algorithm is better for textures with complete transparency.
     /// </param>
+    /// <param name="parameters">Optional texture parameters.</param>
     /// <param name="textureUnits">The texture units to bind the array to.</param>
-    public ArrayTexture(string path, int resolution, bool useCustomMipmapGeneration,
+    public ArrayTexture(string path, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters,
         params TextureUnit[] textureUnits)
     {
-        Initialize(path, resolution, useCustomMipmapGeneration, textureUnits);
+        Initialize(path, resolution, useCustomMipmapGeneration, parameters, textureUnits);
     }
 
     /// <summary>
@@ -92,7 +93,7 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
         }
     }
 
-    private void Initialize(string path, int resolution, bool useCustomMipmapGeneration,
+    private void Initialize(string path, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters,
         params TextureUnit[] units)
     {
         if (resolution <= 0 || (resolution & (resolution - 1)) != 0)
@@ -156,6 +157,8 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
                 loadedTextures,
                 loadedTextures + (remainingTextures < UnitSize ? remainingTextures : UnitSize),
                 useCustomMipmapGeneration);
+
+            parameters?.SetTextureParameters(handles[currentUnit]);
 
             loadedTextures += UnitSize;
             currentUnit++;
