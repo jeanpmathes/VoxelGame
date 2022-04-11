@@ -522,13 +522,16 @@
     <data name="Submit" xml:space="preserve">
     <value>Submit</value>
   </data>
-    <data name="KeyDebugView" xml:space="preserve">
+  <data name="KeyDebugView" xml:space="preserve">
     <value>Debug View</value>
   </data>
-    <data name="GraphicsFoliageQuality" xml:space="preserve">
+  <data name="GraphicsFoliageQuality" xml:space="preserve">
     <value>Foliage Quality</value>
   </data>
-    <data name="KeySelectTargeted" xml:space="preserve">
+  <data name="KeySelectTargeted" xml:space="preserve">
     <value>Select Targeted</value>
+  </data>
+  <data name="GraphicsUseFullscreenBorderless" xml:space="preserve">
+    <value>Use borderless (windowed) fullscreen</value>
   </data>
 </root>

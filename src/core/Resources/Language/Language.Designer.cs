@@ -466,6 +466,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Use borderless (windowed) fullscreen.
+        /// </summary>
+        public static string GraphicsUseFullscreenBorderless {
+            get {
+                return ResourceManager.GetString("GraphicsUseFullscreenBorderless", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Grass.
         /// </summary>
         public static string Grass {

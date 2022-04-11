@@ -137,4 +137,21 @@ public abstract class Setting
             Provider = provider
         };
     }
+
+    /// <summary>
+    ///     Create a setting for a boolean value.
+    /// </summary>
+    /// <param name="provider">The setting provider.</param>
+    /// <param name="name">The name of the setting.</param>
+    /// <param name="get">Function that gets the current setting value.</param>
+    /// <param name="set">Function that sets the current setting value.</param>
+    /// <returns>The created setting.</returns>
+    public static Setting CreateBooleanSetting(ISettingsProvider provider, string name, Func<bool> get,
+        Action<bool> set)
+    {
+        return new BooleanSetting(name, get, set)
+        {
+            Provider = provider
+        };
+    }
 }

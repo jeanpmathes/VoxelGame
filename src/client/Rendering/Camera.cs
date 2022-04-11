@@ -80,6 +80,8 @@ public class Camera
         set
         {
             yaw = MathHelper.DegreesToRadians(value);
+            yaw %= 360f;
+
             UpdateVectors();
         }
     }

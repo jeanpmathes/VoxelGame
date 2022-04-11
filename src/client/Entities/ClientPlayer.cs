@@ -200,11 +200,19 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     private void UpdateTargets()
     {
         var ray = new Ray(camera.Position, camera.Front, length: 6f);
-        bool hit = Raycast.CastBlock(World, ray, out targetPosition, out targetSide);
+        (Vector3i, BlockSide)? hit = Raycast.CastBlock(World, ray);
 
-        if (hit && World.GetContent(targetPosition) is var (block, liquid))
+        if (hit is var (hitPosition, hitSide) && World.GetContent(hitPosition) is var (block, liquid))
+        {
+            targetPosition = hitPosition;
+            targetSide = hitSide;
+
             (targetBlock, targetLiquid) = (block, liquid);
-        else (targetBlock, targetLiquid) = (null, null);
+        }
+        else
+        {
+            (targetBlock, targetLiquid) = (null, null);
+        }
     }
 
     private void HandleMovementInput()
@@ -346,7 +354,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         return true;
     }
 
-    private class InputBehaviour
+    private sealed class InputBehaviour
     {
         private readonly Button blockInteractButton;
         private readonly Button destroyButton;

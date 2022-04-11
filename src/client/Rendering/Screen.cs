@@ -230,6 +230,18 @@ public sealed class Screen : IDisposable
     {
         GL.Viewport(x: 0, y: 0, Size.X, Size.Y);
 
+        if (Size != (0, 0)) ResizeStorage();
+
+        Client.OnResize(Size);
+
+        Application.Client.Instance.Resources.Shaders.UpdateOrthographicProjection();
+
+        logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", e.Size);
+    }
+
+    private void ResizeStorage()
+    {
+
         #region MULTISAMPLED FBO
 
         GL.BindTexture(TextureTarget.Texture2DMultisample, msTex);
@@ -274,11 +286,6 @@ public sealed class Screen : IDisposable
 
         #endregion SCREENSHOT FBO
 
-        Client.OnResize(Size);
-
-        Application.Client.Instance.Resources.Shaders.UpdateOrthographicProjection();
-
-        logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", e.Size);
     }
 
     private void EnableWireframe()
@@ -317,7 +324,7 @@ public sealed class Screen : IDisposable
     /// <summary>
     ///     Gets whether the screen is in fullscreen.
     /// </summary>
-    public static bool IsFullscreen => Instance.windowState != WindowState.Normal;
+    public static bool IsFullscreen => IsInFullscreen();
 
     /// <summary>
     ///     Gets whether the screen is focused.
@@ -351,15 +358,29 @@ public sealed class Screen : IDisposable
     }
 
     /// <summary>
+    ///     Update the screen state, meaning whether the screen is in fullscreen mode.
+    ///     This is used after the related settings have been changed.
+    /// </summary>
+    public static void UpdateScreenState()
+    {
+        SetFullscreen(IsInFullscreen());
+    }
+
+    /// <summary>
     ///     Set if the screen should be in fullscreen.
     /// </summary>
     /// <param name="fullscreen">If fullscreen should be active.</param>
     public static void SetFullscreen(bool fullscreen)
     {
-        WindowState targetState = fullscreen ? WindowState.WindowedFullscreen : WindowState.Normal;
+        WindowState targetState;
+
+        if (fullscreen)
+            targetState = Application.Client.Instance.Graphics.UseFullscreenBorderless
+                ? WindowState.WindowedFullscreen
+                : WindowState.DefaultFullscreen;
+        else targetState = WindowState.Normal;
 
         if (targetState == Instance.windowState) return;
-        Instance.windowState = targetState;
 
         switch (targetState)
         {
@@ -373,15 +394,32 @@ public sealed class Screen : IDisposable
 
                 break;
 
+            case WindowState.DefaultFullscreen:
+                EnterDefaultFullscreen();
+
+                break;
+
             default:
                 throw new NotSupportedException();
         }
+
+        Instance.windowState = targetState;
+    }
+
+    private static bool IsInFullscreen()
+    {
+        return Instance.windowState is WindowState.DefaultFullscreen or WindowState.WindowedFullscreen;
     }
 
     private static void EnterWindowedFullscreen()
     {
-        Instance.previousScreenSize = Instance.Client.Size;
-        Instance.previousScreenLocation = Instance.Client.Location;
+        Instance.Client.WindowState = OpenTK.Windowing.Common.WindowState.Normal;
+
+        if (!IsInFullscreen())
+        {
+            Instance.previousScreenSize = Instance.Client.Size;
+            Instance.previousScreenLocation = Instance.Client.Location;
+        }
 
         Vector2i monitorSize;
 
@@ -401,15 +439,31 @@ public sealed class Screen : IDisposable
 
     private static void EnterNormalWindowState()
     {
+        Instance.Client.WindowState = OpenTK.Windowing.Common.WindowState.Normal;
+
         Instance.Client.Size = Instance.previousScreenSize;
         Instance.Client.Location = Instance.previousScreenLocation;
 
         logger.LogDebug(Events.WindowState, "Fullscreen: Switched to normal mode");
     }
 
+    private static void EnterDefaultFullscreen()
+    {
+        if (!IsInFullscreen())
+        {
+            Instance.previousScreenSize = Instance.Client.Size;
+            Instance.previousScreenLocation = Instance.Client.Location;
+        }
+
+        Instance.Client.WindowState = OpenTK.Windowing.Common.WindowState.Fullscreen;
+
+        logger.LogDebug(Events.WindowState, "Fullscreen: Switched to default fullscreen mode");
+    }
+
     private enum WindowState
     {
         WindowedFullscreen,
+        DefaultFullscreen,
         Normal
     }
 
