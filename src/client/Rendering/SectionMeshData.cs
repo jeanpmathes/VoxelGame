@@ -22,14 +22,14 @@ public class SectionMeshData
     internal readonly PooledList<int> cropPlantVertexData;
 
     internal readonly PooledList<int> crossPlantVertexData;
-    internal readonly PooledList<uint> opaqueLiquidIndices;
+    internal readonly PooledList<uint> opaqueFluidIndices;
 
-    internal readonly PooledList<int> opaqueLiquidVertexData;
+    internal readonly PooledList<int> opaqueFluidVertexData;
 
     internal readonly PooledList<int> simpleVertexData;
-    internal readonly PooledList<uint> transparentLiquidIndices;
+    internal readonly PooledList<uint> transparentFluidIndices;
 
-    internal readonly PooledList<int> transparentLiquidVertexData;
+    internal readonly PooledList<int> transparentFluidVertexData;
     internal readonly PooledList<uint> varyingHeightIndices;
 
     internal readonly PooledList<int> varyingHeightVertexData;
@@ -42,8 +42,8 @@ public class SectionMeshData
         PooledList<int> varyingHeightVertexData, PooledList<uint> varyingHeightIndices,
         PooledList<int> crossPlantVertexData,
         PooledList<int> cropPlantVertexData,
-        PooledList<int> opaqueLiquidVertexData, PooledList<uint> opaqueLiquidIndices,
-        PooledList<int> transparentLiquidVertexData, PooledList<uint> transparentLiquidIndices)
+        PooledList<int> opaqueFluidVertexData, PooledList<uint> opaqueFluidIndices,
+        PooledList<int> transparentFluidVertexData, PooledList<uint> transparentFluidIndices)
     {
         this.simpleVertexData = simpleVertexData;
 
@@ -58,11 +58,11 @@ public class SectionMeshData
 
         this.cropPlantVertexData = cropPlantVertexData;
 
-        this.opaqueLiquidVertexData = opaqueLiquidVertexData;
-        this.opaqueLiquidIndices = opaqueLiquidIndices;
+        this.opaqueFluidVertexData = opaqueFluidVertexData;
+        this.opaqueFluidIndices = opaqueFluidIndices;
 
-        this.transparentLiquidVertexData = transparentLiquidVertexData;
-        this.transparentLiquidIndices = transparentLiquidIndices;
+        this.transparentFluidVertexData = transparentFluidVertexData;
+        this.transparentFluidIndices = transparentFluidIndices;
     }
 
     private SectionMeshData()
@@ -80,11 +80,11 @@ public class SectionMeshData
 
         cropPlantVertexData = new PooledList<int>();
 
-        opaqueLiquidVertexData = new PooledList<int>();
-        opaqueLiquidIndices = new PooledList<uint>();
+        opaqueFluidVertexData = new PooledList<int>();
+        opaqueFluidIndices = new PooledList<uint>();
 
-        transparentLiquidVertexData = new PooledList<int>();
-        transparentLiquidIndices = new PooledList<uint>();
+        transparentFluidVertexData = new PooledList<int>();
+        transparentFluidIndices = new PooledList<uint>();
     }
 
     /// <summary>
@@ -97,8 +97,8 @@ public class SectionMeshData
     /// </summary>
     public bool IsFilled => complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 ||
                             varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 ||
-                            cropPlantVertexData.Count != 0 || opaqueLiquidVertexData.Count != 0 ||
-                            transparentLiquidVertexData.Count != 0;
+                            cropPlantVertexData.Count != 0 || opaqueFluidVertexData.Count != 0 ||
+                            transparentFluidVertexData.Count != 0;
 
     /// <summary>
     ///     Return all pooled lists to the pool. The data can only be returned once.
@@ -120,11 +120,11 @@ public class SectionMeshData
 
         cropPlantVertexData.ReturnToPool();
 
-        opaqueLiquidVertexData.ReturnToPool();
-        opaqueLiquidIndices.ReturnToPool();
+        opaqueFluidVertexData.ReturnToPool();
+        opaqueFluidIndices.ReturnToPool();
 
-        transparentLiquidVertexData.ReturnToPool();
-        transparentLiquidIndices.ReturnToPool();
+        transparentFluidVertexData.ReturnToPool();
+        transparentFluidIndices.ReturnToPool();
 
         isReturnedToPool = true;
     }

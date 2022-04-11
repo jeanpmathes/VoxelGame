@@ -103,17 +103,17 @@ public sealed class PlayerVisualization : IDisposable
     ///     Set the overlay.
     /// </summary>
     /// <param name="block">The optional block around the player head.</param>
-    /// <param name="liquid">The optional liquid around the player head.</param>
-    public void SetOverlay(Block? block, Liquid? liquid)
+    /// <param name="fluid">The optional fluid around the player head.</param>
+    public void SetOverlay(Block? block, Fluid? fluid)
     {
         if (block is IOverlayTextureProvider overlayBlockTextureProvider)
         {
             overlay.SetBlockTexture(overlayBlockTextureProvider.TextureIdentifier);
             renderOverlay = true;
         }
-        else if (liquid is IOverlayTextureProvider overlayLiquidTextureProvider)
+        else if (fluid is IOverlayTextureProvider overlayFluidTextureProvider)
         {
-            overlay.SetLiquidTexture(overlayLiquidTextureProvider.TextureIdentifier);
+            overlay.SetFluidTexture(overlayFluidTextureProvider.TextureIdentifier);
             renderOverlay = true;
         }
         else

@@ -68,17 +68,17 @@ public sealed class Shaders
     public Shader CropPlantSection { get; private set; } = null!;
 
     /// <summary>
-    ///     The shader used for opaque liquids.
+    ///     The shader used for opaque fluids.
     /// </summary>
-    public Shader OpaqueLiquidSection { get; private set; } = null!;
+    public Shader OpaqueFluidSection { get; private set; } = null!;
 
     /// <summary>
-    ///     The shader used for transparent liquids.
+    ///     The shader used for transparent fluids.
     /// </summary>
-    public Shader TransparentLiquidSection { get; private set; } = null!;
+    public Shader TransparentFluidSection { get; private set; } = null!;
 
     /// <summary>
-    ///     The shader used for block/liquid texture overlays.
+    ///     The shader used for block/fluid texture overlays.
     /// </summary>
     public Shader Overlay { get; private set; } = null!;
 
@@ -112,8 +112,8 @@ public sealed class Shaders
         VaryingHeightSection.Delete();
         CrossPlantSection.Delete();
         CropPlantSection.Delete();
-        OpaqueLiquidSection.Delete();
-        TransparentLiquidSection.Delete();
+        OpaqueFluidSection.Delete();
+        TransparentFluidSection.Delete();
 
         Overlay.Delete();
         Selection.Delete();
@@ -132,8 +132,8 @@ public sealed class Shaders
             VaryingHeightSection = loader.Load("varying_height_section.vert", SectionFragmentShader);
             CrossPlantSection = loader.Load("cross_plant_section.vert", SectionFragmentShader);
             CropPlantSection = loader.Load("crop_plant_section.vert", SectionFragmentShader);
-            OpaqueLiquidSection = loader.Load("liquid_section.vert", "opaque_liquid_section.frag");
-            TransparentLiquidSection = loader.Load("liquid_section.vert", "transparent_liquid_section.frag");
+            OpaqueFluidSection = loader.Load("fluid_section.vert", "opaque_fluid_section.frag");
+            TransparentFluidSection = loader.Load("fluid_section.vert", "transparent_fluid_section.frag");
 
             Overlay = loader.Load("overlay.vert", "overlay.frag");
             Selection = loader.Load("selection.vert", "selection.frag");

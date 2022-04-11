@@ -59,18 +59,18 @@ public static class ManualBuilder
 
         blocks.Generate();
 
-        Includable liquids = new("liquids", path);
+        Includable fluids = new("fluids", path);
 
-        liquids.CreateSections(
-            typeof(Liquid).GetStaticValues<Liquid>(documentation),
-            ((Liquid liquid, string description) s) => Section.Create(s.liquid.Name)
+        fluids.CreateSections(
+            typeof(Fluid).GetStaticValues<Fluid>(documentation),
+            ((Fluid fluid, string description) s) => Section.Create(s.fluid.Name)
                 .Text(s.description).NewLine()
                 .BeginList()
-                .Item("ID:").Text(s.liquid.NamedId, TextStyle.Monospace)
-                .Item("Viscosity:").Text(s.liquid.Viscosity.ToString(CultureInfo.InvariantCulture))
-                .Item("Density:").Text(s.liquid.Density.ToString(CultureInfo.InvariantCulture))
+                .Item("ID:").Text(s.fluid.NamedId, TextStyle.Monospace)
+                .Item("Viscosity:").Text(s.fluid.Viscosity.ToString(CultureInfo.InvariantCulture))
+                .Item("Density:").Text(s.fluid.Density.ToString(CultureInfo.InvariantCulture))
                 .Finish().EndSection());
 
-        liquids.Generate();
+        fluids.Generate();
     }
 }

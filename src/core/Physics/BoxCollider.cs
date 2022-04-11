@@ -115,7 +115,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
 
     private bool IntersectsTerrain_NonRecursive(World world, out bool xCollision, out bool yCollision,
         out bool zCollision, ISet<(Vector3i position, Block block)> blockIntersections,
-        ISet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections)
+        ISet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections)
     {
         var intersects = false;
 
@@ -141,10 +141,10 @@ public struct BoxCollider : IEquatable<BoxCollider>
         {
             Vector3i position = center + new Vector3i(x, y, z);
 
-            (BlockInstance, LiquidInstance)? content = world.GetContent(position);
+            (BlockInstance, FluidInstance)? content = world.GetContent(position);
 
             if (content == null) continue;
-            (BlockInstance currentBlock, LiquidInstance currentLiquid) = content.Value;
+            (BlockInstance currentBlock, FluidInstance currentFluid) = content.Value;
 
             BoxCollider blockCollider = currentBlock.Block.GetCollider(
                 world,
@@ -172,12 +172,12 @@ public struct BoxCollider : IEquatable<BoxCollider>
                 }
             }
 
-            if (currentLiquid.Liquid.CheckContact)
+            if (currentFluid.Fluid.CheckContact)
             {
-                BoxCollider liquidCollider = Liquid.GetCollider(position, currentLiquid.Level);
+                BoxCollider fluidCollider = Fluid.GetCollider(position, currentFluid.Level);
 
-                if (Intersects(liquidCollider))
-                    liquidIntersections.Add((position, currentLiquid.Liquid, currentLiquid.Level));
+                if (Intersects(fluidCollider))
+                    fluidIntersections.Add((position, currentFluid.Fluid, currentFluid.Level));
             }
         }
 
@@ -189,7 +189,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
     /// </summary>
     public bool IntersectsTerrain(World world, out bool xCollision, out bool yCollision, out bool zCollision,
         HashSet<(Vector3i position, Block block)> blockIntersections,
-        HashSet<(Vector3i position, Liquid liquid, LiquidLevel level)> liquidIntersections)
+        HashSet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections)
     {
         bool isIntersecting = IntersectsTerrain_NonRecursive(
             world,
@@ -197,7 +197,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
             out yCollision,
             out zCollision,
             blockIntersections,
-            liquidIntersections);
+            fluidIntersections);
 
         if (Volume.ChildCount == 0) return isIntersecting;
 
@@ -211,7 +211,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
                 out bool childY,
                 out bool childZ,
                 blockIntersections,
-                liquidIntersections);
+                fluidIntersections);
 
             isIntersecting = childIntersecting || isIntersecting;
 

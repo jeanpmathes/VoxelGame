@@ -51,7 +51,7 @@ public abstract class Chunk : IDisposable
     public static readonly int VerticalSectionCountExp = (int) Math.Log(VerticalSectionCount, newBase: 2);
 
     private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
-    private readonly ScheduledTickManager<Liquid.LiquidTick> liquidTickManager;
+    private readonly ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
 
     /// <summary>
     ///     The sections in this chunk.
@@ -87,8 +87,8 @@ public abstract class Chunk : IDisposable
             World,
             World.UpdateCounter);
 
-        liquidTickManager = new ScheduledTickManager<Liquid.LiquidTick>(
-            Liquid.MaxLiquidTicksPerFrameAndChunk,
+        fluidTickManager = new ScheduledTickManager<Fluid.FluidTick>(
+            Fluid.MaxFluidTicksPerFrameAndChunk,
             World,
             World.UpdateCounter);
     }
@@ -149,7 +149,7 @@ public abstract class Chunk : IDisposable
         World = world;
 
         blockTickManager.Setup(World, updateCounter);
-        liquidTickManager.Setup(World, updateCounter);
+        fluidTickManager.Setup(World, updateCounter);
 
         for (var y = 0; y < VerticalSectionCount; y++) sections[y].Setup(world);
     }
@@ -213,7 +213,7 @@ public abstract class Chunk : IDisposable
     public void Save(string path)
     {
         blockTickManager.Unload();
-        liquidTickManager.Unload();
+        fluidTickManager.Unload();
 
         string chunkFile = path + $"/x{X}z{Z}.chunk";
 
@@ -226,7 +226,7 @@ public abstract class Chunk : IDisposable
 #pragma warning restore
 
         blockTickManager.Load();
-        liquidTickManager.Load();
+        fluidTickManager.Load();
     }
 
     /// <summary>
@@ -283,9 +283,9 @@ public abstract class Chunk : IDisposable
         blockTickManager.Add(tick, tickOffset);
     }
 
-    internal void ScheduleLiquidTick(Liquid.LiquidTick tick, int tickOffset)
+    internal void ScheduleFluidTick(Fluid.FluidTick tick, int tickOffset)
     {
-        liquidTickManager.Add(tick, tickOffset);
+        fluidTickManager.Add(tick, tickOffset);
     }
 
     /// <summary>
@@ -293,7 +293,7 @@ public abstract class Chunk : IDisposable
     public void Tick()
     {
         blockTickManager.Process();
-        liquidTickManager.Process();
+        fluidTickManager.Process();
 
         int anchor = NumberGenerator.Random.Next(minValue: 0, VerticalSectionCount);
 

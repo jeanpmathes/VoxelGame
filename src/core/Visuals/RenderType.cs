@@ -7,22 +7,22 @@
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-///     The render type of a liquid.
+///     The render type of a fluid.
 /// </summary>
 public enum RenderType
 {
     /// <summary>
-    ///     The liquid is not rendered.
+    ///     The fluid is not rendered.
     /// </summary>
     NotRendered,
 
     /// <summary>
-    ///     The liquid is opaque.
+    ///     The fluid is opaque.
     /// </summary>
     Opaque,
 
     /// <summary>
-    ///     The liquid is transparent.
+    ///     The fluid is transparent.
     /// </summary>
     Transparent
 }

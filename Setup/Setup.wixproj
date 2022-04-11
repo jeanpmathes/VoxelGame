@@ -47,7 +47,7 @@
         <Content Include="Resources\Images\dialog.bmp"/>
         <Content Include="Resources\Manual\blocks.tex"/>
         <Content Include="Resources\Manual\controls.tex"/>
-        <Content Include="Resources\Manual\liquids.tex"/>
+        <Content Include="Resources\Manual\fluids.tex"/>
         <Content Include="Resources\Manual\manual.pdf"/>
         <Content Include="Resources\Manual\manual.tex"/>
         <Content Include="Transform.xslt"/>

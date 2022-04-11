@@ -15,7 +15,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks;
 
 /// <summary>
-///     A block that can have different heights and colors. The heights correspond to liquid heights.
+///     A block that can have different heights and colors. The heights correspond to fluid heights.
 ///     Data bit usage: <c>ccchhh</c>
 /// </summary>
 // c: color
@@ -96,9 +96,9 @@ public class ConcreteBlock : Block, IHeightVariable, IWideConnectable, IThinConn
     ///     The block will only be actually placed if the placement conditions are met, e.g. the position is replaceable.
     /// </summary>
     /// <param name="world">The world in which the block will be placed.</param>
-    /// <param name="level">The height of the block, given in liquid levels.</param>
+    /// <param name="level">The height of the block, given in fluid levels.</param>
     /// <param name="position">The position where the block will be placed.</param>
-    public void Place(World world, LiquidLevel level, Vector3i position)
+    public void Place(World world, FluidLevel level, Vector3i position)
     {
         if (base.Place(world, position))
             world.SetBlock(this.AsInstance(Encode(BlockColor.Default, level.GetBlockHeight())), position);

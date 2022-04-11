@@ -38,9 +38,9 @@ public class GrassBlock : CoveredDirtBlock, IFlammable
     /// <inheritdoc />
     public override void RandomUpdate(World world, Vector3i position, uint data)
     {
-        LiquidInstance? liquid = world.GetLiquid(position);
+        FluidInstance? fluid = world.GetFluid(position);
 
-        if (liquid?.Liquid == Liquid.Water && liquid.Value.Level == LiquidLevel.Eight)
+        if (fluid?.Fluid == Fluid.Water && fluid.Value.Level == FluidLevel.Eight)
             world.SetBlock(Mud.AsInstance(), position);
 
         for (int yOffset = -1; yOffset <= 1; yOffset++)

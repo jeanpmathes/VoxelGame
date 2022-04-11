@@ -13,11 +13,11 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public sealed class BlockMeshInfo
 {
-    private BlockMeshInfo(BlockSide side, uint data, Liquid liquid)
+    private BlockMeshInfo(BlockSide side, uint data, Fluid fluid)
     {
         Side = side;
         Data = data;
-        Liquid = liquid;
+        Fluid = fluid;
     }
 
     /// <summary>
@@ -31,39 +31,39 @@ public sealed class BlockMeshInfo
     public uint Data { get; }
 
     /// <summary>
-    ///     The liquid at the block position.
+    ///     The fluid at the block position.
     /// </summary>
-    public Liquid Liquid { get; }
+    public Fluid Fluid { get; }
 
     /// <summary>
     ///     Mesh info for a simple block.
     /// </summary>
-    public static BlockMeshInfo Simple(BlockSide side, uint data, Liquid liquid)
+    public static BlockMeshInfo Simple(BlockSide side, uint data, Fluid fluid)
     {
-        return new BlockMeshInfo(side, data, liquid);
+        return new BlockMeshInfo(side, data, fluid);
     }
 
     /// <summary>
     ///     Mesh info for a complex block.
     /// </summary>
-    public static BlockMeshInfo Complex(uint data, Liquid liquid)
+    public static BlockMeshInfo Complex(uint data, Fluid fluid)
     {
-        return new BlockMeshInfo(BlockSide.All, data, liquid);
+        return new BlockMeshInfo(BlockSide.All, data, fluid);
     }
 
     /// <summary>
     ///     Mesh info for a cross plant.
     /// </summary>
-    public static BlockMeshInfo CrossPlant(uint data, Liquid liquid)
+    public static BlockMeshInfo CrossPlant(uint data, Fluid fluid)
     {
-        return new BlockMeshInfo(BlockSide.All, data, liquid);
+        return new BlockMeshInfo(BlockSide.All, data, fluid);
     }
 
     /// <summary>
     ///     Mesh info for a crop plant.
     /// </summary>
-    public static BlockMeshInfo CropPlant(uint data, Liquid liquid)
+    public static BlockMeshInfo CropPlant(uint data, Fluid fluid)
     {
-        return new BlockMeshInfo(BlockSide.All, data, liquid);
+        return new BlockMeshInfo(BlockSide.All, data, fluid);
     }
 }

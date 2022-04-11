@@ -40,9 +40,9 @@ public class GameResources
     public ArrayTexture BlockTextureArray { get; private set; } = null!;
 
     /// <summary>
-    ///     Gets the <see cref="ArrayTexture" /> that contains all liquid textures. It is bound to unit 5.
+    ///     Gets the <see cref="ArrayTexture" /> that contains all fluid textures. It is bound to unit 5.
     /// </summary>
-    public ArrayTexture LiquidTextureArray { get; private set; } = null!;
+    public ArrayTexture FluidTextureArray { get; private set; } = null!;
 
     /// <summary>
     ///     Get the shaders of the game.
@@ -79,15 +79,15 @@ public class GameResources
 
         logger.LogInformation(Events.ResourceLoad, "Block textures loaded");
 
-        LiquidTextureArray = new ArrayTexture(
-            "Resources/Textures/Liquids",
+        FluidTextureArray = new ArrayTexture(
+            "Resources/Textures/Fluids",
             resolution: 16,
             useCustomMipmapGeneration: false,
             TextureUnit.Texture5);
 
-        logger.LogInformation(Events.ResourceLoad, "Liquid textures loaded");
+        logger.LogInformation(Events.ResourceLoad, "Fluid textures loaded");
 
-        TextureLayout.SetProviders(BlockTextureArray, LiquidTextureArray);
+        TextureLayout.SetProviders(BlockTextureArray, FluidTextureArray);
         BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
 
         Shaders = Shaders.Load("Resources/Shaders");
@@ -100,8 +100,8 @@ public class GameResources
             "Texture/Block ratio: {Ratio:F02}",
             BlockTextureArray.Count / (float) Block.Count);
 
-        // Liquid setup.
-        Liquid.LoadLiquids(LiquidTextureArray);
+        // Fluid setup.
+        Fluid.LoadFluids(FluidTextureArray);
     }
 
     /// <summary>
@@ -112,6 +112,6 @@ public class GameResources
         Shaders.Delete();
 
         BlockTextureArray.Dispose();
-        LiquidTextureArray.Dispose();
+        FluidTextureArray.Dispose();
     }
 }

@@ -467,9 +467,9 @@ public abstract partial class World
     }
 
     /// <summary>
-    ///     Get the chunk that contains the specified block/liquid position.
+    ///     Get the chunk that contains the specified block/fluid position.
     /// </summary>
-    /// <param name="position">The block/liquid position.</param>
+    /// <param name="position">The block/fluid position.</param>
     /// <returns>The chunk, or null the position is not in an active chunk.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Chunk? GetChunkWithPosition(Vector3i position)

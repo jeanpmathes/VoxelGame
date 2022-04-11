@@ -53,9 +53,9 @@ public class DoubleCropBlock : Block, IFlammable, IFillable
     }
 
     /// <inheritdoc />
-    public void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
+    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
-        if (liquid.IsLiquid && level > LiquidLevel.Four) ScheduleDestroy(world, position);
+        if (fluid.IsFluid && level > FluidLevel.Four) ScheduleDestroy(world, position);
     }
 
     /// <inheritdoc />
@@ -181,7 +181,7 @@ public class DoubleCropBlock : Block, IFlammable, IFillable
     {
         BlockInstance? above = world.GetBlock(position.Above());
 
-        if (plantable.TryGrow(world, position.Below(), Liquid.Water, LiquidLevel.One) &&
+        if (plantable.TryGrow(world, position.Below(), Fluid.Water, FluidLevel.One) &&
             ((above?.Block.IsReplaceable ?? false) || above?.Block == this))
         {
             world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);

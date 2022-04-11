@@ -1,4 +1,4 @@
-﻿// <copyright file="LiquidTickManagement.cs" company="VoxelGame">
+﻿// <copyright file="FluidTickManagement.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -10,12 +10,12 @@ using VoxelGame.Core.Collections;
 
 namespace VoxelGame.Core.Logic;
 
-public partial class Liquid
+public partial class Fluid
 {
     /// <summary>
-    ///     The maximum amount of liquid ticks per frame.
+    ///     The maximum amount of fluid ticks per frame.
     /// </summary>
-    internal const int MaxLiquidTicksPerFrameAndChunk = 1024;
+    internal const int MaxFluidTicksPerFrameAndChunk = 1024;
 
     /// <summary>
     ///     Schedules a tick according to the viscosity.
@@ -23,24 +23,24 @@ public partial class Liquid
     protected void ScheduleTick(World world, Vector3i position)
     {
         Chunk? chunk = world.GetChunkWithPosition(position);
-        chunk?.ScheduleLiquidTick(new LiquidTick(position, this), Viscosity);
+        chunk?.ScheduleFluidTick(new FluidTick(position, this), Viscosity);
     }
 
     /// <summary>
-    ///     Will schedule a tick for a liquid according to the viscosity.
+    ///     Will schedule a tick for a fluid according to the viscosity.
     /// </summary>
     internal void TickSoon(World world, Vector3i position, bool isStatic)
     {
         if (!isStatic || this == None) return;
 
-        world.ModifyLiquid(isStatic: false, position);
+        world.ModifyFluid(isStatic: false, position);
         ScheduleTick(world, position);
     }
 
     /// <summary>
-    ///     Will schedule a tick for a liquid in the next possible update.
+    ///     Will schedule a tick for a fluid in the next possible update.
     /// </summary>
-    internal void TickNow(World world, Vector3i position, LiquidLevel level, bool isStatic)
+    internal void TickNow(World world, Vector3i position, FluidLevel level, bool isStatic)
     {
         if (this == None) return;
 
@@ -48,7 +48,7 @@ public partial class Liquid
     }
 
     [Serializable]
-    internal struct LiquidTick : ITickable, IEquatable<LiquidTick>
+    internal struct FluidTick : ITickable, IEquatable<FluidTick>
     {
         private readonly int x;
         private readonly int y;
@@ -56,7 +56,7 @@ public partial class Liquid
 
         private readonly uint target;
 
-        public LiquidTick(Vector3i position, Liquid target)
+        public FluidTick(Vector3i position, Fluid target)
         {
             x = position.X;
             y = position.Y;
@@ -67,22 +67,22 @@ public partial class Liquid
 
         public void Tick(World world)
         {
-            LiquidInstance? potentialLiquid = world.GetLiquid((x, y, z));
+            FluidInstance? potentialFluid = world.GetFluid((x, y, z));
 
-            if (potentialLiquid is not {} liquid) return;
+            if (potentialFluid is not {} fluid) return;
 
-            if (liquid.Liquid.Id == target)
-                liquid.Liquid.ScheduledUpdate(world, (x, y, z), liquid.Level, liquid.IsStatic);
+            if (fluid.Fluid.Id == target)
+                fluid.Fluid.ScheduledUpdate(world, (x, y, z), fluid.Level, fluid.IsStatic);
         }
 
-        public bool Equals(LiquidTick other)
+        public bool Equals(FluidTick other)
         {
             return x == other.x && y == other.y && z == other.z && target == other.target;
         }
 
         public override bool Equals(object? obj)
         {
-            return obj is LiquidTick other && Equals(other);
+            return obj is FluidTick other && Equals(other);
         }
 
         public override int GetHashCode()
@@ -90,12 +90,12 @@ public partial class Liquid
             return HashCode.Combine(x, y, z, target);
         }
 
-        public static bool operator ==(LiquidTick left, LiquidTick right)
+        public static bool operator ==(FluidTick left, FluidTick right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(LiquidTick left, LiquidTick right)
+        public static bool operator !=(FluidTick left, FluidTick right)
         {
             return !left.Equals(right);
         }

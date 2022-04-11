@@ -82,7 +82,7 @@ public class InsetDirtBlock : Block, IHeightVariable, IFillable, IPlantable, IPo
     /// <inheritdoc />
     public override BlockMeshData GetMesh(BlockMeshInfo info)
     {
-        int texture = info.Liquid.IsLiquid
+        int texture = info.Fluid.IsFluid
             ? wetTextureIndices[(int) info.Side]
             : dryTextureIndices[(int) info.Side];
 

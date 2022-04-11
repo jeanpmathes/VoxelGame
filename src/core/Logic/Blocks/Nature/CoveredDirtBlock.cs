@@ -47,9 +47,9 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     }
 
     /// <inheritdoc />
-    public virtual bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
+    public virtual bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
-        return liquid.Viscosity < 100;
+        return fluid.Viscosity < 100;
     }
 
     /// <inheritdoc />
@@ -70,7 +70,7 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
 
         mesh = mesh.Modified(hasNeutralTint ? TintColor.Neutral : TintColor.None);
 
-        if (info.Liquid.IsLiquid) mesh = mesh.SwapTextureIndex(wetTextureIndices[(int) info.Side]);
+        if (info.Fluid.IsFluid) mesh = mesh.SwapTextureIndex(wetTextureIndices[(int) info.Side]);
 
         return mesh;
     }

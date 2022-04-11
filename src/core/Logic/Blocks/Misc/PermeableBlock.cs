@@ -11,7 +11,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Blocks;
 
 /// <summary>
-///     A solid and full block that allows water flow through it. The become darker in liquids.
+///     A solid and full block that allows water flow through it. The become darker in fluids.
 ///     Data bit usage: <c>------</c>
 /// </summary>
 public class PermeableBlock : BasicBlock, IFillable
@@ -24,14 +24,14 @@ public class PermeableBlock : BasicBlock, IFillable
             layout) {}
 
     /// <inheritdoc />
-    public bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
+    public bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
-        return liquid.Viscosity < 100;
+        return fluid.Viscosity < 100;
     }
 
     /// <inheritdoc />
     public override BlockMeshData GetMesh(BlockMeshInfo info)
     {
-        return base.GetMesh(info).Modified(info.Liquid.IsLiquid ? TintColor.LightGray : TintColor.None);
+        return base.GetMesh(info).Modified(info.Fluid.IsFluid ? TintColor.LightGray : TintColor.None);
     }
 }

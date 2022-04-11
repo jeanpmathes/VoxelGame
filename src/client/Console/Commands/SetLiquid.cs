@@ -1,4 +1,4 @@
-﻿// <copyright file="SetLiquid.cs" company="VoxelGame">
+﻿// <copyright file="SetFluid.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -12,16 +12,16 @@ namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
 
 /// <summary>
-///     Sets the liquid at the target position. Can cause invalid liquid state.
+///     Sets the fluid at the target position. Can cause invalid fluid state.
 /// </summary>
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-public class SetLiquid : Command
+public class SetFluid : Command
 {
     /// <inheritdoc />
-    public override string Name => "set-liquid";
+    public override string Name => "set-fluid";
 
     /// <inheritdoc />
-    public override string HelpText => "Sets the liquid at the target position. Can cause invalid liquid state.";
+    public override string HelpText => "Sets the fluid at the target position. Can cause invalid fluid state.";
 
     /// <exclude />
     public void Invoke(string namedID, int level, int x, int y, int z)
@@ -37,24 +37,24 @@ public class SetLiquid : Command
 
     private void Set(string namedID, int levelData, Vector3i position)
     {
-        Liquid? liquid = Liquid.TranslateNamedID(namedID);
+        Fluid? fluid = Fluid.TranslateNamedID(namedID);
 
-        if (liquid == null)
+        if (fluid == null)
         {
-            Context.Console.WriteError("Cannot find liquid.");
+            Context.Console.WriteError("Cannot find fluid.");
 
             return;
         }
 
-        var level = (LiquidLevel) levelData;
+        var level = (FluidLevel) levelData;
 
-        if (level is < LiquidLevel.One or > LiquidLevel.Eight)
+        if (level is < FluidLevel.One or > FluidLevel.Eight)
         {
             Context.Console.WriteError("Invalid level.");
 
             return;
         }
 
-        Context.Player.World.SetLiquid(liquid.AsInstance(level), position);
+        Context.Player.World.SetFluid(fluid.AsInstance(level), position);
     }
 }

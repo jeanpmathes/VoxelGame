@@ -44,7 +44,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     private readonly PlayerVisualization visualization;
 
     private Block activeBlock;
-    private Liquid activeLiquid;
+    private Fluid activeFluid;
 
     private bool blockMode = true;
 
@@ -54,7 +54,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     private Vector3 movement;
 
     private BlockInstance? targetBlock;
-    private LiquidInstance? targetLiquid;
+    private FluidInstance? targetFluid;
 
     private Vector3i targetPosition = new(x: 0, y: -1, z: 0);
     private BlockSide targetSide;
@@ -78,7 +78,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         input = new InputBehaviour(this);
 
         activeBlock = Block.Grass;
-        activeLiquid = Liquid.Water;
+        activeFluid = Fluid.Water;
     }
 
     /// <inheritdoc />
@@ -117,11 +117,11 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     BlockInstance IPlayerDataProvider.TargetBlock => targetBlock ?? BlockInstance.Default;
 
-    LiquidInstance IPlayerDataProvider.TargetLiquid => targetLiquid ?? LiquidInstance.Default;
+    FluidInstance IPlayerDataProvider.TargetFluid => targetFluid ?? FluidInstance.Default;
 
-    string IPlayerDataProvider.Selection => blockMode ? activeBlock.Name : activeLiquid.Name;
+    string IPlayerDataProvider.Selection => blockMode ? activeBlock.Name : activeFluid.Name;
 
-    string IPlayerDataProvider.Mode => blockMode ? Language.Block : Language.Liquid;
+    string IPlayerDataProvider.Mode => blockMode ? Language.Block : Language.Fluid;
 
  #pragma warning disable CA1822
     /// <summary>
@@ -179,7 +179,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
                 HandleMovementInput();
                 HandleLookInput();
 
-                DoBlockLiquidSelection();
+                DoBlockFluidSelection();
                 DoWorldInteraction();
 
                 visualization.UpdateInput();
@@ -187,8 +187,8 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
             headPosition = camera.Position.Floor();
 
-            (BlockInstance block, LiquidInstance liquid)? content = World.GetContent(headPosition);
-            visualization.SetOverlay(content?.block.Block, content?.liquid.Liquid);
+            (BlockInstance block, FluidInstance fluid)? content = World.GetContent(headPosition);
+            visualization.SetOverlay(content?.block.Block, content?.fluid.Fluid);
 
             firstUpdate = false;
         }
@@ -202,16 +202,16 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         var ray = new Ray(camera.Position, camera.Front, length: 6f);
         (Vector3i, BlockSide)? hit = Raycast.CastBlock(World, ray);
 
-        if (hit is var (hitPosition, hitSide) && World.GetContent(hitPosition) is var (block, liquid))
+        if (hit is var (hitPosition, hitSide) && World.GetContent(hitPosition) is var (block, fluid))
         {
             targetPosition = hitPosition;
             targetSide = hitSide;
 
-            (targetBlock, targetLiquid) = (block, liquid);
+            (targetBlock, targetFluid) = (block, fluid);
         }
         else
         {
-            (targetBlock, targetLiquid) = (null, null);
+            (targetBlock, targetFluid) = (null, null);
         }
     }
 
@@ -238,7 +238,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     private void DoWorldInteraction()
     {
-        if (targetBlock == null || targetLiquid == null) return;
+        if (targetBlock == null || targetFluid == null) return;
 
         PlaceInteract();
         DestroyInteract();
@@ -247,7 +247,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     private void PlaceInteract()
     {
         Debug.Assert(targetBlock != null);
-        Debug.Assert(targetLiquid != null);
+        Debug.Assert(targetFluid != null);
 
         BlockInstance currentTarget = targetBlock.Value;
 
@@ -264,7 +264,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
                     activeBlock.GetCollider(World, placePosition)))
             {
                 if (blockMode) activeBlock.Place(World, placePosition, this);
-                else activeLiquid.Fill(World, placePosition, LiquidLevel.One, BlockSide.Top, out _);
+                else activeFluid.Fill(World, placePosition, FluidLevel.One, BlockSide.Top, out _);
 
                 input.RegisterInteraction();
             }
@@ -280,30 +280,30 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     private void DestroyInteract()
     {
         Debug.Assert(targetBlock != null);
-        Debug.Assert(targetLiquid != null);
+        Debug.Assert(targetFluid != null);
 
         BlockInstance currentTarget = targetBlock.Value;
 
         if (input.ShouldDestroy)
         {
             if (blockMode) currentTarget.Block.Destroy(World, targetPosition, this);
-            else TakeLiquid(targetPosition);
+            else TakeFluid(targetPosition);
 
             input.RegisterInteraction();
         }
 
-        void TakeLiquid(Vector3i position)
+        void TakeFluid(Vector3i position)
         {
-            var level = LiquidLevel.One;
+            var level = FluidLevel.One;
 
             if (!currentTarget.Block.IsReplaceable)
                 position = targetSide.Offset(position);
 
-            World.GetLiquid(position)?.Liquid.Take(World, position, ref level);
+            World.GetFluid(position)?.Fluid.Take(World, position, ref level);
         }
     }
 
-    private void DoBlockLiquidSelection()
+    private void DoBlockFluidSelection()
     {
         var updateData = false;
 
@@ -337,9 +337,9 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         }
         else
         {
-            long nextLiquidId = activeLiquid.Id + change;
-            nextLiquidId = VMath.ClampRotating(nextLiquidId, min: 1, Liquid.Count);
-            activeLiquid = Liquid.TranslateID((uint) nextLiquidId);
+            long nextFluidId = activeFluid.Id + change;
+            nextFluidId = VMath.ClampRotating(nextFluidId, min: 1, Fluid.Count);
+            activeFluid = Fluid.TranslateID((uint) nextFluidId);
         }
 
         return true;

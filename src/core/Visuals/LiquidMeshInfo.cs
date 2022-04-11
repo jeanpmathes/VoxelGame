@@ -1,4 +1,4 @@
-﻿// <copyright file="LiquidMeshInfo.cs" company="VoxelGame">
+﻿// <copyright file="FluidMeshInfo.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -9,11 +9,11 @@ using VoxelGame.Core.Logic;
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-///     Information required to mesh a liquid.
+///     Information required to mesh a fluid.
 /// </summary>
-public sealed class LiquidMeshInfo
+public sealed class FluidMeshInfo
 {
-    private LiquidMeshInfo(LiquidLevel level, BlockSide side, bool isStatic)
+    private FluidMeshInfo(FluidLevel level, BlockSide side, bool isStatic)
     {
         Level = level;
         Side = side;
@@ -21,25 +21,25 @@ public sealed class LiquidMeshInfo
     }
 
     /// <summary>
-    ///     The level of the liquid.
+    ///     The level of the fluid.
     /// </summary>
-    public LiquidLevel Level { get; }
+    public FluidLevel Level { get; }
 
     /// <summary>
-    ///     The side of the liquid that is being meshed.
+    ///     The side of the fluid that is being meshed.
     /// </summary>
     public BlockSide Side { get; }
 
     /// <summary>
-    ///     Whether the liquid is static.
+    ///     Whether the fluid is static.
     /// </summary>
     public bool IsStatic { get; }
 
     /// <summary>
-    ///     Create liquid meshing information.
+    ///     Create fluid meshing information.
     /// </summary>
-    public static LiquidMeshInfo Liquid(LiquidLevel level, BlockSide side, bool isStatic)
+    public static FluidMeshInfo Fluid(FluidLevel level, BlockSide side, bool isStatic)
     {
-        return new LiquidMeshInfo(level, side, isStatic);
+        return new FluidMeshInfo(level, side, isStatic);
     }
 }

@@ -148,18 +148,18 @@ public abstract partial class Block : IIdentifiable<uint>, IIdentifiable<string>
     /// <returns>True if placement was successful.</returns>
     public bool Place(World world, Vector3i position, PhysicsEntity? entity = null)
     {
-        (BlockInstance, LiquidInstance)? content = world.GetContent(position);
+        (BlockInstance, FluidInstance)? content = world.GetContent(position);
 
         if (content == null) return false;
 
-        (BlockInstance block, LiquidInstance liquid) = content.Value;
+        (BlockInstance block, FluidInstance fluid) = content.Value;
 
         bool canPlace = block.Block.IsReplaceable && CanPlace(world, position, entity);
 
         if (canPlace) DoPlace(world, position, entity);
 
-        if (liquid.Liquid != Liquid.None && this is IFillable fillable)
-            fillable.LiquidChange(world, position, liquid.Liquid, liquid.Level);
+        if (fluid.Fluid != Fluid.None && this is IFillable fillable)
+            fillable.FluidChange(world, position, fluid.Fluid, fluid.Level);
 
         return canPlace;
     }

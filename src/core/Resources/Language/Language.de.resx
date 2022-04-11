@@ -228,7 +228,7 @@
   <data name="Leaves" xml:space="preserve">
     <value>Blätter</value>
   </data>
-  <data name="Liquid" xml:space="preserve">
+  <data name="Fluid" xml:space="preserve">
     <value>Flüssigkeit</value>
   </data>
   <data name="Log" xml:space="preserve">
@@ -252,7 +252,7 @@
   <data name="NaturalGas" xml:space="preserve">
     <value>Erdgas</value>
   </data>
-  <data name="NoLiquid" xml:space="preserve">
+    <data name="NoFluid" xml:space="preserve">
     <value>Keine Flüssigkeit</value>
   </data>
   <data name="Obsidian" xml:space="preserve">

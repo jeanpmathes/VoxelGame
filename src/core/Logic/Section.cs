@@ -30,9 +30,9 @@ public abstract class Section : IDisposable
     public const int DataShift = 12;
 
     /// <summary>
-    ///     The shift to get the liquid.
+    ///     The shift to get the fluid.
     /// </summary>
-    public const int LiquidShift = 18;
+    public const int FluidShift = 18;
 
     /// <summary>
     ///     The shift to get the level.
@@ -55,9 +55,9 @@ public abstract class Section : IDisposable
     public const uint DataMask = 0b0000_0000_0000_0011_1111_0000_0000_0000;
 
     /// <summary>
-    ///     Mask to get only the liquid.
+    ///     Mask to get only the fluid.
     /// </summary>
-    public const uint LiquidMask = 0b0000_0000_0111_1100_0000_0000_0000_0000;
+    public const uint FluidMask = 0b0000_0000_0111_1100_0000_0000_0000_0000;
 
     /// <summary>
     ///     Mask to get only the level.
@@ -176,13 +176,13 @@ public abstract class Section : IDisposable
             data);
 
         val = GetPos(out selectedPosition);
-        Decode(val, out _, out _, out Liquid liquid, out LiquidLevel level, out bool isStatic);
+        Decode(val, out _, out _, out Fluid fluid, out FluidLevel level, out bool isStatic);
 
-        Vector3i liquidPosition = selectedPosition + sectionPosition * SectionSize;
+        Vector3i fluidPosition = selectedPosition + sectionPosition * SectionSize;
 
-        liquid.RandomUpdate(
+        fluid.RandomUpdate(
             World,
-            liquidPosition,
+            fluidPosition,
             level,
             isStatic);
 
@@ -202,28 +202,28 @@ public abstract class Section : IDisposable
     }
 
     /// <summary>
-    ///     Decode the section content into block and liquid information.
+    ///     Decode the section content into block and fluid information.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Decode(uint val, out Block block, out uint data, out Liquid liquid, out LiquidLevel level,
+    public static void Decode(uint val, out Block block, out uint data, out Fluid fluid, out FluidLevel level,
         out bool isStatic)
     {
         block = Block.TranslateID(val & BlockMask);
         data = (val & DataMask) >> DataShift;
-        liquid = Liquid.TranslateID((val & LiquidMask) >> LiquidShift);
-        level = (LiquidLevel) ((val & LevelMask) >> LevelShift);
+        fluid = Fluid.TranslateID((val & FluidMask) >> FluidShift);
+        level = (FluidLevel) ((val & LevelMask) >> LevelShift);
         isStatic = (val & StaticMask) != 0;
     }
 
     /// <summary>
-    ///     Encode block and liquid information into section content.
+    ///     Encode block and fluid information into section content.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static uint Encode(Block block, uint data, Liquid liquid, LiquidLevel level, bool isStatic)
+    public static uint Encode(Block block, uint data, Fluid fluid, FluidLevel level, bool isStatic)
     {
         return (uint) ((((isStatic ? 1 : 0) << StaticShift) & StaticMask)
                        | (((uint) level << LevelShift) & LevelMask)
-                       | ((liquid.Id << LiquidShift) & LiquidMask)
+                       | ((fluid.Id << FluidShift) & FluidMask)
                        | ((data << DataShift) & DataMask)
                        | (block.Id & BlockMask));
     }
@@ -256,19 +256,19 @@ public abstract class Section : IDisposable
     }
 
     /// <summary>
-    ///     Get the liquid at a given section position.
+    ///     Get the fluid at a given section position.
     /// </summary>
     /// <param name="position">The section position.</param>
-    /// <param name="level">The level of the liquid as int.</param>
-    /// <returns>The liquid.</returns>
+    /// <param name="level">The level of the fluid as int.</param>
+    /// <returns>The fluid.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected Liquid GetLiquid(Vector3i position, out int level)
+    protected Fluid GetFluid(Vector3i position, out int level)
     {
         uint val = this[position.X, position.Y, position.Z];
 
         level = (int) ((val & LevelMask) >> LevelShift);
 
-        return Liquid.TranslateID((val & LiquidMask) >> LiquidShift);
+        return Fluid.TranslateID((val & FluidMask) >> FluidShift);
     }
 
     #region IDisposable Support

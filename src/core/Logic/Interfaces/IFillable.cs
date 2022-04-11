@@ -16,7 +16,7 @@ public interface IFillable : IBlockBase
     /// <summary>
     ///     Whether the fluid filling this block should be rendered.
     /// </summary>
-    bool RenderLiquid => !IsSolidAndFull;
+    bool RenderFluid => !IsSolidAndFull;
 
     /// <summary>
     ///     Check whether a given block at a given location allows inflow trough a certain side.
@@ -24,9 +24,9 @@ public interface IFillable : IBlockBase
     /// <param name="world">The world this block is in.</param>
     /// <param name="position">The block position.</param>
     /// <param name="side">The side through which water would flow in.</param>
-    /// <param name="liquid">The liquid that flows in.</param>
-    /// <returns>Whether the liquid is allowed to flow in.</returns>
-    bool AllowInflow(World world, Vector3i position, BlockSide side, Liquid liquid)
+    /// <param name="fluid">The fluid that flows in.</param>
+    /// <returns>Whether the fluid is allowed to flow in.</returns>
+    bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return true;
     }
@@ -36,7 +36,7 @@ public interface IFillable : IBlockBase
     /// </summary>
     /// <param name="world">The world this block is in.</param>
     /// <param name="position">The block position.</param>
-    /// <param name="side">The side through which the liquid wants to flow.</param>
+    /// <param name="side">The side through which the fluid wants to flow.</param>
     /// <returns>true if outflow is allowed.</returns>
     bool AllowOutflow(World world, Vector3i position, BlockSide side)
     {
@@ -44,11 +44,11 @@ public interface IFillable : IBlockBase
     }
 
     /// <summary>
-    ///     Called when new liquid flows into or out of this block.
+    ///     Called when new fluid flows into or out of this block.
     /// </summary>
-    void LiquidChange(World world, Vector3i position, Liquid liquid, LiquidLevel level)
+    void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
         // Method intentionally left empty.
-        // Fillable blocks do not have to react when the liquid amount changes.
+        // Fillable blocks do not have to react when the fluid amount changes.
     }
 }

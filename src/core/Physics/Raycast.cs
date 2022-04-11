@@ -27,14 +27,14 @@ public static class Raycast
     }
 
     /// <summary>
-    ///     Checks if a ray intersects with a liquid that is not <see cref="Liquid.None" />
+    ///     Checks if a ray intersects with a fluid that is not <see cref="Fluid.None" />
     /// </summary>
     /// <param name="world">The world in which to cast the ray.</param>
     /// <param name="ray">The ray.</param>
     /// <returns>Intersection information, if a hit occurred.</returns>
-    public static (Vector3i hit, BlockSide side)? CastLiquid(World world, Ray ray)
+    public static (Vector3i hit, BlockSide side)? CastFluid(World world, Ray ray)
     {
-        return CastVoxel(ray, (r, pos) => LiquidIntersectionCheck(world, r, pos));
+        return CastVoxel(ray, (r, pos) => FluidIntersectionCheck(world, r, pos));
     }
 
     private static (Vector3i hit, BlockSide side)? CastVoxel(Ray ray, Func<Ray, Vector3i, bool> rayIntersectionCheck)
@@ -156,14 +156,14 @@ public static class Raycast
         return block.Block != Block.Air && block.Block.GetCollider(world, position).Intersects(ray);
     }
 
-    private static bool LiquidIntersectionCheck(World world, Ray ray, Vector3i position)
+    private static bool FluidIntersectionCheck(World world, Ray ray, Vector3i position)
     {
-        LiquidInstance? potentialLiquid = world.GetLiquid(position);
+        FluidInstance? potentialFluid = world.GetFluid(position);
 
-        if (potentialLiquid is not {} liquid) return false;
+        if (potentialFluid is not {} fluid) return false;
 
-        // Check if the ray intersects the bounding box of the liquid.
-        return liquid.Liquid != Liquid.None &&
-               Liquid.GetCollider(position, liquid.Level).Intersects(ray);
+        // Check if the ray intersects the bounding box of the fluid.
+        return fluid.Fluid != Fluid.None &&
+               Fluid.GetCollider(position, fluid.Level).Intersects(ray);
     }
 }
