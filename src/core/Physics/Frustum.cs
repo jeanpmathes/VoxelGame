@@ -41,7 +41,7 @@ public readonly struct Frustum : IEquatable<Frustum>
         up = up.Normalized();
         right = right.Normalized();
 
-        (float hNear, float wNear) = GetDimensionsAt(clip.near, fovY, ratio);
+        (float wNear, float hNear) = GetDimensionsAt(clip.near, fovY, ratio);
 
         Vector3 nc = position + direction * clip.near;
         Vector3 fc = position + direction * clip.far;
