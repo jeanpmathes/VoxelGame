@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
@@ -187,14 +188,47 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
             headPosition = camera.Position.Floor();
 
-            (BlockInstance block, FluidInstance fluid)? content = World.GetContent(headPosition);
-            visualization.SetOverlay(content?.block.Block, content?.fluid.Fluid);
+            SetBlockAndFluidOverlays();
 
             firstUpdate = false;
         }
 
         visualization.Update();
         input.Update(deltaTime);
+    }
+
+    private void SetBlockAndFluidOverlays()
+    {
+        Vector3 center = camera.Position;
+
+        const float distance = 0.1f;
+        (float width, float height) = camera.GetDimensionsAt(distance);
+
+        List<Vector3> samplePoints = new()
+        {
+            center,
+            center + camera.Up * height,
+            center - camera.Up * height,
+            center + camera.Right * width,
+            center - camera.Right * width,
+            center + camera.Front * distance,
+            center - camera.Front * distance
+        };
+
+        foreach (Vector3 point in samplePoints)
+        {
+            (BlockInstance block, FluidInstance fluid)? sampledContent = World.GetContent(point.Floor());
+
+            if (sampledContent is not var ((block, _), (fluid, _, _))) continue;
+
+            if (!PlayerVisualization.CanSetOverlayFrom(block, fluid)) continue;
+
+            visualization.SetOverlay(block, fluid);
+
+            return;
+        }
+
+        visualization.ClearOverlay();
     }
 
     private void UpdateTargets()

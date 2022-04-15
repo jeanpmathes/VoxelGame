@@ -19,6 +19,7 @@
 
   <PropertyGroup>
     <DocumentationFile>bin\debug\VoxelGame.Client.xml</DocumentationFile>
+    <EnableNETAnalyzers>False</EnableNETAnalyzers>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -51,24 +52,24 @@
   </ItemGroup>
 
   <ItemGroup>
-      <PackageReference Include="JetBrains.Annotations" Version="2021.3.0"/>
-      <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
-      <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0"/>
-      <PackageReference Include="OpenTK" Version="4.7.1"/>
-      <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0"/>
-      <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
-      <PackageReference Include="System.Drawing.Common" Version="5.0.3"/>
+    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0"/>
+    <PackageReference Include="OpenTK" Version="4.7.1"/>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0"/>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
+    <PackageReference Include="System.Drawing.Common" Version="5.0.3"/>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\core\VoxelGame.Core.csproj" />
     <ProjectReference Include="..\graphics\VoxelGame.Graphics.csproj" />
     <ProjectReference Include="..\input\VoxelGame.Input.csproj" />
-      <ProjectReference Include="..\manual\VoxelGame.Manual.csproj"/>
+    <ProjectReference Include="..\manual\VoxelGame.Manual.csproj"/>
     <ProjectReference Include="..\ui\VoxelGame.UI.csproj" />
   </ItemGroup>
 

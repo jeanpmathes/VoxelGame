@@ -124,4 +124,14 @@ public class Camera
         Right = Vector3.Normalize(Vector3.Cross(Front, Vector3.UnitY));
         Up = Vector3.Normalize(Vector3.Cross(Right, Front));
     }
+
+    /// <summary>
+    ///     Get the camera's frustum dimensions at a given distance.
+    /// </summary>
+    /// <param name="distance">The distance.</param>
+    /// <returns>The width and height.</returns>
+    public (float width, float height) GetDimensionsAt(float distance)
+    {
+        return Frustum.GetDimensionsAt(distance, fov, Screen.AspectRatio);
+    }
 }

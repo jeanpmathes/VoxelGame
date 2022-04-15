@@ -102,9 +102,9 @@ public sealed class PlayerVisualization : IDisposable
     /// <summary>
     ///     Set the overlay.
     /// </summary>
-    /// <param name="block">The optional block around the player head.</param>
-    /// <param name="fluid">The optional fluid around the player head.</param>
-    public void SetOverlay(Block? block, Fluid? fluid)
+    /// <param name="block">The block around the player head.</param>
+    /// <param name="fluid">The fluid around the player head.</param>
+    public void SetOverlay(Block block, Fluid fluid)
     {
         if (block is IOverlayTextureProvider overlayBlockTextureProvider)
         {
@@ -120,6 +120,25 @@ public sealed class PlayerVisualization : IDisposable
         {
             renderOverlay = false;
         }
+    }
+
+    /// <summary>
+    ///     Clear the current overlay, if there is one.
+    /// </summary>
+    public void ClearOverlay()
+    {
+        renderOverlay = false;
+    }
+
+    /// <summary>
+    ///     Checks whether either the given block or fluid provides an overlay texture.
+    /// </summary>
+    /// <param name="block">The block.</param>
+    /// <param name="fluid">The fluid.</param>
+    /// <returns>True if either one provides a texture.</returns>
+    public static bool CanSetOverlayFrom(Block block, Fluid fluid)
+    {
+        return block is IOverlayTextureProvider || fluid is IOverlayTextureProvider;
     }
 
     /// <summary>

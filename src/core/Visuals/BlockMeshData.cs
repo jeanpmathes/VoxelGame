@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -209,6 +210,7 @@ public sealed class BlockMeshData
     /// <summary>
     ///     Get mesh data for a basic block.
     /// </summary>
+    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH")]
     public static BlockMeshData Basic(int textureIndex, bool isTextureRotated)
     {
         return new BlockMeshData(vertexCount: 4, textureIndex: textureIndex, isTextureRotated: isTextureRotated);
