@@ -68,10 +68,13 @@ public class GameResources
     {
         System.Diagnostics.Debug.Assert(prepared);
 
+        var texParams = TextureParameters.CreateForWorld(Client.Instance);
+
         BlockTextureArray = new ArrayTexture(
             "Resources/Textures/Blocks",
             resolution: 16,
             useCustomMipmapGeneration: true,
+            texParams,
             TextureUnit.Texture1,
             TextureUnit.Texture2,
             TextureUnit.Texture3,
@@ -83,6 +86,7 @@ public class GameResources
             "Resources/Textures/Fluids",
             resolution: 16,
             useCustomMipmapGeneration: false,
+            texParams,
             TextureUnit.Texture5);
 
         logger.LogInformation(Events.ResourceLoad, "Fluid textures loaded");

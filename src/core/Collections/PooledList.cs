@@ -7,7 +7,6 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Core.Collections;
 
@@ -119,10 +118,6 @@ public class PooledList<T>
         }
     }
 
-    [SuppressMessage(
-        "ReSharper.DPA",
-        "DPA0003: Excessive memory allocations in LOH",
-        MessageId = "type: System.Int32[]; size: 150MB")]
     private T[] MoveIntoNew(int newSize)
     {
         T[] newItems = arrayPool.Rent(newSize);

@@ -534,4 +534,7 @@
   <data name="GraphicsUseFullscreenBorderless" xml:space="preserve">
     <value>Use borderless (windowed) fullscreen</value>
   </data>
+  <data name="GraphicsAnisotropicFiltering" xml:space="preserve">
+    <value>Anisotropic Filtering</value>
+  </data>
 </root>

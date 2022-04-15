@@ -439,6 +439,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Anisotropic Filtering.
+        /// </summary>
+        public static string GraphicsAnisotropicFiltering {
+            get {
+                return ResourceManager.GetString("GraphicsAnisotropicFiltering", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Foliage Quality.
         /// </summary>
         public static string GraphicsFoliageQuality {

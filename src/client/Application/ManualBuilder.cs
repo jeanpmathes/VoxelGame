@@ -84,7 +84,7 @@ public static class ManualBuilder
             Path.GetFullPath(path));
     }
 
-    private class Logging
+    private sealed class Logging
     {
         public static readonly ILogger Logger = LoggingHelper.CreateLogger<Logging>();
     }
