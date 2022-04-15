@@ -611,5 +611,8 @@
       <None Update="Resources\Shaders\decode.glsl">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Resources\Shaders\color.glsl">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
   </ItemGroup>
 </Project>

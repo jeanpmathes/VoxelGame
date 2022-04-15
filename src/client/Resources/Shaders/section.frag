@@ -18,6 +18,8 @@ layout(binding = 4) uniform sampler2DArray fourthArrayTexture;
 
 uniform float time;
 
+#pragma include("color")
+
 void main()
 {
 	vec4 color;
@@ -51,16 +53,8 @@ void main()
 		}
 	}
 
-	if (color.a < 0.1)
-	{
-		discard;
-	}
-
 	float brightness = clamp((dot(normal, normalize(vec3(0.3, 0.8, 0.5))) + 1.7) / 2.5, 0.0, 1.0);
 	brightness = (length(normal) < 0.1) ? 1.0 : brightness;
 
-	color = (color.a < 0.3) ? color * brightness : color * tint * brightness;
-	color.a = 1.0;
-
-	outputColor = color;
+	outputColor = color_select(color, brightness, tint);
 }

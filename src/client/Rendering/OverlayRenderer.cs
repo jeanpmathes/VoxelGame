@@ -18,9 +18,13 @@ namespace VoxelGame.Client.Rendering;
 /// </summary>
 public sealed class OverlayRenderer : IDisposable
 {
+    private const int ModeBlock = 0;
+    private const int ModeFluid = 1;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<OverlayRenderer>();
 
     private readonly ElementDrawGroup drawGroup;
+
+    private int mode = ModeBlock;
     private int samplerId;
 
     private int textureId;
@@ -56,6 +60,8 @@ public sealed class OverlayRenderer : IDisposable
     {
         samplerId = number / ArrayTexture.UnitSize + 1;
         textureId = number % ArrayTexture.UnitSize;
+
+        mode = ModeBlock;
     }
 
     /// <summary>
@@ -66,6 +72,8 @@ public sealed class OverlayRenderer : IDisposable
     {
         samplerId = 5;
         textureId = number;
+
+        mode = ModeFluid;
     }
 
     /// <summary>
@@ -83,6 +91,7 @@ public sealed class OverlayRenderer : IDisposable
 
         Shaders.Overlay.SetInt("texId", textureId);
         Shaders.Overlay.SetInt("tex", samplerId);
+        Shaders.Overlay.SetInt("mode", mode);
 
         drawGroup.DrawElements(PrimitiveType.Triangles);
 

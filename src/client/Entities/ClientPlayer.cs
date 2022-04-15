@@ -148,7 +148,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 #if DEBUG
             if (selectedBlock != Block.Air)
 #else
-                if (!selectedBlock.IsReplaceable)
+            if (!selectedBlock.IsReplaceable)
 #endif
             {
                 Application.Client.Instance.Resources.Shaders.Selection.SetVector3(
