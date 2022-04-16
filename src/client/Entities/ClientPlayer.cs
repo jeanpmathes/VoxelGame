@@ -232,6 +232,19 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
             center - camera.Front * distance
         };
 
+        List<Vector3i> samplePositions = new();
+
+        foreach (Vector3 samplePoint in samplePoints)
+        {
+            Vector3i samplePosition = samplePoint.Floor();
+
+            if (samplePositions.Contains(samplePosition)) continue;
+
+            samplePositions.Add(samplePosition);
+        }
+
+        samplePositions.Sort((a, b) => Vector3.Distance(a, center).CompareTo(Vector3.Distance(b, center)));
+
         foreach (Vector3 point in samplePoints)
         {
             (BlockInstance block, FluidInstance fluid)? sampledContent = World.GetContent(point.Floor());

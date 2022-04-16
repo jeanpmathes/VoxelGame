@@ -37,9 +37,9 @@ public readonly struct Frustum : IEquatable<Frustum>
     public Frustum(float fovY, float ratio, (float near, float far) clip,
         Vector3 position, Vector3 direction, Vector3 up, Vector3 right)
     {
-        direction = direction.Normalized();
-        up = up.Normalized();
-        right = right.Normalized();
+        direction.Normalize();
+        up.Normalize();
+        right.Normalize();
 
         (float wNear, float hNear) = GetDimensionsAt(clip.near, fovY, ratio);
 

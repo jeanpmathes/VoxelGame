@@ -18,28 +18,28 @@ uniform float lowerBound;
 
 void main()
 {
-	vec4 color = texture(tex, vec3(texCoord, texId));
+    vec4 color = texture(tex, vec3(texCoord, texId));
 
-	const int MODE_BLOCK = 0;
-	const int MODE_FLUID = 1;
+    const int MODE_BLOCK = 0;
+    const int MODE_FLUID = 1;
 
-	switch (mode)
-	{
-		case MODE_BLOCK:
-		outputColor = color_select(color, 1.0, vec4(1.0, 1.0, 1.0, 1.0));
-		break;
+    switch (mode)
+    {
+        case MODE_BLOCK:
+        outputColor = color_select(color, 1.0, vec4(1.0, 1.0, 1.0, 1.0));
+        break;
 
-		case MODE_FLUID:
-		outputColor = color;
-		break;
+        case MODE_FLUID:
+        outputColor = color;
+        break;
 
-		default :
-		outputColor = vec4(1.0, 0.0, 0.0, 0.0);
-		break;
-	}
+        default :
+        outputColor = vec4(1.0, 0.0, 0.0, 1.0);
+        break;
+    }
 
-	if (height > upperBound || height < lowerBound)
-	{
-		discard;
-	}
+    if (height > upperBound || height < lowerBound)
+    {
+        discard;
+    }
 }

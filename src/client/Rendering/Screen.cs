@@ -313,11 +313,6 @@ public sealed class Screen : IDisposable
     public static Vector2i Size => Instance.Client.Size;
 
     /// <summary>
-    ///     Get the center of the screen.
-    /// </summary>
-    public static Vector2i Center => new(Size.X / 2, Size.Y / 2);
-
-    /// <summary>
     ///     Gets the aspect ratio <c>x/y</c>.
     /// </summary>
     public static float AspectRatio => Size.X / (float) Size.Y;

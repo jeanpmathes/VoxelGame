@@ -139,19 +139,21 @@ public sealed class PlayerVisualization : IDisposable
 
         if (block.Block is IHeightVariable heightVariable) height = heightVariable.GetHeight(block.Data);
 
-        SetBounds(height, position);
+        SetBounds(height, position, inverted: false);
     }
 
     private void SetBounds(FluidInstance fluid, Vector3 position)
     {
         int height = fluid.Level.GetBlockHeight();
 
-        SetBounds(height, position);
+        SetBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards);
     }
 
-    private void SetBounds(int height, Vector3 position)
+    private void SetBounds(int height, Vector3 position, bool inverted)
     {
         float actualHeight = (height + 1) * (1.0f / 16.0f);
+        if (inverted) actualHeight = 1.0f - actualHeight;
+
         Plane topPlane = new(Vector3.UnitY, position + Vector3.UnitY * actualHeight);
         Plane viewPlane = player.Frustum.Near;
 
@@ -160,7 +162,6 @@ public sealed class PlayerVisualization : IDisposable
         if (bound == null) return;
 
         Vector3 axis = player.Right;
-
         (Vector3 a, Vector3 b) dimensions = player.NearDimensions;
 
         // Assume the bound is parallel to the view horizon.
@@ -170,8 +171,10 @@ public sealed class PlayerVisualization : IDisposable
 
         float ratio = VMath.InverseLerp(a.Y, b.Y, point.Y);
 
-        float upperBound = ratio;
-        float lowerBound = 0;
+        (float lowerBound, float upperBound) = inverted ? (ratio, 1.0f) : (0.0f, ratio);
+
+        lowerBound = Math.Max(lowerBound, val2: 0);
+        upperBound = Math.Min(upperBound, val2: 1);
 
         overlay.SetBounds(lowerBound, upperBound);
     }

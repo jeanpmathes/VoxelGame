@@ -62,7 +62,7 @@ public readonly struct Plane : IEquatable<Plane>
         Vector3 offset = projected - Point;
 
         Vector3 xAxis = axis.Normalized();
-        Vector3 yAxis = Vector3.Cross(xAxis, Normal).Normalized();
+        Vector3 yAxis = Vector3.Cross(axis.Normalized(), Normal).Normalized();
 
         float projectedX = Vector3.Dot(offset, xAxis);
         float projectedY = Vector3.Dot(offset, yAxis);
