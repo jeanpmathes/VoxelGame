@@ -14,8 +14,6 @@ namespace VoxelGame.Client.Rendering;
 /// </summary>
 public class Camera
 {
-    private readonly float farClipping = 1000f;
-    private readonly float nearClipping = 0.1f;
     private float fov = MathHelper.PiOver2 / 90f * 70f;
 
     private Vector3 front = Vector3.UnitX;
@@ -33,6 +31,16 @@ public class Camera
     }
 
     /// <summary>
+    ///     Get the far clipping distance.
+    /// </summary>
+    public static float FarClipping => 1000f;
+
+    /// <summary>
+    ///     Get the near clipping distance.
+    /// </summary>
+    public static float NearClipping => 0.1f;
+
+    /// <summary>
     ///     Get or set the position of the camera.
     /// </summary>
     public Vector3 Position { get; set; }
@@ -40,7 +48,7 @@ public class Camera
     /// <summary>
     ///     Get the view frustum of the camera.
     /// </summary>
-    public Frustum Frustum => new(fov, Screen.AspectRatio, (nearClipping, farClipping), Position, front, Up, Right);
+    public Frustum Frustum => new(fov, Screen.AspectRatio, (NearClipping, FarClipping), Position, front, Up, Right);
 
     /// <summary>
     ///     Get the front vector of the camera.
@@ -110,8 +118,8 @@ public class Camera
     public Matrix4 ProjectionMatrix => Matrix4.CreatePerspectiveFieldOfView(
         fov,
         Screen.AspectRatio,
-        nearClipping,
-        farClipping);
+        NearClipping,
+        FarClipping);
 
     private void UpdateVectors()
     {
@@ -123,5 +131,15 @@ public class Camera
 
         Right = Vector3.Normalize(Vector3.Cross(Front, Vector3.UnitY));
         Up = Vector3.Normalize(Vector3.Cross(Right, Front));
+    }
+
+    /// <summary>
+    ///     Get the camera's frustum dimensions at a given distance.
+    /// </summary>
+    /// <param name="distance">The distance.</param>
+    /// <returns>The width and height.</returns>
+    public (float width, float height) GetDimensionsAt(float distance)
+    {
+        return Frustum.GetDimensionsAt(distance, fov, Screen.AspectRatio);
     }
 }

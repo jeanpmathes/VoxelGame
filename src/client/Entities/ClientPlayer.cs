@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
@@ -28,7 +29,6 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 {
     private readonly Camera camera;
     private readonly Vector3 cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
-
 
     private readonly InputBehaviour input;
 
@@ -74,7 +74,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         this.camera = camera;
         camera.Position = Position;
 
-        visualization = new PlayerVisualization(ui);
+        visualization = new PlayerVisualization(this, ui);
         input = new InputBehaviour(this);
 
         activeBlock = Block.Grass;
@@ -85,7 +85,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     public override Vector3 LookingDirection => camera.Front;
 
     /// <summary>
-    ///     Get the looking position of the player.
+    ///     Get the looking position of the player, meaning the position of the camera.
     /// </summary>
     public Vector3 LookingPosition => camera.Position;
 
@@ -96,6 +96,24 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     ///     Gets the frustum of the player camera.
     /// </summary>
     public Frustum Frustum => camera.Frustum;
+
+    /// <summary>
+    ///     Get the dimensions of the near view plane.
+    /// </summary>
+    public (Vector3 a, Vector3 b) NearDimensions
+    {
+        get
+        {
+            (float width, float height) = camera.GetDimensionsAt(Camera.NearClipping);
+
+            Vector3 position = camera.Position + camera.Front * Camera.NearClipping;
+
+            Vector3 up = camera.Up * height * 0.5f;
+            Vector3 right = camera.Right * width * 0.5f;
+
+            return (position - up - right, position + up + right);
+        }
+    }
 
     /// <inheritdoc />
     public override Vector3 Movement => movement;
@@ -130,8 +148,8 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     public void Render()
  #pragma warning restore CA1822
     {
-        // intentionally empty, as player has no mesh to render
-        // this render method is for content that has to be rendered on every player
+        // Intentionally empty, as player has no mesh to render.
+        // This render method is for content that has to be rendered on every player.
     }
 
     /// <summary>
@@ -148,7 +166,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 #if DEBUG
             if (selectedBlock != Block.Air)
 #else
-                if (!selectedBlock.IsReplaceable)
+            if (!selectedBlock.IsReplaceable)
 #endif
             {
                 Application.Client.Instance.Resources.Shaders.Selection.SetVector3(
@@ -187,14 +205,64 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
             headPosition = camera.Position.Floor();
 
-            (BlockInstance block, FluidInstance fluid)? content = World.GetContent(headPosition);
-            visualization.SetOverlay(content?.block.Block, content?.fluid.Fluid);
+            SetBlockAndFluidOverlays();
 
             firstUpdate = false;
         }
 
         visualization.Update();
         input.Update(deltaTime);
+    }
+
+    private void SetBlockAndFluidOverlays()
+    {
+        Vector3 center = camera.Position;
+
+        const float distance = 0.1f;
+        (float width, float height) = camera.GetDimensionsAt(distance);
+
+        Vector3 up = camera.Up * height;
+        Vector3 right = camera.Right * width;
+        Vector3 forward = camera.Front * distance;
+
+        List<Vector3> samplePoints = new()
+        {
+            center,
+            center + up + right + forward,
+            center + up + right - forward,
+            center + up - right + forward,
+            center + up - right - forward,
+            center - up + right + forward,
+            center - up + right - forward,
+            center - up - right + forward,
+            center - up - right - forward
+        };
+
+        List<Vector3i> samplePositions = new();
+
+        foreach (Vector3 samplePoint in samplePoints)
+        {
+            Vector3i samplePosition = samplePoint.Floor();
+
+            if (samplePositions.Contains(samplePosition)) continue;
+
+            samplePositions.Add(samplePosition);
+        }
+
+        samplePositions.Sort((a, b) => Vector3.Distance(a, center).CompareTo(Vector3.Distance(b, center)));
+
+        visualization.ClearOverlay();
+
+        foreach (Vector3 point in samplePoints)
+        {
+            (BlockInstance block, FluidInstance fluid)? sampledContent = World.GetContent(point.Floor());
+
+            if (sampledContent is not var (block, fluid)) continue;
+
+            visualization.AddOverlay(block, fluid, point.Floor());
+        }
+
+        visualization.FinalizeOverlay();
     }
 
     private void UpdateTargets()

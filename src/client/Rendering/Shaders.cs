@@ -126,6 +126,7 @@ public sealed class Shaders
         {
             loader.LoadIncludable("noise", "noise.glsl");
             loader.LoadIncludable("decode", "decode.glsl");
+            loader.LoadIncludable("color", "color.glsl");
 
             SimpleSection = loader.Load("simple_section.vert", SectionFragmentShader);
             ComplexSection = loader.Load("complex_section.vert", SectionFragmentShader);

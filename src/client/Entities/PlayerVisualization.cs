@@ -11,6 +11,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -30,16 +31,22 @@ public sealed class PlayerVisualization : IDisposable
     private readonly ScreenElementRenderer crosshairRenderer;
     private readonly Button debugViewButton;
     private readonly OverlayRenderer overlay;
+
+    private readonly ClientPlayer player;
     private readonly BoxRenderer selectionRenderer;
     private readonly GameUserInterface ui;
     private float crosshairScale = Application.Client.Instance.Settings.CrosshairScale;
+
+    private float lowerBound;
     private bool renderOverlay;
+    private float upperBound;
 
     /// <summary>
     ///     Create a new instance of the <see cref="PlayerVisualization" /> class.
     /// </summary>
+    /// <param name="player">The player that is visualized.</param>
     /// <param name="ui">The ui to use for some of the data display.</param>
-    public PlayerVisualization(GameUserInterface ui)
+    public PlayerVisualization(ClientPlayer player, GameUserInterface ui)
     {
         overlay = new OverlayRenderer();
 
@@ -60,7 +67,10 @@ public sealed class PlayerVisualization : IDisposable
         KeybindManager keybind = Application.Client.Instance.Keybinds;
         debugViewButton = keybind.GetPushButton(keybind.DebugView);
 
+        ClearOverlay();
+
         this.ui = ui;
+        this.player = player;
     }
 
     private void UpdateCrosshairColor(object? sender, SettingChangedArgs<Color> args)
@@ -100,26 +110,97 @@ public sealed class PlayerVisualization : IDisposable
     }
 
     /// <summary>
-    ///     Set the overlay.
+    ///     Add a potential overlay for one position.
     /// </summary>
-    /// <param name="block">The optional block around the player head.</param>
-    /// <param name="fluid">The optional fluid around the player head.</param>
-    public void SetOverlay(Block? block, Fluid? fluid)
+    /// <param name="block">The block around the player head.</param>
+    /// <param name="fluid">The fluid around the player head.</param>
+    /// <param name="position">The position of the block/fluid around the player head.</param>
+    public void AddOverlay(BlockInstance block, FluidInstance fluid, Vector3i position)
     {
-        if (block is IOverlayTextureProvider overlayBlockTextureProvider)
+        if (block.Block is IOverlayTextureProvider overlayBlockTextureProvider)
         {
             overlay.SetBlockTexture(overlayBlockTextureProvider.TextureIdentifier);
+            SetBounds(block, position);
+
             renderOverlay = true;
         }
-        else if (fluid is IOverlayTextureProvider overlayFluidTextureProvider)
+        else if (fluid.Fluid is IOverlayTextureProvider overlayFluidTextureProvider)
         {
             overlay.SetFluidTexture(overlayFluidTextureProvider.TextureIdentifier);
+            SetBounds(fluid, position);
+
             renderOverlay = true;
         }
         else
         {
             renderOverlay = false;
         }
+    }
+
+    private void SetBounds(BlockInstance block, Vector3 position)
+    {
+        var height = 15;
+
+        if (block.Block is IHeightVariable heightVariable) height = heightVariable.GetHeight(block.Data);
+
+        SetBounds(height, position, inverted: false);
+    }
+
+    private void SetBounds(FluidInstance fluid, Vector3 position)
+    {
+        int height = fluid.Level.GetBlockHeight();
+
+        SetBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards);
+    }
+
+    private void SetBounds(int height, Vector3 position, bool inverted)
+    {
+        float actualHeight = (height + 1) * (1.0f / 16.0f);
+        if (inverted) actualHeight = 1.0f - actualHeight;
+
+        Plane topPlane = new(Vector3.UnitY, position + Vector3.UnitY * actualHeight);
+        Plane viewPlane = player.Frustum.Near;
+
+        Line? bound = topPlane.Intersects(viewPlane);
+
+        if (bound == null) return;
+
+        Vector3 axis = player.Right;
+        (Vector3 a, Vector3 b) dimensions = player.NearDimensions;
+
+        // Assume the bound is parallel to the view horizon.
+        Vector2 point = viewPlane.Project2D(bound.Value.Any, axis);
+        Vector2 a = viewPlane.Project2D(dimensions.a, axis);
+        Vector2 b = viewPlane.Project2D(dimensions.b, axis);
+
+        float ratio = VMath.InverseLerp(a.Y, b.Y, point.Y);
+
+        (float newLowerBound, float newUpperBound) = inverted ? (ratio, 1.0f) : (0.0f, ratio);
+
+        newLowerBound = Math.Max(newLowerBound, val2: 0);
+        newUpperBound = Math.Min(newUpperBound, val2: 1);
+
+        lowerBound = Math.Min(newLowerBound, lowerBound);
+        upperBound = Math.Max(newUpperBound, upperBound);
+    }
+
+    /// <summary>
+    ///     Finalize the overlay after adding all elements.
+    /// </summary>
+    public void FinalizeOverlay()
+    {
+        overlay.SetBounds(lowerBound, upperBound);
+    }
+
+    /// <summary>
+    ///     Clear the current overlay, if there is one.
+    /// </summary>
+    public void ClearOverlay()
+    {
+        renderOverlay = false;
+
+        lowerBound = 1.0f;
+        upperBound = 0.0f;
     }
 
     /// <summary>

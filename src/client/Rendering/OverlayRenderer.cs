@@ -18,12 +18,19 @@ namespace VoxelGame.Client.Rendering;
 /// </summary>
 public sealed class OverlayRenderer : IDisposable
 {
+    private const int ModeBlock = 0;
+    private const int ModeFluid = 1;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<OverlayRenderer>();
 
     private readonly ElementDrawGroup drawGroup;
+
+    private float lowerBound;
+
+    private int mode = ModeBlock;
     private int samplerId;
 
     private int textureId;
+    private float upperBound;
 
     /// <summary>
     ///     Create a new overlay renderer.
@@ -56,6 +63,8 @@ public sealed class OverlayRenderer : IDisposable
     {
         samplerId = number / ArrayTexture.UnitSize + 1;
         textureId = number % ArrayTexture.UnitSize;
+
+        mode = ModeBlock;
     }
 
     /// <summary>
@@ -66,6 +75,8 @@ public sealed class OverlayRenderer : IDisposable
     {
         samplerId = 5;
         textureId = number;
+
+        mode = ModeFluid;
     }
 
     /// <summary>
@@ -83,6 +94,10 @@ public sealed class OverlayRenderer : IDisposable
 
         Shaders.Overlay.SetInt("texId", textureId);
         Shaders.Overlay.SetInt("tex", samplerId);
+        Shaders.Overlay.SetInt("mode", mode);
+
+        Shaders.Overlay.SetFloat("lowerBound", lowerBound);
+        Shaders.Overlay.SetFloat("upperBound", upperBound);
 
         drawGroup.DrawElements(PrimitiveType.Triangles);
 
@@ -90,6 +105,17 @@ public sealed class OverlayRenderer : IDisposable
         GL.UseProgram(program: 0);
 
         GL.Disable(EnableCap.Blend);
+    }
+
+    /// <summary>
+    ///     Set the bounds of the overlay.
+    /// </summary>
+    /// <param name="newLowerBound">The lower bound.</param>
+    /// <param name="newUpperBound">The upper bound.</param>
+    public void SetBounds(float newLowerBound, float newUpperBound)
+    {
+        lowerBound = newLowerBound;
+        upperBound = newUpperBound;
     }
 
     #region IDisposable Support

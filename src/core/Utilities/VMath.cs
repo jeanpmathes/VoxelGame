@@ -49,13 +49,15 @@ public static class VMath
     /// </summary>
     /// <param name="vector">The vector to round.</param>
     /// <param name="digits">The number of fractional digits in the return value.</param>
+    /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
     /// <returns>The rounded vector.</returns>
-    public static Vector3 Rounded(this Vector3 vector, int digits = 0)
+    public static Vector3 Rounded(this Vector3 vector, int digits = 0,
+        MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
         return new Vector3(
-            (float) Math.Round(vector.X, digits),
-            (float) Math.Round(vector.Y, digits),
-            (float) Math.Round(vector.Z, digits));
+            (float) Math.Round(vector.X, digits, midpointRounding),
+            (float) Math.Round(vector.Y, digits, midpointRounding),
+            (float) Math.Round(vector.Z, digits, midpointRounding));
     }
 
     /// <summary>
@@ -182,5 +184,13 @@ public static class VMath
     public static Box3 CreateBox3(Vector3 center, Vector3 extents)
     {
         return new Box3(center - extents, center + extents);
+    }
+
+    /// <summary>
+    ///     Given two points and a value, calculate the lerp factor to produce the value.
+    /// </summary>
+    public static float InverseLerp(float a, float b, float value)
+    {
+        return (value - a) / (b - a);
     }
 }

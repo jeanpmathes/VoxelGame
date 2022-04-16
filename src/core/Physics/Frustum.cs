@@ -17,6 +17,13 @@ public readonly struct Frustum : IEquatable<Frustum>
 {
     private readonly Plane[] planes;
 
+    private const int PlaneNear = 0;
+    private const int PlaneFar = 1;
+    private const int PlaneLeft = 2;
+    private const int PlaneRight = 3;
+    private const int PlaneBottom = 4;
+    private const int PlaneTop = 5;
+
     /// <summary>
     ///     Create a new frustum.
     /// </summary>
@@ -30,12 +37,11 @@ public readonly struct Frustum : IEquatable<Frustum>
     public Frustum(float fovY, float ratio, (float near, float far) clip,
         Vector3 position, Vector3 direction, Vector3 up, Vector3 right)
     {
-        direction = direction.Normalized();
-        up = up.Normalized();
-        right = right.Normalized();
+        direction.Normalize();
+        up.Normalize();
+        right.Normalize();
 
-        var hNear = (float) (2f * Math.Tan(fovY / 2f) * clip.near);
-        float wNear = hNear * ratio;
+        (float wNear, float hNear) = GetDimensionsAt(clip.near, fovY, ratio);
 
         Vector3 nc = position + direction * clip.near;
         Vector3 fc = position + direction * clip.far;
@@ -56,6 +62,51 @@ public readonly struct Frustum : IEquatable<Frustum>
             new Plane(nt, position) // Top.
         };
     }
+
+    /// <summary>
+    ///     Get the dimensions of a frustum at a given distance.
+    /// </summary>
+    /// <param name="distance">The distance from the frustum origin to get the dimensions for.</param>
+    /// <param name="fovY">The vertical fov.</param>
+    /// <param name="ratio">The screen ratio.</param>
+    /// <returns>The calculated dimensions.</returns>
+    public static (float width, float height) GetDimensionsAt(float distance, float fovY, float ratio)
+    {
+        var height = (float) (2f * Math.Tan(fovY / 2f) * distance);
+        float width = height * ratio;
+
+        return (width, height);
+    }
+
+    /// <summary>
+    ///     Get the near plane.
+    /// </summary>
+    public Plane Near => planes[PlaneNear];
+
+    /// <summary>
+    ///     Get the far plane.
+    /// </summary>
+    public Plane Far => planes[PlaneFar];
+
+    /// <summary>
+    ///     Get the left plane.
+    /// </summary>
+    public Plane Left => planes[PlaneLeft];
+
+    /// <summary>
+    ///     Get the right plane.
+    /// </summary>
+    public Plane Right => planes[PlaneRight];
+
+    /// <summary>
+    ///     Get the bottom plane.
+    /// </summary>
+    public Plane Bottom => planes[PlaneBottom];
+
+    /// <summary>
+    ///     Get the top plane.
+    /// </summary>
+    public Plane Top => planes[PlaneTop];
 
     /// <summary>
     ///     Check whether a <see cref="Box3" /> is inside this <see cref="Frustum" />.
