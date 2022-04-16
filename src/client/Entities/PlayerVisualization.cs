@@ -36,7 +36,10 @@ public sealed class PlayerVisualization : IDisposable
     private readonly BoxRenderer selectionRenderer;
     private readonly GameUserInterface ui;
     private float crosshairScale = Application.Client.Instance.Settings.CrosshairScale;
+
+    private float lowerBound;
     private bool renderOverlay;
+    private float upperBound;
 
     /// <summary>
     ///     Create a new instance of the <see cref="PlayerVisualization" /> class.
@@ -45,8 +48,6 @@ public sealed class PlayerVisualization : IDisposable
     /// <param name="ui">The ui to use for some of the data display.</param>
     public PlayerVisualization(ClientPlayer player, GameUserInterface ui)
     {
-        this.player = player;
-
         overlay = new OverlayRenderer();
 
         crosshair = new Texture(
@@ -66,7 +67,10 @@ public sealed class PlayerVisualization : IDisposable
         KeybindManager keybind = Application.Client.Instance.Keybinds;
         debugViewButton = keybind.GetPushButton(keybind.DebugView);
 
+        ClearOverlay();
+
         this.ui = ui;
+        this.player = player;
     }
 
     private void UpdateCrosshairColor(object? sender, SettingChangedArgs<Color> args)
@@ -106,12 +110,12 @@ public sealed class PlayerVisualization : IDisposable
     }
 
     /// <summary>
-    ///     Set the overlay.
+    ///     Add a potential overlay for one position.
     /// </summary>
     /// <param name="block">The block around the player head.</param>
     /// <param name="fluid">The fluid around the player head.</param>
     /// <param name="position">The position of the block/fluid around the player head.</param>
-    public void SetOverlay(BlockInstance block, FluidInstance fluid, Vector3i position)
+    public void AddOverlay(BlockInstance block, FluidInstance fluid, Vector3i position)
     {
         if (block.Block is IOverlayTextureProvider overlayBlockTextureProvider)
         {
@@ -171,11 +175,20 @@ public sealed class PlayerVisualization : IDisposable
 
         float ratio = VMath.InverseLerp(a.Y, b.Y, point.Y);
 
-        (float lowerBound, float upperBound) = inverted ? (ratio, 1.0f) : (0.0f, ratio);
+        (float newLowerBound, float newUpperBound) = inverted ? (ratio, 1.0f) : (0.0f, ratio);
 
-        lowerBound = Math.Max(lowerBound, val2: 0);
-        upperBound = Math.Min(upperBound, val2: 1);
+        newLowerBound = Math.Max(newLowerBound, val2: 0);
+        newUpperBound = Math.Min(newUpperBound, val2: 1);
 
+        lowerBound = Math.Min(newLowerBound, lowerBound);
+        upperBound = Math.Max(newUpperBound, upperBound);
+    }
+
+    /// <summary>
+    ///     Finalize the overlay after adding all elements.
+    /// </summary>
+    public void FinalizeOverlay()
+    {
         overlay.SetBounds(lowerBound, upperBound);
     }
 
@@ -185,17 +198,9 @@ public sealed class PlayerVisualization : IDisposable
     public void ClearOverlay()
     {
         renderOverlay = false;
-    }
 
-    /// <summary>
-    ///     Checks whether either the given block or fluid provides an overlay texture.
-    /// </summary>
-    /// <param name="block">The block.</param>
-    /// <param name="fluid">The fluid.</param>
-    /// <returns>True if either one provides a texture.</returns>
-    public static bool CanSetOverlayFrom(Block block, Fluid fluid)
-    {
-        return block is IOverlayTextureProvider || fluid is IOverlayTextureProvider;
+        lowerBound = 1.0f;
+        upperBound = 0.0f;
     }
 
     /// <summary>

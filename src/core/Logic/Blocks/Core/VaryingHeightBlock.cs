@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     Data bit usage: <c>--hhhh</c>
 /// </summary>
 // h: height
-public class VaryingHeightBlock : Block, IHeightVariable
+public class VaryingHeightBlock : Block, IHeightVariable, IOverlayTextureProvider
 {
     private readonly TextureLayout layout;
 
@@ -42,6 +42,9 @@ public class VaryingHeightBlock : Block, IHeightVariable
     {
         return (int) (data & 0b00_1111);
     }
+
+    /// <inheritdoc />
+    public int TextureIdentifier => layout.Bottom;
 
     private void CreateVolumes()
     {

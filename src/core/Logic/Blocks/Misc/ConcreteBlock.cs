@@ -20,7 +20,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 /// </summary>
 // c: color
 // h: height
-public class ConcreteBlock : Block, IHeightVariable, IWideConnectable, IThinConnectable
+public class ConcreteBlock : Block, IHeightVariable, IWideConnectable, IThinConnectable, IOverlayTextureProvider
 {
     private readonly TextureLayout layout;
 
@@ -54,6 +54,9 @@ public class ConcreteBlock : Block, IHeightVariable, IWideConnectable, IThinConn
 
         return height;
     }
+
+    /// <inheritdoc />
+    public int TextureIdentifier => layout.Bottom;
 
     /// <inheritdoc />
     public bool IsConnectable(World world, BlockSide side, Vector3i position)
