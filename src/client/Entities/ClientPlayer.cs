@@ -30,7 +30,6 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     private readonly Camera camera;
     private readonly Vector3 cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
 
-
     private readonly InputBehaviour input;
 
     private readonly float jumpForce = 25000f;
@@ -75,7 +74,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         this.camera = camera;
         camera.Position = Position;
 
-        visualization = new PlayerVisualization(ui);
+        visualization = new PlayerVisualization(this, ui);
         input = new InputBehaviour(this);
 
         activeBlock = Block.Grass;
@@ -86,7 +85,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     public override Vector3 LookingDirection => camera.Front;
 
     /// <summary>
-    ///     Get the looking position of the player.
+    ///     Get the looking position of the player, meaning the position of the camera.
     /// </summary>
     public Vector3 LookingPosition => camera.Position;
 
@@ -97,6 +96,24 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     ///     Gets the frustum of the player camera.
     /// </summary>
     public Frustum Frustum => camera.Frustum;
+
+    /// <summary>
+    ///     Get the dimensions of the near view plane.
+    /// </summary>
+    public (Vector3 a, Vector3 b) NearDimensions
+    {
+        get
+        {
+            (float width, float height) = camera.GetDimensionsAt(Camera.NearClipping);
+
+            Vector3 position = camera.Position + camera.Front * Camera.NearClipping;
+
+            Vector3 up = camera.Up * height * 0.5f;
+            Vector3 right = camera.Right * width * 0.5f;
+
+            return (position - up - right, position + up + right);
+        }
+    }
 
     /// <inheritdoc />
     public override Vector3 Movement => movement;
@@ -131,8 +148,8 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     public void Render()
  #pragma warning restore CA1822
     {
-        // intentionally empty, as player has no mesh to render
-        // this render method is for content that has to be rendered on every player
+        // Intentionally empty, as player has no mesh to render.
+        // This render method is for content that has to be rendered on every player.
     }
 
     /// <summary>
@@ -219,11 +236,11 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         {
             (BlockInstance block, FluidInstance fluid)? sampledContent = World.GetContent(point.Floor());
 
-            if (sampledContent is not var ((block, _), (fluid, _, _))) continue;
+            if (sampledContent is not var (block, fluid)) continue;
 
-            if (!PlayerVisualization.CanSetOverlayFrom(block, fluid)) continue;
+            if (!PlayerVisualization.CanSetOverlayFrom(block.Block, fluid.Fluid)) continue;
 
-            visualization.SetOverlay(block, fluid);
+            visualization.SetOverlay(block, fluid, point.Floor());
 
             return;
         }

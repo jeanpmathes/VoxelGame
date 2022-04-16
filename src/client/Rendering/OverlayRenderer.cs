@@ -24,10 +24,13 @@ public sealed class OverlayRenderer : IDisposable
 
     private readonly ElementDrawGroup drawGroup;
 
+    private float lowerBound;
+
     private int mode = ModeBlock;
     private int samplerId;
 
     private int textureId;
+    private float upperBound;
 
     /// <summary>
     ///     Create a new overlay renderer.
@@ -93,12 +96,26 @@ public sealed class OverlayRenderer : IDisposable
         Shaders.Overlay.SetInt("tex", samplerId);
         Shaders.Overlay.SetInt("mode", mode);
 
+        Shaders.Overlay.SetFloat("lowerBound", lowerBound);
+        Shaders.Overlay.SetFloat("upperBound", upperBound);
+
         drawGroup.DrawElements(PrimitiveType.Triangles);
 
         GL.BindVertexArray(array: 0);
         GL.UseProgram(program: 0);
 
         GL.Disable(EnableCap.Blend);
+    }
+
+    /// <summary>
+    ///     Set the bounds of the overlay.
+    /// </summary>
+    /// <param name="newLowerBound">The lower bound.</param>
+    /// <param name="newUpperBound">The upper bound.</param>
+    public void SetBounds(float newLowerBound, float newUpperBound)
+    {
+        lowerBound = newLowerBound;
+        upperBound = newUpperBound;
     }
 
     #region IDisposable Support

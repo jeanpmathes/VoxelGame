@@ -4,10 +4,15 @@ out vec4 outputColor;
 
 in vec2 texCoord;
 
+in float height;
+
 uniform int texId;
 uniform sampler2DArray tex;
 
 uniform int mode;
+
+uniform float upperBound;
+uniform float lowerBound;
 
 #pragma include("color")
 
@@ -31,5 +36,10 @@ void main()
 		default :
 		outputColor = vec4(1.0, 0.0, 0.0, 0.0);
 		break;
+	}
+
+	if (height > upperBound || height < lowerBound)
+	{
+		discard;
 	}
 }

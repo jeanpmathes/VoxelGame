@@ -185,4 +185,12 @@ public static class VMath
     {
         return new Box3(center - extents, center + extents);
     }
+
+    /// <summary>
+    ///     Given two points and a value, calculate the lerp factor to produce the value.
+    /// </summary>
+    public static float InverseLerp(float a, float b, float value)
+    {
+        return (value - a) / (b - a);
+    }
 }
