@@ -14,7 +14,7 @@ namespace VoxelGame.Client.Rendering;
 /// </summary>
 public class Camera
 {
-    private float fov = MathHelper.PiOver2 / 90f * 70f;
+    private float fov = MathHelper.DegreesToRadians(degrees: 70f);
 
     private Vector3 front = Vector3.UnitX;
 

@@ -221,21 +221,15 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         const float distance = 0.1f;
         (float width, float height) = camera.GetDimensionsAt(distance);
 
-        Vector3 up = camera.Up * height;
-        Vector3 right = camera.Right * width;
-        Vector3 forward = camera.Front * distance;
-
         List<Vector3> samplePoints = new()
         {
             center,
-            center + up + right + forward,
-            center + up + right - forward,
-            center + up - right + forward,
-            center + up - right - forward,
-            center - up + right + forward,
-            center - up + right - forward,
-            center - up - right + forward,
-            center - up - right - forward
+            center + camera.Up * height,
+            center - camera.Up * height,
+            center + camera.Right * width,
+            center - camera.Right * width,
+            center + camera.Front * distance,
+            center - camera.Front * distance
         };
 
         List<Vector3i> samplePositions = new();
@@ -250,6 +244,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         }
 
         samplePositions.Sort((a, b) => Vector3.Distance(a, center).CompareTo(Vector3.Distance(b, center)));
+        samplePositions.Reverse();
 
         visualization.ClearOverlay();
 
