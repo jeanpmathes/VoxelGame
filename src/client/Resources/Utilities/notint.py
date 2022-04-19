@@ -4,7 +4,6 @@
 """
 
 import sys
-
 from PIL import Image
 
 alpha = int(255 * 0.25)
