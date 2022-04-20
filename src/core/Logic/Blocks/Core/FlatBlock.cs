@@ -134,18 +134,26 @@ public class FlatBlock : Block, IFillable
     protected override void EntityCollision(PhysicsEntity entity, Vector3i position, uint data)
     {
         Vector3 forwardMovement = Vector3.Dot(entity.Movement, entity.Forward) * entity.Forward;
+        Vector3 newVelocity;
 
         if (forwardMovement.LengthSquared > 0.1f &&
             (Orientation) (data & 0b00_0011) == (-forwardMovement).ToOrientation())
-            // Check if entity looks up or down
-            entity.Velocity = Vector3.CalculateAngle(entity.LookingDirection, Vector3.UnitY) < MathHelper.PiOver2
-                ? new Vector3(entity.Velocity.X, climbingVelocity, entity.Velocity.Z)
-                : new Vector3(entity.Velocity.X, -climbingVelocity, entity.Velocity.Z);
+        {
+            float yVelocity = Vector3.CalculateAngle(entity.LookingDirection, Vector3.UnitY) < MathHelper.PiOver2
+                ? climbingVelocity
+                : -climbingVelocity;
+
+            newVelocity = new Vector3(entity.Velocity.X, yVelocity, entity.Velocity.Z);
+        }
         else
-            entity.Velocity = new Vector3(
+        {
+            newVelocity = new Vector3(
                 entity.Velocity.X,
                 MathHelper.Clamp(entity.Velocity.Y, -slidingVelocity, float.MaxValue),
                 entity.Velocity.Z);
+        }
+
+        entity.Velocity = newVelocity;
     }
 
     /// <inheritdoc />

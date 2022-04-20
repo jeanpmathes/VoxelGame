@@ -280,7 +280,8 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     private void HandleMovementInput()
     {
-        Move(input.GetMovement(speed, sprintSpeed), maxForce);
+        movement = input.GetMovement(speed, sprintSpeed);
+        Move(movement, maxForce);
 
         if (input.ShouldJump)
         {
