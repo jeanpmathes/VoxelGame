@@ -618,5 +618,7 @@
       <None Update="Resources\Utilities\modelexporter.py">
           <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       </None>
+      <None Remove="Resources\Textures\Blocks\liquid_barrier_closed.png"/>
+      <None Remove="Resources\Textures\Blocks\liquid_barrier_open.png"/>
   </ItemGroup>
 </Project>
