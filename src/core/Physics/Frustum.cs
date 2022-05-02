@@ -72,7 +72,7 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <returns>The calculated dimensions.</returns>
     public static (float width, float height) GetDimensionsAt(float distance, float fovY, float ratio)
     {
-        var height = (float) (2f * Math.Tan(fovY / 2f) * distance);
+        float height = 2f * MathF.Tan(fovY * 0.5f) * distance;
         float width = height * ratio;
 
         return (width, height);

@@ -72,7 +72,7 @@ public class GameResources
 
         BlockTextureArray = new ArrayTexture(
             "Resources/Textures/Blocks",
-            resolution: 16,
+            resolution: 32,
             useCustomMipmapGeneration: true,
             texParams,
             TextureUnit.Texture1,
@@ -84,7 +84,7 @@ public class GameResources
 
         FluidTextureArray = new ArrayTexture(
             "Resources/Textures/Fluids",
-            resolution: 16,
+            resolution: 32,
             useCustomMipmapGeneration: false,
             texParams,
             TextureUnit.Texture5);
