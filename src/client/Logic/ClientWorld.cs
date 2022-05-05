@@ -284,36 +284,33 @@ public class ClientWorld : World
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ProcessChangedSection(Chunk chunk, Vector3i position)
     {
-        int ToLocal(int worldPosition)
-        {
-            return (worldPosition >> Section.SizeExp) & (Chunk.Size - 1);
-        }
-
-        (int chunkX, int chunkY, int chunkZ) = (ToLocal(position.X), ToLocal(position.Y), ToLocal(position.Z));
-
-        sectionsToMesh.Add(((ClientChunk) chunk, (chunkX, chunkY, chunkZ)));
+        sectionsToMesh.Add(((ClientChunk) chunk, Chunk.GetLocalSectionPosition(position)));
 
         // Check if sections next to changed section have to be changed:
 
-        void CheckNeighbor(int x, int y, int z)
+        void CheckNeighbor(Vector3i neighborPosition)
         {
-            if (TryGetChunk(x, y, z, out Chunk? neighbor)) sectionsToMesh.Add(((ClientChunk) neighbor, (x, y, z)));
+            Chunk? neighbor = GetChunkWithPosition(neighborPosition);
+
+            if (neighbor == null) return;
+
+            sectionsToMesh.Add(((ClientChunk) neighbor, Chunk.GetLocalSectionPosition(neighborPosition)));
         }
 
         int xSectionPosition = position.X & (Section.Size - 1);
 
-        if (xSectionPosition == 0) CheckNeighbor(ToLocal(position.X - 1), chunkX, chunkY);
-        else if (xSectionPosition == Section.Size - 1) CheckNeighbor(ToLocal(position.X + 1), chunkX, chunkY);
+        if (xSectionPosition == 0) CheckNeighbor(position - (1, 0, 0));
+        else if (xSectionPosition == Section.Size - 1) CheckNeighbor(position + (1, 0, 0));
 
         int ySectionPosition = position.Y & (Section.Size - 1);
 
-        if (ySectionPosition == 0) CheckNeighbor(chunkX, ToLocal(position.Y - 1), chunkZ);
-        else if (ySectionPosition == Section.Size - 1) CheckNeighbor(chunkX, ToLocal(position.Y + 1), chunkZ);
+        if (ySectionPosition == 0) CheckNeighbor(position - (0, 1, 0));
+        else if (ySectionPosition == Section.Size - 1) CheckNeighbor(position + (0, 1, 0));
 
         int zSectionPosition = position.Z & (Section.Size - 1);
 
-        if (zSectionPosition == 0) CheckNeighbor(chunkX, chunkY, ToLocal(position.Z - 1));
-        else if (zSectionPosition == Section.Size - 1) CheckNeighbor(chunkX, chunkY, ToLocal(position.Z + 1));
+        if (zSectionPosition == 0) CheckNeighbor(position - (0, 0, 1));
+        else if (zSectionPosition == Section.Size - 1) CheckNeighbor(position + (0, 0, 1));
     }
 
     /// <inheritdoc />

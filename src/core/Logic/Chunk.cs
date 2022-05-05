@@ -351,11 +351,34 @@ public abstract class Chunk : IDisposable
     /// <returns>The section containing it.</returns>
     public Section GetSectionWithPosition(Vector3i position)
     {
+        return GetSectionWithPosition(position, out _);
+    }
+
+    /// <summary>
+    ///     Get a section of this chunk, that contains the given world position.
+    /// </summary>
+    /// <param name="position">The world position. Must be in this chunk.</param>
+    /// <param name="localPosition">The position of this section locally in this chunk.</param>
+    /// <returns>The section containing it.</returns>
+    public Section GetSectionWithPosition(Vector3i position, out (int x, int y, int z) localPosition)
+    {
+        localPosition = GetLocalSectionPosition(position);
+
+        return GetSection(localPosition.x, localPosition.y, localPosition.z);
+    }
+
+    /// <summary>
+    ///     Get the local position (in chunk) of the section that contains the given world position.
+    /// </summary>
+    /// <param name="position">The given world position.</param>
+    /// <returns>The local section position.</returns>
+    public static (int x, int y, int z) GetLocalSectionPosition(Vector3i position)
+    {
         int sectionX = position.X >> Section.SizeExp;
         int sectionY = position.Y >> Section.SizeExp;
         int sectionZ = position.Z >> Section.SizeExp;
 
-        return GetSection(sectionX & (Size - 1), sectionY & (Size - 1), sectionZ & (Size - 1));
+        return (sectionX & (Size - 1), sectionY & (Size - 1), sectionZ & (Size - 1));
     }
 
     /// <summary>
