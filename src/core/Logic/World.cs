@@ -43,7 +43,7 @@ public abstract partial class World : IDisposable
             },
             path,
             path + "/Chunks",
-            new ComplexGenerator(seed))
+            new FlatGenerator(heightAir: 1000, heightDirt: 900))
     {
         Information.Save(Path.Combine(WorldDirectory, "meta.json"));
 
@@ -58,7 +58,7 @@ public abstract partial class World : IDisposable
             information,
             path,
             path + "/Chunks",
-            new ComplexGenerator(information.Seed))
+            new FlatGenerator(heightAir: 1000, heightDirt: 900))
     {
         logger.LogInformation(Events.WorldIO, "Loaded existing world");
     }
@@ -69,21 +69,21 @@ public abstract partial class World : IDisposable
     private World(WorldInformation information, string worldDirectory, string chunkDirectory,
         IWorldGenerator generator)
     {
-        positionsToActivate = new HashSet<(int x, int z)>();
-        positionsActivating = new HashSet<(int, int)>();
+        positionsToActivate = new HashSet<(int x, int y, int z)>();
+        positionsActivating = new HashSet<(int x, int y, int z)>();
         chunksToGenerate = new UniqueQueue<Chunk>();
         chunkGenerateTasks = new List<Task>(MaxGenerationTasks);
         chunksGenerating = new Dictionary<int, Chunk>(MaxGenerationTasks);
-        positionsToLoad = new UniqueQueue<(int x, int z)>();
+        positionsToLoad = new UniqueQueue<(int x, int y, int z)>();
         chunkLoadingTasks = new List<Task<Chunk?>>(MaxLoadingTasks);
-        positionsLoading = new Dictionary<int, (int x, int z)>(MaxLoadingTasks);
-        activeChunks = new Dictionary<ValueTuple<int, int>, Chunk>();
-        positionsToReleaseOnActivation = new HashSet<(int x, int z)>();
+        positionsLoading = new Dictionary<int, (int x, int y, int z)>(MaxLoadingTasks);
+        activeChunks = new Dictionary<(int x, int y, int z), Chunk>();
+        positionsToReleaseOnActivation = new HashSet<(int x, int y, int z)>();
         chunksToSave = new UniqueQueue<Chunk>();
         chunkSavingTasks = new List<Task>(MaxSavingTasks);
         chunksSaving = new Dictionary<int, Chunk>(MaxSavingTasks);
-        positionsSaving = new HashSet<(int x, int z)>(MaxSavingTasks);
-        positionsActivatingThroughSaving = new HashSet<(int x, int z)>();
+        positionsSaving = new HashSet<(int x, int y, int z)>(MaxSavingTasks);
+        positionsActivatingThroughSaving = new HashSet<(int x, int y, int z)>();
 
         Information = information;
 
@@ -146,7 +146,7 @@ public abstract partial class World : IDisposable
         Directory.CreateDirectory(WorldDirectory);
         Directory.CreateDirectory(ChunkDirectory);
 
-        positionsToActivate.Add((0, 0));
+        positionsToActivate.Add((0, 0, 0));
     }
 
     /// <summary>
@@ -186,7 +186,7 @@ public abstract partial class World : IDisposable
 
         if (chunk != null)
         {
-            uint val = chunk.GetSection(position.Y >> Section.SectionSizeExp).GetContent(position);
+            uint val = chunk.GetSectionWithPosition(position).GetContent(position);
             Section.Decode(val, out block, out data, out fluid, out level, out isStatic);
 
             return;
@@ -299,7 +299,7 @@ public abstract partial class World : IDisposable
 
         uint val = Section.Encode(block, data, fluid, level, isStatic);
 
-        chunk.GetSection(position.Y >> Section.SectionSizeExp).SetContent(position, val);
+        chunk.GetSectionWithPosition(position).SetContent(position, val);
 
         if (tickFluid) fluid.TickNow(this, position, level, isStatic);
 
@@ -348,12 +348,12 @@ public abstract partial class World : IDisposable
 
         if (chunk == null) return;
 
-        uint val = chunk.GetSection(position.Y >> Section.SectionSizeExp).GetContent(position);
+        uint val = chunk.GetSectionWithPosition(position).GetContent(position);
 
         val &= clearMask;
         val |= addMask;
 
-        chunk.GetSection(position.Y >> Section.SectionSizeExp).SetContent(position, val);
+        chunk.GetSectionWithPosition(position).SetContent(position, val);
 
         ProcessChangedSection(chunk, position);
     }
@@ -403,7 +403,7 @@ public abstract partial class World : IDisposable
         List<Task> savingTasks = new(activeChunks.Count);
 
         foreach (Chunk chunk in activeChunks.Values)
-            if (!positionsSaving.Contains((chunk.X, chunk.Z)))
+            if (!positionsSaving.Contains((chunk.X, chunk.Y, chunk.Z)))
                 savingTasks.Add(chunk.SaveAsync(ChunkDirectory));
 
         Information.Version = ApplicationInformation.Instance.Version;

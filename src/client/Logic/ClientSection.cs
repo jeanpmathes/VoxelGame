@@ -98,11 +98,11 @@ public class ClientSection : Section
         PooledList<int> cropPlantVertexData = new(capacity: 16);
 
         // Loop through the section
-        for (var x = 0; x < SectionSize; x++)
-        for (var y = 0; y < SectionSize; y++)
-        for (var z = 0; z < SectionSize; z++)
+        for (var x = 0; x < Size; x++)
+        for (var y = 0; y < Size; y++)
+        for (var z = 0; z < Size; z++)
         {
-            uint val = blocks[(x << SectionSizeExp2) + (y << SectionSizeExp) + z];
+            uint val = blocks[(x << SizeExp2) + (y << SizeExp) + z];
 
             Decode(
                 val,
@@ -138,7 +138,7 @@ public class ClientSection : Section
 
                         if (IsPositionOutOfSection(checkPos))
                         {
-                            checkPos = checkPos.Mod(SectionSize);
+                            checkPos = checkPos.Mod(Size);
 
                             bool atVerticalEnd = side is BlockSide.Top or BlockSide.Bottom;
 
@@ -255,7 +255,7 @@ public class ClientSection : Section
 
                         if (IsPositionOutOfSection(checkPos))
                         {
-                            checkPos = checkPos.Mod(SectionSize);
+                            checkPos = checkPos.Mod(Size);
 
                             bool atVerticalEnd = side is BlockSide.Top or BlockSide.Bottom;
 
@@ -447,7 +447,7 @@ public class ClientSection : Section
 
                     if (IsPositionOutOfSection(checkPos))
                     {
-                        checkPos = checkPos.Mod(SectionSize);
+                        checkPos = checkPos.Mod(Size);
 
                         fluidToCheck = neighbor?.GetFluid(checkPos, out sideHeight) ??
                                        (atVerticalEnd ? Fluid.None : null);
@@ -586,19 +586,9 @@ public class ClientSection : Section
     {
         var neighbors = new ClientSection?[6];
 
-        neighbors[(int) BlockSide.Front] =
-            World.GetSection(BlockSide.Front.Offset(sectionPosition)) as ClientSection;
-
-        neighbors[(int) BlockSide.Back] = World.GetSection(BlockSide.Back.Offset(sectionPosition)) as ClientSection;
-        neighbors[(int) BlockSide.Left] = World.GetSection(BlockSide.Left.Offset(sectionPosition)) as ClientSection;
-
-        neighbors[(int) BlockSide.Right] =
-            World.GetSection(BlockSide.Right.Offset(sectionPosition)) as ClientSection;
-
-        neighbors[(int) BlockSide.Bottom] =
-            World.GetSection(BlockSide.Bottom.Offset(sectionPosition)) as ClientSection;
-
-        neighbors[(int) BlockSide.Top] = World.GetSection(BlockSide.Top.Offset(sectionPosition)) as ClientSection;
+        foreach (BlockSide side in BlockSide.All.Sides())
+            neighbors[(int) side] =
+                World.GetSection(side.Offset(sectionPosition)) as ClientSection;
 
         return neighbors;
     }
@@ -655,8 +645,8 @@ public class ClientSection : Section
 
     private static bool IsPositionOutOfSection(Vector3i position)
     {
-        return position.X is < 0 or >= SectionSize || position.Y is < 0 or >= SectionSize ||
-               position.Z is < 0 or >= SectionSize;
+        return position.X is < 0 or >= Size || position.Y is < 0 or >= Size ||
+               position.Z is < 0 or >= Size;
     }
 
     /// <summary>

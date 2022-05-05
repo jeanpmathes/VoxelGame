@@ -31,23 +31,30 @@ public abstract class Player : PhysicsEntity
         Position = World.SpawnPosition;
 
         // Request chunks around current position
-        ChunkX = (int) Math.Floor(Position.X) >> Section.SectionSizeExp;
-        ChunkZ = (int) Math.Floor(Position.Z) >> Section.SectionSizeExp;
+        ChunkX = (int) Math.Floor(Position.X) >> Chunk.BlockSizeExp;
+        ChunkY = (int) Math.Floor(Position.Y) >> Chunk.BlockSizeExp;
+        ChunkZ = (int) Math.Floor(Position.Z) >> Chunk.BlockSizeExp;
 
         for (int x = -LoadDistance; x <= LoadDistance; x++)
+        for (int y = -LoadDistance; y <= LoadDistance; y++)
         for (int z = -LoadDistance; z <= LoadDistance; z++)
-            World.RequestChunk(ChunkX + x, ChunkZ + z);
+            World.RequestChunk(ChunkX + x, ChunkY + y, ChunkZ + z);
     }
 
     /// <summary>
     ///     Gets the extents of how many chunks should be around this player.
     /// </summary>
-    public static int LoadDistance => 4;
+    public static int LoadDistance => 2;
 
     /// <summary>
     ///     The x coordinate of the current chunk this player is in.
     /// </summary>
     public int ChunkX { get; private set; }
+
+    /// <summary>
+    ///     The y coordinate of the current chunk this player is in.
+    /// </summary>
+    public int ChunkY { get; }
 
     /// <summary>
     ///     The z coordinate of the current chunk this player is in.
@@ -72,17 +79,20 @@ public abstract class Player : PhysicsEntity
     /// </summary>
     private void ProcessChunkChange()
     {
-        int currentChunkX = (int) Math.Floor(Position.X) >> Section.SectionSizeExp;
-        int currentChunkZ = (int) Math.Floor(Position.Z) >> Section.SectionSizeExp;
+        int currentChunkX = (int) Math.Floor(Position.X) >> Chunk.BlockSizeExp;
+        int currentChunkY = (int) Math.Floor(Position.Y) >> Chunk.BlockSizeExp;
+        int currentChunkZ = (int) Math.Floor(Position.Z) >> Chunk.BlockSizeExp;
 
-        if (currentChunkX == ChunkX && currentChunkZ == ChunkZ) return;
+        if (currentChunkX == ChunkX && currentChunkY == ChunkY && currentChunkZ == ChunkZ) return;
 
         int deltaX = Math.Abs(currentChunkX - ChunkX);
+        int deltaY = Math.Abs(currentChunkY - ChunkY);
         int deltaZ = Math.Abs(currentChunkZ - ChunkZ);
 
         // Check if player moved completely out of claimed chunks
-        if (deltaX > 2 * LoadDistance || deltaZ > 2 * LoadDistance) ReleaseAndRequestAll(currentChunkX, currentChunkZ);
-        else ReleaseAndRequestShifting(currentChunkX, currentChunkZ, deltaX, deltaZ);
+        if (deltaX > 2 * LoadDistance || deltaY > 2 * LoadDistance || deltaZ > 2 * LoadDistance)
+            ReleaseAndRequestAll(currentChunkX, currentChunkY, currentChunkZ);
+        else ReleaseAndRequestShifting(currentChunkX, currentChunkY, currentChunkZ, deltaX, deltaY, deltaZ);
 
         ChunkX = currentChunkX;
         ChunkZ = currentChunkZ;
@@ -91,46 +101,47 @@ public abstract class Player : PhysicsEntity
     /// <summary>
     ///     Release all previously claimed chunks and request all chunks around the player.
     /// </summary>
-    private void ReleaseAndRequestAll(int currentChunkX, int currentChunkZ)
+    private void ReleaseAndRequestAll(int currentChunkX, int currentChunkY, int currentChunkZ)
     {
         for (int x = -LoadDistance; x <= LoadDistance; x++)
+        for (int y = -LoadDistance; y <= LoadDistance; y++)
         for (int z = -LoadDistance; z <= LoadDistance; z++)
         {
-            World.ReleaseChunk(ChunkX + x, ChunkZ + z);
-            World.RequestChunk(currentChunkX + x, currentChunkZ + z);
+            World.ReleaseChunk(ChunkX + x, ChunkY + y, ChunkZ + z);
+            World.RequestChunk(currentChunkX + x, currentChunkY + y, currentChunkZ + z);
         }
     }
 
     /// <summary>
     ///     Release and request chunks around the player using a shifted window.
     /// </summary>
-    private void ReleaseAndRequestShifting(int currentChunkX, int currentChunkZ, int deltaX, int deltaZ)
+    private void ReleaseAndRequestShifting(int currentChunkX, int currentChunkY, int currentChunkZ, int deltaX,
+        int deltaY, int deltaZ)
     {
         int signX = currentChunkX - ChunkX >= 0 ? 1 : -1;
+        int signY = currentChunkY - ChunkY >= 0 ? 1 : -1;
         int signZ = currentChunkZ - ChunkZ >= 0 ? 1 : -1;
 
-        for (var x = 0; x < deltaX; x++)
-        for (var z = 0; z < 2 * LoadDistance + 1; z++)
+        DoRequests(2 * LoadDistance + 1, deltaY, deltaZ);
+        DoRequests(deltaX, 2 * LoadDistance + 1, deltaZ);
+        DoRequests(deltaX, deltaY, 2 * LoadDistance + 1);
+
+        void DoRequests(int xMax, int yMax, int zMax)
         {
-            World.ReleaseChunk(
-                ChunkX + (LoadDistance - x) * -signX,
-                ChunkZ + (LoadDistance - z) * -signZ);
+            for (var x = 0; x < xMax; x++)
+            for (var y = 0; y < yMax; y++)
+            for (var z = 0; z < zMax; z++)
+            {
+                World.ReleaseChunk(
+                    ChunkX + (LoadDistance - x) * -signX,
+                    ChunkY + (LoadDistance - y) * -signY,
+                    ChunkZ + (LoadDistance - z) * -signZ);
 
-            World.RequestChunk(
-                currentChunkX + (LoadDistance - x) * signX,
-                currentChunkZ + (LoadDistance - z) * signZ);
-        }
-
-        for (var z = 0; z < deltaZ; z++)
-        for (var x = 0; x < 2 * LoadDistance + 1; x++)
-        {
-            World.ReleaseChunk(
-                ChunkX + (LoadDistance - x) * -signX,
-                ChunkZ + (LoadDistance - z) * -signZ);
-
-            World.RequestChunk(
-                currentChunkX + (LoadDistance - x) * signX,
-                currentChunkZ + (LoadDistance - z) * signZ);
+                World.RequestChunk(
+                    currentChunkX + (LoadDistance - x) * signX,
+                    currentChunkY + (LoadDistance - y) * signY,
+                    currentChunkZ + (LoadDistance - z) * signZ);
+            }
         }
     }
 }

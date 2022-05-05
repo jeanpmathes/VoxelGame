@@ -18,7 +18,8 @@ public interface IWorldGenerator
     ///     Generate a column of the world.
     /// </summary>
     /// <param name="x">The x position of the world.</param>
-    /// <param name="z">The y position of the world.</param>
+    /// <param name="z">The z position of the world.</param>
+    /// <param name="heightRange">The height range (inclusive, exclusive) in which blocks should be generated.</param>
     /// <returns>The blocks in the column.</returns>
-    IEnumerable<Block> GenerateColumn(int x, int z);
+    IEnumerable<Block> GenerateColumn(int x, int z, (int start, int end) heightRange);
 }

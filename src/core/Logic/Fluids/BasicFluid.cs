@@ -128,7 +128,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     private bool CheckVerticalWorldBounds(World world, Vector3i position)
     {
         if (position.Y == 0 && Direction == VerticalFlow.Downwards ||
-            position.Y == Section.SectionSize * Chunk.VerticalSectionCount - 1 && Direction == VerticalFlow.Upwards)
+            position.Y == Section.Size * Chunk.Size - 1 && Direction == VerticalFlow.Upwards)
         {
             world.SetDefaultFluid(position);
 

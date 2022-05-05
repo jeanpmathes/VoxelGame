@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic;
@@ -16,7 +17,8 @@ namespace VoxelGame.Core.Generation;
 /// </summary>
 public class ComplexGenerator : IWorldGenerator
 {
-    private const int HalfHeight = Chunk.ChunkHeight / 2;
+    /*
+    private const int HalfHeight = Chunk.BlockSize / 2;
 
     private const float Amplitude = 0.6f;
 
@@ -26,6 +28,8 @@ public class ComplexGenerator : IWorldGenerator
 
     private const float CaveThreshold = 0.7f;
     private const float CaveLifter = 3.5f;
+    */
+
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ComplexGenerator>();
 
     private readonly FastNoise noise;
@@ -51,8 +55,12 @@ public class ComplexGenerator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public IEnumerable<Block> GenerateColumn(int x, int z)
+    public IEnumerable<Block> GenerateColumn(int x, int z, (int start, int end) heightRange)
     {
+        throw new NotImplementedException();
+
+        /*
+
         int height = (int) (Amplitude * HalfHeight * noise.GetPerlinFractal(x, z)) + HalfHeight;
 
         for (var y = 0; y < Chunk.ChunkHeight; y++)
@@ -98,5 +106,7 @@ public class ComplexGenerator : IWorldGenerator
                         _ => Block.Stone
                     };
             }
+
+        */
     }
 }

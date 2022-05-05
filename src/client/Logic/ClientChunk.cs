@@ -31,8 +31,9 @@ public class ClientChunk : Chunk
     /// </summary>
     /// <param name="world">The world that contains the chunk.</param>
     /// <param name="x">The chunk x position, in chunk coordinates.</param>
+    /// <param name="y">The chunk y position, in chunk coordinates.</param>
     /// <param name="z">The chunk z position, in chunk coordinates.</param>
-    public ClientChunk(World world, int x, int z) : base(world, x, z) {}
+    public ClientChunk(World world, int x, int y, int z) : base(world, x, y, z) {}
 
     /// <inheritdoc />
     protected override Section CreateSection()
@@ -45,7 +46,11 @@ public class ClientChunk : Chunk
     /// </summary>
     public void CreateAndSetMesh()
     {
-        for (var y = 0; y < HeightInSections; y++) ((ClientSection) sections[y]).CreateAndSetMesh(X, y, Z);
+        for (var s = 0; s < SectionCount; s++)
+        {
+            (int x, int y, int z) = IndexToLocalPosition(s);
+            ((ClientSection) sections[s]).CreateAndSetMesh(x + X * Size, y + Y * Size, z + Z * Size);
+        }
 
         hasMeshData = true;
         meshDataIndex = 0;
@@ -54,10 +59,12 @@ public class ClientChunk : Chunk
     /// <summary>
     ///     Create a mesh for a section of this chunk and activate it.
     /// </summary>
-    /// <param name="y"></param>
-    public void CreateAndSetMesh(int y)
+    /// <param name="x">The x position of the section relative in this chunk.</param>
+    /// <param name="y">The y position of the section relative in this chunk.</param>
+    /// <param name="z">The z position of the section relative in this chunk.</param>
+    public void CreateAndSetMesh(int x, int y, int z)
     {
-        ((ClientSection) sections[y]).CreateAndSetMesh(X, y, Z);
+        ((ClientSection) GetSection(x, y, z)).CreateAndSetMesh(x + X * Size, y + Y * Size, z + Z * Size);
     }
 
     /// <summary>
@@ -71,10 +78,13 @@ public class ClientChunk : Chunk
 
     private SectionMeshData[] CreateMeshData()
     {
-        var sectionMeshes = new SectionMeshData[HeightInSections];
+        var sectionMeshes = new SectionMeshData[SectionCount];
 
-        for (var y = 0; y < HeightInSections; y++)
-            sectionMeshes[y] = ((ClientSection) sections[y]).CreateMeshData(X, y, Z);
+        for (var s = 0; s < SectionCount; s++)
+        {
+            (int x, int y, int z) = IndexToLocalPosition(s);
+            sectionMeshes[s] = ((ClientSection) sections[s]).CreateMeshData(x + X * Size, y + Y * Size, z + Z * Size);
+        }
 
         meshDataIndex = 0;
 
@@ -104,7 +114,7 @@ public class ClientChunk : Chunk
             ((ClientSection) sections[meshDataIndex]).SetMeshData(sectionMeshes[meshDataIndex]);
 
             // The index has reached the end, all sections have received their mesh data.
-            if (meshDataIndex == HeightInSections - 1)
+            if (meshDataIndex == SectionCount - 1)
             {
                 hasMeshData = true;
                 meshDataIndex = 0;
@@ -128,37 +138,21 @@ public class ClientChunk : Chunk
     {
         if (!hasMeshData || !frustum.IsBoxInFrustum(VMath.CreateBox3(ChunkPoint, ChunkExtents))) return;
 
-        var start = 0;
-        int end = HeightInSections - 1;
+        for (var x = 0; x < Size; x++)
+        for (var y = 0; y < Size; y++)
+        for (var z = 0; z < Size; z++)
+        {
+            Vector3 position = new(
+                (x + X * Size) * Section.Size,
+                (y + Y * Size) * Section.Size,
+                (z + Z * Size) * Section.Size);
 
-        for (int y = start; y < HeightInSections; y++)
             if (frustum.IsBoxInFrustum(
-                    VMath.CreateBox3(
-                        new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
-                        Section.Extents,
-                        Section.Extents)))
+                    VMath.CreateBox3(position + Section.Extents, Section.Extents)))
             {
-                start = y;
-
-                break;
+                renderList.Add(((ClientSection) sections[LocalPositionToIndex(x, y, z)], position));
             }
-
-        for (int y = end; y >= 0; y--)
-            if (frustum.IsBoxInFrustum(
-                    VMath.CreateBox3(
-                        new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize) +
-                        Section.Extents,
-                        Section.Extents)))
-            {
-                end = y;
-
-                break;
-            }
-
-        for (int y = start; y <= end; y++)
-            renderList.Add(
-                ((ClientSection) sections[y],
-                    new Vector3(X * Section.SectionSize, y * Section.SectionSize, Z * Section.SectionSize)));
+        }
     }
 
     #region IDisposable Support
@@ -171,8 +165,8 @@ public class ClientChunk : Chunk
         if (!disposed)
         {
             if (disposing)
-                for (var y = 0; y < HeightInSections; y++)
-                    sections[y].Dispose();
+                for (var s = 0; s < SectionCount; s++)
+                    sections[s].Dispose();
 
             disposed = true;
         }
