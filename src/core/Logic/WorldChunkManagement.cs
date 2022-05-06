@@ -368,12 +368,10 @@ public abstract partial class World
     {
         positionsToReleaseOnActivation.Remove((x, y, z));
 
-        if (!positionsActivating.Contains((x, y, z)) && !activeChunks.ContainsKey((x, y, z)))
-        {
-            positionsToActivate.Add((x, y, z));
+        if (positionsActivating.Contains((x, y, z)) || activeChunks.ContainsKey((x, y, z))) return;
+        positionsToActivate.Add((x, y, z));
 
-            logger.LogDebug(Events.ChunkRequest, "Chunk ({X}|{Y}|{Z}) has been requested successfully", x, y, z);
-        }
+        logger.LogDebug(Events.ChunkRequest, "Chunk ({X}|{Y}|{Z}) has been requested successfully", x, y, z);
     }
 
     /// <summary>

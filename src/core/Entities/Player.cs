@@ -54,7 +54,7 @@ public abstract class Player : PhysicsEntity
     /// <summary>
     ///     The y coordinate of the current chunk this player is in.
     /// </summary>
-    public int ChunkY { get; }
+    public int ChunkY { get; private set; }
 
     /// <summary>
     ///     The z coordinate of the current chunk this player is in.
@@ -95,6 +95,7 @@ public abstract class Player : PhysicsEntity
         else ReleaseAndRequestShifting(currentChunkX, currentChunkY, currentChunkZ, deltaX, deltaY, deltaZ);
 
         ChunkX = currentChunkX;
+        ChunkY = currentChunkY;
         ChunkZ = currentChunkZ;
     }
 
@@ -122,12 +123,14 @@ public abstract class Player : PhysicsEntity
         int signY = currentChunkY - ChunkY >= 0 ? 1 : -1;
         int signZ = currentChunkZ - ChunkZ >= 0 ? 1 : -1;
 
-        DoRequests(2 * LoadDistance + 1, deltaY, deltaZ);
-        DoRequests(deltaX, 2 * LoadDistance + 1, deltaZ);
-        DoRequests(deltaX, deltaY, 2 * LoadDistance + 1);
+        DoRequests(deltaX, 2 * LoadDistance + 1, 2 * LoadDistance + 1);
+        DoRequests(2 * LoadDistance + 1, deltaY, 2 * LoadDistance + 1);
+        DoRequests(2 * LoadDistance + 1, 2 * LoadDistance + 1, deltaZ);
 
         void DoRequests(int xMax, int yMax, int zMax)
         {
+            if (xMax == 0 || yMax == 0 || zMax == 0) return;
+
             for (var x = 0; x < xMax; x++)
             for (var y = 0; y < yMax; y++)
             for (var z = 0; z < zMax; z++)
