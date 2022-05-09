@@ -20,9 +20,9 @@ namespace VoxelGame.Core.Logic;
 public abstract class Section : IDisposable
 {
     /// <summary>
-    ///     The size of a section.
+    ///     The size of a section, which is the number of blocks in a single axis.
     /// </summary>
-    public const int SectionSize = 16;
+    public const int Size = 16;
 
     /// <summary>
     ///     The shift to get the data.
@@ -72,12 +72,12 @@ public abstract class Section : IDisposable
     /// <summary>
     ///     Integer result of <c>lb(SectionSize)</c>.
     /// </summary>
-    public static readonly int SectionSizeExp = (int) Math.Log(SectionSize, newBase: 2);
+    public static readonly int SizeExp = (int) Math.Log(Size, newBase: 2);
 
     /// <summary>
     ///     Integer result of <c>lb(SectionSize) * 2</c>.
     /// </summary>
-    public static readonly int SectionSizeExp2 = (int) Math.Log(SectionSize, newBase: 2) * 2;
+    public static readonly int SizeExp2 = (int) Math.Log(Size, newBase: 2) * 2;
 
     /// <summary>
     ///     The blocks stored in this section.
@@ -96,14 +96,14 @@ public abstract class Section : IDisposable
         MessageId = "type: System.UInt32[]")]
     protected Section(World world)
     {
-        blocks = new uint[SectionSize * SectionSize * SectionSize];
+        blocks = new uint[Size * Size * Size];
         Setup(world);
     }
 
     /// <summary>
     ///     The extents of a section.
     /// </summary>
-    public static Vector3 Extents => new(SectionSize / 2f, SectionSize / 2f, SectionSize / 2f);
+    public static Vector3 Extents => new(Size / 2f, Size / 2f, Size / 2f);
 
     /// <summary>
     ///     The world this section is in.
@@ -119,8 +119,8 @@ public abstract class Section : IDisposable
     /// <returns>The block data at the given position.</returns>
     public uint this[int x, int y, int z]
     {
-        get => blocks[(x << SectionSizeExp2) + (y << SectionSizeExp) + z];
-        set => blocks[(x << SectionSizeExp2) + (y << SectionSizeExp) + z] = value;
+        get => blocks[(x << SizeExp2) + (y << SizeExp) + z];
+        set => blocks[(x << SizeExp2) + (y << SizeExp) + z] = value;
     }
 
     /// <summary>
@@ -130,7 +130,7 @@ public abstract class Section : IDisposable
     /// <returns>The content at the given position.</returns>
     public uint GetContent(Vector3i position)
     {
-        return this[position.X & (SectionSize - 1), position.Y & (SectionSize - 1), position.Z & (SectionSize - 1)];
+        return this[position.X & (Size - 1), position.Y & (Size - 1), position.Z & (Size - 1)];
     }
 
     /// <summary>
@@ -140,7 +140,7 @@ public abstract class Section : IDisposable
     /// <param name="value">The value to set at the specified position.</param>
     public void SetContent(Vector3i position, uint value)
     {
-        this[position.X & (SectionSize - 1), position.Y & (SectionSize - 1), position.Z & (SectionSize - 1)] =
+        this[position.X & (Size - 1), position.Y & (Size - 1), position.Z & (Size - 1)] =
             value;
     }
 
@@ -168,7 +168,7 @@ public abstract class Section : IDisposable
         uint val = GetPos(out Vector3i selectedPosition);
         Decode(val, out Block block, out uint data, out _, out _, out _);
 
-        Vector3i blockPosition = selectedPosition + sectionPosition * SectionSize;
+        Vector3i blockPosition = selectedPosition + sectionPosition * Size;
 
         block.RandomUpdate(
             World,
@@ -178,7 +178,7 @@ public abstract class Section : IDisposable
         val = GetPos(out selectedPosition);
         Decode(val, out _, out _, out Fluid fluid, out FluidLevel level, out bool isStatic);
 
-        Vector3i fluidPosition = selectedPosition + sectionPosition * SectionSize;
+        Vector3i fluidPosition = selectedPosition + sectionPosition * Size;
 
         fluid.RandomUpdate(
             World,
@@ -188,13 +188,13 @@ public abstract class Section : IDisposable
 
         uint GetPos(out Vector3i randomPosition)
         {
-            int index = NumberGenerator.Random.Next(minValue: 0, SectionSize * SectionSize * SectionSize);
+            int index = NumberGenerator.Random.Next(minValue: 0, Size * Size * Size);
             uint posVal = blocks[index];
 
-            randomPosition.Z = index & (SectionSize - 1);
-            index = (index - randomPosition.Z) >> SectionSizeExp;
-            randomPosition.Y = index & (SectionSize - 1);
-            index = (index - randomPosition.Y) >> SectionSizeExp;
+            randomPosition.Z = index & (Size - 1);
+            index = (index - randomPosition.Z) >> SizeExp;
+            randomPosition.Y = index & (Size - 1);
+            index = (index - randomPosition.Y) >> SizeExp;
             randomPosition.X = index;
 
             return posVal;

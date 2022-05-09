@@ -25,7 +25,8 @@ public class DoUpdate : Command
     /// <exclude />
     public void Invoke()
     {
-        Update(Context.Player.TargetPosition);
+        if (Context.Player.TargetPosition is {} targetPosition) Update(targetPosition);
+        else Context.Console.WriteError("No position targeted.");
     }
 
     /// <exclude />

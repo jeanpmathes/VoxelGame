@@ -173,7 +173,7 @@ public class BedBlock : Block, IFlammable, IFillable
         world.SetBlock(this.AsInstance((uint) orientation << 1), position);
         world.SetBlock(this.AsInstance((uint) (((int) orientation << 1) | 1)), otherPosition);
 
-        world.SpawnPosition = new Vector3(position.X, y: 1024f, position.Z);
+        world.SpawnPosition = new Vector3(position.X, position.Y + 1f, position.Z);
     }
 
     /// <inheritdoc />

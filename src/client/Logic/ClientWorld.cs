@@ -58,7 +58,7 @@ public class ClientWorld : World
     /// <summary>
     ///     A set of chunks with information on which sections of them are to mesh.
     /// </summary>
-    private readonly HashSet<(ClientChunk chunk, int index)> sectionsToMesh =
+    private readonly HashSet<(ClientChunk chunk, (int x, int y, int z))> sectionsToMesh =
         new();
 
     private ClientPlayer? player;
@@ -98,9 +98,11 @@ public class ClientWorld : World
 
         // Fill the render list.
         for (int x = -Player.LoadDistance; x <= Player.LoadDistance; x++)
+        for (int y = -Player.LoadDistance; y <= Player.LoadDistance; y++)
         for (int z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
             if (TryGetChunk(
                     player!.ChunkX + x,
+                    player!.ChunkY + y,
                     player!.ChunkZ + z,
                     out Chunk? chunk))
                 ((ClientChunk) chunk).AddCulledToRenderList(frustum, renderList);
@@ -122,9 +124,9 @@ public class ClientWorld : World
     }
 
     /// <inheritdoc />
-    protected override Chunk CreateChunk(int x, int z)
+    protected override Chunk CreateChunk(int x, int y, int z)
     {
-        return new ClientChunk(this, x, z);
+        return new ClientChunk(this, x, y, z);
     }
 
     /// <inheritdoc />
@@ -150,13 +152,14 @@ public class ClientWorld : World
             player!.Tick(deltaTime);
 
             // Mesh all listed sections.
-            foreach ((Chunk chunk, int index) in sectionsToMesh) ((ClientChunk) chunk).CreateAndSetMesh(index);
+            foreach ((Chunk chunk, (int x, int y, int z)) in sectionsToMesh)
+                ((ClientChunk) chunk).CreateAndSetMesh(x, y, z);
 
             sectionsToMesh.Clear();
         }
         else
         {
-            if (ActiveChunkCount >= 25 && IsChunkActive(x: 0, z: 0))
+            if (ActiveChunkCount >= 25 && IsChunkActive(x: 0, y: 0, z: 0))
             {
                 IsReady = true;
 
@@ -177,16 +180,22 @@ public class ClientWorld : World
         chunksToMesh.Enqueue((ClientChunk) activatedChunk);
 
         // Schedule to mesh the chunks around this chunk
-        if (TryGetChunk(activatedChunk.X + 1, activatedChunk.Z, out Chunk? neighbor))
+        if (TryGetChunk(activatedChunk.X + 1, activatedChunk.Y, activatedChunk.Z, out Chunk? neighbor))
             chunksToMesh.Enqueue((ClientChunk) neighbor);
 
-        if (TryGetChunk(activatedChunk.X - 1, activatedChunk.Z, out neighbor))
+        if (TryGetChunk(activatedChunk.X - 1, activatedChunk.Y, activatedChunk.Z, out neighbor))
             chunksToMesh.Enqueue((ClientChunk) neighbor);
 
-        if (TryGetChunk(activatedChunk.X, activatedChunk.Z + 1, out neighbor))
+        if (TryGetChunk(activatedChunk.X, activatedChunk.Y + 1, activatedChunk.Z, out neighbor))
             chunksToMesh.Enqueue((ClientChunk) neighbor);
 
-        if (TryGetChunk(activatedChunk.X, activatedChunk.Z - 1, out neighbor))
+        if (TryGetChunk(activatedChunk.X, activatedChunk.Y - 1, activatedChunk.Z, out neighbor))
+            chunksToMesh.Enqueue((ClientChunk) neighbor);
+
+        if (TryGetChunk(activatedChunk.X, activatedChunk.Y, activatedChunk.Z + 1, out neighbor))
+            chunksToMesh.Enqueue((ClientChunk) neighbor);
+
+        if (TryGetChunk(activatedChunk.X, activatedChunk.Y, activatedChunk.Z - 1, out neighbor))
             chunksToMesh.Enqueue((ClientChunk) neighbor);
     }
 
@@ -275,59 +284,33 @@ public class ClientWorld : World
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ProcessChangedSection(Chunk chunk, Vector3i position)
     {
-        sectionsToMesh.Add(((ClientChunk) chunk, position.Y >> Section.SectionSizeExp));
+        sectionsToMesh.Add(((ClientChunk) chunk, Chunk.GetLocalSectionPosition(position)));
 
         // Check if sections next to changed section have to be changed:
 
-        switch (position.Y & (Section.SectionSize - 1))
+        void CheckNeighbor(Vector3i neighborPosition)
         {
-            // Next on y axis.
-            case 0 when (position.Y - 1) >> Section.SectionSizeExp >= 0:
-                sectionsToMesh.Add(((ClientChunk) chunk, (position.Y - 1) >> Section.SectionSizeExp));
+            Chunk? neighbor = GetChunkWithPosition(neighborPosition);
 
-                break;
-            case Section.SectionSize - 1
-                when (position.Y + 1) >> Section.SectionSizeExp < Chunk.HeightInSections:
-                sectionsToMesh.Add(((ClientChunk) chunk, (position.Y + 1) >> Section.SectionSizeExp));
+            if (neighbor == null) return;
 
-                break;
+            sectionsToMesh.Add(((ClientChunk) neighbor, Chunk.GetLocalSectionPosition(neighborPosition)));
         }
 
-        Chunk? neighbor;
+        int xSectionPosition = position.X & (Section.Size - 1);
 
-        switch (position.X & (Section.SectionSize - 1))
-        {
-            // Next on x axis.
-            case 0 when TryGetChunk(
-                (position.X - 1) >> Section.SectionSizeExp,
-                position.Z >> Section.SectionSizeExp,
-                out neighbor):
-            case Section.SectionSize - 1 when TryGetChunk(
-                (position.X + 1) >> Section.SectionSizeExp,
-                position.Z >> Section.SectionSizeExp,
-                out neighbor):
+        if (xSectionPosition == 0) CheckNeighbor(position - (1, 0, 0));
+        else if (xSectionPosition == Section.Size - 1) CheckNeighbor(position + (1, 0, 0));
 
-                sectionsToMesh.Add(((ClientChunk) neighbor, position.Y >> Section.SectionSizeExp));
+        int ySectionPosition = position.Y & (Section.Size - 1);
 
-                break;
-        }
+        if (ySectionPosition == 0) CheckNeighbor(position - (0, 1, 0));
+        else if (ySectionPosition == Section.Size - 1) CheckNeighbor(position + (0, 1, 0));
 
-        switch (position.Z & (Section.SectionSize - 1))
-        {
-            // Next on z axis.
-            case 0 when TryGetChunk(
-                position.X >> Section.SectionSizeExp,
-                (position.Z - 1) >> Section.SectionSizeExp,
-                out neighbor):
-            case Section.SectionSize - 1 when TryGetChunk(
-                position.X >> Section.SectionSizeExp,
-                (position.Z + 1) >> Section.SectionSizeExp,
-                out neighbor):
+        int zSectionPosition = position.Z & (Section.Size - 1);
 
-                sectionsToMesh.Add(((ClientChunk) neighbor, position.Y >> Section.SectionSizeExp));
-
-                break;
-        }
+        if (zSectionPosition == 0) CheckNeighbor(position - (0, 0, 1));
+        else if (zSectionPosition == Section.Size - 1) CheckNeighbor(position + (0, 0, 1));
     }
 
     /// <inheritdoc />

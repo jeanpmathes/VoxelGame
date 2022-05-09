@@ -36,11 +36,11 @@ public class SineGenerator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public IEnumerable<Block> GenerateColumn(int x, int z)
+    public IEnumerable<Block> GenerateColumn(int x, int z, (int start, int end) heightRange)
     {
         int height = (int) (amplitude * (Math.Sin(a * x) - Math.Sin(b * z))) + mid;
 
-        for (var y = 0; y < Section.SectionSize * Chunk.VerticalSectionCount; y++)
+        for (int y = heightRange.start; y < heightRange.end; y++)
             if (y > height) yield return Block.Air;
             else if (y == height) yield return Block.Grass;
             else if (y > height - 5) yield return Block.Dirt;

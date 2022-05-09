@@ -28,14 +28,14 @@ public class BlockMeshFaceHolder : MeshFaceHolder
     public BlockMeshFaceHolder(BlockSide side) : base(side)
     {
         // Initialize layers.
-        lastFaces = ArrayPool<MeshFace[]>.Shared.Rent(Section.SectionSize);
+        lastFaces = ArrayPool<MeshFace[]>.Shared.Rent(Section.Size);
 
         // Initialize rows.
-        for (var i = 0; i < Section.SectionSize; i++)
+        for (var i = 0; i < Section.Size; i++)
         {
-            lastFaces[i] = ArrayPool<MeshFace>.Shared.Rent(Section.SectionSize);
+            lastFaces[i] = ArrayPool<MeshFace>.Shared.Rent(Section.Size);
 
-            for (var j = 0; j < Section.SectionSize; j++) lastFaces[i][j] = null;
+            for (var j = 0; j < Section.Size; j++) lastFaces[i][j] = null;
         }
     }
 
@@ -187,8 +187,8 @@ public class BlockMeshFaceHolder : MeshFaceHolder
 
         meshData.Capacity += count;
 
-        for (var l = 0; l < Section.SectionSize; l++)
-        for (var r = 0; r < Section.SectionSize; r++)
+        for (var l = 0; l < Section.Size; l++)
+        for (var r = 0; r < Section.Size; r++)
         {
             MeshFace? currentFace = lastFaces[l][r];
 
@@ -242,7 +242,7 @@ public class BlockMeshFaceHolder : MeshFaceHolder
     /// </summary>
     public void ReturnToPool()
     {
-        for (var i = 0; i < Section.SectionSize; i++) ArrayPool<MeshFace>.Shared.Return(lastFaces[i]!);
+        for (var i = 0; i < Section.Size; i++) ArrayPool<MeshFace>.Shared.Return(lastFaces[i]!);
 
         ArrayPool<MeshFace[]>.Shared.Return(lastFaces!);
     }
