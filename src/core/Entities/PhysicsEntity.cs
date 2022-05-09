@@ -114,8 +114,9 @@ public abstract class PhysicsEntity : IDisposable
 
     /// <summary>
     ///     Get the block position targeted by the physics entity.
+    ///     If the entity is not targeting a block, this will be null.
     /// </summary>
-    public abstract Vector3i TargetPosition { get; }
+    public abstract Vector3i? TargetPosition { get; }
 
     /// <summary>
     ///     Get the collider of this physics entity.

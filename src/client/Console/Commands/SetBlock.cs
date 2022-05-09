@@ -32,7 +32,8 @@ public class SetBlock : Command
     /// <exclude />
     public void Invoke(string namedID, int data)
     {
-        Set(namedID, data, Context.Player.TargetPosition);
+        if (Context.Player.TargetPosition is {} targetPosition) Set(namedID, data, targetPosition);
+        else Context.Console.WriteError("No position targeted.");
     }
 
     private void Set(string namedID, int data, Vector3i position)

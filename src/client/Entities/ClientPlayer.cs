@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
@@ -56,7 +55,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     private BlockInstance? targetBlock;
     private FluidInstance? targetFluid;
 
-    private Vector3i targetPosition = new(x: 0, y: -1, z: 0);
+    private Vector3i? targetPosition;
     private BlockSide targetSide;
 
     /// <summary>
@@ -129,7 +128,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     public Matrix4 ProjectionMatrix => camera.ProjectionMatrix;
 
     /// <inheritdoc cref="PhysicsEntity" />
-    public override Vector3i TargetPosition => targetPosition;
+    public override Vector3i? TargetPosition => targetPosition;
 
     Vector3i IPlayerDataProvider.HeadPosition => headPosition;
 
@@ -159,9 +158,9 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     {
         visualization.Draw();
 
-        if (targetPosition.Y >= 0)
+        if (targetPosition is {} position)
         {
-            (Block selectedBlock, _) = World.GetBlock(targetPosition) ?? BlockInstance.Default;
+            (Block selectedBlock, _) = World.GetBlock(position) ?? BlockInstance.Default;
 
 #if DEBUG
             if (selectedBlock != Block.Air)
@@ -173,7 +172,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
                     "color",
                     new Vector3(x: 0.1f, y: 0.1f, z: 0.1f));
 
-                visualization.DrawSelectionBox(selectedBlock.GetCollider(World, targetPosition));
+                visualization.DrawSelectionBox(selectedBlock.GetCollider(World, position));
             }
         }
 
@@ -302,22 +301,19 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     private void DoWorldInteraction()
     {
-        if (targetBlock == null || targetFluid == null) return;
+        if (targetBlock == null || targetFluid == null || targetPosition == null) return;
 
-        PlaceInteract();
-        DestroyInteract();
+        PlaceInteract(targetBlock.Value, targetPosition.Value);
+        DestroyInteract(targetBlock.Value, targetPosition.Value);
     }
 
-    private void PlaceInteract()
+    private void PlaceInteract(BlockInstance targetedBlock, Vector3i targetedPosition)
     {
-        Debug.Assert(targetBlock != null);
-        Debug.Assert(targetFluid != null);
-
-        BlockInstance currentTarget = targetBlock.Value;
+        BlockInstance currentTarget = targetedBlock;
 
         if (!input.ShouldInteract) return;
 
-        Vector3i placePosition = targetPosition;
+        Vector3i placePosition = targetedPosition;
 
         if (input.IsInteractionBlocked || !currentTarget.Block.IsInteractable)
         {
@@ -335,23 +331,20 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         }
         else if (currentTarget.Block.IsInteractable)
         {
-            currentTarget.Block.EntityInteract(this, targetPosition);
+            currentTarget.Block.EntityInteract(this, targetedPosition);
 
             input.RegisterInteraction();
         }
     }
 
-    private void DestroyInteract()
+    private void DestroyInteract(BlockInstance targetedBlock, Vector3i targetedPosition)
     {
-        Debug.Assert(targetBlock != null);
-        Debug.Assert(targetFluid != null);
-
-        BlockInstance currentTarget = targetBlock.Value;
+        BlockInstance currentTarget = targetedBlock;
 
         if (input.ShouldDestroy)
         {
-            if (blockMode) currentTarget.Block.Destroy(World, targetPosition, this);
-            else TakeFluid(targetPosition);
+            if (blockMode) currentTarget.Block.Destroy(World, targetedPosition, this);
+            else TakeFluid(targetedPosition);
 
             input.RegisterInteraction();
         }

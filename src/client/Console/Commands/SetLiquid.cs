@@ -32,7 +32,8 @@ public class SetFluid : Command
     /// <exclude />
     public void Invoke(string namedID, int level)
     {
-        Set(namedID, level, Context.Player.TargetPosition);
+        if (Context.Player.TargetPosition is {} targetPosition) Set(namedID, level, targetPosition);
+        else Context.Console.WriteError("No position targeted.");
     }
 
     private void Set(string namedID, int levelData, Vector3i position)

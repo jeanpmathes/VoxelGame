@@ -27,7 +27,7 @@ public interface IPlayerDataProvider
     /// <summary>
     ///     The targeted position.
     /// </summary>
-    public Vector3i TargetPosition { get; }
+    public Vector3i? TargetPosition { get; }
 
     /// <summary>
     ///     The position of the player head.
