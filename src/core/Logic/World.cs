@@ -43,7 +43,7 @@ public abstract partial class World : IDisposable
             },
             path,
             path + "/Chunks",
-            new FlatGenerator(heightAir: 0, heightDirt: -5))
+            GetGenerator())
     {
         Information.Save(Path.Combine(WorldDirectory, "meta.json"));
 
@@ -58,7 +58,7 @@ public abstract partial class World : IDisposable
             information,
             path,
             path + "/Chunks",
-            new FlatGenerator(heightAir: 0, heightDirt: -5))
+            GetGenerator())
     {
         logger.LogInformation(Events.WorldIO, "Loaded existing world");
     }
@@ -139,6 +139,11 @@ public abstract partial class World : IDisposable
             Information.SpawnInformation = new SpawnInformation(value);
             logger.LogInformation(Events.WorldData, "World spawn position has been set to: {Position}", value);
         }
+    }
+
+    private static IWorldGenerator GetGenerator()
+    {
+        return new SineGenerator(amplitude: 200, mid: 0, a: 0.05f, b: 0.05f);
     }
 
     private void Setup()
