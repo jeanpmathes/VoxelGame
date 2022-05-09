@@ -140,10 +140,7 @@ public class ClientSection : Section
                         {
                             checkPos = checkPos.Mod(Size);
 
-                            bool atVerticalEnd = side is BlockSide.Top or BlockSide.Bottom;
-
-                            blockToCheck = neighbor?.GetBlock(checkPos) ??
-                                           (atVerticalEnd ? Block.Air : null);
+                            blockToCheck = neighbor?.GetBlock(checkPos) ?? null;
                         }
                         else
                         {
@@ -257,10 +254,7 @@ public class ClientSection : Section
                         {
                             checkPos = checkPos.Mod(Size);
 
-                            bool atVerticalEnd = side is BlockSide.Top or BlockSide.Bottom;
-
-                            blockToCheck = neighbor?.GetBlock(checkPos, out blockToCheckData) ??
-                                           (atVerticalEnd ? Block.Air : null);
+                            blockToCheck = neighbor?.GetBlock(checkPos, out blockToCheckData) ?? null;
                         }
                         else
                         {
@@ -443,16 +437,13 @@ public class ClientSection : Section
                     Vector3i checkPos = side.Offset(pos);
 
                     int sideHeight = -1;
-                    bool atVerticalEnd = side is BlockSide.Top or BlockSide.Bottom;
 
                     if (IsPositionOutOfSection(checkPos))
                     {
                         checkPos = checkPos.Mod(Size);
 
-                        fluidToCheck = neighbor?.GetFluid(checkPos, out sideHeight) ??
-                                       (atVerticalEnd ? Fluid.None : null);
-
-                        blockToCheck = neighbor?.GetBlock(checkPos) ?? (atVerticalEnd ? Block.Air : null);
+                        fluidToCheck = neighbor?.GetFluid(checkPos, out sideHeight) ?? null;
+                        blockToCheck = neighbor?.GetBlock(checkPos) ?? null;
                     }
                     else
                     {
@@ -465,19 +456,9 @@ public class ClientSection : Section
 
                     if (fluidToCheck != currentFluid || !isNeighborFluidMeshed) sideHeight = -1;
 
-                    bool flowsTowardsFace = side == BlockSide.Top
-                        ? currentFluid.Direction == VerticalFlow.Upwards
-                        : currentFluid.Direction == VerticalFlow.Downwards;
-
                     bool meshAtNormal = (int) level > sideHeight && blockToCheck?.IsOpaque != true;
 
-                    bool meshAtEnd =
-                        flowsTowardsFace && sideHeight != 7 && blockToCheck?.IsOpaque != true
-                        || !flowsTowardsFace && (level != FluidLevel.Eight ||
-                                                 fluidToCheck != currentFluid &&
-                                                 blockToCheck?.IsOpaque != true);
-
-                    if (atVerticalEnd ? !meshAtEnd : !meshAtNormal) return;
+                    if (!meshAtNormal) return;
 
                     FluidMeshData mesh =
                         currentFluid.GetMesh(FluidMeshInfo.Fluid(level, side, isStatic));
