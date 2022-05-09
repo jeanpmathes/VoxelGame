@@ -44,7 +44,7 @@ public abstract class Player : PhysicsEntity
     /// <summary>
     ///     Gets the extents of how many chunks should be around this player.
     /// </summary>
-    public static int LoadDistance => 2;
+    public static int LoadDistance => 1;
 
     /// <summary>
     ///     The x coordinate of the current chunk this player is in.

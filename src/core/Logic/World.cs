@@ -43,7 +43,7 @@ public abstract partial class World : IDisposable
             },
             path,
             path + "/Chunks",
-            new FlatGenerator(heightAir: 1000, heightDirt: 900))
+            new FlatGenerator(heightAir: 0, heightDirt: -5))
     {
         Information.Save(Path.Combine(WorldDirectory, "meta.json"));
 
@@ -58,7 +58,7 @@ public abstract partial class World : IDisposable
             information,
             path,
             path + "/Chunks",
-            new FlatGenerator(heightAir: 1000, heightDirt: 900))
+            new FlatGenerator(heightAir: 0, heightDirt: -5))
     {
         logger.LogInformation(Events.WorldIO, "Loaded existing world");
     }

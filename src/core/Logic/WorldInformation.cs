@@ -43,7 +43,7 @@ public class WorldInformation
     /// <summary>
     ///     The spawn information of the world.
     /// </summary>
-    public SpawnInformation SpawnInformation { get; set; } = new(new Vector3(x: 0f, y: 1024f, z: 0f));
+    public SpawnInformation SpawnInformation { get; set; } = new(new Vector3(x: 0f, y: 0f, z: 0f));
 
     /// <summary>
     ///     Save this world information to a file.
