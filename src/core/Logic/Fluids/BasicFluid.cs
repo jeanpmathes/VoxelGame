@@ -75,8 +75,6 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     /// <inheritdoc />
     protected override void ScheduledUpdate(World world, Vector3i position, FluidLevel level, bool isStatic)
     {
-        if (CheckVerticalWorldBounds(world, position)) return;
-
         Block block = world.GetBlock(position)?.Block ?? Block.Air;
 
         if (block is IFillable fillable) ValidLocationFlow(world, position, level, fillable);
@@ -123,19 +121,6 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
                 : TryPuddleFlow(world, position, current)) return;
 
         world.ModifyFluid(isStatic: true, position);
-    }
-
-    private bool CheckVerticalWorldBounds(World world, Vector3i position)
-    {
-        if (position.Y == 0 && Direction == VerticalFlow.Downwards ||
-            position.Y == Section.Size * Chunk.Size - 1 && Direction == VerticalFlow.Upwards)
-        {
-            world.SetDefaultFluid(position);
-
-            return true;
-        }
-
-        return false;
     }
 
     private bool FlowVertical(World world, Vector3i position, IFillable? currentFillable, FluidLevel level,
