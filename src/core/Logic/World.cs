@@ -43,7 +43,7 @@ public abstract partial class World : IDisposable
             },
             path,
             path + "/Chunks",
-            GetGenerator())
+            GetGenerator(seed))
     {
         Information.Save(Path.Combine(WorldDirectory, "meta.json"));
 
@@ -58,7 +58,7 @@ public abstract partial class World : IDisposable
             information,
             path,
             path + "/Chunks",
-            GetGenerator())
+            GetGenerator(information.Seed))
     {
         logger.LogInformation(Events.WorldIO, "Loaded existing world");
     }
@@ -141,9 +141,9 @@ public abstract partial class World : IDisposable
         }
     }
 
-    private static IWorldGenerator GetGenerator()
+    private static IWorldGenerator GetGenerator(int seed)
     {
-        return new SineGenerator(amplitude: 200, mid: 0, a: 0.05f, b: 0.05f);
+        return new ComplexGenerator(seed);
     }
 
     private void Setup()

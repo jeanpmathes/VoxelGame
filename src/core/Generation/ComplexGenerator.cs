@@ -17,18 +17,15 @@ namespace VoxelGame.Core.Generation;
 /// </summary>
 public class ComplexGenerator : IWorldGenerator
 {
-    /*
-    private const int HalfHeight = Chunk.BlockSize / 2;
+    private const int AverageHeight = 900;
+    private const int HalfAverageHeight = AverageHeight / 2;
 
-    private const float Amplitude = 0.6f;
-
-    private const int SnowLevel = 550;
-    private const int BeachLevel = 450;
+    private const int SnowLevel = 500;
+    private const int BeachLevel = 400;
     private const int SoilDepth = 5;
 
-    private const float CaveThreshold = 0.7f;
-    private const float CaveLifter = 3.5f;
-    */
+    private const int CaveHeight = -200;
+    private const float CaveSpread = 100;
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ComplexGenerator>();
 
@@ -57,25 +54,24 @@ public class ComplexGenerator : IWorldGenerator
     /// <inheritdoc />
     public IEnumerable<Block> GenerateColumn(int x, int z, (int start, int end) heightRange)
     {
-        throw new NotImplementedException();
+        int height = (int) (HalfAverageHeight * noise.GetPerlinFractal(x, z)) + HalfAverageHeight;
 
-        /*
+        bool HasCave(int cx, int cy, int cz)
+        {
+            float cave = noise.GetCellular(cx, cz, cy);
 
-        int height = (int) (Amplitude * HalfHeight * noise.GetPerlinFractal(x, z)) + HalfHeight;
+            float distance = Math.Abs(cy - CaveHeight);
+            float factor = Math.Clamp(distance / CaveSpread, min: 0, max: 1);
 
-        for (var y = 0; y < Chunk.ChunkHeight; y++)
-            if (y == 0)
-            {
-                yield return Block.Rubble;
-            }
-            else if (y > height)
+            return cave > factor;
+        }
+
+        for (int y = heightRange.start; y < heightRange.end; y++)
+            if (y > height)
             {
                 if (y == height + 1 && y is < SnowLevel and > BeachLevel + 1)
                 {
-#pragma warning disable S2234 // Parameters should be passed in the correct order
-                    if (noise.GetCellular(x, z, y) > CaveThreshold + y / (HalfHeight * CaveLifter) ||
-                        noise.GetCellular(x, z, y - 1) > CaveThreshold + (y - 1) / (HalfHeight * CaveLifter))
-#pragma warning restore S2234 // Parameters should be passed in the correct order
+                    if (HasCave(x, y, z) || HasCave(x, y - 1, z))
                         yield return Block.Air;
                     else if (noise.GetWhiteNoise(x, z) > 0) yield return Block.TallGrass;
                     else yield return Block.Flower;
@@ -87,9 +83,7 @@ public class ComplexGenerator : IWorldGenerator
             }
             else
             {
-#pragma warning disable S2234 // Parameters should be passed in the correct order
-                if (noise.GetCellular(x, z, y) > CaveThreshold + y / (HalfHeight * CaveLifter))
-#pragma warning restore S2234 // Parameters should be passed in the correct order
+                if (HasCave(x, y, z))
                     yield return Block.Air;
                 else if (y == height)
                     yield return y switch
@@ -106,7 +100,5 @@ public class ComplexGenerator : IWorldGenerator
                         _ => Block.Stone
                     };
             }
-
-        */
     }
 }
