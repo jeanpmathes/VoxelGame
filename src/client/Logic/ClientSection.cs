@@ -49,36 +49,30 @@ public class ClientSection : Section
     /// <summary>
     ///     Create a mesh for this section and activate it.
     /// </summary>
-    /// <param name="sectionX">The x position, in section coordinates.</param>
-    /// <param name="sectionY">The y position, in section coordinates.</param>
-    /// <param name="sectionZ">The z position, in section coordinates.</param>
-    public void CreateAndSetMesh(int sectionX, int sectionY, int sectionZ)
+    /// <param name="position">The position of the section.</param>
+    public void CreateAndSetMesh(SectionPosition position)
     {
-        SectionMeshData meshData = CreateMeshData(sectionX, sectionY, sectionZ);
+        SectionMeshData meshData = CreateMeshData(position);
         SetMeshData(meshData);
     }
 
     /// <summary>
     ///     Create mesh data for this section.
     /// </summary>
-    /// <param name="sectionX">The x position, in section coordinates.</param>
-    /// <param name="sectionY">The y position, in section coordinates.</param>
-    /// <param name="sectionZ">The z position, in section coordinates.</param>
+    /// <param name="position">The position of the section.</param>
     /// <returns>The created mesh data.</returns>
     [SuppressMessage(
         "Blocker Code Smell",
         "S2437:Silly bit operations should not be performed",
         Justification = "Improves readability.")]
-    public SectionMeshData CreateMeshData(int sectionX, int sectionY, int sectionZ)
+    public SectionMeshData CreateMeshData(SectionPosition position)
     {
         // Set the neutral tint colors.
         TintColor blockTint = TintColor.Green;
         TintColor fluidTint = TintColor.Blue;
 
-        Vector3i sectionPosition = (sectionX, sectionY, sectionZ);
-
         // Get the sections next to this section.
-        ClientSection?[] neighbors = GetNeighborSections(sectionPosition);
+        ClientSection?[] neighbors = GetNeighborSections(position);
 
         BlockMeshFaceHolder[] blockMeshFaceHolders = CreateBlockMeshFaceHolders();
 
@@ -140,7 +134,7 @@ public class ClientSection : Section
                         {
                             checkPos = checkPos.Mod(Size);
 
-                            blockToCheck = neighbor?.GetBlock(checkPos) ?? null;
+                            blockToCheck = neighbor?.GetBlock(checkPos);
                         }
                         else
                         {
@@ -254,7 +248,7 @@ public class ClientSection : Section
                         {
                             checkPos = checkPos.Mod(Size);
 
-                            blockToCheck = neighbor?.GetBlock(checkPos, out blockToCheckData) ?? null;
+                            blockToCheck = neighbor?.GetBlock(checkPos, out blockToCheckData);
                         }
                         else
                         {
@@ -437,13 +431,14 @@ public class ClientSection : Section
                     Vector3i checkPos = side.Offset(pos);
 
                     int sideHeight = -1;
+                    bool atVerticalEnd = side is BlockSide.Top or BlockSide.Bottom;
 
                     if (IsPositionOutOfSection(checkPos))
                     {
                         checkPos = checkPos.Mod(Size);
 
-                        fluidToCheck = neighbor?.GetFluid(checkPos, out sideHeight) ?? null;
-                        blockToCheck = neighbor?.GetBlock(checkPos) ?? null;
+                        fluidToCheck = neighbor?.GetFluid(checkPos, out sideHeight);
+                        blockToCheck = neighbor?.GetBlock(checkPos);
                     }
                     else
                     {
@@ -456,9 +451,19 @@ public class ClientSection : Section
 
                     if (fluidToCheck != currentFluid || !isNeighborFluidMeshed) sideHeight = -1;
 
+                    bool flowsTowardsFace = side == BlockSide.Top
+                        ? currentFluid.Direction == VerticalFlow.Upwards
+                        : currentFluid.Direction == VerticalFlow.Downwards;
+
                     bool meshAtNormal = (int) level > sideHeight && blockToCheck?.IsOpaque != true;
 
-                    if (!meshAtNormal) return;
+                    bool meshAtEnd =
+                        flowsTowardsFace && sideHeight != 7 && blockToCheck?.IsOpaque != true
+                        || !flowsTowardsFace && (level != FluidLevel.Eight ||
+                                                 fluidToCheck != currentFluid &&
+                                                 blockToCheck?.IsOpaque != true);
+
+                    if (atVerticalEnd ? !meshAtEnd : !meshAtNormal) return;
 
                     FluidMeshData mesh =
                         currentFluid.GetMesh(FluidMeshInfo.Fluid(level, side, isStatic));
@@ -563,13 +568,13 @@ public class ClientSection : Section
         return meshData;
     }
 
-    private ClientSection?[] GetNeighborSections(Vector3i sectionPosition)
+    private ClientSection?[] GetNeighborSections(SectionPosition position)
     {
         var neighbors = new ClientSection?[6];
 
         foreach (BlockSide side in BlockSide.All.Sides())
             neighbors[(int) side] =
-                World.GetSection(side.Offset(sectionPosition)) as ClientSection;
+                World.GetSection(side.Offset(position)) as ClientSection;
 
         return neighbors;
     }

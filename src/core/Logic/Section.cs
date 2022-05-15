@@ -162,13 +162,13 @@ public abstract class Section : IDisposable
     /// <summary>
     ///     Send random updates to blocks in this section.
     /// </summary>
-    /// <param name="sectionPosition">The position of the section in section coordinates.</param>
-    public void SendRandomUpdates(Vector3i sectionPosition)
+    /// <param name="position">The position of the section.</param>
+    public void SendRandomUpdates(SectionPosition position)
     {
         uint val = GetPos(out Vector3i selectedPosition);
         Decode(val, out Block block, out uint data, out _, out _, out _);
 
-        Vector3i blockPosition = selectedPosition + sectionPosition * Size;
+        Vector3i blockPosition = selectedPosition + position.FirstBlock;
 
         block.RandomUpdate(
             World,
@@ -178,7 +178,7 @@ public abstract class Section : IDisposable
         val = GetPos(out selectedPosition);
         Decode(val, out _, out _, out Fluid fluid, out FluidLevel level, out bool isStatic);
 
-        Vector3i fluidPosition = selectedPosition + sectionPosition * Size;
+        Vector3i fluidPosition = selectedPosition + position.FirstBlock;
 
         fluid.RandomUpdate(
             World,
