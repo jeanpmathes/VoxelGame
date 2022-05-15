@@ -423,6 +423,19 @@ public abstract partial class World
     }
 
     /// <summary>
+    ///     Get the chunk that contains the specified block/fluid position.
+    /// </summary>
+    /// <param name="position">The block/fluid position.</param>
+    /// <returns>The chunk, or null the position is not in an active chunk.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Chunk? GetChunk(Vector3i position)
+    {
+        bool exists = activeChunks.TryGetValue(ChunkPosition.From(position), out Chunk? chunk);
+
+        return !exists ? null : chunk;
+    }
+
+    /// <summary>
     ///     Check if a chunk is active.
     /// </summary>
     /// <param name="position">The position of the chunk.</param>
@@ -454,18 +467,5 @@ public abstract partial class World
         return activeChunks.TryGetValue(position.GetChunk(), out Chunk? chunk)
             ? chunk.GetSection(position)
             : null;
-    }
-
-    /// <summary>
-    ///     Get the chunk that contains the specified block/fluid position.
-    /// </summary>
-    /// <param name="position">The block/fluid position.</param>
-    /// <returns>The chunk, or null the position is not in an active chunk.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Chunk? GetChunk(Vector3i position)
-    {
-        bool exists = activeChunks.TryGetValue(ChunkPosition.From(position), out Chunk? chunk);
-
-        return !exists ? null : chunk;
     }
 }
