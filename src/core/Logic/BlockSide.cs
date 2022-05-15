@@ -169,6 +169,16 @@ public static class BlockSideExtensions
     }
 
     /// <summary>
+    ///     Offset a section position by the direction of this side.
+    /// </summary>
+    public static SectionPosition Offset(this BlockSide side, SectionPosition pos)
+    {
+        (int x, int y, int z) = side.Direction();
+
+        return new SectionPosition(pos.X + x, pos.Y + y, pos.Z + z);
+    }
+
+    /// <summary>
     ///     Convert this side to the axis it is on.
     /// </summary>
     public static Axis Axis(this BlockSide side)

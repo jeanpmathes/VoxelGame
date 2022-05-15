@@ -101,9 +101,7 @@ public class ClientWorld : World
         for (int y = -Player.LoadDistance; y <= Player.LoadDistance; y++)
         for (int z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
             if (TryGetChunk(
-                    player!.ChunkX + x,
-                    player!.ChunkY + y,
-                    player!.ChunkZ + z,
+                    player!.Chunk.Offset(x, y, z),
                     out Chunk? chunk))
                 ((ClientChunk) chunk).AddCulledToRenderList(frustum, renderList);
 
@@ -124,9 +122,9 @@ public class ClientWorld : World
     }
 
     /// <inheritdoc />
-    protected override Chunk CreateChunk(int x, int y, int z)
+    protected override Chunk CreateChunk(ChunkPosition position)
     {
-        return new ClientChunk(this, x, y, z);
+        return new ClientChunk(this, position);
     }
 
     /// <inheritdoc />
@@ -159,7 +157,7 @@ public class ClientWorld : World
         }
         else
         {
-            if (ActiveChunkCount >= 25 && IsChunkActive(x: 0, y: 0, z: 0))
+            if (ActiveChunkCount >= 25 && IsChunkActive(ChunkPosition.Origin))
             {
                 IsReady = true;
 
@@ -180,22 +178,22 @@ public class ClientWorld : World
         chunksToMesh.Enqueue((ClientChunk) activatedChunk);
 
         // Schedule to mesh the chunks around this chunk
-        if (TryGetChunk(activatedChunk.X + 1, activatedChunk.Y, activatedChunk.Z, out Chunk? neighbor))
+        if (TryGetChunk(activatedChunk.Position.Offset(x: 1, y: 0, z: 0), out Chunk? neighbor))
             chunksToMesh.Enqueue((ClientChunk) neighbor);
 
-        if (TryGetChunk(activatedChunk.X - 1, activatedChunk.Y, activatedChunk.Z, out neighbor))
+        if (TryGetChunk(activatedChunk.Position.Offset(x: -1, y: 0, z: 0), out neighbor))
             chunksToMesh.Enqueue((ClientChunk) neighbor);
 
-        if (TryGetChunk(activatedChunk.X, activatedChunk.Y + 1, activatedChunk.Z, out neighbor))
+        if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 1, z: 0), out neighbor))
             chunksToMesh.Enqueue((ClientChunk) neighbor);
 
-        if (TryGetChunk(activatedChunk.X, activatedChunk.Y - 1, activatedChunk.Z, out neighbor))
+        if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: -1, z: 0), out neighbor))
             chunksToMesh.Enqueue((ClientChunk) neighbor);
 
-        if (TryGetChunk(activatedChunk.X, activatedChunk.Y, activatedChunk.Z + 1, out neighbor))
+        if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 0, z: 1), out neighbor))
             chunksToMesh.Enqueue((ClientChunk) neighbor);
 
-        if (TryGetChunk(activatedChunk.X, activatedChunk.Y, activatedChunk.Z - 1, out neighbor))
+        if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 0, z: -1), out neighbor))
             chunksToMesh.Enqueue((ClientChunk) neighbor);
     }
 
@@ -216,9 +214,8 @@ public class ClientWorld : World
                     logger.LogCritical(
                         Events.ChunkMeshingError,
                         e,
-                        "An exception (critical) occurred when meshing the chunk ({X}|{Z}) and will be re-thrown",
-                        meshedChunk.X,
-                        meshedChunk.Z);
+                        "An exception (critical) occurred when meshing the chunk {Position} and will be re-thrown",
+                        meshedChunk.Position);
 
                     throw e;
                 }
@@ -284,17 +281,17 @@ public class ClientWorld : World
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ProcessChangedSection(Chunk chunk, Vector3i position)
     {
-        sectionsToMesh.Add(((ClientChunk) chunk, Chunk.GetLocalSectionPosition(position)));
+        sectionsToMesh.Add(((ClientChunk) chunk, SectionPosition.From(position).GetLocal()));
 
         // Check if sections next to changed section have to be changed:
 
         void CheckNeighbor(Vector3i neighborPosition)
         {
-            Chunk? neighbor = GetChunkWithPosition(neighborPosition);
+            Chunk? neighbor = GetChunk(neighborPosition);
 
             if (neighbor == null) return;
 
-            sectionsToMesh.Add(((ClientChunk) neighbor, Chunk.GetLocalSectionPosition(neighborPosition)));
+            sectionsToMesh.Add(((ClientChunk) neighbor, SectionPosition.From(neighborPosition).GetLocal()));
         }
 
         int xSectionPosition = position.X & (Section.Size - 1);

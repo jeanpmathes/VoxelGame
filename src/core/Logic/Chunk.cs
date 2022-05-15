@@ -79,16 +79,11 @@ public abstract class Chunk : IDisposable
     ///     Create a new chunk.
     /// </summary>
     /// <param name="world">The world.</param>
-    /// <param name="x">The x chunk coordinate.</param>
-    /// <param name="y">The y chunk coordinate.</param>
-    /// <param name="z">The z chunk coordinate.</param>
-    protected Chunk(World world, int x, int y, int z)
+    /// <param name="position">The chunk position.</param>
+    protected Chunk(World world, ChunkPosition position)
     {
         World = world;
-
-        X = x;
-        Y = y;
-        Z = z;
+        Position = position;
 
         for (var s = 0; s < SectionCount; s++)
         {
@@ -111,27 +106,14 @@ public abstract class Chunk : IDisposable
     }
 
     /// <summary>
-    ///     The X position of this chunk in chunk units.
+    /// Get the position of this chunk.
     /// </summary>
-    public int X { get; }
-
-    /// <summary>
-    ///     The Y position of this chunk in chunk units.
-    /// </summary>
-    public int Y { get; }
-
-    /// <summary>
-    ///     The Z position of this chunk in chunk units.
-    /// </summary>
-    public int Z { get; }
+    public ChunkPosition Position { get; }
 
     /// <summary>
     ///     Gets the position of the chunk as a point located in the center of the chunk.
     /// </summary>
-    public Vector3 ChunkPoint => new(
-        X * BlockSize + BlockSize / 2f,
-        Y * BlockSize + BlockSize / 2f,
-        Z * BlockSize + BlockSize / 2f);
+    public Vector3 ChunkPoint => Position.Center;
 
     /// <summary>
     ///     The extents of a chunk.
@@ -166,17 +148,15 @@ public abstract class Chunk : IDisposable
     ///     returned.
     /// </summary>
     /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
-    /// <param name="x">The x coordinate of the chunk.</param>
-    /// <param name="y">The y coordinates of the chunk.</param>
-    /// <param name="z">The z coordinate of the chunk.</param>
+    /// <param name="position">The position of the chunk.</param>
     /// <returns>The loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
     [SuppressMessage(
         "ReSharper.DPA",
         "DPA0002: Excessive memory allocations in SOH",
         Justification = "Chunks are allocated here.")]
-    public static Chunk? Load(string path, int x, int y, int z)
+    public static Chunk? Load(string path, ChunkPosition position)
     {
-        logger.LogDebug(Events.ChunkOperation, "Loading chunk for position: ({X}|{Y}|{Z})", x, y, z);
+        logger.LogDebug(Events.ChunkOperation, "Loading chunk for position: {Position}", position);
 
         Chunk chunk;
 
@@ -191,13 +171,9 @@ public abstract class Chunk : IDisposable
         }
 
         // Checking the chunk
-        if (chunk.X == x && chunk.Y == y && chunk.Z == z) return chunk;
+        if (chunk.Position == position) return chunk;
 
-        logger.LogWarning(
-            "File for the chunk at ({X}|{Y}|{Z}) was invalid: position did not match",
-            x,
-            y,
-            z);
+        logger.LogWarning("File for the chunk at {Position} was invalid: position did not match", position);
 
         return null;
     }
@@ -207,25 +183,21 @@ public abstract class Chunk : IDisposable
     ///     parameters, null is returned.
     /// </summary>
     /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
-    /// <param name="x">The x coordinate of the chunk.</param>
-    /// <param name="y">The y coordinate of the chunk.</param>
-    /// <param name="z">The z coordinate of the chunk.</param>
+    /// <param name="position">The position of the chunk.</param>
     /// <returns>A task containing the loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
-    public static Task<Chunk?> LoadAsync(string path, int x, int y, int z)
+    public static Task<Chunk?> LoadAsync(string path, ChunkPosition position)
     {
-        return Task.Run(() => Load(path, x, y, z));
+        return Task.Run(() => Load(path, position));
     }
 
     /// <summary>
     ///     Get the file name of a chunk.
     /// </summary>
-    /// <param name="x">The x coordinate of the chunk.</param>
-    /// <param name="y">The y coordinate of the chunk.</param>
-    /// <param name="z">The z coordinate of the chunk.</param>
+    /// <param name="position">The position of the chunk.</param>
     /// <returns>The file name of the chunk.</returns>
-    public static string GetChunkFileName(int x, int y, int z)
+    public static string GetChunkFileName(ChunkPosition position)
     {
-        return $"x{x}y{y}z{z}.chunk";
+        return $"x{position.X}y{position.Y}z{position.Z}.chunk";
     }
 
     /// <summary>
@@ -237,9 +209,9 @@ public abstract class Chunk : IDisposable
         blockTickManager.Unload();
         fluidTickManager.Unload();
 
-        string chunkFile = Path.Combine(path, GetChunkFileName(X, Y, Z));
+        string chunkFile = Path.Combine(path, GetChunkFileName(Position));
 
-        logger.LogDebug(Events.ChunkOperation, "Saving the chunk ({X}|{Y}|{Z}) to: {Path}", X, Y, Z, chunkFile);
+        logger.LogDebug(Events.ChunkOperation, "Saving the chunk {Position} to: {Path}", Position, chunkFile);
 
         using Stream stream = new FileStream(chunkFile, FileMode.Create, FileAccess.Write, FileShare.Read);
         IFormatter formatter = new BinaryFormatter();
@@ -269,13 +241,11 @@ public abstract class Chunk : IDisposable
     {
         logger.LogDebug(
             Events.ChunkOperation,
-            "Generating the chunk ({X}|{Y}|{Z}) using '{Name}' generator",
-            X,
-            Y,
-            Z,
+            "Generating the chunk {Position} using '{Name}' generator",
+            Position,
             generator);
 
-        (int begin, int end) range = (Y * BlockSize, (Y + 1) * BlockSize);
+        (int begin, int end) range = (Position.Y * BlockSize, (Position.Y + 1) * BlockSize);
 
         for (var x = 0; x < BlockSize; x++)
         for (var z = 0; z < BlockSize; z++)
@@ -283,12 +253,12 @@ public abstract class Chunk : IDisposable
             int y = range.begin;
 
             foreach (Block block in generator.GenerateColumn(
-                         x + X * BlockSize,
-                         z + Z * BlockSize,
+                         x + Position.X * BlockSize,
+                         z + Position.Z * BlockSize,
                          range))
             {
                 Vector3i position = (x, y, z);
-                GetSectionWithPosition(position).SetContent(position, block.Id);
+                GetSection(position).SetContent(position, block.Id);
 
                 y++;
             }
@@ -328,20 +298,20 @@ public abstract class Chunk : IDisposable
         for (var i = 0; i < RandomTickBatchSize; i++)
         {
             int index = (anchor + i) % SectionCount;
-            sections[index].SendRandomUpdates(IndexToSectionPosition(index));
+            sections[index].SendRandomUpdates(SectionPosition.From(Position, IndexToLocalSection(index)));
         }
     }
 
     /// <summary>
     /// Get a section of this chunk.
     /// </summary>
-    /// <param name="x">The x position of the section, relative in this chunk.</param>
-    /// <param name="y">The y position of the section, relative in this chunk.</param>
-    /// <param name="z">The z position of the section, relative in this chunk.</param>
+    /// <param name="position">The position of the section. Must be in this chunk.</param>
     /// <returns>The section.</returns>
-    public Section GetSection(int x, int y, int z)
+    public Section GetSection(SectionPosition position)
     {
-        return sections[LocalPositionToIndex(x, y, z)];
+        (int x, int y, int z) = position.GetLocal();
+
+        return sections[LocalSectionToIndex(x, y, z)];
     }
 
     /// <summary>
@@ -349,42 +319,15 @@ public abstract class Chunk : IDisposable
     /// </summary>
     /// <param name="position">The world position. Must be in this chunk.</param>
     /// <returns>The section containing it.</returns>
-    public Section GetSectionWithPosition(Vector3i position)
+    public Section GetSection(Vector3i position)
     {
-        return GetSectionWithPosition(position, out _);
-    }
-
-    /// <summary>
-    ///     Get a section of this chunk, that contains the given world position.
-    /// </summary>
-    /// <param name="position">The world position. Must be in this chunk.</param>
-    /// <param name="localPosition">The position of this section locally in this chunk.</param>
-    /// <returns>The section containing it.</returns>
-    public Section GetSectionWithPosition(Vector3i position, out (int x, int y, int z) localPosition)
-    {
-        localPosition = GetLocalSectionPosition(position);
-
-        return GetSection(localPosition.x, localPosition.y, localPosition.z);
-    }
-
-    /// <summary>
-    ///     Get the local position (in chunk) of the section that contains the given world position.
-    /// </summary>
-    /// <param name="position">The given world position.</param>
-    /// <returns>The local section position.</returns>
-    public static (int x, int y, int z) GetLocalSectionPosition(Vector3i position)
-    {
-        int sectionX = position.X >> Section.SizeExp;
-        int sectionY = position.Y >> Section.SizeExp;
-        int sectionZ = position.Z >> Section.SizeExp;
-
-        return (sectionX & (Size - 1), sectionY & (Size - 1), sectionZ & (Size - 1));
+        return GetSection(SectionPosition.From(position));
     }
 
     /// <summary>
     ///     Convert a three-dimensional section position (in this chunk) to a one-dimensional section index.
     /// </summary>
-    protected static int LocalPositionToIndex(int x, int y, int z)
+    protected static int LocalSectionToIndex(int x, int y, int z)
     {
         return (x << SizeExp2) + (y << SizeExp) + z;
     }
@@ -392,7 +335,7 @@ public abstract class Chunk : IDisposable
     /// <summary>
     ///     Convert a one-dimensional section index to a three-dimensional section position (in this chunk).
     /// </summary>
-    protected static (int x, int y, int z) IndexToLocalPosition(int index)
+    protected static (int x, int y, int z) IndexToLocalSection(int index)
     {
         int z = index & (Size - 1);
         index = (index - z) >> SizeExp;
@@ -403,26 +346,16 @@ public abstract class Chunk : IDisposable
         return (x, y, z);
     }
 
-    /// <summary>
-    ///     Convert a section index to global section position.
-    /// </summary>
-    protected Vector3i IndexToSectionPosition(int index)
-    {
-        (int x, int y, int z) = IndexToLocalPosition(index);
-
-        return (X + x, Y + y, Z + z);
-    }
-
     /// <inheritdoc />
     public sealed override string ToString()
     {
-        return $"Chunk ({X}|{Y}|{Z})";
+        return $"Chunk {Position}";
     }
 
     /// <inheritdoc />
     public sealed override bool Equals(object? obj)
     {
-        if (obj is Chunk other) return other.X == X && other.Y == Y && other.Z == Z;
+        if (obj is Chunk other) return Position == other.Position;
 
         return false;
     }
@@ -430,7 +363,7 @@ public abstract class Chunk : IDisposable
     /// <inheritdoc />
     public sealed override int GetHashCode()
     {
-        return HashCode.Combine(X, Y, Z);
+        return HashCode.Combine(Position);
     }
 
     #region IDisposable Support

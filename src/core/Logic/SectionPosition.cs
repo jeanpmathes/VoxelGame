@@ -5,12 +5,14 @@
 // <author>pershingthesecond</author>
 
 using System;
+using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
 ///     The position of a section in the world.
 /// </summary>
+[Serializable]
 public readonly struct SectionPosition : IEquatable<SectionPosition>
 {
     /// <summary>
@@ -72,5 +74,58 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     public static bool operator !=(SectionPosition left, SectionPosition right)
     {
         return !left.Equals(right);
+    }
+
+    /// <summary>
+    ///     Get this section position as a local position in a chunk.
+    /// </summary>
+    /// <returns>The local position in a chunk.</returns>
+    public (int x, int y, int z) GetLocal()
+    {
+        int localX = X & (Chunk.Size - 1);
+        int localY = Y & (Chunk.Size - 1);
+        int localZ = Z & (Chunk.Size - 1);
+
+        return (localX, localY, localZ);
+    }
+
+    /// <summary>
+    ///     Get the chunk this section position is in.
+    /// </summary>
+    /// <returns>The position of the chunk.</returns>
+    public ChunkPosition GetChunk()
+    {
+        int chunkX = X >> Chunk.SizeExp;
+        int chunkY = Y >> Chunk.SizeExp;
+        int chunkZ = Z >> Chunk.SizeExp;
+
+        return new ChunkPosition(chunkX, chunkY, chunkZ);
+    }
+
+    /// <summary>
+    ///     Get the position of the first block in this section.
+    /// </summary>
+    public Vector3i FirstBlock => new Vector3i(X, Y, Z) * Section.Size;
+
+    /// <summary>
+    ///     Create a section position that contains a world position.
+    /// </summary>
+    public static SectionPosition From(Vector3i position)
+    {
+        int x = position.X >> Section.SizeExp;
+        int y = position.Y >> Section.SizeExp;
+        int z = position.Z >> Section.SizeExp;
+
+        return new SectionPosition(x, y, z);
+    }
+
+    /// <summary>
+    ///     Create a section position for a section in a given chunk, with the given local offsets.
+    /// </summary>
+    public static SectionPosition From(ChunkPosition position, (int x, int y, int z) localSection)
+    {
+        SectionPosition first = position.FirstSection;
+
+        return new SectionPosition(first.X + localSection.x, first.Y + localSection.y, first.Z + localSection.z);
     }
 }

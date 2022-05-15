@@ -22,7 +22,7 @@ public abstract partial class World
     /// <summary>
     ///     A dictionary that contains all active chunks.
     /// </summary>
-    private readonly Dictionary<(int x, int y, int z), Chunk> activeChunks;
+    private readonly Dictionary<ChunkPosition, Chunk> activeChunks;
 
     /// <summary>
     ///     A list of chunk generation tasks.
@@ -62,38 +62,38 @@ public abstract partial class World
     /// <summary>
     ///     A set of chunk positions that are currently being activated. No new chunks for these positions should be created.
     /// </summary>
-    private readonly HashSet<(int x, int y, int z)> positionsActivating;
+    private readonly HashSet<ChunkPosition> positionsActivating;
 
     /// <summary>
     ///     A set of positions that have no task activating them and have to be activated by the saving code.
     /// </summary>
-    private readonly HashSet<(int x, int y, int z)> positionsActivatingThroughSaving;
+    private readonly HashSet<ChunkPosition> positionsActivatingThroughSaving;
 
     /// <summary>
     ///     A dictionary containing all chunk positions that are currently loaded, with the task id of their loading task as
     ///     key.
     /// </summary>
-    private readonly Dictionary<int, (int x, int y, int z)> positionsLoading;
+    private readonly Dictionary<int, ChunkPosition> positionsLoading;
 
     /// <summary>
     ///     A set containing all positions that are currently saved.
     /// </summary>
-    private readonly HashSet<(int x, int y, int z)> positionsSaving;
+    private readonly HashSet<ChunkPosition> positionsSaving;
 
     /// <summary>
     ///     A set of chunk positions which are currently not active and should either be loaded or generated.
     /// </summary>
-    private readonly HashSet<(int x, int y, int z)> positionsToActivate;
+    private readonly HashSet<ChunkPosition> positionsToActivate;
 
     /// <summary>
     ///     A queue that contains all positions that have to be loaded.
     /// </summary>
-    private readonly UniqueQueue<(int x, int y, int z)> positionsToLoad;
+    private readonly UniqueQueue<ChunkPosition> positionsToLoad;
 
     /// <summary>
     ///     A set of chunk positions that should be released on their activation.
     /// </summary>
-    private readonly HashSet<(int x, int y, int z)> positionsToReleaseOnActivation;
+    private readonly HashSet<ChunkPosition> positionsToReleaseOnActivation;
 
     /// <summary>
     ///     Get the active chunk count.
@@ -108,23 +108,23 @@ public abstract partial class World
     /// <summary>
     ///     Creates a chunk for a chunk position.
     /// </summary>
-    protected abstract Chunk CreateChunk(int x, int y, int z);
+    protected abstract Chunk CreateChunk(ChunkPosition position);
 
     /// <summary>
     ///     Start activating chunks. This will either load or generate chunks that are set to be activated.
     /// </summary>
     protected void StartActivatingChunks()
     {
-        foreach ((int x, int y, int z) in positionsToActivate)
-            if (!positionsActivating.Contains((x, y, z)) && !activeChunks.ContainsKey((x, y, z)))
+        foreach (ChunkPosition position in positionsToActivate)
+            if (!positionsActivating.Contains(position) && !activeChunks.ContainsKey(position))
             {
-                string pathToChunk = Path.Combine(ChunkDirectory, Chunk.GetChunkFileName(x, y, z));
+                string pathToChunk = Path.Combine(ChunkDirectory, Chunk.GetChunkFileName(position));
 
                 bool isActivating = File.Exists(pathToChunk)
-                    ? positionsToLoad.Enqueue((x, y, z))
-                    : chunksToGenerate.Enqueue(CreateChunk(x, y, z));
+                    ? positionsToLoad.Enqueue(position)
+                    : chunksToGenerate.Enqueue(CreateChunk(position));
 
-                if (isActivating) positionsActivating.Add((x, y, z));
+                if (isActivating) positionsActivating.Add(position);
             }
 
         positionsToActivate.Clear();
@@ -145,15 +145,15 @@ public abstract partial class World
                     chunkGenerateTasks.RemoveAt(i);
                     chunksGenerating.Remove(completed.Id);
 
-                    positionsActivating.Remove((generatedChunk.X, generatedChunk.Y, generatedChunk.Z));
+                    positionsActivating.Remove(generatedChunk.Position);
 
                     if (completed.IsFaulted)
                         throw completed.Exception?.GetBaseException() ?? new NullReferenceException();
 
-                    if (!activeChunks.ContainsKey((generatedChunk.X, generatedChunk.Y, generatedChunk.Z)) &&
-                        !positionsToReleaseOnActivation.Remove((generatedChunk.X, generatedChunk.Y, generatedChunk.Z)))
+                    if (!activeChunks.ContainsKey(generatedChunk.Position) &&
+                        !positionsToReleaseOnActivation.Remove(generatedChunk.Position))
                     {
-                        activeChunks.Add((generatedChunk.X, generatedChunk.Y, generatedChunk.Z), generatedChunk);
+                        activeChunks.Add(generatedChunk.Position, generatedChunk);
 
                         ProcessNewlyActivatedChunk(generatedChunk);
                     }
@@ -189,42 +189,40 @@ public abstract partial class World
                 if (chunkLoadingTasks[i].IsCompleted)
                 {
                     Task<Chunk?> completed = chunkLoadingTasks[i];
-                    (int x, int y, int z) = positionsLoading[completed.Id];
+                    ChunkPosition position = positionsLoading[completed.Id];
 
                     chunkLoadingTasks.RemoveAt(i);
                     positionsLoading.Remove(completed.Id);
 
-                    positionsActivating.Remove((x, y, z));
+                    positionsActivating.Remove(position);
 
                     if (completed.IsFaulted)
                     {
-                        if (!positionsToReleaseOnActivation.Remove((x, y, z)) || !activeChunks.ContainsKey((x, y, z)))
+                        if (!positionsToReleaseOnActivation.Remove(position) || !activeChunks.ContainsKey(position))
                         {
                             logger.LogError(
                                 Events.ChunkLoadingError,
                                 completed.Exception!.GetBaseException(),
-                                "An exception occurred when loading the chunk ({X}|{Y}|{Z}). " +
+                                "An exception occurred when loading the chunk {Position}. " +
                                 "The chunk has been scheduled for generation",
-                                x,
-                                y,
-                                z);
+                                position);
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
-                            if (chunksToGenerate.Enqueue(CreateChunk(x, y, z)))
+                            if (chunksToGenerate.Enqueue(CreateChunk(position)))
 #pragma warning restore CA2000 // Dispose objects before losing scope
-                                positionsActivating.Add((x, y, z));
+                                positionsActivating.Add(position);
                         }
                     }
                     else
                     {
                         Chunk? loadedChunk = completed.Result;
 
-                        if (loadedChunk != null && !activeChunks.ContainsKey((x, y, z)))
+                        if (loadedChunk != null && !activeChunks.ContainsKey(position))
                         {
-                            if (!positionsToReleaseOnActivation.Remove((loadedChunk.X, loadedChunk.Y, loadedChunk.Z)))
+                            if (!positionsToReleaseOnActivation.Remove(loadedChunk.Position))
                             {
                                 loadedChunk.Setup(this, UpdateCounter);
-                                activeChunks.Add((x, y, z), loadedChunk);
+                                activeChunks.Add(position, loadedChunk);
 
                                 ProcessNewlyActivatedChunk(loadedChunk);
                             }
@@ -237,17 +235,15 @@ public abstract partial class World
                         {
                             logger.LogError(
                                 Events.ChunkLoadingError,
-                                "Position of the loaded chunk file for position ({X}|{Y}|{Z}) did not match the requested position, " +
+                                "Position of the loaded chunk file for position {Position} did not match the requested position, " +
                                 "which can be caused by a renamed chunk file. " +
                                 "Position will be scheduled for generation",
-                                x,
-                                y,
-                                z);
+                                position);
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
-                            if (chunksToGenerate.Enqueue(CreateChunk(x, y, z)))
+                            if (chunksToGenerate.Enqueue(CreateChunk(position)))
 #pragma warning restore CA2000 // Dispose objects before losing scope
-                                positionsActivating.Add((x, y, z));
+                                positionsActivating.Add(position);
                         }
                     }
                 }
@@ -260,22 +256,22 @@ public abstract partial class World
     {
         while (positionsToLoad.Count > 0 && chunkLoadingTasks.Count < MaxLoadingTasks)
         {
-            (int x, int y, int z) = positionsToLoad.Dequeue();
+            ChunkPosition position = positionsToLoad.Dequeue();
 
             // If a chunk is already being loaded or saved no new loading task is needed
-            if (!positionsLoading.ContainsValue((x, y, z)))
+            if (!positionsLoading.ContainsValue(position))
             {
-                if (!positionsSaving.Contains((x, y, z)))
+                if (!positionsSaving.Contains(position))
                 {
-                    string pathToChunk = Path.Combine(ChunkDirectory, Chunk.GetChunkFileName(x, y, z));
-                    Task<Chunk?> currentTask = Chunk.LoadAsync(pathToChunk, x, y, z);
+                    string pathToChunk = Path.Combine(ChunkDirectory, Chunk.GetChunkFileName(position));
+                    Task<Chunk?> currentTask = Chunk.LoadAsync(pathToChunk, position);
 
                     chunkLoadingTasks.Add(currentTask);
-                    positionsLoading.Add(currentTask.Id, (x, y, z));
+                    positionsLoading.Add(currentTask.Id, position);
                 }
                 else
                 {
-                    positionsActivatingThroughSaving.Add((x, y, z));
+                    positionsActivatingThroughSaving.Add(position);
                 }
             }
         }
@@ -295,22 +291,22 @@ public abstract partial class World
 
                     chunkSavingTasks.RemoveAt(i);
                     chunksSaving.Remove(completed.Id);
-                    positionsSaving.Remove((completedChunk.X, completedChunk.Y, completedChunk.Z));
+                    positionsSaving.Remove(completedChunk.Position);
 
                     // Check if the chunk should be activated and is not active and not requested to be released on activation; if true, the chunk will not be disposed
-                    if ((positionsToActivate.Contains((completedChunk.X, completedChunk.Y, completedChunk.Z)) ||
-                         positionsActivating.Contains((completedChunk.X, completedChunk.Y, completedChunk.Z)))
-                        && !activeChunks.ContainsKey((completedChunk.X, completedChunk.Y, completedChunk.Z))
+                    if ((positionsToActivate.Contains(completedChunk.Position) ||
+                         positionsActivating.Contains(completedChunk.Position))
+                        && !activeChunks.ContainsKey(completedChunk.Position)
                         && !positionsToReleaseOnActivation.Contains(
-                            (completedChunk.X, completedChunk.Y, completedChunk.Z)))
+                            completedChunk.Position))
                     {
-                        positionsToActivate.Remove((completedChunk.X, completedChunk.Y, completedChunk.Z));
+                        positionsToActivate.Remove(completedChunk.Position);
 
                         if (positionsActivatingThroughSaving.Remove(
-                                (completedChunk.X, completedChunk.Y, completedChunk.Z)))
-                            positionsActivating.Remove((completedChunk.X, completedChunk.Y, completedChunk.Z));
+                                completedChunk.Position))
+                            positionsActivating.Remove(completedChunk.Position);
 
-                        activeChunks.Add((completedChunk.X, completedChunk.Y, completedChunk.Z), completedChunk);
+                        activeChunks.Add(completedChunk.Position, completedChunk);
 
                         ProcessNewlyActivatedChunk(completedChunk);
                     }
@@ -320,17 +316,15 @@ public abstract partial class World
                             logger.LogError(
                                 Events.ChunkSavingError,
                                 completed.Exception!.GetBaseException(),
-                                "An exception occurred when saving chunk ({X}|{Y}|{Z}). " +
+                                "An exception occurred when saving chunk {Position}. " +
                                 "Chunk will be disposed without saving",
-                                completedChunk.X,
-                                completedChunk.Y,
-                                completedChunk.Z);
+                                completedChunk.Position);
 
                         if (positionsActivatingThroughSaving.Remove(
-                                (completedChunk.X, completedChunk.Y, completedChunk.Z)))
-                            positionsActivating.Remove((completedChunk.X, completedChunk.Y, completedChunk.Z));
+                                completedChunk.Position))
+                            positionsActivating.Remove(completedChunk.Position);
 
-                        positionsToReleaseOnActivation.Remove((completedChunk.X, completedChunk.Y, completedChunk.Z));
+                        positionsToReleaseOnActivation.Remove(completedChunk.Position);
 
                         completedChunk.Dispose();
                     }
@@ -354,65 +348,61 @@ public abstract partial class World
 
             chunkSavingTasks.Add(currentTask);
             chunksSaving.Add(currentTask.Id, current);
-            positionsSaving.Add((current.X, current.Y, current.Z));
+            positionsSaving.Add(current.Position);
         }
     }
 
     /// <summary>
     ///     Requests the activation of a chunk. This chunk will either be loaded or generated.
     /// </summary>
-    /// <param name="x">The x coordinates in chunk coordinates.</param>
-    /// <param name="y">The y coordinates in chunk coordinates.</param>
-    /// <param name="z">The z coordinates in chunk coordinates.</param>
-    public void RequestChunk(int x, int y, int z)
+    /// <param name="position">The position of the chunk.</param>
+    public void RequestChunk(ChunkPosition position)
     {
-        positionsToReleaseOnActivation.Remove((x, y, z));
+        positionsToReleaseOnActivation.Remove(position);
 
-        if (positionsActivating.Contains((x, y, z)) || activeChunks.ContainsKey((x, y, z))) return;
-        positionsToActivate.Add((x, y, z));
+        if (positionsActivating.Contains(position) || activeChunks.ContainsKey(position)) return;
+        positionsToActivate.Add(position);
 
-        logger.LogDebug(Events.ChunkRequest, "Chunk ({X}|{Y}|{Z}) has been requested successfully", x, y, z);
+        logger.LogDebug(Events.ChunkRequest, "Chunk {Position} has been requested successfully", position);
     }
 
     /// <summary>
     ///     Notifies the world that a chunk is no longer needed. The world decides if the chunk is deactivated.
     /// </summary>
-    /// <param name="x">The x coordinates in chunk coordinates.</param>
-    /// <param name="y">The y coordinates in chunk coordinates.</param>
-    /// <param name="z">The z coordinates in chunk coordinates.</param>
+    /// <param name="position">The position of the chunk.</param>
     /// <returns>true if the chunk will be released; false if not.</returns>
-    public bool ReleaseChunk(int x, int y, int z)
+    public bool ReleaseChunk(ChunkPosition position)
     {
         // Check if the chunk can be released
-        if (x == 0 && y == 0 && z == 0) return false; // The chunk at (0|0|0) cannot be released.
+        if (position == ChunkPosition.Origin) return false; // The chunk at (0|0|0) cannot be released.
 
         var canRelease = false;
 
         // Check if the chunk exists
-        if (activeChunks.TryGetValue((x, y, z), out Chunk? chunk))
+        if (activeChunks.TryGetValue(position, out Chunk? chunk))
         {
-            activeChunks.Remove((x, y, z));
+            activeChunks.Remove(position);
             chunksToSave.Enqueue(chunk);
 
-            logger.LogDebug(Events.ChunkRelease, "Released chunk ({X}|{Y}|{Z})", x, y, z);
+            logger.LogDebug(Events.ChunkRelease, "Released chunk {Position}", position);
 
             canRelease = true;
         }
 
-        if (positionsActivating.Contains((x, y, z)))
+        if (positionsActivating.Contains(position))
         {
-            positionsToReleaseOnActivation.Add((x, y, z));
+            positionsToReleaseOnActivation.Add(position);
 
-            logger.LogDebug(Events.ChunkRelease, "Scheduled to release chunk ({X}|{Y}|{Z}) after activation", x, y, z);
+            logger.LogDebug(Events.ChunkRelease, "Scheduled to release chunk {Position} after activation", position);
 
             canRelease = true;
         }
 
-        if (positionsToActivate.Contains((x, y, z)))
+        if (positionsToActivate.Contains(position))
         {
-            positionsToActivate.Remove((x, y, z));
+            positionsToActivate.Remove(position);
 
-            logger.LogDebug(Events.ChunkRelease, "Removed chunk ({X}|{Y}|{Z}) from activation list", x, y, z);
+            logger.LogDebug(Events.ChunkRelease, "Removed chunk {Position} from activation list", position);
 
             canRelease = true;
         }
@@ -423,13 +413,11 @@ public abstract partial class World
     /// <summary>
     ///     Gets an active chunk.
     /// </summary>
-    /// <param name="x">The x position of the chunk in chunk coordinates.</param>
-    /// <param name="y">The y position of the chunk in chunk coordinates.</param>
-    /// <param name="z">The z position of the chunk in chunk coordinates.</param>
+    /// <param name="position">The position of the chunk.</param>
     /// <returns>The chunk at the given position or null if no active chunk was found.</returns>
-    public Chunk? GetChunk(int x, int y, int z)
+    public Chunk? GetChunk(ChunkPosition position)
     {
-        activeChunks.TryGetValue((x, y, z), out Chunk? chunk);
+        activeChunks.TryGetValue(position, out Chunk? chunk);
 
         return chunk;
     }
@@ -437,50 +425,35 @@ public abstract partial class World
     /// <summary>
     ///     Check if a chunk is active.
     /// </summary>
-    /// <param name="x">The x position of the chunk in chunk coordinates.</param>
-    /// <param name="y">The y position of the chunk in chunk coordinates.</param>
-    /// <param name="z">The z position of the chunk in chunk coordinates.</param>
+    /// <param name="position">The position of the chunk.</param>
     /// <returns>True if the chunk is active.</returns>
-    protected bool IsChunkActive(int x, int y, int z)
+    protected bool IsChunkActive(ChunkPosition position)
     {
-        return activeChunks.ContainsKey((x, y, z));
+        return activeChunks.ContainsKey(position);
     }
 
     /// <summary>
     ///     Try to get an active chunk.
     /// </summary>
-    /// <param name="x">The x position of the chunk in chunk coordinates.</param>
-    /// <param name="y">The y position of the chunk in chunk coordinates.</param>
-    /// <param name="z">The z position of the chunk in chunk coordinates.</param>
+    /// <param name="position">The position of the chunk.</param>
     /// <param name="chunk">The chunk at the given position or null if no active chunk was found.</param>
     /// <returns>True if an active chunk was found.</returns>
-    protected bool TryGetChunk(int x, int y, int z, [NotNullWhen(returnValue: true)] out Chunk? chunk)
+    protected bool TryGetChunk(ChunkPosition position, [NotNullWhen(returnValue: true)] out Chunk? chunk)
     {
-        return activeChunks.TryGetValue((x, y, z), out chunk);
+        return activeChunks.TryGetValue(position, out chunk);
     }
 
     /// <summary>
     ///     Gets a section of an active chunk.
     /// </summary>
-    /// <param name="sectionPosition">The position of the section, in section coordinates.</param>
+    /// <param name="position">The position of the section.</param>
     /// <returns>The section at the given position or null if no section was found.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Section? GetSection(Vector3i sectionPosition)
+    public Section? GetSection(SectionPosition position)
     {
-        (int x, int y, int z) = sectionPosition;
-
-        int chunkX = x >> Chunk.SizeExp;
-        int chunkY = y >> Chunk.SizeExp;
-        int chunkZ = z >> Chunk.SizeExp;
-
-        int sectionX = x & (Chunk.Size - 1);
-        int sectionY = y & (Chunk.Size - 1);
-        int sectionZ = z & (Chunk.Size - 1);
-
-        return activeChunks.TryGetValue((chunkX, chunkY, chunkZ), out Chunk? chunk)
-            ? chunk.GetSection(sectionX, sectionY, sectionZ)
+        return activeChunks.TryGetValue(position.GetChunk(), out Chunk? chunk)
+            ? chunk.GetSection(position)
             : null;
-
     }
 
     /// <summary>
@@ -489,17 +462,10 @@ public abstract partial class World
     /// <param name="position">The block/fluid position.</param>
     /// <returns>The chunk, or null the position is not in an active chunk.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Chunk? GetChunkWithPosition(Vector3i position)
+    public Chunk? GetChunk(Vector3i position)
     {
-        (int x, int y, int z) = position;
-
-        int chunkX = x >> Chunk.BlockSizeExp;
-        int chunkY = y >> Chunk.BlockSizeExp;
-        int chunkZ = z >> Chunk.BlockSizeExp;
-
-        bool exists = activeChunks.TryGetValue((chunkX, chunkY, chunkZ), out Chunk? chunk);
+        bool exists = activeChunks.TryGetValue(ChunkPosition.From(position), out Chunk? chunk);
 
         return !exists ? null : chunk;
-
     }
 }

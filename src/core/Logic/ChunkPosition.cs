@@ -5,12 +5,14 @@
 // <author>pershingthesecond</author>
 
 using System;
+using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
 ///     The position of a chunk in the world.
 /// </summary>
+[Serializable]
 public readonly struct ChunkPosition : IEquatable<ChunkPosition>
 {
     /// <summary>
@@ -72,5 +74,51 @@ public readonly struct ChunkPosition : IEquatable<ChunkPosition>
     public static bool operator !=(ChunkPosition left, ChunkPosition right)
     {
         return !left.Equals(right);
+    }
+
+    /// <summary>
+    ///     Offset a chunk position by the given amount.
+    /// </summary>
+    public ChunkPosition Offset(int x, int y, int z)
+    {
+        return new ChunkPosition(X + x, Y + y, Z + z);
+    }
+
+    /// <summary>
+    ///     Get the center of this chunk position.
+    /// </summary>
+    public Vector3 Center => new(
+        X * Chunk.BlockSize + Chunk.BlockSize / 2f,
+        Y * Chunk.BlockSize + Chunk.BlockSize / 2f,
+        Z * Chunk.BlockSize + Chunk.BlockSize / 2f);
+
+    /// <summary>
+    ///     Get the position of the first section of the chunk at this position.
+    /// </summary>
+    public SectionPosition FirstSection => new(X * Chunk.Size, Y * Chunk.Size, Z * Chunk.Size);
+
+    /// <summary>
+    ///     Get the origin position, which is (0, 0, 0).
+    /// </summary>
+    public static ChunkPosition Origin => new(x: 0, y: 0, z: 0);
+
+    /// <summary>
+    ///     Get the position of the chunk that contains the given world position.
+    /// </summary>
+    public static ChunkPosition From(Vector3i worldPosition)
+    {
+        (int x, int y, int z) = worldPosition;
+
+        int chunkX = x >> Chunk.BlockSizeExp;
+        int chunkY = y >> Chunk.BlockSizeExp;
+        int chunkZ = z >> Chunk.BlockSizeExp;
+
+        return new ChunkPosition(chunkX, chunkY, chunkZ);
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return $"({X}|{Y}|{Z})";
     }
 }
