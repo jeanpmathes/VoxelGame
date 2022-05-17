@@ -223,6 +223,7 @@ internal class KeybindManager : ISettingsProvider
 
     internal Keybind Sprint { get; } = Keybind.RegisterButton("sprint", Language.KeySprint, Keys.LeftShift);
     internal Keybind Jump { get; } = Keybind.RegisterButton("jump", Language.KeyJump, Keys.Space);
+    internal Keybind Crouch { get; } = Keybind.RegisterButton("crouch", Language.KeyCrouch, Keys.C);
 
     internal Keybind InteractOrPlace { get; } = Keybind.RegisterButton(
         "interact_or_place",

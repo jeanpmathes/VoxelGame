@@ -528,13 +528,16 @@
   <data name="GraphicsFoliageQuality" xml:space="preserve">
     <value>Foliage Quality</value>
   </data>
-  <data name="KeySelectTargeted" xml:space="preserve">
+    <data name="KeySelectTargeted" xml:space="preserve">
     <value>Select Targeted</value>
   </data>
-  <data name="GraphicsUseFullscreenBorderless" xml:space="preserve">
+    <data name="GraphicsUseFullscreenBorderless" xml:space="preserve">
     <value>Use borderless (windowed) fullscreen</value>
   </data>
-  <data name="GraphicsAnisotropicFiltering" xml:space="preserve">
+    <data name="GraphicsAnisotropicFiltering" xml:space="preserve">
     <value>Anisotropic Filtering</value>
+  </data>
+    <data name="KeyCrouch" xml:space="preserve">
+    <value>Crouch</value>
   </data>
 </root>

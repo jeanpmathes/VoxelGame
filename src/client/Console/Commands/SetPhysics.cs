@@ -19,7 +19,7 @@ public class SetPhysics : Command
     public override string Name => "set-physics";
 
     /// <inheritdoc />
-    public override string HelpText => "Set whether physics calculations are performed for the player.";
+    public override string HelpText => "Set whether to enable physics for the player.";
 
     /// <exclude />
     public void Invoke(bool enabled)

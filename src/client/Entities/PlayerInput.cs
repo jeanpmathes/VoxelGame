@@ -1,0 +1,116 @@
+﻿// <copyright file="PlayerInput.cs" company="VoxelGame">
+//     MIT License
+//     For full license see the repository.
+// </copyright>
+// <author>pershingthesecond</author>
+
+using System;
+using OpenTK.Mathematics;
+using VoxelGame.Client.Application;
+using VoxelGame.Core.Entities;
+using VoxelGame.Input.Actions;
+using VoxelGame.Input.Composite;
+
+namespace VoxelGame.Client.Entities;
+
+/// <summary>
+///     Contains all player input.
+/// </summary>
+internal sealed class PlayerInput
+{
+    private readonly Button blockInteractButton;
+    private readonly Button crouchButton;
+    private readonly Button destroyButton;
+
+    private readonly float interactionCooldown = 0.25f;
+
+    private readonly Button interactOrPlaceButton;
+    private readonly Button jumpButton;
+    private readonly InputAxis2 movementInput;
+
+    private readonly ToggleButton placementModeToggle;
+
+    private readonly PhysicsEntity player;
+    private readonly InputAxis selectionAxis;
+    private readonly PushButton selectTargetedButton;
+    private readonly Button sprintButton;
+
+    private float timer;
+
+    internal PlayerInput(PhysicsEntity player)
+    {
+        this.player = player;
+
+        KeybindManager keybind = Application.Client.Instance.Keybinds;
+
+        Button forwardsButton = keybind.GetButton(keybind.Forwards);
+        Button backwardsButton = keybind.GetButton(keybind.Backwards);
+        Button strafeRightButton = keybind.GetButton(keybind.StrafeRight);
+        Button strafeLeftButton = keybind.GetButton(keybind.StrafeLeft);
+
+        movementInput = new InputAxis2(
+            new InputAxis(forwardsButton, backwardsButton),
+            new InputAxis(strafeRightButton, strafeLeftButton));
+
+        sprintButton = keybind.GetButton(keybind.Sprint);
+        jumpButton = keybind.GetButton(keybind.Jump);
+        crouchButton = keybind.GetButton(keybind.Crouch);
+
+        interactOrPlaceButton = keybind.GetButton(keybind.InteractOrPlace);
+        destroyButton = keybind.GetButton(keybind.Destroy);
+        blockInteractButton = keybind.GetButton(keybind.BlockInteract);
+
+        placementModeToggle = keybind.GetToggle(keybind.PlacementMode);
+        placementModeToggle.Clear();
+
+        selectTargetedButton = keybind.GetPushButton(keybind.SelectTargeted);
+
+        Button nextButton = keybind.GetPushButton(keybind.NextPlacement);
+        Button previousButton = keybind.GetPushButton(keybind.PreviousPlacement);
+        selectionAxis = new InputAxis(nextButton, previousButton);
+    }
+
+    internal bool ShouldJump => jumpButton.IsDown;
+
+    internal bool ShouldCrouch => crouchButton.IsDown;
+
+    private bool IsCooldownOver => timer >= interactionCooldown;
+
+    internal bool ShouldInteract => IsCooldownOver && interactOrPlaceButton.IsDown;
+
+    internal bool ShouldDestroy => IsCooldownOver && destroyButton.IsDown;
+
+    internal bool ShouldChangePlacementMode => placementModeToggle.Changed;
+
+    internal bool ShouldSelectTargeted => selectTargetedButton.IsDown;
+
+    internal bool IsInteractionBlocked => blockInteractButton.IsDown;
+
+    internal Vector3 GetMovement(float normalSpeed, float sprintSpeed)
+    {
+        (float x, float z) = movementInput.Value;
+        Vector3 movement = x * player.Forward + z * player.Right;
+
+        if (movement != Vector3.Zero)
+            movement = sprintButton.IsDown
+                ? movement.Normalized() * sprintSpeed
+                : movement.Normalized() * normalSpeed;
+
+        return movement;
+    }
+
+    internal void Update(float deltaTime)
+    {
+        timer += deltaTime;
+    }
+
+    internal void RegisterInteraction()
+    {
+        timer = 0;
+    }
+
+    internal int GetSelectionChange()
+    {
+        return Math.Sign(selectionAxis.Value);
+    }
+}

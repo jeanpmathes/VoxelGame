@@ -574,6 +574,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Crouch.
+        /// </summary>
+        public static string KeyCrouch {
+            get {
+                return ResourceManager.GetString("KeyCrouch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Debug View.
         /// </summary>
         public static string KeyDebugView {
