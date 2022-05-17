@@ -22,6 +22,8 @@ namespace VoxelGame.Client.Entities;
 /// </summary>
 public sealed class ClientPlayer : Player, IPlayerDataProvider
 {
+    private const float FlyingSpeed = 5f;
+    private const float FlyingSprintSpeed = 15f;
     private readonly Camera camera;
     private readonly Vector3 cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
     private readonly float diveSpeed = 8f;
@@ -79,6 +81,16 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     /// <inheritdoc />
     public override Vector3 LookingDirection => camera.Front;
+
+    /// <summary>
+    ///     Get the up vector of the player camera.
+    /// </summary>
+    public Vector3 CameraUp => camera.Up;
+
+    /// <summary>
+    ///     Get the right vector of the player camera.
+    /// </summary>
+    public Vector3 CameraRight => camera.Right;
 
     /// <summary>
     ///     Get the looking position of the player, meaning the position of the camera.
@@ -190,7 +202,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         {
             if (!Screen.IsOverlayLockActive)
             {
-                HandleMovementInput();
+                HandleMovementInput(deltaTime);
                 HandleLookInput();
 
                 DoBlockFluidSelection();
@@ -274,7 +286,20 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         }
     }
 
-    private void HandleMovementInput()
+    private void HandleMovementInput(float deltaTime)
+    {
+        if (DoPhysics)
+        {
+            DoNormalMovement();
+        }
+        else
+        {
+            Vector3 offset = input.GetFlyingMovement(FlyingSpeed, FlyingSprintSpeed);
+            Position += offset * deltaTime;
+        }
+    }
+
+    private void DoNormalMovement()
     {
         movement = input.GetMovement(speed, sprintSpeed);
         Move(movement, maxForce);

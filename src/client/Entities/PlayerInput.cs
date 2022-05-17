@@ -7,7 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Input.Actions;
 using VoxelGame.Input.Composite;
 
@@ -30,14 +30,14 @@ internal sealed class PlayerInput
 
     private readonly ToggleButton placementModeToggle;
 
-    private readonly PhysicsEntity player;
+    private readonly ClientPlayer player;
     private readonly InputAxis selectionAxis;
     private readonly PushButton selectTargetedButton;
     private readonly Button sprintButton;
 
     private float timer;
 
-    internal PlayerInput(PhysicsEntity player)
+    internal PlayerInput(ClientPlayer player)
     {
         this.player = player;
 
@@ -112,5 +112,20 @@ internal sealed class PlayerInput
     internal int GetSelectionChange()
     {
         return Math.Sign(selectionAxis.Value);
+    }
+
+    internal Vector3 GetFlyingMovement(float flyingSpeed, float flyingSprintSpeed)
+    {
+        (float x, float z) = movementInput.Value;
+        float y = ShouldJump.ToInt() - ShouldCrouch.ToInt();
+
+        Vector3 movement = x * player.LookingDirection + y * player.CameraUp + z * player.CameraRight;
+
+        if (movement != Vector3.Zero)
+            movement = sprintButton.IsDown
+                ? movement.Normalized() * flyingSprintSpeed
+                : movement.Normalized() * flyingSpeed;
+
+        return movement;
     }
 }

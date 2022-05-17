@@ -103,7 +103,7 @@ public abstract class PhysicsEntity : IDisposable
     public abstract Vector3 Movement { get; }
 
     /// <summary>
-    ///     Get the lookin direction of the physics entity.
+    ///     Get the looking direction of the physics entity, which is also the front vector of the view camera.
     /// </summary>
     public abstract Vector3 LookingDirection { get; }
 
