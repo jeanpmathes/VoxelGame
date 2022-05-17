@@ -124,6 +124,12 @@ public abstract class PhysicsEntity : IDisposable
     public BoxCollider Collider => boundingVolume.GetColliderAt(Position);
 
     /// <summary>
+    ///     Whether the physics entity should perform physics calculations.
+    ///     If no physics calculations are performed, methods such as <see cref="Move" /> will have no effect.
+    /// </summary>
+    public bool DoPhysics { get; set; } = true;
+
+    /// <summary>
     ///     Applies force to this entity.
     /// </summary>
     /// <param name="additionalForce">The force to apply.</param>
@@ -151,6 +157,24 @@ public abstract class PhysicsEntity : IDisposable
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     public void Tick(float deltaTime)
+    {
+        if (DoPhysics)
+        {
+            CalculatePhysics(deltaTime);
+        }
+        else
+        {
+            force = Vector3.Zero;
+            Velocity = Vector3.Zero;
+
+            IsGrounded = false;
+            IsSwimming = false;
+        }
+
+        Update(deltaTime);
+    }
+
+    private void CalculatePhysics(float deltaTime)
     {
         IsGrounded = false;
         IsSwimming = false;
@@ -200,8 +224,6 @@ public abstract class PhysicsEntity : IDisposable
 
         force = new Vector3(x: 0f, Gravity * Mass, z: 0f);
         force -= fluidDrag;
-
-        Update(deltaTime);
     }
 
     private void DoPhysicsStep(ref BoxCollider collider, ref Vector3 movement,
