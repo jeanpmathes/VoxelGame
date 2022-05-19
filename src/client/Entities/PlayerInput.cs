@@ -119,7 +119,7 @@ internal sealed class PlayerInput
         (float x, float z) = movementInput.Value;
         float y = ShouldJump.ToInt() - ShouldCrouch.ToInt();
 
-        Vector3 movement = x * player.LookingDirection + y * player.CameraUp + z * player.CameraRight;
+        Vector3 movement = x * player.LookingDirection + y * Vector3.UnitY + z * player.CameraRight;
 
         if (movement != Vector3.Zero)
             movement = sprintButton.IsDown
