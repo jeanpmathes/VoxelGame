@@ -204,6 +204,11 @@ public static class Events
     /// </summary>
     public const int WorldGeneration = 1060;
 
+    /// <summary>
+    ///     Any event concerning the physics system.
+    /// </summary>
+    public const int PhysicsSystem = 1200;
+
     #endregion WORLD LOGIC
 
     #region BLOCKS

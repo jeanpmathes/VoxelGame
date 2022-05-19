@@ -6,10 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Entities;
 
@@ -23,9 +25,13 @@ public abstract class PhysicsEntity : IDisposable
     /// </summary>
     public const float Gravity = -9.81f;
 
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<PhysicsEntity>();
+
     private readonly BoundingVolume boundingVolume;
 
     private readonly int physicsIterations = 10;
+
+    private bool doPhysics = true;
 
     private Vector3 force;
 
@@ -127,7 +133,22 @@ public abstract class PhysicsEntity : IDisposable
     ///     Whether the physics entity should perform physics calculations.
     ///     If no physics calculations are performed, methods such as <see cref="Move" /> will have no effect.
     /// </summary>
-    public bool DoPhysics { get; set; } = true;
+    public bool DoPhysics
+    {
+        get => doPhysics;
+        set
+        {
+            bool oldValue = doPhysics;
+            doPhysics = value;
+
+            if (oldValue == value) return;
+
+            logger.LogInformation(
+                Events.PhysicsSystem,
+                "Set entity physics to {State}",
+                doPhysics ? "enabled" : "disabled");
+        }
+    }
 
     /// <summary>
     ///     Applies force to this entity.

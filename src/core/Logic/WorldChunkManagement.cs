@@ -235,8 +235,8 @@ public abstract partial class World
                         {
                             logger.LogError(
                                 Events.ChunkLoadingError,
-                                "Position of the loaded chunk file for position {Position} did not match the requested position, " +
-                                "which can be caused by a renamed chunk file. " +
+                                "The chunk for {Position} could not be loaded, " +
+                                "which can be caused by a corrupted chunk file. " +
                                 "Position will be scheduled for generation",
                                 position);
 
