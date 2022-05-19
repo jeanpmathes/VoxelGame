@@ -1,4 +1,4 @@
-﻿// <copyright file="Clear.cs" company="VoxelGame">
+﻿// <copyright file="SetOverlays.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -24,6 +24,14 @@ public class SetOverlays : Command
     /// <exclude />
     public void Invoke(bool enabled)
     {
-        Context.Player.OverlayEnabled = enabled;
+        Do(Context, enabled);
+    }
+
+    /// <summary>
+    ///     Externally simulate a command invocation, setting the overlay state.
+    /// </summary>
+    public static void Do(CommandContext context, bool enabled)
+    {
+        context.Player.OverlayEnabled = enabled;
     }
 }
