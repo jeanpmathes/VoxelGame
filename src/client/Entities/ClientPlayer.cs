@@ -4,18 +4,14 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Input.Actions;
-using VoxelGame.Input.Composite;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -26,10 +22,13 @@ namespace VoxelGame.Client.Entities;
 /// </summary>
 public sealed class ClientPlayer : Player, IPlayerDataProvider
 {
+    private const float FlyingSpeed = 5f;
+    private const float FlyingSprintSpeed = 15f;
     private readonly Camera camera;
     private readonly Vector3 cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
+    private readonly float diveSpeed = 8f;
 
-    private readonly InputBehaviour input;
+    private readonly PlayerInput input;
 
     private readonly float jumpForce = 25000f;
 
@@ -74,7 +73,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         camera.Position = Position;
 
         visualization = new PlayerVisualization(this, ui);
-        input = new InputBehaviour(this);
+        input = new PlayerInput(this);
 
         activeBlock = Block.Grass;
         activeFluid = Fluid.Water;
@@ -82,6 +81,16 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     /// <inheritdoc />
     public override Vector3 LookingDirection => camera.Front;
+
+    /// <summary>
+    ///     Get the up vector of the player camera.
+    /// </summary>
+    public Vector3 CameraUp => camera.Up;
+
+    /// <summary>
+    ///     Get the right vector of the player camera.
+    /// </summary>
+    public Vector3 CameraRight => camera.Right;
 
     /// <summary>
     ///     Get the looking position of the player, meaning the position of the camera.
@@ -95,6 +104,11 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     ///     Gets the frustum of the player camera.
     /// </summary>
     public Frustum Frustum => camera.Frustum;
+
+    /// <summary>
+    ///     Get or set whether any overlay rendering is enabled.
+    /// </summary>
+    public bool OverlayEnabled { get; set; } = true;
 
     /// <summary>
     ///     Get the dimensions of the near view plane.
@@ -176,7 +190,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
             }
         }
 
-        visualization.DrawOverlay();
+        if (OverlayEnabled) visualization.DrawOverlay();
     }
 
     /// <inheritdoc />
@@ -193,7 +207,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         {
             if (!Screen.IsOverlayLockActive)
             {
-                HandleMovementInput();
+                HandleMovementInput(deltaTime);
                 HandleLookInput();
 
                 DoBlockFluidSelection();
@@ -277,15 +291,34 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         }
     }
 
-    private void HandleMovementInput()
+    private void HandleMovementInput(float deltaTime)
+    {
+        if (DoPhysics)
+        {
+            DoNormalMovement();
+        }
+        else
+        {
+            Vector3 offset = input.GetFlyingMovement(FlyingSpeed, FlyingSprintSpeed);
+            Position += offset * deltaTime;
+        }
+    }
+
+    private void DoNormalMovement()
     {
         movement = input.GetMovement(speed, sprintSpeed);
         Move(movement, maxForce);
+
+        if (!(input.ShouldJump ^ input.ShouldCrouch)) return;
 
         if (input.ShouldJump)
         {
             if (IsGrounded) AddForce(new Vector3(x: 0f, jumpForce, z: 0f));
             else if (IsSwimming) Move(Vector3.UnitY * swimSpeed, maxSwimForce);
+        }
+        else
+        {
+            if (IsSwimming) Move(Vector3.UnitY * -diveSpeed, maxSwimForce);
         }
     }
 
@@ -409,101 +442,6 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         activeBlock = targetBlock?.Block ?? activeBlock;
 
         return true;
-    }
-
-    private sealed class InputBehaviour
-    {
-        private readonly Button blockInteractButton;
-        private readonly Button destroyButton;
-
-        private readonly float interactionCooldown = 0.25f;
-
-        private readonly Button interactOrPlaceButton;
-        private readonly Button jumpButton;
-        private readonly InputAxis2 movementInput;
-
-        private readonly ToggleButton placementModeToggle;
-
-        private readonly PhysicsEntity player;
-        private readonly InputAxis selectionAxis;
-        private readonly PushButton selectTargetedButton;
-        private readonly Button sprintButton;
-
-        private float timer;
-
-        public InputBehaviour(PhysicsEntity player)
-        {
-            this.player = player;
-
-            KeybindManager keybind = Application.Client.Instance.Keybinds;
-
-            Button forwardsButton = keybind.GetButton(keybind.Forwards);
-            Button backwardsButton = keybind.GetButton(keybind.Backwards);
-            Button strafeRightButton = keybind.GetButton(keybind.StrafeRight);
-            Button strafeLeftButton = keybind.GetButton(keybind.StrafeLeft);
-
-            movementInput = new InputAxis2(
-                new InputAxis(forwardsButton, backwardsButton),
-                new InputAxis(strafeRightButton, strafeLeftButton));
-
-            sprintButton = keybind.GetButton(keybind.Sprint);
-            jumpButton = keybind.GetButton(keybind.Jump);
-
-            interactOrPlaceButton = keybind.GetButton(keybind.InteractOrPlace);
-            destroyButton = keybind.GetButton(keybind.Destroy);
-            blockInteractButton = keybind.GetButton(keybind.BlockInteract);
-
-            placementModeToggle = keybind.GetToggle(keybind.PlacementMode);
-            placementModeToggle.Clear();
-
-            selectTargetedButton = keybind.GetPushButton(keybind.SelectTargeted);
-
-            Button nextButton = keybind.GetPushButton(keybind.NextPlacement);
-            Button previousButton = keybind.GetPushButton(keybind.PreviousPlacement);
-            selectionAxis = new InputAxis(nextButton, previousButton);
-        }
-
-        public bool ShouldJump => jumpButton.IsDown;
-
-        private bool IsCooldownOver => timer >= interactionCooldown;
-
-        public bool ShouldInteract => IsCooldownOver && interactOrPlaceButton.IsDown;
-
-        public bool ShouldDestroy => IsCooldownOver && destroyButton.IsDown;
-
-        public bool ShouldChangePlacementMode => placementModeToggle.Changed;
-
-        public bool ShouldSelectTargeted => selectTargetedButton.IsDown;
-
-        public bool IsInteractionBlocked => blockInteractButton.IsDown;
-
-        public Vector3 GetMovement(float normalSpeed, float sprintSpeed)
-        {
-            (float x, float z) = movementInput.Value;
-            Vector3 movement = x * player.Forward + z * player.Right;
-
-            if (movement != Vector3.Zero)
-                movement = sprintButton.IsDown
-                    ? movement.Normalized() * sprintSpeed
-                    : movement.Normalized() * normalSpeed;
-
-            return movement;
-        }
-
-        public void Update(float deltaTime)
-        {
-            timer += deltaTime;
-        }
-
-        public void RegisterInteraction()
-        {
-            timer = 0;
-        }
-
-        public int GetSelectionChange()
-        {
-            return Math.Sign(selectionAxis.Value);
-        }
     }
 
     #region IDisposable Support

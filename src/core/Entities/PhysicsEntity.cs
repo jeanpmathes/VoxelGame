@@ -6,10 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Entities;
 
@@ -23,9 +25,13 @@ public abstract class PhysicsEntity : IDisposable
     /// </summary>
     public const float Gravity = -9.81f;
 
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<PhysicsEntity>();
+
     private readonly BoundingVolume boundingVolume;
 
     private readonly int physicsIterations = 10;
+
+    private bool doPhysics = true;
 
     private Vector3 force;
 
@@ -103,7 +109,7 @@ public abstract class PhysicsEntity : IDisposable
     public abstract Vector3 Movement { get; }
 
     /// <summary>
-    ///     Get the lookin direction of the physics entity.
+    ///     Get the looking direction of the physics entity, which is also the front vector of the view camera.
     /// </summary>
     public abstract Vector3 LookingDirection { get; }
 
@@ -122,6 +128,27 @@ public abstract class PhysicsEntity : IDisposable
     ///     Get the collider of this physics entity.
     /// </summary>
     public BoxCollider Collider => boundingVolume.GetColliderAt(Position);
+
+    /// <summary>
+    ///     Whether the physics entity should perform physics calculations.
+    ///     If no physics calculations are performed, methods such as <see cref="Move" /> will have no effect.
+    /// </summary>
+    public bool DoPhysics
+    {
+        get => doPhysics;
+        set
+        {
+            bool oldValue = doPhysics;
+            doPhysics = value;
+
+            if (oldValue == value) return;
+
+            logger.LogInformation(
+                Events.PhysicsSystem,
+                "Set entity physics to {State}",
+                doPhysics ? "enabled" : "disabled");
+        }
+    }
 
     /// <summary>
     ///     Applies force to this entity.
@@ -151,6 +178,24 @@ public abstract class PhysicsEntity : IDisposable
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     public void Tick(float deltaTime)
+    {
+        if (DoPhysics)
+        {
+            CalculatePhysics(deltaTime);
+        }
+        else
+        {
+            force = Vector3.Zero;
+            Velocity = Vector3.Zero;
+
+            IsGrounded = false;
+            IsSwimming = false;
+        }
+
+        Update(deltaTime);
+    }
+
+    private void CalculatePhysics(float deltaTime)
     {
         IsGrounded = false;
         IsSwimming = false;
@@ -200,8 +245,6 @@ public abstract class PhysicsEntity : IDisposable
 
         force = new Vector3(x: 0f, Gravity * Mass, z: 0f);
         force -= fluidDrag;
-
-        Update(deltaTime);
     }
 
     private void DoPhysicsStep(ref BoxCollider collider, ref Vector3 movement,
