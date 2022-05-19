@@ -4,7 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using VoxelGame.Core.Entities;
+using VoxelGame.Client.Entities;
 
 // XML-Documentation for Records seems to not really work...
 #pragma warning disable CS1591
@@ -18,4 +18,4 @@ namespace VoxelGame.Client.Console;
 /// </summary>
 /// <param name="Console">The console in which the command is running.</param>
 /// <param name="Player">The player that executed the command.</param>
-public record CommandContext(ConsoleWrapper Console, Player Player);
+public record CommandContext(ConsoleWrapper Console, ClientPlayer Player);

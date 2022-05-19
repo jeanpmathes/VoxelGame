@@ -106,6 +106,11 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     public Frustum Frustum => camera.Frustum;
 
     /// <summary>
+    ///     Get or set whether any overlay rendering is enabled.
+    /// </summary>
+    public bool OverlayEnabled { get; set; } = true;
+
+    /// <summary>
     ///     Get the dimensions of the near view plane.
     /// </summary>
     public (Vector3 a, Vector3 b) NearDimensions
@@ -185,7 +190,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
             }
         }
 
-        visualization.DrawOverlay();
+        if (OverlayEnabled) visualization.DrawOverlay();
     }
 
     /// <inheritdoc />
