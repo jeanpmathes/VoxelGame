@@ -28,6 +28,8 @@ namespace VoxelGame.Client.Logic;
 [Serializable]
 public class ClientSection : Section
 {
+    private static long runCount;
+    private static long runTime;
     [NonSerialized] private bool hasMesh;
     [NonSerialized] private SectionRenderer? renderer;
 
@@ -61,11 +63,34 @@ public class ClientSection : Section
     /// </summary>
     /// <param name="position">The position of the section.</param>
     /// <returns>The created mesh data.</returns>
+    public SectionMeshData CreateMeshData(SectionPosition position)
+    {
+        Stopwatch stopwatch = new();
+
+        stopwatch.Start();
+
+        SectionMeshData result = CreateMeshData_Untimed(position);
+
+        stopwatch.Stop();
+
+        runCount++;
+        runTime += stopwatch.ElapsedMilliseconds;
+
+        if (runCount % 1000 == 0) System.Console.WriteLine($"Average run time: {runTime / (float) runCount}ms");
+
+        return result;
+    }
+
+    /// <summary>
+    ///     Create mesh data for this section.
+    /// </summary>
+    /// <param name="position">The position of the section.</param>
+    /// <returns>The created mesh data.</returns>
     [SuppressMessage(
         "Blocker Code Smell",
         "S2437:Silly bit operations should not be performed",
         Justification = "Improves readability.")]
-    public SectionMeshData CreateMeshData(SectionPosition position)
+    private SectionMeshData CreateMeshData_Untimed(SectionPosition position)
     {
         // Set the neutral tint colors.
         TintColor blockTint = TintColor.Green;
