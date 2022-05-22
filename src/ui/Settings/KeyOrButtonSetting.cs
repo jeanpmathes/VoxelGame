@@ -84,6 +84,8 @@ internal class KeyOrButtonSetting : Setting
         {
             reset();
             rebind.Text = get().ToString();
+
+            Provider.Validate();
         };
     }
 
