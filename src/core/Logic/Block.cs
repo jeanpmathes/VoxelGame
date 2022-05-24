@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     The basic block class. Blocks are used to construct the world.
 /// </summary>
-public abstract partial class Block : IIdentifiable<uint>, IIdentifiable<string>
+public abstract partial class Block : IBlockBase, IBlockMeshable, IIdentifiable<uint>, IIdentifiable<string>
 {
     private readonly BoundingVolume boundingVolume;
 
@@ -72,71 +72,43 @@ public abstract partial class Block : IIdentifiable<uint>, IIdentifiable<string>
         }
     }
 
-    /// <summary>
-    ///     Gets the block id which can be any value from 0 to 4095.
-    /// </summary>
+    /// <inheritdoc />
     public uint Id { get; }
 
-    /// <summary>
-    ///     Gets the localized name of the block.
-    /// </summary>
+    /// <inheritdoc />
     public string Name { get; }
 
-    /// <summary>
-    ///     An unlocalized string that identifies this block.
-    /// </summary>
+    /// <inheritdoc />
     public string NamedId { get; }
 
-    /// <summary>
-    ///     This property is only relevant for non-opaque full blocks. It decides if their faces should be rendered next to
-    ///     another non-opaque block.
-    /// </summary>
+    /// <inheritdoc />
     public bool RenderFaceAtNonOpaques { get; }
 
-    /// <summary>
-    ///     Gets whether the collision method should be called in case of a collision with an entity.
-    /// </summary>
+    /// <inheritdoc />
     public bool ReceiveCollisions { get; }
 
-    /// <summary>
-    ///     Gets whether this block should be checked in collision calculations even if it is not solid.
-    /// </summary>
+    /// <inheritdoc />
     public bool IsTrigger { get; }
 
-    /// <summary>
-    ///     Gets whether this block can be replaced when placing a block.
-    /// </summary>
+    /// <inheritdoc />
     public bool IsReplaceable { get; }
 
-    /// <summary>
-    ///     Gets whether this block responds to interactions.
-    /// </summary>
+    /// <inheritdoc />
     public bool IsInteractable { get; }
 
-    /// <summary>
-    ///     Gets the section buffer this blocks mesh data should be stored in.
-    /// </summary>
+    /// <inheritdoc />
     public TargetBuffer TargetBuffer { get; }
 
-    /// <summary>
-    ///     Gets whether this block completely fills a 1x1x1 volume or not. If a block is not full, it cannot be opaque.
-    /// </summary>
+    /// <inheritdoc />
     public bool IsFull { get; }
 
-    /// <summary>
-    ///     Gets whether it is possible to see through this block. This will affect the rendering of this block and the blocks
-    ///     around it.
-    /// </summary>
+    /// <inheritdoc />
     public bool IsOpaque { get; }
 
-    /// <summary>
-    ///     Gets whether this block hinders movement.
-    /// </summary>
+    /// <inheritdoc />
     public bool IsSolid { get; }
 
-    /// <summary>
-    ///     Gets whether this block is solid and full.
-    /// </summary>
+    /// <inheritdoc />
     public bool IsSolidAndFull => IsSolid && IsFull;
 
     /// <summary>
@@ -218,13 +190,6 @@ public abstract partial class Block : IIdentifiable<uint>, IIdentifiable<string>
     {
         return boundingVolume;
     }
-
-    /// <summary>
-    ///     Returns the mesh of a block side at given conditions.
-    /// </summary>
-    /// <param name="info">Information about the conditions the mesh should be created in.</param>
-    /// <returns>The mesh data.</returns>
-    public abstract BlockMeshData GetMesh(BlockMeshInfo info);
 
     /// <summary>
     ///     Override this to provide change the block placement checks.

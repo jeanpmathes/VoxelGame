@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public sealed class BlockMeshInfo
 {
-    private BlockMeshInfo(BlockSide side, uint data, Fluid fluid)
+    public BlockMeshInfo(BlockSide side, uint data, Fluid fluid)
     {
         Side = side;
         Data = data;
@@ -34,36 +34,4 @@ public sealed class BlockMeshInfo
     ///     The fluid at the block position.
     /// </summary>
     public Fluid Fluid { get; }
-
-    /// <summary>
-    ///     Mesh info for a simple block.
-    /// </summary>
-    public static BlockMeshInfo Simple(BlockSide side, uint data, Fluid fluid)
-    {
-        return new BlockMeshInfo(side, data, fluid);
-    }
-
-    /// <summary>
-    ///     Mesh info for a complex block.
-    /// </summary>
-    public static BlockMeshInfo Complex(uint data, Fluid fluid)
-    {
-        return new BlockMeshInfo(BlockSide.All, data, fluid);
-    }
-
-    /// <summary>
-    ///     Mesh info for a cross plant.
-    /// </summary>
-    public static BlockMeshInfo CrossPlant(uint data, Fluid fluid)
-    {
-        return new BlockMeshInfo(BlockSide.All, data, fluid);
-    }
-
-    /// <summary>
-    ///     Mesh info for a crop plant.
-    /// </summary>
-    public static BlockMeshInfo CropPlant(uint data, Fluid fluid)
-    {
-        return new BlockMeshInfo(BlockSide.All, data, fluid);
-    }
 }

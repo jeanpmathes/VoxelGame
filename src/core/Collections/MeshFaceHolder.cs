@@ -8,7 +8,7 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 
-namespace VoxelGame.Client.Collections;
+namespace VoxelGame.Core.Collections;
 
 /// <summary>
 ///     Holds and combines mesh faces, that then can be used to create a final mesh.
