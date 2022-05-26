@@ -9,6 +9,7 @@ using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -16,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     A dirt-like block that is a bit lower then normal dirt.
 ///     Data bit usage: <c>------</c>.
 /// </summary>
-public class InsetDirtBlock : Block, IHeightVariable, IFillable, IPlantable, IPotentiallySolid, IAshCoverable
+public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPotentiallySolid, IAshCoverable
 {
     private static readonly int height = IHeightVariable.MaximumHeight - 1;
 
@@ -52,18 +53,31 @@ public class InsetDirtBlock : Block, IHeightVariable, IFillable, IPlantable, IPo
     }
 
     /// <inheritdoc />
-    public int GetHeight(uint data)
-    {
-        return height;
-    }
-
-    /// <inheritdoc />
     public bool SupportsFullGrowth { get; }
 
     /// <inheritdoc />
     public void BecomeSolid(World world, Vector3i position)
     {
         world.SetBlock(Dirt.AsInstance(), position);
+    }
+
+    /// <inheritdoc />
+    public int GetHeight(uint data)
+    {
+        return height;
+    }
+
+    IVaryingHeight.MeshData IVaryingHeight.GetMeshData(BlockMeshInfo info)
+    {
+        int texture = info.Fluid.IsFluid
+            ? wetTextureIndices[(int) info.Side]
+            : dryTextureIndices[(int) info.Side];
+
+        return new IVaryingHeight.MeshData
+        {
+            TextureIndex = texture,
+            Tint = TintColor.None
+        };
     }
 
     /// <inheritdoc />
@@ -77,16 +91,6 @@ public class InsetDirtBlock : Block, IHeightVariable, IFillable, IPlantable, IPo
     protected override BoundingVolume GetBoundingVolume(uint data)
     {
         return volume;
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        int texture = info.Fluid.IsFluid
-            ? wetTextureIndices[(int) info.Side]
-            : dryTextureIndices[(int) info.Side];
-
-        return BlockMeshData.VaryingHeight(texture, TintColor.None);
     }
 
     /// <inheritdoc />

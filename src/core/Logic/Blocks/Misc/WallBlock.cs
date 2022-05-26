@@ -9,6 +9,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -121,7 +122,7 @@ public class WallBlock : WideConnectingBlock
     }
 
     /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
+    protected override IComplex.MeshData GetMeshData(BlockMeshInfo info)
     {
         bool north = (info.Data & 0b00_1000) != 0;
         bool east = (info.Data & 0b00_0100) != 0;
@@ -132,8 +133,8 @@ public class WallBlock : WideConnectingBlock
         bool useStraightX = !north && !south && east && west;
 
         if (useStraightZ || useStraightX)
-            return useStraightZ ? straightZ.GetComplexMeshData() : straightX.GetComplexMeshData();
+            return useStraightZ ? straightZ.GetMeshData() : straightX.GetMeshData();
 
-        return base.GetMesh(info);
+        return base.GetMeshData(info);
     }
 }

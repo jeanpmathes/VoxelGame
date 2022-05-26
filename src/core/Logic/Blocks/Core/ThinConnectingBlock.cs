@@ -10,6 +10,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -21,7 +22,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 // e: connected east
 // s: connected south
 // w: connected west
-public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConnectable
+public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConnectable, IComplex
 {
     private readonly List<BlockMesh> meshes = new(capacity: 16);
     private readonly List<BoundingVolume> volumes = new();
@@ -64,6 +65,13 @@ public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConne
         }
     }
 
+    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
+    {
+        BlockMesh mesh = meshes[(int) info.Data & 0b00_1111];
+
+        return mesh.GetMeshData();
+    }
+
     private static BoundingVolume CreateVolume(uint data)
     {
         List<BoundingVolume> connectors = new(BitHelper.CountSetBits(data));
@@ -102,13 +110,5 @@ public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConne
     protected override BoundingVolume GetBoundingVolume(uint data)
     {
         return volumes[(int) data & 0b00_1111];
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        BlockMesh mesh = meshes[(int) info.Data & 0b00_1111];
-
-        return mesh.GetComplexMeshData();
     }
 }

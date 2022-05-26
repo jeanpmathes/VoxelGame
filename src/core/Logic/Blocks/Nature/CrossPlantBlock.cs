@@ -10,6 +10,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -18,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     Data bit usage: <c>-----l</c>
 /// </summary>
 // l: lowered
-public class CrossPlantBlock : Block, IFlammable, IFillable
+public class CrossPlantBlock : Block, IFlammable, IFillable, ICrossPlant
 {
     private readonly string texture;
 
@@ -44,6 +45,18 @@ public class CrossPlantBlock : Block, IFlammable, IFillable
         this.texture = texture;
     }
 
+    ICrossPlant.MeshData ICrossPlant.GetMeshData(BlockMeshInfo info)
+    {
+        return new ICrossPlant.MeshData
+        {
+            TextureIndex = textureIndex,
+            Tint = TintColor.Neutral,
+            HasUpper = false,
+            IsLowered = (info.Data & 0b1) == 1,
+            IsUpper = false
+        };
+    }
+
     /// <inheritdoc />
     public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
@@ -54,17 +67,6 @@ public class CrossPlantBlock : Block, IFlammable, IFillable
     protected override void Setup(ITextureIndexProvider indexProvider)
     {
         textureIndex = indexProvider.GetTextureIndex(texture);
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        return BlockMeshData.CrossPlant(
-            textureIndex,
-            TintColor.Neutral,
-            hasUpper: false,
-            (info.Data & 0b1) == 1,
-            isUpper: false);
     }
 
     /// <inheritdoc />

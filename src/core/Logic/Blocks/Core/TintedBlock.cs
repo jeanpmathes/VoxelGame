@@ -9,6 +9,7 @@ using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -33,9 +34,13 @@ public class TintedBlock : BasicBlock, IWideConnectable
     }
 
     /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
+    protected override ISimple.MeshData GetMeshData(BlockMeshInfo info)
     {
-        return base.GetMesh(info).Modified(((BlockColor) (0b01_1111 & info.Data)).ToTintColor(), isAnimated);
+        return base.GetMeshData(info) with
+        {
+            Tint = ((BlockColor) (0b01_1111 & info.Data)).ToTintColor(),
+            IsAnimated = isAnimated
+        };
     }
 
     /// <inheritdoc />

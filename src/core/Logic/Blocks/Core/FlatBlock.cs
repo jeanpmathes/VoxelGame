@@ -11,6 +11,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -19,7 +20,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     Data bit usage: <c>----oo</c>
 /// </summary>
 // o: orientation
-public class FlatBlock : Block, IFillable
+public class FlatBlock : Block, IFillable, IComplex
 {
     private static readonly float[][] sideVertices =
     {
@@ -87,6 +88,11 @@ public class FlatBlock : Block, IFillable
         }
     }
 
+    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
+    {
+        return GetMeshData(info);
+    }
+
     private static float[] CreateSide(Orientation orientation)
     {
         return BlockModels.CreateFlatModel(orientation.ToBlockSide().Opposite(), offset: 0.01f);
@@ -103,12 +109,6 @@ public class FlatBlock : Block, IFillable
     protected override BoundingVolume GetBoundingVolume(uint data)
     {
         return volumes[(int) (data & 0b00_0011)];
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        return BlockMeshData.Complex(vertexCount: 8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
     }
 
     /// <inheritdoc />
@@ -173,5 +173,13 @@ public class FlatBlock : Block, IFillable
 
         if (schedule) ScheduleDestroy(world, position);
         else Destroy(world, position);
+    }
+
+    /// <summary>
+    ///     Override this method to create custom mesh data for this block.
+    /// </summary>
+    protected virtual IComplex.MeshData GetMeshData(BlockMeshInfo info)
+    {
+        return IComplex.CreateData(vertexCount: 8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
     }
 }

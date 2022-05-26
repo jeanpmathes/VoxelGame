@@ -11,6 +11,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -20,7 +21,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 /// </summary>
 // l: lowered
 // s: stage
-public class FruitCropBlock : Block, IFlammable, IFillable
+public class FruitCropBlock : Block, IFlammable, IFillable, ICrossPlant
 {
     private readonly Block fruit;
     private readonly string texture;
@@ -41,6 +42,33 @@ public class FruitCropBlock : Block, IFlammable, IFillable
         this.fruit = fruit;
 
         for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
+    }
+
+    ICrossPlant.MeshData ICrossPlant.GetMeshData(BlockMeshInfo info)
+    {
+        var stage = (GrowthStage) ((info.Data >> 1) & 0b111);
+
+        int index = stage switch
+        {
+            GrowthStage.Initial => textureIndex.initial,
+            GrowthStage.First => textureIndex.initial,
+            GrowthStage.Second => textureIndex.last,
+            GrowthStage.Third => textureIndex.last,
+            GrowthStage.Fourth => textureIndex.last,
+            GrowthStage.Fifth => textureIndex.last,
+            GrowthStage.Ready => textureIndex.last,
+            GrowthStage.Dead => textureIndex.dead,
+            _ => 0
+        };
+
+        return new ICrossPlant.MeshData
+        {
+            TextureIndex = index,
+            Tint = TintColor.None,
+            HasUpper = false,
+            IsLowered = (info.Data & 0b1) == 1,
+            IsUpper = false
+        };
     }
 
     /// <inheritdoc />
@@ -79,32 +107,6 @@ public class FruitCropBlock : Block, IFlammable, IFillable
     protected override BoundingVolume GetBoundingVolume(uint data)
     {
         return volumes[(int) data & 0b00_1111];
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        var stage = (GrowthStage) ((info.Data >> 1) & 0b111);
-
-        int index = stage switch
-        {
-            GrowthStage.Initial => textureIndex.initial,
-            GrowthStage.First => textureIndex.initial,
-            GrowthStage.Second => textureIndex.last,
-            GrowthStage.Third => textureIndex.last,
-            GrowthStage.Fourth => textureIndex.last,
-            GrowthStage.Fifth => textureIndex.last,
-            GrowthStage.Ready => textureIndex.last,
-            GrowthStage.Dead => textureIndex.dead,
-            _ => 0
-        };
-
-        return BlockMeshData.CrossPlant(
-            index,
-            TintColor.None,
-            hasUpper: false,
-            (info.Data & 0b1) == 1,
-            isUpper: false);
     }
 
     /// <inheritdoc />

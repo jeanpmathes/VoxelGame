@@ -10,6 +10,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -19,7 +20,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 /// </summary>
 // l: lowered
 // h: height
-public class DoubleCrossPlantBlock : Block, IFlammable, IFillable
+public class DoubleCrossPlantBlock : Block, IFlammable, IFillable, ICrossPlant
 {
     private readonly string bottomTexture;
     private readonly int topTexOffset;
@@ -40,6 +41,21 @@ public class DoubleCrossPlantBlock : Block, IFlammable, IFillable
         this.topTexOffset = topTexOffset;
     }
 
+    ICrossPlant.MeshData ICrossPlant.GetMeshData(BlockMeshInfo info)
+    {
+        bool isUpper = (info.Data & 0b01) != 0;
+        bool isLowered = (info.Data & 0b10) != 0;
+
+        return new ICrossPlant.MeshData
+        {
+            TextureIndex = isUpper ? topTextureIndex : bottomTextureIndex,
+            Tint = TintColor.Neutral,
+            HasUpper = true,
+            IsLowered = isLowered,
+            IsUpper = isUpper
+        };
+    }
+
     /// <inheritdoc />
     public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
@@ -51,20 +67,6 @@ public class DoubleCrossPlantBlock : Block, IFlammable, IFillable
     {
         bottomTextureIndex = indexProvider.GetTextureIndex(bottomTexture);
         topTextureIndex = bottomTextureIndex + topTexOffset;
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        bool isUpper = (info.Data & 0b01) != 0;
-        bool isLowered = (info.Data & 0b10) != 0;
-
-        return BlockMeshData.CrossPlant(
-            isUpper ? topTextureIndex : bottomTextureIndex,
-            TintColor.Neutral,
-            hasUpper: true,
-            isLowered,
-            isUpper);
     }
 
     /// <inheritdoc />

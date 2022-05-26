@@ -15,15 +15,7 @@ namespace VoxelGame.Core.Visuals.Meshables;
 /// </summary>
 public interface IComplex : IBlockMeshable
 {
-    void IBlockMeshable.CreateMesh(Vector3i position, BlockMeshInfo info, BlockMeshContext context)
-    {
-        CreateMesh(position, info, context);
-    }
-
-    /// <summary>
-    ///     See <see cref="IBlockMeshable" />.
-    /// </summary>
-    public void CreateMesh(Vector3i position, BlockMeshInfo info, BlockMeshContext context)
+    void IBlockMeshable.CreateMesh(Vector3i position, BlockMeshInfo info, MeshingContext context)
     {
         (int x, int y, int z) = position;
 
@@ -78,9 +70,17 @@ public interface IComplex : IBlockMeshable
     protected MeshData GetMeshData(BlockMeshInfo info);
 
     /// <summary>
+    ///     Create the mesh data for a complex mesh.
+    /// </summary>
+    protected static MeshData CreateData(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices)
+    {
+        return new MeshData(vertexCount, vertices, textureIndices, indices);
+    }
+
+    /// <summary>
     ///     The data that blocks have to provide for complex meshing.
     /// </summary>
-    protected struct MeshData : IEquatable<MeshData>
+    public readonly struct MeshData : IEquatable<MeshData>
     {
         private readonly float[] vertices;
         private readonly int[] textureIndices;
@@ -89,8 +89,7 @@ public interface IComplex : IBlockMeshable
         /// <summary>
         ///     Create the mesh data.
         /// </summary>
-        public MeshData(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices, bool isAnimated,
-            TintColor tint)
+        public MeshData(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices)
         {
             this.vertices = vertices;
             this.textureIndices = textureIndices;
@@ -98,8 +97,8 @@ public interface IComplex : IBlockMeshable
 
             VertexCount = vertexCount;
 
-            IsAnimated = isAnimated;
-            Tint = tint;
+            Tint = TintColor.None;
+            IsAnimated = false;
         }
 
         /// <summary>

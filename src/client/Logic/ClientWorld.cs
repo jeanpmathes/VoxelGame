@@ -18,6 +18,7 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Logic;

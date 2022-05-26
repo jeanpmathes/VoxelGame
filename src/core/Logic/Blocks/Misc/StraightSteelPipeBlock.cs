@@ -11,6 +11,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -19,7 +20,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     Data bit usage: <c>----aa</c>
 /// </summary>
 // aa: axis
-public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectable
+public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectable, IComplex
 {
     private readonly float diameter;
 
@@ -48,6 +49,13 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
 
             volumes.Add(CreateVolume(data));
         }
+    }
+
+    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
+    {
+        BlockMesh mesh = meshes[(int) info.Data & 0b00_0011];
+
+        return mesh.GetMeshData();
     }
 
     /// <inheritdoc />
@@ -82,14 +90,6 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
     protected override BoundingVolume GetBoundingVolume(uint data)
     {
         return volumes[(int) data & 0b00_0011];
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        BlockMesh mesh = meshes[(int) info.Data & 0b00_0011];
-
-        return mesh.GetComplexMeshData();
     }
 
     /// <inheritdoc />

@@ -11,6 +11,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -22,7 +23,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 // s: side
 // b: base
 // o: orientation
-public class DoorBlock : Block, IFillable
+public class DoorBlock : Block, IFillable, IComplex
 {
     private readonly List<BlockMesh> baseClosedMeshes = new();
     private readonly List<BlockMesh> baseOpenMeshes = new();
@@ -80,6 +81,32 @@ public class DoorBlock : Block, IFillable
         for (uint data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
     }
 
+    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
+    {
+        var orientation = (Orientation) (info.Data & 0b00_0011);
+        bool isBase = (info.Data & 0b00_0100) == 0;
+        bool isLeftSided = (info.Data & 0b00_1000) == 0;
+        bool isClosed = (info.Data & 0b01_0000) == 0;
+
+        if (isClosed)
+        {
+            var index = (int) orientation;
+
+            BlockMesh mesh = isBase ? baseClosedMeshes[index] : topClosedMeshes[index];
+
+            return mesh.GetMeshData();
+        }
+        else
+        {
+            Orientation openOrientation = isLeftSided ? orientation.Opposite() : orientation;
+            var index = (int) openOrientation;
+
+            BlockMesh mesh = isBase ? baseOpenMeshes[index] : topOpenMeshes[index];
+
+            return mesh.GetMeshData();
+        }
+    }
+
     private static BoundingVolume CreateVolume(uint data)
     {
         var orientation = (Orientation) (data & 0b00_0011);
@@ -110,33 +137,6 @@ public class DoorBlock : Block, IFillable
     protected override BoundingVolume GetBoundingVolume(uint data)
     {
         return volumes[(int) data & 0b01_1111];
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        var orientation = (Orientation) (info.Data & 0b00_0011);
-        bool isBase = (info.Data & 0b00_0100) == 0;
-        bool isLeftSided = (info.Data & 0b00_1000) == 0;
-        bool isClosed = (info.Data & 0b01_0000) == 0;
-
-        if (isClosed)
-        {
-            var index = (int) orientation;
-
-            BlockMesh mesh = isBase ? baseClosedMeshes[index] : topClosedMeshes[index];
-
-            return mesh.GetComplexMeshData();
-        }
-        else
-        {
-            Orientation openOrientation = isLeftSided ? orientation.Opposite() : orientation;
-            var index = (int) openOrientation;
-
-            BlockMesh mesh = isBase ? baseOpenMeshes[index] : topOpenMeshes[index];
-
-            return mesh.GetComplexMeshData();
-        }
     }
 
     /// <inheritdoc />

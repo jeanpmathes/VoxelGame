@@ -33,12 +33,6 @@ public class AirBlock : Block, IFillable
             TargetBuffer.NotRendered) {}
 
     /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        return BlockMeshData.Empty();
-    }
-
-    /// <inheritdoc />
     public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
     {
         return false;

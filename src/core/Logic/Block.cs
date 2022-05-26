@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     The basic block class. Blocks are used to construct the world.
 /// </summary>
-public abstract partial class Block : IBlockBase, IBlockMeshable, IIdentifiable<uint>, IIdentifiable<string>
+public abstract partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<string>
 {
     private readonly BoundingVolume boundingVolume;
 

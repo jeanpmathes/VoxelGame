@@ -17,15 +17,7 @@ namespace VoxelGame.Core.Visuals.Meshables;
 /// </summary>
 public interface IVaryingHeight : IBlockMeshable, IHeightVariable
 {
-    void IBlockMeshable.CreateMesh(Vector3i position, BlockMeshInfo info, BlockMeshContext context)
-    {
-        CreateMesh(position, info, context);
-    }
-
-    /// <summary>
-    ///     See <see cref="IBlockMeshable" />.
-    /// </summary>
-    public new void CreateMesh(Vector3i position, BlockMeshInfo info, BlockMeshContext context)
+    void IBlockMeshable.CreateMesh(Vector3i position, BlockMeshInfo info, MeshingContext context)
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void MeshVaryingHeightSide(BlockSide side)
@@ -38,7 +30,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable
                 bool isModified = side != BlockSide.Bottom &&
                                   GetHeight(info.Data) != MaximumHeight;
 
-                MeshData mesh = GetMeshData(info);
+                MeshData mesh = GetMeshData(info with { Side = side });
 
                 side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
                 (int x, int y, int z) = position;
@@ -130,11 +122,6 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable
         public int TextureIndex { get; init; }
 
         /// <summary>
-        ///     Whether the texture is rotated.
-        /// </summary>
-        public bool IsTextureRotated { get; init; }
-
-        /// <summary>
         ///     The block tint.
         /// </summary>
         public TintColor Tint { get; init; }
@@ -142,8 +129,8 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable
         /// <inheritdoc />
         public bool Equals(MeshData other)
         {
-            return (TextureIndex, IsTextureRotated, Tint) ==
-                   (other.TextureIndex, other.IsTextureRotated, other.Tint);
+            return (TextureIndex, Tint) ==
+                   (other.TextureIndex, other.Tint);
         }
 
         /// <inheritdoc />
@@ -155,7 +142,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return HashCode.Combine(TextureIndex, IsTextureRotated, Tint);
+            return HashCode.Combine(TextureIndex, Tint);
         }
 
         /// <summary>

@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -22,7 +23,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 // c: color
 // o: orientation
 // p: position
-public class BedBlock : Block, IFlammable, IFillable
+public class BedBlock : Block, IFlammable, IFillable, IComplex
 {
     private readonly List<BlockMesh> footMeshes = new(capacity: 4);
     private readonly List<BlockMesh> headMeshes = new(capacity: 4);
@@ -66,6 +67,17 @@ public class BedBlock : Block, IFlammable, IFillable
         footMeshes.Add(footParts.west.Mesh);
 
         for (uint data = 0; data <= 0b11_1111; data++) volumes.Add(CreateVolume(data));
+    }
+
+    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
+    {
+        bool isHead = (info.Data & 0b1) == 1;
+        var orientation = (int) ((info.Data & 0b00_0110) >> 1);
+        var color = (BlockColor) ((info.Data & 0b11_1000) >> 3);
+
+        BlockMesh mesh = isHead ? headMeshes[orientation] : footMeshes[orientation];
+
+        return mesh.GetMeshData(color.ToTintColor());
     }
 
     private static BoundingVolume CreateVolume(uint data)
@@ -138,18 +150,6 @@ public class BedBlock : Block, IFlammable, IFillable
     protected override BoundingVolume GetBoundingVolume(uint data)
     {
         return volumes[(int) data & 0b11_1111];
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        bool isHead = (info.Data & 0b1) == 1;
-        var orientation = (int) ((info.Data & 0b00_0110) >> 1);
-        var color = (BlockColor) ((info.Data & 0b11_1000) >> 3);
-
-        BlockMesh mesh = isHead ? headMeshes[orientation] : footMeshes[orientation];
-
-        return mesh.GetComplexMeshData(color.ToTintColor());
     }
 
     /// <inheritdoc />

@@ -20,7 +20,7 @@ public interface IBlockMeshable : IBlockBase
     /// <param name="position">The position at which the block is meshed, in section-local coordinates.</param>
     /// <param name="info">Information about the block.</param>
     /// <param name="context">The current meshing context.</param>
-    public void CreateMesh(Vector3i position, BlockMeshInfo info, BlockMeshContext context)
+    public void CreateMesh(Vector3i position, BlockMeshInfo info, MeshingContext context)
     {
         // Intentionally left empty.
     }

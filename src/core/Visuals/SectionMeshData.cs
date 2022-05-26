@@ -7,33 +7,13 @@
 using System.Diagnostics;
 using VoxelGame.Core.Collections;
 
-namespace VoxelGame.Client.Rendering;
+namespace VoxelGame.Core.Visuals;
 
 /// <summary>
 ///     Contains the mesh data for a section.
 /// </summary>
 public class SectionMeshData
 {
-    internal readonly PooledList<uint> complexIndices;
-    internal readonly PooledList<int> complexVertexData;
-
-    internal readonly PooledList<float> complexVertexPositions;
-
-    internal readonly PooledList<int> cropPlantVertexData;
-
-    internal readonly PooledList<int> crossPlantVertexData;
-    internal readonly PooledList<uint> opaqueFluidIndices;
-
-    internal readonly PooledList<int> opaqueFluidVertexData;
-
-    internal readonly PooledList<int> simpleVertexData;
-    internal readonly PooledList<uint> transparentFluidIndices;
-
-    internal readonly PooledList<int> transparentFluidVertexData;
-    internal readonly PooledList<uint> varyingHeightIndices;
-
-    internal readonly PooledList<int> varyingHeightVertexData;
-
     private bool isReturnedToPool;
 
     internal SectionMeshData(PooledList<int> simpleVertexData,
@@ -138,4 +118,25 @@ public class SectionMeshData
 
         ReturnPooled();
     }
+    #pragma warning disable
+    public readonly PooledList<uint> complexIndices;
+    public readonly PooledList<int> complexVertexData;
+
+    public readonly PooledList<float> complexVertexPositions;
+
+    public readonly PooledList<int> cropPlantVertexData;
+
+    public readonly PooledList<int> crossPlantVertexData;
+    public readonly PooledList<uint> opaqueFluidIndices;
+
+    public readonly PooledList<int> opaqueFluidVertexData;
+
+    public readonly PooledList<int> simpleVertexData;
+    public readonly PooledList<uint> transparentFluidIndices;
+
+    public readonly PooledList<int> transparentFluidVertexData;
+    public readonly PooledList<uint> varyingHeightIndices;
+
+    public readonly PooledList<int> varyingHeightVertexData;
+    #pragma warning restore
 }

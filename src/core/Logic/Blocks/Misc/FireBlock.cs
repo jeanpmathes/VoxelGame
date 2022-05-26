@@ -13,6 +13,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -25,7 +26,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 // l: left
 // r: right
 // t: top
-public class FireBlock : Block, IFillable
+public class FireBlock : Block, IFillable, IComplex
 {
     private const int TickOffset = 150;
     private const int TickVariation = 25;
@@ -50,6 +51,13 @@ public class FireBlock : Block, IFillable
         PrepareMeshes(complete, side, top);
 
         for (uint data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
+    }
+
+    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
+    {
+        BlockMesh mesh = meshes[(int) info.Data & 0b01_1111];
+
+        return mesh.GetMeshData(isAnimated: true);
     }
 
     /// <inheritdoc />
@@ -135,14 +143,6 @@ public class FireBlock : Block, IFillable
     protected override BoundingVolume GetBoundingVolume(uint data)
     {
         return volumes[(int) data & 0b01_1111];
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        BlockMesh mesh = meshes[(int) info.Data & 0b01_1111];
-
-        return mesh.GetComplexMeshData(isAnimated: true);
     }
 
     /// <inheritdoc />

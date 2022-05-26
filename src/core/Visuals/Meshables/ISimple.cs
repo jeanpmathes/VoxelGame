@@ -16,15 +16,7 @@ namespace VoxelGame.Core.Visuals.Meshables;
 /// </summary>
 public interface ISimple : IBlockMeshable
 {
-    void IBlockMeshable.CreateMesh(Vector3i position, BlockMeshInfo info, BlockMeshContext context)
-    {
-        CreateMesh(position, info, context);
-    }
-
-    /// <summary>
-    ///     See <see cref="IBlockMeshable" />.
-    /// </summary>
-    public new void CreateMesh(Vector3i position, BlockMeshInfo info, BlockMeshContext context)
+    void IBlockMeshable.CreateMesh(Vector3i position, BlockMeshInfo info, MeshingContext context)
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void MeshSimpleSide(BlockSide side)
@@ -39,7 +31,7 @@ public interface ISimple : IBlockMeshable
                                               RenderFaceAtNonOpaques ||
                                               blockToCheck.RenderFaceAtNonOpaques))
             {
-                MeshData mesh = GetMeshData(info);
+                MeshData mesh = GetMeshData(info with { Side = side });
 
                 side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
                 int[][] uvs = BlockModels.GetBlockUVs(mesh.IsTextureRotated);
@@ -79,7 +71,24 @@ public interface ISimple : IBlockMeshable
         MeshSimpleSide(BlockSide.Top);
     }
 
+    /// <summary>
+    ///     Provides the mesh data.
+    /// </summary>
     protected MeshData GetMeshData(BlockMeshInfo info);
+
+    /// <summary>
+    ///     Create mesh data for a basic block.
+    /// </summary>
+    protected static MeshData CreateData(int textureIndex, bool isTextureRotated)
+    {
+        return new MeshData
+        {
+            TextureIndex = textureIndex,
+            IsTextureRotated = isTextureRotated,
+            Tint = TintColor.None,
+            IsAnimated = false
+        };
+    }
 
     /// <summary>
     ///     The mesh data required for meshing with the <see cref="ISimple" /> interface.

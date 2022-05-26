@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -21,7 +22,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 /// </summary>
 // l: lowered
 // s: stage
-public class CropBlock : Block, IFlammable, IFillable
+public class CropBlock : Block, IFlammable, IFillable, ICropPlant
 {
     private readonly string texture;
 
@@ -43,6 +44,19 @@ public class CropBlock : Block, IFlammable, IFillable
         stages = (second, third, fourth, fifth, sixth, final, dead);
 
         for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
+    }
+
+    ICropPlant.MeshData ICropPlant.GetMeshData(BlockMeshInfo info)
+    {
+        int textureIndex = stageTextureIndices[info.Data & 0b00_0111];
+        bool isLowered = (info.Data & 0b00_1000) != 0;
+
+        return new ICropPlant.MeshData
+        {
+            TextureIndex = textureIndex,
+            IsLowered = isLowered,
+            IsUpper = false
+        };
     }
 
     /// <inheritdoc />
@@ -105,15 +119,6 @@ public class CropBlock : Block, IFlammable, IFillable
     protected override BoundingVolume GetBoundingVolume(uint data)
     {
         return volumes[(int) data & 0b00_1111];
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        int textureIndex = stageTextureIndices[info.Data & 0b00_0111];
-        bool isLowered = (info.Data & 0b00_1000) != 0;
-
-        return BlockMeshData.CropPlant(textureIndex, TintColor.None, isLowered, isUpper: false);
     }
 
     /// <inheritdoc />

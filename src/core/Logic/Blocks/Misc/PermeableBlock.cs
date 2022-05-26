@@ -7,6 +7,7 @@
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -30,8 +31,8 @@ public class PermeableBlock : BasicBlock, IFillable
     }
 
     /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
+    protected override ISimple.MeshData GetMeshData(BlockMeshInfo info)
     {
-        return base.GetMesh(info).Modified(info.Fluid.IsFluid ? TintColor.LightGray : TintColor.None);
+        return base.GetMeshData(info) with { Tint = info.Fluid.IsFluid ? TintColor.LightGray : TintColor.None };
     }
 }

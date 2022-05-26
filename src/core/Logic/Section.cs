@@ -234,7 +234,7 @@ public abstract class Section : IDisposable
     /// <param name="position">The position.</param>
     /// <returns>The block at the position.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected Block GetBlock(Vector3i position)
+    public Block GetBlock(Vector3i position)
     {
         return Block.TranslateID(this[position.X, position.Y, position.Z] & BlockMask);
     }
@@ -246,7 +246,7 @@ public abstract class Section : IDisposable
     /// <param name="data">The data of the block.</param>
     /// <returns>The block at the position.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected Block GetBlock(Vector3i position, out uint data)
+    public Block GetBlock(Vector3i position, out uint data)
     {
         uint val = this[position.X, position.Y, position.Z];
 

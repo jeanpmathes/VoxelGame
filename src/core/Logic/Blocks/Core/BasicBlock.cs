@@ -6,6 +6,7 @@
 
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -14,7 +15,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     much function, but the class can be extended easily.
 ///     Data bit usage: <c>------</c>
 /// </summary>
-public class BasicBlock : Block, IOverlayTextureProvider
+public class BasicBlock : Block, IOverlayTextureProvider, ISimple
 {
     private readonly TextureLayout layout;
     private protected int[] sideTextureIndices = null!;
@@ -42,14 +43,22 @@ public class BasicBlock : Block, IOverlayTextureProvider
     public virtual int TextureIdentifier => layout.Bottom;
 
     /// <inheritdoc />
+    ISimple.MeshData ISimple.GetMeshData(BlockMeshInfo info)
+    {
+        return GetMeshData(info);
+    }
+
+    /// <inheritdoc />
     protected override void Setup(ITextureIndexProvider indexProvider)
     {
         sideTextureIndices = layout.GetTexIndexArray();
     }
 
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
+    /// <summary>
+    ///     Overwrite to defined different mesh data.
+    /// </summary>
+    protected virtual ISimple.MeshData GetMeshData(BlockMeshInfo info)
     {
-        return BlockMeshData.Basic(sideTextureIndices[(int) info.Side], isTextureRotated: false);
+        return ISimple.CreateData(sideTextureIndices[(int) info.Side], isTextureRotated: false);
     }
 }

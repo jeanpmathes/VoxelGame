@@ -9,6 +9,7 @@ using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -27,7 +28,7 @@ public class RotatedBlock : BasicBlock, IFlammable
             layout) {}
 
     /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
+    protected override ISimple.MeshData GetMeshData(BlockMeshInfo info)
     {
         Axis axis = ToAxis(info.Data);
 
@@ -38,7 +39,7 @@ public class RotatedBlock : BasicBlock, IFlammable
 
         bool rotated = onXAndRotated || onZAndRotated;
 
-        return BlockMeshData.Basic(sideTextureIndices[TranslateIndex(info.Side, axis)], rotated);
+        return ISimple.CreateData(sideTextureIndices[TranslateIndex(info.Side, axis)], rotated);
     }
 
     /// <inheritdoc />
