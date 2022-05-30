@@ -33,8 +33,7 @@ public class BasicBlock : Block, IOverlayTextureProvider, ISimple
             name,
             namedId,
             flags with { IsFull = true, IsReplaceable = false },
-            BoundingVolume.Block,
-            TargetBuffer.Simple)
+            BoundingVolume.Block)
     {
         this.layout = layout;
     }

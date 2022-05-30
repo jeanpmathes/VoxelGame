@@ -30,8 +30,7 @@ public class GateBlock : Block, IWideConnectable, IFlammable, IFillable, IComple
             name,
             namedId,
             BlockFlags.Functional,
-            BoundingVolume.Block,
-            TargetBuffer.Complex)
+            BoundingVolume.Block)
     {
         BlockModel closed = BlockModel.Load(closedModel);
         BlockModel open = BlockModel.Load(openModel);

@@ -35,8 +35,7 @@ public class FruitCropBlock : Block, IFlammable, IFillable, ICrossPlant
             name,
             namedId,
             new BlockFlags(),
-            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f)),
-            TargetBuffer.CrossPlant)
+            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f)))
     {
         this.texture = texture;
         this.fruit = fruit;

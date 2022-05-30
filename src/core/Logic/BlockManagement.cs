@@ -17,7 +17,7 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
 
-public abstract partial class Block
+public partial class Block
 {
     /// <summary>
     ///     The maximum amount of different blocks that can be registered.

@@ -34,8 +34,7 @@ public class DoubleCrossPlantBlock : Block, IFlammable, IFillable, ICrossPlant
             name,
             namedId,
             new BlockFlags(),
-            boundingVolume,
-            TargetBuffer.CrossPlant)
+            boundingVolume)
     {
         this.bottomTexture = bottomTexture;
         this.topTexOffset = topTexOffset;

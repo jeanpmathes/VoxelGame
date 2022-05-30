@@ -55,8 +55,7 @@ public class FlatBlock : Block, IFillable, IComplex
             name,
             namedId,
             BlockFlags.Trigger,
-            BoundingVolume.Block,
-            TargetBuffer.Complex)
+            BoundingVolume.Block)
     {
         this.climbingVelocity = climbingVelocity;
         this.slidingVelocity = slidingVelocity;

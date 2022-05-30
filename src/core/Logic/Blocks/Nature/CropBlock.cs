@@ -36,8 +36,7 @@ public class CropBlock : Block, IFlammable, IFillable, ICropPlant
             name,
             namedId,
             new BlockFlags(),
-            BoundingVolume.Block,
-            TargetBuffer.CropPlant)
+            BoundingVolume.Block)
     {
         this.texture = texture;
 

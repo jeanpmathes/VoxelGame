@@ -45,8 +45,7 @@ public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConne
                 IsOpaque = false,
                 IsSolid = true
             },
-            boundingVolume,
-            TargetBuffer.Complex)
+            boundingVolume)
     {
         BlockModel post = BlockModel.Load(postModel);
         BlockModel extension = BlockModel.Load(extensionModel);

@@ -39,8 +39,7 @@ public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConne
             },
             new BoundingVolume(
                 new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
-                new Vector3(x: 0.0625f, y: 0.5f, z: 0.0625f)),
-            TargetBuffer.Complex)
+                new Vector3(x: 0.0625f, y: 0.5f, z: 0.0625f)))
     {
         BlockModel post = BlockModel.Load(postModel);
 

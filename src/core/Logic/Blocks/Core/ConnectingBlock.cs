@@ -9,7 +9,6 @@ using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -22,7 +21,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 // e: connected east
 // s: connected south
 // w: connected west
-public abstract class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable : IConnectable
+public class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable : IConnectable
 {
     /// <summary>
     ///     Create a new connecting block.
@@ -31,15 +30,12 @@ public abstract class ConnectingBlock<TConnectable> : Block, IFillable where TCo
     /// <param name="namedId">The string ID of the block.</param>
     /// <param name="flags">The flags describing the block.</param>
     /// <param name="boundingVolume">The block bounding box.</param>
-    /// <param name="targetBuffer">The target rendering buffer.</param>
-    protected ConnectingBlock(string name, string namedId, BlockFlags flags, BoundingVolume boundingVolume,
-        TargetBuffer targetBuffer) :
+    protected ConnectingBlock(string name, string namedId, BlockFlags flags, BoundingVolume boundingVolume) :
         base(
             name,
             namedId,
             flags,
-            boundingVolume,
-            targetBuffer) {}
+            boundingVolume) {}
 
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)

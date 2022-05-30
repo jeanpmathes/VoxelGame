@@ -37,8 +37,7 @@ public class BedBlock : Block, IFlammable, IFillable, IComplex
             BlockFlags.Functional,
             new BoundingVolume(
                 new Vector3(x: 0.5f, y: 0.21875f, z: 0.5f),
-                new Vector3(x: 0.5f, y: 0.21875f, z: 0.5f)),
-            TargetBuffer.Complex)
+                new Vector3(x: 0.5f, y: 0.21875f, z: 0.5f)))
     {
         BlockModel blockModel = BlockModel.Load(model);
 

@@ -38,8 +38,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
             name,
             namedId,
             BlockFlags.Solid,
-            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, diameter)),
-            TargetBuffer.Complex)
+            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, diameter)))
     {
         this.diameter = diameter;
 

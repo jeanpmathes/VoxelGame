@@ -34,14 +34,6 @@ public class BlockMesh
     }
 
     /// <summary>
-    ///     Get complex mesh data from this mesh.
-    /// </summary>
-    public BlockMeshData GetComplexMeshData(TintColor? tint = null, bool isAnimated = false)
-    {
-        return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices, tint, isAnimated);
-    }
-
-    /// <summary>
     ///     Get the mesh as mesh data for complex meshing.
     /// </summary>
     /// <param name="tint">An optional tint.</param>

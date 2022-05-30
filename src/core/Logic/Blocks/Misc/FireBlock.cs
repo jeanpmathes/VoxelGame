@@ -40,8 +40,7 @@ public class FireBlock : Block, IFillable, IComplex
             name,
             namedId,
             BlockFlags.Replaceable,
-            BoundingVolume.Block,
-            TargetBuffer.Complex)
+            BoundingVolume.Block)
     {
         BlockModel complete = BlockModel.Load(completeModel);
 

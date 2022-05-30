@@ -8,7 +8,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -29,8 +28,7 @@ public class AirBlock : Block, IFillable
             name,
             namedId,
             BlockFlags.Empty,
-            BoundingVolume.Block,
-            TargetBuffer.NotRendered) {}
+            BoundingVolume.Block) {}
 
     /// <inheritdoc />
     public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)

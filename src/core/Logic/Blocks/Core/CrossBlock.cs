@@ -33,8 +33,7 @@ public class CrossBlock : Block, IFillable, IComplex
             name,
             namedId,
             flags with { IsFull = false, IsOpaque = false, IsSolid = false },
-            boundingVolume,
-            TargetBuffer.Complex)
+            boundingVolume)
     {
         this.texture = texture;
     }

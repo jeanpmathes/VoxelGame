@@ -39,8 +39,7 @@ public class CrossPlantBlock : Block, IFlammable, IFillable, ICrossPlant
             name,
             namedId,
             flags with { IsFull = false, IsOpaque = false },
-            boundingVolume,
-            TargetBuffer.CrossPlant)
+            boundingVolume)
     {
         this.texture = texture;
     }

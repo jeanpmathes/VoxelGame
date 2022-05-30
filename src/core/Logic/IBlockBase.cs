@@ -6,7 +6,6 @@
 
 using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
-using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic;
 
@@ -55,11 +54,6 @@ public interface IBlockBase
     ///     Gets whether this block responds to interactions.
     /// </summary>
     public bool IsInteractable { get; }
-
-    /// <summary>
-    ///     Gets the section buffer this blocks mesh data should be stored in.
-    /// </summary>
-    public TargetBuffer TargetBuffer { get; }
 
     /// <summary>
     ///     Gets whether this block completely fills a 1x1x1 volume or not. If a block is not full, it cannot be opaque.

@@ -35,8 +35,7 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
             name,
             namedId,
             BlockFlags.Functional,
-            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, z: 0.5f)),
-            TargetBuffer.Complex)
+            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, z: 0.5f)))
     {
         this.diameter = diameter;
 

@@ -35,8 +35,7 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
             name,
             namedId,
             BlockFlags.Solid,
-            BoundingVolume.Block,
-            TargetBuffer.VaryingHeight)
+            BoundingVolume.Block)
     {
         dryLayout = dry;
         wetLayout = wet;

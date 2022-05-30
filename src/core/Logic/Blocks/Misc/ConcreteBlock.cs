@@ -33,8 +33,7 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
             name,
             namedId,
             BlockFlags.Functional,
-            BoundingVolume.Block,
-            TargetBuffer.VaryingHeight)
+            BoundingVolume.Block)
     {
         this.layout = layout;
 

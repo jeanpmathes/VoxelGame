@@ -11,13 +11,14 @@ using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
 ///     The basic block class. Blocks are used to construct the world.
 /// </summary>
-public abstract partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<string>
+public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<string>
 {
     private readonly BoundingVolume boundingVolume;
 
@@ -28,9 +29,7 @@ public abstract partial class Block : IBlockMeshable, IIdentifiable<uint>, IIden
     /// <param name="namedId">The named ID of the block. A unique and unlocalized identifier.</param>
     /// <param name="flags">The block flags setting specific options.</param>
     /// <param name="boundingVolume">The base bounding volume for this block. Is used for placement checks.</param>
-    /// <param name="targetBuffer">The target rendering buffer.</param>
-    protected Block(string name, string namedId, BlockFlags flags, BoundingVolume boundingVolume,
-        TargetBuffer targetBuffer)
+    protected Block(string name, string namedId, BlockFlags flags, BoundingVolume boundingVolume)
     {
         Name = name;
         NamedId = namedId;
@@ -46,17 +45,12 @@ public abstract partial class Block : IBlockMeshable, IIdentifiable<uint>, IIden
 
         this.boundingVolume = boundingVolume;
 
-        TargetBuffer = targetBuffer;
-
-        Debug.Assert(
-            (TargetBuffer != TargetBuffer.Simple) ^ IsFull,
-            $"TargetBuffer '{nameof(TargetBuffer.Simple)}' requires {nameof(IsFull)} to be {!IsFull}, all other target buffers cannot be full.");
-
-        Debug.Assert(IsFull || !IsOpaque, "A block that is not full cannot be opaque.");
 #pragma warning disable S3060 // "is" should not be used with "this"
         Debug.Assert(
-            TargetBuffer == TargetBuffer.VaryingHeight == this is IHeightVariable,
-            $"The target buffer should be {nameof(TargetBuffer.VaryingHeight)} if and only if the block implements {nameof(IHeightVariable)}.");
+            this is not ISimple ^ IsFull,
+            $"TargetBuffer '{nameof(ISimple)}' requires {nameof(IsFull)} to be {!IsFull}, all other target buffers cannot be full.");
+
+        Debug.Assert(IsFull || !IsOpaque, "A block that is not full cannot be opaque.");
 #pragma warning restore S3060 // "is" should not be used with "this"
 
         if (blockList.Count < BlockLimit)
@@ -95,9 +89,6 @@ public abstract partial class Block : IBlockMeshable, IIdentifiable<uint>, IIden
 
     /// <inheritdoc />
     public bool IsInteractable { get; }
-
-    /// <inheritdoc />
-    public TargetBuffer TargetBuffer { get; }
 
     /// <inheritdoc />
     public bool IsFull { get; }
