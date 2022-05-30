@@ -30,7 +30,7 @@ public class NoFluid : Fluid
             RenderType.NotRendered) {}
 
     /// <inheritdoc />
-    public override FluidMeshData GetMesh(FluidMeshInfo info)
+    protected override FluidMeshData GetMeshData(FluidMeshInfo info)
     {
         return FluidMeshData.Empty;
     }

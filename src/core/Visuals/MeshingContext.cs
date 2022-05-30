@@ -28,6 +28,9 @@ public class MeshingContext
 
     private readonly Section current;
     private readonly Section?[] neighbors;
+
+    private readonly VaryingHeightMeshFaceHolder[] opaqueFluidMeshFaceHolders;
+    private readonly VaryingHeightMeshFaceHolder[] transparentFluidMeshFaceHolders;
     private readonly VaryingHeightMeshFaceHolder[] varyingHeightMeshFaceHolders;
 
     /// <summary>
@@ -43,6 +46,8 @@ public class MeshingContext
 
         blockMeshFaceHolders = CreateBlockMeshFaceHolders();
         varyingHeightMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
+        opaqueFluidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
+        transparentFluidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
     }
 
     /// <summary>
@@ -124,6 +129,14 @@ public class MeshingContext
     }
 
     /// <summary>
+    ///     Get the fluid mesh face holders for varying height faces.
+    /// </summary>
+    public VaryingHeightMeshFaceHolder[] GetFluidMeshFaceHolders(bool isOpaque)
+    {
+        return isOpaque ? opaqueFluidMeshFaceHolders : transparentFluidMeshFaceHolders;
+    }
+
+    /// <summary>
     ///     Get the crop plant vertex data list.
     /// </summary>
     public PooledList<int> GetCropPlantVertexData()
@@ -165,6 +178,37 @@ public class MeshingContext
     }
 
     /// <summary>
+    ///     Get a block and fluid from the current section or one of its neighbors.
+    /// </summary>
+    /// <param name="position">The position, in section-local coordinates.</param>
+    /// <param name="side">The block side giving the neighbor to use if necessary.</param>
+    /// <param name="level">The level of the fluid.</param>
+    /// <returns>The block and fluid or null if there is nothing.</returns>
+    public (Block block, Fluid fluid) GetBlockAndFluid(Vector3i position, BlockSide side, out int level)
+    {
+        Block? block;
+        Fluid? fluid;
+
+        level = -1;
+
+        if (IsPositionOutOfSection(position))
+        {
+            position = position.Mod(Section.Size);
+
+            Section? neighbor = neighbors[(int) side];
+            block = neighbor?.GetBlock(position);
+            fluid = neighbor?.GetFluid(position, out level);
+        }
+        else
+        {
+            block = current.GetBlock(position);
+            fluid = current.GetFluid(position, out level);
+        }
+
+        return (block ?? Block.Air, fluid ?? Fluid.None);
+    }
+
+    /// <summary>
     ///     Get a block from the current section or one of its neighbors.
     /// </summary>
     /// <param name="position">The position, in section-local coordinates.</param>
@@ -201,8 +245,7 @@ public class MeshingContext
     /// <summary>
     ///     Generate the section mesh data.
     /// </summary>
-    public SectionMeshData GenerateMeshData(VaryingHeightMeshFaceHolder[] opaqueFluidMeshFaceHolders,
-        VaryingHeightMeshFaceHolder[] transparentFluidMeshFaceHolders)
+    public SectionMeshData GenerateMeshData()
     {
         // We build the mesh data for everything except complex meshes, as they are already in the correct format.
 
@@ -258,8 +301,7 @@ public class MeshingContext
     /// <summary>
     ///     Return all pooled resources.
     /// </summary>
-    public void ReturnToPool(VaryingHeightMeshFaceHolder[] opaqueFluidMeshFaceHolders,
-        VaryingHeightMeshFaceHolder[] transparentFluidMeshFaceHolders)
+    public void ReturnToPool()
     {
         ReturnToPool(blockMeshFaceHolders);
         ReturnToPool(varyingHeightMeshFaceHolders);

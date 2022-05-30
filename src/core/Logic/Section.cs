@@ -262,7 +262,7 @@ public abstract class Section : IDisposable
     /// <param name="level">The level of the fluid as int.</param>
     /// <returns>The fluid.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected Fluid GetFluid(Vector3i position, out int level)
+    public Fluid GetFluid(Vector3i position, out int level)
     {
         uint val = this[position.X, position.Y, position.Z];
 
