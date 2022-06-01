@@ -45,6 +45,18 @@ public interface ICrossPlant : IBlockMeshable
     protected readonly struct MeshData : IEquatable<MeshData>
     {
         /// <summary>
+        ///     Creates a new mesh data instance.
+        /// </summary>
+        public MeshData(int textureIndex)
+        {
+            TextureIndex = textureIndex;
+
+            HasUpper = false;
+            IsLowered = false;
+            IsUpper = false;
+        }
+
+        /// <summary>
         ///     Get the tint.
         /// </summary>
         public TintColor Tint { get; init; } = TintColor.None;

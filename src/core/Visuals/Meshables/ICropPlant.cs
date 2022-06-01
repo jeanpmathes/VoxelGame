@@ -81,6 +81,19 @@ public interface ICropPlant : IBlockMeshable
     protected readonly struct MeshData : IEquatable<MeshData>
     {
         /// <summary>
+        ///     Constructs a new <see cref="MeshData" />.
+        /// </summary>
+        public MeshData(int textureIndex)
+        {
+            TextureIndex = textureIndex;
+
+            HasUpper = false;
+            IsLowered = false;
+            IsUpper = false;
+            IsDoubleCropPlant = false;
+        }
+
+        /// <summary>
         ///     Get the tint.
         /// </summary>
         public TintColor Tint { get; init; } = TintColor.None;
