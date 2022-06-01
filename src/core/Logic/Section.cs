@@ -111,16 +111,16 @@ public abstract class Section : IDisposable
     [field: NonSerialized] protected World World { get; private set; } = null!;
 
     /// <summary>
-    ///     Gets or sets the block data at a section position.
+    ///     Gets the content at a section position.
     /// </summary>
     /// <param name="x">The x position of the block data in this section.</param>
     /// <param name="y">The y position of the block data in this section.</param>
     /// <param name="z">The z position of the block data in this section.</param>
-    /// <returns>The block data at the given position.</returns>
-    public uint this[int x, int y, int z]
+    /// <returns>The block data.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public uint GetContent(int x, int y, int z)
     {
-        get => blocks[(x << SizeExp2) + (y << SizeExp) + z];
-        set => blocks[(x << SizeExp2) + (y << SizeExp) + z] = value;
+        return blocks[(x << SizeExp2) + (y << SizeExp) + z];
     }
 
     /// <summary>
@@ -130,7 +130,20 @@ public abstract class Section : IDisposable
     /// <returns>The content at the given position.</returns>
     public uint GetContent(Vector3i position)
     {
-        return this[position.X & (Size - 1), position.Y & (Size - 1), position.Z & (Size - 1)];
+        return GetContent(position.X & (Size - 1), position.Y & (Size - 1), position.Z & (Size - 1));
+    }
+
+    /// <summary>
+    ///     Gets or sets the content at a section position.
+    /// </summary>
+    /// <param name="x">The x position of the block data in this section.</param>
+    /// <param name="y">The y position of the block data in this section.</param>
+    /// <param name="z">The z position of the block data in this section.</param>
+    /// <param name="data">The data to set.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetContent(int x, int y, int z, uint data)
+    {
+        blocks[(x << SizeExp2) + (y << SizeExp) + z] = data;
     }
 
     /// <summary>
@@ -140,8 +153,7 @@ public abstract class Section : IDisposable
     /// <param name="value">The value to set at the specified position.</param>
     public void SetContent(Vector3i position, uint value)
     {
-        this[position.X & (Size - 1), position.Y & (Size - 1), position.Z & (Size - 1)] =
-            value;
+        SetContent(position.X & (Size - 1), position.Y & (Size - 1), position.Z & (Size - 1), value);
     }
 
     /// <summary>
@@ -236,7 +248,7 @@ public abstract class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Block GetBlock(Vector3i position)
     {
-        return Block.TranslateID(this[position.X, position.Y, position.Z] & BlockMask);
+        return Block.TranslateID(GetContent(position.X, position.Y, position.Z) & BlockMask);
     }
 
     /// <summary>
@@ -248,7 +260,7 @@ public abstract class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Block GetBlock(Vector3i position, out uint data)
     {
-        uint val = this[position.X, position.Y, position.Z];
+        uint val = GetContent(position.X, position.Y, position.Z);
 
         data = (val << DataShift) & DataMask;
 
@@ -264,7 +276,7 @@ public abstract class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Fluid GetFluid(Vector3i position, out int level)
     {
-        uint val = this[position.X, position.Y, position.Z];
+        uint val = GetContent(position.X, position.Y, position.Z);
 
         level = (int) ((val & LevelMask) >> LevelShift);
 

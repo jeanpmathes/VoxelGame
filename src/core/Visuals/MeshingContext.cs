@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
@@ -153,37 +154,13 @@ public class MeshingContext
     }
 
     /// <summary>
-    ///     Get a block from the current section or one of its neighbors.
-    /// </summary>
-    /// <param name="position">The position, in section-local coordinates.</param>
-    /// <param name="side">The block side giving the neighbor to use if necessary.</param>
-    /// <returns>The block or null if there is no block.</returns>
-    public Block? GetBlock(Vector3i position, BlockSide side)
-    {
-        Block? block;
-
-        if (IsPositionOutOfSection(position))
-        {
-            position = position.Mod(Section.Size);
-
-            Section? neighbor = neighbors[(int) side];
-            block = neighbor?.GetBlock(position);
-        }
-        else
-        {
-            block = current.GetBlock(position);
-        }
-
-        return block;
-    }
-
-    /// <summary>
     ///     Get a block and fluid from the current section or one of its neighbors.
     /// </summary>
     /// <param name="position">The position, in section-local coordinates.</param>
     /// <param name="side">The block side giving the neighbor to use if necessary.</param>
     /// <param name="level">The level of the fluid.</param>
     /// <returns>The block and fluid or null if there is nothing.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (Block block, Fluid fluid) GetBlockAndFluid(Vector3i position, BlockSide side, out int level)
     {
         Block? block;
@@ -213,8 +190,35 @@ public class MeshingContext
     /// </summary>
     /// <param name="position">The position, in section-local coordinates.</param>
     /// <param name="side">The block side giving the neighbor to use if necessary.</param>
+    /// <returns>The block or null if there is no block.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Block? GetBlock(Vector3i position, BlockSide side)
+    {
+        Block? block;
+
+        if (IsPositionOutOfSection(position))
+        {
+            position = position.Mod(Section.Size);
+
+            Section? neighbor = neighbors[(int) side];
+            block = neighbor?.GetBlock(position);
+        }
+        else
+        {
+            block = current.GetBlock(position);
+        }
+
+        return block;
+    }
+
+    /// <summary>
+    ///     Get a block from the current section or one of its neighbors.
+    /// </summary>
+    /// <param name="position">The position, in section-local coordinates.</param>
+    /// <param name="side">The block side giving the neighbor to use if necessary.</param>
     /// <param name="data">Will receive the data of the block.</param>
     /// <returns>The block or null if there is no block.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Block? GetBlock(Vector3i position, BlockSide side, out uint data)
     {
         Block? block;
@@ -235,6 +239,7 @@ public class MeshingContext
         return block;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsPositionOutOfSection(Vector3i position)
     {
         return position.X is < 0 or >= Section.Size ||

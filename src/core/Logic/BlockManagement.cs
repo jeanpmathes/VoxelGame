@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Blocks;
@@ -39,6 +40,7 @@ public partial class Block
     /// </summary>
     /// <param name="id">The ID of the block to return.</param>
     /// <returns>The block with the ID or air if the ID is not valid.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Block TranslateID(uint id)
     {
         if (blockList.Count > id) return blockList[(int) id];
