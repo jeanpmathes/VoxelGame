@@ -8,6 +8,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -64,13 +65,13 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     }
 
     /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
+    protected override ISimple.MeshData GetMeshData(BlockMeshInfo info)
     {
-        BlockMeshData mesh = base.GetMesh(info);
+        ISimple.MeshData mesh = base.GetMeshData(info);
 
-        mesh = mesh.Modified(hasNeutralTint ? TintColor.Neutral : TintColor.None);
+        mesh = mesh with { Tint = hasNeutralTint ? TintColor.Neutral : TintColor.None };
 
-        if (info.Fluid.IsFluid) mesh = mesh.SwapTextureIndex(wetTextureIndices[(int) info.Side]);
+        if (info.Fluid.IsFluid) mesh = mesh with { TextureIndex = wetTextureIndices[(int) info.Side] };
 
         return mesh;
     }

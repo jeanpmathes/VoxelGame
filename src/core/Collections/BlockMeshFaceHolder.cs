@@ -7,10 +7,9 @@
 using System;
 using System.Buffers;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 
-namespace VoxelGame.Client.Collections;
+namespace VoxelGame.Core.Collections;
 
 /// <summary>
 ///     A specialized class used to compact block faces when meshing.

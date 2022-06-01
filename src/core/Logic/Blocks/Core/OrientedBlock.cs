@@ -9,6 +9,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -25,14 +26,6 @@ public class OrientedBlock : BasicBlock
             namedId,
             flags,
             layout) {}
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        return BlockMeshData.Basic(
-            sideTextureIndices[TranslateIndex(info.Side, (Orientation) (info.Data & 0b00_0011))],
-            isTextureRotated: false);
-    }
 
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
@@ -56,5 +49,13 @@ public class OrientedBlock : BasicBlock
         if (((int) orientation & 0b10) == 2) index = 3 - (index + 2) + (index & 2) * 2; // Flips the index
 
         return index;
+    }
+
+    /// <inheritdoc />
+    protected override ISimple.MeshData GetMeshData(BlockMeshInfo info)
+    {
+        return ISimple.CreateData(
+            sideTextureIndices[TranslateIndex(info.Side, (Orientation) (info.Data & 0b00_0011))],
+            isTextureRotated: false);
     }
 }

@@ -65,7 +65,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     }
 
     /// <inheritdoc />
-    public override FluidMeshData GetMesh(FluidMeshInfo info)
+    protected override FluidMeshData GetMeshData(FluidMeshInfo info)
     {
         return FluidMeshData.Basic(
             info.IsStatic ? staticTex[(int) info.Side] : movingTex[(int) info.Side],

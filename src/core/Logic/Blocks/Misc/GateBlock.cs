@@ -11,6 +11,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -18,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     A simple gate that can be used in fences and walls. It can be opened and closed.
 ///     Data bit usage: <c>---coo</c>
 /// </summary>
-public class GateBlock : Block, IWideConnectable, IFlammable, IFillable
+public class GateBlock : Block, IWideConnectable, IFlammable, IFillable, IComplex
 {
     private readonly List<BlockMesh> meshes = new(capacity: 8);
 
@@ -29,8 +30,7 @@ public class GateBlock : Block, IWideConnectable, IFlammable, IFillable
             name,
             namedId,
             BlockFlags.Functional,
-            BoundingVolume.Block,
-            TargetBuffer.Complex)
+            BoundingVolume.Block)
     {
         BlockModel closed = BlockModel.Load(closedModel);
         BlockModel open = BlockModel.Load(openModel);
@@ -51,6 +51,11 @@ public class GateBlock : Block, IWideConnectable, IFlammable, IFillable
 
             volumes.Add(CreateVolume(data));
         }
+    }
+
+    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
+    {
+        return meshes[(int) info.Data & 0b00_0111].GetMeshData();
     }
 
     /// <inheritdoc />
@@ -202,12 +207,6 @@ public class GateBlock : Block, IWideConnectable, IFlammable, IFillable
     protected override BoundingVolume GetBoundingVolume(uint data)
     {
         return volumes[(int) data & 0b00_0111];
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        return meshes[(int) info.Data & 0b00_0111].GetComplexMeshData();
     }
 
     /// <inheritdoc />

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -19,7 +20,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 // e: connected east
 // s: connected south
 // w: connected west
-public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConnectable
+public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConnectable, IComplex
 {
     private readonly List<BlockMesh> meshes = new(capacity: 16);
 
@@ -44,8 +45,7 @@ public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConne
                 IsOpaque = false,
                 IsSolid = true
             },
-            boundingVolume,
-            TargetBuffer.Complex)
+            boundingVolume)
     {
         BlockModel post = BlockModel.Load(postModel);
         BlockModel extension = BlockModel.Load(extensionModel);
@@ -75,9 +75,16 @@ public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConne
         }
     }
 
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
+    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
     {
-        return meshes[(int) info.Data & 0b00_1111].GetComplexMeshData();
+        return GetMeshData(info);
+    }
+
+    /// <summary>
+    ///     Override to change the used mesh.
+    /// </summary>
+    protected virtual IComplex.MeshData GetMeshData(BlockMeshInfo info)
+    {
+        return meshes[(int) info.Data & 0b00_1111].GetMeshData();
     }
 }

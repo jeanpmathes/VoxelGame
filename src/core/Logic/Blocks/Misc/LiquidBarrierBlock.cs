@@ -8,6 +8,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -50,19 +51,19 @@ public class FluidBarrierBlock : BasicBlock, IFillable, IFlammable
     }
 
     /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        BlockMeshData mesh = base.GetMesh(info);
-
-        if ((info.Data & 0b00_0001) == 1)
-            mesh = mesh.SwapTextureIndex(openTextureIndices[(int) info.Side]);
-
-        return mesh;
-    }
-
-    /// <inheritdoc />
     protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
     {
         entity.World.SetBlock(this.AsInstance(data ^ 0b00_0001), position);
+    }
+
+    /// <inheritdoc />
+    protected override ISimple.MeshData GetMeshData(BlockMeshInfo info)
+    {
+        ISimple.MeshData mesh = base.GetMeshData(info);
+
+        if ((info.Data & 0b00_0001) == 1)
+            mesh = mesh with { TextureIndex = openTextureIndices[(int) info.Side] };
+
+        return mesh;
     }
 }

@@ -11,6 +11,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -24,7 +25,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 // r: right
 // d: bottom
 // t: top
-public class PipeBlock<TConnect> : Block, IFillable where TConnect : IPipeConnectable
+public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : IPipeConnectable
 {
     private readonly float diameter;
     private readonly List<BlockMesh> meshes = new(capacity: 64);
@@ -37,8 +38,7 @@ public class PipeBlock<TConnect> : Block, IFillable where TConnect : IPipeConnec
             name,
             namedId,
             BlockFlags.Solid,
-            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, diameter)),
-            TargetBuffer.Complex)
+            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, diameter)))
     {
         this.diameter = diameter;
 
@@ -72,6 +72,13 @@ public class PipeBlock<TConnect> : Block, IFillable where TConnect : IPipeConnec
 
             volumes.Add(CreateVolume(data));
         }
+    }
+
+    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
+    {
+        BlockMesh mesh = meshes[(int) info.Data];
+
+        return mesh.GetMeshData();
     }
 
     /// <inheritdoc />
@@ -117,14 +124,6 @@ public class PipeBlock<TConnect> : Block, IFillable where TConnect : IPipeConnec
     protected override BoundingVolume GetBoundingVolume(uint data)
     {
         return volumes[(int) data & 0b11_1111];
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        BlockMesh mesh = meshes[(int) info.Data];
-
-        return mesh.GetComplexMeshData();
     }
 
     /// <inheritdoc />

@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Logic;
 

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Visuals;
@@ -11,9 +12,12 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     Provides information required to create a block mesh.
 /// </summary>
-public sealed class BlockMeshInfo
+public readonly struct BlockMeshInfo : IEquatable<BlockMeshInfo>
 {
-    private BlockMeshInfo(BlockSide side, uint data, Fluid fluid)
+    /// <summary>
+    ///     Create a new block mesh info.
+    /// </summary>
+    public BlockMeshInfo(BlockSide side, uint data, Fluid fluid)
     {
         Side = side;
         Data = data;
@@ -23,47 +27,49 @@ public sealed class BlockMeshInfo
     /// <summary>
     ///     The side that is meshed.
     /// </summary>
-    public BlockSide Side { get; }
+    public BlockSide Side { get; init; }
 
     /// <summary>
     ///     The data of the block.
     /// </summary>
-    public uint Data { get; }
+    public uint Data { get; init; }
 
     /// <summary>
     ///     The fluid at the block position.
     /// </summary>
-    public Fluid Fluid { get; }
+    public Fluid Fluid { get; init; }
 
-    /// <summary>
-    ///     Mesh info for a simple block.
-    /// </summary>
-    public static BlockMeshInfo Simple(BlockSide side, uint data, Fluid fluid)
+    /// <inheritdoc />
+    public bool Equals(BlockMeshInfo other)
     {
-        return new BlockMeshInfo(side, data, fluid);
+        return Side == other.Side && Data == other.Data && Fluid.Equals(other.Fluid);
+    }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        return obj is BlockMeshInfo other && Equals(other);
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return HashCode.Combine((int) Side, Data, Fluid);
     }
 
     /// <summary>
-    ///     Mesh info for a complex block.
+    ///     The equality operator.
     /// </summary>
-    public static BlockMeshInfo Complex(uint data, Fluid fluid)
+    public static bool operator ==(BlockMeshInfo left, BlockMeshInfo right)
     {
-        return new BlockMeshInfo(BlockSide.All, data, fluid);
+        return left.Equals(right);
     }
 
     /// <summary>
-    ///     Mesh info for a cross plant.
+    ///     The inequality operator.
     /// </summary>
-    public static BlockMeshInfo CrossPlant(uint data, Fluid fluid)
+    public static bool operator !=(BlockMeshInfo left, BlockMeshInfo right)
     {
-        return new BlockMeshInfo(BlockSide.All, data, fluid);
-    }
-
-    /// <summary>
-    ///     Mesh info for a crop plant.
-    /// </summary>
-    public static BlockMeshInfo CropPlant(uint data, Fluid fluid)
-    {
-        return new BlockMeshInfo(BlockSide.All, data, fluid);
+        return !left.Equals(right);
     }
 }

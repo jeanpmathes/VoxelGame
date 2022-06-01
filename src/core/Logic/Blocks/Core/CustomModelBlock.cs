@@ -10,6 +10,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -17,7 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     A block that loads its complete model from a file. The block can only be placed on top of solid and full blocks.
 ///     Data bit usage: <c>------</c>
 /// </summary>
-public class CustomModelBlock : Block, IFillable
+public class CustomModelBlock : Block, IFillable, IComplex
 {
     private readonly BlockMesh mesh;
 
@@ -35,16 +36,14 @@ public class CustomModelBlock : Block, IFillable
             name,
             namedId,
             flags with { IsFull = false, IsOpaque = false },
-            boundingVolume,
-            TargetBuffer.Complex)
+            boundingVolume)
     {
         mesh = BlockModel.Load(modelName).Mesh;
     }
 
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
+    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
     {
-        return mesh.GetComplexMeshData();
+        return GetMeshData(info);
     }
 
     /// <inheritdoc />
@@ -57,5 +56,13 @@ public class CustomModelBlock : Block, IFillable
     public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         if (side == BlockSide.Bottom && !world.HasSolidGround(position)) Destroy(world, position);
+    }
+
+    /// <summary>
+    ///     Override to return the custom mesh.
+    /// </summary>
+    protected virtual IComplex.MeshData GetMeshData(BlockMeshInfo info)
+    {
+        return mesh.GetMeshData();
     }
 }

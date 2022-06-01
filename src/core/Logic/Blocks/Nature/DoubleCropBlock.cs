@@ -11,6 +11,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -21,7 +22,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 // l: lowered
 // s: stage
 // h: height
-public class DoubleCropBlock : Block, IFlammable, IFillable
+public class DoubleCropBlock : Block, IFlammable, IFillable, ICropPlant
 {
     private readonly string texture;
 
@@ -42,14 +43,33 @@ public class DoubleCropBlock : Block, IFlammable, IFillable
             name,
             namedId,
             new BlockFlags(),
-            BoundingVolume.Block,
-            TargetBuffer.CropPlant)
+            BoundingVolume.Block)
     {
         this.texture = texture;
 
         stages = (dead, first, second, third, fourth, fifth, sixth, final);
 
         for (uint data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
+    }
+
+    ICropPlant.MeshData ICropPlant.GetMeshData(BlockMeshInfo info)
+    {
+        var stageData = (int) (info.Data & 0b00_0111);
+
+        bool isUpper = (info.Data & 0b00_1000) != 0;
+        bool isLowered = (info.Data & 0b01_0000) != 0;
+        bool hasUpper = (GrowthStage) stageData >= GrowthStage.Fourth;
+
+        int textureIndex = !isUpper ? stageTextureIndicesLow[stageData] : stageTextureIndicesTop[stageData];
+
+        return new ICropPlant.MeshData
+        {
+            TextureIndex = textureIndex,
+            Tint = TintColor.None,
+            HasUpper = hasUpper,
+            IsLowered = isLowered,
+            IsUpper = isUpper
+        };
     }
 
     /// <inheritdoc />
@@ -107,20 +127,6 @@ public class DoubleCropBlock : Block, IFlammable, IFillable
     protected override BoundingVolume GetBoundingVolume(uint data)
     {
         return volumes[(int) data & 0b01_1111];
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        var stageData = (int) (info.Data & 0b00_0111);
-
-        bool isUpper = (info.Data & 0b00_1000) != 0;
-        bool isLowered = (info.Data & 0b01_0000) != 0;
-        bool hasUpper = (GrowthStage) stageData >= GrowthStage.Fourth;
-
-        int textureIndex = !isUpper ? stageTextureIndicesLow[stageData] : stageTextureIndicesTop[stageData];
-
-        return BlockMeshData.DoubleCropPlant(textureIndex, TintColor.None, hasUpper, isLowered, isUpper);
     }
 
     /// <inheritdoc />

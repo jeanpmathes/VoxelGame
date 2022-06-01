@@ -4,6 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using VoxelGame.Core.Visuals.Meshables;
+
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
@@ -32,10 +34,17 @@ public class BlockMesh
     }
 
     /// <summary>
-    ///     Get complex mesh data from this mesh.
+    ///     Get the mesh as mesh data for complex meshing.
     /// </summary>
-    public BlockMeshData GetComplexMeshData(TintColor? tint = null, bool isAnimated = false)
+    /// <param name="tint">An optional tint.</param>
+    /// <param name="isAnimated">Whether the model is animated.</param>
+    /// <returns>The mesh data.</returns>
+    public IComplex.MeshData GetMeshData(TintColor? tint = null, bool isAnimated = false)
     {
-        return BlockMeshData.Complex(vertexCount, vertices, textureIndices, indices, tint, isAnimated);
+        return new IComplex.MeshData(vertexCount, vertices, textureIndices, indices)
+        {
+            Tint = tint ?? TintColor.None,
+            IsAnimated = isAnimated
+        };
     }
 }

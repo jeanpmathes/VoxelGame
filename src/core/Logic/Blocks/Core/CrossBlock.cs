@@ -7,6 +7,7 @@
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -14,7 +15,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     A block with two crossed quads.
 ///     Data bit usage: <c>------</c>
 /// </summary>
-public class CrossBlock : Block, IFillable
+public class CrossBlock : Block, IFillable, IComplex
 {
     private readonly string texture;
 
@@ -32,21 +33,19 @@ public class CrossBlock : Block, IFillable
             name,
             namedId,
             flags with { IsFull = false, IsOpaque = false, IsSolid = false },
-            boundingVolume,
-            TargetBuffer.Complex)
+            boundingVolume)
     {
         this.texture = texture;
+    }
+
+    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
+    {
+        return IComplex.CreateData(vertexCount: 8, vertices, textureIndices, indices);
     }
 
     /// <inheritdoc />
     protected override void Setup(ITextureIndexProvider indexProvider)
     {
         (vertices, indices, textureIndices) = BlockModels.CreateCrossModel(indexProvider.GetTextureIndex(texture));
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        return BlockMeshData.Complex(vertexCount: 8, vertices, textureIndices, indices);
     }
 }

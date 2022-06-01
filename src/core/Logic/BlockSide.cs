@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 
@@ -151,6 +152,7 @@ public static class BlockSideExtensions
     /// <summary>
     ///     Get the side as a direction vector.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3i Direction(this BlockSide side)
     {
         int index = (int) side + 1;

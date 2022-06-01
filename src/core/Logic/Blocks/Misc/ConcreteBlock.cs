@@ -11,6 +11,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -20,7 +21,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 /// </summary>
 // c: color
 // h: height
-public class ConcreteBlock : Block, IHeightVariable, IWideConnectable, IThinConnectable, IOverlayTextureProvider
+public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConnectable, IOverlayTextureProvider
 {
     private readonly TextureLayout layout;
 
@@ -32,8 +33,7 @@ public class ConcreteBlock : Block, IHeightVariable, IWideConnectable, IThinConn
             name,
             namedId,
             BlockFlags.Functional,
-            BoundingVolume.Block,
-            TargetBuffer.VaryingHeight)
+            BoundingVolume.Block)
     {
         this.layout = layout;
 
@@ -48,6 +48,9 @@ public class ConcreteBlock : Block, IHeightVariable, IWideConnectable, IThinConn
     }
 
     /// <inheritdoc />
+    public int TextureIdentifier => layout.Bottom;
+
+    /// <inheritdoc />
     public int GetHeight(uint data)
     {
         Decode(data, out _, out int height);
@@ -55,8 +58,16 @@ public class ConcreteBlock : Block, IHeightVariable, IWideConnectable, IThinConn
         return height;
     }
 
-    /// <inheritdoc />
-    public int TextureIdentifier => layout.Bottom;
+    IVaryingHeight.MeshData IVaryingHeight.GetMeshData(BlockMeshInfo info)
+    {
+        Decode(info.Data, out BlockColor color, out _);
+
+        return new IVaryingHeight.MeshData
+        {
+            TextureIndex = textures[(int) info.Side],
+            Tint = color.ToTintColor()
+        };
+    }
 
     /// <inheritdoc />
     public bool IsConnectable(World world, BlockSide side, Vector3i position)
@@ -78,14 +89,6 @@ public class ConcreteBlock : Block, IHeightVariable, IWideConnectable, IThinConn
     protected override BoundingVolume GetBoundingVolume(uint data)
     {
         return volumes[(int) data & 0b11_1111];
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        Decode(info.Data, out BlockColor color, out _);
-
-        return BlockMeshData.VaryingHeight(textures[(int) info.Side], color.ToTintColor());
     }
 
     /// <inheritdoc />

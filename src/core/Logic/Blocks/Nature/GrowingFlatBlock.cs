@@ -8,6 +8,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -35,9 +36,9 @@ public class GrowingFlatBlock : FlatBlock, IFlammable, IFillable
     }
 
     /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
+    protected override IComplex.MeshData GetMeshData(BlockMeshInfo info)
     {
-        return base.GetMesh(info).Modified(TintColor.Neutral);
+        return base.GetMeshData(info) with { Tint = TintColor.Neutral };
     }
 
     /// <inheritdoc />

@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Blocks;
 
@@ -21,7 +22,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 /// </summary>
 // aa: axis
 // o: open
-public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable
+public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable, IComplex
 {
     private readonly float diameter;
     private readonly List<BlockMesh?> meshes = new(capacity: 8);
@@ -34,8 +35,7 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable
             name,
             namedId,
             BlockFlags.Functional,
-            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, z: 0.5f)),
-            TargetBuffer.Complex)
+            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, z: 0.5f)))
     {
         this.diameter = diameter;
 
@@ -53,6 +53,14 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable
         meshes.Add(item: null);
 
         for (uint data = 0; data <= 0b00_0111; data++) volumes.Add(CreateVolume(data));
+    }
+
+    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
+    {
+        BlockMesh? mesh = meshes[(int) info.Data & 0b00_0111];
+        Debug.Assert(mesh != null);
+
+        return mesh.GetMeshData();
     }
 
     /// <inheritdoc />
@@ -91,15 +99,6 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable
     protected override BoundingVolume GetBoundingVolume(uint data)
     {
         return volumes[(int) (data & 0b00_0111)];
-    }
-
-    /// <inheritdoc />
-    public override BlockMeshData GetMesh(BlockMeshInfo info)
-    {
-        BlockMesh? mesh = meshes[(int) info.Data & 0b00_0111];
-        Debug.Assert(mesh != null);
-
-        return mesh.GetComplexMeshData();
     }
 
     /// <inheritdoc />
