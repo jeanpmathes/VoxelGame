@@ -45,9 +45,8 @@ public class DoubleCrossPlantBlock : Block, IFlammable, IFillable, ICrossPlant
         bool isUpper = (info.Data & 0b01) != 0;
         bool isLowered = (info.Data & 0b10) != 0;
 
-        return new ICrossPlant.MeshData
+        return new ICrossPlant.MeshData(isUpper ? topTextureIndex : bottomTextureIndex)
         {
-            TextureIndex = isUpper ? topTextureIndex : bottomTextureIndex,
             Tint = TintColor.Neutral,
             HasUpper = true,
             IsLowered = isLowered,

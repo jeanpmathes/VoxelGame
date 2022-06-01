@@ -46,13 +46,10 @@ public class CrossPlantBlock : Block, IFlammable, IFillable, ICrossPlant
 
     ICrossPlant.MeshData ICrossPlant.GetMeshData(BlockMeshInfo info)
     {
-        return new ICrossPlant.MeshData
+        return new ICrossPlant.MeshData(textureIndex)
         {
-            TextureIndex = textureIndex,
             Tint = TintColor.Neutral,
-            HasUpper = false,
-            IsLowered = (info.Data & 0b1) == 1,
-            IsUpper = false
+            IsLowered = (info.Data & 0b1) == 1
         };
     }
 

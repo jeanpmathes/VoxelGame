@@ -62,13 +62,12 @@ public class DoubleCropBlock : Block, IFlammable, IFillable, ICropPlant
 
         int textureIndex = !isUpper ? stageTextureIndicesLow[stageData] : stageTextureIndicesTop[stageData];
 
-        return new ICropPlant.MeshData
+        return new ICropPlant.MeshData(textureIndex)
         {
-            TextureIndex = textureIndex,
-            Tint = TintColor.None,
             HasUpper = hasUpper,
             IsLowered = isLowered,
-            IsUpper = isUpper
+            IsUpper = isUpper,
+            IsDoubleCropPlant = true
         };
     }
 

@@ -81,9 +81,24 @@ public interface ICropPlant : IBlockMeshable
     protected readonly struct MeshData : IEquatable<MeshData>
     {
         /// <summary>
+        ///     Constructs a new <see cref="MeshData" />.
+        /// </summary>
+        public MeshData(int textureIndex)
+        {
+            TextureIndex = textureIndex;
+
+            HasUpper = false;
+            IsLowered = false;
+            IsUpper = false;
+            IsDoubleCropPlant = false;
+
+            Tint = TintColor.None;
+        }
+
+        /// <summary>
         ///     Get the tint.
         /// </summary>
-        public TintColor Tint { get; init; } = TintColor.None;
+        public TintColor Tint { get; init; }
 
         /// <summary>
         ///     Get whether this plant has an upper part.
@@ -108,7 +123,7 @@ public interface ICropPlant : IBlockMeshable
         /// <summary>
         ///     Get the texture index.
         /// </summary>
-        public int TextureIndex { get; init; }
+        public int TextureIndex { get; }
 
         /// <inheritdoc />
         public bool Equals(MeshData other)

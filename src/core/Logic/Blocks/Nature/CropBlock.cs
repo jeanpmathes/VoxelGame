@@ -50,11 +50,9 @@ public class CropBlock : Block, IFlammable, IFillable, ICropPlant
         int textureIndex = stageTextureIndices[info.Data & 0b00_0111];
         bool isLowered = (info.Data & 0b00_1000) != 0;
 
-        return new ICropPlant.MeshData
+        return new ICropPlant.MeshData(textureIndex)
         {
-            TextureIndex = textureIndex,
-            IsLowered = isLowered,
-            IsUpper = false
+            IsLowered = isLowered
         };
     }
 

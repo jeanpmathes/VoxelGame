@@ -60,13 +60,9 @@ public class FruitCropBlock : Block, IFlammable, IFillable, ICrossPlant
             _ => 0
         };
 
-        return new ICrossPlant.MeshData
+        return new ICrossPlant.MeshData(index)
         {
-            TextureIndex = index,
-            Tint = TintColor.None,
-            HasUpper = false,
-            IsLowered = (info.Data & 0b1) == 1,
-            IsUpper = false
+            IsLowered = (info.Data & 0b1) == 1
         };
     }
 
