@@ -15,64 +15,82 @@ namespace VoxelGame.Core.Physics;
 /// </summary>
 public sealed class BoundingVolume : IEquatable<BoundingVolume>
 {
+    private readonly Box3 childBounds;
     private readonly BoundingVolume[] children;
-    private Box3 box;
+
+    private BoundingVolume(Box3 box, BoundingVolume[] children)
+    {
+        this.Box = box;
+        this.children = children;
+
+        if (children.Length == 0)
+        {
+            childBounds = new Box3(Vector3.Zero, Vector3.Zero);
+        }
+        else
+        {
+            childBounds = children[0].childBounds;
+
+            for (var i = 1; i < children.Length; i++)
+            {
+                Box3 currentChild = children[i].childBounds;
+                childBounds = childBounds.Inflated(currentChild.Min).Inflated(currentChild.Max);
+            }
+        }
+    }
 
     /// <summary>
     ///     Create a bounding box.
     /// </summary>
-    public BoundingVolume(Vector3 extents)
-    {
-        box = new Box3(-extents, extents);
-        children = Array.Empty<BoundingVolume>();
-    }
+    public BoundingVolume(Vector3 extents) : this(new Box3(-extents, extents), Array.Empty<BoundingVolume>()) {}
 
     /// <summary>
     ///     Create a bounding box with a given offset.
     /// </summary>
-    public BoundingVolume(Vector3 offset, Vector3 extents)
-    {
-        box = VMath.CreateBox3(offset, extents);
-        children = Array.Empty<BoundingVolume>();
-    }
+    public BoundingVolume(Vector3 offset, Vector3 extents) : this(
+        VMath.CreateBox3(offset, extents),
+        Array.Empty<BoundingVolume>()) {}
 
     /// <summary>
     ///     Create a bounding box with children.
     /// </summary>
-    public BoundingVolume(Vector3 extents, params BoundingVolume[] boundingBoxes)
-    {
-        box = new Box3(-extents, extents);
-        children = boundingBoxes;
-    }
+    public BoundingVolume(Vector3 extents, params BoundingVolume[] boundingBoxes) : this(
+        new Box3(-extents, extents),
+        boundingBoxes) {}
 
     /// <summary>
     ///     Create a bounding box with children, and a given offset.
     /// </summary>
-    public BoundingVolume(Vector3 offset, Vector3 extents, params BoundingVolume[] boundingBoxes)
-    {
-        box = VMath.CreateBox3(offset, extents);
-        children = boundingBoxes;
-    }
+    public BoundingVolume(Vector3 offset, Vector3 extents, params BoundingVolume[] boundingBoxes) : this(
+        VMath.CreateBox3(offset, extents),
+        boundingBoxes) {}
 
     /// <summary>
     ///     Get the center of the bounding box. This is used as offset for child bounding boxes.
     /// </summary>
-    public Vector3 Center => box.Center;
+    public Vector3 Center => Box.Center;
 
     /// <summary>
     ///     Get the extents of the bounding box.
     /// </summary>
-    public Vector3 Extents => box.HalfSize;
+    public Vector3 Extents => Box.HalfSize;
 
     /// <summary>
     ///     The minimum point of the box collider.
     /// </summary>
-    public Vector3 Min => box.Min;
+    public Vector3 Min => Box.Min;
 
     /// <summary>
     ///     The maximum point of the box collider.
     /// </summary>
-    public Vector3 Max => box.Max;
+    public Vector3 Max => Box.Max;
+
+    /// <summary>
+    ///     Get the box that contains all child boxes.
+    /// </summary>
+    private Box3 ChildBounds => childBounds;
+
+    private Box3 Box { get; }
 
     /// <summary>
     ///     Get a child bounding box.
@@ -106,7 +124,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// <inheritdoc />
     public bool Equals(BoundingVolume? other)
     {
-        return box.Equals(other?.box);
+        return Box.Equals(other?.Box);
     }
 
     /// <summary>
@@ -138,10 +156,10 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// </summary>
     public bool Contains(Vector3 point)
     {
-        if (box.Contains(point))
+        if (Box.Contains(point))
             return true;
 
-        if (ChildCount == 0) return false;
+        if (ChildCount == 0 || !ChildBounds.Contains(point)) return false;
 
         for (var i = 0; i < ChildCount; i++)
             if (children[i].Contains(point))
@@ -157,10 +175,10 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// <returns></returns>
     public bool Intersects(Box3 other)
     {
-        if (Collision.IsIntersecting(box, other))
+        if (Collision.IsIntersecting(Box, other))
             return true;
 
-        if (ChildCount == 0) return false;
+        if (ChildCount == 0 || !Collision.IsIntersecting(childBounds, other)) return false;
 
         for (var i = 0; i < ChildCount; i++)
             if (children[i].Intersects(other))
@@ -175,10 +193,14 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// </summary>
     public bool Intersects(Box3 other, ref bool x, ref bool y, ref bool z)
     {
-        if (Collision.IsIntersecting(box, other, ref x, ref y, ref z))
+        if (Collision.IsIntersecting(Box, other, ref x, ref y, ref z))
             return true;
 
-        if (ChildCount == 0) return false;
+        bool dx = x;
+        bool dy = y;
+        bool dz = z;
+
+        if (ChildCount == 0 || !Collision.IsIntersecting(Box, other, ref dx, ref dy, ref dz)) return false;
 
         for (var i = 0; i < ChildCount; i++)
             if (children[i].Intersects(other, ref x, ref y, ref z))
@@ -192,10 +214,10 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// </summary>
     public bool Intersects(Ray ray)
     {
-        if (Collision.IsIntersecting(box, ray))
+        if (Collision.IsIntersecting(Box, ray))
             return true;
 
-        if (ChildCount == 0) return false;
+        if (ChildCount == 0 || !Collision.IsIntersecting(childBounds, ray)) return false;
 
         for (var i = 0; i < ChildCount; i++)
             if (children[i].Intersects(ray))

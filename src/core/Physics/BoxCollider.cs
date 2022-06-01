@@ -13,7 +13,7 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Physics;
 
 /// <summary>
-///     A box collider is a specific instance of an bounding box, at a certain position in the world.
+///     A box collider is a specific instance of an bounding volume, at a certain position in the world.
 /// </summary>
 public struct BoxCollider : IEquatable<BoxCollider>
 {
