@@ -28,6 +28,8 @@ internal class WorldSelection : StandardMenu
 {
     private readonly IWorldProvider worldProvider;
 
+    private Button createNewWorldButton = null!;
+
     private Window? worldCreationWindow;
 
     private ControlBase? worldList;
@@ -85,12 +87,12 @@ internal class WorldSelection : StandardMenu
             Dock = Dock.Bottom
         };
 
-        Button newWorld = new(options)
+        createNewWorldButton = new Button(options)
         {
             Text = Language.CreateNewWorld
         };
 
-        newWorld.Pressed += (_, _) => OpenWorldCreationWindow();
+        createNewWorldButton.Pressed += (_, _) => OpenWorldCreationWindow();
     }
 
     internal void Refresh()
@@ -177,6 +179,8 @@ internal class WorldSelection : StandardMenu
 
     private void OpenWorldCreationWindow()
     {
+        if (worldCreationWindow != null) return;
+
         worldCreationWindow = new Window(this)
         {
             Title = Language.CreateNewWorld,
@@ -184,6 +188,15 @@ internal class WorldSelection : StandardMenu
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             Resizing = Resizing.None
+        };
+
+        createNewWorldButton.Disable();
+
+        worldCreationWindow.Closed += (_, _) =>
+        {
+            worldCreationWindow = null;
+            createNewWorldButton.Enable();
+            createNewWorldButton.Focus();
         };
 
         VerticalLayout layout = new(worldCreationWindow)
