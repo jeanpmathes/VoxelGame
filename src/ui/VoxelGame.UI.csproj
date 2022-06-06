@@ -35,9 +35,6 @@
         <Compile Remove="lib\**"/>
         <EmbeddedResource Remove="lib\**"/>
         <None Remove="lib\**"/>
-        <None Update="DefaultSkin2.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
         <None Update="Resources\GUI\start.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
@@ -53,6 +50,9 @@
         <None Update="Resources\GUI\Icons\attribution.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="VoxelSkin.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -61,7 +61,7 @@
 
     <ItemGroup>
         <PackageReference Include="Gwen.Net" Version="0.2.0"/>
-        <PackageReference Include="Gwen.Net.OpenTk" Version="0.2.0"/>
+        <PackageReference Include="Gwen.Net.OpenTk" Version="0.2.1"/>
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

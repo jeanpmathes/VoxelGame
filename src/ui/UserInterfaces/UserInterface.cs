@@ -40,7 +40,7 @@ public abstract class UserInterface : IDisposable
             GwenGuiSettings.Default.From(
                 settings =>
                 {
-                    settings.SkinFile = new FileInfo("DefaultSkin2.png");
+                    settings.SkinFile = new FileInfo("VoxelSkin.png");
                     settings.DrawBackground = drawBackground;
                 }));
 
@@ -101,6 +101,7 @@ public abstract class UserInterface : IDisposable
         float scale = Math.Min((float) size.X / targetSize.X, (float) size.Y / targetSize.Y);
 
         if (VMath.NearlyZero(scale)) return;
+
         gui.Root.Scale = scale;
     }
 
