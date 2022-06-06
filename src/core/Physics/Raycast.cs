@@ -7,6 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Physics;
 
@@ -52,14 +53,10 @@ public static class Raycast
         Vector3 direction = ray.Direction;
 
         // Get the origin position in world coordinates.
-        var x = (int) Math.Floor(ray.Origin.X);
-        var y = (int) Math.Floor(ray.Origin.Y);
-        var z = (int) Math.Floor(ray.Origin.Z);
+        Vector3i current = ray.Origin.Floor();
 
         // Get the end position in world coordinates.
-        var endX = (int) Math.Floor(ray.EndPoint.X);
-        var endY = (int) Math.Floor(ray.EndPoint.Y);
-        var endZ = (int) Math.Floor(ray.EndPoint.Z);
+        Vector3i end = ray.EndPoint.Floor();
 
         // Get the direction in which the components are incremented.
         int stepX = Math.Sign(direction.X);
@@ -67,9 +64,9 @@ public static class Raycast
         int stepZ = Math.Sign(direction.Z);
 
         // Calculate the distance to the next voxel border from the current position.
-        double nextVoxelBoundaryX = stepX > 0 ? x + stepX : x;
-        double nextVoxelBoundaryY = stepY > 0 ? y + stepY : y;
-        double nextVoxelBoundaryZ = stepZ > 0 ? z + stepZ : z;
+        double nextVoxelBoundaryX = stepX > 0 ? current.X + stepX : current.X;
+        double nextVoxelBoundaryY = stepY > 0 ? current.Y + stepY : current.Y;
+        double nextVoxelBoundaryZ = stepZ > 0 ? current.Z + stepZ : current.Z;
 
         /*
          * Important: The floating-point equality comparison with zero must be exact, do not use the nearly-methods.
@@ -87,9 +84,9 @@ public static class Raycast
         double tDeltaZ = direction.Z != 0 ? stepZ / direction.Z : double.MaxValue;
 
         // Check if the ray intersects the bounding box of the voxel.
-        if (rayIntersectionCheck(ray, (x, y, z)))
+        if (rayIntersectionCheck(ray, current))
         {
-            hit = (x, y, z);
+            hit = current;
 
             // As the ray starts in this voxel, no side is selected.
             side = BlockSide.All;
@@ -97,47 +94,34 @@ public static class Raycast
             return (hit, side);
         }
 
-        while (!(x == endX && y == endY && z == endZ))
+        while (current != end)
         {
-            if (tMaxX < tMaxY)
+            if (tMaxX < tMaxY && tMaxX < tMaxZ)
             {
-                if (tMaxX < tMaxZ)
-                {
-                    x += stepX;
-                    tMaxX += tDeltaX;
+                current.X += stepX;
+                tMaxX += tDeltaX;
 
-                    side = stepX > 0 ? BlockSide.Left : BlockSide.Right;
-                }
-                else
-                {
-                    z += stepZ;
-                    tMaxZ += tDeltaZ;
+                side = stepX > 0 ? BlockSide.Left : BlockSide.Right;
+            }
+            else if (tMaxY < tMaxZ)
+            {
+                current.Y += stepY;
+                tMaxY += tDeltaY;
 
-                    side = stepZ > 0 ? BlockSide.Back : BlockSide.Front;
-                }
+                side = stepY > 0 ? BlockSide.Bottom : BlockSide.Top;
             }
             else
             {
-                if (tMaxY < tMaxZ)
-                {
-                    y += stepY;
-                    tMaxY += tDeltaY;
+                current.Z += stepZ;
+                tMaxZ += tDeltaZ;
 
-                    side = stepY > 0 ? BlockSide.Bottom : BlockSide.Top;
-                }
-                else
-                {
-                    z += stepZ;
-                    tMaxZ += tDeltaZ;
-
-                    side = stepZ > 0 ? BlockSide.Back : BlockSide.Front;
-                }
+                side = stepZ > 0 ? BlockSide.Back : BlockSide.Front;
             }
 
             // Check if the ray intersects the bounding box of the block
-            if (rayIntersectionCheck(ray, (x, y, z)))
+            if (rayIntersectionCheck(ray, current))
             {
-                hit = (x, y, z);
+                hit = current;
 
                 return (hit, side);
             }
