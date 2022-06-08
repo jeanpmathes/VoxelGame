@@ -238,7 +238,7 @@ public abstract class PhysicsEntity : IDisposable
                 }
             }
 
-            fluidDrag = 0.5f * density * Velocity.Sign() * (Velocity * Velocity) * ((maxLevel + 1) / 8f) * 0.25f;
+            fluidDrag = 0.5f * density * Velocity.Sign().ToVector3() * (Velocity * Velocity) * ((maxLevel + 1) / 8f) * 0.25f;
 
             if (!IsGrounded && noGas) IsSwimming = true;
         }

@@ -80,9 +80,9 @@ public static class VMath
     /// </summary>
     /// <param name="vector">The vector to convert.</param>
     /// <returns>The sign vector</returns>
-    public static Vector3 Sign(this Vector3 vector)
+    public static Vector3i Sign(this Vector3 vector)
     {
-        return new Vector3(Math.Sign(vector.X), Math.Sign(vector.Y), Math.Sign(vector.Z));
+        return new Vector3i(Math.Sign(vector.X), Math.Sign(vector.Y), Math.Sign(vector.Z));
     }
 
     /// <summary>

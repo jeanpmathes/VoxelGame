@@ -45,43 +45,39 @@ public static class Raycast
 
         /*
          * Voxel Traversal Algorithm
-         * Adapted from code by francisengelmann (https://github.com/francisengelmann/fast_voxel_traversal)
+         * Adapted from code by a5kin and ProjectPhysX: https://stackoverflow.com/a/38552664
          * See: J. Amanatides and A. Woo, A Fast Voxel Traversal Algorithm for Ray Tracing, Eurographics, 1987.
          */
 
+        double Frac0(double value)
+        {
+            return value - Math.Floor(value);
+        }
+
+        double Frac1(double value)
+        {
+            return 1 - value + Math.Floor(value);
+        }
+
         // Calculate the direction of the ray with length
         Vector3 direction = ray.Direction;
+        Vector3 length = direction * ray.Length;
 
         // Get the origin position in world coordinates.
         Vector3i current = ray.Origin.Floor();
 
-        // Get the end position in world coordinates.
-        Vector3i end = ray.EndPoint.Floor();
-
         // Get the direction in which the components are incremented.
-        int stepX = Math.Sign(direction.X);
-        int stepY = Math.Sign(direction.Y);
-        int stepZ = Math.Sign(direction.Z);
-
-        // Calculate the distance to the next voxel border from the current position.
-        double nextVoxelBoundaryX = stepX > 0 ? current.X + stepX : current.X;
-        double nextVoxelBoundaryY = stepY > 0 ? current.Y + stepY : current.Y;
-        double nextVoxelBoundaryZ = stepZ > 0 ? current.Z + stepZ : current.Z;
-
-        /*
-         * Important: The floating-point equality comparison with zero must be exact, do not use the nearly-methods.
-         * Using them can lead to unexpected results, like endless loops.
-         */
-
-        // Calculate the distance to the next voxel border.
-        double tMaxX = direction.X != 0 ? (nextVoxelBoundaryX - ray.Origin.X) / direction.X : double.MaxValue;
-        double tMaxY = direction.Y != 0 ? (nextVoxelBoundaryY - ray.Origin.Y) / direction.Y : double.MaxValue;
-        double tMaxZ = direction.Z != 0 ? (nextVoxelBoundaryZ - ray.Origin.Z) / direction.Z : double.MaxValue;
+        Vector3i step = direction.Sign();
 
         // Calculate distance so component equals voxel border.
-        double tDeltaX = direction.X != 0 ? stepX / direction.X : double.MaxValue;
-        double tDeltaY = direction.Y != 0 ? stepY / direction.Y : double.MaxValue;
-        double tDeltaZ = direction.Z != 0 ? stepZ / direction.Z : double.MaxValue;
+        double tDeltaX = step.X != 0 ? step.X / length.X : double.MaxValue;
+        double tDeltaY = step.Y != 0 ? step.Y / length.Y : double.MaxValue;
+        double tDeltaZ = step.Z != 0 ? step.Z / length.Z : double.MaxValue;
+
+        // Calculate the distance to the next voxel border.
+        double tMaxX = step.X > 0 ? tDeltaX * Frac1(ray.Origin.X) : tDeltaX * Frac0(ray.Origin.X);
+        double tMaxY = step.Y > 0 ? tDeltaY * Frac1(ray.Origin.Y) : tDeltaY * Frac0(ray.Origin.Y);
+        double tMaxZ = step.Z > 0 ? tDeltaZ * Frac1(ray.Origin.Z) : tDeltaZ * Frac0(ray.Origin.Z);
 
         // Check if the ray intersects the bounding box of the voxel.
         if (rayIntersectionCheck(ray, current))
@@ -94,29 +90,44 @@ public static class Raycast
             return (hit, side);
         }
 
-        while (current != end)
+        while (true)
         {
-            if (tMaxX < tMaxY && tMaxX < tMaxZ)
+            if (tMaxX < tMaxY)
             {
-                current.X += stepX;
-                tMaxX += tDeltaX;
+                if (tMaxX < tMaxZ)
+                {
+                    current.X += step.X;
+                    tMaxX += tDeltaX;
 
-                side = stepX > 0 ? BlockSide.Left : BlockSide.Right;
-            }
-            else if (tMaxY < tMaxZ)
-            {
-                current.Y += stepY;
-                tMaxY += tDeltaY;
+                    side = step.X > 0 ? BlockSide.Left : BlockSide.Right;
+                }
+                else
+                {
+                    current.Z += step.Z;
+                    tMaxZ += tDeltaZ;
 
-                side = stepY > 0 ? BlockSide.Bottom : BlockSide.Top;
+                    side = step.Z > 0 ? BlockSide.Back : BlockSide.Front;
+                }
             }
             else
             {
-                current.Z += stepZ;
-                tMaxZ += tDeltaZ;
+                if (tMaxY < tMaxZ)
+                {
+                    current.Y += step.Y;
+                    tMaxY += tDeltaY;
 
-                side = stepZ > 0 ? BlockSide.Back : BlockSide.Front;
+                    side = step.Y > 0 ? BlockSide.Bottom : BlockSide.Top;
+                }
+                else
+                {
+                    current.Z += step.Z;
+                    tMaxZ += tDeltaZ;
+
+                    side = step.Z > 0 ? BlockSide.Back : BlockSide.Front;
+                }
             }
+
+            if (tMaxX > 1 && tMaxY > 1 && tMaxZ > 1) break;
 
             // Check if the ray intersects the bounding box of the block
             if (rayIntersectionCheck(ray, current))
