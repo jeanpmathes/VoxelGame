@@ -29,8 +29,8 @@ public class DoorBlock : Block, IFillable, IComplex
     private readonly List<BlockMesh> baseOpenMeshes = new();
 
     private readonly BoundingVolume doorVolume = new(
-        new Vector3(x: 0.5f, y: 1f, z: 0.5f),
-        new Vector3(x: 0.5f, y: 1f, z: 0.5f));
+        new Vector3d(x: 0.5f, y: 1f, z: 0.5f),
+        new Vector3d(x: 0.5f, y: 1f, z: 0.5f));
 
     private readonly List<BlockMesh> topClosedMeshes = new();
     private readonly List<BlockMesh> topOpenMeshes = new();
@@ -42,23 +42,23 @@ public class DoorBlock : Block, IFillable, IComplex
             name,
             namedId,
             BlockFlags.Functional,
-            new BoundingVolume(new Vector3(x: 0.5f, y: 1f, z: 0.5f), new Vector3(x: 0.5f, y: 1f, z: 0.5f)))
+            new BoundingVolume(new Vector3d(x: 0.5f, y: 1f, z: 0.5f), new Vector3d(x: 0.5f, y: 1f, z: 0.5f)))
     {
         BlockModel.Load(closedModel).PlaneSplit(
-            Vector3.UnitY,
-            -Vector3.UnitY,
+            Vector3d.UnitY,
+            -Vector3d.UnitY,
             out BlockModel baseClosed,
             out BlockModel topClosed);
 
-        topClosed.Move(-Vector3.UnitY);
+        topClosed.Move(-Vector3d.UnitY);
 
         BlockModel.Load(openModel).PlaneSplit(
-            Vector3.UnitY,
-            -Vector3.UnitY,
+            Vector3d.UnitY,
+            -Vector3d.UnitY,
             out BlockModel baseOpen,
             out BlockModel topOpen);
 
-        topOpen.Move(-Vector3.UnitY);
+        topOpen.Move(-Vector3d.UnitY);
 
         CreateMeshes(baseClosed, baseClosedMeshes);
         CreateMeshes(baseOpen, baseOpenMeshes);
@@ -117,18 +117,18 @@ public class DoorBlock : Block, IFillable, IComplex
         return orientation switch
         {
             Orientation.North => new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.5f, z: 0.9375f),
-                new Vector3(x: 0.5f, y: 0.5f, z: 0.0625f)),
+                new Vector3d(x: 0.5f, y: 0.5f, z: 0.9375f),
+                new Vector3d(x: 0.5f, y: 0.5f, z: 0.0625f)),
             Orientation.East => new BoundingVolume(
-                new Vector3(x: 0.0625f, y: 0.5f, z: 0.5f),
-                new Vector3(x: 0.0625f, y: 0.5f, z: 0.5f)),
+                new Vector3d(x: 0.0625f, y: 0.5f, z: 0.5f),
+                new Vector3d(x: 0.0625f, y: 0.5f, z: 0.5f)),
             Orientation.South => new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.5f, z: 0.0625f),
-                new Vector3(x: 0.5f, y: 0.5f, z: 0.0625f)),
+                new Vector3d(x: 0.5f, y: 0.5f, z: 0.0625f),
+                new Vector3d(x: 0.5f, y: 0.5f, z: 0.0625f)),
             Orientation.West => new BoundingVolume(
-                new Vector3(x: 0.9375f, y: 0.5f, z: 0.5f),
-                new Vector3(x: 0.0625f, y: 0.5f, z: 0.5f)),
-            _ => new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.5f, y: 0.5f, z: 0.5f))
+                new Vector3d(x: 0.9375f, y: 0.5f, z: 0.5f),
+                new Vector3d(x: 0.0625f, y: 0.5f, z: 0.5f)),
+            _ => new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f))
         };
     }
 

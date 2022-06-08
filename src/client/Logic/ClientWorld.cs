@@ -54,7 +54,7 @@ public class ClientWorld : World
 
     private readonly Stopwatch readyStopwatch = Stopwatch.StartNew();
 
-    private readonly List<(ClientSection section, Vector3 position)> renderList = new();
+    private readonly List<(ClientSection section, Vector3d position)> renderList = new();
 
     /// <summary>
     ///     A set of chunks with information on which sections of them are to mesh.

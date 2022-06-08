@@ -87,7 +87,7 @@ public readonly struct ChunkPosition : IEquatable<ChunkPosition>
     /// <summary>
     ///     Get the center of this chunk position.
     /// </summary>
-    public Vector3 Center => new(
+    public Vector3d Center => new(
         X * Chunk.BlockSize + Chunk.BlockSize / 2f,
         Y * Chunk.BlockSize + Chunk.BlockSize / 2f,
         Z * Chunk.BlockSize + Chunk.BlockSize / 2f);

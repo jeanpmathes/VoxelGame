@@ -113,12 +113,12 @@ public abstract class Chunk : IDisposable
     /// <summary>
     ///     Gets the position of the chunk as a point located in the center of the chunk.
     /// </summary>
-    public Vector3 ChunkPoint => Position.Center;
+    public Vector3d ChunkPoint => Position.Center;
 
     /// <summary>
     ///     The extents of a chunk.
     /// </summary>
-    public static Vector3 ChunkExtents => new(BlockSize / 2f, BlockSize / 2f, BlockSize / 2f);
+    public static Vector3d ChunkExtents => new(BlockSize / 2f, BlockSize / 2f, BlockSize / 2f);
 
     /// <summary>
     ///     The world this chunk is in.

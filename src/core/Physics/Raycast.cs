@@ -60,8 +60,8 @@ public static class Raycast
         }
 
         // Calculate the direction of the ray with length
-        Vector3 direction = ray.Direction;
-        Vector3 length = direction * ray.Length;
+        Vector3d direction = ray.Direction;
+        Vector3d length = direction * ray.Length;
 
         // Get the origin position in world coordinates.
         Vector3i current = ray.Origin.Floor();

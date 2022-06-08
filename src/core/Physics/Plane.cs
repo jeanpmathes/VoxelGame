@@ -18,26 +18,26 @@ public readonly struct Plane : IEquatable<Plane>
     /// <summary>
     ///     The normal of the plane.
     /// </summary>
-    public Vector3 Normal { get; }
+    public Vector3d Normal { get; }
 
     /// <summary>
     ///     A point that is in the plane.
     /// </summary>
-    public Vector3 Point { get; }
+    public Vector3d Point { get; }
 
-    private readonly float d;
+    private readonly double d;
 
     /// <summary>
     ///     Creates a plane. The normal parameter has to be normalized.
     /// </summary>
     /// <param name="normal">The normalized normal vector.</param>
     /// <param name="point">A point in the plane.</param>
-    public Plane(Vector3 normal, Vector3 point)
+    public Plane(Vector3d normal, Vector3d point)
     {
         Normal = normal;
         Point = point;
 
-        d = -Vector3.Dot(normal, point);
+        d = -Vector3d.Dot(normal, point);
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ public readonly struct Plane : IEquatable<Plane>
     /// </summary>
     /// <param name="point">The point to project.</param>
     /// <returns>The projected point.</returns>
-    public Vector3 Project(Vector3 point)
+    public Vector3d Project(Vector3d point)
     {
         return point - Normal * Distance(point);
     }
@@ -56,18 +56,18 @@ public readonly struct Plane : IEquatable<Plane>
     /// <param name="point">The point to project.</param>
     /// <param name="axis">The vector to use as x-Axis. Must be orthogonal to the plane normal.</param>
     /// <returns>A 2D point on the plane.</returns>
-    public Vector2 Project2D(Vector3 point, Vector3 axis)
+    public Vector2d Project2D(Vector3d point, Vector3d axis)
     {
-        Vector3 projected = Project(point);
-        Vector3 offset = projected - Point;
+        Vector3d projected = Project(point);
+        Vector3d offset = projected - Point;
 
-        Vector3 xAxis = axis.Normalized();
-        Vector3 yAxis = Vector3.Cross(axis.Normalized(), Normal).Normalized();
+        Vector3d xAxis = axis.Normalized();
+        Vector3d yAxis = Vector3d.Cross(axis.Normalized(), Normal).Normalized();
 
-        float projectedX = Vector3.Dot(offset, xAxis);
-        float projectedY = Vector3.Dot(offset, yAxis);
+        double projectedX = Vector3d.Dot(offset, xAxis);
+        double projectedY = Vector3d.Dot(offset, yAxis);
 
-        return new Vector2(projectedX, projectedY);
+        return new Vector2d(projectedX, projectedY);
     }
 
     /// <summary>
@@ -77,25 +77,25 @@ public readonly struct Plane : IEquatable<Plane>
     /// <returns>The ray along the intersection, if there is any.</returns>
     public Line? Intersects(Plane other)
     {
-        Vector3 n1 = Normal;
-        Vector3 n2 = other.Normal;
+        Vector3d n1 = Normal;
+        Vector3d n2 = other.Normal;
 
-        Vector3 p1 = Point;
-        Vector3 p2 = other.Point;
+        Vector3d p1 = Point;
+        Vector3d p2 = other.Point;
 
-        Vector3 normal = Vector3.Cross(n1, n2);
+        Vector3d normal = Vector3d.Cross(n1, n2);
 
         if (VMath.NearlyZero(normal.LengthSquared)) return null;
 
-        Vector3 l = Vector3.Cross(n2, normal);
+        Vector3d l = Vector3d.Cross(n2, normal);
 
-        float n = Vector3.Dot(n1, l);
+        double n = Vector3d.Dot(n1, l);
 
         if (VMath.NearlyZero(n)) return null;
 
-        Vector3 p = p1 - p2;
-        float t = Vector3.Dot(n1, p) / n;
-        Vector3 point = p2 + t * l;
+        Vector3d p = p1 - p2;
+        double t = Vector3d.Dot(n1, p) / n;
+        Vector3d point = p2 + t * l;
 
         return new Line(point, normal);
     }
@@ -105,9 +105,9 @@ public readonly struct Plane : IEquatable<Plane>
     /// </summary>
     /// <param name="point">The point to calculate the distance to.</param>
     /// <returns>The distance to the point.</returns>
-    public float Distance(Vector3 point)
+    public double Distance(Vector3d point)
     {
-        return Vector3.Dot(point, Normal) + d;
+        return Vector3d.Dot(point, Normal) + d;
     }
 
     /// <inheritdoc />

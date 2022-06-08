@@ -166,7 +166,7 @@ public partial class Block
         nameof(Flower),
         "flower",
         BlockFlags.Replaceable,
-        new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f)));
+        new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(x: 0.175f, y: 0.5f, z: 0.175f)));
 
     /// <summary>
     ///     A very tall flower.
@@ -593,7 +593,7 @@ public partial class Block
         nameof(Vase),
         BlockFlags.Solid,
         "vase",
-        new BoundingVolume(new Vector3(x: 0.5f, y: 0.375f, z: 0.5f), new Vector3(x: 0.25f, y: 0.375f, z: 0.25f)));
+        new BoundingVolume(new Vector3d(x: 0.5f, y: 0.375f, z: 0.5f), new Vector3d(x: 0.25f, y: 0.375f, z: 0.25f)));
 
     /// <summary>
     ///     The bed can be placed to set a different spawn point.
@@ -625,7 +625,7 @@ public partial class Block
         nameof(Carpet),
         BlockFlags.Solid,
         "carpet",
-        new BoundingVolume(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
+        new BoundingVolume(new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f)));
 
     /// <summary>
     ///     Decorated carpets are similar to carpets, decorated with golden ornaments.
@@ -635,7 +635,7 @@ public partial class Block
         nameof(CarpetDecorated),
         BlockFlags.Solid,
         "carpet_decorated",
-        new BoundingVolume(new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3(x: 0.5f, y: 0.03125f, z: 0.5f)));
+        new BoundingVolume(new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f)));
 
     /// <summary>
     ///     Glass panes are a thin alternative to glass blocks.

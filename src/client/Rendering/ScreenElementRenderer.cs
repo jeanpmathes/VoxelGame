@@ -5,9 +5,11 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Drawing;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Graphics.Objects;
@@ -64,12 +66,12 @@ public sealed class ScreenElementRenderer : IDisposable
     /// <summary>
     ///     Set the color to apply to the texture.
     /// </summary>
-    /// <param name="newColor">The color, as an RGB vector.</param>
-    public void SetColor(Vector3 newColor)
+    /// <param name="newColor">The color.</param>
+    public void SetColor(Color newColor)
     {
         if (disposed) return;
 
-        color = newColor;
+        color = newColor.ToVector3();
     }
 
     /// <summary>
@@ -82,10 +84,10 @@ public sealed class ScreenElementRenderer : IDisposable
         if (disposed) return;
 
         var screenSize = Screen.Size.ToVector2();
-        Vector3 scale = new Vector3(scaling, scaling, z: 1f) * screenSize.Length;
-        var translate = new Vector3((offset - new Vector2(x: 0.5f, y: 0.5f)) * screenSize);
+        Vector3d scale = new Vector3d(scaling, scaling, z: 1.0) * screenSize.Length;
+        var translate = new Vector3d((offset - new Vector2d(x: 0.5, y: 0.5)) * screenSize);
 
-        Matrix4 model = Matrix4.Identity * Matrix4.CreateScale(scale) * Matrix4.CreateTranslation(translate);
+        Matrix4 model = Matrix4.Identity * Matrix4.CreateScale(scale.ToVector3()) * Matrix4.CreateTranslation(translate.ToVector3());
 
         drawGroup.BindVertexArray();
 

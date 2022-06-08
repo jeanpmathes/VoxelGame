@@ -32,7 +32,7 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
             name,
             namedId,
             BlockFlags.Solid,
-            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, z: 0.5f)))
+            new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(diameter, diameter, z: 0.5f)))
     {
         this.diameter = diameter;
 
@@ -82,7 +82,7 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
     {
         var axis = (Axis) (data & 0b00_0011);
 
-        return new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), axis.Vector3(onAxis: 0.5f, diameter));
+        return new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), axis.Vector3(onAxis: 0.5f, diameter));
     }
 
     /// <inheritdoc />

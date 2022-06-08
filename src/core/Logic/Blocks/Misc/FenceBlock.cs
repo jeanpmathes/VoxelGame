@@ -41,8 +41,8 @@ public class FenceBlock : WideConnectingBlock, IFlammable
             postModel,
             extensionModel,
             new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
-                new Vector3(x: 0.1875f, y: 0.5f, z: 0.1875f)))
+                new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f),
+                new Vector3d(x: 0.1875f, y: 0.5f, z: 0.1875f)))
     {
         for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
     }
@@ -62,12 +62,12 @@ public class FenceBlock : WideConnectingBlock, IFlammable
         if (north)
         {
             children[0] = new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.28125f, z: 0.15625f),
-                new Vector3(x: 0.125f, y: 0.15625f, z: 0.15625f));
+                new Vector3d(x: 0.5f, y: 0.28125f, z: 0.15625f),
+                new Vector3d(x: 0.125f, y: 0.15625f, z: 0.15625f));
 
             children[1] = new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.71875f, z: 0.15625f),
-                new Vector3(x: 0.125f, y: 0.15625f, z: 0.15625f));
+                new Vector3d(x: 0.5f, y: 0.71875f, z: 0.15625f),
+                new Vector3d(x: 0.125f, y: 0.15625f, z: 0.15625f));
 
             extensions += 2;
         }
@@ -75,12 +75,12 @@ public class FenceBlock : WideConnectingBlock, IFlammable
         if (east)
         {
             children[extensions] = new BoundingVolume(
-                new Vector3(x: 0.84375f, y: 0.28125f, z: 0.5f),
-                new Vector3(x: 0.15625f, y: 0.15625f, z: 0.125f));
+                new Vector3d(x: 0.84375f, y: 0.28125f, z: 0.5f),
+                new Vector3d(x: 0.15625f, y: 0.15625f, z: 0.125f));
 
             children[extensions + 1] = new BoundingVolume(
-                new Vector3(x: 0.84375f, y: 0.71875f, z: 0.5f),
-                new Vector3(x: 0.15625f, y: 0.15625f, z: 0.125f));
+                new Vector3d(x: 0.84375f, y: 0.71875f, z: 0.5f),
+                new Vector3d(x: 0.15625f, y: 0.15625f, z: 0.125f));
 
             extensions += 2;
         }
@@ -88,12 +88,12 @@ public class FenceBlock : WideConnectingBlock, IFlammable
         if (south)
         {
             children[extensions] = new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.28125f, z: 0.84375f),
-                new Vector3(x: 0.125f, y: 0.15625f, z: 0.15625f));
+                new Vector3d(x: 0.5f, y: 0.28125f, z: 0.84375f),
+                new Vector3d(x: 0.125f, y: 0.15625f, z: 0.15625f));
 
             children[extensions + 1] = new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.71875f, z: 0.84375f),
-                new Vector3(x: 0.125f, y: 0.15625f, z: 0.15625f));
+                new Vector3d(x: 0.5f, y: 0.71875f, z: 0.84375f),
+                new Vector3d(x: 0.125f, y: 0.15625f, z: 0.15625f));
 
             extensions += 2;
         }
@@ -101,17 +101,17 @@ public class FenceBlock : WideConnectingBlock, IFlammable
         if (west)
         {
             children[extensions] = new BoundingVolume(
-                new Vector3(x: 0.15625f, y: 0.28125f, z: 0.5f),
-                new Vector3(x: 0.15625f, y: 0.15625f, z: 0.125f));
+                new Vector3d(x: 0.15625f, y: 0.28125f, z: 0.5f),
+                new Vector3d(x: 0.15625f, y: 0.15625f, z: 0.125f));
 
             children[extensions + 1] = new BoundingVolume(
-                new Vector3(x: 0.15625f, y: 0.71875f, z: 0.5f),
-                new Vector3(x: 0.15625f, y: 0.15625f, z: 0.125f));
+                new Vector3d(x: 0.15625f, y: 0.71875f, z: 0.5f),
+                new Vector3d(x: 0.15625f, y: 0.15625f, z: 0.125f));
         }
 
         return new BoundingVolume(
-            new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
-            new Vector3(x: 0.1875f, y: 0.5f, z: 0.1875f),
+            new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f),
+            new Vector3d(x: 0.1875f, y: 0.5f, z: 0.1875f),
             children);
     }
 

@@ -35,7 +35,7 @@ public class FruitCropBlock : Block, IFlammable, IFillable, ICrossPlant
             name,
             namedId,
             new BlockFlags(),
-            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.175f, y: 0.5f, z: 0.175f)))
+            new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(x: 0.175f, y: 0.5f, z: 0.175f)))
     {
         this.texture = texture;
         this.fruit = fruit;
@@ -91,11 +91,11 @@ public class FruitCropBlock : Block, IFlammable, IFillable, ICrossPlant
 
         return stage <= GrowthStage.First
             ? new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.25f, z: 0.5f),
-                new Vector3(x: 0.175f, y: 0.25f, z: 0.175f))
+                new Vector3d(x: 0.5f, y: 0.25f, z: 0.5f),
+                new Vector3d(x: 0.175f, y: 0.25f, z: 0.175f))
             : new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
-                new Vector3(x: 0.175f, y: 0.5f, z: 0.175f));
+                new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f),
+                new Vector3d(x: 0.175f, y: 0.5f, z: 0.175f));
     }
 
     /// <inheritdoc />
@@ -146,6 +146,7 @@ public class FruitCropBlock : Block, IFlammable, IFillable, ICrossPlant
                 foreach (Orientation orientation in Orientations.ShuffledStart(position))
                 {
                     if (!fruit.Place(world, orientation.Offset(position))) continue;
+
                     world.SetBlock(this.AsInstance(((uint) GrowthStage.Second << 1) | isLowered), position);
 
                     break;

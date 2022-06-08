@@ -44,7 +44,7 @@ public enum Orientation
 public static class Orientations
 {
     private static readonly IReadOnlyList<Orientation> orientations = new List<Orientation>
-        { Orientation.North, Orientation.East, Orientation.South, Orientation.West }.AsReadOnly();
+        {Orientation.North, Orientation.East, Orientation.South, Orientation.West}.AsReadOnly();
 
     /// <summary>
     ///     Get all orientations.
@@ -72,7 +72,7 @@ public static class OrientationExtensions
     /// <summary>
     ///     Convert a vector to an orientation.
     /// </summary>
-    public static Orientation ToOrientation(this Vector3 vector)
+    public static Orientation ToOrientation(this Vector3d vector)
     {
         if (Math.Abs(vector.Z) > Math.Abs(vector.X)) return vector.Z > 0 ? Orientation.South : Orientation.North;
 
@@ -82,7 +82,7 @@ public static class OrientationExtensions
     /// <summary>
     ///     Convert an orientation to a vector.
     /// </summary>
-    public static Vector3 ToVector3(this Orientation orientation)
+    public static Vector3d ToVector3(this Orientation orientation)
     {
         return orientation.ToVector3i().ToVector3();
     }

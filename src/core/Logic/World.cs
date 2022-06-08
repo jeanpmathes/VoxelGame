@@ -131,7 +131,7 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     Get or set the spawn position in this world.
     /// </summary>
-    public Vector3 SpawnPosition
+    public Vector3d SpawnPosition
     {
         get => Information.SpawnInformation.Position;
         set
@@ -317,6 +317,7 @@ public abstract partial class World : IDisposable
             (BlockInstance, FluidInstance)? content = GetContent(neighborPosition);
 
             if (content == null) continue;
+
             (BlockInstance blockNeighbor, FluidInstance fluidNeighbor) = content.Value;
 
             blockNeighbor.Block.BlockUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
@@ -389,6 +390,7 @@ public abstract partial class World : IDisposable
         (BlockInstance, FluidInstance)? content = GetContent(position);
 
         if (content == null) return false;
+
         (BlockInstance block, FluidInstance fluid) = content.Value;
 
         block.Block.RandomUpdate(this, position, block.Data);

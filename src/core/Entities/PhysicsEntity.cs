@@ -23,7 +23,7 @@ public abstract class PhysicsEntity : IDisposable
     /// <summary>
     ///     The gravitational constant which accelerates all physics entities.
     /// </summary>
-    public const float Gravity = -9.81f;
+    public const double Gravity = -9.81;
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<PhysicsEntity>();
 
@@ -33,7 +33,7 @@ public abstract class PhysicsEntity : IDisposable
 
     private bool doPhysics = true;
 
-    private Vector3 force;
+    private Vector3d force;
 
     /// <summary>
     ///     Create a new physics entity.
@@ -42,11 +42,11 @@ public abstract class PhysicsEntity : IDisposable
     /// <param name="mass">The mass of the entity.</param>
     /// <param name="drag">The drag affecting the entity.</param>
     /// <param name="boundingVolume">The bounding box of the entity.</param>
-    protected PhysicsEntity(World world, float mass, float drag, BoundingVolume boundingVolume)
+    protected PhysicsEntity(World world, double mass, double drag, BoundingVolume boundingVolume)
     {
         World = world;
 
-        Rotation = Quaternion.Identity;
+        Rotation = Quaterniond.Identity;
 
         Mass = mass;
         Drag = drag;
@@ -56,27 +56,27 @@ public abstract class PhysicsEntity : IDisposable
     /// <summary>
     ///     Gets the mass of this physics entity.
     /// </summary>
-    public float Mass { get; }
+    public double Mass { get; }
 
     /// <summary>
     ///     Gets the drag affecting the velocity of this physics entity.
     /// </summary>
-    public float Drag { get; }
+    public double Drag { get; }
 
     /// <summary>
     ///     Gets or sets the velocity of the physics entity.
     /// </summary>
-    public Vector3 Velocity { get; set; }
+    public Vector3d Velocity { get; set; }
 
     /// <summary>
     ///     Get the position of the physics entity.
     /// </summary>
-    public Vector3 Position { get; set; }
+    public Vector3d Position { get; set; }
 
     /// <summary>
     ///     Get the rotation of the physics entity.
     /// </summary>
-    public Quaternion Rotation { get; set; }
+    public Quaterniond Rotation { get; set; }
 
     /// <summary>
     ///     Get whether the physics entity touches the ground.
@@ -91,12 +91,12 @@ public abstract class PhysicsEntity : IDisposable
     /// <summary>
     ///     Get the forward vector of the physics entity.
     /// </summary>
-    public Vector3 Forward => Rotation * Vector3.UnitX;
+    public Vector3d Forward => Rotation * Vector3d.UnitX;
 
     /// <summary>
     ///     Get the right vector of the physics entity.
     /// </summary>
-    public Vector3 Right => Rotation * Vector3.UnitZ;
+    public Vector3d Right => Rotation * Vector3d.UnitZ;
 
     /// <summary>
     ///     Get the world in which the physics entity is located.
@@ -106,12 +106,12 @@ public abstract class PhysicsEntity : IDisposable
     /// <summary>
     ///     Get the target movement of the physics entity.
     /// </summary>
-    public abstract Vector3 Movement { get; }
+    public abstract Vector3d Movement { get; }
 
     /// <summary>
     ///     Get the looking direction of the physics entity, which is also the front vector of the view camera.
     /// </summary>
-    public abstract Vector3 LookingDirection { get; }
+    public abstract Vector3d LookingDirection { get; }
 
     /// <summary>
     ///     Get the block side targeted by the physics entity.
@@ -154,7 +154,7 @@ public abstract class PhysicsEntity : IDisposable
     ///     Applies force to this entity.
     /// </summary>
     /// <param name="additionalForce">The force to apply.</param>
-    public void AddForce(Vector3 additionalForce)
+    public void AddForce(Vector3d additionalForce)
     {
         force += additionalForce;
     }
@@ -164,11 +164,11 @@ public abstract class PhysicsEntity : IDisposable
     /// </summary>
     /// <param name="movement">The target movement, can be zero to try to stop moving.</param>
     /// <param name="maxForce">The maximum allowed force to use.</param>
-    public void Move(Vector3 movement, Vector3 maxForce)
+    public void Move(Vector3d movement, Vector3d maxForce)
     {
         maxForce = maxForce.Absolute();
 
-        Vector3 requiredForce = (movement - Velocity) * Mass;
+        Vector3d requiredForce = (movement - Velocity) * Mass;
         requiredForce -= force;
         AddForce(VMath.ClampComponents(requiredForce, -maxForce, maxForce));
     }
@@ -185,8 +185,8 @@ public abstract class PhysicsEntity : IDisposable
         }
         else
         {
-            force = Vector3.Zero;
-            Velocity = Vector3.Zero;
+            force = Vector3d.Zero;
+            Velocity = Vector3d.Zero;
 
             IsGrounded = false;
             IsSwimming = false;
@@ -205,7 +205,7 @@ public abstract class PhysicsEntity : IDisposable
 
         BoxCollider collider = Collider;
 
-        Vector3 movement = Velocity * deltaTime;
+        Vector3d movement = Velocity * deltaTime;
         movement *= 1f / physicsIterations;
 
         HashSet<(Vector3i position, Block block)> blockIntersections = new();
@@ -218,11 +218,11 @@ public abstract class PhysicsEntity : IDisposable
             if (block.ReceiveCollisions)
                 block.EntityCollision(this, position);
 
-        Vector3 fluidDrag = Vector3.Zero;
+        Vector3d fluidDrag = Vector3d.Zero;
 
         if (fluidIntersections.Count != 0)
         {
-            var density = 0f;
+            var density = 0.0;
             int maxLevel = -1;
             var noGas = false;
 
@@ -238,16 +238,16 @@ public abstract class PhysicsEntity : IDisposable
                 }
             }
 
-            fluidDrag = 0.5f * density * Velocity.Sign().ToVector3() * (Velocity * Velocity) * ((maxLevel + 1) / 8f) * 0.25f;
+            fluidDrag = 0.5 * density * Velocity.Sign().ToVector3d() * (Velocity * Velocity) * ((maxLevel + 1) / 8.0) * 0.25;
 
             if (!IsGrounded && noGas) IsSwimming = true;
         }
 
-        force = new Vector3(x: 0f, Gravity * Mass, z: 0f);
+        force = new Vector3d(x: 0, Gravity * Mass, z: 0);
         force -= fluidDrag;
     }
 
-    private void DoPhysicsStep(ref BoxCollider collider, ref Vector3 movement,
+    private void DoPhysicsStep(ref BoxCollider collider, ref Vector3d movement,
         HashSet<(Vector3i position, Block block)> blockIntersections,
         HashSet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections)
     {
@@ -270,15 +270,15 @@ public abstract class PhysicsEntity : IDisposable
                     ?.Block.IsSolid ?? true;
             }
 
-            movement = new Vector3(
-                xCollision ? 0f : movement.X,
-                yCollision ? 0f : movement.Y,
-                zCollision ? 0f : movement.Z);
+            movement = new Vector3d(
+                xCollision ? 0 : movement.X,
+                yCollision ? 0 : movement.Y,
+                zCollision ? 0 : movement.Z);
 
-            Velocity = new Vector3(
-                xCollision ? 0f : Velocity.X,
-                yCollision ? 0f : Velocity.Y,
-                zCollision ? 0f : Velocity.Z);
+            Velocity = new Vector3d(
+                xCollision ? 0 : Velocity.X,
+                yCollision ? 0 : Velocity.Y,
+                zCollision ? 0 : Velocity.Z);
         }
 
         Position += movement;

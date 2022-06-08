@@ -38,7 +38,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
             name,
             namedId,
             BlockFlags.Solid,
-            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(diameter, diameter, diameter)))
+            new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(diameter, diameter, diameter)))
     {
         this.diameter = diameter;
 
@@ -100,23 +100,23 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     {
         List<BoundingVolume> connectors = new(BitHelper.CountSetBits(data));
 
-        float connectorWidth = (0.5f - diameter) / 2f;
+        double connectorWidth = (0.5 - diameter) / 2.0;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
             if (!side.IsSet(data)) continue;
 
-            var direction = side.Direction().ToVector3();
+            var direction = side.Direction().ToVector3d();
 
             connectors.Add(
                 new BoundingVolume(
-                    (0.5f, 0.5f, 0.5f) + direction * (0.5f - connectorWidth),
+                    (0.5, 0.5, 0.5) + direction * (0.5 - connectorWidth),
                     (diameter, diameter, diameter) + direction.Absolute() * (connectorWidth - diameter)));
         }
 
         return new BoundingVolume(
-            new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
-            new Vector3(diameter, diameter, diameter),
+            new Vector3d(x: 0.5, y: 0.5, z: 0.5),
+            new Vector3d(diameter, diameter, diameter),
             connectors.ToArray());
     }
 

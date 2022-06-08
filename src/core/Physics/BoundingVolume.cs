@@ -15,17 +15,17 @@ namespace VoxelGame.Core.Physics;
 /// </summary>
 public sealed class BoundingVolume : IEquatable<BoundingVolume>
 {
-    private readonly Box3 childBounds;
+    private readonly Box3d childBounds;
     private readonly BoundingVolume[] children;
 
-    private BoundingVolume(Box3 box, BoundingVolume[] children)
+    private BoundingVolume(Box3d box, BoundingVolume[] children)
     {
-        this.Box = box;
+        Box = box;
         this.children = children;
 
         if (children.Length == 0)
         {
-            childBounds = new Box3(Vector3.Zero, Vector3.Zero);
+            childBounds = new Box3d(Vector3d.Zero, Vector3d.Zero);
         }
         else
         {
@@ -33,7 +33,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
 
             for (var i = 1; i < children.Length; i++)
             {
-                Box3 currentChild = children[i].childBounds;
+                Box3d currentChild = children[i].childBounds;
                 childBounds = childBounds.Inflated(currentChild.Min).Inflated(currentChild.Max);
             }
         }
@@ -42,55 +42,55 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// <summary>
     ///     Create a bounding box.
     /// </summary>
-    public BoundingVolume(Vector3 extents) : this(new Box3(-extents, extents), Array.Empty<BoundingVolume>()) {}
+    public BoundingVolume(Vector3d extents) : this(new Box3d(-extents, extents), Array.Empty<BoundingVolume>()) {}
 
     /// <summary>
     ///     Create a bounding box with a given offset.
     /// </summary>
-    public BoundingVolume(Vector3 offset, Vector3 extents) : this(
+    public BoundingVolume(Vector3d offset, Vector3d extents) : this(
         VMath.CreateBox3(offset, extents),
         Array.Empty<BoundingVolume>()) {}
 
     /// <summary>
     ///     Create a bounding box with children.
     /// </summary>
-    public BoundingVolume(Vector3 extents, params BoundingVolume[] boundingBoxes) : this(
-        new Box3(-extents, extents),
+    public BoundingVolume(Vector3d extents, params BoundingVolume[] boundingBoxes) : this(
+        new Box3d(-extents, extents),
         boundingBoxes) {}
 
     /// <summary>
     ///     Create a bounding box with children, and a given offset.
     /// </summary>
-    public BoundingVolume(Vector3 offset, Vector3 extents, params BoundingVolume[] boundingBoxes) : this(
+    public BoundingVolume(Vector3d offset, Vector3d extents, params BoundingVolume[] boundingBoxes) : this(
         VMath.CreateBox3(offset, extents),
         boundingBoxes) {}
 
     /// <summary>
     ///     Get the center of the bounding box. This is used as offset for child bounding boxes.
     /// </summary>
-    public Vector3 Center => Box.Center;
+    public Vector3d Center => Box.Center;
 
     /// <summary>
     ///     Get the extents of the bounding box.
     /// </summary>
-    public Vector3 Extents => Box.HalfSize;
+    public Vector3d Extents => Box.HalfSize;
 
     /// <summary>
     ///     The minimum point of the box collider.
     /// </summary>
-    public Vector3 Min => Box.Min;
+    public Vector3d Min => Box.Min;
 
     /// <summary>
     ///     The maximum point of the box collider.
     /// </summary>
-    public Vector3 Max => Box.Max;
+    public Vector3d Max => Box.Max;
 
     /// <summary>
     ///     Get the box that contains all child boxes.
     /// </summary>
-    private Box3 ChildBounds => childBounds;
+    private Box3d ChildBounds => childBounds;
 
-    private Box3 Box { get; }
+    private Box3d Box { get; }
 
     /// <summary>
     ///     Get a child bounding box.
@@ -107,24 +107,32 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Block" />.
     /// </summary>
     public static BoundingVolume Block =>
-        new(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.5f, y: 0.5f, z: 0.5f));
+        new(new Vector3d(x: 0.5, y: 0.5, z: 0.5), new Vector3d(x: 0.5, y: 0.5, z: 0.5));
 
     /// <summary>
     ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Blocks.CrossBlock" />.
     /// </summary>
     public static BoundingVolume CrossBlock => new(
-        new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
-        new Vector3(x: 0.355f, y: 0.5f, z: 0.355f));
+        new Vector3d(x: 0.5, y: 0.5, z: 0.5),
+        new Vector3d(x: 0.355, y: 0.5, z: 0.355));
 
     /// <summary>
     ///     Gets a <see cref="BoundingVolume" /> that has zero size.
     /// </summary>
-    public static BoundingVolume Empty => new(Vector3.Zero, Vector3.Zero);
+    public static BoundingVolume Empty => new(Vector3d.Zero, Vector3d.Zero);
 
     /// <inheritdoc />
     public bool Equals(BoundingVolume? other)
     {
         return Box.Equals(other?.Box);
+    }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        if (obj is BoundingVolume other) return Equals(other);
+
+        return false;
     }
 
     /// <summary>
@@ -137,8 +145,8 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         float halfHeight = (height + 1) * 0.03125f;
 
         return new BoundingVolume(
-            new Vector3(x: 0.5f, halfHeight, z: 0.5f),
-            new Vector3(x: 0.5f, halfHeight, z: 0.5f));
+            new Vector3d(x: 0.5f, halfHeight, z: 0.5f),
+            new Vector3d(x: 0.5f, halfHeight, z: 0.5f));
     }
 
     /// <summary>
@@ -146,7 +154,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// </summary>
     /// <param name="position">The position to place the collider at.</param>
     /// <returns>The created collider.</returns>
-    public BoxCollider GetColliderAt(Vector3 position)
+    public BoxCollider GetColliderAt(Vector3d position)
     {
         return new BoxCollider(this, position);
     }
@@ -154,7 +162,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// <summary>
     ///     Checks if this bounding box or one of its children contain a point.
     /// </summary>
-    public bool Contains(Vector3 point)
+    public bool Contains(Vector3d point)
     {
         if (Box.Contains(point))
             return true;
@@ -173,7 +181,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool Intersects(Box3 other)
+    public bool Intersects(Box3d other)
     {
         if (Collision.IsIntersecting(Box, other))
             return true;
@@ -191,7 +199,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     ///     Check if this <see cref="BoundingVolume" /> intersects with the given <see cref="Box3" />.
     ///     This will also set the collision planes.
     /// </summary>
-    public bool Intersects(Box3 other, ref bool x, ref bool y, ref bool z)
+    public bool Intersects(Box3d other, ref bool x, ref bool y, ref bool z)
     {
         if (Collision.IsIntersecting(Box, other, ref x, ref y, ref z))
             return true;
@@ -222,14 +230,6 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         for (var i = 0; i < ChildCount; i++)
             if (children[i].Intersects(ray))
                 return true;
-
-        return false;
-    }
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj)
-    {
-        if (obj is BoundingVolume other) return Equals(other);
 
         return false;
     }

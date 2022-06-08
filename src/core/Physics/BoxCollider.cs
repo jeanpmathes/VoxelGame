@@ -25,19 +25,19 @@ public struct BoxCollider : IEquatable<BoxCollider>
     /// <summary>
     ///     Get or set the position of this collider.
     /// </summary>
-    public Vector3 Position { get; set; }
+    public Vector3d Position { get; set; }
 
     /// <summary>
     ///     Get the center of this collider.
     /// </summary>
-    public Vector3 Center => Position + Volume.Center;
+    public Vector3d Center => Position + Volume.Center;
 
     /// <summary>
     ///     Creates a new box collider.
     /// </summary>
     /// <param name="volume">The box to use.</param>
     /// <param name="position">The position of the collider.</param>
-    public BoxCollider(BoundingVolume volume, Vector3 position)
+    public BoxCollider(BoundingVolume volume, Vector3d position)
     {
         Volume = volume;
         Position = position;
@@ -46,7 +46,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
     /// <summary>
     ///     Check if this collider contains a point.
     /// </summary>
-    public bool Contains(Vector3 point)
+    public bool Contains(Vector3d point)
     {
         return Volume.Contains(point - Position);
     }
@@ -67,11 +67,11 @@ public struct BoxCollider : IEquatable<BoxCollider>
     public bool Intersects(BoxCollider other)
     {
         BoxCollider self = this;
-        Vector3 offset = other.Position - Position;
+        Vector3d offset = other.Position - Position;
 
         bool Check(BoundingVolume volume)
         {
-            Box3 box = new(volume.Min + offset, volume.Max + offset);
+            Box3d box = new(volume.Min + offset, volume.Max + offset);
 
             if (self.Volume.Intersects(box)) return true;
 
@@ -93,11 +93,11 @@ public struct BoxCollider : IEquatable<BoxCollider>
     public bool Intersects(BoxCollider other, ref bool x, ref bool y, ref bool z)
     {
         BoxCollider self = this;
-        Vector3 offset = other.Position - Position;
+        Vector3d offset = other.Position - Position;
 
         bool Check(BoundingVolume volume, ref bool lx, ref bool ly, ref bool lz)
         {
-            Box3 box = new(volume.Min + offset, volume.Max + offset);
+            Box3d box = new(volume.Min + offset, volume.Max + offset);
 
             if (self.Volume.Intersects(box, ref lx, ref ly, ref lz)) return true;
 
@@ -124,7 +124,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
         zCollision = false;
 
         // Calculate the range of blocks to check.
-        float highestExtent = Volume.Extents.X > Volume.Extents.Y ? Volume.Extents.X : Volume.Extents.Y;
+        double highestExtent = Volume.Extents.X > Volume.Extents.Y ? Volume.Extents.X : Volume.Extents.Y;
         highestExtent = highestExtent > Volume.Extents.Z ? highestExtent : Volume.Extents.Z;
 
         int range = (int) Math.Round(highestExtent * 2, MidpointRounding.AwayFromZero) + 1;
@@ -144,6 +144,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
             (BlockInstance, FluidInstance)? content = world.GetContent(position);
 
             if (content == null) continue;
+
             (BlockInstance currentBlock, FluidInstance currentFluid) = content.Value;
 
             BoxCollider blockCollider = currentBlock.Block.GetCollider(

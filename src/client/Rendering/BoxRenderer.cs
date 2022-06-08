@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Logging;
 
@@ -98,8 +99,8 @@ public sealed class BoxRenderer : IDisposable
     private static int BuildMeshData_NonRecursive(BoundingVolume boundingVolume,
         out float[] vertices, out uint[] indices)
     {
-        (float minX, float minY, float minZ) = boundingVolume.Min;
-        (float maxX, float maxY, float maxZ) = boundingVolume.Max;
+        (float minX, float minY, float minZ) = boundingVolume.Min.ToVector3();
+        (float maxX, float maxY, float maxZ) = boundingVolume.Max.ToVector3();
 
         vertices = new[]
         {
@@ -144,7 +145,7 @@ public sealed class BoxRenderer : IDisposable
     ///     Draw the bounding box.
     /// </summary>
     /// <param name="position">The position at which the box should be drawn.</param>
-    public void Draw(Vector3 position)
+    public void Draw(Vector3d position)
     {
         if (disposed) return;
 
@@ -152,7 +153,7 @@ public sealed class BoxRenderer : IDisposable
 
         Shaders.Selection.Use();
 
-        Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
+        Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position.ToVector3());
         Shaders.Selection.SetMatrix4("model", model);
         Shaders.Selection.SetMatrix4("view", Application.Client.Instance.CurrentGame!.Player.ViewMatrix);
 

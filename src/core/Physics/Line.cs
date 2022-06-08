@@ -17,19 +17,19 @@ public readonly struct Line : IEquatable<Line>
     /// <summary>
     ///     Get the direction of the line.
     /// </summary>
-    public Vector3 Direction { get; }
+    public Vector3d Direction { get; }
 
     /// <summary>
     ///     Get any point on the line.
     /// </summary>
-    public Vector3 Any { get; }
+    public Vector3d Any { get; }
 
     /// <summary>
     ///     Create a new line.
     /// </summary>
     /// <param name="point">Any point on the line.</param>
     /// <param name="direction">The direction of the line.</param>
-    public Line(Vector3 point, Vector3 direction)
+    public Line(Vector3d point, Vector3d direction)
     {
         this.Any = point;
         Direction = direction.Normalized();

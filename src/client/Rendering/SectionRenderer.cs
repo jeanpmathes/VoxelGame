@@ -8,6 +8,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Graphics.Objects;
@@ -327,11 +328,11 @@ public sealed class SectionRenderer : IDisposable
     /// </summary>
     /// <param name="stage">The stage to draw.</param>
     /// <param name="position">The position at which the section should be drawn.</param>
-    public void DrawStage(int stage, Vector3 position)
+    public void DrawStage(int stage, Vector3d position)
     {
         if (disposed) return;
 
-        Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position);
+        Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position.ToVector3());
 
         switch (stage)
         {

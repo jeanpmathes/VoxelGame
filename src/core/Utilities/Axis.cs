@@ -52,13 +52,13 @@ public static class AxisExtensions
     /// <summary>
     ///     Get the axis as a <see cref="Vector3" />.
     /// </summary>
-    public static Vector3 Vector3(this Axis axis, float onAxis, float other)
+    public static Vector3d Vector3(this Axis axis, float onAxis, float other)
     {
         return axis switch
         {
-            Axis.X => new Vector3(onAxis, other, other),
-            Axis.Y => new Vector3(other, onAxis, other),
-            Axis.Z => new Vector3(other, other, onAxis),
+            Axis.X => new Vector3d(onAxis, other, other),
+            Axis.Y => new Vector3d(other, onAxis, other),
+            Axis.Z => new Vector3d(other, other, onAxis),
             _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, message: null)
         };
     }

@@ -49,7 +49,7 @@ public class Teleport : Command
                 break;
         }
 
-        void SetPlayerPosition(Vector3 position)
+        void SetPlayerPosition(Vector3d position)
         {
             Context.Player.Position = position;
         }

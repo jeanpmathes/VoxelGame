@@ -32,7 +32,7 @@ public class LookInput
     /// <summary>
     ///     Get the input value.
     /// </summary>
-    public Vector2 Value => mouse.Delta * sensitivity;
+    public Vector2d Value => mouse.Delta * sensitivity;
 
     /// <summary>
     ///     Set the sensitivity of the look input.
