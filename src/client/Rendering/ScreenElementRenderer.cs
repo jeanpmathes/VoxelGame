@@ -87,13 +87,13 @@ public sealed class ScreenElementRenderer : IDisposable
         Vector3d scale = new Vector3d(scaling, scaling, z: 1.0) * screenSize.Length;
         var translate = new Vector3d((offset - new Vector2d(x: 0.5, y: 0.5)) * screenSize);
 
-        Matrix4 model = Matrix4.Identity * Matrix4.CreateScale(scale.ToVector3()) * Matrix4.CreateTranslation(translate.ToVector3());
+        Matrix4d model = Matrix4d.Identity * VMath.CreateScaleMatrix(scale) * Matrix4d.CreateTranslation(translate);
 
         drawGroup.BindVertexArray();
 
         Shaders.ScreenElement.Use();
 
-        Shaders.ScreenElement.SetMatrix4("model", model);
+        Shaders.ScreenElement.SetMatrix4("model", model.ToMatrix4());
         Shaders.ScreenElement.SetVector3("color", color);
         Shaders.ScreenElement.SetInt("tex", texUnit);
 

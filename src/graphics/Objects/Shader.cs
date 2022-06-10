@@ -143,8 +143,8 @@ public class Shader
     /// <summary>
     ///     Set a uniform int on this shader.
     /// </summary>
-    /// <param name="name">The name of the uniform</param>
-    /// <param name="data">The data to set</param>
+    /// <param name="name">The name of the uniform.</param>
+    /// <param name="data">The data to set.</param>
     public void SetInt(string name, int data)
     {
         GL.UseProgram(Handle);
@@ -154,8 +154,8 @@ public class Shader
     /// <summary>
     ///     Set a uniform float on this shader.
     /// </summary>
-    /// <param name="name">The name of the uniform</param>
-    /// <param name="data">The data to set</param>
+    /// <param name="name">The name of the uniform.</param>
+    /// <param name="data">The data to set.</param>
     public void SetFloat(string name, float data)
     {
         GL.UseProgram(Handle);
@@ -163,10 +163,10 @@ public class Shader
     }
 
     /// <summary>
-    ///     Set a uniform Matrix4 on this shader
+    ///     Set a uniform Matrix4 on this shader.
     /// </summary>
-    /// <param name="name">The name of the uniform</param>
-    /// <param name="data">The data to set</param>
+    /// <param name="name">The name of the uniform.</param>
+    /// <param name="data">The data to set.</param>
     /// <remarks>
     ///     <para>
     ///         The matrix is transposed before being sent to the shader.
@@ -181,8 +181,8 @@ public class Shader
     /// <summary>
     ///     Set a uniform Vector3d on this shader.
     /// </summary>
-    /// <param name="name">The name of the uniform</param>
-    /// <param name="data">The data to set</param>
+    /// <param name="name">The name of the uniform.</param>
+    /// <param name="data">The data to set.</param>
     public void SetVector3(string name, Vector3 data)
     {
         GL.UseProgram(Handle);

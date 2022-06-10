@@ -111,12 +111,12 @@ public class Camera
     /// <summary>
     ///     Get the camera's view matrix.
     /// </summary>
-    public Matrix4 ViewMatrix => Matrix4.LookAt(Position.ToVector3(), (Position + Front).ToVector3(), Up.ToVector3());
+    public Matrix4d ViewMatrix => Matrix4d.LookAt(Position.ToVector3(), (Position + Front).ToVector3(), Up.ToVector3());
 
     /// <summary>
     ///     Get the camera's projection matrix.
     /// </summary>
-    public Matrix4 ProjectionMatrix => Matrix4.CreatePerspectiveFieldOfView(
+    public Matrix4d ProjectionMatrix => Matrix4d.CreatePerspectiveFieldOfView(
         (float) fov,
         Screen.AspectRatio,
         (float) NearClipping,

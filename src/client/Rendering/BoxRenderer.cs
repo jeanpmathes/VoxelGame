@@ -153,13 +153,13 @@ public sealed class BoxRenderer : IDisposable
 
         Shaders.Selection.Use();
 
-        Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position.ToVector3());
-        Shaders.Selection.SetMatrix4("model", model);
-        Shaders.Selection.SetMatrix4("view", Application.Client.Instance.CurrentGame!.Player.ViewMatrix);
+        Matrix4d model = Matrix4d.Identity * Matrix4d.CreateTranslation(position);
+        Shaders.Selection.SetMatrix4("model", model.ToMatrix4());
+        Shaders.Selection.SetMatrix4("view", Application.Client.Instance.CurrentGame!.Player.ViewMatrix.ToMatrix4());
 
         Shaders.Selection.SetMatrix4(
             "projection",
-            Application.Client.Instance.CurrentGame!.Player.ProjectionMatrix);
+            Application.Client.Instance.CurrentGame!.Player.ProjectionMatrix.ToMatrix4());
 
         drawGroup.DrawElements(PrimitiveType.Lines);
 

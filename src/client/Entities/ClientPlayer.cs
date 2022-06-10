@@ -134,12 +134,12 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     /// <summary>
     ///     Gets the view matrix of the camera of this player.
     /// </summary>
-    public Matrix4 ViewMatrix => camera.ViewMatrix;
+    public Matrix4d ViewMatrix => camera.ViewMatrix;
 
     /// <summary>
     ///     Gets the projection matrix of the camera of this player.
     /// </summary>
-    public Matrix4 ProjectionMatrix => camera.ProjectionMatrix;
+    public Matrix4d ProjectionMatrix => camera.ProjectionMatrix;
 
     /// <inheritdoc cref="PhysicsEntity" />
     public override Vector3i? TargetPosition => targetPosition;

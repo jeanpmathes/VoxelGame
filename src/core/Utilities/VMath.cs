@@ -45,7 +45,7 @@ public static class VMath
     }
 
     /// <summary>
-    ///     Convert a double Vector3 to a float Vector3d.
+    ///     Convert a double Vector3 to a float Vector3.
     /// </summary>
     public static Vector3 ToVector3(this Vector3d vector)
     {
@@ -53,7 +53,15 @@ public static class VMath
     }
 
     /// <summary>
-    ///     Convert a double Vector2 to a float Vector3d.
+    ///     Convert a double Vector4 to a float Vector4.
+    /// </summary>
+    public static Vector4 ToVector4(this Vector4d vector)
+    {
+        return new Vector4((float) vector.X, (float) vector.Y, (float) vector.Z, (float) vector.W);
+    }
+
+    /// <summary>
+    ///     Convert a double Vector2 to a float Vector3.
     /// </summary>
     public static Vector2 ToVector2(this Vector2d vector)
     {
@@ -66,6 +74,27 @@ public static class VMath
     public static Vector3d ToVector3d(this Vector3i vector)
     {
         return new Vector3d(vector.X, vector.Y, vector.Z);
+    }
+
+    /// <summary>
+    ///     Convert a double Matrix4 to a float Matrix4.
+    /// </summary>
+    public static Matrix4 ToMatrix4(this Matrix4d matrix)
+    {
+        return new Matrix4(matrix.Row0.ToVector4(), matrix.Row1.ToVector4(), matrix.Row2.ToVector4(), matrix.Row3.ToVector4());
+    }
+
+    /// <summary>
+    ///     Creates a scale matrix.
+    /// </summary>
+    public static Matrix4d CreateScaleMatrix(Vector3d scale)
+    {
+        Matrix4d result = Matrix4d.Identity;
+        result.Row0.X = scale.X;
+        result.Row1.Y = scale.Y;
+        result.Row2.Z = scale.Z;
+
+        return result;
     }
 
     /// <summary>

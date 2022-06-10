@@ -218,8 +218,8 @@ public sealed class SectionRenderer : IDisposable
     /// <param name="stage">The draw stage to prepare.</param>
     public static void PrepareStage(int stage)
     {
-        Matrix4 view = Application.Client.Instance.CurrentGame!.Player.ViewMatrix;
-        Matrix4 projection = Application.Client.Instance.CurrentGame!.Player.ProjectionMatrix;
+        Matrix4d view = Application.Client.Instance.CurrentGame!.Player.ViewMatrix;
+        Matrix4d projection = Application.Client.Instance.CurrentGame!.Player.ProjectionMatrix;
 
         switch (stage)
         {
@@ -256,14 +256,14 @@ public sealed class SectionRenderer : IDisposable
         }
     }
 
-    private static void PrepareSimpleBuffer(Matrix4 view, Matrix4 projection)
+    private static void PrepareSimpleBuffer(Matrix4d view, Matrix4d projection)
     {
         Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
         SetupShader(Shaders.SimpleSection, view, projection);
     }
 
-    private static void PrepareCrossPlantBuffer(Matrix4 view, Matrix4 projection)
+    private static void PrepareCrossPlantBuffer(Matrix4d view, Matrix4d projection)
     {
         Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
@@ -272,7 +272,7 @@ public sealed class SectionRenderer : IDisposable
         SetupShader(Shaders.CrossPlantSection, view, projection);
     }
 
-    private static void PrepareCropPlantBuffer(Matrix4 view, Matrix4 projection)
+    private static void PrepareCropPlantBuffer(Matrix4d view, Matrix4d projection)
     {
         Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
@@ -281,28 +281,28 @@ public sealed class SectionRenderer : IDisposable
         SetupShader(Shaders.CropPlantSection, view, projection);
     }
 
-    private static void PrepareComplexBuffer(Matrix4 view, Matrix4 projection)
+    private static void PrepareComplexBuffer(Matrix4d view, Matrix4d projection)
     {
         Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
         SetupShader(Shaders.ComplexSection, view, projection);
     }
 
-    private static void PrepareVaryingHeightBuffer(Matrix4 view, Matrix4 projection)
+    private static void PrepareVaryingHeightBuffer(Matrix4d view, Matrix4d projection)
     {
         Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
         SetupShader(Shaders.VaryingHeightSection, view, projection);
     }
 
-    private static void PrepareOpaqueFluidBuffer(Matrix4 view, Matrix4 projection)
+    private static void PrepareOpaqueFluidBuffer(Matrix4d view, Matrix4d projection)
     {
         Application.Client.Instance.Resources.FluidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
         SetupShader(Shaders.OpaqueFluidSection, view, projection);
     }
 
-    private static void PrepareTransparentFluidBuffer(Matrix4 view, Matrix4 projection)
+    private static void PrepareTransparentFluidBuffer(Matrix4d view, Matrix4d projection)
     {
         Screen.FillDepthTexture();
 
@@ -315,12 +315,12 @@ public sealed class SectionRenderer : IDisposable
         SetupShader(Shaders.TransparentFluidSection, view, projection);
     }
 
-    private static void SetupShader(Shader shader, Matrix4 view, Matrix4 projection)
+    private static void SetupShader(Shader shader, Matrix4d view, Matrix4d projection)
     {
         shader.Use();
 
-        shader.SetMatrix4("view", view);
-        shader.SetMatrix4("projection", projection);
+        shader.SetMatrix4("view", view.ToMatrix4());
+        shader.SetMatrix4("projection", projection.ToMatrix4());
     }
 
     /// <summary>
@@ -332,7 +332,7 @@ public sealed class SectionRenderer : IDisposable
     {
         if (disposed) return;
 
-        Matrix4 model = Matrix4.Identity * Matrix4.CreateTranslation(position.ToVector3());
+        Matrix4d model = Matrix4d.Identity * Matrix4d.CreateTranslation(position.ToVector3());
 
         switch (stage)
         {
@@ -369,12 +369,12 @@ public sealed class SectionRenderer : IDisposable
         }
     }
 
-    private static void Draw(IDrawGroup drawGroup, Shader shader, Matrix4 model)
+    private static void Draw(IDrawGroup drawGroup, Shader shader, Matrix4d model)
     {
         if (!drawGroup.IsFilled) return;
 
         drawGroup.BindVertexArray();
-        shader.SetMatrix4("model", model);
+        shader.SetMatrix4("model", model.ToMatrix4());
         drawGroup.Draw();
     }
 

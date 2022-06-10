@@ -154,11 +154,11 @@ public sealed class Shaders
     {
         Overlay.SetMatrix4(
             "projection",
-            Matrix4.CreateOrthographic(width: 1f, 1f / Screen.AspectRatio, depthNear: 0f, depthFar: 1f));
+            Matrix4d.CreateOrthographic(width: 1.0, 1.0 / Screen.AspectRatio, depthNear: 0.0, depthFar: 1.0).ToMatrix4());
 
         ScreenElement.SetMatrix4(
             "projection",
-            Matrix4.CreateOrthographic(Screen.Size.X, Screen.Size.Y, depthNear: 0f, depthFar: 1f));
+            Matrix4d.CreateOrthographic(Screen.Size.X, Screen.Size.Y, depthNear: 0.0, depthFar: 1.0).ToMatrix4());
     }
 
     /// <summary>
