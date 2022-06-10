@@ -11,9 +11,7 @@ flat out ivec2 texCordMax;
 out vec4 tint;
 flat out int anim;
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 mvp_matrix;
 
 #pragma include("decode")
 
@@ -40,5 +38,5 @@ void main()
 
     // Position
     vec3 position = vec3(dc_i5(aData.x, 10), dc_i5(aData.x, 5), dc_i5(aData.x, 0));
-    gl_Position = vec4(position, 1.0) * model * view * projection;
+    gl_Position = vec4(position, 1.0) * mvp_matrix;
 }

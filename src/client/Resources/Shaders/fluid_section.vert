@@ -10,8 +10,7 @@ out vec3 normal;
 out vec3 worldPosition;
 
 uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 mvp_matrix;
 
 #pragma include("decode")
 
@@ -54,6 +53,6 @@ void main()
     texCoord.x *= dc_i4(aData.x, 24) + 1;
     texCoord.y *= dc_i4(aData.x, 20) + 1;
 
-    gl_Position = vec4(position - (normal * 0.001), 1.0) * model * view * projection;
+    gl_Position = vec4(position - (normal * 0.001), 1.0) * mvp_matrix;
     worldPosition = (vec4(position, 1.0) * model).xyz;
 }

@@ -32,6 +32,8 @@ public sealed class SectionRenderer : IDisposable
     private const int TransparentFluid = 6;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
 
+    private static Matrix4d viewProjection;
+
     private readonly ElementPositionDataDrawGroup complexDrawGroup;
     private readonly ElementInstancedIDataDrawGroup cropPlantDrawGroup;
     private readonly ElementInstancedIDataDrawGroup crossPlantDrawGroup;
@@ -221,34 +223,36 @@ public sealed class SectionRenderer : IDisposable
         Matrix4d view = Application.Client.Instance.CurrentGame!.Player.ViewMatrix;
         Matrix4d projection = Application.Client.Instance.CurrentGame!.Player.ProjectionMatrix;
 
+        viewProjection = view * projection;
+
         switch (stage)
         {
             case Simple:
-                PrepareSimpleBuffer(view, projection);
+                PrepareSimpleBuffer();
 
                 break;
             case CrossPlant:
-                PrepareCrossPlantBuffer(view, projection);
+                PrepareCrossPlantBuffer();
 
                 break;
             case CropPlant:
-                PrepareCropPlantBuffer(view, projection);
+                PrepareCropPlantBuffer();
 
                 break;
             case Complex:
-                PrepareComplexBuffer(view, projection);
+                PrepareComplexBuffer();
 
                 break;
             case VaryingHeight:
-                PrepareVaryingHeightBuffer(view, projection);
+                PrepareVaryingHeightBuffer();
 
                 break;
             case OpaqueFluid:
-                PrepareOpaqueFluidBuffer(view, projection);
+                PrepareOpaqueFluidBuffer();
 
                 break;
             case TransparentFluid:
-                PrepareTransparentFluidBuffer(view, projection);
+                PrepareTransparentFluidBuffer();
 
                 break;
 
@@ -256,53 +260,54 @@ public sealed class SectionRenderer : IDisposable
         }
     }
 
-    private static void PrepareSimpleBuffer(Matrix4d view, Matrix4d projection)
+    private static void PrepareSimpleBuffer()
     {
         Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-        SetupShader(Shaders.SimpleSection, view, projection);
+        Shaders.SimpleSection.Use();
     }
 
-    private static void PrepareCrossPlantBuffer(Matrix4d view, Matrix4d projection)
+    private static void PrepareCrossPlantBuffer()
     {
         Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
         GL.Disable(EnableCap.CullFace);
 
-        SetupShader(Shaders.CrossPlantSection, view, projection);
+        Shaders.CrossPlantSection.Use();
     }
 
-    private static void PrepareCropPlantBuffer(Matrix4d view, Matrix4d projection)
+    private static void PrepareCropPlantBuffer()
     {
         Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
         GL.Disable(EnableCap.CullFace);
 
-        SetupShader(Shaders.CropPlantSection, view, projection);
+        Shaders.CropPlantSection.Use();
     }
 
-    private static void PrepareComplexBuffer(Matrix4d view, Matrix4d projection)
+    private static void PrepareComplexBuffer()
     {
         Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
-        SetupShader(Shaders.ComplexSection, view, projection);
+        Shaders.ComplexSection.Use();
     }
 
-    private static void PrepareVaryingHeightBuffer(Matrix4d view, Matrix4d projection)
+    private static void PrepareVaryingHeightBuffer()
     {
         Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-        SetupShader(Shaders.VaryingHeightSection, view, projection);
+        Shaders.VaryingHeightSection.Use();
     }
 
-    private static void PrepareOpaqueFluidBuffer(Matrix4d view, Matrix4d projection)
+    private static void PrepareOpaqueFluidBuffer()
     {
         Application.Client.Instance.Resources.FluidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
-        SetupShader(Shaders.OpaqueFluidSection, view, projection);
+        Shaders.OpaqueFluidSection.Use();
+
     }
 
-    private static void PrepareTransparentFluidBuffer(Matrix4d view, Matrix4d projection)
+    private static void PrepareTransparentFluidBuffer()
     {
         Screen.FillDepthTexture();
 
@@ -312,15 +317,7 @@ public sealed class SectionRenderer : IDisposable
         GL.DepthMask(flag: false);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-        SetupShader(Shaders.TransparentFluidSection, view, projection);
-    }
-
-    private static void SetupShader(Shader shader, Matrix4d view, Matrix4d projection)
-    {
-        shader.Use();
-
-        shader.SetMatrix4("view", view.ToMatrix4());
-        shader.SetMatrix4("projection", projection.ToMatrix4());
+        Shaders.TransparentFluidSection.Use();
     }
 
     /// <summary>
@@ -332,36 +329,36 @@ public sealed class SectionRenderer : IDisposable
     {
         if (disposed) return;
 
-        Matrix4d model = Matrix4d.Identity * Matrix4d.CreateTranslation(position.ToVector3());
+        Matrix4d model = Matrix4d.Identity * Matrix4d.CreateTranslation(position);
 
         switch (stage)
         {
             case Simple:
-                Draw(simpleDrawGroup, Shaders.SimpleSection, model);
+                Draw(simpleDrawGroup, Shaders.SimpleSection, model, passModel: false);
 
                 break;
             case CrossPlant:
-                Draw(crossPlantDrawGroup, Shaders.CrossPlantSection, model);
+                Draw(crossPlantDrawGroup, Shaders.CrossPlantSection, model, passModel: false);
 
                 break;
             case CropPlant:
-                Draw(cropPlantDrawGroup, Shaders.CropPlantSection, model);
+                Draw(cropPlantDrawGroup, Shaders.CropPlantSection, model, passModel: false);
 
                 break;
             case Complex:
-                Draw(complexDrawGroup, Shaders.ComplexSection, model);
+                Draw(complexDrawGroup, Shaders.ComplexSection, model, passModel: false);
 
                 break;
             case VaryingHeight:
-                Draw(varyingHeightDrawGroup, Shaders.VaryingHeightSection, model);
+                Draw(varyingHeightDrawGroup, Shaders.VaryingHeightSection, model, passModel: false);
 
                 break;
             case OpaqueFluid:
-                Draw(opaqueFluidDrawGroup, Shaders.OpaqueFluidSection, model);
+                Draw(opaqueFluidDrawGroup, Shaders.OpaqueFluidSection, model, passModel: true);
 
                 break;
             case TransparentFluid:
-                Draw(transparentFluidDrawGroup, Shaders.TransparentFluidSection, model);
+                Draw(transparentFluidDrawGroup, Shaders.TransparentFluidSection, model, passModel: true);
 
                 break;
 
@@ -369,12 +366,15 @@ public sealed class SectionRenderer : IDisposable
         }
     }
 
-    private static void Draw(IDrawGroup drawGroup, Shader shader, Matrix4d model)
+    private static void Draw(IDrawGroup drawGroup, Shader shader, Matrix4d model, bool passModel)
     {
         if (!drawGroup.IsFilled) return;
 
         drawGroup.BindVertexArray();
-        shader.SetMatrix4("model", model.ToMatrix4());
+
+        if (passModel) shader.SetMatrix4("model", model.ToMatrix4());
+        shader.SetMatrix4("mvp_matrix", (model * viewProjection).ToMatrix4());
+
         drawGroup.Draw();
     }
 
