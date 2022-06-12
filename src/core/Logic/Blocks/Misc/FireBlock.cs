@@ -117,11 +117,11 @@ public class FireBlock : Block, IFillable, IComplex
 
             if (IsFlagSet(data, side))
             {
-                Vector3 offset = side.Direction().ToVector3() * 0.4f;
+                Vector3d offset = side.Direction().ToVector3() * 0.4f;
 
                 var child = new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.5f, z: 0.5f) + offset,
-                    new Vector3(x: 0.5f, y: 0.5f, z: 0.5f) - offset.Absolute());
+                    new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f) + offset,
+                    new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f) - offset.Absolute());
 
                 IncludeChild(child);
             }

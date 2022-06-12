@@ -14,8 +14,8 @@ namespace VoxelGame.Input.Devices;
 public class Mouse
 {
     private readonly InputManager input;
-    private Vector2 oldDelta;
-    private Vector2 oldPosition;
+    private Vector2d oldDelta;
+    private Vector2d oldPosition;
 
     private Vector2? storedPosition;
 
@@ -28,24 +28,24 @@ public class Mouse
     ///     Get the mouse delta of the current frame.
     ///     The delta is not raw, as some scaling and smoothing is applied.
     /// </summary>
-    public Vector2 Delta { get; private set; }
+    public Vector2d Delta { get; private set; }
 
     internal void Update()
     {
-        Vector2 delta = input.Window.MousePosition - oldPosition;
+        Vector2d delta = input.Window.MousePosition - oldPosition;
 
         if (input.Window.Size.X == 0 || input.Window.Size.Y == 0)
         {
-            Delta = Vector2.Zero;
+            Delta = Vector2d.Zero;
 
             return;
         }
 
-        float xScale = 1f / input.Window.Size.X;
-        float yScale = 1f / input.Window.Size.Y;
+        double xScale = 1f / input.Window.Size.X;
+        double yScale = 1f / input.Window.Size.Y;
 
-        delta = Vector2.Multiply(delta, (xScale, -yScale)) * 1000;
-        delta = Vector2.Lerp(oldDelta, delta, blend: 0.7f);
+        delta = Vector2d.Multiply(delta, (xScale, -yScale)) * 1000;
+        delta = Vector2d.Lerp(oldDelta, delta, blend: 0.7f);
 
         oldDelta = Delta;
         oldPosition = input.Window.MouseState.Position;
@@ -66,6 +66,7 @@ public class Mouse
     public void RestorePosition()
     {
         if (storedPosition == null) return;
+
         input.Window.MousePosition = storedPosition.Value;
     }
 }

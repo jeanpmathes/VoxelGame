@@ -36,13 +36,13 @@ public class BedBlock : Block, IFlammable, IFillable, IComplex
             namedId,
             BlockFlags.Functional,
             new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.21875f, z: 0.5f),
-                new Vector3(x: 0.5f, y: 0.21875f, z: 0.5f)))
+                new Vector3d(x: 0.5, y: 0.21875, z: 0.5),
+                new Vector3d(x: 0.5, y: 0.21875, z: 0.5)))
     {
         BlockModel blockModel = BlockModel.Load(model);
 
-        blockModel.PlaneSplit(Vector3.UnitZ, Vector3.UnitZ, out BlockModel foot, out BlockModel head);
-        foot.Move(-Vector3.UnitZ);
+        blockModel.PlaneSplit(Vector3d.UnitZ, Vector3d.UnitZ, out BlockModel foot, out BlockModel head);
+        foot.Move(-Vector3d.UnitZ);
 
         (BlockModel north, BlockModel east, BlockModel south, BlockModel west) headParts =
             head.CreateAllOrientations(rotateTopAndBottomTexture: true);
@@ -91,48 +91,48 @@ public class BedBlock : Block, IFlammable, IFillable, IComplex
             case Orientation.North:
 
                 legs[0] = new BoundingVolume(
-                    new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f),
-                    new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
+                    new Vector3d(x: 0.09375, y: 0.09375, z: 0.09375),
+                    new Vector3d(x: 0.09375, y: 0.09375, z: 0.09375));
 
                 legs[1] = new BoundingVolume(
-                    new Vector3(x: 0.90625f, y: 0.09375f, z: 0.09375f),
-                    new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
+                    new Vector3d(x: 0.90625, y: 0.09375, z: 0.09375),
+                    new Vector3d(x: 0.09375, y: 0.09375, z: 0.09375));
 
                 break;
 
             case Orientation.East:
 
                 legs[0] = new BoundingVolume(
-                    new Vector3(x: 0.90625f, y: 0.09375f, z: 0.09375f),
-                    new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
+                    new Vector3d(x: 0.90625, y: 0.09375, z: 0.09375),
+                    new Vector3d(x: 0.09375, y: 0.09375, z: 0.09375));
 
                 legs[1] = new BoundingVolume(
-                    new Vector3(x: 0.90625f, y: 0.09375f, z: 0.90625f),
-                    new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
+                    new Vector3d(x: 0.90625, y: 0.09375, z: 0.90625),
+                    new Vector3d(x: 0.09375, y: 0.09375, z: 0.09375));
 
                 break;
 
             case Orientation.South:
 
                 legs[0] = new BoundingVolume(
-                    new Vector3(x: 0.09375f, y: 0.09375f, z: 0.90625f),
-                    new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
+                    new Vector3d(x: 0.09375, y: 0.09375, z: 0.90625),
+                    new Vector3d(x: 0.09375, y: 0.09375, z: 0.09375));
 
                 legs[1] = new BoundingVolume(
-                    new Vector3(x: 0.90625f, y: 0.09375f, z: 0.90625f),
-                    new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
+                    new Vector3d(x: 0.90625, y: 0.09375, z: 0.90625),
+                    new Vector3d(x: 0.09375, y: 0.09375, z: 0.09375));
 
                 break;
 
             case Orientation.West:
 
                 legs[0] = new BoundingVolume(
-                    new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f),
-                    new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
+                    new Vector3d(x: 0.09375, y: 0.09375, z: 0.09375),
+                    new Vector3d(x: 0.09375, y: 0.09375, z: 0.09375));
 
                 legs[1] = new BoundingVolume(
-                    new Vector3(x: 0.09375f, y: 0.09375f, z: 0.90625f),
-                    new Vector3(x: 0.09375f, y: 0.09375f, z: 0.09375f));
+                    new Vector3d(x: 0.09375, y: 0.09375, z: 0.90625),
+                    new Vector3d(x: 0.09375, y: 0.09375, z: 0.09375));
 
                 break;
 
@@ -140,8 +140,8 @@ public class BedBlock : Block, IFlammable, IFillable, IComplex
         }
 
         return new BoundingVolume(
-            new Vector3(x: 0.5f, y: 0.3125f, z: 0.5f),
-            new Vector3(x: 0.5f, y: 0.125f, z: 0.5f),
+            new Vector3d(x: 0.5, y: 0.3125, z: 0.5),
+            new Vector3d(x: 0.5, y: 0.125, z: 0.5),
             legs);
     }
 
@@ -172,7 +172,7 @@ public class BedBlock : Block, IFlammable, IFillable, IComplex
         world.SetBlock(this.AsInstance((uint) orientation << 1), position);
         world.SetBlock(this.AsInstance((uint) (((int) orientation << 1) | 1)), otherPosition);
 
-        world.SpawnPosition = new Vector3(position.X, position.Y + 1f, position.Z);
+        world.SpawnPosition = new Vector3d(position.X, position.Y + 1f, position.Z);
     }
 
     /// <inheritdoc />

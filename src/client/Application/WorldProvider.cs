@@ -109,7 +109,7 @@ public class WorldProvider : IWorldProvider
             if (!CheckChar(c))
                 return false;
 
-        foreach (char c in new[] { '.', ',', '{', '}' })
+        foreach (char c in new[] {'.', ',', '{', '}'})
             if (!CheckChar(c))
                 return false;
 

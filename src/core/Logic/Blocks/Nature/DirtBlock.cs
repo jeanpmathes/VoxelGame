@@ -50,7 +50,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
         ISimple.MeshData mesh = base.GetMeshData(info);
 
         if (info.Fluid.IsFluid)
-            mesh = mesh with { TextureIndex = wetTextureIndices[(int) info.Side] };
+            mesh = mesh with {TextureIndex = wetTextureIndices[(int) info.Side]};
 
         return mesh;
     }

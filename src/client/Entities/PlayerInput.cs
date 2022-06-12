@@ -35,7 +35,7 @@ internal sealed class PlayerInput
     private readonly PushButton selectTargetedButton;
     private readonly Button sprintButton;
 
-    private float timer;
+    private double timer;
 
     internal PlayerInput(ClientPlayer player)
     {
@@ -86,12 +86,12 @@ internal sealed class PlayerInput
 
     internal bool IsInteractionBlocked => blockInteractButton.IsDown;
 
-    internal Vector3 GetMovement(float normalSpeed, float sprintSpeed)
+    internal Vector3d GetMovement(float normalSpeed, float sprintSpeed)
     {
         (float x, float z) = movementInput.Value;
-        Vector3 movement = x * player.Forward + z * player.Right;
+        Vector3d movement = x * player.Forward + z * player.Right;
 
-        if (movement != Vector3.Zero)
+        if (movement != Vector3d.Zero)
             movement = sprintButton.IsDown
                 ? movement.Normalized() * sprintSpeed
                 : movement.Normalized() * normalSpeed;
@@ -99,7 +99,7 @@ internal sealed class PlayerInput
         return movement;
     }
 
-    internal void Update(float deltaTime)
+    internal void Update(double deltaTime)
     {
         timer += deltaTime;
     }
@@ -114,14 +114,14 @@ internal sealed class PlayerInput
         return Math.Sign(selectionAxis.Value);
     }
 
-    internal Vector3 GetFlyingMovement(float flyingSpeed, float flyingSprintSpeed)
+    internal Vector3d GetFlyingMovement(float flyingSpeed, float flyingSprintSpeed)
     {
         (float x, float z) = movementInput.Value;
         float y = ShouldJump.ToInt() - ShouldCrouch.ToInt();
 
-        Vector3 movement = x * player.LookingDirection + y * Vector3.UnitY + z * player.CameraRight;
+        Vector3d movement = x * player.LookingDirection + y * Vector3d.UnitY + z * player.CameraRight;
 
-        if (movement != Vector3.Zero)
+        if (movement != Vector3d.Zero)
             movement = sprintButton.IsDown
                 ? movement.Normalized() * flyingSprintSpeed
                 : movement.Normalized() * flyingSpeed;

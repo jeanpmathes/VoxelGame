@@ -38,7 +38,7 @@ public class GrowingFlatBlock : FlatBlock, IFlammable, IFillable
     /// <inheritdoc />
     protected override IComplex.MeshData GetMeshData(BlockMeshInfo info)
     {
-        return base.GetMeshData(info) with { Tint = TintColor.Neutral };
+        return base.GetMeshData(info) with {Tint = TintColor.Neutral};
     }
 
     /// <inheritdoc />

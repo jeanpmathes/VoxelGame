@@ -133,7 +133,7 @@ public class ClientChunk : Chunk
     /// <param name="frustum">The view frustum to use for culling.</param>
     /// <param name="renderList">The list to add the chunks and positions too.</param>
     public void AddCulledToRenderList(Frustum frustum,
-        ICollection<(ClientSection section, Vector3 position)> renderList)
+        ICollection<(ClientSection section, Vector3d position)> renderList)
     {
         if (!hasMeshData || !frustum.IsBoxInFrustum(VMath.CreateBox3(ChunkPoint, ChunkExtents))) return;
 
@@ -142,7 +142,7 @@ public class ClientChunk : Chunk
         for (var z = 0; z < Size; z++)
         {
             SectionPosition sectionPosition = SectionPosition.From(Position, (x, y, z));
-            Vector3 position = sectionPosition.FirstBlock;
+            Vector3d position = sectionPosition.FirstBlock;
 
             if (frustum.IsBoxInFrustum(
                     VMath.CreateBox3(position + Section.Extents, Section.Extents)))

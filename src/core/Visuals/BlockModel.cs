@@ -103,7 +103,7 @@ public sealed class BlockModel
     /// <param name="normal">Normal of the plane.</param>
     /// <param name="a">The first model.</param>
     /// <param name="b">The second model.</param>
-    public void PlaneSplit(Vector3 position, Vector3 normal, out BlockModel a, out BlockModel b)
+    public void PlaneSplit(Vector3d position, Vector3d normal, out BlockModel a, out BlockModel b)
     {
         if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
@@ -112,11 +112,11 @@ public sealed class BlockModel
         List<Quad> quadsB = new();
 
         foreach (Quad quad in Quads)
-            if (Vector3.Dot(quad.Center - position, normal) > 0) quadsA.Add(quad);
+            if (Vector3d.Dot(quad.Center - position, normal) > 0) quadsA.Add(quad);
             else quadsB.Add(quad);
 
-        a = new BlockModel { TextureNames = TextureNames };
-        b = new BlockModel { TextureNames = TextureNames };
+        a = new BlockModel {TextureNames = TextureNames};
+        b = new BlockModel {TextureNames = TextureNames};
 
         a.Quads = quadsA.ToArray();
         b.Quads = quadsB.ToArray();
@@ -126,11 +126,11 @@ public sealed class BlockModel
     ///     Moves all vertices of this model.
     /// </summary>
     /// <param name="movement"></param>
-    public void Move(Vector3 movement)
+    public void Move(Vector3d movement)
     {
         if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
-        var xyz = Matrix4.CreateTranslation(movement);
+        var xyz = Matrix4.CreateTranslation(movement.ToVector3());
 
         for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyTranslationMatrix(xyz);
     }
@@ -164,7 +164,7 @@ public sealed class BlockModel
     /// <param name="newTexture">The replacement texture.</param>
     public void OverwriteTexture(string newTexture)
     {
-        TextureNames = new[] { newTexture };
+        TextureNames = new[] {newTexture};
 
         for (var i = 0; i < Quads.Length; i++)
         {
@@ -249,7 +249,7 @@ public sealed class BlockModel
         BlockModel copy = new(this);
 
         Matrix4 rotation;
-        Vector3 axis;
+        Vector3d axis;
         int rotations;
 
         switch (side)
@@ -259,35 +259,35 @@ public sealed class BlockModel
 
             case BlockSide.Back:
                 rotation = Matrix4.CreateRotationY(MathHelper.Pi);
-                axis = Vector3.UnitY;
+                axis = Vector3d.UnitY;
                 rotations = 2;
 
                 break;
 
             case BlockSide.Left:
                 rotation = Matrix4.CreateRotationY(MathHelper.ThreePiOver2);
-                axis = Vector3.UnitY;
+                axis = Vector3d.UnitY;
                 rotations = 1;
 
                 break;
 
             case BlockSide.Right:
                 rotation = Matrix4.CreateRotationY(MathHelper.PiOver2);
-                axis = Vector3.UnitY;
+                axis = Vector3d.UnitY;
                 rotations = 3;
 
                 break;
 
             case BlockSide.Bottom:
                 rotation = Matrix4.CreateRotationX(MathHelper.PiOver2);
-                axis = Vector3.UnitX;
+                axis = Vector3d.UnitX;
                 rotations = 1;
 
                 break;
 
             case BlockSide.Top:
                 rotation = Matrix4.CreateRotationX(MathHelper.ThreePiOver2);
-                axis = Vector3.UnitX;
+                axis = Vector3d.UnitX;
                 rotations = 1;
 
                 break;
@@ -312,7 +312,7 @@ public sealed class BlockModel
         for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz, nop);
     }
 
-    private void RotateTextureCoordinates(Vector3 axis, int rotations)
+    private void RotateTextureCoordinates(Vector3d axis, int rotations)
     {
         if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
@@ -429,7 +429,7 @@ public sealed class BlockModel
     {
         if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
-        JsonSerializerOptions options = new() { IgnoreReadOnlyProperties = true, WriteIndented = true };
+        JsonSerializerOptions options = new() {IgnoreReadOnlyProperties = true, WriteIndented = true};
 
         string json = JsonSerializer.Serialize(this, options);
         File.WriteAllText(Path.Combine(path, name + ".json"), json);
@@ -514,7 +514,7 @@ public sealed class BlockModel
 
         return new BlockModel
         {
-            TextureNames = new[] { "missing_texture" },
+            TextureNames = new[] {"missing_texture"},
             Quads = new[]
             {
                 BuildQuad(BlockSide.Front),
@@ -657,7 +657,7 @@ public struct Quad : IEquatable<Quad>
     /// <summary>
     ///     The center of the quad.
     /// </summary>
-    public Vector3 Center => (Vert0.Position + Vert1.Position + Vert2.Position + Vert3.Position) / 4;
+    public Vector3d Center => (Vert0.Position + Vert1.Position + Vert2.Position + Vert3.Position) / 4;
 
     /// <summary>
     ///     Apply a matrix only affecting the xyz values.
@@ -702,7 +702,7 @@ public struct Quad : IEquatable<Quad>
         Vert3 = Vert3.ApplyMatrix(xyz, nop);
 
         // Rotate UVs for top and bottom sides.
-        if (new Vector3(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(digits: 2) == Vector3.UnitY)
+        if (new Vector3d(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(digits: 2) == Vector3d.UnitY)
             for (var r = 0; r < rotations; r++)
             {
                 Vert0 = Vert0.RotateUV();
@@ -717,9 +717,9 @@ public struct Quad : IEquatable<Quad>
     /// <summary>
     ///     Rotate the texture coordinates.
     /// </summary>
-    public Quad RotateTextureCoordinates(Vector3 axis, int rotations)
+    public Quad RotateTextureCoordinates(Vector3d axis, int rotations)
     {
-        if (new Vector3(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(digits: 2) != axis) return this;
+        if (new Vector3d(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(digits: 2) != axis) return this;
 
         for (var r = 0; r < rotations; r++)
         {
@@ -816,7 +816,7 @@ public struct Vertex : IEquatable<Vertex>
     /// <summary>
     ///     The position of the vertex.
     /// </summary>
-    public Vector3 Position => new(X, Y, Z);
+    public Vector3d Position => new(X, Y, Z);
 
     /// <summary>
     ///     Apply a translation matrix to this vertex.

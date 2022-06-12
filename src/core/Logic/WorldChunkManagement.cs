@@ -361,6 +361,7 @@ public abstract partial class World
         positionsToReleaseOnActivation.Remove(position);
 
         if (positionsActivating.Contains(position) || activeChunks.ContainsKey(position)) return;
+
         positionsToActivate.Add(position);
 
         logger.LogDebug(Events.ChunkRequest, "Chunk {Position} has been requested successfully", position);

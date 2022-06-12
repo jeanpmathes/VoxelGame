@@ -26,7 +26,7 @@ public class FluidBarrierBlock : BasicBlock, IFillable, IFlammable
         base(
             name,
             namedId,
-            BlockFlags.Basic with { IsInteractable = true },
+            BlockFlags.Basic with {IsInteractable = true},
             closed)
     {
         this.open = open;
@@ -62,7 +62,7 @@ public class FluidBarrierBlock : BasicBlock, IFillable, IFlammable
         ISimple.MeshData mesh = base.GetMeshData(info);
 
         if ((info.Data & 0b00_0001) == 1)
-            mesh = mesh with { TextureIndex = openTextureIndices[(int) info.Side] };
+            mesh = mesh with {TextureIndex = openTextureIndices[(int) info.Side]};
 
         return mesh;
     }

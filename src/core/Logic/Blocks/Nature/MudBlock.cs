@@ -23,7 +23,7 @@ public class MudBlock : BasicBlock, IFillable
         base(
             name,
             namedId,
-            BlockFlags.Collider with { IsOpaque = true },
+            BlockFlags.Collider with {IsOpaque = true},
             layout)
     {
         this.maxVelocity = maxVelocity;

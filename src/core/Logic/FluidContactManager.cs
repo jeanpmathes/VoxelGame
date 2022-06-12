@@ -148,7 +148,7 @@ public class FluidContactManager
         (BlockInstance, FluidInstance)? content = world.GetContent(
             light.position - light.fluid.FlowDirection);
 
-        if (content is not ({ Block: IFillable fillable }, {} aboveLightFluid)) return false;
+        if (content is not ({Block: IFillable fillable}, {} aboveLightFluid)) return false;
 
         if (!fillable.AllowInflow(
                 world,

@@ -102,7 +102,7 @@ public class ScheduledTickManager<T> where T : ITickable
             {
                 if (last == null)
                 {
-                    nextTicks = new TicksHolder(targetTick) { next = current };
+                    nextTicks = new TicksHolder(targetTick) {next = current};
 
                     return nextTicks;
                 }

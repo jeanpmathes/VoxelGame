@@ -94,112 +94,112 @@ public class GateBlock : Block, IWideConnectable, IFlammable, IFillable, IComple
         {
             if (isClosed)
                 return new BoundingVolume(
-                    new Vector3(x: 0.96875f, y: 0.71875f, z: 0.5f),
-                    new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f),
+                    new Vector3d(x: 0.96875f, y: 0.71875f, z: 0.5f),
+                    new Vector3d(x: 0.03125f, y: 0.15625f, z: 0.125f),
                     new BoundingVolume(
-                        new Vector3(x: 0.96875f, y: 0.28125f, z: 0.5f),
-                        new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f)),
+                        new Vector3d(x: 0.96875f, y: 0.28125f, z: 0.5f),
+                        new Vector3d(x: 0.03125f, y: 0.15625f, z: 0.125f)),
                     new BoundingVolume(
-                        new Vector3(x: 0.03125f, y: 0.71875f, z: 0.5f),
-                        new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f)),
+                        new Vector3d(x: 0.03125f, y: 0.71875f, z: 0.5f),
+                        new Vector3d(x: 0.03125f, y: 0.15625f, z: 0.125f)),
                     new BoundingVolume(
-                        new Vector3(x: 0.03125f, y: 0.28125f, z: 0.5f),
-                        new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f)),
+                        new Vector3d(x: 0.03125f, y: 0.28125f, z: 0.5f),
+                        new Vector3d(x: 0.03125f, y: 0.15625f, z: 0.125f)),
                     // Moving parts.
                     new BoundingVolume(
-                        new Vector3(x: 0.75f, y: 0.71875f, z: 0.5f),
-                        new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
+                        new Vector3d(x: 0.75f, y: 0.71875f, z: 0.5f),
+                        new Vector3d(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
                     new BoundingVolume(
-                        new Vector3(x: 0.75f, y: 0.28125f, z: 0.5f),
-                        new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
+                        new Vector3d(x: 0.75f, y: 0.28125f, z: 0.5f),
+                        new Vector3d(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
                     new BoundingVolume(
-                        new Vector3(x: 0.25f, y: 0.71875f, z: 0.5f),
-                        new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
+                        new Vector3d(x: 0.25f, y: 0.71875f, z: 0.5f),
+                        new Vector3d(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
                     new BoundingVolume(
-                        new Vector3(x: 0.25f, y: 0.28125f, z: 0.5f),
-                        new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)));
+                        new Vector3d(x: 0.25f, y: 0.28125f, z: 0.5f),
+                        new Vector3d(x: 0.1875f, y: 0.09375f, z: 0.0625f)));
 
             return new BoundingVolume(
-                new Vector3(x: 0.96875f, y: 0.71875f, z: 0.5f),
-                new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f),
+                new Vector3d(x: 0.96875f, y: 0.71875f, z: 0.5f),
+                new Vector3d(x: 0.03125f, y: 0.15625f, z: 0.125f),
                 new BoundingVolume(
-                    new Vector3(x: 0.96875f, y: 0.28125f, z: 0.5f),
-                    new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f)),
+                    new Vector3d(x: 0.96875f, y: 0.28125f, z: 0.5f),
+                    new Vector3d(x: 0.03125f, y: 0.15625f, z: 0.125f)),
                 new BoundingVolume(
-                    new Vector3(x: 0.03125f, y: 0.71875f, z: 0.5f),
-                    new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f)),
+                    new Vector3d(x: 0.03125f, y: 0.71875f, z: 0.5f),
+                    new Vector3d(x: 0.03125f, y: 0.15625f, z: 0.125f)),
                 new BoundingVolume(
-                    new Vector3(x: 0.03125f, y: 0.28125f, z: 0.5f),
-                    new Vector3(x: 0.03125f, y: 0.15625f, z: 0.125f)),
+                    new Vector3d(x: 0.03125f, y: 0.28125f, z: 0.5f),
+                    new Vector3d(x: 0.03125f, y: 0.15625f, z: 0.125f)),
                 // Moving parts.
                 new BoundingVolume(
-                    new Vector3(x: 0.875f, y: 0.71875f, offset),
-                    new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
+                    new Vector3d(x: 0.875f, y: 0.71875f, offset),
+                    new Vector3d(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
                 new BoundingVolume(
-                    new Vector3(x: 0.875f, y: 0.28125f, offset),
-                    new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
+                    new Vector3d(x: 0.875f, y: 0.28125f, offset),
+                    new Vector3d(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
                 new BoundingVolume(
-                    new Vector3(x: 0.125f, y: 0.71875f, offset),
-                    new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
+                    new Vector3d(x: 0.125f, y: 0.71875f, offset),
+                    new Vector3d(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
                 new BoundingVolume(
-                    new Vector3(x: 0.125f, y: 0.28125f, offset),
-                    new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)));
+                    new Vector3d(x: 0.125f, y: 0.28125f, offset),
+                    new Vector3d(x: 0.0625f, y: 0.09375f, z: 0.1875f)));
         }
 
         BoundingVolume WestEast(float offset)
         {
             if (isClosed)
                 return new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.71875f, z: 0.96875f),
-                    new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f),
+                    new Vector3d(x: 0.5f, y: 0.71875f, z: 0.96875f),
+                    new Vector3d(x: 0.125f, y: 0.15625f, z: 0.03125f),
                     new BoundingVolume(
-                        new Vector3(x: 0.5f, y: 0.28125f, z: 0.96875f),
-                        new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f)),
+                        new Vector3d(x: 0.5f, y: 0.28125f, z: 0.96875f),
+                        new Vector3d(x: 0.125f, y: 0.15625f, z: 0.03125f)),
                     new BoundingVolume(
-                        new Vector3(x: 0.5f, y: 0.71875f, z: 0.03125f),
-                        new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f)),
+                        new Vector3d(x: 0.5f, y: 0.71875f, z: 0.03125f),
+                        new Vector3d(x: 0.125f, y: 0.15625f, z: 0.03125f)),
                     new BoundingVolume(
-                        new Vector3(x: 0.5f, y: 0.28125f, z: 0.03125f),
-                        new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f)),
+                        new Vector3d(x: 0.5f, y: 0.28125f, z: 0.03125f),
+                        new Vector3d(x: 0.125f, y: 0.15625f, z: 0.03125f)),
                     // Moving parts.
                     new BoundingVolume(
-                        new Vector3(x: 0.5f, y: 0.71875f, z: 0.75f),
-                        new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
+                        new Vector3d(x: 0.5f, y: 0.71875f, z: 0.75f),
+                        new Vector3d(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
                     new BoundingVolume(
-                        new Vector3(x: 0.5f, y: 0.28125f, z: 0.75f),
-                        new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
+                        new Vector3d(x: 0.5f, y: 0.28125f, z: 0.75f),
+                        new Vector3d(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
                     new BoundingVolume(
-                        new Vector3(x: 0.5f, y: 0.71875f, z: 0.25f),
-                        new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
+                        new Vector3d(x: 0.5f, y: 0.71875f, z: 0.25f),
+                        new Vector3d(x: 0.0625f, y: 0.09375f, z: 0.1875f)),
                     new BoundingVolume(
-                        new Vector3(x: 0.5f, y: 0.28125f, z: 0.25f),
-                        new Vector3(x: 0.0625f, y: 0.09375f, z: 0.1875f)));
+                        new Vector3d(x: 0.5f, y: 0.28125f, z: 0.25f),
+                        new Vector3d(x: 0.0625f, y: 0.09375f, z: 0.1875f)));
 
             return new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.71875f, z: 0.96875f),
-                new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f),
+                new Vector3d(x: 0.5f, y: 0.71875f, z: 0.96875f),
+                new Vector3d(x: 0.125f, y: 0.15625f, z: 0.03125f),
                 new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.28125f, z: 0.96875f),
-                    new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f)),
+                    new Vector3d(x: 0.5f, y: 0.28125f, z: 0.96875f),
+                    new Vector3d(x: 0.125f, y: 0.15625f, z: 0.03125f)),
                 new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.71875f, z: 0.03125f),
-                    new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f)),
+                    new Vector3d(x: 0.5f, y: 0.71875f, z: 0.03125f),
+                    new Vector3d(x: 0.125f, y: 0.15625f, z: 0.03125f)),
                 new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.28125f, z: 0.03125f),
-                    new Vector3(x: 0.125f, y: 0.15625f, z: 0.03125f)),
+                    new Vector3d(x: 0.5f, y: 0.28125f, z: 0.03125f),
+                    new Vector3d(x: 0.125f, y: 0.15625f, z: 0.03125f)),
                 // Moving parts.
                 new BoundingVolume(
-                    new Vector3(offset, y: 0.71875f, z: 0.875f),
-                    new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
+                    new Vector3d(offset, y: 0.71875f, z: 0.875f),
+                    new Vector3d(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
                 new BoundingVolume(
-                    new Vector3(offset, y: 0.28125f, z: 0.875f),
-                    new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
+                    new Vector3d(offset, y: 0.28125f, z: 0.875f),
+                    new Vector3d(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
                 new BoundingVolume(
-                    new Vector3(offset, y: 0.71875f, z: 0.125f),
-                    new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
+                    new Vector3d(offset, y: 0.71875f, z: 0.125f),
+                    new Vector3d(x: 0.1875f, y: 0.09375f, z: 0.0625f)),
                 new BoundingVolume(
-                    new Vector3(offset, y: 0.28125f, z: 0.125f),
-                    new Vector3(x: 0.1875f, y: 0.09375f, z: 0.0625f)));
+                    new Vector3d(offset, y: 0.28125f, z: 0.125f),
+                    new Vector3d(x: 0.1875f, y: 0.09375f, z: 0.0625f)));
         }
     }
 
@@ -254,20 +254,20 @@ public class GateBlock : Block, IWideConnectable, IFlammable, IFillable, IComple
 
         // Check if orientation has to be inverted.
         if (isClosed &&
-            Vector2.Dot(
+            Vector2d.Dot(
                 orientation.ToVector3().Xz,
                 entity.Position.Xz - new Vector2(position.X + 0.5f, position.Z + 0.5f)) < 0)
             orientation = orientation.Opposite();
 
-        Vector3 center = isClosed
-            ? new Vector3(x: 0.5f, y: 0.5f, z: 0.5f) + -orientation.ToVector3() * 0.09375f
-            : new Vector3(x: 0.5f, y: 0.5f, z: 0.5f);
+        Vector3d center = isClosed
+            ? new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f) + -orientation.ToVector3() * 0.09375f
+            : new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f);
 
         float closedOffset = isClosed ? 0.09375f : 0f;
 
-        Vector3 extents = orientation is Orientation.North or Orientation.South
-            ? new Vector3(x: 0.5f, y: 0.375f, 0.125f + closedOffset)
-            : new Vector3(0.125f + closedOffset, y: 0.375f, z: 0.5f);
+        Vector3d extents = orientation is Orientation.North or Orientation.South
+            ? new Vector3d(x: 0.5f, y: 0.375f, 0.125f + closedOffset)
+            : new Vector3d(0.125f + closedOffset, y: 0.375f, z: 0.5f);
 
         BoundingVolume volume = new(center, extents);
 

@@ -31,6 +31,11 @@ public class WorldInformation
     public int Seed { get; set; } = 2133;
 
     /// <summary>
+    ///     The size of the world, as extents.
+    /// </summary>
+    public uint Size { get; set; } = 50_000_000;
+
+    /// <summary>
     ///     The creation date of the world.
     /// </summary>
     public DateTime Creation { get; set; } = DateTime.MinValue;
@@ -43,7 +48,7 @@ public class WorldInformation
     /// <summary>
     ///     The spawn information of the world.
     /// </summary>
-    public SpawnInformation SpawnInformation { get; set; } = new(new Vector3(x: 0f, y: 500f, z: 0f));
+    public SpawnInformation SpawnInformation { get; set; } = new(new Vector3d(x: 0f, y: 500f, z: 0f));
 
     /// <summary>
     ///     Save this world information to a file.
@@ -100,23 +105,23 @@ public struct SpawnInformation : IEquatable<SpawnInformation>
     /// <summary>
     ///     The x position of the spawn.
     /// </summary>
-    public float X { get; set; }
+    public double X { get; set; }
 
     /// <summary>
     ///     The y position of the spawn.
     /// </summary>
-    public float Y { get; set; }
+    public double Y { get; set; }
 
     /// <summary>
     ///     The z position of the spawn.
     /// </summary>
-    public float Z { get; set; }
+    public double Z { get; set; }
 
     /// <summary>
     ///     Create spawn information from a vector.
     /// </summary>
     /// <param name="position">The position.</param>
-    public SpawnInformation(Vector3 position)
+    public SpawnInformation(Vector3d position)
     {
         X = position.X;
         Y = position.Y;
@@ -126,7 +131,7 @@ public struct SpawnInformation : IEquatable<SpawnInformation>
     /// <summary>
     ///     Get the position of the spawn information.
     /// </summary>
-    public Vector3 Position => new(X, Y, Z);
+    public Vector3d Position => new(X, Y, Z);
 
     /// <inheritdoc />
     public bool Equals(SpawnInformation other)

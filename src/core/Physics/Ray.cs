@@ -17,12 +17,12 @@ public readonly struct Ray : IEquatable<Ray>
     /// <summary>
     ///     The origin of the ray.
     /// </summary>
-    public Vector3 Origin { get; }
+    public Vector3d Origin { get; }
 
     /// <summary>
     ///     The direction of the ray.
     /// </summary>
-    public Vector3 Direction { get; }
+    public Vector3d Direction { get; }
 
     /// <summary>
     ///     The length of the ray.
@@ -32,7 +32,7 @@ public readonly struct Ray : IEquatable<Ray>
     /// <summary>
     ///     Create a new ray trough 3D space.
     /// </summary>
-    public Ray(Vector3 origin, Vector3 direction, float length)
+    public Ray(Vector3d origin, Vector3d direction, float length)
     {
         Origin = origin;
         Direction = direction.Normalized();
@@ -42,7 +42,7 @@ public readonly struct Ray : IEquatable<Ray>
     /// <summary>
     ///     Get a translated ray.
     /// </summary>
-    public Ray Translated(Vector3 translation)
+    public Ray Translated(Vector3d translation)
     {
         return new Ray(Origin + translation, Direction, Length);
     }
@@ -50,7 +50,7 @@ public readonly struct Ray : IEquatable<Ray>
     /// <summary>
     ///     The end point of the ray.
     /// </summary>
-    public Vector3 EndPoint => Origin + Direction * Length;
+    public Vector3d EndPoint => Origin + Direction * Length;
 
     /// <inheritdoc />
     public override int GetHashCode()

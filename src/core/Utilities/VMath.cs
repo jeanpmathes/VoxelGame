@@ -24,9 +24,9 @@ public static class VMath
     /// <param name="min">The minimum length.</param>
     /// <param name="max">The maximum length.</param>
     /// <returns>The clamped vector.</returns>
-    public static Vector3 Clamp(Vector3 vector, float min, float max)
+    public static Vector3d Clamp(Vector3d vector, double min, double max)
     {
-        float length = vector.Length;
+        double length = vector.Length;
 
         if (length < min) return vector.Normalized() * min;
         if (length > max) return vector.Normalized() * max;
@@ -39,9 +39,62 @@ public static class VMath
     /// </summary>
     /// <param name="vector">The vector of which an absolute vector should be created.</param>
     /// <returns>The absolute vector.</returns>
-    public static Vector3 Absolute(this Vector3 vector)
+    public static Vector3d Absolute(this Vector3d vector)
     {
-        return new Vector3(Math.Abs(vector.X), Math.Abs(vector.Y), Math.Abs(vector.Z));
+        return new Vector3d(Math.Abs(vector.X), Math.Abs(vector.Y), Math.Abs(vector.Z));
+    }
+
+    /// <summary>
+    ///     Convert a double Vector3 to a float Vector3.
+    /// </summary>
+    public static Vector3 ToVector3(this Vector3d vector)
+    {
+        return new Vector3((float) vector.X, (float) vector.Y, (float) vector.Z);
+    }
+
+    /// <summary>
+    ///     Convert a double Vector4 to a float Vector4.
+    /// </summary>
+    public static Vector4 ToVector4(this Vector4d vector)
+    {
+        return new Vector4((float) vector.X, (float) vector.Y, (float) vector.Z, (float) vector.W);
+    }
+
+    /// <summary>
+    ///     Convert a double Vector2 to a float Vector3.
+    /// </summary>
+    public static Vector2 ToVector2(this Vector2d vector)
+    {
+        return new Vector2((float) vector.X, (float) vector.Y);
+    }
+
+    /// <summary>
+    ///     Convert a int Vector3 to a double Vector3.
+    /// </summary>
+    public static Vector3d ToVector3d(this Vector3i vector)
+    {
+        return new Vector3d(vector.X, vector.Y, vector.Z);
+    }
+
+    /// <summary>
+    ///     Convert a double Matrix4 to a float Matrix4.
+    /// </summary>
+    public static Matrix4 ToMatrix4(this Matrix4d matrix)
+    {
+        return new Matrix4(matrix.Row0.ToVector4(), matrix.Row1.ToVector4(), matrix.Row2.ToVector4(), matrix.Row3.ToVector4());
+    }
+
+    /// <summary>
+    ///     Creates a scale matrix.
+    /// </summary>
+    public static Matrix4d CreateScaleMatrix(Vector3d scale)
+    {
+        Matrix4d result = Matrix4d.Identity;
+        result.Row0.X = scale.X;
+        result.Row1.Y = scale.Y;
+        result.Row2.Z = scale.Z;
+
+        return result;
     }
 
     /// <summary>
@@ -51,13 +104,13 @@ public static class VMath
     /// <param name="digits">The number of fractional digits in the return value.</param>
     /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
     /// <returns>The rounded vector.</returns>
-    public static Vector3 Rounded(this Vector3 vector, int digits = 0,
+    public static Vector3d Rounded(this Vector3d vector, int digits = 0,
         MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
-        return new Vector3(
-            (float) Math.Round(vector.X, digits, midpointRounding),
-            (float) Math.Round(vector.Y, digits, midpointRounding),
-            (float) Math.Round(vector.Z, digits, midpointRounding));
+        return new Vector3d(
+            Math.Round(vector.X, digits, midpointRounding),
+            Math.Round(vector.Y, digits, midpointRounding),
+            Math.Round(vector.Z, digits, midpointRounding));
     }
 
     /// <summary>
@@ -67,9 +120,9 @@ public static class VMath
     /// <param name="min">The minimum values for each component.</param>
     /// <param name="max">The maximum values for each component.</param>
     /// <returns>The vector with clamped components</returns>
-    public static Vector3 ClampComponents(Vector3 vector, Vector3 min, Vector3 max)
+    public static Vector3d ClampComponents(Vector3d vector, Vector3d min, Vector3d max)
     {
-        return new Vector3(
+        return new Vector3d(
             MathHelper.Clamp(vector.X, min.X, max.X),
             MathHelper.Clamp(vector.Y, min.Y, max.Y),
             MathHelper.Clamp(vector.Z, min.Z, max.Z));
@@ -80,9 +133,9 @@ public static class VMath
     /// </summary>
     /// <param name="vector">The vector to convert.</param>
     /// <returns>The sign vector</returns>
-    public static Vector3 Sign(this Vector3 vector)
+    public static Vector3i Sign(this Vector3d vector)
     {
-        return new Vector3(Math.Sign(vector.X), Math.Sign(vector.Y), Math.Sign(vector.Z));
+        return new Vector3i(Math.Sign(vector.X), Math.Sign(vector.Y), Math.Sign(vector.Z));
     }
 
     /// <summary>
@@ -104,7 +157,7 @@ public static class VMath
     /// </summary>
     /// <param name="vector">The vector to floor.</param>
     /// <returns>The component-wise floored vector.</returns>
-    public static Vector3i Floor(this Vector3 vector)
+    public static Vector3i Floor(this Vector3d vector)
     {
         return new Vector3i((int) Math.Floor(vector.X), (int) Math.Floor(vector.Y), (int) Math.Floor(vector.Z));
     }
@@ -159,7 +212,7 @@ public static class VMath
     /// <param name="b">The second value.</param>
     /// <param name="epsilon">The epsilon value, defining what difference is seen as equal.</param>
     /// <returns>True if the two values are nearly equal.</returns>
-    public static bool NearlyEqual(float a, float b, float epsilon = Epsilon)
+    public static bool NearlyEqual(double a, double b, double epsilon = Epsilon)
     {
         return Math.Abs(a - b) < epsilon;
     }
@@ -170,7 +223,7 @@ public static class VMath
     /// <param name="a">The value to check for near equality with zero.</param>
     /// <param name="epsilon">The epsilon distance.</param>
     /// <returns>True if the given value is nearly zero.</returns>
-    public static bool NearlyZero(float a, float epsilon = Epsilon)
+    public static bool NearlyZero(double a, double epsilon = Epsilon)
     {
         return NearlyEqual(a, b: 0, epsilon);
     }
@@ -181,15 +234,15 @@ public static class VMath
     /// <param name="center">The center point.</param>
     /// <param name="extents">The extents of the box, which are also half of the box size.</param>
     /// <returns>The created box.</returns>
-    public static Box3 CreateBox3(Vector3 center, Vector3 extents)
+    public static Box3d CreateBox3(Vector3d center, Vector3d extents)
     {
-        return new Box3(center - extents, center + extents);
+        return new Box3d(center - extents, center + extents);
     }
 
     /// <summary>
     ///     Given two points and a value, calculate the lerp factor to produce the value.
     /// </summary>
-    public static float InverseLerp(float a, float b, float value)
+    public static double InverseLerp(double a, double b, double value)
     {
         return (value - a) / (b - a);
     }

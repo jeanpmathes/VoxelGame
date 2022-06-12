@@ -176,6 +176,7 @@ public class CommandInvoker
         foreach (char c in input)
         {
             if (c == ' ') break;
+
             commandName.Append(c);
         }
 

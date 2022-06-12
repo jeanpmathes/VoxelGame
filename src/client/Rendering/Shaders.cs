@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Graphics.Utility;
 using VoxelGame.Logging;
@@ -153,11 +154,11 @@ public sealed class Shaders
     {
         Overlay.SetMatrix4(
             "projection",
-            Matrix4.CreateOrthographic(width: 1f, 1f / Screen.AspectRatio, depthNear: 0f, depthFar: 1f));
+            Matrix4d.CreateOrthographic(width: 1.0, 1.0 / Screen.AspectRatio, depthNear: 0.0, depthFar: 1.0).ToMatrix4());
 
         ScreenElement.SetMatrix4(
             "projection",
-            Matrix4.CreateOrthographic(Screen.Size.X, Screen.Size.Y, depthNear: 0f, depthFar: 1f));
+            Matrix4d.CreateOrthographic(Screen.Size.X, Screen.Size.Y, depthNear: 0.0, depthFar: 1.0).ToMatrix4());
     }
 
     /// <summary>
@@ -183,17 +184,17 @@ public sealed class Shaders
     ///     Update the current view direction.
     /// </summary>
     /// <param name="viewDirection">The current view direction.</param>
-    private void SetViewDirection(Vector3 viewDirection)
+    private void SetViewDirection(Vector3d viewDirection)
     {
-        foreach (Shader shader in viewDirectionSet) shader.SetVector3(ViewDirectionUniform, viewDirection);
+        foreach (Shader shader in viewDirectionSet) shader.SetVector3(ViewDirectionUniform, viewDirection.ToVector3());
     }
 
     /// <summary>
     ///     Update the current view position.
     /// </summary>
     /// <param name="viewPosition">The current view position.</param>
-    private void SetViewPosition(Vector3 viewPosition)
+    private void SetViewPosition(Vector3d viewPosition)
     {
-        foreach (Shader shader in viewPositionSet) shader.SetVector3(ViewPositionUniform, viewPosition);
+        foreach (Shader shader in viewPositionSet) shader.SetVector3(ViewPositionUniform, viewPosition.ToVector3());
     }
 }

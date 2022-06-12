@@ -58,10 +58,10 @@ public class ComplexGenerator : IWorldGenerator
 
         bool HasCave(int cx, int cy, int cz)
         {
-            float cave = noise.GetCellular(cx, cz, cy);
+            double cave = noise.GetCellular(cx, cz, cy);
 
-            float distance = Math.Abs(cy - CaveHeight);
-            float factor = Math.Clamp(distance / CaveSpread, min: 0, max: 1);
+            double distance = Math.Abs(cy - CaveHeight);
+            double factor = Math.Clamp(distance / CaveSpread, min: 0, max: 1);
 
             return cave > factor;
         }

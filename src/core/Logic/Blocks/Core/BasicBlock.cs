@@ -32,7 +32,7 @@ public class BasicBlock : Block, IOverlayTextureProvider, ISimple
         base(
             name,
             namedId,
-            flags with { IsFull = true, IsReplaceable = false },
+            flags with {IsFull = true, IsReplaceable = false},
             BoundingVolume.Block)
     {
         this.layout = layout;

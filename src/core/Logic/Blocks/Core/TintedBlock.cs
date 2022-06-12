@@ -27,7 +27,7 @@ public class TintedBlock : BasicBlock, IWideConnectable
         base(
             name,
             namedId,
-            flags with { IsInteractable = true },
+            flags with {IsInteractable = true},
             layout)
     {
         this.isAnimated = isAnimated;

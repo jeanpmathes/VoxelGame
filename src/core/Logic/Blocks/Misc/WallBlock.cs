@@ -38,7 +38,7 @@ public class WallBlock : WideConnectingBlock
             texture,
             postModel,
             extensionModel,
-            new BoundingVolume(new Vector3(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3(x: 0.25f, y: 0.5f, z: 0.25f)))
+            new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(x: 0.25f, y: 0.5f, z: 0.25f)))
     {
         BlockModel straightZModel = BlockModel.Load(extensionStraight);
         straightZModel.OverwriteTexture(texture);
@@ -64,13 +64,13 @@ public class WallBlock : WideConnectingBlock
 
         if (useStraightZ)
             return new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.46875f, z: 0.5f),
-                new Vector3(x: 0.1875f, y: 0.46875f, z: 0.5f));
+                new Vector3d(x: 0.5f, y: 0.46875f, z: 0.5f),
+                new Vector3d(x: 0.1875f, y: 0.46875f, z: 0.5f));
 
         if (useStraightX)
             return new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.46875f, z: 0.5f),
-                new Vector3(x: 0.5f, y: 0.46875f, z: 0.1875f));
+                new Vector3d(x: 0.5f, y: 0.46875f, z: 0.5f),
+                new Vector3d(x: 0.5f, y: 0.46875f, z: 0.1875f));
 
         int extensions = BitHelper.CountSetBits(data & 0b1111);
 
@@ -80,8 +80,8 @@ public class WallBlock : WideConnectingBlock
         if (north)
         {
             children[extensions] = new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.46875f, z: 0.125f),
-                new Vector3(x: 0.1875f, y: 0.46875f, z: 0.125f));
+                new Vector3d(x: 0.5f, y: 0.46875f, z: 0.125f),
+                new Vector3d(x: 0.1875f, y: 0.46875f, z: 0.125f));
 
             extensions++;
         }
@@ -89,8 +89,8 @@ public class WallBlock : WideConnectingBlock
         if (east)
         {
             children[extensions] = new BoundingVolume(
-                new Vector3(x: 0.875f, y: 0.46875f, z: 0.5f),
-                new Vector3(x: 0.125f, y: 0.46875f, z: 0.1875f));
+                new Vector3d(x: 0.875f, y: 0.46875f, z: 0.5f),
+                new Vector3d(x: 0.125f, y: 0.46875f, z: 0.1875f));
 
             extensions++;
         }
@@ -98,20 +98,20 @@ public class WallBlock : WideConnectingBlock
         if (south)
         {
             children[extensions] = new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.46875f, z: 0.875f),
-                new Vector3(x: 0.1875f, y: 0.46875f, z: 0.125f));
+                new Vector3d(x: 0.5f, y: 0.46875f, z: 0.875f),
+                new Vector3d(x: 0.1875f, y: 0.46875f, z: 0.125f));
 
             extensions++;
         }
 
         if (west)
             children[extensions] = new BoundingVolume(
-                new Vector3(x: 0.125f, y: 0.46875f, z: 0.5f),
-                new Vector3(x: 0.125f, y: 0.46875f, z: 0.1875f));
+                new Vector3d(x: 0.125f, y: 0.46875f, z: 0.5f),
+                new Vector3d(x: 0.125f, y: 0.46875f, z: 0.1875f));
 
         return new BoundingVolume(
-            new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
-            new Vector3(x: 0.25f, y: 0.5f, z: 0.25f),
+            new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f),
+            new Vector3d(x: 0.25f, y: 0.5f, z: 0.25f),
             children);
     }
 

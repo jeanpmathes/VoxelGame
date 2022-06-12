@@ -23,7 +23,7 @@ public interface IScene : IDisposable
     ///     Perform an update cycle.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
-    void Update(float deltaTime);
+    void Update(double deltaTime);
 
     /// <summary>
     ///     Handle a game resize.

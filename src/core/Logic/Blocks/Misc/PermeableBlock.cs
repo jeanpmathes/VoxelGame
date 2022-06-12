@@ -33,6 +33,6 @@ public class PermeableBlock : BasicBlock, IFillable
     /// <inheritdoc />
     protected override ISimple.MeshData GetMeshData(BlockMeshInfo info)
     {
-        return base.GetMeshData(info) with { Tint = info.Fluid.IsFluid ? TintColor.LightGray : TintColor.None };
+        return base.GetMeshData(info) with {Tint = info.Fluid.IsFluid ? TintColor.LightGray : TintColor.None};
     }
 }

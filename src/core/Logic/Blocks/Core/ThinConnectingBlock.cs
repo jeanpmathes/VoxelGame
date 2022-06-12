@@ -38,8 +38,8 @@ public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConne
                 IsSolid = true
             },
             new BoundingVolume(
-                new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
-                new Vector3(x: 0.0625f, y: 0.5f, z: 0.0625f)))
+                new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f),
+                new Vector3d(x: 0.0625f, y: 0.5f, z: 0.0625f)))
     {
         BlockModel post = BlockModel.Load(postModel);
 
@@ -78,30 +78,30 @@ public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConne
         if ((data & 0b00_1000) != 0)
             connectors.Add(
                 new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.5f, z: 0.21875f),
-                    new Vector3(x: 0.0625f, y: 0.5f, z: 0.21875f)));
+                    new Vector3d(x: 0.5f, y: 0.5f, z: 0.21875f),
+                    new Vector3d(x: 0.0625f, y: 0.5f, z: 0.21875f)));
 
         if ((data & 0b00_0100) != 0)
             connectors.Add(
                 new BoundingVolume(
-                    new Vector3(x: 0.78125f, y: 0.5f, z: 0.5f),
-                    new Vector3(x: 0.21875f, y: 0.5f, z: 0.0625f)));
+                    new Vector3d(x: 0.78125f, y: 0.5f, z: 0.5f),
+                    new Vector3d(x: 0.21875f, y: 0.5f, z: 0.0625f)));
 
         if ((data & 0b00_0010) != 0)
             connectors.Add(
                 new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.5f, z: 0.78125f),
-                    new Vector3(x: 0.0625f, y: 0.5f, z: 0.21875f)));
+                    new Vector3d(x: 0.5f, y: 0.5f, z: 0.78125f),
+                    new Vector3d(x: 0.0625f, y: 0.5f, z: 0.21875f)));
 
         if ((data & 0b00_0001) != 0)
             connectors.Add(
                 new BoundingVolume(
-                    new Vector3(x: 0.21875f, y: 0.5f, z: 0.5f),
-                    new Vector3(x: 0.21875f, y: 0.5f, z: 0.0625f)));
+                    new Vector3d(x: 0.21875f, y: 0.5f, z: 0.5f),
+                    new Vector3d(x: 0.21875f, y: 0.5f, z: 0.0625f)));
 
         return new BoundingVolume(
-            new Vector3(x: 0.5f, y: 0.5f, z: 0.5f),
-            new Vector3(x: 0.0625f, y: 0.5f, z: 0.0625f),
+            new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f),
+            new Vector3d(x: 0.0625f, y: 0.5f, z: 0.0625f),
             connectors.ToArray());
     }
 

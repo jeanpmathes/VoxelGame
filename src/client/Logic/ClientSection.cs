@@ -117,7 +117,7 @@ public class ClientSection : Section
     /// </summary>
     /// <param name="stage">The current render stage.</param>
     /// <param name="position">The position of this section in world coordinates.</param>
-    public void Render(int stage, Vector3 position)
+    public void Render(int stage, Vector3d position)
     {
         if (hasMesh) renderer?.DrawStage(stage, position);
     }

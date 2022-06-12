@@ -48,7 +48,7 @@ internal static class Program
 #if DEBUG
     private static void Main()
 #else
-        private static void Main(string[] args)
+    private static void Main(string[] args)
 #endif
     {
         AppDataDirectory = Path.Combine(
@@ -68,22 +68,17 @@ internal static class Program
 #if DEBUG
         const bool logDebug = true;
 #else
-            bool logDebug = args.Length > 0 && args[0] == "-logDebug";
+        bool logDebug = args.Length > 0 && args[0] == "-logDebug";
 #endif
 
         ILogger logger = LoggingHelper.SetupLogging(nameof(Program), logDebug, AppDataDirectory);
 
 #if !DEBUG
-            if (logDebug)
-            {
-                logger.LogInformation(Events.Meta, "Logging debug messages");
-            }
-            else
-            {
-                logger.LogInformation(
-                    Events.Meta,
-                    "Debug messages will not be logged. Use '-logDebug' to log debug messages");
-            }
+        if (logDebug) logger.LogInformation(Events.Meta, "Logging debug messages");
+        else
+            logger.LogInformation(
+                Events.Meta,
+                "Debug messages will not be logged. Use '-logDebug' to log debug messages");
 #endif
 
         Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";

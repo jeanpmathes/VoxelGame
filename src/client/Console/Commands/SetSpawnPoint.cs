@@ -34,7 +34,7 @@ public class SetSpawnPoint : Command
         SetSpawnPosition(Context.Player.Position);
     }
 
-    private void SetSpawnPosition(Vector3 newSpawnPoint)
+    private void SetSpawnPosition(Vector3d newSpawnPoint)
     {
         Context.Player.World.SpawnPosition = newSpawnPoint;
     }

@@ -139,7 +139,7 @@ internal class Client : GameWindow, IPerformanceProvider
     {
         using (logger.BeginScope("UpdateFrame"))
         {
-            var deltaTime = (float) MathHelper.Clamp(e.Time, min: 0f, max: 1f);
+            double deltaTime = MathHelper.Clamp(e.Time, min: 0f, max: 1f);
 
             input.UpdateState(KeyboardState, MouseState);
 

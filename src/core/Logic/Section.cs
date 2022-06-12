@@ -103,7 +103,7 @@ public abstract class Section : IDisposable
     /// <summary>
     ///     The extents of a section.
     /// </summary>
-    public static Vector3 Extents => new(Size / 2f, Size / 2f, Size / 2f);
+    public static Vector3d Extents => new(Size / 2f, Size / 2f, Size / 2f);
 
     /// <summary>
     ///     The world this section is in.

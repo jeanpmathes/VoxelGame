@@ -25,15 +25,15 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     private const float FlyingSpeed = 5f;
     private const float FlyingSprintSpeed = 15f;
     private readonly Camera camera;
-    private readonly Vector3 cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
+    private readonly Vector3d cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
     private readonly float diveSpeed = 8f;
 
     private readonly PlayerInput input;
 
     private readonly float jumpForce = 25000f;
 
-    private readonly Vector3 maxForce = new(x: 500f, y: 0f, z: 500f);
-    private readonly Vector3 maxSwimForce = new(x: 0f, y: 2500f, z: 0f);
+    private readonly Vector3d maxForce = new(x: 500f, y: 0f, z: 500f);
+    private readonly Vector3d maxSwimForce = new(x: 0f, y: 2500f, z: 0f);
 
     private readonly float speed = 4f;
     private readonly float sprintSpeed = 6f;
@@ -49,7 +49,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     private bool firstUpdate = true;
     private Vector3i headPosition;
 
-    private Vector3 movement;
+    private Vector3d movement;
 
     private BlockInstance? targetBlock;
     private FluidInstance? targetFluid;
@@ -80,22 +80,22 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     }
 
     /// <inheritdoc />
-    public override Vector3 LookingDirection => camera.Front;
+    public override Vector3d LookingDirection => camera.Front;
 
     /// <summary>
     ///     Get the up vector of the player camera.
     /// </summary>
-    public Vector3 CameraUp => camera.Up;
+    public Vector3d CameraUp => camera.Up;
 
     /// <summary>
     ///     Get the right vector of the player camera.
     /// </summary>
-    public Vector3 CameraRight => camera.Right;
+    public Vector3d CameraRight => camera.Right;
 
     /// <summary>
     ///     Get the looking position of the player, meaning the position of the camera.
     /// </summary>
-    public Vector3 LookingPosition => camera.Position;
+    public Vector3d LookingPosition => camera.Position;
 
     /// <inheritdoc />
     public override BlockSide TargetSide => targetSide;
@@ -113,33 +113,33 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     /// <summary>
     ///     Get the dimensions of the near view plane.
     /// </summary>
-    public (Vector3 a, Vector3 b) NearDimensions
+    public (Vector3d a, Vector3d b) NearDimensions
     {
         get
         {
-            (float width, float height) = camera.GetDimensionsAt(Camera.NearClipping);
+            (double width, double height) = camera.GetDimensionsAt(Camera.NearClipping);
 
-            Vector3 position = camera.Position + camera.Front * Camera.NearClipping;
+            Vector3d position = camera.Position + camera.Front * Camera.NearClipping;
 
-            Vector3 up = camera.Up * height * 0.5f;
-            Vector3 right = camera.Right * width * 0.5f;
+            Vector3d up = camera.Up * height * 0.5f;
+            Vector3d right = camera.Right * width * 0.5f;
 
             return (position - up - right, position + up + right);
         }
     }
 
     /// <inheritdoc />
-    public override Vector3 Movement => movement;
+    public override Vector3d Movement => movement;
 
     /// <summary>
     ///     Gets the view matrix of the camera of this player.
     /// </summary>
-    public Matrix4 ViewMatrix => camera.ViewMatrix;
+    public Matrix4d ViewMatrix => camera.ViewMatrix;
 
     /// <summary>
     ///     Gets the projection matrix of the camera of this player.
     /// </summary>
-    public Matrix4 ProjectionMatrix => camera.ProjectionMatrix;
+    public Matrix4d ProjectionMatrix => camera.ProjectionMatrix;
 
     /// <inheritdoc cref="PhysicsEntity" />
     public override Vector3i? TargetPosition => targetPosition;
@@ -194,9 +194,9 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     }
 
     /// <inheritdoc />
-    protected override void OnUpdate(float deltaTime)
+    protected override void OnUpdate(double deltaTime)
     {
-        movement = Vector3.Zero;
+        movement = Vector3d.Zero;
 
         camera.Position = Position + cameraOffset;
 
@@ -229,12 +229,12 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     private void SetBlockAndFluidOverlays()
     {
-        Vector3 center = camera.Position;
+        Vector3d center = camera.Position;
 
-        const float distance = 0.1f;
-        (float width, float height) = camera.GetDimensionsAt(distance);
+        const double distance = 0.1;
+        (double width, double height) = camera.GetDimensionsAt(distance);
 
-        List<Vector3> samplePoints = new()
+        List<Vector3d> samplePoints = new()
         {
             center,
             center + camera.Up * height,
@@ -247,7 +247,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
         List<Vector3i> samplePositions = new();
 
-        foreach (Vector3 samplePoint in samplePoints)
+        foreach (Vector3d samplePoint in samplePoints)
         {
             Vector3i samplePosition = samplePoint.Floor();
 
@@ -256,12 +256,12 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
             samplePositions.Add(samplePosition);
         }
 
-        samplePositions.Sort((a, b) => Vector3.Distance(a, center).CompareTo(Vector3.Distance(b, center)));
+        samplePositions.Sort((a, b) => Vector3d.Distance(a, center).CompareTo(Vector3d.Distance(b, center)));
         samplePositions.Reverse();
 
         visualization.ClearOverlay();
 
-        foreach (Vector3 point in samplePoints)
+        foreach (Vector3d point in samplePoints)
         {
             (BlockInstance block, FluidInstance fluid)? sampledContent = World.GetContent(point.Floor());
 
@@ -291,7 +291,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         }
     }
 
-    private void HandleMovementInput(float deltaTime)
+    private void HandleMovementInput(double deltaTime)
     {
         if (DoPhysics)
         {
@@ -299,7 +299,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         }
         else
         {
-            Vector3 offset = input.GetFlyingMovement(FlyingSpeed, FlyingSprintSpeed);
+            Vector3d offset = input.GetFlyingMovement(FlyingSpeed, FlyingSprintSpeed);
             Position += offset * deltaTime;
         }
     }
@@ -313,23 +313,23 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
         if (input.ShouldJump)
         {
-            if (IsGrounded) AddForce(new Vector3(x: 0f, jumpForce, z: 0f));
-            else if (IsSwimming) Move(Vector3.UnitY * swimSpeed, maxSwimForce);
+            if (IsGrounded) AddForce(new Vector3d(x: 0, jumpForce, z: 0));
+            else if (IsSwimming) Move(Vector3d.UnitY * swimSpeed, maxSwimForce);
         }
         else
         {
-            if (IsSwimming) Move(Vector3.UnitY * -diveSpeed, maxSwimForce);
+            if (IsSwimming) Move(Vector3d.UnitY * -diveSpeed, maxSwimForce);
         }
     }
 
     private void HandleLookInput()
     {
         // Apply the camera pitch and yaw (the pitch is clamped in the camera class)
-        (float yaw, float pitch) = Application.Client.Instance.Keybinds.LookBind.Value;
+        (double yaw, double pitch) = Application.Client.Instance.Keybinds.LookBind.Value;
         camera.Yaw += yaw;
         camera.Pitch += pitch;
 
-        Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
+        Rotation = Quaterniond.FromAxisAngle(Vector3d.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
     }
 
     private void DoWorldInteraction()

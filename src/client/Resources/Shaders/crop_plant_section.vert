@@ -12,9 +12,7 @@ out vec2 texCoord;
 
 out vec4 tint;
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 mvp_matrix;
 
 uniform float time;
 
@@ -61,5 +59,5 @@ void main()
 
     vertexPosition += wind * noise(vec2(vertexPosition.xz + wind.xz * time * swaySpeed)) * swayAmplitude * swayStrength;
 
-    gl_Position = vec4(vertexPosition, 1.0) * model * view * projection;
+    gl_Position = vec4(vertexPosition, 1.0) * mvp_matrix;
 }

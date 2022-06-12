@@ -37,9 +37,9 @@ public sealed class PlayerVisualization : IDisposable
     private readonly GameUserInterface ui;
     private float crosshairScale = Application.Client.Instance.Settings.CrosshairScale;
 
-    private float lowerBound;
+    private double lowerBound;
     private bool renderOverlay;
-    private float upperBound;
+    private double upperBound;
 
     /// <summary>
     ///     Create a new instance of the <see cref="PlayerVisualization" /> class.
@@ -57,7 +57,7 @@ public sealed class PlayerVisualization : IDisposable
 
         crosshairRenderer = new ScreenElementRenderer();
         crosshairRenderer.SetTexture(crosshair);
-        crosshairRenderer.SetColor(Application.Client.Instance.Settings.CrosshairColor.ToVector3());
+        crosshairRenderer.SetColor(Application.Client.Instance.Settings.CrosshairColor);
 
         Application.Client.Instance.Settings.CrosshairColorChanged += UpdateCrosshairColor;
         Application.Client.Instance.Settings.CrosshairScaleChanged += SettingsOnCrosshairScaleChanged;
@@ -75,7 +75,7 @@ public sealed class PlayerVisualization : IDisposable
 
     private void UpdateCrosshairColor(object? sender, SettingChangedArgs<Color> args)
     {
-        crosshairRenderer.SetColor(args.Settings.CrosshairColor.ToVector3());
+        crosshairRenderer.SetColor(args.Settings.CrosshairColor);
     }
 
     private void SettingsOnCrosshairScaleChanged(object? sender, SettingChangedArgs<float> args)
@@ -137,7 +137,7 @@ public sealed class PlayerVisualization : IDisposable
         }
     }
 
-    private void SetBounds(BlockInstance block, Vector3 position)
+    private void SetBounds(BlockInstance block, Vector3d position)
     {
         var height = 15;
 
@@ -146,36 +146,36 @@ public sealed class PlayerVisualization : IDisposable
         SetBounds(height, position, inverted: false);
     }
 
-    private void SetBounds(FluidInstance fluid, Vector3 position)
+    private void SetBounds(FluidInstance fluid, Vector3d position)
     {
         int height = fluid.Level.GetBlockHeight();
 
         SetBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards);
     }
 
-    private void SetBounds(int height, Vector3 position, bool inverted)
+    private void SetBounds(int height, Vector3d position, bool inverted)
     {
         float actualHeight = (height + 1) * (1.0f / 16.0f);
         if (inverted) actualHeight = 1.0f - actualHeight;
 
-        Plane topPlane = new(Vector3.UnitY, position + Vector3.UnitY * actualHeight);
+        Plane topPlane = new(Vector3d.UnitY, position + Vector3d.UnitY * actualHeight);
         Plane viewPlane = player.Frustum.Near;
 
         Line? bound = topPlane.Intersects(viewPlane);
 
         if (bound == null) return;
 
-        Vector3 axis = player.Right;
-        (Vector3 a, Vector3 b) dimensions = player.NearDimensions;
+        Vector3d axis = player.Right;
+        (Vector3d a, Vector3d b) dimensions = player.NearDimensions;
 
         // Assume the bound is parallel to the view horizon.
-        Vector2 point = viewPlane.Project2D(bound.Value.Any, axis);
-        Vector2 a = viewPlane.Project2D(dimensions.a, axis);
-        Vector2 b = viewPlane.Project2D(dimensions.b, axis);
+        Vector2d point = viewPlane.Project2D(bound.Value.Any, axis);
+        Vector2d a = viewPlane.Project2D(dimensions.a, axis);
+        Vector2d b = viewPlane.Project2D(dimensions.b, axis);
 
-        float ratio = VMath.InverseLerp(a.Y, b.Y, point.Y);
+        double ratio = VMath.InverseLerp(a.Y, b.Y, point.Y);
 
-        (float newLowerBound, float newUpperBound) = inverted ? (ratio, 1.0f) : (0.0f, ratio);
+        (double newLowerBound, double newUpperBound) = inverted ? (ratio, 1.0) : (0.0, ratio);
 
         newLowerBound = Math.Max(newLowerBound, val2: 0);
         newUpperBound = Math.Min(newUpperBound, val2: 1);

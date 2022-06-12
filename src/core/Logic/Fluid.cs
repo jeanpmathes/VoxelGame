@@ -25,9 +25,9 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// <summary>
     ///     The density of air.
     /// </summary>
-    protected const float AirDensity = 1.2f;
+    protected const double AirDensity = 1.2f;
 
-    private const float GasFluidThreshold = 10f;
+    private const double GasFluidThreshold = 10f;
 
     private static readonly BoundingVolume[] volumes = CreateVolumes();
 
@@ -41,7 +41,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// <param name="checkContact">Whether entity contact must be checked.</param>
     /// <param name="receiveContact">Whether entity contact should be passed to the fluid.</param>
     /// <param name="renderType">The render type of the fluid.</param>
-    protected Fluid(string name, string namedId, float density, int viscosity,
+    protected Fluid(string name, string namedId, double density, int viscosity,
         bool checkContact, bool receiveContact, RenderType renderType)
     {
         Debug.Assert(density > 0);
@@ -107,7 +107,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// <summary>
     ///     Gets the density of this fluid.
     /// </summary>
-    public float Density { get; }
+    public double Density { get; }
 
     /// <summary>
     ///     Gets the flowing direction of this fluid.
@@ -160,8 +160,8 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
             float halfHeight = ((int) level + 1) * 0.0625f;
 
             return new BoundingVolume(
-                new Vector3(x: 0f, halfHeight, z: 0f),
-                new Vector3(x: 0.5f, halfHeight, z: 0.5f));
+                new Vector3d(x: 0f, halfHeight, z: 0f),
+                new Vector3d(x: 0.5f, halfHeight, z: 0.5f));
         }
 
         var fluidVolumes = new BoundingVolume[8];
@@ -185,7 +185,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// <param name="context">The context of the meshing operation.</param>
     public void CreateMesh(Vector3i position, FluidMeshInfo info, MeshingContext context)
     {
-        if (RenderType == RenderType.NotRendered || info.Block is not IFillable { RenderFluid: true } &&
+        if (RenderType == RenderType.NotRendered || info.Block is not IFillable {RenderFluid: true} &&
             (info.Block is IFillable || info.Block.IsSolidAndFull)) return;
 
         VaryingHeightMeshFaceHolder[] fluidMeshFaceHolders =
@@ -212,7 +212,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
             bool atVerticalEnd = side is BlockSide.Top or BlockSide.Bottom;
 
             bool isNeighborFluidMeshed =
-                blockToCheck is IFillable { RenderFluid: true };
+                blockToCheck is IFillable {RenderFluid: true};
 
             if (fluidToCheck != this || !isNeighborFluidMeshed) sideHeight = -1;
 
@@ -230,7 +230,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
             if (atVerticalEnd ? !meshAtEnd : !meshAtNormal) return;
 
-            FluidMeshData mesh = GetMeshData(info with { Side = side });
+            FluidMeshData mesh = GetMeshData(info with {Side = side});
 
             bool singleSided = !blockToCheck.IsOpaque &&
                                blockToCheck.IsSolidAndFull;
@@ -310,7 +310,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     {
         (BlockInstance, FluidInstance)? content = world.GetContent(position);
 
-        if (content is ({ Block: IFillable fillable }, var target)
+        if (content is ({Block: IFillable fillable}, var target)
             && fillable.AllowInflow(world, position, entrySide, this))
         {
             if (target.Fluid == this && target.Level != FluidLevel.Eight)

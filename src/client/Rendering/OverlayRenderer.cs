@@ -112,10 +112,10 @@ public sealed class OverlayRenderer : IDisposable
     /// </summary>
     /// <param name="newLowerBound">The lower bound.</param>
     /// <param name="newUpperBound">The upper bound.</param>
-    public void SetBounds(float newLowerBound, float newUpperBound)
+    public void SetBounds(double newLowerBound, double newUpperBound)
     {
-        lowerBound = newLowerBound;
-        upperBound = newUpperBound;
+        lowerBound = (float) newLowerBound;
+        upperBound = (float) newUpperBound;
     }
 
     #region IDisposable Support

@@ -35,7 +35,7 @@ public class CustomModelBlock : Block, IFillable, IComplex
         base(
             name,
             namedId,
-            flags with { IsFull = false, IsOpaque = false },
+            flags with {IsFull = false, IsOpaque = false},
             boundingVolume)
     {
         mesh = BlockModel.Load(modelName).Mesh;

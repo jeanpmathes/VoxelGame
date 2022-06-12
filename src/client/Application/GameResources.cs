@@ -102,7 +102,7 @@ public class GameResources
         logger.LogDebug(
             Events.ResourceLoad,
             "Texture/Block ratio: {Ratio:F02}",
-            BlockTextureArray.Count / (float) Block.Count);
+            BlockTextureArray.Count / (double) Block.Count);
 
         // Fluid setup.
         Fluid.LoadFluids(FluidTextureArray);

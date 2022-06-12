@@ -131,7 +131,7 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     Get or set the spawn position in this world.
     /// </summary>
-    public Vector3 SpawnPosition
+    public Vector3d SpawnPosition
     {
         get => Information.SpawnInformation.Position;
         set
@@ -139,6 +139,31 @@ public abstract partial class World : IDisposable
             Information.SpawnInformation = new SpawnInformation(value);
             logger.LogInformation(Events.WorldData, "World spawn position has been set to: {Position}", value);
         }
+    }
+
+    /// <summary>
+    ///     Get or set the world size.
+    /// </summary>
+    public uint Size
+    {
+        get => Information.Size;
+        set
+        {
+            uint oldSize = Information.Size;
+            Information.Size = ClampSize(value);
+
+            if (oldSize != Information.Size) logger.LogInformation(Events.WorldData, "World size has been set to: {Size}", Information.Size);
+        }
+    }
+
+    /// <summary>
+    ///     Get the extents of the world.
+    /// </summary>
+    public Vector3d Extents => new(Size, Size, Size);
+
+    private static uint ClampSize(uint size)
+    {
+        return Math.Clamp(size, min: 0, int.MaxValue);
     }
 
     private static IWorldGenerator GetGenerator(int seed)
@@ -158,7 +183,7 @@ public abstract partial class World : IDisposable
     ///     Called every update cycle.
     /// </summary>
     /// <param name="deltaTime">The time since the last update cycle.</param>
-    public abstract void Update(float deltaTime);
+    public abstract void Update(double deltaTime);
 
     /// <summary>
     ///     Returns the block instance at a given position in block coordinates. The block is only searched in active chunks.
@@ -317,6 +342,7 @@ public abstract partial class World : IDisposable
             (BlockInstance, FluidInstance)? content = GetContent(neighborPosition);
 
             if (content == null) continue;
+
             (BlockInstance blockNeighbor, FluidInstance fluidNeighbor) = content.Value;
 
             blockNeighbor.Block.BlockUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
@@ -389,6 +415,7 @@ public abstract partial class World : IDisposable
         (BlockInstance, FluidInstance)? content = GetContent(position);
 
         if (content == null) return false;
+
         (BlockInstance block, FluidInstance fluid) = content.Value;
 
         block.Block.RandomUpdate(this, position, block.Data);

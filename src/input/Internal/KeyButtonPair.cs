@@ -33,5 +33,5 @@ public class KeyButtonPair
     /// <summary>
     ///     Create a new <see cref="KeyButtonPair" /> with default value.
     /// </summary>
-    public static KeyButtonPair DefaultValue => new() { Default = true };
+    public static KeyButtonPair DefaultValue => new() {Default = true};
 }

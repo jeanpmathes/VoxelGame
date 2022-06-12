@@ -67,20 +67,20 @@ public class FlatBlock : Block, IFillable, IComplex
             BoundingVolume volume = (Orientation) (data & 0b00_0011) switch
             {
                 Orientation.North => new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.5f, z: 0.95f),
-                    new Vector3(x: 0.45f, y: 0.5f, z: 0.05f)),
+                    new Vector3d(x: 0.5f, y: 0.5f, z: 0.95f),
+                    new Vector3d(x: 0.45f, y: 0.5f, z: 0.05f)),
                 Orientation.South => new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.5f, z: 0.05f),
-                    new Vector3(x: 0.45f, y: 0.5f, z: 0.05f)),
+                    new Vector3d(x: 0.5f, y: 0.5f, z: 0.05f),
+                    new Vector3d(x: 0.45f, y: 0.5f, z: 0.05f)),
                 Orientation.West => new BoundingVolume(
-                    new Vector3(x: 0.95f, y: 0.5f, z: 0.5f),
-                    new Vector3(x: 0.05f, y: 0.5f, z: 0.45f)),
+                    new Vector3d(x: 0.95f, y: 0.5f, z: 0.5f),
+                    new Vector3d(x: 0.05f, y: 0.5f, z: 0.45f)),
                 Orientation.East => new BoundingVolume(
-                    new Vector3(x: 0.05f, y: 0.5f, z: 0.5f),
-                    new Vector3(x: 0.05f, y: 0.5f, z: 0.45f)),
+                    new Vector3d(x: 0.05f, y: 0.5f, z: 0.5f),
+                    new Vector3d(x: 0.05f, y: 0.5f, z: 0.45f)),
                 _ => new BoundingVolume(
-                    new Vector3(x: 0.5f, y: 0.5f, z: 0.95f),
-                    new Vector3(x: 0.5f, y: 0.5f, z: 0.05f))
+                    new Vector3d(x: 0.5f, y: 0.5f, z: 0.95f),
+                    new Vector3d(x: 0.5f, y: 0.5f, z: 0.05f))
             };
 
             volumes.Add(volume);
@@ -132,23 +132,23 @@ public class FlatBlock : Block, IFillable, IComplex
     /// <inheritdoc />
     protected override void EntityCollision(PhysicsEntity entity, Vector3i position, uint data)
     {
-        Vector3 forwardMovement = Vector3.Dot(entity.Movement, entity.Forward) * entity.Forward;
-        Vector3 newVelocity;
+        Vector3d forwardMovement = Vector3d.Dot(entity.Movement, entity.Forward) * entity.Forward;
+        Vector3d newVelocity;
 
         if (forwardMovement.LengthSquared > 0.1f &&
             (Orientation) (data & 0b00_0011) == (-forwardMovement).ToOrientation())
         {
-            float yVelocity = Vector3.CalculateAngle(entity.LookingDirection, Vector3.UnitY) < MathHelper.PiOver2
+            float yVelocity = Vector3d.CalculateAngle(entity.LookingDirection, Vector3d.UnitY) < MathHelper.PiOver2
                 ? climbingVelocity
                 : -climbingVelocity;
 
-            newVelocity = new Vector3(entity.Velocity.X, yVelocity, entity.Velocity.Z);
+            newVelocity = new Vector3d(entity.Velocity.X, yVelocity, entity.Velocity.Z);
         }
         else
         {
-            newVelocity = new Vector3(
+            newVelocity = new Vector3d(
                 entity.Velocity.X,
-                MathHelper.Clamp(entity.Velocity.Y, -slidingVelocity, float.MaxValue),
+                MathHelper.Clamp(entity.Velocity.Y, -slidingVelocity, double.MaxValue),
                 entity.Velocity.Z);
         }
 

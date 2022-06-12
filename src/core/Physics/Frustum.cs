@@ -34,23 +34,23 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <param name="direction">The view direction.</param>
     /// <param name="up">The up direction.</param>
     /// <param name="right">The right direction.</param>
-    public Frustum(float fovY, float ratio, (float near, float far) clip,
-        Vector3 position, Vector3 direction, Vector3 up, Vector3 right)
+    public Frustum(double fovY, double ratio, (double near, double far) clip,
+        Vector3d position, Vector3d direction, Vector3d up, Vector3d right)
     {
         direction.Normalize();
         up.Normalize();
         right.Normalize();
 
-        (float wNear, float hNear) = GetDimensionsAt(clip.near, fovY, ratio);
+        (double wNear, double hNear) = GetDimensionsAt(clip.near, fovY, ratio);
 
-        Vector3 nc = position + direction * clip.near;
-        Vector3 fc = position + direction * clip.far;
+        Vector3d nc = position + direction * clip.near;
+        Vector3d fc = position + direction * clip.far;
 
-        Vector3 nl = Vector3.Cross((nc - right * wNear / 2f - position).Normalized(), up);
-        Vector3 nr = Vector3.Cross(up, (nc + right * wNear / 2f - position).Normalized());
+        Vector3d nl = Vector3d.Cross((nc - right * wNear / 2.0 - position).Normalized(), up);
+        Vector3d nr = Vector3d.Cross(up, (nc + right * wNear / 2.0 - position).Normalized());
 
-        Vector3 nb = Vector3.Cross(right, (nc - up * hNear / 2f - position).Normalized());
-        Vector3 nt = Vector3.Cross((nc + up * hNear / 2f - position).Normalized(), right);
+        Vector3d nb = Vector3d.Cross(right, (nc - up * hNear / 2.0 - position).Normalized());
+        Vector3d nt = Vector3d.Cross((nc + up * hNear / 2.0 - position).Normalized(), right);
 
         planes = new[]
         {
@@ -70,10 +70,10 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <param name="fovY">The vertical fov.</param>
     /// <param name="ratio">The screen ratio.</param>
     /// <returns>The calculated dimensions.</returns>
-    public static (float width, float height) GetDimensionsAt(float distance, float fovY, float ratio)
+    public static (double width, double height) GetDimensionsAt(double distance, double fovY, double ratio)
     {
-        float height = 2f * MathF.Tan(fovY * 0.5f) * distance;
-        float width = height * ratio;
+        double height = 2.0 * Math.Tan(fovY * 0.5) * distance;
+        double width = height * ratio;
 
         return (width, height);
     }
@@ -112,15 +112,15 @@ public readonly struct Frustum : IEquatable<Frustum>
     ///     Check whether a <see cref="Box3" /> is inside this <see cref="Frustum" />.
     /// </summary>
     /// <returns>true if the <see cref="Box3" /> is inside; false if not.</returns>
-    public bool IsBoxInFrustum(Box3 volume)
+    public bool IsBoxInFrustum(Box3d volume)
     {
         for (var i = 0; i < 6; i++)
         {
-            float px = planes[i].Normal.X < 0 ? volume.Min.X : volume.Max.X;
-            float py = planes[i].Normal.Y < 0 ? volume.Min.Y : volume.Max.Y;
-            float pz = planes[i].Normal.Z < 0 ? volume.Min.Z : volume.Max.Z;
+            double px = planes[i].Normal.X < 0 ? volume.Min.X : volume.Max.X;
+            double py = planes[i].Normal.Y < 0 ? volume.Min.Y : volume.Max.Y;
+            double pz = planes[i].Normal.Z < 0 ? volume.Min.Z : volume.Max.Z;
 
-            if (planes[i].Distance(new Vector3(px, py, pz)) < 0) return false;
+            if (planes[i].Distance(new Vector3d(px, py, pz)) < 0) return false;
         }
 
         return true;

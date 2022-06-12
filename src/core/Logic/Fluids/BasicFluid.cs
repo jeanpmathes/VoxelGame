@@ -129,7 +129,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         (BlockInstance, FluidInstance)? content = world.GetContent(
             position + flow.Direction());
 
-        if (content is not ({ Block: IFillable verticalFillable }, {} fluidVertical)
+        if (content is not ({Block: IFillable verticalFillable}, {} fluidVertical)
             || !verticalFillable.AllowInflow(
                 world,
                 position + flow.Direction(),
@@ -230,7 +230,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
             (BlockInstance, FluidInstance)? content = world.GetContent(neighborPosition);
 
-            if (content is not ({ Block: IFillable neighborFillable }, {} neighborFluid)
+            if (content is not ({Block: IFillable neighborFillable}, {} neighborFluid)
                 || !AllowsFlowTrough(
                     neighborFillable,
                     world,
@@ -254,7 +254,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         {
             (BlockInstance, FluidInstance)? lowerContent = world.GetContent(lowerPosition);
 
-            if (lowerContent is not ({ Block: IFillable fillable }, var lowerFluid)) return false;
+            if (lowerContent is not ({Block: IFillable fillable}, var lowerFluid)) return false;
 
             bool canFlowWithoutCapacity = fluidBelowIsNone && lowerFluid.Fluid != this;
 
@@ -306,7 +306,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
             (BlockInstance, FluidInstance)? neighborContent = world.GetContent(neighborPosition);
 
             if (!outflowAllowed ||
-                neighborContent is not ({ Block: IFillable neighborFillable }, {} fluidNeighbor) ||
+                neighborContent is not ({Block: IFillable neighborFillable}, {} fluidNeighbor) ||
                 !neighborFillable.AllowInflow(world, neighborPosition, side, this)) return false;
 
             bool isStatic = fluidNeighbor.IsStatic;
@@ -321,7 +321,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
 
 
-                if (belowNeighborContent is ({ Block: IFillable belowNeighborFillable }, {} belowNeighborFluid)
+                if (belowNeighborContent is ({Block: IFillable belowNeighborFillable}, {} belowNeighborFluid)
                     && belowNeighborFluid.Fluid == None
                     && belowNeighborFillable.AllowInflow(
                         world,
@@ -435,7 +435,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     {
         (BlockInstance, FluidInstance)? neighborContent = world.GetContent(neighborPosition);
 
-        if (neighborContent is not ({ Block: IFillable neighborFillable }, {} neighborFluid) ||
+        if (neighborContent is not ({Block: IFillable neighborFillable}, {} neighborFluid) ||
             !neighborFillable.AllowInflow(world, neighborPosition, side.Opposite(), this)) return;
 
         bool isStatic = neighborFluid.IsStatic;
