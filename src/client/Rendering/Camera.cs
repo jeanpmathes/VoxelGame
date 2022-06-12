@@ -6,7 +6,6 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -111,7 +110,7 @@ public class Camera
     /// <summary>
     ///     Get the camera's view matrix.
     /// </summary>
-    public Matrix4d ViewMatrix => Matrix4d.LookAt(Position.ToVector3(), (Position + Front).ToVector3(), Up.ToVector3());
+    public Matrix4d ViewMatrix => Matrix4d.LookAt(Position, Position + Front, Up);
 
     /// <summary>
     ///     Get the camera's projection matrix.

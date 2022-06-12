@@ -46,11 +46,11 @@ public readonly struct Frustum : IEquatable<Frustum>
         Vector3d nc = position + direction * clip.near;
         Vector3d fc = position + direction * clip.far;
 
-        Vector3d nl = Vector3d.Cross((nc - right * wNear / 2f - position).Normalized(), up);
-        Vector3d nr = Vector3d.Cross(up, (nc + right * wNear / 2f - position).Normalized());
+        Vector3d nl = Vector3d.Cross((nc - right * wNear / 2.0 - position).Normalized(), up);
+        Vector3d nr = Vector3d.Cross(up, (nc + right * wNear / 2.0 - position).Normalized());
 
-        Vector3d nb = Vector3d.Cross(right, (nc - up * hNear / 2f - position).Normalized());
-        Vector3d nt = Vector3d.Cross((nc + up * hNear / 2f - position).Normalized(), right);
+        Vector3d nb = Vector3d.Cross(right, (nc - up * hNear / 2.0 - position).Normalized());
+        Vector3d nt = Vector3d.Cross((nc + up * hNear / 2.0 - position).Normalized(), right);
 
         planes = new[]
         {
@@ -72,7 +72,7 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <returns>The calculated dimensions.</returns>
     public static (double width, double height) GetDimensionsAt(double distance, double fovY, double ratio)
     {
-        double height = 2f * Math.Tan(fovY * 0.5f) * distance;
+        double height = 2.0 * Math.Tan(fovY * 0.5) * distance;
         double width = height * ratio;
 
         return (width, height);
