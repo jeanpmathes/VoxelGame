@@ -68,7 +68,7 @@ public class Help : Command
 
         foreach (string command in commandInvoker.CommandNames)
         {
-            List<string> description = new() { $"{command} # {commandInvoker.GetCommandHelpText(command)}" };
+            List<string> description = new() {$"{command} # {commandInvoker.GetCommandHelpText(command)}"};
             description.AddRange(commandInvoker.GetCommandSignatures(command));
 
             commandDescriptions.Add(command, description);

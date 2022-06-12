@@ -31,7 +31,7 @@ public interface ISimple : IBlockMeshable
                                               RenderFaceAtNonOpaques ||
                                               blockToCheck.RenderFaceAtNonOpaques))
             {
-                MeshData mesh = GetMeshData(info with { Side = side });
+                MeshData mesh = GetMeshData(info with {Side = side});
 
                 side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
                 int[][] uvs = BlockModels.GetBlockUVs(mesh.IsTextureRotated);

@@ -26,14 +26,14 @@ public class TintedCustomModelBlock : CustomModelBlock, IFlammable
         base(
             name,
             namedId,
-            flags with { IsInteractable = true },
+            flags with {IsInteractable = true},
             modelName,
             boundingVolume) {}
 
     /// <inheritdoc />
     protected override IComplex.MeshData GetMeshData(BlockMeshInfo info)
     {
-        return base.GetMeshData(info) with { Tint = ((BlockColor) (0b01_1111 & info.Data)).ToTintColor() };
+        return base.GetMeshData(info) with {Tint = ((BlockColor) (0b01_1111 & info.Data)).ToTintColor()};
     }
 
     /// <inheritdoc />

@@ -23,7 +23,7 @@ internal class PumpBlock : BasicBlock, IIndustrialPipeConnectable, IFillable
         base(
             name,
             namedId,
-            BlockFlags.Basic with { IsInteractable = true },
+            BlockFlags.Basic with {IsInteractable = true},
             layout)
     {
         this.pumpDistance = pumpDistance;

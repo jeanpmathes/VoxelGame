@@ -62,14 +62,14 @@ public static class BlockSideExtensions
 {
     // Corners of a block.
 
-    private static readonly int[] c001 = { 0, 0, 1 };
-    private static readonly int[] c011 = { 0, 1, 1 };
-    private static readonly int[] c111 = { 1, 1, 1 };
-    private static readonly int[] c101 = { 1, 0, 1 };
-    private static readonly int[] c000 = { 0, 0, 0 };
-    private static readonly int[] c010 = { 0, 1, 0 };
-    private static readonly int[] c110 = { 1, 1, 0 };
-    private static readonly int[] c100 = { 1, 0, 0 };
+    private static readonly int[] c001 = {0, 0, 1};
+    private static readonly int[] c011 = {0, 1, 1};
+    private static readonly int[] c111 = {1, 1, 1};
+    private static readonly int[] c101 = {1, 0, 1};
+    private static readonly int[] c000 = {0, 0, 0};
+    private static readonly int[] c010 = {0, 1, 0};
+    private static readonly int[] c110 = {1, 1, 0};
+    private static readonly int[] c100 = {1, 0, 0};
 
     private static readonly Vector3i[] directions =
     {
@@ -83,7 +83,7 @@ public static class BlockSideExtensions
     };
 
     private static readonly IReadOnlyCollection<BlockSide> sides = new List<BlockSide>
-            { BlockSide.Front, BlockSide.Back, BlockSide.Left, BlockSide.Right, BlockSide.Bottom, BlockSide.Top }
+            {BlockSide.Front, BlockSide.Back, BlockSide.Left, BlockSide.Right, BlockSide.Bottom, BlockSide.Top}
         .AsReadOnly();
 
     /// <summary>

@@ -30,7 +30,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable
                 bool isModified = side != BlockSide.Bottom &&
                                   GetHeight(info.Data) != MaximumHeight;
 
-                MeshData mesh = GetMeshData(info with { Side = side });
+                MeshData mesh = GetMeshData(info with {Side = side});
 
                 side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
                 (int x, int y, int z) = position;

@@ -19,6 +19,6 @@ public class GlassBlock : BasicBlock, IThinConnectable
         base(
             name,
             namedId,
-            BlockFlags.Basic with { IsOpaque = false },
+            BlockFlags.Basic with {IsOpaque = false},
             layout) {}
 }
