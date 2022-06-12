@@ -24,7 +24,7 @@ public static class VMath
     /// <param name="min">The minimum length.</param>
     /// <param name="max">The maximum length.</param>
     /// <returns>The clamped vector.</returns>
-    public static Vector3d Clamp(Vector3d vector, float min, float max)
+    public static Vector3d Clamp(Vector3d vector, double min, double max)
     {
         double length = vector.Length;
 

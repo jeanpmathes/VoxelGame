@@ -31,6 +31,11 @@ public class WorldInformation
     public int Seed { get; set; } = 2133;
 
     /// <summary>
+    ///     The size of the world, as extents.
+    /// </summary>
+    public uint Size { get; set; } = 50_000_000;
+
+    /// <summary>
     ///     The creation date of the world.
     /// </summary>
     public DateTime Creation { get; set; } = DateTime.MinValue;

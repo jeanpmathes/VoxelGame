@@ -141,6 +141,31 @@ public abstract partial class World : IDisposable
         }
     }
 
+    /// <summary>
+    ///     Get or set the world size.
+    /// </summary>
+    public uint Size
+    {
+        get => Information.Size;
+        set
+        {
+            uint oldSize = Information.Size;
+            Information.Size = ClampSize(value);
+
+            if (oldSize != Information.Size) logger.LogInformation(Events.WorldData, "World size has been set to: {Size}", Information.Size);
+        }
+    }
+
+    /// <summary>
+    ///     Get the extents of the world.
+    /// </summary>
+    public Vector3d Extents => new(Size, Size, Size);
+
+    private static uint ClampSize(uint size)
+    {
+        return Math.Clamp(size, min: 0, int.MaxValue);
+    }
+
     private static IWorldGenerator GetGenerator(int seed)
     {
         return new ComplexGenerator(seed);

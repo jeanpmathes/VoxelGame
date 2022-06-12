@@ -31,6 +31,8 @@ public abstract class PhysicsEntity : IDisposable
 
     private readonly int physicsIterations = 10;
 
+    private Vector3d actualPosition;
+
     private bool doPhysics = true;
 
     private Vector3d force;
@@ -71,7 +73,11 @@ public abstract class PhysicsEntity : IDisposable
     /// <summary>
     ///     Get the position of the physics entity.
     /// </summary>
-    public Vector3d Position { get; set; }
+    public Vector3d Position
+    {
+        get => actualPosition;
+        set => actualPosition = VMath.ClampComponents(value, -World.Extents, World.Extents);
+    }
 
     /// <summary>
     ///     Get the rotation of the physics entity.
