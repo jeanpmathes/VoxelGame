@@ -177,7 +177,7 @@ public abstract class PhysicsEntity : IDisposable
     ///     Tick this physics entity. An entity is ticked every update.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
-    public void Tick(float deltaTime)
+    public void Tick(double deltaTime)
     {
         if (DoPhysics)
         {
@@ -195,7 +195,7 @@ public abstract class PhysicsEntity : IDisposable
         Update(deltaTime);
     }
 
-    private void CalculatePhysics(float deltaTime)
+    private void CalculatePhysics(double deltaTime)
     {
         IsGrounded = false;
         IsSwimming = false;
@@ -288,7 +288,7 @@ public abstract class PhysicsEntity : IDisposable
     ///     Receives the entity update every tick.
     /// </summary>
     /// <param name="deltaTime"></param>
-    protected abstract void Update(float deltaTime);
+    protected abstract void Update(double deltaTime);
 
     #region IDisposable Support
 

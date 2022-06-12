@@ -201,8 +201,8 @@ public sealed class Screen : IDisposable
     {
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, msFBO);
 
-        GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Color, drawbuffer: 0, new[] { 0.5f, 0.8f, 0.9f, 1.0f });
-        GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, drawbuffer: 0, new[] { 1f });
+        GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Color, drawbuffer: 0, new[] {0.5f, 0.8f, 0.9f, 1.0f});
+        GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, drawbuffer: 0, new[] {1f});
     }
 
     /// <summary>
@@ -315,7 +315,7 @@ public sealed class Screen : IDisposable
     /// <summary>
     ///     Gets the aspect ratio <c>x/y</c>.
     /// </summary>
-    public static float AspectRatio => Size.X / (float) Size.Y;
+    public static double AspectRatio => Size.X / (double) Size.Y;
 
     /// <summary>
     ///     Gets whether the screen is in fullscreen.
@@ -542,7 +542,7 @@ public sealed class Screen : IDisposable
         GL.ActiveTexture(TextureUnit.Texture20);
         GL.BindTexture(TextureTarget.Texture2D, Instance.depthTex);
 
-        GL.ClearNamedFramebuffer(Instance.depthFBO, ClearBuffer.Depth, drawbuffer: 0, new[] { 1f });
+        GL.ClearNamedFramebuffer(Instance.depthFBO, ClearBuffer.Depth, drawbuffer: 0, new[] {1f});
 
         GL.BlitNamedFramebuffer(
             Instance.msFBO,

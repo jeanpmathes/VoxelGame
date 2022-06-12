@@ -58,7 +58,7 @@ public sealed class StartScene : IScene
     }
 
     /// <inheritdoc />
-    public void Update(float deltaTime)
+    public void Update(double deltaTime)
     {
         // Method intentionally left empty.
     }

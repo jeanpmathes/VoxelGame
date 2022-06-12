@@ -66,7 +66,7 @@ public class SceneManager
     ///     Update the current scene.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
-    public void Update(float deltaTime)
+    public void Update(double deltaTime)
     {
         current?.Update(deltaTime);
     }

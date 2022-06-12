@@ -108,9 +108,9 @@ public static class VMath
         MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
         return new Vector3d(
-            (float) Math.Round(vector.X, digits, midpointRounding),
-            (float) Math.Round(vector.Y, digits, midpointRounding),
-            (float) Math.Round(vector.Z, digits, midpointRounding));
+            Math.Round(vector.X, digits, midpointRounding),
+            Math.Round(vector.Y, digits, midpointRounding),
+            Math.Round(vector.Z, digits, midpointRounding));
     }
 
     /// <summary>

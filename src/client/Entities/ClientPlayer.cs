@@ -194,7 +194,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     }
 
     /// <inheritdoc />
-    protected override void OnUpdate(float deltaTime)
+    protected override void OnUpdate(double deltaTime)
     {
         movement = Vector3d.Zero;
 
@@ -291,7 +291,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         }
     }
 
-    private void HandleMovementInput(float deltaTime)
+    private void HandleMovementInput(double deltaTime)
     {
         if (DoPhysics)
         {

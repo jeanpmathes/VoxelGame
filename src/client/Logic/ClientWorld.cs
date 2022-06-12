@@ -129,7 +129,7 @@ public class ClientWorld : World
     }
 
     /// <inheritdoc />
-    public override void Update(float deltaTime)
+    public override void Update(double deltaTime)
     {
         StartActivatingChunks();
 

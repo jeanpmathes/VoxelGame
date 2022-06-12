@@ -158,7 +158,7 @@ public abstract partial class World : IDisposable
     ///     Called every update cycle.
     /// </summary>
     /// <param name="deltaTime">The time since the last update cycle.</param>
-    public abstract void Update(float deltaTime);
+    public abstract void Update(double deltaTime);
 
     /// <summary>
     ///     Returns the block instance at a given position in block coordinates. The block is only searched in active chunks.

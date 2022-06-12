@@ -74,7 +74,7 @@ public class Camera
         get => MathHelper.RadiansToDegrees(pitch);
         set
         {
-            double angle = MathHelper.Clamp(value, min: -89f, max: 89f);
+            double angle = MathHelper.Clamp(value, min: -89.0, max: 89.0);
             pitch = MathHelper.DegreesToRadians(angle);
             UpdateVectors();
         }
@@ -89,7 +89,7 @@ public class Camera
         set
         {
             yaw = MathHelper.DegreesToRadians(value);
-            yaw %= 360f;
+            yaw %= 360.0;
 
             UpdateVectors();
         }
@@ -117,16 +117,16 @@ public class Camera
     ///     Get the camera's projection matrix.
     /// </summary>
     public Matrix4d ProjectionMatrix => Matrix4d.CreatePerspectiveFieldOfView(
-        (float) fov,
+        fov,
         Screen.AspectRatio,
-        (float) NearClipping,
-        (float) FarClipping);
+        NearClipping,
+        FarClipping);
 
     private void UpdateVectors()
     {
-        front.X = (float) Math.Cos(pitch) * (float) Math.Cos(yaw);
-        front.Y = (float) Math.Sin(pitch);
-        front.Z = (float) Math.Cos(pitch) * (float) Math.Sin(yaw);
+        front.X = Math.Cos(pitch) * Math.Cos(yaw);
+        front.Y = Math.Sin(pitch);
+        front.Z = Math.Cos(pitch) * Math.Sin(yaw);
 
         front = Vector3d.Normalize(Front);
 

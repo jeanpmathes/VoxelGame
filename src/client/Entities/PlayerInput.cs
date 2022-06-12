@@ -35,7 +35,7 @@ internal sealed class PlayerInput
     private readonly PushButton selectTargetedButton;
     private readonly Button sprintButton;
 
-    private float timer;
+    private double timer;
 
     internal PlayerInput(ClientPlayer player)
     {
@@ -99,7 +99,7 @@ internal sealed class PlayerInput
         return movement;
     }
 
-    internal void Update(float deltaTime)
+    internal void Update(double deltaTime)
     {
         timer += deltaTime;
     }

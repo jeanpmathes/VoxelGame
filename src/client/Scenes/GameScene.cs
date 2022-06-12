@@ -143,7 +143,7 @@ public sealed class GameScene : IScene
     }
 
     /// <inheritdoc />
-    public void Update(float deltaTime)
+    public void Update(double deltaTime)
     {
         using (logger.BeginScope("GameScene Update"))
         {

@@ -49,7 +49,7 @@ public abstract class Player : PhysicsEntity
     public ChunkPosition Chunk { get; private set; }
 
     /// <inheritdoc />
-    protected sealed override void Update(float deltaTime)
+    protected sealed override void Update(double deltaTime)
     {
         OnUpdate(deltaTime);
         ProcessChunkChange();
@@ -59,7 +59,7 @@ public abstract class Player : PhysicsEntity
     ///     Called every time the player is updated.
     /// </summary>
     /// <param name="deltaTime">The time since the last update cycle.</param>
-    protected abstract void OnUpdate(float deltaTime);
+    protected abstract void OnUpdate(double deltaTime);
 
     /// <summary>
     ///     Check if the current chunk has changed and request new chunks if needed / release unneeded chunks.
