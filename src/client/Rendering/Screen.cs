@@ -202,7 +202,7 @@ public sealed class Screen : IDisposable
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, msFBO);
 
         GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Color, drawbuffer: 0, new[] {0.5f, 0.8f, 0.9f, 1.0f});
-        GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, drawbuffer: 0, new[] {1f});
+        ClearDepth();
     }
 
     /// <summary>
@@ -535,7 +535,7 @@ public sealed class Screen : IDisposable
     }
 
     /// <summary>
-    ///     Fill the depth texture with the current depth data..
+    ///     Fill the depth texture with the current depth data.
     /// </summary>
     public static void FillDepthTexture()
     {
@@ -559,6 +559,14 @@ public sealed class Screen : IDisposable
             BlitFramebufferFilter.Nearest);
 
         GL.ActiveTexture(TextureUnit.Texture0);
+    }
+
+    /// <summary>
+    ///     Clear just the depth buffer.
+    /// </summary>
+    public static void ClearDepth()
+    {
+        GL.ClearNamedFramebuffer(Instance.msFBO, ClearBuffer.Depth, drawbuffer: 0, new[] {1f});
     }
 
     /// <summary>

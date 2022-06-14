@@ -17,7 +17,6 @@ using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
@@ -93,9 +92,21 @@ public class ClientWorld : World
     {
         if (!IsReady) return;
 
-        renderList.Clear();
+        IView view = player!.View;
 
-        Frustum frustum = player!.Frustum;
+        DoRenderPass(new PassContext(view.ViewMatrix, view.FarProjectionMatrix, view.FarFrustum));
+
+        Screen.ClearDepth();
+
+        DoRenderPass(new PassContext(view.ViewMatrix, view.NearProjectionMatrix, view.NearFrustum));
+
+        // Render all players in this world
+        player?.Render();
+    }
+
+    private void DoRenderPass(PassContext context)
+    {
+        renderList.Clear();
 
         // Fill the render list.
         for (int x = -Player.LoadDistance; x <= Player.LoadDistance; x++)
@@ -104,22 +115,19 @@ public class ClientWorld : World
             if (TryGetChunk(
                     player!.Chunk.Offset(x, y, z),
                     out Chunk? chunk))
-                ((ClientChunk) chunk).AddCulledToRenderList(frustum, renderList);
+                ((ClientChunk) chunk).AddCulledToRenderList(context.Frustum, renderList);
 
         // Render the collected sections.
         for (var stage = 0; stage < SectionRenderer.DrawStageCount; stage++)
         {
             if (renderList.Count == 0) break;
 
-            SectionRenderer.PrepareStage(stage);
+            SectionRenderer.PrepareStage(stage, context);
 
             for (var i = 0; i < renderList.Count; i++) renderList[i].section.Render(stage, renderList[i].position);
 
             SectionRenderer.FinishStage(stage);
         }
-
-        // Render all players in this world
-        player?.Render();
     }
 
     /// <inheritdoc />

@@ -154,8 +154,8 @@ public sealed class BoxRenderer : IDisposable
         Shaders.Selection.Use();
 
         Matrix4d model = Matrix4d.Identity * Matrix4d.CreateTranslation(position);
-        Matrix4d view = Application.Client.Instance.CurrentGame!.Player.ViewMatrix;
-        Matrix4d projection = Application.Client.Instance.CurrentGame!.Player.ProjectionMatrix;
+        Matrix4d view = Application.Client.Instance.CurrentGame!.Player.View.ViewMatrix;
+        Matrix4d projection = Application.Client.Instance.CurrentGame!.Player.View.FullProjectionMatrix;
 
         Matrix4d mvp = model * view * projection;
         Shaders.Selection.SetMatrix4("mvp_matrix", mvp.ToMatrix4());
