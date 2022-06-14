@@ -13,6 +13,8 @@ layout(binding = 5) uniform sampler2DArray arrayTexture;
 layout(binding = 20) uniform sampler2D depthTex;
 
 uniform float time;
+uniform float nearPlane;
+uniform float farPlane;
 uniform vec3 viewPosition;
 
 float linearize_depth(float z_b, float zNear, float zFar)
@@ -35,12 +37,13 @@ void main()
 
     color *= tint;
 
-    float depth_linear = linearize_depth(depth, 0.1, 1000);
-    float dist_linear = linearize_depth(gl_FragCoord.z, 0.1, 1000);
+    float depth_linear = linearize_depth(depth, nearPlane, farPlane);
+    float dist_linear = linearize_depth(gl_FragCoord.z, nearPlane, farPlane);
 
     float thickness = abs(depth_linear - dist_linear);
+    if (depth == 1.0 || dist_linear > 10.0) thickness = 10.0;
 
-    float fogAmount = clamp(thickness / 4.0, 0.1, 0.9);
+    float fogAmount = clamp(thickness / 4.0, 0.05, 0.7);
     vec4 fogColor = vec4(saturate(color.rgb, 0.8), 1.0);
 
     float plane = dot(normal, viewPosition - worldPosition);

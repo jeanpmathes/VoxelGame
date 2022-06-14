@@ -31,21 +31,6 @@ public class Camera : IView
     }
 
     /// <summary>
-    ///     Get the far clipping distance.
-    /// </summary>
-    public static double FarClipping => 1000.0;
-
-    /// <summary>
-    ///     Get the middle clipping distance, which is used as both near and far plane distance in different passes.
-    /// </summary>
-    public static double MidClipping => 10.0;
-
-    /// <summary>
-    ///     Get the near clipping distance.
-    /// </summary>
-    public static double NearClipping => 0.1;
-
-    /// <summary>
     ///     Get or set the position of the camera.
     /// </summary>
     public Vector3d Position { get; set; }
@@ -106,6 +91,15 @@ public class Camera : IView
             fov = MathHelper.DegreesToRadians(angle);
         }
     }
+
+    /// <inheritdoc />
+    public double FarClipping => 1000.0;
+
+    /// <inheritdoc />
+    public double MidClipping => 10.0;
+
+    /// <inheritdoc />
+    public double NearClipping => 0.1;
 
     /// <inheritdoc />
     public Frustum FullFrustum => new(fov, Screen.AspectRatio, (NearClipping, FarClipping), Position, front, Up, Right);

@@ -94,10 +94,12 @@ public class ClientWorld : World
 
         IView view = player!.View;
 
+        Application.Client.Instance.Resources.Shaders.SetPlanes(view.MidClipping, view.FarClipping);
         DoRenderPass(new PassContext(view.ViewMatrix, view.FarProjectionMatrix, view.FarFrustum));
 
         Screen.ClearDepth();
 
+        Application.Client.Instance.Resources.Shaders.SetPlanes(view.NearClipping, view.MidClipping);
         DoRenderPass(new PassContext(view.ViewMatrix, view.NearProjectionMatrix, view.NearFrustum));
 
         // Render all players in this world

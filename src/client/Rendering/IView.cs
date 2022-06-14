@@ -15,6 +15,21 @@ namespace VoxelGame.Client.Rendering;
 public interface IView
 {
     /// <summary>
+    ///     Get the far clipping distance.
+    /// </summary>
+    public double FarClipping { get; }
+
+    /// <summary>
+    ///     Get the middle clipping distance, which is used as both near and far plane distance in different passes.
+    /// </summary>
+    public double MidClipping { get; }
+
+    /// <summary>
+    ///     Get the near clipping distance.
+    /// </summary>
+    public double NearClipping { get; }
+
+    /// <summary>
     ///     Get the full view frustum of the view, from near to far plane.
     /// </summary>
     public Frustum FullFrustum { get; }

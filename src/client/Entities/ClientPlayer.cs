@@ -117,9 +117,9 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     {
         get
         {
-            (double width, double height) = camera.GetDimensionsAt(Camera.NearClipping);
+            (double width, double height) = camera.GetDimensionsAt(camera.NearClipping);
 
-            Vector3d position = camera.Position + camera.Front * Camera.NearClipping;
+            Vector3d position = camera.Position + camera.Front * camera.NearClipping;
 
             Vector3d up = camera.Up * height * 0.5f;
             Vector3d right = camera.Right * width * 0.5f;
