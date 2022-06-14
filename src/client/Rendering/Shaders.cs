@@ -25,10 +25,14 @@ public sealed class Shaders
     private const string TimeUniform = "time";
     private const string ViewDirectionUniform = "viewDirection";
     private const string ViewPositionUniform = "viewPosition";
+    private const string NearPlaneUniform = "nearPlane";
+    private const string FarPlaneUniform = "farPlane";
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Shaders>();
+    private readonly ISet<Shader> farPlaneSet = new HashSet<Shader>();
 
     private readonly ShaderLoader loader;
+    private readonly ISet<Shader> nearPlaneSet = new HashSet<Shader>();
 
     private readonly ISet<Shader> timedSet = new HashSet<Shader>();
     private readonly ISet<Shader> viewDirectionSet = new HashSet<Shader>();
@@ -40,7 +44,9 @@ public sealed class Shaders
             directory,
             (timedSet, TimeUniform),
             (viewDirectionSet, ViewDirectionUniform),
-            (viewPositionSet, ViewPositionUniform));
+            (viewPositionSet, ViewPositionUniform),
+            (nearPlaneSet, NearPlaneUniform),
+            (farPlaneSet, FarPlaneUniform));
     }
 
     /// <summary>
@@ -168,6 +174,18 @@ public sealed class Shaders
     public void SetTime(float time)
     {
         foreach (Shader shader in timedSet) shader.SetFloat(TimeUniform, time);
+    }
+
+    /// <summary>
+    ///     Set the view plane distances.
+    /// </summary>
+    /// <param name="near">The near plane distance.</param>
+    /// <param name="far">The far plane distance.</param>
+    public void SetPlanes(double near, double far)
+    {
+        foreach (Shader shader in nearPlaneSet) shader.SetFloat(NearPlaneUniform, (float) near);
+
+        foreach (Shader shader in farPlaneSet) shader.SetFloat(FarPlaneUniform, (float) far);
     }
 
     /// <summary>

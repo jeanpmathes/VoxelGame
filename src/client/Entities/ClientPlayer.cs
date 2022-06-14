@@ -101,9 +101,9 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     public override BlockSide TargetSide => targetSide;
 
     /// <summary>
-    ///     Gets the frustum of the player camera.
+    /// Get the view of this player.
     /// </summary>
-    public Frustum Frustum => camera.Frustum;
+    public IView View => camera;
 
     /// <summary>
     ///     Get or set whether any overlay rendering is enabled.
@@ -117,9 +117,9 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     {
         get
         {
-            (double width, double height) = camera.GetDimensionsAt(Camera.NearClipping);
+            (double width, double height) = camera.GetDimensionsAt(camera.NearClipping);
 
-            Vector3d position = camera.Position + camera.Front * Camera.NearClipping;
+            Vector3d position = camera.Position + camera.Front * camera.NearClipping;
 
             Vector3d up = camera.Up * height * 0.5f;
             Vector3d right = camera.Right * width * 0.5f;
@@ -130,16 +130,6 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     /// <inheritdoc />
     public override Vector3d Movement => movement;
-
-    /// <summary>
-    ///     Gets the view matrix of the camera of this player.
-    /// </summary>
-    public Matrix4d ViewMatrix => camera.ViewMatrix;
-
-    /// <summary>
-    ///     Gets the projection matrix of the camera of this player.
-    /// </summary>
-    public Matrix4d ProjectionMatrix => camera.ProjectionMatrix;
 
     /// <inheritdoc cref="PhysicsEntity" />
     public override Vector3i? TargetPosition => targetPosition;

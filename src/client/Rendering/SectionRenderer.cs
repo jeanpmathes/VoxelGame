@@ -218,10 +218,11 @@ public sealed class SectionRenderer : IDisposable
     ///     Prepare drawing a specific stage.
     /// </summary>
     /// <param name="stage">The draw stage to prepare.</param>
-    public static void PrepareStage(int stage)
+    /// <param name="pass">The current rendering pass.</param>
+    public static void PrepareStage(int stage, PassContext pass)
     {
-        Matrix4d view = Application.Client.Instance.CurrentGame!.Player.ViewMatrix;
-        Matrix4d projection = Application.Client.Instance.CurrentGame!.Player.ProjectionMatrix;
+        Matrix4d view = pass.ViewMatrix;
+        Matrix4d projection = pass.ProjectionMatrix;
 
         viewProjection = view * projection;
 
@@ -354,7 +355,7 @@ public sealed class SectionRenderer : IDisposable
 
                 break;
             case OpaqueFluid:
-                Draw(opaqueFluidDrawGroup, Shaders.OpaqueFluidSection, model, passModel: true);
+                Draw(opaqueFluidDrawGroup, Shaders.OpaqueFluidSection, model, passModel: false);
 
                 break;
             case TransparentFluid:

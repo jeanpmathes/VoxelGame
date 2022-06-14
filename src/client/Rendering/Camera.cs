@@ -12,7 +12,7 @@ namespace VoxelGame.Client.Rendering;
 /// <summary>
 ///     Represents a camera in the game.
 /// </summary>
-public class Camera
+public class Camera : IView
 {
     private double fov = MathHelper.DegreesToRadians(degrees: 70.0);
 
@@ -31,24 +31,9 @@ public class Camera
     }
 
     /// <summary>
-    ///     Get the far clipping distance.
-    /// </summary>
-    public static double FarClipping => 1000.0;
-
-    /// <summary>
-    ///     Get the near clipping distance.
-    /// </summary>
-    public static double NearClipping => 0.1;
-
-    /// <summary>
     ///     Get or set the position of the camera.
     /// </summary>
     public Vector3d Position { get; set; }
-
-    /// <summary>
-    ///     Get the view frustum of the camera.
-    /// </summary>
-    public Frustum Frustum => new(fov, Screen.AspectRatio, (NearClipping, FarClipping), Position, front, Up, Right);
 
     /// <summary>
     ///     Get the front vector of the camera.
@@ -107,18 +92,47 @@ public class Camera
         }
     }
 
-    /// <summary>
-    ///     Get the camera's view matrix.
-    /// </summary>
+    /// <inheritdoc />
+    public double FarClipping => 1000.0;
+
+    /// <inheritdoc />
+    public double MidClipping => 10.0;
+
+    /// <inheritdoc />
+    public double NearClipping => 0.1;
+
+    /// <inheritdoc />
+    public Frustum FullFrustum => new(fov, Screen.AspectRatio, (NearClipping, FarClipping), Position, front, Up, Right);
+
+    /// <inheritdoc />
+    public Frustum NearFrustum => new(fov, Screen.AspectRatio, (NearClipping, MidClipping), Position, front, Up, Right);
+
+
+    /// <inheritdoc />
+    public Frustum FarFrustum => new(fov, Screen.AspectRatio, (MidClipping, FarClipping), Position, front, Up, Right);
+
+    /// <inheritdoc />
     public Matrix4d ViewMatrix => Matrix4d.LookAt(Position, Position + Front, Up);
 
-    /// <summary>
-    ///     Get the camera's projection matrix.
-    /// </summary>
-    public Matrix4d ProjectionMatrix => Matrix4d.CreatePerspectiveFieldOfView(
+    /// <inheritdoc />
+    public Matrix4d FullProjectionMatrix => Matrix4d.CreatePerspectiveFieldOfView(
         fov,
         Screen.AspectRatio,
         NearClipping,
+        FarClipping);
+
+    /// <inheritdoc />
+    public Matrix4d NearProjectionMatrix => Matrix4d.CreatePerspectiveFieldOfView(
+        fov,
+        Screen.AspectRatio,
+        NearClipping,
+        MidClipping);
+
+    /// <inheritdoc />
+    public Matrix4d FarProjectionMatrix => Matrix4d.CreatePerspectiveFieldOfView(
+        fov,
+        Screen.AspectRatio,
+        MidClipping,
         FarClipping);
 
     private void UpdateVectors()
