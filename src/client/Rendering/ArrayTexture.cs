@@ -200,8 +200,6 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
             canvas.Save();
         }
 
-        ReplaceTransparency(container);
-
         // Upload pixel data to array
         BitmapData data = container.LockBits(
             new Rectangle(x: 0, y: 0, container.Width, container.Height),
@@ -237,47 +235,6 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
 
         GL.TextureParameter(handle, TextureParameterName.TextureWrapS, (int) TextureWrapMode.Repeat);
         GL.TextureParameter(handle, TextureParameterName.TextureWrapT, (int) TextureWrapMode.Repeat);
-    }
-
-    /// <summary>
-    ///     Replace all transparent pixels with pixels that have a color similar to the rest of the image, while preserving the
-    ///     alpha channel.
-    ///     This improves sampling quality of the texture.
-    /// </summary>
-    private static void ReplaceTransparency(Bitmap bitmap)
-    {
-        long red = 0;
-        long green = 0;
-        long blue = 0;
-        long count = 0;
-
-        for (var x = 0; x < bitmap.Width; x++)
-        for (var y = 0; y < bitmap.Height; y++)
-        {
-            Color color = bitmap.GetPixel(x, y);
-
-            if (color.A == 0) continue;
-
-            red += color.R;
-            green += color.G;
-            blue += color.B;
-
-            count++;
-        }
-
-        Color averageColor = count != 0
-            ? Color.FromArgb(alpha: 0, (int) (red / count), (int) (green / count), (int) (blue / count))
-            : Color.Black;
-
-        for (var x = 0; x < bitmap.Width; x++)
-        for (var y = 0; y < bitmap.Height; y++)
-        {
-            Color color = bitmap.GetPixel(x, y);
-
-            if (color.A != 0) continue;
-
-            bitmap.SetPixel(x, y, averageColor);
-        }
     }
 
     /// <summary>
