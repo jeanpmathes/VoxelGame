@@ -127,6 +127,7 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
 
         // Split all images into separate bitmaps and create a list.
         LoadBitmaps(resolution, texturePaths, textures);
+        PreprocessBitmaps(textures);
 
         // Check if the arrays could hold all textures
         if (textures.Count > UnitSize * handles.Length)
@@ -170,6 +171,48 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
         logger.LogDebug(Events.ResourceLoad, "Loaded ArrayTexture with {Count} textures", Count);
     }
 
+    private static void PreprocessBitmaps(List<Bitmap> textures)
+    {
+        foreach (Bitmap texture in textures) PreprocessBitmap(texture);
+    }
+
+    private static void PreprocessBitmap(Bitmap texture)
+    {
+        long r = 0;
+        long g = 0;
+        long b = 0;
+        long count = 0;
+
+        for (var x = 0; x < texture.Width; x++)
+        for (var y = 0; y < texture.Height; y++)
+        {
+            Color pixel = texture.GetPixel(x, y);
+
+            if (pixel.A == 0) continue;
+
+            r += pixel.R * pixel.R;
+            g += pixel.G * pixel.G;
+            b += pixel.B * pixel.B;
+
+            count++;
+        }
+
+        int GetAverage(long sum)
+        {
+            return (int) Math.Sqrt(sum / (double) count);
+        }
+
+        Color average = Color.FromArgb(alpha: 0, GetAverage(r), GetAverage(g), GetAverage(b));
+
+        for (var x = 0; x < texture.Width; x++)
+        for (var y = 0; y < texture.Height; y++)
+        {
+            if (texture.GetPixel(x, y).A != 0) continue;
+
+            texture.SetPixel(x, y, average);
+        }
+    }
+
     private void GetHandles(int[] arr)
     {
         GL.CreateTextures(TextureTarget.Texture2DArray, arrayCount, arr);
@@ -186,18 +229,13 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
         // Allocate storage for array
         GL.TextureStorage3D(handle, levels, SizedInternalFormat.Rgba8, resolution, resolution, length);
 
-        using Bitmap container = new(resolution, resolution * length);
+        using Bitmap container = new(resolution, resolution * length, PixelFormat.Format32bppArgb);
 
-        using (System.Drawing.Graphics canvas = System.Drawing.Graphics.FromImage(container))
+        // Combine all textures into one
+        for (int i = startIndex; i < length; i++)
         {
-            // Combine all textures into one
-            for (int i = startIndex; i < length; i++)
-            {
-                textures[i].RotateFlip(RotateFlipType.RotateNoneFlipY);
-                canvas.DrawImage(textures[i], x: 0, i * resolution, resolution, resolution);
-            }
-
-            canvas.Save();
+            textures[i].RotateFlip(RotateFlipType.RotateNoneFlipY);
+            PlaceBitmap(textures[i], container, x: 0, i * resolution);
         }
 
         // Upload pixel data to array
@@ -285,6 +323,13 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
             }
     }
 
+    private static void PlaceBitmap(Bitmap source, Bitmap destination, int x, int y)
+    {
+        for (var i = 0; i < source.Width; i++)
+        for (var j = 0; j < source.Height; j++)
+            destination.SetPixel(x + i, y + j, source.GetPixel(i, j));
+    }
+
     private static void GenerateMipmapWithoutTransparencyMixing(int handle, Bitmap baseLevel, int levels,
         int length)
     {
@@ -333,11 +378,6 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
         bitmap.UnlockBits(data);
     }
 
-    /// <summary>
-    ///     Method used in generating a custom mipmap.
-    /// </summary>
-    /// <param name="upperLevel"></param>
-    /// <param name="lowerLevel"></param>
     private static void CreateLowerLevel(ref Bitmap upperLevel, ref Bitmap lowerLevel)
     {
         for (var w = 0; w < lowerLevel.Width; w++)
@@ -359,13 +399,14 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
             int relevantPixelCount = minAlpha != 0 ? 4 : one + two + three + four;
             (int, int, int, int) factors = (one, two, three, four);
 
-            Color average = relevantPixelCount == 0
-                ? Color.FromArgb(alpha: 0, red: 0, green: 0, blue: 0)
-                : Color.FromArgb(
-                    maxAlpha,
-                    CalculateAveragedColorChannel(c1.R, c2.R, c3.R, c4.R, factors),
-                    CalculateAveragedColorChannel(c1.G, c2.G, c3.G, c4.G, factors),
-                    CalculateAveragedColorChannel(c1.B, c2.B, c3.B, c4.B, factors));
+            int alpha = relevantPixelCount == 0 ? 0 : maxAlpha;
+            factors = relevantPixelCount == 0 ? (1, 1, 1, 1) : factors;
+
+            Color average = Color.FromArgb(
+                alpha,
+                CalculateAveragedColorChannel(c1.R, c2.R, c3.R, c4.R, factors),
+                CalculateAveragedColorChannel(c1.G, c2.G, c3.G, c4.G, factors),
+                CalculateAveragedColorChannel(c1.B, c2.B, c3.B, c4.B, factors));
 
             lowerLevel.SetPixel(w, h, average);
         }
