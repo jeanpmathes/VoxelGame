@@ -145,7 +145,7 @@ namespace Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("16")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
         public int AnisotropicFiltering {
             get {
                 return ((int)(this["AnisotropicFiltering"]));
