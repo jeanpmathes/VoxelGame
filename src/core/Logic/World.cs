@@ -92,6 +92,7 @@ public abstract partial class World : IDisposable
         positionsActivatingThroughSaving = new HashSet<ChunkPosition>();
 
         Information = information;
+        ValidateInformation();
 
         WorldDirectory = worldDirectory;
         ChunkDirectory = chunkDirectory;
@@ -167,9 +168,19 @@ public abstract partial class World : IDisposable
     /// </summary>
     public Vector3d Extents => new(BlockSize, BlockSize, BlockSize);
 
+    private void ValidateInformation()
+    {
+        uint validWorldSize = ClampSize(Information.Size);
+
+        if (validWorldSize == Information.Size) return;
+
+        Information.Size = validWorldSize;
+        logger.LogWarning(Events.WorldData, "Loaded world size was invalid, changed to {Value}", validWorldSize);
+    }
+
     private static uint ClampSize(uint size)
     {
-        return Math.Clamp(size, min: 0, int.MaxValue);
+        return Math.Clamp(size, min: 1024, BlockLimit);
     }
 
     private static IWorldGenerator GetGenerator(int seed)
