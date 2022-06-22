@@ -185,6 +185,11 @@ public abstract partial class World : IDisposable
         positionsToActivate.Add(ChunkPosition.Origin);
     }
 
+    private static bool IsInLimits(Vector3i position)
+    {
+        return Math.Abs(position.X) <= BlockLimit && Math.Abs(position.Y) <= BlockLimit && Math.Abs(position.Z) <= BlockLimit;
+    }
+
     /// <summary>
     ///     Called every update cycle.
     /// </summary>
