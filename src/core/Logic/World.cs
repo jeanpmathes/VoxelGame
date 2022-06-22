@@ -25,6 +25,12 @@ namespace VoxelGame.Core.Logic;
 /// </summary>
 public abstract partial class World : IDisposable
 {
+    /// <summary>
+    ///     The limit of the world size.
+    ///     The actual size of the world can be smaller, but never larger.
+    /// </summary>
+    public const uint BlockLimit = 50_000_000;
+
     private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
     private readonly IWorldGenerator generator;
@@ -142,9 +148,9 @@ public abstract partial class World : IDisposable
     }
 
     /// <summary>
-    ///     Get or set the world size.
+    ///     Get or set the world size in blocks.
     /// </summary>
-    public uint Size
+    public uint BlockSize
     {
         get => Information.Size;
         set
@@ -159,7 +165,7 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     Get the extents of the world.
     /// </summary>
-    public Vector3d Extents => new(Size, Size, Size);
+    public Vector3d Extents => new(BlockSize, BlockSize, BlockSize);
 
     private static uint ClampSize(uint size)
     {
