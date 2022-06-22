@@ -25,6 +25,12 @@ namespace VoxelGame.Core.Logic;
 /// </summary>
 public abstract partial class World : IDisposable
 {
+    /// <summary>
+    ///     The limit of the world size.
+    ///     The actual size of the world can be smaller, but never larger.
+    /// </summary>
+    public const uint BlockLimit = 50_000_000;
+
     private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
     private readonly IWorldGenerator generator;
@@ -86,6 +92,7 @@ public abstract partial class World : IDisposable
         positionsActivatingThroughSaving = new HashSet<ChunkPosition>();
 
         Information = information;
+        ValidateInformation();
 
         WorldDirectory = worldDirectory;
         ChunkDirectory = chunkDirectory;
@@ -142,9 +149,9 @@ public abstract partial class World : IDisposable
     }
 
     /// <summary>
-    ///     Get or set the world size.
+    ///     Get or set the world size in blocks.
     /// </summary>
-    public uint Size
+    public uint BlockSize
     {
         get => Information.Size;
         set
@@ -159,11 +166,21 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     Get the extents of the world.
     /// </summary>
-    public Vector3d Extents => new(Size, Size, Size);
+    public Vector3d Extents => new(BlockSize, BlockSize, BlockSize);
+
+    private void ValidateInformation()
+    {
+        uint validWorldSize = ClampSize(Information.Size);
+
+        if (validWorldSize == Information.Size) return;
+
+        Information.Size = validWorldSize;
+        logger.LogWarning(Events.WorldData, "Loaded world size was invalid, changed to {Value}", validWorldSize);
+    }
 
     private static uint ClampSize(uint size)
     {
-        return Math.Clamp(size, min: 0, int.MaxValue);
+        return Math.Clamp(size, min: 1024, BlockLimit);
     }
 
     private static IWorldGenerator GetGenerator(int seed)
@@ -177,6 +194,11 @@ public abstract partial class World : IDisposable
         Directory.CreateDirectory(ChunkDirectory);
 
         positionsToActivate.Add(ChunkPosition.Origin);
+    }
+
+    private static bool IsInLimits(Vector3i position)
+    {
+        return Math.Abs(position.X) <= BlockLimit && Math.Abs(position.Y) <= BlockLimit && Math.Abs(position.Z) <= BlockLimit;
     }
 
     /// <summary>

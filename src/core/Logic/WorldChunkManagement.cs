@@ -19,6 +19,8 @@ namespace VoxelGame.Core.Logic;
 
 public abstract partial class World
 {
+    private const uint ChunkLimit = BlockLimit / Chunk.BlockSize;
+
     /// <summary>
     ///     A dictionary that contains all active chunks.
     /// </summary>
@@ -109,6 +111,11 @@ public abstract partial class World
     ///     Creates a chunk for a chunk position.
     /// </summary>
     protected abstract Chunk CreateChunk(ChunkPosition position);
+
+    private static bool IsInLimits(ChunkPosition position)
+    {
+        return Math.Abs(position.X) < ChunkLimit && Math.Abs(position.Y) < ChunkLimit && Math.Abs(position.Z) < ChunkLimit;
+    }
 
     /// <summary>
     ///     Start activating chunks. This will either load or generate chunks that are set to be activated.
@@ -358,6 +365,8 @@ public abstract partial class World
     /// <param name="position">The position of the chunk.</param>
     public void RequestChunk(ChunkPosition position)
     {
+        if (!IsInLimits(position)) return;
+
         positionsToReleaseOnActivation.Remove(position);
 
         if (positionsActivating.Contains(position) || activeChunks.ContainsKey(position)) return;
@@ -374,6 +383,8 @@ public abstract partial class World
     /// <returns>true if the chunk will be released; false if not.</returns>
     public bool ReleaseChunk(ChunkPosition position)
     {
+        if (!IsInLimits(position)) return false;
+
         // Check if the chunk can be released
         if (position == ChunkPosition.Origin) return false; // The chunk at (0|0|0) cannot be released.
 
@@ -418,6 +429,8 @@ public abstract partial class World
     /// <returns>The chunk at the given position or null if no active chunk was found.</returns>
     public Chunk? GetChunk(ChunkPosition position)
     {
+        if (!IsInLimits(position)) return null;
+
         activeChunks.TryGetValue(position, out Chunk? chunk);
 
         return chunk;
@@ -431,6 +444,8 @@ public abstract partial class World
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Chunk? GetChunk(Vector3i position)
     {
+        if (!IsInLimits(position)) return null;
+
         bool exists = activeChunks.TryGetValue(ChunkPosition.From(position), out Chunk? chunk);
 
         return !exists ? null : chunk;
@@ -443,6 +458,8 @@ public abstract partial class World
     /// <returns>True if the chunk is active.</returns>
     protected bool IsChunkActive(ChunkPosition position)
     {
+        if (!IsInLimits(position)) return false;
+
         return activeChunks.ContainsKey(position);
     }
 
@@ -454,7 +471,9 @@ public abstract partial class World
     /// <returns>True if an active chunk was found.</returns>
     protected bool TryGetChunk(ChunkPosition position, [NotNullWhen(returnValue: true)] out Chunk? chunk)
     {
-        return activeChunks.TryGetValue(position, out chunk);
+        chunk = null;
+
+        return IsInLimits(position) && activeChunks.TryGetValue(position, out chunk);
     }
 
     /// <summary>
@@ -465,7 +484,11 @@ public abstract partial class World
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Section? GetSection(SectionPosition position)
     {
-        return activeChunks.TryGetValue(position.GetChunk(), out Chunk? chunk)
+        ChunkPosition chunkPosition = position.GetChunk();
+
+        if (!IsInLimits(chunkPosition)) return null;
+
+        return activeChunks.TryGetValue(chunkPosition, out Chunk? chunk)
             ? chunk.GetSection(position)
             : null;
     }

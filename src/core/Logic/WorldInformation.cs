@@ -33,7 +33,7 @@ public class WorldInformation
     /// <summary>
     ///     The size of the world, as extents.
     /// </summary>
-    public uint Size { get; set; } = 50_000_000;
+    public uint Size { get; set; } = World.BlockLimit - Chunk.BlockSize * 5;
 
     /// <summary>
     ///     The creation date of the world.

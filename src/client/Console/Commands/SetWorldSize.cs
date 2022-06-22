@@ -24,6 +24,6 @@ public class SetWorldSize : Command
     /// <exclude />
     public void Invoke(uint size)
     {
-        Context.Player.World.Size = size;
+        Context.Player.World.BlockSize = size;
     }
 }
