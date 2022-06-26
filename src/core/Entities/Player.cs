@@ -21,12 +21,10 @@ public abstract class Player : PhysicsEntity
     /// </summary>
     /// <param name="world">The world the player is in.</param>
     /// <param name="mass">The mass the player has.</param>
-    /// <param name="drag">The drag that affects the player.</param>
     /// <param name="boundingVolume">The bounding box of the player.</param>
-    protected Player(World world, float mass, float drag, BoundingVolume boundingVolume) : base(
+    protected Player(World world, float mass, BoundingVolume boundingVolume) : base(
         world,
         mass,
-        drag,
         boundingVolume)
     {
         Position = World.SpawnPosition;

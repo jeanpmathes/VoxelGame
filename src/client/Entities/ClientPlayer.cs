@@ -62,12 +62,11 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     /// </summary>
     /// <param name="world">The world in which the client player will be placed.</param>
     /// <param name="mass">The mass of the player.</param>
-    /// <param name="drag">The drag affecting the player.</param>
     /// <param name="camera">The camera to use for this player.</param>
     /// <param name="boundingVolume">The bounding box of the player.</param>
     /// <param name="ui">The ui used to display player information.</param>
-    public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingVolume boundingVolume,
-        GameUserInterface ui) : base(world, mass, drag, boundingVolume)
+    public ClientPlayer(World world, float mass, Camera camera, BoundingVolume boundingVolume,
+        GameUserInterface ui) : base(world, mass, boundingVolume)
     {
         this.camera = camera;
         camera.Position = Position;

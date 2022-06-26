@@ -198,6 +198,10 @@ public abstract partial class World : IDisposable
 
     private static bool IsInLimits(Vector3i position)
     {
+        if (position.X is int.MinValue) return false;
+        if (position.Y is int.MinValue) return false;
+        if (position.Z is int.MinValue) return false;
+
         return Math.Abs(position.X) <= BlockLimit && Math.Abs(position.Y) <= BlockLimit && Math.Abs(position.Z) <= BlockLimit;
     }
 
@@ -336,13 +340,14 @@ public abstract partial class World : IDisposable
         ModifyWorldData(position, ~Section.StaticMask, isStatic ? Section.StaticMask : 0);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void SetContent(BlockInstance block, FluidInstance fluid, Vector3i position, bool tickFluid)
     {
         SetContent(block.Block, block.Data, fluid.Fluid, fluid.Level, fluid.IsStatic, position, tickFluid);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(Block block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
+    private void SetContent(IBlockBase block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
         Vector3i position, bool tickFluid)
     {
         Chunk? chunk = GetChunk(position);
@@ -378,7 +383,7 @@ public abstract partial class World : IDisposable
     ///     Set all data at a world position.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetPosition(Block block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
+    public void SetPosition(IBlockBase block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
         Vector3i position)
     {
         SetContent(block, data, fluid, level, isStatic, position, tickFluid: true);
