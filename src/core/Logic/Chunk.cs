@@ -252,13 +252,13 @@ public abstract class Chunk : IDisposable
         {
             int y = range.begin;
 
-            foreach (Block block in generator.GenerateColumn(
+            foreach (uint data in generator.GenerateColumn(
                          x + Position.X * BlockSize,
                          z + Position.Z * BlockSize,
                          range))
             {
                 Vector3i position = (x, y, z);
-                GetSection(position).SetContent(position, block.Id);
+                GetSection(position).SetContent(position, data);
 
                 y++;
             }

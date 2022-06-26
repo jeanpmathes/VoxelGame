@@ -5,7 +5,6 @@
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
-using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Generation;
 
@@ -20,6 +19,6 @@ public interface IWorldGenerator
     /// <param name="x">The x position of the world.</param>
     /// <param name="z">The z position of the world.</param>
     /// <param name="heightRange">The height range (inclusive, exclusive) in which blocks should be generated.</param>
-    /// <returns>The blocks in the column.</returns>
-    IEnumerable<Block> GenerateColumn(int x, int z, (int start, int end) heightRange);
+    /// <returns>The data in the column.</returns>
+    IEnumerable<uint> GenerateColumn(int x, int z, (int start, int end) heightRange);
 }

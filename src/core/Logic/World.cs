@@ -185,7 +185,7 @@ public abstract partial class World : IDisposable
 
     private static IWorldGenerator GetGenerator(int seed)
     {
-        return new ComplexGenerator(seed);
+        return new DefaultGenerator(seed);
     }
 
     private void Setup()
