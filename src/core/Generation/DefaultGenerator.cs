@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
+using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Generation;
 
@@ -13,6 +14,10 @@ namespace VoxelGame.Core.Generation;
 /// </summary>
 public class DefaultGenerator : IWorldGenerator
 {
+    private const int SeaLevel = 0;
+
+    private readonly Palette palette = new();
+
     private readonly int seed;
 
     /// <summary>
@@ -27,6 +32,13 @@ public class DefaultGenerator : IWorldGenerator
     /// <inheritdoc />
     public IEnumerable<uint> GenerateColumn(int x, int z, (int start, int end) heightRange)
     {
-        yield return 0;
+        for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z));
+    }
+
+    private uint GenerateBlock(Vector3i position)
+    {
+        if (position.Y <= SeaLevel) return palette.Water;
+
+        return palette.Empty;
     }
 }

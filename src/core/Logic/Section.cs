@@ -231,13 +231,22 @@ public abstract class Section : IDisposable
     ///     Encode block and fluid information into section content.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static uint Encode(Block block, uint data, Fluid fluid, FluidLevel level, bool isStatic)
+    public static uint Encode(IBlockBase block, uint data, Fluid fluid, FluidLevel level, bool isStatic)
     {
         return (uint) ((((isStatic ? 1 : 0) << StaticShift) & StaticMask)
                        | (((uint) level << LevelShift) & LevelMask)
                        | ((fluid.Id << FluidShift) & FluidMask)
                        | ((data << DataShift) & DataMask)
                        | (block.Id & BlockMask));
+    }
+
+    /// <summary>
+    ///     Encode block and fluid information into section content, with defaults for all values.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static uint Encode(IBlockBase? block = null, Fluid? fluid = null)
+    {
+        return Encode(block ?? Block.Air, data: 0, fluid ?? Fluid.None, FluidLevel.Eight, isStatic: true);
     }
 
     /// <summary>
