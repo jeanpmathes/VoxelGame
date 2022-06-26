@@ -114,7 +114,7 @@ public abstract partial class World
 
     private static bool IsInLimits(ChunkPosition position)
     {
-        return Math.Abs(position.X) < ChunkLimit && Math.Abs(position.Y) < ChunkLimit && Math.Abs(position.Z) < ChunkLimit;
+        return Math.Abs(position.X) <= ChunkLimit && Math.Abs(position.Y) <= ChunkLimit && Math.Abs(position.Z) <= ChunkLimit;
     }
 
     /// <summary>

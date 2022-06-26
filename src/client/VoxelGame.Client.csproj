@@ -603,22 +603,25 @@
       <None Update="Resources\Models\fire_complete.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="Resources\Models\fire_side.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Models\fire_top.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Shaders\decode.glsl">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Shaders\color.glsl">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Utilities\modelexporter.py">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      </None>
-      <None Remove="Resources\Textures\Blocks\liquid_barrier_closed.png"/>
-      <None Remove="Resources\Textures\Blocks\liquid_barrier_open.png"/>
+    <None Update="Resources\Models\fire_side.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Models\fire_top.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Shaders\decode.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Shaders\color.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Utilities\modelexporter.py">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Remove="Resources\Textures\Blocks\liquid_barrier_closed.png"/>
+    <None Remove="Resources\Textures\Blocks\liquid_barrier_open.png"/>
+    <None Update="Resources\Textures\Blocks\core.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

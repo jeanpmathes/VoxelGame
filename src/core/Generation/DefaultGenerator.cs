@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Generation;
 
@@ -37,6 +38,7 @@ public class DefaultGenerator : IWorldGenerator
 
     private uint GenerateBlock(Vector3i position)
     {
+        if (position.Y == -World.BlockLimit) return palette.Core;
         if (position.Y <= SeaLevel) return palette.Water;
 
         return palette.Empty;

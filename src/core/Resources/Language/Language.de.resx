@@ -531,13 +531,16 @@
     <data name="KeySelectTargeted" xml:space="preserve">
     <value>Wähle Angezieltes</value>
   </data>
-    <data name="GraphicsUseFullscreenBorderless" xml:space="preserve">
+  <data name="GraphicsUseFullscreenBorderless" xml:space="preserve">
     <value>Randloses vollbild (im Fenster) nutzen</value>
   </data>
-    <data name="GraphicsAnisotropicFiltering" xml:space="preserve">
+  <data name="GraphicsAnisotropicFiltering" xml:space="preserve">
     <value>Anisotropes Filtern</value>
   </data>
-    <data name="KeyCrouch" xml:space="preserve">
+  <data name="KeyCrouch" xml:space="preserve">
     <value>Ducken</value>
+  </data>
+  <data name="Core" xml:space="preserve">
+    <value>Kern</value>
   </data>
 </root>

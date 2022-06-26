@@ -214,6 +214,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Core.
+        /// </summary>
+        public static string Core {
+            get {
+                return ResourceManager.GetString("Core", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Create.
         /// </summary>
         public static string Create {

@@ -16,4 +16,6 @@ public class Palette
     internal uint Empty { get; init; } = Section.Encode();
 
     internal uint Water { get; init; } = Section.Encode(fluid: Fluid.Water);
+
+    internal uint Core { get; init; } = Section.Encode(Block.Core);
 }
