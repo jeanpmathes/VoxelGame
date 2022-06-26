@@ -48,7 +48,7 @@ public class WorldInformation
     /// <summary>
     ///     The spawn information of the world.
     /// </summary>
-    public SpawnInformation SpawnInformation { get; set; } = new(new Vector3d(x: 0f, y: 500f, z: 0f));
+    public SpawnInformation SpawnInformation { get; set; } = new(Vector3d.Zero);
 
     /// <summary>
     ///     Save this world information to a file.
