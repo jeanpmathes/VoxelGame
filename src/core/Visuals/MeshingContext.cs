@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
@@ -251,7 +250,6 @@ public class MeshingContext
     /// <summary>
     ///     Generate the section mesh data.
     /// </summary>
-    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH")]
     public SectionMeshData GenerateMeshData()
     {
         // We build the mesh data for everything except complex meshes, as they are already in the correct format.
