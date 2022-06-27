@@ -8,7 +8,7 @@ System requirements are a Windows PC and decent hardware, because the performanc
 https://opentk.net/learn/index.html
 
 Fast Noise:
-https://github.com/Auburns/FastNoise_CSharp
+https://github.com/Auburn/FastNoiseLite
 
 glsl Noise:
 https://github.com/stegu/webgl-noise
