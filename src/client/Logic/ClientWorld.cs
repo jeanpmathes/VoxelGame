@@ -66,12 +66,12 @@ public class ClientWorld : World
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    public ClientWorld(string name, string path, int seed) : base(name, path, seed) {}
+    public ClientWorld(string path, string name, int seed) : base(path, name, seed) {}
 
     /// <summary>
     ///     This constructor is meant for worlds that already exist.
     /// </summary>
-    public ClientWorld(WorldInformation information, string path) : base(information, path) {}
+    public ClientWorld(string path, WorldInformation information) : base(path, information) {}
 
     private static int MaxMeshingTasks { get; } = Settings.Default.MaxMeshingTasks;
     private static int MaxMeshDataSends { get; } = Settings.Default.MaxMeshDataSends;

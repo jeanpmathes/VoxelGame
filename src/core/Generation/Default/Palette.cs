@@ -6,7 +6,7 @@
 
 using VoxelGame.Core.Logic;
 
-namespace VoxelGame.Core.Generation;
+namespace VoxelGame.Core.Generation.Default;
 
 /// <summary>
 ///     A palette of blocks and fluids to use for world generation.

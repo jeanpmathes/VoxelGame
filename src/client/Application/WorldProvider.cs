@@ -78,7 +78,7 @@ public class WorldProvider : IWorldProvider
     {
         if (WorldActivation == null) throw new InvalidOperationException();
 
-        ClientWorld world = new(information, path);
+        ClientWorld world = new(path, information);
         WorldActivation(this, world);
     }
 
@@ -94,7 +94,7 @@ public class WorldProvider : IWorldProvider
 
         while (Directory.Exists(path.ToString())) path.Append(value: '_');
 
-        ClientWorld world = new(name, path.ToString(), DateTime.Now.GetHashCode());
+        ClientWorld world = new(path.ToString(), name, DateTime.Now.GetHashCode());
         WorldActivation(world, world);
     }
 

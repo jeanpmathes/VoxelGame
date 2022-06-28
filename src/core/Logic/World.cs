@@ -15,6 +15,7 @@ using OpenTK.Mathematics;
 using Properties;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
+using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
 
@@ -38,7 +39,7 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    protected World(string name, string path, int seed) :
+    protected World(string path, string name, int seed) :
         this(
             new WorldInformation
             {
@@ -47,9 +48,7 @@ public abstract partial class World : IDisposable
                 Creation = DateTime.Now,
                 Version = ApplicationInformation.Instance.Version
             },
-            path,
-            path + "/Chunks",
-            GetGenerator(seed))
+            path)
     {
         Information.Save(Path.Combine(WorldDirectory, "meta.json"));
 
@@ -59,12 +58,10 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     This constructor is meant for worlds that already exist.
     /// </summary>
-    protected World(WorldInformation information, string path) :
+    protected World(string path, WorldInformation information) :
         this(
             information,
-            path,
-            path + "/Chunks",
-            GetGenerator(information.Seed))
+            path)
     {
         logger.LogInformation(Events.WorldIO, "Loaded existing world");
     }
@@ -72,8 +69,7 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     Setup of readonly fields and non-optional steps.
     /// </summary>
-    private World(WorldInformation information, string worldDirectory, string chunkDirectory,
-        IWorldGenerator generator)
+    private World(WorldInformation information, string worldDirectory)
     {
         positionsToActivate = new HashSet<ChunkPosition>();
         positionsActivating = new HashSet<ChunkPosition>();
@@ -95,12 +91,14 @@ public abstract partial class World : IDisposable
         ValidateInformation();
 
         WorldDirectory = worldDirectory;
-        ChunkDirectory = chunkDirectory;
-        this.generator = generator;
+        ChunkDirectory = Path.Combine(worldDirectory, "Chunks");
+        BlobDirectory = Path.Combine(worldDirectory, "Blobs");
 
         UpdateCounter = new UpdateCounter();
 
         Setup();
+
+        generator = GetGenerator(this);
     }
 
     private WorldInformation Information { get; }
@@ -124,6 +122,11 @@ public abstract partial class World : IDisposable
     ///     The directory in which all chunks of this world are stored.
     /// </summary>
     private string ChunkDirectory { get; }
+
+    /// <summary>
+    ///     The directory in named data blobs are stored.
+    /// </summary>
+    private string BlobDirectory { get; }
 
     /// <summary>
     ///     Gets whether this world is ready for physics ticking and rendering.
@@ -168,6 +171,44 @@ public abstract partial class World : IDisposable
     /// </summary>
     public Vector3d Extents => new(BlockSize, BlockSize, BlockSize);
 
+    /// <summary>
+    ///     Get a stream to an existing blob.
+    /// </summary>
+    /// <param name="name">The name of the blob.</param>
+    /// <returns>The stream to the blob, or null if the blob does not exist.</returns>
+    public Stream? GetBlobReader(string name)
+    {
+        try
+        {
+            return File.Open(Path.Combine(BlobDirectory, name), FileMode.Open);
+        }
+        catch (IOException e)
+        {
+            logger.LogDebug(Events.WorldIO, e, "Failed to read blob '{Name}'", name);
+
+            return null;
+        }
+    }
+
+    /// <summary>
+    ///     Get a stream to a new blob.
+    /// </summary>
+    /// <param name="name">The name of the blob.</param>
+    /// <returns>The stream to the blob, or null if an error occurred.</returns>
+    public Stream? GetBlobWriter(string name)
+    {
+        try
+        {
+            return File.Open(Path.Combine(BlobDirectory, name), FileMode.Create);
+        }
+        catch (IOException e)
+        {
+            logger.LogError(Events.WorldIO, e, "Failed to create blob '{Name}'", name);
+
+            return null;
+        }
+    }
+
     private void ValidateInformation()
     {
         uint validWorldSize = ClampSize(Information.Size);
@@ -183,15 +224,16 @@ public abstract partial class World : IDisposable
         return Math.Clamp(size, min: 1024, BlockLimit);
     }
 
-    private static IWorldGenerator GetGenerator(int seed)
+    private static IWorldGenerator GetGenerator(World world)
     {
-        return new DefaultGenerator(seed);
+        return new Generator(world);
     }
 
     private void Setup()
     {
         Directory.CreateDirectory(WorldDirectory);
         Directory.CreateDirectory(ChunkDirectory);
+        Directory.CreateDirectory(BlobDirectory);
 
         positionsToActivate.Add(ChunkPosition.Origin);
     }
