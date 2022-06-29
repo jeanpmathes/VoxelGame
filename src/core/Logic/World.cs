@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
@@ -93,6 +94,7 @@ public abstract partial class World : IDisposable
         WorldDirectory = worldDirectory;
         ChunkDirectory = Path.Combine(worldDirectory, "Chunks");
         BlobDirectory = Path.Combine(worldDirectory, "Blobs");
+        DebugDirectory = Path.Combine(worldDirectory, "Debug");
 
         UpdateCounter = new UpdateCounter();
 
@@ -127,6 +129,11 @@ public abstract partial class World : IDisposable
     ///     The directory in named data blobs are stored.
     /// </summary>
     private string BlobDirectory { get; }
+
+    /// <summary>
+    ///     The directory at which debug artifacts can be stored.
+    /// </summary>
+    public string DebugDirectory { get; }
 
     /// <summary>
     ///     Gets whether this world is ready for physics ticking and rendering.
@@ -172,15 +179,17 @@ public abstract partial class World : IDisposable
     public Vector3d Extents => new(BlockSize, BlockSize, BlockSize);
 
     /// <summary>
-    ///     Get a stream to an existing blob.
+    ///     Get a reader for an existing blob.
     /// </summary>
     /// <param name="name">The name of the blob.</param>
-    /// <returns>The stream to the blob, or null if the blob does not exist.</returns>
-    public Stream? GetBlobReader(string name)
+    /// <returns>The reader for the blob, or null if the blob does not exist.</returns>
+    public BinaryReader? GetBlobReader(string name)
     {
         try
         {
-            return File.Open(Path.Combine(BlobDirectory, name), FileMode.Open);
+            Stream stream = File.Open(Path.Combine(BlobDirectory, name), FileMode.Open, FileAccess.Read);
+
+            return new BinaryReader(stream, Encoding.UTF8, leaveOpen: false);
         }
         catch (IOException e)
         {
@@ -195,11 +204,13 @@ public abstract partial class World : IDisposable
     /// </summary>
     /// <param name="name">The name of the blob.</param>
     /// <returns>The stream to the blob, or null if an error occurred.</returns>
-    public Stream? GetBlobWriter(string name)
+    public BinaryWriter? GetBlobWriter(string name)
     {
         try
         {
-            return File.Open(Path.Combine(BlobDirectory, name), FileMode.Create);
+            Stream stream = File.Open(Path.Combine(BlobDirectory, name), FileMode.Create, FileAccess.Write);
+
+            return new BinaryWriter(stream, Encoding.UTF8, leaveOpen: false);
         }
         catch (IOException e)
         {
@@ -234,6 +245,7 @@ public abstract partial class World : IDisposable
         Directory.CreateDirectory(WorldDirectory);
         Directory.CreateDirectory(ChunkDirectory);
         Directory.CreateDirectory(BlobDirectory);
+        Directory.CreateDirectory(DebugDirectory);
 
         positionsToActivate.Add(ChunkPosition.Origin);
     }

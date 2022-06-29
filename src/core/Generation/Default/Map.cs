@@ -16,40 +16,51 @@ namespace VoxelGame.Core.Generation.Default;
 ///     Represents a rough overview over the entire world, as a 2D map.
 ///     This class can load, store and generate these maps.
 /// </summary>
-public class Map
+public partial class Map
 {
     /// <summary>
     ///     The size of a map cell.
     /// </summary>
     private const int CellSize = 100_000;
 
-    private const int MapWidth = (int) World.BlockLimit / CellSize;
-    private const int CellCount = MapWidth * MapWidth;
+    private const int Width = (int) World.BlockLimit / CellSize;
+    private const int CellCount = Width * Width;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Map>();
+
+    private readonly string debugPath;
 
     private Data? data;
 
     private bool dirty;
 
     /// <summary>
+    ///     Create a new map.
+    /// </summary>
+    /// <param name="debugPath">The path at which debug artifacts are created.</param>
+    public Map(string debugPath)
+    {
+        this.debugPath = debugPath;
+    }
+
+    /// <summary>
     ///     Initialize the map. If available, it can be loaded from a stream.
     ///     If loading is not possible, it will be generated.
     /// </summary>
-    /// <param name="stream">The stream to load the map from.</param>
-    public void Initialize(Stream? stream)
+    /// <param name="reader">The reader to load the map from.</param>
+    /// <param name="seed">The seed to use for the map generation.</param>
+    public void Initialize(BinaryReader? reader, int seed)
     {
         logger.LogDebug(Events.WorldGeneration, "Initializing map");
 
-        if (stream != null)
+        if (reader != null)
         {
-            Load(stream);
-            if (data == null) logger.LogError(Events.WorldGeneration, "Failed to load map");
+            Load(reader);
         }
 
-        if (data == null) Generate();
+        if (data == null) Generate(seed);
     }
 
-    private void Generate()
+    private void Generate(int seed)
     {
         Debug.Assert(data == null);
         data = new Data();
@@ -57,10 +68,13 @@ public class Map
 
         logger.LogDebug(Events.WorldGeneration, "Generating map");
 
+        GenerateContinents(data, seed);
+        EmitContinentView(data, debugPath);
+
         logger.LogInformation(Events.WorldGeneration, "Generated map");
     }
 
-    private void Load(Stream stream)
+    private void Load(BinaryReader reader)
     {
         Debug.Assert(data == null);
         Data loaded = new();
@@ -69,16 +83,20 @@ public class Map
         {
             Cell cell;
 
-            cell.value = (byte) stream.ReadByte();
+            cell.continent = reader.ReadInt32();
 
             return cell;
         }
 
-        for (var i = 0; i < CellCount; i++)
+        try
         {
-            if (stream.Position == stream.Length) return;
+            for (var i = 0; i < CellCount; i++) loaded.cells[i] = LoadCell();
+        }
+        catch (EndOfStreamException)
+        {
+            logger.LogError(Events.WorldGeneration, "Failed to load map, reached end of stream");
 
-            loaded.cells[i] = LoadCell();
+            return;
         }
 
         data = loaded;
@@ -89,8 +107,8 @@ public class Map
     /// <summary>
     ///     Store the map to a stream.
     /// </summary>
-    /// <param name="stream">The stream to store the map to.</param>
-    public void Store(Stream stream)
+    /// <param name="writer">The writer to write the map.</param>
+    public void Store(BinaryWriter writer)
     {
         Debug.Assert(data != null);
 
@@ -98,7 +116,7 @@ public class Map
 
         void StoreCell(Cell cell)
         {
-            stream.WriteByte(cell.value);
+            writer.Write(cell.continent);
         }
 
         foreach (Cell cell in data.cells) StoreCell(cell);
@@ -108,11 +126,16 @@ public class Map
     private struct Cell
     #pragma warning restore S3898
     {
-        public byte value;
+        public int continent;
     }
 
     private sealed class Data
     {
         public readonly Cell[] cells = new Cell[CellCount];
+
+        public ref Cell GetCell(int x, int y)
+        {
+            return ref cells[x + y * Width];
+        }
     }
 }

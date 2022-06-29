@@ -19,7 +19,7 @@ public class Generator : IWorldGenerator
     private const int SeaLevel = 0;
 
     private const string MapBlobName = "default_map";
-    private readonly Map map = new();
+    private readonly Map map;
 
     private readonly Palette palette = new();
 
@@ -33,6 +33,8 @@ public class Generator : IWorldGenerator
     public Generator(World world)
     {
         this.world = world;
+
+        map = new Map(world.DebugDirectory);
         seed = world.Seed;
 
         Initialize();
@@ -47,13 +49,13 @@ public class Generator : IWorldGenerator
 
     private void Initialize()
     {
-        using Stream? read = world.GetBlobReader(MapBlobName);
-        map.Initialize(read);
+        using BinaryReader? read = world.GetBlobReader(MapBlobName);
+        map.Initialize(read, seed);
     }
 
     private void Store()
     {
-        using Stream? write = world.GetBlobWriter(MapBlobName);
+        using BinaryWriter? write = world.GetBlobWriter(MapBlobName);
         if (write != null) map.Store(write);
     }
 
