@@ -191,9 +191,9 @@ public abstract partial class World : IDisposable
 
             return new BinaryReader(stream, Encoding.UTF8, leaveOpen: false);
         }
-        catch (IOException e)
+        catch (IOException)
         {
-            logger.LogDebug(Events.WorldIO, e, "Failed to read blob '{Name}'", name);
+            logger.LogDebug(Events.WorldIO, "Failed to read blob '{Name}'", name);
 
             return null;
         }

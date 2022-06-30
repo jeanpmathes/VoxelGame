@@ -16,16 +16,17 @@ namespace VoxelGame.Core.Generation.Default;
 
 public partial class Map
 {
-    private static List<List<int>> FillWithPieces(Data data, int seed)
+    private static List<List<short>> FillWithPieces(Data data, int seed)
     {
         FastNoiseLite noise = new(seed);
         noise.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
         noise.SetCellularReturnType(FastNoiseLite.CellularReturnType.CellValue);
+        noise.SetFrequency(frequency: 0.05f);
 
-        var currentPiece = 0;
-        Dictionary<double, int> valueToPiece = new();
+        short currentPiece = 0;
+        Dictionary<double, short> valueToPiece = new();
 
-        Dictionary<int, HashSet<int>> adjacencyHashed = new();
+        Dictionary<short, HashSet<short>> adjacencyHashed = new();
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -43,15 +44,15 @@ public partial class Map
         return BuildAdjacencyList(adjacencyHashed);
     }
 
-    private static void UpdateAdjacencies(Data data, IDictionary<int, HashSet<int>> adjacencyHashed, ref Cell current, (int, int) position)
+    private static void UpdateAdjacencies(Data data, IDictionary<short, HashSet<short>> adjacencyHashed, ref Cell current, (int, int) position)
     {
-        void AddAdjacency(int a, int b)
+        void AddAdjacency(short a, short b)
         {
             if (!adjacencyHashed.ContainsKey(a))
-                adjacencyHashed[a] = new HashSet<int>();
+                adjacencyHashed[a] = new HashSet<short>();
 
             if (!adjacencyHashed.ContainsKey(b))
-                adjacencyHashed[b] = new HashSet<int>();
+                adjacencyHashed[b] = new HashSet<short>();
 
             adjacencyHashed[a].Add(b);
             adjacencyHashed[b].Add(a);
@@ -74,13 +75,13 @@ public partial class Map
         }
     }
 
-    private static List<List<int>> BuildAdjacencyList(Dictionary<int, HashSet<int>> adjacencyHashed)
+    private static List<List<short>> BuildAdjacencyList(Dictionary<short, HashSet<short>> adjacencyHashed)
     {
-        List<List<int>> adjacency = new();
+        List<List<short>> adjacency = new();
 
-        for (var continent = 0; continent < adjacencyHashed.Count; continent++)
+        for (short continent = 0; continent < adjacencyHashed.Count; continent++)
         {
-            List<int> neighbors = new(adjacencyHashed[continent]);
+            List<short> neighbors = new(adjacencyHashed[continent]);
             adjacency.Add(neighbors);
         }
 
@@ -89,7 +90,7 @@ public partial class Map
 
     private static void GenerateContinents(Data data, int seed)
     {
-        List<List<int>> adjacency = FillWithPieces(data, seed);
+        List<List<short>> adjacency = FillWithPieces(data, seed);
     }
 
     [Conditional("DEBUG")]

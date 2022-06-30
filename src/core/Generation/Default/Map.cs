@@ -83,7 +83,7 @@ public partial class Map
         {
             Cell cell;
 
-            cell.continent = reader.ReadInt32();
+            cell.continent = reader.ReadInt16();
 
             return cell;
         }
@@ -126,7 +126,7 @@ public partial class Map
     private struct Cell
     #pragma warning restore S3898
     {
-        public int continent;
+        public short continent;
     }
 
     private sealed class Data
