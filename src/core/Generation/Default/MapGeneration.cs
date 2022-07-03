@@ -166,24 +166,32 @@ public partial class Map
     [Conditional("DEBUG")]
     private static void EmitContinentView(Data data, string path)
     {
-        Random random = new(Seed: 0);
         using Bitmap view = new(Width, Width);
 
-        Dictionary<int, Color> colors = new();
+        Color water = Color.FromArgb(red: 0x8A, green: 0xB4, blue: 0xF8);
+        Color border = Color.FromArgb(red: 0x8C, green: 0x8F, blue: 0x93);
+        Color land = Color.FromArgb(red: 0xA8, green: 0xDA, blue: 0xB5);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
             Cell current = data.GetCell(x, y);
 
-            if (!colors.ContainsKey(current.continent))
-                colors[current.continent] = Color.FromArgb(
-                    random.Next(minValue: 0, maxValue: 255),
-                    random.Next(minValue: 0, maxValue: 255),
-                    random.Next(minValue: 0, maxValue: 255)
-                );
+            if (x != 0 && current.continent != data.GetCell(x - 1, y).continent)
+            {
+                view.SetPixel(x, y, border);
 
-            view.SetPixel(x, y, colors[current.continent]);
+                continue;
+            }
+
+            if (y != 0 && current.continent != data.GetCell(x, y - 1).continent)
+            {
+                view.SetPixel(x, y, border);
+
+                continue;
+            }
+
+            view.SetPixel(x, y, water);
         }
 
         view.Save(Path.Combine(path, "continent_view.png"));
