@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using VoxelGame.Core.Collections;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -16,7 +18,7 @@ namespace VoxelGame.Core.Generation.Default;
 
 public partial class Map
 {
-    private static List<List<short>> FillWithPieces(Data data, int seed)
+    private static (List<List<short>>, Dictionary<short, double>) FillWithPieces(Data data, int seed)
     {
         FastNoiseLite noise = new(seed);
         noise.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
@@ -41,7 +43,7 @@ public partial class Map
             UpdateAdjacencies(data, adjacencyHashed, ref current, (x, y));
         }
 
-        return BuildAdjacencyList(adjacencyHashed);
+        return (Algorithms.BuildAdjacencyList(adjacencyHashed), Algorithms.InvertDictionary(valueToPiece));
     }
 
     private static void UpdateAdjacencies(Data data, IDictionary<short, HashSet<short>> adjacencyHashed, ref Cell current, (int, int) position)
@@ -75,22 +77,90 @@ public partial class Map
         }
     }
 
-    private static List<List<short>> BuildAdjacencyList(Dictionary<short, HashSet<short>> adjacencyHashed)
+    private static void BuildContinents(Data data, List<List<short>> adjacency, IDictionary<short, double> pieceToValue)
     {
-        List<List<short>> adjacency = new();
+        UnionFind merge = new((short) adjacency.Count);
 
-        for (short continent = 0; continent < adjacencyHashed.Count; continent++)
+        DoContinentBuying(adjacency, pieceToValue, merge);
+        DoContinentConsuming(adjacency, merge);
+        DoContinentMerging(adjacency, merge);
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
         {
-            List<short> neighbors = new(adjacencyHashed[continent]);
-            adjacency.Add(neighbors);
+            ref Cell current = ref data.GetCell(x, y);
+            current.continent = merge.Find(current.continent);
+        }
+    }
+
+    /// <summary>
+    ///     Merge single pieces together.
+    /// </summary>
+    private static void DoContinentMerging(List<List<short>> adjacency, UnionFind merge)
+    {
+        for (short continent = 0; continent < adjacency.Count; continent++)
+        {
+            if (adjacency[continent].Count == 0) continue;
+            if (merge.GetSize(continent) > 1) continue;
+
+            foreach (short neighbor in adjacency[continent])
+            {
+                if (merge.GetSize(neighbor) != 1) continue;
+
+                merge.Union(continent, neighbor);
+
+                break;
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Merge pieces into continents that completely surround them.
+    /// </summary>
+    private static void DoContinentConsuming(List<List<short>> adjacency, UnionFind merge)
+    {
+        for (short continent = 0; continent < adjacency.Count; continent++)
+        {
+            if (adjacency[continent].Count == 0) continue;
+
+            short anyNeighbor = merge.Find(adjacency[continent].First());
+
+            if (adjacency[continent].All(neighbor => anyNeighbor == merge.Find(neighbor))) merge.Union(continent, anyNeighbor);
+        }
+    }
+
+    /// <summary>
+    ///     Let continents buy neighbors with their budget.
+    /// </summary>
+    private static void DoContinentBuying(List<List<short>> adjacency, IDictionary<short, double> pieceToValue, UnionFind merge)
+    {
+        const double continentMerging = 0.525;
+
+        int GetBudget(short continent, double factor)
+        {
+            double value = Math.Abs(pieceToValue[continent]);
+
+            return (int) Math.Floor(Math.Pow(x: 2, value / factor) - 0.9);
         }
 
-        return adjacency;
+        for (short continent = 0; continent < adjacency.Count; continent++)
+        {
+            int budget = GetBudget(continent, continentMerging);
+
+            foreach (short adjacent in adjacency[continent])
+            {
+                if (budget <= 0) continue;
+
+                merge.Union(continent, adjacent);
+                budget--;
+            }
+        }
     }
 
     private static void GenerateContinents(Data data, int seed)
     {
-        List<List<short>> adjacency = FillWithPieces(data, seed);
+        (List<List<short>> adjacency, Dictionary<short, double> pieceToValue) = FillWithPieces(data, seed);
+        BuildContinents(data, adjacency, pieceToValue);
     }
 
     [Conditional("DEBUG")]
