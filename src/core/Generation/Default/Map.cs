@@ -84,6 +84,7 @@ public partial class Map
             Cell cell;
 
             cell.continent = reader.ReadInt16();
+            cell.isLand = reader.ReadBoolean();
 
             return cell;
         }
@@ -117,6 +118,7 @@ public partial class Map
         void StoreCell(Cell cell)
         {
             writer.Write(cell.continent);
+            writer.Write(cell.isLand);
         }
 
         foreach (Cell cell in data.cells) StoreCell(cell);
@@ -127,6 +129,7 @@ public partial class Map
     #pragma warning restore S3898
     {
         public short continent;
+        public bool isLand;
     }
 
     private sealed class Data

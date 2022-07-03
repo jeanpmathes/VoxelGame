@@ -85,11 +85,17 @@ public partial class Map
         DoContinentConsuming(adjacency, merge);
         DoContinentMerging(adjacency, merge);
 
+        bool[] isLand = DoLandCreation(adjacency, pieceToValue);
+        DoLandGapFilling(adjacency, isLand, merge);
+
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
             ref Cell current = ref data.GetCell(x, y);
+            short pieceId = current.continent;
+
             current.continent = merge.Find(current.continent);
+            current.isLand = isLand[pieceId];
         }
     }
 
@@ -134,18 +140,18 @@ public partial class Map
     /// </summary>
     private static void DoContinentBuying(List<List<short>> adjacency, IDictionary<short, double> pieceToValue, UnionFind merge)
     {
-        const double continentMerging = 0.525;
-
-        int GetBudget(short continent, double factor)
+        int GetBudget(short continent)
         {
+            const double continentMerging = 0.525;
+
             double value = Math.Abs(pieceToValue[continent]);
 
-            return (int) Math.Floor(Math.Pow(x: 2, value / factor) - 0.9);
+            return (int) Math.Floor(Math.Pow(x: 2, value / continentMerging) - 0.9);
         }
 
         for (short continent = 0; continent < adjacency.Count; continent++)
         {
-            int budget = GetBudget(continent, continentMerging);
+            int budget = GetBudget(continent);
 
             foreach (short adjacent in adjacency[continent])
             {
@@ -154,6 +160,63 @@ public partial class Map
                 merge.Union(continent, adjacent);
                 budget--;
             }
+        }
+    }
+
+    /// <summary>
+    ///     Give all pieces a land-budget that they can use to make themselves and other pieces land.
+    /// </summary>
+    private static bool[] DoLandCreation(List<List<short>> adjacency, IDictionary<short, double> pieceToValue)
+    {
+        var isLand = new bool[adjacency.Count];
+
+        int GetBudget(short continent)
+        {
+            const double landCreation = 0.65;
+
+            double value = Math.Abs(pieceToValue[continent]);
+
+            return (int) Math.Floor(Math.Pow(x: 2, value / landCreation)) - 1;
+        }
+
+        for (short continent = 0; continent < adjacency.Count; continent++)
+        {
+            int budget = GetBudget(continent);
+
+            if (budget == 0) continue;
+
+            isLand[continent] = true;
+
+            foreach (short adjacent in adjacency[continent])
+            {
+                if (budget <= 0) continue;
+
+                isLand[adjacent] = true;
+                budget--;
+            }
+        }
+
+        return isLand;
+    }
+
+    /// <summary>
+    ///     Fill single pieces of land/water surrounded by the other type if they are not bordering a different continent.
+    /// </summary>
+    private static void DoLandGapFilling(List<List<short>> adjacency, bool[] isLand, UnionFind merge)
+    {
+        for (short piece = 0; piece < adjacency.Count; piece++)
+        {
+            if (adjacency[piece].Count == 0) continue;
+
+            var surrounded = true;
+
+            foreach (short neighbor in adjacency[piece])
+            {
+                surrounded &= isLand[piece] != isLand[neighbor];
+                surrounded &= merge.Connected(piece, neighbor);
+            }
+
+            if (surrounded) isLand[piece] = !isLand[piece];
         }
     }
 
@@ -191,7 +254,7 @@ public partial class Map
                 continue;
             }
 
-            view.SetPixel(x, y, water);
+            view.SetPixel(x, y, current.isLand ? land : water);
         }
 
         view.Save(Path.Combine(path, "continent_view.png"));
