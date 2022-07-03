@@ -104,16 +104,16 @@ public partial class Map
     /// </summary>
     private static void DoContinentMerging(List<List<short>> adjacency, UnionFind merge)
     {
-        for (short continent = 0; continent < adjacency.Count; continent++)
+        for (short piece = 0; piece < adjacency.Count; piece++)
         {
-            if (adjacency[continent].Count == 0) continue;
-            if (merge.GetSize(continent) > 1) continue;
+            if (adjacency[piece].Count == 0) continue;
+            if (merge.GetSize(piece) > 1) continue;
 
-            foreach (short neighbor in adjacency[continent])
+            foreach (short neighbor in adjacency[piece])
             {
                 if (merge.GetSize(neighbor) != 1) continue;
 
-                merge.Union(continent, neighbor);
+                merge.Union(piece, neighbor);
 
                 break;
             }
@@ -125,13 +125,13 @@ public partial class Map
     /// </summary>
     private static void DoContinentConsuming(List<List<short>> adjacency, UnionFind merge)
     {
-        for (short continent = 0; continent < adjacency.Count; continent++)
+        for (short piece = 0; piece < adjacency.Count; piece++)
         {
-            if (adjacency[continent].Count == 0) continue;
+            if (adjacency[piece].Count == 0) continue;
 
-            short anyNeighbor = merge.Find(adjacency[continent].First());
+            short anyNeighbor = merge.Find(adjacency[piece].First());
 
-            if (adjacency[continent].All(neighbor => anyNeighbor == merge.Find(neighbor))) merge.Union(continent, anyNeighbor);
+            if (adjacency[piece].All(neighbor => anyNeighbor == merge.Find(neighbor))) merge.Union(piece, anyNeighbor);
         }
     }
 
@@ -140,24 +140,24 @@ public partial class Map
     /// </summary>
     private static void DoContinentBuying(List<List<short>> adjacency, IDictionary<short, double> pieceToValue, UnionFind merge)
     {
-        int GetBudget(short continent)
+        int GetBudget(short piece)
         {
             const double continentMerging = 0.525;
 
-            double value = Math.Abs(pieceToValue[continent]);
+            double value = Math.Abs(pieceToValue[piece]);
 
             return (int) Math.Floor(Math.Pow(x: 2, value / continentMerging) - 0.9);
         }
 
-        for (short continent = 0; continent < adjacency.Count; continent++)
+        for (short piece = 0; piece < adjacency.Count; piece++)
         {
-            int budget = GetBudget(continent);
+            int budget = GetBudget(piece);
 
-            foreach (short adjacent in adjacency[continent])
+            foreach (short adjacent in adjacency[piece])
             {
                 if (budget <= 0) continue;
 
-                merge.Union(continent, adjacent);
+                merge.Union(piece, adjacent);
                 budget--;
             }
         }
@@ -170,24 +170,24 @@ public partial class Map
     {
         var isLand = new bool[adjacency.Count];
 
-        int GetBudget(short continent)
+        int GetBudget(short piece)
         {
             const double landCreation = 0.65;
 
-            double value = Math.Abs(pieceToValue[continent]);
+            double value = Math.Abs(pieceToValue[piece]);
 
             return (int) Math.Floor(Math.Pow(x: 2, value / landCreation)) - 1;
         }
 
-        for (short continent = 0; continent < adjacency.Count; continent++)
+        for (short piece = 0; piece < adjacency.Count; piece++)
         {
-            int budget = GetBudget(continent);
+            int budget = GetBudget(piece);
 
             if (budget == 0) continue;
 
-            isLand[continent] = true;
+            isLand[piece] = true;
 
-            foreach (short adjacent in adjacency[continent])
+            foreach (short adjacent in adjacency[piece])
             {
                 if (budget <= 0) continue;
 
