@@ -92,10 +92,10 @@ public partial class Map
         for (var y = 0; y < Width; y++)
         {
             ref Cell current = ref data.GetCell(x, y);
-            short pieceId = current.continent;
+            short piece = current.continent;
 
-            current.continent = merge.Find(current.continent);
-            current.isLand = isLand[pieceId];
+            current.continent = merge.Find(piece);
+            current.isLand = isLand[piece];
         }
     }
 
@@ -170,30 +170,24 @@ public partial class Map
     {
         var isLand = new bool[adjacency.Count];
 
-        int GetBudget(short piece)
+        bool HasBudget(short piece)
         {
-            const double landCreation = 0.65;
+            const double landCreation = 0.9;
 
             double value = Math.Abs(pieceToValue[piece]);
 
-            return (int) Math.Floor(Math.Pow(x: 2, value / landCreation)) - 1;
+            return value > landCreation;
         }
 
         for (short piece = 0; piece < adjacency.Count; piece++)
         {
-            int budget = GetBudget(piece);
+            bool hasBudget = HasBudget(piece);
 
-            if (budget == 0) continue;
+            if (!hasBudget) continue;
 
             isLand[piece] = true;
 
-            foreach (short adjacent in adjacency[piece])
-            {
-                if (budget <= 0) continue;
-
-                isLand[adjacent] = true;
-                budget--;
-            }
+            foreach (short adjacent in adjacency[piece]) isLand[adjacent] = true;
         }
 
         return isLand;
@@ -208,13 +202,7 @@ public partial class Map
         {
             if (adjacency[piece].Count == 0) continue;
 
-            var surrounded = true;
-
-            foreach (short neighbor in adjacency[piece])
-            {
-                surrounded &= isLand[piece] != isLand[neighbor];
-                surrounded &= merge.Connected(piece, neighbor);
-            }
+            bool surrounded = adjacency[piece].Aggregate(seed: true, (current, neighbor) => current && (isLand[piece] != isLand[neighbor] || !merge.Connected(piece, neighbor)));
 
             if (surrounded) isLand[piece] = !isLand[piece];
         }
