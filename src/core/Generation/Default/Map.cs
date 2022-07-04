@@ -115,13 +115,13 @@ public partial class Map
 
         if (!dirty) return;
 
-        void StoreCell(Cell cell)
+        void StoreCell(in Cell cell)
         {
             writer.Write(cell.continent);
             writer.Write(cell.isLand);
         }
 
-        foreach (Cell cell in data.cells) StoreCell(cell);
+        for (var i = 0; i < CellCount; i++) StoreCell(data.cells[i]);
     }
 
     #pragma warning disable S3898

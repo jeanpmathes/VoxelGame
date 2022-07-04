@@ -87,6 +87,7 @@ public partial class Map
 
         bool[] isLand = DoLandCreation(adjacency, pieceToValue);
         DoLandGapFilling(adjacency, isLand, merge);
+        DoLandBorderFlooding(data, isLand);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -205,6 +206,27 @@ public partial class Map
             bool surrounded = adjacency[piece].Aggregate(seed: true, (current, neighbor) => current && (isLand[piece] != isLand[neighbor] || !merge.Connected(piece, neighbor)));
 
             if (surrounded) isLand[piece] = !isLand[piece];
+        }
+    }
+
+    /// <summary>
+    ///     Flood all land pieces at the world border.
+    /// </summary>
+    private static void DoLandBorderFlooding(Data data, IList<bool> isLand)
+    {
+        void FloodCell(int x, int y)
+        {
+            ref readonly Cell cell = ref data.GetCell(x, y);
+            isLand[cell.continent] = false;
+        }
+
+        for (var i = 0; i < Width; i++)
+        {
+            FloodCell(i, y: 0);
+            FloodCell(i, Width - 1);
+
+            FloodCell(x: 0, i);
+            FloodCell(Width - 1, i);
         }
     }
 
