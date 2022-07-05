@@ -77,7 +77,7 @@ public partial class Map
         }
     }
 
-    private static void BuildContinents(Data data, List<List<short>> adjacency, IDictionary<short, double> pieceToValue)
+    private static (List<(short, double)>, Dictionary<short, List<short>>) BuildContinents(Data data, List<List<short>> adjacency, IDictionary<short, double> pieceToValue)
     {
         UnionFind merge = new((short) adjacency.Count);
 
@@ -98,6 +98,10 @@ public partial class Map
             current.continent = merge.Find(piece);
             current.isLand = isLand[piece];
         }
+
+        (List<short> mergedNodes, Dictionary<short, List<short>> mergedAdjacency) = Algorithms.MergeAdjacencyList(adjacency, merge.Find);
+
+        return (Algorithms.AppendData(mergedNodes, pieceToValue), mergedAdjacency);
     }
 
     /// <summary>
@@ -232,8 +236,8 @@ public partial class Map
 
     private static void GenerateContinents(Data data, int seed)
     {
-        (List<List<short>> adjacency, Dictionary<short, double> pieceToValue) = FillWithPieces(data, seed);
-        BuildContinents(data, adjacency, pieceToValue);
+        (List<List<short>> adjacency, Dictionary<short, double> pieceToValue) pieces = FillWithPieces(data, seed);
+        (List<(short, double)> nodes, Dictionary<short, List<short>> adjancecy) continents = BuildContinents(data, pieces.adjacency, pieces.pieceToValue);
     }
 
     [Conditional("DEBUG")]
