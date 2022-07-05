@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 
 namespace VoxelGame.Core.Generation.Default;
@@ -237,7 +238,36 @@ public partial class Map
     private static void GenerateContinents(Data data, int seed)
     {
         (List<List<short>> adjacency, Dictionary<short, double> pieceToValue) pieces = FillWithPieces(data, seed);
+
         (List<(short, double)> nodes, Dictionary<short, List<short>> adjancecy) continents = BuildContinents(data, pieces.adjacency, pieces.pieceToValue);
+
+        RunTectonicSimulation(data, pieces, continents);
+    }
+
+    private static void RunTectonicSimulation(Data data,
+        (List<List<short>> adjacency, Dictionary<short, double> pieceToValue) pieces,
+        (List<(short, double)> nodes, Dictionary<short, List<short>> adjancecy) continents)
+    {
+        List<Vector2d> driftDirections = GetDriftDirections(continents.nodes);
+    }
+
+    private static List<Vector2d> GetDriftDirections(List<(short, double)> continentsNodes)
+    {
+        List<Vector2d> driftDirections = new();
+
+        foreach ((short _, double value) in continentsNodes)
+        {
+            double angle = value * Math.PI;
+
+            Vector2d drift;
+
+            drift.X = Math.Cos(angle);
+            drift.Y = Math.Sin(angle);
+
+            driftDirections.Add(drift);
+        }
+
+        return driftDirections;
     }
 
     [Conditional("DEBUG")]
