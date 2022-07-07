@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -246,7 +247,7 @@ public partial class Map
         SimulateTectonics(data, continents);
     }
 
-    private static void AddPieceHeights(Data data, Dictionary<short, double> pieceToValue)
+    private static void AddPieceHeights(Data data, IDictionary<short, double> pieceToValue)
     {
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -311,7 +312,12 @@ public partial class Map
                 continue;
             }
 
-            view.SetPixel(x, y, current.isLand ? land : water);
+            Color terrain = current.isLand ? land : water;
+            bool isHigh = current.height > 0;
+
+            Color mixed = Colors.Mix(terrain, isHigh ? Color.Black : Color.White, Math.Abs(current.height) / 2);
+
+            view.SetPixel(x, y, mixed);
         }
 
         view.Save(Path.Combine(path, "continent_view.png"));

@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.Drawing;
+using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -19,5 +20,20 @@ public static class Colors
     public static bool HasOpaqueness(this Color color)
     {
         return color.A != 0;
+    }
+
+    /// <summary>
+    ///     Mix two colors.
+    /// </summary>
+    /// <param name="a">The first color.</param>
+    /// <param name="b">The second color.</param>
+    /// <param name="f">The mixing factor for linear interpolation.</param>
+    public static Color Mix(Color a, Color b, double f = 0.5)
+    {
+        return Color.FromArgb(
+            (int) MathHelper.Lerp(a.A, b.A, f),
+            (int) MathHelper.Lerp(a.R, b.R, f),
+            (int) MathHelper.Lerp(a.G, b.G, f),
+            (int) MathHelper.Lerp(a.B, b.B, f));
     }
 }
