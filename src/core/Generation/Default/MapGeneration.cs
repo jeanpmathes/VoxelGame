@@ -312,14 +312,19 @@ public partial class Map
                 continue;
             }
 
-            Color terrain = current.isLand ? land : water;
-            bool isHigh = current.height > 0;
-
-            Color mixed = Colors.Mix(terrain, isHigh ? Color.Black : Color.White, Math.Abs(current.height) / 2);
-
-            view.SetPixel(x, y, mixed);
+            view.SetPixel(x, y, GetMapColor(current, land, water));
         }
 
         view.Save(Path.Combine(path, "continent_view.png"));
+    }
+
+    private static Color GetMapColor(Cell current, Color land, Color water)
+    {
+        Color terrain = current.isLand ? land : water;
+        bool isHigh = current.height > 0;
+
+        Color mixed = Colors.Mix(terrain, isHigh ? Color.Black : Color.White, Math.Abs(current.height) / 2);
+
+        return mixed;
     }
 }
