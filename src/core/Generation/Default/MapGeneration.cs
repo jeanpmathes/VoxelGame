@@ -239,13 +239,26 @@ public partial class Map
     {
         (List<List<short>> adjacency, Dictionary<short, double> pieceToValue) pieces = FillWithPieces(data, seed);
 
+        AddPieceHeights(data, pieces.pieceToValue);
+
         (List<(short, double)> nodes, Dictionary<short, List<short>> adjancecy) continents = BuildContinents(data, pieces.adjacency, pieces.pieceToValue);
 
-        RunTectonicSimulation(data, pieces, continents);
+        SimulateTectonics(data, continents);
     }
 
-    private static void RunTectonicSimulation(Data data,
-        (List<List<short>> adjacency, Dictionary<short, double> pieceToValue) pieces,
+    private static void AddPieceHeights(Data data, Dictionary<short, double> pieceToValue)
+    {
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+        {
+            ref Cell cell = ref data.GetCell(x, y);
+
+            double offset = pieceToValue[cell.continent] * 0.1;
+            cell.height += (float) offset;
+        }
+    }
+
+    private static void SimulateTectonics(Data data,
         (List<(short, double)> nodes, Dictionary<short, List<short>> adjancecy) continents)
     {
         List<Vector2d> driftDirections = GetDriftDirections(continents.nodes);
