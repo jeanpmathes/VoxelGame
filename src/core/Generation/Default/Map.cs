@@ -127,13 +127,11 @@ public partial class Map
         for (var i = 0; i < CellCount; i++) StoreCell(data.cells[i]);
     }
 
-    #pragma warning disable S3898
-    private struct Cell
-    #pragma warning restore S3898
+    private record struct Cell
     {
         public short continent;
-        public bool isLand;
         public float height;
+        public bool isLand;
     }
 
     private sealed class Data

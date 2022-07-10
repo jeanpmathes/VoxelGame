@@ -469,9 +469,7 @@ public partial class Map
         Divergent
     }
 
-    #pragma warning disable S3898
-    private struct TectonicCell
-    #pragma warning restore S3898
+    private record struct TectonicCell
     {
         public Cell cell;
         public Vector2i position;
