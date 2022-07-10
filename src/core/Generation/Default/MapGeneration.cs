@@ -273,13 +273,11 @@ public partial class Map
         {
             Cell current = data.GetCell(x, y);
 
-            short? handledContinent = null;
-
             void CheckForCollision((int x, int y) neighborPosition)
             {
                 Cell neighbor = data.GetCell(neighborPosition.x, neighborPosition.y);
 
-                if (current.continent == neighbor.continent || neighbor.continent == handledContinent) return;
+                if (current.continent == neighbor.continent) return;
 
                 var a = new TectonicCell
                 {
@@ -296,8 +294,6 @@ public partial class Map
                 };
 
                 HandleTectonicCollision(data, collisions, offsetsC, offsetsD, a, b);
-
-                handledContinent = neighbor.continent;
             }
 
             if (x != 0) CheckForCollision((x - 1, y));
@@ -472,7 +468,7 @@ public partial class Map
     private record struct TectonicCell
     {
         public Cell cell;
-        public Vector2i position;
         public Vector2d drift;
+        public Vector2i position;
     }
 }
