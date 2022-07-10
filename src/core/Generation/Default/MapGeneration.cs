@@ -262,14 +262,164 @@ public partial class Map
     private static void SimulateTectonics(Data data,
         (List<(short, double)> nodes, Dictionary<short, List<short>> adjancecy) continents)
     {
-        List<Vector2d> driftDirections = GetDriftDirections(continents.nodes);
+        Dictionary<short, Vector2d> driftDirections = GetDriftDirections(continents.nodes);
+        Dictionary<(short, short), TectonicCollision> collisions = new();
+
+        var offsetsC = new float[CellCount];
+        var offsetsD = new float[CellCount];
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+        {
+            Cell current = data.GetCell(x, y);
+
+            short? handledContinent = null;
+
+            void CheckForCollision((int x, int y) neighborPosition)
+            {
+                Cell neighbor = data.GetCell(neighborPosition.x, neighborPosition.y);
+
+                if (current.continent == neighbor.continent || neighbor.continent == handledContinent) return;
+
+                var a = new TectonicCell
+                {
+                    cell = current,
+                    position = (x, y),
+                    drift = driftDirections[current.continent]
+                };
+
+                var b = new TectonicCell
+                {
+                    cell = neighbor,
+                    position = neighborPosition,
+                    drift = driftDirections[neighbor.continent]
+                };
+
+                HandleTectonicCollision(data, collisions, offsetsC, offsetsD, a, b);
+
+                handledContinent = neighbor.continent;
+            }
+
+            if (x != 0) CheckForCollision((x - 1, y));
+
+            if (y != 0) CheckForCollision((x, y - 1));
+        }
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+        {
+            ref Cell current = ref data.GetCell(x, y);
+            current.height += Data.Get(offsetsC, x, y) + Data.Get(offsetsD, x, y);
+        }
     }
 
-    private static List<Vector2d> GetDriftDirections(List<(short, double)> continentsNodes)
+    private static bool IsOutOfBounds(Vector2i position)
     {
-        List<Vector2d> driftDirections = new();
+        return position.X is < 0 or >= Width || position.Y is < 0 or >= Width;
+    }
 
-        foreach ((short _, double value) in continentsNodes)
+    private static void HandleTectonicCollision(Data data, IDictionary<(short, short), TectonicCollision> collisions, float[] offsetsC, float[] offsetsD,
+        TectonicCell a, TectonicCell b)
+    {
+        void HandleTransformBoundary()
+        {
+            // Intentionally empty.
+        }
+
+        void HandleDivergentBoundary()
+        {
+            const double landFactor = -0.2;
+            const double waterFactor = +0.2;
+
+            double divergence = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
+
+            Data.Get(offsetsD, a.position) = (float) (divergence * (data.GetCell(a.position).isLand ? landFactor : waterFactor));
+            Data.Get(offsetsD, b.position) = (float) (divergence * (data.GetCell(b.position).isLand ? landFactor : waterFactor));
+        }
+
+        void HandleConvergentBoundary()
+        {
+            const double liftFactor = +0.8;
+            const double sinkFactor = -0.8;
+
+            double strength = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
+            Vector2d direction;
+            Vector2i start;
+
+            if (a.cell.isLand && b.cell.isLand)
+            {
+                start = a.position;
+
+                direction = b.position - a.position;
+                direction += a.drift * 0.25;
+                direction += b.drift * 0.25;
+            }
+            else
+            {
+                (TectonicCell water, TectonicCell other) = a.cell.isLand ? (b, a) : (a, b);
+
+                start = other.position;
+
+                direction = other.position - water.position;
+                direction += water.drift * 0.25;
+                direction += other.drift * 0.25;
+
+                Data.Get(offsetsC, water.position) = (float) (strength * sinkFactor);
+            }
+
+            foreach (Vector2i cellPosition in Algorithms.TraverseCells(start, direction.Normalized(), strength * 5.0))
+            {
+                if (IsOutOfBounds(cellPosition)) continue;
+
+                Data.Get(offsetsC, cellPosition) = (float) (strength * liftFactor);
+            }
+        }
+
+        TectonicCollision collision;
+
+        if (collisions.ContainsKey((a.cell.continent, b.cell.continent)))
+        {
+            collision = collisions[(a.cell.continent, b.cell.continent)];
+        }
+        else
+        {
+            Vector2i relativePosition = b.position - a.position;
+            Vector2d relativeDrift = b.drift - a.drift;
+
+            if (relativeDrift.Length < 0.5) collision = TectonicCollision.Transform;
+            else collision = Vector2d.Dot(relativePosition, relativeDrift) > 0 ? TectonicCollision.Divergent : TectonicCollision.Convergent;
+
+            collisions[(a.cell.continent, b.cell.continent)] = collision;
+            collisions[(b.cell.continent, a.cell.continent)] = collision;
+        }
+
+        switch (collision)
+        {
+            case TectonicCollision.Transform:
+                HandleTransformBoundary();
+
+                break;
+
+            case TectonicCollision.Divergent:
+                HandleDivergentBoundary();
+
+                break;
+
+            case TectonicCollision.Convergent:
+                HandleConvergentBoundary();
+
+                break;
+
+            default:
+                throw new InvalidOperationException();
+        }
+    }
+
+    private static Dictionary<short, Vector2d> GetDriftDirections(List<(short, double)> continentsNodes)
+    {
+        Dictionary<short, Vector2d> driftDirections = new();
+
+        foreach ((short node, double value) in continentsNodes)
         {
             double angle = value * Math.PI;
 
@@ -278,7 +428,7 @@ public partial class Map
             drift.X = Math.Cos(angle);
             drift.Y = Math.Sin(angle);
 
-            driftDirections.Add(drift);
+            driftDirections[node] = drift;
         }
 
         return driftDirections;
@@ -289,42 +439,42 @@ public partial class Map
     {
         using Bitmap view = new(Width, Width);
 
-        Color water = Color.FromArgb(red: 0x8A, green: 0xB4, blue: 0xF8);
-        Color border = Color.FromArgb(red: 0x8C, green: 0x8F, blue: 0x93);
-        Color land = Color.FromArgb(red: 0xA8, green: 0xDA, blue: 0xB5);
-
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
             Cell current = data.GetCell(x, y);
-
-            if (x != 0 && current.continent != data.GetCell(x - 1, y).continent)
-            {
-                view.SetPixel(x, y, border);
-
-                continue;
-            }
-
-            if (y != 0 && current.continent != data.GetCell(x, y - 1).continent)
-            {
-                view.SetPixel(x, y, border);
-
-                continue;
-            }
-
-            view.SetPixel(x, y, GetMapColor(current, land, water));
+            view.SetPixel(x, y, GetMapColor(current));
         }
 
         view.Save(Path.Combine(path, "continent_view.png"));
     }
 
-    private static Color GetMapColor(Cell current, Color land, Color water)
+    private static Color GetMapColor(Cell current)
     {
-        Color terrain = current.isLand ? land : water;
-        bool isHigh = current.height > 0;
+        Color water = Color.Blue;
+        Color land = Color.Green;
 
-        Color mixed = Colors.Mix(terrain, isHigh ? Color.Black : Color.White, Math.Abs(current.height) / 2);
+        Color terrain = current.isLand ? land : water;
+        bool darken = current.height * (current.isLand ? 1 : -1) > 0;
+
+        Color mixed = Colors.Mix(terrain, darken ? Color.Black : Color.White, Math.Abs(current.height) / 2);
 
         return mixed;
+    }
+
+    private enum TectonicCollision
+    {
+        Transform,
+        Convergent,
+        Divergent
+    }
+
+    #pragma warning disable S3898
+    private struct TectonicCell
+    #pragma warning restore S3898
+    {
+        public Cell cell;
+        public Vector2i position;
+        public Vector2d drift;
     }
 }

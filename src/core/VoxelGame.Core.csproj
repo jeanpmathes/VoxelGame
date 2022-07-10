@@ -49,7 +49,6 @@
         <Company>pershinghtesecond</Company>
         <PackageLicenseExpression>MIT LICENSE</PackageLicenseExpression>
         <SignAssembly>false</SignAssembly>
-        <AssemblyOriginatorKeyFile>VoxelGame Key File.pfx</AssemblyOriginatorKeyFile>
         <DelaySign>false</DelaySign>
         <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
         <StartupObject></StartupObject>

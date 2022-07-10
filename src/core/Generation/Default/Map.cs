@@ -7,6 +7,7 @@
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Logging;
 
@@ -141,7 +142,22 @@ public partial class Map
 
         public ref Cell GetCell(int x, int y)
         {
-            return ref cells[x + y * Width];
+            return ref Get(cells, x, y);
+        }
+
+        public ref Cell GetCell(Vector2i position)
+        {
+            return ref Get(cells, position);
+        }
+
+        public static ref T Get<T>(in T[] array, int x, int y)
+        {
+            return ref array[x + y * Width];
+        }
+
+        public static ref T Get<T>(in T[] array, Vector2i position)
+        {
+            return ref Get(array, position.X, position.Y);
         }
     }
 }

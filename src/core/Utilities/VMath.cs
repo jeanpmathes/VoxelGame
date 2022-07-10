@@ -119,7 +119,7 @@ public static class VMath
     /// <param name="vector">The vector to clamp.</param>
     /// <param name="min">The minimum values for each component.</param>
     /// <param name="max">The maximum values for each component.</param>
-    /// <returns>The vector with clamped components</returns>
+    /// <returns>The vector with clamped components.</returns>
     public static Vector3d ClampComponents(Vector3d vector, Vector3d min, Vector3d max)
     {
         return new Vector3d(
@@ -132,10 +132,20 @@ public static class VMath
     ///     Returns a vector where every component is the sign of the original component.
     /// </summary>
     /// <param name="vector">The vector to convert.</param>
-    /// <returns>The sign vector</returns>
+    /// <returns>The sign vector.</returns>
     public static Vector3i Sign(this Vector3d vector)
     {
         return new Vector3i(Math.Sign(vector.X), Math.Sign(vector.Y), Math.Sign(vector.Z));
+    }
+
+    /// <summary>
+    ///     Returns a vector where every component is the sign of the original component.
+    /// </summary>
+    /// <param name="vector">The vector to convert.</param>
+    /// <returns>The sign vector.</returns>
+    public static Vector2i Sign(this Vector2d vector)
+    {
+        return new Vector2i(Math.Sign(vector.X), Math.Sign(vector.Y));
     }
 
     /// <summary>
@@ -245,5 +255,13 @@ public static class VMath
     public static double InverseLerp(double a, double b, double value)
     {
         return (value - a) / (b - a);
+    }
+
+    /// <summary>
+    ///     Calculates the angle between two vectors.
+    /// </summary>
+    public static double CalculateAngle(Vector2d a, Vector2d b)
+    {
+        return Math.Acos(Vector2d.Dot(a, b) / (a.Length * b.Length));
     }
 }

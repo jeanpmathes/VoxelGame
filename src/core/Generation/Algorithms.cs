@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation;
 
@@ -87,5 +89,56 @@ public static class Algorithms
     {
 
         return list.Select(element => (element, dictionary[element])).ToList();
+    }
+
+    /// <summary>
+    ///     Traverse the cells of a 2D-cell-grid along a ray.
+    /// </summary>
+    /// <param name="start">The start cell.</param>
+    /// <param name="direction">The direction of the ray.</param>
+    /// <param name="length">The length of the ray.</param>
+    /// <returns>The cells traversed by the ray.</returns>
+    public static IEnumerable<Vector2i> TraverseCells(Vector2i start, Vector2d direction, double length)
+    {
+        double Frac0(double value)
+        {
+            return value - Math.Floor(value);
+        }
+
+        double Frac1(double value)
+        {
+            return 1 - value + Math.Floor(value);
+        }
+
+        Vector2d origin = (start.X + 0.5, start.Y + 0.5);
+        Vector2d ray = direction * length;
+        Vector2i current = start;
+        Vector2i step = direction.Sign();
+
+        double tDeltaX = step.X != 0 ? step.X / ray.X : double.MaxValue;
+        double tDeltaY = step.Y != 0 ? step.Y / ray.Y : double.MaxValue;
+
+        double tMaxX = step.X > 0 ? tDeltaX * Frac1(origin.X) : tDeltaX * Frac0(origin.X);
+        double tMaxY = step.Y > 0 ? tDeltaY * Frac1(origin.Y) : tDeltaY * Frac0(origin.Y);
+
+        yield return start;
+
+        while (true)
+        {
+            if (tMaxX < tMaxY)
+            {
+                current.X += step.X;
+                tMaxX += tDeltaX;
+            }
+            else
+            {
+                current.Y += step.Y;
+                tMaxY += tDeltaY;
+            }
+
+            if (tMaxX > 1 && tMaxY > 1) break;
+
+            yield return current;
+        }
     }
 }
