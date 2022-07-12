@@ -85,7 +85,6 @@ public partial class Map
             Cell cell;
 
             cell.continent = reader.ReadInt16();
-            cell.isLand = reader.ReadBoolean();
             cell.height = reader.ReadSingle();
 
             return cell;
@@ -120,7 +119,6 @@ public partial class Map
         void StoreCell(in Cell cell)
         {
             writer.Write(cell.continent);
-            writer.Write(cell.isLand);
             writer.Write(cell.height);
         }
 
@@ -131,7 +129,8 @@ public partial class Map
     {
         public short continent;
         public float height;
-        public bool isLand;
+
+        public bool IsLand => height > 0.0f;
     }
 
     private sealed class Data

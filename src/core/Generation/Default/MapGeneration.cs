@@ -20,6 +20,9 @@ namespace VoxelGame.Core.Generation.Default;
 
 public partial class Map
 {
+    private const float AverageLandHeight = +0.1f;
+    private const float AverageWaterHeight = -0.4f;
+
     private static (List<List<short>>, Dictionary<short, double>) FillWithPieces(Data data, int seed)
     {
         FastNoiseLite noise = new(seed);
@@ -98,7 +101,7 @@ public partial class Map
             short piece = current.continent;
 
             current.continent = merge.Find(piece);
-            current.isLand = isLand[piece];
+            current.height += isLand[piece] ? AverageLandHeight : AverageWaterHeight;
         }
 
         (List<short> mergedNodes, Dictionary<short, List<short>> mergedAdjacency) = Algorithms.MergeAdjacencyList(adjacency, merge.Find);
@@ -254,7 +257,7 @@ public partial class Map
         {
             ref Cell cell = ref data.GetCell(x, y);
 
-            double offset = pieceToValue[cell.continent] * 0.1;
+            double offset = pieceToValue[cell.continent] * AverageLandHeight * 0.99;
             cell.height += (float) offset;
         }
     }
@@ -324,25 +327,25 @@ public partial class Map
 
         void HandleDivergentBoundary()
         {
-            const double landFactor = -0.2;
-            const double waterFactor = +0.2;
+            const double maxLandOffset = -0.2;
+            const double maxWaterOffset = +0.2;
 
             double divergence = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
 
-            Data.Get(offsetsD, a.position) = (float) (divergence * (data.GetCell(a.position).isLand ? landFactor : waterFactor));
-            Data.Get(offsetsD, b.position) = (float) (divergence * (data.GetCell(b.position).isLand ? landFactor : waterFactor));
+            Data.Get(offsetsD, a.position) = (float) (divergence * (data.GetCell(a.position).IsLand ? maxLandOffset : maxWaterOffset));
+            Data.Get(offsetsD, b.position) = (float) (divergence * (data.GetCell(b.position).IsLand ? maxLandOffset : maxWaterOffset));
         }
 
         void HandleConvergentBoundary()
         {
-            const double liftFactor = +0.8;
-            const double sinkFactor = -0.8;
+            const double maxLift = +0.6;
+            const double maxSink = -0.4;
 
             double strength = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
             Vector2d direction;
             Vector2i start;
 
-            if (a.cell.isLand && b.cell.isLand)
+            if (a.cell.IsLand && b.cell.IsLand)
             {
                 start = a.position;
 
@@ -352,7 +355,7 @@ public partial class Map
             }
             else
             {
-                (TectonicCell water, TectonicCell other) = a.cell.isLand ? (b, a) : (a, b);
+                (TectonicCell water, TectonicCell other) = a.cell.IsLand ? (b, a) : (a, b);
 
                 start = other.position;
 
@@ -360,14 +363,14 @@ public partial class Map
                 direction += water.drift * 0.25;
                 direction += other.drift * 0.25;
 
-                Data.Get(offsetsC, water.position) = (float) (strength * sinkFactor);
+                Data.Get(offsetsC, water.position) = (float) (strength * maxSink);
             }
 
             foreach (Vector2i cellPosition in Algorithms.TraverseCells(start, direction.Normalized(), strength * 5.0))
             {
                 if (IsOutOfBounds(cellPosition)) continue;
 
-                Data.Get(offsetsC, cellPosition) = (float) (strength * liftFactor);
+                Data.Get(offsetsC, cellPosition) = (float) (strength * maxLift);
             }
         }
 
@@ -382,8 +385,8 @@ public partial class Map
             Vector2i relativePosition = b.position - a.position;
             Vector2d relativeDrift = b.drift - a.drift;
 
-            if (relativeDrift.Length < 0.5) collision = TectonicCollision.Transform;
-            else collision = Vector2d.Dot(relativePosition, relativeDrift) > 0 ? TectonicCollision.Divergent : TectonicCollision.Convergent;
+            TectonicCollision alternatives = Vector2d.Dot(relativePosition, relativeDrift) > 0 ? TectonicCollision.Divergent : TectonicCollision.Convergent;
+            collision = relativeDrift.Length < 0.5 ? TectonicCollision.Transform : alternatives;
 
             collisions[(a.cell.continent, b.cell.continent)] = collision;
             collisions[(b.cell.continent, a.cell.continent)] = collision;
@@ -450,10 +453,11 @@ public partial class Map
         Color water = Color.Blue;
         Color land = Color.Green;
 
-        Color terrain = current.isLand ? land : water;
-        bool darken = current.height * (current.isLand ? 1 : -1) > 0;
+        Color terrain = current.IsLand ? land : water;
+        double mixStrength = Math.Abs(current.height) - 0.5;
+        bool darken = mixStrength > 0;
 
-        Color mixed = Colors.Mix(terrain, darken ? Color.Black : Color.White, Math.Abs(current.height) / 2);
+        Color mixed = Colors.Mix(terrain, darken ? Color.Black : Color.White, Math.Abs(mixStrength));
 
         return mixed;
     }
