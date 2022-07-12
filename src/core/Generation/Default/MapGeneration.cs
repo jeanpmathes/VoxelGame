@@ -314,6 +314,11 @@ public partial class Map
             if (y != 0) CheckForCollision((x, y - 1));
         }
 
+        AddOffsetsToData(data, offsets);
+    }
+
+    private static void AddOffsetsToData(Data data, float[] offsets)
+    {
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
@@ -330,55 +335,6 @@ public partial class Map
     private static void HandleTectonicCollision(Data data, IDictionary<(short, short), TectonicCollision> collisions, float[] offsets,
         TectonicCell a, TectonicCell b)
     {
-        void HandleTransformBoundary()
-        {
-            // Intentionally empty.
-        }
-
-        void HandleDivergentBoundary()
-        {
-            double divergence = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
-
-            Data.Get(offsets, a.position) = (float) (divergence * (data.GetCell(a.position).IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
-            Data.Get(offsets, b.position) = (float) (divergence * (data.GetCell(b.position).IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
-        }
-
-        void HandleConvergentBoundary()
-        {
-            double strength = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
-            Vector2d direction;
-            Vector2i start;
-
-            if (a.cell.IsLand && b.cell.IsLand)
-            {
-                start = a.position;
-
-                direction = b.position - a.position;
-                direction += a.drift * 0.25;
-                direction += b.drift * 0.25;
-            }
-            else
-            {
-                (TectonicCell water, TectonicCell other) = a.cell.IsLand ? (b, a) : (a, b);
-
-                start = other.position;
-
-                direction = other.position - water.position;
-                direction += water.drift * 0.25;
-                direction += other.drift * 0.25;
-
-                Data.Get(offsets, water.position) = (float) (strength * MaxConvergentBoundaryWaterSinking);
-            }
-
-            foreach (Vector2i cellPosition in Algorithms.TraverseCells(start, direction.Normalized(), strength * 5.0))
-            {
-                if (IsOutOfBounds(cellPosition)) continue;
-
-                double maxLifting = data.GetCell(cellPosition).IsLand ? MaxConvergentBoundaryLandLifting : MaxConvergentBoundaryWaterLifting;
-                Data.Get(offsets, cellPosition) = (float) (strength * maxLifting);
-            }
-        }
-
         TectonicCollision collision;
 
         if (collisions.ContainsKey((a.cell.continent, b.cell.continent)))
@@ -405,18 +361,67 @@ public partial class Map
                 break;
 
             case TectonicCollision.Divergent:
-                HandleDivergentBoundary();
+                HandleDivergentBoundary(data, offsets, a, b);
 
                 break;
 
             case TectonicCollision.Convergent:
-                HandleConvergentBoundary();
+                HandleConvergentBoundary(data, offsets, a, b);
 
                 break;
 
             default:
                 throw new InvalidOperationException();
         }
+    }
+
+    private static void HandleConvergentBoundary(Data data, float[] offsets, TectonicCell a, TectonicCell b)
+    {
+        double strength = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
+        Vector2d direction;
+        Vector2i start;
+
+        if (a.cell.IsLand && b.cell.IsLand)
+        {
+            start = a.position;
+
+            direction = b.position - a.position;
+            direction += a.drift * 0.25;
+            direction += b.drift * 0.25;
+        }
+        else
+        {
+            (TectonicCell water, TectonicCell other) = a.cell.IsLand ? (b, a) : (a, b);
+
+            start = other.position;
+
+            direction = other.position - water.position;
+            direction += water.drift * 0.25;
+            direction += other.drift * 0.25;
+
+            Data.Get(offsets, water.position) = (float) (strength * MaxConvergentBoundaryWaterSinking);
+        }
+
+        foreach (Vector2i cellPosition in Algorithms.TraverseCells(start, direction.Normalized(), strength * 5.0))
+        {
+            if (IsOutOfBounds(cellPosition)) continue;
+
+            double maxLifting = data.GetCell(cellPosition).IsLand ? MaxConvergentBoundaryLandLifting : MaxConvergentBoundaryWaterLifting;
+            Data.Get(offsets, cellPosition) = (float) (strength * maxLifting);
+        }
+    }
+
+    private static void HandleTransformBoundary()
+    {
+        // Intentionally empty.
+    }
+
+    private static void HandleDivergentBoundary(Data data, float[] offsets, TectonicCell a, TectonicCell b)
+    {
+        double divergence = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
+
+        Data.Get(offsets, a.position) = (float) (divergence * (data.GetCell(a.position).IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
+        Data.Get(offsets, b.position) = (float) (divergence * (data.GetCell(b.position).IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
     }
 
     private static Dictionary<short, Vector2d> GetDriftDirections(List<(short, double)> continentsNodes)
