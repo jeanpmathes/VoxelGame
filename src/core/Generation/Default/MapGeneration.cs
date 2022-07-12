@@ -20,8 +20,17 @@ namespace VoxelGame.Core.Generation.Default;
 
 public partial class Map
 {
-    private const float AverageLandHeight = +0.1f;
+    private const float MinimumLandHeight = +0.15f;
     private const float AverageWaterHeight = -0.4f;
+
+    private const double PieceHeightChangeRange = 0.2;
+
+    private const double MaxDivergentBoundaryLandOffset = -0.1;
+    private const double MaxDivergentBoundaryWaterOffset = +0.2;
+
+    private const double MaxConvergentBoundaryLandLifting = +0.6;
+    private const double MaxConvergentBoundaryWaterLifting = +0.4;
+    private const double MaxConvergentBoundaryWaterSinking = -0.4;
 
     private static (List<List<short>>, Dictionary<short, double>) FillWithPieces(Data data, int seed)
     {
@@ -101,7 +110,9 @@ public partial class Map
             short piece = current.continent;
 
             current.continent = merge.Find(piece);
-            current.height += isLand[piece] ? AverageLandHeight : AverageWaterHeight;
+
+            if (isLand[piece]) current.height = Math.Abs(current.height) + MinimumLandHeight;
+            else current.height += AverageWaterHeight;
         }
 
         (List<short> mergedNodes, Dictionary<short, List<short>> mergedAdjacency) = Algorithms.MergeAdjacencyList(adjacency, merge.Find);
@@ -257,7 +268,7 @@ public partial class Map
         {
             ref Cell cell = ref data.GetCell(x, y);
 
-            double offset = pieceToValue[cell.continent] * AverageLandHeight * 0.99;
+            double offset = pieceToValue[cell.continent] * PieceHeightChangeRange;
             cell.height += (float) offset;
         }
     }
@@ -268,8 +279,7 @@ public partial class Map
         Dictionary<short, Vector2d> driftDirections = GetDriftDirections(continents.nodes);
         Dictionary<(short, short), TectonicCollision> collisions = new();
 
-        var offsetsC = new float[CellCount];
-        var offsetsD = new float[CellCount];
+        var offsets = new float[CellCount];
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -296,7 +306,7 @@ public partial class Map
                     drift = driftDirections[neighbor.continent]
                 };
 
-                HandleTectonicCollision(data, collisions, offsetsC, offsetsD, a, b);
+                HandleTectonicCollision(data, collisions, offsets, a, b);
             }
 
             if (x != 0) CheckForCollision((x - 1, y));
@@ -308,7 +318,7 @@ public partial class Map
         for (var y = 0; y < Width; y++)
         {
             ref Cell current = ref data.GetCell(x, y);
-            current.height += Data.Get(offsetsC, x, y) + Data.Get(offsetsD, x, y);
+            current.height += Data.Get(offsets, x, y);
         }
     }
 
@@ -317,7 +327,7 @@ public partial class Map
         return position.X is < 0 or >= Width || position.Y is < 0 or >= Width;
     }
 
-    private static void HandleTectonicCollision(Data data, IDictionary<(short, short), TectonicCollision> collisions, float[] offsetsC, float[] offsetsD,
+    private static void HandleTectonicCollision(Data data, IDictionary<(short, short), TectonicCollision> collisions, float[] offsets,
         TectonicCell a, TectonicCell b)
     {
         void HandleTransformBoundary()
@@ -327,20 +337,14 @@ public partial class Map
 
         void HandleDivergentBoundary()
         {
-            const double maxLandOffset = -0.2;
-            const double maxWaterOffset = +0.2;
-
             double divergence = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
 
-            Data.Get(offsetsD, a.position) = (float) (divergence * (data.GetCell(a.position).IsLand ? maxLandOffset : maxWaterOffset));
-            Data.Get(offsetsD, b.position) = (float) (divergence * (data.GetCell(b.position).IsLand ? maxLandOffset : maxWaterOffset));
+            Data.Get(offsets, a.position) = (float) (divergence * (data.GetCell(a.position).IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
+            Data.Get(offsets, b.position) = (float) (divergence * (data.GetCell(b.position).IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
         }
 
         void HandleConvergentBoundary()
         {
-            const double maxLift = +0.6;
-            const double maxSink = -0.4;
-
             double strength = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
             Vector2d direction;
             Vector2i start;
@@ -363,14 +367,15 @@ public partial class Map
                 direction += water.drift * 0.25;
                 direction += other.drift * 0.25;
 
-                Data.Get(offsetsC, water.position) = (float) (strength * maxSink);
+                Data.Get(offsets, water.position) = (float) (strength * MaxConvergentBoundaryWaterSinking);
             }
 
             foreach (Vector2i cellPosition in Algorithms.TraverseCells(start, direction.Normalized(), strength * 5.0))
             {
                 if (IsOutOfBounds(cellPosition)) continue;
 
-                Data.Get(offsetsC, cellPosition) = (float) (strength * maxLift);
+                double maxLifting = data.GetCell(cellPosition).IsLand ? MaxConvergentBoundaryLandLifting : MaxConvergentBoundaryWaterLifting;
+                Data.Get(offsets, cellPosition) = (float) (strength * maxLifting);
             }
         }
 
