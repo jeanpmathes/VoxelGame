@@ -32,6 +32,8 @@ public partial class Map
     private const double MaxConvergentBoundaryWaterLifting = +0.4;
     private const double MaxConvergentBoundaryWaterSinking = -0.4;
 
+    private const float MaxNoiseOffset = 0.1f;
+
     private static (List<List<short>>, Dictionary<short, double>) FillWithPieces(Data data, int seed)
     {
         FastNoiseLite noise = new(seed);
@@ -259,6 +261,26 @@ public partial class Map
         (List<(short, double)> nodes, Dictionary<short, List<short>> adjancecy) continents = BuildContinents(data, pieces.adjacency, pieces.pieceToValue);
 
         SimulateTectonics(data, continents);
+
+        AddNoise(data, seed);
+    }
+
+    private static void AddNoise(Data data, int seed)
+    {
+        FastNoiseLite noise = new(seed);
+        noise.SetNoiseType(FastNoiseLite.NoiseType.Value);
+        noise.SetFrequency(frequency: 0.400f);
+        noise.SetFractalType(FastNoiseLite.FractalType.FBm);
+        noise.SetFractalOctaves(octaves: 5);
+        noise.SetFractalLacunarity(lacunarity: 2.00f);
+        noise.SetFractalGain(gain: 2.00f);
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+        {
+            ref Cell cell = ref data.GetCell(x, y);
+            cell.height += noise.GetNoise(x, y) * MaxNoiseOffset;
+        }
     }
 
     private static void AddPieceHeights(Data data, IDictionary<short, double> pieceToValue)
