@@ -278,8 +278,12 @@ public partial class Map
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
+            float value = noise.GetNoise(x, y);
+
             ref Cell cell = ref data.GetCell(x, y);
-            cell.height += noise.GetNoise(x, y) * MaxNoiseOffset;
+            cell.height += value * MaxNoiseOffset;
+
+            if (value > 0.60) cell.conditions |= CellConditions.Vulcanism;
         }
     }
 
@@ -316,14 +320,14 @@ public partial class Map
 
                 var a = new TectonicCell
                 {
-                    cell = current,
+                    continent = current.continent,
                     position = (x, y),
                     drift = driftDirections[current.continent]
                 };
 
                 var b = new TectonicCell
                 {
-                    cell = neighbor,
+                    continent = neighbor.continent,
                     position = neighborPosition,
                     drift = driftDirections[neighbor.continent]
                 };
@@ -359,9 +363,9 @@ public partial class Map
     {
         TectonicCollision collision;
 
-        if (collisions.ContainsKey((a.cell.continent, b.cell.continent)))
+        if (collisions.ContainsKey((a.continent, b.continent)))
         {
-            collision = collisions[(a.cell.continent, b.cell.continent)];
+            collision = collisions[(a.continent, b.continent)];
         }
         else
         {
@@ -371,14 +375,14 @@ public partial class Map
             TectonicCollision alternatives = Vector2d.Dot(relativePosition, relativeDrift) > 0 ? TectonicCollision.Divergent : TectonicCollision.Convergent;
             collision = relativeDrift.Length < 0.5 ? TectonicCollision.Transform : alternatives;
 
-            collisions[(a.cell.continent, b.cell.continent)] = collision;
-            collisions[(b.cell.continent, a.cell.continent)] = collision;
+            collisions[(a.continent, b.continent)] = collision;
+            collisions[(b.continent, a.continent)] = collision;
         }
 
         switch (collision)
         {
             case TectonicCollision.Transform:
-                HandleTransformBoundary();
+                HandleTransformBoundary(data, a, b);
 
                 break;
 
@@ -403,7 +407,10 @@ public partial class Map
         Vector2d direction;
         Vector2i start;
 
-        if (a.cell.IsLand && b.cell.IsLand)
+        Cell cellA = data.GetCell(a.position);
+        Cell cellB = data.GetCell(b.position);
+
+        if (cellA.IsLand && cellB.IsLand)
         {
             start = a.position;
 
@@ -413,13 +420,16 @@ public partial class Map
         }
         else
         {
-            (TectonicCell water, TectonicCell other) = a.cell.IsLand ? (b, a) : (a, b);
+            (TectonicCell water, TectonicCell other) = cellA.IsLand ? (b, a) : (a, b);
 
             start = other.position;
 
             direction = other.position - water.position;
             direction += water.drift * 0.25;
             direction += other.drift * 0.25;
+
+            ref Cell otherCell = ref data.GetCell(other.position);
+            otherCell.conditions |= CellConditions.Vulcanism;
 
             Data.Get(offsets, water.position) = (float) (strength * MaxConvergentBoundaryWaterSinking);
         }
@@ -433,17 +443,33 @@ public partial class Map
         }
     }
 
-    private static void HandleTransformBoundary()
+    private static void HandleTransformBoundary(Data data, TectonicCell a, TectonicCell b)
     {
-        // Intentionally empty.
+        ref Cell cellA = ref data.GetCell(a.position);
+        cellA.conditions |= CellConditions.SeismicActivity;
+
+        ref Cell cellB = ref data.GetCell(b.position);
+        cellB.conditions |= CellConditions.SeismicActivity;
     }
 
     private static void HandleDivergentBoundary(Data data, float[] offsets, TectonicCell a, TectonicCell b)
     {
         double divergence = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
 
-        Data.Get(offsets, a.position) = (float) (divergence * (data.GetCell(a.position).IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
-        Data.Get(offsets, b.position) = (float) (divergence * (data.GetCell(b.position).IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
+        ref Cell cellA = ref data.GetCell(a.position);
+        ref Cell cellB = ref data.GetCell(b.position);
+
+        var conditions = CellConditions.None;
+
+        if (cellA.IsLand && cellB.IsLand) conditions = CellConditions.Rift;
+
+        if (!cellA.IsLand && !cellB.IsLand) conditions = CellConditions.Rift | CellConditions.Vulcanism;
+
+        cellA.conditions |= conditions;
+        cellB.conditions |= conditions;
+
+        Data.Get(offsets, a.position) = (float) (divergence * (cellA.IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
+        Data.Get(offsets, b.position) = (float) (divergence * (cellB.IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
     }
 
     private static Dictionary<short, Vector2d> GetDriftDirections(List<(short, double)> continentsNodes)
@@ -503,7 +529,7 @@ public partial class Map
 
     private record struct TectonicCell
     {
-        public Cell cell;
+        public short continent;
         public Vector2d drift;
         public Vector2i position;
     }

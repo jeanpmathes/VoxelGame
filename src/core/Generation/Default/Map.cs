@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
@@ -19,6 +20,35 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 public partial class Map
 {
+    /// <summary>
+    ///     Additional cell data that is stored as flags.
+    /// </summary>
+    [Flags]
+    #pragma warning disable S4022
+    public enum CellConditions : byte
+    #pragma warning restore S4022
+    {
+        /// <summary>
+        ///     No conditions.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        ///     Marks a cell as having vulcanism.
+        /// </summary>
+        Vulcanism = 1 << 0,
+
+        /// <summary>
+        ///     Marks a cell as having very strong seismic activity.
+        /// </summary>
+        SeismicActivity = 1 << 1,
+
+        /// <summary>
+        ///     Marks a cell as having a rift valley.
+        /// </summary>
+        Rift = 1 << 2
+    }
+
     /// <summary>
     ///     The size of a map cell.
     /// </summary>
@@ -86,6 +116,7 @@ public partial class Map
 
             cell.continent = reader.ReadInt16();
             cell.height = reader.ReadSingle();
+            cell.conditions = (CellConditions) reader.ReadByte();
 
             return cell;
         }
@@ -120,6 +151,7 @@ public partial class Map
         {
             writer.Write(cell.continent);
             writer.Write(cell.height);
+            writer.Write((byte) cell.conditions);
         }
 
         for (var i = 0; i < CellCount; i++) StoreCell(data.cells[i]);
@@ -127,6 +159,7 @@ public partial class Map
 
     private record struct Cell
     {
+        public CellConditions conditions;
         public short continent;
         public float height;
 
