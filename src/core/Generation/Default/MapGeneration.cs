@@ -522,13 +522,16 @@ public partial class Map
 
     private static void GenerateTemperature(Data data)
     {
-        Random random = new();
+        Vector2 center = new(Width / 2.0f, Width / 2.0f);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
+            float distance = (center - (x, y)).Length;
+            var temperature = (float) (Math.Sin(distance * 0.075) * 0.5 + 0.5);
+
             ref Cell current = ref data.GetCell(x, y);
-            current.temperature = random.NextSingle();
+            current.temperature = temperature;
         }
     }
 
