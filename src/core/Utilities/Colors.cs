@@ -36,4 +36,20 @@ public static class Colors
             (int) MathHelper.Lerp(a.G, b.G, f),
             (int) MathHelper.Lerp(a.B, b.B, f));
     }
+
+    /// <summary>
+    ///     Create a color from floating-point RGB values. The values will be clamped to the range [0, 1].
+    /// </summary>
+    /// <param name="r">The red value.</param>
+    /// <param name="g">The green value.</param>
+    /// <param name="b">The blue value.</param>
+    /// <returns>The color.</returns>
+    public static Color FromRGB(float r, float g, float b)
+    {
+        return Color.FromArgb(
+            alpha: 255,
+            (int) (MathHelper.Clamp(r, min: 0, max: 1) * 255),
+            (int) (MathHelper.Clamp(g, min: 0, max: 1) * 255),
+            (int) (MathHelper.Clamp(b, min: 0, max: 1) * 255));
+    }
 }

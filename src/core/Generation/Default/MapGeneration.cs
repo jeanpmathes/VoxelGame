@@ -252,7 +252,7 @@ public partial class Map
         }
     }
 
-    private static void GenerateContinents(Data data, int seed)
+    private static void GenerateTerrain(Data data, int seed)
     {
         (List<List<short>> adjacency, Dictionary<short, double> pieceToValue) pieces = FillWithPieces(data, seed);
 
@@ -492,7 +492,7 @@ public partial class Map
     }
 
     [Conditional("DEBUG")]
-    private static void EmitContinentView(Data data, string path)
+    private static void EmitTerrainView(Data data, string path)
     {
         using Bitmap view = new(Width, Width);
 
@@ -500,13 +500,13 @@ public partial class Map
         for (var y = 0; y < Width; y++)
         {
             Cell current = data.GetCell(x, y);
-            view.SetPixel(x, y, GetMapColor(current));
+            view.SetPixel(x, y, GetTerrainColor(current));
         }
 
-        view.Save(Path.Combine(path, "continent_view.png"));
+        view.Save(Path.Combine(path, "terrain_view.png"));
     }
 
-    private static Color GetMapColor(Cell current)
+    private static Color GetTerrainColor(Cell current)
     {
         Color water = Color.Blue;
         Color land = Color.Green;
@@ -518,6 +518,37 @@ public partial class Map
         Color mixed = Colors.Mix(terrain, darken ? Color.Black : Color.White, Math.Abs(mixStrength));
 
         return mixed;
+    }
+
+    private static void GenerateTemperature(Data data)
+    {
+        Random random = new();
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+        {
+            ref Cell current = ref data.GetCell(x, y);
+            current.temperature = random.NextSingle();
+        }
+    }
+
+    private static Color GetTemperatureColor(float temperature)
+    {
+        return Colors.FromRGB(2.0f * temperature, 2.0f * (1 - temperature), b: 0.0f);
+    }
+
+    private static void EmitTemperatureView(Data data, string path)
+    {
+        using Bitmap view = new(Width, Width);
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+        {
+            Cell current = data.GetCell(x, y);
+            view.SetPixel(x, y, GetTemperatureColor(current.temperature));
+        }
+
+        view.Save(Path.Combine(path, "temperature_view.png"));
     }
 
     private enum TectonicCollision
