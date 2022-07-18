@@ -528,7 +528,7 @@ public partial class Map
         for (var y = 0; y < Width; y++)
         {
             float distance = (center - (x, y)).Length;
-            var temperature = (float) (Math.Sin(distance * 0.075) * 0.5 + 0.5);
+            var temperature = (float) (Math.Sin(distance * 0.125) * 0.5 + 0.5);
 
             ref Cell current = ref data.GetCell(x, y);
             current.temperature = temperature;
