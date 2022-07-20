@@ -555,25 +555,130 @@ public partial class Map
         view.Save(Path.Combine(path, "temperature_view.png"));
     }
 
-    private static void GeneratePrecipitation(Data data)
+    private static MoistureData[] CreateInitialMoistureData()
     {
+        const float initialMoisture = 0.1f;
+
+        var initial = new MoistureData[Width * Width];
+
+        for (var index = 0; index < initial.Length; index++) initial[index].moisture = initialMoisture;
+
+        return initial;
+    }
+
+    private static void GenerateMoisture(Data data)
+    {
+        MoistureData[] current = CreateInitialMoistureData();
+        MoistureData[] next = CreateInitialMoistureData();
+
+        const int simulationSteps = 100;
+
+        for (var step = 0; step < simulationSteps; step++)
+        {
+            SimulateClimate(data, current, next);
+            (current, next) = (next, current);
+        }
+
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
-            ref Cell current = ref data.GetCell(x, y);
-            current.precipitation = x / (float) Width;
+            ref Cell cell = ref data.GetCell(x, y);
+            cell.moisture = Data.Get(current, (x, y)).moisture;
         }
     }
 
-    private static Color GetPrecipitationColor(Cell current)
+    private static void SimulateClimate(Data data, MoistureData[] current, MoistureData[] next)
     {
-        Color precipitation = Colors.FromRGB(current.precipitation, current.precipitation, current.precipitation);
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+            Data.Get(next, (x, y)) = SimulateCellClimate(data, current, (x, y));
+    }
+
+    private static IEnumerable<(Vector2i position, bool isInWind)> GetNeighbors(Vector2i position)
+    {
+        if (position.X > 0) yield return ((position.X - 1, position.Y), false);
+        if (position.X < Width - 1) yield return ((position.X + 1, position.Y), true);
+        if (position.Y > 0) yield return ((position.X, position.Y - 1), false);
+        if (position.Y < Width - 1) yield return ((position.X, position.Y + 1), false);
+    }
+
+    /// <summary>
+    ///     Simulates one step for a single cell, taking into account the cell data and the previous step data of this and
+    ///     neighboring cells.
+    ///     The system is inspired by the following tutorial by Jasper Flick:
+    ///     https://catlikecoding.com/unity/tutorials/hex-map/part-25/
+    /// </summary>
+    private static MoistureData SimulateCellClimate(in Data data, in MoistureData[] state, Vector2i position)
+    {
+        const float evaporationRate = 0.5f;
+        const float precipitationRate = 0.25f;
+        const float runoffRate = 0.25f;
+        const float windStrength = 4.0f;
+
+        Cell cell = data.GetCell(position);
+        MoistureData current = Data.Get(state, position);
+
+        MoistureData next;
+
+        next.clouds = current.clouds;
+        next.moisture = current.moisture;
+        next.dispersal = 0.0f;
+        next.runoff = 0.0f;
+
+        if (cell.IsLand)
+        {
+            float evaporation = next.moisture * evaporationRate;
+            next.moisture -= evaporation;
+            next.clouds += evaporation;
+        }
+        else
+        {
+            next.moisture = 1.0f;
+            next.clouds += evaporationRate;
+        }
+
+        float precipitation = next.clouds * precipitationRate;
+        next.clouds -= precipitation;
+        next.moisture += precipitation;
+
+        float cloudMaximum = 1.0f - Math.Min(cell.height, cell.temperature);
+
+        if (next.clouds > cloudMaximum)
+        {
+            next.moisture += next.clouds - cloudMaximum;
+            next.clouds = cloudMaximum;
+        }
+
+        next.dispersal = next.clouds * (1.0f / (3.0f + windStrength));
+        next.runoff = next.moisture * runoffRate * (1.0f / 4.0f);
+        next.clouds = 0.0f;
+
+        foreach ((Vector2i neighborPosition, bool isInWind) in GetNeighbors(position))
+        {
+            Cell neighborCell = data.GetCell(neighborPosition);
+            MoistureData neighborData = Data.Get(state, neighborPosition);
+
+            next.clouds += isInWind ? neighborData.dispersal * windStrength : neighborData.dispersal;
+
+            if (neighborCell.height > cell.height) next.moisture += neighborData.runoff;
+
+            if (neighborCell.height < cell.height) next.moisture -= next.runoff;
+        }
+
+        next.moisture = Math.Min(next.moisture, val2: 1.0f);
+
+        return next;
+    }
+
+    private static Color GetMoistureColor(Cell current)
+    {
+        Color precipitation = Colors.FromRGB(current.moisture, current.moisture, current.moisture);
 
         return current.IsLand ? precipitation : Color.Aqua;
     }
 
     [Conditional("DEBUG")]
-    private static void EmitPrecipitationView(Data data, string path)
+    private static void EmitMoistureView(Data data, string path)
     {
         using Bitmap view = new(Width, Width);
 
@@ -581,10 +686,19 @@ public partial class Map
         for (var y = 0; y < Width; y++)
         {
             Cell current = data.GetCell(x, y);
-            view.SetPixel(x, y, GetPrecipitationColor(current));
+            view.SetPixel(x, y, GetMoistureColor(current));
         }
 
         view.Save(Path.Combine(path, "precipitation_view.png"));
+    }
+
+    private record struct MoistureData
+    {
+        public float clouds;
+
+        public float dispersal;
+        public float moisture;
+        public float runoff;
     }
 
     private enum TectonicCollision
