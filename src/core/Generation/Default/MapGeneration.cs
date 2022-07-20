@@ -32,8 +32,6 @@ public partial class Map
     private const double MaxConvergentBoundaryWaterLifting = +0.4;
     private const double MaxConvergentBoundaryWaterSinking = -0.4;
 
-    private const float MaxNoiseOffset = 0.1f;
-
     private static (List<List<short>>, Dictionary<short, double>) FillWithPieces(Data data, int seed)
     {
         FastNoiseLite noise = new(seed);
@@ -261,30 +259,6 @@ public partial class Map
         (List<(short, double)> nodes, Dictionary<short, List<short>> adjancecy) continents = BuildContinents(data, pieces.adjacency, pieces.pieceToValue);
 
         SimulateTectonics(data, continents);
-
-        AddNoise(data, seed);
-    }
-
-    private static void AddNoise(Data data, int seed)
-    {
-        FastNoiseLite noise = new(seed);
-        noise.SetNoiseType(FastNoiseLite.NoiseType.Value);
-        noise.SetFrequency(frequency: 0.400f);
-        noise.SetFractalType(FastNoiseLite.FractalType.FBm);
-        noise.SetFractalOctaves(octaves: 5);
-        noise.SetFractalLacunarity(lacunarity: 2.00f);
-        noise.SetFractalGain(gain: 2.00f);
-
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
-        {
-            float value = noise.GetNoise(x, y);
-
-            ref Cell cell = ref data.GetCell(x, y);
-            cell.height += value * MaxNoiseOffset;
-
-            if (value > 0.60) cell.conditions |= CellConditions.Vulcanism;
-        }
     }
 
     private static void AddPieceHeights(Data data, IDictionary<short, double> pieceToValue)
@@ -528,7 +502,7 @@ public partial class Map
         for (var y = 0; y < Width; y++)
         {
             float distance = (center - (x, y)).Length;
-            var temperature = (float) (Math.Sin(distance * 0.125) * 0.5 + 0.5);
+            var temperature = (float) (Math.Sin(distance * 0.115) * 0.5 + 0.5);
 
             ref Cell current = ref data.GetCell(x, y);
             current.temperature = temperature;
@@ -557,7 +531,7 @@ public partial class Map
 
     private static MoistureData[] CreateInitialMoistureData()
     {
-        const float initialMoisture = 0.1f;
+        const float initialMoisture = 0.15f;
 
         var initial = new MoistureData[Width * Width];
 
@@ -613,7 +587,7 @@ public partial class Map
         const float evaporationRate = 0.5f;
         const float precipitationRate = 0.25f;
         const float runoffRate = 0.25f;
-        const float windStrength = 4.0f;
+        const float windStrength = 5.0f;
 
         Cell cell = data.GetCell(position);
         MoistureData current = Data.Get(state, position);
@@ -641,7 +615,7 @@ public partial class Map
         next.clouds -= precipitation;
         next.moisture += precipitation;
 
-        float cloudMaximum = 1.0f - Math.Min(cell.height, cell.temperature);
+        float cloudMaximum = 1.0f - cell.height;
 
         if (next.clouds > cloudMaximum)
         {
@@ -665,7 +639,7 @@ public partial class Map
             if (neighborCell.height < cell.height) next.moisture -= next.runoff;
         }
 
-        next.moisture = Math.Min(next.moisture, val2: 1.0f);
+        next.moisture = Math.Min(next.moisture, cell.temperature);
 
         return next;
     }
