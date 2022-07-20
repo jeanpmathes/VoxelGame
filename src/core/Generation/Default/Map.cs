@@ -105,6 +105,9 @@ public partial class Map
         GenerateTemperature(data);
         EmitTemperatureView(data, debugPath);
 
+        GeneratePrecipitation(data);
+        EmitPrecipitationView(data, debugPath);
+
         logger.LogInformation(Events.WorldGeneration, "Generated map");
     }
 
@@ -120,6 +123,7 @@ public partial class Map
             cell.continent = reader.ReadInt16();
             cell.height = reader.ReadSingle();
             cell.temperature = reader.ReadSingle();
+            cell.precipitation = reader.ReadSingle();
             cell.conditions = (CellConditions) reader.ReadByte();
 
             return cell;
@@ -156,6 +160,7 @@ public partial class Map
             writer.Write(cell.continent);
             writer.Write(cell.height);
             writer.Write(cell.temperature);
+            writer.Write(cell.precipitation);
             writer.Write((byte) cell.conditions);
         }
 
@@ -167,6 +172,7 @@ public partial class Map
         public CellConditions conditions;
         public short continent;
         public float height;
+        public float precipitation;
         public float temperature;
 
         public bool IsLand => height > 0.0f;

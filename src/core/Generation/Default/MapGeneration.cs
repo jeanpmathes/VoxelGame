@@ -540,6 +540,7 @@ public partial class Map
         return Colors.FromRGB(2.0f * temperature, 2.0f * (1 - temperature), b: 0.0f);
     }
 
+    [Conditional("DEBUG")]
     private static void EmitTemperatureView(Data data, string path)
     {
         using Bitmap view = new(Width, Width);
@@ -552,6 +553,38 @@ public partial class Map
         }
 
         view.Save(Path.Combine(path, "temperature_view.png"));
+    }
+
+    private static void GeneratePrecipitation(Data data)
+    {
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+        {
+            ref Cell current = ref data.GetCell(x, y);
+            current.precipitation = x / (float) Width;
+        }
+    }
+
+    private static Color GetPrecipitationColor(Cell current)
+    {
+        Color precipitation = Colors.FromRGB(current.precipitation, current.precipitation, current.precipitation);
+
+        return current.IsLand ? precipitation : Color.Aqua;
+    }
+
+    [Conditional("DEBUG")]
+    private static void EmitPrecipitationView(Data data, string path)
+    {
+        using Bitmap view = new(Width, Width);
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+        {
+            Cell current = data.GetCell(x, y);
+            view.SetPixel(x, y, GetPrecipitationColor(current));
+        }
+
+        view.Save(Path.Combine(path, "precipitation_view.png"));
     }
 
     private enum TectonicCollision
