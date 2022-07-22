@@ -200,5 +200,13 @@ public partial class Map
         {
             return ref Get(array, position.X, position.Y);
         }
+
+        public static Vector2i GetPosition(int index)
+        {
+            int x = index % Width;
+            int y = index / Width;
+
+            return new Vector2i(x, y);
+        }
     }
 }

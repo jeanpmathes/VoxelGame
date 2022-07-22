@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
@@ -566,9 +567,13 @@ public partial class Map
 
     private static void SimulateClimate(Data data, MoistureData[] current, MoistureData[] next)
     {
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
-            Data.Get(next, (x, y)) = SimulateCellClimate(data, current, (x, y));
+        Parallel.For(fromInclusive: 0,
+            CellCount,
+            index =>
+            {
+                Vector2i position = Data.GetPosition(index);
+                Data.Get(next, position) = SimulateCellClimate(data, current, position);
+            });
     }
 
     private static IEnumerable<(Vector2i position, bool isInWind)> GetNeighbors(Vector2i position)
