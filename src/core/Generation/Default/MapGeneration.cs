@@ -509,9 +509,12 @@ public partial class Map
         }
     }
 
-    private static Color GetTemperatureColor(float temperature)
+    private static Color GetTemperatureColor(Cell current)
     {
-        return Colors.FromRGB(2.0f * temperature, 2.0f * (1 - temperature), b: 0.0f);
+        Color tempered = Colors.FromRGB(2.0f * current.temperature, 2.0f * (1 - current.temperature), b: 0.0f);
+        Color other = current.IsLand ? Color.Black : tempered;
+
+        return Colors.Mix(tempered, other);
     }
 
     [Conditional("DEBUG")]
@@ -523,7 +526,7 @@ public partial class Map
         for (var y = 0; y < Width; y++)
         {
             Cell current = data.GetCell(x, y);
-            view.SetPixel(x, y, GetTemperatureColor(current.temperature));
+            view.SetPixel(x, y, GetTemperatureColor(current));
         }
 
         view.Save(Path.Combine(path, "temperature_view.png"));

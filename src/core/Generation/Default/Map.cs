@@ -100,12 +100,11 @@ public partial class Map
         logger.LogDebug(Events.WorldGeneration, "Generating map");
 
         GenerateTerrain(data, seed);
-        EmitTerrainView(data, debugPath);
-
         GenerateTemperature(data);
-        EmitTemperatureView(data, debugPath);
-
         GenerateMoisture(data);
+
+        EmitTerrainView(data, debugPath);
+        EmitTemperatureView(data, debugPath);
         EmitMoistureView(data, debugPath);
 
         logger.LogInformation(Events.WorldGeneration, "Generated map");
