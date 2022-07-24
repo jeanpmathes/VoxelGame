@@ -21,13 +21,13 @@ public class BiomeDistribution
     {
         biomes = new Biome?[,]
         {
-            {Biome.PolarDesert, Biome.Tundra, Biome.Grassland, Biome.Grassland, Biome.Grassland, Biome.Grassland, Biome.Desert, Biome.Desert, Biome.Desert, Biome.Desert},
+            {Biome.PolarDesert, Biome.Tundra, Biome.Taiga, Biome.Grassland, Biome.Grassland, Biome.Grassland, Biome.Desert, Biome.Desert, Biome.Desert, Biome.Desert},
             {null, Biome.Tundra, Biome.Taiga, Biome.Shrubland, Biome.Shrubland, Biome.Shrubland, Biome.Shrubland, Biome.Savanna, Biome.Desert, Biome.Desert},
-            {null, null, Biome.Taiga, Biome.Forest, Biome.Forest, Biome.Forest, Biome.Shrubland, Biome.Savanna, Biome.Savanna, Biome.Savanna},
-            {null, null, null, Biome.Forest, Biome.Forest, Biome.Forest, Biome.Forest, Biome.Savanna, Biome.Savanna, Biome.Savanna},
-            {null, null, null, null, Biome.Forest, Biome.Forest, Biome.Forest, Biome.Savanna, Biome.Savanna, Biome.Savanna},
-            {null, null, null, null, null, Biome.TemperateRainforest, Biome.TemperateRainforest, Biome.TropicalRainforest, Biome.Savanna, Biome.Savanna},
-            {null, null, null, null, null, null, Biome.TemperateRainforest, Biome.TropicalRainforest, Biome.TropicalRainforest, Biome.Savanna},
+            {null, null, Biome.Taiga, Biome.SeasonalForest, Biome.SeasonalForest, Biome.SeasonalForest, Biome.Shrubland, Biome.Savanna, Biome.Savanna, Biome.Savanna},
+            {null, null, null, Biome.SeasonalForest, Biome.SeasonalForest, Biome.SeasonalForest, Biome.SeasonalForest, Biome.DryForest, Biome.DryForest, Biome.DryForest},
+            {null, null, null, null, Biome.SeasonalForest, Biome.SeasonalForest, Biome.SeasonalForest, Biome.DryForest, Biome.DryForest, Biome.DryForest},
+            {null, null, null, null, null, Biome.TemperateRainforest, Biome.TemperateRainforest, Biome.TropicalRainforest, Biome.DryForest, Biome.DryForest},
+            {null, null, null, null, null, null, Biome.TemperateRainforest, Biome.TropicalRainforest, Biome.TropicalRainforest, Biome.DryForest},
             {null, null, null, null, null, null, null, Biome.TropicalRainforest, Biome.TropicalRainforest, Biome.TropicalRainforest},
             {null, null, null, null, null, null, null, null, Biome.TropicalRainforest, Biome.TropicalRainforest},
             {null, null, null, null, null, null, null, null, null, Biome.TropicalRainforest}

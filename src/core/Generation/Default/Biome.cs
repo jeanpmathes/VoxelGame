@@ -47,7 +47,12 @@ public enum Biome
     /// <summary>
     ///     Seasonal forest.
     /// </summary>
-    Forest,
+    SeasonalForest,
+
+    /// <summary>
+    ///     Dry forest.
+    /// </summary>
+    DryForest,
 
     /// <summary>
     ///     Shrubland.
@@ -82,11 +87,12 @@ public static class BiomeExtensions
             Biome.Taiga => Color.Navy,
             Biome.Tundra => Color.CadetBlue,
             Biome.Savanna => Color.Olive,
-            Biome.Forest => Color.LimeGreen,
+            Biome.SeasonalForest => Color.LimeGreen,
             Biome.Shrubland => Color.Salmon,
             Biome.Desert => Color.Yellow,
             Biome.Grassland => Color.SaddleBrown,
             Biome.PolarDesert => Color.Gray,
+            Biome.DryForest => Color.SeaGreen,
             _ => throw new ArgumentException(message: null, nameof(biome))
         };
     }
