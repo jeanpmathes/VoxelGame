@@ -499,11 +499,16 @@ public partial class Map
     {
         Vector2 center = new(Width / 2.0f, Width / 2.0f);
 
+        float GetTemperature(float distance)
+        {
+            return Math.Abs(Math.Abs(distance * 0.025f - 1.0f) % 2.0f - 1.0f);
+        }
+
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
             float distance = (center - (x, y)).Length;
-            var temperature = (float) (Math.Sin(distance * 0.115) * 0.5 + 0.5);
+            float temperature = GetTemperature(distance);
 
             ref Cell current = ref data.GetCell(x, y);
             current.temperature = temperature;
@@ -683,6 +688,7 @@ public partial class Map
         return biomes.GetBiome(current.temperature, current.moisture).GetColor();
     }
 
+    [Conditional("DEBUG")]
     private static void EmitBiomeView(Data data, BiomeDistribution biomes, string path)
     {
         using Bitmap view = new(Width, Width);
