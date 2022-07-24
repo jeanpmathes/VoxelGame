@@ -77,16 +77,16 @@ public static class BiomeExtensions
     {
         return biome switch
         {
-            Biome.TropicalRainforest => Color.DarkOliveGreen,
-            Biome.TemperateRainforest => Color.DarkGreen,
-            Biome.Taiga => Color.DarkSeaGreen,
-            Biome.Tundra => Color.DarkOrange,
-            Biome.Savanna => Color.Tan,
-            Biome.Forest => Color.ForestGreen,
-            Biome.Shrubland => Color.PaleGreen,
+            Biome.TropicalRainforest => Color.DarkGreen,
+            Biome.TemperateRainforest => Color.Green,
+            Biome.Taiga => Color.Navy,
+            Biome.Tundra => Color.CadetBlue,
+            Biome.Savanna => Color.Olive,
+            Biome.Forest => Color.LimeGreen,
+            Biome.Shrubland => Color.Salmon,
             Biome.Desert => Color.Yellow,
-            Biome.Grassland => Color.LimeGreen,
-            Biome.PolarDesert => Color.White,
+            Biome.Grassland => Color.SaddleBrown,
+            Biome.PolarDesert => Color.Gray,
             _ => throw new ArgumentException(message: null, nameof(biome))
         };
     }

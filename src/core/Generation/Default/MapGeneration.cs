@@ -681,11 +681,7 @@ public partial class Map
 
     private static Color GetBiomeColor(Cell current, BiomeDistribution biomes)
     {
-        if (!current.IsLand) return Color.Aqua;
-
-        if (current.height > 0.5f) return Color.Gray;
-
-        return biomes.GetBiome(current.temperature, current.moisture).GetColor();
+        return current.IsLand ? biomes.GetBiome(current.temperature, current.moisture).GetColor() : Color.White;
     }
 
     [Conditional("DEBUG")]
