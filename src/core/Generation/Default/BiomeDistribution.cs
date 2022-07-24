@@ -21,7 +21,7 @@ public class BiomeDistribution
     {
         biomes = new Biome?[,]
         {
-            {Biome.Tundra, Biome.Tundra, Biome.Grassland, Biome.Grassland, Biome.Grassland, Biome.Grassland, Biome.Desert, Biome.Desert, Biome.Desert, Biome.Desert},
+            {Biome.PolarDesert, Biome.Tundra, Biome.Grassland, Biome.Grassland, Biome.Grassland, Biome.Grassland, Biome.Desert, Biome.Desert, Biome.Desert, Biome.Desert},
             {null, Biome.Tundra, Biome.Taiga, Biome.Shrubland, Biome.Shrubland, Biome.Shrubland, Biome.Shrubland, Biome.Savanna, Biome.Desert, Biome.Desert},
             {null, null, Biome.Taiga, Biome.Forest, Biome.Forest, Biome.Forest, Biome.Shrubland, Biome.Savanna, Biome.Savanna, Biome.Savanna},
             {null, null, null, Biome.Forest, Biome.Forest, Biome.Forest, Biome.Forest, Biome.Savanna, Biome.Savanna, Biome.Savanna},

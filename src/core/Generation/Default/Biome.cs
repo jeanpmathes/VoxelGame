@@ -15,6 +15,11 @@ namespace VoxelGame.Core.Generation.Default;
 public enum Biome
 {
     /// <summary>
+    ///     Polar desert.
+    /// </summary>
+    PolarDesert,
+
+    /// <summary>
     ///     Tropical rainforest.
     /// </summary>
     TropicalRainforest,
@@ -81,6 +86,7 @@ public static class BiomeExtensions
             Biome.Shrubland => Color.PaleGreen,
             Biome.Desert => Color.Yellow,
             Biome.Grassland => Color.LimeGreen,
+            Biome.PolarDesert => Color.White,
             _ => throw new ArgumentException(message: null, nameof(biome))
         };
     }
