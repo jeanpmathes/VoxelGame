@@ -623,7 +623,7 @@ public partial class Map
         next.clouds -= precipitation;
         next.moisture += precipitation;
 
-        float cloudMaximum = 1.0f - cell.height;
+        float cloudMaximum = 1.0f - Math.Min(cell.height, cell.temperature - 0.1f);
 
         if (next.clouds > cloudMaximum)
         {
@@ -672,6 +672,29 @@ public partial class Map
         }
 
         view.Save(Path.Combine(path, "precipitation_view.png"));
+    }
+
+    private static Color GetBiomeColor(Cell current, BiomeDistribution biomes)
+    {
+        if (!current.IsLand) return Color.Aqua;
+
+        if (current.height > 0.5f) return Color.Gray;
+
+        return biomes.GetBiome(current.temperature, current.moisture).GetColor();
+    }
+
+    private static void EmitBiomeView(Data data, BiomeDistribution biomes, string path)
+    {
+        using Bitmap view = new(Width, Width);
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+        {
+            Cell current = data.GetCell(x, y);
+            view.SetPixel(x, y, GetBiomeColor(current, biomes));
+        }
+
+        view.Save(Path.Combine(path, "biome_view.png"));
     }
 
     private record struct MoistureData

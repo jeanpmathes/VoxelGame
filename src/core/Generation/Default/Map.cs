@@ -58,6 +58,8 @@ public partial class Map
     private const int CellCount = Width * Width;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Map>();
 
+    private readonly BiomeDistribution biomes;
+
     private readonly string debugPath;
 
     private Data? data;
@@ -71,6 +73,8 @@ public partial class Map
     public Map(string debugPath)
     {
         this.debugPath = debugPath;
+
+        biomes = BiomeDistribution.Default;
     }
 
     /// <summary>
@@ -106,6 +110,7 @@ public partial class Map
         EmitTerrainView(data, debugPath);
         EmitTemperatureView(data, debugPath);
         EmitMoistureView(data, debugPath);
+        EmitBiomeView(data, biomes, debugPath);
 
         logger.LogInformation(Events.WorldGeneration, "Generated map");
     }
