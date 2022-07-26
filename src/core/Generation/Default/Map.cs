@@ -103,16 +103,20 @@ public partial class Map
 
         logger.LogDebug(Events.WorldGeneration, "Generating map");
 
+        var stopwatch = Stopwatch.StartNew();
+
         GenerateTerrain(data, seed);
         GenerateTemperature(data);
         GenerateMoisture(data);
+
+        stopwatch.Stop();
 
         EmitTerrainView(data, debugPath);
         EmitTemperatureView(data, debugPath);
         EmitMoistureView(data, debugPath);
         EmitBiomeView(data, biomes, debugPath);
 
-        logger.LogInformation(Events.WorldGeneration, "Generated map");
+        logger.LogInformation(Events.WorldGeneration, "Generated map in {Time}ms", stopwatch.ElapsedMilliseconds);
     }
 
     private void Load(BinaryReader reader)
