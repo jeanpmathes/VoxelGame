@@ -10,6 +10,7 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Generation.Default;
@@ -54,7 +55,7 @@ public partial class Map
     /// </summary>
     private const int CellSize = 100_000;
 
-    private const int Width = (int) World.BlockLimit / CellSize;
+    private const int Width = (int) World.BlockLimit * 2 / CellSize;
     private const int CellCount = Width * Width;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Map>();
 
@@ -69,12 +70,12 @@ public partial class Map
     /// <summary>
     ///     Create a new map.
     /// </summary>
+    /// <param name="biomes">The biome distribution used by the generator.</param>
     /// <param name="debugPath">The path at which debug artifacts are created.</param>
-    public Map(string debugPath)
+    public Map(BiomeDistribution biomes, string debugPath)
     {
         this.debugPath = debugPath;
-
-        biomes = BiomeDistribution.Default;
+        this.biomes = biomes;
     }
 
     /// <summary>
@@ -116,7 +117,7 @@ public partial class Map
         EmitMoistureView(data, debugPath);
         EmitBiomeView(data, biomes, debugPath);
 
-        logger.LogInformation(Events.WorldGeneration, "Generated map in {Time}ms", stopwatch.ElapsedMilliseconds);
+        logger.LogInformation(Events.WorldGeneration, "Generated map in {Time}s", stopwatch.Elapsed.TotalSeconds);
     }
 
     private void Load(BinaryReader reader)
@@ -175,12 +176,120 @@ public partial class Map
         for (var i = 0; i < CellCount; i++) StoreCell(data.cells[i]);
     }
 
+    /// <summary>
+    ///     Get a sample of the map at the given coordinates.
+    /// </summary>
+    /// <param name="position">The world position (just XZ) of the sample.</param>
+    /// <returns>The sample.</returns>
+    public Sample GetSample(Vector2i position)
+    {
+        Debug.Assert(data != null);
+
+        static int DivideByCellSize(int number)
+        {
+            int result = number / CellSize;
+            int adjusted = number < 0 && number != CellSize * result ? result - 1 : result;
+
+            return adjusted;
+        }
+
+        static int GetNearestNeighbor(int number)
+        {
+            const int halfCellSize = CellSize / 2;
+
+            int subject = DivideByCellSize(number);
+            int a = DivideByCellSize(number - halfCellSize);
+            int b = DivideByCellSize(number + halfCellSize);
+
+            return a == subject ? b : a;
+        }
+
+        int xP = DivideByCellSize(position.X);
+        int yP = DivideByCellSize(position.Y);
+
+        int xN = GetNearestNeighbor(position.X);
+        int yN = GetNearestNeighbor(position.Y);
+
+        (int x1, int x2) = VMath.MinMax(xP, xN);
+        (int y1, int y2) = VMath.MinMax(yP, yN);
+
+        const int halfCellSize = CellSize / 2;
+
+        Vector2d p1 = new Vector2d(x1, y1) * CellSize + new Vector2d(halfCellSize, halfCellSize);
+        Vector2d p2 = new Vector2d(x2, y2) * CellSize + new Vector2d(halfCellSize, halfCellSize);
+
+        double tx = VMath.InverseLerp(p1.X, p2.X, position.X);
+        double ty = VMath.InverseLerp(p1.Y, p2.Y, position.Y);
+
+        const int extents = Width / 2;
+
+        Cell closest = data.GetCell(xP + extents, yP + extents);
+
+        Cell c00 = data.GetCell(x1 + extents, y1 + extents);
+        Cell c10 = data.GetCell(x2 + extents, y1 + extents);
+        Cell c01 = data.GetCell(x1 + extents, y2 + extents);
+        Cell c11 = data.GetCell(x2 + extents, y2 + extents);
+
+        return new Sample
+        {
+            Conditions = closest.conditions,
+            Height = (float) VMath.Blerp(c00.height, c10.height, c01.height, c11.height, tx, ty),
+            Temperature = (float) VMath.Blerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, tx, ty),
+            Moisture = (float) VMath.Blerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, tx, ty)
+        };
+    }
+
+    /// <summary>
+    ///     A sample of the map.
+    /// </summary>
+    public record struct Sample
+    {
+        /// <summary>
+        ///     Conditions of the cell the sample is taken from.
+        /// </summary>
+        public CellConditions Conditions { get; init; }
+
+        /// <summary>
+        ///     The height of the sample.
+        /// </summary>
+        public float Height { get; init; }
+
+        /// <summary>
+        ///     The temperature of the sample.
+        /// </summary>
+        public float Temperature { get; init; }
+
+        /// <summary>
+        ///     The moisture of the sample.
+        /// </summary>
+        public float Moisture { get; init; }
+    }
+
     private record struct Cell
     {
+        /// <summary>
+        ///     Flags for different cell conditions.
+        /// </summary>
         public CellConditions conditions;
+
+        /// <summary>
+        ///     The continent id of the cell. The ids are not contiguous, but are unique.
+        /// </summary>
         public short continent;
+
+        /// <summary>
+        ///     The height of the cell, in the range [-1, 1].
+        /// </summary>
         public float height;
+
+        /// <summary>
+        ///     The moisture of the cell, in the range [0, 1].
+        /// </summary>
         public float moisture;
+
+        /// <summary>
+        ///     The temperature of the cell, in the range [0, 1].
+        /// </summary>
         public float temperature;
 
         public bool IsLand => height > 0.0f;

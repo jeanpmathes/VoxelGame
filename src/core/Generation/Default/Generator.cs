@@ -18,7 +18,14 @@ public class Generator : IWorldGenerator
 {
     private const int SeaLevel = 0;
 
+    /// <summary>
+    ///     Height of the highest mountains and deepest oceans.
+    /// </summary>
+    private const int Height = 10_000;
+
     private const string MapBlobName = "default_map";
+
+    private readonly BiomeDistribution biomes = BiomeDistribution.Default;
     private readonly Map map;
 
     private readonly Palette palette = new();
@@ -34,7 +41,7 @@ public class Generator : IWorldGenerator
     {
         this.world = world;
 
-        map = new Map(world.DebugDirectory);
+        map = new Map(biomes, world.DebugDirectory);
         seed = world.Seed;
 
         Initialize();
@@ -44,7 +51,9 @@ public class Generator : IWorldGenerator
     /// <inheritdoc />
     public IEnumerable<uint> GenerateColumn(int x, int z, (int start, int end) heightRange)
     {
-        for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z));
+        Map.Sample sample = map.GetSample((x, z));
+
+        for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z), sample);
     }
 
     private void Initialize()
@@ -59,9 +68,12 @@ public class Generator : IWorldGenerator
         if (write != null) map.Store(write);
     }
 
-    private uint GenerateBlock(Vector3i position)
+    private uint GenerateBlock(Vector3i position, in Map.Sample sample)
     {
         if (position.Y == -World.BlockLimit) return palette.Core;
+
+        if (position.Y <= sample.Height * Height) return palette.Land;
+
         if (position.Y <= SeaLevel) return palette.Water;
 
         return palette.Empty;

@@ -258,10 +258,26 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Perform a bilinear interpolation between four values, using two factors.
+    /// </summary>
+    public static double Blerp(double f00, double f10, double f01, double f11, double tx, double ty)
+    {
+        return MathHelper.Lerp(MathHelper.Lerp(f00, f10, tx), MathHelper.Lerp(f01, f11, tx), ty);
+    }
+
+    /// <summary>
     ///     Calculates the angle between two vectors.
     /// </summary>
     public static double CalculateAngle(Vector2d a, Vector2d b)
     {
         return Math.Acos(Vector2d.Dot(a, b) / (a.Length * b.Length));
+    }
+
+    /// <summary>
+    ///     Get a tuple with the minimum value first and the maximum value second.
+    /// </summary>
+    public static (T, T) MinMax<T>(T a, T b) where T : IComparable<T>
+    {
+        return a.CompareTo(b) < 0 ? (a, b) : (b, a);
     }
 }
