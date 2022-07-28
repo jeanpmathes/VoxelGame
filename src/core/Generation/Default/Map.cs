@@ -233,9 +233,13 @@ public partial class Map
         Cell c01 = data.GetCell(x1 + extents, y2 + extents);
         Cell c11 = data.GetCell(x2 + extents, y2 + extents);
 
+        var temperature = (float) VMath.Blerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, tx, ty);
+        var moisture = (float) VMath.Blerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, tx, ty);
+
         return new Sample
         {
-            Height = (float) VMath.Blerp(c00.height, c10.height, c01.height, c11.height, tx, ty)
+            Height = (float) VMath.Blerp(c00.height, c10.height, c01.height, c11.height, tx, ty),
+            Biome = biomes.GetBiome(temperature, moisture)
         };
     }
 
@@ -248,6 +252,11 @@ public partial class Map
         ///     The height of the sample.
         /// </summary>
         public float Height { get; init; }
+
+        /// <summary>
+        ///     The biome of the sample.
+        /// </summary>
+        public Biome Biome { get; init; }
     }
 
     private record struct Cell

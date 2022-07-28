@@ -677,7 +677,7 @@ public partial class Map
 
     private static Color GetBiomeColor(Cell current, BiomeDistribution biomes)
     {
-        return current.IsLand ? biomes.GetBiome(current.temperature, current.moisture).GetColor() : Color.White;
+        return current.IsLand ? biomes.GetBiome(current.temperature, current.moisture).Color : Color.White;
     }
 
     private static void EmitBiomeView(Data data, BiomeDistribution biomes, string path)

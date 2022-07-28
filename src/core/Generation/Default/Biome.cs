@@ -5,95 +5,158 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
+using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Generation.Default;
 
 /// <summary>
-///     A biome is an are with a certain fauna and flora.
+/// A biome is a collection of attributes of an area in the world.
 /// </summary>
-public enum Biome
+public class Biome
 {
     /// <summary>
-    ///     Polar desert.
+    /// Polar desert.
     /// </summary>
-    PolarDesert,
-
-    /// <summary>
-    ///     Tropical rainforest.
-    /// </summary>
-    TropicalRainforest,
-
-    /// <summary>
-    ///     Temperate rainforest.
-    /// </summary>
-    TemperateRainforest,
-
-    /// <summary>
-    ///     Taiga.
-    /// </summary>
-    Taiga,
-
-    /// <summary>
-    ///     Tundra.
-    /// </summary>
-    Tundra,
-
-    /// <summary>
-    ///     Savanna.
-    /// </summary>
-    Savanna,
-
-    /// <summary>
-    ///     Seasonal forest.
-    /// </summary>
-    SeasonalForest,
-
-    /// <summary>
-    ///     Dry forest.
-    /// </summary>
-    DryForest,
-
-    /// <summary>
-    ///     Shrubland.
-    /// </summary>
-    Shrubland,
-
-    /// <summary>
-    ///     Desert.
-    /// </summary>
-    Desert,
-
-    /// <summary>
-    ///     Grassland.
-    /// </summary>
-    Grassland
-}
-
-/// <summary>
-///     Offers helper methods for working with biomes.
-/// </summary>
-public static class BiomeExtensions
-{
-    /// <summary>
-    ///     Gets a color representing the biome.
-    /// </summary>
-    public static Color GetColor(this Biome biome)
+    public static readonly Biome PolarDesert = new()
     {
-        return biome switch
-        {
-            Biome.TropicalRainforest => Color.DarkGreen,
-            Biome.TemperateRainforest => Color.Green,
-            Biome.Taiga => Color.Navy,
-            Biome.Tundra => Color.CadetBlue,
-            Biome.Savanna => Color.Olive,
-            Biome.SeasonalForest => Color.LimeGreen,
-            Biome.Shrubland => Color.Salmon,
-            Biome.Desert => Color.Yellow,
-            Biome.Grassland => Color.SaddleBrown,
-            Biome.PolarDesert => Color.Gray,
-            Biome.DryForest => Color.SeaGreen,
-            _ => throw new ArgumentException(message: null, nameof(biome))
-        };
+        Color = Color.Gray
+    };
+
+    /// <summary>
+    /// Tropical rainforest.
+    /// </summary>
+    public static readonly Biome TropicalRainforest = new()
+    {
+        Color = Color.DarkGreen
+    };
+
+    /// <summary>
+    /// Temperate rainforest.
+    /// </summary>
+    public static readonly Biome TemperateRainforest = new()
+    {
+        Color = Color.Green
+    };
+
+    /// <summary>
+    /// Taiga.
+    /// </summary>
+    public static readonly Biome Taiga = new()
+    {
+        Color = Color.Navy
+    };
+
+    /// <summary>
+    /// Tundra.
+    /// </summary>
+    public static readonly Biome Tundra = new()
+    {
+        Color = Color.CadetBlue
+    };
+
+    /// <summary>
+    /// Savanna.
+    /// </summary>
+    public static readonly Biome Savanna = new()
+    {
+        Color = Color.Olive
+    };
+
+    /// <summary>
+    /// Seasonal forest.
+    /// </summary>
+    public static readonly Biome SeasonalForest = new()
+    {
+        Color = Color.LimeGreen
+    };
+
+    /// <summary>
+    /// Dry forest.
+    /// </summary>
+    public static readonly Biome DryForest = new()
+    {
+        Color = Color.SeaGreen
+    };
+
+    /// <summary>
+    /// Shrubland.
+    /// </summary>
+    public static readonly Biome Shrubland = new()
+    {
+        Color = Color.Salmon
+    };
+
+    /// <summary>
+    /// Desert.
+    /// </summary>
+    public static readonly Biome Desert = new()
+    {
+        Color = Color.Yellow
+    };
+
+    /// <summary>
+    /// Grassland.
+    /// </summary>
+    public static readonly Biome Grassland = new()
+    {
+        Color = Color.SaddleBrown
+    };
+
+    private FastNoiseLite noise = null!;
+
+    private Biome()
+    {
+        OnSetup += SetupBiome;
+    }
+
+    /// <summary>
+    /// A color representing the biome.
+    /// </summary>
+    public Color Color { get; init; }
+
+    private float Amplitude { get; } = 10.0f;
+
+    private float Frequency { get; } = 0.005f;
+
+    /// <summary>
+    ///     Setup all biomes for current world generation.
+    ///     Because biomes need setup, only one world can be generated at a time.
+    /// </summary>
+    /// <param name="seed">The seed to use for the noise generation.</param>
+    public static void Setup(int seed)
+    {
+        Debug.Assert(OnSetup != null);
+        OnSetup(sender: null, seed);
+    }
+
+    private static event EventHandler<int>? OnSetup;
+
+    private void SetupBiome(object? sender, int seed)
+    {
+        noise = new FastNoiseLite(seed);
+
+        noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
+        noise.SetFrequency(Frequency);
+
+        noise.SetFractalType(FastNoiseLite.FractalType.FBm);
+        noise.SetFractalOctaves(octaves: 3);
+        noise.SetFractalLacunarity(lacunarity: 2.0f);
+        noise.SetFractalGain(gain: 0.5f);
+        noise.SetFractalWeightedStrength(weightedStrength: 0.0f);
+
+        noise.SetDomainWarpType(FastNoiseLite.DomainWarpType.OpenSimplex2);
+        noise.SetDomainWarpAmp(domainWarpAmp: 30.0f);
+    }
+
+    /// <summary>
+    ///     Get a offset value for the given column, which can be applied to the height.
+    /// </summary>
+    /// <param name="position">The position of the column.</param>
+    /// <returns>The offset value.</returns>
+    public float GetOffset(Vector2i position)
+    {
+        return noise.GetNoise(position.X, position.Y) * Amplitude;
     }
 }

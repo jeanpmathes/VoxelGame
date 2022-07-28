@@ -6,8 +6,10 @@
 
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -24,8 +26,9 @@ public class Generator : IWorldGenerator
     private const int Height = 10_000;
 
     private const string MapBlobName = "default_map";
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Generator>();
 
-    private readonly BiomeDistribution biomes = BiomeDistribution.Default;
+    private readonly BiomeDistribution biomes;
     private readonly Map map;
 
     private readonly Palette palette = new();
@@ -40,12 +43,17 @@ public class Generator : IWorldGenerator
     public Generator(World world)
     {
         this.world = world;
+        seed = world.Seed;
+
+        biomes = BiomeDistribution.Default;
+        Biome.Setup(seed);
 
         map = new Map(biomes);
-        seed = world.Seed;
 
         Initialize();
         Store();
+
+        logger.LogInformation(Events.WorldGeneration, "Created '{Name}' world generator", nameof(Default));
     }
 
     /// <inheritdoc />
@@ -76,9 +84,11 @@ public class Generator : IWorldGenerator
 
     private uint GenerateBlock(Vector3i position, in Map.Sample sample)
     {
+        double worldHeight = sample.Height * Height + sample.Biome.GetOffset(position.Xz);
+
         if (position.Y == -World.BlockLimit) return palette.Core;
 
-        if (position.Y <= sample.Height * Height) return palette.Land;
+        if (position.Y <= worldHeight) return palette.Land;
 
         if (position.Y <= SeaLevel) return palette.Water;
 

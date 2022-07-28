@@ -19,7 +19,7 @@ public class BiomeDistribution
 
     private BiomeDistribution()
     {
-        biomes = new Biome?[,]
+        biomes = new[,]
         {
             {Biome.PolarDesert, Biome.Tundra, Biome.Taiga, Biome.Grassland, Biome.Grassland, Biome.Grassland, Biome.Desert, Biome.Desert, Biome.Desert, Biome.Desert},
             {null, Biome.Tundra, Biome.Taiga, Biome.Shrubland, Biome.Shrubland, Biome.Shrubland, Biome.Shrubland, Biome.Savanna, Biome.Desert, Biome.Desert},
@@ -62,6 +62,6 @@ public class BiomeDistribution
 
         Debug.Assert(biome is not null);
 
-        return biome.Value;
+        return biome;
     }
 }
