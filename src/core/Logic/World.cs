@@ -133,7 +133,7 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     The directory at which debug artifacts can be stored.
     /// </summary>
-    public string DebugDirectory { get; }
+    private string DebugDirectory { get; }
 
     /// <summary>
     ///     Gets whether this world is ready for physics ticking and rendering.
@@ -238,6 +238,14 @@ public abstract partial class World : IDisposable
     private static IWorldGenerator GetGenerator(World world)
     {
         return new Generator(world);
+    }
+
+    /// <summary>
+    ///     Emit views of global world data for debugging.
+    /// </summary>
+    public void EmitViews()
+    {
+        generator.EmitViews(DebugDirectory);
     }
 
     private void Setup()

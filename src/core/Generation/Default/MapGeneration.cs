@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -466,7 +465,6 @@ public partial class Map
         return driftDirections;
     }
 
-    [Conditional("DEBUG")]
     private static void EmitTerrainView(Data data, string path)
     {
         using Bitmap view = new(Width, Width);
@@ -523,7 +521,6 @@ public partial class Map
         return Colors.Mix(tempered, other);
     }
 
-    [Conditional("DEBUG")]
     private static void EmitTemperatureView(Data data, string path)
     {
         using Bitmap view = new(Width, Width);
@@ -664,7 +661,6 @@ public partial class Map
         return current.IsLand ? precipitation : Color.Aqua;
     }
 
-    [Conditional("DEBUG")]
     private static void EmitMoistureView(Data data, string path)
     {
         using Bitmap view = new(Width, Width);
@@ -684,7 +680,6 @@ public partial class Map
         return current.IsLand ? biomes.GetBiome(current.temperature, current.moisture).GetColor() : Color.White;
     }
 
-    [Conditional("DEBUG")]
     private static void EmitBiomeView(Data data, BiomeDistribution biomes, string path)
     {
         using Bitmap view = new(Width, Width);

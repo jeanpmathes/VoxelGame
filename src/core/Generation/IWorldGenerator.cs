@@ -21,4 +21,10 @@ public interface IWorldGenerator
     /// <param name="heightRange">The height range (inclusive, exclusive) in which blocks should be generated.</param>
     /// <returns>The data in the column.</returns>
     IEnumerable<uint> GenerateColumn(int x, int z, (int start, int end) heightRange);
+
+    /// <summary>
+    ///     Emit views of global generated data for debugging.
+    /// </summary>
+    /// <param name="path">A path to the debug directory.</param>
+    void EmitViews(string path);
 }

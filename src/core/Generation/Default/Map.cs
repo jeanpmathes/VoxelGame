@@ -61,8 +61,6 @@ public partial class Map
 
     private readonly BiomeDistribution biomes;
 
-    private readonly string debugPath;
-
     private Data? data;
 
     private bool dirty;
@@ -71,10 +69,8 @@ public partial class Map
     ///     Create a new map.
     /// </summary>
     /// <param name="biomes">The biome distribution used by the generator.</param>
-    /// <param name="debugPath">The path at which debug artifacts are created.</param>
-    public Map(BiomeDistribution biomes, string debugPath)
+    public Map(BiomeDistribution biomes)
     {
-        this.debugPath = debugPath;
         this.biomes = biomes;
     }
 
@@ -112,12 +108,21 @@ public partial class Map
 
         stopwatch.Stop();
 
-        EmitTerrainView(data, debugPath);
-        EmitTemperatureView(data, debugPath);
-        EmitMoistureView(data, debugPath);
-        EmitBiomeView(data, biomes, debugPath);
-
         logger.LogInformation(Events.WorldGeneration, "Generated map in {Time}s", stopwatch.Elapsed.TotalSeconds);
+    }
+
+    /// <summary>
+    ///     Emit views of different map values.
+    /// </summary>
+    /// <param name="path">The path to a directory to save the views to.</param>
+    public void EmitViews(string path)
+    {
+        Debug.Assert(data != null);
+
+        EmitTerrainView(data, path);
+        EmitTemperatureView(data, path);
+        EmitMoistureView(data, path);
+        EmitBiomeView(data, biomes, path);
     }
 
     private void Load(BinaryReader reader)

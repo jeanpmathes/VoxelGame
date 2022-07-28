@@ -41,7 +41,7 @@ public class Generator : IWorldGenerator
     {
         this.world = world;
 
-        map = new Map(biomes, world.DebugDirectory);
+        map = new Map(biomes);
         seed = world.Seed;
 
         Initialize();
@@ -54,6 +54,12 @@ public class Generator : IWorldGenerator
         Map.Sample sample = map.GetSample((x, z));
 
         for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z), sample);
+    }
+
+    /// <inheritdoc />
+    public void EmitViews(string path)
+    {
+        map.EmitViews(path);
     }
 
     private void Initialize()
