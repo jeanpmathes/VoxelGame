@@ -223,8 +223,6 @@ public partial class Map
 
         const int extents = Width / 2;
 
-        Cell closest = data.GetCell(xP + extents, yP + extents);
-
         Cell c00 = data.GetCell(x1 + extents, y1 + extents);
         Cell c10 = data.GetCell(x2 + extents, y1 + extents);
         Cell c01 = data.GetCell(x1 + extents, y2 + extents);
@@ -232,10 +230,7 @@ public partial class Map
 
         return new Sample
         {
-            Conditions = closest.conditions,
-            Height = (float) VMath.Blerp(c00.height, c10.height, c01.height, c11.height, tx, ty),
-            Temperature = (float) VMath.Blerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, tx, ty),
-            Moisture = (float) VMath.Blerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, tx, ty)
+            Height = (float) VMath.Blerp(c00.height, c10.height, c01.height, c11.height, tx, ty)
         };
     }
 
@@ -245,24 +240,9 @@ public partial class Map
     public record struct Sample
     {
         /// <summary>
-        ///     Conditions of the cell the sample is taken from.
-        /// </summary>
-        public CellConditions Conditions { get; init; }
-
-        /// <summary>
         ///     The height of the sample.
         /// </summary>
         public float Height { get; init; }
-
-        /// <summary>
-        ///     The temperature of the sample.
-        /// </summary>
-        public float Temperature { get; init; }
-
-        /// <summary>
-        ///     The moisture of the sample.
-        /// </summary>
-        public float Moisture { get; init; }
     }
 
     private record struct Cell
