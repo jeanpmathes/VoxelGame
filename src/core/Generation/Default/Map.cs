@@ -63,8 +63,6 @@ public partial class Map
 
     private Data? data;
 
-    private bool dirty;
-
     /// <summary>
     ///     Create a new map.
     /// </summary>
@@ -96,7 +94,6 @@ public partial class Map
     {
         Debug.Assert(data == null);
         data = new Data();
-        dirty = true;
 
         logger.LogDebug(Events.WorldGeneration, "Generating map");
 
@@ -166,8 +163,6 @@ public partial class Map
     public void Store(BinaryWriter writer)
     {
         Debug.Assert(data != null);
-
-        if (!dirty) return;
 
         void StoreCell(in Cell cell)
         {
