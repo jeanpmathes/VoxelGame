@@ -208,7 +208,7 @@ public abstract partial class World : IDisposable
     {
         try
         {
-            Stream stream = File.Open(Path.Combine(BlobDirectory, name), FileMode.Create, FileAccess.Write);
+            Stream stream = File.Open(Path.Combine(BlobDirectory, name), FileMode.Open, FileAccess.Write);
 
             return new BinaryWriter(stream, Encoding.UTF8, leaveOpen: false);
         }

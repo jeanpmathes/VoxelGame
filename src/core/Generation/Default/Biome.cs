@@ -17,91 +17,123 @@ namespace VoxelGame.Core.Generation.Default;
 public class Biome
 {
     /// <summary>
-    /// Polar desert.
+    /// The polar desert biome.
     /// </summary>
     public static readonly Biome PolarDesert = new()
     {
-        Color = Color.Gray
+        Color = Color.Gray,
+        Amplitude = 2f,
+        Frequency = 0.007f
     };
 
     /// <summary>
-    /// Tropical rainforest.
+    /// The tropical rainforest biome.
     /// </summary>
     public static readonly Biome TropicalRainforest = new()
     {
-        Color = Color.DarkGreen
+        Color = Color.DarkGreen,
+        Amplitude = 15f,
+        Frequency = 0.005f
     };
 
     /// <summary>
-    /// Temperate rainforest.
+    /// The temperate rainforest biome.
     /// </summary>
     public static readonly Biome TemperateRainforest = new()
     {
-        Color = Color.Green
+        Color = Color.Green,
+        Amplitude = 15f,
+        Frequency = 0.005f
     };
 
     /// <summary>
-    /// Taiga.
+    /// The taiga biome.
     /// </summary>
     public static readonly Biome Taiga = new()
     {
-        Color = Color.Navy
+        Color = Color.Navy,
+        Amplitude = 3f,
+        Frequency = 0.007f
     };
 
     /// <summary>
-    /// Tundra.
+    /// The tundra biome.
     /// </summary>
     public static readonly Biome Tundra = new()
     {
-        Color = Color.CadetBlue
+        Color = Color.CadetBlue,
+        Amplitude = 3f,
+        Frequency = 0.007f
     };
 
     /// <summary>
-    /// Savanna.
+    /// The savanna biome.
     /// </summary>
     public static readonly Biome Savanna = new()
     {
-        Color = Color.Olive
+        Color = Color.Olive,
+        Amplitude = 1f,
+        Frequency = 0.01f
     };
 
     /// <summary>
-    /// Seasonal forest.
+    /// The seasonal forest biome.
     /// </summary>
     public static readonly Biome SeasonalForest = new()
     {
-        Color = Color.LimeGreen
+        Color = Color.LimeGreen,
+        Amplitude = 10f,
+        Frequency = 0.005f
     };
 
     /// <summary>
-    /// Dry forest.
+    /// The dry forest biome.
     /// </summary>
     public static readonly Biome DryForest = new()
     {
-        Color = Color.SeaGreen
+        Color = Color.SeaGreen,
+        Amplitude = 15f,
+        Frequency = 0.005f
     };
 
     /// <summary>
-    /// Shrubland.
+    /// The shrubland biome.
     /// </summary>
     public static readonly Biome Shrubland = new()
     {
-        Color = Color.Salmon
+        Color = Color.Salmon,
+        Amplitude = 1f,
+        Frequency = 0.01f
     };
 
     /// <summary>
-    /// Desert.
+    /// The desert biome.
     /// </summary>
     public static readonly Biome Desert = new()
     {
-        Color = Color.Yellow
+        Color = Color.Yellow,
+        Amplitude = 4f,
+        Frequency = 0.008f
     };
 
     /// <summary>
-    /// Grassland.
+    /// The grassland biome.
     /// </summary>
     public static readonly Biome Grassland = new()
     {
-        Color = Color.SaddleBrown
+        Color = Color.SaddleBrown,
+        Amplitude = 4f,
+        Frequency = 0.004f
+    };
+
+    /// <summary>
+    ///     The ocean biome.
+    /// </summary>
+    public static readonly Biome Ocean = new()
+    {
+        Color = Color.White,
+        Amplitude = 5.0f,
+        Frequency = 0.005f
     };
 
     private FastNoiseLite noise = null!;
@@ -114,11 +146,11 @@ public class Biome
     /// <summary>
     /// A color representing the biome.
     /// </summary>
-    public Color Color { get; init; }
+    public Color Color { get; private init; }
 
-    private float Amplitude { get; } = 10.0f;
+    private float Amplitude { get; init; }
 
-    private float Frequency { get; } = 0.005f;
+    private float Frequency { get; init; }
 
     /// <summary>
     ///     Setup all biomes for current world generation.

@@ -55,7 +55,7 @@ public partial class Map
     /// </summary>
     private const int CellSize = 100_000;
 
-    private const int Width = (int) World.BlockLimit * 2 / CellSize;
+    private const int Width = (int) (World.BlockLimit * 2) / CellSize;
     private const int CellCount = Width * Width;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Map>();
 
@@ -223,6 +223,8 @@ public partial class Map
 
         const int extents = Width / 2;
 
+        Cell closest = data.GetCell(xP + extents, yP + extents);
+
         Cell c00 = data.GetCell(x1 + extents, y1 + extents);
         Cell c10 = data.GetCell(x2 + extents, y1 + extents);
         Cell c01 = data.GetCell(x1 + extents, y2 + extents);
@@ -234,7 +236,7 @@ public partial class Map
         return new Sample
         {
             Height = (float) VMath.Blerp(c00.height, c10.height, c01.height, c11.height, tx, ty),
-            Biome = biomes.GetBiome(temperature, moisture)
+            Biome = closest.IsLand ? biomes.GetBiome(temperature, moisture) : Biome.Ocean
         };
     }
 
