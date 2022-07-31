@@ -23,7 +23,7 @@ namespace VoxelGame.Client.Entities;
 public sealed class ClientPlayer : Player, IPlayerDataProvider
 {
     private const float FlyingSpeed = 5f;
-    private const float FlyingSprintSpeed = 15f;
+    private const float FlyingSprintSpeed = 25f;
     private readonly Camera camera;
     private readonly Vector3d cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
     private readonly float diveSpeed = 8f;
