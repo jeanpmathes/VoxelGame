@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -152,6 +153,28 @@ public class Biome
 
     private float Frequency { get; init; }
 
+    private Layer? Top { get; } = new(Block.Grass, width: 1);
+
+    private Layer Permeable { get; } = new(Block.Dirt, width: 3);
+
+    private Layer Solid { get; } = new(Block.Rubble, width: 2);
+
+    /// <summary>
+    ///     Get the depths of the different layers. The depth is the number of blocks in the layer and all the layers above.
+    /// </summary>
+    /// <returns>The depths of the permeable and solid layers.</returns>
+    public (int permeable, int solid) Depths
+    {
+        get
+        {
+            int top = Top?.Width ?? 0;
+            int permeable = top + Permeable.Width;
+            int solid = permeable + Solid.Width;
+
+            return (permeable, solid);
+        }
+    }
+
     /// <summary>
     ///     Setup all biomes for current world generation.
     ///     Because biomes need setup, only one world can be generated at a time.
@@ -190,5 +213,24 @@ public class Biome
     public float GetOffset(Vector2i position)
     {
         return noise.GetNoise(position.X, position.Y) * Amplitude;
+    }
+
+    /// <summary>
+    ///     Get the biome content data for a given depth beneath the surface level.
+    /// </summary>
+    /// <param name="depthBelowSurface">The depth beneath the terrain surface level.</param>
+    /// <param name="isFilled">Whether this column is filled with water.</param>
+    /// <returns>The biome content data.</returns>
+    public uint GetData(int depthBelowSurface, bool isFilled)
+    {
+        Layer current;
+
+        (int permeableDepth, _) = Depths;
+
+        if (Top != null && depthBelowSurface < Top.Width) current = isFilled ? Permeable : Top;
+        else if (depthBelowSurface < permeableDepth) current = Permeable;
+        else current = Solid;
+
+        return current.GetData(isFilled);
     }
 }

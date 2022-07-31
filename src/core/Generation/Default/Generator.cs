@@ -61,7 +61,12 @@ public class Generator : IWorldGenerator
     {
         Map.Sample sample = map.GetSample((x, z));
 
-        for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z), sample);
+        Context context = new()
+        {
+            WorldHeight = (int) (sample.Height * Height + sample.Biome.GetOffset((x, z)))
+        };
+
+        for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z), sample, context);
     }
 
     /// <inheritdoc />
@@ -82,16 +87,21 @@ public class Generator : IWorldGenerator
         if (write != null) map.Store(write);
     }
 
-    private uint GenerateBlock(Vector3i position, in Map.Sample sample)
+    private uint GenerateBlock(Vector3i position, in Map.Sample sample, in Context context)
     {
-        double worldHeight = sample.Height * Height + sample.Biome.GetOffset(position.Xz);
-
         if (position.Y == -World.BlockLimit) return palette.Core;
 
-        if (position.Y <= worldHeight) return palette.Land;
+        int depth = context.WorldHeight - position.Y;
 
-        if (position.Y <= SeaLevel) return palette.Water;
+        if (depth < 0) return position.Y <= SeaLevel ? palette.Water : palette.Empty;
 
-        return palette.Empty;
+        (int permeable, int solid) depths = sample.Biome.Depths;
+
+        return depth >= depths.solid ? palette.Land : sample.Biome.GetData(depth, position.Y <= SeaLevel);
+    }
+
+    private record struct Context
+    {
+        public int WorldHeight { get; init; }
     }
 }
