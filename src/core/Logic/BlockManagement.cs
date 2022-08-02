@@ -192,15 +192,6 @@ public partial class Block
         BoundingVolume.CrossBlock);
 
     /// <summary>
-    ///     This stone block makes up large parts of the world. Below the dirt layers, the ground is solid stone.
-    /// </summary>
-    public static readonly Block Stone = new BasicBlock(
-        Language.Stone,
-        nameof(Stone),
-        BlockFlags.Basic,
-        TextureLayout.Uniform("stone"));
-
-    /// <summary>
     ///     When stone is destroyed, rubble is what remains.
     /// </summary>
     public static readonly Block Rubble = new ConstructionBlock(
@@ -850,4 +841,44 @@ public partial class Block
         supportsFullGrowth: false);
 
     #endregion SPECIAL BLOCKS
+
+    #region NEW BLOCKS
+
+    /// <summary>
+    ///     Granite is found next to volcanic activity.
+    /// </summary>
+    public static readonly Block Granite = new BasicBlock(
+        Language.Granite,
+        nameof(Granite),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("granite"));
+
+    /// <summary>
+    ///     Sandstone is found all over the world and especially in the desert.
+    /// </summary>
+    public static readonly Block Sandstone = new BasicBlock(
+        Language.Sandstone,
+        nameof(Sandstone),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("sandstone"));
+
+    /// <summary>
+    ///     Limestone is found all over the world and especially in oceans.
+    /// </summary>
+    public static readonly Block Limestone = new BasicBlock(
+        Language.Limestone,
+        nameof(Limestone),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("limestone"));
+
+    /// <summary>
+    ///     Marble is a rarer stone type.
+    /// </summary>
+    public static readonly Block Marble = new BasicBlock(
+        Language.Marble,
+        nameof(Marble),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("marble"));
+
+    #endregion NEW BLOCKS
 }

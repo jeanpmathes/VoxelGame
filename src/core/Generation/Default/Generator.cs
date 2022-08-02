@@ -97,7 +97,7 @@ public class Generator : IWorldGenerator
 
         (int permeable, int solid) depths = sample.Biome.Depths;
 
-        return depth >= depths.solid ? palette.Land : sample.Biome.GetData(depth, position.Y <= SeaLevel);
+        return depth >= depths.solid ? palette.GetStone(sample.StoneType) : sample.Biome.GetData(depth, position.Y <= SeaLevel);
     }
 
     private record struct Context

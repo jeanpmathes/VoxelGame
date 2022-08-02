@@ -267,7 +267,8 @@ public partial class Map
         return new Sample
         {
             Height = (float) VMath.Blerp(c00.height, c10.height, c01.height, c11.height, tx, ty),
-            Biome = closest.IsLand ? biomes.GetBiome(temperature, moisture) : Biome.Ocean
+            Biome = closest.IsLand ? biomes.GetBiome(temperature, moisture) : Biome.Ocean,
+            StoneType = closest.stoneType
         };
     }
 
@@ -285,6 +286,11 @@ public partial class Map
         ///     The biome of the sample.
         /// </summary>
         public Biome Biome { get; init; }
+
+        /// <summary>
+        ///     The dominant stone type of the sample.
+        /// </summary>
+        public StoneType StoneType { get; init; }
     }
 
     private record struct Cell

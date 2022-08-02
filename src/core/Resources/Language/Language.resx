@@ -324,9 +324,6 @@
   <data name="SteelPipeStraight" xml:space="preserve">
     <value>Straight Steelpipe</value>
   </data>
-  <data name="Stone" xml:space="preserve">
-    <value>Stone</value>
-  </data>
   <data name="StoneFace" xml:space="preserve">
     <value>Stone Face</value>
   </data>
@@ -542,5 +539,17 @@
   </data>
   <data name="Core" xml:space="preserve">
     <value>Core</value>
+  </data>
+  <data name="Granite" xml:space="preserve">
+    <value>Granite</value>
+  </data>
+  <data name="Sandstone" xml:space="preserve">
+    <value>Sandstone</value>
+  </data>
+  <data name="Limestone" xml:space="preserve">
+    <value>Limestone</value>
+  </data>
+  <data name="Marble" xml:space="preserve">
+    <value>Marble</value>
   </data>
 </root>
