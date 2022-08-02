@@ -258,6 +258,7 @@ public partial class Map
 
         (List<(short, double)> nodes, Dictionary<short, List<short>> adjancecy) continents = BuildContinents(data, pieces.adjacency, pieces.pieceToValue);
 
+        GenerateStoneTypes(data, seed);
         SimulateTectonics(data, continents);
     }
 
@@ -315,6 +316,30 @@ public partial class Map
         }
 
         AddOffsetsToData(data, offsets);
+    }
+
+    private static void GenerateStoneTypes(Data data, int seed)
+    {
+        FastNoiseLite noise = new(seed);
+        noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        noise.SetFrequency(frequency: 0.08f);
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+        {
+            float value = noise.GetNoise(x, y);
+            value = Math.Abs(value);
+
+            StoneType stoneType = value switch
+            {
+                < 0.05f => StoneType.Marble,
+                < 0.45f => StoneType.Limestone,
+                _ => StoneType.Sandstone
+            };
+
+            ref Cell current = ref data.GetCell(x, y);
+            current.stoneType = stoneType;
+        }
     }
 
     private static void AddOffsetsToData(Data data, float[] offsets)
@@ -404,6 +429,7 @@ public partial class Map
 
             ref Cell otherCell = ref data.GetCell(other.position);
             otherCell.conditions |= CellConditions.Vulcanism;
+            otherCell.stoneType = StoneType.Granite;
 
             Data.Get(offsets, water.position) = (float) (strength * MaxConvergentBoundaryWaterSinking);
         }
@@ -437,7 +463,13 @@ public partial class Map
 
         if (cellA.IsLand && cellB.IsLand) conditions = CellConditions.Rift;
 
-        if (!cellA.IsLand && !cellB.IsLand) conditions = CellConditions.Rift | CellConditions.Vulcanism;
+        if (!cellA.IsLand && !cellB.IsLand)
+        {
+            conditions = CellConditions.Rift | CellConditions.Vulcanism;
+
+            cellA.stoneType = StoneType.Granite;
+            cellB.stoneType = StoneType.Granite;
+        }
 
         cellA.conditions |= conditions;
         cellB.conditions |= conditions;
@@ -692,6 +724,35 @@ public partial class Map
         }
 
         view.Save(Path.Combine(path, "biome_view.png"));
+    }
+
+    private static Color GetStoneTypeColor(Cell current)
+    {
+        if (current.IsLand)
+            return current.stoneType switch
+            {
+                StoneType.Granite => Color.Green,
+                StoneType.Limestone => Color.Blue,
+                StoneType.Marble => Color.Red,
+                StoneType.Sandstone => Color.Yellow,
+                _ => Color.Black
+            };
+
+        return Color.White;
+    }
+
+    private static void EmitStoneView(Data data, string path)
+    {
+        using Bitmap view = new(Width, Width);
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+        {
+            Cell current = data.GetCell(x, y);
+            view.SetPixel(x, y, GetStoneTypeColor(current));
+        }
+
+        view.Save(Path.Combine(path, "stone_view.png"));
     }
 
     private record struct MoistureData

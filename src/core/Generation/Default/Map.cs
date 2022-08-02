@@ -51,6 +51,34 @@ public partial class Map
     }
 
     /// <summary>
+    ///     The stone type of a cell.
+    /// </summary>
+    #pragma warning disable S4022
+    public enum StoneType : byte
+    #pragma warning restore S4022
+    {
+        /// <summary>
+        ///     Sandstone.
+        /// </summary>
+        Sandstone,
+
+        /// <summary>
+        ///     Granite.
+        /// </summary>
+        Granite,
+
+        /// <summary>
+        ///     Limestone.
+        /// </summary>
+        Limestone,
+
+        /// <summary>
+        ///     Marble.
+        /// </summary>
+        Marble
+    }
+
+    /// <summary>
     ///     The size of a map cell.
     /// </summary>
     private const int CellSize = 100_000;
@@ -117,6 +145,7 @@ public partial class Map
         Debug.Assert(data != null);
 
         EmitTerrainView(data, path);
+        EmitStoneView(data, path);
         EmitTemperatureView(data, path);
         EmitMoistureView(data, path);
         EmitBiomeView(data, biomes, path);
@@ -136,6 +165,7 @@ public partial class Map
             cell.temperature = reader.ReadSingle();
             cell.moisture = reader.ReadSingle();
             cell.conditions = (CellConditions) reader.ReadByte();
+            cell.stoneType = (StoneType) reader.ReadByte();
 
             return cell;
         }
@@ -171,6 +201,7 @@ public partial class Map
             writer.Write(cell.temperature);
             writer.Write(cell.moisture);
             writer.Write((byte) cell.conditions);
+            writer.Write((byte) cell.stoneType);
         }
 
         for (var i = 0; i < CellCount; i++) StoreCell(data.cells[i]);
@@ -277,6 +308,11 @@ public partial class Map
         ///     The moisture of the cell, in the range [0, 1].
         /// </summary>
         public float moisture;
+
+        /// <summary>
+        ///     The height of the cell.
+        /// </summary>
+        public StoneType stoneType;
 
         /// <summary>
         ///     The temperature of the cell, in the range [0, 1].
