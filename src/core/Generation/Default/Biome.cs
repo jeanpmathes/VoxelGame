@@ -162,7 +162,9 @@ public class Biome
     private List<Layer> Layers { get; } = new()
     {
         Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-        Layer.CreatePermeable(Block.Dirt, width: 3),
+        Layer.CreatePermeable(Block.Dirt, width: 6),
+        Layer.CreateLoose(width: 2),
+        Layer.CreateGroundwater(width: 2),
         Layer.CreateSolid(Block.Rubble, width: 2)
     };
 
@@ -251,15 +253,16 @@ public class Biome
     ///     Get the biome content data for a given depth beneath the surface level.
     /// </summary>
     /// <param name="depthBelowSurface">The depth beneath the terrain surface level.</param>
+    /// <param name="stoneType">The stone type of the column.</param>
     /// <param name="isFilled">Whether this column is filled with water.</param>
     /// <returns>The biome content data.</returns>
-    public uint GetData(int depthBelowSurface, bool isFilled)
+    public uint GetData(int depthBelowSurface, Map.StoneType stoneType, bool isFilled)
     {
         Layer current = horizon[depthBelowSurface];
 
         bool isFilledAtCurrentDepth = depthBelowSurface < DepthToSolid && isFilled;
 
-        return current.GetData(isFilledAtCurrentDepth);
+        return current.GetData(stoneType, isFilledAtCurrentDepth);
     }
 
     /// <inheritdoc />

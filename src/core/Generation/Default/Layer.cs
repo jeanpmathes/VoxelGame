@@ -49,11 +49,28 @@ public abstract class Layer
     }
 
     /// <summary>
+    ///     Create a layer with ground water that uses a loose block depending on stone type.
+    /// </summary>
+    public static Layer CreateGroundwater(int width)
+    {
+        return new Groundwater(width);
+    }
+
+    /// <summary>
+    ///     Create a layer with loose material, depending on stone type.
+    /// </summary>
+    public static Layer CreateLoose(int width)
+    {
+        return new Loose(width);
+    }
+
+    /// <summary>
     ///     Returns the data for the layer content.
     /// </summary>
+    /// <param name="stoneType">The stone type of the column.</param>
     /// <param name="isFilled">Whether the column is filled with fluid or not.</param>
     /// <returns>The data for the layer content.</returns>
-    public abstract uint GetData(bool isFilled);
+    public abstract uint GetData(Map.StoneType stoneType, bool isFilled);
 
     private sealed class Cover : Layer
     {
@@ -68,7 +85,7 @@ public abstract class Layer
             filledData = filled is IFillable ? Section.Encode(filled, Fluid.Water) : Section.Encode(filled);
         }
 
-        public override uint GetData(bool isFilled)
+        public override uint GetData(Map.StoneType stoneType, bool isFilled)
         {
             return isFilled ? filledData : normalData;
         }
@@ -87,7 +104,7 @@ public abstract class Layer
             filledData = Section.Encode(block, Fluid.Water);
         }
 
-        public override uint GetData(bool isFilled)
+        public override uint GetData(Map.StoneType stoneType, bool isFilled)
         {
             return isFilled ? filledData : normalData;
         }
@@ -105,9 +122,63 @@ public abstract class Layer
             data = Section.Encode(block);
         }
 
-        public override uint GetData(bool isFilled)
+        public override uint GetData(Map.StoneType stoneType, bool isFilled)
         {
             return data;
+        }
+    }
+
+    private sealed class Groundwater : Layer
+    {
+        private readonly uint gravelWithFilling;
+        private readonly uint gravelWithGroundwater;
+        private readonly uint sandWithFilling;
+
+        private readonly uint sandWithGroundwater;
+
+        public Groundwater(int width)
+        {
+            Width = width;
+
+            gravelWithGroundwater = Section.Encode(Block.Gravel, Fluid.Water);
+            gravelWithFilling = Section.Encode(Block.Gravel, Fluid.Water);
+
+            sandWithGroundwater = Section.Encode(Block.Sand, Fluid.Water);
+            sandWithFilling = Section.Encode(Block.Sand, Fluid.Water);
+        }
+
+        public override uint GetData(Map.StoneType stoneType, bool isFilled)
+        {
+            if (stoneType == Map.StoneType.Sandstone) return isFilled ? sandWithFilling : sandWithGroundwater;
+
+            return isFilled ? gravelWithFilling : gravelWithGroundwater;
+        }
+    }
+
+    private sealed class Loose : Layer
+    {
+        private readonly uint gravelFilled;
+        private readonly uint gravelNormal;
+        private readonly uint sandFilled;
+
+        private readonly uint sandNormal;
+
+        public Loose(int width)
+        {
+            Width = width;
+
+            gravelNormal = Section.Encode(Block.Gravel);
+            gravelFilled = Section.Encode(Block.Gravel, Fluid.Water);
+
+            sandNormal = Section.Encode(Block.Sand);
+            sandFilled = Section.Encode(Block.Sand, Fluid.Water);
+        }
+
+        public override uint GetData(Map.StoneType stoneType, bool isFilled)
+        {
+            if (stoneType == Map.StoneType.Sandstone) return isFilled ? sandFilled : sandNormal;
+
+            return isFilled ? gravelFilled : gravelNormal;
         }
     }
 }

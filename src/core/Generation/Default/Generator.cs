@@ -96,7 +96,7 @@ public class Generator : IWorldGenerator
 
         if (depth < 0) return position.Y <= SeaLevel ? palette.Water : palette.Empty;
 
-        return depth >= sample.Biome.TotalWidth ? palette.GetStone(sample.StoneType) : sample.Biome.GetData(depth, position.Y <= SeaLevel);
+        return depth >= sample.Biome.TotalWidth ? palette.GetStone(sample.StoneType) : sample.Biome.GetData(depth, sample.StoneType, position.Y <= SeaLevel);
     }
 
     private record struct Context
