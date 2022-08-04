@@ -28,7 +28,6 @@ public class Generator : IWorldGenerator
     private const string MapBlobName = "default_map";
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Generator>();
 
-    private readonly BiomeDistribution biomes;
     private readonly Map map;
 
     private readonly Palette palette = new();
@@ -45,10 +44,9 @@ public class Generator : IWorldGenerator
         this.world = world;
         seed = world.Seed;
 
-        biomes = BiomeDistribution.Default;
         Biome.Setup(seed);
 
-        map = new Map(biomes);
+        map = new Map(BiomeDistribution.Default);
 
         Initialize();
         Store();
@@ -98,9 +96,7 @@ public class Generator : IWorldGenerator
 
         if (depth < 0) return position.Y <= SeaLevel ? palette.Water : palette.Empty;
 
-        (int permeable, int solid) depths = sample.Biome.Depths;
-
-        return depth >= depths.solid ? palette.GetStone(sample.StoneType) : sample.Biome.GetData(depth, position.Y <= SeaLevel);
+        return depth >= sample.Biome.TotalWidth ? palette.GetStone(sample.StoneType) : sample.Biome.GetData(depth, position.Y <= SeaLevel);
     }
 
     private record struct Context

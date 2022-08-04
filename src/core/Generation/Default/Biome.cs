@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using OpenTK.Mathematics;
@@ -139,6 +140,8 @@ public class Biome
 
     private readonly string name;
 
+    private Layer[] horizon = null!;
+
     private FastNoiseLite noise = null!;
 
     private Biome(string name)
@@ -156,27 +159,22 @@ public class Biome
 
     private float Frequency { get; init; }
 
-    private Layer? Top { get; } = new(Block.Grass, width: 1);
-
-    private Layer Permeable { get; } = new(Block.Dirt, width: 3);
-
-    private Layer Solid { get; } = new(Block.Rubble, width: 2);
+    private List<Layer> Layers { get; } = new()
+    {
+        Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+        Layer.CreatePermeable(Block.Dirt, width: 3),
+        Layer.CreateSolid(Block.Rubble, width: 2)
+    };
 
     /// <summary>
-    ///     Get the depths of the different layers. The depth is the number of blocks in the layer and all the layers above.
+    ///     The depth until a solid layer is reached.
     /// </summary>
-    /// <returns>The depths of the permeable and solid layers.</returns>
-    public (int permeable, int solid) Depths
-    {
-        get
-        {
-            int top = Top?.Width ?? 0;
-            int permeable = top + Permeable.Width;
-            int solid = permeable + Solid.Width;
+    public int DepthToSolid { get; private set; }
 
-            return (permeable, solid);
-        }
-    }
+    /// <summary>
+    ///     The total width of the biome.
+    /// </summary>
+    public int TotalWidth { get; private set; }
 
     /// <summary>
     ///     Setup all biomes for current world generation.
@@ -193,6 +191,12 @@ public class Biome
 
     private void SetupBiome(object? sender, int seed)
     {
+        SetupNoise(seed);
+        SetupLayers();
+    }
+
+    private void SetupNoise(int seed)
+    {
         noise = new FastNoiseLite(seed);
 
         noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
@@ -206,6 +210,31 @@ public class Biome
 
         noise.SetDomainWarpType(FastNoiseLite.DomainWarpType.OpenSimplex2);
         noise.SetDomainWarpAmp(domainWarpAmp: 30.0f);
+    }
+
+    private void SetupLayers()
+    {
+        TotalWidth = 0;
+        DepthToSolid = 0;
+
+        var hasReachedSolid = false;
+
+        List<Layer> newHorizon = new();
+
+        foreach (Layer layer in Layers)
+        {
+            if (!hasReachedSolid && layer.IsSolid)
+            {
+                hasReachedSolid = true;
+                DepthToSolid = TotalWidth;
+            }
+
+            TotalWidth += layer.Width;
+
+            for (var index = 0; index < layer.Width; index++) newHorizon.Add(layer);
+        }
+
+        horizon = newHorizon.ToArray();
     }
 
     /// <summary>
@@ -226,15 +255,11 @@ public class Biome
     /// <returns>The biome content data.</returns>
     public uint GetData(int depthBelowSurface, bool isFilled)
     {
-        Layer current;
+        Layer current = horizon[depthBelowSurface];
 
-        (int permeableDepth, _) = Depths;
+        bool isFilledAtCurrentDepth = depthBelowSurface < DepthToSolid && isFilled;
 
-        if (Top != null && depthBelowSurface < Top.Width) current = isFilled ? Permeable : Top;
-        else if (depthBelowSurface < permeableDepth) current = Permeable;
-        else current = Solid;
-
-        return current.GetData(isFilled);
+        return current.GetData(isFilledAtCurrentDepth);
     }
 
     /// <inheritdoc />
