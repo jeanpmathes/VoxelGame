@@ -58,11 +58,12 @@ public class Generator : IWorldGenerator
     public IEnumerable<uint> GenerateColumn(int x, int z, (int start, int end) heightRange)
     {
         Map.Sample sample = map.GetSample((x, z));
-        float offset = sample.Biome.GetOffset((x, z));
+        var offset = (int) sample.Biome.GetOffset((x, z));
 
         Context context = new()
         {
-            WorldHeight = (int) (sample.Height * Height + offset)
+            WorldHeight = (int) (sample.Height * Height) + offset,
+            Offset = offset
         };
 
         for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z), sample, context);
@@ -97,11 +98,13 @@ public class Generator : IWorldGenerator
 
         if (depth < 0) return position.Y <= SeaLevel ? palette.Water : palette.Empty;
 
-        return depth >= sample.Biome.TotalWidth ? palette.GetStone(sample.StoneType) : sample.Biome.GetData(depth, sample.StoneType, position.Y <= SeaLevel);
+        return depth >= sample.Biome.TotalWidth ? palette.GetStone(sample.StoneType) : sample.Biome.GetData(depth, context.Offset, sample.StoneType, position.Y <= SeaLevel);
     }
 
     private record struct Context
     {
         public int WorldHeight { get; init; }
+
+        public int Offset { get; init; }
     }
 }

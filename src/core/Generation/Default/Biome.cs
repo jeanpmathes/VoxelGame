@@ -140,7 +140,7 @@ public class Biome
 
     private readonly string name;
 
-    private Layer[] horizon = null!;
+    private (Layer layer, int depth)[] horizon = null!;
 
     private FastNoiseLite noise = null!;
 
@@ -224,7 +224,7 @@ public class Biome
 
         var hasReachedSolid = false;
 
-        List<Layer> newHorizon = new();
+        List<(Layer layer, int depth)> newHorizon = new();
 
         foreach (Layer layer in Layers)
         {
@@ -236,7 +236,7 @@ public class Biome
 
             TotalWidth += layer.Width;
 
-            for (var index = 0; index < layer.Width; index++) newHorizon.Add(layer);
+            for (var depth = 0; depth < layer.Width; depth++) newHorizon.Add((layer, depth));
         }
 
         horizon = newHorizon.ToArray();
@@ -256,16 +256,17 @@ public class Biome
     ///     Get the biome content data for a given depth beneath the surface level.
     /// </summary>
     /// <param name="depthBelowSurface">The depth beneath the terrain surface level.</param>
+    /// <param name="offset">The offset from normal world height.</param>
     /// <param name="stoneType">The stone type of the column.</param>
     /// <param name="isFilled">Whether this column is filled with water.</param>
     /// <returns>The biome content data.</returns>
-    public uint GetData(int depthBelowSurface, Map.StoneType stoneType, bool isFilled)
+    public uint GetData(int depthBelowSurface, int offset, Map.StoneType stoneType, bool isFilled)
     {
-        Layer current = horizon[depthBelowSurface];
+        (Layer current, int depthInLayer) = horizon[depthBelowSurface];
 
         bool isFilledAtCurrentDepth = depthBelowSurface < DepthToSolid && isFilled;
 
-        return current.GetData(stoneType, isFilledAtCurrentDepth);
+        return current.GetData(depthInLayer, offset, stoneType, isFilledAtCurrentDepth);
     }
 
     /// <inheritdoc />

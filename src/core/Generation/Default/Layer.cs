@@ -67,10 +67,12 @@ public abstract class Layer
     /// <summary>
     ///     Returns the data for the layer content.
     /// </summary>
+    /// <param name="depth">The depth in the layer.</param>
+    /// <param name="offset">The random offset from normal world height.</param>
     /// <param name="stoneType">The stone type of the column.</param>
     /// <param name="isFilled">Whether the column is filled with fluid or not.</param>
     /// <returns>The data for the layer content.</returns>
-    public abstract uint GetData(Map.StoneType stoneType, bool isFilled);
+    public abstract uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled);
 
     private sealed class Cover : Layer
     {
@@ -85,7 +87,7 @@ public abstract class Layer
             filledData = filled is IFillable ? Section.Encode(filled, Fluid.Water) : Section.Encode(filled);
         }
 
-        public override uint GetData(Map.StoneType stoneType, bool isFilled)
+        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             return isFilled ? filledData : normalData;
         }
@@ -104,7 +106,7 @@ public abstract class Layer
             filledData = Section.Encode(block, Fluid.Water);
         }
 
-        public override uint GetData(Map.StoneType stoneType, bool isFilled)
+        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             return isFilled ? filledData : normalData;
         }
@@ -122,7 +124,7 @@ public abstract class Layer
             data = Section.Encode(block);
         }
 
-        public override uint GetData(Map.StoneType stoneType, bool isFilled)
+        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             return data;
         }
@@ -130,28 +132,42 @@ public abstract class Layer
 
     private sealed class Groundwater : Layer
     {
+        private readonly uint gravel;
         private readonly uint gravelWithFilling;
         private readonly uint gravelWithGroundwater;
-        private readonly uint sandWithFilling;
 
+        private readonly int groundWaterDepth;
+
+        private readonly uint sand;
+        private readonly uint sandWithFilling;
         private readonly uint sandWithGroundwater;
 
         public Groundwater(int width)
         {
             Width = width;
 
+            gravel = Section.Encode(Block.Gravel);
             gravelWithGroundwater = Section.Encode(Block.Gravel, Fluid.Water);
             gravelWithFilling = Section.Encode(Block.Gravel, Fluid.Water);
 
+            sand = Section.Encode(Block.Sand);
             sandWithGroundwater = Section.Encode(Block.Sand, Fluid.Water);
             sandWithFilling = Section.Encode(Block.Sand, Fluid.Water);
+
+            groundWaterDepth = width / 2;
         }
 
-        public override uint GetData(Map.StoneType stoneType, bool isFilled)
+        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
-            if (stoneType == Map.StoneType.Sandstone) return isFilled ? sandWithFilling : sandWithGroundwater;
+            bool isSandy = stoneType == Map.StoneType.Sandstone;
 
-            return isFilled ? gravelWithFilling : gravelWithGroundwater;
+            if (isFilled) return isSandy ? sandWithFilling : gravelWithFilling;
+
+            int actualDepth = depth - offset;
+
+            if (actualDepth >= groundWaterDepth) return isSandy ? sandWithGroundwater : gravelWithGroundwater;
+
+            return isSandy ? sand : gravel;
         }
     }
 
@@ -174,7 +190,7 @@ public abstract class Layer
             sandFilled = Section.Encode(Block.Sand, Fluid.Water);
         }
 
-        public override uint GetData(Map.StoneType stoneType, bool isFilled)
+        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             if (stoneType == Map.StoneType.Sandstone) return isFilled ? sandFilled : sandNormal;
 
