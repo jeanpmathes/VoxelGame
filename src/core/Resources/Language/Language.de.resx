@@ -552,4 +552,7 @@
   <data name="Sandstone" xml:space="preserve">
     <value>Sandstein</value>
   </data>
+  <data name="Clay" xml:space="preserve">
+    <value>Ton</value>
+  </data>
 </root>

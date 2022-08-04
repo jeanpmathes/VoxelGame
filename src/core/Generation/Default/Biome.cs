@@ -162,10 +162,13 @@ public class Biome
     private List<Layer> Layers { get; } = new()
     {
         Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-        Layer.CreatePermeable(Block.Dirt, width: 6),
-        Layer.CreateLoose(width: 2),
+        Layer.CreatePermeable(Block.Dirt, width: 7),
+        Layer.CreateLoose(width: 3),
         Layer.CreateGroundwater(width: 2),
-        Layer.CreateSolid(Block.Rubble, width: 2)
+        Layer.CreateSolid(Block.Clay, width: 3),
+        Layer.CreateLoose(width: 37),
+        Layer.CreateGroundwater(width: 18),
+        Layer.CreateSolid(Block.Clay, width: 21)
     };
 
     /// <summary>

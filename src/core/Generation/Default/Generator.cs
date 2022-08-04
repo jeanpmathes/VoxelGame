@@ -58,10 +58,11 @@ public class Generator : IWorldGenerator
     public IEnumerable<uint> GenerateColumn(int x, int z, (int start, int end) heightRange)
     {
         Map.Sample sample = map.GetSample((x, z));
+        float offset = sample.Biome.GetOffset((x, z));
 
         Context context = new()
         {
-            WorldHeight = (int) (sample.Height * Height + sample.Biome.GetOffset((x, z)))
+            WorldHeight = (int) (sample.Height * Height + offset)
         };
 
         for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z), sample, context);

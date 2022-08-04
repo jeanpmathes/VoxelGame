@@ -552,4 +552,7 @@
   <data name="Marble" xml:space="preserve">
     <value>Marble</value>
   </data>
+  <data name="Clay" xml:space="preserve">
+    <value>Clay</value>
+  </data>
 </root>

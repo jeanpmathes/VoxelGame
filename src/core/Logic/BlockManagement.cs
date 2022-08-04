@@ -880,5 +880,14 @@ public partial class Block
         BlockFlags.Basic,
         TextureLayout.Uniform("marble"));
 
+    /// <summary>
+    ///     Marble is a rarer stone type.
+    /// </summary>
+    public static readonly Block Clay = new BasicBlock(
+        Language.Clay,
+        nameof(Clay),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("clay"));
+
     #endregion NEW BLOCKS
 }

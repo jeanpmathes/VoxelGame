@@ -196,6 +196,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Clay.
+        /// </summary>
+        public static string Clay {
+            get {
+                return ResourceManager.GetString("Clay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Coal Ore.
         /// </summary>
         public static string CoalOre {
