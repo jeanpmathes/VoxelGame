@@ -179,6 +179,11 @@ public abstract partial class World : IDisposable
     public Vector3d Extents => new(BlockSize, BlockSize, BlockSize);
 
     /// <summary>
+    ///     Get the info map of this world.
+    /// </summary>
+    public IMap Map => generator.Map;
+
+    /// <summary>
     ///     Get a reader for an existing blob.
     /// </summary>
     /// <param name="name">The name of the blob.</param>

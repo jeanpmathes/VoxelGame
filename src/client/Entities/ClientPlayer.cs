@@ -139,6 +139,8 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     FluidInstance IPlayerDataProvider.TargetFluid => targetFluid ?? FluidInstance.Default;
 
+    string IPlayerDataProvider.WorldDebugData => World.Map.GetPositionDebugData(Position);
+
     string IPlayerDataProvider.Selection => blockMode ? activeBlock.Name : activeFluid.Name;
 
     string IPlayerDataProvider.Mode => blockMode ? Language.Block : Language.Fluid;

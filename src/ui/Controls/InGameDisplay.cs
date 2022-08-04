@@ -29,6 +29,7 @@ internal class InGameDisplay : ControlBase
     private readonly Label targetBlock;
     private readonly Label targetFluid;
     private readonly Label targetPosition;
+    private readonly Label worldData;
 
     private bool debugMode;
 
@@ -70,10 +71,11 @@ internal class InGameDisplay : ControlBase
             HorizontalAlignment = HorizontalAlignment.Right
         };
 
-        headPosition = new Label(debugViewContainer) { Alignment = Alignment.Right };
-        targetPosition = new Label(debugViewContainer) { Alignment = Alignment.Right };
-        targetBlock = new Label(debugViewContainer) { Alignment = Alignment.Right };
-        targetFluid = new Label(debugViewContainer) { Alignment = Alignment.Right };
+        headPosition = new Label(debugViewContainer) {Alignment = Alignment.Right};
+        targetPosition = new Label(debugViewContainer) {Alignment = Alignment.Right};
+        targetBlock = new Label(debugViewContainer) {Alignment = Alignment.Right};
+        targetFluid = new Label(debugViewContainer) {Alignment = Alignment.Right};
+        worldData = new Label(debugViewContainer) {Alignment = Alignment.Right};
 
         debugViewContainer.Hide();
     }
@@ -102,6 +104,8 @@ internal class InGameDisplay : ControlBase
 
         (Fluid fluid, FluidLevel level, bool isStatic) = playerDataProvider.TargetFluid;
         targetFluid.Text = $"F: {fluid.NamedId}[{fluid.Id}], {level}, {isStatic}";
+
+        worldData.Text = playerDataProvider.WorldDebugData;
     }
 
     internal void ToggleDebugDataView()

@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Generation.Default;
 ///     Represents a rough overview over the entire world, as a 2D map.
 ///     This class can load, store and generate these maps.
 /// </summary>
-public partial class Map
+public partial class Map : IMap
 {
     /// <summary>
     ///     Additional cell data that is stored as flags.
@@ -98,6 +98,14 @@ public partial class Map
     public Map(BiomeDistribution biomes)
     {
         this.biomes = biomes;
+    }
+
+    /// <inheritdoc />
+    public string GetPositionDebugData(Vector3d position)
+    {
+        Sample sample = GetSample(position.Floor().Xz);
+
+        return $"{nameof(Map)}: {sample.Height:F2} {sample.Biome} {sample.StoneType}";
     }
 
     /// <summary>

@@ -75,6 +75,9 @@ public class Generator : IWorldGenerator
         map.EmitViews(path);
     }
 
+    /// <inheritdoc />
+    public IMap Map => map;
+
     private void Initialize()
     {
         using BinaryReader? read = world.GetBlobReader(MapBlobName);

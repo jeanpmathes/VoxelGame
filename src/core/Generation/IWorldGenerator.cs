@@ -14,6 +14,11 @@ namespace VoxelGame.Core.Generation;
 public interface IWorldGenerator
 {
     /// <summary>
+    ///     Get the map of the world.
+    /// </summary>
+    IMap Map { get; }
+
+    /// <summary>
     ///     Generate a column of the world.
     /// </summary>
     /// <param name="x">The x position of the world.</param>

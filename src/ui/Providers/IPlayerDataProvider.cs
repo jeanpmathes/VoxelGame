@@ -43,4 +43,9 @@ public interface IPlayerDataProvider
     ///     The targeted fluid.
     /// </summary>
     public FluidInstance TargetFluid { get; }
+
+    /// <summary>
+    ///     Data related to the position of the player in the world.
+    /// </summary>
+    public string WorldDebugData { get; }
 }

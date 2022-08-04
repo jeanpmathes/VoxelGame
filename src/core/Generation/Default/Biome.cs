@@ -20,7 +20,7 @@ public class Biome
     /// <summary>
     /// The polar desert biome.
     /// </summary>
-    public static readonly Biome PolarDesert = new()
+    public static readonly Biome PolarDesert = new(nameof(PolarDesert))
     {
         Color = Color.Gray,
         Amplitude = 2f,
@@ -30,7 +30,7 @@ public class Biome
     /// <summary>
     /// The tropical rainforest biome.
     /// </summary>
-    public static readonly Biome TropicalRainforest = new()
+    public static readonly Biome TropicalRainforest = new(nameof(TropicalRainforest))
     {
         Color = Color.DarkGreen,
         Amplitude = 15f,
@@ -40,7 +40,7 @@ public class Biome
     /// <summary>
     /// The temperate rainforest biome.
     /// </summary>
-    public static readonly Biome TemperateRainforest = new()
+    public static readonly Biome TemperateRainforest = new(nameof(TemperateRainforest))
     {
         Color = Color.Green,
         Amplitude = 15f,
@@ -50,7 +50,7 @@ public class Biome
     /// <summary>
     /// The taiga biome.
     /// </summary>
-    public static readonly Biome Taiga = new()
+    public static readonly Biome Taiga = new(nameof(Taiga))
     {
         Color = Color.Navy,
         Amplitude = 3f,
@@ -60,7 +60,7 @@ public class Biome
     /// <summary>
     /// The tundra biome.
     /// </summary>
-    public static readonly Biome Tundra = new()
+    public static readonly Biome Tundra = new(nameof(Tundra))
     {
         Color = Color.CadetBlue,
         Amplitude = 3f,
@@ -70,7 +70,7 @@ public class Biome
     /// <summary>
     /// The savanna biome.
     /// </summary>
-    public static readonly Biome Savanna = new()
+    public static readonly Biome Savanna = new(nameof(Savanna))
     {
         Color = Color.Olive,
         Amplitude = 1f,
@@ -80,7 +80,7 @@ public class Biome
     /// <summary>
     /// The seasonal forest biome.
     /// </summary>
-    public static readonly Biome SeasonalForest = new()
+    public static readonly Biome SeasonalForest = new(nameof(SeasonalForest))
     {
         Color = Color.LimeGreen,
         Amplitude = 10f,
@@ -90,7 +90,7 @@ public class Biome
     /// <summary>
     /// The dry forest biome.
     /// </summary>
-    public static readonly Biome DryForest = new()
+    public static readonly Biome DryForest = new(nameof(DryForest))
     {
         Color = Color.SeaGreen,
         Amplitude = 15f,
@@ -100,7 +100,7 @@ public class Biome
     /// <summary>
     /// The shrubland biome.
     /// </summary>
-    public static readonly Biome Shrubland = new()
+    public static readonly Biome Shrubland = new(nameof(Shrubland))
     {
         Color = Color.Salmon,
         Amplitude = 1f,
@@ -110,7 +110,7 @@ public class Biome
     /// <summary>
     /// The desert biome.
     /// </summary>
-    public static readonly Biome Desert = new()
+    public static readonly Biome Desert = new(nameof(Desert))
     {
         Color = Color.Yellow,
         Amplitude = 4f,
@@ -120,7 +120,7 @@ public class Biome
     /// <summary>
     /// The grassland biome.
     /// </summary>
-    public static readonly Biome Grassland = new()
+    public static readonly Biome Grassland = new(nameof(Grassland))
     {
         Color = Color.SaddleBrown,
         Amplitude = 4f,
@@ -130,18 +130,21 @@ public class Biome
     /// <summary>
     ///     The ocean biome.
     /// </summary>
-    public static readonly Biome Ocean = new()
+    public static readonly Biome Ocean = new(nameof(Ocean))
     {
         Color = Color.White,
         Amplitude = 5.0f,
         Frequency = 0.005f
     };
 
+    private readonly string name;
+
     private FastNoiseLite noise = null!;
 
-    private Biome()
+    private Biome(string name)
     {
         OnSetup += SetupBiome;
+        this.name = name;
     }
 
     /// <summary>
@@ -232,5 +235,11 @@ public class Biome
         else current = Solid;
 
         return current.GetData(isFilled);
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return name;
     }
 }
