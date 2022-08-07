@@ -50,9 +50,9 @@ public class Biome
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
             Layer.CreateLoose(width: 3),
-            Layer.CreateGroundwater(width: 2),
+            Layer.CreateGroundwater(width: 6),
             Layer.CreateSolid(Block.Clay, width: 3),
-            Layer.CreateLoose(width: 37),
+            Layer.CreateLoose(width: 33),
             Layer.CreateGroundwater(width: 18),
             Layer.CreateSolid(Block.Clay, width: 21)
         }
@@ -71,9 +71,9 @@ public class Biome
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
             Layer.CreateLoose(width: 3),
-            Layer.CreateGroundwater(width: 2),
+            Layer.CreateGroundwater(width: 6),
             Layer.CreateSolid(Block.Clay, width: 3),
-            Layer.CreateLoose(width: 37),
+            Layer.CreateLoose(width: 33),
             Layer.CreateGroundwater(width: 18),
             Layer.CreateSolid(Block.Clay, width: 21)
         }
@@ -172,9 +172,9 @@ public class Biome
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
             Layer.CreateLoose(width: 3),
-            Layer.CreateGroundwater(width: 2),
+            Layer.CreateGroundwater(width: 6),
             Layer.CreateSolid(Block.Clay, width: 3),
-            Layer.CreateLoose(width: 37),
+            Layer.CreateLoose(width: 33),
             Layer.CreateGroundwater(width: 18),
             Layer.CreateSolid(Block.Clay, width: 21)
         }
