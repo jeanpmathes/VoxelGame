@@ -102,6 +102,7 @@ public partial class Block
     {
 #pragma warning disable S3218 // Inner class members should not shadow outer class "static" or type members
         public static readonly ConcreteBlock Concrete = (ConcreteBlock) Block.Concrete;
+        public static readonly ModifiableHeightBlock Snow = (ModifiableHeightBlock) Block.Snow;
 #pragma warning restore S3218 // Inner class members should not shadow outer class "static" or type members
     }
 

@@ -28,9 +28,9 @@ public class Biome
         Frequency = 0.007f,
         Layers = new List<Layer>
         {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreatePermeable(Block.Dirt, width: 7),
-            Layer.CreateSolid(Block.Permafrost, width: 28),
+            Layer.CreateSnow(width: 3),
+            Layer.CreatePermeable(Block.Dirt, width: 5),
+            Layer.CreateSolid(Block.Permafrost, width: 27),
             Layer.CreateLoose(width: 27),
             Layer.CreateGroundwater(width: 8),
             Layer.CreateSolid(Block.Clay, width: 21)

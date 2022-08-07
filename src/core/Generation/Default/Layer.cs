@@ -65,6 +65,14 @@ public abstract class Layer
     }
 
     /// <summary>
+    ///     Create a snow layer.
+    /// </summary>
+    public static Layer CreateSnow(int width)
+    {
+        return new Snow(width);
+    }
+
+    /// <summary>
     ///     Returns the data for the layer content.
     /// </summary>
     /// <param name="depth">The depth in the layer.</param>
@@ -168,6 +176,25 @@ public abstract class Layer
             if (actualDepth >= groundWaterDepth) return isSandy ? sandWithGroundwater : gravelWithGroundwater;
 
             return isSandy ? sand : gravel;
+        }
+    }
+
+    private sealed class Snow : Layer
+    {
+        private readonly uint filled;
+        private readonly uint snow;
+
+        public Snow(int width)
+        {
+            Width = width;
+
+            snow = Block.Specials.Snow.FullHeightData;
+            filled = Section.Encode(fluid: Fluid.Water);
+        }
+
+        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        {
+            return isFilled ? filled : snow;
         }
     }
 
