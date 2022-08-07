@@ -25,7 +25,16 @@ public class Biome
     {
         Color = Color.Gray,
         Amplitude = 2f,
-        Frequency = 0.007f
+        Frequency = 0.007f,
+        Layers = new List<Layer>
+        {
+            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateSolid(Block.Permafrost, width: 28),
+            Layer.CreateLoose(width: 27),
+            Layer.CreateGroundwater(width: 8),
+            Layer.CreateSolid(Block.Clay, width: 21)
+        }
     };
 
     /// <summary>
@@ -35,7 +44,18 @@ public class Biome
     {
         Color = Color.DarkGreen,
         Amplitude = 15f,
-        Frequency = 0.005f
+        Frequency = 0.005f,
+        Layers = new List<Layer>
+        {
+            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateLoose(width: 3),
+            Layer.CreateGroundwater(width: 2),
+            Layer.CreateSolid(Block.Clay, width: 3),
+            Layer.CreateLoose(width: 37),
+            Layer.CreateGroundwater(width: 18),
+            Layer.CreateSolid(Block.Clay, width: 21)
+        }
     };
 
     /// <summary>
@@ -45,7 +65,18 @@ public class Biome
     {
         Color = Color.Green,
         Amplitude = 15f,
-        Frequency = 0.005f
+        Frequency = 0.005f,
+        Layers = new List<Layer>
+        {
+            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateLoose(width: 3),
+            Layer.CreateGroundwater(width: 2),
+            Layer.CreateSolid(Block.Clay, width: 3),
+            Layer.CreateLoose(width: 37),
+            Layer.CreateGroundwater(width: 18),
+            Layer.CreateSolid(Block.Clay, width: 21)
+        }
     };
 
     /// <summary>
@@ -55,7 +86,16 @@ public class Biome
     {
         Color = Color.Navy,
         Amplitude = 3f,
-        Frequency = 0.007f
+        Frequency = 0.007f,
+        Layers = new List<Layer>
+        {
+            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateSolid(Block.Permafrost, width: 28),
+            Layer.CreateLoose(width: 27),
+            Layer.CreateGroundwater(width: 8),
+            Layer.CreateSolid(Block.Clay, width: 21)
+        }
     };
 
     /// <summary>
@@ -65,7 +105,16 @@ public class Biome
     {
         Color = Color.CadetBlue,
         Amplitude = 3f,
-        Frequency = 0.007f
+        Frequency = 0.007f,
+        Layers = new List<Layer>
+        {
+            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateSolid(Block.Permafrost, width: 28),
+            Layer.CreateLoose(width: 27),
+            Layer.CreateGroundwater(width: 8),
+            Layer.CreateSolid(Block.Clay, width: 21)
+        }
     };
 
     /// <summary>
@@ -75,7 +124,18 @@ public class Biome
     {
         Color = Color.Olive,
         Amplitude = 1f,
-        Frequency = 0.01f
+        Frequency = 0.01f,
+        Layers = new List<Layer>
+        {
+            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateLoose(width: 3),
+            Layer.CreateGroundwater(width: 2),
+            Layer.CreateSolid(Block.Clay, width: 3),
+            Layer.CreateLoose(width: 37),
+            Layer.CreateGroundwater(width: 18),
+            Layer.CreateSolid(Block.Clay, width: 21)
+        }
     };
 
     /// <summary>
@@ -85,7 +145,18 @@ public class Biome
     {
         Color = Color.LimeGreen,
         Amplitude = 10f,
-        Frequency = 0.005f
+        Frequency = 0.005f,
+        Layers = new List<Layer>
+        {
+            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateLoose(width: 3),
+            Layer.CreateGroundwater(width: 2),
+            Layer.CreateSolid(Block.Clay, width: 3),
+            Layer.CreateLoose(width: 37),
+            Layer.CreateGroundwater(width: 18),
+            Layer.CreateSolid(Block.Clay, width: 21)
+        }
     };
 
     /// <summary>
@@ -95,7 +166,18 @@ public class Biome
     {
         Color = Color.SeaGreen,
         Amplitude = 15f,
-        Frequency = 0.005f
+        Frequency = 0.005f,
+        Layers = new List<Layer>
+        {
+            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateLoose(width: 3),
+            Layer.CreateGroundwater(width: 2),
+            Layer.CreateSolid(Block.Clay, width: 3),
+            Layer.CreateLoose(width: 37),
+            Layer.CreateGroundwater(width: 18),
+            Layer.CreateSolid(Block.Clay, width: 21)
+        }
     };
 
     /// <summary>
@@ -105,7 +187,18 @@ public class Biome
     {
         Color = Color.Salmon,
         Amplitude = 1f,
-        Frequency = 0.01f
+        Frequency = 0.01f,
+        Layers = new List<Layer>
+        {
+            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateLoose(width: 3),
+            Layer.CreateGroundwater(width: 2),
+            Layer.CreateSolid(Block.Clay, width: 3),
+            Layer.CreateLoose(width: 37),
+            Layer.CreateGroundwater(width: 18),
+            Layer.CreateSolid(Block.Clay, width: 21)
+        }
     };
 
     /// <summary>
@@ -115,7 +208,18 @@ public class Biome
     {
         Color = Color.Yellow,
         Amplitude = 4f,
-        Frequency = 0.008f
+        Frequency = 0.008f,
+        Layers = new List<Layer>
+        {
+            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateLoose(width: 3),
+            Layer.CreateGroundwater(width: 2),
+            Layer.CreateSolid(Block.Clay, width: 3),
+            Layer.CreateLoose(width: 37),
+            Layer.CreateGroundwater(width: 18),
+            Layer.CreateSolid(Block.Clay, width: 21)
+        }
     };
 
     /// <summary>
@@ -125,7 +229,18 @@ public class Biome
     {
         Color = Color.SaddleBrown,
         Amplitude = 4f,
-        Frequency = 0.004f
+        Frequency = 0.004f,
+        Layers = new List<Layer>
+        {
+            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateLoose(width: 3),
+            Layer.CreateGroundwater(width: 2),
+            Layer.CreateSolid(Block.Clay, width: 3),
+            Layer.CreateLoose(width: 37),
+            Layer.CreateGroundwater(width: 18),
+            Layer.CreateSolid(Block.Clay, width: 21)
+        }
     };
 
     /// <summary>
@@ -135,7 +250,18 @@ public class Biome
     {
         Color = Color.White,
         Amplitude = 5.0f,
-        Frequency = 0.005f
+        Frequency = 0.005f,
+        Layers = new List<Layer>
+        {
+            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateLoose(width: 3),
+            Layer.CreateGroundwater(width: 2),
+            Layer.CreateSolid(Block.Clay, width: 3),
+            Layer.CreateLoose(width: 37),
+            Layer.CreateGroundwater(width: 18),
+            Layer.CreateSolid(Block.Clay, width: 21)
+        }
     };
 
     private readonly string name;
@@ -159,17 +285,7 @@ public class Biome
 
     private float Frequency { get; init; }
 
-    private List<Layer> Layers { get; } = new()
-    {
-        Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-        Layer.CreatePermeable(Block.Dirt, width: 7),
-        Layer.CreateLoose(width: 3),
-        Layer.CreateGroundwater(width: 2),
-        Layer.CreateSolid(Block.Clay, width: 3),
-        Layer.CreateLoose(width: 37),
-        Layer.CreateGroundwater(width: 18),
-        Layer.CreateSolid(Block.Clay, width: 21)
-    };
+    private List<Layer> Layers { get; init; } = null!;
 
     /// <summary>
     ///     The depth until a solid layer is reached.

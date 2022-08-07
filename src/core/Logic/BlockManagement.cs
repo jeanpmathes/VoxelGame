@@ -881,13 +881,22 @@ public partial class Block
         TextureLayout.Uniform("marble"));
 
     /// <summary>
-    ///     Marble is a rarer stone type.
+    ///     Clay is found beneath the ground and blocks ground water flow.
     /// </summary>
     public static readonly Block Clay = new BasicBlock(
         Language.Clay,
         nameof(Clay),
         BlockFlags.Basic,
         TextureLayout.Uniform("clay"));
+
+    /// <summary>
+    ///     Permafrost is a type of soil that is frozen solid.
+    /// </summary>
+    public static readonly Block Permafrost = new BasicBlock(
+        Language.Permafrost,
+        nameof(Permafrost),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("permafrost"));
 
     #endregion NEW BLOCKS
 }

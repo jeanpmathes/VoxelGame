@@ -555,4 +555,7 @@
   <data name="Clay" xml:space="preserve">
     <value>Clay</value>
   </data>
+  <data name="Permafrost" xml:space="preserve">
+    <value>Permafrost</value>
+  </data>
 </root>
