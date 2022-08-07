@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 /// </summary>
 // l: lowered
 // s: stage
-public class FruitCropBlock : Block, IFlammable, IFillable, ICrossPlant
+public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
 {
     private readonly Block fruit;
     private readonly string texture;

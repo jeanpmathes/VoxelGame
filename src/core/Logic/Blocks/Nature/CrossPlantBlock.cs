@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     Data bit usage: <c>-----l</c>
 /// </summary>
 // l: lowered
-public class CrossPlantBlock : Block, IFlammable, IFillable, ICrossPlant
+public class CrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
 {
     private readonly string texture;
 

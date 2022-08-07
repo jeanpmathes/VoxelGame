@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     A <see cref="TintedBlock" /> made out of organic, flammable materials.
 ///     Data bit usage: <c>--cccc</c>
 /// </summary>
-public class OrganicTintedBlock : TintedBlock, IFlammable
+public class OrganicTintedBlock : TintedBlock, ICombustible
 {
     internal OrganicTintedBlock(string name, string namedId, TextureLayout layout) :
         base(

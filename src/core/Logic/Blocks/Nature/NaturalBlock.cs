@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     A natural block that can burn.
 ///     Data bit usage: <c>------</c>
 /// </summary>
-public class NaturalBlock : BasicBlock, IFlammable
+public class NaturalBlock : BasicBlock, ICombustible
 {
     internal NaturalBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
         base(

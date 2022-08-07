@@ -235,7 +235,7 @@ public class FireBlock : Block, IFillable, IComplex
 
         bool BurnAt(Vector3i burnPosition)
         {
-            if (world.GetBlock(burnPosition)?.Block is IFlammable block)
+            if (world.GetBlock(burnPosition)?.Block is ICombustible block)
             {
                 if (block.Burn(world, burnPosition, this))
                 {

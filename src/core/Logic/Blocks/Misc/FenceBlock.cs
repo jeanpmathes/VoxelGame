@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 // e: connected east
 // s: connected south
 // w: connected west
-public class FenceBlock : WideConnectingBlock, IFlammable
+public class FenceBlock : WideConnectingBlock, ICombustible
 {
     private readonly List<BoundingVolume> volumes = new();
 

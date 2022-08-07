@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     These blocks are also flammable.
 ///     Data bit usage: <c>------</c>
 /// </summary>
-public class GroundedBlock : BasicBlock, IFlammable
+public class GroundedBlock : BasicBlock, ICombustible
 {
     internal GroundedBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
         base(

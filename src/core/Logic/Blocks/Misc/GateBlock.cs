@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     A simple gate that can be used in fences and walls. It can be opened and closed.
 ///     Data bit usage: <c>---coo</c>
 /// </summary>
-public class GateBlock : Block, IWideConnectable, IFlammable, IFillable, IComplex
+public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComplex
 {
     private readonly List<BlockMesh> meshes = new(capacity: 8);
 

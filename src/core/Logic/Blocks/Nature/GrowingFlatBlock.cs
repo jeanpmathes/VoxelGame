@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 /// </summary>
 // o: orientation
 // a: age
-public class GrowingFlatBlock : FlatBlock, IFlammable, IFillable
+public class GrowingFlatBlock : FlatBlock, ICombustible, IFillable
 {
     internal GrowingFlatBlock(string name, string namedId, string texture, float climbingVelocity,
         float slidingVelocity) :
