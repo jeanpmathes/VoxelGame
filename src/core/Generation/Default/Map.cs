@@ -106,7 +106,7 @@ public partial class Map : IMap
         Vector2i samplingPosition = position.Floor().Xz;
         Sample sample = GetSample(samplingPosition);
 
-        return $"{nameof(Map)}: {sample.Height:F2} {sample.Biome} {GetStoneType(samplingPosition)}";
+        return $"{nameof(Map)}: {sample.Height:F2} {sample.Biome} {GetStoneType(samplingPosition)} {sample.BorderStrength}";
     }
 
     /// <summary>
@@ -216,6 +216,18 @@ public partial class Map : IMap
         for (var i = 0; i < CellCount; i++) StoreCell(data.cells[i]);
     }
 
+    private static double ApplyBiomeChangeFunction(double t)
+    {
+        #pragma warning disable S1244
+        double G(double x)
+        {
+            return t != 0 ? Math.Pow(x: 50000, -1 / x) : 0;
+        }
+        #pragma warning restore S1244
+
+        return G(1 - t) / (G(t) + G(1 - t));
+    }
+
     /// <summary>
     ///     Get a sample of the map at the given coordinates.
     /// </summary>
@@ -252,6 +264,9 @@ public partial class Map : IMap
 
         double tx = VMath.InverseLerp(p1.X, p2.X, position.X);
         double ty = VMath.InverseLerp(p1.Y, p2.Y, position.Y);
+
+        tx = ApplyBiomeChangeFunction(tx);
+        ty = ApplyBiomeChangeFunction(ty);
 
         const int extents = Width / 2;
 
