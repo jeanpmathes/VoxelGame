@@ -114,6 +114,20 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Rounds every component to an integer.
+    /// </summary>
+    /// <param name="vector">The vector to round.</param>
+    /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
+    /// <returns>The rounded vector.</returns>
+    public static Vector3i RoundedToInt(this Vector3d vector, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    {
+        return new Vector3i(
+            (int) Math.Round(vector.X, digits: 0, midpointRounding),
+            (int) Math.Round(vector.Y, digits: 0, midpointRounding),
+            (int) Math.Round(vector.Z, digits: 0, midpointRounding));
+    }
+
+    /// <summary>
     ///     Clamps every component of a vector.
     /// </summary>
     /// <param name="vector">The vector to clamp.</param>
@@ -236,6 +250,16 @@ public static class VMath
     public static bool NearlyZero(double a, double epsilon = Epsilon)
     {
         return NearlyEqual(a, b: 0, epsilon);
+    }
+
+    /// <summary>
+    ///     Create a vector from a given angle.
+    /// </summary>
+    /// <param name="angle">The angle, in radians.</param>
+    /// <returns>The vector.</returns>
+    public static Vector2d CreateVectorFromAngle(double angle)
+    {
+        return new Vector2d(Math.Cos(angle), Math.Sin(angle));
     }
 
     /// <summary>

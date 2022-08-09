@@ -103,9 +103,10 @@ public partial class Map : IMap
     /// <inheritdoc />
     public string GetPositionDebugData(Vector3d position)
     {
-        Sample sample = GetSample(position.Floor().Xz);
+        Vector2i samplingPosition = position.Floor().Xz;
+        Sample sample = GetSample(samplingPosition);
 
-        return $"{nameof(Map)}: {sample.Height:F2} {sample.Biome} {sample.StoneType}";
+        return $"{nameof(Map)}: {sample.Height:F2} {sample.Biome} {GetStoneType(samplingPosition)}";
     }
 
     /// <summary>
@@ -224,14 +225,6 @@ public partial class Map : IMap
     {
         Debug.Assert(data != null);
 
-        static int DivideByCellSize(int number)
-        {
-            int result = number / CellSize;
-            int adjusted = number < 0 && number != CellSize * result ? result - 1 : result;
-
-            return adjusted;
-        }
-
         static int GetNearestNeighbor(int number)
         {
             const int halfCellSize = CellSize / 2;
@@ -262,22 +255,52 @@ public partial class Map : IMap
 
         const int extents = Width / 2;
 
-        Cell closest = data.GetCell(xP + extents, yP + extents);
+        ref readonly Cell closest = ref data.GetCell(xP + extents, yP + extents);
 
-        Cell c00 = data.GetCell(x1 + extents, y1 + extents);
-        Cell c10 = data.GetCell(x2 + extents, y1 + extents);
-        Cell c01 = data.GetCell(x1 + extents, y2 + extents);
-        Cell c11 = data.GetCell(x2 + extents, y2 + extents);
+        ref readonly Cell c00 = ref data.GetCell(x1 + extents, y1 + extents);
+        ref readonly Cell c10 = ref data.GetCell(x2 + extents, y1 + extents);
+        ref readonly Cell c01 = ref data.GetCell(x1 + extents, y2 + extents);
+        ref readonly Cell c11 = ref data.GetCell(x2 + extents, y2 + extents);
 
         var temperature = (float) VMath.Blerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, tx, ty);
         var moisture = (float) VMath.Blerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, tx, ty);
+
+        double GetBorderStrength(double t)
+        {
+            return (t > 0.5 ? 1 - t : t) * 2;
+        }
 
         return new Sample
         {
             Height = (float) VMath.Blerp(c00.height, c10.height, c01.height, c11.height, tx, ty),
             Biome = closest.IsLand ? biomes.GetBiome(temperature, moisture) : Biome.Ocean,
-            StoneType = closest.stoneType
+            BorderStrength = (GetBorderStrength(tx), GetBorderStrength(ty))
         };
+    }
+
+    private static int DivideByCellSize(int number)
+    {
+        int result = number / CellSize;
+        int adjusted = number < 0 && number != CellSize * result ? result - 1 : result;
+
+        return adjusted;
+    }
+
+    /// <summary>
+    ///     Get the stone type at a given position.
+    /// </summary>
+    public StoneType GetStoneType(Vector2i position)
+    {
+        Debug.Assert(data != null);
+
+        int xP = DivideByCellSize(position.X);
+        int yP = DivideByCellSize(position.Y);
+
+        const int extents = Width / 2;
+
+        ref readonly Cell cell = ref data.GetCell(xP + extents, yP + extents);
+
+        return cell.stoneType;
     }
 
     /// <summary>
@@ -296,9 +319,9 @@ public partial class Map : IMap
         public Biome Biome { get; init; }
 
         /// <summary>
-        ///     The dominant stone type of the sample.
+        /// The strength of the border, e.g. how close to the edge the sample is. This is a value in the range [0, 1] on every axis.
         /// </summary>
-        public StoneType StoneType { get; init; }
+        public Vector2d BorderStrength { get; init; }
     }
 
     private record struct Cell

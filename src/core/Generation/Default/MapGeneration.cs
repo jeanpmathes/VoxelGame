@@ -485,13 +485,7 @@ public partial class Map
         foreach ((short node, double value) in continentsNodes)
         {
             double angle = value * Math.PI;
-
-            Vector2d drift;
-
-            drift.X = Math.Cos(angle);
-            drift.Y = Math.Sin(angle);
-
-            driftDirections[node] = drift;
+            driftDirections[node] = VMath.CreateVectorFromAngle(angle);
         }
 
         return driftDirections;

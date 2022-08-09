@@ -4,11 +4,13 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Generation.Default;
@@ -33,6 +35,8 @@ public class Generator : IWorldGenerator
     private readonly Palette palette = new();
 
     private readonly int seed;
+
+    private readonly FastNoiseLite transitionNoise;
     private readonly World world;
 
     /// <summary>
@@ -50,6 +54,10 @@ public class Generator : IWorldGenerator
 
         Initialize();
         Store();
+
+        transitionNoise = new FastNoiseLite(seed);
+        transitionNoise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        transitionNoise.SetFrequency(frequency: 0.23f);
 
         logger.LogInformation(Events.WorldGeneration, "Created '{Name}' world generator", nameof(Default));
     }
@@ -98,7 +106,24 @@ public class Generator : IWorldGenerator
 
         if (depth < 0) return position.Y <= SeaLevel ? palette.Water : palette.Empty;
 
-        return depth >= sample.Biome.GetTotalWidth(context.Dampening) ? palette.GetStone(sample.StoneType) : sample.Biome.GetData(depth, context.Dampening, sample.StoneType, position.Y <= SeaLevel);
+        Map.StoneType stoneType = GetStoneType(position, sample);
+
+        return depth >= sample.Biome.GetTotalWidth(context.Dampening) ? palette.GetStone(stoneType) : sample.Biome.GetData(depth, context.Dampening, stoneType, position.Y <= SeaLevel);
+    }
+
+    private Map.StoneType GetStoneType(Vector3i position, in Map.Sample sample)
+    {
+        const int offsetStrength = 1000;
+
+        double angle = transitionNoise.GetNoise(position.X, position.Y, position.Z) * Math.PI;
+        Vector2d offset2D = VMath.CreateVectorFromAngle(angle);
+
+        Vector3d offset = new(offset2D.X * sample.BorderStrength.X, y: 0, offset2D.Y * sample.BorderStrength.Y);
+        offset *= offsetStrength;
+
+        Vector3i samplingPosition = position + offset.RoundedToInt(MidpointRounding.ToZero);
+
+        return map.GetStoneType(samplingPosition.Xz);
     }
 
     private record struct Context
