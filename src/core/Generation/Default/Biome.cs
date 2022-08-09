@@ -30,6 +30,7 @@ public class Biome
         {
             Layer.CreateSnow(width: 3),
             Layer.CreatePermeable(Block.Dirt, width: 5),
+            Layer.CreateDampen(Block.Dirt, maxWidth: 4),
             Layer.CreateSolid(Block.Permafrost, width: 27),
             Layer.CreateLoose(width: 27),
             Layer.CreateGroundwater(width: 8),
@@ -48,7 +49,8 @@ public class Biome
         Layers = new List<Layer>
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreatePermeable(Block.Dirt, width: 3),
+            Layer.CreateDampen(Block.Dirt, maxWidth: 26),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 6),
             Layer.CreateSolid(Block.Clay, width: 3),
@@ -69,7 +71,8 @@ public class Biome
         Layers = new List<Layer>
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreatePermeable(Block.Dirt, width: 3),
+            Layer.CreateDampen(Block.Dirt, maxWidth: 26),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 6),
             Layer.CreateSolid(Block.Clay, width: 3),
@@ -91,6 +94,7 @@ public class Biome
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateDampen(Block.Dirt, maxWidth: 6),
             Layer.CreateSolid(Block.Permafrost, width: 28),
             Layer.CreateLoose(width: 27),
             Layer.CreateGroundwater(width: 8),
@@ -110,6 +114,7 @@ public class Biome
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateDampen(Block.Dirt, maxWidth: 6),
             Layer.CreateSolid(Block.Permafrost, width: 28),
             Layer.CreateLoose(width: 27),
             Layer.CreateGroundwater(width: 8),
@@ -129,6 +134,7 @@ public class Biome
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateDampen(Block.Dirt, maxWidth: 2),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 2),
             Layer.CreateSolid(Block.Clay, width: 3),
@@ -149,7 +155,8 @@ public class Biome
         Layers = new List<Layer>
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreatePermeable(Block.Dirt, width: 5),
+            Layer.CreateDampen(Block.Dirt, maxWidth: 20),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 2),
             Layer.CreateSolid(Block.Clay, width: 3),
@@ -170,7 +177,8 @@ public class Biome
         Layers = new List<Layer>
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreatePermeable(Block.Dirt, width: 3),
+            Layer.CreateDampen(Block.Dirt, maxWidth: 26),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 6),
             Layer.CreateSolid(Block.Clay, width: 3),
@@ -192,6 +200,7 @@ public class Biome
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateDampen(Block.Dirt, maxWidth: 2),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 2),
             Layer.CreateSolid(Block.Clay, width: 3),
@@ -213,6 +222,7 @@ public class Biome
         {
             Layer.CreatePermeable(Block.Sand, width: 9),
             Layer.CreatePermeable(Block.Dirt, width: 4),
+            Layer.CreateDampen(Block.Dirt, maxWidth: 8),
             Layer.CreateSolid(Block.Sandstone, width: 18),
             Layer.CreateLoose(width: 22),
             Layer.CreateGroundwater(width: 18),
@@ -232,6 +242,7 @@ public class Biome
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
+            Layer.CreateDampen(Block.Dirt, maxWidth: 8),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 2),
             Layer.CreateSolid(Block.Clay, width: 3),
@@ -253,6 +264,7 @@ public class Biome
         {
             Layer.CreatePermeable(Block.Sand, width: 5),
             Layer.CreatePermeable(Block.Gravel, width: 3),
+            Layer.CreateDampen(Block.Gravel, maxWidth: 10),
             Layer.CreateSolid(Block.Limestone, width: 26),
             Layer.CreateLoose(width: 37),
             Layer.CreateSolid(Block.Limestone, width: 21)
@@ -260,10 +272,21 @@ public class Biome
     };
 
     private readonly string name;
+    private (Layer layer, int depth)[] lowerHorizon = null!;
 
-    private (Layer layer, int depth)[] horizon = null!;
+    /// <summary>
+    ///     The depth to the solid layer, without dampening.
+    /// </summary>
+    private int minDepthToSolid;
+
+    /// <summary>
+    ///     The minimum width of the biome, without dampening.
+    /// </summary>
+    private int minWidth;
 
     private FastNoiseLite noise = null!;
+
+    private (Layer layer, int depth)[] upperHorizon = null!;
 
     private Biome(string name)
     {
@@ -283,14 +306,19 @@ public class Biome
     private List<Layer> Layers { get; init; } = null!;
 
     /// <summary>
-    ///     The depth until a solid layer is reached.
+    /// The width of the dampening layer.
     /// </summary>
-    public int DepthToSolid { get; private set; }
+    private int MaxDampenWidth { get; set; }
 
     /// <summary>
-    ///     The total width of the biome.
+    /// The depth to the dampening layer.
     /// </summary>
-    public int TotalWidth { get; private set; }
+    private int DepthToDampen { get; set; }
+
+    /// <summary>
+    /// The dampen layer.
+    /// </summary>
+    private Layer? Dampen { get; set; }
 
     /// <summary>
     ///     Setup all biomes for current world generation.
@@ -328,29 +356,50 @@ public class Biome
         noise.SetDomainWarpAmp(domainWarpAmp: 30.0f);
     }
 
+
     private void SetupLayers()
     {
-        TotalWidth = 0;
-        DepthToSolid = 0;
+        minWidth = 0;
+        minDepthToSolid = 0;
 
         var hasReachedSolid = false;
 
-        List<(Layer layer, int depth)> newHorizon = new();
+        List<(Layer layer, int depth)> newUpperHorizon = new();
+        List<(Layer layer, int depth)> newLowerHorizon = new();
+
+        List<(Layer layer, int depth)> currentHorizon = newUpperHorizon;
 
         foreach (Layer layer in Layers)
         {
             if (!hasReachedSolid && layer.IsSolid)
             {
                 hasReachedSolid = true;
-                DepthToSolid = TotalWidth;
+                minDepthToSolid = minWidth;
             }
 
-            TotalWidth += layer.Width;
+            if (layer.IsMeta)
+            {
+                Debug.Assert(!hasReachedSolid);
 
-            for (var depth = 0; depth < layer.Width; depth++) newHorizon.Add((layer, depth));
+                DepthToDampen = minWidth;
+                MaxDampenWidth = layer.Width;
+                Dampen = layer;
+
+                currentHorizon = newLowerHorizon;
+
+                continue;
+            }
+
+            minWidth += layer.Width;
+
+            for (var depth = 0; depth < layer.Width; depth++) currentHorizon.Add((layer, depth));
         }
 
-        horizon = newHorizon.ToArray();
+        Debug.Assert(hasReachedSolid);
+        Debug.Assert(Dampen != null);
+
+        upperHorizon = newUpperHorizon.ToArray();
+        lowerHorizon = newLowerHorizon.ToArray();
     }
 
     /// <summary>
@@ -364,20 +413,67 @@ public class Biome
     }
 
     /// <summary>
+    ///     Calculate the dampening that is applied to a column, depending on the offset.
+    /// </summary>
+    /// <param name="originalOffset">The offset of the colum.</param>
+    /// <returns>The applied dampening.</returns>
+    public Dampening CalculateDampening(int originalOffset)
+    {
+        const int dampenThreshold = 2;
+        int normalWidth = MaxDampenWidth / 2;
+
+        if (Math.Abs(originalOffset) <= dampenThreshold) return new Dampening(originalOffset, originalOffset, normalWidth);
+
+        int maxDampening = MaxDampenWidth / 2;
+        int dampenedOffset = Math.Clamp(Math.Abs(originalOffset) - dampenThreshold, min: 0, maxDampening) * Math.Sign(originalOffset);
+
+        return new Dampening(dampenedOffset, originalOffset, normalWidth + dampenedOffset);
+    }
+
+    /// <summary>
+    ///     Get the total width of the biome, depending on the dampening.
+    /// </summary>
+    /// <param name="dampening">The dampening.</param>
+    /// <returns>The total width of the biome.</returns>
+    public int GetTotalWidth(Dampening dampening)
+    {
+        return minWidth + dampening.Width;
+    }
+
+    /// <summary>
     ///     Get the biome content data for a given depth beneath the surface level.
     /// </summary>
     /// <param name="depthBelowSurface">The depth beneath the terrain surface level.</param>
-    /// <param name="offset">The offset from normal world height.</param>
+    /// <param name="dampening">The dampening to apply to the column.</param>
     /// <param name="stoneType">The stone type of the column.</param>
     /// <param name="isFilled">Whether this column is filled with water.</param>
     /// <returns>The biome content data.</returns>
-    public uint GetData(int depthBelowSurface, int offset, Map.StoneType stoneType, bool isFilled)
+    public uint GetData(int depthBelowSurface, Dampening dampening, Map.StoneType stoneType, bool isFilled)
     {
-        (Layer current, int depthInLayer) = horizon[depthBelowSurface];
+        Layer current;
+        int depthInLayer;
+        int actualOffset;
 
-        bool isFilledAtCurrentDepth = depthBelowSurface < DepthToSolid && isFilled;
+        bool isInUpperHorizon = depthBelowSurface < DepthToDampen;
 
-        return current.GetData(depthInLayer, offset, stoneType, isFilledAtCurrentDepth);
+        if (isInUpperHorizon)
+        {
+            (current, depthInLayer) = upperHorizon[depthBelowSurface];
+            actualOffset = dampening.OriginalOffset;
+        }
+        else
+        {
+            (actualOffset, _, int usedWidth) = dampening;
+            int depthToLowerHorizon = DepthToDampen + usedWidth;
+
+            if (depthBelowSurface < depthToLowerHorizon) (current, depthInLayer) = (Dampen!, depthBelowSurface - DepthToDampen);
+            else (current, depthInLayer) = lowerHorizon[depthBelowSurface - depthToLowerHorizon];
+        }
+
+        int actualDepthToSolid = minDepthToSolid + dampening.Width;
+        bool isFilledAtCurrentDepth = depthBelowSurface < actualDepthToSolid && isFilled;
+
+        return current.GetData(depthInLayer, actualOffset, stoneType, isFilledAtCurrentDepth);
     }
 
     /// <inheritdoc />
@@ -385,4 +481,9 @@ public class Biome
     {
         return name;
     }
+
+    /// <summary>
+    ///     The dampening applied to a column.
+    /// </summary>
+    public record struct Dampening(int DampenedOffset, int OriginalOffset, int Width);
 }

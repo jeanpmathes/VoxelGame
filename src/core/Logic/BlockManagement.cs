@@ -30,19 +30,6 @@ public partial class Block
     private static readonly List<Block> blockList = new();
     private static readonly Dictionary<string, Block> namedBlockDictionary = new();
 
-    #region NEW BLOCKS
-
-    /// <summary>
-    ///     The core of the world, which is found at the lowest level.
-    /// </summary>
-    public static readonly Block Core = new BasicBlock(
-        Language.Core,
-        nameof(Core),
-        BlockFlags.Basic,
-        TextureLayout.Uniform("core"));
-
-    #endregion NEW BLOCKS
-
     /// <summary>
     ///     Gets the count of registered blocks.
     /// </summary>
@@ -898,6 +885,15 @@ public partial class Block
         nameof(Permafrost),
         BlockFlags.Basic,
         TextureLayout.Uniform("permafrost"));
+
+    /// <summary>
+    ///     The core of the world, which is found at the lowest level.
+    /// </summary>
+    public static readonly Block Core = new BasicBlock(
+        Language.Core,
+        nameof(Core),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("core"));
 
     #endregion NEW BLOCKS
 }

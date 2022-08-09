@@ -63,7 +63,7 @@ public class Generator : IWorldGenerator
         Context context = new()
         {
             WorldHeight = (int) (sample.Height * Height) + offset,
-            Offset = offset
+            Dampening = sample.Biome.CalculateDampening(offset)
         };
 
         for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z), sample, context);
@@ -98,13 +98,13 @@ public class Generator : IWorldGenerator
 
         if (depth < 0) return position.Y <= SeaLevel ? palette.Water : palette.Empty;
 
-        return depth >= sample.Biome.TotalWidth ? palette.GetStone(sample.StoneType) : sample.Biome.GetData(depth, context.Offset, sample.StoneType, position.Y <= SeaLevel);
+        return depth >= sample.Biome.GetTotalWidth(context.Dampening) ? palette.GetStone(sample.StoneType) : sample.Biome.GetData(depth, context.Dampening, sample.StoneType, position.Y <= SeaLevel);
     }
 
     private record struct Context
     {
         public int WorldHeight { get; init; }
 
-        public int Offset { get; init; }
+        public Biome.Dampening Dampening { get; init; }
     }
 }

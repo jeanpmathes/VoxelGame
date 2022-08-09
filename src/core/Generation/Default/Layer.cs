@@ -20,9 +20,23 @@ public abstract class Layer
     public int Width { get; protected init; }
 
     /// <summary>
+    ///     Whether this layer is a meta layer that requires special handling.
+    /// </summary>
+    public bool IsMeta { get; protected init; }
+
+    /// <summary>
     ///     Get whether this layer is solid and does not allow water to pass through.
     /// </summary>
     public bool IsSolid { get; protected init; }
+
+    /// <summary>
+    ///     Create a dampening layer that absorbs some of the offset. This is a meta layer and must be above the first solid
+    ///     layer.
+    /// </summary>
+    public static Layer CreateDampen(IBlockBase block, int maxWidth)
+    {
+        return new Dampen(block, maxWidth);
+    }
 
     /// <summary>
     /// Create a cover layer, which selects an alternative when filled. The alternative block is also filled with water if possible.
@@ -103,20 +117,20 @@ public abstract class Layer
 
     private sealed class Permeable : Layer
     {
-        private readonly uint filledData;
-        private readonly uint normalData;
+        private readonly uint filled;
+        private readonly uint normal;
 
         public Permeable(IBlockBase block, int width)
         {
             Width = width;
 
-            normalData = Section.Encode(block);
-            filledData = Section.Encode(block, Fluid.Water);
+            normal = Section.Encode(block);
+            filled = Section.Encode(block, Fluid.Water);
         }
 
         public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
-            return isFilled ? filledData : normalData;
+            return isFilled ? filled : normal;
         }
     }
 
@@ -222,6 +236,26 @@ public abstract class Layer
             if (stoneType == Map.StoneType.Sandstone) return isFilled ? sandFilled : sandNormal;
 
             return isFilled ? gravelFilled : gravelNormal;
+        }
+    }
+
+    private sealed class Dampen : Layer
+    {
+        private readonly uint blockFilled;
+        private readonly uint blockNormal;
+
+        public Dampen(IBlockBase block, int maxWidth)
+        {
+            Width = maxWidth;
+            IsMeta = true;
+
+            blockNormal = Section.Encode(block);
+            blockFilled = Section.Encode(block, Fluid.Water);
+        }
+
+        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        {
+            return isFilled ? blockFilled : blockNormal;
         }
     }
 }
