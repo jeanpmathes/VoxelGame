@@ -74,6 +74,13 @@ internal static class Program
         ILogger logger = LoggingHelper.SetupLogging(nameof(Program), logDebug, AppDataDirectory);
 
 #if !DEBUG
+        AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
+        {
+            logger.LogError(Events.ApplicationInformation, eventArgs.ExceptionObject as Exception, "Unhandled exception, likely a bug. Terminating: {Exit}", eventArgs.IsTerminating);
+        };
+#endif
+
+#if !DEBUG
         if (logDebug) logger.LogInformation(Events.Meta, "Logging debug messages");
         else
             logger.LogInformation(
