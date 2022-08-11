@@ -217,37 +217,6 @@ public partial class Map : IMap
     }
 
     /// <summary>
-    ///     Generated quadratic interpolation of the following points:
-    ///     <code>
-    /// (0, 0)
-    /// (0.45, 0.01)
-    /// (0.46, 0.02)
-    /// (0.5, 0.5)
-    /// (0.54, 0.98)
-    /// (0.55, 0.99)
-    /// (1, 0)
-    /// </code>
-    /// </summary>
-    private static double ApplyBiomeChangeFunction(double t)
-    {
-        double t2 = t * t;
-
-        return t switch
-        {
-            < 0 => 0,
-            <= 0.45 => 0.0000e0 * t2 - 2.2222e-2 * t + 0.0000,
-            <= 0.46 => 9.7778e1 * t2 - 8.7978e1 * t + 1.9800e1,
-            <= 0.5 => 2.5056e2 * t2 - 2.2853e2 * t + 5.2128e1,
-            <= 0.54 => -2.5056e2 * t2 + 2.7258e2 * t - 7.3150e1,
-            <= 0.55 => -9.7778e1 * t2 + 1.0758e2 * t - 2.8600e1,
-            <= 1 => -2.1728e-12 * t2 + 2.2222e-2 * t + 9.7778e-1,
-            > 1 => 1,
-
-            _ => t
-        };
-    }
-
-    /// <summary>
     ///     Get a sample of the map at the given coordinates.
     /// </summary>
     /// <param name="position">The world position (just XZ) of the sample.</param>
@@ -425,4 +394,35 @@ public partial class Map : IMap
             return new Vector2i(x, y);
         }
     }
+
+    #region BIOME CHANGE FUNCTION
+
+    private static readonly Vector2d pointA = new(x: 0.00, y: 0.00);
+    private static readonly Vector2d pointB = new(x: 0.40, y: 0.01);
+    private static readonly Vector2d pointC = new(x: 0.45, y: 0.05);
+    private static readonly Vector2d pointD = new(x: 0.50, y: 0.50);
+    private static readonly Vector2d pointE = Vector2d.One - pointC;
+    private static readonly Vector2d pointF = Vector2d.One - pointB;
+    private static readonly Vector2d pointG = Vector2d.One - pointA;
+
+    private static double ApplyBiomeChangeFunction(double t)
+    {
+        if (t <= pointA.X) return pointA.Y;
+
+        if (t <= pointB.X) return MathHelper.Lerp(pointA.Y, pointB.Y, VMath.InverseLerp(pointA.X, pointB.X, t));
+
+        if (t <= pointC.X) return MathHelper.Lerp(pointB.Y, pointC.Y, VMath.InverseLerp(pointB.X, pointC.X, t));
+
+        if (t <= pointD.X) return MathHelper.Lerp(pointC.Y, pointD.Y, VMath.InverseLerp(pointC.X, pointD.X, t));
+
+        if (t <= pointE.X) return MathHelper.Lerp(pointD.Y, pointE.Y, VMath.InverseLerp(pointD.X, pointE.X, t));
+
+        if (t <= pointF.X) return MathHelper.Lerp(pointE.Y, pointF.Y, VMath.InverseLerp(pointE.X, pointF.X, t));
+
+        if (t <= pointG.X) return MathHelper.Lerp(pointF.Y, pointG.Y, VMath.InverseLerp(pointF.X, pointG.X, t));
+
+        return pointG.Y;
+    }
+
+    #endregion BIOME CHANGE FUNCTION
 }
