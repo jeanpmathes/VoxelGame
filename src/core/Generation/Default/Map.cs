@@ -83,7 +83,8 @@ public partial class Map : IMap
     /// </summary>
     private const int CellSize = 100_000;
 
-    private const int Width = (int) (World.BlockLimit * 2) / CellSize;
+    private const int MinimumWidth = (int) (World.BlockLimit * 2) / CellSize;
+    private const int Width = MinimumWidth + 2;
     private const int CellCount = Width * Width;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Map>();
 
@@ -298,6 +299,9 @@ public partial class Map : IMap
 
         int xP = DivideByCellSize(position.X);
         int yP = DivideByCellSize(position.Y);
+
+        xP = Math.Clamp(xP, min: 0, Width - 1);
+        yP = Math.Clamp(yP, min: 0, Width - 1);
 
         const int extents = Width / 2;
 

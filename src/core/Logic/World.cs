@@ -176,7 +176,7 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     Get the extents of the world.
     /// </summary>
-    public Vector3d Extents => new(BlockSize, BlockSize, BlockSize);
+    public Vector3i Extents => new((int) BlockSize, (int) BlockSize, (int) BlockSize);
 
     /// <summary>
     ///     Get the info map of this world.

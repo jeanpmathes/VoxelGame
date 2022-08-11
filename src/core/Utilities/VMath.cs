@@ -143,6 +143,21 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Clamps every component of a vector.
+    /// </summary>
+    /// <param name="vector">The vector to clamp.</param>
+    /// <param name="min">The minimum values for each component.</param>
+    /// <param name="max">The maximum values for each component.</param>
+    /// <returns>The vector with clamped components.</returns>
+    public static Vector3i ClampComponents(Vector3i vector, Vector3i min, Vector3i max)
+    {
+        return new Vector3i(
+            MathHelper.Clamp(vector.X, min.X, max.X),
+            MathHelper.Clamp(vector.Y, min.Y, max.Y),
+            MathHelper.Clamp(vector.Z, min.Z, max.Z));
+    }
+
+    /// <summary>
     ///     Returns a vector where every component is the sign of the original component.
     /// </summary>
     /// <param name="vector">The vector to convert.</param>
