@@ -252,7 +252,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
                              (z + d[2]);
 
             // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-            int lowerData = (mesh.Tint.GetBits(context.FluidTint) << 23) | ((int) side << 16) |
+            int lowerData = (mesh.Tint.GetBits(context.GetFluidTint(position)) << 23) | ((int) side << 16) |
                             ((sideHeight + 1) << 12) |
                             (Direction.GetBit() << 11) | ((int) info.Level << 8) |
                             (info.IsStatic ? 1 << 7 : 0 << 7) |

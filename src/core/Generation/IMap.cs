@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using OpenTK.Mathematics;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Generation;
 
@@ -19,4 +20,9 @@ public interface IMap
     /// <param name="position">The world position of the player.</param>
     /// <returns>A string containing debug data.</returns>
     string GetPositionDebugData(Vector3d position);
+
+    /// <summary>
+    ///     Get the tint for a position.
+    /// </summary>
+    (TintColor block, TintColor fluid) GetPositionTint(Vector3d position);
 }

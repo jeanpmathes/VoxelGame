@@ -6,11 +6,13 @@
 
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Generation.Default;
@@ -88,6 +90,14 @@ public partial class Map : IMap
     private const int CellCount = Width * Width;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Map>();
 
+    private static readonly Color blockTintWarm = Color.LightGreen;
+    private static readonly Color blockTintCold = Color.DarkGreen;
+    private static readonly Color blockTintMoist = Color.LawnGreen;
+    private static readonly Color blockTintDry = Color.Olive;
+
+    private static readonly Color fluidTintWarm = Color.LightBlue;
+    private static readonly Color fluidTintCold = Color.DarkBlue;
+
     private readonly BiomeDistribution biomes;
 
     private Data? data;
@@ -108,6 +118,18 @@ public partial class Map : IMap
         Sample sample = GetSample(samplingPosition);
 
         return $"{nameof(Map)}: {sample.Height:F2} {sample.Biome} {GetStoneType(samplingPosition)}";
+    }
+
+    /// <inheritdoc />
+    public (TintColor block, TintColor fluid) GetPositionTint(Vector3d position)
+    {
+        Vector2i samplingPosition = position.Floor().Xz;
+        Sample sample = GetSample(samplingPosition);
+
+        Color block = Colors.Mix(Colors.Mix(blockTintCold, blockTintWarm, sample.Temperature), Colors.Mix(blockTintDry, blockTintMoist, sample.Moisture));
+        Color fluid = Colors.Mix(fluidTintCold, fluidTintWarm, sample.Temperature);
+
+        return (new TintColor(block), new TintColor(fluid));
     }
 
     /// <summary>
@@ -278,7 +300,9 @@ public partial class Map : IMap
         {
             Height = (float) VMath.Blerp(c00.height, c10.height, c01.height, c11.height, tx, ty),
             Biome = closest.IsLand ? biomes.GetBiome(temperature, moisture) : Biome.Ocean,
-            BorderStrength = (GetBorderStrength(tx), GetBorderStrength(ty))
+            BorderStrength = (GetBorderStrength(tx), GetBorderStrength(ty)),
+            Temperature = temperature,
+            Moisture = moisture
         };
     }
 
@@ -324,6 +348,16 @@ public partial class Map : IMap
         ///     The biome of the sample.
         /// </summary>
         public Biome Biome { get; init; }
+
+        /// <summary>
+        ///     The temperature of the sample.
+        /// </summary>
+        public float Temperature { get; init; }
+
+        /// <summary>
+        ///     The moisture of the sample.
+        /// </summary>
+        public float Moisture { get; init; }
 
         /// <summary>
         /// The strength of the border, e.g. how close to the edge the sample is. This is a value in the range [0, 1] on every axis.

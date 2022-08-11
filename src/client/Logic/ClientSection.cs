@@ -62,11 +62,7 @@ public class ClientSection : Section
         Justification = "Improves readability.")]
     public SectionMeshData CreateMeshData(SectionPosition position)
     {
-        MeshingContext context = new(this, position, World)
-        {
-            BlockTint = TintColor.Green,
-            FluidTint = TintColor.Blue
-        };
+        MeshingContext context = new(this, position, World);
 
         // Loop through the section
         for (var x = 0; x < Size; x++)

@@ -52,7 +52,7 @@ public interface ISimple : IBlockMeshable
                                  ((d[1] + y) << 5) | (d[2] + z);
 
                 // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                int lowerData = (mesh.Tint.GetBits(context.BlockTint) << 23) | ((int) side << 18) |
+                int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | ((int) side << 18) |
                                 mesh.GetAnimationBit(shift: 16) | mesh.TextureIndex;
 
                 context.GetSimpleBlockMeshFaceHolder(side).AddFace(

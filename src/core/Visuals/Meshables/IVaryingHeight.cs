@@ -58,7 +58,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable
                                  (y << 5) | (z + d[2]);
 
                 // int: tttt tttt tnnn hhhh ---i iiii iiii iiii (t: tint; n: normal; h: height; i: texture index)
-                int lowerData = (mesh.Tint.GetBits(context.BlockTint) << 23) | ((int) side << 20) |
+                int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | ((int) side << 20) |
                                 (height << 16) | mesh.TextureIndex;
 
                 context.GetVaryingHeightMeshFaceHolder(side).AddFace(
@@ -86,7 +86,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable
                                  ((d[1] + y) << 5) | (d[2] + z);
 
                 // int: tttt tttt t--n nn-_ ---i iiii iiii iiii (t: tint; n: normal; i: texture index, _: used for simple blocks but not here)
-                int lowerData = (mesh.Tint.GetBits(context.BlockTint) << 23) | ((int) side << 18) |
+                int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | ((int) side << 18) |
                                 mesh.TextureIndex;
 
                 context.GetSimpleBlockMeshFaceHolder(side).AddFace(

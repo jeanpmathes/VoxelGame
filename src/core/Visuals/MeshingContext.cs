@@ -12,6 +12,8 @@ using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Visuals;
 
+#pragma warning disable S4049
+
 /// <summary>
 ///     The context for section meshing.
 /// </summary>
@@ -31,6 +33,8 @@ public class MeshingContext
     private readonly Section?[] neighbors;
 
     private readonly VaryingHeightMeshFaceHolder[] opaqueFluidMeshFaceHolders;
+
+    private readonly (TintColor block, TintColor fluid)[,] tintColors;
     private readonly VaryingHeightMeshFaceHolder[] transparentFluidMeshFaceHolders;
     private readonly VaryingHeightMeshFaceHolder[] varyingHeightMeshFaceHolders;
 
@@ -44,6 +48,7 @@ public class MeshingContext
     {
         current = section;
         neighbors = GetNeighborSections(world, position);
+        tintColors = GetTintColors(world, position);
 
         blockMeshFaceHolders = CreateBlockMeshFaceHolders();
         varyingHeightMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
@@ -57,14 +62,22 @@ public class MeshingContext
     public uint ComplexVertexCount { get; set; }
 
     /// <summary>
-    ///     The current block tint, used when the tint is set to neutral.
+    ///     Get current block tint, used when the tint is set to neutral.
     /// </summary>
-    public TintColor BlockTint { get; set; }
+    /// <param name="position">The position, in section-local coordinates.</param>
+    public TintColor GetBlockTint(Vector3i position)
+    {
+        return tintColors[position.X, position.Z].block;
+    }
 
     /// <summary>
-    ///     The current fluid tint, used when the tint is set to neutral.
+    ///     Get current fluid tint, used when the tint is set to neutral.
     /// </summary>
-    public TintColor FluidTint { get; set; }
+    /// <param name="position">The position, in section-local coordinates.</param>
+    public TintColor GetFluidTint(Vector3i position)
+    {
+        return tintColors[position.X, position.Z].fluid;
+    }
 
     private static Section?[] GetNeighborSections(World world, SectionPosition position)
     {
@@ -75,6 +88,17 @@ public class MeshingContext
                 world.GetSection(side.Offset(position));
 
         return neighborSections;
+    }
+
+    private static (TintColor block, TintColor fluid)[,] GetTintColors(World world, SectionPosition position)
+    {
+        var colors = new (TintColor block, TintColor fluid)[Section.Size, Section.Size];
+
+        for (var x = 0; x < Section.Size; x++)
+        for (var z = 0; z < Section.Size; z++)
+            colors[x, z] = world.Map.GetPositionTint(position.FirstBlock + new Vector3i(x, y: 0, z));
+
+        return colors;
     }
 
     private static BlockMeshFaceHolder[] CreateBlockMeshFaceHolders()
