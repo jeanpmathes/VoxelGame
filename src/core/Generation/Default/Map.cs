@@ -106,7 +106,7 @@ public partial class Map : IMap
         Vector2i samplingPosition = position.Floor().Xz;
         Sample sample = GetSample(samplingPosition);
 
-        return $"{nameof(Map)}: {sample.Height:F2} {sample.Biome} {GetStoneType(samplingPosition)} {sample.BorderStrength}";
+        return $"{nameof(Map)}: {sample.Height:F2} {sample.Biome} {GetStoneType(samplingPosition)}";
     }
 
     /// <summary>
@@ -216,16 +216,35 @@ public partial class Map : IMap
         for (var i = 0; i < CellCount; i++) StoreCell(data.cells[i]);
     }
 
+    /// <summary>
+    ///     Generated quadratic interpolation of the following points:
+    ///     <code>
+    /// (0, 0)
+    /// (0.45, 0.01)
+    /// (0.46, 0.02)
+    /// (0.5, 0.5)
+    /// (0.54, 0.98)
+    /// (0.55, 0.99)
+    /// (1, 0)
+    /// </code>
+    /// </summary>
     private static double ApplyBiomeChangeFunction(double t)
     {
-        #pragma warning disable S1244
-        double G(double x)
-        {
-            return t != 0 ? Math.Pow(x: 50000, -1 / x) : 0;
-        }
-        #pragma warning restore S1244
+        double t2 = t * t;
 
-        return G(1 - t) / (G(t) + G(1 - t));
+        return t switch
+        {
+            < 0 => 0,
+            <= 0.45 => 0.0000e0 * t2 - 2.2222e-2 * t + 0.0000,
+            <= 0.46 => 9.7778e1 * t2 - 8.7978e1 * t + 1.9800e1,
+            <= 0.5 => 2.5056e2 * t2 - 2.2853e2 * t + 5.2128e1,
+            <= 0.54 => -2.5056e2 * t2 + 2.7258e2 * t - 7.3150e1,
+            <= 0.55 => -9.7778e1 * t2 + 1.0758e2 * t - 2.8600e1,
+            <= 1 => -2.1728e-12 * t2 + 2.2222e-2 * t + 9.7778e-1,
+            > 1 => 1,
+
+            _ => t
+        };
     }
 
     /// <summary>
