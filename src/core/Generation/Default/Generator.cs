@@ -66,15 +66,17 @@ public class Generator : IWorldGenerator
     public IEnumerable<uint> GenerateColumn(int x, int z, (int start, int end) heightRange)
     {
         Map.Sample sample = map.GetSample((x, z));
-        var offset = (int) sample.Biome.GetOffset((x, z));
+        int offset = GetOffset((x, z), sample);
 
         Context context = new()
         {
+            Biome = sample.ActualBiome,
+            BorderStrength = sample.BorderStrength,
             WorldHeight = (int) (sample.Height * Height) + offset,
-            Dampening = sample.Biome.CalculateDampening(offset)
+            Dampening = sample.ActualBiome.CalculateDampening(offset)
         };
 
-        for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z), sample, context);
+        for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z), context);
     }
 
     /// <inheritdoc />
@@ -85,6 +87,19 @@ public class Generator : IWorldGenerator
 
     /// <inheritdoc />
     public IMap Map => map;
+
+    private static int GetOffset(Vector2i position, in Map.Sample sample)
+    {
+        double offset = VMath.Blerp(
+            sample.Biome00.GetOffset(position),
+            sample.Biome10.GetOffset(position),
+            sample.Biome01.GetOffset(position),
+            sample.Biome11.GetOffset(position),
+            sample.BlendX,
+            sample.BlendY);
+
+        return (int) Math.Round(offset, MidpointRounding.AwayFromZero);
+    }
 
     private void Initialize()
     {
@@ -98,7 +113,7 @@ public class Generator : IWorldGenerator
         if (write != null) map.Store(write);
     }
 
-    private uint GenerateBlock(Vector3i position, in Map.Sample sample, in Context context)
+    private uint GenerateBlock(Vector3i position, in Context context)
     {
         if (position.Y == -World.BlockLimit) return palette.Core;
 
@@ -106,19 +121,19 @@ public class Generator : IWorldGenerator
 
         if (depth < 0) return position.Y <= SeaLevel ? palette.Water : palette.Empty;
 
-        Map.StoneType stoneType = GetStoneType(position, sample);
+        Map.StoneType stoneType = GetStoneType(position, context);
 
-        return depth >= sample.Biome.GetTotalWidth(context.Dampening) ? palette.GetStone(stoneType) : sample.Biome.GetData(depth, context.Dampening, stoneType, position.Y <= SeaLevel);
+        return depth >= context.Biome.GetTotalWidth(context.Dampening) ? palette.GetStone(stoneType) : context.Biome.GetData(depth, context.Dampening, stoneType, position.Y <= SeaLevel);
     }
 
-    private Map.StoneType GetStoneType(Vector3i position, in Map.Sample sample)
+    private Map.StoneType GetStoneType(Vector3i position, in Context context)
     {
         const int offsetStrength = 1000;
 
         double angle = transitionNoise.GetNoise(position.X, position.Y, position.Z) * Math.PI;
         Vector2d offset2D = VMath.CreateVectorFromAngle(angle);
 
-        Vector3d offset = new(offset2D.X * sample.BorderStrength.X, y: 0, offset2D.Y * sample.BorderStrength.Y);
+        Vector3d offset = new(offset2D.X * context.BorderStrength.X, y: 0, offset2D.Y * context.BorderStrength.Y);
         offset *= offsetStrength;
 
         Vector3i samplingPosition = position + offset.RoundedToInt(MidpointRounding.ToZero);
@@ -131,5 +146,9 @@ public class Generator : IWorldGenerator
         public int WorldHeight { get; init; }
 
         public Biome.Dampening Dampening { get; init; }
+
+        public Biome Biome { get; init; }
+
+        public Vector2d BorderStrength { get; init; }
     }
 }

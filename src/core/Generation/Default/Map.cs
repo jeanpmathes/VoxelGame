@@ -117,7 +117,7 @@ public partial class Map : IMap
         Vector2i samplingPosition = position.Floor().Xz;
         Sample sample = GetSample(samplingPosition);
 
-        return $"{nameof(Map)}: {sample.Height:F2} {sample.Biome} {GetStoneType(samplingPosition)}";
+        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition)} {(sample.BlendX, sample.BlendY)}";
     }
 
     /// <inheritdoc />
@@ -296,13 +296,24 @@ public partial class Map : IMap
             return (t > 0.5 ? 1 - t : t) * 2;
         }
 
+        Biome GetBiome(in Cell cell)
+        {
+            return cell.IsLand ? biomes.GetBiome(cell.temperature, cell.moisture) : Biome.Ocean;
+        }
+
         return new Sample
         {
             Height = (float) VMath.Blerp(c00.height, c10.height, c01.height, c11.height, tx, ty),
-            Biome = closest.IsLand ? biomes.GetBiome(temperature, moisture) : Biome.Ocean,
             BorderStrength = (GetBorderStrength(tx), GetBorderStrength(ty)),
             Temperature = temperature,
-            Moisture = moisture
+            Moisture = moisture,
+            BlendX = tx,
+            BlendY = ty,
+            ActualBiome = GetBiome(closest),
+            Biome00 = GetBiome(c00),
+            Biome10 = GetBiome(c10),
+            Biome01 = GetBiome(c01),
+            Biome11 = GetBiome(c11)
         };
     }
 
@@ -345,11 +356,6 @@ public partial class Map : IMap
         public float Height { get; init; }
 
         /// <summary>
-        ///     The biome of the sample.
-        /// </summary>
-        public Biome Biome { get; init; }
-
-        /// <summary>
         ///     The temperature of the sample.
         /// </summary>
         public float Temperature { get; init; }
@@ -363,6 +369,41 @@ public partial class Map : IMap
         /// The strength of the border, e.g. how close to the edge the sample is. This is a value in the range [0, 1] on every axis.
         /// </summary>
         public Vector2d BorderStrength { get; init; }
+
+        /// <summary>
+        ///     Get the actual biome at the sample position.
+        /// </summary>
+        public Biome ActualBiome { get; init; }
+
+        /// <summary>
+        ///     Get the biome <c>00</c>.
+        /// </summary>
+        public Biome Biome00 { get; init; }
+
+        /// <summary>
+        ///     Get the biome <c>10</c>.
+        /// </summary>
+        public Biome Biome10 { get; init; }
+
+        /// <summary>
+        ///     Get the biome <c>01</c>.
+        /// </summary>
+        public Biome Biome01 { get; init; }
+
+        /// <summary>
+        ///     Get the biome <c>11</c>.
+        /// </summary>
+        public Biome Biome11 { get; init; }
+
+        /// <summary>
+        ///     Get the blending factor on the x axis.
+        /// </summary>
+        public double BlendX { get; init; }
+
+        /// <summary>
+        ///     Get the blending factor on the y axis.
+        /// </summary>
+        public double BlendY { get; init; }
     }
 
     private record struct Cell
