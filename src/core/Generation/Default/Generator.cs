@@ -66,14 +66,20 @@ public class Generator : IWorldGenerator
     public IEnumerable<uint> GenerateColumn(int x, int z, (int start, int end) heightRange)
     {
         Map.Sample sample = map.GetSample((x, z));
-        int offset = GetOffset((x, z), sample);
+
+        double offset = GetOffset((x, z), sample);
+        double height = sample.Height * Height;
+
+        var rawHeight = (int) height;
+        var modifiedHeight = (int) (height + offset);
+        int effectiveOffset = rawHeight - modifiedHeight;
 
         Context context = new()
         {
             Biome = sample.ActualBiome,
             BorderStrength = sample.BorderStrength,
-            WorldHeight = (int) (sample.Height * Height) + offset,
-            Dampening = sample.ActualBiome.CalculateDampening(offset)
+            WorldHeight = modifiedHeight,
+            Dampening = sample.ActualBiome.CalculateDampening(effectiveOffset)
         };
 
         for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z), context);
@@ -88,17 +94,15 @@ public class Generator : IWorldGenerator
     /// <inheritdoc />
     public IMap Map => map;
 
-    private static int GetOffset(Vector2i position, in Map.Sample sample)
+    private static double GetOffset(Vector2i position, in Map.Sample sample)
     {
-        double offset = VMath.Blerp(
+        return VMath.Blerp(
             sample.Biome00.GetOffset(position),
             sample.Biome10.GetOffset(position),
             sample.Biome01.GetOffset(position),
             sample.Biome11.GetOffset(position),
             sample.BlendX,
             sample.BlendY);
-
-        return (int) Math.Round(offset, MidpointRounding.AwayFromZero);
     }
 
     private void Initialize()
