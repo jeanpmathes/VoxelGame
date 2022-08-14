@@ -162,7 +162,7 @@ public abstract partial class World
                             "A critical exception occurred when generating the chunk {Position}",
                             generatedChunk.Position);
 
-                        Environment.Exit(exitCode: 1);
+                        throw completed.Exception!.GetBaseException();
                     }
 
                     if (!activeChunks.ContainsKey(generatedChunk.Position) &&
