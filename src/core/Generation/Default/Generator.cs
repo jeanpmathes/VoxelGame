@@ -79,7 +79,7 @@ public class Generator : IWorldGenerator
             Biome = sample.ActualBiome,
             BorderStrength = sample.BorderStrength,
             WorldHeight = modifiedHeight,
-            Dampening = sample.ActualBiome.CalculateDampening(effectiveOffset)
+            Dampening = CreateFilledDampening(effectiveOffset, sample)
         };
 
         for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z), context);
@@ -103,6 +103,31 @@ public class Generator : IWorldGenerator
             sample.Biome11.GetOffset(position),
             sample.BlendX,
             sample.BlendY);
+    }
+
+    /// <summary>
+    ///     Fill up the dampening to get the first solid layers of all biomes at the same height.
+    /// </summary>
+    private static Biome.Dampening CreateFilledDampening(int offset, in Map.Sample sample)
+    {
+        (int a, int b, int c, int d) depths = (
+            sample.Biome00.GetDepthToSolid(sample.Biome00.CalculateDampening(offset)),
+            sample.Biome10.GetDepthToSolid(sample.Biome10.CalculateDampening(offset)),
+            sample.Biome01.GetDepthToSolid(sample.Biome01.CalculateDampening(offset)),
+            sample.Biome11.GetDepthToSolid(sample.Biome11.CalculateDampening(offset)));
+
+        if (depths.a <= depths.b && depths.a <= depths.c && depths.a <= depths.d) depths.a *= 2;
+        else if (depths.b <= depths.a && depths.b <= depths.c && depths.b <= depths.d) depths.b *= 2;
+        else if (depths.c <= depths.a && depths.c <= depths.b && depths.c <= depths.d) depths.c *= 2;
+        else if (depths.d <= depths.a && depths.d <= depths.b && depths.d <= depths.c) depths.d *= 2;
+
+        var targetDepth = (int) VMath.Blerp(depths.a, depths.b, depths.c, depths.d, sample.BlendX, sample.BlendY);
+        Biome.Dampening dampening = sample.ActualBiome.CalculateDampening(offset);
+
+        int fill = targetDepth - sample.ActualBiome.GetDepthToSolid(dampening);
+        fill = Math.Max(val1: 0, fill);
+
+        return dampening with {Width = dampening.Width + fill};
     }
 
     private void Initialize()

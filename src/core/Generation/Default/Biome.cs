@@ -476,6 +476,14 @@ public class Biome
         return current.GetData(depthInLayer, actualOffset, stoneType, isFilledAtCurrentDepth);
     }
 
+    /// <summary>
+    ///     Get the depth to the first solid layer, depending on the dampening.
+    /// </summary>
+    public int GetDepthToSolid(Dampening dampening)
+    {
+        return minDepthToSolid + dampening.Width;
+    }
+
     /// <inheritdoc />
     public override string ToString()
     {
