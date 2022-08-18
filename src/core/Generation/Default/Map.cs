@@ -117,10 +117,10 @@ public partial class Map : IMap
     /// <inheritdoc />
     public string GetPositionDebugData(Vector3d position)
     {
-        Vector2i samplingPosition = position.Floor().Xz;
-        Sample sample = GetSample(samplingPosition);
+        Vector3i samplingPosition = position.Floor();
+        Sample sample = GetSample(samplingPosition.Xz);
 
-        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition)}";
+        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)}";
     }
 
     /// <inheritdoc />
@@ -291,21 +291,16 @@ public partial class Map : IMap
         Vector2d p1 = new Vector2d(x1, y1) * CellSize + new Vector2d(halfCellSize, halfCellSize);
         Vector2d p2 = new Vector2d(x2, y2) * CellSize + new Vector2d(halfCellSize, halfCellSize);
 
-        double tx = VMath.InverseLerp(p1.X, p2.X, position.X);
-        double ty = VMath.InverseLerp(p1.Y, p2.Y, position.Y);
+        double tX = VMath.InverseLerp(p1.X, p2.X, position.X);
+        double tY = VMath.InverseLerp(p1.Y, p2.Y, position.Y);
 
-        tx = ApplyBiomeChangeFunction(tx);
-        ty = ApplyBiomeChangeFunction(ty);
-
-        double GetBorderStrength(double t)
-        {
-            return (t > 0.5 ? 1 - t : t) * 2;
-        }
+        tX = ApplyBiomeChangeFunction(tX);
+        tY = ApplyBiomeChangeFunction(tY);
 
         const double transitionFactor = 0.075;
 
-        tx += xNoise.GetNoise(position.X, position.Y) * GetBorderStrength(tx) * transitionFactor;
-        ty += yNoise.GetNoise(position.X, position.Y) * GetBorderStrength(ty) * transitionFactor;
+        double blendX = tX + xNoise.GetNoise(position.X, position.Y) * GetBorderStrength(tX) * transitionFactor;
+        double blendY = tY + yNoise.GetNoise(position.X, position.Y) * GetBorderStrength(tY) * transitionFactor;
 
         const int extents = Width / 2;
 
@@ -314,10 +309,12 @@ public partial class Map : IMap
         ref readonly Cell c01 = ref data.GetCell(x1 + extents, y2 + extents);
         ref readonly Cell c11 = ref data.GetCell(x2 + extents, y2 + extents);
 
-        ref readonly Cell actual = ref VMath.SelectByWeight(c00, c10, c01, c11, tx, ty);
+        ref readonly Cell actual = ref VMath.SelectByWeight(c00, c10, c01, c11, blendX, blendY);
 
-        var temperature = (float) VMath.Blerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, tx, ty);
-        var moisture = (float) VMath.Blerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, tx, ty);
+        var temperature = (float) VMath.Blerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blendX, blendY);
+        var moisture = (float) VMath.Blerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, blendX, blendY);
+
+        var height = (float) VMath.Blerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
 
         Biome GetBiome(in Cell cell)
         {
@@ -326,17 +323,17 @@ public partial class Map : IMap
 
         return new Sample
         {
-            Height = (float) VMath.Blerp(c00.height, c10.height, c01.height, c11.height, tx, ty),
-            BorderStrength = (GetBorderStrength(tx), GetBorderStrength(ty)),
+            Height = height,
             Temperature = temperature,
             Moisture = moisture,
-            BlendX = tx,
-            BlendY = ty,
+            BlendX = blendX,
+            BlendY = blendY,
             ActualBiome = GetBiome(actual),
             Biome00 = GetBiome(c00),
             Biome10 = GetBiome(c10),
             Biome01 = GetBiome(c01),
-            Biome11 = GetBiome(c11)
+            Biome11 = GetBiome(c11),
+            StoneData = (c00.stoneType, c10.stoneType, c01.stoneType, c11.stoneType, tX, tY)
         };
     }
 
@@ -351,21 +348,27 @@ public partial class Map : IMap
     /// <summary>
     ///     Get the stone type at a given position.
     /// </summary>
-    public StoneType GetStoneType(Vector2i position)
+    public StoneType GetStoneType(Vector3i position, in Sample sample)
     {
         Debug.Assert(data != null);
 
-        int xP = DivideByCellSize(position.X);
-        int yP = DivideByCellSize(position.Y);
+        const double transitionFactor = 0.05;
+        const double scalingFactor = 5.0;
 
-        xP = Math.Clamp(xP, min: 0, Width - 1);
-        yP = Math.Clamp(yP, min: 0, Width - 1);
+        Vector3d scaledPosition = position.ToVector3d() * scalingFactor;
 
-        const int extents = Width / 2;
+        double stoneX = sample.StoneData.tX + xNoise.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tX) * transitionFactor;
+        double stoneY = sample.StoneData.tY + yNoise.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tY) * transitionFactor;
 
-        ref readonly Cell cell = ref data.GetCell(xP + extents, yP + extents);
+        return VMath.SelectByWeight(sample.StoneData.stone00, sample.StoneData.stone10, sample.StoneData.stone01, sample.StoneData.stone11, stoneX, stoneY);
+    }
 
-        return cell.stoneType;
+    /// <summary>
+    ///     Get the border strength from a blend factor.
+    /// </summary>
+    private static double GetBorderStrength(double t)
+    {
+        return (t > 0.5 ? 1 - t : t) * 2;
     }
 
     /// <summary>
@@ -387,11 +390,6 @@ public partial class Map : IMap
         ///     The moisture of the sample.
         /// </summary>
         public float Moisture { get; init; }
-
-        /// <summary>
-        /// The strength of the border, e.g. how close to the edge the sample is. This is a value in the range [0, 1] on every axis.
-        /// </summary>
-        public Vector2d BorderStrength { get; init; }
 
         /// <summary>
         ///     Get the actual biome at the sample position.
@@ -427,6 +425,11 @@ public partial class Map : IMap
         ///     Get the blending factor on the y axis.
         /// </summary>
         public double BlendY { get; init; }
+
+        /// <summary>
+        ///     Data regarding the stone composition.
+        /// </summary>
+        public (StoneType stone00, StoneType stone10, StoneType stone01, StoneType stone11, double tX, double tY) StoneData { get; init; }
     }
 
     private record struct Cell

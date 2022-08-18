@@ -36,7 +36,6 @@ public class Generator : IWorldGenerator
 
     private readonly int seed;
 
-    private readonly FastNoiseLite transitionNoise;
     private readonly World world;
 
     /// <summary>
@@ -55,10 +54,6 @@ public class Generator : IWorldGenerator
         Initialize();
         Store();
 
-        transitionNoise = new FastNoiseLite(seed);
-        transitionNoise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
-        transitionNoise.SetFrequency(frequency: 0.23f);
-
         logger.LogInformation(Events.WorldGeneration, "Created '{Name}' world generator", nameof(Default));
     }
 
@@ -76,8 +71,8 @@ public class Generator : IWorldGenerator
 
         Context context = new()
         {
-            Biome = sample.ActualBiome,
-            BorderStrength = sample.BorderStrength,
+            Map = map,
+            Sample = sample,
             WorldHeight = modifiedHeight,
             Dampening = CreateFilledDampening(effectiveOffset, sample)
         };
@@ -150,34 +145,26 @@ public class Generator : IWorldGenerator
 
         if (depth < 0) return position.Y <= SeaLevel ? palette.Water : palette.Empty;
 
-        Map.StoneType stoneType = GetStoneType(position, context);
+        Map.StoneType stoneType = context.GetStoneType(position);
 
         return depth >= context.Biome.GetTotalWidth(context.Dampening) ? palette.GetStone(stoneType) : context.Biome.GetData(depth, context.Dampening, stoneType, position.Y <= SeaLevel);
     }
 
-    private Map.StoneType GetStoneType(Vector3i position, in Context context)
-    {
-        const int offsetStrength = 1000;
-
-        double angle = transitionNoise.GetNoise(position.X, position.Y, position.Z) * Math.PI;
-        Vector2d offset2D = VMath.CreateVectorFromAngle(angle);
-
-        Vector3d offset = new(offset2D.X * context.BorderStrength.X, y: 0, offset2D.Y * context.BorderStrength.Y);
-        offset *= offsetStrength;
-
-        Vector3i samplingPosition = position + offset.RoundedToInt(MidpointRounding.ToZero);
-
-        return map.GetStoneType(samplingPosition.Xz);
-    }
-
-    private record struct Context
+    private readonly record struct Context
     {
         public int WorldHeight { get; init; }
 
         public Biome.Dampening Dampening { get; init; }
 
-        public Biome Biome { get; init; }
+        public Biome Biome => Sample.ActualBiome;
 
-        public Vector2d BorderStrength { get; init; }
+        public Map.Sample Sample { private get; init; }
+
+        public Map Map { private get; init; }
+
+        public Map.StoneType GetStoneType(Vector3i position)
+        {
+            return Map.GetStoneType(position, Sample);
+        }
     }
 }
