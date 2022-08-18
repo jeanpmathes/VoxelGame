@@ -305,6 +305,16 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Select from four values using two weights.
+    /// </summary>
+    public static ref readonly T SelectByWeight<T>(in T t00, in T t10, in T t01, in T t11, double tx, double ty)
+    {
+        if (tx < 0.5) return ref ty < 0.5 ? ref t00 : ref t01;
+
+        return ref ty < 0.5 ? ref t10 : ref t11;
+    }
+
+    /// <summary>
     ///     Calculates the angle between two vectors.
     /// </summary>
     public static double CalculateAngle(Vector2d a, Vector2d b)

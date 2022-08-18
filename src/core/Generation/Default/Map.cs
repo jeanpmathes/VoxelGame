@@ -100,6 +100,9 @@ public partial class Map : IMap
 
     private readonly BiomeDistribution biomes;
 
+    private readonly FastNoiseLite xNoise = new();
+    private readonly FastNoiseLite yNoise = new();
+
     private Data? data;
 
     /// <summary>
@@ -132,6 +135,19 @@ public partial class Map : IMap
         return (new TintColor(block), new TintColor(fluid));
     }
 
+    private void SetupNoise(int seed)
+    {
+        void Setup(FastNoiseLite noise, int specificSeed)
+        {
+            noise.SetSeed(specificSeed);
+            noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+            noise.SetFrequency(frequency: 0.02f);
+        }
+
+        Setup(xNoise, seed);
+        Setup(yNoise, ~seed);
+    }
+
     /// <summary>
     ///     Initialize the map. If available, it can be loaded from a stream.
     ///     If loading is not possible, it will be generated.
@@ -148,6 +164,8 @@ public partial class Map : IMap
         }
 
         if (data == null) Generate(seed);
+
+        SetupNoise(seed);
     }
 
     private void Generate(int seed)
@@ -279,22 +297,27 @@ public partial class Map : IMap
         tx = ApplyBiomeChangeFunction(tx);
         ty = ApplyBiomeChangeFunction(ty);
 
-        const int extents = Width / 2;
+        double GetBorderStrength(double t)
+        {
+            return (t > 0.5 ? 1 - t : t) * 2;
+        }
 
-        ref readonly Cell closest = ref data.GetCell(xP + extents, yP + extents);
+        const double transitionFactor = 0.075;
+
+        tx += xNoise.GetNoise(position.X, position.Y) * GetBorderStrength(tx) * transitionFactor;
+        ty += yNoise.GetNoise(position.X, position.Y) * GetBorderStrength(ty) * transitionFactor;
+
+        const int extents = Width / 2;
 
         ref readonly Cell c00 = ref data.GetCell(x1 + extents, y1 + extents);
         ref readonly Cell c10 = ref data.GetCell(x2 + extents, y1 + extents);
         ref readonly Cell c01 = ref data.GetCell(x1 + extents, y2 + extents);
         ref readonly Cell c11 = ref data.GetCell(x2 + extents, y2 + extents);
 
+        ref readonly Cell actual = ref VMath.SelectByWeight(c00, c10, c01, c11, tx, ty);
+
         var temperature = (float) VMath.Blerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, tx, ty);
         var moisture = (float) VMath.Blerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, tx, ty);
-
-        double GetBorderStrength(double t)
-        {
-            return (t > 0.5 ? 1 - t : t) * 2;
-        }
 
         Biome GetBiome(in Cell cell)
         {
@@ -309,7 +332,7 @@ public partial class Map : IMap
             Moisture = moisture,
             BlendX = tx,
             BlendY = ty,
-            ActualBiome = GetBiome(closest),
+            ActualBiome = GetBiome(actual),
             Biome00 = GetBiome(c00),
             Biome10 = GetBiome(c10),
             Biome01 = GetBiome(c01),
