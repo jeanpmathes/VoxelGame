@@ -142,6 +142,12 @@ public partial class Map : IMap
             noise.SetSeed(specificSeed);
             noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
             noise.SetFrequency(frequency: 0.02f);
+
+            noise.SetFractalType(FastNoiseLite.FractalType.FBm);
+            noise.SetFractalOctaves(octaves: 3);
+            noise.SetFractalLacunarity(lacunarity: 1.6f);
+            noise.SetFractalGain(gain: 0.5f);
+            noise.SetFractalWeightedStrength(weightedStrength: 0.0f);
         }
 
         Setup(xNoise, seed);
@@ -297,7 +303,7 @@ public partial class Map : IMap
         tX = ApplyBiomeChangeFunction(tX);
         tY = ApplyBiomeChangeFunction(tY);
 
-        const double transitionFactor = 0.075;
+        const double transitionFactor = 0.015;
 
         double blendX = tX + xNoise.GetNoise(position.X, position.Y) * GetBorderStrength(tX) * transitionFactor;
         double blendY = tY + yNoise.GetNoise(position.X, position.Y) * GetBorderStrength(tY) * transitionFactor;
