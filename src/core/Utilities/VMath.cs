@@ -307,7 +307,7 @@ public static class VMath
     /// <summary>
     ///     Perform a bilinear interpolation between four values and then lerp between the result and a fifth value.
     /// </summary>
-    public static double MixingBilinearLerp(double f00, double f10, double f01, double f11, double fZ, Vector3d t)
+    public static double MixingBilinearInterpolation(double f00, double f10, double f01, double f11, double fZ, Vector3d t)
     {
         return MathHelper.Lerp(BilinearLerp(f00, f10, f01, f11, t.X, t.Y), fZ, t.Z);
     }

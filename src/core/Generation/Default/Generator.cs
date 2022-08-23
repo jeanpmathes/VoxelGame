@@ -91,7 +91,7 @@ public class Generator : IWorldGenerator
 
     private static double GetOffset(Vector2i position, in Map.Sample sample)
     {
-        return VMath.MixingBilinearLerp(
+        return VMath.MixingBilinearInterpolation(
             sample.Biome00.GetOffset(position),
             sample.Biome10.GetOffset(position),
             sample.Biome01.GetOffset(position),
@@ -118,7 +118,7 @@ public class Generator : IWorldGenerator
         else if (depths.d <= depths.a && depths.d <= depths.b && depths.d <= depths.c) depths.d *= 2;
         else depths.e *= 2;
 
-        var targetDepth = (int) VMath.MixingBilinearLerp(depths.a, depths.b, depths.c, depths.d, depths.e, sample.BlendFactors);
+        var targetDepth = (int) VMath.MixingBilinearInterpolation(depths.a, depths.b, depths.c, depths.d, depths.e, sample.BlendFactors);
         Biome.Dampening dampening = sample.ActualBiome.CalculateDampening(offset);
 
         int fill = targetDepth - sample.ActualBiome.GetDepthToSolid(dampening);

@@ -281,7 +281,7 @@ public class Biome
         Frequency = 0.005f,
         Layers = new List<Layer>
         {
-            Layer.CreateStone(width: 9),
+            Layer.CreateStonyCover(width: 9, amplitude: 15),
             Layer.CreateStonyDampen(maxWidth: 31),
             Layer.CreateStone(width: 31),
             Layer.CreateLoose(width: 9),

@@ -51,6 +51,14 @@ public abstract class Layer
     }
 
     /// <summary>
+    ///     Create a stony cover layer that simulates erosion.
+    /// </summary>
+    public static Layer CreateStonyCover(int width, int amplitude)
+    {
+        return new StonyCover(width, amplitude);
+    }
+
+    /// <summary>
     /// Create a cover layer, which selects an alternative when filled. The alternative block is also filled with water if possible.
     /// </summary>
     public static Layer CreateCover(IBlockBase cover, IBlockBase filled, int width)
@@ -174,42 +182,29 @@ public abstract class Layer
 
     private sealed class Groundwater : Layer
     {
-        private readonly uint gravel;
-        private readonly uint gravelWithFilling;
-        private readonly uint gravelWithGroundwater;
-
         private readonly int groundWaterDepth;
 
-        private readonly uint sand;
-        private readonly uint sandWithFilling;
-        private readonly uint sandWithGroundwater;
+        private Palette? palette;
 
         public Groundwater(int width)
         {
             Width = width;
 
-            gravel = Section.Encode(Block.Gravel);
-            gravelWithGroundwater = Section.Encode(Block.Gravel, Fluid.Water);
-            gravelWithFilling = Section.Encode(Block.Gravel, Fluid.Water);
-
-            sand = Section.Encode(Block.Sand);
-            sandWithGroundwater = Section.Encode(Block.Sand, Fluid.Water);
-            sandWithFilling = Section.Encode(Block.Sand, Fluid.Water);
-
             groundWaterDepth = width / 2;
+        }
+
+        public override void SetPalette(Palette newPalette)
+        {
+            palette = newPalette;
         }
 
         public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
-            bool isSandy = stoneType == Map.StoneType.Sandstone;
-
-            if (isFilled) return isSandy ? sandWithFilling : gravelWithFilling;
+            if (isFilled) return palette!.GetLoose(stoneType, isFilled);
 
             int actualDepth = depth - offset;
 
-            if (actualDepth >= groundWaterDepth) return isSandy ? sandWithGroundwater : gravelWithGroundwater;
-
-            return isSandy ? sand : gravel;
+            return actualDepth >= groundWaterDepth ? palette!.GetGroundwater(stoneType) : palette!.GetLoose(stoneType, isFilled);
         }
     }
 
@@ -234,28 +229,21 @@ public abstract class Layer
 
     private sealed class Loose : Layer
     {
-        private readonly uint gravelFilled;
-        private readonly uint gravelNormal;
-        private readonly uint sandFilled;
-
-        private readonly uint sandNormal;
+        private Palette? palette;
 
         public Loose(int width)
         {
             Width = width;
+        }
 
-            gravelNormal = Section.Encode(Block.Gravel);
-            gravelFilled = Section.Encode(Block.Gravel, Fluid.Water);
-
-            sandNormal = Section.Encode(Block.Sand);
-            sandFilled = Section.Encode(Block.Sand, Fluid.Water);
+        public override void SetPalette(Palette newPalette)
+        {
+            palette = newPalette;
         }
 
         public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
-            if (stoneType == Map.StoneType.Sandstone) return isFilled ? sandFilled : sandNormal;
-
-            return isFilled ? gravelFilled : gravelNormal;
+            return palette!.GetLoose(stoneType, isFilled);
         }
     }
 
@@ -317,6 +305,49 @@ public abstract class Layer
 
         public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
+            return palette!.GetStone(stoneType);
+        }
+    }
+
+    private sealed class StonyCover : Layer
+    {
+        private readonly int amplitude;
+        private readonly uint dirt;
+        private readonly uint dirtFilled;
+
+        private readonly uint grass;
+        private readonly uint grassFilled;
+        private Palette? palette;
+
+        public StonyCover(int width, int amplitude)
+        {
+            Width = width;
+
+            dirt = Section.Encode(Block.Dirt);
+            dirtFilled = Section.Encode(Block.Dirt, Fluid.Water);
+
+            grass = Section.Encode(Block.Grass);
+            grassFilled = Section.Encode(Block.Grass, Fluid.Water);
+
+            this.amplitude = amplitude;
+        }
+
+        public override void SetPalette(Palette newPalette)
+        {
+            palette = newPalette;
+        }
+
+        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        {
+            if (offset > amplitude)
+            {
+                if (depth == 0) return isFilled ? grassFilled : grass;
+
+                return isFilled ? dirtFilled : dirt;
+            }
+
+            if (offset < -amplitude) return palette!.GetLoose(stoneType, isFilled);
+
             return palette!.GetStone(stoneType);
         }
     }

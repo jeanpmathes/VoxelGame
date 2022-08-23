@@ -317,19 +317,9 @@ public partial class Map : IMap
 
         var temperature = (float) VMath.BilinearLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blendX, blendY);
         var moisture = (float) VMath.BilinearLerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, blendX, blendY);
-
         var height = (float) VMath.BilinearLerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
 
-        (double w1, double w2, double w3, double w4) = GetMountainSlopeWeights(blendX, blendY);
-
-        double e1 = GetSurfaceHeightDifference(c00, c10) * GetBorderStrength(blendX) * w1;
-        double e2 = GetSurfaceHeightDifference(c01, c11) * GetBorderStrength(blendX) * w2;
-
-        double e3 = GetSurfaceHeightDifference(c00, c01) * GetBorderStrength(blendY) * w3;
-        double e4 = GetSurfaceHeightDifference(c10, c11) * GetBorderStrength(blendY) * w4;
-
-        var slopeMountainStrength = (float) (e1 + e2 + e3 + e4);
-        float mountainStrength = Math.Min(slopeMountainStrength + height / 1.2f, val2: 1.0f);
+        float mountainStrength = GetMountainStrength(c00, c10, c01, c11, height, blendX, blendY);
 
         Biome actual = VMath.SelectByWeight(GetBiome(c00), GetBiome(c10), GetBiome(c01), GetBiome(c11), Biome.Mountains, (blendX, blendY, mountainStrength));
 
@@ -352,6 +342,22 @@ public partial class Map : IMap
             SpecialBiome = Biome.Mountains,
             StoneData = (c00.stoneType, c10.stoneType, c01.stoneType, c11.stoneType, tX, tY)
         };
+    }
+
+    private static float GetMountainStrength(Cell c00, Cell c10, Cell c01, Cell c11, float height, double blendX, double blendY)
+    {
+        (double w1, double w2, double w3, double w4) = GetMountainSlopeWeights(blendX, blendY);
+
+        double e1 = GetSurfaceHeightDifference(c00, c10) * GetBorderStrength(blendX) * w1;
+        double e2 = GetSurfaceHeightDifference(c01, c11) * GetBorderStrength(blendX) * w2;
+
+        double e3 = GetSurfaceHeightDifference(c00, c01) * GetBorderStrength(blendY) * w3;
+        double e4 = GetSurfaceHeightDifference(c10, c11) * GetBorderStrength(blendY) * w4;
+
+        var slopeMountainStrength = (float) (e1 + e2 + e3 + e4);
+        float mountainStrength = Math.Min(slopeMountainStrength + height / 1.2f, val2: 1.0f);
+
+        return mountainStrength;
     }
 
     private static float GetSurfaceHeightDifference(in Cell a, in Cell b)
