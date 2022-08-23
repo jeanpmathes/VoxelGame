@@ -20,9 +20,9 @@ public abstract class Layer
     public int Width { get; protected init; }
 
     /// <summary>
-    ///     Whether this layer is a meta layer that requires special handling.
+    ///     Whether this layer is a dampen layer that requires special handling.
     /// </summary>
-    public bool IsMeta { get; protected init; }
+    public bool IsDampen { get; protected init; }
 
     /// <summary>
     ///     Get whether this layer is solid and does not allow water to pass through.
@@ -30,12 +30,24 @@ public abstract class Layer
     public bool IsSolid { get; protected init; }
 
     /// <summary>
-    ///     Create a dampening layer that absorbs some of the offset. This is a meta layer and must be above the first solid
-    ///     layer.
+    ///     Set the currently used palette.
     /// </summary>
-    public static Layer CreateDampen(IBlockBase block, int maxWidth)
+    public virtual void SetPalette(Palette newPalette) {}
+
+    /// <summary>
+    ///     Create a dampening layer that absorbs some of the offset. This is a meta layer and is assumed to be fillable.
+    /// </summary>
+    public static Layer CreatePermeableDampen(IBlockBase block, int maxWidth)
     {
-        return new Dampen(block, maxWidth);
+        return new PermeableDampen(block, maxWidth);
+    }
+
+    /// <summary>
+    ///     Create a dampening layer that absorbs some of the offset. This is a meta layer and uses stone blocks.
+    /// </summary>
+    public static Layer CreateStonyDampen(int maxWidth)
+    {
+        return new StonyDampen(maxWidth);
     }
 
     /// <summary>
@@ -84,6 +96,14 @@ public abstract class Layer
     public static Layer CreateSnow(int width)
     {
         return new Snow(width);
+    }
+
+    /// <summary>
+    ///     Create a stone layer.
+    /// </summary>
+    public static Layer CreateStone(int width)
+    {
+        return new Stone(width);
     }
 
     /// <summary>
@@ -239,15 +259,15 @@ public abstract class Layer
         }
     }
 
-    private sealed class Dampen : Layer
+    private sealed class PermeableDampen : Layer
     {
         private readonly uint blockFilled;
         private readonly uint blockNormal;
 
-        public Dampen(IBlockBase block, int maxWidth)
+        public PermeableDampen(IBlockBase block, int maxWidth)
         {
             Width = maxWidth;
-            IsMeta = true;
+            IsDampen = true;
 
             blockNormal = Section.Encode(block);
             blockFilled = Section.Encode(block, Fluid.Water);
@@ -256,6 +276,48 @@ public abstract class Layer
         public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             return isFilled ? blockFilled : blockNormal;
+        }
+    }
+
+    private sealed class StonyDampen : Layer
+    {
+        private Palette? palette;
+
+        public StonyDampen(int maxWidth)
+        {
+            Width = maxWidth;
+            IsDampen = true;
+        }
+
+        public override void SetPalette(Palette newPalette)
+        {
+            palette = newPalette;
+        }
+
+        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        {
+            return palette!.GetStone(stoneType);
+        }
+    }
+
+    private sealed class Stone : Layer
+    {
+        private Palette? palette;
+
+        public Stone(int width)
+        {
+            Width = width;
+            IsSolid = true;
+        }
+
+        public override void SetPalette(Palette newPalette)
+        {
+            palette = newPalette;
+        }
+
+        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        {
+            return palette!.GetStone(stoneType);
         }
     }
 }

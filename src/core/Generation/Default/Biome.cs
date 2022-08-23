@@ -30,7 +30,7 @@ public class Biome
         {
             Layer.CreateSnow(width: 3),
             Layer.CreatePermeable(Block.Dirt, width: 5),
-            Layer.CreateDampen(Block.Dirt, maxWidth: 4),
+            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 4),
             Layer.CreateSolid(Block.Permafrost, width: 27),
             Layer.CreateLoose(width: 27),
             Layer.CreateGroundwater(width: 8),
@@ -50,7 +50,7 @@ public class Biome
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 3),
-            Layer.CreateDampen(Block.Dirt, maxWidth: 26),
+            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 26),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 6),
             Layer.CreateSolid(Block.Clay, width: 3),
@@ -72,7 +72,7 @@ public class Biome
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 3),
-            Layer.CreateDampen(Block.Dirt, maxWidth: 26),
+            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 26),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 6),
             Layer.CreateSolid(Block.Clay, width: 3),
@@ -94,7 +94,7 @@ public class Biome
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
-            Layer.CreateDampen(Block.Dirt, maxWidth: 6),
+            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 6),
             Layer.CreateSolid(Block.Permafrost, width: 28),
             Layer.CreateLoose(width: 27),
             Layer.CreateGroundwater(width: 8),
@@ -114,7 +114,7 @@ public class Biome
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
-            Layer.CreateDampen(Block.Dirt, maxWidth: 6),
+            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 6),
             Layer.CreateSolid(Block.Permafrost, width: 28),
             Layer.CreateLoose(width: 27),
             Layer.CreateGroundwater(width: 8),
@@ -134,7 +134,7 @@ public class Biome
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
-            Layer.CreateDampen(Block.Dirt, maxWidth: 2),
+            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 2),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 2),
             Layer.CreateSolid(Block.Clay, width: 3),
@@ -156,7 +156,7 @@ public class Biome
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 5),
-            Layer.CreateDampen(Block.Dirt, maxWidth: 20),
+            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 20),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 2),
             Layer.CreateSolid(Block.Clay, width: 3),
@@ -178,7 +178,7 @@ public class Biome
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 3),
-            Layer.CreateDampen(Block.Dirt, maxWidth: 26),
+            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 26),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 6),
             Layer.CreateSolid(Block.Clay, width: 3),
@@ -200,7 +200,7 @@ public class Biome
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
-            Layer.CreateDampen(Block.Dirt, maxWidth: 2),
+            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 2),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 2),
             Layer.CreateSolid(Block.Clay, width: 3),
@@ -222,7 +222,7 @@ public class Biome
         {
             Layer.CreatePermeable(Block.Sand, width: 9),
             Layer.CreatePermeable(Block.Dirt, width: 4),
-            Layer.CreateDampen(Block.Dirt, maxWidth: 8),
+            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 8),
             Layer.CreateSolid(Block.Sandstone, width: 18),
             Layer.CreateLoose(width: 22),
             Layer.CreateGroundwater(width: 18),
@@ -242,7 +242,7 @@ public class Biome
         {
             Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
-            Layer.CreateDampen(Block.Dirt, maxWidth: 8),
+            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 8),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 2),
             Layer.CreateSolid(Block.Clay, width: 3),
@@ -264,10 +264,29 @@ public class Biome
         {
             Layer.CreatePermeable(Block.Sand, width: 5),
             Layer.CreatePermeable(Block.Gravel, width: 3),
-            Layer.CreateDampen(Block.Gravel, maxWidth: 10),
+            Layer.CreatePermeableDampen(Block.Gravel, maxWidth: 10),
             Layer.CreateSolid(Block.Limestone, width: 26),
             Layer.CreateLoose(width: 37),
             Layer.CreateSolid(Block.Limestone, width: 21)
+        }
+    };
+
+    /// <summary>
+    ///     The mountain biome. It is a special biome that depends on the height of the terrain.
+    /// </summary>
+    public static readonly Biome Mountains = new(nameof(Mountains))
+    {
+        Color = Color.Black,
+        Amplitude = 30f,
+        Frequency = 0.005f,
+        Layers = new List<Layer>
+        {
+            Layer.CreateStone(width: 9),
+            Layer.CreateStonyDampen(maxWidth: 31),
+            Layer.CreateStone(width: 31),
+            Layer.CreateLoose(width: 9),
+            Layer.CreateGroundwater(width: 1),
+            Layer.CreateSolid(Block.Clay, width: 9)
         }
     };
 
@@ -325,18 +344,19 @@ public class Biome
     ///     Because biomes need setup, only one world can be generated at a time.
     /// </summary>
     /// <param name="seed">The seed to use for the noise generation.</param>
-    public static void Setup(int seed)
+    /// <param name="palette">The palette to use for the generating.</param>
+    public static void Setup(int seed, Palette palette)
     {
         Debug.Assert(OnSetup != null);
-        OnSetup(sender: null, seed);
+        OnSetup(sender: null, (seed, palette));
     }
 
-    private static event EventHandler<int>? OnSetup;
+    private static event EventHandler<(int seed, Palette palette)>? OnSetup;
 
-    private void SetupBiome(object? sender, int seed)
+    private void SetupBiome(object? sender, (int seed, Palette palette) arguments)
     {
-        SetupNoise(seed);
-        SetupLayers();
+        SetupNoise(arguments.seed);
+        SetupLayers(arguments.palette);
     }
 
     private void SetupNoise(int seed)
@@ -357,7 +377,7 @@ public class Biome
     }
 
 
-    private void SetupLayers()
+    private void SetupLayers(Palette palette)
     {
         minWidth = 0;
         minDepthToSolid = 0;
@@ -371,16 +391,16 @@ public class Biome
 
         foreach (Layer layer in Layers)
         {
+            layer.SetPalette(palette);
+
             if (!hasReachedSolid && layer.IsSolid)
             {
                 hasReachedSolid = true;
                 minDepthToSolid = minWidth;
             }
 
-            if (layer.IsMeta)
+            if (layer.IsDampen)
             {
-                Debug.Assert(!hasReachedSolid);
-
                 DepthToDampen = minWidth;
                 MaxDampenWidth = layer.Width;
                 Dampen = layer;

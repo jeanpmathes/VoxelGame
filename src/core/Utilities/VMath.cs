@@ -299,19 +299,46 @@ public static class VMath
     /// <summary>
     ///     Perform a bilinear interpolation between four values, using two factors.
     /// </summary>
-    public static double Blerp(double f00, double f10, double f01, double f11, double tx, double ty)
+    public static double BilinearLerp(double f00, double f10, double f01, double f11, double tx, double ty)
     {
         return MathHelper.Lerp(MathHelper.Lerp(f00, f10, tx), MathHelper.Lerp(f01, f11, tx), ty);
     }
 
     /// <summary>
+    ///     Perform a bilinear interpolation between four values and then lerp between the result and a fifth value.
+    /// </summary>
+    public static double MixingBilinearLerp(double f00, double f10, double f01, double f11, double fZ, Vector3d t)
+    {
+        return MathHelper.Lerp(BilinearLerp(f00, f10, f01, f11, t.X, t.Y), fZ, t.Z);
+    }
+
+    /// <summary>
     ///     Select from four values using two weights.
     /// </summary>
-    public static ref readonly T SelectByWeight<T>(in T t00, in T t10, in T t01, in T t11, double tx, double ty)
+    public static ref readonly T SelectByWeight<T>(in T e00, in T e10, in T e01, in T e11, Vector2d weights)
     {
-        if (tx < 0.5) return ref ty < 0.5 ? ref t00 : ref t01;
+        if (weights.X < 0.5) return ref weights.Y < 0.5 ? ref e00 : ref e01;
 
-        return ref ty < 0.5 ? ref t10 : ref t11;
+        return ref weights.Y < 0.5 ? ref e10 : ref e11;
+    }
+
+    /// <summary>
+    ///     Select from two values using one weight.
+    /// </summary>
+    public static ref readonly T SelectByWeight<T>(in T e0, in T e1, double w)
+    {
+        if (w < 0.5) return ref e0;
+
+        return ref e1;
+    }
+
+
+    /// <summary>
+    ///     Select from five values using three weights.
+    /// </summary>
+    public static ref readonly T SelectByWeight<T>(in T e00, in T e10, in T e01, in T e11, in T eZ, Vector3d weights)
+    {
+        return ref SelectByWeight(SelectByWeight(e00, e10, e01, e11, weights.Xy), eZ, weights.Z);
     }
 
     /// <summary>
@@ -328,5 +355,21 @@ public static class VMath
     public static (T, T) MinMax<T>(T a, T b) where T : IComparable<T>
     {
         return a.CompareTo(b) < 0 ? (a, b) : (b, a);
+    }
+
+    /// <summary>
+    ///     Get the minimum of four values.
+    /// </summary>
+    public static double Min(float a, float b, float c, float d)
+    {
+        return Math.Min(Math.Min(a, b), Math.Min(c, d));
+    }
+
+    /// <summary>
+    ///     Get the maximum of four values.
+    /// </summary>
+    public static double Max(float a, float b, float c, float d)
+    {
+        return Math.Max(Math.Max(a, b), Math.Max(c, d));
     }
 }

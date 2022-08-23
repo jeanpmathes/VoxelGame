@@ -120,7 +120,7 @@ public partial class Map : IMap
         Vector3i samplingPosition = position.Floor();
         Sample sample = GetSample(samplingPosition.Xz);
 
-        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)}";
+        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)} {sample.BlendFactors.Z}";
     }
 
     /// <inheritdoc />
@@ -315,12 +315,23 @@ public partial class Map : IMap
         ref readonly Cell c01 = ref data.GetCell(x1 + extents, y2 + extents);
         ref readonly Cell c11 = ref data.GetCell(x2 + extents, y2 + extents);
 
-        ref readonly Cell actual = ref VMath.SelectByWeight(c00, c10, c01, c11, blendX, blendY);
+        var temperature = (float) VMath.BilinearLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blendX, blendY);
+        var moisture = (float) VMath.BilinearLerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, blendX, blendY);
 
-        var temperature = (float) VMath.Blerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blendX, blendY);
-        var moisture = (float) VMath.Blerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, blendX, blendY);
+        var height = (float) VMath.BilinearLerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
 
-        var height = (float) VMath.Blerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
+        (double w1, double w2, double w3, double w4) = GetMountainSlopeWeights(blendX, blendY);
+
+        double e1 = GetSurfaceHeightDifference(c00, c10) * GetBorderStrength(blendX) * w1;
+        double e2 = GetSurfaceHeightDifference(c01, c11) * GetBorderStrength(blendX) * w2;
+
+        double e3 = GetSurfaceHeightDifference(c00, c01) * GetBorderStrength(blendY) * w3;
+        double e4 = GetSurfaceHeightDifference(c10, c11) * GetBorderStrength(blendY) * w4;
+
+        var slopeMountainStrength = (float) (e1 + e2 + e3 + e4);
+        float mountainStrength = Math.Min(slopeMountainStrength + height / 1.2f, val2: 1.0f);
+
+        Biome actual = VMath.SelectByWeight(GetBiome(c00), GetBiome(c10), GetBiome(c01), GetBiome(c11), Biome.Mountains, (blendX, blendY, mountainStrength));
 
         Biome GetBiome(in Cell cell)
         {
@@ -332,15 +343,34 @@ public partial class Map : IMap
             Height = height,
             Temperature = temperature,
             Moisture = moisture,
-            BlendX = blendX,
-            BlendY = blendY,
-            ActualBiome = GetBiome(actual),
+            BlendFactors = (blendX, blendY, mountainStrength),
+            ActualBiome = actual,
             Biome00 = GetBiome(c00),
             Biome10 = GetBiome(c10),
             Biome01 = GetBiome(c01),
             Biome11 = GetBiome(c11),
+            SpecialBiome = Biome.Mountains,
             StoneData = (c00.stoneType, c10.stoneType, c01.stoneType, c11.stoneType, tX, tY)
         };
+    }
+
+    private static float GetSurfaceHeightDifference(in Cell a, in Cell b)
+    {
+        if (a.IsLand && b.IsLand) return Math.Abs(a.height - b.height);
+
+        return 0;
+    }
+
+    private static (double, double, double, double) GetMountainSlopeWeights(double x, double y)
+    {
+        double w1 = 1 - x;
+        double w2 = 1 - y;
+        double w3 = x;
+        double w4 = y;
+
+        double sum = w1 + w2 + w3 + w4;
+
+        return (w1 / sum, w2 / sum, w3 / sum, w4 / sum);
     }
 
     private static int DivideByCellSize(int number)
@@ -366,7 +396,7 @@ public partial class Map : IMap
         double stoneX = sample.StoneData.tX + xNoise.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tX) * transitionFactor;
         double stoneY = sample.StoneData.tY + yNoise.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tY) * transitionFactor;
 
-        return VMath.SelectByWeight(sample.StoneData.stone00, sample.StoneData.stone10, sample.StoneData.stone01, sample.StoneData.stone11, stoneX, stoneY);
+        return VMath.SelectByWeight(sample.StoneData.stone00, sample.StoneData.stone10, sample.StoneData.stone01, sample.StoneData.stone11, (stoneX, stoneY));
     }
 
     /// <summary>
@@ -423,14 +453,14 @@ public partial class Map : IMap
         public Biome Biome11 { get; init; }
 
         /// <summary>
-        ///     Get the blending factor on the x axis.
+        ///     Get the special biome.
         /// </summary>
-        public double BlendX { get; init; }
+        public Biome SpecialBiome { get; init; }
 
         /// <summary>
-        ///     Get the blending factor on the y axis.
+        ///     Get the blending factors. The factor on the z axis is the factor for a special biome.
         /// </summary>
-        public double BlendY { get; init; }
+        public Vector3d BlendFactors { get; init; }
 
         /// <summary>
         ///     Data regarding the stone composition.
