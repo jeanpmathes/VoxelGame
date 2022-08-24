@@ -120,7 +120,7 @@ public partial class Map : IMap
         Vector3i samplingPosition = position.Floor();
         Sample sample = GetSample(samplingPosition.Xz);
 
-        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)} {sample.BlendFactors.Z}";
+        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)}";
     }
 
     /// <inheritdoc />
@@ -141,11 +141,11 @@ public partial class Map : IMap
         {
             noise.SetSeed(specificSeed);
             noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
-            noise.SetFrequency(frequency: 0.02f);
+            noise.SetFrequency(frequency: 0.01f);
 
             noise.SetFractalType(FastNoiseLite.FractalType.FBm);
-            noise.SetFractalOctaves(octaves: 3);
-            noise.SetFractalLacunarity(lacunarity: 1.6f);
+            noise.SetFractalOctaves(octaves: 5);
+            noise.SetFractalLacunarity(lacunarity: 2.0f);
             noise.SetFractalGain(gain: 0.5f);
             noise.SetFractalWeightedStrength(weightedStrength: 0.0f);
         }
