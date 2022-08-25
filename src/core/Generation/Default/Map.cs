@@ -357,6 +357,13 @@ public partial class Map : IMap
         var slopeMountainStrength = (float) (e1 + e2 + e3 + e4);
         float mountainStrength = Math.Min(slopeMountainStrength + height / 1.2f, val2: 1.0f);
 
+        mountainStrength = mountainStrength switch
+        {
+            < 0.3f => 0.0f,
+            < 0.4f => (float) MathHelper.Lerp(start: 0.0f, end: 0.4f, VMath.InverseLerp(a: 0.3f, b: 0.4f, mountainStrength)),
+            _ => mountainStrength
+        };
+
         return mountainStrength;
     }
 
