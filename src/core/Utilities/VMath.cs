@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 
@@ -313,13 +314,55 @@ public static class VMath
     }
 
     /// <summary>
-    ///     Select from four values using two weights.
+    ///     Select from four values using two weights. If elements are equal, their weights are combined.
     /// </summary>
     public static ref readonly T SelectByWeight<T>(in T e00, in T e10, in T e01, in T e11, Vector2d weights)
     {
-        if (weights.X < 0.5) return ref weights.Y < 0.5 ? ref e00 : ref e01;
+        double w00 = (1 - weights.X) * (1 - weights.Y);
+        double w10 = weights.X * (1 - weights.Y);
+        double w01 = (1 - weights.X) * weights.Y;
+        double w11 = weights.X * weights.Y;
 
-        return ref weights.Y < 0.5 ? ref e10 : ref e11;
+        double GetWeight(in T e, in T e00, in T e10, in T e01, in T e11)
+        {
+            double weight = 0;
+
+            if (EqualityComparer<T>.Default.Equals(e, e00)) weight += w00;
+            if (EqualityComparer<T>.Default.Equals(e, e10)) weight += w10;
+            if (EqualityComparer<T>.Default.Equals(e, e01)) weight += w01;
+            if (EqualityComparer<T>.Default.Equals(e, e11)) weight += w11;
+
+            return weight;
+        }
+
+        Span<double> totalWeights = stackalloc double[]
+        {
+            GetWeight(e00, e00, e10, e01, e11),
+            GetWeight(e10, e00, e10, e01, e11),
+            GetWeight(e01, e00, e10, e01, e11),
+            GetWeight(e11, e00, e10, e01, e11)
+        };
+
+        var indexOfMax = 1;
+
+        for (var index = 0; index < totalWeights.Length; index++)
+            if (totalWeights[index] > totalWeights[indexOfMax])
+                indexOfMax = index;
+
+        switch (indexOfMax)
+        {
+            case 0:
+                return ref e00;
+            case 1:
+                return ref e10;
+            case 2:
+                return ref e01;
+            case 3:
+                return ref e11;
+
+            default:
+                throw new NotSupportedException();
+        }
     }
 
     /// <summary>
