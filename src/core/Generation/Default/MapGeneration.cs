@@ -20,15 +20,15 @@ namespace VoxelGame.Core.Generation.Default;
 
 public partial class Map
 {
-    private const float MinimumLandHeight = +0.15f;
+    private const float MinimumLandHeight = +0.05f;
     private const float AverageWaterHeight = -0.4f;
 
     private const double PieceHeightChangeRange = 0.2;
 
-    private const double MaxDivergentBoundaryLandOffset = -0.1;
+    private const double MaxDivergentBoundaryLandOffset = -0.025;
     private const double MaxDivergentBoundaryWaterOffset = +0.2;
 
-    private const double MaxConvergentBoundaryLandLifting = +0.6;
+    private const double MaxConvergentBoundaryLandLifting = +0.7;
     private const double MaxConvergentBoundaryWaterLifting = +0.4;
     private const double MaxConvergentBoundaryWaterSinking = -0.4;
 
