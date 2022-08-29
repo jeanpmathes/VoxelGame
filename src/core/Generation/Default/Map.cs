@@ -320,7 +320,7 @@ public partial class Map : IMap
         var height = (float) VMath.BiLerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
 
         float mountainStrength = GetMountainStrength(c00, c10, c01, c11, height, blendX, blendY);
-        float coastlineStrength = GetCoastlineStrength(c00, c10, c01, c11, height, blendX, blendY);
+        float coastlineStrength = GetCoastlineStrength(c00, c10, c01, c11, ref height, blendX, blendY);
 
         Biome specialBiome;
         float specialStrength;
@@ -382,13 +382,15 @@ public partial class Map : IMap
         return mountainStrength;
     }
 
-    private static float GetCoastlineStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, float height, double blendX, double blendY)
+    private static float GetCoastlineStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, ref float height, double blendX, double blendY)
     {
+        const float maxBeachHeight = 0.01f;
+
         float depthStrength = height switch
         {
             < 0.0f => 1.0f,
-            < 0.01f => (float) MathHelper.Lerp(start: 1.0f, end: 0.0f, VMath.InverseLerp(a: 0.0f, b: 0.01f, height)),
-            _ => height
+            < maxBeachHeight => (float) MathHelper.Lerp(start: 1.0f, end: 0.0f, VMath.InverseLerp(a: 0.0f, maxBeachHeight, height)),
+            _ => 0.0f
         };
 
         double GetOceanStrength(in Cell c)
@@ -400,6 +402,26 @@ public partial class Map : IMap
 
         float coastlineStrength = depthStrength - oceanStrength;
         coastlineStrength = Math.Clamp(coastlineStrength, min: 0.0f, max: 1.0f);
+
+        float sign = Math.Sign(height);
+
+        const float maxBeachFlatteningHeight = 0.025f;
+
+        const float midPointSourceHeight = maxBeachFlatteningHeight * 0.5f;
+        const float midPointTargetHeight = maxBeachFlatteningHeight * 0.2f;
+
+        float flattenedHeight = Math.Abs(height) switch
+        {
+            < midPointSourceHeight => (float) MathHelper.Lerp(start: 0.0f,
+                midPointTargetHeight,
+                VMath.InverseLerp(a: 0.0f, midPointSourceHeight, Math.Abs(height))),
+            < maxBeachFlatteningHeight => (float) MathHelper.Lerp(midPointTargetHeight,
+                maxBeachFlatteningHeight,
+                VMath.InverseLerp(midPointSourceHeight, maxBeachFlatteningHeight, Math.Abs(height))),
+            _ => Math.Abs(height)
+        };
+
+        height = sign * flattenedHeight;
 
         return coastlineStrength;
     }
