@@ -120,7 +120,7 @@ public partial class Map : IMap
         Vector3i samplingPosition = position.Floor();
         Sample sample = GetSample(samplingPosition.Xz);
 
-        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)}";
+        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)} {sample.BlendFactors.Z}";
     }
 
     /// <inheritdoc />
@@ -315,36 +315,51 @@ public partial class Map : IMap
         ref readonly Cell c01 = ref data.GetCell(x1 + extents, y2 + extents);
         ref readonly Cell c11 = ref data.GetCell(x2 + extents, y2 + extents);
 
-        var temperature = (float) VMath.BilinearLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blendX, blendY);
-        var moisture = (float) VMath.BilinearLerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, blendX, blendY);
-        var height = (float) VMath.BilinearLerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
+        var temperature = (float) VMath.BiLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blendX, blendY);
+        var moisture = (float) VMath.BiLerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, blendX, blendY);
+        var height = (float) VMath.BiLerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
 
         float mountainStrength = GetMountainStrength(c00, c10, c01, c11, height, blendX, blendY);
+        float coastlineStrength = GetCoastlineStrength(c00, c10, c01, c11, height, blendX, blendY);
 
-        Biome actual = VMath.SelectByWeight(GetBiome(c00), GetBiome(c10), GetBiome(c01), GetBiome(c11), Biome.Mountains, (blendX, blendY, mountainStrength));
+        Biome specialBiome;
+        float specialStrength;
+
+        if (mountainStrength > coastlineStrength)
+        {
+            specialBiome = Biome.Mountains;
+            specialStrength = mountainStrength;
+        }
+        else
+        {
+            specialBiome = Biome.Beach;
+            specialStrength = coastlineStrength;
+        }
 
         Biome GetBiome(in Cell cell)
         {
             return cell.IsLand ? biomes.GetBiome(cell.temperature, cell.moisture) : Biome.Ocean;
         }
 
+        Biome actual = VMath.SelectByWeight(GetBiome(c00), GetBiome(c10), GetBiome(c01), GetBiome(c11), specialBiome, (blendX, blendY, specialStrength));
+
         return new Sample
         {
             Height = height,
             Temperature = temperature,
             Moisture = moisture,
-            BlendFactors = (blendX, blendY, mountainStrength),
+            BlendFactors = (blendX, blendY, specialStrength),
             ActualBiome = actual,
             Biome00 = GetBiome(c00),
             Biome10 = GetBiome(c10),
             Biome01 = GetBiome(c01),
             Biome11 = GetBiome(c11),
-            SpecialBiome = Biome.Mountains,
+            SpecialBiome = specialBiome,
             StoneData = (c00.stoneType, c10.stoneType, c01.stoneType, c11.stoneType, tX, tY)
         };
     }
 
-    private static float GetMountainStrength(Cell c00, Cell c10, Cell c01, Cell c11, float height, double blendX, double blendY)
+    private static float GetMountainStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, float height, double blendX, double blendY)
     {
         (double w1, double w2, double w3, double w4) = GetMountainSlopeWeights(blendX, blendY);
 
@@ -365,6 +380,28 @@ public partial class Map : IMap
         };
 
         return mountainStrength;
+    }
+
+    private static float GetCoastlineStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, float height, double blendX, double blendY)
+    {
+        float depthStrength = height switch
+        {
+            < 0.0f => 1.0f,
+            < 0.01f => (float) MathHelper.Lerp(start: 1.0f, end: 0.0f, VMath.InverseLerp(a: 0.0f, b: 0.01f, height)),
+            _ => height
+        };
+
+        double GetOceanStrength(in Cell c)
+        {
+            return c.IsLand ? 0.0 : 1.0;
+        }
+
+        var oceanStrength = (float) VMath.BiLerp(GetOceanStrength(c00), GetOceanStrength(c10), GetOceanStrength(c01), GetOceanStrength(c11), blendX, blendY);
+
+        float coastlineStrength = depthStrength - oceanStrength;
+        coastlineStrength = Math.Clamp(coastlineStrength, min: 0.0f, max: 1.0f);
+
+        return coastlineStrength;
     }
 
     private static float GetSurfaceHeightDifference(in Cell a, in Cell b)

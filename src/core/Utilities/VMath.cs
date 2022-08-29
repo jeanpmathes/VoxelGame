@@ -300,7 +300,7 @@ public static class VMath
     /// <summary>
     ///     Perform a bilinear interpolation between four values, using two factors.
     /// </summary>
-    public static double BilinearLerp(double f00, double f10, double f01, double f11, double tx, double ty)
+    public static double BiLerp(double f00, double f10, double f01, double f11, double tx, double ty)
     {
         return MathHelper.Lerp(MathHelper.Lerp(f00, f10, tx), MathHelper.Lerp(f01, f11, tx), ty);
     }
@@ -310,7 +310,7 @@ public static class VMath
     /// </summary>
     public static double MixingBilinearInterpolation(double f00, double f10, double f01, double f11, double fZ, Vector3d t)
     {
-        return MathHelper.Lerp(BilinearLerp(f00, f10, f01, f11, t.X, t.Y), fZ, t.Z);
+        return MathHelper.Lerp(BiLerp(f00, f10, f01, f11, t.X, t.Y), fZ, t.Z);
     }
 
     /// <summary>

@@ -290,6 +290,26 @@ public class Biome
         }
     };
 
+    /// <summary>
+    ///     The beach biome.
+    /// </summary>
+    public static readonly Biome Beach = new(nameof(Beach))
+    {
+        Color = Color.Black,
+        Amplitude = 4f,
+        Frequency = 0.008f,
+        Layers = new List<Layer>
+        {
+            Layer.CreatePermeable(Block.Sand, width: 5),
+            Layer.CreatePermeable(Block.Gravel, width: 3),
+            Layer.CreatePermeableDampen(Block.Gravel, maxWidth: 10),
+            Layer.CreateSolid(Block.Limestone, width: 13),
+            Layer.CreateLoose(width: 22),
+            Layer.CreateGroundwater(width: 18),
+            Layer.CreateSolid(Block.Clay, width: 21)
+        }
+    };
+
     private readonly string name;
     private (Layer layer, int depth)[] lowerHorizon = null!;
 
