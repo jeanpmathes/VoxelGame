@@ -291,7 +291,7 @@ public class Biome
     };
 
     /// <summary>
-    ///     The beach biome.
+    ///     The beach biome. It is found at low heights next to coastlines.
     /// </summary>
     public static readonly Biome Beach = new(nameof(Beach))
     {
@@ -307,6 +307,22 @@ public class Biome
             Layer.CreateLoose(width: 22),
             Layer.CreateGroundwater(width: 18),
             Layer.CreateSolid(Block.Clay, width: 21)
+        }
+    };
+
+    /// <summary>
+    ///     The cliff biome. It is sometimes found next to beaches with strong slopes.
+    /// </summary>
+    public static readonly Biome Cliff = new(nameof(Cliff))
+    {
+        Color = Color.Black,
+        Amplitude = 4f,
+        Frequency = 0.008f,
+        Layers = new List<Layer>
+        {
+            Layer.CreatePermeable(Block.Sand, width: 1),
+            Layer.CreateStonyDampen(maxWidth: 37),
+            Layer.CreateSolid(Block.Limestone, width: 54)
         }
     };
 
