@@ -30,9 +30,18 @@ public abstract class Layer
     public bool IsSolid { get; protected init; }
 
     /// <summary>
-    ///     Set the currently used palette.
+    ///     Get the current palette, if there is any.
+    ///     There will always be a palette when <see cref="GetData" /> is called.
     /// </summary>
-    public virtual void SetPalette(Palette newPalette) {}
+    protected Palette? Palette { get; private set; }
+
+    /// <summary>
+    ///     Set the currently used Palette.
+    /// </summary>
+    public void SetPalette(Palette newPalette)
+    {
+        Palette = newPalette;
+    }
 
     /// <summary>
     ///     Create a dampening layer that absorbs some of the offset. This is a meta layer and is assumed to be fillable.
@@ -184,8 +193,6 @@ public abstract class Layer
     {
         private readonly int groundWaterDepth;
 
-        private Palette? palette;
-
         public Groundwater(int width)
         {
             Width = width;
@@ -193,18 +200,13 @@ public abstract class Layer
             groundWaterDepth = width / 2;
         }
 
-        public override void SetPalette(Palette newPalette)
-        {
-            palette = newPalette;
-        }
-
         public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
-            if (isFilled) return palette!.GetLoose(stoneType, isFilled);
+            if (isFilled) return Palette!.GetLoose(stoneType, isFilled);
 
             int actualDepth = depth - offset;
 
-            return actualDepth >= groundWaterDepth ? palette!.GetGroundwater(stoneType) : palette!.GetLoose(stoneType, isFilled);
+            return actualDepth >= groundWaterDepth ? Palette!.GetGroundwater(stoneType) : Palette!.GetLoose(stoneType, isFilled);
         }
     }
 
@@ -229,21 +231,14 @@ public abstract class Layer
 
     private sealed class Loose : Layer
     {
-        private Palette? palette;
-
         public Loose(int width)
         {
             Width = width;
         }
 
-        public override void SetPalette(Palette newPalette)
-        {
-            palette = newPalette;
-        }
-
         public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
-            return palette!.GetLoose(stoneType, isFilled);
+            return Palette!.GetLoose(stoneType, isFilled);
         }
     }
 
@@ -269,43 +264,29 @@ public abstract class Layer
 
     private sealed class StonyDampen : Layer
     {
-        private Palette? palette;
-
         public StonyDampen(int maxWidth)
         {
             Width = maxWidth;
             IsDampen = true;
         }
 
-        public override void SetPalette(Palette newPalette)
-        {
-            palette = newPalette;
-        }
-
         public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
-            return palette!.GetStone(stoneType);
+            return Palette!.GetStone(stoneType);
         }
     }
 
     private sealed class Stone : Layer
     {
-        private Palette? palette;
-
         public Stone(int width)
         {
             Width = width;
             IsSolid = true;
         }
 
-        public override void SetPalette(Palette newPalette)
-        {
-            palette = newPalette;
-        }
-
         public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
-            return palette!.GetStone(stoneType);
+            return Palette!.GetStone(stoneType);
         }
     }
 
@@ -317,7 +298,6 @@ public abstract class Layer
 
         private readonly uint grass;
         private readonly uint grassFilled;
-        private Palette? palette;
 
         public StonyCover(int width, int amplitude)
         {
@@ -332,11 +312,6 @@ public abstract class Layer
             this.amplitude = amplitude;
         }
 
-        public override void SetPalette(Palette newPalette)
-        {
-            palette = newPalette;
-        }
-
         public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             if (offset > amplitude)
@@ -346,9 +321,9 @@ public abstract class Layer
                 return isFilled ? dirtFilled : dirt;
             }
 
-            if (offset < -amplitude) return palette!.GetLoose(stoneType, isFilled);
+            if (offset < -amplitude) return Palette!.GetLoose(stoneType, isFilled);
 
-            return palette!.GetStone(stoneType);
+            return Palette!.GetStone(stoneType);
         }
     }
 }
