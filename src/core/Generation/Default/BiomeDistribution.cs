@@ -64,4 +64,20 @@ public class BiomeDistribution
 
         return biome;
     }
+
+    /// <summary>
+    ///     Get the appropriate coastline biome.
+    /// </summary>
+    /// <param name="temperature">The temperature, must be in the range [0, 1].</param>
+    /// <param name="moisture">The moisture, must be in the range [0, 1].</param>
+    /// <param name="isCliff">Whether the coastline is a cliff.</param>
+    /// <returns>The appropriate coastline biome.</returns>
+    public Biome GetCoastlineBiome(float temperature, float moisture, bool isCliff)
+    {
+        if (!isCliff) return Biome.Beach;
+
+        Biome biome = GetBiome(temperature, moisture);
+
+        return biome == Biome.Desert ? Biome.SandyCliff : Biome.GrassyCliff;
+    }
 }

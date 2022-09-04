@@ -298,11 +298,24 @@ public static class VMath
     }
 
     /// <summary>
-    ///     Perform a bilinear interpolation between four values, using two factors.
+    ///     Perform a bilinear interpolation between four values, using two factors. The factors must be in the range [0, 1].
     /// </summary>
     public static double BiLerp(double f00, double f10, double f01, double f11, double tx, double ty)
     {
         return MathHelper.Lerp(MathHelper.Lerp(f00, f10, tx), MathHelper.Lerp(f01, f11, tx), ty);
+    }
+
+    /// <summary>
+    ///     Get the gradient of the bilinear interpolation function. The factors must be in the range [0, 1].
+    /// </summary>
+    public static Vector2d GradBiLerp(double f00, double f10, double f01, double f11, double tx, double ty)
+    {
+        // bilerp: f(tx, ty) = (1 - tx) * (1 - ty) * f00 + tx * (1 - ty) * f10 + (1 - tx) * ty * f01 + tx * ty * f11
+
+        double fx = (1 - ty) * (f10 - f00) + ty * (f11 - f01);
+        double fy = (1 - tx) * (f01 - f00) + tx * (f11 - f10);
+
+        return new Vector2d(fx, fy);
     }
 
     /// <summary>

@@ -319,8 +319,8 @@ public partial class Map : IMap
         var moisture = (float) VMath.BiLerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, blendX, blendY);
         var height = (float) VMath.BiLerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
 
-        float mountainStrength = GetMountainStrength(c00, c10, c01, c11, height, blendX, blendY);
-        (float coastlineStrength, Biome coastlineBiome) = GetCoastlineStrength(c00, c10, c01, c11, ref height, blendX, blendY);
+        float mountainStrength = GetMountainStrength(c00, c10, c01, c11, height, (blendX, blendY));
+        float coastlineStrength = GetCoastlineStrength(c00, c10, c01, c11, ref height, (blendX, blendY), out bool isCliff);
 
         Biome specialBiome;
         float specialStrength;
@@ -332,7 +332,7 @@ public partial class Map : IMap
         }
         else
         {
-            specialBiome = coastlineBiome;
+            specialBiome = biomes.GetCoastlineBiome(temperature, moisture, isCliff);
             specialStrength = coastlineStrength;
         }
 
@@ -359,15 +359,15 @@ public partial class Map : IMap
         };
     }
 
-    private static float GetMountainStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, float height, double blendX, double blendY)
+    private static float GetMountainStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, float height, Vector2d blend)
     {
-        (double w1, double w2, double w3, double w4) = GetMountainSlopeWeights(blendX, blendY);
+        (double w1, double w2, double w3, double w4) = GetMountainSlopeWeights(blend.X, blend.Y);
 
-        double e1 = GetSurfaceHeightDifference(c00, c10) * GetBorderStrength(blendX) * w1;
-        double e2 = GetSurfaceHeightDifference(c01, c11) * GetBorderStrength(blendX) * w2;
+        double e1 = GetSurfaceHeightDifference(c00, c10) * GetBorderStrength(blend.X) * w1;
+        double e2 = GetSurfaceHeightDifference(c01, c11) * GetBorderStrength(blend.X) * w2;
 
-        double e3 = GetSurfaceHeightDifference(c00, c01) * GetBorderStrength(blendY) * w3;
-        double e4 = GetSurfaceHeightDifference(c10, c11) * GetBorderStrength(blendY) * w4;
+        double e3 = GetSurfaceHeightDifference(c00, c01) * GetBorderStrength(blend.Y) * w3;
+        double e4 = GetSurfaceHeightDifference(c10, c11) * GetBorderStrength(blend.Y) * w4;
 
         var slopeMountainStrength = (float) (e1 + e2 + e3 + e4);
         float mountainStrength = Math.Min(slopeMountainStrength + height / 1.2f, val2: 1.0f);
@@ -382,7 +382,7 @@ public partial class Map : IMap
         return mountainStrength;
     }
 
-    private static (float strength, Biome biome) GetCoastlineStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, ref float height, double blendX, double blendY)
+    private static float GetCoastlineStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, ref float height, Vector2d blend, out bool isCliff)
     {
         const float maxCoastlineHeight = 0.01f;
 
@@ -393,12 +393,34 @@ public partial class Map : IMap
             _ => 0.0f
         };
 
+        static Vector2d FindClosestZero(double f00, double f10, double f01, double f11, double x, double y)
+        {
+            Vector2d grad = VMath.GradBiLerp(f00, f10, f01, f11, x, y);
+            double dv = Vector2d.Dot(grad, Vector2d.Normalize(grad));
+
+            double k = VMath.BiLerp(f00, f10, f01, f11, x, y) / dv;
+
+            return new Vector2d(x, y) - k * Vector2d.Normalize(grad);
+        }
+
+        double distanceToZero = (blend - FindClosestZero(c00.height, c10.height, c01.height, c11.height, blend.X, blend.Y)).Length;
+        if (double.IsNaN(distanceToZero)) distanceToZero = 0.0;
+
+        const float coastlineWidth = 0.02f;
+
+        float distanceStrength = distanceToZero switch
+        {
+            < 0.0 => 1.0f,
+            < coastlineWidth => (float) MathHelper.Lerp(start: 1.0f, end: 0.0f, VMath.InverseLerp(a: 0.0f, coastlineWidth, distanceToZero)),
+            _ => 0.0f
+        };
+
         double GetOceanStrength(in Cell c)
         {
             return c.IsLand ? 0.0 : 1.0;
         }
 
-        var oceanStrength = (float) VMath.BiLerp(GetOceanStrength(c00), GetOceanStrength(c10), GetOceanStrength(c01), GetOceanStrength(c11), blendX, blendY);
+        var oceanStrength = (float) VMath.BiLerp(GetOceanStrength(c00), GetOceanStrength(c10), GetOceanStrength(c01), GetOceanStrength(c11), blend.X, blend.Y);
 
         float coastlineStrength;
 
@@ -422,28 +444,55 @@ public partial class Map : IMap
         }
 
         coastlineStrength = Math.Clamp(coastlineStrength, min: 0.0f, max: 1.0f);
+        coastlineStrength = Math.Max(coastlineStrength, distanceStrength);
 
-        float sign = Math.Sign(height);
-
-        const float maxCoastlineFlatteningHeight = 0.025f;
-
-        const float midPointSourceHeight = maxCoastlineFlatteningHeight * 0.5f;
-        const float midPointTargetHeight = maxCoastlineFlatteningHeight * 0.2f;
-
-        float flattenedHeight = Math.Abs(height) switch
+        float GetFlattenedHeight(float height)
         {
-            < midPointSourceHeight => (float) MathHelper.Lerp(start: 0.0f,
-                midPointTargetHeight,
-                VMath.InverseLerp(a: 0.0f, midPointSourceHeight, Math.Abs(height))),
-            < maxCoastlineFlatteningHeight => (float) MathHelper.Lerp(midPointTargetHeight,
-                maxCoastlineFlatteningHeight,
-                VMath.InverseLerp(midPointSourceHeight, maxCoastlineFlatteningHeight, Math.Abs(height))),
-            _ => Math.Abs(height)
-        };
+            float sign = Math.Sign(height);
 
-        height = sign * flattenedHeight;
+            const float maxCoastlineFlatteningHeight = 0.025f;
 
-        return (coastlineStrength, height > maxCoastlineHeight * 0.2f ? Biome.Cliff : Biome.Beach);
+            const float midPointSourceHeight = maxCoastlineFlatteningHeight * 0.5f;
+            const float midPointTargetHeight = maxCoastlineFlatteningHeight * 0.2f;
+
+            float flattenedHeight = Math.Abs(height) switch
+            {
+                < midPointSourceHeight => (float) MathHelper.Lerp(start: 0.0f,
+                    midPointTargetHeight,
+                    VMath.InverseLerp(a: 0.0f, midPointSourceHeight, Math.Abs(height))),
+                < maxCoastlineFlatteningHeight => (float) MathHelper.Lerp(midPointTargetHeight,
+                    maxCoastlineFlatteningHeight,
+                    VMath.InverseLerp(midPointSourceHeight, maxCoastlineFlatteningHeight, Math.Abs(height))),
+                _ => Math.Abs(height)
+            };
+
+            return sign * flattenedHeight;
+        }
+
+        float GetCliffFactor()
+        {
+            return 1.0f - distanceStrength switch
+            {
+                < 0.0f => 0.0f,
+                < 0.5f => (float) MathHelper.Lerp(start: 0.0f, end: 0.1f, VMath.InverseLerp(a: 0.0f, b: 0.5f, distanceStrength)),
+                < 0.55f => (float) MathHelper.Lerp(start: 0.1f, end: 1.0f, VMath.InverseLerp(a: 0.5f, b: 0.55f, distanceStrength)),
+                _ => 1.0f
+            };
+        }
+
+        float GetSurfaceHeight(in Cell c)
+        {
+            return c.IsLand ? c.height : 0.0f;
+        }
+
+        var cliffStrength = (float) VMath.BiLerp(GetSurfaceHeight(c00), GetSurfaceHeight(c10), GetSurfaceHeight(c01), GetSurfaceHeight(c11), blend.X, blend.Y);
+
+        const float maxBeachHeight = 0.001f;
+
+        height = MathHelper.Lerp(GetFlattenedHeight(height), GetCliffFactor() * height, cliffStrength);
+        isCliff = height > maxBeachHeight;
+
+        return coastlineStrength;
     }
 
     private static float GetSurfaceHeightDifference(in Cell a, in Cell b)

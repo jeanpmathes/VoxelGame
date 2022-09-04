@@ -311,18 +311,36 @@ public class Biome
     };
 
     /// <summary>
-    ///     The cliff biome. It is sometimes found next to beaches with strong slopes.
+    ///     The grass covered cliff biome, which is found at coastlines with large height differences.
     /// </summary>
-    public static readonly Biome Cliff = new(nameof(Cliff))
+    public static readonly Biome GrassyCliff = new(nameof(GrassyCliff))
     {
         Color = Color.Black,
         Amplitude = 4f,
         Frequency = 0.008f,
         Layers = new List<Layer>
         {
-            Layer.CreatePermeable(Block.Sand, width: 1),
-            Layer.CreateStonyDampen(maxWidth: 37),
-            Layer.CreateSolid(Block.Limestone, width: 54)
+            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreateSolid(Block.Limestone, width: 53),
+            Layer.CreateStonyDampen(maxWidth: 28),
+            Layer.CreateStone(width: 39)
+        }
+    };
+
+    /// <summary>
+    ///     The sand covered cliff biome, which is found at coastlines with large height differences.
+    /// </summary>
+    public static readonly Biome SandyCliff = new(nameof(GrassyCliff))
+    {
+        Color = Color.Black,
+        Amplitude = 4f,
+        Frequency = 0.008f,
+        Layers = new List<Layer>
+        {
+            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreateSolid(Block.Limestone, width: 53),
+            Layer.CreateStonyDampen(maxWidth: 28),
+            Layer.CreateStone(width: 39)
         }
     };
 
