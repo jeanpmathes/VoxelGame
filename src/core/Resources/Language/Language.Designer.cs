@@ -547,6 +547,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ice.
+        /// </summary>
+        public static string Ice {
+            get {
+                return ResourceManager.GetString("Ice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Input not valid!.
         /// </summary>
         public static string InputNotValid {

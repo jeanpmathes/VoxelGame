@@ -558,4 +558,7 @@
   <data name="Permafrost" xml:space="preserve">
     <value>Permafrost</value>
   </data>
+  <data name="Ice" xml:space="preserve">
+    <value>Ice</value>
+  </data>
 </root>

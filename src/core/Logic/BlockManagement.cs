@@ -89,7 +89,8 @@ public partial class Block
     {
 #pragma warning disable S3218 // Inner class members should not shadow outer class "static" or type members
         public static readonly ConcreteBlock Concrete = (ConcreteBlock) Block.Concrete;
-        public static readonly ModifiableHeightBlock Snow = (ModifiableHeightBlock) Block.Snow;
+        public static readonly GroundedModifiableHeightBlock Snow = (GroundedModifiableHeightBlock) Block.Snow;
+        public static readonly ModifiableHeightBlock Ice = (ModifiableHeightBlock) Block.Ice;
 #pragma warning restore S3218 // Inner class members should not shadow outer class "static" or type members
     }
 
@@ -217,7 +218,7 @@ public partial class Block
     /// <summary>
     ///     Snow covers the ground, and can have different heights.
     /// </summary>
-    public static readonly Block Snow = new ModifiableHeightBlock(
+    public static readonly Block Snow = new GroundedModifiableHeightBlock(
         Language.Snow,
         nameof(Snow),
         TextureLayout.Uniform("snow"));
@@ -894,6 +895,14 @@ public partial class Block
         nameof(Core),
         BlockFlags.Basic,
         TextureLayout.Uniform("core"));
+
+    /// <summary>
+    ///     A block made out of frozen water.
+    /// </summary>
+    public static readonly Block Ice = new ModifiableHeightBlock(
+        Language.Ice,
+        nameof(Ice),
+        TextureLayout.Uniform("ice"));
 
     #endregion NEW BLOCKS
 }
