@@ -10,6 +10,7 @@ using System.Drawing;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -98,6 +99,74 @@ public partial class Map : IMap
     private static readonly Color fluidTintWarm = Color.LightBlue;
     private static readonly Color fluidTintCold = Color.DarkBlue;
 
+    private static readonly Polyline mountainStrengthFunction = new()
+    {
+        Left = _ => 0.0,
+        Points =
+        {
+            (0.3, 0.0),
+            (0.4, 0.4)
+        },
+        Right = x => x
+    };
+
+    private static readonly Polyline depthStrengthFunction = new()
+    {
+        Left = _ => 1.0,
+        Points =
+        {
+            (0.0, 1.0),
+            (0.01, 0.0) // Here 0.01 is the maximum coastline height.
+        },
+        Right = _ => 0.0
+    };
+
+    private static readonly Polyline distanceStrengthFunction = new()
+    {
+        Left = _ => 1.0,
+        Points =
+        {
+            (0.0, 1.0),
+            (0.02, 0.0) // Here 0.01 is the maximum coastline width.
+        },
+        Right = _ => 0.0
+    };
+
+    private static readonly Polyline oceanStrengthFunction = new()
+    {
+        Left = x => -x,
+        Points =
+        {
+            (0.4, -0.4),
+            (0.5, 0.5)
+        },
+        Right = x => x
+    };
+
+    private static readonly Polyline flattenedHeightFunction = new()
+    {
+        Left = _ => 0.0,
+        Points =
+        {
+            (0.0, 0.0),
+            (0.0125, 0.005),
+            (0.025, 0.025)
+        },
+        Right = x => x
+    };
+
+    private static readonly Polyline cliffFactorFunction = new()
+    {
+        Left = _ => 0.0,
+        Points =
+        {
+            (0.0, 0.0),
+            (0.5, 0.1),
+            (0.55, 1.0)
+        },
+        Right = _ => 1.0
+    };
+
     private readonly BiomeDistribution biomes;
 
     private readonly FastNoiseLite xNoise = new();
@@ -120,7 +189,7 @@ public partial class Map : IMap
         Vector3i samplingPosition = position.Floor();
         Sample sample = GetSample(samplingPosition.Xz);
 
-        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)} {sample.BlendFactors.Z}";
+        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)}";
     }
 
     /// <inheritdoc />
@@ -372,26 +441,14 @@ public partial class Map : IMap
         var slopeMountainStrength = (float) (e1 + e2 + e3 + e4);
         float mountainStrength = Math.Min(slopeMountainStrength + height / 1.2f, val2: 1.0f);
 
-        mountainStrength = mountainStrength switch
-        {
-            < 0.3f => 0.0f,
-            < 0.4f => (float) MathHelper.Lerp(start: 0.0f, end: 0.4f, VMath.InverseLerp(a: 0.3f, b: 0.4f, mountainStrength)),
-            _ => mountainStrength
-        };
+        mountainStrength = (float) mountainStrengthFunction.Evaluate(mountainStrength);
 
         return mountainStrength;
     }
 
     private static float GetCoastlineStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, ref float height, Vector2d blend, out bool isCliff)
     {
-        const float maxCoastlineHeight = 0.01f;
-
-        float depthStrength = height switch
-        {
-            < 0.0f => 1.0f,
-            < maxCoastlineHeight => (float) MathHelper.Lerp(start: 1.0f, end: 0.0f, VMath.InverseLerp(a: 0.0f, maxCoastlineHeight, height)),
-            _ => 0.0f
-        };
+        var depthStrength = (float) depthStrengthFunction.Evaluate(height);
 
         static Vector2d FindClosestZero(double f00, double f10, double f01, double f11, double x, double y)
         {
@@ -406,14 +463,7 @@ public partial class Map : IMap
         double distanceToZero = (blend - FindClosestZero(c00.height, c10.height, c01.height, c11.height, blend.X, blend.Y)).Length;
         if (double.IsNaN(distanceToZero)) distanceToZero = 0.0;
 
-        const float coastlineWidth = 0.02f;
-
-        float distanceStrength = distanceToZero switch
-        {
-            < 0.0 => 1.0f,
-            < coastlineWidth => (float) MathHelper.Lerp(start: 1.0f, end: 0.0f, VMath.InverseLerp(a: 0.0f, coastlineWidth, distanceToZero)),
-            _ => 0.0f
-        };
+        var distanceStrength = (float) distanceStrengthFunction.Evaluate(distanceToZero);
 
         double GetOceanStrength(in Cell c)
         {
@@ -433,12 +483,7 @@ public partial class Map : IMap
             // It is possible that the ocean strength is greater 0.5 above the water height.
             // To prevent ocean biome above the water, the coastline strength must be greater 0.5 in that case.
 
-            oceanStrength = oceanStrength switch
-            {
-                < 0.4f => -oceanStrength,
-                < 0.5f => (float) MathHelper.Lerp(start: -0.4f, end: 0.5f, VMath.InverseLerp(a: 0.4f, b: 0.5f, oceanStrength)),
-                _ => oceanStrength
-            };
+            oceanStrength = (float) oceanStrengthFunction.Evaluate(oceanStrength);
 
             coastlineStrength = depthStrength + oceanStrength;
         }
@@ -450,34 +495,14 @@ public partial class Map : IMap
         {
             float sign = Math.Sign(height);
 
-            const float maxCoastlineFlatteningHeight = 0.025f;
-
-            const float midPointSourceHeight = maxCoastlineFlatteningHeight * 0.5f;
-            const float midPointTargetHeight = maxCoastlineFlatteningHeight * 0.2f;
-
-            float flattenedHeight = Math.Abs(height) switch
-            {
-                < midPointSourceHeight => (float) MathHelper.Lerp(start: 0.0f,
-                    midPointTargetHeight,
-                    VMath.InverseLerp(a: 0.0f, midPointSourceHeight, Math.Abs(height))),
-                < maxCoastlineFlatteningHeight => (float) MathHelper.Lerp(midPointTargetHeight,
-                    maxCoastlineFlatteningHeight,
-                    VMath.InverseLerp(midPointSourceHeight, maxCoastlineFlatteningHeight, Math.Abs(height))),
-                _ => Math.Abs(height)
-            };
+            var flattenedHeight = (float) flattenedHeightFunction.Evaluate(Math.Abs(height));
 
             return sign * flattenedHeight;
         }
 
         float GetCliffFactor()
         {
-            return 1.0f - distanceStrength switch
-            {
-                < 0.0f => 0.0f,
-                < 0.5f => (float) MathHelper.Lerp(start: 0.0f, end: 0.1f, VMath.InverseLerp(a: 0.0f, b: 0.5f, distanceStrength)),
-                < 0.55f => (float) MathHelper.Lerp(start: 0.1f, end: 1.0f, VMath.InverseLerp(a: 0.5f, b: 0.55f, distanceStrength)),
-                _ => 1.0f
-            };
+            return (float) cliffFactorFunction.Evaluate(1.0 - distanceStrength);
         }
 
         float GetSurfaceHeight(in Cell c)
@@ -687,23 +712,23 @@ public partial class Map : IMap
     private static readonly Vector2d pointF = Vector2d.One - pointB;
     private static readonly Vector2d pointG = Vector2d.One - pointA;
 
+    private static readonly Polyline biomeChangeFunction = new()
+    {
+        Points =
+        {
+            pointA,
+            pointB,
+            pointC,
+            pointD,
+            pointE,
+            pointF,
+            pointG
+        }
+    };
+
     private static double ApplyBiomeChangeFunction(double t)
     {
-        if (t <= pointA.X) return pointA.Y;
-
-        if (t <= pointB.X) return MathHelper.Lerp(pointA.Y, pointB.Y, VMath.InverseLerp(pointA.X, pointB.X, t));
-
-        if (t <= pointC.X) return MathHelper.Lerp(pointB.Y, pointC.Y, VMath.InverseLerp(pointB.X, pointC.X, t));
-
-        if (t <= pointD.X) return MathHelper.Lerp(pointC.Y, pointD.Y, VMath.InverseLerp(pointC.X, pointD.X, t));
-
-        if (t <= pointE.X) return MathHelper.Lerp(pointD.Y, pointE.Y, VMath.InverseLerp(pointD.X, pointE.X, t));
-
-        if (t <= pointF.X) return MathHelper.Lerp(pointE.Y, pointF.Y, VMath.InverseLerp(pointE.X, pointF.X, t));
-
-        if (t <= pointG.X) return MathHelper.Lerp(pointF.Y, pointG.Y, VMath.InverseLerp(pointF.X, pointG.X, t));
-
-        return pointG.Y;
+        return biomeChangeFunction.Evaluate(t);
     }
 
     #endregion BIOME CHANGE FUNCTION
