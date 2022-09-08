@@ -65,4 +65,13 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
         if (fluid.Fluid == Fluid.Water && fluid.Level == FluidLevel.Eight)
             world.SetBlock(Mud.AsInstance(), position);
     }
+
+    /// <inheritdoc />
+    public override (BlockInstance block, FluidInstance fluid) GenerateUpdate(BlockInstance block, FluidInstance fluid)
+    {
+        if (fluid.Fluid == Fluid.Water && fluid.Level == FluidLevel.Eight)
+            return (Mud.AsInstance(), fluid);
+
+        return (block, fluid);
+    }
 }
