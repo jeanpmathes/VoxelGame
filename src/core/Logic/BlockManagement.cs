@@ -89,6 +89,8 @@ public partial class Block
     {
 #pragma warning disable S3218 // Inner class members should not shadow outer class "static" or type members
         public static readonly ConcreteBlock Concrete = (ConcreteBlock) Block.Concrete;
+        public static readonly GroundedModifiableHeightBlock Snow = (GroundedModifiableHeightBlock) Block.Snow;
+        public static readonly ModifiableHeightBlock Ice = (ModifiableHeightBlock) Block.Ice;
 #pragma warning restore S3218 // Inner class members should not shadow outer class "static" or type members
     }
 
@@ -179,15 +181,6 @@ public partial class Block
         BoundingVolume.CrossBlock);
 
     /// <summary>
-    ///     This stone block makes up large parts of the world. Below the dirt layers, the ground is solid stone.
-    /// </summary>
-    public static readonly Block Stone = new BasicBlock(
-        Language.Stone,
-        nameof(Stone),
-        BlockFlags.Basic,
-        TextureLayout.Uniform("stone"));
-
-    /// <summary>
     ///     When stone is destroyed, rubble is what remains.
     /// </summary>
     public static readonly Block Rubble = new ConstructionBlock(
@@ -225,7 +218,7 @@ public partial class Block
     /// <summary>
     ///     Snow covers the ground, and can have different heights.
     /// </summary>
-    public static readonly Block Snow = new ModifiableHeightBlock(
+    public static readonly Block Snow = new GroundedModifiableHeightBlock(
         Language.Snow,
         nameof(Snow),
         TextureLayout.Uniform("snow"));
@@ -840,7 +833,76 @@ public partial class Block
 
     #region NEW BLOCKS
 
-    // Will be filled soon...
+    /// <summary>
+    ///     Granite is found next to volcanic activity.
+    /// </summary>
+    public static readonly Block Granite = new BasicBlock(
+        Language.Granite,
+        nameof(Granite),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("granite"));
+
+    /// <summary>
+    ///     Sandstone is found all over the world and especially in the desert.
+    /// </summary>
+    public static readonly Block Sandstone = new BasicBlock(
+        Language.Sandstone,
+        nameof(Sandstone),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("sandstone"));
+
+    /// <summary>
+    ///     Limestone is found all over the world and especially in oceans.
+    /// </summary>
+    public static readonly Block Limestone = new BasicBlock(
+        Language.Limestone,
+        nameof(Limestone),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("limestone"));
+
+    /// <summary>
+    ///     Marble is a rarer stone type.
+    /// </summary>
+    public static readonly Block Marble = new BasicBlock(
+        Language.Marble,
+        nameof(Marble),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("marble"));
+
+    /// <summary>
+    ///     Clay is found beneath the ground and blocks ground water flow.
+    /// </summary>
+    public static readonly Block Clay = new BasicBlock(
+        Language.Clay,
+        nameof(Clay),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("clay"));
+
+    /// <summary>
+    ///     Permafrost is a type of soil that is frozen solid.
+    /// </summary>
+    public static readonly Block Permafrost = new BasicBlock(
+        Language.Permafrost,
+        nameof(Permafrost),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("permafrost"));
+
+    /// <summary>
+    ///     The core of the world, which is found at the lowest level.
+    /// </summary>
+    public static readonly Block Core = new BasicBlock(
+        Language.Core,
+        nameof(Core),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("core"));
+
+    /// <summary>
+    ///     A block made out of frozen water.
+    /// </summary>
+    public static readonly Block Ice = new ModifiableHeightBlock(
+        Language.Ice,
+        nameof(Ice),
+        TextureLayout.Uniform("ice"));
 
     #endregion NEW BLOCKS
 }

@@ -1,4 +1,4 @@
-﻿// <copyright file="IFlammable.cs" company="VoxelGame">
+﻿// <copyright file="ICombustible.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -11,7 +11,7 @@ namespace VoxelGame.Core.Logic.Interfaces;
 /// <summary>
 ///     Marks a block as able to be burned.
 /// </summary>
-public interface IFlammable : IBlockBase
+public interface ICombustible : IBlockBase
 {
     /// <summary>
     ///     Try to burn a block at a given position.

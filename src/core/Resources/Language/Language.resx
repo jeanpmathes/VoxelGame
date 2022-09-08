@@ -324,9 +324,6 @@
   <data name="SteelPipeStraight" xml:space="preserve">
     <value>Straight Steelpipe</value>
   </data>
-  <data name="Stone" xml:space="preserve">
-    <value>Stone</value>
-  </data>
   <data name="StoneFace" xml:space="preserve">
     <value>Stone Face</value>
   </data>
@@ -531,13 +528,37 @@
     <data name="KeySelectTargeted" xml:space="preserve">
     <value>Select Targeted</value>
   </data>
-    <data name="GraphicsUseFullscreenBorderless" xml:space="preserve">
+  <data name="GraphicsUseFullscreenBorderless" xml:space="preserve">
     <value>Use borderless (windowed) fullscreen</value>
   </data>
-    <data name="GraphicsAnisotropicFiltering" xml:space="preserve">
+  <data name="GraphicsAnisotropicFiltering" xml:space="preserve">
     <value>Anisotropic Filtering</value>
   </data>
-    <data name="KeyCrouch" xml:space="preserve">
+  <data name="KeyCrouch" xml:space="preserve">
     <value>Crouch</value>
+  </data>
+  <data name="Core" xml:space="preserve">
+    <value>Core</value>
+  </data>
+  <data name="Granite" xml:space="preserve">
+    <value>Granite</value>
+  </data>
+  <data name="Sandstone" xml:space="preserve">
+    <value>Sandstone</value>
+  </data>
+  <data name="Limestone" xml:space="preserve">
+    <value>Limestone</value>
+  </data>
+  <data name="Marble" xml:space="preserve">
+    <value>Marble</value>
+  </data>
+  <data name="Clay" xml:space="preserve">
+    <value>Clay</value>
+  </data>
+  <data name="Permafrost" xml:space="preserve">
+    <value>Permafrost</value>
+  </data>
+  <data name="Ice" xml:space="preserve">
+    <value>Ice</value>
   </data>
 </root>

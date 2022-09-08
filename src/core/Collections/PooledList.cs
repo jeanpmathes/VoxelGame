@@ -7,6 +7,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Core.Collections;
 
@@ -36,6 +37,7 @@ public class PooledList<T>
     ///     initial capacity.
     /// </summary>
     /// <param name="capacity">The minimum number of elements that the new list can initially store. The</param>
+    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH")]
     public PooledList(int capacity)
     {
         arrayPool = ArrayPool<T>.Shared;

@@ -52,7 +52,7 @@ public interface IComplex : IBlockMeshable
             complexVertexData.Add(upperData);
 
             // int: tttt tttt t--- ---a ---i iiii iiii iiii(t: tint; a: animated; i: texture index)
-            int lowerData = (mesh.Tint.GetBits(context.BlockTint) << 23) | mesh.GetAnimationBit(i, shift: 16) |
+            int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | mesh.GetAnimationBit(i, shift: 16) |
                             textureIndices[i];
 
             complexVertexData.Add(lowerData);

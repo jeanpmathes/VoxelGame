@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     A block that does not stop burning.
 ///     Data bit usage: <c>------</c>
 /// </summary>
-public class EternalFlame : BasicBlock, IFlammable
+public class EternalFlame : BasicBlock, ICombustible
 {
     internal EternalFlame(string name, string namedId, TextureLayout layout) :
         base(

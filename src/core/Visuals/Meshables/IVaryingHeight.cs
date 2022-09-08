@@ -25,76 +25,75 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable
             Vector3i checkPosition = side.Offset(position);
             Block? blockToCheck = context.GetBlock(checkPosition, side, out uint blockToCheckData);
 
-            if (blockToCheck != null && (!blockToCheck.IsFull || !blockToCheck.IsOpaque))
+            if (blockToCheck == null || (blockToCheck.IsFull && blockToCheck.IsOpaque)) return;
+
+            bool isModified = side != BlockSide.Bottom &&
+                              GetHeight(info.Data) != MaximumHeight;
+
+            MeshData mesh = GetMeshData(info with {Side = side});
+
+            side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
+            (int x, int y, int z) = position;
+
+            if (isModified)
             {
-                bool isModified = side != BlockSide.Bottom &&
-                                  GetHeight(info.Data) != MaximumHeight;
+                // Mesh similar to fluids.
 
-                MeshData mesh = GetMeshData(info with {Side = side});
+                int height = GetHeight(info.Data);
 
-                side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
-                (int x, int y, int z) = position;
+                if (side != BlockSide.Top && blockToCheck is IHeightVariable toCheck &&
+                    toCheck.GetHeight(blockToCheckData) == height) return;
 
-                if (isModified)
-                {
-                    // Mesh similar to fluids.
+                // int: uv-- ---- ---- ---- -xxx xxey yyyz zzzz (uv: texture coords; hl: texture repetition; xyz: position; e: lower/upper end)
+                int upperDataA = (0 << 31) | (0 << 30) | ((x + a[0]) << 10) | (a[1] << 9) |
+                                 (y << 5) | (z + a[2]);
 
-                    int height = GetHeight(info.Data);
+                int upperDataB = (0 << 31) | (1 << 30) | ((x + b[0]) << 10) | (b[1] << 9) |
+                                 (y << 5) | (z + b[2]);
 
-                    if (side != BlockSide.Top && blockToCheck is IHeightVariable toCheck &&
-                        toCheck.GetHeight(blockToCheckData) == height) return;
+                int upperDataC = (1 << 31) | (1 << 30) | ((x + c[0]) << 10) | (c[1] << 9) |
+                                 (y << 5) | (z + c[2]);
 
-                    // int: uv-- ---- ---- ---- -xxx xxey yyyz zzzz (uv: texture coords; hl: texture repetition; xyz: position; e: lower/upper end)
-                    int upperDataA = (0 << 31) | (0 << 30) | ((x + a[0]) << 10) | (a[1] << 9) |
-                                     (y << 5) | (z + a[2]);
+                int upperDataD = (1 << 31) | (0 << 30) | ((x + d[0]) << 10) | (d[1] << 9) |
+                                 (y << 5) | (z + d[2]);
 
-                    int upperDataB = (0 << 31) | (1 << 30) | ((x + b[0]) << 10) | (b[1] << 9) |
-                                     (y << 5) | (z + b[2]);
+                // int: tttt tttt tnnn hhhh ---i iiii iiii iiii (t: tint; n: normal; h: height; i: texture index)
+                int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | ((int) side << 20) |
+                                (height << 16) | mesh.TextureIndex;
 
-                    int upperDataC = (1 << 31) | (1 << 30) | ((x + c[0]) << 10) | (c[1] << 9) |
-                                     (y << 5) | (z + c[2]);
+                context.GetVaryingHeightMeshFaceHolder(side).AddFace(
+                    position,
+                    lowerData,
+                    (upperDataA, upperDataB, upperDataC, upperDataD),
+                    isSingleSided: true,
+                    isFull: false);
+            }
+            else
+            {
+                // Mesh into the simple buffer.
 
-                    int upperDataD = (1 << 31) | (0 << 30) | ((x + d[0]) << 10) | (d[1] << 9) |
-                                     (y << 5) | (z + d[2]);
+                // int: uv-- ---- ---- ---- -xxx xxyy yyyz zzzz (uv: texture coords; xyz: position)
+                int upperDataA = (0 << 31) | (0 << 30) | ((a[0] + x) << 10) |
+                                 ((a[1] + y) << 5) | (a[2] + z);
 
-                    // int: tttt tttt tnnn hhhh ---i iiii iiii iiii (t: tint; n: normal; h: height; i: texture index)
-                    int lowerData = (mesh.Tint.GetBits(context.BlockTint) << 23) | ((int) side << 20) |
-                                    (height << 16) | mesh.TextureIndex;
+                int upperDataB = (0 << 31) | (1 << 30) | ((b[0] + x) << 10) |
+                                 ((b[1] + y) << 5) | (b[2] + z);
 
-                    context.GetVaryingHeightMeshFaceHolder(side).AddFace(
-                        position,
-                        lowerData,
-                        (upperDataA, upperDataB, upperDataC, upperDataD),
-                        isSingleSided: true,
-                        isFull: false);
-                }
-                else
-                {
-                    // Mesh into the simple buffer.
+                int upperDataC = (1 << 31) | (1 << 30) | ((c[0] + x) << 10) |
+                                 ((c[1] + y) << 5) | (c[2] + z);
 
-                    // int: uv-- ---- ---- ---- -xxx xxyy yyyz zzzz (uv: texture coords; xyz: position)
-                    int upperDataA = (0 << 31) | (0 << 30) | ((a[0] + x) << 10) |
-                                     ((a[1] + y) << 5) | (a[2] + z);
+                int upperDataD = (1 << 31) | (0 << 30) | ((d[0] + x) << 10) |
+                                 ((d[1] + y) << 5) | (d[2] + z);
 
-                    int upperDataB = (0 << 31) | (1 << 30) | ((b[0] + x) << 10) |
-                                     ((b[1] + y) << 5) | (b[2] + z);
+                // int: tttt tttt t--n nn-_ ---i iiii iiii iiii (t: tint; n: normal; i: texture index, _: used for simple blocks but not here)
+                int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | ((int) side << 18) |
+                                mesh.TextureIndex;
 
-                    int upperDataC = (1 << 31) | (1 << 30) | ((c[0] + x) << 10) |
-                                     ((c[1] + y) << 5) | (c[2] + z);
-
-                    int upperDataD = (1 << 31) | (0 << 30) | ((d[0] + x) << 10) |
-                                     ((d[1] + y) << 5) | (d[2] + z);
-
-                    // int: tttt tttt t--n nn-_ ---i iiii iiii iiii (t: tint; n: normal; i: texture index, _: used for simple blocks but not here)
-                    int lowerData = (mesh.Tint.GetBits(context.BlockTint) << 23) | ((int) side << 18) |
-                                    mesh.TextureIndex;
-
-                    context.GetSimpleBlockMeshFaceHolder(side).AddFace(
-                        position,
-                        lowerData,
-                        (upperDataA, upperDataB, upperDataC, upperDataD),
-                        isRotated: false);
-                }
+                context.GetSimpleBlockMeshFaceHolder(side).AddFace(
+                    position,
+                    lowerData,
+                    (upperDataA, upperDataB, upperDataC, upperDataD),
+                    isRotated: false);
             }
         }
 

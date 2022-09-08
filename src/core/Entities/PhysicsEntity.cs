@@ -25,6 +25,9 @@ public abstract class PhysicsEntity : IDisposable
     /// </summary>
     public const double Gravity = -9.81;
 
+    private const double AirDrag = 0.18;
+    private const double FluidDrag = 15.0;
+
     private static readonly ILogger logger = LoggingHelper.CreateLogger<PhysicsEntity>();
 
     private readonly BoundingVolume boundingVolume;
@@ -42,16 +45,14 @@ public abstract class PhysicsEntity : IDisposable
     /// </summary>
     /// <param name="world">The world in which the physics entity is located.</param>
     /// <param name="mass">The mass of the entity.</param>
-    /// <param name="drag">The drag affecting the entity.</param>
     /// <param name="boundingVolume">The bounding box of the entity.</param>
-    protected PhysicsEntity(World world, double mass, double drag, BoundingVolume boundingVolume)
+    protected PhysicsEntity(World world, double mass, BoundingVolume boundingVolume)
     {
         World = world;
 
         Rotation = Quaterniond.Identity;
 
         Mass = mass;
-        Drag = drag;
         this.boundingVolume = boundingVolume;
     }
 
@@ -59,11 +60,6 @@ public abstract class PhysicsEntity : IDisposable
     ///     Gets the mass of this physics entity.
     /// </summary>
     public double Mass { get; }
-
-    /// <summary>
-    ///     Gets the drag affecting the velocity of this physics entity.
-    /// </summary>
-    public double Drag { get; }
 
     /// <summary>
     ///     Gets or sets the velocity of the physics entity.
@@ -206,7 +202,6 @@ public abstract class PhysicsEntity : IDisposable
         IsGrounded = false;
         IsSwimming = false;
 
-        force -= Velocity.Sign() * (Velocity * Velocity) * Drag;
         Velocity += force / Mass * deltaTime;
 
         BoxCollider collider = Collider;
@@ -224,33 +219,30 @@ public abstract class PhysicsEntity : IDisposable
             if (block.ReceiveCollisions)
                 block.EntityCollision(this, position);
 
-        Vector3d fluidDrag = Vector3d.Zero;
+        double drag = AirDrag;
 
         if (fluidIntersections.Count != 0)
         {
-            var density = 0.0;
-            int maxLevel = -1;
+            var useFluidDrag = false;
             var noGas = false;
+            var maxLevel = 0;
 
             foreach ((Vector3i position, Fluid fluid, FluidLevel level) in fluidIntersections)
             {
                 if (fluid.ReceiveContact) fluid.EntityContact(this, position);
 
-                if ((int) level > maxLevel || maxLevel == 7 && fluid.Density > density)
-                {
-                    density = fluid.Density;
-                    maxLevel = (int) level;
-                    noGas = fluid.IsFluid;
-                }
+                useFluidDrag |= fluid.IsFluid;
+                noGas = fluid.IsFluid;
+                maxLevel = Math.Max(maxLevel, (int) level);
             }
 
-            fluidDrag = 0.5 * density * Velocity.Sign().ToVector3d() * (Velocity * Velocity) * ((maxLevel + 1) / 8.0) * 0.25;
+            if (useFluidDrag) drag = MathHelper.Lerp(AirDrag, FluidDrag, (maxLevel + 1) / 8.0);
 
             if (!IsGrounded && noGas) IsSwimming = true;
         }
 
         force = new Vector3d(x: 0, Gravity * Mass, z: 0);
-        force -= fluidDrag;
+        force -= Velocity.Sign().ToVector3d() * drag * Velocity.LengthSquared;
     }
 
     private void DoPhysicsStep(ref BoxCollider collider, ref Vector3d movement,

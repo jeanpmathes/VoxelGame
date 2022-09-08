@@ -289,6 +289,17 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// </summary>
     protected virtual void ScheduledUpdate(World world, Vector3i position, uint data) {}
 
+    /// <summary>
+    ///     This method is called on every block after the chunk the block is in has been generated.
+    /// </summary>
+    /// <param name="block">The block instance.</param>
+    /// <param name="fluid">The fluid instance.</param>
+    /// <returns>Potentially modified block and fluid instances.</returns>
+    public virtual (BlockInstance block, FluidInstance fluid) GenerateUpdate(BlockInstance block, FluidInstance fluid)
+    {
+        return (block, fluid);
+    }
+
     /// <inheritdoc />
     public sealed override string ToString()
     {

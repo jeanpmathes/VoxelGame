@@ -23,7 +23,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 // c: color
 // o: orientation
 // p: position
-public class BedBlock : Block, IFlammable, IFillable, IComplex
+public class BedBlock : Block, ICombustible, IFillable, IComplex
 {
     private readonly List<BlockMesh> footMeshes = new(capacity: 4);
     private readonly List<BlockMesh> headMeshes = new(capacity: 4);

@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     A block that slows down entities that collide with it.
 ///     Data bit usage: <c>------</c>
 /// </summary>
-public class SpiderWebBlock : CrossBlock, IFlammable, IFillable
+public class SpiderWebBlock : CrossBlock, ICombustible, IFillable
 {
     private readonly float maxVelocity;
 

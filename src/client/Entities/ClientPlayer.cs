@@ -23,7 +23,7 @@ namespace VoxelGame.Client.Entities;
 public sealed class ClientPlayer : Player, IPlayerDataProvider
 {
     private const float FlyingSpeed = 5f;
-    private const float FlyingSprintSpeed = 15f;
+    private const float FlyingSprintSpeed = 25f;
     private readonly Camera camera;
     private readonly Vector3d cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
     private readonly float diveSpeed = 8f;
@@ -62,12 +62,11 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     /// </summary>
     /// <param name="world">The world in which the client player will be placed.</param>
     /// <param name="mass">The mass of the player.</param>
-    /// <param name="drag">The drag affecting the player.</param>
     /// <param name="camera">The camera to use for this player.</param>
     /// <param name="boundingVolume">The bounding box of the player.</param>
     /// <param name="ui">The ui used to display player information.</param>
-    public ClientPlayer(World world, float mass, float drag, Camera camera, BoundingVolume boundingVolume,
-        GameUserInterface ui) : base(world, mass, drag, boundingVolume)
+    public ClientPlayer(World world, float mass, Camera camera, BoundingVolume boundingVolume,
+        GameUserInterface ui) : base(world, mass, boundingVolume)
     {
         this.camera = camera;
         camera.Position = Position;
@@ -139,6 +138,8 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     BlockInstance IPlayerDataProvider.TargetBlock => targetBlock ?? BlockInstance.Default;
 
     FluidInstance IPlayerDataProvider.TargetFluid => targetFluid ?? FluidInstance.Default;
+
+    string IPlayerDataProvider.WorldDebugData => World.Map.GetPositionDebugData(Position);
 
     string IPlayerDataProvider.Selection => blockMode ? activeBlock.Name : activeFluid.Name;
 

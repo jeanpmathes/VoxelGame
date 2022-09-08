@@ -7,7 +7,6 @@
 using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Blocks;
@@ -24,24 +23,6 @@ public class ModifiableHeightBlock : VaryingHeightBlock
             namedId,
             BlockFlags.Functional,
             layout) {}
-
-    /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
-    {
-        return world.HasSolidGround(position, solidify: true);
-    }
-
-    /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
-    {
-        if (side == BlockSide.Bottom && !world.HasSolidGround(position))
-        {
-            if (GetHeight(data) == IHeightVariable.MaximumHeight)
-                ScheduleDestroy(world, position);
-            else
-                Destroy(world, position);
-        }
-    }
 
     /// <inheritdoc />
     protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)

@@ -9,12 +9,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using Properties;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
+using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
 
@@ -38,7 +40,7 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    protected World(string name, string path, int seed) :
+    protected World(string path, string name, int seed) :
         this(
             new WorldInformation
             {
@@ -47,9 +49,7 @@ public abstract partial class World : IDisposable
                 Creation = DateTime.Now,
                 Version = ApplicationInformation.Instance.Version
             },
-            path,
-            path + "/Chunks",
-            GetGenerator(seed))
+            path)
     {
         Information.Save(Path.Combine(WorldDirectory, "meta.json"));
 
@@ -59,12 +59,10 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     This constructor is meant for worlds that already exist.
     /// </summary>
-    protected World(WorldInformation information, string path) :
+    protected World(string path, WorldInformation information) :
         this(
             information,
-            path,
-            path + "/Chunks",
-            GetGenerator(information.Seed))
+            path)
     {
         logger.LogInformation(Events.WorldIO, "Loaded existing world");
     }
@@ -72,8 +70,7 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     Setup of readonly fields and non-optional steps.
     /// </summary>
-    private World(WorldInformation information, string worldDirectory, string chunkDirectory,
-        IWorldGenerator generator)
+    private World(WorldInformation information, string worldDirectory)
     {
         positionsToActivate = new HashSet<ChunkPosition>();
         positionsActivating = new HashSet<ChunkPosition>();
@@ -95,12 +92,15 @@ public abstract partial class World : IDisposable
         ValidateInformation();
 
         WorldDirectory = worldDirectory;
-        ChunkDirectory = chunkDirectory;
-        this.generator = generator;
+        ChunkDirectory = Path.Combine(worldDirectory, "Chunks");
+        BlobDirectory = Path.Combine(worldDirectory, "Blobs");
+        DebugDirectory = Path.Combine(worldDirectory, "Debug");
 
         UpdateCounter = new UpdateCounter();
 
         Setup();
+
+        generator = GetGenerator(this);
     }
 
     private WorldInformation Information { get; }
@@ -124,6 +124,16 @@ public abstract partial class World : IDisposable
     ///     The directory in which all chunks of this world are stored.
     /// </summary>
     private string ChunkDirectory { get; }
+
+    /// <summary>
+    ///     The directory in named data blobs are stored.
+    /// </summary>
+    private string BlobDirectory { get; }
+
+    /// <summary>
+    ///     The directory at which debug artifacts can be stored.
+    /// </summary>
+    private string DebugDirectory { get; }
 
     /// <summary>
     ///     Gets whether this world is ready for physics ticking and rendering.
@@ -166,7 +176,54 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     Get the extents of the world.
     /// </summary>
-    public Vector3d Extents => new(BlockSize, BlockSize, BlockSize);
+    public Vector3i Extents => new((int) BlockSize, (int) BlockSize, (int) BlockSize);
+
+    /// <summary>
+    ///     Get the info map of this world.
+    /// </summary>
+    public IMap Map => generator.Map;
+
+    /// <summary>
+    ///     Get a reader for an existing blob.
+    /// </summary>
+    /// <param name="name">The name of the blob.</param>
+    /// <returns>The reader for the blob, or null if the blob does not exist.</returns>
+    public BinaryReader? GetBlobReader(string name)
+    {
+        try
+        {
+            Stream stream = File.Open(Path.Combine(BlobDirectory, name), FileMode.Open, FileAccess.Read);
+
+            return new BinaryReader(stream, Encoding.UTF8, leaveOpen: false);
+        }
+        catch (IOException)
+        {
+            logger.LogDebug(Events.WorldIO, "Failed to read blob '{Name}'", name);
+
+            return null;
+        }
+    }
+
+    /// <summary>
+    ///     Get a stream to a new blob.
+    /// </summary>
+    /// <param name="name">The name of the blob.</param>
+    /// <returns>The stream to the blob, or null if an error occurred.</returns>
+    public BinaryWriter? GetBlobWriter(string name)
+    {
+        try
+        {
+            Stream stream = File.Open(Path.Combine(BlobDirectory, name), FileMode.Create, FileAccess.Write);
+
+            return new BinaryWriter(stream, Encoding.UTF8, leaveOpen: false);
+        }
+        catch (IOException e)
+        {
+            logger.LogError(Events.WorldIO, e, "Failed to create blob '{Name}'", name);
+
+            return null;
+        }
+    }
 
     private void ValidateInformation()
     {
@@ -183,21 +240,35 @@ public abstract partial class World : IDisposable
         return Math.Clamp(size, min: 1024, BlockLimit);
     }
 
-    private static IWorldGenerator GetGenerator(int seed)
+    private static IWorldGenerator GetGenerator(World world)
     {
-        return new ComplexGenerator(seed);
+        return new Generator(world);
+    }
+
+    /// <summary>
+    ///     Emit views of global world data for debugging.
+    /// </summary>
+    public void EmitViews()
+    {
+        generator.EmitViews(DebugDirectory);
     }
 
     private void Setup()
     {
         Directory.CreateDirectory(WorldDirectory);
         Directory.CreateDirectory(ChunkDirectory);
+        Directory.CreateDirectory(BlobDirectory);
+        Directory.CreateDirectory(DebugDirectory);
 
         positionsToActivate.Add(ChunkPosition.Origin);
     }
 
     private static bool IsInLimits(Vector3i position)
     {
+        if (position.X is int.MinValue) return false;
+        if (position.Y is int.MinValue) return false;
+        if (position.Z is int.MinValue) return false;
+
         return Math.Abs(position.X) <= BlockLimit && Math.Abs(position.Y) <= BlockLimit && Math.Abs(position.Z) <= BlockLimit;
     }
 
@@ -336,13 +407,14 @@ public abstract partial class World : IDisposable
         ModifyWorldData(position, ~Section.StaticMask, isStatic ? Section.StaticMask : 0);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void SetContent(BlockInstance block, FluidInstance fluid, Vector3i position, bool tickFluid)
     {
         SetContent(block.Block, block.Data, fluid.Fluid, fluid.Level, fluid.IsStatic, position, tickFluid);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(Block block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
+    private void SetContent(IBlockBase block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
         Vector3i position, bool tickFluid)
     {
         Chunk? chunk = GetChunk(position);
@@ -378,7 +450,7 @@ public abstract partial class World : IDisposable
     ///     Set all data at a world position.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetPosition(Block block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
+    public void SetPosition(IBlockBase block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
         Vector3i position)
     {
         SetContent(block, data, fluid, level, isStatic, position, tickFluid: true);

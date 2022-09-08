@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     Data bit usage: <c>---aaa</c>
 /// </summary>
 // a: age
-public class GrowingBlock : BasicBlock, IFlammable
+public class GrowingBlock : BasicBlock, ICombustible
 {
     private readonly int maxHeight;
     private readonly Block requiredGround;

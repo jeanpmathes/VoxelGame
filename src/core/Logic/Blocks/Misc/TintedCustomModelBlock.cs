@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     Data bit usage: <c>-ccccc</c>
 /// </summary>
 // c: color
-public class TintedCustomModelBlock : CustomModelBlock, IFlammable
+public class TintedCustomModelBlock : CustomModelBlock, ICombustible
 {
     internal TintedCustomModelBlock(string name, string namedId, BlockFlags flags, string modelName,
         BoundingVolume boundingVolume) :

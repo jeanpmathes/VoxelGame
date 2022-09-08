@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Drawing;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -33,6 +34,20 @@ public readonly struct TintColor : IEquatable<TintColor>
         this.r = r;
         this.g = g;
         this.b = b;
+
+        IsNeutral = false;
+    }
+
+    /// <summary>
+    ///     Create a new tint color from an RGB <see cref="Color" />. Note that <see cref="TintColor" /> has less precision
+    ///     than <see cref="Color" />.
+    /// </summary>
+    /// <param name="color">The color to use.</param>
+    public TintColor(Color color)
+    {
+        r = color.R / 255f;
+        g = color.G / 255f;
+        b = color.B / 255f;
 
         IsNeutral = false;
     }

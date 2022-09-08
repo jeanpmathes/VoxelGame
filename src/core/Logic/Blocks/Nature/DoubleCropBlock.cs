@@ -22,7 +22,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 // l: lowered
 // s: stage
 // h: height
-public class DoubleCropBlock : Block, IFlammable, IFillable, ICropPlant
+public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
 {
     private readonly string texture;
 

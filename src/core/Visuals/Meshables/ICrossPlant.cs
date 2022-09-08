@@ -24,7 +24,7 @@ public interface ICrossPlant : IBlockMeshable
         int upperData = (x << 10) | (y << 5) | z;
 
         // int: tttt tttt tulh ---- ---i iiii iiii iiii (t: tint; u: has upper; l: lowered; h: height; i: texture index)
-        int lowerData = (mesh.Tint.GetBits(context.BlockTint) << 23) | ((mesh.HasUpper ? 1 : 0) << 22) |
+        int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | ((mesh.HasUpper ? 1 : 0) << 22) |
                         ((mesh.IsLowered ? 1 : 0) << 21) | ((mesh.IsUpper ? 1 : 0) << 20) |
                         mesh.TextureIndex;
 

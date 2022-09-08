@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     Data bit usage: <c>----aa</c>
 /// </summary>
 // a: axis
-public class RotatedBlock : BasicBlock, IFlammable
+public class RotatedBlock : BasicBlock, ICombustible
 {
     internal RotatedBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
         base(

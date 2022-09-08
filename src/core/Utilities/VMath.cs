@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 
@@ -114,12 +115,26 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Rounds every component to an integer.
+    /// </summary>
+    /// <param name="vector">The vector to round.</param>
+    /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
+    /// <returns>The rounded vector.</returns>
+    public static Vector3i RoundedToInt(this Vector3d vector, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    {
+        return new Vector3i(
+            (int) Math.Round(vector.X, digits: 0, midpointRounding),
+            (int) Math.Round(vector.Y, digits: 0, midpointRounding),
+            (int) Math.Round(vector.Z, digits: 0, midpointRounding));
+    }
+
+    /// <summary>
     ///     Clamps every component of a vector.
     /// </summary>
     /// <param name="vector">The vector to clamp.</param>
     /// <param name="min">The minimum values for each component.</param>
     /// <param name="max">The maximum values for each component.</param>
-    /// <returns>The vector with clamped components</returns>
+    /// <returns>The vector with clamped components.</returns>
     public static Vector3d ClampComponents(Vector3d vector, Vector3d min, Vector3d max)
     {
         return new Vector3d(
@@ -129,13 +144,38 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Clamps every component of a vector.
+    /// </summary>
+    /// <param name="vector">The vector to clamp.</param>
+    /// <param name="min">The minimum values for each component.</param>
+    /// <param name="max">The maximum values for each component.</param>
+    /// <returns>The vector with clamped components.</returns>
+    public static Vector3i ClampComponents(Vector3i vector, Vector3i min, Vector3i max)
+    {
+        return new Vector3i(
+            MathHelper.Clamp(vector.X, min.X, max.X),
+            MathHelper.Clamp(vector.Y, min.Y, max.Y),
+            MathHelper.Clamp(vector.Z, min.Z, max.Z));
+    }
+
+    /// <summary>
     ///     Returns a vector where every component is the sign of the original component.
     /// </summary>
     /// <param name="vector">The vector to convert.</param>
-    /// <returns>The sign vector</returns>
+    /// <returns>The sign vector.</returns>
     public static Vector3i Sign(this Vector3d vector)
     {
         return new Vector3i(Math.Sign(vector.X), Math.Sign(vector.Y), Math.Sign(vector.Z));
+    }
+
+    /// <summary>
+    ///     Returns a vector where every component is the sign of the original component.
+    /// </summary>
+    /// <param name="vector">The vector to convert.</param>
+    /// <returns>The sign vector.</returns>
+    public static Vector2i Sign(this Vector2d vector)
+    {
+        return new Vector2i(Math.Sign(vector.X), Math.Sign(vector.Y));
     }
 
     /// <summary>
@@ -229,6 +269,16 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Create a vector from a given angle.
+    /// </summary>
+    /// <param name="angle">The angle, in radians.</param>
+    /// <returns>The vector.</returns>
+    public static Vector2d CreateVectorFromAngle(double angle)
+    {
+        return new Vector2d(Math.Cos(angle), Math.Sin(angle));
+    }
+
+    /// <summary>
     ///     Create a box from a center point and the extents.
     /// </summary>
     /// <param name="center">The center point.</param>
@@ -245,5 +295,137 @@ public static class VMath
     public static double InverseLerp(double a, double b, double value)
     {
         return (value - a) / (b - a);
+    }
+
+    /// <summary>
+    ///     Perform a bilinear interpolation between four values, using two factors. The factors must be in the range [0, 1].
+    /// </summary>
+    public static double BiLerp(double f00, double f10, double f01, double f11, double tx, double ty)
+    {
+        return MathHelper.Lerp(MathHelper.Lerp(f00, f10, tx), MathHelper.Lerp(f01, f11, tx), ty);
+    }
+
+    /// <summary>
+    ///     Get the gradient of the bilinear interpolation function. The factors must be in the range [0, 1].
+    /// </summary>
+    public static Vector2d GradBiLerp(double f00, double f10, double f01, double f11, double tx, double ty)
+    {
+        // bilerp: f(tx, ty) = (1 - tx) * (1 - ty) * f00 + tx * (1 - ty) * f10 + (1 - tx) * ty * f01 + tx * ty * f11
+
+        double fx = (1 - ty) * (f10 - f00) + ty * (f11 - f01);
+        double fy = (1 - tx) * (f01 - f00) + tx * (f11 - f10);
+
+        return new Vector2d(fx, fy);
+    }
+
+    /// <summary>
+    ///     Perform a bilinear interpolation between four values and then lerp between the result and a fifth value.
+    /// </summary>
+    public static double MixingBilinearInterpolation(double f00, double f10, double f01, double f11, double fZ, Vector3d t)
+    {
+        return MathHelper.Lerp(BiLerp(f00, f10, f01, f11, t.X, t.Y), fZ, t.Z);
+    }
+
+    /// <summary>
+    ///     Select from four values using two weights. If elements are equal, their weights are combined.
+    /// </summary>
+    public static ref readonly T SelectByWeight<T>(in T e00, in T e10, in T e01, in T e11, Vector2d weights)
+    {
+        double w00 = (1 - weights.X) * (1 - weights.Y);
+        double w10 = weights.X * (1 - weights.Y);
+        double w01 = (1 - weights.X) * weights.Y;
+        double w11 = weights.X * weights.Y;
+
+        double GetWeight(in T e, in T e00, in T e10, in T e01, in T e11)
+        {
+            double weight = 0;
+
+            if (EqualityComparer<T>.Default.Equals(e, e00)) weight += w00;
+            if (EqualityComparer<T>.Default.Equals(e, e10)) weight += w10;
+            if (EqualityComparer<T>.Default.Equals(e, e01)) weight += w01;
+            if (EqualityComparer<T>.Default.Equals(e, e11)) weight += w11;
+
+            return weight;
+        }
+
+        Span<double> totalWeights = stackalloc double[]
+        {
+            GetWeight(e00, e00, e10, e01, e11),
+            GetWeight(e10, e00, e10, e01, e11),
+            GetWeight(e01, e00, e10, e01, e11),
+            GetWeight(e11, e00, e10, e01, e11)
+        };
+
+        var indexOfMax = 1;
+
+        for (var index = 0; index < totalWeights.Length; index++)
+            if (totalWeights[index] > totalWeights[indexOfMax])
+                indexOfMax = index;
+
+        switch (indexOfMax)
+        {
+            case 0:
+                return ref e00;
+            case 1:
+                return ref e10;
+            case 2:
+                return ref e01;
+            case 3:
+                return ref e11;
+
+            default:
+                throw new NotSupportedException();
+        }
+    }
+
+    /// <summary>
+    ///     Select from two values using one weight.
+    /// </summary>
+    public static ref readonly T SelectByWeight<T>(in T e0, in T e1, double w)
+    {
+        if (w < 0.5) return ref e0;
+
+        return ref e1;
+    }
+
+
+    /// <summary>
+    ///     Select from five values using three weights.
+    /// </summary>
+    public static ref readonly T SelectByWeight<T>(in T e00, in T e10, in T e01, in T e11, in T eZ, Vector3d weights)
+    {
+        return ref SelectByWeight(SelectByWeight(e00, e10, e01, e11, weights.Xy), eZ, weights.Z);
+    }
+
+    /// <summary>
+    ///     Calculates the angle between two vectors.
+    /// </summary>
+    public static double CalculateAngle(Vector2d a, Vector2d b)
+    {
+        return Math.Acos(Vector2d.Dot(a, b) / (a.Length * b.Length));
+    }
+
+    /// <summary>
+    ///     Get a tuple with the minimum value first and the maximum value second.
+    /// </summary>
+    public static (T, T) MinMax<T>(T a, T b) where T : IComparable<T>
+    {
+        return a.CompareTo(b) < 0 ? (a, b) : (b, a);
+    }
+
+    /// <summary>
+    ///     Get the minimum of four values.
+    /// </summary>
+    public static double Min(float a, float b, float c, float d)
+    {
+        return Math.Min(Math.Min(a, b), Math.Min(c, d));
+    }
+
+    /// <summary>
+    ///     Get the maximum of four values.
+    /// </summary>
+    public static double Max(float a, float b, float c, float d)
+    {
+        return Math.Max(Math.Max(a, b), Math.Max(c, d));
     }
 }

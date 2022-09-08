@@ -20,7 +20,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 /// </summary>
 // l: lowered
 // h: height
-public class DoubleCrossPlantBlock : Block, IFlammable, IFillable, ICrossPlant
+public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
 {
     private readonly string bottomTexture;
     private readonly int topTexOffset;

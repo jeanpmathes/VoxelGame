@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     A <see cref="ConstructionBlock" /> made out of organic, flammable materials.
 ///     Data bit usage: <c>------</c>
 /// </summary>
-public class OrganicConstructionBlock : ConstructionBlock, IFlammable
+public class OrganicConstructionBlock : ConstructionBlock, ICombustible
 {
     internal OrganicConstructionBlock(string name, string namedId, TextureLayout layout) :
         base(

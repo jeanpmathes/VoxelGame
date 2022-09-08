@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic.Blocks;
 ///     Dirt covered with flammable grass.
 ///     Data bit usage: <c>------</c>
 /// </summary>
-public class GrassBlock : CoveredDirtBlock, IFlammable
+public class GrassBlock : CoveredDirtBlock, ICombustible
 {
     internal GrassBlock(string name, string namedId, TextureLayout normal, TextureLayout wet) :
         base(

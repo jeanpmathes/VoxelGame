@@ -5,7 +5,6 @@
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
-using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Generation;
 
@@ -15,11 +14,22 @@ namespace VoxelGame.Core.Generation;
 public interface IWorldGenerator
 {
     /// <summary>
+    ///     Get the map of the world.
+    /// </summary>
+    IMap Map { get; }
+
+    /// <summary>
     ///     Generate a column of the world.
     /// </summary>
     /// <param name="x">The x position of the world.</param>
     /// <param name="z">The z position of the world.</param>
     /// <param name="heightRange">The height range (inclusive, exclusive) in which blocks should be generated.</param>
-    /// <returns>The blocks in the column.</returns>
-    IEnumerable<Block> GenerateColumn(int x, int z, (int start, int end) heightRange);
+    /// <returns>The data in the column.</returns>
+    IEnumerable<uint> GenerateColumn(int x, int z, (int start, int end) heightRange);
+
+    /// <summary>
+    ///     Emit views of global generated data for debugging.
+    /// </summary>
+    /// <param name="path">A path to the debug directory.</param>
+    void EmitViews(string path);
 }

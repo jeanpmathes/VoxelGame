@@ -47,8 +47,10 @@ internal class CreditsMenu : StandardMenu
             .Font(Context.Fonts.Default)
             .Text("Images").LineBreak()
             .Text(Source.GetTextContent("Resources/GUI/Icons/attribution.txt")).LineBreak()
+            .Text("Textures").LineBreak()
+            .Text(Source.GetTextContent("Resources/Textures/attribution.txt")).LineBreak()
             .Text("Code").LineBreak()
-            .Text("Noise Generation: https://github.com/Auburns/FastNoise_CSharp").LineBreak()
+            .Text("Noise Generation: https://github.com/Auburn/FastNoiseLite").LineBreak()
             .Text("glsl Generation: https://github.com/stegu/webgl-noise").LineBreak()
             .Text("OpenTK Tutorials: https://opentk.net/learn/index.html").LineBreak();
 

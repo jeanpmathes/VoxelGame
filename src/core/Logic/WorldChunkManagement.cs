@@ -114,7 +114,7 @@ public abstract partial class World
 
     private static bool IsInLimits(ChunkPosition position)
     {
-        return Math.Abs(position.X) < ChunkLimit && Math.Abs(position.Y) < ChunkLimit && Math.Abs(position.Z) < ChunkLimit;
+        return Math.Abs(position.X) <= ChunkLimit && Math.Abs(position.Y) <= ChunkLimit && Math.Abs(position.Z) <= ChunkLimit;
     }
 
     /// <summary>
@@ -155,7 +155,15 @@ public abstract partial class World
                     positionsActivating.Remove(generatedChunk.Position);
 
                     if (completed.IsFaulted)
-                        throw completed.Exception?.GetBaseException() ?? new NullReferenceException();
+                    {
+                        logger.LogError(
+                            Events.ChunkLoadingError,
+                            completed.Exception!.GetBaseException(),
+                            "A critical exception occurred when generating the chunk {Position}",
+                            generatedChunk.Position);
+
+                        throw completed.Exception!.GetBaseException();
+                    }
 
                     if (!activeChunks.ContainsKey(generatedChunk.Position) &&
                         !positionsToReleaseOnActivation.Remove(generatedChunk.Position))
