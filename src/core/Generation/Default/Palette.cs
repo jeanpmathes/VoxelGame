@@ -33,6 +33,8 @@ public class Palette
 
     internal uint Core { get; init; } = Section.Encode(Block.Core);
 
+    internal uint Ice { get; init; } = Block.Specials.Ice.FullHeightData;
+
     internal uint GetStone(Map.StoneType type)
     {
         return type switch

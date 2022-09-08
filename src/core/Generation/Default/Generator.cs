@@ -74,7 +74,8 @@ public class Generator : IWorldGenerator
             Map = map,
             Sample = sample,
             WorldHeight = modifiedHeight,
-            Dampening = CreateFilledDampening(effectiveOffset, sample)
+            Dampening = CreateFilledDampening(effectiveOffset, sample),
+            IceWidth = GetIceWidth(sample)
         };
 
         for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z), context);
@@ -127,6 +128,18 @@ public class Generator : IWorldGenerator
         return dampening with {Width = dampening.Width + fill};
     }
 
+    private static int GetIceWidth(in Map.Sample sample)
+    {
+        (int a, int b, int c, int d, int e) widths = (
+            sample.Biome00.IceWidth,
+            sample.Biome10.IceWidth,
+            sample.Biome01.IceWidth,
+            sample.Biome11.IceWidth,
+            sample.SpecialBiome.IceWidth);
+
+        return (int) Math.Round(VMath.MixingBilinearInterpolation(widths.a, widths.b, widths.c, widths.d, widths.e, sample.BlendFactors), MidpointRounding.AwayFromZero);
+    }
+
     private void Initialize()
     {
         using BinaryReader? read = world.GetBlobReader(MapBlobName);
@@ -145,7 +158,12 @@ public class Generator : IWorldGenerator
 
         int depth = context.WorldHeight - position.Y;
 
-        if (depth < 0) return position.Y <= SeaLevel ? palette.Water : palette.Empty;
+        if (depth < 0) // A negative depths means that the block is above the world height.
+        {
+            if (position.Y <= SeaLevel) return Math.Abs(position.Y) >= context.IceWidth ? palette.Water : palette.Ice;
+
+            return palette.Empty;
+        }
 
         Map.StoneType stoneType = context.GetStoneType(position);
 
@@ -163,6 +181,8 @@ public class Generator : IWorldGenerator
         public Map.Sample Sample { private get; init; }
 
         public Map Map { private get; init; }
+
+        public int IceWidth { get; init; }
 
         public Map.StoneType GetStoneType(Vector3i position)
         {

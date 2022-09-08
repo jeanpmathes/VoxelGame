@@ -253,13 +253,33 @@ public class Biome
     };
 
     /// <summary>
-    ///     The ocean biome.
+    ///     The normal ocean biome.
     /// </summary>
     public static readonly Biome Ocean = new(nameof(Ocean))
     {
         Color = Color.White,
         Amplitude = 5.0f,
         Frequency = 0.005f,
+        Layers = new List<Layer>
+        {
+            Layer.CreatePermeable(Block.Sand, width: 5),
+            Layer.CreatePermeable(Block.Gravel, width: 3),
+            Layer.CreatePermeableDampen(Block.Gravel, maxWidth: 10),
+            Layer.CreateSolid(Block.Limestone, width: 26),
+            Layer.CreateLoose(width: 37),
+            Layer.CreateSolid(Block.Limestone, width: 21)
+        }
+    };
+
+    /// <summary>
+    ///     The polar ocean biome. It is covered in ice and occurs in cold regions.
+    /// </summary>
+    public static readonly Biome PolarOcean = new(nameof(Ocean))
+    {
+        Color = Color.White,
+        Amplitude = 5.0f,
+        Frequency = 0.005f,
+        IceWidth = 6,
         Layers = new List<Layer>
         {
             Layer.CreatePermeable(Block.Sand, width: 5),
@@ -371,6 +391,11 @@ public class Biome
     /// A color representing the biome.
     /// </summary>
     public Color Color { get; private init; }
+
+    /// <summary>
+    ///     Get the normal width of the ice layer on oceans.
+    /// </summary>
+    public int IceWidth { get; private init; }
 
     private float Amplitude { get; init; }
 

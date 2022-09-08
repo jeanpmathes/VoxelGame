@@ -80,4 +80,17 @@ public class BiomeDistribution
 
         return biome == Biome.Desert ? Biome.SandyCliff : Biome.GrassyCliff;
     }
+
+    /// <summary>
+    ///     Get the appropriate ocean biome.
+    /// </summary>
+    /// <param name="temperature">The temperature, must be in the range [0, 1].</param>
+    /// <param name="moisture">The moisture, must be in the range [0, 1].</param>
+    /// <returns>The appropriate ocean biome.</returns>
+    public Biome GetOceanBiome(float temperature, float moisture)
+    {
+        Biome biome = GetBiome(temperature, moisture);
+
+        return biome == Biome.PolarDesert ? Biome.PolarOcean : Biome.Ocean;
+    }
 }

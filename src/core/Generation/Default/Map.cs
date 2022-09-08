@@ -407,7 +407,7 @@ public partial class Map : IMap
 
         Biome GetBiome(in Cell cell)
         {
-            return cell.IsLand ? biomes.GetBiome(cell.temperature, cell.moisture) : Biome.Ocean;
+            return cell.IsLand ? biomes.GetBiome(cell.temperature, cell.moisture) : biomes.GetOceanBiome(cell.temperature, cell.moisture);
         }
 
         Biome actual = VMath.SelectByWeight(GetBiome(c00), GetBiome(c10), GetBiome(c01), GetBiome(c11), specialBiome, (blendX, blendY, specialStrength));
