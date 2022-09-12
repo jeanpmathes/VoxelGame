@@ -111,7 +111,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <returns>True if placement was successful.</returns>
     public bool Place(World world, Vector3i position, PhysicsEntity? entity = null)
     {
-        (BlockInstance, FluidInstance)? content = world.GetContent(position);
+        Content? content = world.GetContent(position);
 
         if (content == null) return false;
 
@@ -292,12 +292,11 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <summary>
     ///     This method is called on every block after the chunk the block is in has been generated.
     /// </summary>
-    /// <param name="block">The block instance.</param>
-    /// <param name="fluid">The fluid instance.</param>
-    /// <returns>Potentially modified block and fluid instances.</returns>
-    public virtual (BlockInstance block, FluidInstance fluid) GenerateUpdate(BlockInstance block, FluidInstance fluid)
+    /// <param name="content">The content that is generated, containing this block.</param>
+    /// <returns>Potentially modified content.</returns>
+    public virtual Content GenerateUpdate(Content content)
     {
-        return (block, fluid);
+        return content;
     }
 
     /// <inheritdoc />

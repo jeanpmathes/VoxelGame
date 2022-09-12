@@ -308,7 +308,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// </summary>
     public bool Fill(World world, Vector3i position, FluidLevel level, BlockSide entrySide, out int remaining)
     {
-        (BlockInstance, FluidInstance)? content = world.GetContent(position);
+        Content? content = world.GetContent(position);
 
         if (content is ({Block: IFillable fillable}, var target)
             && fillable.AllowInflow(world, position, entrySide, this))
@@ -347,7 +347,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// </summary>
     public bool Take(World world, Vector3i position, ref FluidLevel level)
     {
-        (BlockInstance, FluidInstance)? content = world.GetContent(position);
+        Content? content = world.GetContent(position);
 
         if (content is not var (block, fluid) || fluid.Fluid != this || this == None) return false;
 
@@ -380,7 +380,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// <returns>True if taking the fluid was successful.</returns>
     public bool TryTakeExact(World world, Vector3i position, FluidLevel level)
     {
-        (BlockInstance, FluidInstance)? content = world.GetContent(position);
+        Content? content = world.GetContent(position);
 
         if (content is not var (block, fluid) || fluid.Fluid != this || this == None ||
             level > fluid.Level) return false;
@@ -435,7 +435,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         {
             Vector3i neighborPosition = orientation.Offset(position);
 
-            (BlockInstance, FluidInstance)? neighborContent = world.GetContent(neighborPosition);
+            Content? neighborContent = world.GetContent(neighborPosition);
 
             if (neighborContent is not var (neighborBlock, neighborFluid)) continue;
 
@@ -465,7 +465,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         {
             Vector3i neighborPosition = orientation.Offset(position);
 
-            (BlockInstance, FluidInstance)? content = world.GetContent(neighborPosition);
+            Content? content = world.GetContent(neighborPosition);
 
             if (content is not var (neighborBlock, neighborFluid)) continue;
 
@@ -507,7 +507,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         Queue<(Vector3i position, IFillable fillable)> queue = new();
         Queue<(Vector3i position, IFillable fillable)> nextQueue = new();
 
-        (BlockInstance, FluidInstance)? startContent = world.GetContent(position);
+        Content? startContent = world.GetContent(position);
 
         if (startContent is not var (startBlock, startFluid)) return null;
         if (startBlock.Block is not IFillable startFillable || startFluid.Fluid != this) return null;
@@ -524,7 +524,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
                 if (IsMarked(nextPosition)) continue;
 
-                (BlockInstance, FluidInstance)? nextContent = world.GetContent(nextPosition);
+                Content? nextContent = world.GetContent(nextPosition);
 
                 if (nextContent is not var (nextBlock, nextFluid)) continue;
                 if (nextBlock.Block is not IFillable nextFillable || nextFluid.Fluid != this) continue;

@@ -67,11 +67,13 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     }
 
     /// <inheritdoc />
-    public override (BlockInstance block, FluidInstance fluid) GenerateUpdate(BlockInstance block, FluidInstance fluid)
+    public override Content GenerateUpdate(Content content)
     {
-        if (fluid.Fluid == Fluid.Water && fluid.Level == FluidLevel.Eight)
-            return (Mud.AsInstance(), fluid);
+        (BlockInstance block, FluidInstance fluid) = content;
 
-        return (block, fluid);
+        if (fluid.Fluid == Fluid.Water && fluid.Level == FluidLevel.Eight)
+            return new Content(Mud.AsInstance(), fluid);
+
+        return new Content(block, fluid);
     }
 }

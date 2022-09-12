@@ -348,7 +348,7 @@ public abstract partial class World : IDisposable
     /// <param name="position">The world position.</param>
     /// <returns>The content, if there is any.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public (BlockInstance block, FluidInstance fluid)? GetContent(Vector3i position)
+    public Content? GetContent(Vector3i position)
     {
         RetrieveContent(
             position,
@@ -363,7 +363,7 @@ public abstract partial class World : IDisposable
         Debug.Assert(block != null);
         Debug.Assert(fluid != null);
 
-        return (block.AsInstance(data), fluid.AsInstance(level, isStatic));
+        return new Content(block.AsInstance(data), fluid.AsInstance(level, isStatic));
     }
 
     /// <summary>
@@ -427,18 +427,17 @@ public abstract partial class World : IDisposable
 
         if (tickFluid) fluid.TickNow(this, position, level, isStatic);
 
-        // Block updates - Side is passed out of the perspective of the block receiving the block update.
-
         foreach (BlockSide side in BlockSide.All.Sides())
         {
             Vector3i neighborPosition = side.Offset(position);
 
-            (BlockInstance, FluidInstance)? content = GetContent(neighborPosition);
+            Content? content = GetContent(neighborPosition);
 
             if (content == null) continue;
 
             (BlockInstance blockNeighbor, FluidInstance fluidNeighbor) = content.Value;
 
+            // Side is passed out of the perspective of the block receiving the block update.
             blockNeighbor.Block.BlockUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
             fluidNeighbor.Fluid.TickSoon(this, neighborPosition, fluidNeighbor.IsStatic);
         }
@@ -506,7 +505,7 @@ public abstract partial class World : IDisposable
     /// <returns>True if both the fluid and block at the position received a random update.</returns>
     public bool DoRandomUpdate(Vector3i position)
     {
-        (BlockInstance, FluidInstance)? content = GetContent(position);
+        Content? content = GetContent(position);
 
         if (content == null) return false;
 

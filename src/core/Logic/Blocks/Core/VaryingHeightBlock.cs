@@ -39,7 +39,7 @@ public class VaryingHeightBlock : Block, IVaryingHeight, IOverlayTextureProvider
     /// <summary>
     ///     Get the block data for a full height block.
     /// </summary>
-    public uint FullHeightData => Section.Encode(this, (uint) IVaryingHeight.MaximumHeight, Fluid.None, FluidLevel.Eight, isStatic: true);
+    public BlockInstance FullHeightInstance => this.AsInstance((uint) IVaryingHeight.MaximumHeight);
 
     /// <inheritdoc />
     public int TextureIdentifier => layout.Bottom;

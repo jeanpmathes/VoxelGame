@@ -126,7 +126,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     private bool FlowVertical(World world, Vector3i position, IFillable? currentFillable, FluidLevel level,
         VerticalFlow flow, bool handleContact, out int remaining)
     {
-        (BlockInstance, FluidInstance)? content = world.GetContent(
+        Content? content = world.GetContent(
             position + flow.Direction());
 
         if (content is not ({Block: IFillable verticalFillable}, {} fluidVertical)
@@ -228,7 +228,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
             Vector3i neighborPosition = orientation.Offset(position);
 
-            (BlockInstance, FluidInstance)? content = world.GetContent(neighborPosition);
+            Content? content = world.GetContent(neighborPosition);
 
             if (content is not ({Block: IFillable neighborFillable}, {} neighborFluid)
                 || !AllowsFlowTrough(
@@ -252,7 +252,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         bool CheckLowerPosition(Vector3i lowerPosition)
         {
-            (BlockInstance, FluidInstance)? lowerContent = world.GetContent(lowerPosition);
+            Content? lowerContent = world.GetContent(lowerPosition);
 
             if (lowerContent is not ({Block: IFillable fillable}, var lowerFluid)) return false;
 
@@ -303,7 +303,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         bool CheckNeighbor(bool outflowAllowed, Vector3i neighborPosition, BlockSide side)
         {
-            (BlockInstance, FluidInstance)? neighborContent = world.GetContent(neighborPosition);
+            Content? neighborContent = world.GetContent(neighborPosition);
 
             if (!outflowAllowed ||
                 neighborContent is not ({Block: IFillable neighborFillable}, {} fluidNeighbor) ||
@@ -317,7 +317,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
                 Vector3i belowNeighborPosition = neighborPosition + FlowDirection;
 
-                (BlockInstance, FluidInstance)? belowNeighborContent = world.GetContent(belowNeighborPosition);
+                Content? belowNeighborContent = world.GetContent(belowNeighborPosition);
 
 
 
@@ -433,7 +433,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
     private void FillNeighbor(World world, Vector3i neighborPosition, BlockSide side, ref int remaining)
     {
-        (BlockInstance, FluidInstance)? neighborContent = world.GetContent(neighborPosition);
+        Content? neighborContent = world.GetContent(neighborPosition);
 
         if (neighborContent is not ({Block: IFillable neighborFillable}, {} neighborFluid) ||
             !neighborFillable.AllowInflow(world, neighborPosition, side.Opposite(), this)) return;

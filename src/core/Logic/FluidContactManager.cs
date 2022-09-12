@@ -145,7 +145,7 @@ public class FluidContactManager
 
         Vector3i aboveLightPosition = light.position - light.fluid.FlowDirection;
 
-        (BlockInstance, FluidInstance)? content = world.GetContent(
+        Content? content = world.GetContent(
             light.position - light.fluid.FlowDirection);
 
         if (content is not ({Block: IFillable fillable}, {} aboveLightFluid)) return false;

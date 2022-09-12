@@ -58,7 +58,7 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public IEnumerable<uint> GenerateColumn(int x, int z, (int start, int end) heightRange)
+    public IEnumerable<Content> GenerateColumn(int x, int z, (int start, int end) heightRange)
     {
         Map.Sample sample = map.GetSample((x, z));
 
@@ -152,7 +152,7 @@ public class Generator : IWorldGenerator
         if (write != null) map.Store(write);
     }
 
-    private uint GenerateBlock(Vector3i position, in Context context)
+    private Content GenerateBlock(Vector3i position, in Context context)
     {
         if (position.Y == -World.BlockLimit) return palette.Core;
 
@@ -167,7 +167,7 @@ public class Generator : IWorldGenerator
 
         Map.StoneType stoneType = context.GetStoneType(position);
 
-        return depth >= context.Biome.GetTotalWidth(context.Dampening) ? palette.GetStone(stoneType) : context.Biome.GetData(depth, context.Dampening, stoneType, position.Y <= SeaLevel);
+        return depth >= context.Biome.GetTotalWidth(context.Dampening) ? palette.GetStone(stoneType) : context.Biome.GetContent(depth, context.Dampening, stoneType, position.Y <= SeaLevel);
     }
 
     private readonly record struct Context
