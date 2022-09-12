@@ -78,7 +78,7 @@ public class Generator : IWorldGenerator
             IceWidth = GetIceWidth(sample)
         };
 
-        for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateBlock((x, y, z), context);
+        for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateContent((x, y, z), context);
     }
 
     /// <inheritdoc />
@@ -152,7 +152,7 @@ public class Generator : IWorldGenerator
         if (write != null) map.Store(write);
     }
 
-    private Content GenerateBlock(Vector3i position, in Context context)
+    private Content GenerateContent(Vector3i position, in Context context)
     {
         if (position.Y == -World.BlockLimit) return palette.Core;
 
