@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
@@ -59,6 +60,8 @@ public class Debug
             typeName,
             idResolved,
             Marshal.PtrToStringAnsi(message, length));
+
+        if (level >= LogLevel.Error) Debugger.Break();
     }
 
     private static (string, int) ResolveEvent(int id)
