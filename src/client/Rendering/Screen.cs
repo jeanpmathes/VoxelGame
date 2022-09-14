@@ -15,6 +15,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Graphics;
+using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 using Monitor = OpenTK.Windowing.GraphicsLibraryFramework.Monitor;
 
@@ -26,9 +27,9 @@ namespace VoxelGame.Client.Rendering;
 public sealed class Screen : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
-    private readonly int depthFBO;
 
-    private readonly int depthTex;
+    private readonly RenderTexture depthTexture;
+
     private readonly int msFBO;
     private readonly int msRBO;
 
@@ -114,49 +115,7 @@ public sealed class Screen : IDisposable
 
         #endregion MULTISAMPLED FBO
 
-        #region DEPTH TEXTURE
-
-        depthTex = GL.GenTexture();
-        GL.ActiveTexture(TextureUnit.Texture20);
-        GL.BindTexture(TextureTarget.Texture2D, depthTex);
-
-        GL.TexImage2D(
-            TextureTarget.Texture2D,
-            level: 0,
-            PixelInternalFormat.DepthComponent,
-            Size.X,
-            Size.Y,
-            border: 0,
-            PixelFormat.DepthComponent,
-            PixelType.Float,
-            IntPtr.Zero);
-
-        GL.TexParameter(
-            TextureTarget.Texture2D,
-            TextureParameterName.TextureMinFilter,
-            (int) TextureMinFilter.Nearest);
-
-        GL.TexParameter(
-            TextureTarget.Texture2D,
-            TextureParameterName.TextureMagFilter,
-            (int) TextureMagFilter.Nearest);
-
-        GL.CreateFramebuffers(n: 1, out depthFBO);
-        GL.NamedFramebufferTexture(depthFBO, FramebufferAttachment.DepthAttachment, depthTex, level: 0);
-
-        FramebufferStatus depthFboStatus = GL.CheckNamedFramebufferStatus(depthFBO, FramebufferTarget.Framebuffer);
-
-        while (depthFboStatus != FramebufferStatus.FramebufferComplete)
-        {
-            logger.LogWarning(Events.VisualsSetup, "Depth FBO not complete [{Status}], waiting...", depthFboStatus);
-            Thread.Sleep(millisecondsTimeout: 100);
-
-            depthFboStatus = GL.CheckNamedFramebufferStatus(depthFBO, FramebufferTarget.Framebuffer);
-        }
-
-        GL.ActiveTexture(TextureUnit.Texture0);
-
-        #endregion DEPTH TEXTURE
+        depthTexture = RenderTexture.Create(Size, TextureUnit.Texture20, PixelFormat.DepthComponent, PixelInternalFormat.DepthComponent, FramebufferAttachment.DepthAttachment);
 
         #region SCREENSHOT FBO
 
@@ -261,25 +220,7 @@ public sealed class Screen : IDisposable
 
         #endregion MULTISAMPLED FBO
 
-        #region DEPTH TEXTURE
-
-        GL.ActiveTexture(TextureUnit.Texture20);
-        GL.BindTexture(TextureTarget.Texture2D, depthTex);
-
-        GL.TexImage2D(
-            TextureTarget.Texture2D,
-            level: 0,
-            PixelInternalFormat.DepthComponent,
-            Size.X,
-            Size.Y,
-            border: 0,
-            PixelFormat.DepthComponent,
-            PixelType.Float,
-            IntPtr.Zero);
-
-        GL.ActiveTexture(TextureUnit.Texture0);
-
-        #endregion DEPTH TEXTURE
+        depthTexture.Resize(Size);
 
         #region SCREENSHOT FBO
 
@@ -539,26 +480,7 @@ public sealed class Screen : IDisposable
     /// </summary>
     public static void FillDepthTexture()
     {
-        GL.ActiveTexture(TextureUnit.Texture20);
-        GL.BindTexture(TextureTarget.Texture2D, Instance.depthTex);
-
-        GL.ClearNamedFramebuffer(Instance.depthFBO, ClearBuffer.Depth, drawbuffer: 0, new[] {1f});
-
-        GL.BlitNamedFramebuffer(
-            Instance.msFBO,
-            Instance.depthFBO,
-            srcX0: 0,
-            srcY0: 0,
-            Size.X,
-            Size.Y,
-            dstX0: 0,
-            dstY0: 0,
-            Size.X,
-            Size.Y,
-            ClearBufferMask.DepthBufferBit,
-            BlitFramebufferFilter.Nearest);
-
-        GL.ActiveTexture(TextureUnit.Texture0);
+        Instance.depthTexture.Fill(Instance.msFBO, ClearBuffer.Depth, new[] {1f}, ClearBufferMask.DepthBufferBit);
     }
 
     /// <summary>
@@ -601,8 +523,7 @@ public sealed class Screen : IDisposable
             GL.DeleteFramebuffer(msFBO);
             GL.DeleteRenderbuffer(msRBO);
 
-            GL.DeleteTexture(depthTex);
-            GL.DeleteFramebuffer(depthFBO);
+            depthTexture.Dispose();
 
             GL.DeleteFramebuffer(screenshotFBO);
             GL.DeleteRenderbuffer(screenshotRBO);
