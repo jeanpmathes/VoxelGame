@@ -27,6 +27,7 @@ namespace VoxelGame.Client.Rendering;
 public sealed class Screen : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
+    private readonly RenderTexture colorTexture;
 
     private readonly RenderTexture depthTexture;
 
@@ -116,6 +117,7 @@ public sealed class Screen : IDisposable
         #endregion MULTISAMPLED FBO
 
         depthTexture = RenderTexture.Create(Size, TextureUnit.Texture20, PixelFormat.DepthComponent, PixelInternalFormat.DepthComponent, FramebufferAttachment.DepthAttachment);
+        colorTexture = RenderTexture.Create(Size, TextureUnit.Texture21, PixelFormat.Rgba, PixelInternalFormat.Rgba, FramebufferAttachment.ColorAttachment0);
 
         #region SCREENSHOT FBO
 
@@ -221,6 +223,7 @@ public sealed class Screen : IDisposable
         #endregion MULTISAMPLED FBO
 
         depthTexture.Resize(Size);
+        colorTexture.Resize(Size);
 
         #region SCREENSHOT FBO
 
@@ -481,6 +484,14 @@ public sealed class Screen : IDisposable
     public static void FillDepthTexture()
     {
         Instance.depthTexture.Fill(Instance.msFBO, ClearBuffer.Depth, new[] {1f}, ClearBufferMask.DepthBufferBit);
+    }
+
+    /// <summary>
+    ///     Fill the color texture with the current color data.
+    /// </summary>
+    public static void FillColorTexture()
+    {
+        Instance.colorTexture.Fill(Instance.msFBO, ClearBuffer.Color, new[] {0f, 0f, 0f, 0f}, ClearBufferMask.ColorBufferBit);
     }
 
     /// <summary>

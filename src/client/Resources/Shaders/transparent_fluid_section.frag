@@ -11,6 +11,7 @@ in vec3 worldPosition;
 
 layout(binding = 5) uniform sampler2DArray arrayTexture;
 layout(binding = 20) uniform sampler2D depthTex;
+layout(binding = 21) uniform sampler2D colorTex;
 
 uniform float time;
 uniform float nearPlane;
@@ -51,5 +52,9 @@ void main()
 
     color = isAboveWater ? mix(color, fogColor, fogAmount) : color;
 
-    outputColor = color;
+    vec3 backgroundColor = texelFetch(colorTex, ivec2(gl_FragCoord.xy), 0).rgb;
+    vec3 currentColor = color.rgb;
+    float alpha = color.a;
+
+    outputColor = vec4(currentColor - alpha * backgroundColor, 1.0);
 }

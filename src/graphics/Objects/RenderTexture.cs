@@ -43,7 +43,7 @@ public sealed class RenderTexture : IDisposable
         GL.TexImage2D(
             TextureTarget.Texture2D,
             level: 0,
-            PixelInternalFormat.DepthComponent,
+            pixelInternalFormat,
             size.X,
             size.Y,
             border: 0,

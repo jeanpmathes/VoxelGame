@@ -311,12 +311,13 @@ public sealed class SectionRenderer : IDisposable
     private static void PrepareTransparentFluidBuffer()
     {
         Screen.FillDepthTexture();
+        Screen.FillColorTexture();
 
         Application.Client.Instance.Resources.FluidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
         GL.Enable(EnableCap.Blend);
         GL.DepthMask(flag: false);
-        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        GL.BlendFunc(BlendingFactor.One, BlendingFactor.One);
 
         Shaders.TransparentFluidSection.Use();
     }
