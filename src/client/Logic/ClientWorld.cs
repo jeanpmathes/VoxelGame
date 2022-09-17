@@ -94,20 +94,9 @@ public class ClientWorld : World
 
         IView view = player!.View;
 
-        Application.Client.Instance.Resources.Shaders.SetPlanes(view.MidClipping, view.FarClipping);
-        DoRenderPass(new PassContext(view.ViewMatrix, view.FarProjectionMatrix, view.FarFrustum));
+        Application.Client.Instance.Resources.Shaders.SetPlanes(view.NearClipping, view.FarClipping);
+        PassContext context = new(view.ViewMatrix, view.ProjectionMatrix, view.Frustum);
 
-        Screen.ClearDepth();
-
-        Application.Client.Instance.Resources.Shaders.SetPlanes(view.NearClipping, view.MidClipping);
-        DoRenderPass(new PassContext(view.ViewMatrix, view.NearProjectionMatrix, view.NearFrustum));
-
-        // Render all players in this world
-        player?.Render();
-    }
-
-    private void DoRenderPass(PassContext context)
-    {
         renderList.Clear();
 
         // Fill the render list.
@@ -119,6 +108,11 @@ public class ClientWorld : World
                     out Chunk? chunk))
                 ((ClientChunk) chunk).AddCulledToRenderList(context.Frustum, renderList);
 
+        DoRenderPass(context);
+    }
+
+    private void DoRenderPass(PassContext context)
+    {
         // Render the collected sections.
         for (var stage = 0; stage < SectionRenderer.DrawStageCount; stage++)
         {
@@ -130,6 +124,9 @@ public class ClientWorld : World
 
             SectionRenderer.FinishStage(stage);
         }
+
+        // Render all players in this world
+        player?.Render();
     }
 
     /// <inheritdoc />

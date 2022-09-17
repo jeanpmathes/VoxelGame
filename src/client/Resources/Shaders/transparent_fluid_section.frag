@@ -42,9 +42,8 @@ void main()
     float dist_linear = linearize_depth(gl_FragCoord.z, nearPlane, farPlane);
 
     float thickness = abs(depth_linear - dist_linear);
-    if (depth == 1.0 || dist_linear > 10.0) thickness = 10.0;
 
-    float fogAmount = clamp(thickness / 4.0, 0.05, 0.9);
+    float fogAmount = clamp(thickness / 4.0, 0.1, 0.9);
     vec4 fogColor = vec4(saturate(color.rgb, 0.8), 1.0);
 
     float plane = dot(normal, viewPosition - worldPosition);

@@ -159,7 +159,7 @@ public sealed class PlayerVisualization : IDisposable
         if (inverted) actualHeight = 1.0f - actualHeight;
 
         Plane topPlane = new(Vector3d.UnitY, position + Vector3d.UnitY * actualHeight);
-        Plane viewPlane = player.View.FullFrustum.Near;
+        Plane viewPlane = player.View.Frustum.Near;
 
         Line? bound = topPlane.Intersects(viewPlane);
 

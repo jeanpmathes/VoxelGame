@@ -96,43 +96,19 @@ public class Camera : IView
     public double FarClipping => 1000.0;
 
     /// <inheritdoc />
-    public double MidClipping => 10.0;
-
-    /// <inheritdoc />
     public double NearClipping => 0.1;
 
     /// <inheritdoc />
-    public Frustum FullFrustum => new(fov, Screen.AspectRatio, (NearClipping, FarClipping), Position, front, Up, Right);
-
-    /// <inheritdoc />
-    public Frustum NearFrustum => new(fov, Screen.AspectRatio, (NearClipping, MidClipping), Position, front, Up, Right);
-
-
-    /// <inheritdoc />
-    public Frustum FarFrustum => new(fov, Screen.AspectRatio, (MidClipping, FarClipping), Position, front, Up, Right);
+    public Frustum Frustum => new(fov, Screen.AspectRatio, (NearClipping, FarClipping), Position, front, Up, Right);
 
     /// <inheritdoc />
     public Matrix4d ViewMatrix => Matrix4d.LookAt(Position, Position + Front, Up);
 
     /// <inheritdoc />
-    public Matrix4d FullProjectionMatrix => Matrix4d.CreatePerspectiveFieldOfView(
+    public Matrix4d ProjectionMatrix => Matrix4d.CreatePerspectiveFieldOfView(
         fov,
         Screen.AspectRatio,
         NearClipping,
-        FarClipping);
-
-    /// <inheritdoc />
-    public Matrix4d NearProjectionMatrix => Matrix4d.CreatePerspectiveFieldOfView(
-        fov,
-        Screen.AspectRatio,
-        NearClipping,
-        MidClipping);
-
-    /// <inheritdoc />
-    public Matrix4d FarProjectionMatrix => Matrix4d.CreatePerspectiveFieldOfView(
-        fov,
-        Screen.AspectRatio,
-        MidClipping,
         FarClipping);
 
     private void UpdateVectors()
