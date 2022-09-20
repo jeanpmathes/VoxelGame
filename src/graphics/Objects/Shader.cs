@@ -28,6 +28,8 @@ public class Shader
     /// <param name="fragSource">The path to the fragment shader source file.</param>
     public Shader(string vertSource, string fragSource)
     {
+        GL.EnableVertexAttribArray(index: 0);
+
         string shaderSource = vertSource;
         int vertexShader = GL.CreateShader(ShaderType.VertexShader);
         GL.ShaderSource(vertexShader, shaderSource);
@@ -60,6 +62,8 @@ public class Shader
 
             uniformLocations.Add(key, location);
         }
+
+        GL.UseProgram(program: 0);
     }
 
     private int Handle { get; }

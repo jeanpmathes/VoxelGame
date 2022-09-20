@@ -222,9 +222,6 @@
       <None Update="Resources\Shaders\simple_section.vert">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="Resources\Shaders\transparent_fluid_section.frag">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
       <None Update="Resources\Shaders\varying_height_section.vert">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
@@ -639,6 +636,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Textures\Blocks\ice.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Shaders\transparent_fluid_section_accumulate.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Shaders\transparent_fluid_section_draw.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

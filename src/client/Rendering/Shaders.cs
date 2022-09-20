@@ -80,9 +80,14 @@ public sealed class Shaders
     public Shader OpaqueFluidSection { get; private set; } = null!;
 
     /// <summary>
-    ///     The shader used for transparent fluids.
+    ///     The shader used for the accumulate pass for transparent fluids.
     /// </summary>
-    public Shader TransparentFluidSection { get; private set; } = null!;
+    public Shader TransparentFluidSectionAccumulate { get; private set; } = null!;
+
+    /// <summary>
+    ///     The shader used for the draw pass for transparent fluids.
+    /// </summary>
+    public Shader TransparentFluidSectionDraw { get; private set; } = null!;
 
     /// <summary>
     ///     The shader used for block/fluid texture overlays.
@@ -120,7 +125,8 @@ public sealed class Shaders
         CrossPlantSection.Delete();
         CropPlantSection.Delete();
         OpaqueFluidSection.Delete();
-        TransparentFluidSection.Delete();
+        TransparentFluidSectionAccumulate.Delete();
+        TransparentFluidSectionDraw.Delete();
 
         Overlay.Delete();
         Selection.Delete();
@@ -141,7 +147,8 @@ public sealed class Shaders
             CrossPlantSection = loader.Load("cross_plant_section.vert", SectionFragmentShader);
             CropPlantSection = loader.Load("crop_plant_section.vert", SectionFragmentShader);
             OpaqueFluidSection = loader.Load("fluid_section.vert", "opaque_fluid_section.frag");
-            TransparentFluidSection = loader.Load("fluid_section.vert", "transparent_fluid_section.frag");
+            TransparentFluidSectionAccumulate = loader.Load("fluid_section.vert", "transparent_fluid_section_accumulate.frag");
+            TransparentFluidSectionDraw = loader.Load("fluid_section.vert", "transparent_fluid_section_draw.frag");
 
             Overlay = loader.Load("overlay.vert", "overlay.frag");
             Selection = loader.Load("selection.vert", "selection.frag");

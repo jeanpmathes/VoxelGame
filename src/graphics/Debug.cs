@@ -45,7 +45,7 @@ public class Debug
     private static void DebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity,
         int length, IntPtr message, IntPtr userParam)
     {
-        if (id is 131169 or 131185 or 131218 or 131204) return;
+        if (id is 131185) return;
 
         string sourceName = GetSourceName(source);
         string typeName = GetTypeName(type);

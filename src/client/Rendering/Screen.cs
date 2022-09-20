@@ -27,12 +27,12 @@ namespace VoxelGame.Client.Rendering;
 public sealed class Screen : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
-    private readonly RenderTexture colorTexture;
 
+    private readonly RenderTexture colorTexture;
+    private readonly int depthRBO;
     private readonly RenderTexture depthTexture;
 
     private readonly int msFBO;
-    private readonly int msRBO;
 
     private readonly int msTex;
 
@@ -40,6 +40,12 @@ public sealed class Screen : IDisposable
 
     private readonly int screenshotFBO;
     private readonly int screenshotRBO;
+
+    private readonly int shaderFBO;
+
+    private readonly RenderTexture transparencyAccumulationTexture;
+    private readonly int transparencyFBO;
+    private readonly RenderTexture transparencyRevealageTexture;
     private bool isWireframeActive;
 
     private Vector2i previousScreenLocation;
@@ -102,22 +108,37 @@ public sealed class Screen : IDisposable
             multisampledFboStatus = GL.CheckNamedFramebufferStatus(msFBO, FramebufferTarget.Framebuffer);
         }
 
-        GL.CreateRenderbuffers(n: 1, out msRBO);
-        GL.NamedRenderbufferStorageMultisample(msRBO, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
+        GL.CreateRenderbuffers(n: 1, out depthRBO);
+        GL.NamedRenderbufferStorageMultisample(depthRBO, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
 
         GL.NamedFramebufferRenderbuffer(
             msFBO,
             FramebufferAttachment.DepthStencilAttachment,
             RenderbufferTarget.Renderbuffer,
-            msRBO);
+            depthRBO);
 
+        GL.NamedFramebufferDrawBuffer(msFBO, DrawBufferMode.ColorAttachment0);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, msFBO);
-        GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
 
         #endregion MULTISAMPLED FBO
 
-        depthTexture = RenderTexture.Create(Size, TextureUnit.Texture20, PixelFormat.DepthComponent, PixelInternalFormat.DepthComponent, FramebufferAttachment.DepthAttachment);
-        colorTexture = RenderTexture.Create(Size, TextureUnit.Texture21, PixelFormat.Rgba, PixelInternalFormat.Rgba, FramebufferAttachment.ColorAttachment0);
+        GL.CreateFramebuffers(n: 1, out shaderFBO);
+
+        depthTexture = RenderTexture.Create(shaderFBO, Size, TextureUnit.Texture20, PixelFormat.DepthComponent, PixelInternalFormat.DepthComponent, FramebufferAttachment.DepthAttachment);
+        colorTexture = RenderTexture.Create(shaderFBO, Size, TextureUnit.Texture21, PixelFormat.Rgba, PixelInternalFormat.Rgba, FramebufferAttachment.ColorAttachment0);
+
+        GL.CreateFramebuffers(n: 1, out transparencyFBO);
+
+        transparencyAccumulationTexture = RenderTexture.Create(transparencyFBO, Size, TextureUnit.Texture22, PixelFormat.Rgba, PixelInternalFormat.Rgba8, FramebufferAttachment.ColorAttachment0);
+        transparencyRevealageTexture = RenderTexture.Create(transparencyFBO, Size, TextureUnit.Texture23, PixelFormat.Red, PixelInternalFormat.R8, FramebufferAttachment.ColorAttachment1);
+
+        GL.NamedFramebufferDrawBuffers(transparencyFBO, n: 2, new[] {DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.ColorAttachment1});
+
+        GL.NamedFramebufferRenderbuffer(
+            transparencyFBO,
+            FramebufferAttachment.DepthStencilAttachment,
+            RenderbufferTarget.Renderbuffer,
+            depthRBO);
 
         #region SCREENSHOT FBO
 
@@ -160,10 +181,13 @@ public sealed class Screen : IDisposable
     /// </summary>
     public void Clear()
     {
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, msFBO);
-
         GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Color, drawbuffer: 0, new[] {0.5f, 0.8f, 0.9f, 1.0f});
-        ClearDepth();
+        GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, drawbuffer: 0, new[] {1f});
+
+        GL.ClearNamedFramebuffer(transparencyFBO, ClearBuffer.Color, drawbuffer: 0, new[] {0f, 0f, 0f, 0f});
+        GL.ClearNamedFramebuffer(transparencyFBO, ClearBuffer.Color, drawbuffer: 1, new[] {1f});
+
+        DrawToPrimaryTarget();
     }
 
     /// <summary>
@@ -218,12 +242,14 @@ public sealed class Screen : IDisposable
 
         GL.BindTexture(TextureTarget.Texture2DMultisample, texture: 0);
 
-        GL.NamedRenderbufferStorageMultisample(msRBO, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
+        GL.NamedRenderbufferStorageMultisample(depthRBO, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
 
         #endregion MULTISAMPLED FBO
 
         depthTexture.Resize(Size);
         colorTexture.Resize(Size);
+        transparencyAccumulationTexture.Resize(Size);
+        transparencyRevealageTexture.Resize(Size);
 
         #region SCREENSHOT FBO
 
@@ -483,7 +509,8 @@ public sealed class Screen : IDisposable
     /// </summary>
     public static void FillDepthTexture()
     {
-        Instance.depthTexture.Fill(Instance.msFBO, ClearBuffer.Depth, new[] {1f}, ClearBufferMask.DepthBufferBit);
+        Instance.depthTexture.Clear(ClearBuffer.Depth, new[] {1f});
+        Instance.depthTexture.Fill(Instance.msFBO, ClearBufferMask.DepthBufferBit);
     }
 
     /// <summary>
@@ -491,15 +518,8 @@ public sealed class Screen : IDisposable
     /// </summary>
     public static void FillColorTexture()
     {
-        Instance.colorTexture.Fill(Instance.msFBO, ClearBuffer.Color, new[] {0f, 0f, 0f, 0f}, ClearBufferMask.ColorBufferBit);
-    }
-
-    /// <summary>
-    ///     Clear just the depth buffer.
-    /// </summary>
-    public static void ClearDepth()
-    {
-        GL.ClearNamedFramebuffer(Instance.msFBO, ClearBuffer.Depth, drawbuffer: 0, new[] {1f});
+        Instance.colorTexture.Clear(ClearBuffer.Color, new[] {0f, 0f, 0f, 0f});
+        Instance.colorTexture.Fill(Instance.msFBO, ClearBufferMask.ColorBufferBit);
     }
 
     /// <summary>
@@ -518,6 +538,30 @@ public sealed class Screen : IDisposable
         IsOverlayLockActive = false;
     }
 
+    /// <summary>
+    ///     Draw all subsequent draw calls to the primary framebuffer.
+    ///     The primary framebuffer is used as part of the post-processing pipeline.
+    /// </summary>
+    public static void DrawToPrimaryTarget()
+    {
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, Instance.msFBO);
+
+        Instance.transparencyAccumulationTexture.Bind();
+        Instance.transparencyRevealageTexture.Bind();
+    }
+
+    /// <summary>
+    ///     Draw all subsequent draw calls to the transparency framebuffer.
+    ///     The transparency framebuffer is used for two-pass order-independent transparency.
+    /// </summary>
+    public static void DrawToTransparencyTarget()
+    {
+        Instance.transparencyAccumulationTexture.Unbind();
+        Instance.transparencyRevealageTexture.Unbind();
+
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, Instance.transparencyFBO);
+    }
+
     #endregion PUBLIC STATIC METHODS
 
     #region IDisposable Support
@@ -532,9 +576,15 @@ public sealed class Screen : IDisposable
         {
             GL.DeleteTexture(msTex);
             GL.DeleteFramebuffer(msFBO);
-            GL.DeleteRenderbuffer(msRBO);
+            GL.DeleteRenderbuffer(depthRBO);
 
             depthTexture.Dispose();
+            colorTexture.Dispose();
+            transparencyAccumulationTexture.Dispose();
+            transparencyRevealageTexture.Dispose();
+
+            GL.DeleteFramebuffer(shaderFBO);
+            GL.DeleteFramebuffer(transparencyFBO);
 
             GL.DeleteFramebuffer(screenshotFBO);
             GL.DeleteRenderbuffer(screenshotRBO);

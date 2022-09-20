@@ -1,6 +1,7 @@
 ﻿#version 430
 
-out vec4 outputColor;
+layout (location = 0) out vec4 accumulate;
+layout (location = 1) out vec4 revealage;
 
 flat in int texIndex;
 in vec2 texCoord;
@@ -10,8 +11,7 @@ in vec3 normal;
 in vec3 worldPosition;
 
 layout(binding = 5) uniform sampler2DArray arrayTexture;
-layout(binding = 20) uniform sampler2D depthTex;
-layout(binding = 21) uniform sampler2D colorTex;
+layout(binding = 20) uniform sampler2D depthTexture;
 
 uniform float time;
 uniform float nearPlane;
@@ -31,10 +31,15 @@ vec3 saturate(vec3 rgb, float adjustment)
     return mix(intensity, rgb, adjustment);
 }
 
+float w(float z, float alpha)
+{
+    return alpha * max(1e-2, 3e3 * (1 - z) * (1 - z) * (1 - z));
+}
+
 void main()
 {
     vec4 color = texture(arrayTexture, vec3(texCoord, texIndex + int(mod(time * 16, 16))));
-    float depth = texelFetch(depthTex, ivec2(int(gl_FragCoord.x), int(gl_FragCoord.y)), 0).x;
+    float depth = texelFetch(depthTexture, ivec2(int(gl_FragCoord.x), int(gl_FragCoord.y)), 0).x;
 
     color *= tint;
 
@@ -51,9 +56,6 @@ void main()
 
     color = isAboveWater ? mix(color, fogColor, fogAmount) : color;
 
-    vec3 backgroundColor = texelFetch(colorTex, ivec2(gl_FragCoord.xy), 0).rgb;
-    vec3 currentColor = color.rgb;
-    float alpha = color.a;
-
-    outputColor = vec4(currentColor - alpha * backgroundColor, 1.0);
+    accumulate = color * w(gl_FragCoord.z, color.a);
+    revealage = vec4(color.a);
 }

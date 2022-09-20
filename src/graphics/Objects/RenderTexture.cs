@@ -13,7 +13,7 @@ using VoxelGame.Logging;
 namespace VoxelGame.Graphics.Objects;
 
 /// <summary>
-///     A texture that is used to hold rendered data. It is combined with an framebuffer object.
+///     A texture that can be attached to a framebuffer.
 /// </summary>
 public sealed class RenderTexture : IDisposable
 {
@@ -32,13 +32,13 @@ public sealed class RenderTexture : IDisposable
     private Vector2i Size { get; set; }
 
     /// <summary>
-    ///     Create a new render texture.
+    ///     Create a new render texture. It will be bound and attached to the framebuffer.
     /// </summary>
-    public static RenderTexture Create(Vector2i size, TextureUnit unit, PixelFormat pixelFormat, PixelInternalFormat pixelInternalFormat, FramebufferAttachment attachment)
+    public static RenderTexture Create(int fbo, Vector2i size, TextureUnit unit, PixelFormat pixelFormat, PixelInternalFormat pixelInternalFormat, FramebufferAttachment attachment)
     {
-        int tex = GL.GenTexture();
+        int texture = GL.GenTexture();
         GL.ActiveTexture(unit);
-        GL.BindTexture(TextureTarget.Texture2D, tex);
+        GL.BindTexture(TextureTarget.Texture2D, texture);
 
         GL.TexImage2D(
             TextureTarget.Texture2D,
@@ -61,8 +61,7 @@ public sealed class RenderTexture : IDisposable
             TextureParameterName.TextureMagFilter,
             (int) TextureMagFilter.Nearest);
 
-        GL.CreateFramebuffers(n: 1, out int fbo);
-        GL.NamedFramebufferTexture(fbo, attachment, tex, level: 0);
+        GL.NamedFramebufferTexture(fbo, attachment, texture, level: 0);
 
         FramebufferStatus fboStatus = GL.CheckNamedFramebufferStatus(fbo, FramebufferTarget.Framebuffer);
 
@@ -78,7 +77,7 @@ public sealed class RenderTexture : IDisposable
 
         return new RenderTexture
         {
-            TextureHandle = tex,
+            TextureHandle = texture,
             FBOHandle = fbo,
             Unit = unit,
             PixelFormat = pixelFormat,
@@ -113,18 +112,42 @@ public sealed class RenderTexture : IDisposable
     }
 
     /// <summary>
-    ///     Fill the texture with data from a framebuffer. Before filling, the texture is cleared.
+    /// Clear the render texture.
     /// </summary>
-    /// <param name="source">The source framebuffer.</param>
-    /// <param name="buffer">The buffer to clear.</param>
-    /// <param name="clear">The clear value.</param>
-    /// <param name="mask">The blit mask.</param>
-    public void Fill(int source, ClearBuffer buffer, float[] clear, ClearBufferMask mask)
+    public void Clear(ClearBuffer buffer, float[] value)
+    {
+        GL.ClearNamedFramebuffer(FBOHandle, buffer, drawbuffer: 0, value);
+    }
+
+    /// <summary>
+    ///     Bind the render texture.
+    /// </summary>
+    public void Unbind()
+    {
+        GL.ActiveTexture(Unit);
+        GL.BindTexture(TextureTarget.Texture2D, texture: 0);
+
+        GL.ActiveTexture(TextureUnit.Texture0);
+    }
+
+    /// <summary>
+    /// Unbind the render texture.
+    /// </summary>
+    public void Bind()
     {
         GL.ActiveTexture(Unit);
         GL.BindTexture(TextureTarget.Texture2D, TextureHandle);
 
-        GL.ClearNamedFramebuffer(FBOHandle, buffer, drawbuffer: 0, clear);
+        GL.ActiveTexture(TextureUnit.Texture0);
+    }
+
+    /// <summary>
+    ///     Fill the texture with data from a framebuffer.
+    /// </summary>
+    public void Fill(int source, ClearBufferMask mask)
+    {
+        GL.ActiveTexture(Unit);
+        GL.BindTexture(TextureTarget.Texture2D, TextureHandle);
 
         GL.BlitNamedFramebuffer(
             source,
@@ -154,7 +177,6 @@ public sealed class RenderTexture : IDisposable
         if (disposing)
         {
             GL.DeleteTexture(TextureHandle);
-            GL.DeleteFramebuffer(FBOHandle);
         }
         else
         {

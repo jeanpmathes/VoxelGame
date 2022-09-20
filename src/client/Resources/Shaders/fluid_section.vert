@@ -1,6 +1,6 @@
 ﻿#version 430
 
-in ivec2 aData;
+layout (location = 0) in ivec2 aData;
 
 flat out int texIndex;
 out vec2 texCoord;
