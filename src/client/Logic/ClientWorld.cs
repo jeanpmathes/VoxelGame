@@ -125,6 +125,8 @@ public class ClientWorld : World
             SectionRenderer.FinishStage(stage);
         }
 
+        SectionRenderer.DrawFullscreenPasses();
+
         // Render all players in this world
         player?.Render();
     }

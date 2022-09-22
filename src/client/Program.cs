@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -76,7 +77,10 @@ internal static class Program
 #if !DEBUG
         AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
         {
-            logger.LogError(Events.ApplicationInformation, eventArgs.ExceptionObject as Exception, "Unhandled exception, likely a bug. Terminating: {Exit}", eventArgs.IsTerminating);
+            logger.LogCritical(Events.ApplicationInformation, eventArgs.ExceptionObject as Exception, "Unhandled exception, likely a bug. Terminating: {Exit}", eventArgs.IsTerminating);
+
+            // The runtime will emit a message, to prevent mixing we wait.
+            Thread.Sleep(millisecondsTimeout: 100);
         };
 #endif
 

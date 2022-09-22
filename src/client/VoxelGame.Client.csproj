@@ -644,5 +644,8 @@
     <None Update="Resources\Shaders\transparent_fluid_section_draw.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Shaders\fullscreen.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

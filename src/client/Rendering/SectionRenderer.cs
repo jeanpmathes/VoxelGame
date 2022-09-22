@@ -31,7 +31,6 @@ public sealed class SectionRenderer : IDisposable
     private const int VaryingHeight = 4;
     private const int OpaqueFluid = 5;
     private const int TransparentFluidAccumulate = 6;
-    private const int TransparentFluidDraw = 7;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
 
     private static Matrix4d viewProjection;
@@ -168,7 +167,7 @@ public sealed class SectionRenderer : IDisposable
     /// <summary>
     ///     The number of draw stages.
     /// </summary>
-    public static int DrawStageCount => 8;
+    public static int DrawStageCount => 7;
 
     private static Shaders Shaders => Application.Client.Instance.Resources.Shaders;
 
@@ -262,11 +261,6 @@ public sealed class SectionRenderer : IDisposable
 
                 break;
 
-            case TransparentFluidDraw:
-                PrepareTransparentFluidBufferDraw();
-
-                break;
-
             default: throw new InvalidOperationException();
         }
     }
@@ -334,17 +328,6 @@ public sealed class SectionRenderer : IDisposable
         Shaders.TransparentFluidSectionAccumulate.Use();
     }
 
-    private static void PrepareTransparentFluidBufferDraw()
-    {
-        Application.Client.Instance.Resources.FluidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
-
-        GL.Enable(EnableCap.Blend);
-        GL.DepthMask(flag: false);
-        GL.BlendFunc(BlendingFactor.OneMinusSrcAlpha, BlendingFactor.SrcAlpha);
-
-        Shaders.TransparentFluidSectionDraw.Use();
-    }
-
     /// <summary>
     ///     Draw a specific stage.
     /// </summary>
@@ -387,11 +370,6 @@ public sealed class SectionRenderer : IDisposable
 
                 break;
 
-            case TransparentFluidDraw:
-                Draw(transparentFluidDrawGroup, Shaders.TransparentFluidSectionDraw, model, passModel: false);
-
-                break;
-
             default: throw new InvalidOperationException();
         }
     }
@@ -421,12 +399,7 @@ public sealed class SectionRenderer : IDisposable
 
                 break;
             case TransparentFluidAccumulate:
-                FinishTransparentFluidBuffer(restoreRenderTarget: true);
-
-                break;
-
-            case TransparentFluidDraw:
-                FinishTransparentFluidBuffer(restoreRenderTarget: false);
+                FinishTransparentFluidBuffer();
 
                 break;
 
@@ -442,9 +415,30 @@ public sealed class SectionRenderer : IDisposable
         GL.Enable(EnableCap.CullFace);
     }
 
-    private static void FinishTransparentFluidBuffer(bool restoreRenderTarget)
+    private static void FinishTransparentFluidBuffer()
     {
-        if (restoreRenderTarget) Screen.DrawToPrimaryTarget();
+        Screen.DrawToPrimaryTarget();
+
+        GL.Disable(EnableCap.Blend);
+        GL.DepthMask(flag: true);
+    }
+
+    /// <summary>
+    ///     Draw all required fullscreen passes.
+    /// </summary>
+    public static void DrawFullscreenPasses()
+    {
+        DrawTransparencyPass();
+    }
+
+    private static void DrawTransparencyPass()
+    {
+        GL.Enable(EnableCap.Blend);
+        GL.DepthMask(flag: false);
+        GL.BlendFunc(BlendingFactor.OneMinusSrcAlpha, BlendingFactor.SrcAlpha);
+
+        Shaders.TransparentFluidSectionDraw.Use();
+        Screen.DrawFullScreenPass();
 
         GL.Disable(EnableCap.Blend);
         GL.DepthMask(flag: true);

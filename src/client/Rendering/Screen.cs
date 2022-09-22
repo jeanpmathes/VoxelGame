@@ -32,6 +32,8 @@ public sealed class Screen : IDisposable
     private readonly int depthRBO;
     private readonly RenderTexture depthTexture;
 
+    private readonly int emptyVAO;
+
     private readonly int msFBO;
 
     private readonly int msTex;
@@ -170,6 +172,7 @@ public sealed class Screen : IDisposable
 
         #endregion SCREENSHOT FBO
 
+        GL.CreateVertexArrays(n: 1, out emptyVAO);
     }
 
     private static Screen Instance { get; set; } = null!;
@@ -562,6 +565,18 @@ public sealed class Screen : IDisposable
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, Instance.transparencyFBO);
     }
 
+    /// <summary>
+    ///     Draw a fullscreen pass. Requires a compatible shader that procedurally produces the geometry.
+    /// </summary>
+    public static void DrawFullScreenPass()
+    {
+        GL.BindVertexArray(Instance.emptyVAO);
+
+        GL.DrawArrays(PrimitiveType.Triangles, first: 0, count: 3);
+
+        GL.BindVertexArray(array: 0);
+    }
+
     #endregion PUBLIC STATIC METHODS
 
     #region IDisposable Support
@@ -588,6 +603,8 @@ public sealed class Screen : IDisposable
 
             GL.DeleteFramebuffer(screenshotFBO);
             GL.DeleteRenderbuffer(screenshotRBO);
+
+            GL.DeleteVertexArray(emptyVAO);
         }
 
         logger.LogWarning(Events.UndeletedGlObjects, "Screen object disposed by GC without freeing storage");
