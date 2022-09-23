@@ -31,11 +31,6 @@ vec3 saturate(vec3 rgb, float adjustment)
     return mix(intensity, rgb, adjustment);
 }
 
-float w(float z, float alpha)
-{
-    return alpha * max(1e-2, 3e3 * (1 - z) * (1 - z) * (1 - z));
-}
-
 void main()
 {
     vec4 color = texture(arrayTexture, vec3(texCoord, texIndex + int(mod(time * 16, 16))));
@@ -54,8 +49,15 @@ void main()
     float plane = dot(normal, viewPosition - worldPosition);
     bool isAboveWater = plane > 0.0;
 
+    fogAmount = 0.0;
     color = isAboveWater ? mix(color, fogColor, fogAmount) : color;
 
-    accumulate = color * w(gl_FragCoord.z, color.a);
-    revealage = vec4(color.a);
+    float z = dist_linear;
+
+    float weight =
+    max(min(1.0, max(max(color.r, color.g), color.b) * color.a), color.a) *
+    clamp(0.03 / (1e-5 + pow(z / 200, 4.0)), 1e-2, 3e3);
+
+    accumulate = vec4(color.rgb * color.a, color.a) * weight;
+    revealage.a = color.a;
 }

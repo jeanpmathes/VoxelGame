@@ -131,7 +131,7 @@ public sealed class Screen : IDisposable
 
         GL.CreateFramebuffers(n: 1, out transparencyFBO);
 
-        transparencyAccumulationTexture = RenderTexture.Create(transparencyFBO, Size, TextureUnit.Texture22, PixelFormat.Rgba, PixelInternalFormat.Rgba8, FramebufferAttachment.ColorAttachment0);
+        transparencyAccumulationTexture = RenderTexture.Create(transparencyFBO, Size, TextureUnit.Texture22, PixelFormat.Rgba, PixelInternalFormat.Rgba16f, FramebufferAttachment.ColorAttachment0);
         transparencyRevealageTexture = RenderTexture.Create(transparencyFBO, Size, TextureUnit.Texture23, PixelFormat.Red, PixelInternalFormat.R8, FramebufferAttachment.ColorAttachment1);
 
         GL.NamedFramebufferDrawBuffers(transparencyFBO, n: 2, new[] {DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.ColorAttachment1});
