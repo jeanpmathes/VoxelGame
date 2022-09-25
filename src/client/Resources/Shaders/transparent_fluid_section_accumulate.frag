@@ -1,7 +1,12 @@
-﻿#version 430
+﻿/**
+ * Based on: https://learnopengl.com/Guest-Articles/2020/OIT/Weighted-Blended
+ * by Mahan Heshmati Moghaddam
+ */
+
+#version 430
 
 layout (location = 0) out vec4 accumulate;
-layout (location = 1) out vec4 revealage;
+layout (location = 1) out float revealage;
 
 flat in int texIndex;
 in vec2 texCoord;
@@ -52,12 +57,8 @@ void main()
     fogAmount = 0.0;
     color = isAboveWater ? mix(color, fogColor, fogAmount) : color;
 
-    float z = dist_linear;
-
-    float weight =
-    max(min(1.0, max(max(color.r, color.g), color.b) * color.a), color.a) *
-    clamp(0.03 / (1e-5 + pow(z / 200, 4.0)), 1e-2, 3e3);
+    float weight = clamp(pow(min(1.0, color.a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - gl_FragCoord.z * 0.9, 3.0), 1e-2, 3e3);
 
     accumulate = vec4(color.rgb * color.a, color.a) * weight;
-    revealage.a = color.a;
+    revealage = color.a;
 }

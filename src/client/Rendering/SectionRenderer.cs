@@ -320,10 +320,10 @@ public sealed class SectionRenderer : IDisposable
 
         Screen.DrawToTransparencyTarget();
 
-        GL.Enable(EnableCap.Blend);
         GL.DepthMask(flag: false);
+        GL.Enable(EnableCap.Blend);
         GL.BlendFunc(buf: 0, BlendingFactorSrc.One, BlendingFactorDest.One);
-        GL.BlendFunc(buf: 1, BlendingFactorSrc.Zero, BlendingFactorDest.OneMinusSrcAlpha);
+        GL.BlendFunc(buf: 1, BlendingFactorSrc.Zero, BlendingFactorDest.OneMinusSrcColor);
 
         Shaders.TransparentFluidSectionAccumulate.Use();
     }
@@ -433,14 +433,16 @@ public sealed class SectionRenderer : IDisposable
 
     private static void DrawTransparencyPass()
     {
-        GL.Enable(EnableCap.Blend);
         GL.DepthMask(flag: false);
-        GL.BlendFunc(BlendingFactor.OneMinusSrcAlpha, BlendingFactor.SrcAlpha);
+        GL.DepthFunc(DepthFunction.Always);
+        GL.Enable(EnableCap.Blend);
+        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
         Shaders.TransparentFluidSectionDraw.Use();
         Screen.DrawFullScreenPass();
 
         GL.Disable(EnableCap.Blend);
+        GL.DepthFunc(DepthFunction.Less);
         GL.DepthMask(flag: true);
     }
 

@@ -126,13 +126,31 @@ public sealed class Screen : IDisposable
 
         GL.CreateFramebuffers(n: 1, out shaderFBO);
 
-        depthTexture = RenderTexture.Create(shaderFBO, Size, TextureUnit.Texture20, PixelFormat.DepthComponent, PixelInternalFormat.DepthComponent, FramebufferAttachment.DepthAttachment);
-        colorTexture = RenderTexture.Create(shaderFBO, Size, TextureUnit.Texture21, PixelFormat.Rgba, PixelInternalFormat.Rgba, FramebufferAttachment.ColorAttachment0);
+        depthTexture = RenderTexture.Create(shaderFBO,
+            Size,
+            TextureUnit.Texture20,
+            (PixelFormat.DepthComponent, PixelInternalFormat.DepthComponent, PixelType.Float),
+            FramebufferAttachment.DepthAttachment);
+
+        colorTexture = RenderTexture.Create(shaderFBO,
+            Size,
+            TextureUnit.Texture21,
+            (PixelFormat.Rgba, PixelInternalFormat.Rgba, PixelType.Float),
+            FramebufferAttachment.ColorAttachment0);
 
         GL.CreateFramebuffers(n: 1, out transparencyFBO);
 
-        transparencyAccumulationTexture = RenderTexture.Create(transparencyFBO, Size, TextureUnit.Texture22, PixelFormat.Rgba, PixelInternalFormat.Rgba16f, FramebufferAttachment.ColorAttachment0);
-        transparencyRevealageTexture = RenderTexture.Create(transparencyFBO, Size, TextureUnit.Texture23, PixelFormat.Red, PixelInternalFormat.R8, FramebufferAttachment.ColorAttachment1);
+        transparencyAccumulationTexture = RenderTexture.Create(transparencyFBO,
+            Size,
+            TextureUnit.Texture22,
+            (PixelFormat.Rgba, PixelInternalFormat.Rgba16f, PixelType.HalfFloat),
+            FramebufferAttachment.ColorAttachment0);
+
+        transparencyRevealageTexture = RenderTexture.Create(transparencyFBO,
+            Size,
+            TextureUnit.Texture23,
+            (PixelFormat.Red, PixelInternalFormat.R8, PixelType.Float),
+            FramebufferAttachment.ColorAttachment1);
 
         GL.NamedFramebufferDrawBuffers(transparencyFBO, n: 2, new[] {DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.ColorAttachment1});
 
@@ -188,7 +206,7 @@ public sealed class Screen : IDisposable
         GL.ClearNamedFramebuffer(msFBO, ClearBuffer.Depth, drawbuffer: 0, new[] {1f});
 
         GL.ClearNamedFramebuffer(transparencyFBO, ClearBuffer.Color, drawbuffer: 0, new[] {0f, 0f, 0f, 0f});
-        GL.ClearNamedFramebuffer(transparencyFBO, ClearBuffer.Color, drawbuffer: 1, new[] {1f});
+        GL.ClearNamedFramebuffer(transparencyFBO, ClearBuffer.Color, drawbuffer: 1, new[] {1f, 1f, 1f, 1f});
 
         DrawToPrimaryTarget();
     }

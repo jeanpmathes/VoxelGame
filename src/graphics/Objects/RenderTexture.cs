@@ -34,7 +34,9 @@ public sealed class RenderTexture : IDisposable
     /// <summary>
     ///     Create a new render texture. It will be bound and attached to the framebuffer.
     /// </summary>
-    public static RenderTexture Create(int fbo, Vector2i size, TextureUnit unit, PixelFormat pixelFormat, PixelInternalFormat pixelInternalFormat, FramebufferAttachment attachment)
+    public static RenderTexture Create(int fbo, Vector2i size, TextureUnit unit,
+        (PixelFormat pixelFormat, PixelInternalFormat pixelInternalFormat, PixelType pixelType) format,
+        FramebufferAttachment attachment)
     {
         int texture = GL.GenTexture();
         GL.ActiveTexture(unit);
@@ -43,23 +45,23 @@ public sealed class RenderTexture : IDisposable
         GL.TexImage2D(
             TextureTarget.Texture2D,
             level: 0,
-            pixelInternalFormat,
+            format.pixelInternalFormat,
             size.X,
             size.Y,
             border: 0,
-            pixelFormat,
-            PixelType.Float,
+            format.pixelFormat,
+            format.pixelType,
             IntPtr.Zero);
 
         GL.TexParameter(
             TextureTarget.Texture2D,
             TextureParameterName.TextureMinFilter,
-            (int) TextureMinFilter.Nearest);
+            (int) TextureMinFilter.Linear);
 
         GL.TexParameter(
             TextureTarget.Texture2D,
             TextureParameterName.TextureMagFilter,
-            (int) TextureMagFilter.Nearest);
+            (int) TextureMagFilter.Linear);
 
         GL.NamedFramebufferTexture(fbo, attachment, texture, level: 0);
 
@@ -80,8 +82,8 @@ public sealed class RenderTexture : IDisposable
             TextureHandle = texture,
             FBOHandle = fbo,
             Unit = unit,
-            PixelFormat = pixelFormat,
-            PixelInternalFormat = pixelInternalFormat,
+            PixelFormat = format.pixelFormat,
+            PixelInternalFormat = format.pixelInternalFormat,
             Size = size
         };
     }
