@@ -51,7 +51,8 @@ internal class CreditsMenu : StandardMenu
             .Text(Source.GetTextContent("Resources/Textures/attribution.txt")).LineBreak()
             .Text("Code").LineBreak()
             .Text("Noise Generation: https://github.com/Auburn/FastNoiseLite").LineBreak()
-            .Text("glsl Generation: https://github.com/stegu/webgl-noise").LineBreak()
+            .Text("glsl Noise Generation: https://github.com/stegu/webgl-noise").LineBreak()
+            .Text("Order Independent Transparency: https://learnopengl.com/Guest-Articles/2020/OIT/Weighted-Blended").LineBreak()
             .Text("OpenTK Tutorials: https://opentk.net/learn/index.html").LineBreak();
 
         credits.Paragraphs.Add(content);
