@@ -10,9 +10,6 @@ out vec4 outputColor;
 layout(binding = 22) uniform sampler2D accumulationTexture;
 layout(binding = 23) uniform sampler2D revealageTexture;
 
-uniform float nearPlane;
-uniform float farPlane;
-
 const float EPSILON = 0.00001f;
 
 bool isApproximatelyEqual(float a, float b)

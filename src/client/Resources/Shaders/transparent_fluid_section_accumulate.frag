@@ -48,13 +48,12 @@ void main()
 
     float thickness = abs(depth_linear - dist_linear);
 
-    float fogAmount = clamp(thickness / 4.0, 0.1, 0.9);
+    float fogAmount = clamp(thickness / 8.0, 0.1, 0.9);
     vec4 fogColor = vec4(saturate(color.rgb, 0.8), 1.0);
 
     float plane = dot(normal, viewPosition - worldPosition);
     bool isAboveWater = plane > 0.0;
 
-    fogAmount = 0.0;
     color = isAboveWater ? mix(color, fogColor, fogAmount) : color;
 
     float weight = clamp(pow(min(1.0, color.a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - gl_FragCoord.z * 0.9, 3.0), 1e-2, 3e3);
