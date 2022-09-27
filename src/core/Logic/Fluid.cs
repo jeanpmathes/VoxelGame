@@ -201,13 +201,14 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void MeshFluidSide(BlockSide side)
         {
-            Fluid fluidToCheck;
-            Block blockToCheck;
-
-            (blockToCheck, fluidToCheck) = context.GetBlockAndFluid(
+            (Block, Fluid)? content = context.GetBlockAndFluid(
                 side.Offset(position),
                 side,
                 out int sideHeight);
+
+            if (content == null) return;
+
+            (Block blockToCheck, Fluid fluidToCheck) = content.Value;
 
             bool atVerticalEnd = side is BlockSide.Top or BlockSide.Bottom;
 
@@ -220,7 +221,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
                 ? Direction == VerticalFlow.Upwards
                 : Direction == VerticalFlow.Downwards;
 
-            bool meshAtNormal = (int) info.Level > sideHeight && !blockToCheck.IsOpaque;
+            bool meshAtSide = (int) info.Level > sideHeight && !blockToCheck.IsOpaque;
 
             bool meshAtEnd =
                 flowsTowardsFace && sideHeight != 7 && !blockToCheck.IsOpaque
@@ -228,7 +229,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
                                          fluidToCheck != this &&
                                          !blockToCheck.IsOpaque);
 
-            if (atVerticalEnd ? !meshAtEnd : !meshAtNormal) return;
+            if (atVerticalEnd ? !meshAtEnd : !meshAtSide) return;
 
             FluidMeshData mesh = GetMeshData(info with {Side = side});
 

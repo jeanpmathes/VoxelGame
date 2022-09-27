@@ -185,10 +185,9 @@ public class MeshingContext
     /// <param name="level">The level of the fluid.</param>
     /// <returns>The block and fluid or null if there is nothing.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public (Block block, Fluid fluid) GetBlockAndFluid(Vector3i position, BlockSide side, out int level)
+    public (Block block, Fluid fluid)? GetBlockAndFluid(Vector3i position, BlockSide side, out int level)
     {
-        Block? block;
-        Fluid? fluid;
+        (Block block, Fluid fluid)? result;
 
         level = -1;
 
@@ -197,16 +196,20 @@ public class MeshingContext
             position = position.Mod(Section.Size);
 
             Section? neighbor = neighbors[(int) side];
-            block = neighbor?.GetBlock(position);
-            fluid = neighbor?.GetFluid(position, out level);
+            Block? block = neighbor?.GetBlock(position);
+            Fluid? fluid = neighbor?.GetFluid(position, out level);
+
+            result = block != null && fluid != null ? (block, fluid) : null;
         }
         else
         {
-            block = current.GetBlock(position);
-            fluid = current.GetFluid(position, out level);
+            Block block = current.GetBlock(position);
+            Fluid fluid = current.GetFluid(position, out level);
+
+            result = (block, fluid);
         }
 
-        return (block ?? Block.Air, fluid ?? Fluid.None);
+        return result;
     }
 
     /// <summary>
