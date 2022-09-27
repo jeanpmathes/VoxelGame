@@ -16,7 +16,7 @@ using OpenTK.Mathematics;
 using Properties;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
-using VoxelGame.Core.Generation.Water;
+using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
 
@@ -242,7 +242,7 @@ public abstract partial class World : IDisposable
 
     private static IWorldGenerator GetGenerator(World world)
     {
-        return new Generator(); // todo: switch back to default generator
+        return new Generator(world);
     }
 
     /// <summary>
