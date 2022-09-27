@@ -31,7 +31,7 @@ public abstract class Layer
 
     /// <summary>
     ///     Get the current palette, if there is any.
-    ///     There will always be a palette when <see cref="GetData" /> is called.
+    ///     There will always be a palette when <see cref="GetContent" /> is called.
     /// </summary>
     protected Palette? Palette { get; private set; }
 
@@ -46,7 +46,7 @@ public abstract class Layer
     /// <summary>
     ///     Create a dampening layer that absorbs some of the offset. This is a meta layer and is assumed to be fillable.
     /// </summary>
-    public static Layer CreatePermeableDampen(IBlockBase block, int maxWidth)
+    public static Layer CreatePermeableDampen(Block block, int maxWidth)
     {
         return new PermeableDampen(block, maxWidth);
     }
@@ -70,7 +70,7 @@ public abstract class Layer
     /// <summary>
     /// Create a cover layer, which selects an alternative when filled. The alternative block is also filled with water if possible.
     /// </summary>
-    public static Layer CreateCover(IBlockBase cover, IBlockBase filled, int width)
+    public static Layer CreateCover(Block cover, Block filled, int width)
     {
         return new Cover(cover, filled, width);
     }
@@ -78,7 +78,7 @@ public abstract class Layer
     /// <summary>
     ///     Create a layer with a permeable material that will be filled with water.
     /// </summary>
-    public static Layer CreatePermeable(IBlockBase block, int width)
+    public static Layer CreatePermeable(Block block, int width)
     {
         return new Permeable(block, width);
     }
@@ -86,7 +86,7 @@ public abstract class Layer
     /// <summary>
     ///     Create a solid layer, which always has the same block.
     /// </summary>
-    public static Layer CreateSolid(IBlockBase block, int width)
+    public static Layer CreateSolid(Block block, int width)
     {
         return new Solid(block, width);
     }
@@ -131,22 +131,22 @@ public abstract class Layer
     /// <param name="stoneType">The stone type of the column.</param>
     /// <param name="isFilled">Whether the column is filled with fluid or not.</param>
     /// <returns>The data for the layer content.</returns>
-    public abstract uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled);
+    public abstract Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled);
 
     private sealed class Cover : Layer
     {
-        private readonly uint filledData;
-        private readonly uint normalData;
+        private readonly Content filledData;
+        private readonly Content normalData;
 
-        public Cover(IBlockBase cover, IBlockBase filled, int width)
+        public Cover(Block cover, Block filled, int width)
         {
             Width = width;
 
-            normalData = Section.Encode(cover);
-            filledData = filled is IFillable ? Section.Encode(filled, Fluid.Water) : Section.Encode(filled);
+            normalData = new Content(cover);
+            filledData = filled is IFillable ? new Content(filled, Fluid.Water) : new Content(filled);
         }
 
-        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             return isFilled ? filledData : normalData;
         }
@@ -154,18 +154,18 @@ public abstract class Layer
 
     private sealed class Permeable : Layer
     {
-        private readonly uint filled;
-        private readonly uint normal;
+        private readonly Content filled;
+        private readonly Content normal;
 
-        public Permeable(IBlockBase block, int width)
+        public Permeable(Block block, int width)
         {
             Width = width;
 
-            normal = Section.Encode(block);
-            filled = Section.Encode(block, Fluid.Water);
+            normal = new Content(block);
+            filled = new Content(block, Fluid.Water);
         }
 
-        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             return isFilled ? filled : normal;
         }
@@ -173,17 +173,17 @@ public abstract class Layer
 
     private sealed class Solid : Layer
     {
-        private readonly uint data;
+        private readonly Content data;
 
-        public Solid(IBlockBase block, int width)
+        public Solid(Block block, int width)
         {
             Width = width;
             IsSolid = true;
 
-            data = Section.Encode(block);
+            data = new Content(block);
         }
 
-        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             return data;
         }
@@ -200,7 +200,7 @@ public abstract class Layer
             groundWaterDepth = width / 2;
         }
 
-        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             if (isFilled) return Palette!.GetLoose(stoneType, isFilled);
 
@@ -212,18 +212,18 @@ public abstract class Layer
 
     private sealed class Snow : Layer
     {
-        private readonly uint filled;
-        private readonly uint snow;
+        private readonly Content filled;
+        private readonly Content snow;
 
         public Snow(int width)
         {
             Width = width;
 
-            snow = Block.Specials.Snow.FullHeightData;
-            filled = Section.Encode(fluid: Fluid.Water);
+            snow = new Content(Block.Specials.Snow.FullHeightInstance, FluidInstance.Default);
+            filled = new Content(fluid: Fluid.Water);
         }
 
-        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             return isFilled ? filled : snow;
         }
@@ -236,7 +236,7 @@ public abstract class Layer
             Width = width;
         }
 
-        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             return Palette!.GetLoose(stoneType, isFilled);
         }
@@ -244,19 +244,19 @@ public abstract class Layer
 
     private sealed class PermeableDampen : Layer
     {
-        private readonly uint blockFilled;
-        private readonly uint blockNormal;
+        private readonly Content blockFilled;
+        private readonly Content blockNormal;
 
-        public PermeableDampen(IBlockBase block, int maxWidth)
+        public PermeableDampen(Block block, int maxWidth)
         {
             Width = maxWidth;
             IsDampen = true;
 
-            blockNormal = Section.Encode(block);
-            blockFilled = Section.Encode(block, Fluid.Water);
+            blockNormal = new Content(block);
+            blockFilled = new Content(block, Fluid.Water);
         }
 
-        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             return isFilled ? blockFilled : blockNormal;
         }
@@ -270,7 +270,7 @@ public abstract class Layer
             IsDampen = true;
         }
 
-        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             return Palette!.GetStone(stoneType);
         }
@@ -284,7 +284,7 @@ public abstract class Layer
             IsSolid = true;
         }
 
-        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             return Palette!.GetStone(stoneType);
         }
@@ -293,26 +293,26 @@ public abstract class Layer
     private sealed class StonyCover : Layer
     {
         private readonly int amplitude;
-        private readonly uint dirt;
-        private readonly uint dirtFilled;
+        private readonly Content dirt;
+        private readonly Content dirtFilled;
 
-        private readonly uint grass;
-        private readonly uint grassFilled;
+        private readonly Content grass;
+        private readonly Content grassFilled;
 
         public StonyCover(int width, int amplitude)
         {
             Width = width;
 
-            dirt = Section.Encode(Block.Dirt);
-            dirtFilled = Section.Encode(Block.Dirt, Fluid.Water);
+            dirt = new Content(Block.Dirt);
+            dirtFilled = new Content(Block.Dirt, Fluid.Water);
 
-            grass = Section.Encode(Block.Grass);
-            grassFilled = Section.Encode(Block.Grass, Fluid.Water);
+            grass = new Content(Block.Grass);
+            grassFilled = new Content(Block.Grass, Fluid.Water);
 
             this.amplitude = amplitude;
         }
 
-        public override uint GetData(int depth, int offset, Map.StoneType stoneType, bool isFilled)
+        public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
             if (offset > amplitude)
             {

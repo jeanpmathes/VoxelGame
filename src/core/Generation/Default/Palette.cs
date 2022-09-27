@@ -14,28 +14,28 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 public class Palette
 {
-    private readonly uint granite = Section.Encode(Block.Granite);
+    private readonly Content granite = new(Block.Granite);
 
-    private readonly uint gravel = Section.Encode(Block.Gravel);
-    private readonly uint gravelFilled = Section.Encode(Block.Gravel, Fluid.Water);
-    private readonly uint gravelGroundwater = Section.Encode(Block.Gravel, Fluid.Water);
-    private readonly uint limestone = Section.Encode(Block.Limestone);
-    private readonly uint marble = Section.Encode(Block.Marble);
+    private readonly Content gravel = new(Block.Gravel);
+    private readonly Content gravelFilled = new(Block.Gravel, Fluid.Water);
+    private readonly Content gravelGroundwater = new(Block.Gravel, Fluid.Water);
+    private readonly Content limestone = new(Block.Limestone);
+    private readonly Content marble = new(Block.Marble);
 
-    private readonly uint sand = Section.Encode(Block.Sand);
-    private readonly uint sandFilled = Section.Encode(Block.Sand, Fluid.Water);
-    private readonly uint sandGroundwater = Section.Encode(Block.Sand, Fluid.Water);
-    private readonly uint sandstone = Section.Encode(Block.Sandstone);
+    private readonly Content sand = new(Block.Sand);
+    private readonly Content sandFilled = new(Block.Sand, Fluid.Water);
+    private readonly Content sandGroundwater = new(Block.Sand, Fluid.Water);
+    private readonly Content sandstone = new(Block.Sandstone);
 
-    internal uint Empty { get; init; } = Section.Encode();
+    internal Content Empty { get; init; } = Content.Default;
 
-    internal uint Water { get; init; } = Section.Encode(fluid: Fluid.Water);
+    internal Content Water { get; init; } = new(fluid: Fluid.Water);
 
-    internal uint Core { get; init; } = Section.Encode(Block.Core);
+    internal Content Core { get; init; } = new(Block.Core);
 
-    internal uint Ice { get; init; } = Block.Specials.Ice.FullHeightData;
+    internal Content Ice { get; init; } = new(Block.Specials.Ice.FullHeightInstance, FluidInstance.Default);
 
-    internal uint GetStone(Map.StoneType type)
+    internal Content GetStone(Map.StoneType type)
     {
         return type switch
         {
@@ -47,15 +47,15 @@ public class Palette
         };
     }
 
-    internal uint GetLoose(Map.StoneType type, bool isFilled)
+    internal Content GetLoose(Map.StoneType type, bool isFilled)
     {
-        uint currentSand = isFilled ? sandFilled : sand;
-        uint currentGravel = isFilled ? gravelFilled : gravel;
+        Content currentSand = isFilled ? sandFilled : sand;
+        Content currentGravel = isFilled ? gravelFilled : gravel;
 
         return type == Map.StoneType.Sandstone ? currentSand : currentGravel;
     }
 
-    internal uint GetGroundwater(Map.StoneType type)
+    internal Content GetGroundwater(Map.StoneType type)
     {
         return type == Map.StoneType.Sandstone ? sandGroundwater : gravelGroundwater;
     }

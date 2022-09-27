@@ -141,7 +141,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
         {
             Vector3i position = center + new Vector3i(x, y, z);
 
-            (BlockInstance, FluidInstance)? content = world.GetContent(position);
+            Content? content = world.GetContent(position);
 
             if (content == null) continue;
 

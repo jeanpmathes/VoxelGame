@@ -243,7 +243,7 @@ public abstract partial class Fluid
     /// <param name="pumpDistance">The maximum amount of elevation.</param>
     public static void Elevate(World world, Vector3i position, int pumpDistance)
     {
-        (BlockInstance, FluidInstance)? content = world.GetContent(position);
+        Content? content = world.GetContent(position);
 
         if (content is not var (start, toElevate)) return;
         if (toElevate.Fluid == None || toElevate.Fluid.IsGas) return;

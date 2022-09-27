@@ -254,7 +254,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
         foreach (Vector3d point in samplePoints)
         {
-            (BlockInstance block, FluidInstance fluid)? sampledContent = World.GetContent(point.Floor());
+            Content? sampledContent = World.GetContent(point.Floor());
 
             if (sampledContent is not var (block, fluid)) continue;
 

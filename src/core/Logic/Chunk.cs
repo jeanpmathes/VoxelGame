@@ -252,19 +252,17 @@ public abstract class Chunk : IDisposable
         {
             int y = range.begin;
 
-            foreach (uint content in generator.GenerateColumn(
+            foreach (Content content in generator.GenerateColumn(
                          x + Position.X * BlockSize,
                          z + Position.Z * BlockSize,
                          range))
             {
                 Vector3i position = (x, y, z);
 
-                Section.Decode(content, out Block block, out uint data, out Fluid fluid, out FluidLevel level, out bool isStatic);
+                Content modifiedContent = content.Block.Block.GenerateUpdate(content);
 
-                (BlockInstance newBlock, FluidInstance newFluid) = block.GenerateUpdate(block.AsInstance(data), fluid.AsInstance(level, isStatic));
-                uint modifiedContent = Section.Encode(newBlock.Block, newBlock.Data, newFluid.Fluid, newFluid.Level, newFluid.IsStatic);
-
-                GetSection(position).SetContent(position, modifiedContent);
+                uint encodedContent = Section.Encode(modifiedContent.Block.Block, modifiedContent.Block.Data, modifiedContent.Fluid.Fluid, modifiedContent.Fluid.Level, modifiedContent.Fluid.IsStatic);
+                GetSection(position).SetContent(position, encodedContent);
 
                 y++;
             }

@@ -7,7 +7,6 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Application;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Graphics.Utility;
@@ -23,8 +22,6 @@ public sealed class Shaders
     private const string SectionFragmentShader = "section.frag";
 
     private const string TimeUniform = "time";
-    private const string ViewDirectionUniform = "viewDirection";
-    private const string ViewPositionUniform = "viewPosition";
     private const string NearPlaneUniform = "nearPlane";
     private const string FarPlaneUniform = "farPlane";
 
@@ -35,16 +32,12 @@ public sealed class Shaders
     private readonly ISet<Shader> nearPlaneSet = new HashSet<Shader>();
 
     private readonly ISet<Shader> timedSet = new HashSet<Shader>();
-    private readonly ISet<Shader> viewDirectionSet = new HashSet<Shader>();
-    private readonly ISet<Shader> viewPositionSet = new HashSet<Shader>();
 
     private Shaders(string directory)
     {
         loader = new ShaderLoader(
             directory,
             (timedSet, TimeUniform),
-            (viewDirectionSet, ViewDirectionUniform),
-            (viewPositionSet, ViewPositionUniform),
             (nearPlaneSet, NearPlaneUniform),
             (farPlaneSet, FarPlaneUniform));
     }
@@ -80,9 +73,14 @@ public sealed class Shaders
     public Shader OpaqueFluidSection { get; private set; } = null!;
 
     /// <summary>
-    ///     The shader used for transparent fluids.
+    ///     The shader used for the accumulate pass for transparent fluids.
     /// </summary>
-    public Shader TransparentFluidSection { get; private set; } = null!;
+    public Shader TransparentFluidSectionAccumulate { get; private set; } = null!;
+
+    /// <summary>
+    ///     The shader used for the draw pass for transparent fluids.
+    /// </summary>
+    public Shader TransparentFluidSectionDraw { get; private set; } = null!;
 
     /// <summary>
     ///     The shader used for block/fluid texture overlays.
@@ -120,7 +118,8 @@ public sealed class Shaders
         CrossPlantSection.Delete();
         CropPlantSection.Delete();
         OpaqueFluidSection.Delete();
-        TransparentFluidSection.Delete();
+        TransparentFluidSectionAccumulate.Delete();
+        TransparentFluidSectionDraw.Delete();
 
         Overlay.Delete();
         Selection.Delete();
@@ -141,7 +140,8 @@ public sealed class Shaders
             CrossPlantSection = loader.Load("cross_plant_section.vert", SectionFragmentShader);
             CropPlantSection = loader.Load("crop_plant_section.vert", SectionFragmentShader);
             OpaqueFluidSection = loader.Load("fluid_section.vert", "opaque_fluid_section.frag");
-            TransparentFluidSection = loader.Load("fluid_section.vert", "transparent_fluid_section.frag");
+            TransparentFluidSectionAccumulate = loader.Load("fluid_section.vert", "transparent_fluid_section_accumulate.frag");
+            TransparentFluidSectionDraw = loader.Load("fullscreen.vert", "transparent_fluid_section_draw.frag");
 
             Overlay = loader.Load("overlay.vert", "overlay.frag");
             Selection = loader.Load("selection.vert", "selection.frag");
@@ -186,33 +186,5 @@ public sealed class Shaders
         foreach (Shader shader in nearPlaneSet) shader.SetFloat(NearPlaneUniform, (float) near);
 
         foreach (Shader shader in farPlaneSet) shader.SetFloat(FarPlaneUniform, (float) far);
-    }
-
-    /// <summary>
-    ///     Update shader uniforms while in-game.
-    /// </summary>
-    /// <param name="game">The game that is currently active.</param>
-    public void UpdateGameDependentValues(Game game)
-    {
-        SetViewDirection(game.Player.LookingDirection);
-        SetViewPosition(game.Player.LookingPosition);
-    }
-
-    /// <summary>
-    ///     Update the current view direction.
-    /// </summary>
-    /// <param name="viewDirection">The current view direction.</param>
-    private void SetViewDirection(Vector3d viewDirection)
-    {
-        foreach (Shader shader in viewDirectionSet) shader.SetVector3(ViewDirectionUniform, viewDirection.ToVector3());
-    }
-
-    /// <summary>
-    ///     Update the current view position.
-    /// </summary>
-    /// <param name="viewPosition">The current view position.</param>
-    private void SetViewPosition(Vector3d viewPosition)
-    {
-        foreach (Shader shader in viewPositionSet) shader.SetVector3(ViewPositionUniform, viewPosition.ToVector3());
     }
 }

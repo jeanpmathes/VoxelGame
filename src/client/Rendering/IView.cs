@@ -20,30 +20,14 @@ public interface IView
     public double FarClipping { get; }
 
     /// <summary>
-    ///     Get the middle clipping distance, which is used as both near and far plane distance in different passes.
-    /// </summary>
-    public double MidClipping { get; }
-
-    /// <summary>
     ///     Get the near clipping distance.
     /// </summary>
     public double NearClipping { get; }
 
     /// <summary>
-    ///     Get the full view frustum of the view, from near to far plane.
+    ///     Get the view frustum, from near to far plane.
     /// </summary>
-    public Frustum FullFrustum { get; }
-
-    /// <summary>
-    ///     Get the near view frustum of the view, from near to mid plane.
-    /// </summary>
-    public Frustum NearFrustum { get; }
-
-
-    /// <summary>
-    ///     Get the far view frustum of the view, from mid to far plane.
-    /// </summary>
-    public Frustum FarFrustum { get; }
+    public Frustum Frustum { get; }
 
     /// <summary>
     ///     Get the view matrix.
@@ -51,17 +35,7 @@ public interface IView
     public Matrix4d ViewMatrix { get; }
 
     /// <summary>
-    ///     Get the view's full projection matrix.
+    ///     Get the view's projection matrix.
     /// </summary>
-    public Matrix4d FullProjectionMatrix { get; }
-
-    /// <summary>
-    ///     Get the view's near projection matrix.
-    /// </summary>
-    public Matrix4d NearProjectionMatrix { get; }
-
-    /// <summary>
-    ///     Get the view's far projection matrix.
-    /// </summary>
-    public Matrix4d FarProjectionMatrix { get; }
+    public Matrix4d ProjectionMatrix { get; }
 }
