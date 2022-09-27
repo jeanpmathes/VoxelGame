@@ -33,7 +33,8 @@ public sealed class SectionRenderer : IDisposable
     private const int TransparentFluidAccumulate = 6;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
 
-    private static Matrix4d viewProjection;
+    private static Matrix4d viewMatrix;
+    private static Matrix4d viewProjectionMatrix;
 
     private readonly ElementPositionDataDrawGroup complexDrawGroup;
     private readonly ElementInstancedIDataDrawGroup cropPlantDrawGroup;
@@ -228,7 +229,8 @@ public sealed class SectionRenderer : IDisposable
         Matrix4d view = pass.ViewMatrix;
         Matrix4d projection = pass.ProjectionMatrix;
 
-        viewProjection = view * projection;
+        viewMatrix = view;
+        viewProjectionMatrix = view * projection;
 
         switch (stage)
         {
@@ -342,31 +344,31 @@ public sealed class SectionRenderer : IDisposable
         switch (stage)
         {
             case Simple:
-                Draw(simpleDrawGroup, Shaders.SimpleSection, model, passModel: false);
+                Draw(simpleDrawGroup, Shaders.SimpleSection, model);
 
                 break;
             case CrossPlant:
-                Draw(crossPlantDrawGroup, Shaders.CrossPlantSection, model, passModel: false);
+                Draw(crossPlantDrawGroup, Shaders.CrossPlantSection, model);
 
                 break;
             case CropPlant:
-                Draw(cropPlantDrawGroup, Shaders.CropPlantSection, model, passModel: false);
+                Draw(cropPlantDrawGroup, Shaders.CropPlantSection, model);
 
                 break;
             case Complex:
-                Draw(complexDrawGroup, Shaders.ComplexSection, model, passModel: false);
+                Draw(complexDrawGroup, Shaders.ComplexSection, model);
 
                 break;
             case VaryingHeight:
-                Draw(varyingHeightDrawGroup, Shaders.VaryingHeightSection, model, passModel: false);
+                Draw(varyingHeightDrawGroup, Shaders.VaryingHeightSection, model);
 
                 break;
             case OpaqueFluid:
-                Draw(opaqueFluidDrawGroup, Shaders.OpaqueFluidSection, model, passModel: false);
+                Draw(opaqueFluidDrawGroup, Shaders.OpaqueFluidSection, model);
 
                 break;
             case TransparentFluidAccumulate:
-                Draw(transparentFluidDrawGroup, Shaders.TransparentFluidSectionAccumulate, model, passModel: true);
+                Draw(transparentFluidDrawGroup, Shaders.TransparentFluidSectionAccumulate, model, passModelView: true);
 
                 break;
 
@@ -374,14 +376,14 @@ public sealed class SectionRenderer : IDisposable
         }
     }
 
-    private static void Draw(IDrawGroup drawGroup, Shader shader, Matrix4d model, bool passModel)
+    private static void Draw(IDrawGroup drawGroup, Shader shader, Matrix4d model, bool passModelView = false)
     {
         if (!drawGroup.IsFilled) return;
 
         drawGroup.BindVertexArray();
 
-        if (passModel) shader.SetMatrix4("model", model.ToMatrix4());
-        shader.SetMatrix4("mvp_matrix", (model * viewProjection).ToMatrix4());
+        if (passModelView) shader.SetMatrix4("mv_matrix", (model * viewMatrix).ToMatrix4());
+        shader.SetMatrix4("mvp_matrix", (model * viewProjectionMatrix).ToMatrix4());
 
         drawGroup.Draw();
     }

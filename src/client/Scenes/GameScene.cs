@@ -148,7 +148,6 @@ public sealed class GameScene : IScene
         {
             counter.Increment();
 
-            Application.Client.Instance.Resources.Shaders.UpdateGameDependentValues(Game);
             Game.World.Update(deltaTime);
 
             if (!Screen.IsFocused) // check to see if the window is focused
