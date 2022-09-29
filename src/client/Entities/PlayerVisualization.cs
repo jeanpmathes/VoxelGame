@@ -120,14 +120,14 @@ public sealed class PlayerVisualization : IDisposable
         if (block.Block is IOverlayTextureProvider overlayBlockTextureProvider)
         {
             overlay.SetBlockTexture(overlayBlockTextureProvider.TextureIdentifier);
-            SetBounds(block, position);
+            SetOverlayBounds(block, position);
 
             renderOverlay = true;
         }
         else if (fluid.Fluid is IOverlayTextureProvider overlayFluidTextureProvider)
         {
             overlay.SetFluidTexture(overlayFluidTextureProvider.TextureIdentifier);
-            SetBounds(fluid, position);
+            SetOverlayBounds(fluid, position);
 
             renderOverlay = true;
         }
@@ -137,23 +137,23 @@ public sealed class PlayerVisualization : IDisposable
         }
     }
 
-    private void SetBounds(BlockInstance block, Vector3d position)
+    private void SetOverlayBounds(BlockInstance block, Vector3d position)
     {
         var height = 15;
 
         if (block.Block is IHeightVariable heightVariable) height = heightVariable.GetHeight(block.Data);
 
-        SetBounds(height, position, inverted: false);
+        SetOverlayBounds(height, position, inverted: false);
     }
 
-    private void SetBounds(FluidInstance fluid, Vector3d position)
+    private void SetOverlayBounds(FluidInstance fluid, Vector3d position)
     {
         int height = fluid.Level.GetBlockHeight();
 
-        SetBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards);
+        SetOverlayBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards);
     }
 
-    private void SetBounds(int height, Vector3d position, bool inverted)
+    private void SetOverlayBounds(int height, Vector3d position, bool inverted)
     {
         float actualHeight = (height + 1) * (1.0f / 16.0f);
         if (inverted) actualHeight = 1.0f - actualHeight;
