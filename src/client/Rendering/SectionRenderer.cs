@@ -271,6 +271,8 @@ public sealed class SectionRenderer : IDisposable
     {
         Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
+        GL.Enable(EnableCap.DepthClamp);
+
         Shaders.SimpleSection.Use();
     }
 
@@ -296,12 +298,16 @@ public sealed class SectionRenderer : IDisposable
     {
         Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
 
+        GL.Enable(EnableCap.DepthClamp);
+
         Shaders.ComplexSection.Use();
     }
 
     private static void PrepareVaryingHeightBuffer()
     {
         Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+
+        GL.Enable(EnableCap.DepthClamp);
 
         Shaders.VaryingHeightSection.Use();
     }
@@ -394,8 +400,14 @@ public sealed class SectionRenderer : IDisposable
     /// <param name="stage">The stage to finish.</param>
     public static void FinishStage(int stage)
     {
+        GL.Disable(EnableCap.DepthClamp);
+
         switch (stage)
         {
+            case Simple or Complex or VaryingHeight:
+                FinishSolidBuffer();
+
+                break;
             case CrossPlant or CropPlant:
                 FinishPlantBuffer();
 
@@ -410,6 +422,11 @@ public sealed class SectionRenderer : IDisposable
 
                 break;
         }
+    }
+
+    private static void FinishSolidBuffer()
+    {
+        GL.Disable(EnableCap.DepthClamp);
     }
 
     private static void FinishPlantBuffer()

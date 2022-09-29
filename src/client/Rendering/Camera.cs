@@ -93,7 +93,7 @@ public class Camera : IView
     }
 
     /// <inheritdoc />
-    public double FarClipping => 1000.0;
+    public double FarClipping => 500.0;
 
     /// <inheritdoc />
     public double NearClipping => 0.1;
