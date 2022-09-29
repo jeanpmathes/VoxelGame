@@ -274,7 +274,7 @@ public class Biome
     /// <summary>
     ///     The polar ocean biome. It is covered in ice and occurs in cold regions.
     /// </summary>
-    public static readonly Biome PolarOcean = new(nameof(Ocean))
+    public static readonly Biome PolarOcean = new(nameof(PolarOcean))
     {
         Color = Color.White,
         Amplitude = 5.0f,
@@ -350,7 +350,7 @@ public class Biome
     /// <summary>
     ///     The sand covered cliff biome, which is found at coastlines with large height differences.
     /// </summary>
-    public static readonly Biome SandyCliff = new(nameof(GrassyCliff))
+    public static readonly Biome SandyCliff = new(nameof(SandyCliff))
     {
         Color = Color.Black,
         Amplitude = 4f,

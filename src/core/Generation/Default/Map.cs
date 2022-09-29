@@ -189,7 +189,7 @@ public partial class Map : IMap
         Vector3i samplingPosition = position.Floor();
         Sample sample = GetSample(samplingPosition.Xz);
 
-        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)}";
+        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)} {sample.BlendFactors.Z}";
     }
 
     /// <inheritdoc />
@@ -461,7 +461,10 @@ public partial class Map : IMap
         }
 
         double distanceToZero = (blend - FindClosestZero(c00.height, c10.height, c01.height, c11.height, blend.X, blend.Y)).Length;
-        if (double.IsNaN(distanceToZero)) distanceToZero = 0.0;
+
+        if (double.IsNaN(distanceToZero))
+            // All four heights are the same, so there is no gradient.
+            distanceToZero = VMath.NearlyZero(c00.height) ? 0 : 1;
 
         var distanceStrength = (float) distanceStrengthFunction.Evaluate(distanceToZero);
 
