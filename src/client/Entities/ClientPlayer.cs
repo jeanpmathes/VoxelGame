@@ -278,6 +278,9 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         }
         else
         {
+            targetPosition = null;
+            targetSide = BlockSide.All;
+
             (targetBlock, targetFluid) = (null, null);
         }
     }
