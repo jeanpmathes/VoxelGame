@@ -55,9 +55,12 @@ void main()
     texCoord.x *= dc_i4(aData.x, 24) + 1;
     texCoord.y *= dc_i4(aData.x, 20) + 1;
 
-    gl_Position = vec4(position - (normal * 0.001), 1.0) * mvp_matrix;
-
     // Position and normal in view space
     viewNormal = (vec4(normal, 0.0) * mv_matrix).xyz;
     viewPosition = (vec4(position, 1.0) * mv_matrix).xyz;
+
+    float distance = length(viewPosition);
+    float offset = clamp(distance * 0.0001, 0.0, 0.1);
+
+    gl_Position = vec4(position - (normal * offset), 1.0) * mvp_matrix;
 }
