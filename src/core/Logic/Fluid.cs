@@ -222,11 +222,10 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
             bool meshAtSide = (int) info.Level > sideHeight && !blockToCheck.IsOpaqueAndFull;
 
-            bool meshAtEnd =
-                (flowsTowardsFace && sideHeight != 7 && !blockToCheck.IsOpaqueAndFull)
-                || !flowsTowardsFace && (info.Level != FluidLevel.Eight ||
-                                         fluidToCheck.Fluid != this &&
-                                         !blockToCheck.IsOpaqueAndFull);
+            bool meshAtDrainEnd = sideHeight != 7 && !blockToCheck.IsOpaqueAndFull;
+            bool meshAtSourceEnd = info.Level != FluidLevel.Eight || (fluidToCheck.Fluid != this && !blockToCheck.IsOpaqueAndFull);
+
+            bool meshAtEnd = flowsTowardsFace ? meshAtDrainEnd : meshAtSourceEnd;
 
             if (atVerticalEnd ? !meshAtEnd : !meshAtSide) return;
 
