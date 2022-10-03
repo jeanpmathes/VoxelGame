@@ -60,7 +60,7 @@ void main()
     viewPosition = (vec4(position, 1.0) * mv_matrix).xyz;
 
     float distance = length(viewPosition);
-    float offset = clamp(distance * 0.0001, 0.0, 0.1);
+    float offset = clamp(distance * 0.005, 0.0001, 0.1);
 
     gl_Position = vec4(position - (normal * offset), 1.0) * mvp_matrix;
 }
