@@ -49,8 +49,6 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
         Debug.Assert(
             this is not ISimple ^ IsFull,
             $"TargetBuffer '{nameof(ISimple)}' requires {nameof(IsFull)} to be {!IsFull}, all other target buffers cannot be full.");
-
-        Debug.Assert(IsFull || !IsOpaque, "A block that is not full cannot be opaque.");
 #pragma warning restore S3060 // "is" should not be used with "this"
 
         if (blockList.Count < BlockLimit)
@@ -65,6 +63,11 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
             Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
         }
     }
+
+    /// <summary>
+    ///     Get this block as an implementor of the <see cref="IBlockBase" /> interface.
+    /// </summary>
+    public IBlockBase Base => this;
 
     /// <inheritdoc />
     public uint Id { get; }
@@ -98,9 +101,6 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
 
     /// <inheritdoc />
     public bool IsSolid { get; }
-
-    /// <inheritdoc />
-    public bool IsSolidAndFull => IsSolid && IsFull;
 
     /// <summary>
     ///     Attempt to place the block in the world.

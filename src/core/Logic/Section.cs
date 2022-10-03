@@ -255,41 +255,28 @@ public abstract class Section : IDisposable
     /// <param name="position">The position.</param>
     /// <returns>The block at the position.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Block GetBlock(Vector3i position)
-    {
-        return Block.TranslateID(GetContent(position.X, position.Y, position.Z) & BlockMask);
-    }
-
-    /// <summary>
-    ///     Get the block at a given section position, and the associated data.
-    /// </summary>
-    /// <param name="position">The position.</param>
-    /// <param name="data">The data of the block.</param>
-    /// <returns>The block at the position.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Block GetBlock(Vector3i position, out uint data)
+    public BlockInstance GetBlock(Vector3i position)
     {
         uint val = GetContent(position.X, position.Y, position.Z);
 
-        data = (val << DataShift) & DataMask;
+        uint data = (val & DataMask) >> DataShift;
 
-        return Block.TranslateID(val & BlockMask);
+        return Block.TranslateID(val & BlockMask).AsInstance(data);
     }
 
     /// <summary>
     ///     Get the fluid at a given section position.
     /// </summary>
     /// <param name="position">The section position.</param>
-    /// <param name="level">The level of the fluid as int.</param>
-    /// <returns>The fluid.</returns>
+    /// <returns>The fluid. It is always assumed to by static.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Fluid GetFluid(Vector3i position, out int level)
+    public FluidInstance GetFluid(Vector3i position)
     {
         uint val = GetContent(position.X, position.Y, position.Z);
 
-        level = (int) ((val & LevelMask) >> LevelShift);
+        var level = (FluidLevel) ((val & LevelMask) >> LevelShift);
 
-        return Fluid.TranslateID((val & FluidMask) >> FluidShift);
+        return Fluid.TranslateID((val & FluidMask) >> FluidShift).AsInstance(level);
     }
 
     #region IDisposable Support

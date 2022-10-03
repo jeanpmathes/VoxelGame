@@ -97,7 +97,9 @@ public sealed class ScreenElementRenderer : IDisposable
         Shaders.ScreenElement.SetVector3("color", color);
         Shaders.ScreenElement.SetInt("tex", texUnit);
 
+        GL.Disable(EnableCap.DepthTest);
         drawGroup.DrawElements(PrimitiveType.Triangles);
+        GL.Enable(EnableCap.DepthTest);
 
         GL.BindVertexArray(array: 0);
         GL.UseProgram(program: 0);

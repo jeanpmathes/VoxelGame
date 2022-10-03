@@ -185,8 +185,8 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// <param name="context">The context of the meshing operation.</param>
     public void CreateMesh(Vector3i position, FluidMeshInfo info, MeshingContext context)
     {
-        if (RenderType == RenderType.NotRendered || info.Block is not IFillable {RenderFluid: true} &&
-            (info.Block is IFillable || info.Block.IsSolidAndFull)) return;
+        if (RenderType == RenderType.NotRendered || (info.Block.Block is not IFillable {RenderFluid: true} &&
+                                                     (info.Block.Block is IFillable || info.Block.IsSolidAndFull))) return;
 
         VaryingHeightMeshFaceHolder[] fluidMeshFaceHolders =
             context.GetFluidMeshFaceHolders(RenderType == RenderType.Opaque);
@@ -201,39 +201,38 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void MeshFluidSide(BlockSide side)
         {
-            (Block, Fluid)? content = context.GetBlockAndFluid(
-                side.Offset(position),
-                side,
-                out int sideHeight);
+            (BlockInstance, FluidInstance)? content = context.GetBlockAndFluid(side.Offset(position), side);
 
             if (content == null) return;
 
-            (Block blockToCheck, Fluid fluidToCheck) = content.Value;
+            (BlockInstance blockToCheck, FluidInstance fluidToCheck) = content.Value;
 
             bool atVerticalEnd = side is BlockSide.Top or BlockSide.Bottom;
 
             bool isNeighborFluidMeshed =
-                blockToCheck is IFillable {RenderFluid: true};
+                blockToCheck.Block is IFillable {RenderFluid: true};
 
-            if (fluidToCheck != this || !isNeighborFluidMeshed) sideHeight = -1;
+            var sideHeight = (int) fluidToCheck.Level;
+
+            if (fluidToCheck.Fluid != this || !isNeighborFluidMeshed) sideHeight = -1;
 
             bool flowsTowardsFace = side == BlockSide.Top
                 ? Direction == VerticalFlow.Upwards
                 : Direction == VerticalFlow.Downwards;
 
-            bool meshAtSide = (int) info.Level > sideHeight && !blockToCheck.IsOpaque;
+            bool meshAtSide = (int) info.Level > sideHeight && !blockToCheck.IsOpaqueAndFull;
 
             bool meshAtEnd =
-                flowsTowardsFace && sideHeight != 7 && !blockToCheck.IsOpaque
+                (flowsTowardsFace && sideHeight != 7 && !blockToCheck.IsOpaqueAndFull)
                 || !flowsTowardsFace && (info.Level != FluidLevel.Eight ||
-                                         fluidToCheck != this &&
-                                         !blockToCheck.IsOpaque);
+                                         fluidToCheck.Fluid != this &&
+                                         !blockToCheck.IsOpaqueAndFull);
 
             if (atVerticalEnd ? !meshAtEnd : !meshAtSide) return;
 
             FluidMeshData mesh = GetMeshData(info with {Side = side});
 
-            bool singleSided = !blockToCheck.IsOpaque &&
+            bool singleSided = !blockToCheck.IsOpaqueAndFull &&
                                blockToCheck.IsSolidAndFull;
 
             (int x, int y, int z) = position;

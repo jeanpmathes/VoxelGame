@@ -142,7 +142,7 @@ public class DoorBlock : Block, IFillable, IComplex
     public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
     {
         return world.GetBlock(position.Above())?.Block.IsReplaceable == true &&
-               world.HasSolidGround(position, solidify: true);
+               world.HasFullAndSolidGround(position, solidify: true);
     }
 
     /// <inheritdoc />
@@ -223,7 +223,7 @@ public class DoorBlock : Block, IFillable, IComplex
     /// <inheritdoc />
     public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
-        if (side == BlockSide.Bottom && (data & 0b00_0100) == 0 && !world.HasSolidGround(position))
+        if (side == BlockSide.Bottom && (data & 0b00_0100) == 0 && !world.HasFullAndSolidGround(position))
             Destroy(world, position);
     }
 }

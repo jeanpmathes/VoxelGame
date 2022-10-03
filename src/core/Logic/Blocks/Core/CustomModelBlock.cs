@@ -49,13 +49,13 @@ public class CustomModelBlock : Block, IFillable, IComplex
     /// <inheritdoc />
     public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
     {
-        return world.HasSolidGround(position, solidify: true);
+        return world.HasFullAndSolidGround(position, solidify: true);
     }
 
     /// <inheritdoc />
     public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
-        if (side == BlockSide.Bottom && !world.HasSolidGround(position)) Destroy(world, position);
+        if (side == BlockSide.Bottom && !world.HasFullAndSolidGround(position)) Destroy(world, position);
     }
 
     /// <summary>

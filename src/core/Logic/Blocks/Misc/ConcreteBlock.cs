@@ -32,7 +32,7 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
         base(
             name,
             namedId,
-            BlockFlags.Functional,
+            BlockFlags.Functional with {IsOpaque = true},
             BoundingVolume.Block)
     {
         this.layout = layout;

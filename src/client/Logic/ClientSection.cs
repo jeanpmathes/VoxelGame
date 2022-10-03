@@ -84,7 +84,7 @@ public class ClientSection : Section
 
             currentFluid.CreateMesh(
                 (x, y, z),
-                FluidMeshInfo.Fluid(currentBlock, level, BlockSide.All, isStatic),
+                FluidMeshInfo.Fluid(currentBlock.AsInstance(data), level, BlockSide.All, isStatic),
                 context);
         }
 

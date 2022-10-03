@@ -147,7 +147,7 @@ public class FireBlock : Block, IFillable, IComplex
     /// <inheritdoc />
     public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
     {
-        if (world.HasSolidGround(position)) return true;
+        if (world.HasFullAndSolidGround(position)) return true;
 
         return GetData(world, position) != 0;
     }
@@ -155,7 +155,7 @@ public class FireBlock : Block, IFillable, IComplex
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
     {
-        world.SetBlock(this.AsInstance(world.HasSolidGround(position) ? 0 : GetData(world, position)), position);
+        world.SetBlock(this.AsInstance(world.HasFullAndSolidGround(position) ? 0 : GetData(world, position)), position);
         ScheduleTick(world, position, GetDelay(position));
     }
 
@@ -167,7 +167,7 @@ public class FireBlock : Block, IFillable, IComplex
         {
             if (side == BlockSide.Bottom) continue;
 
-            if (world.IsSolid(side.Offset(position))) data |= GetFlag(side);
+            if (world.GetBlock(side.Offset(position))?.IsSolidAndFull ?? false) data |= GetFlag(side);
         }
 
         return data;
@@ -186,7 +186,7 @@ public class FireBlock : Block, IFillable, IComplex
         }
         else
         {
-            if (!IsFlagSet(data, side) || world.IsSolid(side.Offset(position))) return;
+            if (!IsFlagSet(data, side) || (world.GetBlock(side.Offset(position))?.IsSolidAndFull ?? false)) return;
 
             data ^= GetFlag(side);
             SetData(data);
@@ -207,7 +207,7 @@ public class FireBlock : Block, IFillable, IComplex
         {
             if (sideToCheck == BlockSide.Bottom) continue;
 
-            if (world.IsSolid(sideToCheck.Offset(position))) data |= GetFlag(sideToCheck);
+            if (world.GetBlock(sideToCheck.Offset(position))?.IsSolidAndFull ?? false) data |= GetFlag(sideToCheck);
         }
 
         return data;

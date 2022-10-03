@@ -16,7 +16,7 @@ public interface IFillable : IBlockBase
     /// <summary>
     ///     Whether the fluid filling this block should be rendered.
     /// </summary>
-    bool RenderFluid => !IsSolidAndFull;
+    bool RenderFluid => !IsSolidAndFull();
 
     /// <summary>
     ///     Check whether a given block at a given location allows inflow trough a certain side.
