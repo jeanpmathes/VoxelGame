@@ -160,7 +160,9 @@ public sealed class BoxRenderer : IDisposable
         Matrix4d mvp = model * view * projection;
         Shaders.Selection.SetMatrix4("mvp_matrix", mvp.ToMatrix4());
 
+        GL.Disable(EnableCap.DepthTest);
         drawGroup.DrawElements(PrimitiveType.Lines);
+        GL.Enable(EnableCap.DepthTest);
 
         GL.BindVertexArray(array: 0);
         GL.UseProgram(program: 0);

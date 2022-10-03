@@ -161,8 +161,6 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     /// </summary>
     public void RenderOverlays()
     {
-        visualization.Draw();
-
         if (targetPosition is {} position)
         {
             (Block selectedBlock, _) = World.GetBlock(position) ?? BlockInstance.Default;
@@ -180,6 +178,8 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
                 visualization.DrawSelectionBox(selectedBlock.GetCollider(World, position));
             }
         }
+
+        visualization.Draw();
 
         if (OverlayEnabled) visualization.DrawOverlay();
     }
