@@ -182,60 +182,34 @@ public class MeshingContext
     /// </summary>
     /// <param name="position">The position, in section-local coordinates.</param>
     /// <param name="side">The block side giving the neighbor to use if necessary.</param>
-    /// <param name="level">The level of the fluid.</param>
     /// <returns>The block and fluid or null if there is nothing.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public (Block block, Fluid fluid)? GetBlockAndFluid(Vector3i position, BlockSide side, out int level)
+    public (BlockInstance block, FluidInstance fluid)? GetBlockAndFluid(Vector3i position, BlockSide side)
     {
-        (Block block, Fluid fluid)? result;
+        (BlockInstance block, FluidInstance fluid)? result;
 
-        level = -1;
+        uint data = 0;
+        int level = -1;
 
         if (IsPositionOutOfSection(position))
         {
             position = position.Mod(Section.Size);
 
             Section? neighbor = neighbors[(int) side];
-            Block? block = neighbor?.GetBlock(position);
+            Block? block = neighbor?.GetBlock(position, out data);
             Fluid? fluid = neighbor?.GetFluid(position, out level);
 
-            result = block != null && fluid != null ? (block, fluid) : null;
+            result = block != null && fluid != null ? (block.AsInstance(data), fluid.AsInstance((FluidLevel) level)) : null;
         }
         else
         {
-            Block block = current.GetBlock(position);
+            Block block = current.GetBlock(position, out data);
             Fluid fluid = current.GetFluid(position, out level);
 
-            result = (block, fluid);
+            result = (block.AsInstance(data), fluid.AsInstance((FluidLevel) level));
         }
 
         return result;
-    }
-
-    /// <summary>
-    ///     Get a block from the current section or one of its neighbors.
-    /// </summary>
-    /// <param name="position">The position, in section-local coordinates.</param>
-    /// <param name="side">The block side giving the neighbor to use if necessary.</param>
-    /// <returns>The block or null if there is no block.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Block? GetBlock(Vector3i position, BlockSide side)
-    {
-        Block? block;
-
-        if (IsPositionOutOfSection(position))
-        {
-            position = position.Mod(Section.Size);
-
-            Section? neighbor = neighbors[(int) side];
-            block = neighbor?.GetBlock(position);
-        }
-        else
-        {
-            block = current.GetBlock(position);
-        }
-
-        return block;
     }
 
     /// <summary>

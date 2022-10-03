@@ -30,37 +30,18 @@ public static class BlockUtilities
 
 /// <summary>
 ///     Extension methods for <see cref="World" />.
+///     All of these retrieve blocks relative to a position and can therefore not be part of the block instance.
 /// </summary>
 public static class WorldExtensions
 {
     /// <summary>
-    ///     Check if a given position has a solid block.
+    ///     Check if a given position has full and solid ground below it.
     /// </summary>
-    public static bool IsSolid(this World world, Vector3i position)
-    {
-        return IsSolid(world, position, out _);
-    }
-
-    /// <summary>
-    ///     Check if a given position has a solid block and get the block.
-    /// </summary>
-    private static bool IsSolid(this World world, Vector3i position, out BlockInstance block)
-    {
-        block = world.GetBlock(position) ?? BlockInstance.Default;
-
-        return block.Block.IsSolidAndFull
-               || block.Block is IHeightVariable varHeight &&
-               varHeight.GetHeight(block.Data) == IHeightVariable.MaximumHeight;
-    }
-
-    /// <summary>
-    ///     Check if a given position has solid ground below it.
-    /// </summary>
-    public static bool HasSolidGround(this World world, Vector3i position, bool solidify = false)
+    public static bool HasFullAndSolidGround(this World world, Vector3i position, bool solidify = false)
     {
         Vector3i groundPosition = position.Below();
-
-        bool isSolid = world.IsSolid(groundPosition, out BlockInstance ground);
+        BlockInstance ground = world.GetBlock(groundPosition) ?? BlockInstance.Default;
+        bool isSolid = ground.IsSolidAndFull;
 
         if (!solidify || isSolid || ground.Block is not IPotentiallySolid solidifiable) return isSolid;
 
@@ -70,22 +51,13 @@ public static class WorldExtensions
     }
 
     /// <summary>
-    ///     Check if a given position has a solid top above it.
-    /// </summary>
-    public static bool HasSolidTop(this World world, Vector3i position)
-    {
-        return world.IsSolid(position.Above());
-    }
-
-    /// <summary>
     ///     Check if a given position has an opaque block above it.
     /// </summary>
     public static bool HasOpaqueTop(this World world, Vector3i position)
     {
-        Block top = world.GetBlock(position.Above())?.Block ?? Block.Air;
+        BlockInstance top = world.GetBlock(position.Above()) ?? BlockInstance.Default;
 
-        return top.IsSolidAndFull && top.IsOpaque
-               || top is IHeightVariable;
+        return top.Block.IsSolid && top.Block.IsOpaque && top.IsSideFull(BlockSide.Bottom);
     }
 
     /// <summary>

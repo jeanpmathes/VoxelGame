@@ -78,7 +78,7 @@ public interface ISimple : IBlockMeshable
         bool blockToCheckIsConsideredOpaque = neighbor.Block.IsOpaque
                                               || (!current.IsOpaque && !current.RenderFaceAtNonOpaques && !neighbor.Block.RenderFaceAtNonOpaques);
 
-        return neighbor.Block.Base.IsSideFull(side.Opposite(), neighbor.Data) && blockToCheckIsConsideredOpaque;
+        return neighbor.IsSideFull(side.Opposite()) && blockToCheckIsConsideredOpaque;
     }
 
     /// <summary>

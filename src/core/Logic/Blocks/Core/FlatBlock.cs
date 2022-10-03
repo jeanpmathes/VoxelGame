@@ -118,7 +118,7 @@ public class FlatBlock : Block, IFillable, IComplex
         if (!side.IsLateral()) side = BlockSide.Back;
         var orientation = side.ToOrientation();
 
-        return world.IsSolid(orientation.Opposite().Offset(position));
+        return world.GetBlock(orientation.Opposite().Offset(position))?.IsSolidAndFull ?? false;
     }
 
     /// <inheritdoc />
@@ -168,7 +168,7 @@ public class FlatBlock : Block, IFillable, IComplex
         if (!side.IsLateral()) return;
 
         if (blockOrientation != side.ToOrientation().Opposite() ||
-            world.IsSolid(blockOrientation.Opposite().Offset(position))) return;
+            (world.GetBlock(blockOrientation.Opposite().Offset(position))?.IsSolidAndFull ?? false)) return;
 
         if (schedule) ScheduleDestroy(world, position);
         else Destroy(world, position);

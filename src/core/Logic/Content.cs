@@ -11,12 +11,24 @@ namespace VoxelGame.Core.Logic;
 /// </summary>
 /// <param name="Block">The block.</param>
 /// <param name="Data">The data of the block.</param>
-public record struct BlockInstance(Block Block, uint Data)
+public readonly record struct BlockInstance(Block Block, uint Data)
 {
     /// <summary>
     ///     Get the default block instance.
     /// </summary>
     public static BlockInstance Default => new(Block.Air, Data: 0);
+
+    /// <inheritdoc cref="IBlockBase.IsSolidAndFull(uint)" />
+    public bool IsSolidAndFull => Block.Base.IsSolidAndFull(Data);
+
+    /// <inheritdoc cref="IBlockBase.IsOpaqueAndFull(uint)" />
+    public bool IsOpaqueAndFull => Block.Base.IsOpaqueAndFull(Data);
+
+    /// <inheritdoc cref="IBlockBase.IsSideFull" />
+    public bool IsSideFull(BlockSide side)
+    {
+        return Block.Base.IsSideFull(side, Data);
+    }
 }
 
 /// <summary>

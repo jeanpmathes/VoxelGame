@@ -21,14 +21,11 @@ public interface IHeightVariable : IBlockBase
     /// <inheritdoc />
     bool IBlockBase.IsSideFull(BlockSide side, uint data)
     {
+        if (side == BlockSide.Bottom) return true;
+
         int height = GetHeight(data);
 
-        return side switch
-        {
-            BlockSide.Top => height == MaximumHeight,
-            BlockSide.Bottom => true,
-            _ => height == MaximumHeight
-        };
+        return height == MaximumHeight;
     }
 
     /// <summary>

@@ -102,12 +102,6 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <inheritdoc />
     public bool IsSolid { get; }
 
-    /// <inheritdoc />
-    public bool IsSolidAndFull => IsSolid && IsFull;
-
-    /// <inheritdoc />
-    public bool IsOpaqueAndFull => IsOpaque && IsFull;
-
     /// <summary>
     ///     Attempt to place the block in the world.
     /// </summary>

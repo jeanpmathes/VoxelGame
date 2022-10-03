@@ -154,13 +154,13 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     /// <inheritdoc />
     public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
     {
-        if (!world.HasSolidGround(position, solidify: true)) return false;
+        if (!world.HasFullAndSolidGround(position, solidify: true)) return false;
 
         Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
         Vector3i otherPosition = orientation.Offset(position);
 
         return world.GetBlock(otherPosition)?.Block.IsReplaceable == true &&
-               world.HasSolidGround(otherPosition, solidify: true);
+               world.HasFullAndSolidGround(otherPosition, solidify: true);
     }
 
     /// <inheritdoc />
@@ -204,6 +204,6 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     /// <inheritdoc />
     public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
-        if (side == BlockSide.Bottom && !world.HasSolidGround(position)) Destroy(world, position);
+        if (side == BlockSide.Bottom && !world.HasFullAndSolidGround(position)) Destroy(world, position);
     }
 }

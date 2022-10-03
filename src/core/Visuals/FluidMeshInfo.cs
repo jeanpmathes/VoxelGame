@@ -11,9 +11,9 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     Information required to mesh a fluid.
 /// </summary>
-public readonly struct FluidMeshInfo
+public readonly record struct FluidMeshInfo
 {
-    private FluidMeshInfo(Block block, FluidLevel level, BlockSide side, bool isStatic)
+    private FluidMeshInfo(BlockInstance block, FluidLevel level, BlockSide side, bool isStatic)
     {
         Block = block;
         Level = level;
@@ -24,7 +24,7 @@ public readonly struct FluidMeshInfo
     /// <summary>
     ///     Get the current block.
     /// </summary>
-    public Block Block { get; init; }
+    public BlockInstance Block { get; init; }
 
     /// <summary>
     ///     The level of the fluid.
@@ -44,7 +44,7 @@ public readonly struct FluidMeshInfo
     /// <summary>
     ///     Create fluid meshing information.
     /// </summary>
-    public static FluidMeshInfo Fluid(Block block, FluidLevel level, BlockSide side, bool isStatic)
+    public static FluidMeshInfo Fluid(BlockInstance block, FluidLevel level, BlockSide side, bool isStatic)
     {
         return new FluidMeshInfo(block, level, side, isStatic);
     }
