@@ -271,7 +271,7 @@ public abstract class Section : IDisposable
     {
         uint val = GetContent(position.X, position.Y, position.Z);
 
-        data = (val << DataShift) & DataMask;
+        data = (val & DataMask) >> DataShift;
 
         return Block.TranslateID(val & BlockMask);
     }

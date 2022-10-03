@@ -21,7 +21,7 @@ public class ModifiableHeightBlock : VaryingHeightBlock
         base(
             name,
             namedId,
-            BlockFlags.Functional,
+            BlockFlags.Functional with {IsOpaque = true},
             layout) {}
 
     /// <inheritdoc />

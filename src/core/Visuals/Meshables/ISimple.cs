@@ -22,45 +22,43 @@ public interface ISimple : IBlockMeshable
         void MeshSimpleSide(BlockSide side)
         {
             Vector3i checkPosition = side.Offset(position);
-            Block? blockToCheck = context.GetBlock(checkPosition, side);
+            Block? blockToCheck = context.GetBlock(checkPosition, side, out uint data);
 
             if (blockToCheck == null) return;
 
-            if (!blockToCheck.IsFull
-                || !blockToCheck.IsOpaque && (IsOpaque ||
-                                              RenderFaceAtNonOpaques ||
-                                              blockToCheck.RenderFaceAtNonOpaques))
-            {
-                MeshData mesh = GetMeshData(info with {Side = side});
+            bool blockToCheckIsConsideredOpaque = blockToCheck.IsOpaque || (!IsOpaque && !RenderFaceAtNonOpaques && !blockToCheck.RenderFaceAtNonOpaques);
 
-                side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
-                int[][] uvs = BlockModels.GetBlockUVs(mesh.IsTextureRotated);
+            if (blockToCheck.Base.IsSideFull(side.Opposite(), data) && blockToCheckIsConsideredOpaque) return;
 
-                (int x, int y, int z) = position;
+            MeshData mesh = GetMeshData(info with {Side = side});
 
-                // int: uv-- ---- ---- -xxx xxyy yyyz zzzz (uv: texture coords; xyz: position)
-                int upperDataA = (uvs[0][0] << 31) | (uvs[0][1] << 30) | ((a[0] + x) << 10) |
-                                 ((a[1] + y) << 5) | (a[2] + z);
+            side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
+            int[][] uvs = BlockModels.GetBlockUVs(mesh.IsTextureRotated);
 
-                int upperDataB = (uvs[1][0] << 31) | (uvs[1][1] << 30) | ((b[0] + x) << 10) |
-                                 ((b[1] + y) << 5) | (b[2] + z);
+            (int x, int y, int z) = position;
 
-                int upperDataC = (uvs[2][0] << 31) | (uvs[2][1] << 30) | ((c[0] + x) << 10) |
-                                 ((c[1] + y) << 5) | (c[2] + z);
+            // int: uv-- ---- ---- -xxx xxyy yyyz zzzz (uv: texture coords; xyz: position)
+            int upperDataA = (uvs[0][0] << 31) | (uvs[0][1] << 30) | ((a[0] + x) << 10) |
+                             ((a[1] + y) << 5) | (a[2] + z);
 
-                int upperDataD = (uvs[3][0] << 31) | (uvs[3][1] << 30) | ((d[0] + x) << 10) |
-                                 ((d[1] + y) << 5) | (d[2] + z);
+            int upperDataB = (uvs[1][0] << 31) | (uvs[1][1] << 30) | ((b[0] + x) << 10) |
+                             ((b[1] + y) << 5) | (b[2] + z);
 
-                // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-                int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | ((int) side << 18) |
-                                mesh.GetAnimationBit(shift: 16) | mesh.TextureIndex;
+            int upperDataC = (uvs[2][0] << 31) | (uvs[2][1] << 30) | ((c[0] + x) << 10) |
+                             ((c[1] + y) << 5) | (c[2] + z);
 
-                context.GetSimpleBlockMeshFaceHolder(side).AddFace(
-                    position,
-                    lowerData,
-                    (upperDataA, upperDataB, upperDataC, upperDataD),
-                    mesh.IsTextureRotated);
-            }
+            int upperDataD = (uvs[3][0] << 31) | (uvs[3][1] << 30) | ((d[0] + x) << 10) |
+                             ((d[1] + y) << 5) | (d[2] + z);
+
+            // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
+            int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | ((int) side << 18) |
+                            mesh.GetAnimationBit(shift: 16) | mesh.TextureIndex;
+
+            context.GetSimpleBlockMeshFaceHolder(side).AddFace(
+                position,
+                lowerData,
+                (upperDataA, upperDataB, upperDataC, upperDataD),
+                mesh.IsTextureRotated);
         }
 
         MeshSimpleSide(BlockSide.Front);

@@ -221,19 +221,19 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
                 ? Direction == VerticalFlow.Upwards
                 : Direction == VerticalFlow.Downwards;
 
-            bool meshAtSide = (int) info.Level > sideHeight && !blockToCheck.IsOpaque;
+            bool meshAtSide = (int) info.Level > sideHeight && !blockToCheck.IsOpaqueAndFull;
 
             bool meshAtEnd =
-                flowsTowardsFace && sideHeight != 7 && !blockToCheck.IsOpaque
+                (flowsTowardsFace && sideHeight != 7 && !blockToCheck.IsOpaqueAndFull)
                 || !flowsTowardsFace && (info.Level != FluidLevel.Eight ||
                                          fluidToCheck != this &&
-                                         !blockToCheck.IsOpaque);
+                                         !blockToCheck.IsOpaqueAndFull);
 
             if (atVerticalEnd ? !meshAtEnd : !meshAtSide) return;
 
             FluidMeshData mesh = GetMeshData(info with {Side = side});
 
-            bool singleSided = !blockToCheck.IsOpaque &&
+            bool singleSided = !blockToCheck.IsOpaqueAndFull &&
                                blockToCheck.IsSolidAndFull;
 
             (int x, int y, int z) = position;

@@ -28,7 +28,7 @@ public class VaryingHeightBlock : Block, IVaryingHeight, IOverlayTextureProvider
         base(
             name,
             namedId,
-            flags with {IsFull = false, IsOpaque = false},
+            flags with {IsFull = false},
             BoundingVolume.Block)
     {
         this.layout = layout;

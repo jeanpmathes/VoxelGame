@@ -34,7 +34,7 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
         base(
             name,
             namedId,
-            BlockFlags.Solid,
+            BlockFlags.Solid with {IsOpaque = true},
             BoundingVolume.Block)
     {
         dryLayout = dry;

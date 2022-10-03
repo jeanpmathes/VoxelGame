@@ -11,12 +11,25 @@ namespace VoxelGame.Core.Logic.Interfaces;
 ///     The height varies in steps of 1/16th of a block.
 ///     Height is a number from 0 to <see cref="MaximumHeight" /> inclusive.
 /// </summary>
-public interface IHeightVariable
+public interface IHeightVariable : IBlockBase
 {
     /// <summary>
     ///     The maximum height. A block with this height completely fills a position.
     /// </summary>
     public static int MaximumHeight => 15;
+
+    /// <inheritdoc />
+    bool IBlockBase.IsSideFull(BlockSide side, uint data)
+    {
+        int height = GetHeight(data);
+
+        return side switch
+        {
+            BlockSide.Top => height == MaximumHeight,
+            BlockSide.Bottom => true,
+            _ => height == MaximumHeight
+        };
+    }
 
     /// <summary>
     ///     Get the height of a block, given the block data.

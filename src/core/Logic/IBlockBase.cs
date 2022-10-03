@@ -61,8 +61,7 @@ public interface IBlockBase
     public bool IsFull { get; }
 
     /// <summary>
-    ///     Gets whether it is possible to see through this block. This will affect the rendering of this block and the blocks
-    ///     around it.
+    ///     Gets whether it is possible to see through this block. If an opaque block is not full, it is still possible to see trough the position of the block.
     /// </summary>
     public bool IsOpaque { get; }
 
@@ -75,6 +74,11 @@ public interface IBlockBase
     ///     Gets whether this block is solid and full.
     /// </summary>
     public bool IsSolidAndFull { get; }
+
+    /// <summary>
+    ///     Gets whether this block is opaque and full.
+    /// </summary>
+    public bool IsOpaqueAndFull { get; }
 
     /// <summary>
     ///     Tries to place a block in the world.
@@ -93,4 +97,15 @@ public interface IBlockBase
     /// <param name="entity">The entity which caused the destruction, or null if no entity caused it.</param>
     /// <returns>Returns true if the block has been destroyed.</returns>
     public bool Destroy(World world, Vector3i position, PhysicsEntity? entity = null);
+
+    /// <summary>
+    ///     Get whether a side of the block is completely full, which means it covers the entire side of the unit block.
+    /// </summary>
+    /// <param name="side">The side to check.</param>
+    /// <param name="data">The block data.</param>
+    /// <returns>True if the side is completely full.</returns>
+    public bool IsSideFull(BlockSide side, uint data)
+    {
+        return IsFull;
+    }
 }
