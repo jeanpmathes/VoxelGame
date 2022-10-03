@@ -22,13 +22,10 @@ public interface ISimple : IBlockMeshable
         void MeshSimpleSide(BlockSide side)
         {
             Vector3i checkPosition = side.Offset(position);
-            Block? blockToCheck = context.GetBlock(checkPosition, side, out uint data);
+            Block? blockToCheck = context.GetBlock(checkPosition, side, out uint blockToCheckData);
 
             if (blockToCheck == null) return;
-
-            bool blockToCheckIsConsideredOpaque = blockToCheck.IsOpaque || (!IsOpaque && !RenderFaceAtNonOpaques && !blockToCheck.RenderFaceAtNonOpaques);
-
-            if (blockToCheck.Base.IsSideFull(side.Opposite(), data) && blockToCheckIsConsideredOpaque) return;
+            if (IsHiddenFace(this, blockToCheck.AsInstance(blockToCheckData), side)) return;
 
             MeshData mesh = GetMeshData(info with {Side = side});
 
@@ -67,6 +64,21 @@ public interface ISimple : IBlockMeshable
         MeshSimpleSide(BlockSide.Right);
         MeshSimpleSide(BlockSide.Bottom);
         MeshSimpleSide(BlockSide.Top);
+    }
+
+    /// <summary>
+    ///     Check whether the current face is hidden according to the meshing rules for simple blocks.
+    /// </summary>
+    /// <param name="current">The current block.</param>
+    /// <param name="neighbor">The neighboring block instance.</param>
+    /// <param name="side">The side of the current block that is being checked.</param>
+    /// <returns>True if the face is hidden, false otherwise.</returns>
+    public static bool IsHiddenFace(IBlockBase current, BlockInstance neighbor, BlockSide side)
+    {
+        bool blockToCheckIsConsideredOpaque = neighbor.Block.IsOpaque
+                                              || (!current.IsOpaque && !current.RenderFaceAtNonOpaques && !neighbor.Block.RenderFaceAtNonOpaques);
+
+        return neighbor.Block.Base.IsSideFull(side.Opposite(), neighbor.Data) && blockToCheckIsConsideredOpaque;
     }
 
     /// <summary>

@@ -25,7 +25,8 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable
             Vector3i checkPosition = side.Offset(position);
             Block? blockToCheck = context.GetBlock(checkPosition, side, out uint blockToCheckData);
 
-            if (blockToCheck == null || (blockToCheck.IsFull && blockToCheck.IsOpaque)) return;
+            if (blockToCheck == null) return;
+            if (ISimple.IsHiddenFace(this, blockToCheck.AsInstance(blockToCheckData), side)) return;
 
             bool isModified = side != BlockSide.Bottom &&
                               GetHeight(info.Data) != MaximumHeight;
