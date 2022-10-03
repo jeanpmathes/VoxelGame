@@ -370,7 +370,7 @@ public sealed class SectionRenderer : IDisposable
 
                 break;
             case OpaqueFluid:
-                Draw(opaqueFluidDrawGroup, Shaders.OpaqueFluidSection, model);
+                Draw(opaqueFluidDrawGroup, Shaders.OpaqueFluidSection, model, passModelView: true);
 
                 break;
             case TransparentFluidAccumulate:
