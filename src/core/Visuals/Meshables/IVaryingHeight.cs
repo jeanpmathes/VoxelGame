@@ -23,10 +23,10 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable
         void MeshVaryingHeightSide(BlockSide side)
         {
             Vector3i checkPosition = side.Offset(position);
-            Block? blockToCheck = context.GetBlock(checkPosition, side, out uint blockToCheckData);
+            BlockInstance? blockToCheck = context.GetBlock(checkPosition, side);
 
             if (blockToCheck == null) return;
-            if (ISimple.IsHiddenFace(this, blockToCheck.AsInstance(blockToCheckData), side)) return;
+            if (ISimple.IsHiddenFace(this, blockToCheck.Value, side)) return;
 
             bool isModified = side != BlockSide.Bottom &&
                               GetHeight(info.Data) != MaximumHeight;
@@ -42,8 +42,8 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable
 
                 int height = GetHeight(info.Data);
 
-                if (side != BlockSide.Top && blockToCheck is IHeightVariable toCheck &&
-                    toCheck.GetHeight(blockToCheckData) == height) return;
+                if (side != BlockSide.Top && blockToCheck.Value.Block is IHeightVariable toCheck &&
+                    toCheck.GetHeight(blockToCheck.Value.Data) == height) return;
 
                 // int: uv-- ---- ---- ---- -xxx xxey yyyz zzzz (uv: texture coords; hl: texture repetition; xyz: position; e: lower/upper end)
                 int upperDataA = (0 << 31) | (0 << 30) | ((x + a[0]) << 10) | (a[1] << 9) |

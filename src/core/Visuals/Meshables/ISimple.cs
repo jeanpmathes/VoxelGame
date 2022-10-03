@@ -22,10 +22,10 @@ public interface ISimple : IBlockMeshable
         void MeshSimpleSide(BlockSide side)
         {
             Vector3i checkPosition = side.Offset(position);
-            Block? blockToCheck = context.GetBlock(checkPosition, side, out uint blockToCheckData);
+            BlockInstance? blockToCheck = context.GetBlock(checkPosition, side);
 
             if (blockToCheck == null) return;
-            if (IsHiddenFace(this, blockToCheck.AsInstance(blockToCheckData), side)) return;
+            if (IsHiddenFace(this, blockToCheck.Value, side)) return;
 
             MeshData mesh = GetMeshData(info with {Side = side});
 

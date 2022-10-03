@@ -188,25 +188,22 @@ public class MeshingContext
     {
         (BlockInstance block, FluidInstance fluid)? result;
 
-        uint data = 0;
-        int level = -1;
-
         if (IsPositionOutOfSection(position))
         {
             position = position.Mod(Section.Size);
 
             Section? neighbor = neighbors[(int) side];
-            Block? block = neighbor?.GetBlock(position, out data);
-            Fluid? fluid = neighbor?.GetFluid(position, out level);
+            BlockInstance? block = neighbor?.GetBlock(position);
+            FluidInstance? fluid = neighbor?.GetFluid(position);
 
-            result = block != null && fluid != null ? (block.AsInstance(data), fluid.AsInstance((FluidLevel) level)) : null;
+            result = block != null && fluid != null ? (block.Value, fluid.Value) : null;
         }
         else
         {
-            Block block = current.GetBlock(position, out data);
-            Fluid fluid = current.GetFluid(position, out level);
+            BlockInstance block = current.GetBlock(position);
+            FluidInstance fluid = current.GetFluid(position);
 
-            result = (block.AsInstance(data), fluid.AsInstance((FluidLevel) level));
+            result = (block, fluid);
         }
 
         return result;
@@ -217,24 +214,22 @@ public class MeshingContext
     /// </summary>
     /// <param name="position">The position, in section-local coordinates.</param>
     /// <param name="side">The block side giving the neighbor to use if necessary.</param>
-    /// <param name="data">Will receive the data of the block.</param>
     /// <returns>The block or null if there is no block.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Block? GetBlock(Vector3i position, BlockSide side, out uint data)
+    public BlockInstance? GetBlock(Vector3i position, BlockSide side)
     {
-        Block? block;
-        data = 0;
+        BlockInstance? block;
 
         if (IsPositionOutOfSection(position))
         {
             position = position.Mod(Section.Size);
 
             Section? neighbor = neighbors[(int) side];
-            block = neighbor?.GetBlock(position, out data);
+            block = neighbor?.GetBlock(position);
         }
         else
         {
-            block = current.GetBlock(position, out data);
+            block = current.GetBlock(position);
         }
 
         return block;
