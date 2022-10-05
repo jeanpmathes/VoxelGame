@@ -60,19 +60,19 @@ public abstract class Layer
     }
 
     /// <summary>
-    ///     Create a stony cover layer that simulates erosion.
+    ///     Create a stony top layer that simulates erosion.
     /// </summary>
-    public static Layer CreateStonyCover(int width, int amplitude)
+    public static Layer CreateStonyTop(int width, int amplitude)
     {
-        return new StonyCover(width, amplitude);
+        return new StonyTop(width, amplitude);
     }
 
     /// <summary>
-    /// Create a cover layer, which selects an alternative when filled. The alternative block is also filled with water if possible.
+    /// Create a top layer, which selects an alternative when filled. The alternative block is also filled with water if possible.
     /// </summary>
-    public static Layer CreateCover(Block cover, Block filled, int width)
+    public static Layer CreateTop(Block top, Block filled, int width)
     {
-        return new Cover(cover, filled, width);
+        return new Top(top, filled, width);
     }
 
     /// <summary>
@@ -133,16 +133,16 @@ public abstract class Layer
     /// <returns>The data for the layer content.</returns>
     public abstract Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled);
 
-    private sealed class Cover : Layer
+    private sealed class Top : Layer
     {
         private readonly Content filledData;
         private readonly Content normalData;
 
-        public Cover(Block cover, Block filled, int width)
+        public Top(Block top, Block filled, int width)
         {
             Width = width;
 
-            normalData = new Content(cover);
+            normalData = new Content(top);
             filledData = filled is IFillable ? new Content(filled, Fluid.Water) : new Content(filled);
         }
 
@@ -290,7 +290,7 @@ public abstract class Layer
         }
     }
 
-    private sealed class StonyCover : Layer
+    private sealed class StonyTop : Layer
     {
         private readonly int amplitude;
         private readonly Content dirt;
@@ -299,7 +299,7 @@ public abstract class Layer
         private readonly Content grass;
         private readonly Content grassFilled;
 
-        public StonyCover(int width, int amplitude)
+        public StonyTop(int width, int amplitude)
         {
             Width = width;
 

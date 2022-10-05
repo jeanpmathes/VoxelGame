@@ -48,7 +48,7 @@ public class Biome
         Frequency = 0.005f,
         Layers = new List<Layer>
         {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 3),
             Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 26),
             Layer.CreateLoose(width: 3),
@@ -70,7 +70,7 @@ public class Biome
         Frequency = 0.005f,
         Layers = new List<Layer>
         {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 3),
             Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 26),
             Layer.CreateLoose(width: 3),
@@ -92,7 +92,7 @@ public class Biome
         Frequency = 0.007f,
         Layers = new List<Layer>
         {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
             Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 6),
             Layer.CreateSolid(Block.Permafrost, width: 28),
@@ -112,7 +112,7 @@ public class Biome
         Frequency = 0.007f,
         Layers = new List<Layer>
         {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
             Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 6),
             Layer.CreateSolid(Block.Permafrost, width: 28),
@@ -132,7 +132,7 @@ public class Biome
         Frequency = 0.01f,
         Layers = new List<Layer>
         {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
             Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 2),
             Layer.CreateLoose(width: 3),
@@ -154,7 +154,7 @@ public class Biome
         Frequency = 0.005f,
         Layers = new List<Layer>
         {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 5),
             Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 20),
             Layer.CreateLoose(width: 3),
@@ -176,7 +176,7 @@ public class Biome
         Frequency = 0.005f,
         Layers = new List<Layer>
         {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 3),
             Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 26),
             Layer.CreateLoose(width: 3),
@@ -198,7 +198,7 @@ public class Biome
         Frequency = 0.01f,
         Layers = new List<Layer>
         {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
             Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 2),
             Layer.CreateLoose(width: 3),
@@ -240,7 +240,7 @@ public class Biome
         Frequency = 0.004f,
         Layers = new List<Layer>
         {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
             Layer.CreatePermeable(Block.Dirt, width: 7),
             Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 8),
             Layer.CreateLoose(width: 3),
@@ -301,7 +301,7 @@ public class Biome
         Frequency = 0.005f,
         Layers = new List<Layer>
         {
-            Layer.CreateStonyCover(width: 9, amplitude: 15),
+            Layer.CreateStonyTop(width: 9, amplitude: 15),
             Layer.CreateStonyDampen(maxWidth: 31),
             Layer.CreateStone(width: 31),
             Layer.CreateLoose(width: 9),
@@ -340,7 +340,7 @@ public class Biome
         Frequency = 0.008f,
         Layers = new List<Layer>
         {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
             Layer.CreateSolid(Block.Limestone, width: 53),
             Layer.CreateStonyDampen(maxWidth: 28),
             Layer.CreateStone(width: 39)
@@ -357,7 +357,7 @@ public class Biome
         Frequency = 0.008f,
         Layers = new List<Layer>
         {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
+            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
             Layer.CreateSolid(Block.Limestone, width: 53),
             Layer.CreateStonyDampen(maxWidth: 28),
             Layer.CreateStone(width: 39)
