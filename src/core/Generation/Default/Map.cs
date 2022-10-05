@@ -625,9 +625,9 @@ public partial class Map : IMap
         public float Height { get; init; }
 
         /// <summary>
-        ///     The temperature of the sample.
+        ///     The temperature of the sample. Use <see cref="GetTemperatureInCelsius"/> to retrieve the temperature.
         /// </summary>
-        public float Temperature { get; init; }
+        public float Temperature { private get; init; }
 
         /// <summary>
         ///     The moisture of the sample.

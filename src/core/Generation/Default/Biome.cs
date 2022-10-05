@@ -26,7 +26,7 @@ public class Biome
         Color = Color.Gray,
         Amplitude = 2f,
         Frequency = 0.007f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: false),
         Layers = new List<Layer>
         {
             Layer.CreateSnow(width: 3),
@@ -47,7 +47,7 @@ public class Biome
         Color = Color.DarkGreen,
         Amplitude = 15f,
         Frequency = 0.005f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -70,7 +70,7 @@ public class Biome
         Color = Color.Green,
         Amplitude = 15f,
         Frequency = 0.005f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -93,7 +93,7 @@ public class Biome
         Color = Color.Navy,
         Amplitude = 3f,
         Frequency = 0.007f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -114,7 +114,7 @@ public class Biome
         Color = Color.CadetBlue,
         Amplitude = 3f,
         Frequency = 0.007f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -135,7 +135,7 @@ public class Biome
         Color = Color.Olive,
         Amplitude = 1f,
         Frequency = 0.01f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -158,7 +158,7 @@ public class Biome
         Color = Color.LimeGreen,
         Amplitude = 10f,
         Frequency = 0.005f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -181,7 +181,7 @@ public class Biome
         Color = Color.SeaGreen,
         Amplitude = 15f,
         Frequency = 0.005f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -204,7 +204,7 @@ public class Biome
         Color = Color.Salmon,
         Amplitude = 1f,
         Frequency = 0.01f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -227,7 +227,7 @@ public class Biome
         Color = Color.Yellow,
         Amplitude = 4f,
         Frequency = 0.008f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: false),
         Layers = new List<Layer>
         {
             Layer.CreateSimple(Block.Sand, width: 9, isSolid: false),
@@ -248,7 +248,7 @@ public class Biome
         Color = Color.SaddleBrown,
         Amplitude = 4f,
         Frequency = 0.004f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -271,7 +271,7 @@ public class Biome
         Color = Color.White,
         Amplitude = 5.0f,
         Frequency = 0.005f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: false),
         Layers = new List<Layer>
         {
             Layer.CreateSimple(Block.Sand, width: 5, isSolid: false),
@@ -292,7 +292,7 @@ public class Biome
         Amplitude = 5.0f,
         Frequency = 0.005f,
         IceWidth = 6,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: false),
         Layers = new List<Layer>
         {
             Layer.CreateSimple(Block.Sand, width: 5, isSolid: false),
@@ -312,7 +312,7 @@ public class Biome
         Color = Color.Black,
         Amplitude = 30f,
         Frequency = 0.005f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: false),
         Layers = new List<Layer>
         {
             Layer.CreateStonyTop(width: 9, amplitude: 15),
@@ -332,7 +332,7 @@ public class Biome
         Color = Color.Black,
         Amplitude = 4f,
         Frequency = 0.008f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: false),
         Layers = new List<Layer>
         {
             Layer.CreateSimple(Block.Sand, width: 5, isSolid: false),
@@ -353,7 +353,7 @@ public class Biome
         Color = Color.Black,
         Amplitude = 4f,
         Frequency = 0.008f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -371,7 +371,7 @@ public class Biome
         Color = Color.Black,
         Amplitude = 4f,
         Frequency = 0.008f,
-        Cover = Cover.Default,
+        Cover = new Cover(hasPlants: false),
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -458,6 +458,8 @@ public class Biome
     {
         SetupNoise(arguments.seed);
         SetupLayers(arguments.palette);
+
+        Cover.SetupNoise(arguments.seed);
     }
 
     private void SetupNoise(int seed)

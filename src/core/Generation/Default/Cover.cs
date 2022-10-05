@@ -14,11 +14,31 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 public class Cover
 {
-    /// <summary>
-    ///     Create a default cover.
-    /// </summary>
-    public static Cover Default => new();
+    private const double FlowerFactor = 0.05;
+    private readonly bool hasPlants;
 
+    private FastNoiseLite noise = null!;
+
+    /// <summary>
+    ///     Create a new cover generator.
+    /// </summary>
+    /// <param name="hasPlants">Whether the cover should generate plants.</param>
+    public Cover(bool hasPlants)
+    {
+        this.hasPlants = hasPlants;
+    }
+
+    /// <summary>
+    /// Setup used noise with the generation seed.
+    /// </summary>
+    /// <param name="seed">The generation seed.</param>
+    public void SetupNoise(int seed)
+    {
+        noise = new FastNoiseLite(seed);
+
+        noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
+        noise.SetFrequency(frequency: 0.5f);
+    }
 
     /// <summary>
     ///     Get the cover for a given block.
@@ -31,6 +51,14 @@ public class Cover
 
         if (temperature < 0) return new Content(Block.Specials.Snow.GetInstance(height: 1), FluidInstance.Default);
 
-        return new Content(Block.TallGrass);
+        if (hasPlants)
+        {
+            float value = noise.GetNoise(position.X, position.Y, position.Z);
+            value = value > 0 ? value : value + 1;
+
+            if (value < sample.Moisture) return value < sample.Moisture * FlowerFactor ? new Content(Block.Flower) : new Content(Block.TallGrass);
+        }
+
+        return Content.Default;
     }
 }
