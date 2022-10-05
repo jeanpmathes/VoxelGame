@@ -29,6 +29,7 @@ internal class InGameDisplay : ControlBase
     private readonly Label targetBlock;
     private readonly Label targetFluid;
     private readonly Label targetPosition;
+    private readonly Label temperature;
     private readonly Label worldData;
 
     private bool debugMode;
@@ -76,6 +77,7 @@ internal class InGameDisplay : ControlBase
         targetBlock = new Label(debugViewContainer) {Alignment = Alignment.Right};
         targetFluid = new Label(debugViewContainer) {Alignment = Alignment.Right};
         worldData = new Label(debugViewContainer) {Alignment = Alignment.Right};
+        temperature = new Label(debugViewContainer) {Alignment = Alignment.Right};
 
         debugViewContainer.Hide();
     }
@@ -106,6 +108,7 @@ internal class InGameDisplay : ControlBase
         targetFluid.Text = $"F: {fluid.NamedId}[{fluid.Id}], {level}, {isStatic}";
 
         worldData.Text = playerDataProvider.WorldDebugData;
+        temperature.Text = $"T: {playerDataProvider.Temperature:F1}°C";
     }
 
     internal void ToggleDebugDataView()

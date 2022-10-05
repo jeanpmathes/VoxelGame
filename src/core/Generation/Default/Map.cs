@@ -82,6 +82,11 @@ public partial class Map : IMap
     }
 
     /// <summary>
+    ///     Height of the highest mountains and deepest oceans.
+    /// </summary>
+    public const int MaxHeight = 10_000;
+
+    /// <summary>
     ///     The size of a map cell.
     /// </summary>
     private const int CellSize = 100_000;
@@ -89,6 +94,9 @@ public partial class Map : IMap
     private const int MinimumWidth = (int) (World.BlockLimit * 2) / CellSize;
     private const int Width = MinimumWidth + 2;
     private const int CellCount = Width * Width;
+
+    private const double MinTemperature = -5.0;
+    private const double MaxTemperature = 30.0;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Map>();
 
     private static readonly Color blockTintWarm = Color.LightGreen;
@@ -189,7 +197,7 @@ public partial class Map : IMap
         Vector3i samplingPosition = position.Floor();
         Sample sample = GetSample(samplingPosition.Xz);
 
-        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)} {sample.BlendFactors.Z}";
+        return $"M: [{nameof(Default)}] {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)} {sample.BlendFactors.Z}";
     }
 
     /// <inheritdoc />
@@ -198,10 +206,40 @@ public partial class Map : IMap
         Vector2i samplingPosition = position.Floor().Xz;
         Sample sample = GetSample(samplingPosition);
 
-        Color block = Colors.Mix(Colors.Mix(blockTintCold, blockTintWarm, sample.Temperature), Colors.Mix(blockTintDry, blockTintMoist, sample.Moisture));
-        Color fluid = Colors.Mix(fluidTintCold, fluidTintWarm, sample.Temperature);
+        float temperature = NormalizeTemperature(sample.GetTemperatureInCelsius(position.Y));
+
+        Color block = Colors.Mix(Colors.Mix(blockTintCold, blockTintWarm, temperature), Colors.Mix(blockTintDry, blockTintMoist, sample.Moisture));
+        Color fluid = Colors.Mix(fluidTintCold, fluidTintWarm, temperature);
 
         return (new TintColor(block), new TintColor(fluid));
+    }
+
+    /// <inheritdoc />
+    public double GetTemperature(Vector3d position)
+    {
+        Vector2i samplingPosition = position.Floor().Xz;
+        Sample sample = GetSample(samplingPosition);
+
+        return sample.GetTemperatureInCelsius(position.Y);
+    }
+
+    private static double ConvertTemperatureToCelsius(float temperature)
+    {
+        return MathHelper.Lerp(MinTemperature, MaxTemperature, temperature);
+    }
+
+    private static float NormalizeTemperature(double temperature)
+    {
+        return (float) VMath.InverseLerp(MinTemperature, MaxTemperature, temperature);
+    }
+
+    private static double GetTemperatureAtHeight(double groundTemperature, float moisture, double heightAboveGround)
+    {
+        if (heightAboveGround < 0) return groundTemperature;
+
+        double decreaseFactor = MathHelper.Lerp(start: 10.0, end: 5.0, moisture);
+
+        return groundTemperature - decreaseFactor * heightAboveGround / 1000.0;
     }
 
     private void SetupNoise(int seed)
@@ -635,6 +673,18 @@ public partial class Map : IMap
         ///     Data regarding the stone composition.
         /// </summary>
         public (StoneType stone00, StoneType stone10, StoneType stone01, StoneType stone11, double tX, double tY) StoneData { get; init; }
+
+        /// <summary>
+        ///     Get the temperature at a given height.
+        /// </summary>
+        /// <param name="y">The height.</param>
+        /// <returns>The temperature, in degrees Celsius.</returns>
+        public double GetTemperatureInCelsius(double y)
+        {
+            double groundHeight = Math.Max(Height * MaxHeight, val2: 0.0);
+
+            return GetTemperatureAtHeight(ConvertTemperatureToCelsius(Temperature), Moisture, y - groundHeight);
+        }
     }
 
     private record struct Cell

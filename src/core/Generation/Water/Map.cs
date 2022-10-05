@@ -25,4 +25,10 @@ public class Map : IMap
     {
         return (TintColor.Green, TintColor.Blue);
     }
+
+    /// <inheritdoc />
+    public double GetTemperature(Vector3d position)
+    {
+        return 20.0;
+    }
 }

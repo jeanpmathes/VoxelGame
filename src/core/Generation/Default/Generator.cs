@@ -23,11 +23,6 @@ public class Generator : IWorldGenerator
 {
     private const int SeaLevel = 0;
 
-    /// <summary>
-    ///     Height of the highest mountains and deepest oceans.
-    /// </summary>
-    private const int Height = 10_000;
-
     private const string MapBlobName = "default_map";
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Generator>();
 
@@ -64,7 +59,7 @@ public class Generator : IWorldGenerator
         Map.Sample sample = map.GetSample((x, z));
 
         double offset = GetOffset((x, z), sample);
-        double height = sample.Height * Height;
+        double height = sample.Height * Default.Map.MaxHeight;
 
         var rawHeight = (int) height;
         var modifiedHeight = (int) (height + offset);
