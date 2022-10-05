@@ -25,14 +25,6 @@ public class Palette
     private readonly Content sandGroundwater = new(Block.Sand, Fluid.Water);
     private readonly Content sandstone = new(Block.Sandstone);
 
-    internal Content Empty { get; init; } = Content.Default;
-
-    internal Content Water { get; init; } = new(fluid: Fluid.Water);
-
-    internal Content Core { get; init; } = new(Block.Core);
-
-    internal Content Ice { get; init; } = new(Block.Specials.Ice.FullHeightInstance, FluidInstance.Default);
-
     internal Content GetStone(Map.StoneType type)
     {
         return type switch

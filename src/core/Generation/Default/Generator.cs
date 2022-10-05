@@ -155,27 +155,38 @@ public class Generator : IWorldGenerator
 
     private Content GenerateContent(Vector3i position, in Context context)
     {
-        if (position.Y == -World.BlockLimit) return palette.Core;
+        if (position.Y == -World.BlockLimit) return new Content(Block.Core);
 
         int depth = context.WorldHeight - position.Y;
+        bool isFilled = position.Y <= SeaLevel;
 
         if (depth < 0) // A negative depths means that the block is above the world height.
         {
-            if (position.Y <= SeaLevel) return Math.Abs(position.Y) >= context.IceWidth ? palette.Water : palette.Ice;
+            bool isIce = isFilled && Math.Abs(position.Y - SeaLevel) < context.IceWidth;
 
-            return palette.Empty;
+            if (isIce) return new Content(Block.Specials.Ice.FullHeightInstance, FluidInstance.Default);
+
+            var content = Content.Default;
+
+            if (depth == -1) content = context.Biome.Cover.GetContent(isFilled);
+
+            if (isFilled) content = FillContent(content);
+
+            return content;
         }
 
         Map.StoneType stoneType = context.GetStoneType(position);
 
-        if (depth >= context.Biome.GetTotalWidth(context.Dampening)) return palette.GetStone(stoneType);
+        return depth >= context.Biome.GetTotalWidth(context.Dampening) ? palette.GetStone(stoneType) : GetBiomeContent(depth, isFilled, stoneType, context);
+    }
 
-        bool isFilled = position.Y <= SeaLevel;
-        Content biomeContent = context.Biome.GetContent(depth, context.Dampening, stoneType, isFilled);
+    private static Content GetBiomeContent(int depth, bool isFilled, Map.StoneType stoneType, Context context)
+    {
+        Content content = context.Biome.GetContent(depth, context.Dampening, stoneType, isFilled);
 
-        if (isFilled) biomeContent = FillContent(biomeContent);
+        if (isFilled) content = FillContent(content);
 
-        return biomeContent;
+        return content;
     }
 
     private static Content FillContent(Content content)

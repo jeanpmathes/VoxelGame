@@ -14,18 +14,19 @@ using VoxelGame.Core.Logic;
 namespace VoxelGame.Core.Generation.Default;
 
 /// <summary>
-/// A biome is a collection of attributes of an area in the world.
+///     A biome is a collection of attributes of an area in the world.
 /// </summary>
 public class Biome
 {
     /// <summary>
-    /// The polar desert biome.
+    ///     The polar desert biome.
     /// </summary>
     public static readonly Biome PolarDesert = new(nameof(PolarDesert))
     {
         Color = Color.Gray,
         Amplitude = 2f,
         Frequency = 0.007f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateSnow(width: 3),
@@ -39,13 +40,14 @@ public class Biome
     };
 
     /// <summary>
-    /// The tropical rainforest biome.
+    ///     The tropical rainforest biome.
     /// </summary>
     public static readonly Biome TropicalRainforest = new(nameof(TropicalRainforest))
     {
         Color = Color.DarkGreen,
         Amplitude = 15f,
         Frequency = 0.005f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -61,13 +63,14 @@ public class Biome
     };
 
     /// <summary>
-    /// The temperate rainforest biome.
+    ///     The temperate rainforest biome.
     /// </summary>
     public static readonly Biome TemperateRainforest = new(nameof(TemperateRainforest))
     {
         Color = Color.Green,
         Amplitude = 15f,
         Frequency = 0.005f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -83,13 +86,14 @@ public class Biome
     };
 
     /// <summary>
-    /// The taiga biome.
+    ///     The taiga biome.
     /// </summary>
     public static readonly Biome Taiga = new(nameof(Taiga))
     {
         Color = Color.Navy,
         Amplitude = 3f,
         Frequency = 0.007f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -103,13 +107,14 @@ public class Biome
     };
 
     /// <summary>
-    /// The tundra biome.
+    ///     The tundra biome.
     /// </summary>
     public static readonly Biome Tundra = new(nameof(Tundra))
     {
         Color = Color.CadetBlue,
         Amplitude = 3f,
         Frequency = 0.007f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -123,13 +128,14 @@ public class Biome
     };
 
     /// <summary>
-    /// The savanna biome.
+    ///     The savanna biome.
     /// </summary>
     public static readonly Biome Savanna = new(nameof(Savanna))
     {
         Color = Color.Olive,
         Amplitude = 1f,
         Frequency = 0.01f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -145,13 +151,14 @@ public class Biome
     };
 
     /// <summary>
-    /// The seasonal forest biome.
+    ///     The seasonal forest biome.
     /// </summary>
     public static readonly Biome SeasonalForest = new(nameof(SeasonalForest))
     {
         Color = Color.LimeGreen,
         Amplitude = 10f,
         Frequency = 0.005f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -167,13 +174,14 @@ public class Biome
     };
 
     /// <summary>
-    /// The dry forest biome.
+    ///     The dry forest biome.
     /// </summary>
     public static readonly Biome DryForest = new(nameof(DryForest))
     {
         Color = Color.SeaGreen,
         Amplitude = 15f,
         Frequency = 0.005f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -189,13 +197,14 @@ public class Biome
     };
 
     /// <summary>
-    /// The shrubland biome.
+    ///     The shrubland biome.
     /// </summary>
     public static readonly Biome Shrubland = new(nameof(Shrubland))
     {
         Color = Color.Salmon,
         Amplitude = 1f,
         Frequency = 0.01f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -211,13 +220,14 @@ public class Biome
     };
 
     /// <summary>
-    /// The desert biome.
+    ///     The desert biome.
     /// </summary>
     public static readonly Biome Desert = new(nameof(Desert))
     {
         Color = Color.Yellow,
         Amplitude = 4f,
         Frequency = 0.008f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateSimple(Block.Sand, width: 9, isSolid: false),
@@ -231,13 +241,14 @@ public class Biome
     };
 
     /// <summary>
-    /// The grassland biome.
+    ///     The grassland biome.
     /// </summary>
     public static readonly Biome Grassland = new(nameof(Grassland))
     {
         Color = Color.SaddleBrown,
         Amplitude = 4f,
         Frequency = 0.004f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -260,6 +271,7 @@ public class Biome
         Color = Color.White,
         Amplitude = 5.0f,
         Frequency = 0.005f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateSimple(Block.Sand, width: 5, isSolid: false),
@@ -280,6 +292,7 @@ public class Biome
         Amplitude = 5.0f,
         Frequency = 0.005f,
         IceWidth = 6,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateSimple(Block.Sand, width: 5, isSolid: false),
@@ -299,6 +312,7 @@ public class Biome
         Color = Color.Black,
         Amplitude = 30f,
         Frequency = 0.005f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateStonyTop(width: 9, amplitude: 15),
@@ -318,6 +332,7 @@ public class Biome
         Color = Color.Black,
         Amplitude = 4f,
         Frequency = 0.008f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateSimple(Block.Sand, width: 5, isSolid: false),
@@ -338,6 +353,7 @@ public class Biome
         Color = Color.Black,
         Amplitude = 4f,
         Frequency = 0.008f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -355,6 +371,7 @@ public class Biome
         Color = Color.Black,
         Amplitude = 4f,
         Frequency = 0.008f,
+        Cover = Cover.Default,
         Layers = new List<Layer>
         {
             Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
@@ -388,7 +405,7 @@ public class Biome
     }
 
     /// <summary>
-    /// A color representing the biome.
+    ///     A color representing the biome.
     /// </summary>
     public Color Color { get; private init; }
 
@@ -404,17 +421,22 @@ public class Biome
     private List<Layer> Layers { get; init; } = null!;
 
     /// <summary>
-    /// The width of the dampening layer.
+    ///     Get the cover of the biome.
+    /// </summary>
+    public Cover Cover { get; private init; } = null!;
+
+    /// <summary>
+    ///     The width of the dampening layer.
     /// </summary>
     private int MaxDampenWidth { get; set; }
 
     /// <summary>
-    /// The depth to the dampening layer.
+    ///     The depth to the dampening layer.
     /// </summary>
     private int DepthToDampen { get; set; }
 
     /// <summary>
-    /// The dampen layer.
+    ///     The dampen layer.
     /// </summary>
     private Layer? Dampen { get; set; }
 
