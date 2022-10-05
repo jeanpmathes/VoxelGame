@@ -10,6 +10,7 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
@@ -167,7 +168,22 @@ public class Generator : IWorldGenerator
 
         Map.StoneType stoneType = context.GetStoneType(position);
 
-        return depth >= context.Biome.GetTotalWidth(context.Dampening) ? palette.GetStone(stoneType) : context.Biome.GetContent(depth, context.Dampening, stoneType, position.Y <= SeaLevel);
+        if (depth >= context.Biome.GetTotalWidth(context.Dampening)) return palette.GetStone(stoneType);
+
+        bool isFilled = position.Y <= SeaLevel;
+        Content biomeContent = context.Biome.GetContent(depth, context.Dampening, stoneType, isFilled);
+
+        if (isFilled) biomeContent = FillContent(biomeContent);
+
+        return biomeContent;
+    }
+
+    private static Content FillContent(Content content)
+    {
+        if (content.Fluid.Fluid != Fluid.None) return content;
+        if (content.Block.Block is not IFillable) return content;
+
+        return content with {Fluid = Fluid.Water.AsInstance()};
     }
 
     private readonly record struct Context

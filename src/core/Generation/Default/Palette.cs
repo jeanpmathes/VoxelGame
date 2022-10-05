@@ -17,13 +17,11 @@ public class Palette
     private readonly Content granite = new(Block.Granite);
 
     private readonly Content gravel = new(Block.Gravel);
-    private readonly Content gravelFilled = new(Block.Gravel, Fluid.Water);
     private readonly Content gravelGroundwater = new(Block.Gravel, Fluid.Water);
     private readonly Content limestone = new(Block.Limestone);
     private readonly Content marble = new(Block.Marble);
 
     private readonly Content sand = new(Block.Sand);
-    private readonly Content sandFilled = new(Block.Sand, Fluid.Water);
     private readonly Content sandGroundwater = new(Block.Sand, Fluid.Water);
     private readonly Content sandstone = new(Block.Sandstone);
 
@@ -47,12 +45,9 @@ public class Palette
         };
     }
 
-    internal Content GetLoose(Map.StoneType type, bool isFilled)
+    internal Content GetLoose(Map.StoneType type)
     {
-        Content currentSand = isFilled ? sandFilled : sand;
-        Content currentGravel = isFilled ? gravelFilled : gravel;
-
-        return type == Map.StoneType.Sandstone ? currentSand : currentGravel;
+        return type == Map.StoneType.Sandstone ? sand : gravel;
     }
 
     internal Content GetGroundwater(Map.StoneType type)

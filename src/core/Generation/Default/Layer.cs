@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Diagnostics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Interfaces;
 
@@ -76,19 +77,13 @@ public abstract class Layer
     }
 
     /// <summary>
-    ///     Create a layer with a permeable material that will be filled with water.
+    ///     Create a simple layer. It can be declared as solid, which is only valid when not fillable.
     /// </summary>
-    public static Layer CreatePermeable(Block block, int width)
+    public static Layer CreateSimple(Block block, int width, bool isSolid)
     {
-        return new Permeable(block, width);
-    }
+        if (isSolid) Debug.Assert(block is not IFillable);
 
-    /// <summary>
-    ///     Create a solid layer, which always has the same block.
-    /// </summary>
-    public static Layer CreateSolid(Block block, int width)
-    {
-        return new Solid(block, width);
+        return new Simple(block, width, isSolid);
     }
 
     /// <summary>
@@ -108,7 +103,7 @@ public abstract class Layer
     }
 
     /// <summary>
-    ///     Create a snow layer.
+    ///     Create a snow layer. Snow will not generated when filled.
     /// </summary>
     public static Layer CreateSnow(int width)
     {
@@ -143,7 +138,7 @@ public abstract class Layer
             Width = width;
 
             normalData = new Content(top);
-            filledData = filled is IFillable ? new Content(filled, Fluid.Water) : new Content(filled);
+            filledData = new Content(filled);
         }
 
         public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
@@ -152,33 +147,14 @@ public abstract class Layer
         }
     }
 
-    private sealed class Permeable : Layer
-    {
-        private readonly Content filled;
-        private readonly Content normal;
-
-        public Permeable(Block block, int width)
-        {
-            Width = width;
-
-            normal = new Content(block);
-            filled = new Content(block, Fluid.Water);
-        }
-
-        public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
-        {
-            return isFilled ? filled : normal;
-        }
-    }
-
-    private sealed class Solid : Layer
+    private sealed class Simple : Layer
     {
         private readonly Content data;
 
-        public Solid(Block block, int width)
+        public Simple(Block block, int width, bool isSolid)
         {
             Width = width;
-            IsSolid = true;
+            IsSolid = isSolid;
 
             data = new Content(block);
         }
@@ -202,11 +178,11 @@ public abstract class Layer
 
         public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
-            if (isFilled) return Palette!.GetLoose(stoneType, isFilled);
+            if (isFilled) return Palette!.GetLoose(stoneType);
 
             int actualDepth = depth - offset;
 
-            return actualDepth >= groundWaterDepth ? Palette!.GetGroundwater(stoneType) : Palette!.GetLoose(stoneType, isFilled);
+            return actualDepth >= groundWaterDepth ? Palette!.GetGroundwater(stoneType) : Palette!.GetLoose(stoneType);
         }
     }
 
@@ -220,7 +196,7 @@ public abstract class Layer
             Width = width;
 
             snow = new Content(Block.Specials.Snow.FullHeightInstance, FluidInstance.Default);
-            filled = new Content(fluid: Fluid.Water);
+            filled = Content.Default;
         }
 
         public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
@@ -238,27 +214,25 @@ public abstract class Layer
 
         public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
-            return Palette!.GetLoose(stoneType, isFilled);
+            return Palette!.GetLoose(stoneType);
         }
     }
 
     private sealed class PermeableDampen : Layer
     {
-        private readonly Content blockFilled;
-        private readonly Content blockNormal;
+        private readonly Content data;
 
         public PermeableDampen(Block block, int maxWidth)
         {
             Width = maxWidth;
             IsDampen = true;
 
-            blockNormal = new Content(block);
-            blockFilled = new Content(block, Fluid.Water);
+            data = new Content(block);
         }
 
         public override Content GetContent(int depth, int offset, Map.StoneType stoneType, bool isFilled)
         {
-            return isFilled ? blockFilled : blockNormal;
+            return data;
         }
     }
 
@@ -294,20 +268,15 @@ public abstract class Layer
     {
         private readonly int amplitude;
         private readonly Content dirt;
-        private readonly Content dirtFilled;
-
         private readonly Content grass;
-        private readonly Content grassFilled;
 
         public StonyTop(int width, int amplitude)
         {
             Width = width;
 
             dirt = new Content(Block.Dirt);
-            dirtFilled = new Content(Block.Dirt, Fluid.Water);
 
             grass = new Content(Block.Grass);
-            grassFilled = new Content(Block.Grass, Fluid.Water);
 
             this.amplitude = amplitude;
         }
@@ -316,12 +285,12 @@ public abstract class Layer
         {
             if (offset > amplitude)
             {
-                if (depth == 0) return isFilled ? grassFilled : grass;
+                if (depth == 0) return isFilled ? dirt : grass;
 
-                return isFilled ? dirtFilled : dirt;
+                return dirt;
             }
 
-            if (offset < -amplitude) return Palette!.GetLoose(stoneType, isFilled);
+            if (offset < -amplitude) return Palette!.GetLoose(stoneType);
 
             return Palette!.GetStone(stoneType);
         }
