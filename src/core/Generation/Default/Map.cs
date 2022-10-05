@@ -679,9 +679,9 @@ public partial class Map : IMap
         /// </summary>
         /// <param name="y">The height.</param>
         /// <returns>The temperature, in degrees Celsius.</returns>
-        public double GetTemperatureInCelsius(double y)
+        public readonly double GetTemperatureInCelsius(double y)
         {
-            double groundHeight = Math.Max(Height * MaxHeight, val2: 0.0);
+            double groundHeight = Math.Clamp(Height * MaxHeight, min: 0.0, MaxHeight * 0.3);
 
             return GetTemperatureAtHeight(ConvertTemperatureToCelsius(Temperature), Moisture, y - groundHeight);
         }

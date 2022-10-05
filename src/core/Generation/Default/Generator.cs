@@ -163,7 +163,7 @@ public class Generator : IWorldGenerator
 
             var content = Content.Default;
 
-            if (depth == -1) content = context.Biome.Cover.GetContent(isFilled);
+            if (depth == -1) content = context.Biome.Cover.GetContent(position, isFilled, context.Sample);
 
             if (isFilled) content = FillContent(content);
 
@@ -200,7 +200,7 @@ public class Generator : IWorldGenerator
 
         public Biome Biome => Sample.ActualBiome;
 
-        public Map.Sample Sample { private get; init; }
+        public Map.Sample Sample { get; init; }
 
         public Map Map { private get; init; }
 
