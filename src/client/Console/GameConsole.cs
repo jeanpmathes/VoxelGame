@@ -4,10 +4,12 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Console.Commands;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 
@@ -69,6 +71,10 @@ public class GameConsole : IConsoleProvider
             Parser.BuildParser(
                 s => float.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
                 s => float.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
+
+        invoker.AddParser(Parser.BuildParser(
+            s => Enum.IsDefined(typeof(Orientation), s),
+            Enum.Parse<Orientation>));
 
         invoker.AddParser(Parser.BuildParser(s => bool.TryParse(s, out _), bool.Parse));
 

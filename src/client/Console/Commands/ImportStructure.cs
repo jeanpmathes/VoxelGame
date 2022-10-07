@@ -7,6 +7,7 @@
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Structures;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Console.Commands;
 #pragma warning disable CA1822
@@ -26,19 +27,36 @@ public class ImportStructure : Command
     /// <exclude />
     public void Invoke(int x, int y, int z, string name)
     {
-        Import((x, y, z), name);
+        Import((x, y, z), name, Orientation.North);
+    }
+
+    /// <exclude />
+    public void Invoke(int x, int y, int z, string name, Orientation orientation)
+    {
+        Import((x, y, z), name, orientation);
     }
 
     /// <exclude />
     public void Invoke(string name)
     {
-        if (Context.Player.TargetPosition is {} targetPosition) Import(targetPosition, name);
+        ImportAtTarget(name, Orientation.North);
+    }
+
+    /// <exclude />
+    public void Invoke(string name, Orientation orientation)
+    {
+        ImportAtTarget(name, orientation);
+    }
+
+    private void ImportAtTarget(string name, Orientation orientation)
+    {
+        if (Context.Player.TargetPosition is {} targetPosition) Import(targetPosition, name, orientation);
         else Context.Console.WriteError("No position targeted.");
     }
 
-    private void Import(Vector3i position, string name)
+    private void Import(Vector3i position, string name, Orientation orientation)
     {
         StaticStructure structure = StaticStructure.Load(Program.StructureDirectory, name);
-        structure.Place(Context.Player.World, position);
+        structure.Place(Context.Player.World, position, orientation);
     }
 }
