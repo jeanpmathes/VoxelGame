@@ -386,8 +386,6 @@ public abstract partial class World : IDisposable
     ///     Sets a fluid in the world, adds the changed sections to the re-mesh set and sends updates to the neighbors of the
     ///     changed block.
     /// </summary>
-    /// <param name="fluid"></param>
-    /// <param name="position"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetFluid(FluidInstance fluid, Vector3i position)
     {
@@ -453,6 +451,15 @@ public abstract partial class World : IDisposable
         Vector3i position)
     {
         SetContent(block, data, fluid, level, isStatic, position, tickFluid: true);
+    }
+
+    /// <summary>
+    ///     Set the content of a world position.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetContent(Content content, Vector3i position)
+    {
+        SetContent(content.Block, content.Fluid, position, tickFluid: true);
     }
 
     /// <summary>

@@ -71,7 +71,7 @@ public partial class Block
             y = position.Y;
             z = position.Z;
 
-            this.target = target.Id;
+            this.target = target.ID;
 
             this.operation = operation;
         }
@@ -81,7 +81,7 @@ public partial class Block
             BlockInstance? potentialBlock = world.GetBlock((x, y, z));
 
             if (potentialBlock is not {} block) return;
-            if (block.Block.Id != target) return;
+            if (block.Block.ID != target) return;
 
             switch (operation)
             {

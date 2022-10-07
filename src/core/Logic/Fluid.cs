@@ -47,7 +47,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         Debug.Assert(density > 0);
 
         Name = name;
-        NamedId = namedId;
+        NamedID = namedId;
 
         Density = density;
 
@@ -102,7 +102,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// <summary>
     ///     An unlocalized string that identifies this fluid.
     /// </summary>
-    public string NamedId { get; }
+    public string NamedID { get; }
 
     /// <summary>
     ///     Gets the density of this fluid.
@@ -149,7 +149,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// </summary>
     public Vector3i FlowDirection => Direction.Direction();
 
-    string IIdentifiable<string>.Id => NamedId;
+    string IIdentifiable<string>.Id => NamedID;
 
     uint IIdentifiable<uint>.Id => Id;
 
@@ -581,6 +581,6 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// <inheritdoc />
     public sealed override string ToString()
     {
-        return NamedId;
+        return NamedID;
     }
 }

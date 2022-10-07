@@ -102,10 +102,10 @@ internal class InGameDisplay : ControlBase
         (Block block, uint data) = playerDataProvider.TargetBlock;
 
         targetBlock.Text =
-            $"B: {block.NamedId}[{block.Id}], {Convert.ToString(data, toBase: 2).PadLeft(totalWidth: 6, paddingChar: '0')}";
+            $"B: {block.NamedID}[{block.ID}], {Convert.ToString(data, toBase: 2).PadLeft(totalWidth: 6, paddingChar: '0')}";
 
         (Fluid fluid, FluidLevel level, bool isStatic) = playerDataProvider.TargetFluid;
-        targetFluid.Text = $"F: {fluid.NamedId}[{fluid.Id}], {level}, {isStatic}";
+        targetFluid.Text = $"F: {fluid.NamedID}[{fluid.Id}], {level}, {isStatic}";
 
         worldData.Text = playerDataProvider.WorldDebugData;
         temperature.Text = $"T: {playerDataProvider.Temperature:F1}°C";

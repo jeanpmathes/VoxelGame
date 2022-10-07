@@ -237,7 +237,7 @@ public abstract class Section : IDisposable
                        | (((uint) level << LevelShift) & LevelMask)
                        | ((fluid.Id << FluidShift) & FluidMask)
                        | ((data << DataShift) & DataMask)
-                       | (block.Id & BlockMask));
+                       | (block.ID & BlockMask));
     }
 
     /// <summary>

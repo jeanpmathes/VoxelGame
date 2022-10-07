@@ -417,7 +417,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
         if (blockMode)
         {
-            long nextBlockId = activeBlock.Id + change;
+            long nextBlockId = activeBlock.ID + change;
             nextBlockId = VMath.ClampRotating(nextBlockId, min: 1, Block.Count);
             activeBlock = Block.TranslateID((uint) nextBlockId);
         }

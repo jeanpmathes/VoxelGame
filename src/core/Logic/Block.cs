@@ -32,7 +32,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     protected Block(string name, string namedId, BlockFlags flags, BoundingVolume boundingVolume)
     {
         Name = name;
-        NamedId = namedId;
+        NamedID = namedId;
 
         IsFull = flags.IsFull;
         IsOpaque = flags.IsOpaque;
@@ -56,7 +56,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
             blockList.Add(this);
             namedBlockDictionary.Add(namedId, this);
 
-            Id = (uint) (blockList.Count - 1);
+            ID = (uint) (blockList.Count - 1);
         }
         else
         {
@@ -70,13 +70,13 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     public IBlockBase Base => this;
 
     /// <inheritdoc />
-    public uint Id { get; }
+    public uint ID { get; }
 
     /// <inheritdoc />
     public string Name { get; }
 
     /// <inheritdoc />
-    public string NamedId { get; }
+    public string NamedID { get; }
 
     /// <inheritdoc />
     public bool RenderFaceAtNonOpaques { get; }
@@ -147,9 +147,9 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
         return true;
     }
 
-    string IIdentifiable<string>.Id => NamedId;
+    string IIdentifiable<string>.Id => NamedID;
 
-    uint IIdentifiable<uint>.Id => Id;
+    uint IIdentifiable<uint>.Id => ID;
 
     /// <summary>
     ///     Called when loading blocks, meant to setup vertex data, indices etc.
@@ -302,6 +302,6 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <inheritdoc />
     public sealed override string ToString()
     {
-        return NamedId;
+        return NamedID;
     }
 }

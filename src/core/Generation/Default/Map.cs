@@ -617,7 +617,7 @@ public partial class Map : IMap
     /// <summary>
     ///     A sample of the map.
     /// </summary>
-    public record struct Sample
+    public readonly record struct Sample
     {
         /// <summary>
         ///     The height of the sample.
