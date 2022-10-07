@@ -10,7 +10,7 @@ using System.Diagnostics;
 namespace VoxelGame.Core.Generation.Default;
 
 /// <summary>
-///     The distribution of biomes according to temperature and moisture.
+///     The distribution of biomes according to temperature and humidity.
 /// </summary>
 public class BiomeDistribution
 {
@@ -40,19 +40,19 @@ public class BiomeDistribution
     public static BiomeDistribution Default => new();
 
     /// <summary>
-    ///     Get the biome at the given temperature and moisture.
+    ///     Get the biome at the given temperature and humidity.
     /// </summary>
     /// <param name="temperature">The temperature, must be in the range [0, 1].</param>
-    /// <param name="moisture">The moisture, must be in the range [0, 1].</param>
-    /// <returns>The biome at the given temperature and moisture.</returns>
-    public Biome GetBiome(float temperature, float moisture)
+    /// <param name="humidity">The humidity, must be in the range [0, 1].</param>
+    /// <returns>The biome at the given temperature and humidity.</returns>
+    public Biome GetBiome(float temperature, float humidity)
     {
         Debug.Assert(temperature is >= 0 and <= 1);
-        Debug.Assert(moisture is >= 0 and <= 1);
+        Debug.Assert(humidity is >= 0 and <= 1);
 
-        moisture = Math.Clamp(moisture, min: 0, temperature);
+        humidity = Math.Clamp(humidity, min: 0, temperature);
 
-        var x = (int) Math.Floor(moisture * Resolution);
+        var x = (int) Math.Floor(humidity * Resolution);
         var y = (int) Math.Floor(temperature * Resolution);
 
         x = Math.Clamp(x, min: 0, Resolution - 1);
@@ -69,14 +69,14 @@ public class BiomeDistribution
     ///     Get the appropriate coastline biome.
     /// </summary>
     /// <param name="temperature">The temperature, must be in the range [0, 1].</param>
-    /// <param name="moisture">The moisture, must be in the range [0, 1].</param>
+    /// <param name="humidity">The humidity, must be in the range [0, 1].</param>
     /// <param name="isCliff">Whether the coastline is a cliff.</param>
     /// <returns>The appropriate coastline biome.</returns>
-    public Biome GetCoastlineBiome(float temperature, float moisture, bool isCliff)
+    public Biome GetCoastlineBiome(float temperature, float humidity, bool isCliff)
     {
         if (!isCliff) return Biome.Beach;
 
-        Biome biome = GetBiome(temperature, moisture);
+        Biome biome = GetBiome(temperature, humidity);
 
         return biome == Biome.Desert ? Biome.SandyCliff : Biome.GrassyCliff;
     }
@@ -85,11 +85,11 @@ public class BiomeDistribution
     ///     Get the appropriate ocean biome.
     /// </summary>
     /// <param name="temperature">The temperature, must be in the range [0, 1].</param>
-    /// <param name="moisture">The moisture, must be in the range [0, 1].</param>
+    /// <param name="humidity">The humidity, must be in the range [0, 1].</param>
     /// <returns>The appropriate ocean biome.</returns>
-    public Biome GetOceanBiome(float temperature, float moisture)
+    public Biome GetOceanBiome(float temperature, float humidity)
     {
-        Biome biome = GetBiome(temperature, moisture);
+        Biome biome = GetBiome(temperature, humidity);
 
         return biome == Biome.PolarDesert ? Biome.PolarOcean : Biome.Ocean;
     }

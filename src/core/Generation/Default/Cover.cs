@@ -56,7 +56,7 @@ public class Cover
             float value = noise.GetNoise(position.X, position.Y, position.Z);
             value = value > 0 ? value : value + 1;
 
-            if (value < sample.Moisture) return value < sample.Moisture * FlowerFactor ? new Content(Block.Flower) : new Content(Block.TallGrass);
+            if (value < sample.Humidity) return value < sample.Humidity * FlowerFactor ? new Content(Block.Flower) : new Content(Block.TallGrass);
         }
 
         return Content.Default;

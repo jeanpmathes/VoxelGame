@@ -197,7 +197,7 @@ public partial class Map : IMap
         Vector3i samplingPosition = position.Floor();
         Sample sample = GetSample(samplingPosition.Xz);
 
-        return $"M: [{nameof(Default)}] {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)} {sample.BlendFactors.Z}";
+        return $"M: [{nameof(Default)}] {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)}";
     }
 
     /// <inheritdoc />
@@ -208,7 +208,7 @@ public partial class Map : IMap
 
         float temperature = NormalizeTemperature(sample.GetTemperatureInCelsius(position.Y));
 
-        Color block = Colors.Mix(Colors.Mix(blockTintCold, blockTintWarm, temperature), Colors.Mix(blockTintDry, blockTintMoist, sample.Moisture));
+        Color block = Colors.Mix(Colors.Mix(blockTintCold, blockTintWarm, temperature), Colors.Mix(blockTintDry, blockTintMoist, sample.Humidity));
         Color fluid = Colors.Mix(fluidTintCold, fluidTintWarm, temperature);
 
         return (new TintColor(block), new TintColor(fluid));
@@ -233,11 +233,11 @@ public partial class Map : IMap
         return (float) VMath.InverseLerp(MinTemperature, MaxTemperature, temperature);
     }
 
-    private static double GetTemperatureAtHeight(double groundTemperature, float moisture, double heightAboveGround)
+    private static double GetTemperatureAtHeight(double groundTemperature, float humidity, double heightAboveGround)
     {
         if (heightAboveGround < 0) return groundTemperature;
 
-        double decreaseFactor = MathHelper.Lerp(start: 10.0, end: 5.0, moisture);
+        double decreaseFactor = MathHelper.Lerp(start: 10.0, end: 5.0, humidity);
 
         return groundTemperature - decreaseFactor * heightAboveGround / 1000.0;
     }
@@ -292,7 +292,7 @@ public partial class Map : IMap
 
         GenerateTerrain(data, seed);
         GenerateTemperature(data);
-        GenerateMoisture(data);
+        GenerateHumidity(data);
 
         stopwatch.Stop();
 
@@ -310,7 +310,7 @@ public partial class Map : IMap
         EmitTerrainView(data, path);
         EmitStoneView(data, path);
         EmitTemperatureView(data, path);
-        EmitMoistureView(data, path);
+        EmitHumidityView(data, path);
         EmitBiomeView(data, biomes, path);
     }
 
@@ -326,7 +326,7 @@ public partial class Map : IMap
             cell.continent = reader.ReadInt16();
             cell.height = reader.ReadSingle();
             cell.temperature = reader.ReadSingle();
-            cell.moisture = reader.ReadSingle();
+            cell.humidity = reader.ReadSingle();
             cell.conditions = (CellConditions) reader.ReadByte();
             cell.stoneType = (StoneType) reader.ReadByte();
 
@@ -362,7 +362,7 @@ public partial class Map : IMap
             writer.Write(cell.continent);
             writer.Write(cell.height);
             writer.Write(cell.temperature);
-            writer.Write(cell.moisture);
+            writer.Write(cell.humidity);
             writer.Write((byte) cell.conditions);
             writer.Write((byte) cell.stoneType);
         }
@@ -423,7 +423,7 @@ public partial class Map : IMap
         ref readonly Cell c11 = ref data.GetCell(x2 + extents, y2 + extents);
 
         var temperature = (float) VMath.BiLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blendX, blendY);
-        var moisture = (float) VMath.BiLerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, blendX, blendY);
+        var humidity = (float) VMath.BiLerp(c00.humidity, c10.humidity, c01.humidity, c11.humidity, blendX, blendY);
         var height = (float) VMath.BiLerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
 
         float mountainStrength = GetMountainStrength(c00, c10, c01, c11, height, (blendX, blendY));
@@ -439,13 +439,13 @@ public partial class Map : IMap
         }
         else
         {
-            specialBiome = biomes.GetCoastlineBiome(temperature, moisture, isCliff);
+            specialBiome = biomes.GetCoastlineBiome(temperature, humidity, isCliff);
             specialStrength = coastlineStrength;
         }
 
         Biome GetBiome(in Cell cell)
         {
-            return cell.IsLand ? biomes.GetBiome(cell.temperature, cell.moisture) : biomes.GetOceanBiome(cell.temperature, cell.moisture);
+            return cell.IsLand ? biomes.GetBiome(cell.temperature, cell.humidity) : biomes.GetOceanBiome(cell.temperature, cell.humidity);
         }
 
         Biome actual = VMath.SelectByWeight(GetBiome(c00), GetBiome(c10), GetBiome(c01), GetBiome(c11), specialBiome, (blendX, blendY, specialStrength));
@@ -454,7 +454,7 @@ public partial class Map : IMap
         {
             Height = height,
             Temperature = temperature,
-            Moisture = moisture,
+            Humidity = humidity,
             BlendFactors = (blendX, blendY, specialStrength),
             ActualBiome = actual,
             Biome00 = GetBiome(c00),
@@ -630,9 +630,9 @@ public partial class Map : IMap
         public float Temperature { private get; init; }
 
         /// <summary>
-        ///     The moisture of the sample.
+        ///     The humidity of the sample.
         /// </summary>
-        public float Moisture { get; init; }
+        public float Humidity { get; init; }
 
         /// <summary>
         ///     Get the actual biome at the sample position.
@@ -683,7 +683,7 @@ public partial class Map : IMap
         {
             double groundHeight = Math.Clamp(Height * MaxHeight, min: 0.0, MaxHeight * 0.3);
 
-            return GetTemperatureAtHeight(ConvertTemperatureToCelsius(Temperature), Moisture, y - groundHeight);
+            return GetTemperatureAtHeight(ConvertTemperatureToCelsius(Temperature), Humidity, y - groundHeight);
         }
     }
 
@@ -705,9 +705,9 @@ public partial class Map : IMap
         public float height;
 
         /// <summary>
-        ///     The moisture of the cell, in the range [0, 1].
+        ///     The humidity of the cell, in the range [0, 1].
         /// </summary>
-        public float moisture;
+        public float humidity;
 
         /// <summary>
         ///     The height of the cell.
