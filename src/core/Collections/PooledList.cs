@@ -8,6 +8,8 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Collections;
 
@@ -18,6 +20,8 @@ namespace VoxelGame.Core.Collections;
 [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
 public class PooledList<T>
 {
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<PooledList<T>>();
+
     private readonly ArrayPool<T> arrayPool;
 
     private T[] items;
@@ -266,5 +270,13 @@ public class PooledList<T>
         items = Array.Empty<T>();
 
         Count = 0;
+    }
+
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
+    ~PooledList()
+    {
+        logger.LogWarning("List was not returned to the pool");
     }
 }
