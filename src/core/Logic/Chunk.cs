@@ -14,7 +14,6 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
-using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
@@ -24,7 +23,7 @@ namespace VoxelGame.Core.Logic;
 ///     A chunk, a cubic group of sections.
 /// </summary>
 [Serializable]
-public abstract class Chunk : IDisposable
+public abstract partial class Chunk : IDisposable
 {
     /// <summary>
     /// The number of sections in a chunk along every axis.
@@ -65,22 +64,16 @@ public abstract class Chunk : IDisposable
     /// </summary>
     public static readonly int BlockSizeExp2 = (int) Math.Log(BlockSize, newBase: 2) * 2;
 
-    private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
-    private readonly ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
-
-    /// <summary>
-    ///     The sections in this chunk.
-    /// </summary>
-#pragma warning disable CA1051 // Do not declare visible instance fields
-    protected readonly Section[] sections = new Section[SectionCount];
-#pragma warning restore CA1051 // Do not declare visible instance fields
+    private ScheduledTickManager<Block.BlockTick> blockTickManager;
+    private ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
 
     /// <summary>
     ///     Create a new chunk.
     /// </summary>
     /// <param name="world">The world.</param>
     /// <param name="position">The chunk position.</param>
-    protected Chunk(World world, ChunkPosition position)
+    /// <param name="context">The chunk context.</param>
+    protected Chunk(World world, ChunkPosition position, ChunkContext context)
     {
         World = world;
         Position = position;
@@ -103,7 +96,19 @@ public abstract class Chunk : IDisposable
             Fluid.MaxFluidTicksPerFrameAndChunk,
             World,
             World.UpdateCounter);
+
+        state = ChunkState.CreateInitialState(this, context);
     }
+
+    /// <summary>
+    ///     Whether the chunk is currently active.
+    /// </summary>
+    public bool IsActive => state.IsActive;
+
+    /// <summary>
+    ///     Get whether the chunk is requested.
+    /// </summary>
+    public bool IsRequested => isRequested;
 
     /// <summary>
     /// Get the position of this chunk.
@@ -126,21 +131,42 @@ public abstract class Chunk : IDisposable
     [field: NonSerialized] protected World World { get; private set; }
 
     /// <summary>
+    ///     Add a request to the chunk to be active.
+    /// </summary>
+    public void AddRequest()
+    {
+        isRequested = true;
+    }
+
+    /// <summary>
+    ///     Remove a request to the chunk to be active.
+    /// </summary>
+    public void RemoveRequest()
+    {
+        isRequested = false;
+    }
+
+    /// <summary>
     ///     Creates a section.
     /// </summary>
     protected abstract Section CreateSection();
 
     /// <summary>
-    ///     Calls setup on all sections. This is required after loading.
+    ///     Setup the chunk and used sections after loading.
     /// </summary>
-    public void Setup(World world, UpdateCounter updateCounter)
+    public void Setup(Chunk loaded)
     {
-        World = world;
+        blockTickManager = loaded.blockTickManager;
+        fluidTickManager = loaded.fluidTickManager;
 
-        blockTickManager.Setup(World, updateCounter);
-        fluidTickManager.Setup(World, updateCounter);
+        blockTickManager.Setup(World, World.UpdateCounter);
+        fluidTickManager.Setup(World, World.UpdateCounter);
 
-        for (var s = 0; s < SectionCount; s++) sections[s].Setup(world);
+        for (var s = 0; s < SectionCount; s++)
+        {
+            sections[s] = loaded.sections[s];
+            sections[s].Setup(World);
+        }
     }
 
     /// <summary>
@@ -198,6 +224,14 @@ public abstract class Chunk : IDisposable
     public static string GetChunkFileName(ChunkPosition position)
     {
         return $"x{position.X}y{position.Y}z{position.Z}.chunk";
+    }
+
+    /// <summary>
+    ///     Begin saving the chunk.
+    /// </summary>
+    public void BeginSaving()
+    {
+        state.RequestNextState<Saving>();
     }
 
     /// <summary>
@@ -290,6 +324,20 @@ public abstract class Chunk : IDisposable
     }
 
     /// <summary>
+    ///     Update the state.
+    /// </summary>
+    public void Update()
+    {
+        ChunkState previousState = state;
+        state = previousState.Update();
+
+        if (previousState == state) return;
+
+        state.OnEnter();
+        logger.LogDebug(Events.ChunkOperation, "Chunk {Position} state changed from {PreviousState} to {State}", Position, previousState, state);
+    }
+
+    /// <summary>
     /// Tick some random blocks.
     /// </summary>
     public void Tick()
@@ -369,6 +417,23 @@ public abstract class Chunk : IDisposable
     {
         return HashCode.Combine(Position);
     }
+
+#pragma warning disable CA1051 // Do not declare visible instance fields
+    /// <summary>
+    ///     The sections in this chunk.
+    /// </summary>
+    protected readonly Section[] sections = new Section[SectionCount];
+
+    /// <summary>
+    ///     Whether the chunk is currently requested to be active.
+    /// </summary>
+    [NonSerialized] protected bool isRequested;
+
+    /// <summary>
+    ///     The current chunk state.
+    /// </summary>
+    [NonSerialized] protected ChunkState state;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
     #region IDisposable Support
 

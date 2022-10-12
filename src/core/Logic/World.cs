@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using Properties;
-using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Updates;
@@ -72,22 +71,6 @@ public abstract partial class World : IDisposable
     /// </summary>
     private World(WorldInformation information, string worldDirectory)
     {
-        positionsToActivate = new HashSet<ChunkPosition>();
-        positionsActivating = new HashSet<ChunkPosition>();
-        chunksToGenerate = new UniqueQueue<Chunk>();
-        chunkGenerateTasks = new List<Task>(MaxGenerationTasks);
-        chunksGenerating = new Dictionary<int, Chunk>(MaxGenerationTasks);
-        positionsToLoad = new UniqueQueue<ChunkPosition>();
-        chunkLoadingTasks = new List<Task<Chunk?>>(MaxLoadingTasks);
-        positionsLoading = new Dictionary<int, ChunkPosition>(MaxLoadingTasks);
-        activeChunks = new Dictionary<ChunkPosition, Chunk>();
-        positionsToReleaseOnActivation = new HashSet<ChunkPosition>();
-        chunksToSave = new UniqueQueue<Chunk>();
-        chunkSavingTasks = new List<Task>(MaxSavingTasks);
-        chunksSaving = new Dictionary<int, Chunk>(MaxSavingTasks);
-        positionsSaving = new HashSet<ChunkPosition>(MaxSavingTasks);
-        positionsActivatingThroughSaving = new HashSet<ChunkPosition>();
-
         Information = information;
         ValidateInformation();
 
@@ -98,10 +81,28 @@ public abstract partial class World : IDisposable
 
         UpdateCounter = new UpdateCounter();
 
-        Setup();
+        Directory.CreateDirectory(WorldDirectory);
+        Directory.CreateDirectory(ChunkDirectory);
+        Directory.CreateDirectory(BlobDirectory);
+        Directory.CreateDirectory(DebugDirectory);
 
         generator = GetGenerator(this);
+
+        ChunkContext = new ChunkContext(ChunkDirectory, CreateChunk, ProcessNewlyActivatedChunk, UnloadChunk, generator);
+
+        MaxGenerationTasks = ChunkContext.DeclareBudget(Settings.Default.MaxGenerationTasks);
+        MaxLoadingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxLoadingTasks);
+        MaxSavingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxSavingTasks);
+
+        chunks = new ChunkSet(ChunkContext);
+
+        RequestChunk(ChunkPosition.Origin);
     }
+
+    /// <summary>
+    ///     Setup the chunk context.
+    /// </summary>
+    protected ChunkContext ChunkContext { get; }
 
     private WorldInformation Information { get; }
 
@@ -109,11 +110,6 @@ public abstract partial class World : IDisposable
     ///     The update counter counting the world updates.
     /// </summary>
     public UpdateCounter UpdateCounter { get; }
-
-    private int MaxGenerationTasks { get; } = Settings.Default.MaxGenerationTasks;
-    private int MaxLoadingTasks { get; } = Settings.Default.MaxLoadingTasks;
-
-    private int MaxSavingTasks { get; } = Settings.Default.MaxSavingTasks;
 
     /// <summary>
     ///     The directory in which this world is stored.
@@ -182,6 +178,11 @@ public abstract partial class World : IDisposable
     ///     Get the info map of this world.
     /// </summary>
     public IMap Map => generator.Map;
+
+    private void UnloadChunk(Chunk chunk)
+    {
+        chunks.Unload(chunk);
+    }
 
     /// <summary>
     ///     Get a reader for an existing blob.
@@ -253,16 +254,6 @@ public abstract partial class World : IDisposable
         generator.EmitViews(DebugDirectory);
     }
 
-    private void Setup()
-    {
-        Directory.CreateDirectory(WorldDirectory);
-        Directory.CreateDirectory(ChunkDirectory);
-        Directory.CreateDirectory(BlobDirectory);
-        Directory.CreateDirectory(DebugDirectory);
-
-        positionsToActivate.Add(ChunkPosition.Origin);
-    }
-
     private static bool IsInLimits(Vector3i position)
     {
         if (position.X is int.MinValue) return false;
@@ -277,6 +268,14 @@ public abstract partial class World : IDisposable
     /// </summary>
     /// <param name="deltaTime">The time since the last update cycle.</param>
     public abstract void Update(double deltaTime);
+
+    /// <summary>
+    ///     Update chunks.
+    /// </summary>
+    protected void UpdateChunks()
+    {
+        chunks.Update();
+    }
 
     /// <summary>
     ///     Returns the block instance at a given position in block coordinates. The block is only searched in active chunks.
@@ -305,7 +304,7 @@ public abstract partial class World : IDisposable
         out Block? block, out uint data,
         out Fluid? fluid, out FluidLevel level, out bool isStatic)
     {
-        Chunk? chunk = GetChunk(position);
+        Chunk? chunk = GetActiveChunk(position);
 
         if (chunk != null)
         {
@@ -417,7 +416,7 @@ public abstract partial class World : IDisposable
     private void SetContent(IBlockBase block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
         Vector3i position, bool tickFluid)
     {
-        Chunk? chunk = GetChunk(position);
+        Chunk? chunk = GetActiveChunk(position);
 
         if (chunk == null) return;
 
@@ -468,7 +467,7 @@ public abstract partial class World : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ModifyWorldData(Vector3i position, uint clearMask, uint addMask)
     {
-        Chunk? chunk = GetChunk(position);
+        Chunk? chunk = GetActiveChunk(position);
 
         if (chunk == null) return;
 
@@ -525,43 +524,19 @@ public abstract partial class World : IDisposable
     {
         logger.LogInformation(Events.WorldIO, "Saving world");
 
-        List<Task> savingTasks = new(activeChunks.Count);
+        List<Task> savingTasks = new();
 
-        foreach (Chunk chunk in activeChunks.Values)
-            if (!positionsSaving.Contains(chunk.Position))
-                savingTasks.Add(chunk.SaveAsync(ChunkDirectory));
+        chunks.BeginSaving();
+
+        savingTasks.Add(Task.Run(() =>
+        {
+            while (!chunks.IsEmpty) chunks.Update();
+        }));
 
         Information.Version = ApplicationInformation.Instance.Version;
-
         savingTasks.Add(Task.Run(() => Information.Save(Path.Combine(WorldDirectory, "meta.json"))));
 
         return Task.WhenAll(savingTasks);
-    }
-
-    /// <summary>
-    ///     Wait for all world tasks to finish.
-    /// </summary>
-    /// <returns>A task that is finished when all world tasks are finished.</returns>
-    public Task FinishAllAsync()
-    {
-        // This method is just a quick hack to fix a possible cause of crashes.
-        // It would be better to also process the finished tasks.
-
-        List<Task> tasks = new();
-        AddAllTasks(tasks);
-
-        return Task.WhenAll(tasks);
-    }
-
-    /// <summary>
-    ///     Add all tasks to the list. This is used to wait for all tasks to finish when calling <see cref="FinishAllAsync" />.
-    /// </summary>
-    /// <param name="tasks">The task list.</param>
-    protected virtual void AddAllTasks(IList<Task> tasks)
-    {
-        chunkGenerateTasks.ForEach(tasks.Add);
-        chunkLoadingTasks.ForEach(tasks.Add);
-        chunkSavingTasks.ForEach(tasks.Add);
     }
 
     #region IDisposable Support
@@ -574,19 +549,11 @@ public abstract partial class World : IDisposable
     /// <param name="disposing">True when disposing intentionally.</param>
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposed)
-        {
-            if (disposing)
-            {
-                foreach (Chunk activeChunk in activeChunks.Values) activeChunk.Dispose();
+        if (disposed) return;
 
-                foreach (Chunk generatingChunk in chunksGenerating.Values) generatingChunk.Dispose();
+        if (disposing) chunks.Dispose();
 
-                foreach (Chunk savingChunk in chunksSaving.Values) savingChunk.Dispose();
-            }
-
-            disposed = true;
-        }
+        disposed = true;
     }
 
     /// <summary>

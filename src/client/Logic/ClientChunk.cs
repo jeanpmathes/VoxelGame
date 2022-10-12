@@ -7,11 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Logic;
 
@@ -19,9 +21,10 @@ namespace VoxelGame.Client.Logic;
 ///     A chunk of the world, specifically for the client.
 /// </summary>
 [Serializable]
-public class ClientChunk : Chunk
+public partial class ClientChunk : Chunk
 {
     private const int MaxMeshDataStep = 8;
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<ClientChunk>();
 
     [NonSerialized] private bool hasMeshData;
     [NonSerialized] private int meshDataIndex;
@@ -30,8 +33,17 @@ public class ClientChunk : Chunk
     ///     Create a new client chunk.
     /// </summary>
     /// <param name="world">The world that contains the chunk.</param>
-    /// <param name="position">The position of the chunk..</param>
-    public ClientChunk(World world, ChunkPosition position) : base(world, position) {}
+    /// <param name="position">The position of the chunk.</param>
+    /// <param name="context">The context of the chunk.</param>
+    public ClientChunk(World world, ChunkPosition position, ChunkContext context) : base(world, position, context) {}
+
+    /// <summary>
+    ///     Begin meshing the chunk.
+    /// </summary>
+    public void BeginMeshing()
+    {
+        state.RequestNextState<Meshing>();
+    }
 
     /// <inheritdoc />
     protected override Section CreateSection()

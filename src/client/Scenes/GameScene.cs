@@ -173,7 +173,6 @@ public sealed class GameScene : IScene
 
         try
         {
-            Game.World.FinishAllAsync().Wait();
             Game.World.SaveAsync().Wait();
         }
         catch (AggregateException exception)

@@ -27,7 +27,7 @@ public partial class Block
     /// <param name="tickOffset">The offset in frames to when the block should be ticked.</param>
     protected void ScheduleTick(World world, Vector3i position, int tickOffset)
     {
-        Chunk? chunk = world.GetChunk(position);
+        Chunk? chunk = world.GetActiveChunk(position);
         chunk?.ScheduleBlockTick(new BlockTick(position, this, TickOperation.Tick), tickOffset);
     }
 
@@ -38,7 +38,7 @@ public partial class Block
     /// <param name="position">The position of the block that will be scheduled to be destroyed.</param>
     protected void ScheduleDestroy(World world, Vector3i position)
     {
-        Chunk? chunk = world.GetChunk(position);
+        Chunk? chunk = world.GetActiveChunk(position);
         chunk?.ScheduleBlockTick(new BlockTick(position, this, TickOperation.Destroy), ScheduledDestroyOffset);
     }
 
