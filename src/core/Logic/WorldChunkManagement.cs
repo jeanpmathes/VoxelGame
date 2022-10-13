@@ -29,7 +29,7 @@ public abstract partial class World
     /// <summary>
     ///     All active chunks.
     /// </summary>
-    protected IEnumerable<Chunk> ActiveChunks => chunks.Active;
+    protected IEnumerable<Chunk> ActiveChunks => chunks.AllActive;
 
     /// <summary>
     /// The max generation task limit.
@@ -92,20 +92,18 @@ public abstract partial class World
 
     /// <summary>
     ///     Gets an active chunk.
+    ///     See <see cref="ChunkSet.GetActive"/> for the restrictions.
     /// </summary>
     /// <param name="position">The position of the chunk.</param>
     /// <returns>The chunk at the given position or null if no active chunk was found.</returns>
-    protected Chunk? GetActiveChunk(ChunkPosition position)
+    public Chunk? GetActiveChunk(ChunkPosition position)
     {
-        if (!IsInLimits(position)) return null;
-
-        Chunk? chunk = chunks.Get(position);
-
-        return chunk?.IsActive == true ? chunk : null;
+        return !IsInLimits(position) ? null : chunks.GetActive(position);
     }
 
     /// <summary>
     ///     Get the chunk that contains the specified block/fluid position.
+    ///     See <see cref="ChunkSet.GetActive"/> for the restrictions.
     /// </summary>
     /// <param name="position">The block/fluid position.</param>
     /// <returns>The chunk, or null the position is not in an active chunk.</returns>
@@ -127,29 +125,15 @@ public abstract partial class World
 
     /// <summary>
     ///     Try to get a chunk. The chunk is possibly not active.
+    ///     See <see cref="ChunkSet.GetAny"/> for the restrictions.
     /// </summary>
     /// <param name="position">The position of the chunk.</param>
     /// <param name="chunk">The chunk at the given position or null if no chunk was found.</param>
     /// <returns>True if a chunk was found.</returns>
-    protected bool TryGetChunk(ChunkPosition position, [NotNullWhen(returnValue: true)] out Chunk? chunk)
+    public bool TryGetChunk(ChunkPosition position, [NotNullWhen(returnValue: true)] out Chunk? chunk)
     {
-        chunk = chunks.Get(position);
+        chunk = chunks.GetAny(position);
 
         return chunk != null;
-    }
-
-    /// <summary>
-    ///     Gets a section of an active chunk.
-    /// </summary>
-    /// <param name="position">The position of the section.</param>
-    /// <returns>The section at the given position or null if no section was found.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Section? GetSection(SectionPosition position)
-    {
-        ChunkPosition chunkPosition = position.GetChunk();
-
-        if (!IsInLimits(chunkPosition)) return null;
-
-        return GetActiveChunk(chunkPosition)?.GetSection(position);
     }
 }

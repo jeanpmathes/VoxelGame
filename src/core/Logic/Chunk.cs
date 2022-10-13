@@ -97,11 +97,23 @@ public abstract partial class Chunk : IDisposable
             World,
             World.UpdateCounter);
 
-        state = ChunkState.CreateInitialState(this, context);
+        ChunkState.Initialize(out state, this, context);
     }
 
     /// <summary>
+    ///     The core resource of a chunk are its sections and their blocks.
+    /// </summary>
+    [field: NonSerialized] public Resource CoreResource { get; } = new(nameof(Chunk) + "Core");
+
+    /// <summary>
+    ///     Extended resources are defined by users of core, like a client or a server.
+    ///     An example for extended resources are meshes and renderers.
+    /// </summary>
+    [field: NonSerialized] public Resource ExtendedResource { get; } = new(nameof(Chunk) + "Extended");
+
+    /// <summary>
     ///     Whether the chunk is currently active.
+    ///     An active can write to all resources and allows sharing its access for the duration of one update.
     /// </summary>
     public bool IsActive => state.IsActive;
 
@@ -128,7 +140,7 @@ public abstract partial class Chunk : IDisposable
     /// <summary>
     ///     The world this chunk is in.
     /// </summary>
-    [field: NonSerialized] protected World World { get; private set; }
+    [field: NonSerialized] public World World { get; private set; }
 
     /// <summary>
     ///     Add a request to the chunk to be active.
@@ -328,13 +340,7 @@ public abstract partial class Chunk : IDisposable
     /// </summary>
     public void Update()
     {
-        ChunkState previousState = state;
-        state = previousState.Update();
-
-        if (previousState == state) return;
-
-        state.OnEnter();
-        logger.LogDebug(Events.ChunkOperation, "Chunk {Position} state changed from {PreviousState} to {State}", Position, previousState, state);
+        ChunkState.Update(ref state);
     }
 
     /// <summary>

@@ -15,6 +15,7 @@ using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Logic;
@@ -148,7 +149,7 @@ public class ClientWorld : World
 
             // Mesh all listed sections.
             foreach ((Chunk chunk, (int x, int y, int z)) in sectionsToMesh)
-                ((ClientChunk) chunk).CreateAndSetMesh(x, y, z);
+                ((ClientChunk) chunk).CreateAndSetMesh(x, y, z, ChunkMeshingContext.FromActive(chunk));
 
             sectionsToMesh.Clear();
         }

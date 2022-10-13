@@ -5,6 +5,9 @@
 // <author>pershingthesecond</author>
 
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
 
@@ -13,6 +16,16 @@ namespace VoxelGame.Core.Logic;
 /// </summary>
 public abstract class ChunkState
 {
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkState>();
+
+    private Guard? coreGuard;
+    private Guard? extendedGuard;
+
+    /// <summary>
+    ///     Whether this state has acquired all required access and is therefore completely entered.
+    /// </summary>
+    private bool isEntered;
+
     private (ChunkState state, bool isRequired)? next;
     private ChunkState? requested;
 
@@ -29,7 +42,27 @@ public abstract class ChunkState
     /// <summary>
     ///     Get whether this chunk is active.
     /// </summary>
-    public virtual bool IsActive => false;
+    public bool IsActive => CoreAccess == Access.Write && ExtendedAccess == Access.Write && AllowSharingAccess;
+
+    /// <summary>
+    ///     Whether this state allows sharing its access during one update.
+    /// </summary>
+    protected virtual bool AllowSharingAccess => false;
+
+    /// <summary>
+    ///     Whether this state is the final state.
+    /// </summary>
+    protected virtual bool IsFinal => false;
+
+    /// <summary>
+    ///     The required access level of this state to core chunk resources.
+    /// </summary>
+    protected abstract Access CoreAccess { get; }
+
+    /// <summary>
+    ///     The required access level of this state to extended chunk resources.
+    /// </summary>
+    protected abstract Access ExtendedAccess { get; }
 
     /// <summary>
     ///     Perform updates.
@@ -37,9 +70,9 @@ public abstract class ChunkState
     protected abstract void OnUpdate();
 
     /// <summary>
-    ///     Called when entering this state.
+    ///     Called when this state is entered.
     /// </summary>
-    public virtual void OnEnter() {}
+    protected virtual void OnEnter() {}
 
     /// <summary>
     ///     Set the next state.
@@ -84,9 +117,8 @@ public abstract class ChunkState
     /// </summary>
     protected void SetNextActive()
     {
-        if (IsActive) return;
-
-        SetNextState<Chunk.Active>(isRequired: false);
+        if (IsActive) next = (this, false);
+        else SetNextState<Chunk.Active>(isRequired: false);
     }
 
     /// <summary>
@@ -120,41 +152,108 @@ public abstract class ChunkState
     /// <returns>The new state.</returns>
     public ChunkState Update()
     {
+        bool isAccessSufficient = EnsureRequiredAccess();
+
+        if (!isAccessSufficient) return this;
+
+        if (!isEntered) OnEnter();
+        isEntered = true;
+
+        // If the chunk is deactivating, we do not want to perform any updates.
+        if (IsFinal) return this;
+
         OnUpdate();
 
-        (ChunkState internalNext, bool isInternalRequired) = next ?? (this, false);
+        ChunkState nextState = DetermineNextState();
 
-        if (isInternalRequired)
+        if (!ReferenceEquals(this, nextState)) ReleaseResources();
+
+        return nextState;
+    }
+
+    private bool EnsureRequiredAccess()
+    {
+        var isAccessSufficient = true;
+
+        if (CoreAccess != Access.None && coreGuard == null)
         {
-            next = null;
-
-            return internalNext;
+            coreGuard = Chunk.CoreResource.TryAcquire(CoreAccess);
+            isAccessSufficient &= coreGuard != null;
         }
 
-        if (requested is {} externalNext)
+        if (ExtendedAccess != Access.None && extendedGuard == null)
         {
+            extendedGuard = Chunk.ExtendedResource.TryAcquire(ExtendedAccess);
+            isAccessSufficient &= extendedGuard != null;
+        }
+
+        if (isEntered && !isAccessSufficient) Debug.Fail("Access was lost during state update.");
+
+        return isAccessSufficient;
+    }
+
+    private void ReleaseResources()
+    {
+        coreGuard?.Dispose();
+        extendedGuard?.Dispose();
+    }
+
+    private ChunkState DetermineNextState()
+    {
+        if (next == null) return this;
+
+        ChunkState nextState;
+
+        if (next.Value.isRequired)
+        {
+            nextState = next.Value.state;
+        }
+        else if (requested != null)
+        {
+            nextState = requested;
             requested = null;
-
-            return externalNext;
+        }
+        else if (!Chunk.IsRequested)
+        {
+            nextState = CreateFinalState();
+        }
+        else
+        {
+            nextState = next.Value.state;
         }
 
-        if (Chunk.IsRequested) return internalNext;
+        next = null;
 
-        return CreateFinalState();
+        return nextState;
     }
 
     /// <summary>
-    ///     Get the initial state.
+    /// Update the state of a chunk.
     /// </summary>
-    public static ChunkState CreateInitialState(Chunk chunk, ChunkContext context)
+    /// <param name="state">A reference to the state.</param>
+    public static void Update(ref ChunkState state)
     {
-        var state = new Chunk.Unloaded
+        ChunkState previousState = state;
+        state = previousState.Update();
+
+        if (ReferenceEquals(previousState, state)) return;
+
+        logger.LogDebug(Events.ChunkOperation, "Chunk {Position} state changed from {PreviousState} to {State}", state.Chunk.Position, previousState, state);
+    }
+
+    /// <summary>
+    ///     Initialize the state of a chunk.
+    /// </summary>
+    /// <param name="state">A reference to the state.</param>
+    /// <param name="chunk">The chunk.</param>
+    /// <param name="context">The context.</param>
+    public static void Initialize(out ChunkState state, Chunk chunk, ChunkContext context)
+    {
+        state = new Chunk.Unloaded
         {
             Chunk = chunk,
             Context = context
         };
-
-        return state;
     }
 
     private ChunkState CreateFinalState()

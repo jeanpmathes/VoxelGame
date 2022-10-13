@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
@@ -19,6 +20,12 @@ public partial class Chunk
     /// </summary>
     public class Unloaded : ChunkState
     {
+        /// <inheritdoc />
+        protected override Access CoreAccess => Access.Write;
+
+        /// <inheritdoc />
+        protected override Access ExtendedAccess => Access.Write;
+
         /// <inheritdoc />
         protected override void OnUpdate()
         {
@@ -35,6 +42,12 @@ public partial class Chunk
     public class Loading : ChunkState
     {
         private Task<Chunk?>? task;
+
+        /// <inheritdoc />
+        protected override Access CoreAccess => Access.Write;
+
+        /// <inheritdoc />
+        protected override Access ExtendedAccess => Access.None;
 
         /// <inheritdoc />
         protected override void OnUpdate()
@@ -95,6 +108,12 @@ public partial class Chunk
         private Task? task;
 
         /// <inheritdoc />
+        protected override Access CoreAccess => Access.Write;
+
+        /// <inheritdoc />
+        protected override Access ExtendedAccess => Access.None;
+
+        /// <inheritdoc />
         protected override void OnUpdate()
         {
             if (task == null)
@@ -129,6 +148,12 @@ public partial class Chunk
         private Task? task;
 
         /// <inheritdoc />
+        protected override Access CoreAccess => Access.Read;
+
+        /// <inheritdoc />
+        protected override Access ExtendedAccess => Access.None;
+
+        /// <inheritdoc />
         protected override void OnUpdate()
         {
             if (task == null)
@@ -154,11 +179,18 @@ public partial class Chunk
 
     /// <summary>
     ///     Active state. The chunk is ready to be used.
+    ///     Because the state has write-access, it is safe to perform operations on the chunk during one update.
     /// </summary>
     public class Active : ChunkState
     {
         /// <inheritdoc />
-        public override bool IsActive => true;
+        protected override Access CoreAccess => Access.Write;
+
+        /// <inheritdoc />
+        protected override Access ExtendedAccess => Access.Write;
+
+        /// <inheritdoc />
+        protected override bool AllowSharingAccess => true;
 
         /// <inheritdoc />
         protected override void OnUpdate()
@@ -173,7 +205,16 @@ public partial class Chunk
     public class Deactivating : ChunkState
     {
         /// <inheritdoc />
-        public override void OnEnter()
+        protected override Access CoreAccess => Access.Write;
+
+        /// <inheritdoc />
+        protected override Access ExtendedAccess => Access.Write;
+
+        /// <inheritdoc />
+        protected override bool IsFinal => true;
+
+        /// <inheritdoc />
+        protected override void OnEnter()
         {
             Context.Deactivate(Chunk);
         }

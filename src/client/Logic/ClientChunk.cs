@@ -52,49 +52,38 @@ public partial class ClientChunk : Chunk
     }
 
     /// <summary>
-    ///     Create a mesh for this chunk and activate it.
-    /// </summary>
-    public void CreateAndSetMesh()
-    {
-        for (var s = 0; s < SectionCount; s++)
-        {
-            (int x, int y, int z) section = IndexToLocalSection(s);
-            ((ClientSection) sections[s]).CreateAndSetMesh(SectionPosition.From(Position, section));
-        }
-
-        hasMeshData = true;
-        meshDataIndex = 0;
-    }
-
-    /// <summary>
     ///     Create a mesh for a section of this chunk and activate it.
+    ///     This method should only be called from the main thread.
     /// </summary>
     /// <param name="x">The x position of the section relative in this chunk.</param>
     /// <param name="y">The y position of the section relative in this chunk.</param>
     /// <param name="z">The z position of the section relative in this chunk.</param>
-    public void CreateAndSetMesh(int x, int y, int z)
+    /// <param name="context">The chunk meshing context.</param>
+    public void CreateAndSetMesh(int x, int y, int z, ChunkMeshingContext context)
     {
         ((ClientSection) sections[LocalSectionToIndex(x, y, z)]).CreateAndSetMesh(
-            SectionPosition.From(Position, (x, y, z)));
+            SectionPosition.From(Position, (x, y, z)),
+            context);
     }
 
     /// <summary>
     ///     Start a task that will create mesh data for this chunk.
     /// </summary>
+    /// <param name="context">The chunk meshing context.</param>
     /// <returns>The meshing task.</returns>
-    public Task<SectionMeshData[]> CreateMeshDataAsync()
+    public Task<SectionMeshData[]> CreateMeshDataAsync(ChunkMeshingContext context)
     {
-        return Task.Run(CreateMeshData);
+        return Task.Run(() => CreateMeshData(context));
     }
 
-    private SectionMeshData[] CreateMeshData()
+    private SectionMeshData[] CreateMeshData(ChunkMeshingContext context)
     {
         var sectionMeshes = new SectionMeshData[SectionCount];
 
         for (var s = 0; s < SectionCount; s++)
         {
             (int x, int y, int z) = IndexToLocalSection(s);
-            sectionMeshes[s] = ((ClientSection) sections[s]).CreateMeshData(SectionPosition.From(Position, (x, y, z)));
+            sectionMeshes[s] = ((ClientSection) sections[s]).CreateMeshData(SectionPosition.From(Position, (x, y, z)), context);
         }
 
         meshDataIndex = 0;

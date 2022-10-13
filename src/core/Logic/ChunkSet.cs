@@ -8,14 +8,19 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using Microsoft.Extensions.Logging;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
 ///     Stores all chunks currently handled by the game.
 /// </summary>
-public class ChunkSet : IDisposable
+public sealed class ChunkSet : IDisposable
 {
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkSet>();
+
     private readonly Dictionary<ChunkPosition, Chunk> chunks = new();
     private readonly ChunkContext context;
 
@@ -31,12 +36,12 @@ public class ChunkSet : IDisposable
     /// <summary>
     ///     Get the number of active chunks.
     /// </summary>
-    public int ActiveCount => Active.Count();
+    public int ActiveCount => AllActive.Count();
 
     /// <summary>
     ///     All active chunks.
     /// </summary>
-    public IEnumerable<Chunk> Active => chunks.Values.Where(c => c.IsActive);
+    public IEnumerable<Chunk> AllActive => chunks.Values.Where(c => c.IsActive);
 
     /// <summary>
     ///     Get whether there are no chunks, neither active nor inactive.
@@ -72,9 +77,40 @@ public class ChunkSet : IDisposable
     /// </summary>
     /// <param name="position">The position of the chunk to get.</param>
     /// <returns>The chunk, or null if it does not exist.</returns>
-    public Chunk? Get(ChunkPosition position)
+    private Chunk? Get(ChunkPosition position)
     {
-        return chunks.TryGetValue(position, out Chunk? chunk) ? chunk : null;
+        if (Thread.CurrentThread == ApplicationInformation.Instance.MainThread)
+            return chunks.TryGetValue(position, out Chunk? chunk) ? chunk : null;
+
+        logger.LogWarning("Attempted to acquire chunk '{Position}' from non-main thread", position);
+        Debug.Fail("Attempted to acquire chunk from non-main thread.");
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Get an active chunk. This request may only be called from the main thread, and the chunk is only safe to use during
+    ///     the current update.
+    ///     All operations are allowed on the chunk, assume that read and write access is available on all resources.
+    /// </summary>
+    /// <param name="position">The position of the chunk to get.</param>
+    /// <returns>The chunk, or null if it does not exist or is not active.</returns>
+    public Chunk? GetActive(ChunkPosition position)
+    {
+        Chunk? chunk = Get(position);
+
+        return chunk?.IsActive == true ? chunk : null;
+    }
+
+    /// <summary>
+    ///     Get a chunk. This request may only be called from the main thread.
+    ///     No operations should be performed on the chunk without acquiring the necessary resources first.
+    /// </summary>
+    /// <param name="position">The position of the chunk to get.</param>
+    /// <returns>The chunk, or null if it does not exist.</returns>
+    public Chunk? GetAny(ChunkPosition position)
+    {
+        return Get(position);
     }
 
     /// <summary>
@@ -119,7 +155,7 @@ public class ChunkSet : IDisposable
     ///     Dispose of the chunks.
     /// </summary>
     /// <param name="disposing">True when disposing intentionally.</param>
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (disposed) return;
 

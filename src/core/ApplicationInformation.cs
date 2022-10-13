@@ -4,6 +4,9 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Diagnostics;
+using System.Threading;
+
 namespace VoxelGame.Core;
 
 /// <summary>
@@ -14,6 +17,7 @@ public class ApplicationInformation
     private ApplicationInformation(string version)
     {
         Version = version;
+        MainThread = Thread.CurrentThread;
     }
 
     /// <summary>
@@ -21,10 +25,17 @@ public class ApplicationInformation
     /// </summary>
     public static ApplicationInformation Instance { get; private set; } = null!;
 
+    private static bool IsInitialized { get; set; }
+
     /// <summary>
     ///     Get the game version.
     /// </summary>
     public string Version { get; }
+
+    /// <summary>
+    ///     Get the main thread of the application.
+    /// </summary>
+    public Thread MainThread { get; }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ApplicationInformation" /> class.
@@ -32,6 +43,10 @@ public class ApplicationInformation
     /// <param name="version">The current application version.</param>
     public static void Initialize(string version)
     {
+        Debug.Assert(!IsInitialized);
+
         Instance = new ApplicationInformation(version);
+
+        IsInitialized = true;
     }
 }

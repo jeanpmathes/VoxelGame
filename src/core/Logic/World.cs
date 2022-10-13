@@ -528,10 +528,7 @@ public abstract partial class World : IDisposable
 
         chunks.BeginSaving();
 
-        savingTasks.Add(Task.Run(() =>
-        {
-            while (!chunks.IsEmpty) chunks.Update();
-        }));
+        while (!chunks.IsEmpty) chunks.Update(); // todo rework saving, do not use tasks
 
         Information.Version = ApplicationInformation.Instance.Version;
         savingTasks.Add(Task.Run(() => Information.Save(Path.Combine(WorldDirectory, "meta.json"))));
