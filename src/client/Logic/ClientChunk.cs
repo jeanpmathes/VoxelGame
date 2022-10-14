@@ -48,7 +48,7 @@ public partial class ClientChunk : Chunk
     /// <inheritdoc />
     protected override Section CreateSection()
     {
-        return new ClientSection(World);
+        return new ClientSection();
     }
 
     /// <summary>

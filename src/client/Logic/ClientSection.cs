@@ -26,14 +26,8 @@ public class ClientSection : Section
     [NonSerialized] private bool hasMesh;
     [NonSerialized] private SectionRenderer? renderer;
 
-    /// <summary>
-    ///     Create a new client section.
-    /// </summary>
-    /// <param name="world">The world containing the client section.</param>
-    public ClientSection(World world) : base(world) {}
-
     /// <inheritdoc />
-    protected override void Setup()
+    public override void Setup()
     {
         renderer = new SectionRenderer();
 

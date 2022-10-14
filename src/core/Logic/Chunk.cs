@@ -177,7 +177,7 @@ public abstract partial class Chunk : IDisposable
         for (var s = 0; s < SectionCount; s++)
         {
             sections[s] = loaded.sections[s];
-            sections[s].Setup(World);
+            sections[s].Setup();
         }
     }
 
@@ -366,7 +366,7 @@ public abstract partial class Chunk : IDisposable
         for (var i = 0; i < RandomTickBatchSize; i++)
         {
             int index = (anchor + i) % SectionCount;
-            sections[index].SendRandomUpdates(SectionPosition.From(Position, IndexToLocalSection(index)));
+            sections[index].SendRandomUpdates(World, SectionPosition.From(Position, IndexToLocalSection(index)));
         }
     }
 
