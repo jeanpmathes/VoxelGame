@@ -19,7 +19,12 @@ public class ChunkContext
     /// <summary>
     ///     Manages the state transition for a ready chunk.
     /// </summary>
-    public delegate ChunkState ChunkActivator(Chunk chunk);
+    public delegate ChunkState ChunkActivatorStrong(Chunk chunk);
+
+    /// <summary>
+    ///     Manages the state transition for a chunk transitioning to the active state.
+    /// </summary>
+    public delegate void ChunkActivatorWeak(Chunk chunk);
 
     /// <summary>
     ///     Deactivates a chunk.
@@ -31,7 +36,8 @@ public class ChunkContext
     /// </summary>
     public delegate Chunk ChunkFactory(ChunkPosition position, ChunkContext context);
 
-    private readonly ChunkActivator activate;
+    private readonly ChunkActivatorStrong activateStrongly;
+    private readonly ChunkActivatorWeak activateWeakly;
 
     private readonly List<(int max, int current)> budgets = new();
 
@@ -41,13 +47,20 @@ public class ChunkContext
     /// <summary>
     ///     Create a new chunk context.
     /// </summary>
-    public ChunkContext(string directory, ChunkFactory factory, ChunkActivator activator, ChunkDeactivator deactivator, IWorldGenerator generator)
+    /// <param name="directory">The directory in which the chunks are stored.</param>
+    /// <param name="factory">A factory for creating chunks.</param>
+    /// <param name="strongActivator">Activates a chunk after a transition to the ready state.</param>
+    /// <param name="weakActivator">Activates a chunk after a transition to the active state.</param>
+    /// <param name="deactivator">Deactivates a chunk.</param>
+    /// <param name="generator">The world generator used.</param>
+    public ChunkContext(string directory, ChunkFactory factory, ChunkActivatorStrong strongActivator, ChunkActivatorWeak weakActivator, ChunkDeactivator deactivator, IWorldGenerator generator)
     {
         Directory = directory;
         Generator = generator;
 
         create = factory;
-        activate = activator;
+        activateStrongly = strongActivator;
+        activateWeakly = weakActivator;
         deactivate = deactivator;
     }
 
@@ -70,11 +83,19 @@ public class ChunkContext
     }
 
     /// <summary>
-    ///     Activates a chunk.
+    ///     Activate a chunk after a transition to the ready state.
     /// </summary>
-    public ChunkState Activate(Chunk chunk)
+    public ChunkState ActivateStrongly(Chunk chunk)
     {
-        return activate(chunk);
+        return activateStrongly(chunk);
+    }
+
+    /// <summary>
+    ///     Activate a chunk after a transition to the active state.
+    /// </summary>
+    public void ActivateWeakly(Chunk chunk)
+    {
+        activateWeakly(chunk);
     }
 
     /// <summary>

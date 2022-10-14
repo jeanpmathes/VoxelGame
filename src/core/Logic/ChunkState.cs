@@ -109,7 +109,7 @@ public abstract class ChunkState
     /// </summary>
     protected void SetNextReady(bool isRequired)
     {
-        SetNextState(Context.Activate(Chunk), isRequired);
+        SetNextState(Context.ActivateStrongly(Chunk), isRequired);
     }
 
     /// <summary>

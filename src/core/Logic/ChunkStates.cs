@@ -193,6 +193,12 @@ public partial class Chunk
         protected override bool AllowSharingAccess => true;
 
         /// <inheritdoc />
+        protected override void OnEnter()
+        {
+            Context.ActivateWeakly(Chunk);
+        }
+
+        /// <inheritdoc />
         protected override void OnUpdate()
         {
             SetNextActive();

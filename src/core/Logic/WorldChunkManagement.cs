@@ -62,6 +62,11 @@ public abstract partial class World
     protected abstract ChunkState ProcessNewlyActivatedChunk(Chunk activatedChunk);
 
     /// <summary>
+    ///     Process a chunk that has just switched to the active state trough a weak activation.
+    /// </summary>
+    protected abstract void ProcessActivatedChunk(Chunk activatedChunk);
+
+    /// <summary>
     ///     Requests the activation of a chunk. This chunk will either be loaded or generated.
     /// </summary>
     /// <param name="position">The position of the chunk.</param>

@@ -193,6 +193,9 @@ public class ClientWorld : World
     }
 
     /// <inheritdoc />
+    protected override void ProcessActivatedChunk(Chunk activatedChunk) {}
+
+    /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ProcessChangedSection(Chunk chunk, Vector3i position)
     {
