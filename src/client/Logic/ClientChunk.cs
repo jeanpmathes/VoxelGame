@@ -78,6 +78,8 @@ public partial class ClientChunk : Chunk
 
     private SectionMeshData[] CreateMeshData(ChunkMeshingContext context)
     {
+        logger.LogDebug(Events.ChunkOperation, "Started creating mesh data for chunk {Position} using {NeighborCount} neighbors", Position, context.NeighborCount);
+
         var sectionMeshes = new SectionMeshData[SectionCount];
 
         for (var s = 0; s < SectionCount; s++)
@@ -87,6 +89,8 @@ public partial class ClientChunk : Chunk
         }
 
         meshDataIndex = 0;
+
+        logger.LogDebug(Events.ChunkOperation, "Finished creating mesh data for chunk {Position} using {NeighborCount} neighbors", Position, context.NeighborCount);
 
         return sectionMeshes;
     }

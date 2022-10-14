@@ -19,11 +19,17 @@ public class ChunkMeshingContext
     private readonly Chunk mid;
     private (Chunk chunk, Guard? guard)?[] neighbors;
 
-    private ChunkMeshingContext(Chunk mid, (Chunk, Guard?)?[] neighbors)
+    private ChunkMeshingContext(Chunk mid, (Chunk, Guard?)?[] neighbors, int neighborCount)
     {
         this.mid = mid;
         this.neighbors = neighbors;
+        NeighborCount = neighborCount;
     }
+
+    /// <summary>
+    ///     Get the number of neighbors that are considered.
+    /// </summary>
+    public int NeighborCount { get; }
 
     /// <summary>
     ///     Get the map of the world.
@@ -39,16 +45,21 @@ public class ChunkMeshingContext
     public static ChunkMeshingContext Acquire(Chunk chunk)
     {
         var foundNeighbors = new (Chunk, Guard?)?[6];
+        var count = 0;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
             if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
 
             Guard? guard = neighbor.CoreResource.TryAcquireReader();
-            foundNeighbors[(int) side] = guard != null ? (neighbor, guard) : null;
+
+            if (guard == null) continue;
+
+            foundNeighbors[(int) side] = (neighbor, guard);
+            count++;
         }
 
-        return new ChunkMeshingContext(chunk, foundNeighbors);
+        return new ChunkMeshingContext(chunk, foundNeighbors, count);
     }
 
     /// <summary>
@@ -59,14 +70,19 @@ public class ChunkMeshingContext
     public static ChunkMeshingContext FromActive(Chunk chunk)
     {
         var foundNeighbors = new (Chunk, Guard?)?[6];
+        var count = 0;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
             Chunk? neighbor = chunk.World.GetActiveChunk(side.Offset(chunk.Position));
-            foundNeighbors[(int) side] = neighbor != null ? (neighbor, null) : null;
+
+            if (neighbor == null) continue;
+
+            foundNeighbors[(int) side] = (neighbor, null);
+            count++;
         }
 
-        return new ChunkMeshingContext(chunk, foundNeighbors);
+        return new ChunkMeshingContext(chunk, foundNeighbors, count);
     }
 
     private Chunk? GetChunk(ChunkPosition position)

@@ -194,7 +194,7 @@ public abstract partial class Chunk : IDisposable
         Justification = "Chunks are allocated here.")]
     public static Chunk? Load(string path, ChunkPosition position)
     {
-        logger.LogDebug(Events.ChunkOperation, "Loading chunk for position: {Position}", position);
+        logger.LogDebug(Events.ChunkOperation, "Started loading chunk for position: {Position}", position);
 
         Chunk chunk;
 
@@ -207,6 +207,8 @@ public abstract partial class Chunk : IDisposable
             chunk = (Chunk) formatter.Deserialize(stream);
  #pragma warning restore
         }
+
+        logger.LogDebug(Events.ChunkOperation, "Finished loading chunk for position: {Position}", position);
 
         // Checking the chunk
         if (chunk.Position == position) return chunk;
@@ -257,13 +259,15 @@ public abstract partial class Chunk : IDisposable
 
         string chunkFile = Path.Combine(path, GetChunkFileName(Position));
 
-        logger.LogDebug(Events.ChunkOperation, "Saving the chunk {Position} to: {Path}", Position, chunkFile);
+        logger.LogDebug(Events.ChunkOperation, "Started saving chunk {Position} to: {Path}", Position, chunkFile);
 
         using Stream stream = new FileStream(chunkFile, FileMode.Create, FileAccess.Write, FileShare.Read);
         IFormatter formatter = new BinaryFormatter();
 #pragma warning disable // Will be replaced with custom serialization
         formatter.Serialize(stream, this);
 #pragma warning restore
+
+        logger.LogDebug(Events.ChunkOperation, "Finished saving chunk {Position} to: {Path}", Position, chunkFile);
 
         blockTickManager.Load();
         fluidTickManager.Load();
@@ -287,7 +291,7 @@ public abstract partial class Chunk : IDisposable
     {
         logger.LogDebug(
             Events.ChunkOperation,
-            "Generating the chunk {Position} using '{Name}' generator",
+            "Started generating chunk {Position} using '{Name}' generator",
             Position,
             generator);
 
@@ -313,6 +317,12 @@ public abstract partial class Chunk : IDisposable
                 y++;
             }
         }
+
+        logger.LogDebug(
+            Events.ChunkOperation,
+            "Finished generating chunk {Position} using '{Name}' generator",
+            Position,
+            generator);
     }
 
     /// <summary>
