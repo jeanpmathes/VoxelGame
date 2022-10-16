@@ -172,7 +172,10 @@ public partial class Chunk
                         "Chunk loss is possible",
                         Chunk.Position);
 
-                SetNextReady();
+                SetNextReady(new TransitionDescription
+                {
+                    PrioritizeDeactivation = true
+                });
             }
         }
     }

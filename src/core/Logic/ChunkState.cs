@@ -27,7 +27,7 @@ public abstract class ChunkState
     /// </summary>
     private bool isEntered;
 
-    private (ChunkState state, bool isRequired, Action cleanup)? next;
+    private (ChunkState state, bool isRequired, TransitionDescription description)? next;
     private ChunkState? requested;
 
     /// <summary>
@@ -96,46 +96,46 @@ public abstract class ChunkState
     ///     Whether the transition is required. If it is not required, a different state may be set
     ///     instead.
     /// </param>
-    /// <param name="cleanup">An action to perform when the transition is not taken.</param>
-    private void SetNextState(ChunkState state, bool isRequired, Action? cleanup = null)
+    /// <param name="description">A description of the transition.</param>
+    private void SetNextState(ChunkState state, bool isRequired, TransitionDescription description = new())
     {
         state.Chunk = Chunk;
         state.Context = Context;
 
         Debug.Assert(next == null);
-        next = (state, isRequired, cleanup ?? (() => {}));
+        next = (state, isRequired, description);
     }
 
     /// <summary>
-    ///     Set the next state. The transition will always be taken.
+    ///     Set the next state. The transition is required, except if certain flags are set in the description.
     /// </summary>
     /// <param name="state">The next state.</param>
-    /// <param name="cleanup">An action to perform when the transition is not taken.</param>
-    protected void SetNextState(ChunkState state, Action? cleanup = null)
+    /// <param name="description">A description of the transition.</param>
+    protected void SetNextState(ChunkState state, TransitionDescription description = new())
     {
         state.Chunk = Chunk;
         state.Context = Context;
 
         Debug.Assert(next == null);
-        next = (state, isRequired: true, cleanup ?? (() => {}));
+        next = (state, isRequired: true, description);
     }
 
     /// <summary>
-    ///     Set the next state. The transition will only be taken.
+    ///     Set the next state. The transition is required, except if certain flags are set in the description.
     /// </summary>
     /// <typeparam name="T">The type of the next state.</typeparam>
-    /// <param name="cleanup">An action to perform when the transition is not taken.</param>
-    protected void SetNextState<T>(Action? cleanup = null) where T : ChunkState, new()
+    /// <param name="description">A description of the transition.</param>
+    protected void SetNextState<T>(TransitionDescription description = new()) where T : ChunkState, new()
     {
-        SetNextState(new T(), cleanup ?? (() => {}));
+        SetNextState(new T(), description);
     }
 
     /// <summary>
-    ///     Signal that this chunk is now ready.
+    ///     Signal that this chunk is now ready. The transition is required, except if certain flags are set in the description.
     /// </summary>
-    protected void SetNextReady(Action? cleanup = null)
+    protected void SetNextReady(TransitionDescription description = new())
     {
-        SetNextState(Context.ActivateStrongly(Chunk), isRequired: true, cleanup ?? (() => {}));
+        SetNextState(Context.ActivateStrongly(Chunk), isRequired: true, description);
     }
 
     /// <summary>
@@ -143,8 +143,8 @@ public abstract class ChunkState
     /// </summary>
     protected void SetNextActive(Action? cleanup = null)
     {
-        if (IsActive) next = (this, false, () => {});
-        else SetNextState(new Chunk.Active(), isRequired: false, cleanup ?? (() => {}));
+        if (IsActive) next = (this, false, new TransitionDescription());
+        else SetNextState(new Chunk.Active(), isRequired: false, new TransitionDescription {Cleanup = cleanup ?? delegate {}});
     }
 
     /// <summary>
@@ -224,13 +224,23 @@ public abstract class ChunkState
         extendedGuard?.Dispose();
     }
 
+    #pragma warning disable S1871 // Readability.
     private ChunkState DetermineNextState()
     {
         if (next == null) return this;
 
         ChunkState nextState;
 
-        if (next.Value.isRequired)
+        if (next.Value.description.PrioritizeDeactivation && !Chunk.IsRequested)
+        {
+            nextState = CreateFinalState();
+        }
+        else if (next.Value.description.PrioritizeLoop && requested != null && requested.GetType() == GetType())
+        {
+            nextState = requested;
+            requested = null;
+        }
+        else if (next.Value.isRequired)
         {
             nextState = next.Value.state;
         }
@@ -249,12 +259,13 @@ public abstract class ChunkState
         }
 
         if (nextState != next.Value.state)
-            next.Value.cleanup();
+            next.Value.description.Cleanup?.Invoke();
 
         next = null;
 
         return nextState;
     }
+    #pragma warning restore S1871
 
     /// <summary>
     /// Update the state of a chunk.
@@ -300,5 +311,28 @@ public abstract class ChunkState
     public override string ToString()
     {
         return GetType().Name;
+    }
+
+    /// <summary>
+    ///     Describes how to take the transition to a state.
+    /// </summary>
+    protected record struct TransitionDescription
+    {
+        /// <summary>
+        ///     Cleanup action to perform it the transition is not taken. Only required if the transition itself is not strictly
+        ///     required.
+        /// </summary>
+        public Action? Cleanup { get; init; }
+
+        /// <summary>
+        ///     Whether to prioritize looping transitions (to this state) before this transitions, even if this transition is
+        ///     required.
+        /// </summary>
+        public bool PrioritizeLoop { get; init; }
+
+        /// <summary>
+        ///     Whether to prioritize chunk deactivation over this transition, even if this transition is required.
+        /// </summary>
+        public bool PrioritizeDeactivation { get; init; }
     }
 }

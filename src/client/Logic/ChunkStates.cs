@@ -66,9 +66,14 @@ public partial class ClientChunk
                 }
 
                 SetNextState(new MeshDataSending(task.Result),
-                    () =>
+                    new TransitionDescription
                     {
-                        foreach (SectionMeshData meshData in task.Result) meshData.Discard();
+                        Cleanup = () =>
+                        {
+                            foreach (SectionMeshData meshData in task.Result) meshData.Discard();
+                        },
+                        PrioritizeLoop = true,
+                        PrioritizeDeactivation = true
                     });
             }
         }
