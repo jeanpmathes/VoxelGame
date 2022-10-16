@@ -97,7 +97,7 @@ public abstract class ChunkState
     ///     instead.
     /// </param>
     /// <param name="cleanup">An action to perform when the transition is not taken.</param>
-    protected void SetNextState(ChunkState state, bool isRequired, Action? cleanup = null)
+    private void SetNextState(ChunkState state, bool isRequired, Action? cleanup = null)
     {
         state.Chunk = Chunk;
         state.Context = Context;
@@ -107,25 +107,35 @@ public abstract class ChunkState
     }
 
     /// <summary>
-    ///     Set the next state.
+    ///     Set the next state. The transition will always be taken.
+    /// </summary>
+    /// <param name="state">The next state.</param>
+    /// <param name="cleanup">An action to perform when the transition is not taken.</param>
+    protected void SetNextState(ChunkState state, Action? cleanup = null)
+    {
+        state.Chunk = Chunk;
+        state.Context = Context;
+
+        Debug.Assert(next == null);
+        next = (state, isRequired: true, cleanup ?? (() => {}));
+    }
+
+    /// <summary>
+    ///     Set the next state. The transition will only be taken.
     /// </summary>
     /// <typeparam name="T">The type of the next state.</typeparam>
-    /// <param name="isRequired">
-    ///     Whether the transition is required. If it is not required, a different state may be set
-    ///     instead.
-    /// </param>
     /// <param name="cleanup">An action to perform when the transition is not taken.</param>
-    protected void SetNextState<T>(bool isRequired, Action? cleanup = null) where T : ChunkState, new()
+    protected void SetNextState<T>(Action? cleanup = null) where T : ChunkState, new()
     {
-        SetNextState(new T(), isRequired, cleanup ?? (() => {}));
+        SetNextState(new T(), cleanup ?? (() => {}));
     }
 
     /// <summary>
     ///     Signal that this chunk is now ready.
     /// </summary>
-    protected void SetNextReady(bool isRequired, Action? cleanup = null)
+    protected void SetNextReady(Action? cleanup = null)
     {
-        SetNextState(Context.ActivateStrongly(Chunk), isRequired, cleanup ?? (() => {}));
+        SetNextState(Context.ActivateStrongly(Chunk), isRequired: true, cleanup ?? (() => {}));
     }
 
     /// <summary>
@@ -134,7 +144,7 @@ public abstract class ChunkState
     protected void SetNextActive(Action? cleanup = null)
     {
         if (IsActive) next = (this, false, () => {});
-        else SetNextState<Chunk.Active>(isRequired: false, cleanup ?? (() => {}));
+        else SetNextState(new Chunk.Active(), isRequired: false, cleanup ?? (() => {}));
     }
 
     /// <summary>

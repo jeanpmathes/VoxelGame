@@ -66,7 +66,6 @@ public partial class ClientChunk
                 }
 
                 SetNextState(new MeshDataSending(task.Result),
-                    isRequired: true,
                     () =>
                     {
                         foreach (SectionMeshData meshData in task.Result) meshData.Discard();

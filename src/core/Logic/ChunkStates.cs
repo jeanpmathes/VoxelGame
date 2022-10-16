@@ -31,8 +31,8 @@ public partial class Chunk
         {
             string dataPath = Path.Combine(Context.Directory, GetChunkFileName(Chunk.Position));
 
-            if (File.Exists(dataPath)) SetNextState<Loading>(isRequired: true);
-            else SetNextState<Generating>(isRequired: true);
+            if (File.Exists(dataPath)) SetNextState<Loading>();
+            else SetNextState<Generating>();
         }
     }
 
@@ -73,7 +73,7 @@ public partial class Chunk
                         "The chunk has been scheduled for generation",
                         Chunk.Position);
 
-                    SetNextState<Generating>(isRequired: true);
+                    SetNextState<Generating>();
                 }
                 else
                 {
@@ -82,7 +82,7 @@ public partial class Chunk
                     if (loadedChunk != null)
                     {
                         Chunk.Setup(loadedChunk);
-                        SetNextReady(isRequired: true);
+                        SetNextReady();
                     }
                     else
                     {
@@ -93,7 +93,7 @@ public partial class Chunk
                             "Position will be scheduled for generation",
                             Chunk.Position);
 
-                        SetNextState<Generating>(isRequired: true);
+                        SetNextState<Generating>();
                     }
                 }
             }
@@ -135,7 +135,7 @@ public partial class Chunk
                     throw task.Exception!.GetBaseException();
                 }
 
-                SetNextReady(isRequired: true);
+                SetNextReady();
             }
         }
     }
@@ -172,7 +172,7 @@ public partial class Chunk
                         "Chunk loss is possible",
                         Chunk.Position);
 
-                SetNextReady(isRequired: true);
+                SetNextReady();
             }
         }
     }
