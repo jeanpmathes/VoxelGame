@@ -176,9 +176,12 @@ public abstract partial class Chunk : IDisposable
 
         for (var s = 0; s < SectionCount; s++)
         {
+            sections[s].Dispose();
             sections[s] = loaded.sections[s];
             sections[s].Setup();
         }
+
+        // Loaded chunk is not disposed because the used chunk takes ownership of the resources.
     }
 
     /// <summary>

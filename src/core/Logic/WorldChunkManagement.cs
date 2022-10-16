@@ -76,7 +76,7 @@ public abstract partial class World
 
         chunks.Request(position);
 
-        logger.LogDebug(Events.ChunkRequest, "Chunk {Position} has been requested successfully", position);
+        logger.LogDebug(Events.ChunkRequest, "Chunk {Position} has been requested", position);
     }
 
     /// <summary>

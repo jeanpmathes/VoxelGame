@@ -110,7 +110,6 @@ public sealed class GameScene : IScene
 
         ui.SetPlayerDataProvider(Game.Player);
 
-        // UI setup.
         ui.Load();
         ui.Resize(Screen.Size);
 
@@ -150,7 +149,7 @@ public sealed class GameScene : IScene
 
             Game.World.Update(deltaTime);
 
-            if (!Screen.IsFocused) // check to see if the window is focused
+            if (!Screen.IsFocused)
                 return;
 
             if (!Screen.IsOverlayLockActive)
