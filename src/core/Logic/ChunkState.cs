@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
@@ -26,7 +27,7 @@ public abstract class ChunkState
     /// </summary>
     private bool isEntered;
 
-    private (ChunkState state, bool isRequired)? next;
+    private (ChunkState state, bool isRequired, Action cleanup)? next;
     private ChunkState? requested;
 
     /// <summary>
@@ -95,13 +96,14 @@ public abstract class ChunkState
     ///     Whether the transition is required. If it is not required, a different state may be set
     ///     instead.
     /// </param>
-    protected void SetNextState(ChunkState state, bool isRequired)
+    /// <param name="cleanup">An action to perform when the transition is not taken.</param>
+    protected void SetNextState(ChunkState state, bool isRequired, Action? cleanup = null)
     {
         state.Chunk = Chunk;
         state.Context = Context;
 
         Debug.Assert(next == null);
-        next = (state, isRequired);
+        next = (state, isRequired, cleanup ?? (() => {}));
     }
 
     /// <summary>
@@ -112,26 +114,27 @@ public abstract class ChunkState
     ///     Whether the transition is required. If it is not required, a different state may be set
     ///     instead.
     /// </param>
-    protected void SetNextState<T>(bool isRequired) where T : ChunkState, new()
+    /// <param name="cleanup">An action to perform when the transition is not taken.</param>
+    protected void SetNextState<T>(bool isRequired, Action? cleanup = null) where T : ChunkState, new()
     {
-        SetNextState(new T(), isRequired);
+        SetNextState(new T(), isRequired, cleanup ?? (() => {}));
     }
 
     /// <summary>
     ///     Signal that this chunk is now ready.
     /// </summary>
-    protected void SetNextReady(bool isRequired)
+    protected void SetNextReady(bool isRequired, Action? cleanup = null)
     {
-        SetNextState(Context.ActivateStrongly(Chunk), isRequired);
+        SetNextState(Context.ActivateStrongly(Chunk), isRequired, cleanup ?? (() => {}));
     }
 
     /// <summary>
     ///     Set the next state to active. This transition is never required and can be understood as a "don't care"-transition.
     /// </summary>
-    protected void SetNextActive()
+    protected void SetNextActive(Action? cleanup = null)
     {
-        if (IsActive) next = (this, false);
-        else SetNextState<Chunk.Active>(isRequired: false);
+        if (IsActive) next = (this, false, () => {});
+        else SetNextState<Chunk.Active>(isRequired: false, cleanup ?? (() => {}));
     }
 
     /// <summary>
@@ -235,6 +238,9 @@ public abstract class ChunkState
             nextState = next.Value.state;
         }
 
+        if (nextState != next.Value.state)
+            next.Value.cleanup();
+
         next = null;
 
         return nextState;
@@ -249,7 +255,7 @@ public abstract class ChunkState
         ChunkState previousState = state;
         state = previousState.Update();
 
-        if (ReferenceEquals(previousState, state)) return;
+        if (previousState == state) return;
 
         logger.LogDebug(Events.ChunkOperation, "Chunk {Position} state changed from {PreviousState} to {State}", state.Chunk.Position, previousState, state);
     }

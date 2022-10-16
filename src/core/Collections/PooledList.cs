@@ -8,8 +8,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.Extensions.Logging;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Collections;
 
@@ -20,11 +18,11 @@ namespace VoxelGame.Core.Collections;
 [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
 public class PooledList<T>
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<PooledList<T>>();
+    private const string NoUseAfterReturnMessage = "The list is not usable after it has been returned to the pool.";
 
     private readonly ArrayPool<T> arrayPool;
 
-    private T[] items;
+    private T[]? items;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="PooledList{T}" /> class that is empty and has the default initial
@@ -70,9 +68,16 @@ public class PooledList<T>
     /// </summary>
     public int Capacity
     {
-        get => items.Length;
+        get
+        {
+            Debug.Assert(items != null, NoUseAfterReturnMessage);
+
+            return items.Length;
+        }
         set
         {
+            Debug.Assert(items != null, NoUseAfterReturnMessage);
+
             if (value < Count)
                 throw new ArgumentOutOfRangeException(
                     nameof(value),
@@ -105,6 +110,8 @@ public class PooledList<T>
     {
         get
         {
+            Debug.Assert(items != null, NoUseAfterReturnMessage);
+
             if ((uint) index >= (uint) Count)
                 throw new ArgumentOutOfRangeException(
                     nameof(index),
@@ -115,6 +122,8 @@ public class PooledList<T>
 
         set
         {
+            Debug.Assert(items != null, NoUseAfterReturnMessage);
+
             if ((uint) index >= (uint) Count)
                 throw new ArgumentOutOfRangeException(
                     nameof(index),
@@ -126,6 +135,8 @@ public class PooledList<T>
 
     private T[] MoveIntoNew(int newSize)
     {
+        Debug.Assert(items != null, NoUseAfterReturnMessage);
+
         T[] newItems = arrayPool.Rent(newSize);
 
         if (Count > 0) Array.Copy(items, sourceIndex: 0, newItems, destinationIndex: 0, Count);
@@ -144,6 +155,8 @@ public class PooledList<T>
     /// </param>
     public void Add(T item)
     {
+        Debug.Assert(items != null, NoUseAfterReturnMessage);
+
         if (Count == items.Length) EnsureCapacity(Count + 1);
 
         items[Count++] = item;
@@ -159,7 +172,7 @@ public class PooledList<T>
     /// </param>
     public void AddRange(ICollection<T> collection)
     {
-        if (collection == null) throw new ArgumentNullException(nameof(collection));
+        Debug.Assert(items != null, NoUseAfterReturnMessage);
 
         int count = collection.Count;
 
@@ -184,7 +197,7 @@ public class PooledList<T>
     /// <param name="count">The amount of elements to add.</param>
     public void AddRange(T[] array, int count)
     {
-        if (array == null) throw new ArgumentNullException(nameof(array));
+        Debug.Assert(items != null, NoUseAfterReturnMessage);
 
         if (count > 0)
         {
@@ -205,7 +218,8 @@ public class PooledList<T>
     /// </param>
     public void AddRange(PooledList<T> pooledList)
     {
-        if (pooledList == null) throw new ArgumentNullException(nameof(pooledList));
+        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Debug.Assert(pooledList.items != null, NoUseAfterReturnMessage);
 
         if (this == pooledList)
             throw new ArgumentException($@"Adding '{this}' to itself not allowed", nameof(pooledList));
@@ -227,6 +241,8 @@ public class PooledList<T>
     /// </summary>
     public void RemoveAt(int index)
     {
+        Debug.Assert(items != null, NoUseAfterReturnMessage);
+
         if ((uint) index >= (uint) Count)
             throw new ArgumentOutOfRangeException(
                 $"The index '{index}' is not allowed to be larger then the size of the list.");
@@ -240,6 +256,8 @@ public class PooledList<T>
 
     private void EnsureCapacity(int min)
     {
+        Debug.Assert(items != null, NoUseAfterReturnMessage);
+
         if (items.Length < min)
         {
             int newCapacity = items.Length == 0 ? 4 : items.Length * 2;
@@ -257,6 +275,8 @@ public class PooledList<T>
     /// </summary>
     public T[] ExposeArray()
     {
+        Debug.Assert(items != null, NoUseAfterReturnMessage);
+
         return items;
     }
 
@@ -266,17 +286,25 @@ public class PooledList<T>
     /// </summary>
     public void ReturnToPool()
     {
+        if (items == null) Debug.Fail("The array is already returned to the pool.");
+
         arrayPool.Return(items);
-        items = Array.Empty<T>();
+        items = null;
 
         Count = 0;
     }
+
+#if DEBUG
 
     /// <summary>
     ///     Finalizer.
     /// </summary>
     ~PooledList()
     {
-        logger.LogWarning("List was not returned to the pool");
+        if (items == null) return;
+
+        Debug.Fail("The array is not returned to the pool.");
     }
+
+#endif
 }

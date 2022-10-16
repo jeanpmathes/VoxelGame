@@ -65,7 +65,12 @@ public partial class ClientChunk
                     throw e;
                 }
 
-                SetNextState(new MeshDataSending(task.Result), isRequired: true);
+                SetNextState(new MeshDataSending(task.Result),
+                    isRequired: true,
+                    () =>
+                    {
+                        foreach (SectionMeshData meshData in task.Result) meshData.Discard();
+                    });
             }
         }
     }
