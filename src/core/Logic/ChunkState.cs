@@ -69,6 +69,19 @@ public abstract class ChunkState
     /// </summary>
     protected abstract void OnUpdate();
 
+    private void Enter()
+    {
+        if (IsFinal)
+        {
+            ReleaseResources();
+            Context.Deactivate(Chunk);
+        }
+        else
+        {
+            OnEnter();
+        }
+    }
+
     /// <summary>
     ///     Called when this state is entered.
     /// </summary>
@@ -150,13 +163,13 @@ public abstract class ChunkState
     ///     Update the state.
     /// </summary>
     /// <returns>The new state.</returns>
-    public ChunkState Update()
+    private ChunkState Update()
     {
         bool isAccessSufficient = EnsureRequiredAccess();
 
         if (!isAccessSufficient) return this;
 
-        if (!isEntered) OnEnter();
+        if (!isEntered) Enter();
         isEntered = true;
 
         // If the chunk is deactivating, we do not want to perform any updates.

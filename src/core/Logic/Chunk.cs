@@ -456,10 +456,21 @@ public abstract partial class Chunk : IDisposable
 
     #region IDisposable Support
 
+    [NonSerialized] private bool isDisposed;
+
     /// <summary>
     ///     Dispose of this chunk.
     /// </summary>
-    protected abstract void Dispose(bool disposing);
+    protected virtual void Dispose(bool disposing)
+    {
+        if (isDisposed) return;
+
+        if (!disposing) return;
+
+        foreach (Section section in sections) section.Dispose();
+
+        isDisposed = true;
+    }
 
     /// <summary>
     ///     Finalizer.

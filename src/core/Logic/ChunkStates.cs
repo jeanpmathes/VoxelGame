@@ -220,12 +220,6 @@ public partial class Chunk
         protected override bool IsFinal => true;
 
         /// <inheritdoc />
-        protected override void OnEnter()
-        {
-            Context.Deactivate(Chunk);
-        }
-
-        /// <inheritdoc />
         protected override void OnUpdate()
         {
             Debug.Fail("Deactivating state should never be updated.");

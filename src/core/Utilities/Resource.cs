@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Logging;
@@ -89,42 +90,61 @@ public sealed class Resource
     /// <summary>
     ///     Try to acquire the resource for reading.
     /// </summary>
+    /// <param name="caller">The name of the calling method.</param>
+    /// <param name="path">The path of the calling file.</param>
+    /// <param name="line">The line of the calling file.</param>
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
-    public Guard? TryAcquireReader()
+    public Guard? TryAcquireReader([CallerMemberName] string caller = "", [CallerFilePath] string path = "", [CallerLineNumber] int line = 0)
+    {
+        return TryAcquireReaderInternal(caller, path, line);
+    }
+
+    private Guard? TryAcquireReaderInternal(string caller, string path, int line)
     {
         if (!IsMainThread()) return null;
         if (!CanRead) return null;
 
         readerCount++;
 
-        return new Guard(this, ReleaseReader);
+        return new Guard(this, ReleaseReader, caller, path, line);
     }
 
     /// <summary>
     ///     Try to acquire the resource for writing.
     /// </summary>
+    /// <param name="caller">The name of the calling method.</param>
+    /// <param name="path">The path of the calling file.</param>
+    /// <param name="line">The line of the calling file.</param>
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
-    public Guard? TryAcquireWriter()
+    public Guard? TryAcquireWriter([CallerMemberName] string caller = "", [CallerFilePath] string path = "", [CallerLineNumber] int line = 0)
+    {
+        return TryAcquireReaderInternal(caller, path, line);
+    }
+
+    private Guard? TryAcquireWriterInternal(string caller, string path, int line)
     {
         if (!IsMainThread()) return null;
         if (!CanWrite) return null;
 
         isWritenTo = true;
 
-        return new Guard(this, ReleaseWriter);
+        return new Guard(this, ReleaseWriter, caller, path, line);
     }
 
     /// <summary>
     ///     Try to acquire the resource for reading or writing.
     /// </summary>
     /// <param name="access">The access type to acquire.</param>
+    /// <param name="caller">The name of the calling method.</param>
+    /// <param name="path">The path of the calling file.</param>
+    /// <param name="line">The line of the calling file.</param>
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
-    public Guard? TryAcquire(Access access)
+    public Guard? TryAcquire(Access access, [CallerMemberName] string caller = "", [CallerFilePath] string path = "", [CallerLineNumber] int line = 0)
     {
         return access switch
         {
-            Access.Read => TryAcquireReader(),
-            Access.Write => TryAcquireWriter(),
+            Access.Read => TryAcquireReaderInternal(caller, path, line),
+            Access.Write => TryAcquireWriterInternal(caller, path, line),
             _ => null
         };
     }

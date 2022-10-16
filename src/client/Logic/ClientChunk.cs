@@ -156,23 +156,4 @@ public partial class ClientChunk : Chunk
             }
         }
     }
-
-    #region IDisposable Support
-
-    [NonSerialized] private bool disposed; // To detect redundant calls
-
-    /// <inheritdoc />
-    protected override void Dispose(bool disposing)
-    {
-        if (!disposed)
-        {
-            if (disposing)
-                for (var s = 0; s < SectionCount; s++)
-                    sections[s].Dispose();
-
-            disposed = true;
-        }
-    }
-
-    #endregion IDisposable Support
 }
