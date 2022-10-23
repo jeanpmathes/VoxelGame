@@ -191,7 +191,7 @@ public partial class Chunk
 
     /// <summary>
     ///     Active state. The chunk is ready to be used.
-    ///     Because the state has write-access, it is safe to perform operations on the chunk during one update.
+    ///     Because the state has write-access, it is safe to perform synchronous operations on the chunk during an update.
     /// </summary>
     public class Active : ChunkState
     {
@@ -203,6 +203,33 @@ public partial class Chunk
 
         /// <inheritdoc />
         protected override bool AllowSharingAccess => true;
+
+        /// <inheritdoc />
+        protected override bool AllowStealing => true;
+
+        /// <inheritdoc />
+        protected override void OnEnter()
+        {
+            Context.ActivateWeakly(Chunk);
+        }
+
+        /// <inheritdoc />
+        protected override void OnUpdate()
+        {
+            SetNextActive();
+        }
+    }
+
+    /// <summary>
+    ///     The chunk is used by a different
+    /// </summary>
+    public class Used : ChunkState
+    {
+        /// <inheritdoc />
+        protected override Access CoreAccess => Access.None;
+
+        /// <inheritdoc />
+        protected override Access ExtendedAccess => Access.None;
 
         /// <inheritdoc />
         protected override void OnEnter()

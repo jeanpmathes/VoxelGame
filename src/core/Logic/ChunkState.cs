@@ -51,6 +51,12 @@ public abstract class ChunkState
     protected virtual bool AllowSharingAccess => false;
 
     /// <summary>
+    ///     Whether this state allows that its access is stolen.
+    ///     A state must hold write-access to its core and extended data to allow stealing.
+    /// </summary>
+    protected virtual bool AllowStealing => false;
+
+    /// <summary>
     ///     Whether this state is the final state.
     /// </summary>
     protected virtual bool IsFinal => false;
@@ -81,6 +87,8 @@ public abstract class ChunkState
         {
             OnEnter();
         }
+
+        isEntered = true;
     }
 
     /// <summary>
@@ -183,7 +191,6 @@ public abstract class ChunkState
         if (!isAccessSufficient) return this;
 
         if (!isEntered) Enter();
-        isEntered = true;
 
         // If the chunk is deactivating, we do not want to perform any updates.
         if (IsFinal) return this;
@@ -203,13 +210,13 @@ public abstract class ChunkState
 
         if (CoreAccess != Access.None && coreGuard == null)
         {
-            coreGuard = Chunk.CoreResource.TryAcquire(CoreAccess);
+            coreGuard = Chunk.AcquireCore(CoreAccess);
             isAccessSufficient &= coreGuard != null;
         }
 
         if (ExtendedAccess != Access.None && extendedGuard == null)
         {
-            extendedGuard = Chunk.ExtendedResource.TryAcquire(ExtendedAccess);
+            extendedGuard = Chunk.AcquireExtended(ExtendedAccess);
             isAccessSufficient &= extendedGuard != null;
         }
 
@@ -305,6 +312,35 @@ public abstract class ChunkState
         };
 
         return state;
+    }
+
+    /// <summary>
+    ///     Try to steal access from the current state.
+    ///     If access is stolen, the state is changed.
+    /// </summary>
+    /// <returns></returns>
+    public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state)
+    {
+        if (!state.isEntered || !state.AllowStealing) return null;
+
+        Debug.Assert(state.CoreAccess == Access.Write && state.coreGuard != null);
+        Debug.Assert(state.ExtendedAccess == Access.Write && state.extendedGuard != null);
+
+        Guard? core = state.coreGuard;
+        Guard? extended = state.extendedGuard;
+
+        state.coreGuard = null;
+        state.extendedGuard = null;
+
+        state = new Chunk.Used
+        {
+            Chunk = state.Chunk,
+            Context = state.Context
+        };
+
+        state.Enter();
+
+        return (core, extended);
     }
 
     /// <inheritdoc />

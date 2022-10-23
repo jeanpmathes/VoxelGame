@@ -51,7 +51,7 @@ public class ChunkMeshingContext
         {
             if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
 
-            Guard? guard = neighbor.CoreResource.TryAcquireReader();
+            Guard? guard = neighbor.AcquireCore(Access.Read);
 
             if (guard == null) continue;
 

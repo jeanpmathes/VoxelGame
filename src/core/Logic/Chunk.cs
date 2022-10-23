@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
@@ -65,6 +66,18 @@ public abstract partial class Chunk : IDisposable
     public static readonly int BlockSizeExp2 = (int) Math.Log(BlockSize, newBase: 2) * 2;
 
     private ScheduledTickManager<Block.BlockTick> blockTickManager;
+
+    /// <summary>
+    ///     The core resource of a chunk are its sections and their blocks.
+    /// </summary>
+    [NonSerialized] private Resource coreResource = new(nameof(Chunk) + "Core");
+
+    /// <summary>
+    ///     Extended resources are defined by users of core, like a client or a server.
+    ///     An example for extended resources are meshes and renderers.
+    /// </summary>
+    [NonSerialized] private Resource extendedResource = new(nameof(Chunk) + "Extended");
+
     private ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
 
     /// <summary>
@@ -101,17 +114,6 @@ public abstract partial class Chunk : IDisposable
     }
 
     /// <summary>
-    ///     The core resource of a chunk are its sections and their blocks.
-    /// </summary>
-    [field: NonSerialized] public Resource CoreResource { get; } = new(nameof(Chunk) + "Core");
-
-    /// <summary>
-    ///     Extended resources are defined by users of core, like a client or a server.
-    ///     An example for extended resources are meshes and renderers.
-    /// </summary>
-    [field: NonSerialized] public Resource ExtendedResource { get; } = new(nameof(Chunk) + "Extended");
-
-    /// <summary>
     ///     Whether the chunk is currently active.
     ///     An active can write to all resources and allows sharing its access for the duration of one update.
     /// </summary>
@@ -141,6 +143,39 @@ public abstract partial class Chunk : IDisposable
     ///     The world this chunk is in.
     /// </summary>
     [field: NonSerialized] public World World { get; private set; }
+
+    /// <summary>
+    ///     Acquire the core resource, possibly stealing it.
+    ///     The core resource of a chunk are its sections and their blocks.
+    /// </summary>
+    /// <returns>The guard, or null if the resource could not be acquired.</returns>
+    public Guard? AcquireCore(Access access, [CallerMemberName] string caller = "", [CallerFilePath] string path = "", [CallerLineNumber] int line = 0)
+    {
+        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
+
+        if (guards is not {core: {} core, extended: {} extended}) return coreResource.TryAcquireInternal(access, caller, path, line);
+
+        extended.Dispose();
+
+        return core;
+    }
+
+    /// <summary>
+    ///     Acquire the extended resource, possibly stealing it.
+    ///     Extended resources are defined by users of core, like a client or a server.
+    ///     An example for extended resources are meshes and renderers.
+    /// </summary>
+    /// <returns>The guard, or null if the resource could not be acquired.</returns>
+    public Guard? AcquireExtended(Access access, [CallerMemberName] string caller = "", [CallerFilePath] string path = "", [CallerLineNumber] int line = 0)
+    {
+        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
+
+        if (guards is not {core: {} core, extended: {} extended}) return extendedResource.TryAcquireInternal(access, caller, path, line);
+
+        core.Dispose();
+
+        return extended;
+    }
 
     /// <summary>
     ///     Add a request to the chunk to be active.

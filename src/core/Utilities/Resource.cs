@@ -149,6 +149,24 @@ public sealed class Resource
         };
     }
 
+    /// <summary>
+    ///     Try to acquire the resource for reading or writing.
+    /// </summary>
+    /// <param name="access">The access type to acquire.</param>
+    /// <param name="caller">The name of the calling method.</param>
+    /// <param name="path">The path of the calling file.</param>
+    /// <param name="line">The line of the calling file.</param>
+    /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
+    public Guard? TryAcquireInternal(Access access, string caller, string path, int line)
+    {
+        return access switch
+        {
+            Access.Read => TryAcquireReaderInternal(caller, path, line),
+            Access.Write => TryAcquireWriterInternal(caller, path, line),
+            _ => null
+        };
+    }
+
     private bool IsMainThread()
     {
         if (Thread.CurrentThread == ApplicationInformation.Instance.MainThread) return true;
