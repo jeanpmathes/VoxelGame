@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Utilities;
 
@@ -122,22 +123,22 @@ public class ChunkContext
     /// <summary>
     ///     Try to allocate in a budget.
     /// </summary>
-    public bool TryAllocate(Limit limit)
+    public Guard? TryAllocate(Limit limit, [CallerMemberName] string caller = "", [CallerFilePath] string path = "", [CallerLineNumber] int line = 0)
     {
         int index = limit.GetID(this);
         (int max, int current) = budgets[index];
 
-        if (current == 0) return false;
+        if (current == 0) return null;
 
         budgets[index] = (max, current - 1);
 
-        return true;
+        return new Guard(limit, () => Free(limit), caller, path, line);
     }
 
     /// <summary>
     ///     Free used budget.
     /// </summary>
-    public void Free(Limit limit)
+    private void Free(Limit limit)
     {
         int index = limit.GetID(this);
         (int max, int current) = budgets[index];

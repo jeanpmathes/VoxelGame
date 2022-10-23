@@ -5,7 +5,6 @@
 // <author>pershingthesecond</author>
 
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic;
@@ -22,9 +21,7 @@ public partial class ClientChunk
     /// </summary>
     public class Meshing : ChunkState
     {
-        private ChunkMeshingContext? context;
-
-        private Task<SectionMeshData[]>? task;
+        private (Task<SectionMeshData[]> task, Guard guard, ChunkMeshingContext context)? activity;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Read;
@@ -38,18 +35,18 @@ public partial class ClientChunk
             var chunk = (ClientChunk) Chunk;
             var world = (ClientWorld) chunk.World;
 
-            if (task == null)
+            if (activity is not {task: {} task, guard: {} guard, context: {} context})
             {
-                if (!Context.TryAllocate(world.MaxMeshingTasks)) return;
+                guard = Context.TryAllocate(world.MaxMeshingTasks);
+
+                if (guard == null) return;
 
                 context = ChunkMeshingContext.Acquire(Chunk);
-                task = chunk.CreateMeshDataAsync(context);
+                activity = (chunk.CreateMeshDataAsync(context), guard, context);
             }
             else if (task.IsCompleted)
             {
-                Context.Free(world.MaxMeshingTasks);
-
-                Debug.Assert(context != null);
+                guard.Dispose();
                 context.Release();
 
                 if (task.IsFaulted)
@@ -85,7 +82,7 @@ public partial class ClientChunk
     public class MeshDataSending : ChunkState
     {
         private readonly SectionMeshData[] meshData;
-        private bool canSend;
+        private Guard? guard;
 
         /// <summary>
         ///     Create a new mesh data sending state.
@@ -108,15 +105,15 @@ public partial class ClientChunk
             var chunk = (ClientChunk) Chunk;
             var world = (ClientWorld) chunk.World;
 
-            if (!canSend) canSend = Context.TryAllocate(world.MaxMeshDataSends);
+            guard ??= Context.TryAllocate(world.MaxMeshDataSends);
 
-            if (!canSend) return;
+            if (guard == null) return;
 
             bool finished = chunk.DoMeshDataSetStep(meshData);
 
             if (!finished) return;
 
-            Context.Free(world.MaxMeshDataSends);
+            guard.Dispose();
             SetNextActive();
         }
     }

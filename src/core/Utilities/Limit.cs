@@ -38,4 +38,10 @@ public class Limit
 
         return id;
     }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return $"Limit({id}, from: {source})";
+    }
 }

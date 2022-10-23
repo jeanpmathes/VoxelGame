@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Logging;
 
@@ -59,6 +60,12 @@ public sealed class Guard : IDisposable
     ~Guard()
     {
         Dispose(disposing: false);
+        WriteLog();
+    }
+
+    [Conditional("DEBUG")]
+    private void WriteLog()
+    {
         logger.LogWarning("Guard for resource {Resource} was not disposed. Guard was acquired by {Caller} in {Path} ({Line})", resource, caller, path, line);
     }
 

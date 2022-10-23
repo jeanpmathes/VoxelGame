@@ -41,7 +41,7 @@ public partial class Chunk
     /// </summary>
     public class Loading : ChunkState
     {
-        private Task<Chunk?>? task;
+        private (Task<Chunk?> task, Guard guard)? activity;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Write;
@@ -52,17 +52,18 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (task == null)
+            if (activity is not {task: {} task, guard: {} guard})
             {
-                if (Context.TryAllocate(Chunk.World.MaxLoadingTasks))
-                {
-                    string path = Path.Combine(Context.Directory, GetChunkFileName(Chunk.Position));
-                    task = LoadAsync(path, Chunk.Position);
-                }
+                guard = Context.TryAllocate(Chunk.World.MaxLoadingTasks);
+
+                if (guard == null) return;
+
+                string path = Path.Combine(Context.Directory, GetChunkFileName(Chunk.Position));
+                activity = (LoadAsync(path, Chunk.Position), guard);
             }
             else if (task.IsCompleted)
             {
-                Context.Free(Chunk.World.MaxLoadingTasks);
+                guard.Dispose();
 
                 if (task.IsFaulted)
                 {
@@ -105,7 +106,7 @@ public partial class Chunk
     /// </summary>
     public class Generating : ChunkState
     {
-        private Task? task;
+        private (Task task, Guard guard)? activity;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Write;
@@ -116,13 +117,17 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (task == null)
+            if (activity is not {task: {} task, guard: {} guard})
             {
-                if (Context.TryAllocate(Chunk.World.MaxGenerationTasks)) task = Chunk.GenerateAsync(Context.Generator);
+                guard = Context.TryAllocate(Chunk.World.MaxGenerationTasks);
+
+                if (guard == null) return;
+
+                activity = (Chunk.GenerateAsync(Context.Generator), guard);
             }
             else if (task.IsCompleted)
             {
-                Context.Free(Chunk.World.MaxGenerationTasks);
+                guard.Dispose();
 
                 if (task.IsFaulted)
                 {
@@ -145,7 +150,7 @@ public partial class Chunk
     /// </summary>
     public class Saving : ChunkState
     {
-        private Task? task;
+        private (Task task, Guard guard)? activity;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Read;
@@ -156,13 +161,17 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (task == null)
+            if (activity is not {task: {} task, guard: {} guard})
             {
-                if (Context.TryAllocate(Chunk.World.MaxSavingTasks)) task = Chunk.SaveAsync(Context.Directory);
+                guard = Context.TryAllocate(Chunk.World.MaxSavingTasks);
+
+                if (guard == null) return;
+
+                activity = (Chunk.SaveAsync(Context.Directory), guard);
             }
             else if (task.IsCompleted)
             {
-                Context.Free(Chunk.World.MaxSavingTasks);
+                guard.Dispose();
 
                 if (task.IsFaulted)
                     logger.LogError(
