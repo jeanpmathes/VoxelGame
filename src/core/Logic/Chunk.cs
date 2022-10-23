@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.Serialization;
@@ -147,15 +148,25 @@ public abstract partial class Chunk : IDisposable
     ///     Acquire the core resource, possibly stealing it.
     ///     The core resource of a chunk are its sections and their blocks.
     /// </summary>
-    /// <param name="access">The access to acquire.</param>
+    /// <param name="access">The access to acquire. Must not be <see cref="Access.None"/>.</param>
     /// <returns>The guard, or null if the resource could not be acquired.</returns>
     public Guard? AcquireCore(Access access)
     {
+        Debug.Assert(access != Access.None);
+
         (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
 
         if (guards is not {core: {} core, extended: {} extended}) return coreResource.TryAcquire(access);
 
         extended.Dispose();
+
+        if (access == Access.Read)
+        {
+            // We downgrade our access to read, as stealing always gives us write access.
+            core.Dispose();
+            core = coreResource.TryAcquire(access);
+            Debug.Assert(core != null);
+        }
 
         return core;
     }
@@ -165,15 +176,25 @@ public abstract partial class Chunk : IDisposable
     ///     Extended resources are defined by users of core, like a client or a server.
     ///     An example for extended resources are meshes and renderers.
     /// </summary>
-    /// <param name="access">The access to acquire.</param>
+    /// <param name="access">The access to acquire. Must not be <see cref="Access.None"/>.</param>
     /// <returns>The guard, or null if the resource could not be acquired.</returns>
     public Guard? AcquireExtended(Access access)
     {
+        Debug.Assert(access != Access.None);
+
         (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
 
         if (guards is not {core: {} core, extended: {} extended}) return extendedResource.TryAcquire(access);
 
         core.Dispose();
+
+        if (access == Access.Read)
+        {
+            // We downgrade our access to read, as stealing always gives us write access.
+            extended.Dispose();
+            extended = extendedResource.TryAcquire(access);
+            Debug.Assert(extended != null);
+        }
 
         return extended;
     }

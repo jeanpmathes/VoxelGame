@@ -28,6 +28,8 @@ public abstract class ChunkState
     private bool isEntered;
 
     private (ChunkState state, bool isRequired, TransitionDescription description)? next;
+
+    private ChunkState? previous;
     private ChunkState? requested;
 
     /// <summary>
@@ -78,6 +80,8 @@ public abstract class ChunkState
 
     private void Enter()
     {
+        if (previous != null) logger.LogDebug(Events.ChunkOperation, "Chunk {Position} state changed from {PreviousState} to {State}", Chunk.Position, previous, this);
+
         if (IsFinal)
         {
             ReleaseResources();
@@ -282,10 +286,7 @@ public abstract class ChunkState
     {
         ChunkState previousState = state;
         state = previousState.Update();
-
-        if (previousState == state) return;
-
-        logger.LogDebug(Events.ChunkOperation, "Chunk {Position} state changed from {PreviousState} to {State}", state.Chunk.Position, previousState, state);
+        state.previous ??= previousState;
     }
 
     /// <summary>
@@ -318,7 +319,7 @@ public abstract class ChunkState
     ///     Try to steal access from the current state.
     ///     If access is stolen, the state is changed.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>
     public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state)
     {
         if (!state.isEntered || !state.AllowStealing) return null;
@@ -340,9 +341,8 @@ public abstract class ChunkState
             Context = state.Context
         };
 
+        state.previous = previousState;
         state.Enter();
-
-        logger.LogDebug(Events.ChunkOperation, "Chunk {Position} in state {PreviousState} gave up access, transitioning to {State}", state.Chunk.Position, previousState, state);
 
         return (core, extended);
     }
