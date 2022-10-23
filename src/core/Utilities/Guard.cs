@@ -18,11 +18,9 @@ public sealed class Guard : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Guard>();
 
-    private readonly string caller;
-    private readonly int line;
-    private readonly string path;
     private readonly Action release;
     private readonly object resource;
+    private readonly StackTrace? stackTrace;
 
     #region IDisposable Support
 
@@ -31,17 +29,12 @@ public sealed class Guard : IDisposable
     /// </summary>
     /// <param name="resource">The resource to guard.</param>
     /// <param name="release">The method to call when the guard is disposed.</param>
-    /// <param name="caller">The name of the calling method that acquired the resource.</param>
-    /// <param name="path">The path of the calling file.</param>
-    /// <param name="line">The line of the calling file.</param>
-    public Guard(object resource, Action release, string caller, string path, int line)
+    public Guard(object resource, Action release)
     {
         this.resource = resource;
         this.release = release;
 
-        this.caller = caller;
-        this.path = path;
-        this.line = line;
+        if (Debugger.IsAttached) stackTrace = new StackTrace(fNeedFileInfo: true);
     }
 
     /// <summary>
@@ -66,7 +59,7 @@ public sealed class Guard : IDisposable
     [Conditional("DEBUG")]
     private void WriteLog()
     {
-        logger.LogWarning("Guard for resource {Resource} was not disposed. Guard was acquired by {Caller} in {Path} ({Line})", resource, caller, path, line);
+        logger.LogWarning("Guard for resource {Resource} was not disposed. Guard was acquired {Stacktrace}", resource, stackTrace);
     }
 
     /// <summary>

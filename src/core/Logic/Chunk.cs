@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
@@ -148,12 +147,13 @@ public abstract partial class Chunk : IDisposable
     ///     Acquire the core resource, possibly stealing it.
     ///     The core resource of a chunk are its sections and their blocks.
     /// </summary>
+    /// <param name="access">The access to acquire.</param>
     /// <returns>The guard, or null if the resource could not be acquired.</returns>
-    public Guard? AcquireCore(Access access, [CallerMemberName] string caller = "", [CallerFilePath] string path = "", [CallerLineNumber] int line = 0)
+    public Guard? AcquireCore(Access access)
     {
         (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
 
-        if (guards is not {core: {} core, extended: {} extended}) return coreResource.TryAcquireInternal(access, caller, path, line);
+        if (guards is not {core: {} core, extended: {} extended}) return coreResource.TryAcquire(access);
 
         extended.Dispose();
 
@@ -165,12 +165,13 @@ public abstract partial class Chunk : IDisposable
     ///     Extended resources are defined by users of core, like a client or a server.
     ///     An example for extended resources are meshes and renderers.
     /// </summary>
+    /// <param name="access">The access to acquire.</param>
     /// <returns>The guard, or null if the resource could not be acquired.</returns>
-    public Guard? AcquireExtended(Access access, [CallerMemberName] string caller = "", [CallerFilePath] string path = "", [CallerLineNumber] int line = 0)
+    public Guard? AcquireExtended(Access access)
     {
         (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
 
-        if (guards is not {core: {} core, extended: {} extended}) return extendedResource.TryAcquireInternal(access, caller, path, line);
+        if (guards is not {core: {} core, extended: {} extended}) return extendedResource.TryAcquire(access);
 
         core.Dispose();
 

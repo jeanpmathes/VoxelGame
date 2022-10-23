@@ -332,6 +332,8 @@ public abstract class ChunkState
         state.coreGuard = null;
         state.extendedGuard = null;
 
+        ChunkState previousState = state;
+
         state = new Chunk.Used
         {
             Chunk = state.Chunk,
@@ -339,6 +341,8 @@ public abstract class ChunkState
         };
 
         state.Enter();
+
+        logger.LogDebug(Events.ChunkOperation, "Chunk {Position} in state {PreviousState} gave up access, transitioning to {State}", state.Chunk.Position, previousState, state);
 
         return (core, extended);
     }
