@@ -45,7 +45,7 @@ public abstract class ChunkState
     /// <summary>
     ///     Get whether this chunk is active.
     /// </summary>
-    public bool IsActive => CoreAccess == Access.Write && ExtendedAccess == Access.Write && AllowSharingAccess;
+    public bool IsActive => isEntered && CoreAccess == Access.Write && ExtendedAccess == Access.Write && AllowSharingAccess;
 
     /// <summary>
     ///     Whether this state allows sharing its access during one update.
