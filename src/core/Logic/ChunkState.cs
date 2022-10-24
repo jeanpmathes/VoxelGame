@@ -5,7 +5,9 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -30,7 +32,8 @@ public abstract class ChunkState
     private (ChunkState state, bool isRequired, TransitionDescription description)? next;
 
     private ChunkState? previous;
-    private ChunkState? requested;
+
+    private RequestQueue requests = new();
 
     /// <summary>
     ///     Get the chunk.
@@ -164,14 +167,14 @@ public abstract class ChunkState
     ///     deactivation comes last.
     /// </summary>
     /// <param name="state">The next state.</param>
-    public void RequestNextState(ChunkState state)
+    /// <param name="description">The request description.</param>
+    public void RequestNextState(ChunkState state, RequestDescription description = new())
     {
-        Debug.Assert(requested == null || requested.GetType() == state.GetType());
-
         state.Chunk = Chunk;
         state.Context = Context;
+        state.requests = requests;
 
-        requested = state;
+        requests.Enqueue(state, description);
     }
 
     /// <summary>
@@ -179,9 +182,9 @@ public abstract class ChunkState
     ///     and deactivation comes last.
     /// </summary>
     /// <typeparam name="T">The type of the next state.</typeparam>
-    public void RequestNextState<T>() where T : ChunkState, new()
+    public void RequestNextState<T>(RequestDescription description = new()) where T : ChunkState, new()
     {
-        RequestNextState(new T());
+        RequestNextState(new T(), description);
     }
 
     /// <summary>
@@ -241,24 +244,23 @@ public abstract class ChunkState
         if (next == null) return this;
 
         ChunkState nextState;
+        ChunkState? requestedState;
 
         if (next.Value.description.PrioritizeDeactivation && !Chunk.IsRequested)
         {
-            nextState = CreateFinalState();
+            nextState = requests.Dequeue(this, isLooping: false, isDeactivating: true) ?? CreateFinalState();
         }
-        else if (next.Value.description.PrioritizeLoop && requested != null && requested.GetType() == GetType())
+        else if (next.Value.description.PrioritizeLoop && (requestedState = requests.Dequeue(this, isLooping: true, isDeactivating: false)) != null)
         {
-            nextState = requested;
-            requested = null;
+            nextState = requestedState;
         }
         else if (next.Value.isRequired)
         {
             nextState = next.Value.state;
         }
-        else if (requested != null)
+        else if ((requestedState = requests.Dequeue(this, isLooping: false, isDeactivating: false)) != null)
         {
-            nextState = requested;
-            requested = null;
+            nextState = requestedState;
         }
         else if (!Chunk.IsRequested)
         {
@@ -353,6 +355,11 @@ public abstract class ChunkState
         return GetType().Name;
     }
 
+    private static bool IsSameState(ChunkState a, ChunkState b)
+    {
+        return a.GetType() == b.GetType();
+    }
+
     /// <summary>
     ///     Describes how to take the transition to a state.
     /// </summary>
@@ -374,5 +381,81 @@ public abstract class ChunkState
         ///     Whether to prioritize chunk deactivation over this transition, even if this transition is required.
         /// </summary>
         public bool PrioritizeDeactivation { get; init; }
+    }
+
+    /// <summary>
+    ///     Describes a transition request.
+    /// </summary>
+    public record struct RequestDescription
+    {
+        /// <summary>
+        ///     Whether to keep the current request even if the same state type is already requested.
+        /// </summary>
+        public bool AllowDuplicateTypes { get; init; }
+
+        /// <summary>
+        ///     Whether to skip this request when deactivating the chunk.
+        /// </summary>
+        public bool AllowSkipOnDeactivation { get; init; }
+    }
+
+    /// <summary>
+    ///     Holds all transition requests.
+    /// </summary>
+    private sealed class RequestQueue
+    {
+        private readonly List<(ChunkState state, RequestDescription description)> requests = new();
+
+        /// <summary>
+        ///     Enqueue a new request. If the same state type is already requested, the request is ignored, unless the correct
+        ///     flags are set.
+        /// </summary>
+        /// <param name="state">The state to request.</param>
+        /// <param name="description">The description of the request.</param>
+        public void Enqueue(ChunkState state, RequestDescription description)
+        {
+            if (!description.AllowDuplicateTypes)
+            {
+                bool isDuplicate = requests.Any(request => IsSameState(request.state, state));
+
+                if (isDuplicate) return;
+            }
+
+            requests.Add((state, description));
+        }
+
+        /// <summary>
+        ///     Dequeue the first request.
+        /// </summary>
+        /// <param name="current">The current state.</param>
+        /// <param name="isLooping">Whether the current state prioritizes looping transitions.</param>
+        /// <param name="isDeactivating">
+        ///     Whether the chunk is deactivating. This will filter out all requests that are not required
+        ///     before deactivation.
+        /// </param>
+        /// <returns>The first request, or null if no request is available.</returns>
+        public ChunkState? Dequeue(ChunkState current, bool isLooping, bool isDeactivating)
+        {
+            int target = -1;
+
+            for (var index = 0; index < requests.Count; index++)
+            {
+                (ChunkState state, RequestDescription description) = requests[index];
+
+                if (isDeactivating && description.AllowSkipOnDeactivation) continue;
+                if (isLooping && !IsSameState(current, state)) continue;
+
+                target = index;
+
+                break;
+            }
+
+            if (target == -1) return null;
+
+            (ChunkState state, RequestDescription description) request = requests[target];
+            requests.RemoveAt(target);
+
+            return request.state;
+        }
     }
 }

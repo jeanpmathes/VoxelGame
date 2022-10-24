@@ -42,7 +42,11 @@ public partial class ClientChunk : Chunk
     /// </summary>
     public void BeginMeshing()
     {
-        state.RequestNextState<Meshing>();
+        state.RequestNextState<Meshing>(new ChunkState.RequestDescription
+        {
+            AllowDuplicateTypes = false,
+            AllowSkipOnDeactivation = true
+        });
     }
 
     /// <inheritdoc />
