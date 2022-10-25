@@ -33,6 +33,8 @@ public abstract class ChunkState
 
     private ChunkState? previous;
 
+    private bool released;
+
     private RequestQueue requests = new();
 
     /// <summary>
@@ -62,11 +64,6 @@ public abstract class ChunkState
     protected virtual bool AllowStealing => false;
 
     /// <summary>
-    ///     Whether this state is the final state.
-    /// </summary>
-    protected virtual bool IsFinal => false;
-
-    /// <summary>
     ///     The required access level of this state to core chunk resources.
     /// </summary>
     protected abstract Access CoreAccess { get; }
@@ -85,16 +82,7 @@ public abstract class ChunkState
     {
         if (previous != null) logger.LogDebug(Events.ChunkOperation, "Chunk {Position} state changed from {PreviousState} to {State}", Chunk.Position, previous, this);
 
-        if (IsFinal)
-        {
-            ReleaseResources();
-            Context.Deactivate(Chunk);
-        }
-        else
-        {
-            OnEnter();
-        }
-
+        OnEnter();
         isEntered = true;
     }
 
@@ -199,8 +187,7 @@ public abstract class ChunkState
 
         if (!isEntered) Enter();
 
-        // If the chunk is deactivating, we do not want to perform any updates.
-        if (IsFinal) return this;
+        if (released) return this;
 
         OnUpdate();
 
@@ -232,10 +219,20 @@ public abstract class ChunkState
         return isAccessSufficient;
     }
 
-    private void ReleaseResources()
+    /// <summary>
+    ///     Release all held resources. A state will not be updated when released, and must transition until the next update.
+    /// </summary>
+    protected void ReleaseResources()
     {
+        Debug.Assert(!released);
+
         coreGuard?.Dispose();
         extendedGuard?.Dispose();
+
+        coreGuard = null;
+        extendedGuard = null;
+
+        released = true;
     }
 
     #pragma warning disable S1871 // Readability.

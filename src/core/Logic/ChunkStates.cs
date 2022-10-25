@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -256,12 +255,18 @@ public partial class Chunk
         protected override Access ExtendedAccess => Access.Write;
 
         /// <inheritdoc />
-        protected override bool IsFinal => true;
+        protected override void OnEnter()
+        {
+            if (Chunk.IsRequested) return;
+
+            ReleaseResources();
+            Context.Deactivate(Chunk);
+        }
 
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            Debug.Fail("Deactivating state should never be updated.");
+            SetNextReady();
         }
     }
 }
