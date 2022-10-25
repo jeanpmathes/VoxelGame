@@ -30,6 +30,9 @@ public partial class ClientChunk
         protected override Access ExtendedAccess => Access.None;
 
         /// <inheritdoc />
+        protected override bool WaitOnNeighbors => true;
+
+        /// <inheritdoc />
         protected override void OnUpdate()
         {
             var chunk = (ClientChunk) Chunk;

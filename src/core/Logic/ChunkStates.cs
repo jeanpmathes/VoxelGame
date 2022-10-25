@@ -49,6 +49,9 @@ public partial class Chunk
         protected override Access ExtendedAccess => Access.None;
 
         /// <inheritdoc />
+        public override bool IsIntendingToGetReady => true;
+
+        /// <inheritdoc />
         protected override void OnUpdate()
         {
             if (activity is not {task: {} task, guard: {} guard})
@@ -112,6 +115,9 @@ public partial class Chunk
 
         /// <inheritdoc />
         protected override Access ExtendedAccess => Access.None;
+
+        /// <inheritdoc />
+        public override bool IsIntendingToGetReady => true;
 
         /// <inheritdoc />
         protected override void OnUpdate()

@@ -120,6 +120,11 @@ public abstract partial class Chunk : IDisposable
     public bool IsActive => state.IsActive;
 
     /// <summary>
+    ///     Whether this chunk is intending to get ready according to the current state.
+    /// </summary>
+    public bool IsIntendingToGetReady => state.IsIntendingToGetReady;
+
+    /// <summary>
     ///     Get whether the chunk is requested.
     /// </summary>
     public bool IsRequested => isRequested;

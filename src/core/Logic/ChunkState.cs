@@ -19,13 +19,21 @@ namespace VoxelGame.Core.Logic;
 /// </summary>
 public abstract class ChunkState
 {
+    private const int NeighborWaitingTimeout = 10;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkState>();
 
     private Guard? coreGuard;
+
+    private int currentWaitingTime;
     private Guard? extendedGuard;
 
     /// <summary>
-    ///     Whether this state has acquired all required access and is therefore completely entered.
+    ///     Whether this state has acquired all required access. This can be true when the state is waiting on something.
+    /// </summary>
+    private bool isAccessSufficient;
+
+    /// <summary>
+    ///     Whether this state has acquired all required access and is not waiting on anything.
     /// </summary>
     private bool isEntered;
 
@@ -36,6 +44,16 @@ public abstract class ChunkState
     private bool released;
 
     private RequestQueue requests = new();
+
+    /// <summary>
+    ///     Whether this state intends to perform a ready-transition.
+    /// </summary>
+    public virtual bool IsIntendingToGetReady => false;
+
+    /// <summary>
+    ///     Whether this state wants to delay entering when neighbors intend to activate.
+    /// </summary>
+    protected virtual bool WaitOnNeighbors => false;
 
     /// <summary>
     ///     Get the chunk.
@@ -135,6 +153,7 @@ public abstract class ChunkState
 
     /// <summary>
     ///     Signal that this chunk is now ready. The transition is required, except if certain flags are set in the description.
+    ///     This is a strong activation.
     /// </summary>
     protected void SetNextReady(TransitionDescription description = new())
     {
@@ -143,6 +162,7 @@ public abstract class ChunkState
 
     /// <summary>
     ///     Set the next state to active. This transition is never required and can be understood as a "don't care"-transition.
+    ///     This is a weak activation.
     /// </summary>
     protected void SetNextActive(Action? cleanup = null)
     {
@@ -181,9 +201,11 @@ public abstract class ChunkState
     /// <returns>The new state.</returns>
     private ChunkState Update()
     {
-        bool isAccessSufficient = EnsureRequiredAccess();
+        isAccessSufficient = EnsureRequiredAccess();
 
         if (!isAccessSufficient) return this;
+
+        if (IsWaitingOnNeighbors()) return this;
 
         if (!isEntered) Enter();
 
@@ -198,25 +220,41 @@ public abstract class ChunkState
         return nextState;
     }
 
+    private bool IsWaitingOnNeighbors()
+    {
+        if (isEntered) return false;
+        if (!WaitOnNeighbors) return false;
+
+        currentWaitingTime++;
+
+        if (currentWaitingTime >= NeighborWaitingTimeout) return false;
+
+        foreach (BlockSide side in BlockSide.All.Sides())
+            if (Chunk.World.TryGetChunk(side.Offset(Chunk.Position), out Chunk? neighbor) && neighbor.IsIntendingToGetReady)
+                return true;
+
+        return false;
+    }
+
     private bool EnsureRequiredAccess()
     {
-        var isAccessSufficient = true;
+        var isSufficient = true;
 
         if (CoreAccess != Access.None && coreGuard == null)
         {
             coreGuard = Chunk.AcquireCore(CoreAccess);
-            isAccessSufficient &= coreGuard != null;
+            isSufficient &= coreGuard != null;
         }
 
         if (ExtendedAccess != Access.None && extendedGuard == null)
         {
             extendedGuard = Chunk.AcquireExtended(ExtendedAccess);
-            isAccessSufficient &= extendedGuard != null;
+            isSufficient &= extendedGuard != null;
         }
 
-        if (isEntered && !isAccessSufficient) Debug.Fail("Access was lost during state update.");
+        if (isEntered && !isSufficient) Debug.Fail("Access was lost during state update.");
 
-        return isAccessSufficient;
+        return isSufficient;
     }
 
     /// <summary>
@@ -321,7 +359,7 @@ public abstract class ChunkState
     /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>
     public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state)
     {
-        if (!state.isEntered || !state.AllowStealing) return null;
+        if (!state.isAccessSufficient || !state.AllowStealing) return null;
 
         Debug.Assert(state.CoreAccess == Access.Write && state.coreGuard != null);
         Debug.Assert(state.ExtendedAccess == Access.Write && state.extendedGuard != null);
