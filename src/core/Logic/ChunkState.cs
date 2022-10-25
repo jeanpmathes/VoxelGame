@@ -162,7 +162,7 @@ public abstract class ChunkState
         state.Context = Context;
         state.requests = requests;
 
-        requests.Enqueue(state, description);
+        requests.Enqueue(this, state, description);
     }
 
     /// <summary>
@@ -394,6 +394,11 @@ public abstract class ChunkState
         ///     Whether to skip this request when deactivating the chunk.
         /// </summary>
         public bool AllowSkipOnDeactivation { get; init; }
+
+        /// <summary>
+        ///     Whether to allow to discard this request if the next required state is the same as this request.
+        /// </summary>
+        public bool AllowDiscardOnLoop { get; init; }
     }
 
     /// <summary>
@@ -407,10 +412,19 @@ public abstract class ChunkState
         ///     Enqueue a new request. If the same state type is already requested, the request is ignored, unless the correct
         ///     flags are set.
         /// </summary>
+        /// <param name="current">The current state.</param>
         /// <param name="state">The state to request.</param>
         /// <param name="description">The description of the request.</param>
-        public void Enqueue(ChunkState state, RequestDescription description)
+        public void Enqueue(ChunkState current, ChunkState state, RequestDescription description)
         {
+            if (description.AllowDiscardOnLoop)
+            {
+                bool nextIsLoop = current.next is {state: {} next, isRequired: true} && IsSameState(next, state);
+                bool currentIsLoop = !current.isEntered && IsSameState(current, state);
+
+                if (nextIsLoop || currentIsLoop) return;
+            }
+
             if (!description.AllowDuplicateTypes)
             {
                 bool isDuplicate = requests.Any(request => IsSameState(request.state, state));

@@ -45,7 +45,8 @@ public partial class ClientChunk : Chunk
         state.RequestNextState<Meshing>(new ChunkState.RequestDescription
         {
             AllowDuplicateTypes = false,
-            AllowSkipOnDeactivation = true
+            AllowSkipOnDeactivation = true,
+            AllowDiscardOnLoop = true
         });
     }
 
