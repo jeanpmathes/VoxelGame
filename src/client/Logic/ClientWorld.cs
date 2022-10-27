@@ -155,15 +155,14 @@ public class ClientWorld : World
         }
         else
         {
-            if (ActiveChunkCount >= 25 && IsChunkActive(ChunkPosition.Origin))
-            {
-                IsReady = true;
+            if (ActiveChunkCount < 3 * 3 * 3 || !IsChunkActive(ChunkPosition.Origin)) return;
 
-                readyStopwatch.Stop();
-                double readyTime = readyStopwatch.Elapsed.TotalSeconds;
+            IsReady = true;
 
-                logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}s", readyTime);
-            }
+            readyStopwatch.Stop();
+            double readyTime = readyStopwatch.Elapsed.TotalSeconds;
+
+            logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}s", readyTime);
         }
     }
 
