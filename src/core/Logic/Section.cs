@@ -83,7 +83,7 @@ public abstract class Section : IDisposable
     ///     The blocks stored in this section.
     /// </summary>
 #pragma warning disable CA1051 // Do not declare visible instance fields
-    protected readonly uint[] blocks;
+    protected uint[] blocks;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
     /// <summary>
@@ -96,11 +96,6 @@ public abstract class Section : IDisposable
     protected Section()
     {
         blocks = new uint[Size * Size * Size];
-        #pragma warning disable S1699
-        // ReSharper disable VirtualMemberCallInConstructor
-        Setup();
-        // ReSharper restore VirtualMemberCallInConstructor
-        #pragma warning restore S1699
     }
 
     /// <summary>
@@ -157,7 +152,7 @@ public abstract class Section : IDisposable
     /// <summary>
     ///     Setup the section after serialization.
     /// </summary>
-    public abstract void Setup();
+    public abstract void Setup(Section loaded);
 
     /// <summary>
     ///     Send random updates to blocks in this section.

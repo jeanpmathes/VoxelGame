@@ -26,13 +26,24 @@ public class ClientSection : Section
     [NonSerialized] private bool hasMesh;
     [NonSerialized] private SectionRenderer? renderer;
 
-    /// <inheritdoc />
-    public override void Setup()
+    /// <summary>
+    ///     Create a new client section.
+    /// </summary>
+    public ClientSection()
     {
         renderer = new SectionRenderer();
 
         hasMesh = false;
         disposed = false;
+    }
+
+    /// <inheritdoc />
+    public override void Setup(Section loaded)
+    {
+        var clientSection = (ClientSection) loaded;
+        blocks = clientSection.blocks;
+
+        // Loaded section is not disposed because this section takes ownership of the resources.
     }
 
     /// <summary>
