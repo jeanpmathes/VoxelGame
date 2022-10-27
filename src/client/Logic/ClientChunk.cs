@@ -23,7 +23,7 @@ namespace VoxelGame.Client.Logic;
 [Serializable]
 public partial class ClientChunk : Chunk
 {
-    private const int MaxMeshDataStep = 32;
+    private const int MaxMeshDataStep = 16;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ClientChunk>();
 
     [NonSerialized] private bool hasMeshData;

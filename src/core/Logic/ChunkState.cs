@@ -321,9 +321,17 @@ public abstract class ChunkState
     /// <param name="state">A reference to the state.</param>
     public static void Update(ref ChunkState state)
     {
-        ChunkState previousState = state;
-        state = previousState.Update();
-        state.previous ??= previousState;
+        const int maxRepeatCount = 3;
+
+        ChunkState previousState;
+        var count = 0;
+
+        do
+        {
+            previousState = state;
+            state = state.Update();
+            state.previous ??= previousState;
+        } while (!ReferenceEquals(previousState, state) && ++count < maxRepeatCount);
     }
 
     /// <summary>

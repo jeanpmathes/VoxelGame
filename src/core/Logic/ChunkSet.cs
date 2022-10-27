@@ -118,8 +118,11 @@ public sealed class ChunkSet : IDisposable
     /// </summary>
     public void Update()
     {
-        foreach (Chunk chunk in chunks.Values)
-            chunk.Update();
+        const int maxUpdates = 3;
+
+        for (var count = 0; count < maxUpdates; count++)
+            foreach (Chunk chunk in chunks.Values)
+                chunk.Update();
     }
 
     /// <summary>
