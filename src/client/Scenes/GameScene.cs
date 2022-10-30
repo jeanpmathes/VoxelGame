@@ -71,7 +71,7 @@ public sealed class GameScene : IScene
         ui.SetConsoleProvider(console);
         ui.SetPerformanceProvider(client);
 
-        ui.WorldExit += (_, _) => client.ExitGame();
+        ui.WorldExit += (_, _) => world.BeginDeactivating(client.ExitGame);
 
         ui.AnyOverlayOpen += (_, _) => OnOverlayOpen();
         ui.AnyOverlayClosed += (_, _) => OnOverlayClose();
@@ -110,7 +110,6 @@ public sealed class GameScene : IScene
 
         ui.SetPlayerDataProvider(Game.Player);
 
-        // UI setup.
         ui.Load();
         ui.Resize(Screen.Size);
 
@@ -150,7 +149,7 @@ public sealed class GameScene : IScene
 
             Game.World.Update(deltaTime);
 
-            if (!Screen.IsFocused) // check to see if the window is focused
+            if (!Screen.IsFocused)
                 return;
 
             if (!Screen.IsOverlayLockActive)
@@ -169,21 +168,6 @@ public sealed class GameScene : IScene
     /// <inheritdoc />
     public void Unload()
     {
-        logger.LogInformation(Events.WorldIO, "Unloading world");
-
-        try
-        {
-            Game.World.FinishAllAsync().Wait();
-            Game.World.SaveAsync().Wait();
-        }
-        catch (AggregateException exception)
-        {
-            logger.LogCritical(
-                Events.WorldSavingError,
-                exception.GetBaseException(),
-                "Exception occurred while saving world");
-        }
-
         Game.Dispose();
         Game = null!;
     }

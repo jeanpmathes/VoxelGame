@@ -4,19 +4,17 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using Properties;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Rendering;
-using VoxelGame.Core.Collections;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
@@ -28,28 +26,6 @@ namespace VoxelGame.Client.Logic;
 public class ClientWorld : World
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ClientWorld>();
-
-    /// <summary>
-    ///     A list of chunk meshing tasks,
-    /// </summary>
-    private readonly List<Task<SectionMeshData[]>> chunkMeshingTasks =
-        new(MaxMeshingTasks);
-
-    /// <summary>
-    ///     A dictionary containing all chunks that are currently meshed, with the task id of their meshing task as key.
-    /// </summary>
-    private readonly Dictionary<int, ClientChunk> chunksMeshing = new(MaxMeshingTasks);
-
-    /// <summary>
-    ///     A queue with chunks that have to be meshed completely, mainly new chunks.
-    /// </summary>
-    private readonly UniqueQueue<ClientChunk> chunksToMesh = new();
-
-    /// <summary>
-    ///     A list of chunks where the mesh data has to be set.
-    /// </summary>
-    private readonly List<(ClientChunk chunk, SectionMeshData[] meshData)> chunksToSendMeshData =
-        new();
 
     private readonly Stopwatch readyStopwatch = Stopwatch.StartNew();
 
@@ -66,15 +42,34 @@ public class ClientWorld : World
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    public ClientWorld(string path, string name, int seed) : base(path, name, seed) {}
+    public ClientWorld(string path, string name, int seed) : base(path, name, seed)
+    {
+        Setup();
+    }
 
     /// <summary>
     ///     This constructor is meant for worlds that already exist.
     /// </summary>
-    public ClientWorld(string path, WorldInformation information) : base(path, information) {}
+    public ClientWorld(string path, WorldInformation information) : base(path, information)
+    {
+        Setup();
+    }
 
-    private static int MaxMeshingTasks { get; } = Settings.Default.MaxMeshingTasks;
-    private static int MaxMeshDataSends { get; } = Settings.Default.MaxMeshDataSends;
+    /// <summary>
+    ///     Get the max meshing task limit.
+    /// </summary>
+    public Limit MaxMeshingTasks { get; private set; } = null!;
+
+    /// <summary>
+    ///     Get the max mesh data send limit.
+    /// </summary>
+    public Limit MaxMeshDataSends { get; private set; } = null!;
+
+    private void Setup()
+    {
+        MaxMeshingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxMeshingTasks);
+        MaxMeshDataSends = ChunkContext.DeclareBudget(Settings.Default.MaxMeshDataSends);
+    }
 
     /// <summary>
     ///     Add a client player to the world.
@@ -90,7 +85,7 @@ public class ClientWorld : World
     /// </summary>
     public void Render()
     {
-        if (!IsReady) return;
+        if (!IsActive) return;
 
         IView view = player!.View;
 
@@ -103,10 +98,13 @@ public class ClientWorld : World
         for (int x = -Player.LoadDistance; x <= Player.LoadDistance; x++)
         for (int y = -Player.LoadDistance; y <= Player.LoadDistance; y++)
         for (int z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
-            if (TryGetChunk(
-                    player!.Chunk.Offset(x, y, z),
-                    out Chunk? chunk))
-                ((ClientChunk) chunk).AddCulledToRenderList(context.Frustum, renderList);
+        {
+            Chunk? chunk = GetActiveChunk(player!.Chunk.Offset(x, y, z));
+
+            if (chunk == null) continue;
+
+            ((ClientChunk) chunk).AddCulledToRenderList(context.Frustum, renderList);
+        }
 
         DoRenderPass(context);
     }
@@ -132,27 +130,29 @@ public class ClientWorld : World
     }
 
     /// <inheritdoc />
-    protected override Chunk CreateChunk(ChunkPosition position)
+    protected override Chunk CreateChunk(ChunkPosition position, ChunkContext context)
     {
-        return new ClientChunk(this, position);
+        return new ClientChunk(this, position, context);
     }
 
     /// <inheritdoc />
     public override void Update(double deltaTime)
     {
-        StartActivatingChunks();
+        UpdateChunks();
 
-        FinishGeneratingChunks();
-        StartGeneratingChunks();
+        void HandleActivating()
+        {
+            if (ActiveChunkCount < 3 * 3 * 3 || !IsChunkActive(ChunkPosition.Origin)) return;
 
-        FinishLoadingChunks();
-        StartLoadingChunks();
+            CurrentState = State.Active;
 
-        FinishMeshingChunks();
-        StartMeshingChunks();
-        SendMeshData();
+            readyStopwatch.Stop();
+            double readyTime = readyStopwatch.Elapsed.TotalSeconds;
 
-        if (IsReady)
+            logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}s", readyTime);
+        }
+
+        void HandleActive()
         {
             // Tick objects in world.
             foreach (Chunk chunk in ActiveChunks) chunk.Tick();
@@ -161,131 +161,62 @@ public class ClientWorld : World
 
             // Mesh all listed sections.
             foreach ((Chunk chunk, (int x, int y, int z)) in sectionsToMesh)
-                ((ClientChunk) chunk).CreateAndSetMesh(x, y, z);
+                ((ClientChunk) chunk).CreateAndSetMesh(x, y, z, ChunkMeshingContext.FromActive(chunk));
 
             sectionsToMesh.Clear();
         }
-        else
+
+        switch (CurrentState)
         {
-            if (ActiveChunkCount >= 25 && IsChunkActive(ChunkPosition.Origin))
-            {
-                IsReady = true;
+            case State.Activating:
+                HandleActivating();
 
-                readyStopwatch.Stop();
-                double readyTime = readyStopwatch.Elapsed.TotalSeconds;
+                break;
 
-                logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}s", readyTime);
-            }
+            case State.Active:
+                HandleActive();
+
+                break;
+
+            case State.Deactivating:
+                ProcessDeactivation();
+
+                break;
+
+            default:
+                Debug.Fail("Invalid world state.");
+
+                break;
         }
-
-        FinishSavingChunks();
-        StartSavingChunks();
     }
 
     /// <inheritdoc />
-    protected override void ProcessNewlyActivatedChunk(Chunk activatedChunk)
+    protected override ChunkState ProcessNewlyActivatedChunk(Chunk activatedChunk)
     {
-        chunksToMesh.Enqueue((ClientChunk) activatedChunk);
-
         // Schedule to mesh the chunks around this chunk
         if (TryGetChunk(activatedChunk.Position.Offset(x: 1, y: 0, z: 0), out Chunk? neighbor))
-            chunksToMesh.Enqueue((ClientChunk) neighbor);
+            ((ClientChunk) neighbor).BeginMeshing();
 
         if (TryGetChunk(activatedChunk.Position.Offset(x: -1, y: 0, z: 0), out neighbor))
-            chunksToMesh.Enqueue((ClientChunk) neighbor);
+            ((ClientChunk) neighbor).BeginMeshing();
 
         if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 1, z: 0), out neighbor))
-            chunksToMesh.Enqueue((ClientChunk) neighbor);
+            ((ClientChunk) neighbor).BeginMeshing();
 
         if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: -1, z: 0), out neighbor))
-            chunksToMesh.Enqueue((ClientChunk) neighbor);
+            ((ClientChunk) neighbor).BeginMeshing();
 
         if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 0, z: 1), out neighbor))
-            chunksToMesh.Enqueue((ClientChunk) neighbor);
+            ((ClientChunk) neighbor).BeginMeshing();
 
         if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 0, z: -1), out neighbor))
-            chunksToMesh.Enqueue((ClientChunk) neighbor);
+            ((ClientChunk) neighbor).BeginMeshing();
+
+        return new ClientChunk.Meshing();
     }
 
-    private void FinishMeshingChunks()
-    {
-        if (chunkMeshingTasks.Count == 0) return;
-
-        for (int i = chunkMeshingTasks.Count - 1; i >= 0; i--)
-            if (chunkMeshingTasks[i].IsCompleted)
-            {
-                Task<SectionMeshData[]> completed = chunkMeshingTasks[i];
-                Chunk meshedChunk = chunksMeshing[completed.Id];
-
-                if (chunkMeshingTasks[i].IsFaulted)
-                {
-                    Exception e = completed.Exception?.GetBaseException() ?? new NullReferenceException();
-
-                    logger.LogCritical(
-                        Events.ChunkMeshingError,
-                        e,
-                        "An exception (critical) occurred when meshing the chunk {Position} and will be re-thrown",
-                        meshedChunk.Position);
-
-                    throw e;
-                }
-
-                chunkMeshingTasks.RemoveAt(i);
-                chunksMeshing.Remove(completed.Id);
-
-                StartSendingMeshToChunk((ClientChunk) meshedChunk, completed);
-            }
-    }
-
-    private void StartSendingMeshToChunk(ClientChunk chunk, Task<SectionMeshData[]> completed)
-    {
-        // If there is already mesh data for this chunk, it is no longer up to date and can be discarded.
-
-        int index = chunksToSendMeshData.FindIndex(entry => ReferenceEquals(entry.chunk, chunk));
-
-        if (index != -1)
-        {
-            (ClientChunk clientChunk, SectionMeshData[] meshData) = chunksToSendMeshData[index];
-            chunksToSendMeshData.RemoveAt(index);
-
-            foreach (SectionMeshData data in meshData) data.Discard();
-
-            clientChunk.ResetMeshDataSetSteps();
-        }
-
-        chunksToSendMeshData.Add((chunk, completed.Result));
-    }
-
-    private void StartMeshingChunks()
-    {
-        while (chunksToMesh.Count > 0 && chunkMeshingTasks.Count < MaxMeshingTasks)
-        {
-            ClientChunk current = chunksToMesh.Dequeue();
-            Task<SectionMeshData[]> currentTask = current.CreateMeshDataAsync();
-
-            chunkMeshingTasks.Add(currentTask);
-            chunksMeshing.Add(currentTask.Id, current);
-        }
-    }
-
-    private void SendMeshData()
-    {
-        if (chunksToSendMeshData.Count > 0)
-        {
-            var chunkIndex = 0;
-
-            for (var count = 0; count < MaxMeshDataSends && chunkIndex < chunksToSendMeshData.Count; count++)
-            {
-                (Chunk chunk, SectionMeshData[] meshData) = chunksToSendMeshData[chunkIndex];
-
-                var clientChunk = (ClientChunk) chunk;
-
-                if (clientChunk.DoMeshDataSetStep(meshData))
-                    chunksToSendMeshData.RemoveAt(chunkIndex);
-                else if (chunksToSendMeshData.Count > 1) chunkIndex++;
-            }
-        }
-    }
+    /// <inheritdoc />
+    protected override void ProcessActivatedChunk(Chunk activatedChunk) {}
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -297,7 +228,7 @@ public class ClientWorld : World
 
         void CheckNeighbor(Vector3i neighborPosition)
         {
-            Chunk? neighbor = GetChunk(neighborPosition);
+            Chunk? neighbor = GetActiveChunk(neighborPosition);
 
             if (neighbor == null) return;
 
@@ -318,12 +249,5 @@ public class ClientWorld : World
 
         if (zSectionPosition == 0) CheckNeighbor(position - (0, 0, 1));
         else if (zSectionPosition == Section.Size - 1) CheckNeighbor(position + (0, 0, 1));
-    }
-
-    /// <inheritdoc />
-    protected override void AddAllTasks(IList<Task> tasks)
-    {
-        base.AddAllTasks(tasks);
-        chunkMeshingTasks.ForEach(tasks.Add);
     }
 }

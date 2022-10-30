@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.Serialization;
@@ -14,7 +15,6 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
-using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
@@ -24,7 +24,7 @@ namespace VoxelGame.Core.Logic;
 ///     A chunk, a cubic group of sections.
 /// </summary>
 [Serializable]
-public abstract class Chunk : IDisposable
+public abstract partial class Chunk : IDisposable
 {
     /// <summary>
     /// The number of sections in a chunk along every axis.
@@ -65,22 +65,28 @@ public abstract class Chunk : IDisposable
     /// </summary>
     public static readonly int BlockSizeExp2 = (int) Math.Log(BlockSize, newBase: 2) * 2;
 
-    private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
-    private readonly ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
+    private ScheduledTickManager<Block.BlockTick> blockTickManager;
 
     /// <summary>
-    ///     The sections in this chunk.
+    ///     The core resource of a chunk are its sections and their blocks.
     /// </summary>
-#pragma warning disable CA1051 // Do not declare visible instance fields
-    protected readonly Section[] sections = new Section[SectionCount];
-#pragma warning restore CA1051 // Do not declare visible instance fields
+    [NonSerialized] private Resource coreResource = new(nameof(Chunk) + "Core");
+
+    /// <summary>
+    ///     Extended resources are defined by users of core, like a client or a server.
+    ///     An example for extended resources are meshes and renderers.
+    /// </summary>
+    [NonSerialized] private Resource extendedResource = new(nameof(Chunk) + "Extended");
+
+    private ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
 
     /// <summary>
     ///     Create a new chunk.
     /// </summary>
     /// <param name="world">The world.</param>
     /// <param name="position">The chunk position.</param>
-    protected Chunk(World world, ChunkPosition position)
+    /// <param name="context">The chunk context.</param>
+    protected Chunk(World world, ChunkPosition position, ChunkContext context)
     {
         World = world;
         Position = position;
@@ -103,7 +109,25 @@ public abstract class Chunk : IDisposable
             Fluid.MaxFluidTicksPerFrameAndChunk,
             World,
             World.UpdateCounter);
+
+        ChunkState.Initialize(out state, this, context);
     }
+
+    /// <summary>
+    ///     Whether the chunk is currently active.
+    ///     An active can write to all resources and allows sharing its access for the duration of one update.
+    /// </summary>
+    public bool IsActive => state.IsActive;
+
+    /// <summary>
+    ///     Whether this chunk is intending to get ready according to the current state.
+    /// </summary>
+    public bool IsIntendingToGetReady => state.IsIntendingToGetReady;
+
+    /// <summary>
+    ///     Get whether the chunk is requested.
+    /// </summary>
+    public bool IsRequested => isRequested;
 
     /// <summary>
     /// Get the position of this chunk.
@@ -123,7 +147,78 @@ public abstract class Chunk : IDisposable
     /// <summary>
     ///     The world this chunk is in.
     /// </summary>
-    [field: NonSerialized] protected World World { get; private set; }
+    [field: NonSerialized] public World World { get; private set; }
+
+    /// <summary>
+    ///     Acquire the core resource, possibly stealing it.
+    ///     The core resource of a chunk are its sections and their blocks.
+    /// </summary>
+    /// <param name="access">The access to acquire. Must not be <see cref="Access.None"/>.</param>
+    /// <returns>The guard, or null if the resource could not be acquired.</returns>
+    public Guard? AcquireCore(Access access)
+    {
+        Debug.Assert(access != Access.None);
+
+        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
+
+        if (guards is not {core: {} core, extended: {} extended}) return coreResource.TryAcquire(access);
+
+        extended.Dispose();
+
+        if (access == Access.Read)
+        {
+            // We downgrade our access to read, as stealing always gives us write access.
+            core.Dispose();
+            core = coreResource.TryAcquire(access);
+            Debug.Assert(core != null);
+        }
+
+        return core;
+    }
+
+    /// <summary>
+    ///     Acquire the extended resource, possibly stealing it.
+    ///     Extended resources are defined by users of core, like a client or a server.
+    ///     An example for extended resources are meshes and renderers.
+    /// </summary>
+    /// <param name="access">The access to acquire. Must not be <see cref="Access.None"/>.</param>
+    /// <returns>The guard, or null if the resource could not be acquired.</returns>
+    public Guard? AcquireExtended(Access access)
+    {
+        Debug.Assert(access != Access.None);
+
+        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
+
+        if (guards is not {core: {} core, extended: {} extended}) return extendedResource.TryAcquire(access);
+
+        core.Dispose();
+
+        if (access == Access.Read)
+        {
+            // We downgrade our access to read, as stealing always gives us write access.
+            extended.Dispose();
+            extended = extendedResource.TryAcquire(access);
+            Debug.Assert(extended != null);
+        }
+
+        return extended;
+    }
+
+    /// <summary>
+    ///     Add a request to the chunk to be active.
+    /// </summary>
+    public void AddRequest()
+    {
+        isRequested = true;
+    }
+
+    /// <summary>
+    ///     Remove a request to the chunk to be active.
+    /// </summary>
+    public void RemoveRequest()
+    {
+        isRequested = false;
+    }
 
     /// <summary>
     ///     Creates a section.
@@ -131,16 +226,22 @@ public abstract class Chunk : IDisposable
     protected abstract Section CreateSection();
 
     /// <summary>
-    ///     Calls setup on all sections. This is required after loading.
+    ///     Setup the chunk and used sections after loading.
     /// </summary>
-    public void Setup(World world, UpdateCounter updateCounter)
+    public void Setup(Chunk loaded)
     {
-        World = world;
+        blockTickManager = loaded.blockTickManager;
+        fluidTickManager = loaded.fluidTickManager;
 
-        blockTickManager.Setup(World, updateCounter);
-        fluidTickManager.Setup(World, updateCounter);
+        blockTickManager.Setup(World, World.UpdateCounter);
+        fluidTickManager.Setup(World, World.UpdateCounter);
 
-        for (var s = 0; s < SectionCount; s++) sections[s].Setup(world);
+        for (var s = 0; s < SectionCount; s++)
+        {
+            sections[s].Setup(loaded.sections[s]);
+        }
+
+        // Loaded chunk is not disposed because this chunk takes ownership of the resources.
     }
 
     /// <summary>
@@ -156,7 +257,7 @@ public abstract class Chunk : IDisposable
         Justification = "Chunks are allocated here.")]
     public static Chunk? Load(string path, ChunkPosition position)
     {
-        logger.LogDebug(Events.ChunkOperation, "Loading chunk for position: {Position}", position);
+        logger.LogDebug(Events.ChunkOperation, "Started loading chunk for position: {Position}", position);
 
         Chunk chunk;
 
@@ -169,6 +270,8 @@ public abstract class Chunk : IDisposable
             chunk = (Chunk) formatter.Deserialize(stream);
  #pragma warning restore
         }
+
+        logger.LogDebug(Events.ChunkOperation, "Finished loading chunk for position: {Position}", position);
 
         // Checking the chunk
         if (chunk.Position == position) return chunk;
@@ -201,6 +304,14 @@ public abstract class Chunk : IDisposable
     }
 
     /// <summary>
+    ///     Begin saving the chunk.
+    /// </summary>
+    public void BeginSaving()
+    {
+        state.RequestNextState<Saving>();
+    }
+
+    /// <summary>
     ///     Saves this chunk in the directory specified by the path.
     /// </summary>
     /// <param name="path">The path of the directory where this chunk should be saved.</param>
@@ -211,13 +322,15 @@ public abstract class Chunk : IDisposable
 
         string chunkFile = Path.Combine(path, GetChunkFileName(Position));
 
-        logger.LogDebug(Events.ChunkOperation, "Saving the chunk {Position} to: {Path}", Position, chunkFile);
+        logger.LogDebug(Events.ChunkOperation, "Started saving chunk {Position} to: {Path}", Position, chunkFile);
 
         using Stream stream = new FileStream(chunkFile, FileMode.Create, FileAccess.Write, FileShare.Read);
         IFormatter formatter = new BinaryFormatter();
 #pragma warning disable // Will be replaced with custom serialization
         formatter.Serialize(stream, this);
 #pragma warning restore
+
+        logger.LogDebug(Events.ChunkOperation, "Finished saving chunk {Position} to: {Path}", Position, chunkFile);
 
         blockTickManager.Load();
         fluidTickManager.Load();
@@ -241,7 +354,7 @@ public abstract class Chunk : IDisposable
     {
         logger.LogDebug(
             Events.ChunkOperation,
-            "Generating the chunk {Position} using '{Name}' generator",
+            "Started generating chunk {Position} using '{Name}' generator",
             Position,
             generator);
 
@@ -267,6 +380,12 @@ public abstract class Chunk : IDisposable
                 y++;
             }
         }
+
+        logger.LogDebug(
+            Events.ChunkOperation,
+            "Finished generating chunk {Position} using '{Name}' generator",
+            Position,
+            generator);
     }
 
     /// <summary>
@@ -290,6 +409,14 @@ public abstract class Chunk : IDisposable
     }
 
     /// <summary>
+    ///     Update the state.
+    /// </summary>
+    public void Update()
+    {
+        ChunkState.Update(ref state);
+    }
+
+    /// <summary>
     /// Tick some random blocks.
     /// </summary>
     public void Tick()
@@ -302,7 +429,7 @@ public abstract class Chunk : IDisposable
         for (var i = 0; i < RandomTickBatchSize; i++)
         {
             int index = (anchor + i) % SectionCount;
-            sections[index].SendRandomUpdates(SectionPosition.From(Position, IndexToLocalSection(index)));
+            sections[index].SendRandomUpdates(World, SectionPosition.From(Position, IndexToLocalSection(index)));
         }
     }
 
@@ -370,12 +497,40 @@ public abstract class Chunk : IDisposable
         return HashCode.Combine(Position);
     }
 
+#pragma warning disable CA1051 // Do not declare visible instance fields
+    /// <summary>
+    ///     The sections in this chunk.
+    /// </summary>
+    protected readonly Section[] sections = new Section[SectionCount];
+
+    /// <summary>
+    ///     Whether the chunk is currently requested to be active.
+    /// </summary>
+    [NonSerialized] protected bool isRequested;
+
+    /// <summary>
+    ///     The current chunk state.
+    /// </summary>
+    [NonSerialized] protected ChunkState state;
+#pragma warning restore CA1051 // Do not declare visible instance fields
+
     #region IDisposable Support
+
+    [NonSerialized] private bool isDisposed;
 
     /// <summary>
     ///     Dispose of this chunk.
     /// </summary>
-    protected abstract void Dispose(bool disposing);
+    protected virtual void Dispose(bool disposing)
+    {
+        if (isDisposed) return;
+
+        if (!disposing) return;
+
+        foreach (Section section in sections) section.Dispose();
+
+        isDisposed = true;
+    }
 
     /// <summary>
     ///     Finalizer.

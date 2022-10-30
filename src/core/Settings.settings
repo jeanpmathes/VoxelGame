@@ -1,16 +1,16 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)"
-              GeneratedClassNamespace="Properties" GeneratedClassName="core">
+              GeneratedClassNamespace="Properties" GeneratedClassName="Settings">
     <Profiles/>
     <Settings>
         <Setting Name="MaxGenerationTasks" Type="System.Int32" Scope="Application">
-            <Value Profile="(Default)">15</Value>
+            <Value Profile="(Default)">32</Value>
         </Setting>
         <Setting Name="MaxLoadingTasks" Type="System.Int32" Scope="Application">
-            <Value Profile="(Default)">15</Value>
+            <Value Profile="(Default)">32</Value>
         </Setting>
         <Setting Name="MaxSavingTasks" Type="System.Int32" Scope="Application">
-            <Value Profile="(Default)">15</Value>
+            <Value Profile="(Default)">32</Value>
         </Setting>
     </Settings>
 </SettingsFile>

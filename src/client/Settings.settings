@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version='1.0' encoding='utf-8'?>
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)"
               GeneratedClassNamespace="Properties" GeneratedClassName="Settings">
     <Profiles/>
@@ -22,10 +22,10 @@
             <Value Profile="(Default)">60</Value>
         </Setting>
         <Setting Name="MaxMeshingTasks" Type="System.Int32" Scope="User">
-            <Value Profile="(Default)">10</Value>
+            <Value Profile="(Default)">16</Value>
         </Setting>
         <Setting Name="MaxMeshDataSends" Type="System.Int32" Scope="User">
-            <Value Profile="(Default)">16</Value>
+            <Value Profile="(Default)">32</Value>
         </Setting>
         <Setting Name="FoliageQuality" Type="VoxelGame.Core.Visuals.Quality" Scope="User">
             <Value Profile="(Default)">Medium</Value>

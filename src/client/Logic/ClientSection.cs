@@ -29,11 +29,7 @@ public class ClientSection : Section
     /// <summary>
     ///     Create a new client section.
     /// </summary>
-    /// <param name="world">The world containing the client section.</param>
-    public ClientSection(World world) : base(world) {}
-
-    /// <inheritdoc />
-    protected override void Setup()
+    public ClientSection()
     {
         renderer = new SectionRenderer();
 
@@ -41,13 +37,23 @@ public class ClientSection : Section
         disposed = false;
     }
 
+    /// <inheritdoc />
+    public override void Setup(Section loaded)
+    {
+        var clientSection = (ClientSection) loaded;
+        blocks = clientSection.blocks;
+
+        // Loaded section is not disposed because this section takes ownership of the resources.
+    }
+
     /// <summary>
     ///     Create a mesh for this section and activate it.
     /// </summary>
     /// <param name="position">The position of the section.</param>
-    public void CreateAndSetMesh(SectionPosition position)
+    /// <param name="context">The context to use for mesh creation.</param>
+    public void CreateAndSetMesh(SectionPosition position, ChunkMeshingContext context)
     {
-        SectionMeshData meshData = CreateMeshData(position);
+        SectionMeshData meshData = CreateMeshData(position, context);
         SetMeshData(meshData);
     }
 
@@ -55,14 +61,15 @@ public class ClientSection : Section
     ///     Create mesh data for this section.
     /// </summary>
     /// <param name="position">The position of the section.</param>
+    /// <param name="chunkContext">The chunk context to use.</param>
     /// <returns>The created mesh data.</returns>
     [SuppressMessage(
         "Blocker Code Smell",
         "S2437:Silly bit operations should not be performed",
         Justification = "Improves readability.")]
-    public SectionMeshData CreateMeshData(SectionPosition position)
+    public SectionMeshData CreateMeshData(SectionPosition position, ChunkMeshingContext chunkContext)
     {
-        MeshingContext context = new(this, position, World);
+        MeshingContext context = new(position, chunkContext);
 
         // Loop through the section
         for (var x = 0; x < Size; x++)

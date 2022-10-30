@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -14,10 +15,10 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using Properties;
-using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
@@ -25,7 +26,7 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     The world class. Contains everything that is in the world, e.g. chunks, entities, etc.
 /// </summary>
-public abstract partial class World : IDisposable
+public abstract class World : IDisposable
 {
     /// <summary>
     ///     The limit of the world size.
@@ -33,9 +34,15 @@ public abstract partial class World : IDisposable
     /// </summary>
     public const uint BlockLimit = 50_000_000;
 
+    private const uint ChunkLimit = BlockLimit / Chunk.BlockSize;
+
     private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
+    private readonly ChunkSet chunks;
+
     private readonly IWorldGenerator generator;
+
+    private (Task saving, Action callback)? deactivation;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
@@ -72,22 +79,6 @@ public abstract partial class World : IDisposable
     /// </summary>
     private World(WorldInformation information, string worldDirectory)
     {
-        positionsToActivate = new HashSet<ChunkPosition>();
-        positionsActivating = new HashSet<ChunkPosition>();
-        chunksToGenerate = new UniqueQueue<Chunk>();
-        chunkGenerateTasks = new List<Task>(MaxGenerationTasks);
-        chunksGenerating = new Dictionary<int, Chunk>(MaxGenerationTasks);
-        positionsToLoad = new UniqueQueue<ChunkPosition>();
-        chunkLoadingTasks = new List<Task<Chunk?>>(MaxLoadingTasks);
-        positionsLoading = new Dictionary<int, ChunkPosition>(MaxLoadingTasks);
-        activeChunks = new Dictionary<ChunkPosition, Chunk>();
-        positionsToReleaseOnActivation = new HashSet<ChunkPosition>();
-        chunksToSave = new UniqueQueue<Chunk>();
-        chunkSavingTasks = new List<Task>(MaxSavingTasks);
-        chunksSaving = new Dictionary<int, Chunk>(MaxSavingTasks);
-        positionsSaving = new HashSet<ChunkPosition>(MaxSavingTasks);
-        positionsActivatingThroughSaving = new HashSet<ChunkPosition>();
-
         Information = information;
         ValidateInformation();
 
@@ -98,10 +89,28 @@ public abstract partial class World : IDisposable
 
         UpdateCounter = new UpdateCounter();
 
-        Setup();
+        Directory.CreateDirectory(WorldDirectory);
+        Directory.CreateDirectory(ChunkDirectory);
+        Directory.CreateDirectory(BlobDirectory);
+        Directory.CreateDirectory(DebugDirectory);
 
         generator = GetGenerator(this);
+
+        ChunkContext = new ChunkContext(ChunkDirectory, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk, generator);
+
+        MaxGenerationTasks = ChunkContext.DeclareBudget(Settings.Default.MaxGenerationTasks);
+        MaxLoadingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxLoadingTasks);
+        MaxSavingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxSavingTasks);
+
+        chunks = new ChunkSet(ChunkContext);
+
+        RequestChunk(ChunkPosition.Origin);
     }
+
+    /// <summary>
+    ///     Setup the chunk context.
+    /// </summary>
+    protected ChunkContext ChunkContext { get; }
 
     private WorldInformation Information { get; }
 
@@ -109,11 +118,6 @@ public abstract partial class World : IDisposable
     ///     The update counter counting the world updates.
     /// </summary>
     public UpdateCounter UpdateCounter { get; }
-
-    private int MaxGenerationTasks { get; } = Settings.Default.MaxGenerationTasks;
-    private int MaxLoadingTasks { get; } = Settings.Default.MaxLoadingTasks;
-
-    private int MaxSavingTasks { get; } = Settings.Default.MaxSavingTasks;
 
     /// <summary>
     ///     The directory in which this world is stored.
@@ -136,14 +140,19 @@ public abstract partial class World : IDisposable
     private string DebugDirectory { get; }
 
     /// <summary>
-    ///     Gets whether this world is ready for physics ticking and rendering.
-    /// </summary>
-    protected bool IsReady { get; set; }
-
-    /// <summary>
     ///     Get the world creation seed.
     /// </summary>
     public int Seed => Information.Seed;
+
+    /// <summary>
+    /// Get whether the world is active.
+    /// </summary>
+    protected bool IsActive => CurrentState == State.Active;
+
+    /// <summary>
+    ///     Get the world state.
+    /// </summary>
+    protected State CurrentState { get; set; } = State.Activating;
 
     /// <summary>
     ///     Get or set the spawn position in this world.
@@ -161,7 +170,7 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     Get or set the world size in blocks.
     /// </summary>
-    public uint BlockSize
+    public uint SizeInBlocks
     {
         get => Information.Size;
         set
@@ -176,12 +185,83 @@ public abstract partial class World : IDisposable
     /// <summary>
     ///     Get the extents of the world.
     /// </summary>
-    public Vector3i Extents => new((int) BlockSize, (int) BlockSize, (int) BlockSize);
+    public Vector3i Extents => new((int) SizeInBlocks, (int) SizeInBlocks, (int) SizeInBlocks);
 
     /// <summary>
     ///     Get the info map of this world.
     /// </summary>
     public IMap Map => generator.Map;
+
+    /// <summary>
+    ///     Get the active chunk count.
+    /// </summary>
+    protected int ActiveChunkCount => chunks.ActiveCount;
+
+    /// <summary>
+    ///     All active chunks.
+    /// </summary>
+    protected IEnumerable<Chunk> ActiveChunks => chunks.AllActive;
+
+    /// <summary>
+    ///     The max generation task limit.
+    /// </summary>
+    public Limit MaxGenerationTasks { get; }
+
+    /// <summary>
+    ///     The max loading task limit.
+    /// </summary>
+    public Limit MaxLoadingTasks { get; }
+
+    /// <summary>
+    ///     The max saving task limit.
+    /// </summary>
+    public Limit MaxSavingTasks { get; }
+
+    /// <summary>
+    ///     Begin deactivating the world, saving all chunks and the meta information.
+    /// </summary>
+    /// <param name="onFinished">The action to be called when the world is deactivated.</param>
+    public void BeginDeactivating(Action onFinished)
+    {
+        Debug.Assert(CurrentState == State.Active);
+        CurrentState = State.Deactivating;
+
+        logger.LogInformation(Events.WorldIO, "Unloading world");
+
+        chunks.BeginSaving();
+
+        Information.Version = ApplicationInformation.Instance.Version;
+        Task saving = Task.Run(() => Information.Save(Path.Combine(WorldDirectory, "meta.json")));
+
+        deactivation = (saving, onFinished);
+    }
+
+    /// <summary>
+    ///     Process the deactivation, assuming it has been started.
+    /// </summary>
+    /// <returns>Whether the deactivation is finished.</returns>
+    protected bool ProcessDeactivation()
+    {
+        Debug.Assert(deactivation != null);
+
+        (Task saving, Action callback) = deactivation.Value;
+
+        bool done = saving.IsCompleted && chunks.IsEmpty;
+
+        if (!done) return false;
+
+        logger.LogInformation(Events.WorldIO, "Unloaded world");
+        callback();
+
+        if (saving.IsFaulted) logger.LogError(Events.WorldSavingError, saving.Exception, "Failed to save world meta information");
+
+        return true;
+    }
+
+    private void UnloadChunk(Chunk chunk)
+    {
+        chunks.Unload(chunk);
+    }
 
     /// <summary>
     ///     Get a reader for an existing blob.
@@ -253,30 +333,19 @@ public abstract partial class World : IDisposable
         generator.EmitViews(DebugDirectory);
     }
 
-    private void Setup()
-    {
-        Directory.CreateDirectory(WorldDirectory);
-        Directory.CreateDirectory(ChunkDirectory);
-        Directory.CreateDirectory(BlobDirectory);
-        Directory.CreateDirectory(DebugDirectory);
-
-        positionsToActivate.Add(ChunkPosition.Origin);
-    }
-
-    private static bool IsInLimits(Vector3i position)
-    {
-        if (position.X is int.MinValue) return false;
-        if (position.Y is int.MinValue) return false;
-        if (position.Z is int.MinValue) return false;
-
-        return Math.Abs(position.X) <= BlockLimit && Math.Abs(position.Y) <= BlockLimit && Math.Abs(position.Z) <= BlockLimit;
-    }
-
     /// <summary>
     ///     Called every update cycle.
     /// </summary>
     /// <param name="deltaTime">The time since the last update cycle.</param>
     public abstract void Update(double deltaTime);
+
+    /// <summary>
+    ///     Update chunks.
+    /// </summary>
+    protected void UpdateChunks()
+    {
+        chunks.Update();
+    }
 
     /// <summary>
     ///     Returns the block instance at a given position in block coordinates. The block is only searched in active chunks.
@@ -305,7 +374,7 @@ public abstract partial class World : IDisposable
         out Block? block, out uint data,
         out Fluid? fluid, out FluidLevel level, out bool isStatic)
     {
-        Chunk? chunk = GetChunk(position);
+        Chunk? chunk = GetActiveChunk(position);
 
         if (chunk != null)
         {
@@ -415,7 +484,7 @@ public abstract partial class World : IDisposable
     private void SetContent(IBlockBase block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
         Vector3i position, bool tickFluid)
     {
-        Chunk? chunk = GetChunk(position);
+        Chunk? chunk = GetActiveChunk(position);
 
         if (chunk == null) return;
 
@@ -475,7 +544,7 @@ public abstract partial class World : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ModifyWorldData(Vector3i position, uint clearMask, uint addMask)
     {
-        Chunk? chunk = GetChunk(position);
+        Chunk? chunk = GetActiveChunk(position);
 
         if (chunk == null) return;
 
@@ -525,50 +594,133 @@ public abstract partial class World : IDisposable
     }
 
     /// <summary>
-    ///     Saves all active chunks that are not currently saved.
+    ///     Creates a chunk for a chunk position.
     /// </summary>
-    /// <returns>A task that represents all tasks saving the chunks.</returns>
-    public Task SaveAsync()
+    protected abstract Chunk CreateChunk(ChunkPosition position, ChunkContext context);
+
+    private static bool IsInLimits(ChunkPosition position)
     {
-        logger.LogInformation(Events.WorldIO, "Saving world");
+        return Math.Abs(position.X) <= ChunkLimit && Math.Abs(position.Y) <= ChunkLimit && Math.Abs(position.Z) <= ChunkLimit;
+    }
 
-        List<Task> savingTasks = new(activeChunks.Count);
+    private static bool IsInLimits(Vector3i position)
+    {
+        if (position.X is int.MinValue) return false;
+        if (position.Y is int.MinValue) return false;
+        if (position.Z is int.MinValue) return false;
 
-        foreach (Chunk chunk in activeChunks.Values)
-            if (!positionsSaving.Contains(chunk.Position))
-                savingTasks.Add(chunk.SaveAsync(ChunkDirectory));
-
-        Information.Version = ApplicationInformation.Instance.Version;
-
-        savingTasks.Add(Task.Run(() => Information.Save(Path.Combine(WorldDirectory, "meta.json"))));
-
-        return Task.WhenAll(savingTasks);
+        return Math.Abs(position.X) <= BlockLimit && Math.Abs(position.Y) <= BlockLimit && Math.Abs(position.Z) <= BlockLimit;
     }
 
     /// <summary>
-    ///     Wait for all world tasks to finish.
+    ///     Process a chunk that has been just activated.
     /// </summary>
-    /// <returns>A task that is finished when all world tasks are finished.</returns>
-    public Task FinishAllAsync()
+    protected abstract ChunkState ProcessNewlyActivatedChunk(Chunk activatedChunk);
+
+    /// <summary>
+    ///     Process a chunk that has just switched to the active state trough a weak activation.
+    /// </summary>
+    protected abstract void ProcessActivatedChunk(Chunk activatedChunk);
+
+    /// <summary>
+    ///     Requests the activation of a chunk. This chunk will either be loaded or generated.
+    /// </summary>
+    /// <param name="position">The position of the chunk.</param>
+    public void RequestChunk(ChunkPosition position)
     {
-        // This method is just a quick hack to fix a possible cause of crashes.
-        // It would be better to also process the finished tasks.
+        Debug.Assert(CurrentState != State.Deactivating);
 
-        List<Task> tasks = new();
-        AddAllTasks(tasks);
+        if (!IsInLimits(position)) return;
 
-        return Task.WhenAll(tasks);
+        chunks.Request(position);
+
+        logger.LogDebug(Events.ChunkRequest, "Chunk {Position} has been requested", position);
     }
 
     /// <summary>
-    ///     Add all tasks to the list. This is used to wait for all tasks to finish when calling <see cref="FinishAllAsync" />.
+    ///     Notifies the world that a chunk is no longer needed. The world decides if the chunk is deactivated.
     /// </summary>
-    /// <param name="tasks">The task list.</param>
-    protected virtual void AddAllTasks(IList<Task> tasks)
+    /// <param name="position">The position of the chunk.</param>
+    public void ReleaseChunk(ChunkPosition position)
     {
-        chunkGenerateTasks.ForEach(tasks.Add);
-        chunkLoadingTasks.ForEach(tasks.Add);
-        chunkSavingTasks.ForEach(tasks.Add);
+        Debug.Assert(CurrentState != State.Deactivating);
+
+        if (!IsInLimits(position)) return;
+
+        // Check if the chunk can be released
+        if (position == ChunkPosition.Origin) return; // The chunk at (0|0|0) cannot be released.
+
+        chunks.Release(position);
+
+        logger.LogDebug(Events.ChunkRelease, "Released chunk {Position}", position);
+    }
+
+    /// <summary>
+    ///     Gets an active chunk.
+    ///     See <see cref="ChunkSet.GetActive" /> for the restrictions.
+    /// </summary>
+    /// <param name="position">The position of the chunk.</param>
+    /// <returns>The chunk at the given position or null if no active chunk was found.</returns>
+    public Chunk? GetActiveChunk(ChunkPosition position)
+    {
+        return !IsInLimits(position) ? null : chunks.GetActive(position);
+    }
+
+    /// <summary>
+    ///     Get the chunk that contains the specified block/fluid position.
+    ///     See <see cref="ChunkSet.GetActive" /> for the restrictions.
+    /// </summary>
+    /// <param name="position">The block/fluid position.</param>
+    /// <returns>The chunk, or null the position is not in an active chunk.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Chunk? GetActiveChunk(Vector3i position)
+    {
+        return IsInLimits(position) ? GetActiveChunk(ChunkPosition.From(position)) : null;
+    }
+
+    /// <summary>
+    ///     Check if a chunk is active.
+    /// </summary>
+    /// <param name="position">The position of the chunk.</param>
+    /// <returns>True if the chunk is active.</returns>
+    protected bool IsChunkActive(ChunkPosition position)
+    {
+        return GetActiveChunk(position) != null;
+    }
+
+    /// <summary>
+    ///     Try to get a chunk. The chunk is possibly not active.
+    ///     See <see cref="ChunkSet.GetAny" /> for the restrictions.
+    /// </summary>
+    /// <param name="position">The position of the chunk.</param>
+    /// <param name="chunk">The chunk at the given position or null if no chunk was found.</param>
+    /// <returns>True if a chunk was found.</returns>
+    public bool TryGetChunk(ChunkPosition position, [NotNullWhen(returnValue: true)] out Chunk? chunk)
+    {
+        chunk = chunks.GetAny(position);
+
+        return chunk != null;
+    }
+
+    /// <summary>
+    /// The world state.
+    /// </summary>
+    protected enum State
+    {
+        /// <summary>
+        ///     The initial state.
+        /// </summary>
+        Activating,
+
+        /// <summary>
+        ///     In the active state, normal operations like physics are performed.
+        /// </summary>
+        Active,
+
+        /// <summary>
+        ///     The final state, the world is being deactivated.
+        /// </summary>
+        Deactivating
     }
 
     #region IDisposable Support
@@ -581,19 +733,11 @@ public abstract partial class World : IDisposable
     /// <param name="disposing">True when disposing intentionally.</param>
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposed)
-        {
-            if (disposing)
-            {
-                foreach (Chunk activeChunk in activeChunks.Values) activeChunk.Dispose();
+        if (disposed) return;
 
-                foreach (Chunk generatingChunk in chunksGenerating.Values) generatingChunk.Dispose();
+        if (disposing) chunks.Dispose();
 
-                foreach (Chunk savingChunk in chunksSaving.Values) savingChunk.Dispose();
-            }
-
-            disposed = true;
-        }
+        disposed = true;
     }
 
     /// <summary>

@@ -83,32 +83,25 @@ public abstract class Section : IDisposable
     ///     The blocks stored in this section.
     /// </summary>
 #pragma warning disable CA1051 // Do not declare visible instance fields
-    protected readonly uint[] blocks;
+    protected uint[] blocks;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
     /// <summary>
     ///     Creates a new section.
     /// </summary>
-    /// <param name="world">The world.</param>
     [SuppressMessage(
         "ReSharper.DPA",
         "DPA0002: Excessive memory allocations in SOH",
         MessageId = "type: System.UInt32[]")]
-    protected Section(World world)
+    protected Section()
     {
         blocks = new uint[Size * Size * Size];
-        Setup(world);
     }
 
     /// <summary>
     ///     The extents of a section.
     /// </summary>
     public static Vector3d Extents => new(Size / 2f, Size / 2f, Size / 2f);
-
-    /// <summary>
-    ///     The world this section is in.
-    /// </summary>
-    [field: NonSerialized] protected World World { get; private set; } = null!;
 
     /// <summary>
     ///     Gets the content at a section position.
@@ -157,25 +150,16 @@ public abstract class Section : IDisposable
     }
 
     /// <summary>
-    ///     Sets up all non serialized members.
-    /// </summary>
-    public void Setup(World world)
-    {
-        World = world;
-
-        Setup();
-    }
-
-    /// <summary>
     ///     Setup the section after serialization.
     /// </summary>
-    protected abstract void Setup();
+    public abstract void Setup(Section loaded);
 
     /// <summary>
     ///     Send random updates to blocks in this section.
     /// </summary>
+    /// <param name="world">The world this section is in.</param>
     /// <param name="position">The position of the section.</param>
-    public void SendRandomUpdates(SectionPosition position)
+    public void SendRandomUpdates(World world, SectionPosition position)
     {
         uint val = GetPos(out Vector3i selectedPosition);
         Decode(val, out Block block, out uint data, out _, out _, out _);
@@ -183,7 +167,7 @@ public abstract class Section : IDisposable
         Vector3i blockPosition = selectedPosition + position.FirstBlock;
 
         block.RandomUpdate(
-            World,
+            world,
             blockPosition,
             data);
 
@@ -193,7 +177,7 @@ public abstract class Section : IDisposable
         Vector3i fluidPosition = selectedPosition + position.FirstBlock;
 
         fluid.RandomUpdate(
-            World,
+            world,
             fluidPosition,
             level,
             isStatic);

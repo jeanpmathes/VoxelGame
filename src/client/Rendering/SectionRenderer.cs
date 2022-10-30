@@ -5,7 +5,6 @@
 // <author>pershingthesecond</author>
 
 using System;
-using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -155,9 +154,6 @@ public sealed class SectionRenderer : IDisposable
 
         Shaders.TransparentFluidSectionAccumulate.Use();
         dataLocation = Shaders.TransparentFluidSectionAccumulate.GetAttributeLocation(DataAttribute);
-
-        // The location is the same for both shaders.
-        Debug.Assert(dataLocation == Shaders.TransparentFluidSectionDraw.GetAttributeLocation(DataAttribute));
 
         transparentFluidDrawGroup.VertexArrayAttributeBinding(dataLocation);
 
