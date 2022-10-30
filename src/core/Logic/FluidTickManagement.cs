@@ -22,7 +22,7 @@ public partial class Fluid
     /// </summary>
     protected void ScheduleTick(World world, Vector3i position)
     {
-        Chunk? chunk = world.GetChunk(position);
+        Chunk? chunk = world.GetActiveChunk(position);
         chunk?.ScheduleFluidTick(new FluidTick(position, this), Viscosity);
     }
 

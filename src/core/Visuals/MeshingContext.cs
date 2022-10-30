@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
@@ -41,14 +42,16 @@ public class MeshingContext
     /// <summary>
     ///     Create a new block meshing context.
     /// </summary>
-    /// <param name="section">The section that is meshed.</param>
     /// <param name="position">The position of the section.</param>
-    /// <param name="world">The world the section is in.</param>
-    public MeshingContext(Section section, SectionPosition position, World world)
+    /// <param name="context">The chunk meshing context of the chunk the section is in.</param>
+    public MeshingContext(SectionPosition position, ChunkMeshingContext context)
     {
+        Section? section = context.GetSection(position);
+        Debug.Assert(section != null);
         current = section;
-        neighbors = GetNeighborSections(world, position);
-        tintColors = GetTintColors(world, position);
+
+        neighbors = GetNeighborSections(position, context);
+        tintColors = GetTintColors(position, context);
 
         blockMeshFaceHolders = CreateBlockMeshFaceHolders();
         varyingHeightMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
@@ -79,24 +82,24 @@ public class MeshingContext
         return tintColors[position.X, position.Z].fluid;
     }
 
-    private static Section?[] GetNeighborSections(World world, SectionPosition position)
+    private static Section?[] GetNeighborSections(SectionPosition position, ChunkMeshingContext context)
     {
         var neighborSections = new Section?[6];
 
         foreach (BlockSide side in BlockSide.All.Sides())
             neighborSections[(int) side] =
-                world.GetSection(side.Offset(position));
+                context.GetSection(side.Offset(position));
 
         return neighborSections;
     }
 
-    private static (TintColor block, TintColor fluid)[,] GetTintColors(World world, SectionPosition position)
+    private static (TintColor block, TintColor fluid)[,] GetTintColors(SectionPosition position, ChunkMeshingContext context)
     {
         var colors = new (TintColor block, TintColor fluid)[Section.Size, Section.Size];
 
         for (var x = 0; x < Section.Size; x++)
         for (var z = 0; z < Section.Size; z++)
-            colors[x, z] = world.Map.GetPositionTint(position.FirstBlock + new Vector3i(x, y: 0, z));
+            colors[x, z] = context.Map.GetPositionTint(position.FirstBlock + new Vector3i(x, y: 0, z));
 
         return colors;
     }

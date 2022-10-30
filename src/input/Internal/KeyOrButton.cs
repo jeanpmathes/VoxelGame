@@ -73,7 +73,10 @@ public readonly struct KeyOrButton : IEquatable<KeyOrButton>
     /// <summary>
     ///     Get serializable settings for this key or button.
     /// </summary>
-    public KeyButtonPair Settings => new() {Key = key ?? Keys.Unknown, Button = button ?? MouseButton.Last};
+    public KeyButtonPair GetSettings(bool isDefault)
+    {
+        return new() {Key = key ?? Keys.Unknown, Button = button ?? MouseButton.Last, Default = isDefault};
+    }
 
     /// <inheritdoc />
     public override string ToString()

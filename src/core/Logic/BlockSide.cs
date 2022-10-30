@@ -181,6 +181,16 @@ public static class BlockSideExtensions
     }
 
     /// <summary>
+    ///     Offset a chunk position by the direction of this side.
+    /// </summary>
+    public static ChunkPosition Offset(this BlockSide side, ChunkPosition pos)
+    {
+        (int x, int y, int z) = side.Direction();
+
+        return new ChunkPosition(pos.X + x, pos.Y + y, pos.Z + z);
+    }
+
+    /// <summary>
     ///     Convert this side to the axis it is on.
     /// </summary>
     public static Axis Axis(this BlockSide side)

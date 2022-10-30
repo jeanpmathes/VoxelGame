@@ -7,11 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Logic;
 
@@ -19,9 +21,10 @@ namespace VoxelGame.Client.Logic;
 ///     A chunk of the world, specifically for the client.
 /// </summary>
 [Serializable]
-public class ClientChunk : Chunk
+public partial class ClientChunk : Chunk
 {
-    private const int MaxMeshDataStep = 8;
+    private const int MaxMeshDataStep = 16;
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<ClientChunk>();
 
     [NonSerialized] private bool hasMeshData;
     [NonSerialized] private int meshDataIndex;
@@ -30,62 +33,69 @@ public class ClientChunk : Chunk
     ///     Create a new client chunk.
     /// </summary>
     /// <param name="world">The world that contains the chunk.</param>
-    /// <param name="position">The position of the chunk..</param>
-    public ClientChunk(World world, ChunkPosition position) : base(world, position) {}
+    /// <param name="position">The position of the chunk.</param>
+    /// <param name="context">The context of the chunk.</param>
+    public ClientChunk(World world, ChunkPosition position, ChunkContext context) : base(world, position, context) {}
+
+    /// <summary>
+    ///     Begin meshing the chunk.
+    /// </summary>
+    public void BeginMeshing()
+    {
+        state.RequestNextState<Meshing>(new ChunkState.RequestDescription
+        {
+            AllowDuplicateTypes = false,
+            AllowSkipOnDeactivation = true,
+            AllowDiscardOnLoop = true
+        });
+    }
 
     /// <inheritdoc />
     protected override Section CreateSection()
     {
-        return new ClientSection(World);
-    }
-
-    /// <summary>
-    ///     Create a mesh for this chunk and activate it.
-    /// </summary>
-    public void CreateAndSetMesh()
-    {
-        for (var s = 0; s < SectionCount; s++)
-        {
-            (int x, int y, int z) section = IndexToLocalSection(s);
-            ((ClientSection) sections[s]).CreateAndSetMesh(SectionPosition.From(Position, section));
-        }
-
-        hasMeshData = true;
-        meshDataIndex = 0;
+        return new ClientSection();
     }
 
     /// <summary>
     ///     Create a mesh for a section of this chunk and activate it.
+    ///     This method should only be called from the main thread.
     /// </summary>
     /// <param name="x">The x position of the section relative in this chunk.</param>
     /// <param name="y">The y position of the section relative in this chunk.</param>
     /// <param name="z">The z position of the section relative in this chunk.</param>
-    public void CreateAndSetMesh(int x, int y, int z)
+    /// <param name="context">The chunk meshing context.</param>
+    public void CreateAndSetMesh(int x, int y, int z, ChunkMeshingContext context)
     {
         ((ClientSection) sections[LocalSectionToIndex(x, y, z)]).CreateAndSetMesh(
-            SectionPosition.From(Position, (x, y, z)));
+            SectionPosition.From(Position, (x, y, z)),
+            context);
     }
 
     /// <summary>
     ///     Start a task that will create mesh data for this chunk.
     /// </summary>
+    /// <param name="context">The chunk meshing context.</param>
     /// <returns>The meshing task.</returns>
-    public Task<SectionMeshData[]> CreateMeshDataAsync()
+    public Task<SectionMeshData[]> CreateMeshDataAsync(ChunkMeshingContext context)
     {
-        return Task.Run(CreateMeshData);
+        return Task.Run(() => CreateMeshData(context));
     }
 
-    private SectionMeshData[] CreateMeshData()
+    private SectionMeshData[] CreateMeshData(ChunkMeshingContext context)
     {
+        logger.LogDebug(Events.ChunkOperation, "Started creating mesh data for chunk {Position} using {NeighborCount} neighbors", Position, context.NeighborCount);
+
         var sectionMeshes = new SectionMeshData[SectionCount];
 
         for (var s = 0; s < SectionCount; s++)
         {
             (int x, int y, int z) = IndexToLocalSection(s);
-            sectionMeshes[s] = ((ClientSection) sections[s]).CreateMeshData(SectionPosition.From(Position, (x, y, z)));
+            sectionMeshes[s] = ((ClientSection) sections[s]).CreateMeshData(SectionPosition.From(Position, (x, y, z)), context);
         }
 
         meshDataIndex = 0;
+
+        logger.LogDebug(Events.ChunkOperation, "Finished creating mesh data for chunk {Position} using {NeighborCount} neighbors", Position, context.NeighborCount);
 
         return sectionMeshes;
     }
@@ -151,23 +161,4 @@ public class ClientChunk : Chunk
             }
         }
     }
-
-    #region IDisposable Support
-
-    [NonSerialized] private bool disposed; // To detect redundant calls
-
-    /// <inheritdoc />
-    protected override void Dispose(bool disposing)
-    {
-        if (!disposed)
-        {
-            if (disposing)
-                for (var s = 0; s < SectionCount; s++)
-                    sections[s].Dispose();
-
-            disposed = true;
-        }
-    }
-
-    #endregion IDisposable Support
 }

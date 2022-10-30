@@ -116,8 +116,7 @@ internal class KeybindManager : ISettingsProvider
             string key = PropertyName(keybind);
             var state = (KeyButtonPair) Properties.Settings.Default[key];
 
-            if (state.Default) Properties.Settings.Default[key] = button.KeyOrButton.Settings;
-            else button.SetBinding(new KeyOrButton(state));
+            if (!state.Default) button.SetBinding(new KeyOrButton(state));
         }
 
         Properties.Settings.Default.Save();
@@ -151,7 +150,7 @@ internal class KeybindManager : ISettingsProvider
         return pushButtons[bind];
     }
 
-    internal void Rebind(Keybind bind, KeyOrButton keyOrButton)
+    private void Rebind(Keybind bind, KeyOrButton keyOrButton, bool isDefault)
     {
         Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
 
@@ -159,7 +158,7 @@ internal class KeybindManager : ISettingsProvider
         keybinds[bind].SetBinding(keyOrButton);
         Input.AddPullDown(keyOrButton);
 
-        Properties.Settings.Default[PropertyName(bind)] = keyOrButton.Settings;
+        Properties.Settings.Default[PropertyName(bind)] = keyOrButton.GetSettings(isDefault);
         Properties.Settings.Default.Save();
 
         logger.LogInformation(Events.SetKeyBind, "Rebind '{Bind}' to: {Key}", bind, keyOrButton);
@@ -195,9 +194,9 @@ internal class KeybindManager : ISettingsProvider
                 this,
                 bind.Name,
                 () => GetCurrentBind(bind),
-                keyOrButton => Rebind(bind, keyOrButton),
+                keyOrButton => Rebind(bind, keyOrButton, isDefault: false),
                 () => usageMap.GetUsageCount(GetCurrentBind(bind)) <= 1,
-                () => Rebind(bind, bind.Default));
+                () => Rebind(bind, bind.Default, isDefault: true));
 
             settings.Add(setting);
         }
