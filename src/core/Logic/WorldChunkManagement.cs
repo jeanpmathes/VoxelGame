@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
@@ -72,6 +73,8 @@ public abstract partial class World
     /// <param name="position">The position of the chunk.</param>
     public void RequestChunk(ChunkPosition position)
     {
+        Debug.Assert(CurrentState != State.Deactivating);
+
         if (!IsInLimits(position)) return;
 
         chunks.Request(position);
@@ -85,6 +88,8 @@ public abstract partial class World
     /// <param name="position">The position of the chunk.</param>
     public void ReleaseChunk(ChunkPosition position)
     {
+        Debug.Assert(CurrentState != State.Deactivating);
+
         if (!IsInLimits(position)) return;
 
         // Check if the chunk can be released
