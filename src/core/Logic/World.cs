@@ -5,7 +5,6 @@
 // <author>pershingthesecond</author>
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -35,6 +34,8 @@ public abstract partial class World : IDisposable
     private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
     private readonly IWorldGenerator generator;
+
+    private (Task saving, Action callback)? deactivation;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
@@ -132,14 +133,19 @@ public abstract partial class World : IDisposable
     private string DebugDirectory { get; }
 
     /// <summary>
-    ///     Gets whether this world is ready for physics ticking and rendering.
-    /// </summary>
-    protected bool IsReady { get; set; }
-
-    /// <summary>
     ///     Get the world creation seed.
     /// </summary>
     public int Seed => Information.Seed;
+
+    /// <summary>
+    /// Get whether the world is active.
+    /// </summary>
+    protected bool IsActive => CurrentState == State.Active;
+
+    /// <summary>
+    ///     Get the world state.
+    /// </summary>
+    protected State CurrentState { get; set; } = State.Activating;
 
     /// <summary>
     ///     Get or set the spawn position in this world.
@@ -178,6 +184,47 @@ public abstract partial class World : IDisposable
     ///     Get the info map of this world.
     /// </summary>
     public IMap Map => generator.Map;
+
+    /// <summary>
+    ///     Begin deactivating the world, saving all chunks and the meta information.
+    /// </summary>
+    /// <param name="onFinished">The action to be called when the world is deactivated.</param>
+    public void BeginDeactivating(Action onFinished)
+    {
+        Debug.Assert(CurrentState == State.Active);
+        CurrentState = State.Deactivating;
+
+        logger.LogInformation(Events.WorldIO, "Unloading world");
+
+        chunks.BeginSaving();
+
+        Information.Version = ApplicationInformation.Instance.Version;
+        Task saving = Task.Run(() => Information.Save(Path.Combine(WorldDirectory, "meta.json")));
+
+        deactivation = (saving, onFinished);
+    }
+
+    /// <summary>
+    ///     Process the deactivation, assuming it has been started.
+    /// </summary>
+    /// <returns>Whether the deactivation is finished.</returns>
+    protected bool ProcessDeactivation()
+    {
+        Debug.Assert(deactivation != null);
+
+        (Task saving, Action callback) = deactivation.Value;
+
+        bool done = saving.IsCompleted && chunks.IsEmpty;
+
+        if (!done) return false;
+
+        logger.LogInformation(Events.WorldIO, "Unloaded world");
+        callback();
+
+        if (saving.IsFaulted) logger.LogError(Events.WorldSavingError, saving.Exception, "Failed to save world meta information");
+
+        return true;
+    }
 
     private void UnloadChunk(Chunk chunk)
     {
@@ -517,23 +564,24 @@ public abstract partial class World : IDisposable
     }
 
     /// <summary>
-    ///     Saves all active chunks that are not currently saved.
+    /// The world state.
     /// </summary>
-    /// <returns>A task that represents all tasks saving the chunks.</returns>
-    public Task SaveAsync()
+    protected enum State
     {
-        logger.LogInformation(Events.WorldIO, "Saving world");
+        /// <summary>
+        ///     The initial state.
+        /// </summary>
+        Activating,
 
-        List<Task> savingTasks = new();
+        /// <summary>
+        ///     In the active state, normal operations like physics are performed.
+        /// </summary>
+        Active,
 
-        chunks.BeginSaving();
-
-        while (!chunks.IsEmpty) chunks.Update(); // todo rework saving, do not use tasks
-
-        Information.Version = ApplicationInformation.Instance.Version;
-        savingTasks.Add(Task.Run(() => Information.Save(Path.Combine(WorldDirectory, "meta.json"))));
-
-        return Task.WhenAll(savingTasks);
+        /// <summary>
+        ///     The final state, the world is being deactivated.
+        /// </summary>
+        Deactivating
     }
 
     #region IDisposable Support

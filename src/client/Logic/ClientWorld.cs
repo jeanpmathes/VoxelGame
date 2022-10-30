@@ -85,7 +85,7 @@ public class ClientWorld : World
     /// </summary>
     public void Render()
     {
-        if (!IsReady) return;
+        if (!IsActive) return;
 
         IView view = player!.View;
 
@@ -140,7 +140,19 @@ public class ClientWorld : World
     {
         UpdateChunks();
 
-        if (IsReady)
+        void HandleActivating()
+        {
+            if (ActiveChunkCount < 3 * 3 * 3 || !IsChunkActive(ChunkPosition.Origin)) return;
+
+            CurrentState = State.Active;
+
+            readyStopwatch.Stop();
+            double readyTime = readyStopwatch.Elapsed.TotalSeconds;
+
+            logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}s", readyTime);
+        }
+
+        void HandleActive()
         {
             // Tick objects in world.
             foreach (Chunk chunk in ActiveChunks) chunk.Tick();
@@ -153,16 +165,28 @@ public class ClientWorld : World
 
             sectionsToMesh.Clear();
         }
-        else
+
+        switch (CurrentState)
         {
-            if (ActiveChunkCount < 3 * 3 * 3 || !IsChunkActive(ChunkPosition.Origin)) return;
+            case State.Activating:
+                HandleActivating();
 
-            IsReady = true;
+                break;
 
-            readyStopwatch.Stop();
-            double readyTime = readyStopwatch.Elapsed.TotalSeconds;
+            case State.Active:
+                HandleActive();
 
-            logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}s", readyTime);
+                break;
+
+            case State.Deactivating:
+                ProcessDeactivation();
+
+                break;
+
+            default:
+                Debug.Fail("Invalid world state.");
+
+                break;
         }
     }
 

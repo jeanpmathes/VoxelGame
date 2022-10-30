@@ -71,7 +71,7 @@ public sealed class GameScene : IScene
         ui.SetConsoleProvider(console);
         ui.SetPerformanceProvider(client);
 
-        ui.WorldExit += (_, _) => client.ExitGame();
+        ui.WorldExit += (_, _) => world.BeginDeactivating(client.ExitGame);
 
         ui.AnyOverlayOpen += (_, _) => OnOverlayOpen();
         ui.AnyOverlayClosed += (_, _) => OnOverlayClose();
@@ -168,20 +168,6 @@ public sealed class GameScene : IScene
     /// <inheritdoc />
     public void Unload()
     {
-        logger.LogInformation(Events.WorldIO, "Unloading world");
-
-        try
-        {
-            Game.World.SaveAsync().Wait();
-        }
-        catch (AggregateException exception)
-        {
-            logger.LogCritical(
-                Events.WorldSavingError,
-                exception.GetBaseException(),
-                "Exception occurred while saving world");
-        }
-
         Game.Dispose();
         Game = null!;
     }
