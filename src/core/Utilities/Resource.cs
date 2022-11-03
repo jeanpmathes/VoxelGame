@@ -129,6 +129,21 @@ public sealed class Resource
         };
     }
 
+    /// <summary>
+    ///     Whether it is currently possible to acquire the resource for certain access.
+    /// </summary>
+    /// <param name="access">The access type to acquire.</param>
+    /// <returns>Whether it is possible to acquire the resource.</returns>
+    public bool CanAcquire(Access access)
+    {
+        return access switch
+        {
+            Access.Read => CanRead,
+            Access.Write => CanWrite,
+            _ => false
+        };
+    }
+
     private bool IsMainThread()
     {
         if (Thread.CurrentThread == ApplicationInformation.Instance.MainThread) return true;

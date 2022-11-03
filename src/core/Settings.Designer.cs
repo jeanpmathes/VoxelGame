@@ -49,5 +49,14 @@ namespace Properties {
                 return ((int)(this["MaxSavingTasks"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("32")]
+        public int MaxDecorationTasks {
+            get {
+                return ((int)(this["MaxDecorationTasks"]));
+            }
+        }
     }
 }

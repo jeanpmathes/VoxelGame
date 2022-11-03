@@ -99,6 +99,7 @@ public abstract class World : IDisposable
         ChunkContext = new ChunkContext(ChunkDirectory, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk, generator);
 
         MaxGenerationTasks = ChunkContext.DeclareBudget(Settings.Default.MaxGenerationTasks);
+        MaxDecorationTasks = ChunkContext.DeclareBudget(Settings.Default.MaxDecorationTasks);
         MaxLoadingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxLoadingTasks);
         MaxSavingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxSavingTasks);
 
@@ -206,6 +207,11 @@ public abstract class World : IDisposable
     ///     The max generation task limit.
     /// </summary>
     public Limit MaxGenerationTasks { get; }
+
+    /// <summary>
+    ///     The max decoration task limit.
+    /// </summary>
+    public Limit MaxDecorationTasks { get; }
 
     /// <summary>
     ///     The max loading task limit.
@@ -615,12 +621,14 @@ public abstract class World : IDisposable
     /// <summary>
     ///     Process a chunk that has been just activated.
     /// </summary>
+    /// <returns>The next state of the chunk.</returns>
     protected abstract ChunkState ProcessNewlyActivatedChunk(Chunk activatedChunk);
 
     /// <summary>
     ///     Process a chunk that has just switched to the active state trough a weak activation.
     /// </summary>
-    protected abstract void ProcessActivatedChunk(Chunk activatedChunk);
+    /// <returns>An optional next state of the chunk.</returns>
+    protected abstract ChunkState? ProcessActivatedChunk(Chunk activatedChunk);
 
     /// <summary>
     ///     Requests the activation of a chunk. This chunk will either be loaded or generated.

@@ -92,6 +92,11 @@ public abstract class ChunkState
     protected abstract Access ExtendedAccess { get; }
 
     /// <summary>
+    ///     Whether it is currently possible to steal access from this state.
+    /// </summary>
+    public bool CanStealAccess => AllowStealing && isAccessSufficient;
+
+    /// <summary>
     ///     Perform updates.
     /// </summary>
     protected abstract void OnUpdate();
@@ -273,6 +278,15 @@ public abstract class ChunkState
         released = true;
     }
 
+    /// <summary>
+    ///     Activate this chunk weakly. This might set a next state.
+    /// </summary>
+    protected void ActivateWeakly()
+    {
+        ChunkState? potentialNext = Context.ActivateWeakly(Chunk);
+        if (potentialNext != null) SetNextState(potentialNext);
+    }
+
     #pragma warning disable S1871 // Readability.
     private ChunkState DetermineNextState()
     {
@@ -367,7 +381,7 @@ public abstract class ChunkState
     /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>
     public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state)
     {
-        if (!state.isAccessSufficient || !state.AllowStealing) return null;
+        if (!state.CanStealAccess) return null;
 
         Debug.Assert(state.CoreAccess == Access.Write && state.coreGuard != null);
         Debug.Assert(state.ExtendedAccess == Access.Write && state.extendedGuard != null);

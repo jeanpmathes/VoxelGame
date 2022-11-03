@@ -193,30 +193,39 @@ public class ClientWorld : World
     /// <inheritdoc />
     protected override ChunkState ProcessNewlyActivatedChunk(Chunk activatedChunk)
     {
-        // Schedule to mesh the chunks around this chunk
-        if (TryGetChunk(activatedChunk.Position.Offset(x: 1, y: 0, z: 0), out Chunk? neighbor))
-            ((ClientChunk) neighbor).BeginMeshing();
+        if (activatedChunk.IsFullyDecorated)
+        {
+            if (TryGetChunk(activatedChunk.Position.Offset(x: 1, y: 0, z: 0), out Chunk? neighbor))
+                ((ClientChunk) neighbor).BeginMeshing();
 
-        if (TryGetChunk(activatedChunk.Position.Offset(x: -1, y: 0, z: 0), out neighbor))
-            ((ClientChunk) neighbor).BeginMeshing();
+            if (TryGetChunk(activatedChunk.Position.Offset(x: -1, y: 0, z: 0), out neighbor))
+                ((ClientChunk) neighbor).BeginMeshing();
 
-        if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 1, z: 0), out neighbor))
-            ((ClientChunk) neighbor).BeginMeshing();
+            if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 1, z: 0), out neighbor))
+                ((ClientChunk) neighbor).BeginMeshing();
 
-        if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: -1, z: 0), out neighbor))
-            ((ClientChunk) neighbor).BeginMeshing();
+            if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: -1, z: 0), out neighbor))
+                ((ClientChunk) neighbor).BeginMeshing();
 
-        if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 0, z: 1), out neighbor))
-            ((ClientChunk) neighbor).BeginMeshing();
+            if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 0, z: 1), out neighbor))
+                ((ClientChunk) neighbor).BeginMeshing();
 
-        if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 0, z: -1), out neighbor))
-            ((ClientChunk) neighbor).BeginMeshing();
+            if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 0, z: -1), out neighbor))
+                ((ClientChunk) neighbor).BeginMeshing();
 
-        return new ClientChunk.Meshing();
+            return new ClientChunk.Meshing();
+        }
+
+        ChunkState? decoration = activatedChunk.ProcessDecorationOption();
+
+        return decoration ?? new Chunk.Hidden();
     }
 
     /// <inheritdoc />
-    protected override void ProcessActivatedChunk(Chunk activatedChunk) {}
+    protected override ChunkState? ProcessActivatedChunk(Chunk activatedChunk)
+    {
+        return activatedChunk.ProcessDecorationOption();
+    }
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
