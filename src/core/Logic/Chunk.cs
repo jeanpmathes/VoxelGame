@@ -154,7 +154,7 @@ public abstract partial class Chunk : IDisposable
     /// <summary>
     ///     Get whether this chunk is fully decorated.
     /// </summary>
-    public bool IsFullyDecorated => decoration == DecorationLevels.All;
+    public bool IsFullyDecorated => decoration.HasFlag(DecorationLevels.All);
 
     /// <summary>
     ///     Acquire the core resource, possibly stealing it.
@@ -189,6 +189,14 @@ public abstract partial class Chunk : IDisposable
     public bool CanAcquireCore(Access access)
     {
         return state.CanStealAccess || coreResource.CanAcquire(access);
+    }
+
+    /// <summary>
+    ///     Check if core is held with a specific access by a given guard.
+    /// </summary>
+    public bool IsCoreHeldBy(Guard guard, Access access)
+    {
+        return coreResource.IsHeldBy(guard, access);
     }
 
     /// <summary>
@@ -227,6 +235,13 @@ public abstract partial class Chunk : IDisposable
         return state.CanStealAccess || extendedResource.CanAcquire(access);
     }
 
+    /// <summary>
+    ///     Check if extended is held with a specific access by a given guard.
+    /// </summary>
+    public bool IsExtendedHeldBy(Guard guard, Access access)
+    {
+        return extendedResource.IsHeldBy(guard, access);
+    }
 
     /// <summary>
     ///     Add a request to the chunk to be active.
@@ -242,6 +257,7 @@ public abstract partial class Chunk : IDisposable
     public void RemoveRequest()
     {
         isRequested = false;
+        BeginSaving();
     }
 
     /// <summary>
@@ -256,6 +272,8 @@ public abstract partial class Chunk : IDisposable
     {
         blockTickManager = loaded.blockTickManager;
         fluidTickManager = loaded.fluidTickManager;
+
+        decoration = loaded.decoration;
 
         blockTickManager.Setup(World, World.UpdateCounter);
         fluidTickManager.Setup(World, World.UpdateCounter);
@@ -531,6 +549,10 @@ public abstract partial class Chunk : IDisposable
     {
         if (IsFullyDecorated) return null;
 
+        Guard? access = AcquireCore(Access.Write);
+
+        if (access == null) return null;
+
         Vector3i center = (1, 1, 1);
 
         bool[,,] available = FindAvailableNeighbors();
@@ -539,7 +561,12 @@ public abstract partial class Chunk : IDisposable
 
         bool isAnyDecorationPossible = CheckCornerDecorations(available, needed);
 
-        if (!isAnyDecorationPossible) return null;
+        if (!isAnyDecorationPossible)
+        {
+            access.Dispose();
+
+            return null;
+        }
 
         var neighbors = new (Chunk, Guard)?[3, 3, 3];
 
@@ -547,7 +574,9 @@ public abstract partial class Chunk : IDisposable
         {
             if ((x, y, z) == center || !needed[x, y, z]) continue;
 
-            Chunk? chunk = World.TryGetChunk(Position.Offset(x, y, z), out Chunk? neighbor) ? neighbor : null;
+            Debug.Assert(available[x, y, z]);
+
+            Chunk? chunk = World.TryGetChunk(Position.Offset((x, y, z) - center), out Chunk? neighbor) ? neighbor : null;
             Debug.Assert(chunk != null);
 
             Guard? guard = chunk.AcquireCore(Access.Write);
@@ -556,7 +585,7 @@ public abstract partial class Chunk : IDisposable
             neighbors[x, y, z] = (chunk, guard);
         }
 
-        return new Decorating(neighbors);
+        return new Decorating(access, neighbors);
     }
 
     private bool CheckCornerDecorations(bool[,,] available, bool[,,] needed)
@@ -597,12 +626,12 @@ public abstract partial class Chunk : IDisposable
 
         foreach ((int x, int y, int z) in VMath.Range3(x: 3, y: 3, z: 3))
             available[x, y, z] = (x, y, z) == center
-                                 || (World.TryGetChunk(Position.Offset(x, y, z), out Chunk? neighbor) && neighbor.CanAcquireCore(Access.Write));
+                                 || (World.TryGetChunk(Position.Offset((x, y, z) - center), out Chunk? neighbor) && neighbor.CanAcquireCore(Access.Write));
 
         return available;
     }
 
-    private void Decorate((Chunk, Guard)?[,,] neighbors)
+    private void Decorate(Chunk?[,,] neighbors)
     {
         foreach ((int x, int y, int z) in VMath.Range3(x: 2, y: 2, z: 2))
         {
@@ -618,7 +647,7 @@ public abstract partial class Chunk : IDisposable
 
             if (!isCornerAvailable) continue;
 
-            DecorateCorner(x, y, z);
+            DecorateCorner(neighbors, x, y, z);
         }
     }
 
@@ -629,7 +658,7 @@ public abstract partial class Chunk : IDisposable
     /// </summary>
     /// <param name="neighbors">The neighbors of this chunk.</param>
     /// <returns>The task that decorates the chunk.</returns>
-    public Task DecorateAsync((Chunk, Guard)?[,,] neighbors)
+    public Task DecorateAsync(Chunk?[,,] neighbors)
     {
         return Task.Run(() => Decorate(neighbors));
     }
@@ -661,30 +690,40 @@ public abstract partial class Chunk : IDisposable
         };
     }
 
-    private void DecorateCorner(int x, int y, int z)
+    private static void DecorateCorner(Chunk?[,,] chunks, int x, int y, int z)
     {
-        Debug.Assert(!decoration.HasFlag(GetFlagForCorner(x, y, z)));
+        Debug.Assert(!chunks[1, 1, 1]!.decoration.HasFlag(GetFlagForCorner(x, y, z)));
 
-        decoration |= GetFlagForCorner(x, y, z);
+        Vector3i center = (1, 1, 1);
 
-        // todo: decorate - go trough four sections in corner and the 24 section arond that cube
+        foreach ((int dx, int dy, int dz) in VMath.Range3(x: 2, y: 2, z: 2))
+        {
+            Vector3i position = (x + dx, y + dy, z + dz);
+
+            Chunk? chunk = position.Index(chunks);
+            Debug.Assert(chunk != null);
+
+            chunk.decoration |= GetFlagForCorner(center.X - dx, center.Y - dy, center.Z - dz);
+        }
+
+        // todo: decorate - go trough four sections in corner and the 48 sections around that cube
     }
 
     [Flags]
     private enum DecorationLevels
     {
-        None = 1 << 0,
+        None = 0,
 
-        Center = 1 << 1,
+        Center = 1 << 0,
 
-        Corner000 = 1 << 20,
-        Corner001 = 1 << 21,
-        Corner010 = 1 << 22,
-        Corner011 = 1 << 23,
-        Corner100 = 1 << 24,
-        Corner101 = 1 << 25,
-        Corner110 = 1 << 26,
-        Corner111 = 1 << 27,
+        Corner000 = 1 << 1,
+        Corner001 = 1 << 2,
+        Corner010 = 1 << 3,
+        Corner011 = 1 << 4,
+        Corner100 = 1 << 5,
+        Corner101 = 1 << 6,
+        Corner110 = 1 << 7,
+        Corner111 = 1 << 8,
 
         AllCorners = Corner000 | Corner001 | Corner010 | Corner011 | Corner100 | Corner101 | Corner110 | Corner111,
         All = Center | AllCorners

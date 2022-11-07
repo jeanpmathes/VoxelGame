@@ -5,9 +5,6 @@
 // <author>pershingthesecond</author>
 
 using System.Diagnostics;
-using System.Threading;
-using Microsoft.Extensions.Logging;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -38,10 +35,8 @@ public enum Access
 /// </summary>
 public sealed class Resource
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Resource>();
-
     private readonly string name;
-    private bool isWritenTo;
+    private bool isWrittenTo;
     private int readerCount;
 
     /// <summary>
@@ -56,17 +51,33 @@ public sealed class Resource
     /// <summary>
     ///     Get whether there is any reader or writer currently using the resource.
     /// </summary>
-    public bool IsAcquired => readerCount > 0 || isWritenTo;
+    public bool IsAcquired => readerCount > 0 || isWrittenTo;
 
     /// <summary>
     ///     Get whether it is possible to read from the resource.
     /// </summary>
-    public bool CanRead => !isWritenTo;
+    public bool CanRead => !isWrittenTo;
 
     /// <summary>
     ///     Get whether it is possible to write to the resource.
     /// </summary>
     public bool CanWrite => readerCount == 0 && CanRead;
+
+    /// <summary>
+    ///     Check if this resource is currently held by a specific guard.
+    /// </summary>
+    /// <param name="guard">The guard to check.</param>
+    /// <param name="access">The access level to check for.</param>
+    /// <returns>True if the guard holds the resource with the specified access level.</returns>
+    public bool IsHeldBy(Guard guard, Access access)
+    {
+        return access switch
+        {
+            Access.Read => guard.IsGuarding(this) && !isWrittenTo,
+            Access.Write => guard.IsGuarding(this) && isWrittenTo,
+            _ => false
+        };
+    }
 
     /// <inheritdoc />
     public override string ToString()
@@ -82,8 +93,8 @@ public sealed class Resource
 
     private void ReleaseWriter()
     {
-        if (!isWritenTo) Debug.Fail("No writer to release.");
-        else isWritenTo = false;
+        if (!isWrittenTo) Debug.Fail("No writer to release.");
+        else isWrittenTo = false;
     }
 
     /// <summary>
@@ -92,7 +103,7 @@ public sealed class Resource
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
     public Guard? TryAcquireReader()
     {
-        if (!IsMainThread()) return null;
+        if (!ApplicationInformation.Instance.EnsureMainThread("Resource.TryAcquireReader()", this)) return null;
         if (!CanRead) return null;
 
         readerCount++;
@@ -106,10 +117,10 @@ public sealed class Resource
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
     public Guard? TryAcquireWriter()
     {
-        if (!IsMainThread()) return null;
+        if (!ApplicationInformation.Instance.EnsureMainThread("Resource.TryAcquireWriter()", this)) return null;
         if (!CanWrite) return null;
 
-        isWritenTo = true;
+        isWrittenTo = true;
 
         return new Guard(this, ReleaseWriter);
     }
@@ -142,15 +153,5 @@ public sealed class Resource
             Access.Write => CanWrite,
             _ => false
         };
-    }
-
-    private bool IsMainThread()
-    {
-        if (Thread.CurrentThread == ApplicationInformation.Instance.MainThread) return true;
-
-        logger.LogWarning("Attempted to acquire resource '{Resource}' from non-main thread", name);
-        Debug.Fail("Attempted to acquire resource from non-main thread.");
-
-        return false;
     }
 }

@@ -8,9 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-using Microsoft.Extensions.Logging;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
 
@@ -19,8 +16,6 @@ namespace VoxelGame.Core.Logic;
 /// </summary>
 public sealed class ChunkSet : IDisposable
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkSet>();
-
     private readonly Dictionary<ChunkPosition, Chunk> chunks = new();
     private readonly ChunkContext context;
 
@@ -79,11 +74,8 @@ public sealed class ChunkSet : IDisposable
     /// <returns>The chunk, or null if it does not exist.</returns>
     private Chunk? Get(ChunkPosition position)
     {
-        if (Thread.CurrentThread == ApplicationInformation.Instance.MainThread)
+        if (ApplicationInformation.Instance.EnsureMainThread($"ChunkSet.Get({position})", this))
             return chunks.TryGetValue(position, out Chunk? chunk) ? chunk : null;
-
-        logger.LogWarning("Attempted to acquire chunk '{Position}' from non-main thread", position);
-        Debug.Fail("Attempted to acquire chunk from non-main thread.");
 
         return null;
     }

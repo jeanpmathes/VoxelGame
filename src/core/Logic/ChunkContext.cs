@@ -84,6 +84,7 @@ public class ChunkContext
 
     /// <summary>
     ///     Activate a chunk after a transition to the ready state.
+    ///     The chunk was not active before.
     /// </summary>
     public ChunkState ActivateStrongly(Chunk chunk)
     {
@@ -92,6 +93,7 @@ public class ChunkContext
 
     /// <summary>
     ///     Activate a chunk after a transition to the active state.
+    ///     The chunk has been activated before.
     /// </summary>
     public ChunkState? ActivateWeakly(Chunk chunk)
     {

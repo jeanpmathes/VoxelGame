@@ -22,8 +22,6 @@ public sealed class Guard : IDisposable
     private readonly object resource;
     private readonly StackTrace? stackTrace;
 
-    #region IDisposable Support
-
     /// <summary>
     ///     Create a new guard.
     /// </summary>
@@ -36,6 +34,18 @@ public sealed class Guard : IDisposable
 
         if (Debugger.IsAttached) stackTrace = new StackTrace(fNeedFileInfo: true);
     }
+
+    /// <summary>
+    ///     Check if the guard is guarding an object.
+    /// </summary>
+    /// <param name="object">The object to check.</param>
+    /// <returns>True if the guard is guarding the resource.</returns>
+    public bool IsGuarding(object @object)
+    {
+        return resource == @object;
+    }
+
+    #region IDisposable Support
 
     /// <summary>
     ///     Dispose of this guard.

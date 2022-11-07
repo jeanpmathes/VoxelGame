@@ -42,6 +42,8 @@ public partial class ClientChunk : Chunk
     /// </summary>
     public void BeginMeshing()
     {
+        if (!IsFullyDecorated) return;
+
         state.RequestNextState<Meshing>(new ChunkState.RequestDescription
         {
             AllowDuplicateTypes = false,

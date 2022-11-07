@@ -25,6 +25,7 @@ public abstract class ChunkState
     private Guard? coreGuard;
 
     private int currentWaitingTime;
+    private bool deactivated;
     private Guard? extendedGuard;
 
     /// <summary>
@@ -37,13 +38,29 @@ public abstract class ChunkState
     /// </summary>
     private bool isEntered;
 
-    private (ChunkState state, bool isRequired, TransitionDescription description)? next;
+    private ((ChunkState state, bool isRequired)? transition, TransitionDescription description, Func<ChunkState?>? activator)? next;
 
     private ChunkState? previous;
 
     private bool released;
 
     private RequestQueue requests = new();
+
+    /// <summary>
+    ///     Create a new chunk state.
+    /// </summary>
+    protected ChunkState() {}
+
+    /// <summary>
+    ///     Create a new chunk state with guards already acquired.
+    /// </summary>
+    /// <param name="core">The core guard.</param>
+    /// <param name="extended">The extended guard.</param>
+    protected ChunkState(Guard? core, Guard? extended)
+    {
+        coreGuard = core;
+        extendedGuard = extended;
+    }
 
     /// <summary>
     ///     Whether this state intends to perform a ready-transition.
@@ -115,24 +132,6 @@ public abstract class ChunkState
     protected virtual void OnEnter() {}
 
     /// <summary>
-    ///     Set the next state.
-    /// </summary>
-    /// <param name="state">The next state.</param>
-    /// <param name="isRequired">
-    ///     Whether the transition is required. If it is not required, a different state may be set
-    ///     instead.
-    /// </param>
-    /// <param name="description">A description of the transition.</param>
-    private void SetNextState(ChunkState state, bool isRequired, TransitionDescription description = new())
-    {
-        state.Chunk = Chunk;
-        state.Context = Context;
-
-        Debug.Assert(next == null);
-        next = (state, isRequired, description);
-    }
-
-    /// <summary>
     ///     Set the next state. The transition is required, except if certain flags are set in the description.
     /// </summary>
     /// <param name="state">The next state.</param>
@@ -143,7 +142,7 @@ public abstract class ChunkState
         state.Context = Context;
 
         Debug.Assert(next == null);
-        next = (state, isRequired: true, description);
+        next = ((state, isRequired: true), description, null);
     }
 
     /// <summary>
@@ -156,23 +155,45 @@ public abstract class ChunkState
         SetNextState(new T(), description);
     }
 
+    private void SetNextState(Func<ChunkState?> activator, TransitionDescription description = new())
+    {
+        Debug.Assert(next == null);
+        next = (null, description, activator);
+    }
+
     /// <summary>
     ///     Signal that this chunk is now ready. The transition is required, except if certain flags are set in the description.
     ///     This is a strong activation.
     /// </summary>
     protected void SetNextReady(TransitionDescription description = new())
     {
-        SetNextState(Context.ActivateStrongly(Chunk), isRequired: true, description);
+        ReleaseResources();
+        SetNextState(() => Context.ActivateStrongly(Chunk), description);
     }
 
     /// <summary>
     ///     Set the next state to active. This transition is never required and can be understood as a "don't care"-transition.
     ///     This is a weak activation.
     /// </summary>
-    protected void SetNextActive(Action? cleanup = null)
+    protected void SetNextActive()
     {
-        if (IsActive) next = (this, false, new TransitionDescription());
-        else SetNextState(new Chunk.Active(), isRequired: false, new TransitionDescription {Cleanup = cleanup ?? delegate {}});
+        if (IsActive)
+        {
+            next = ((this, isRequired: false), new TransitionDescription(), null);
+        }
+        else
+        {
+            ReleaseResources();
+            SetNextState(() => Context.ActivateWeakly(Chunk));
+        }
+    }
+
+    /// <summary>
+    ///     Indicate that this state allows to transition if there is a request.
+    /// </summary>
+    protected void AllowTransition()
+    {
+        next = ((this, isRequired: false), new TransitionDescription(), null);
     }
 
     /// <summary>
@@ -206,17 +227,23 @@ public abstract class ChunkState
     /// <returns>The new state.</returns>
     private ChunkState Update()
     {
-        isAccessSufficient = EnsureRequiredAccess();
+        if (!released)
+        {
+            isAccessSufficient = EnsureRequiredAccess();
 
-        if (!isAccessSufficient) return this;
+            if (!isAccessSufficient) return this;
+
+            Debug.Assert((coreGuard == null && CoreAccess == Access.None) || (coreGuard != null && Chunk.IsCoreHeldBy(coreGuard, CoreAccess)));
+            Debug.Assert((extendedGuard == null && ExtendedAccess == Access.None) || (extendedGuard != null && Chunk.IsExtendedHeldBy(extendedGuard, ExtendedAccess)));
+        }
 
         if (IsWaitingOnNeighbors()) return this;
 
         if (!isEntered) Enter();
 
-        if (released) return this;
+        if (!released) OnUpdate();
 
-        OnUpdate();
+        if (deactivated) return this;
 
         ChunkState nextState = DetermineNextState();
 
@@ -257,18 +284,14 @@ public abstract class ChunkState
             isSufficient &= extendedGuard != null;
         }
 
-        if (isEntered && !isSufficient) Debug.Fail("Access was lost during state update.");
-
         return isSufficient;
     }
 
     /// <summary>
     ///     Release all held resources. A state will not be updated when released, and must transition until the next update.
     /// </summary>
-    protected void ReleaseResources()
+    private void ReleaseResources()
     {
-        Debug.Assert(!released);
-
         coreGuard?.Dispose();
         extendedGuard?.Dispose();
 
@@ -276,15 +299,39 @@ public abstract class ChunkState
         extendedGuard = null;
 
         released = true;
+        isAccessSufficient = false;
     }
 
     /// <summary>
-    ///     Activate this chunk weakly. This might set a next state.
+    /// Deactivate the chunk.
     /// </summary>
-    protected void ActivateWeakly()
+    protected void Deactivate()
     {
-        ChunkState? potentialNext = Context.ActivateWeakly(Chunk);
-        if (potentialNext != null) SetNextState(potentialNext);
+        ReleaseResources();
+        Context.Deactivate(Chunk);
+        deactivated = true;
+    }
+
+    private bool PerformActivation()
+    {
+        Debug.Assert(next != null);
+
+        if (next.Value.transition != null) return true;
+
+        Debug.Assert(next.Value.activator != null);
+
+        if (!Chunk.CanAcquireCore(Access.Write) || !Chunk.CanAcquireExtended(Access.Write)) return false;
+
+        ChunkState? activatedNext = next.Value.activator();
+        bool isRequired = activatedNext != null;
+        activatedNext ??= new Chunk.Active();
+
+        activatedNext.Chunk = Chunk;
+        activatedNext.Context = Context;
+
+        next = ((activatedNext, isRequired), next.Value.description, null);
+
+        return true;
     }
 
     #pragma warning disable S1871 // Readability.
@@ -295,6 +342,10 @@ public abstract class ChunkState
         ChunkState nextState;
         ChunkState? requestedState;
 
+        if (!PerformActivation()) return this;
+
+        Debug.Assert(next.Value.transition != null);
+
         if (next.Value.description.PrioritizeDeactivation && !Chunk.IsRequested)
         {
             nextState = requests.Dequeue(this, isLooping: false, isDeactivating: true) ?? CreateFinalState();
@@ -303,9 +354,9 @@ public abstract class ChunkState
         {
             nextState = requestedState;
         }
-        else if (next.Value.isRequired)
+        else if (next.Value.transition.Value.isRequired)
         {
-            nextState = next.Value.state;
+            nextState = next.Value.transition.Value.state;
         }
         else if ((requestedState = requests.Dequeue(this, isLooping: false, isDeactivating: false)) != null)
         {
@@ -317,16 +368,17 @@ public abstract class ChunkState
         }
         else
         {
-            nextState = next.Value.state;
+            nextState = next.Value.transition.Value.state;
         }
 
-        if (nextState != next.Value.state)
+        if (nextState != next.Value.transition.Value.state)
             next.Value.description.Cleanup?.Invoke();
 
         next = null;
 
         return nextState;
     }
+
     #pragma warning restore S1871
 
     /// <summary>
@@ -381,6 +433,7 @@ public abstract class ChunkState
     /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>
     public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state)
     {
+        if (!ApplicationInformation.Instance.EnsureMainThread($"ChunkState.TryStealAccess({state})", state.Chunk)) return null;
         if (!state.CanStealAccess) return null;
 
         Debug.Assert(state.CoreAccess == Access.Write && state.coreGuard != null);
@@ -394,14 +447,13 @@ public abstract class ChunkState
 
         ChunkState previousState = state;
 
-        state = new Chunk.Used
+        state = new Chunk.Used(previousState.IsActive)
         {
             Chunk = state.Chunk,
             Context = state.Context
         };
 
         state.previous = previousState;
-        state.Enter();
 
         return (core, extended);
     }
@@ -479,7 +531,7 @@ public abstract class ChunkState
         {
             if (description.AllowDiscardOnLoop)
             {
-                bool nextIsLoop = current.next is {state: {} next, isRequired: true} && IsSameState(next, state);
+                bool nextIsLoop = current.next is {transition: {state: {} next, isRequired: true}} && IsSameState(next, state);
                 bool currentIsLoop = !current.isEntered && IsSameState(current, state);
 
                 if (nextIsLoop || currentIsLoop) return;
