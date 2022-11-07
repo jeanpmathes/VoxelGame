@@ -294,7 +294,7 @@ public abstract partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            SetNextActive();
+            AllowTransition();
         }
     }
 

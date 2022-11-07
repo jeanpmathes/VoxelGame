@@ -25,7 +25,6 @@ public abstract class ChunkState
     private Guard? coreGuard;
 
     private int currentWaitingTime;
-    private bool deactivated;
     private Guard? extendedGuard;
 
     /// <summary>
@@ -177,15 +176,8 @@ public abstract class ChunkState
     /// </summary>
     protected void SetNextActive()
     {
-        if (IsActive)
-        {
-            next = ((this, isRequired: false), new TransitionDescription(), null);
-        }
-        else
-        {
-            ReleaseResources();
-            SetNextState(() => Context.ActivateWeakly(Chunk));
-        }
+        ReleaseResources();
+        SetNextState(() => Context.ActivateWeakly(Chunk));
     }
 
     /// <summary>
@@ -242,8 +234,6 @@ public abstract class ChunkState
         if (!isEntered) Enter();
 
         if (!released) OnUpdate();
-
-        if (deactivated) return this;
 
         ChunkState nextState = DetermineNextState();
 
@@ -309,7 +299,6 @@ public abstract class ChunkState
     {
         ReleaseResources();
         Context.Deactivate(Chunk);
-        deactivated = true;
     }
 
     private bool PerformActivation()
