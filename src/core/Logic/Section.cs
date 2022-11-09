@@ -104,6 +104,14 @@ public abstract class Section : IDisposable
     public static Vector3d Extents => new(Size / 2f, Size / 2f, Size / 2f);
 
     /// <summary>
+    ///     Decorate this section. This method should only be called once.
+    /// </summary>
+    /// <param name="neighbors">The neighbors of this section.</param>
+    #pragma warning disable S2368
+    public void Decorate(Section[,,] neighbors) {}
+    #pragma warning restore S2368
+
+    /// <summary>
     ///     Gets the content at a section position.
     /// </summary>
     /// <param name="x">The x position of the block data in this section.</param>

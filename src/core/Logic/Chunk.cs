@@ -484,7 +484,7 @@ public abstract partial class Chunk : IDisposable
     /// <returns>The section.</returns>
     public Section GetSection(SectionPosition position)
     {
-        (int x, int y, int z) = position.GetLocal();
+        (int x, int y, int z) = position.Local;
 
         return sections[LocalSectionToIndex(x, y, z)];
     }
@@ -497,6 +497,14 @@ public abstract partial class Chunk : IDisposable
     public Section GetSection(Vector3i position)
     {
         return GetSection(SectionPosition.From(position));
+    }
+
+    /// <summary>
+    ///     Get a section using local coordinates.
+    /// </summary>
+    protected Section GetLocalSection(int x, int y, int z)
+    {
+        return sections[LocalSectionToIndex(x, y, z)];
     }
 
     /// <summary>
@@ -671,7 +679,20 @@ public abstract partial class Chunk : IDisposable
 
         decoration |= DecorationLevels.Center;
 
-        // todo: decorate - go trough four sections in center
+        var neighbors = new Section[3, 3, 3];
+
+        void SetNeighbors(int x, int y, int z)
+        {
+            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors[dx, dy, dz] = GetLocalSection(x + dx - 1, y + dy - 1, z + dz - 1);
+        }
+
+        void DecorateSection(int x, int y, int z)
+        {
+            SetNeighbors(x, y, z);
+            GetLocalSection(x, y, z).Decorate(neighbors);
+        }
+
+        foreach ((int x, int y, int z) in VMath.Range3(x: 2, y: 2, z: 2)) DecorateSection(1 + x, 1 + y, 1 + z);
     }
 
     private static DecorationLevels GetFlagForCorner(int x, int y, int z)
@@ -692,9 +713,9 @@ public abstract partial class Chunk : IDisposable
 
     private static void DecorateCorner(Chunk?[,,] chunks, int x, int y, int z)
     {
-        Debug.Assert(!chunks[1, 1, 1]!.decoration.HasFlag(GetFlagForCorner(x, y, z)));
-
         Vector3i center = (1, 1, 1);
+
+        Debug.Assert(!chunks[center.X, center.Y, center.Z]!.decoration.HasFlag(GetFlagForCorner(x, y, z)));
 
         foreach ((int dx, int dy, int dz) in VMath.Range3(x: 2, y: 2, z: 2))
         {
@@ -706,7 +727,56 @@ public abstract partial class Chunk : IDisposable
             chunk.decoration |= GetFlagForCorner(center.X - dx, center.Y - dy, center.Z - dz);
         }
 
-        // todo: decorate - go trough four sections in corner and the 48 sections around that cube
+        // Go trough all sections on the selected corner.
+        // We want to decorate 56 of them, which is a cube of 4x4x4 without the corners.
+        // The corners of this cube are the centers of the chunks - the cube overlaps with multiple chunks.
+
+        ChunkPosition first = chunks[1, 1, 1]!.Position.Offset(x: -1, y: -1, z: -1);
+
+        Section GetSection(SectionPosition sectionPosition)
+        {
+            Vector3i offset = first.OffsetTo(sectionPosition.Chunk);
+
+            return chunks[offset.X, offset.Y, offset.Z]!.GetSection(sectionPosition);
+        }
+
+        var neighbors = new Section[3, 3, 3];
+
+        void SetNeighbors(SectionPosition sectionPosition)
+        {
+            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors[dx, dy, dz] = GetSection(sectionPosition);
+        }
+
+        void DecorateSection(SectionPosition sectionPosition)
+        {
+            SetNeighbors(sectionPosition);
+            GetSection(sectionPosition).Decorate(neighbors);
+        }
+
+        SectionPosition lowCorner = SectionPosition.From(chunks[x, y, z]!.Position, (Size - 1, Size - 1, Size - 1));
+
+        foreach ((int dx, int dy, int dz) in VMath.Range3(x: 4, y: 4, z: 4))
+        {
+            if (IsCorner(dx, dy, dz)) continue;
+
+            DecorateSection(lowCorner.Offset(dx, dy, dz));
+        }
+    }
+
+    private static bool IsCorner(int dx, int dy, int dz)
+    {
+        return (dx, dy, dz) switch
+        {
+            (0, 0, 0) => true,
+            (0, 0, 3) => true,
+            (0, 3, 0) => true,
+            (0, 3, 3) => true,
+            (3, 0, 0) => true,
+            (3, 0, 3) => true,
+            (3, 3, 0) => true,
+            (3, 3, 3) => true,
+            _ => false
+        };
     }
 
     [Flags]

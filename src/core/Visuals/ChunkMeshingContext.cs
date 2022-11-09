@@ -102,7 +102,7 @@ public class ChunkMeshingContext
     /// <returns>The section, or null if it is not part of the context.</returns>
     public Section? GetSection(SectionPosition position)
     {
-        Chunk? chunk = GetChunk(position.GetChunk());
+        Chunk? chunk = GetChunk(position.Chunk);
 
         return chunk?.GetSection(position);
     }

@@ -231,7 +231,7 @@ public class ClientWorld : World
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ProcessChangedSection(Chunk chunk, Vector3i position)
     {
-        sectionsToMesh.Add(((ClientChunk) chunk, SectionPosition.From(position).GetLocal()));
+        sectionsToMesh.Add(((ClientChunk) chunk, SectionPosition.From(position).Local));
 
         // Check if sections next to changed section have to be changed:
 
@@ -241,7 +241,7 @@ public class ClientWorld : World
 
             if (neighbor == null) return;
 
-            sectionsToMesh.Add(((ClientChunk) neighbor, SectionPosition.From(neighborPosition).GetLocal()));
+            sectionsToMesh.Add(((ClientChunk) neighbor, SectionPosition.From(neighborPosition).Local));
         }
 
         int xSectionPosition = position.X & (Section.Size - 1);

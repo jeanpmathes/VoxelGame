@@ -80,26 +80,44 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     ///     Get this section position as a local position in a chunk.
     /// </summary>
     /// <returns>The local position in a chunk.</returns>
-    public (int x, int y, int z) GetLocal()
+    public (int x, int y, int z) Local
     {
-        int localX = X & (Chunk.Size - 1);
-        int localY = Y & (Chunk.Size - 1);
-        int localZ = Z & (Chunk.Size - 1);
+        get
+        {
+            int localX = X & (Logic.Chunk.Size - 1);
+            int localY = Y & (Logic.Chunk.Size - 1);
+            int localZ = Z & (Logic.Chunk.Size - 1);
 
-        return (localX, localY, localZ);
+            return (localX, localY, localZ);
+        }
     }
 
     /// <summary>
     ///     Get the chunk this section position is in.
     /// </summary>
     /// <returns>The position of the chunk.</returns>
-    public ChunkPosition GetChunk()
+    public ChunkPosition Chunk
     {
-        int chunkX = X >> Chunk.SizeExp;
-        int chunkY = Y >> Chunk.SizeExp;
-        int chunkZ = Z >> Chunk.SizeExp;
+        get
+        {
+            int chunkX = X >> Logic.Chunk.SizeExp;
+            int chunkY = Y >> Logic.Chunk.SizeExp;
+            int chunkZ = Z >> Logic.Chunk.SizeExp;
 
-        return new ChunkPosition(chunkX, chunkY, chunkZ);
+            return new ChunkPosition(chunkX, chunkY, chunkZ);
+        }
+    }
+
+    /// <summary>
+    ///     Offset this section position by the given amount.
+    /// </summary>
+    /// <param name="x">The x offset.</param>
+    /// <param name="y">The y offset.</param>
+    /// <param name="z">The z offset.</param>
+    /// <returns>The offset section position.</returns>
+    public SectionPosition Offset(int x, int y, int z)
+    {
+        return new SectionPosition(X + x, Y + y, Z + z);
     }
 
     /// <summary>
