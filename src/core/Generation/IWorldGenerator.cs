@@ -29,6 +29,15 @@ public interface IWorldGenerator
     IEnumerable<Content> GenerateColumn(int x, int z, (int start, int end) heightRange);
 
     /// <summary>
+    ///     Decorate a section of the world.
+    /// </summary>
+    /// <param name="position">The position of the section.</param>
+    /// <param name="sections">The section and all its neighbors.</param>
+    #pragma warning disable S2368
+    void DecorateSection(SectionPosition position, Section[,,] sections);
+    #pragma warning restore S2368
+
+    /// <summary>
     ///     Emit views of global generated data for debugging.
     /// </summary>
     /// <param name="path">A path to the debug directory.</param>

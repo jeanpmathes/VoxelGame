@@ -361,40 +361,32 @@ public abstract class World : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BlockInstance? GetBlock(Vector3i position)
     {
-        RetrieveContent(position, out Block? block, out uint data, out _, out _, out _);
+        RetrieveContent(position, out Content? content);
 
-        return block?.AsInstance(data);
+        return content?.Block;
     }
 
     /// <summary>
     ///     Retrieve the content at a given position. The content can only be retrieved from active chunks.
     /// </summary>
     /// <param name="position">The position.</param>
-    /// <param name="block">The block at the given position.</param>
-    /// <param name="data">The data of the block.</param>
-    /// <param name="fluid">The fluid at the given position.</param>
-    /// <param name="level">The level of the fluid.</param>
-    /// <param name="isStatic">Whether the fluid is static.</param>
+    /// <param name="potentialContent">The potential content at the given position.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void RetrieveContent(Vector3i position,
-        out Block? block, out uint data,
-        out Fluid? fluid, out FluidLevel level, out bool isStatic)
+    private void RetrieveContent(Vector3i position, out Content? potentialContent)
     {
         Chunk? chunk = GetActiveChunk(position);
 
         if (chunk != null)
         {
             uint val = chunk.GetSection(position).GetContent(position);
-            Section.Decode(val, out block, out data, out fluid, out level, out isStatic);
+            Section.Decode(val, out Content content);
+
+            potentialContent = content;
 
             return;
         }
 
-        block = null;
-        data = 0;
-        fluid = null;
-        level = 0;
-        isStatic = false;
+        potentialContent = null;
     }
 
     /// <summary>
@@ -405,15 +397,9 @@ public abstract class World : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FluidInstance? GetFluid(Vector3i position)
     {
-        RetrieveContent(
-            position,
-            out Block? _,
-            out uint _,
-            out Fluid? fluid,
-            out FluidLevel level,
-            out bool isStatic);
+        RetrieveContent(position, out Content? content);
 
-        return fluid?.AsInstance(level, isStatic);
+        return content?.Fluid;
     }
 
     /// <summary>
@@ -425,20 +411,9 @@ public abstract class World : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Content? GetContent(Vector3i position)
     {
-        RetrieveContent(
-            position,
-            out Block? block,
-            out uint data,
-            out Fluid? fluid,
-            out FluidLevel level,
-            out bool isStatic);
+        RetrieveContent(position, out Content? content);
 
-        if (block == null || fluid == null) return null;
-
-        Debug.Assert(block != null);
-        Debug.Assert(fluid != null);
-
-        return new Content(block.AsInstance(data), fluid.AsInstance(level, isStatic));
+        return content;
     }
 
     /// <summary>
@@ -454,7 +429,7 @@ public abstract class World : IDisposable
 
         if (potentialFluid is not {} fluid) return;
 
-        SetContent(block, fluid, position, tickFluid: true);
+        SetContent(new Content(block, fluid), position, tickFluid: true);
     }
 
     /// <summary>
@@ -468,7 +443,7 @@ public abstract class World : IDisposable
 
         if (potentialBlock is not {} block) return;
 
-        SetContent(block, fluid, position, tickFluid: false);
+        SetContent(new Content(block, fluid), position, tickFluid: false);
     }
 
     /// <summary>
@@ -481,34 +456,27 @@ public abstract class World : IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(BlockInstance block, FluidInstance fluid, Vector3i position, bool tickFluid)
-    {
-        SetContent(block.Block, block.Data, fluid.Fluid, fluid.Level, fluid.IsStatic, position, tickFluid);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(IBlockBase block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
-        Vector3i position, bool tickFluid)
+    private void SetContent(in Content content, Vector3i position, bool tickFluid)
     {
         Chunk? chunk = GetActiveChunk(position);
 
         if (chunk == null) return;
 
-        uint val = Section.Encode(block, data, fluid, level, isStatic);
+        uint val = Section.Encode(content);
 
         chunk.GetSection(position).SetContent(position, val);
 
-        if (tickFluid) fluid.TickNow(this, position, level, isStatic);
+        if (tickFluid) content.Fluid.Fluid.TickNow(this, position, content.Fluid.Level, content.Fluid.IsStatic);
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
             Vector3i neighborPosition = side.Offset(position);
 
-            Content? content = GetContent(neighborPosition);
+            Content? neighborContent = GetContent(neighborPosition);
 
-            if (content == null) continue;
+            if (neighborContent == null) continue;
 
-            (BlockInstance blockNeighbor, FluidInstance fluidNeighbor) = content.Value;
+            (BlockInstance blockNeighbor, FluidInstance fluidNeighbor) = neighborContent.Value;
 
             // Side is passed out of the perspective of the block receiving the block update.
             blockNeighbor.Block.BlockUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
@@ -519,22 +487,12 @@ public abstract class World : IDisposable
     }
 
     /// <summary>
-    ///     Set all data at a world position.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetPosition(IBlockBase block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
-        Vector3i position)
-    {
-        SetContent(block, data, fluid, level, isStatic, position, tickFluid: true);
-    }
-
-    /// <summary>
     ///     Set the content of a world position.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Content content, Vector3i position)
     {
-        SetContent(content.Block, content.Fluid, position, tickFluid: true);
+        SetContent(content, position, tickFluid: true);
     }
 
     /// <summary>

@@ -423,7 +423,7 @@ public abstract partial class Chunk : IDisposable
             }
         }
 
-        DecorateCenter();
+        DecorateCenter(generator);
 
         logger.LogDebug(
             Events.ChunkOperation,
@@ -639,7 +639,7 @@ public abstract partial class Chunk : IDisposable
         return available;
     }
 
-    private void Decorate(Chunk?[,,] neighbors)
+    private void Decorate(IWorldGenerator generator, Chunk?[,,] neighbors)
     {
         foreach ((int x, int y, int z) in VMath.Range3(x: 2, y: 2, z: 2))
         {
@@ -655,7 +655,7 @@ public abstract partial class Chunk : IDisposable
 
             if (!isCornerAvailable) continue;
 
-            DecorateCorner(neighbors, x, y, z);
+            DecorateCorner(generator, neighbors, x, y, z);
         }
     }
 
@@ -664,16 +664,17 @@ public abstract partial class Chunk : IDisposable
     /// <summary>
     ///     Decorate the chunk with the given neighbors. If enough neighbors are available, the chunk will be fully decorated.
     /// </summary>
+    /// <param name="generator">The world generator.</param>
     /// <param name="neighbors">The neighbors of this chunk.</param>
     /// <returns>The task that decorates the chunk.</returns>
-    public Task DecorateAsync(Chunk?[,,] neighbors)
+    public Task DecorateAsync(IWorldGenerator generator, Chunk?[,,] neighbors)
     {
-        return Task.Run(() => Decorate(neighbors));
+        return Task.Run(() => Decorate(generator, neighbors));
     }
 
     #pragma warning restore S2368
 
-    private void DecorateCenter()
+    private void DecorateCenter(IWorldGenerator generator)
     {
         Debug.Assert(!decoration.HasFlag(DecorationLevels.Center));
 
@@ -683,13 +684,13 @@ public abstract partial class Chunk : IDisposable
 
         void SetNeighbors(int x, int y, int z)
         {
-            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors[dx, dy, dz] = GetLocalSection(x + dx - 1, y + dy - 1, z + dz - 1);
+            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors![dx, dy, dz] = GetLocalSection(x + dx - 1, y + dy - 1, z + dz - 1);
         }
 
         void DecorateSection(int x, int y, int z)
         {
             SetNeighbors(x, y, z);
-            GetLocalSection(x, y, z).Decorate(neighbors);
+            generator.DecorateSection(SectionPosition.From(Position, (x, y, z)), neighbors);
         }
 
         foreach ((int x, int y, int z) in VMath.Range3(x: 2, y: 2, z: 2)) DecorateSection(1 + x, 1 + y, 1 + z);
@@ -711,7 +712,7 @@ public abstract partial class Chunk : IDisposable
         };
     }
 
-    private static void DecorateCorner(Chunk?[,,] chunks, int x, int y, int z)
+    private static void DecorateCorner(IWorldGenerator generator, Chunk?[,,] chunks, int x, int y, int z)
     {
         Vector3i center = (1, 1, 1);
 
@@ -744,13 +745,13 @@ public abstract partial class Chunk : IDisposable
 
         void SetNeighbors(SectionPosition sectionPosition)
         {
-            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors[dx, dy, dz] = GetSection(sectionPosition);
+            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors![dx, dy, dz] = GetSection(sectionPosition);
         }
 
         void DecorateSection(SectionPosition sectionPosition)
         {
             SetNeighbors(sectionPosition);
-            GetSection(sectionPosition).Decorate(neighbors);
+            generator.DecorateSection(sectionPosition, neighbors);
         }
 
         SectionPosition lowCorner = SectionPosition.From(chunks[x, y, z]!.Position, (Size - 1, Size - 1, Size - 1));

@@ -421,6 +421,14 @@ public class Biome
     private List<Layer> Layers { get; init; } = null!;
 
     /// <summary>
+    ///     Get all decorations of this biome.
+    /// </summary>
+    public ICollection<Decoration> Decorations { get; init; } = new List<Decoration>
+    {
+        new()
+    };
+
+    /// <summary>
     ///     Get the cover of the biome.
     /// </summary>
     public Cover Cover { get; private init; } = null!;

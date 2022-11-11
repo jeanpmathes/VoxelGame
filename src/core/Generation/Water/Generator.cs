@@ -40,6 +40,12 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
+    public void DecorateSection(SectionPosition position, Section[,,] sections)
+    {
+        // No decoration.
+    }
+
+    /// <inheritdoc />
     public void EmitViews(string path)
     {
         // No views to emit.

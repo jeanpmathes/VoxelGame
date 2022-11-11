@@ -75,7 +75,7 @@ public partial class StaticStructure : Structure
             Content? content = world.GetContent(position + new Vector3i(x, y, z));
 
             if (content == null) continue;
-            if (content.Value == Content.Default) continue;
+            if (content.Value.IsEmpty) continue;
 
             data[x, y, z] = content;
         }

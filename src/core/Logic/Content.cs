@@ -63,6 +63,11 @@ public record struct Content(BlockInstance Block, FluidInstance Fluid)
     ///     Get the default content.
     /// </summary>
     public static Content Default => new(BlockInstance.Default, FluidInstance.Default);
+
+    /// <summary>
+    ///     Whether the content is empty.
+    /// </summary>
+    public bool IsEmpty => this == Default;
 }
 
 /// <summary>

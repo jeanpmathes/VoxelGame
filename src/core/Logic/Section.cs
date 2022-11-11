@@ -104,14 +104,6 @@ public abstract class Section : IDisposable
     public static Vector3d Extents => new(Size / 2f, Size / 2f, Size / 2f);
 
     /// <summary>
-    ///     Decorate this section. This method should only be called once.
-    /// </summary>
-    /// <param name="neighbors">The neighbors of this section.</param>
-    #pragma warning disable S2368
-    public void Decorate(Section[,,] neighbors) {}
-    #pragma warning restore S2368
-
-    /// <summary>
     ///     Gets the content at a section position.
     /// </summary>
     /// <param name="x">The x position of the block data in this section.</param>
@@ -220,6 +212,17 @@ public abstract class Section : IDisposable
     }
 
     /// <summary>
+    ///     Decode the section content.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Decode(uint val, out Content content)
+    {
+        Decode(val, out Block block, out uint data, out Fluid fluid, out FluidLevel level, out bool isStatic);
+
+        content = new Content(block.AsInstance(data), fluid.AsInstance(level, isStatic));
+    }
+
+    /// <summary>
     ///     Encode block and fluid information into section content.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -230,6 +233,15 @@ public abstract class Section : IDisposable
                        | ((fluid.Id << FluidShift) & FluidMask)
                        | ((data << DataShift) & DataMask)
                        | (block.ID & BlockMask));
+    }
+
+    /// <summary>
+    ///     Encode world content information into section content.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static uint Encode(in Content content)
+    {
+        return Encode(content.Block.Block, content.Block.Data, content.Fluid.Fluid, content.Fluid.Level, content.Fluid.IsStatic);
     }
 
     /// <summary>

@@ -203,7 +203,7 @@ public abstract partial class Chunk
 
                 if (guard == null) return;
 
-                activity = (Chunk.DecorateAsync(chunks), guard);
+                activity = (Chunk.DecorateAsync(Context.Generator, chunks), guard);
             }
             else if (task.IsCompleted)
             {

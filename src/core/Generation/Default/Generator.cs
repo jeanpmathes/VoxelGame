@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
@@ -25,6 +26,8 @@ public class Generator : IWorldGenerator
 
     private const string MapBlobName = "default_map";
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Generator>();
+
+    private readonly FastNoiseLite decorationNoise;
 
     private readonly Map map;
 
@@ -49,6 +52,10 @@ public class Generator : IWorldGenerator
 
         Initialize();
         Store();
+
+        decorationNoise = new FastNoiseLite(seed);
+        decorationNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
+        decorationNoise.SetFrequency(frequency: 0.5f);
 
         logger.LogInformation(Events.WorldGeneration, "Created '{Name}' world generator", nameof(Default));
     }
@@ -78,6 +85,36 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
+    public void DecorateSection(SectionPosition position, Section[,,] sections)
+    {
+        List<Biome> biomes = GetSectionBiomes(position);
+
+        HashSet<Decoration> decorations = new();
+        Dictionary<Decoration, HashSet<Biome>> decorationBiomes = new();
+
+        foreach (Biome biome in biomes)
+        foreach (Decoration decoration in biome.Decorations)
+        {
+            decorations.Add(decoration);
+            decorationBiomes.GetOrAdd(decoration).Add(biome);
+        }
+
+        foreach (Decoration decoration in decorations.OrderByDescending(d => d.Size))
+        {
+            Decoration.Context context = new()
+            {
+                Position = position,
+                Sections = sections,
+                Biomes = decorationBiomes[decoration],
+                Noise = decorationNoise,
+                Map = map
+            };
+
+            decoration.Place(context);
+        }
+    }
+
+    /// <inheritdoc />
     public void EmitViews(string path)
     {
         map.EmitViews(path);
@@ -85,6 +122,22 @@ public class Generator : IWorldGenerator
 
     /// <inheritdoc />
     public IMap Map => map;
+
+    private List<Biome> GetSectionBiomes(SectionPosition position)
+    {
+        List<Biome> biomes = new();
+
+        Vector2i start = position.FirstBlock.Xz;
+
+        biomes.Add(map.GetSample(start).ActualBiome);
+        biomes.Add(map.GetSample(start + (0, Section.Size)).ActualBiome);
+        biomes.Add(map.GetSample(start + (Section.Size, 0)).ActualBiome);
+        biomes.Add(map.GetSample(start + (Section.Size, Section.Size)).ActualBiome);
+
+        biomes = biomes.Distinct().ToList();
+
+        return biomes;
+    }
 
     private static double GetOffset(Vector2i position, in Map.Sample sample)
     {

@@ -121,6 +121,16 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     }
 
     /// <summary>
+    ///     Get the offset that has to be applied to this section position to get the given position.
+    /// </summary>
+    /// <param name="other">The position to get the offset to.</param>
+    /// <returns>The offset.</returns>
+    public Vector3i OffsetTo(SectionPosition other)
+    {
+        return new Vector3i(other.X - X, other.Y - Y, other.Z - Z);
+    }
+
+    /// <summary>
     ///     Get the position of the first block in this section.
     /// </summary>
     public Vector3i FirstBlock => new Vector3i(X, Y, Z) * Section.Size;
