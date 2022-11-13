@@ -31,6 +31,11 @@ public class Decoration
     public float Rarity => 3.5f;
 
     /// <summary>
+    ///     Get the name of the decoration.
+    /// </summary>
+    public string Name => "decoration";
+
+    /// <summary>
     ///     Place decorations of this type in a section.
     /// </summary>
     /// <param name="context">The context in which placement occurs.</param>

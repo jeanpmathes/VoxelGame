@@ -103,9 +103,11 @@ public class Generator : IWorldGenerator
             decorationBiomes.GetOrAdd(decoration).Add(biome);
         }
 
+        Debug.Assert(decorations.GroupBy(d => d.Name).All(g => g.Count() <= 1), "Duplicate decoration names or cloned decorations.");
+
         Array3D<float> noise = GenerateDecorationNoise(position);
 
-        foreach (Decoration decoration in decorations.OrderByDescending(d => d.Size))
+        foreach (Decoration decoration in decorations.OrderByDescending(d => d.Size).ThenBy(d => d.Name))
         {
             Decoration.Context context = new()
             {
