@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Generation;
@@ -33,9 +34,7 @@ public interface IWorldGenerator
     /// </summary>
     /// <param name="position">The position of the section.</param>
     /// <param name="sections">The section and all its neighbors.</param>
-    #pragma warning disable S2368
-    void DecorateSection(SectionPosition position, Section[,,] sections);
-    #pragma warning restore S2368
+    void DecorateSection(SectionPosition position, Array3D<Section> sections);
 
     /// <summary>
     ///     Emit views of global generated data for debugging.

@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Generation.Water;
@@ -40,7 +41,7 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public void DecorateSection(SectionPosition position, Section[,,] sections)
+    public void DecorateSection(SectionPosition position, Array3D<Section> sections)
     {
         // No decoration.
     }

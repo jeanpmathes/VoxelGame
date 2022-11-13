@@ -563,9 +563,9 @@ public abstract partial class Chunk : IDisposable
 
         Vector3i center = (1, 1, 1);
 
-        bool[,,] available = FindAvailableNeighbors();
+        Array3D<bool> available = FindAvailableNeighbors();
 
-        var needed = new bool[3, 3, 3];
+        var needed = new Array3D<bool>(length: 3);
 
         bool isAnyDecorationPossible = CheckCornerDecorations(available, needed);
 
@@ -576,7 +576,7 @@ public abstract partial class Chunk : IDisposable
             return null;
         }
 
-        var neighbors = new (Chunk, Guard)?[3, 3, 3];
+        var neighbors = new Array3D<(Chunk, Guard)?>(length: 3);
 
         foreach ((int x, int y, int z) in VMath.Range3(x: 3, y: 3, z: 3))
         {
@@ -596,7 +596,7 @@ public abstract partial class Chunk : IDisposable
         return new Decorating(access, neighbors);
     }
 
-    private bool CheckCornerDecorations(bool[,,] available, bool[,,] needed)
+    private bool CheckCornerDecorations(Array3D<bool> available, Array3D<bool> needed)
     {
         var isAnyDecorationPossible = false;
 
@@ -609,7 +609,7 @@ public abstract partial class Chunk : IDisposable
             foreach ((int dx, int dy, int dz) in VMath.Range3(x: 2, y: 2, z: 2))
             {
                 Vector3i neededNeighbor = (x + dx, y + dy, z + dz);
-                isCornerAvailable &= neededNeighbor.Index(available);
+                isCornerAvailable &= available.GetAt(neededNeighbor);
             }
 
             if (!isCornerAvailable) continue;
@@ -619,18 +619,18 @@ public abstract partial class Chunk : IDisposable
             foreach ((int dx, int dy, int dz) in VMath.Range3(x: 2, y: 2, z: 2))
             {
                 Vector3i neededNeighbor = (x + dx, y + dy, z + dz);
-                neededNeighbor.Index(needed) = true;
+                needed.SetAt(neededNeighbor, value: true);
             }
         }
 
         return isAnyDecorationPossible;
     }
 
-    private bool[,,] FindAvailableNeighbors()
+    private Array3D<bool> FindAvailableNeighbors()
     {
         Vector3i center = (1, 1, 1);
 
-        var available = new bool[3, 3, 3];
+        var available = new Array3D<bool>(length: 3);
 
         foreach ((int x, int y, int z) in VMath.Range3(x: 3, y: 3, z: 3))
             available[x, y, z] = (x, y, z) == center
@@ -639,7 +639,7 @@ public abstract partial class Chunk : IDisposable
         return available;
     }
 
-    private void Decorate(IWorldGenerator generator, Chunk?[,,] neighbors)
+    private void Decorate(IWorldGenerator generator, Array3D<Chunk?> neighbors)
     {
         foreach ((int x, int y, int z) in VMath.Range3(x: 2, y: 2, z: 2))
         {
@@ -650,7 +650,7 @@ public abstract partial class Chunk : IDisposable
             foreach ((int dx, int dy, int dz) in VMath.Range3(x: 2, y: 2, z: 2))
             {
                 Vector3i neededNeighbor = (x + dx, y + dy, z + dz);
-                isCornerAvailable &= neededNeighbor.Index(neighbors) != null;
+                isCornerAvailable &= neighbors.GetAt(neededNeighbor) != null;
             }
 
             if (!isCornerAvailable) continue;
@@ -659,20 +659,18 @@ public abstract partial class Chunk : IDisposable
         }
     }
 
-    #pragma warning disable S2368
-
     /// <summary>
     ///     Decorate the chunk with the given neighbors. If enough neighbors are available, the chunk will be fully decorated.
     /// </summary>
     /// <param name="generator">The world generator.</param>
     /// <param name="neighbors">The neighbors of this chunk.</param>
     /// <returns>The task that decorates the chunk.</returns>
-    public Task DecorateAsync(IWorldGenerator generator, Chunk?[,,] neighbors)
+    public Task DecorateAsync(IWorldGenerator generator, Array3D<Chunk?> neighbors)
     {
+        Debug.Assert(neighbors.Length == 3);
+
         return Task.Run(() => Decorate(generator, neighbors));
     }
-
-    #pragma warning restore S2368
 
     private void DecorateCenter(IWorldGenerator generator)
     {
@@ -680,11 +678,12 @@ public abstract partial class Chunk : IDisposable
 
         decoration |= DecorationLevels.Center;
 
-        var neighbors = new Section[3, 3, 3];
+        var neighbors = new Array3D<Section>(length: 3);
 
         void SetNeighbors(int x, int y, int z)
         {
-            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors![dx, dy, dz] = GetLocalSection(x + dx - 1, y + dy - 1, z + dz - 1);
+            Debug.Assert(neighbors != null);
+            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors[dx, dy, dz] = GetLocalSection(x + dx - 1, y + dy - 1, z + dz - 1);
         }
 
         void DecorateSection(int x, int y, int z)
@@ -712,7 +711,7 @@ public abstract partial class Chunk : IDisposable
         };
     }
 
-    private static void DecorateCorner(IWorldGenerator generator, Chunk?[,,] chunks, int x, int y, int z)
+    private static void DecorateCorner(IWorldGenerator generator, Array3D<Chunk?> chunks, int x, int y, int z)
     {
         Vector3i center = (1, 1, 1);
 
@@ -722,7 +721,7 @@ public abstract partial class Chunk : IDisposable
         {
             Vector3i position = (x + dx, y + dy, z + dz);
 
-            Chunk? chunk = position.Index(chunks);
+            Chunk? chunk = chunks.GetAt(position);
             Debug.Assert(chunk != null);
 
             chunk.decoration |= GetFlagForCorner(center.X - dx, center.Y - dy, center.Z - dz);
@@ -732,7 +731,7 @@ public abstract partial class Chunk : IDisposable
         // We want to decorate 56 of them, which is a cube of 4x4x4 without the corners.
         // The corners of this cube are the centers of the chunks - the cube overlaps with multiple chunks.
 
-        ChunkPosition first = chunks[1, 1, 1]!.Position.Offset(x: -1, y: -1, z: -1);
+        ChunkPosition first = chunks[x: 1, y: 1, z: 1]!.Position.Offset(x: -1, y: -1, z: -1);
 
         Section GetSection(SectionPosition sectionPosition)
         {
@@ -741,11 +740,12 @@ public abstract partial class Chunk : IDisposable
             return chunks[offset.X, offset.Y, offset.Z]!.GetSection(sectionPosition);
         }
 
-        var neighbors = new Section[3, 3, 3];
+        var neighbors = new Array3D<Section>(length: 3);
 
         void SetNeighbors(SectionPosition sectionPosition)
         {
-            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors![dx, dy, dz] = GetSection(sectionPosition);
+            Debug.Assert(neighbors != null);
+            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors[dx, dy, dz] = GetSection(sectionPosition);
         }
 
         void DecorateSection(SectionPosition sectionPosition)

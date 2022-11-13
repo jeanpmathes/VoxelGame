@@ -6,10 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -85,8 +87,10 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public void DecorateSection(SectionPosition position, Section[,,] sections)
+    public void DecorateSection(SectionPosition position, Array3D<Section> sections)
     {
+        Debug.Assert(sections.Length == 3);
+
         List<Biome> biomes = GetSectionBiomes(position);
 
         HashSet<Decoration> decorations = new();

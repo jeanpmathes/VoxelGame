@@ -466,23 +466,4 @@ public static class VMath
     {
         return Math.Max(Math.Max(a, b), Math.Max(c, d));
     }
-
-    #pragma warning disable S2368
-    /// <summary>
-    ///     Index an array using a vector.
-    /// </summary>
-    public static ref T Index<T>(this Vector3i vector, in T[,,] array)
-    {
-        return ref array[vector.X, vector.Y, vector.Z];
-    }
-
-    /// <summary>
-    ///     Index an array using a vector.
-    /// </summary>
-    public static ref T Index<T>(this Vector2i vector, in T[,] array)
-    {
-        return ref array[vector.X, vector.Y];
-    }
-
-    #pragma warning restore S2368
 }

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
 
@@ -91,7 +92,7 @@ public class Decoration
     /// <param name="Biomes">The biomes in which the decoration may be placed.</param>
     /// <param name="Noise">The noise used for decoration placement.</param>
     /// <param name="Map">The map of the world.</param>
-    public readonly record struct Context(SectionPosition Position, Section[,,] Sections, ISet<Biome> Biomes, FastNoiseLite Noise, Map Map)
+    public readonly record struct Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, FastNoiseLite Noise, Map Map)
     {
         private Section GetSection(Vector3i position)
         {
