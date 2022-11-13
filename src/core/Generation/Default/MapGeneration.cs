@@ -64,14 +64,8 @@ public partial class Map
     {
         void AddAdjacency(short a, short b)
         {
-            if (!adjacencyHashed.ContainsKey(a))
-                adjacencyHashed[a] = new HashSet<short>();
-
-            if (!adjacencyHashed.ContainsKey(b))
-                adjacencyHashed[b] = new HashSet<short>();
-
-            adjacencyHashed[a].Add(b);
-            adjacencyHashed[b].Add(a);
+            adjacencyHashed.GetOrAdd(a).Add(b);
+            adjacencyHashed.GetOrAdd(b).Add(a);
         }
 
         (int x, int y) = position;

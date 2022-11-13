@@ -154,7 +154,7 @@ public abstract partial class Chunk : IDisposable
     /// <summary>
     ///     Get whether this chunk is fully decorated.
     /// </summary>
-    public bool IsFullyDecorated => decoration.HasFlag(DecorationLevels.All);
+    public bool IsFullyDecorated => decoration == DecorationLevels.All;
 
     /// <summary>
     ///     Acquire the core resource, possibly stealing it.

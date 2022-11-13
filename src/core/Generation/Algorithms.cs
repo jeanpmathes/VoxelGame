@@ -61,9 +61,7 @@ public static class Algorithms
         {
             short mergedCurrent = merge(current);
 
-            if (!adjacencyHashed.ContainsKey(mergedCurrent)) adjacencyHashed.Add(mergedCurrent, new HashSet<short>());
-
-            HashSet<short> currentSet = adjacencyHashed[mergedCurrent];
+            HashSet<short> currentSet = adjacencyHashed.GetOrAdd(mergedCurrent);
 
             foreach (short neighbor in original[current])
             {
