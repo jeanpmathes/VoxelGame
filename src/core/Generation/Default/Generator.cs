@@ -103,6 +103,8 @@ public class Generator : IWorldGenerator
             decorationBiomes.GetOrAdd(decoration).Add(biome);
         }
 
+        Array3D<float> noise = GenerateDecorationNoise(position);
+
         foreach (Decoration decoration in decorations.OrderByDescending(d => d.Size))
         {
             Decoration.Context context = new()
@@ -110,7 +112,7 @@ public class Generator : IWorldGenerator
                 Position = position,
                 Sections = sections,
                 Biomes = decorationBiomes[decoration],
-                Noise = decorationNoise,
+                Noise = noise,
                 Map = map
             };
 
@@ -126,6 +128,22 @@ public class Generator : IWorldGenerator
 
     /// <inheritdoc />
     public IMap Map => map;
+
+    private Array3D<float> GenerateDecorationNoise(SectionPosition position)
+    {
+        var noise = new Array3D<float>(Section.Size);
+
+        for (var x = 0; x < Section.Size; x++)
+        for (var y = 0; y < Section.Size; y++)
+        for (var z = 0; z < Section.Size; z++)
+        {
+            Vector3i blockPosition = position.FirstBlock + (x, y, z);
+
+            noise[x, y, z] = decorationNoise.GetNoise(blockPosition.X, blockPosition.Y, blockPosition.Z);
+        }
+
+        return noise;
+    }
 
     private List<Biome> GetSectionBiomes(SectionPosition position)
     {

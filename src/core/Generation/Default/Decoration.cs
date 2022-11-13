@@ -53,13 +53,15 @@ public class Decoration
 
         Control control = new();
 
-        for (var y = 0; y < Section.Size && !control.SkipColumn; y++)
+        for (var y = 0; y < Section.Size; y++)
         {
-            control.Reset();
-
             position = context.Position.FirstBlock + (column.x, y, column.z);
 
-            if (noise.CheckCandidate(position, Rarity)) DecoratePosition(position, control, context);
+            if (!noise.CheckCandidate(position, Rarity) || control.SkipColumn) continue;
+
+            control.Reset();
+
+            DecoratePosition(position, control, context);
         }
     }
 
@@ -91,8 +93,9 @@ public class Decoration
     /// <param name="Sections">The section and its neighbors.</param>
     /// <param name="Biomes">The biomes in which the decoration may be placed.</param>
     /// <param name="Noise">The noise used for decoration placement.</param>
+    /// <param name="Index">The current index of the decoration.</param>
     /// <param name="Map">The map of the world.</param>
-    public readonly record struct Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, FastNoiseLite Noise, Map Map)
+    public readonly record struct Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<float> Noise, int Index, Map Map)
     {
         private Section GetSection(Vector3i position)
         {
@@ -134,21 +137,21 @@ public class Decoration
 
     private sealed class Noise
     {
-        private readonly FastNoiseLite noiseGenerator;
+        private readonly Array3D<float> noise;
         private readonly Random randomNumberGenerator;
 
         public Noise(in Context context)
         {
-            noiseGenerator = context.Noise;
-            randomNumberGenerator = new Random(context.Position.GetHashCode());
+            noise = context.Noise;
+            randomNumberGenerator = new Random(HashCode.Combine(context.Position, context.Index));
         }
 
         public bool CheckCandidate(Vector3i position, float rarity)
         {
-            float noise = noiseGenerator.GetNoise(position.X, position.Y, position.Z);
             float random = randomNumberGenerator.NextSingle();
+            (int x, int y, int z) = Section.ToLocalPosition(position);
 
-            return noise > random * rarity;
+            return noise[x, y, z] > random * rarity;
         }
     }
 
@@ -158,7 +161,7 @@ public class Decoration
     protected class Control
     {
         /// <summary>
-        ///     Whether the rest of the column should be skipped.
+        ///     Whether the rest of the column should be skipped. The noise values are still checked for the rest of the column.
         /// </summary>
         public bool SkipColumn { get; set; }
 

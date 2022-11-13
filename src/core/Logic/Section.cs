@@ -150,6 +150,16 @@ public abstract class Section : IDisposable
     }
 
     /// <summary>
+    ///     Get the local 3D-index of a block for a world position.
+    /// </summary>
+    /// <param name="worldPosition">The world position.</param>
+    /// <returns>The local 3D-index.</returns>
+    public static (int x, int y, int z) ToLocalPosition(Vector3i worldPosition)
+    {
+        return (worldPosition.X & (Size - 1), worldPosition.Y & (Size - 1), worldPosition.Z & (Size - 1));
+    }
+
+    /// <summary>
     ///     Setup the section after serialization.
     /// </summary>
     public abstract void Setup(Section loaded);
