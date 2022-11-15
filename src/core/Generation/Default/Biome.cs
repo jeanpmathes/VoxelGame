@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Generation.Default;
 /// <summary>
 ///     A biome is a collection of attributes of an area in the world.
 /// </summary>
-public partial class Biome
+public class Biome
 {
     private readonly string name;
     private (Layer layer, int depth)[] lowerHorizon = null!;
@@ -35,40 +35,49 @@ public partial class Biome
 
     private (Layer layer, int depth)[] upperHorizon = null!;
 
-    private Biome(string name)
+    /// <summary>
+    ///     Create a new biome. Most values must be set with the init-properties.
+    /// </summary>
+    /// <param name="name">The name of the biome.</param>
+    public Biome(string name)
     {
-        OnSetup += SetupBiome;
         this.name = name;
     }
 
     /// <summary>
     ///     A color representing the biome.
     /// </summary>
-    public Color Color { get; private init; }
+    public Color Color { get; init; }
 
     /// <summary>
     ///     Get the normal width of the ice layer on oceans.
     /// </summary>
-    public int IceWidth { get; private init; }
+    public int IceWidth { get; init; }
 
-    private float Amplitude { get; init; }
+    /// <summary>
+    ///     The amplitude of the noise used to generate the biome.
+    /// </summary>
+    public float Amplitude { get; init; }
 
-    private float Frequency { get; init; }
+    /// <summary>
+    ///     The frequency of the noise used to generate the biome.
+    /// </summary>
+    public float Frequency { get; init; }
 
-    private List<Layer> Layers { get; init; } = null!;
+    /// <summary>
+    ///     All layers that are part of the biome.
+    /// </summary>
+    public IList<Layer> Layers { get; init; } = null!;
 
     /// <summary>
     ///     Get all decorations of this biome.
     /// </summary>
-    public ICollection<Decoration> Decorations { get; init; } = new List<Decoration>
-    {
-        decoration
-    };
+    public ICollection<Decoration> Decorations { get; init; } = new List<Decoration>();
 
     /// <summary>
     ///     Get the cover of the biome.
     /// </summary>
-    public Cover Cover { get; private init; } = null!;
+    public Cover Cover { get; init; } = null!;
 
     /// <summary>
     ///     The width of the dampening layer.
@@ -86,25 +95,16 @@ public partial class Biome
     private Layer? Dampen { get; set; }
 
     /// <summary>
-    ///     Setup all biomes for current world generation.
-    ///     Because biomes need setup, only one world can be generated at a time.
+    /// Setup the biome. This must be called after all init-properties have been set.
     /// </summary>
-    /// <param name="seed">The seed to use for the noise generation.</param>
-    /// <param name="palette">The palette to use for the generating.</param>
-    public static void Setup(int seed, Palette palette)
+    /// <param name="seed">The seed to use for the biome.</param>
+    /// <param name="palette">The palette to use for the biome.</param>
+    public void SetupBiome(int seed, Palette palette)
     {
-        Debug.Assert(OnSetup != null);
-        OnSetup(sender: null, (seed, palette));
-    }
+        SetupNoise(seed);
+        SetupLayers(palette);
 
-    private static event EventHandler<(int seed, Palette palette)>? OnSetup;
-
-    private void SetupBiome(object? sender, (int seed, Palette palette) arguments)
-    {
-        SetupNoise(arguments.seed);
-        SetupLayers(arguments.palette);
-
-        Cover.SetupNoise(arguments.seed);
+        Cover.SetupNoise(seed);
     }
 
     private void SetupNoise(int seed)

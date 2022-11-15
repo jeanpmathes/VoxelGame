@@ -434,7 +434,7 @@ public partial class Map : IMap
 
         if (mountainStrength > coastlineStrength)
         {
-            specialBiome = Biome.Mountains;
+            specialBiome = biomes.GetMountainBiome();
             specialStrength = mountainStrength;
         }
         else

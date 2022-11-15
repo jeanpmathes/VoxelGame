@@ -10,14 +10,38 @@ using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Generation.Default;
 
-public partial class Biome
+/// <summary>
+///     Defines all biomes.
+/// </summary>
+public class Biomes
 {
-    private static readonly Decoration decoration = new();
+    private readonly List<Biome> biomes = new();
+
+    private Biomes()
+    {
+        biomes.Add(PolarDesert);
+        biomes.Add(TropicalRainforest);
+        biomes.Add(TemperateRainforest);
+        biomes.Add(Taiga);
+        biomes.Add(Tundra);
+        biomes.Add(Savanna);
+        biomes.Add(SeasonalForest);
+        biomes.Add(DryForest);
+        biomes.Add(Shrubland);
+        biomes.Add(Desert);
+        biomes.Add(Grassland);
+        biomes.Add(Ocean);
+        biomes.Add(PolarOcean);
+        biomes.Add(Mountains);
+        biomes.Add(Beach);
+        biomes.Add(GrassyCliff);
+        biomes.Add(SandyCliff);
+    }
 
     /// <summary>
     ///     The polar desert biome.
     /// </summary>
-    public static readonly Biome PolarDesert = new(nameof(PolarDesert))
+    public Biome PolarDesert { get; } = new(nameof(PolarDesert))
     {
         Color = Color.Gray,
         Amplitude = 2f,
@@ -38,7 +62,7 @@ public partial class Biome
     /// <summary>
     ///     The tropical rainforest biome.
     /// </summary>
-    public static readonly Biome TropicalRainforest = new(nameof(TropicalRainforest))
+    public Biome TropicalRainforest { get; } = new(nameof(TropicalRainforest))
     {
         Color = Color.DarkGreen,
         Amplitude = 15f,
@@ -61,7 +85,7 @@ public partial class Biome
     /// <summary>
     ///     The temperate rainforest biome.
     /// </summary>
-    public static readonly Biome TemperateRainforest = new(nameof(TemperateRainforest))
+    public Biome TemperateRainforest { get; } = new(nameof(TemperateRainforest))
     {
         Color = Color.Green,
         Amplitude = 15f,
@@ -84,7 +108,7 @@ public partial class Biome
     /// <summary>
     ///     The taiga biome.
     /// </summary>
-    public static readonly Biome Taiga = new(nameof(Taiga))
+    public Biome Taiga { get; } = new(nameof(Taiga))
     {
         Color = Color.Navy,
         Amplitude = 3f,
@@ -105,7 +129,7 @@ public partial class Biome
     /// <summary>
     ///     The tundra biome.
     /// </summary>
-    public static readonly Biome Tundra = new(nameof(Tundra))
+    public Biome Tundra { get; } = new(nameof(Tundra))
     {
         Color = Color.CadetBlue,
         Amplitude = 3f,
@@ -126,7 +150,7 @@ public partial class Biome
     /// <summary>
     ///     The savanna biome.
     /// </summary>
-    public static readonly Biome Savanna = new(nameof(Savanna))
+    public Biome Savanna { get; } = new(nameof(Savanna))
     {
         Color = Color.Olive,
         Amplitude = 1f,
@@ -149,7 +173,7 @@ public partial class Biome
     /// <summary>
     ///     The seasonal forest biome.
     /// </summary>
-    public static readonly Biome SeasonalForest = new(nameof(SeasonalForest))
+    public Biome SeasonalForest { get; } = new(nameof(SeasonalForest))
     {
         Color = Color.LimeGreen,
         Amplitude = 10f,
@@ -172,7 +196,7 @@ public partial class Biome
     /// <summary>
     ///     The dry forest biome.
     /// </summary>
-    public static readonly Biome DryForest = new(nameof(DryForest))
+    public Biome DryForest { get; } = new(nameof(DryForest))
     {
         Color = Color.SeaGreen,
         Amplitude = 15f,
@@ -195,7 +219,7 @@ public partial class Biome
     /// <summary>
     ///     The shrubland biome.
     /// </summary>
-    public static readonly Biome Shrubland = new(nameof(Shrubland))
+    public Biome Shrubland { get; } = new(nameof(Shrubland))
     {
         Color = Color.Salmon,
         Amplitude = 1f,
@@ -218,7 +242,7 @@ public partial class Biome
     /// <summary>
     ///     The desert biome.
     /// </summary>
-    public static readonly Biome Desert = new(nameof(Desert))
+    public Biome Desert { get; } = new(nameof(Desert))
     {
         Color = Color.Yellow,
         Amplitude = 4f,
@@ -239,7 +263,7 @@ public partial class Biome
     /// <summary>
     ///     The grassland biome.
     /// </summary>
-    public static readonly Biome Grassland = new(nameof(Grassland))
+    public Biome Grassland { get; } = new(nameof(Grassland))
     {
         Color = Color.SaddleBrown,
         Amplitude = 4f,
@@ -262,7 +286,7 @@ public partial class Biome
     /// <summary>
     ///     The normal ocean biome.
     /// </summary>
-    public static readonly Biome Ocean = new(nameof(Ocean))
+    public Biome Ocean { get; } = new(nameof(Ocean))
     {
         Color = Color.White,
         Amplitude = 5.0f,
@@ -282,7 +306,7 @@ public partial class Biome
     /// <summary>
     ///     The polar ocean biome. It is covered in ice and occurs in cold regions.
     /// </summary>
-    public static readonly Biome PolarOcean = new(nameof(PolarOcean))
+    public Biome PolarOcean { get; } = new(nameof(PolarOcean))
     {
         Color = Color.White,
         Amplitude = 5.0f,
@@ -303,7 +327,7 @@ public partial class Biome
     /// <summary>
     ///     The mountain biome. It is a special biome that depends on the height of the terrain.
     /// </summary>
-    public static readonly Biome Mountains = new(nameof(Mountains))
+    public Biome Mountains { get; } = new(nameof(Mountains))
     {
         Color = Color.Black,
         Amplitude = 30f,
@@ -323,7 +347,7 @@ public partial class Biome
     /// <summary>
     ///     The beach biome. It is found at low heights next to coastlines.
     /// </summary>
-    public static readonly Biome Beach = new(nameof(Beach))
+    public Biome Beach { get; } = new(nameof(Beach))
     {
         Color = Color.Black,
         Amplitude = 4f,
@@ -344,7 +368,7 @@ public partial class Biome
     /// <summary>
     ///     The grass covered cliff biome, which is found at coastlines with large height differences.
     /// </summary>
-    public static readonly Biome GrassyCliff = new(nameof(GrassyCliff))
+    public Biome GrassyCliff { get; } = new(nameof(GrassyCliff))
     {
         Color = Color.Black,
         Amplitude = 4f,
@@ -362,7 +386,7 @@ public partial class Biome
     /// <summary>
     ///     The sand covered cliff biome, which is found at coastlines with large height differences.
     /// </summary>
-    public static readonly Biome SandyCliff = new(nameof(SandyCliff))
+    public Biome SandyCliff { get; } = new(nameof(SandyCliff))
     {
         Color = Color.Black,
         Amplitude = 4f,
@@ -376,4 +400,23 @@ public partial class Biome
             Layer.CreateStone(width: 39)
         }
     };
+
+    /// <summary>
+    ///     Load all biomes. They must be set up after that.
+    /// </summary>
+    /// <returns>The loaded biomes.</returns>
+    public static Biomes Load()
+    {
+        return new Biomes();
+    }
+
+    /// <summary>
+    ///     Sets up all biomes.
+    /// </summary>
+    /// <param name="seed">The seed to use for biome generation.</param>
+    /// <param name="palette">The palette to use for biome generation.</param>
+    public void Setup(int seed, Palette palette)
+    {
+        foreach (Biome biome in biomes) biome.SetupBiome(seed, palette);
+    }
 }

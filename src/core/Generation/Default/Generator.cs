@@ -48,9 +48,10 @@ public class Generator : IWorldGenerator
         this.world = world;
         seed = world.Seed;
 
-        Biome.Setup(seed, palette);
+        Biomes biomes = Biomes.Load();
+        biomes.Setup(seed, palette);
 
-        map = new Map(BiomeDistribution.Default);
+        map = new Map(BiomeDistribution.CreateDefault(biomes));
 
         Initialize();
         Store();

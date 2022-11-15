@@ -15,29 +15,35 @@ namespace VoxelGame.Core.Generation.Default;
 public class BiomeDistribution
 {
     private const int Resolution = 10;
-    private readonly Biome?[,] biomes;
+    private readonly Biomes biomes;
+    private readonly Biome?[,] distribution;
 
-    private BiomeDistribution()
+    private BiomeDistribution(Biomes biomes)
     {
-        biomes = new[,]
+        this.biomes = biomes;
+
+        distribution = new[,]
         {
-            {Biome.PolarDesert, Biome.Tundra, Biome.Taiga, Biome.Grassland, Biome.Grassland, Biome.Grassland, Biome.Desert, Biome.Desert, Biome.Desert, Biome.Desert},
-            {null, Biome.Tundra, Biome.Taiga, Biome.Shrubland, Biome.Shrubland, Biome.Shrubland, Biome.Shrubland, Biome.Savanna, Biome.Desert, Biome.Desert},
-            {null, null, Biome.Taiga, Biome.SeasonalForest, Biome.SeasonalForest, Biome.SeasonalForest, Biome.Shrubland, Biome.Savanna, Biome.Savanna, Biome.Savanna},
-            {null, null, null, Biome.SeasonalForest, Biome.SeasonalForest, Biome.SeasonalForest, Biome.SeasonalForest, Biome.DryForest, Biome.DryForest, Biome.DryForest},
-            {null, null, null, null, Biome.SeasonalForest, Biome.SeasonalForest, Biome.SeasonalForest, Biome.DryForest, Biome.DryForest, Biome.DryForest},
-            {null, null, null, null, null, Biome.TemperateRainforest, Biome.TemperateRainforest, Biome.TropicalRainforest, Biome.DryForest, Biome.DryForest},
-            {null, null, null, null, null, null, Biome.TemperateRainforest, Biome.TropicalRainforest, Biome.TropicalRainforest, Biome.DryForest},
-            {null, null, null, null, null, null, null, Biome.TropicalRainforest, Biome.TropicalRainforest, Biome.TropicalRainforest},
-            {null, null, null, null, null, null, null, null, Biome.TropicalRainforest, Biome.TropicalRainforest},
-            {null, null, null, null, null, null, null, null, null, Biome.TropicalRainforest}
+            {biomes.PolarDesert, biomes.Tundra, biomes.Taiga, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert},
+            {null, biomes.Tundra, biomes.Taiga, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Savanna, biomes.Desert, biomes.Desert},
+            {null, null, biomes.Taiga, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.Shrubland, biomes.Savanna, biomes.Savanna, biomes.Savanna},
+            {null, null, null, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.DryForest, biomes.DryForest, biomes.DryForest},
+            {null, null, null, null, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.DryForest, biomes.DryForest, biomes.DryForest},
+            {null, null, null, null, null, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TropicalRainforest, biomes.DryForest, biomes.DryForest},
+            {null, null, null, null, null, null, biomes.TemperateRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.DryForest},
+            {null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest},
+            {null, null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest},
+            {null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest}
         };
     }
 
     /// <summary>
     ///     Get the default biome distribution.
     /// </summary>
-    public static BiomeDistribution Default => new();
+    public static BiomeDistribution CreateDefault(Biomes biomes)
+    {
+        return new BiomeDistribution(biomes);
+    }
 
     /// <summary>
     ///     Get the biome at the given temperature and humidity.
@@ -58,7 +64,7 @@ public class BiomeDistribution
         x = Math.Clamp(x, min: 0, Resolution - 1);
         y = Math.Clamp(y, min: 0, Resolution - 1);
 
-        Biome? biome = biomes[x, y];
+        Biome? biome = distribution[x, y];
 
         Debug.Assert(biome is not null);
 
@@ -74,11 +80,11 @@ public class BiomeDistribution
     /// <returns>The appropriate coastline biome.</returns>
     public Biome GetCoastlineBiome(float temperature, float humidity, bool isCliff)
     {
-        if (!isCliff) return Biome.Beach;
+        if (!isCliff) return biomes.Beach;
 
         Biome biome = GetBiome(temperature, humidity);
 
-        return biome == Biome.Desert ? Biome.SandyCliff : Biome.GrassyCliff;
+        return biome == biomes.Desert ? biomes.SandyCliff : biomes.GrassyCliff;
     }
 
     /// <summary>
@@ -91,6 +97,14 @@ public class BiomeDistribution
     {
         Biome biome = GetBiome(temperature, humidity);
 
-        return biome == Biome.PolarDesert ? Biome.PolarOcean : Biome.Ocean;
+        return biome == biomes.PolarDesert ? biomes.PolarOcean : biomes.Ocean;
+    }
+
+    /// <summary>
+    ///     Get the mountain biome.
+    /// </summary>
+    public Biome GetMountainBiome()
+    {
+        return biomes.Mountains;
     }
 }
