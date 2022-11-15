@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Generation.Default.Deco;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Generation.Default;

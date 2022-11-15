@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using VoxelGame.Core.Generation.Default.Deco;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Generation.Default;
@@ -79,6 +80,11 @@ public class Biomes
             Layer.CreateLoose(width: 33),
             Layer.CreateGroundwater(width: 18),
             Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+        },
+        Decorations = new List<Decoration>
+        {
+            Decorations.Instance.TallGrass,
+            Decorations.Instance.TallFlower
         }
     };
 
@@ -102,6 +108,11 @@ public class Biomes
             Layer.CreateLoose(width: 33),
             Layer.CreateGroundwater(width: 18),
             Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+        },
+        Decorations = new List<Decoration>
+        {
+            Decorations.Instance.TallGrass,
+            Decorations.Instance.TallFlower
         }
     };
 
@@ -167,6 +178,10 @@ public class Biomes
             Layer.CreateLoose(width: 37),
             Layer.CreateGroundwater(width: 18),
             Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+        },
+        Decorations = new List<Decoration>
+        {
+            Decorations.Instance.TallGrass
         }
     };
 
@@ -190,6 +205,11 @@ public class Biomes
             Layer.CreateLoose(width: 37),
             Layer.CreateGroundwater(width: 18),
             Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+        },
+        Decorations = new List<Decoration>
+        {
+            Decorations.Instance.TallGrass,
+            Decorations.Instance.TallFlower
         }
     };
 
@@ -213,6 +233,10 @@ public class Biomes
             Layer.CreateLoose(width: 33),
             Layer.CreateGroundwater(width: 18),
             Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+        },
+        Decorations = new List<Decoration>
+        {
+            Decorations.Instance.TallGrass
         }
     };
 
@@ -280,6 +304,10 @@ public class Biomes
             Layer.CreateLoose(width: 37),
             Layer.CreateGroundwater(width: 18),
             Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+        },
+        Decorations = new List<Decoration>
+        {
+            Decorations.Instance.TallGrass
         }
     };
 

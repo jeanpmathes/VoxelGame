@@ -12,6 +12,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Generation.Default.Deco;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -95,29 +96,24 @@ public class Generator : IWorldGenerator
         List<Biome> biomes = GetSectionBiomes(position);
 
         HashSet<Decoration> decorations = new();
-        Dictionary<Decoration, HashSet<Biome>> decorationBiomes = new();
+        Dictionary<Decoration, HashSet<Biome>> decorationToBiomes = new();
 
         foreach (Biome biome in biomes)
         foreach (Decoration decoration in biome.Decorations)
         {
             decorations.Add(decoration);
-            decorationBiomes.GetOrAdd(decoration).Add(biome);
+            decorationToBiomes.GetOrAdd(decoration).Add(biome);
         }
 
         Debug.Assert(decorations.GroupBy(d => d.Name).All(g => g.Count() <= 1), "Duplicate decoration names or cloned decorations.");
 
         Array3D<float> noise = GenerateDecorationNoise(position);
 
+        var index = 0;
+
         foreach (Decoration decoration in decorations.OrderByDescending(d => d.Size).ThenBy(d => d.Name))
         {
-            Decoration.Context context = new()
-            {
-                Position = position,
-                Sections = sections,
-                Biomes = decorationBiomes[decoration],
-                Noise = noise,
-                Map = map
-            };
+            Decoration.Context context = new(position, sections, decorationToBiomes[decoration], noise, index++, map);
 
             decoration.Place(context);
         }

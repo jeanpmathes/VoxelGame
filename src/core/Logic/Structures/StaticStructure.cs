@@ -56,13 +56,13 @@ public partial class StaticStructure : Structure
     public override Vector3i Extents { get; }
 
     /// <summary>
-    ///     Read a structure from the world.
+    ///     Read a structure from a grid.
     /// </summary>
-    /// <param name="world">The world to read from.</param>
+    /// <param name="grid">The grid to read from.</param>
     /// <param name="position">The position of the structure.</param>
     /// <param name="extents">The extents of the structure.</param>
     /// <returns>The structure, or null if arguments are invalid.</returns>
-    public static StaticStructure? Read(World world, Vector3i position, Vector3i extents)
+    public static StaticStructure? Read(IReadOnlyGrid grid, Vector3i position, Vector3i extents)
     {
         if (!IsExtentsAcceptable(extents)) return null;
 
@@ -72,7 +72,7 @@ public partial class StaticStructure : Structure
         for (var y = 0; y < extents.Y; y++)
         for (var z = 0; z < extents.Z; z++)
         {
-            Content? content = world.GetContent(position + new Vector3i(x, y, z));
+            Content? content = grid.GetContent(position + new Vector3i(x, y, z));
 
             if (content == null) continue;
             if (content.Value.IsEmpty) continue;
@@ -194,7 +194,7 @@ public partial class StaticStructure : Structure
     }
 
     /// <inheritdoc />
-    public override Content? GetContent(Vector3i offset)
+    protected override Content? GetContent(Vector3i offset)
     {
         Debug.Assert(IsInExtents(offset));
 

@@ -466,4 +466,20 @@ public static class VMath
     {
         return Math.Max(Math.Max(a, b), Math.Max(c, d));
     }
+
+    /// <summary>
+    ///     Get the maximum component of a vector.
+    /// </summary>
+    public static int MaxComponent(this Vector3i v)
+    {
+        return Math.Max(Math.Max(v.X, v.Y), v.Z);
+    }
+
+    /// <summary>
+    ///     Get the maximum component of a vector.
+    /// </summary>
+    public static float MaxComponent(this Vector3 v)
+    {
+        return Math.Max(Math.Max(v.X, v.Y), v.Z);
+    }
 }

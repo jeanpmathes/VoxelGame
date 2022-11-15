@@ -10,30 +10,48 @@ using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Utilities;
 
-namespace VoxelGame.Core.Generation.Default;
+namespace VoxelGame.Core.Generation.Default.Deco;
 
 /// <summary>
 ///     Decorations are placed in the world during the decoration step of world generation.
 ///     They are small structures and elements.
 /// </summary>
-public class Decoration
+public abstract class Decoration
 {
+    private readonly Decorator decorator;
+
+    /// <summary>
+    ///     Creates a new decoration.
+    /// </summary>
+    /// <param name="name">The name of the decoration. Must be unique.</param>
+    /// <param name="rarity">
+    ///     The rarity of the decoration. Must be between 0 and 1. A higher value indicates a lower chance of
+    ///     placement.
+    /// </param>
+    /// <param name="decorator">The decorator that will be used to place the decoration.</param>
+    protected Decoration(string name, float rarity, Decorator decorator)
+    {
+        Name = name;
+        Rarity = rarity;
+
+        this.decorator = decorator;
+    }
+
     /// <summary>
     ///     Get the size of the decoration. Must be less or equal than <see cref="Section.Size" />.
     /// </summary>
-    public int Size => 1;
+    public abstract int Size { get; }
 
     /// <summary>
-    ///     The rarity of the decoration. Must be between 0 and 1. A higher value means a lower chance of placement.
+    ///     The rarity of the decoration. Must be between 0 and 1. A higher value indicates a lower chance of placement.
     /// </summary>
-    public float Rarity => 3.5f;
+    private float Rarity { get; }
 
     /// <summary>
     ///     Get the name of the decoration.
     /// </summary>
-    public string Name => "decoration";
+    public string Name { get; }
 
     /// <summary>
     ///     Place decorations of this type in a section.
@@ -48,7 +66,7 @@ public class Decoration
             DecorateColumn((x, z), noise, context);
     }
 
-    private void DecorateColumn((int x, int z) column, Noise noise, in Context context)
+    private void DecorateColumn((int x, int z) column, Noise noise, Context context)
     {
         Vector3i position = context.Position.FirstBlock + (column.x, 0, column.z);
 
@@ -70,26 +88,18 @@ public class Decoration
         }
     }
 
-    private void DecoratePosition(Vector3i position, Control control, in Context context)
+    private void DecoratePosition(Vector3i position, Control control, IGrid grid)
     {
-        if (CanPlace(position, context)) DoPlace(position, control, context);
+        if (decorator.CanPlace(position, grid)) DoPlace(position, control, grid);
     }
 
-    private bool CanPlace(Vector3i position, in Context context)
-    {
-        if (!context.GetContent(position).IsEmpty) return false;
-        if (!context.GetContent(position.Below()).Block.IsSolidAndFull) return false;
-
-        return true;
-    }
-
-    private void DoPlace(Vector3i position, Control control, in Context context)
-    {
-        var content = new Content(Block.Pulsating);
-        context.SetContent(position, content);
-
-        control.SkipColumn = true;
-    }
+    /// <summary>
+    ///     Place the decoration at the given position.
+    /// </summary>
+    /// <param name="position">The position at which to place the decoration.</param>
+    /// <param name="control">The control object that can be used to change iteration behaviour.</param>
+    /// <param name="grid">The grid that is being decorated.</param>
+    protected abstract void DoPlace(Vector3i position, Control control, IGrid grid);
 
     /// <summary>
     ///     The context in which placement in a section occurs.
@@ -100,26 +110,14 @@ public class Decoration
     /// <param name="Noise">The noise used for decoration placement.</param>
     /// <param name="Index">The current index of the decoration.</param>
     /// <param name="Map">The map of the world.</param>
-    public readonly record struct Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<float> Noise, int Index, Map Map)
+    public record Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<float> Noise, int Index, Map Map) : IGrid
     {
-        private Section GetSection(Vector3i position)
-        {
-            SectionPosition target = SectionPosition.From(position);
-            (int dx, int dy, int dz) = Position.OffsetTo(target);
-
-            Debug.Assert(dx is -1 or 0 or 1);
-            Debug.Assert(dy is -1 or 0 or 1);
-            Debug.Assert(dz is -1 or 0 or 1);
-
-            return Sections[dx + 1, dy + 1, dz + 1];
-        }
-
         /// <summary>
         ///     Get the content of a position in the neighborhood of the section.
         /// </summary>
         /// <param name="position">The position. Must be in the same section or a neighbor.</param>
         /// <returns>The content of the position.</returns>
-        public Content GetContent(Vector3i position)
+        public Content? GetContent(Vector3i position)
         {
             uint data = GetSection(position).GetContent(position);
             Section.Decode(data, out Content content);
@@ -130,13 +128,25 @@ public class Decoration
         /// <summary>
         ///     Set the content of a position in the neighborhood of the section.
         /// </summary>
-        /// <param name="position">The position. Must be in the same section or a neighbor.</param>
         /// <param name="content">The content of the position.</param>
-        public void SetContent(Vector3i position, Content content)
+        /// <param name="position">The position. Must be in the same section or a neighbor.</param>
+        public void SetContent(Content content, Vector3i position)
         {
             uint data = Section.Encode(content);
 
             GetSection(position).SetContent(position, data);
+        }
+
+        private Section GetSection(Vector3i position)
+        {
+            SectionPosition target = SectionPosition.From(position);
+            (int dx, int dy, int dz) = Position.OffsetTo(target);
+
+            Debug.Assert(dx is -1 or 0 or 1);
+            Debug.Assert(dy is -1 or 0 or 1);
+            Debug.Assert(dz is -1 or 0 or 1);
+
+            return Sections[dx + 1, dy + 1, dz + 1];
         }
     }
 

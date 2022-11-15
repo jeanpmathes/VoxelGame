@@ -26,7 +26,7 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     The world class. Contains everything that is in the world, e.g. chunks, entities, etc.
 /// </summary>
-public abstract class World : IDisposable
+public abstract class World : IDisposable, IGrid
 {
     /// <summary>
     ///     The limit of the world size.
@@ -224,6 +224,29 @@ public abstract class World : IDisposable
     public Limit MaxSavingTasks { get; }
 
     /// <summary>
+    ///     Get both the fluid and block instance at a given position.
+    ///     The content can only be retrieved from active chunks.
+    /// </summary>
+    /// <param name="position">The world position.</param>
+    /// <returns>The content, if there is any.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Content? GetContent(Vector3i position)
+    {
+        RetrieveContent(position, out Content? content);
+
+        return content;
+    }
+
+    /// <summary>
+    ///     Set the content of a world position.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetContent(Content content, Vector3i position)
+    {
+        SetContent(content, position, tickFluid: true);
+    }
+
+    /// <summary>
     ///     Begin deactivating the world, saving all chunks and the meta information.
     /// </summary>
     /// <param name="onFinished">The action to be called when the world is deactivated.</param>
@@ -403,20 +426,6 @@ public abstract class World : IDisposable
     }
 
     /// <summary>
-    ///     Get both the fluid and block instance at a given position.
-    ///     The content can only be retrieved from active chunks.
-    /// </summary>
-    /// <param name="position">The world position.</param>
-    /// <returns>The content, if there is any.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Content? GetContent(Vector3i position)
-    {
-        RetrieveContent(position, out Content? content);
-
-        return content;
-    }
-
-    /// <summary>
     ///     Sets a block in the world, adds the changed sections to the re-mesh set and sends updates to the neighbors of
     ///     the changed block.
     /// </summary>
@@ -484,15 +493,6 @@ public abstract class World : IDisposable
         }
 
         ProcessChangedSection(chunk, position);
-    }
-
-    /// <summary>
-    ///     Set the content of a world position.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetContent(Content content, Vector3i position)
-    {
-        SetContent(content, position, tickFluid: true);
     }
 
     /// <summary>

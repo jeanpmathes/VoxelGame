@@ -142,7 +142,7 @@ public class ClientWorld : World
 
         void HandleActivating()
         {
-            if (ActiveChunkCount < 3 * 3 * 3 || !IsChunkActive(ChunkPosition.Origin)) return;
+            if (ActiveChunkCount < 3 * 3 * 3) return;
 
             CurrentState = State.Active;
 
