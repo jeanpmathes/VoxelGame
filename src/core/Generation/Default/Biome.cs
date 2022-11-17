@@ -98,19 +98,19 @@ public class Biome
     /// <summary>
     /// Setup the biome. This must be called after all init-properties have been set.
     /// </summary>
-    /// <param name="seed">The seed to use for the biome.</param>
+    /// <param name="factory">The noise generator factory to use.</param>
     /// <param name="palette">The palette to use for the biome.</param>
-    public void SetupBiome(int seed, Palette palette)
+    public void SetupBiome(NoiseFactory factory, Palette palette)
     {
-        SetupNoise(seed);
+        SetupNoise(factory.GetNextNoise());
         SetupLayers(palette);
 
-        Cover.SetupNoise(seed);
+        Cover.SetupNoise(factory.GetNextNoise());
     }
 
-    private void SetupNoise(int seed)
+    private void SetupNoise(FastNoiseLite noiseGenerator)
     {
-        noise = new FastNoiseLite(seed);
+        noise = noiseGenerator;
 
         noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
         noise.SetFrequency(Frequency);

@@ -32,12 +32,11 @@ public partial class Map
     private const double MaxConvergentBoundaryWaterLifting = +0.4;
     private const double MaxConvergentBoundaryWaterSinking = -0.4;
 
-    private static (List<List<short>>, Dictionary<short, double>) FillWithPieces(Data data, int seed)
+    private static (List<List<short>>, Dictionary<short, double>) FillWithPieces(Data data, GeneratingNoise noise)
     {
-        FastNoiseLite noise = new(seed);
-        noise.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
-        noise.SetCellularReturnType(FastNoiseLite.CellularReturnType.CellValue);
-        noise.SetFrequency(frequency: 0.05f);
+        noise.Pieces.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
+        noise.Pieces.SetCellularReturnType(FastNoiseLite.CellularReturnType.CellValue);
+        noise.Pieces.SetFrequency(frequency: 0.05f);
 
         short currentPiece = 0;
         Dictionary<double, short> valueToPiece = new();
@@ -47,7 +46,7 @@ public partial class Map
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
-            double value = noise.GetNoise(x, y);
+            double value = noise.Pieces.GetNoise(x, y);
             ref Cell current = ref data.GetCell(x, y);
 
             if (!valueToPiece.ContainsKey(value)) valueToPiece[value] = currentPiece++;
@@ -244,15 +243,15 @@ public partial class Map
         }
     }
 
-    private static void GenerateTerrain(Data data, int seed)
+    private static void GenerateTerrain(Data data, GeneratingNoise noise)
     {
-        (List<List<short>> adjacency, Dictionary<short, double> pieceToValue) pieces = FillWithPieces(data, seed);
+        (List<List<short>> adjacency, Dictionary<short, double> pieceToValue) pieces = FillWithPieces(data, noise);
 
         AddPieceHeights(data, pieces.pieceToValue);
 
         (List<(short, double)> nodes, Dictionary<short, List<short>> adjancecy) continents = BuildContinents(data, pieces.adjacency, pieces.pieceToValue);
 
-        GenerateStoneTypes(data, seed);
+        GenerateStoneTypes(data, noise);
         SimulateTectonics(data, continents);
     }
 
@@ -312,16 +311,15 @@ public partial class Map
         AddOffsetsToData(data, offsets);
     }
 
-    private static void GenerateStoneTypes(Data data, int seed)
+    private static void GenerateStoneTypes(Data data, GeneratingNoise noise)
     {
-        FastNoiseLite noise = new(seed);
-        noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
-        noise.SetFrequency(frequency: 0.08f);
+        noise.Stone.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        noise.Stone.SetFrequency(frequency: 0.08f);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
-            float value = noise.GetNoise(x, y);
+            float value = noise.Stone.GetNoise(x, y);
             value = Math.Abs(value);
 
             StoneType stoneType = value switch

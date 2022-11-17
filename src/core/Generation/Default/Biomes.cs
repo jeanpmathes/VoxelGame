@@ -441,10 +441,10 @@ public class Biomes
     /// <summary>
     ///     Sets up all biomes.
     /// </summary>
-    /// <param name="seed">The seed to use for biome generation.</param>
+    /// <param name="factory">The noise generator factory.</param>
     /// <param name="palette">The palette to use for biome generation.</param>
-    public void Setup(int seed, Palette palette)
+    public void Setup(NoiseFactory factory, Palette palette)
     {
-        foreach (Biome biome in biomes) biome.SetupBiome(seed, palette);
+        foreach (Biome biome in biomes) biome.SetupBiome(factory, palette);
     }
 }

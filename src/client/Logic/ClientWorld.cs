@@ -42,7 +42,7 @@ public class ClientWorld : World
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    public ClientWorld(string path, string name, int seed) : base(path, name, seed)
+    public ClientWorld(string path, string name, (int upper, int lower) seed) : base(path, name, seed)
     {
         Setup();
     }

@@ -26,9 +26,14 @@ public class WorldInformation
     public string Name { get; set; } = "No Name";
 
     /// <summary>
-    ///     The seed of the world.
+    ///     The first seed used to generate the world.
     /// </summary>
-    public int Seed { get; set; } = 2133;
+    public int UpperSeed { get; set; } = 2133;
+
+    /// <summary>
+    ///     The second seed used to generate the world.
+    /// </summary>
+    public int LowerSeed { get; set; } = 3213;
 
     /// <summary>
     ///     The size of the world, as extents.

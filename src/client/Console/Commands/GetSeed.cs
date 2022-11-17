@@ -24,7 +24,7 @@ public class GetSeed : Command
     /// <exclude />
     public void Invoke()
     {
-        int seed = Context.Player.World.Seed;
-        Context.Console.WriteResponse($"{seed}");
+        (int upper, int lower) = Context.Player.World.Seed;
+        Context.Console.WriteResponse($"({upper}, {lower})");
     }
 }

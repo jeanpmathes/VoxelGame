@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Logic;
@@ -94,7 +95,9 @@ public class WorldProvider : IWorldProvider
 
         while (Directory.Exists(path.ToString())) path.Append(value: '_');
 
-        ClientWorld world = new(path.ToString(), name, DateTime.Now.GetHashCode());
+        (int upper, int lower) seed = (DateTime.Now.GetHashCode(), RandomNumberGenerator.GetInt32(int.MinValue, int.MaxValue));
+
+        ClientWorld world = new(path.ToString(), name, seed);
         WorldActivation(world, world);
     }
 

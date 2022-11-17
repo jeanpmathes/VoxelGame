@@ -177,10 +177,12 @@ public partial class Map : IMap
 
     private readonly BiomeDistribution biomes;
 
-    private readonly FastNoiseLite xNoise = new();
-    private readonly FastNoiseLite yNoise = new();
+    private readonly GeneratingNoise generatingNoise = new();
 
     private Data? data;
+
+    private (FastNoiseLite x, FastNoiseLite y) samplingNoise = (null!, null!);
+    private (FastNoiseLite x, FastNoiseLite y) stoneNoise = (null!, null!);
 
     /// <summary>
     ///     Create a new map.
@@ -197,7 +199,7 @@ public partial class Map : IMap
         Vector3i samplingPosition = position.Floor();
         Sample sample = GetSample(samplingPosition.Xz);
 
-        return $"M: [{nameof(Default)}] {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)}";
+        return $"M: [{nameof(Default)}] {sample.Height:F2} {sample.ActualBiome}";
     }
 
     /// <inheritdoc />
@@ -242,11 +244,12 @@ public partial class Map : IMap
         return groundTemperature - decreaseFactor * heightAboveGround / 1000.0;
     }
 
-    private void SetupNoise(int seed)
+    private void SetupSamplingNoise(NoiseFactory factory)
     {
-        void Setup(FastNoiseLite noise, int specificSeed)
+        FastNoiseLite Create()
         {
-            noise.SetSeed(specificSeed);
+            FastNoiseLite noise = factory.GetNextNoise();
+
             noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
             noise.SetFrequency(frequency: 0.01f);
 
@@ -255,10 +258,12 @@ public partial class Map : IMap
             noise.SetFractalLacunarity(lacunarity: 2.0f);
             noise.SetFractalGain(gain: 0.5f);
             noise.SetFractalWeightedStrength(weightedStrength: 0.0f);
+
+            return noise;
         }
 
-        Setup(xNoise, seed);
-        Setup(yNoise, ~seed);
+        samplingNoise = (Create(), Create());
+        stoneNoise = (Create(), Create());
     }
 
     /// <summary>
@@ -266,8 +271,8 @@ public partial class Map : IMap
     ///     If loading is not possible, it will be generated.
     /// </summary>
     /// <param name="reader">The reader to load the map from.</param>
-    /// <param name="seed">The seed to use for the map generation.</param>
-    public void Initialize(BinaryReader? reader, int seed)
+    /// <param name="factory">The factory to use for noise generator creation.</param>
+    public void Initialize(BinaryReader? reader, NoiseFactory factory)
     {
         logger.LogDebug(Events.WorldGeneration, "Initializing map");
 
@@ -276,12 +281,20 @@ public partial class Map : IMap
             Load(reader);
         }
 
-        if (data == null) Generate(seed);
+        SetupGeneratingNoise(factory);
 
-        SetupNoise(seed);
+        if (data == null) Generate();
+
+        SetupSamplingNoise(factory);
     }
 
-    private void Generate(int seed)
+    private void SetupGeneratingNoise(NoiseFactory factory)
+    {
+        generatingNoise.Pieces = factory.GetNextNoise();
+        generatingNoise.Stone = factory.GetNextNoise();
+    }
+
+    private void Generate()
     {
         Debug.Assert(data == null);
         data = new Data();
@@ -290,7 +303,7 @@ public partial class Map : IMap
 
         var stopwatch = Stopwatch.StartNew();
 
-        GenerateTerrain(data, seed);
+        GenerateTerrain(data, generatingNoise);
         GenerateTemperature(data);
         GenerateHumidity(data);
 
@@ -412,8 +425,8 @@ public partial class Map : IMap
 
         const double transitionFactor = 0.015;
 
-        double blendX = tX + xNoise.GetNoise(position.X, position.Y) * GetBorderStrength(tX) * transitionFactor;
-        double blendY = tY + yNoise.GetNoise(position.X, position.Y) * GetBorderStrength(tY) * transitionFactor;
+        double blendX = tX + samplingNoise.x.GetNoise(position.X, position.Y) * GetBorderStrength(tX) * transitionFactor;
+        double blendY = tY + samplingNoise.y.GetNoise(position.X, position.Y) * GetBorderStrength(tY) * transitionFactor;
 
         const int extents = Width / 2;
 
@@ -600,8 +613,8 @@ public partial class Map : IMap
 
         Vector3d scaledPosition = position.ToVector3d() * scalingFactor;
 
-        double stoneX = sample.StoneData.tX + xNoise.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tX) * transitionFactor;
-        double stoneY = sample.StoneData.tY + yNoise.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tY) * transitionFactor;
+        double stoneX = sample.StoneData.tX + stoneNoise.x.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tX) * transitionFactor;
+        double stoneY = sample.StoneData.tY + stoneNoise.y.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tY) * transitionFactor;
 
         return VMath.SelectByWeight(sample.StoneData.stone00, sample.StoneData.stone10, sample.StoneData.stone01, sample.StoneData.stone11, (stoneX, stoneY));
     }
@@ -612,6 +625,12 @@ public partial class Map : IMap
     private static double GetBorderStrength(double t)
     {
         return (t > 0.5 ? 1 - t : t) * 2;
+    }
+
+    private sealed class GeneratingNoise
+    {
+        public FastNoiseLite Pieces { get; set; } = null!;
+        public FastNoiseLite Stone { get; set; } = null!;
     }
 
     /// <summary>

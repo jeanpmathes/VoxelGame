@@ -34,11 +34,21 @@ public class Generator : IWorldGenerator
 
     private readonly Map map;
 
+    /// <summary>
+    ///     Used for map generation and sampling.
+    /// </summary>
+    private readonly NoiseFactory mapNoiseFactory;
+
     private readonly Palette palette = new();
 
-    private readonly int seed;
-
     private readonly World world;
+
+    /// <summary>
+    ///     Used for details in biomes and decoration.
+    /// </summary>
+    #pragma warning disable S1450 // Used for documentation purposes.
+    private readonly NoiseFactory worldNoiseFactory;
+    #pragma warning restore S1450
 
     /// <summary>
     ///     Creates a new default world generator.
@@ -47,17 +57,19 @@ public class Generator : IWorldGenerator
     public Generator(World world)
     {
         this.world = world;
-        seed = world.Seed;
+
+        mapNoiseFactory = new NoiseFactory(world.Seed.upper);
+        worldNoiseFactory = new NoiseFactory(world.Seed.lower);
 
         Biomes biomes = Biomes.Load();
-        biomes.Setup(seed, palette);
+        biomes.Setup(worldNoiseFactory, palette);
 
         map = new Map(BiomeDistribution.CreateDefault(biomes));
 
         Initialize();
         Store();
 
-        decorationNoise = new FastNoiseLite(seed);
+        decorationNoise = worldNoiseFactory.GetNextNoise();
         decorationNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
         decorationNoise.SetFrequency(frequency: 0.5f);
 
@@ -213,7 +225,7 @@ public class Generator : IWorldGenerator
     private void Initialize()
     {
         using BinaryReader? read = world.GetBlobReader(MapBlobName);
-        map.Initialize(read, seed);
+        map.Initialize(read, mapNoiseFactory);
     }
 
     private void Store()

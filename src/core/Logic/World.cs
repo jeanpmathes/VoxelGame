@@ -47,12 +47,13 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    protected World(string path, string name, int seed) :
+    protected World(string path, string name, (int upper, int lower) seed) :
         this(
             new WorldInformation
             {
                 Name = name,
-                Seed = seed,
+                UpperSeed = seed.upper,
+                LowerSeed = seed.lower,
                 Creation = DateTime.Now,
                 Version = ApplicationInformation.Instance.Version
             },
@@ -143,7 +144,7 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Get the world creation seed.
     /// </summary>
-    public int Seed => Information.Seed;
+    public (int upper, int lower) Seed => (Information.UpperSeed, Information.LowerSeed);
 
     /// <summary>
     /// Get whether the world is active.

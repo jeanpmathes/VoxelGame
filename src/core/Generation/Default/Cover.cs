@@ -31,10 +31,10 @@ public class Cover
     /// <summary>
     /// Setup used noise with the generation seed.
     /// </summary>
-    /// <param name="seed">The generation seed.</param>
-    public void SetupNoise(int seed)
+    /// <param name="noiseGenerator">The noise generator to use.</param>
+    public void SetupNoise(FastNoiseLite noiseGenerator)
     {
-        noise = new FastNoiseLite(seed);
+        noise = noiseGenerator;
 
         noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
         noise.SetFrequency(frequency: 0.5f);
