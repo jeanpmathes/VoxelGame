@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Diagnostics;
 
 namespace VoxelGame.Core.Logic.Structures;
 
@@ -13,13 +14,24 @@ namespace VoxelGame.Core.Logic.Structures;
 /// </summary>
 public abstract class DynamicStructure : Structure
 {
+    private Random? random;
+
     /// <summary>
     ///     Get the random number generator for this structure.
     /// </summary>
-    protected Random Random { get; private set; }
+    protected Random Random
+    {
+        get
+        {
+            Debug.Assert(IsPlaceable);
+            Debug.Assert(random != null);
+
+            return random;
+        }
+    }
 
     /// <inheritdoc />
-    public override bool IsPlaceable => Random != null;
+    public override bool IsPlaceable => random != null;
 
     /// <summary>
     ///     Set the structure seed.
@@ -27,6 +39,6 @@ public abstract class DynamicStructure : Structure
     /// <param name="seed">The seed to use.</param>
     public override void SetStructureSeed(int seed)
     {
-        Random = new Random(seed);
+        random = new Random(seed);
     }
 }
