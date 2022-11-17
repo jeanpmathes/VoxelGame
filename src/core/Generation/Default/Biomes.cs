@@ -112,7 +112,8 @@ public class Biomes
         Decorations = new List<Decoration>
         {
             Decorations.Instance.TallGrass,
-            Decorations.Instance.TallFlower
+            Decorations.Instance.TallFlower,
+            Decorations.Instance.Tree
         }
     };
 
@@ -209,7 +210,8 @@ public class Biomes
         Decorations = new List<Decoration>
         {
             Decorations.Instance.TallGrass,
-            Decorations.Instance.TallFlower
+            Decorations.Instance.TallFlower,
+            Decorations.Instance.Tree
         }
     };
 
@@ -236,7 +238,8 @@ public class Biomes
         },
         Decorations = new List<Decoration>
         {
-            Decorations.Instance.TallGrass
+            Decorations.Instance.TallGrass,
+            Decorations.Instance.Tree
         }
     };
 

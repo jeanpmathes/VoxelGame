@@ -27,6 +27,16 @@ public class RotatedBlock : BasicBlock, ICombustible
             flags,
             layout) {}
 
+    /// <summary>
+    ///     Get a instance of this block rotated to the given axis.
+    /// </summary>
+    /// <param name="axis">The axis to rotate to.</param>
+    /// <returns>The rotated block.</returns>
+    public BlockInstance GetInstance(Axis axis)
+    {
+        return this.AsInstance((byte) axis);
+    }
+
     /// <inheritdoc />
     protected override ISimple.MeshData GetMeshData(BlockMeshInfo info)
     {

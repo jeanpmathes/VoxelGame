@@ -22,6 +22,12 @@ public abstract class Structure
     public abstract Vector3i Extents { get; }
 
     /// <summary>
+    ///     Whether the structure can be placed in the current state.
+    /// </summary>
+    /// <returns>True if the structure can be placed, false otherwise.</returns>
+    public abstract bool IsPlaceable { get; }
+
+    /// <summary>
     ///     Get the content of the structure at the given offset.
     /// </summary>
     /// <param name="offset">The offset, must be within the extents.</param>
@@ -29,7 +35,14 @@ public abstract class Structure
     protected abstract Content? GetContent(Vector3i offset);
 
     /// <summary>
-    ///     Place the structure in a grid at the given position.
+    ///     Pass the structure a seed to generate its content.
+    ///     Only some structures need a seed.
+    /// </summary>
+    /// <param name="seed">The seed.</param>
+    public virtual void SetStructureSeed(int seed) {}
+
+    /// <summary>
+    ///     Place the structure in a grid at the given position. Only call this method if <see cref="IsPlaceable" /> is true.
     /// </summary>
     /// <param name="grid">The grid to place the structure in.</param>
     /// <param name="position">The position to place the structure at.</param>

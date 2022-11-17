@@ -74,32 +74,32 @@ public abstract class Decoration
 
         if (!context.Biomes.Contains(sample.ActualBiome)) return;
 
-        Control control = new();
+        State state = new();
 
         for (var y = 0; y < Section.Size; y++)
         {
             position = context.Position.FirstBlock + (column.x, y, column.z);
 
-            if (!noise.CheckCandidate(position, Rarity) || control.SkipColumn) continue;
+            if (!noise.CheckCandidate(position, Rarity, out float random) || state.SkipColumn) continue;
 
-            control.Reset();
+            state.Reset(random);
 
-            DecoratePosition(position, control, context);
+            DecoratePosition(position, state, context);
         }
     }
 
-    private void DecoratePosition(Vector3i position, Control control, IGrid grid)
+    private void DecoratePosition(Vector3i position, State state, IGrid grid)
     {
-        if (decorator.CanPlace(position, grid)) DoPlace(position, control, grid);
+        if (decorator.CanPlace(position, grid)) DoPlace(position, state, grid);
     }
 
     /// <summary>
     ///     Place the decoration at the given position.
     /// </summary>
     /// <param name="position">The position at which to place the decoration.</param>
-    /// <param name="control">The control object that can be used to change iteration behaviour.</param>
+    /// <param name="state">The state object that can be used to change iteration behaviour.</param>
     /// <param name="grid">The grid that is being decorated.</param>
-    protected abstract void DoPlace(Vector3i position, Control control, IGrid grid);
+    protected abstract void DoPlace(Vector3i position, State state, IGrid grid);
 
     /// <summary>
     ///     The context in which placement in a section occurs.
@@ -161,9 +161,9 @@ public abstract class Decoration
             randomNumberGenerator = new Random(HashCode.Combine(context.Position, context.Index));
         }
 
-        public bool CheckCandidate(Vector3i position, float rarity)
+        public bool CheckCandidate(Vector3i position, float rarity, out float random)
         {
-            float random = randomNumberGenerator.NextSingle();
+            random = randomNumberGenerator.NextSingle();
             (int x, int y, int z) = Section.ToLocalPosition(position);
 
             return noise[x, y, z] > random * rarity;
@@ -171,9 +171,9 @@ public abstract class Decoration
     }
 
     /// <summary>
-    ///     Control the current decoration.
+    ///     The state of the current decoration.
     /// </summary>
-    protected class Control
+    protected class State
     {
         /// <summary>
         ///     Whether the rest of the column should be skipped. The noise values are still checked for the rest of the column.
@@ -181,11 +181,17 @@ public abstract class Decoration
         public bool SkipColumn { get; set; }
 
         /// <summary>
-        ///     Reset the control state.
+        ///     Get the current random number.
         /// </summary>
-        public void Reset()
+        public float Random { get; private set; }
+
+        /// <summary>
+        ///     Reset the state.
+        /// </summary>
+        public void Reset(float random)
         {
             SkipColumn = false;
+            Random = random;
         }
     }
 }

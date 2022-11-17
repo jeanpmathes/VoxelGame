@@ -745,7 +745,7 @@ public abstract partial class Chunk : IDisposable
         void SetNeighbors(SectionPosition sectionPosition)
         {
             Debug.Assert(neighbors != null);
-            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors[dx, dy, dz] = GetSection(sectionPosition);
+            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors[dx, dy, dz] = GetSection(sectionPosition.Offset(dx - 1, dy - 1, dz - 1));
         }
 
         void DecorateSection(SectionPosition sectionPosition)
@@ -754,7 +754,7 @@ public abstract partial class Chunk : IDisposable
             generator.DecorateSection(sectionPosition, neighbors);
         }
 
-        SectionPosition lowCorner = SectionPosition.From(chunks[x, y, z]!.Position, (Size - 1, Size - 1, Size - 1));
+        SectionPosition lowCorner = SectionPosition.From(chunks[x, y, z]!.Position, (Size - 2, Size - 2, Size - 2));
 
         foreach ((int dx, int dy, int dz) in VMath.Range3(x: 4, y: 4, z: 4))
         {

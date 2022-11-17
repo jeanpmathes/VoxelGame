@@ -31,6 +31,11 @@ public class Decorations
     public Decoration TallFlower { get; } = new StructureDecoration(nameof(TallFlower), rarity: 4f, StaticStructure.Load("tall-flower"), new PlantableDecorator());
 
     /// <summary>
+    ///     Basic trees.
+    /// </summary>
+    public Decoration Tree { get; } = new StructureDecoration(nameof(Tree), rarity: 3f, new Tree(), new PlantableDecorator(width: 3));
+
+    /// <summary>
     ///     Initialize the decorations.
     /// </summary>
     public static void Initialize()

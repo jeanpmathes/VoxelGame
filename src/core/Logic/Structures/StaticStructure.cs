@@ -55,6 +55,9 @@ public partial class StaticStructure : Structure
     /// <inheritdoc />
     public override Vector3i Extents { get; }
 
+    /// <inheritdoc />
+    public override bool IsPlaceable => true;
+
     /// <summary>
     ///     Read a structure from a grid.
     /// </summary>
