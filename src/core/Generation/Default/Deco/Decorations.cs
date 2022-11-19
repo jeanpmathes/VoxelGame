@@ -24,17 +24,22 @@ public class Decorations
     /// <summary>
     ///     Tall grass.
     /// </summary>
-    public Decoration TallGrass { get; } = new StructureDecoration(nameof(TallGrass), rarity: 1f, StaticStructure.Load("tall-grass"), new PlantableDecorator());
+    public Decoration TallGrass { get; } = new StructureDecoration(nameof(TallGrass), rarity: 1.0f, StaticStructure.Load("tall-grass"), new PlantableDecorator());
 
     /// <summary>
     ///     Tall flowers.
     /// </summary>
-    public Decoration TallFlower { get; } = new StructureDecoration(nameof(TallFlower), rarity: 4f, StaticStructure.Load("tall-flower"), new PlantableDecorator());
+    public Decoration TallFlower { get; } = new StructureDecoration(nameof(TallFlower), rarity: 4.0f, StaticStructure.Load("tall-flower"), new PlantableDecorator());
 
     /// <summary>
     ///     Basic trees.
     /// </summary>
-    public Decoration Tree { get; } = new StructureDecoration(nameof(Tree), rarity: 3f, new Tree(), new PlantableDecorator(Vector3i.UnitY, width: 3));
+    public Decoration NormalTree { get; } = new StructureDecoration(nameof(NormalTree), rarity: 3.0f, new Tree(Tree.Kind.Normal), new PlantableDecorator(Vector3i.UnitY, width: 3));
+
+    /// <summary>
+    ///     Tropical trees.
+    /// </summary>
+    public Decoration TropicalTree { get; } = new StructureDecoration(nameof(TropicalTree), rarity: 3.0f, new Tree(Tree.Kind.Tropical), new PlantableDecorator(Vector3i.UnitY, width: 3));
 
     /// <summary>
     ///     Initialize the decorations.

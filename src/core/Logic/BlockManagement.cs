@@ -18,6 +18,8 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
 
+#pragma warning disable S1192 // Definition class
+
 public partial class Block
 {
     /// <summary>

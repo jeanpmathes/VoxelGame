@@ -32,7 +32,7 @@ public class StructureDecoration : Decoration
 
         decorator.SetSizeHint(structure.Extents);
 
-        Debug.Assert(Size < Section.Size);
+        Debug.Assert(Size <= Section.Size);
     }
 
     /// <inheritdoc />
