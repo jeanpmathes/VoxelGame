@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Structures;
 
 namespace VoxelGame.Core.Generation.Default.Deco;
@@ -33,7 +34,7 @@ public class Decorations
     /// <summary>
     ///     Basic trees.
     /// </summary>
-    public Decoration Tree { get; } = new StructureDecoration(nameof(Tree), rarity: 3f, new Tree(), new PlantableDecorator(width: 3));
+    public Decoration Tree { get; } = new StructureDecoration(nameof(Tree), rarity: 3f, new Tree(), new PlantableDecorator(Vector3i.UnitY, width: 3));
 
     /// <summary>
     ///     Initialize the decorations.

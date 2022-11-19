@@ -1087,6 +1087,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Roots.
+        /// </summary>
+        public static string Roots {
+            get {
+                return ResourceManager.GetString("Roots", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Rubble.
         /// </summary>
         public static string Rubble {

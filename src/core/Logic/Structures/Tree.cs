@@ -15,15 +15,18 @@ namespace VoxelGame.Core.Logic.Structures;
 public class Tree : DynamicStructure
 {
     /// <inheritdoc />
-    public override Vector3i Extents { get; } = new(x: 5, y: 8, z: 5);
+    public override Vector3i Extents { get; } = new(x: 5, y: 9, z: 5);
 
     /// <inheritdoc />
     protected override Content? GetContent(Vector3i offset)
     {
-        if (offset is {X: 2, Z: 2} and {Y: >= 0 and < 6})
+        if (offset is {X: 2, Z: 2} and {Y: 0})
+            return new Content(Block.Roots);
+
+        if (offset is {X: 2, Z: 2} and {Y: > 0 and < 7})
             return new Content(Block.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default);
 
-        Vector3i crownCenter = new(x: 2, y: 5, z: 2);
+        Vector3i crownCenter = new(x: 2, y: 6, z: 2);
 
         const float radiusSquared = 2.5f * 2.5f;
         float distanceSquared = Vector3.DistanceSquared(offset, crownCenter);

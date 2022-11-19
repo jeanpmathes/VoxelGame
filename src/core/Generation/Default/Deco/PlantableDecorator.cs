@@ -16,20 +16,31 @@ namespace VoxelGame.Core.Generation.Default.Deco;
 /// </summary>
 public class PlantableDecorator : SurfaceDecorator
 {
-    /// <summary>
-    ///     Creates a new instance of the <see cref="PlantableDecorator" /> class.
-    /// </summary>
-    public PlantableDecorator() {}
+    private readonly Vector3i offset;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="PlantableDecorator" /> class.
     /// </summary>
+    public PlantableDecorator()
+    {
+        offset = Vector3i.Zero;
+    }
+
+    /// <summary>
+    ///     Creates a new instance of the <see cref="PlantableDecorator" /> class.
+    /// </summary>
+    /// <param name="offset">An offset to apply to the checked position.</param>
     /// <param name="width">The width of the surface column. See <see cref="SurfaceDecorator" />.</param>
-    public PlantableDecorator(int width) : base(width) {}
+    public PlantableDecorator(Vector3i offset, int width) : base(width)
+    {
+        this.offset = offset;
+    }
 
     /// <inheritdoc />
     public override bool CanPlace(Vector3i position, IReadOnlyGrid grid)
     {
+        position += offset;
+
         if (!base.CanPlace(position, grid)) return false;
 
         Content below = grid.GetContent(position.Below()) ?? Content.Default;

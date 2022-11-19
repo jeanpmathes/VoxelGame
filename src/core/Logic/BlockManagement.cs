@@ -915,5 +915,15 @@ public partial class Block
         BlockFlags.Basic,
         TextureLayout.Uniform("missing_texture"));
 
+    /// <summary>
+    ///     Roots grow at the bottom of trees.
+    /// </summary>
+    public static readonly Block Roots = new PermeableNaturalBlock(
+        Language.Roots,
+        nameof(Roots),
+        hasNeutralTint: false,
+        BlockFlags.Basic,
+        TextureLayout.Uniform("roots"));
+
     #endregion NEW BLOCKS
 }
