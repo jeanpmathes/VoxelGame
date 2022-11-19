@@ -1,4 +1,4 @@
-﻿// <copyright file="BlockManagment.cs" company="VoxelGame">
+﻿// <copyright file="BlockManagement.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -230,6 +230,7 @@ public partial class Block
     public static readonly Block Leaves = new NaturalBlock(
         Language.Leaves,
         nameof(Leaves),
+        hasNeutralTint: true,
         new BlockFlags
         {
             IsSolid = true,
