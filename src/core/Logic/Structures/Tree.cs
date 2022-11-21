@@ -54,7 +54,7 @@ public class Tree : DynamicStructure
     };
 
     /// <inheritdoc />
-    protected override Content? GetContent(Vector3i offset)
+    protected override (Content, bool)? GetContent(Vector3i offset)
     {
         return kind switch
         {
@@ -64,15 +64,15 @@ public class Tree : DynamicStructure
         };
     }
 
-    private Content? GetNormalContent(Vector3i offset)
+    private (Content, bool overwrite)? GetNormalContent(Vector3i offset)
     {
         const int center = 2;
 
         if (offset is {X: center, Z: center} and {Y: 0})
-            return new Content(Block.Roots);
+            return (new Content(Block.Roots), overwrite: true);
 
         if (offset is {X: center, Z: center} and {Y: > 0 and < 7})
-            return new Content(Block.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default);
+            return (new Content(Block.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default), overwrite: true);
 
         // The crown of this tree is a sphere.
 
@@ -87,18 +87,18 @@ public class Tree : DynamicStructure
 
         if (closeness < 0.25f * Random.NextSingle()) return null;
 
-        return new Content(Block.Leaves);
+        return (new Content(Block.Leaves), overwrite: false);
     }
 
-    private Content? GetTropicalContent(Vector3i offset)
+    private (Content, bool overwrite)? GetTropicalContent(Vector3i offset)
     {
         const int center = 4;
 
         if (offset is {X: center, Z: center} and {Y: 0})
-            return new Content(Block.Roots);
+            return (new Content(Block.Roots), overwrite: true);
 
         if (offset is {X: center, Z: center} and {Y: > 0 and < 14})
-            return new Content(Block.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default);
+            return (new Content(Block.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default), overwrite: true);
 
         // The crown of this tree is an spheroid.
 
@@ -117,6 +117,6 @@ public class Tree : DynamicStructure
 
         if (closeness < 0.25f * Random.NextSingle()) return null;
 
-        return new Content(Block.Leaves);
+        return (new Content(Block.Leaves), overwrite: false);
     }
 }

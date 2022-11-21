@@ -31,8 +31,8 @@ public abstract class Structure
     ///     Get the content of the structure at the given offset.
     /// </summary>
     /// <param name="offset">The offset, must be within the extents.</param>
-    /// <returns>The content at the given offset. Can be null if the structure does not contain anything at the given offset.</returns>
-    protected abstract Content? GetContent(Vector3i offset);
+    /// <returns>The content at the given offset and a bool indicating whether to overwrite blocks. Can be null if the structure does not contain anything at the given offset.</returns>
+    protected abstract (Content content, bool overwrite)? GetContent(Vector3i offset);
 
     /// <summary>
     ///     Pass the structure a seed to generate its content.
@@ -53,21 +53,27 @@ public abstract class Structure
         for (var y = 0; y < Extents.Y; y++)
         for (var z = 0; z < Extents.Z; z++)
         {
-            var offset = new Vector3i(x, y, z);
-            Content? content = GetContent(offset);
-
-            if (content == null) continue;
-
-            Vector3i targetPosition = orientation switch
-            {
-                Orientation.North => position + offset,
-                Orientation.East => position + new Vector3i(Extents.Z - 1 - offset.Z, offset.Y, offset.X),
-                Orientation.South => position + new Vector3i(Extents.X - 1 - offset.X, offset.Y, Extents.Z - 1 - offset.Z),
-                Orientation.West => position + new Vector3i(offset.Z, offset.Y, Extents.X - 1 - offset.X),
-                _ => position + offset
-            };
-
-            grid.SetContent(content.Value, targetPosition);
+            PlaceContent(grid, position, orientation, (x, y, z));
         }
+    }
+
+    private void PlaceContent(IGrid grid, Vector3i position, Orientation orientation, Vector3i offset)
+    {
+        (Content content, bool overwrite)? data = GetContent(offset);
+
+        if (data is not {content: var content, overwrite: var overwrite}) return;
+
+        Vector3i targetPosition = orientation switch
+        {
+            Orientation.North => position + offset,
+            Orientation.East => position + new Vector3i(Extents.Z - 1 - offset.Z, offset.Y, offset.X),
+            Orientation.South => position + new Vector3i(Extents.X - 1 - offset.X, offset.Y, Extents.Z - 1 - offset.Z),
+            Orientation.West => position + new Vector3i(offset.Z, offset.Y, Extents.X - 1 - offset.X),
+            _ => position + offset
+        };
+
+        if (!overwrite && grid.GetContent(targetPosition)?.IsReplaceable != true) return;
+
+        grid.SetContent(content, targetPosition);
     }
 }

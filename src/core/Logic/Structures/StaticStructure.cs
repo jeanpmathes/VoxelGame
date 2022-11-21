@@ -197,11 +197,15 @@ public partial class StaticStructure : Structure
     }
 
     /// <inheritdoc />
-    protected override Content? GetContent(Vector3i offset)
+    protected override (Content content, bool overwrite)? GetContent(Vector3i offset)
     {
         Debug.Assert(IsInExtents(offset));
 
-        return contents[offset.X, offset.Y, offset.Z];
+        Content? content = contents[offset.X, offset.Y, offset.Z];
+
+        if (content == null) return null;
+
+        return (content.Value, overwrite: true);
     }
 
     /// <summary>
