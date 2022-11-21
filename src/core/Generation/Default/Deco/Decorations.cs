@@ -37,6 +37,11 @@ public class Decorations
     public Decoration NormalTree { get; } = new StructureDecoration(nameof(NormalTree), rarity: 3.0f, new Tree(Tree.Kind.Normal), new PlantableDecorator(Vector3i.UnitY, width: 3));
 
     /// <summary>
+    ///     Another basic tree.
+    /// </summary>
+    public Decoration NormalTree2 { get; } = new StructureDecoration(nameof(NormalTree2), rarity: 3.0f, new Tree(Tree.Kind.Normal2), new PlantableDecorator(Vector3i.UnitY, width: 3));
+
+    /// <summary>
     ///     Tropical trees.
     /// </summary>
     public Decoration TropicalTree { get; } = new StructureDecoration(nameof(TropicalTree), rarity: 3.0f, new Tree(Tree.Kind.Tropical), new PlantableDecorator(Vector3i.UnitY, width: 3));

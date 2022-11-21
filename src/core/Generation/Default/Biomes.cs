@@ -213,7 +213,8 @@ public class Biomes
         {
             Decorations.Instance.TallGrass,
             Decorations.Instance.TallFlower,
-            Decorations.Instance.NormalTree
+            Decorations.Instance.NormalTree,
+            Decorations.Instance.NormalTree2
         }
     };
 

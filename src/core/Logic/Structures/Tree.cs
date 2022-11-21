@@ -26,12 +26,18 @@ public class Tree : DynamicStructure
         Normal,
 
         /// <summary>
+        ///     A second 'normal' tree, growing in temperate climates.
+        /// </summary>
+        Normal2,
+
+        /// <summary>
         ///     A tropical tree, growing in warm climates.
         /// </summary>
         Tropical
     }
 
     private readonly Kind kind;
+    private readonly Vector3i normal2Extents = new(x: 5, y: 9, z: 5);
 
     private readonly Vector3i normalExtents = new(x: 5, y: 9, z: 5);
     private readonly Vector3i tropicalExtents = new(x: 9, y: 16, z: 9);
@@ -49,6 +55,7 @@ public class Tree : DynamicStructure
     public override Vector3i Extents => kind switch
     {
         Kind.Normal => normalExtents,
+        Kind.Normal2 => normal2Extents,
         Kind.Tropical => tropicalExtents,
         _ => throw new InvalidOperationException()
     };
@@ -59,6 +66,7 @@ public class Tree : DynamicStructure
         return kind switch
         {
             Kind.Normal => GetNormalContent(offset),
+            Kind.Normal2 => GetNormal2Content(offset),
             Kind.Tropical => GetTropicalContent(offset),
             _ => throw new InvalidOperationException()
         };
@@ -90,6 +98,36 @@ public class Tree : DynamicStructure
         return (new Content(Block.Leaves), overwrite: false);
     }
 
+    private (Content, bool overwrite)? GetNormal2Content(Vector3i offset)
+    {
+        const int center = 2;
+
+        if (offset is {X: center, Z: center} and {Y: 0})
+            return (new Content(Block.Roots), overwrite: true);
+
+        if (offset is {X: center, Z: center} and {Y: > 0 and < 7})
+            return (new Content(Block.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default), overwrite: true);
+
+        // The crown of this tree is a spheroid.
+
+        Vector3 crownCenter = new(center, y: 5.5f, center);
+
+        const float crownHeight = 4.0f;
+        const float crownRadius = 2.5f;
+
+        Vector3 point = offset - crownCenter;
+
+        float a = point.X * point.X / (crownRadius * crownRadius);
+        float b = point.Y * point.Y / (crownHeight * crownHeight);
+        float c = point.Z * point.Z / (crownRadius * crownRadius);
+
+        float closeness = 1 - (a + b + c);
+
+        if (closeness < 0.25f * Random.NextSingle()) return null;
+
+        return (new Content(Block.Leaves), overwrite: false);
+    }
+
     private (Content, bool overwrite)? GetTropicalContent(Vector3i offset)
     {
         const int center = 4;
@@ -100,7 +138,7 @@ public class Tree : DynamicStructure
         if (offset is {X: center, Z: center} and {Y: > 0 and < 14})
             return (new Content(Block.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default), overwrite: true);
 
-        // The crown of this tree is an spheroid.
+        // The crown of this tree is a spheroid.
 
         Vector3i crownCenter = new(center, y: 14, center);
 
