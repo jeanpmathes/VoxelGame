@@ -100,7 +100,7 @@ public class Tree : DynamicStructure
         if (offset is {X: center, Z: center} and {Y: > 0 and < 14})
             return new Content(Block.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default);
 
-        // The crown of this tree is an ellipsoid.
+        // The crown of this tree is an spheroid.
 
         Vector3i crownCenter = new(center, y: 14, center);
 

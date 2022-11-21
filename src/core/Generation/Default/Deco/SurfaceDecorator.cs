@@ -46,7 +46,7 @@ public class SurfaceDecorator : Decorator
             for (int x = -width / 2; x <= width / 2; x++)
             for (int z = -width / 2; z <= width / 2; z++)
             {
-                Content current = grid.GetContent(position + (0, y, 0)) ?? Content.Default;
+                Content current = grid.GetContent(position + (x, y, z)) ?? Content.Default;
 
                 if (!current.Block.Block.IsReplaceable) return false;
             }
