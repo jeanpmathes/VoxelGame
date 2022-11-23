@@ -189,7 +189,8 @@ public class Biomes
         },
         Decorations = new List<Decoration>
         {
-            Decorations.Instance.TallGrass
+            Decorations.Instance.TallGrass,
+            Decorations.Instance.SavannaTree
         }
     };
 

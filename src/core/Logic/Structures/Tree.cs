@@ -43,7 +43,12 @@ public class Tree : DynamicStructure
         /// <summary>
         ///     A palm tree, growing on beaches.
         /// </summary>
-        Palm
+        Palm,
+
+        /// <summary>
+        ///     A savanna tree, growing in savannas.
+        /// </summary>
+        Savanna
     }
 
     private readonly Kind kind;
@@ -52,6 +57,7 @@ public class Tree : DynamicStructure
     private readonly Vector3i normal2Extents = new(x: 5, y: 9, z: 5);
     private readonly Vector3i normalExtents = new(x: 5, y: 9, z: 5);
     private readonly Vector3i palmExtents = new(x: 5, y: 11, z: 5);
+    private readonly Vector3i savannaExtents = new(x: 5, y: 8, z: 5);
     private readonly Vector3i tropicalExtents = new(x: 9, y: 16, z: 9);
 
     /// <summary>
@@ -71,6 +77,7 @@ public class Tree : DynamicStructure
         Kind.Tropical => tropicalExtents,
         Kind.Needle => needleExtents,
         Kind.Palm => palmExtents,
+        Kind.Savanna => savannaExtents,
         _ => throw new InvalidOperationException()
     };
 
@@ -84,6 +91,7 @@ public class Tree : DynamicStructure
             Kind.Tropical => GetTropicalContent(offset),
             Kind.Needle => GetNeedleContent(offset),
             Kind.Palm => GetPalmContent(offset),
+            Kind.Savanna => GetSavannaContent(offset),
             _ => throw new InvalidOperationException()
         };
     }
@@ -224,6 +232,34 @@ public class Tree : DynamicStructure
 
         const float radiusSquared = 1.5f * 1.5f;
         float distanceSquared = Vector3.DistanceSquared(offset, crownCenter);
+
+        if (distanceSquared > radiusSquared) return null;
+
+        float closeness = 1 - distanceSquared / radiusSquared;
+
+        if (closeness < 0.25f * Random.NextSingle()) return null;
+
+        return (new Content(Block.Leaves), overwrite: false);
+    }
+
+    private (Content, bool overwrite)? GetSavannaContent(Vector3i offset)
+    {
+        const int center = 2;
+
+        if (offset is {X: center, Z: center} and {Y: 0})
+            return (new Content(Block.Roots), overwrite: true);
+
+        if (offset is {X: center, Z: center} and {Y: > 0 and < 7})
+            return (new Content(Block.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default), overwrite: true);
+
+        // The crown of this tree is a flat disk.
+
+        Vector3i crownPosition = new(center, y: 7, center);
+
+        if (offset.Y != crownPosition.Y) return null;
+
+        const float radiusSquared = 2.5f * 2.5f;
+        float distanceSquared = Vector3.DistanceSquared(offset, crownPosition);
 
         if (distanceSquared > radiusSquared) return null;
 
