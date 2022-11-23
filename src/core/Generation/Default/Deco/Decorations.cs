@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Structures;
 
 namespace VoxelGame.Core.Generation.Default.Deco;
@@ -50,6 +51,11 @@ public class Decorations
     ///     Needle tree.
     /// </summary>
     public Decoration NeedleTree { get; } = new StructureDecoration(nameof(NeedleTree), rarity: 3.0f, new Tree(Tree.Kind.Needle), new PlantableDecorator(Vector3i.UnitY, width: 3));
+
+    /// <summary>
+    ///     Palm tree.
+    /// </summary>
+    public Decoration PalmTree { get; } = new StructureDecoration(nameof(PalmTree), rarity: 25.0f, new Tree(Tree.Kind.Palm), new CoverDecorator(Block.Sand, Vector3i.UnitY, width: 3));
 
     /// <summary>
     ///     Initialize the decorations.
