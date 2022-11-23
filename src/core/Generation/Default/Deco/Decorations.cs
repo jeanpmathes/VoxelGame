@@ -42,9 +42,14 @@ public class Decorations
     public Decoration NormalTree2 { get; } = new StructureDecoration(nameof(NormalTree2), rarity: 3.0f, new Tree(Tree.Kind.Normal2), new PlantableDecorator(Vector3i.UnitY, width: 3));
 
     /// <summary>
-    ///     Tropical trees.
+    ///     Tropical tree.
     /// </summary>
     public Decoration TropicalTree { get; } = new StructureDecoration(nameof(TropicalTree), rarity: 3.0f, new Tree(Tree.Kind.Tropical), new PlantableDecorator(Vector3i.UnitY, width: 3));
+
+    /// <summary>
+    ///     Needle tree.
+    /// </summary>
+    public Decoration NeedleTree { get; } = new StructureDecoration(nameof(NeedleTree), rarity: 3.0f, new Tree(Tree.Kind.Needle), new PlantableDecorator(Vector3i.UnitY, width: 3));
 
     /// <summary>
     ///     Initialize the decorations.

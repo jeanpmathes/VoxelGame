@@ -137,6 +137,11 @@ public class Biomes
             Layer.CreateLoose(width: 27),
             Layer.CreateGroundwater(width: 8),
             Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+        },
+        Decorations = new List<Decoration>
+        {
+            Decorations.Instance.TallGrass,
+            Decorations.Instance.NeedleTree
         }
     };
 

@@ -33,10 +33,16 @@ public class Tree : DynamicStructure
         /// <summary>
         ///     A tropical tree, growing in warm climates.
         /// </summary>
-        Tropical
+        Tropical,
+
+        /// <summary>
+        ///     A tree with needles, growing in cold climates.
+        /// </summary>
+        Needle
     }
 
     private readonly Kind kind;
+    private readonly Vector3i needleExtents = new(x: 5, y: 11, z: 5);
     private readonly Vector3i normal2Extents = new(x: 5, y: 9, z: 5);
 
     private readonly Vector3i normalExtents = new(x: 5, y: 9, z: 5);
@@ -57,6 +63,7 @@ public class Tree : DynamicStructure
         Kind.Normal => normalExtents,
         Kind.Normal2 => normal2Extents,
         Kind.Tropical => tropicalExtents,
+        Kind.Needle => needleExtents,
         _ => throw new InvalidOperationException()
     };
 
@@ -68,6 +75,7 @@ public class Tree : DynamicStructure
             Kind.Normal => GetNormalContent(offset),
             Kind.Normal2 => GetNormal2Content(offset),
             Kind.Tropical => GetTropicalContent(offset),
+            Kind.Needle => GetNeedleContent(offset),
             _ => throw new InvalidOperationException()
         };
     }
@@ -154,6 +162,40 @@ public class Tree : DynamicStructure
         float closeness = 1 - (a + b + c);
 
         if (closeness < 0.25f * Random.NextSingle()) return null;
+
+        return (new Content(Block.Leaves), overwrite: false);
+    }
+
+    private (Content, bool overwrite)? GetNeedleContent(Vector3i offset)
+    {
+        const int center = 2;
+
+        if (offset is {X: center, Z: center} and {Y: 0})
+            return (new Content(Block.Roots), overwrite: true);
+
+        if (offset is {X: center, Z: center} and {Y: > 0 and < 8})
+            return (new Content(Block.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default), overwrite: true);
+
+        // The crown of this tree is a cone.
+
+        Vector3 crownStart = new(center, y: 3, center);
+
+        const float crownHeight = 9.0f;
+        const float baseRadius = 2.5f;
+
+        Vector3 point = offset - crownStart;
+
+        float height = point.Y / crownHeight;
+        float radius = baseRadius * (1 - height);
+
+        if (height is < 0 or > 1) return null;
+
+        float radiusSquared = radius * radius;
+        float distanceSquared = point.X * point.X + point.Z * point.Z;
+
+        float closeness = 1 - distanceSquared / radiusSquared;
+
+        if (closeness < 0.35f * Random.NextSingle()) return null;
 
         return (new Content(Block.Leaves), overwrite: false);
     }
