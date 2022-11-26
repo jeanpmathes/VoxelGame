@@ -58,8 +58,14 @@ public class Decorations
     public Decoration PalmTree { get; } = new StructureDecoration(nameof(PalmTree), rarity: 25.0f, new Tree(Tree.Kind.Palm), new CoverDecorator(Block.Sand, Vector3i.UnitY, width: 3));
 
     /// <summary>
+    ///     Savanna tree.
     /// </summary>
     public Decoration SavannaTree { get; } = new StructureDecoration(nameof(SavannaTree), rarity: 30.0f, new Tree(Tree.Kind.Savanna), new PlantableDecorator(Vector3i.UnitY, width: 3));
+
+    /// <summary>
+    ///     A cactus.
+    /// </summary>
+    public Decoration Cactus { get; } = new StructureDecoration(nameof(Cactus), rarity: 50.0f, new Cactus(), new CoverDecorator(Block.Sand, Vector3i.Zero, width: 3));
 
     /// <summary>
     ///     Initialize the decorations.

@@ -293,6 +293,10 @@ public class Biomes
             Layer.CreateLoose(width: 22),
             Layer.CreateGroundwater(width: 18),
             Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+        },
+        Decorations = new List<Decoration>
+        {
+            Decorations.Instance.Cactus
         }
     };
 
