@@ -24,7 +24,7 @@ public class SurfaceDecorator : Decorator
     ///     Creates a new surface decorator.
     /// </summary>
     /// <param name="width">The width of the column to check. Must be odd and in the range [1, <see cref="Section.Size" />].</param>
-    protected SurfaceDecorator(int width = 1)
+    public SurfaceDecorator(int width = 1)
     {
         Debug.Assert(width is > 0 and <= Section.Size);
         Debug.Assert(width % 2 != 0);
@@ -54,8 +54,6 @@ public class SurfaceDecorator : Decorator
 
         Content below = grid.GetContent(position.Below()) ?? Content.Default;
 
-        if (!below.Block.IsSolidAndFull) return false;
-
-        return true;
+        return below.Block.IsSolidAndFull;
     }
 }

@@ -125,7 +125,7 @@ public class Generator : IWorldGenerator
 
         foreach (Decoration decoration in decorations.OrderByDescending(d => d.Size).ThenBy(d => d.Name))
         {
-            Decoration.Context context = new(position, sections, decorationToBiomes[decoration], noise, index++, map);
+            Decoration.Context context = new(position, sections, decorationToBiomes[decoration], noise, index++, palette, map);
 
             decoration.Place(context);
         }

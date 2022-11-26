@@ -68,6 +68,11 @@ public class Decorations
     public Decoration Cactus { get; } = new StructureDecoration(nameof(Cactus), rarity: 50.0f, new Cactus(), new CoverDecorator(Block.Sand, Vector3i.Zero, width: 3));
 
     /// <summary>
+    ///     A boulder.
+    /// </summary>
+    public Decoration Boulder { get; } = new BoulderDecoration(nameof(Boulder), rarity: 2000.0f, new SurfaceDecorator());
+
+    /// <summary>
     ///     Initialize the decorations.
     /// </summary>
     public static void Initialize()

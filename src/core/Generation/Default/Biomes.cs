@@ -272,6 +272,11 @@ public class Biomes
             Layer.CreateLoose(width: 37),
             Layer.CreateGroundwater(width: 18),
             Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+        },
+        Decorations = new List<Decoration>
+        {
+            Decorations.Instance.TallGrass,
+            Decorations.Instance.Boulder
         }
     };
 
@@ -323,7 +328,8 @@ public class Biomes
         },
         Decorations = new List<Decoration>
         {
-            Decorations.Instance.TallGrass
+            Decorations.Instance.TallGrass,
+            Decorations.Instance.Boulder
         }
     };
 

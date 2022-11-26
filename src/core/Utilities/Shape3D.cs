@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Utilities;
@@ -19,12 +20,27 @@ public abstract class Shape3D
     public Vector3 Position { get; init; }
 
     /// <summary>
+    ///     Get the size, which is the distance between the furthest points.
+    /// </summary>
+    public abstract float Size { get; }
+
+    /// <summary>
     ///     Get whether the shape contains the given point.
     /// </summary>
     /// <param name="point">The point to check.</param>
     /// <param name="closeness">How close the point is to the shape.</param>
     /// <returns>Whether the point is contained in the shape.</returns>
     public abstract bool Contains(Vector3 point, out float closeness);
+
+    /// <summary>
+    ///     Get whether the shape contains the given point.
+    /// </summary>
+    /// <param name="point">The point to check.</param>
+    /// <returns>Whether the point is contained in the shape.</returns>
+    public bool Contains(Vector3 point)
+    {
+        return Contains(point, out _);
+    }
 }
 
 /// <summary>
@@ -38,6 +54,9 @@ public sealed class Sphere : Shape3D
     public float Radius { get; init; }
 
     private float RadiusSquared => Radius * Radius;
+
+    /// <inheritdoc />
+    public override float Size => Radius * 2;
 
     /// <inheritdoc />
     public override bool Contains(Vector3 point, out float closeness)
@@ -62,6 +81,9 @@ public sealed class Spheroid : Shape3D
     public Vector3 Radius { get; init; }
 
     private Vector3 RadiusSquared => Radius * Radius;
+
+    /// <inheritdoc />
+    public override float Size => Radius.Length * 2;
 
     /// <inheritdoc />
     public override bool Contains(Vector3 point, out float closeness)
@@ -94,6 +116,9 @@ public sealed class Cone : Shape3D
     ///     The height of the cone.
     /// </summary>
     public float Height { get; init; }
+
+    /// <inheritdoc />
+    public override float Size => Math.Max(Math.Max(BottomRadius, TopRadius) * 2, Height);
 
     /// <inheritdoc />
     public override bool Contains(Vector3 point, out float closeness)

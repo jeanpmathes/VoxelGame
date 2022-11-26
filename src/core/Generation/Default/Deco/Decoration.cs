@@ -74,13 +74,16 @@ public abstract class Decoration
 
         if (!context.Biomes.Contains(sample.ActualBiome)) return;
 
-        State state = new();
+        State state = new(context.Palette)
+        {
+            StoneType = context.Map.GetStoneType((column.x, 0, column.z), sample)
+        };
 
         for (var y = 0; y < Section.Size; y++)
         {
             position = context.Position.FirstBlock + (column.x, y, column.z);
 
-            if (!noise.CheckCandidate(position, Rarity, out float random) || state.SkipColumn) continue;
+            if (!noise.CheckCandidate(position, Rarity, out float random)) continue;
 
             state.Reset(random);
 
@@ -109,8 +112,9 @@ public abstract class Decoration
     /// <param name="Biomes">The biomes in which the decoration may be placed.</param>
     /// <param name="Noise">The noise used for decoration placement.</param>
     /// <param name="Index">The current index of the decoration.</param>
+    /// <param name="Palette">The palette of the generation.</param>
     /// <param name="Map">The map of the world.</param>
-    public record Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<float> Noise, int Index, Map Map) : IGrid
+    public record Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<float> Noise, int Index, Palette Palette, Map Map) : IGrid
     {
         /// <summary>
         ///     Get the content of a position in the neighborhood of the section.
@@ -176,9 +180,12 @@ public abstract class Decoration
     protected class State
     {
         /// <summary>
-        ///     Whether the rest of the column should be skipped. The noise values are still checked for the rest of the column.
+        /// Create a new state.
         /// </summary>
-        public bool SkipColumn { get; set; }
+        public State(Palette palette)
+        {
+            Palette = palette;
+        }
 
         /// <summary>
         ///     Get the current random number.
@@ -186,11 +193,20 @@ public abstract class Decoration
         public float Random { get; private set; }
 
         /// <summary>
+        ///     Get the stone type of the current position.
+        /// </summary>
+        public Map.StoneType StoneType { get; set; }
+
+        /// <summary>
+        ///     Get the palette.
+        /// </summary>
+        public Palette Palette { get; }
+
+        /// <summary>
         ///     Reset the state.
         /// </summary>
         public void Reset(float random)
         {
-            SkipColumn = false;
             Random = random;
         }
     }
