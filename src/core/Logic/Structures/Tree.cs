@@ -49,7 +49,12 @@ public class Tree : DynamicStructure
         /// <summary>
         ///     A savanna tree, growing in savannas.
         /// </summary>
-        Savanna
+        Savanna,
+
+        /// <summary>
+        ///     A small shrub, growing in a dry climate.
+        /// </summary>
+        Shrub
     }
 
     private readonly Kind kind;
@@ -108,6 +113,16 @@ public class Tree : DynamicStructure
 
     private readonly Vector3i savannaExtents = new(x: 5, y: 8, z: 5);
 
+    private readonly (int height, float factor) shrubConfig = (height: 3, factor: 0.25f);
+
+    private readonly Shape3D shrubCrown = new Sphere
+    {
+        Position = new Vector3(x: 2, y: 2, z: 2),
+        Radius = 1.5f
+    };
+
+    private readonly Vector3i shrubExtents = new(x: 5, y: 4, z: 5);
+
     private readonly (int height, float factor) tropicalConfig = (height: 14, factor: 0.25f);
 
     private readonly Shape3D tropicalCrown = new Spheroid
@@ -136,6 +151,7 @@ public class Tree : DynamicStructure
         Kind.Needle => needleExtents,
         Kind.Palm => palmExtents,
         Kind.Savanna => savannaExtents,
+        Kind.Shrub => shrubExtents,
         _ => throw new InvalidOperationException()
     };
 
@@ -149,6 +165,7 @@ public class Tree : DynamicStructure
             Kind.Needle => needleCrown,
             Kind.Palm => palmCrown,
             Kind.Savanna => savannaCrown,
+            Kind.Shrub => shrubCrown,
             _ => throw new InvalidOperationException()
         };
     }
@@ -163,6 +180,7 @@ public class Tree : DynamicStructure
             Kind.Needle => needleConfig,
             Kind.Palm => palmConfig,
             Kind.Savanna => savannaConfig,
+            Kind.Shrub => shrubConfig,
             _ => throw new InvalidOperationException()
         };
     }

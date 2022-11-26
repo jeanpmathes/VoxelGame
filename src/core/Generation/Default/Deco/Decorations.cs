@@ -70,7 +70,12 @@ public class Decorations
     /// <summary>
     ///     A boulder.
     /// </summary>
-    public Decoration Boulder { get; } = new BoulderDecoration(nameof(Boulder), rarity: 2000.0f, new SurfaceDecorator());
+    public Decoration Boulder { get; } = new BoulderDecoration(nameof(Boulder), rarity: 2000.0f, new SurfaceDecorator(width: 5));
+
+    /// <summary>
+    ///     A shrub.
+    /// </summary>
+    public Decoration Shrub { get; } = new StructureDecoration(nameof(Shrub), rarity: 100.0f, new Tree(Tree.Kind.Shrub), new PlantableDecorator(Vector3i.UnitY, width: 3));
 
     /// <summary>
     ///     Initialize the decorations.
