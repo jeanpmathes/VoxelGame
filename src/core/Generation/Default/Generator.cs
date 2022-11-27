@@ -32,8 +32,6 @@ public class Generator : IWorldGenerator
 
     private readonly FastNoiseLite decorationNoise;
 
-    private readonly Map map;
-
     /// <summary>
     ///     Used for map generation and sampling.
     /// </summary>
@@ -64,7 +62,7 @@ public class Generator : IWorldGenerator
         Biomes biomes = Biomes.Load();
         biomes.Setup(worldNoiseFactory, palette);
 
-        map = new Map(BiomeDistribution.CreateDefault(biomes));
+        Map = new Map(BiomeDistribution.CreateDefault(biomes));
 
         Initialize();
         Store();
@@ -76,23 +74,21 @@ public class Generator : IWorldGenerator
         logger.LogInformation(Events.WorldGeneration, "Created '{Name}' world generator", nameof(Default));
     }
 
+    /// <summary>
+    ///     Get the map used by this generator.
+    /// </summary>
+    public Map Map { get; }
+
     /// <inheritdoc />
     public IEnumerable<Content> GenerateColumn(int x, int z, (int start, int end) heightRange)
     {
-        Map.Sample sample = map.GetSample((x, z));
-
-        double offset = GetOffset((x, z), sample);
-        double height = sample.Height * Default.Map.MaxHeight;
-
-        var rawHeight = (int) height;
-        var modifiedHeight = (int) (height + offset);
-        int effectiveOffset = rawHeight - modifiedHeight;
+        Map.Sample sample = Map.GetSample((x, z));
 
         Context context = new()
         {
-            Map = map,
+            Map = Map,
             Sample = sample,
-            WorldHeight = modifiedHeight,
+            WorldHeight = GetWorldHeight((x, z), sample, out int effectiveOffset),
             Dampening = CreateFilledDampening(effectiveOffset, sample),
             IceWidth = GetIceWidth(sample)
         };
@@ -125,7 +121,7 @@ public class Generator : IWorldGenerator
 
         foreach (Decoration decoration in decorations.OrderByDescending(d => d.Size).ThenBy(d => d.Name))
         {
-            Decoration.Context context = new(position, sections, decorationToBiomes[decoration], noise, index++, palette, map);
+            Decoration.Context context = new(position, sections, decorationToBiomes[decoration], noise, index++, palette, this);
 
             decoration.Place(context);
         }
@@ -134,11 +130,30 @@ public class Generator : IWorldGenerator
     /// <inheritdoc />
     public void EmitViews(string path)
     {
-        map.EmitViews(path);
+        Map.EmitViews(path);
     }
 
     /// <inheritdoc />
-    public IMap Map => map;
+    IMap IWorldGenerator.Map => Map;
+
+    /// <summary>
+    ///     Get the world height for the given column.
+    /// </summary>
+    /// <param name="column">The column to get the height for.</param>
+    /// <param name="sample">A map sample for the column.</param>
+    /// <param name="effectiveOffset">The effective offset of the column.</param>
+    /// <returns>The world height.</returns>
+    public static int GetWorldHeight(Vector2i column, in Map.Sample sample, out int effectiveOffset)
+    {
+        double offset = GetOffset(column, sample);
+        double height = sample.Height * Map.MaxHeight;
+
+        var rawHeight = (int) height;
+        var modifiedHeight = (int) (height + offset);
+        effectiveOffset = rawHeight - modifiedHeight;
+
+        return modifiedHeight;
+    }
 
     private Array3D<float> GenerateDecorationNoise(SectionPosition position)
     {
@@ -162,10 +177,10 @@ public class Generator : IWorldGenerator
 
         Vector2i start = position.FirstBlock.Xz;
 
-        biomes.Add(map.GetSample(start).ActualBiome);
-        biomes.Add(map.GetSample(start + (0, Section.Size)).ActualBiome);
-        biomes.Add(map.GetSample(start + (Section.Size, 0)).ActualBiome);
-        biomes.Add(map.GetSample(start + (Section.Size, Section.Size)).ActualBiome);
+        biomes.Add(Map.GetSample(start).ActualBiome);
+        biomes.Add(Map.GetSample(start + (0, Section.Size)).ActualBiome);
+        biomes.Add(Map.GetSample(start + (Section.Size, 0)).ActualBiome);
+        biomes.Add(Map.GetSample(start + (Section.Size, Section.Size)).ActualBiome);
 
         biomes = biomes.Distinct().ToList();
 
@@ -225,13 +240,13 @@ public class Generator : IWorldGenerator
     private void Initialize()
     {
         using BinaryReader? read = world.GetBlobReader(MapBlobName);
-        map.Initialize(read, mapNoiseFactory);
+        Map.Initialize(read, mapNoiseFactory);
     }
 
     private void Store()
     {
         using BinaryWriter? write = world.GetBlobWriter(MapBlobName);
-        if (write != null) map.Store(write);
+        if (write != null) Map.Store(write);
     }
 
     private Content GenerateContent(Vector3i position, in Context context)

@@ -78,6 +78,11 @@ public class Decorations
     public Decoration Shrub { get; } = new StructureDecoration(nameof(Shrub), rarity: 100.0f, new Tree(Tree.Kind.Shrub), new PlantableDecorator(Vector3i.UnitY, width: 3));
 
     /// <summary>
+    ///     Buried roots.
+    /// </summary>
+    public Decoration Roots { get; } = new RootDecoration(nameof(Roots), rarity: 1000.0f, new DepthDecorator(minDepth: 5, maxDepth: 15));
+
+    /// <summary>
     ///     Initialize the decorations.
     /// </summary>
     public static void Initialize()

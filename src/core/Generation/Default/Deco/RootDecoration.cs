@@ -1,4 +1,4 @@
-﻿// <copyright file="BoulderDecoration.cs" company="VoxelGame">
+﻿// <copyright file="RootDecoration.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -11,18 +11,18 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Generation.Default.Deco;
 
 /// <summary>
-///     Places boulders in the world.
+///     A clump of roots.
 /// </summary>
-public class BoulderDecoration : Decoration
+public class RootDecoration : Decoration
 {
     private readonly Shape3D shape;
 
     /// <summary>
-    ///     Creates a new instance of the <see cref="BoulderDecoration" /> class.
+    ///     Creates a new instance of the <see cref="RootDecoration" /> class.
     /// </summary>
-    public BoulderDecoration(string name, float rarity, Decorator decorator) : base(name, rarity, decorator)
+    public RootDecoration(string name, float rarity, Decorator decorator) : base(name, rarity, decorator)
     {
-        const int diameter = 5;
+        const int diameter = 3;
 
         shape = new Sphere {Radius = diameter / 2.0f};
         Size = diameter;
@@ -44,8 +44,11 @@ public class BoulderDecoration : Decoration
             Vector3i offset = new(x, y, z);
             Vector3i current = center + offset;
 
-            if (shape.Contains(offset - extents))
-                grid.SetContent(placementContext.Palette.GetStone(placementContext.StoneType), current);
+            if (!shape.Contains(offset - extents)) continue;
+
+            if (grid.GetContent(current)?.Block.Block != Block.Dirt) continue;
+
+            grid.SetContent(new Content(Block.Roots), current);
         }
     }
 }

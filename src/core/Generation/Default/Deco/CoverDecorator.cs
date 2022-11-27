@@ -40,11 +40,11 @@ public class CoverDecorator : SurfaceDecorator
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(Vector3i position, IReadOnlyGrid grid)
+    public override bool CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid)
     {
         position += offset;
 
-        if (!base.CanPlace(position, grid)) return false;
+        if (!base.CanPlace(position, context, grid)) return false;
 
         Content below = grid.GetContent(position.Below()) ?? Content.Default;
 

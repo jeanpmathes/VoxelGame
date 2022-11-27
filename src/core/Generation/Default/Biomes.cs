@@ -86,7 +86,8 @@ public class Biomes
             Decorations.Instance.TallGrass,
             Decorations.Instance.TallFlower,
             Decorations.Instance.NormalTree,
-            Decorations.Instance.TropicalTree
+            Decorations.Instance.TropicalTree,
+            Decorations.Instance.Roots
         }
     };
 
@@ -115,7 +116,8 @@ public class Biomes
         {
             Decorations.Instance.TallGrass,
             Decorations.Instance.TallFlower,
-            Decorations.Instance.NormalTree
+            Decorations.Instance.NormalTree,
+            Decorations.Instance.Roots
         }
     };
 
@@ -220,7 +222,8 @@ public class Biomes
             Decorations.Instance.TallGrass,
             Decorations.Instance.TallFlower,
             Decorations.Instance.NormalTree,
-            Decorations.Instance.NormalTree2
+            Decorations.Instance.NormalTree2,
+            Decorations.Instance.Roots
         }
     };
 
@@ -249,7 +252,8 @@ public class Biomes
         {
             Decorations.Instance.TallGrass,
             Decorations.Instance.NormalTree,
-            Decorations.Instance.Shrub
+            Decorations.Instance.Shrub,
+            Decorations.Instance.Roots
         }
     };
 

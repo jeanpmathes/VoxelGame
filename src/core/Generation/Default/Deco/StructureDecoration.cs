@@ -39,12 +39,12 @@ public class StructureDecoration : Decoration
     public sealed override int Size => structure.Extents.MaxComponent();
 
     /// <inheritdoc />
-    protected override void DoPlace(Vector3i position, State state, IGrid grid)
+    protected override void DoPlace(Vector3i position, in PlacementContext placementContext, IGrid grid)
     {
         int xOffset = structure.Extents.X / 2;
         int zOffset = structure.Extents.Z / 2;
 
-        structure.SetStructureSeed(state.Random.GetHashCode());
+        structure.SetStructureSeed(placementContext.Random.GetHashCode());
         Debug.Assert(structure.IsPlaceable);
 
         structure.Place(grid, position - new Vector3i(xOffset, y: 0, zOffset));

@@ -70,14 +70,13 @@ public abstract class Decoration
     {
         Vector3i position = context.Position.FirstBlock + (column.x, 0, column.z);
 
-        Map.Sample sample = context.Map.GetSample(position.Xz);
+        Map.Sample sample = context.Generator.Map.GetSample(position.Xz);
 
         if (!context.Biomes.Contains(sample.ActualBiome)) return;
 
-        State state = new(context.Palette)
-        {
-            StoneType = context.Map.GetStoneType((column.x, 0, column.z), sample)
-        };
+        int surfaceHeight = Generator.GetWorldHeight(column, sample, out _);
+
+        PlacementContext placementContext = new(Random: 0.0f, Depth: 0, context.Generator.Map.GetStoneType((column.x, 0, column.z), sample), context.Palette);
 
         for (var y = 0; y < Section.Size; y++)
         {
@@ -85,24 +84,24 @@ public abstract class Decoration
 
             if (!noise.CheckCandidate(position, Rarity, out float random)) continue;
 
-            state.Reset(random);
+            placementContext = placementContext with {Random = random, Depth = surfaceHeight - position.Y};
 
-            DecoratePosition(position, state, context);
+            DecoratePosition(position, placementContext, context);
         }
     }
 
-    private void DecoratePosition(Vector3i position, State state, IGrid grid)
+    private void DecoratePosition(Vector3i position, in PlacementContext context, IGrid grid)
     {
-        if (decorator.CanPlace(position, grid)) DoPlace(position, state, grid);
+        if (decorator.CanPlace(position, context, grid)) DoPlace(position, context, grid);
     }
 
     /// <summary>
     ///     Place the decoration at the given position.
     /// </summary>
     /// <param name="position">The position at which to place the decoration.</param>
-    /// <param name="state">The state object that can be used to change iteration behaviour.</param>
+    /// <param name="placementContext">The placement context object.</param>
     /// <param name="grid">The grid that is being decorated.</param>
-    protected abstract void DoPlace(Vector3i position, State state, IGrid grid);
+    protected abstract void DoPlace(Vector3i position, in PlacementContext placementContext, IGrid grid);
 
     /// <summary>
     ///     The context in which placement in a section occurs.
@@ -113,8 +112,8 @@ public abstract class Decoration
     /// <param name="Noise">The noise used for decoration placement.</param>
     /// <param name="Index">The current index of the decoration.</param>
     /// <param name="Palette">The palette of the generation.</param>
-    /// <param name="Map">The map of the world.</param>
-    public record Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<float> Noise, int Index, Palette Palette, Map Map) : IGrid
+    /// <param name="Generator">The generator that is placing the decoration.</param>
+    public record Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<float> Noise, int Index, Palette Palette, Generator Generator) : IGrid
     {
         /// <summary>
         ///     Get the content of a position in the neighborhood of the section.
@@ -175,39 +174,11 @@ public abstract class Decoration
     }
 
     /// <summary>
-    ///     The state of the current decoration.
+    ///     The placement context of the current decoration.
     /// </summary>
-    protected class State
-    {
-        /// <summary>
-        /// Create a new state.
-        /// </summary>
-        public State(Palette palette)
-        {
-            Palette = palette;
-        }
-
-        /// <summary>
-        ///     Get the current random number.
-        /// </summary>
-        public float Random { get; private set; }
-
-        /// <summary>
-        ///     Get the stone type of the current position.
-        /// </summary>
-        public Map.StoneType StoneType { get; set; }
-
-        /// <summary>
-        ///     Get the palette.
-        /// </summary>
-        public Palette Palette { get; }
-
-        /// <summary>
-        ///     Reset the state.
-        /// </summary>
-        public void Reset(float random)
-        {
-            Random = random;
-        }
-    }
+    /// <param name="Random">The random value for the placement.</param>
+    /// <param name="Depth">The depth of the position.</param>
+    /// <param name="StoneType">The stone type of the current column.</param>
+    /// <param name="Palette">The palette of the world generation.</param>
+    public record struct PlacementContext(float Random, int Depth, Map.StoneType StoneType, Palette Palette);
 }

@@ -39,7 +39,7 @@ public class SurfaceDecorator : Decorator
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(Vector3i position, IReadOnlyGrid grid)
+    public override bool CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid)
     {
         for (var y = 0; y < height; y++)
         {
