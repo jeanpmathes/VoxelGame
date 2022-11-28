@@ -94,6 +94,7 @@ public partial class Block
         public static readonly GroundedModifiableHeightBlock Snow = (GroundedModifiableHeightBlock) Block.Snow;
         public static readonly ModifiableHeightBlock Ice = (ModifiableHeightBlock) Block.Ice;
         public static readonly RotatedBlock Log = (RotatedBlock) Block.Log;
+        public static readonly FlatBlock Vines = (FlatBlock) Block.Vines;
 #pragma warning restore S3218 // Inner class members should not shadow outer class "static" or type members
     }
 

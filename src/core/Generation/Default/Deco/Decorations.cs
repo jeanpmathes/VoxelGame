@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Structures;
@@ -81,6 +82,11 @@ public class Decorations
     ///     Buried roots.
     /// </summary>
     public Decoration Roots { get; } = new RootDecoration(nameof(Roots), rarity: 1000.0f, new DepthDecorator(minDepth: 5, maxDepth: 15));
+
+    /// <summary>
+    ///     Vines.
+    /// </summary>
+    public Decoration Vines { get; } = new FlatBlockDecoration(nameof(Vines), rarity: 1.0f, Block.Specials.Vines, new HashSet<Block> {Block.Log, Block.Leaves});
 
     /// <summary>
     ///     Initialize the decorations.

@@ -87,7 +87,8 @@ public class Biomes
             Decorations.Instance.TallFlower,
             Decorations.Instance.NormalTree,
             Decorations.Instance.TropicalTree,
-            Decorations.Instance.Roots
+            Decorations.Instance.Roots,
+            Decorations.Instance.Vines
         }
     };
 

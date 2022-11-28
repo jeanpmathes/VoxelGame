@@ -92,6 +92,19 @@ public class FlatBlock : Block, IFillable, IComplex
         return GetMeshData(info);
     }
 
+    /// <summary>
+    ///     Get an instance of this block with the given orientation.
+    /// </summary>
+    /// <param name="orientation">
+    ///     The orientation of the block. The block will look in that direction, meaning it is placed on
+    ///     the wall on the opposite side.
+    /// </param>
+    /// <returns>The block with the given orientation.</returns>
+    public BlockInstance GetInstance(Orientation orientation)
+    {
+        return this.AsInstance((uint) orientation);
+    }
+
     private static float[] CreateSide(Orientation orientation)
     {
         return BlockModels.CreateFlatModel(orientation.ToBlockSide().Opposite(), offset: 0.01f);
