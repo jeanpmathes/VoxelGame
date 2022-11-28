@@ -26,12 +26,12 @@ public class Decorations
     /// <summary>
     ///     Tall grass.
     /// </summary>
-    public Decoration TallGrass { get; } = new StructureDecoration(nameof(TallGrass), rarity: 1.0f, StaticStructure.Load("tall-grass"), new PlantableDecorator());
+    public Decoration TallGrass { get; } = new StructureDecoration(nameof(TallGrass), rarity: 1.0f, StaticStructure.Load("tall_grass"), new PlantableDecorator());
 
     /// <summary>
     ///     Tall flowers.
     /// </summary>
-    public Decoration TallFlower { get; } = new StructureDecoration(nameof(TallFlower), rarity: 4.0f, StaticStructure.Load("tall-flower"), new PlantableDecorator());
+    public Decoration TallFlower { get; } = new StructureDecoration(nameof(TallFlower), rarity: 4.0f, StaticStructure.Load("tall_flower"), new PlantableDecorator());
 
     /// <summary>
     ///     Basic trees.

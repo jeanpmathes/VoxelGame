@@ -69,10 +69,10 @@
       <Compile Remove="Properties\**"/>
       <EmbeddedResource Remove="Properties\**"/>
       <None Remove="Properties\**"/>
-      <None Update="Resources\Structures\tall-flower.json">
+      <None Update="Resources\Structures\tall_flower.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="Resources\Structures\tall-grass.json">
+      <None Update="Resources\Structures\tall_grass.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
   </ItemGroup>
