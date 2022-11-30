@@ -7,7 +7,7 @@
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
 using VoxelGame.Client.Rendering;
-using VoxelGame.Core.Generation.Default.Deco;
+using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics;
@@ -106,7 +106,7 @@ public class GameResources
 
         Fluid.LoadFluids(FluidTextureArray);
 
-        Decorations.Initialize();
+        Generator.Prepare();
     }
 
     /// <summary>

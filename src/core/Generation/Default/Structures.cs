@@ -1,0 +1,56 @@
+﻿// <copyright file="Structures.cs" company="VoxelGame">
+//     MIT License
+//     For full license see the repository.
+// </copyright>
+// <author>pershingthesecond</author>
+
+using System.Collections.Generic;
+using System.Linq;
+using VoxelGame.Core.Logic.Structures;
+
+namespace VoxelGame.Core.Generation.Default;
+
+/// <summary>
+///     All structures that are used during structure placement generation.
+///     Structure placement is used for large per-section structures.
+///     For smaller structures, the decoration system is used.
+/// </summary>
+public class Structures
+{
+    private readonly GeneratedStructure smallPyramid = new(StaticStructure.Load("small_pyramid"), rarity: 5.0f, (0, -6, 0));
+    private Structures() {}
+
+    /// <summary>
+    ///     Get the structures instance. May only be called after the initialization method has been called.
+    /// </summary>
+    public static Structures Instance { get; private set; } = null!;
+
+    /// <summary>
+    ///     Get all structures.
+    /// </summary>
+    public IEnumerable<GeneratedStructure> All { get; private set; } = new List<GeneratedStructure>();
+
+    /// <summary>
+    ///     Initialize and load all structures.
+    /// </summary>
+    public static void Initialize()
+    {
+        Instance = new Structures();
+
+        List<GeneratedStructure> structures = new()
+        {
+            Instance.smallPyramid
+        };
+
+        Instance.All = structures.OrderBy(structure => structure.Size).ToList();
+    }
+
+    /// <summary>
+    ///     Setup the structures.
+    /// </summary>
+    /// <param name="factory">The factory to use for noise generation.</param>
+    public void Setup(NoiseFactory factory)
+    {
+        foreach (GeneratedStructure structure in All) structure.Setup(factory);
+    }
+}

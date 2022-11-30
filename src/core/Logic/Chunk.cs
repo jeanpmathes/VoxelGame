@@ -400,6 +400,19 @@ public abstract partial class Chunk : IDisposable
             Position,
             generator);
 
+        GenerateContent(generator);
+        PlaceStructures(generator);
+        DecorateCenter(generator);
+
+        logger.LogDebug(
+            Events.ChunkOperation,
+            "Finished generating chunk {Position} using '{Name}' generator",
+            Position,
+            generator);
+    }
+
+    private void GenerateContent(IWorldGenerator generator)
+    {
         (int begin, int end) range = (Position.Y * BlockSize, (Position.Y + 1) * BlockSize);
 
         for (var x = 0; x < BlockSize; x++)
@@ -422,14 +435,17 @@ public abstract partial class Chunk : IDisposable
                 y++;
             }
         }
+    }
 
-        DecorateCenter(generator);
+    private void PlaceStructures(IWorldGenerator generator)
+    {
+        for (var index = 0; index < SectionCount; index++)
+        {
+            Section section = sections[index];
+            SectionPosition position = SectionPosition.From(Position, IndexToLocalSection(index));
 
-        logger.LogDebug(
-            Events.ChunkOperation,
-            "Finished generating chunk {Position} using '{Name}' generator",
-            Position,
-            generator);
+            generator.GenerateStructures(section, position);
+        }
     }
 
     /// <summary>

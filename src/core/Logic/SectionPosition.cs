@@ -121,6 +121,16 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     }
 
     /// <summary>
+    ///     Check if this section contains the given world position.
+    /// </summary>
+    /// <param name="position">The world position.</param>
+    /// <returns>True if the section contains the position.</returns>
+    public bool Contains(Vector3i position)
+    {
+        return Equals(From(position));
+    }
+
+    /// <summary>
     ///     Get the offset that has to be applied to this section position to get the given position.
     /// </summary>
     /// <param name="other">The position to get the offset to.</param>
@@ -134,6 +144,11 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     ///     Get the position of the first block in this section.
     /// </summary>
     public Vector3i FirstBlock => new Vector3i(X, Y, Z) * Section.Size;
+
+    /// <summary>
+    ///     Get the position of the last block in this section.
+    /// </summary>
+    public Vector3i LastBlock => FirstBlock + new Vector3i(Section.Size - 1);
 
     /// <summary>
     ///     Create a section position that contains a world position.

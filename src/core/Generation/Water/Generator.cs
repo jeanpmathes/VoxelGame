@@ -52,6 +52,12 @@ public class Generator : IWorldGenerator
         // No views to emit.
     }
 
+    /// <inheritdoc />
+    public void GenerateStructures(Section section, SectionPosition position)
+    {
+        // No structures to generate.
+    }
+
     private Content GenerateContent(Vector3i position)
     {
         if (position.Y == -World.BlockLimit) return core;

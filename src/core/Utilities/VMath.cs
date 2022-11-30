@@ -84,6 +84,16 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Returns a copy of the vector where every component is positive.
+    /// </summary>
+    /// <param name="vector">The vector of which an absolute vector should be created.</param>
+    /// <returns>The absolute vector.</returns>
+    public static Vector3i Absolute(this Vector3i vector)
+    {
+        return new Vector3i(Math.Abs(vector.X), Math.Abs(vector.Y), Math.Abs(vector.Z));
+    }
+
+    /// <summary>
     ///     Convert a double Vector3 to a float Vector3.
     /// </summary>
     public static Vector3 ToVector3(this Vector3d vector)

@@ -189,13 +189,6 @@ public partial class StaticStructure : Structure
         return new Vector3i(vector.Values[0], vector.Values[1], vector.Values[2]);
     }
 
-    private bool IsInExtents(Vector3i position)
-    {
-        return position.X >= 0 && position.X < Extents.X &&
-               position.Y >= 0 && position.Y < Extents.Y &&
-               position.Z >= 0 && position.Z < Extents.Z;
-    }
-
     /// <inheritdoc />
     protected override (Content content, bool overwrite)? GetContent(Vector3i offset)
     {

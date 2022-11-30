@@ -42,7 +42,8 @@ public abstract class Structure
     public virtual void SetStructureSeed(int seed) {}
 
     /// <summary>
-    ///     Place the structure in a grid at the given position. Only call this method if <see cref="IsPlaceable" /> is true.
+    ///     Place the structure in a grid at the given position.
+    /// Only call this method if <see cref="IsPlaceable" /> is true.
     /// </summary>
     /// <param name="grid">The grid to place the structure in.</param>
     /// <param name="position">The position to place the structure at.</param>
@@ -55,6 +56,32 @@ public abstract class Structure
         {
             PlaceContent(grid, position, orientation, (x, y, z));
         }
+    }
+
+    /// <summary>
+    ///     Place only a part of the structure in a grid into a given area.
+    ///     Only call this method if <see cref="IsPlaceable" /> is true.
+    ///     If the area is larger then needed, the rest will be ignored.
+    /// </summary>
+    /// <param name="grid">The grid to place the structure in.</param>
+    /// <param name="position">The position to place the structure at.</param>
+    /// <param name="first">The first block of the area to place in.</param>
+    /// <param name="last">The last block of the area to place in.</param>
+    /// <param name="orientation">
+    ///     The orientation to place with. Structures are exported with orientation
+    ///     <see cref="Orientation.North" />.
+    /// </param>
+    public void PlacePartial(IGrid grid, Vector3i position, Vector3i first, Vector3i last, Orientation orientation = Orientation.North)
+    {
+        Vector3i firstOffset = VMath.ClampComponents(first - position, Vector3i.Zero, Extents - Vector3i.One);
+        Vector3i lastOffset = VMath.ClampComponents(last - position, Vector3i.Zero, Extents - Vector3i.One);
+
+        if (firstOffset == lastOffset) return;
+
+        for (int x = firstOffset.X; x <= lastOffset.X; x++)
+        for (int y = firstOffset.Y; y <= lastOffset.Y; y++)
+        for (int z = firstOffset.Z; z <= lastOffset.Z; z++)
+            PlaceContent(grid, position, orientation, (x, y, z));
     }
 
     private void PlaceContent(IGrid grid, Vector3i position, Orientation orientation, Vector3i offset)
@@ -75,5 +102,19 @@ public abstract class Structure
         if (!overwrite && grid.GetContent(targetPosition)?.IsReplaceable != true) return;
 
         grid.SetContent(content, targetPosition);
+    }
+
+    /// <summary>
+    ///     Get whether an offset is within the extents of the structure.
+    /// </summary>
+    protected bool IsInExtents(Vector3i offset)
+    {
+        var isInExtents = true;
+
+        isInExtents &= offset.X >= 0 && offset.X < Extents.X;
+        isInExtents &= offset.Y >= 0 && offset.Y < Extents.Y;
+        isInExtents &= offset.Z >= 0 && offset.Z < Extents.Z;
+
+        return isInExtents;
     }
 }

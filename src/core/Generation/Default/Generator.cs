@@ -42,7 +42,7 @@ public class Generator : IWorldGenerator
     private readonly World world;
 
     /// <summary>
-    ///     Used for details in biomes and decoration.
+    ///     Used for details in biomes, structures and decoration.
     /// </summary>
     #pragma warning disable S1450 // Used for documentation purposes.
     private readonly NoiseFactory worldNoiseFactory;
@@ -61,6 +61,8 @@ public class Generator : IWorldGenerator
 
         Biomes biomes = Biomes.Load();
         biomes.Setup(worldNoiseFactory, palette);
+
+        Structures.Instance.Setup(worldNoiseFactory);
 
         Map = new Map(BiomeDistribution.CreateDefault(biomes));
 
@@ -134,7 +136,27 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
+    public void GenerateStructures(Section section, SectionPosition position)
+    {
+        foreach (GeneratedStructure structure in Structures.Instance.All)
+        {
+            bool placed = structure.AttemptPlacement(section, position);
+
+            if (placed) break;
+        }
+    }
+
+    /// <inheritdoc />
     IMap IWorldGenerator.Map => Map;
+
+    /// <summary>
+    ///     Prepare all required systems to use the generator.
+    /// </summary>
+    public static void Prepare()
+    {
+        Decorations.Initialize();
+        Structures.Initialize();
+    }
 
     /// <summary>
     ///     Get the world height for the given column.

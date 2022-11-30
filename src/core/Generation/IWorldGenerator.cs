@@ -41,4 +41,11 @@ public interface IWorldGenerator
     /// </summary>
     /// <param name="path">A path to the debug directory.</param>
     void EmitViews(string path);
+
+    /// <summary>
+    ///     Generate all structures in a section.
+    /// </summary>
+    /// <param name="section">The section to generate structures in.</param>
+    /// <param name="position">The position of the section.</param>
+    void GenerateStructures(Section section, SectionPosition position);
 }

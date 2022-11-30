@@ -5,7 +5,6 @@
 // <author>pershingthesecond</author>
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
@@ -89,10 +88,6 @@ public abstract class Section : IDisposable
     /// <summary>
     ///     Creates a new section.
     /// </summary>
-    [SuppressMessage(
-        "ReSharper.DPA",
-        "DPA0002: Excessive memory allocations in SOH",
-        MessageId = "type: System.UInt32[]")]
     protected Section()
     {
         blocks = new uint[Size * Size * Size];
@@ -121,6 +116,7 @@ public abstract class Section : IDisposable
     /// </summary>
     /// <param name="position">The world position. Must be in the section.</param>
     /// <returns>The content at the given position.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public uint GetContent(Vector3i position)
     {
         return GetContent(position.X & (Size - 1), position.Y & (Size - 1), position.Z & (Size - 1));
@@ -144,6 +140,7 @@ public abstract class Section : IDisposable
     /// </summary>
     /// <param name="position">The world position. Must be in the section.</param>
     /// <param name="value">The value to set at the specified position.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Vector3i position, uint value)
     {
         SetContent(position.X & (Size - 1), position.Y & (Size - 1), position.Z & (Size - 1), value);
@@ -157,6 +154,22 @@ public abstract class Section : IDisposable
     public static (int x, int y, int z) ToLocalPosition(Vector3i worldPosition)
     {
         return (worldPosition.X & (Size - 1), worldPosition.Y & (Size - 1), worldPosition.Z & (Size - 1));
+    }
+
+    /// <summary>
+    ///     Check whether a local position is in bounds.
+    /// </summary>
+    /// <param name="localPosition">The local position.</param>
+    /// <returns>Whether the position is in bounds.</returns>
+    public static bool IsInBounds((int x, int y, int z) localPosition)
+    {
+        var inBounds = true;
+
+        inBounds &= localPosition.x is >= 0 and < Size;
+        inBounds &= localPosition.y is >= 0 and < Size;
+        inBounds &= localPosition.z is >= 0 and < Size;
+
+        return inBounds;
     }
 
     /// <summary>
