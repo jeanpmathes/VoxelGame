@@ -43,16 +43,18 @@ public abstract class Structure
 
     /// <summary>
     ///     Place the structure in a grid at the given position.
-    /// Only call this method if <see cref="IsPlaceable" /> is true.
+    ///     Only call this method if <see cref="IsPlaceable" /> is true.
     /// </summary>
     /// <param name="grid">The grid to place the structure in.</param>
     /// <param name="position">The position to place the structure at.</param>
     /// <param name="orientation">The orientation to place with. Structures are exported with orientation <see cref="Orientation.North"/>.</param>
     public void Place(IGrid grid, Vector3i position, Orientation orientation = Orientation.North)
     {
-        for (var x = 0; x < Extents.X; x++)
-        for (var y = 0; y < Extents.Y; y++)
-        for (var z = 0; z < Extents.Z; z++)
+        Vector3i orientedExtents = GetOrientedExtents(orientation);
+
+        for (var x = 0; x < orientedExtents.X; x++)
+        for (var y = 0; y < orientedExtents.Y; y++)
+        for (var z = 0; z < orientedExtents.Z; z++)
         {
             PlaceContent(grid, position, orientation, (x, y, z));
         }
@@ -67,41 +69,57 @@ public abstract class Structure
     /// <param name="position">The position to place the structure at.</param>
     /// <param name="first">The first block of the area to place in.</param>
     /// <param name="last">The last block of the area to place in.</param>
-    /// <param name="orientation">
-    ///     The orientation to place with. Structures are exported with orientation
-    ///     <see cref="Orientation.North" />.
-    /// </param>
+    /// <param name="orientation">The orientation to place with. Structures are exported with orientation <see cref="Orientation.North" />.</param>
     public void PlacePartial(IGrid grid, Vector3i position, Vector3i first, Vector3i last, Orientation orientation = Orientation.North)
     {
-        Vector3i firstOffset = VMath.ClampComponents(first - position, Vector3i.Zero, Extents - Vector3i.One);
-        Vector3i lastOffset = VMath.ClampComponents(last - position, Vector3i.Zero, Extents - Vector3i.One);
+        Vector3i orientedExtents = GetOrientedExtents(orientation);
 
-        if (firstOffset == lastOffset) return;
+        Vector3i offsetMin = VMath.ClampComponents(first - position, Vector3i.Zero, orientedExtents);
+        Vector3i offsetMax = VMath.ClampComponents(last + Vector3i.One - position, Vector3i.Zero, orientedExtents);
 
-        for (int x = firstOffset.X; x <= lastOffset.X; x++)
-        for (int y = firstOffset.Y; y <= lastOffset.Y; y++)
-        for (int z = firstOffset.Z; z <= lastOffset.Z; z++)
+        if (offsetMin == offsetMax) return;
+
+        for (int x = offsetMin.X; x < offsetMax.X; x++)
+        for (int y = offsetMin.Y; y < offsetMax.Y; y++)
+        for (int z = offsetMin.Z; z < offsetMax.Z; z++)
             PlaceContent(grid, position, orientation, (x, y, z));
     }
 
-    private void PlaceContent(IGrid grid, Vector3i position, Orientation orientation, Vector3i offset)
+    private void PlaceContent(IGrid grid, Vector3i position, Orientation orientation, Vector3i orientedOffset)
     {
-        (Content content, bool overwrite)? data = GetContent(offset);
+        (Content content, bool overwrite)? data = GetContent(GetDeOrientedOffset(orientedOffset, orientation));
 
         if (data is not {content: var content, overwrite: var overwrite}) return;
 
-        Vector3i targetPosition = orientation switch
-        {
-            Orientation.North => position + offset,
-            Orientation.East => position + new Vector3i(Extents.Z - 1 - offset.Z, offset.Y, offset.X),
-            Orientation.South => position + new Vector3i(Extents.X - 1 - offset.X, offset.Y, Extents.Z - 1 - offset.Z),
-            Orientation.West => position + new Vector3i(offset.Z, offset.Y, Extents.X - 1 - offset.X),
-            _ => position + offset
-        };
+        Vector3i targetPosition = position + orientedOffset;
 
         if (!overwrite && grid.GetContent(targetPosition)?.IsReplaceable != true) return;
 
         grid.SetContent(content, targetPosition);
+    }
+
+    private Vector3i GetDeOrientedOffset(Vector3i offset, Orientation orientation)
+    {
+        return orientation switch
+        {
+            Orientation.North => offset,
+            Orientation.East => new Vector3i(offset.Z, offset.Y, Extents.X - 1 - offset.X),
+            Orientation.South => new Vector3i(Extents.X - 1 - offset.X, offset.Y, Extents.Z - 1 - offset.Z),
+            Orientation.West => new Vector3i(Extents.Z - 1 - offset.Z, offset.Y, offset.X),
+            _ => offset
+        };
+    }
+
+    private Vector3i GetOrientedExtents(Orientation orientation)
+    {
+        return orientation switch
+        {
+            Orientation.North => Extents,
+            Orientation.East => Extents.Zyx,
+            Orientation.South => Extents,
+            Orientation.West => Extents.Zyx,
+            _ => Extents
+        };
     }
 
     /// <summary>

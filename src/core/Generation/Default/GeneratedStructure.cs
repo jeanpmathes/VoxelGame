@@ -45,7 +45,7 @@ public class GeneratedStructure
 
         this.offset = offset;
 
-        effectiveSectionExtents = (structure.Extents + offset.Absolute()) / Section.Size + Vector3i.One;
+        effectiveSectionExtents = (structure.Extents + new Vector3i(offset.Absolute().Xz.MaxComponent())) / Section.Size + Vector3i.One;
 
         Size = structure.Extents.MaxComponent();
         int sizeInSections = Size / Section.Size;
