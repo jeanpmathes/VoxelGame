@@ -36,6 +36,11 @@ public abstract class World : IDisposable, IGrid
 
     private const uint ChunkLimit = BlockLimit / Chunk.BlockSize;
 
+    /// <summary>
+    ///     The limit of the world size, in sections.
+    /// </summary>
+    public const uint SectionLimit = BlockLimit / Section.Size;
+
     private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
     private readonly ChunkSet chunks;
@@ -361,6 +366,18 @@ public abstract class World : IDisposable, IGrid
     public void EmitViews()
     {
         generator.EmitViews(DebugDirectory);
+    }
+
+    /// <summary>
+    ///     Search for named generated elements, such as structures.
+    /// </summary>
+    /// <param name="start">The start position.</param>
+    /// <param name="name">The name of the element.</param>
+    /// <param name="maxDistance">The maximum distance to search.</param>
+    /// <returns>The positions of the elements.</returns>
+    public IEnumerable<Vector3i> SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
+    {
+        return generator.SearchNamedGeneratedElements(start, name, maxDistance);
     }
 
     /// <summary>

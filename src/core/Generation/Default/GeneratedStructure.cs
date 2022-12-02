@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
@@ -28,11 +29,14 @@ public class GeneratedStructure
     /// <summary>
     ///     Creates a new generated structure.
     /// </summary>
+    /// <param name="name">The name of the structure.</param>
     /// <param name="structure">The structure to generate.</param>
     /// <param name="rarity">The rarity of the structure. A higher value means less common.</param>
     /// <param name="offset">An offset to apply to the structure. Must be less than the size of a section.</param>
-    public GeneratedStructure(Structure structure, float rarity, Vector3i offset)
+    public GeneratedStructure(string name, Structure structure, float rarity, Vector3i offset)
     {
+        Name = name;
+
         this.structure = structure;
 
         Debug.Assert(Math.Abs(offset.X) < Section.Size);
@@ -48,6 +52,11 @@ public class GeneratedStructure
 
         frequency = 1.0f / (sizeInSections * rarity);
     }
+
+    /// <summary>
+    ///     Get the name of the structure.
+    /// </summary>
+    public string Name { get; }
 
     /// <summary>
     ///     Get the size of the structure, which is the largest extent of the structure in any direction.
@@ -143,5 +152,35 @@ public class GeneratedStructure
     public void Place(int seed)
     {
         structure.SetStructureSeed(seed);
+    }
+
+    /// <summary>
+    ///     Search for the structure, starting from a position.
+    /// </summary>
+    public IEnumerable<Vector3i> Search(Vector3i start, uint maxDistance)
+    {
+        var maxSectionDistance = (int) Math.Clamp(maxDistance / Section.Size + 1, min: 0, World.SectionLimit);
+
+        for (var d = 0; d < maxSectionDistance; d++)
+            foreach (Vector3i position in SearchAtDistance(start, d))
+                yield return position;
+    }
+
+    private IEnumerable<Vector3i> SearchAtDistance(Vector3i anchor, int distance)
+    {
+        SectionPosition position = SectionPosition.From(anchor);
+
+        for (int dx = -distance; dx <= distance; dx++)
+        for (int dy = -distance; dy <= distance; dy++)
+        for (int dz = -distance; dz <= distance; dz++)
+        {
+            if (Math.Abs(dx) != distance && Math.Abs(dy) != distance && Math.Abs(dz) != distance) continue;
+
+            SectionPosition current = position.Offset(dx, dy, dz);
+
+            if (!CheckPosition(current, out float random)) continue;
+
+            yield return current.FirstBlock + DeterminePlacement(random).position + offset;
+        }
     }
 }

@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 
@@ -48,4 +49,13 @@ public interface IWorldGenerator
     /// <param name="section">The section to generate structures in.</param>
     /// <param name="position">The position of the section.</param>
     void GenerateStructures(Section section, SectionPosition position);
+
+    /// <summary>
+    ///     Search for named generated elements, such as structures.
+    /// </summary>
+    /// <param name="start">The start position.</param>
+    /// <param name="name">The name of the element.</param>
+    /// <param name="maxDistance">The maximum distance to search.</param>
+    /// <returns>The positions of the elements.</returns>
+    IEnumerable<Vector3i> SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance);
 }

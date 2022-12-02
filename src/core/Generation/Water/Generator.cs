@@ -58,6 +58,12 @@ public class Generator : IWorldGenerator
         // No structures to generate.
     }
 
+    /// <inheritdoc />
+    public IEnumerable<Vector3i> SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
+    {
+        yield break;
+    }
+
     private Content GenerateContent(Vector3i position)
     {
         if (position.Y == -World.BlockLimit) return core;

@@ -5,7 +5,9 @@
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Structures;
 
 namespace VoxelGame.Core.Generation.Default;
@@ -17,7 +19,10 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 public class Structures
 {
-    private readonly GeneratedStructure smallPyramid = new(StaticStructure.Load("small_pyramid"), rarity: 5.0f, (0, -6, 0));
+    private readonly GeneratedStructure smallPyramid = new(nameof(smallPyramid), StaticStructure.Load("small_pyramid"), rarity: 5.0f, (0, -6, 0));
+
+    private readonly Dictionary<string, GeneratedStructure> structuresByName = new();
+
     private Structures() {}
 
     /// <summary>
@@ -43,6 +48,12 @@ public class Structures
         };
 
         Instance.All = structures.OrderBy(structure => structure.Size).ToList();
+
+        foreach (GeneratedStructure structure in structures)
+        {
+            bool success = Instance.structuresByName.TryAdd(structure.Name, structure);
+            Debug.Assert(success);
+        }
     }
 
     /// <summary>
@@ -52,5 +63,15 @@ public class Structures
     public void Setup(NoiseFactory factory)
     {
         foreach (GeneratedStructure structure in All) structure.Setup(factory);
+    }
+
+    /// <summary>
+    ///     Search for a given structure.
+    /// </summary>
+    public IEnumerable<Vector3i> Search(Vector3i start, string name, uint maxDistance)
+    {
+        GeneratedStructure? structure = structuresByName.GetValueOrDefault(name);
+
+        return structure == null ? Enumerable.Empty<Vector3i>() : structure.Search(start, maxDistance);
     }
 }
