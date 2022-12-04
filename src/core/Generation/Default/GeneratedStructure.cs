@@ -175,9 +175,24 @@ public class GeneratedStructure
 
         for (int dx = -distance; dx <= distance; dx++)
         for (int dy = -distance; dy <= distance; dy++)
-        for (int dz = -distance; dz <= distance; dz++)
-            if (SearchInSection(distance, generator, dx, dy, dz, center, out Vector3i found))
-                yield return found;
+        {
+            int dz = -distance;
+
+            while (dz <= distance)
+            {
+                if (Math.Abs(dx) != distance && Math.Abs(dy) != distance && Math.Abs(dz) != distance)
+                {
+                    dz = distance;
+
+                    continue;
+                }
+
+                if (SearchInSection(generator, dx, dy, dz, center, out Vector3i found))
+                    yield return found;
+
+                dz++;
+            }
+        }
     }
 
     private bool FilterSectionByBiome(SectionPosition section, Generator generator)
@@ -189,11 +204,9 @@ public class GeneratedStructure
         return biomes.First().Structure == this;
     }
 
-    private bool SearchInSection(int distance, Generator generator, int dx, int dy, int dz, SectionPosition position, out Vector3i found)
+    private bool SearchInSection(Generator generator, int dx, int dy, int dz, SectionPosition position, out Vector3i found)
     {
         found = default;
-
-        if (Math.Abs(dx) != distance && Math.Abs(dy) != distance && Math.Abs(dz) != distance) return false;
 
         SectionPosition current = position.Offset(dx, dy, dz);
 
