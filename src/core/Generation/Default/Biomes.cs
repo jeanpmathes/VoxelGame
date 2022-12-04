@@ -309,7 +309,8 @@ public class Biomes
         Decorations = new List<Decoration>
         {
             Decorations.Instance.Cactus
-        }
+        },
+        Structure = Structures.Instance.SmallPyramid
     };
 
     /// <summary>

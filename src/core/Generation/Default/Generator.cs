@@ -103,7 +103,7 @@ public class Generator : IWorldGenerator
     {
         Debug.Assert(sections.Length == 3);
 
-        List<Biome> biomes = GetSectionBiomes(position);
+        ICollection<Biome> biomes = GetSectionBiomes(position);
 
         HashSet<Decoration> decorations = new();
         Dictionary<Decoration, HashSet<Biome>> decorationToBiomes = new();
@@ -138,12 +138,11 @@ public class Generator : IWorldGenerator
     /// <inheritdoc />
     public void GenerateStructures(Section section, SectionPosition position)
     {
-        foreach (GeneratedStructure structure in Structures.Instance.All)
-        {
-            bool placed = structure.AttemptPlacement(section, position, this);
+        ICollection<Biome> biomes = GetSectionBiomes(position);
 
-            if (placed) break;
-        }
+        if (biomes.Count != 1) return;
+
+        biomes.First().Structure?.AttemptPlacement(section, position, this);
     }
 
     /// <inheritdoc />
@@ -209,7 +208,13 @@ public class Generator : IWorldGenerator
         return noise;
     }
 
-    private List<Biome> GetSectionBiomes(SectionPosition position)
+    /// <summary>
+    ///     Get the biomes for a given section.
+    ///     The biomes are determined by sampling each corner of the section.
+    /// </summary>
+    /// <param name="position">The position of the section.</param>
+    /// <returns>A list of the biomes, each biome is only included once.</returns>
+    public ICollection<Biome> GetSectionBiomes(SectionPosition position)
     {
         List<Biome> biomes = new();
 

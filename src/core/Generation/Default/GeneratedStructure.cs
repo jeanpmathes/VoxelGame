@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Structures;
@@ -75,7 +76,7 @@ public class GeneratedStructure
     /// <param name="position">The position of the section.</param>
     /// <param name="generator">The world generator.</param>
     /// <returns>True if the structure was placed, false otherwise.</returns>
-    public bool AttemptPlacement(Section section, SectionPosition position, Generator generator)
+    public void AttemptPlacement(Section section, SectionPosition position, Generator generator)
     {
         for (int dx = -effectiveSectionExtents.X; dx <= effectiveSectionExtents.X; dx++)
         for (int dy = -effectiveSectionExtents.Y; dy <= effectiveSectionExtents.Y; dy++)
@@ -88,10 +89,8 @@ public class GeneratedStructure
 
             PlaceIn(section, position, current, random, generator);
 
-            return true;
+            break;
         }
-
-        return false;
     }
 
     private static bool FilterSection(SectionPosition position, Generator generator)
@@ -177,19 +176,33 @@ public class GeneratedStructure
         for (int dx = -distance; dx <= distance; dx++)
         for (int dy = -distance; dy <= distance; dy++)
         for (int dz = -distance; dz <= distance; dz++)
-            foreach (Vector3i position in SearchInSection(distance, generator, dx, dy, dz, center))
-                yield return position;
+            if (SearchInSection(distance, generator, dx, dy, dz, center, out Vector3i found))
+                yield return found;
     }
 
-    private IEnumerable<Vector3i> SearchInSection(int distance, Generator generator, int dx, int dy, int dz, SectionPosition position)
+    private bool FilterSectionByBiome(SectionPosition section, Generator generator)
     {
-        if (Math.Abs(dx) != distance && Math.Abs(dy) != distance && Math.Abs(dz) != distance) yield break;
+        ICollection<Biome> biomes = generator.GetSectionBiomes(section);
+
+        if (biomes.Count != 1) return false;
+
+        return biomes.First().Structure == this;
+    }
+
+    private bool SearchInSection(int distance, Generator generator, int dx, int dy, int dz, SectionPosition position, out Vector3i found)
+    {
+        found = default;
+
+        if (Math.Abs(dx) != distance && Math.Abs(dy) != distance && Math.Abs(dz) != distance) return false;
 
         SectionPosition current = position.Offset(dx, dy, dz);
 
-        if (!FilterSection(current, generator)) yield break;
-        if (!CheckSection(current, out float random)) yield break;
+        if (!FilterSectionByBiome(current, generator)) return false;
+        if (!FilterSection(current, generator)) return false;
+        if (!CheckSection(current, out float random)) return false;
 
-        yield return current.FirstBlock + DeterminePlacement(current, random, generator).position + offset;
+        found = current.FirstBlock + DeterminePlacement(current, random, generator).position + offset;
+
+        return true;
     }
 }

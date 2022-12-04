@@ -19,11 +19,14 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 public class Structures
 {
-    private readonly GeneratedStructure smallPyramid = new(nameof(smallPyramid), StaticStructure.Load("small_pyramid"), rarity: 0.0f, (0, -6, 0));
-
     private readonly Dictionary<string, GeneratedStructure> structuresByName = new();
 
     private Structures() {}
+
+    /// <summary>
+    ///     A small pyramid.
+    /// </summary>
+    public GeneratedStructure SmallPyramid { get; } = new(nameof(SmallPyramid), StaticStructure.Load("small_pyramid"), rarity: 0.0f, (0, -6, 0));
 
     /// <summary>
     ///     Get the structures instance. May only be called after the initialization method has been called.
@@ -44,7 +47,7 @@ public class Structures
 
         List<GeneratedStructure> structures = new()
         {
-            Instance.smallPyramid
+            Instance.SmallPyramid
         };
 
         Instance.All = structures;

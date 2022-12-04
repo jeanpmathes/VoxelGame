@@ -76,6 +76,12 @@ public class Biome
     public ICollection<Decoration> Decorations { get; init; } = new List<Decoration>();
 
     /// <summary>
+    ///     Get the structure of this biome, if any.
+    ///     Each biome can only have one structure.
+    /// </summary>
+    public GeneratedStructure? Structure { get; init; }
+
+    /// <summary>
     ///     Get the cover of the biome.
     /// </summary>
     public Cover Cover { get; init; } = null!;
