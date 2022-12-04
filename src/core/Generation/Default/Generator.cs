@@ -140,7 +140,7 @@ public class Generator : IWorldGenerator
     {
         foreach (GeneratedStructure structure in Structures.Instance.All)
         {
-            bool placed = structure.AttemptPlacement(section, position);
+            bool placed = structure.AttemptPlacement(section, position, this);
 
             if (placed) break;
         }
@@ -149,7 +149,7 @@ public class Generator : IWorldGenerator
     /// <inheritdoc />
     public IEnumerable<Vector3i> SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
     {
-        return Structures.Instance.Search(start, name, maxDistance);
+        return Structures.Instance.Search(start, name, maxDistance, this);
     }
 
     /// <inheritdoc />
@@ -181,6 +181,16 @@ public class Generator : IWorldGenerator
         effectiveOffset = rawHeight - modifiedHeight;
 
         return modifiedHeight;
+    }
+
+    /// <summary>
+    ///     Get the world height for the given column.
+    /// </summary>
+    /// <param name="column">The column to get the height for.</param>
+    /// <returns>The world height.</returns>
+    public int GetWorldHeight(Vector2i column)
+    {
+        return GetWorldHeight(column, Map.GetSample(column), out _);
     }
 
     private Array3D<float> GenerateDecorationNoise(SectionPosition position)

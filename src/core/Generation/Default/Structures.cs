@@ -68,10 +68,10 @@ public class Structures
     /// <summary>
     ///     Search for a given structure.
     /// </summary>
-    public IEnumerable<Vector3i> Search(Vector3i start, string name, uint maxDistance)
+    public IEnumerable<Vector3i> Search(Vector3i start, string name, uint maxDistance, Generator generator)
     {
         GeneratedStructure? structure = structuresByName.GetValueOrDefault(name);
 
-        return structure == null ? Enumerable.Empty<Vector3i>() : structure.Search(start, maxDistance);
+        return structure == null ? Enumerable.Empty<Vector3i>() : structure.Search(start, maxDistance, generator);
     }
 }

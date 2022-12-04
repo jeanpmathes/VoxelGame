@@ -73,8 +73,9 @@ public class GeneratedStructure
     /// </summary>
     /// <param name="section">The section to place the structure in.</param>
     /// <param name="position">The position of the section.</param>
+    /// <param name="generator">The world generator.</param>
     /// <returns>True if the structure was placed, false otherwise.</returns>
-    public bool AttemptPlacement(Section section, SectionPosition position)
+    public bool AttemptPlacement(Section section, SectionPosition position, Generator generator)
     {
         for (int dx = -effectiveSectionExtents.X; dx <= effectiveSectionExtents.X; dx++)
         for (int dy = -effectiveSectionExtents.Y; dy <= effectiveSectionExtents.Y; dy++)
@@ -82,9 +83,10 @@ public class GeneratedStructure
         {
             SectionPosition current = position.Offset(dx, dy, dz);
 
-            if (!CheckPosition(current, out float random)) continue;
+            if (!FilterSection(current, generator)) continue;
+            if (!CheckSection(current, out float random)) continue;
 
-            PlaceIn(section, position, current, random);
+            PlaceIn(section, position, current, random, generator);
 
             return true;
         }
@@ -92,7 +94,21 @@ public class GeneratedStructure
         return false;
     }
 
-    private bool CheckPosition(SectionPosition position, out float random)
+    private static bool FilterSection(SectionPosition position, Generator generator)
+    {
+        // Filter out sections that are not at surface level.
+
+        Vector2i firstColumn = position.FirstBlock.Xz;
+        Vector2i lastColumn = position.LastBlock.Xz;
+
+        int firstHeight = generator.GetWorldHeight(firstColumn);
+        int lastHeight = generator.GetWorldHeight(lastColumn);
+
+        return position.Contains(position.FirstBlock with {Y = firstHeight}) &&
+               position.Contains(position.LastBlock with {Y = lastHeight});
+    }
+
+    private bool CheckSection(SectionPosition position, out float random)
     {
         // Check if there is a local maxima in the noise at the given position.
 
@@ -116,9 +132,9 @@ public class GeneratedStructure
         return true;
     }
 
-    private void PlaceIn(Section section, SectionPosition sectionPosition, SectionPosition anchor, float random)
+    private void PlaceIn(Section section, SectionPosition sectionPosition, SectionPosition anchor, float random, Generator generator)
     {
-        (Vector3i positionInSection, Orientation orientation) = DeterminePlacement(random);
+        (Vector3i positionInSection, Orientation orientation) = DeterminePlacement(anchor, random, generator);
 
         Vector3i position = anchor.FirstBlock + positionInSection + offset;
 
@@ -126,14 +142,16 @@ public class GeneratedStructure
         structure.PlacePartial(new SectionGrid(section, sectionPosition), position, sectionPosition.FirstBlock, sectionPosition.LastBlock, orientation);
     }
 
-    private static (Vector3i position, Orientation orientation) DeterminePlacement(float random)
+    private static (Vector3i position, Orientation orientation) DeterminePlacement(SectionPosition section, float random, Generator generator)
     {
         Random randomizer = new(random.GetHashCode());
 
         Vector3i position;
         position.X = randomizer.Next(Section.Size);
-        position.Y = randomizer.Next(Section.Size);
         position.Z = randomizer.Next(Section.Size);
+
+        Vector2i column = (section.FirstBlock + (position.X, 0, position.Z)).Xz;
+        position.Y = Generator.GetWorldHeight(column, generator.Map.GetSample(column), out _) - section.FirstBlock.Y;
 
         Orientation orientation = randomizer.NextOrientation();
 
@@ -143,30 +161,35 @@ public class GeneratedStructure
     /// <summary>
     ///     Search for the structure, starting from a position.
     /// </summary>
-    public IEnumerable<Vector3i> Search(Vector3i start, uint maxDistance)
+    public IEnumerable<Vector3i> Search(Vector3i start, uint maxDistance, Generator generator)
     {
         var maxSectionDistance = (int) Math.Clamp(maxDistance / Section.Size + 1, min: 0, World.SectionLimit);
 
         for (var d = 0; d < maxSectionDistance; d++)
-            foreach (Vector3i position in SearchAtDistance(start, d))
+            foreach (Vector3i position in SearchAtDistance(start, d, generator))
                 yield return position;
     }
 
-    private IEnumerable<Vector3i> SearchAtDistance(Vector3i anchor, int distance)
+    private IEnumerable<Vector3i> SearchAtDistance(Vector3i anchor, int distance, Generator generator)
     {
-        SectionPosition position = SectionPosition.From(anchor);
+        SectionPosition center = SectionPosition.From(anchor);
 
         for (int dx = -distance; dx <= distance; dx++)
         for (int dy = -distance; dy <= distance; dy++)
         for (int dz = -distance; dz <= distance; dz++)
-        {
-            if (Math.Abs(dx) != distance && Math.Abs(dy) != distance && Math.Abs(dz) != distance) continue;
+            foreach (Vector3i position in SearchInSection(distance, generator, dx, dy, dz, center))
+                yield return position;
+    }
 
-            SectionPosition current = position.Offset(dx, dy, dz);
+    private IEnumerable<Vector3i> SearchInSection(int distance, Generator generator, int dx, int dy, int dz, SectionPosition position)
+    {
+        if (Math.Abs(dx) != distance && Math.Abs(dy) != distance && Math.Abs(dz) != distance) yield break;
 
-            if (!CheckPosition(current, out float random)) continue;
+        SectionPosition current = position.Offset(dx, dy, dz);
 
-            yield return current.FirstBlock + DeterminePlacement(random).position + offset;
-        }
+        if (!FilterSection(current, generator)) yield break;
+        if (!CheckSection(current, out float random)) yield break;
+
+        yield return current.FirstBlock + DeterminePlacement(current, random, generator).position + offset;
     }
 }
