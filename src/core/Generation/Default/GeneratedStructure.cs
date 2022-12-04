@@ -31,10 +31,13 @@ public class GeneratedStructure
     /// </summary>
     /// <param name="name">The name of the structure.</param>
     /// <param name="structure">The structure to generate.</param>
-    /// <param name="rarity">The rarity of the structure. A higher value means less common.</param>
+    /// <param name="rarity">The rarity of the structure. A higher value means less common. Must be greater or equal 0.</param>
     /// <param name="offset">An offset to apply to the structure. Must be less than the size of a section.</param>
     public GeneratedStructure(string name, Structure structure, float rarity, Vector3i offset)
     {
+        Debug.Assert(rarity >= 0);
+        rarity += 1;
+
         Name = name;
 
         this.structure = structure;
@@ -46,22 +49,13 @@ public class GeneratedStructure
         this.offset = offset;
 
         effectiveSectionExtents = (structure.Extents + new Vector3i(offset.Absolute().Xz.MaxComponent())) / Section.Size + Vector3i.One;
-
-        Size = structure.Extents.MaxComponent();
-        int sizeInSections = Size / Section.Size;
-
-        frequency = 1.0f / (sizeInSections * rarity);
+        frequency = 1.0f / (effectiveSectionExtents.MaxComponent() * 2 * 2 * rarity);
     }
 
     /// <summary>
     ///     Get the name of the structure.
     /// </summary>
     public string Name { get; }
-
-    /// <summary>
-    ///     Get the size of the structure, which is the largest extent of the structure in any direction.
-    /// </summary>
-    public int Size { get; }
 
     /// <summary>
     ///     Initializes the noise generator.
@@ -128,6 +122,7 @@ public class GeneratedStructure
 
         Vector3i position = anchor.FirstBlock + positionInSection + offset;
 
+        structure.SetStructureSeed(random.GetHashCode());
         structure.PlacePartial(new SectionGrid(section, sectionPosition), position, sectionPosition.FirstBlock, sectionPosition.LastBlock, orientation);
     }
 
@@ -143,15 +138,6 @@ public class GeneratedStructure
         Orientation orientation = randomizer.NextOrientation();
 
         return (position, orientation);
-    }
-
-    /// <summary>
-    ///     Places the structure in the world.
-    /// </summary>
-    /// <param name="seed">The seed to use.</param>
-    public void Place(int seed)
-    {
-        structure.SetStructureSeed(seed);
     }
 
     /// <summary>

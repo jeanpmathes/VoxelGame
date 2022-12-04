@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 public class Structures
 {
-    private readonly GeneratedStructure smallPyramid = new(nameof(smallPyramid), StaticStructure.Load("small_pyramid"), rarity: 5.0f, (0, -6, 0));
+    private readonly GeneratedStructure smallPyramid = new(nameof(smallPyramid), StaticStructure.Load("small_pyramid"), rarity: 0.0f, (0, -6, 0));
 
     private readonly Dictionary<string, GeneratedStructure> structuresByName = new();
 
@@ -47,7 +47,7 @@ public class Structures
             Instance.smallPyramid
         };
 
-        Instance.All = structures.OrderBy(structure => structure.Size).ToList();
+        Instance.All = structures;
 
         foreach (GeneratedStructure structure in structures)
         {
