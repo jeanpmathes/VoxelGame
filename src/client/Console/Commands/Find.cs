@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -44,7 +45,7 @@ public class Find : Command
         Search(name, count, maxDistance);
     }
 
-    private void Search(string name, int count = 1, uint maxDistance = 1000)
+    private void Search(string name, int count = 1, uint maxDistance = Chunk.BlockSize * 100)
     {
         if (count < 1)
         {

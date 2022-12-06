@@ -162,7 +162,7 @@ public class GeneratedStructure
     /// </summary>
     public IEnumerable<Vector3i> Search(Vector3i start, uint maxDistance, Generator generator)
     {
-        var maxSectionDistance = (int) Math.Clamp(maxDistance / Section.Size + 1, min: 0, World.SectionLimit);
+        var maxSectionDistance = (int) Math.Clamp(maxDistance / Section.Size + 1, min: 0, 2 * World.SectionLimit);
 
         for (var d = 0; d < maxSectionDistance; d++)
             foreach (Vector3i position in SearchAtDistance(start, d, generator))
@@ -174,13 +174,19 @@ public class GeneratedStructure
         SectionPosition center = SectionPosition.From(anchor);
 
         for (int dx = -distance; dx <= distance; dx++)
-        for (int dy = -distance; dy <= distance; dy++)
         {
             int dz = -distance;
 
             while (dz <= distance)
             {
-                if (Math.Abs(dx) != distance && Math.Abs(dy) != distance && Math.Abs(dz) != distance)
+                SectionPosition current = center.Offset(dx, y: 0, dz);
+
+                if (!World.IsInLimits(current)) continue;
+
+                current = SectionPosition.From(current.FirstBlock with {Y = generator.GetWorldHeight(current.FirstBlock.Xz)});
+                int dy = current.Y - center.Y;
+
+                if (Math.Abs(dx) != distance && Math.Abs(dz) != distance)
                 {
                     dz = distance;
 

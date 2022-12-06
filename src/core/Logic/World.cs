@@ -190,7 +190,7 @@ public abstract class World : IDisposable, IGrid
     }
 
     /// <summary>
-    ///     Get the extents of the world.
+    ///     Get the extents of the world. This mark the reachable area of the world.
     /// </summary>
     public Vector3i Extents => new((int) SizeInBlocks, (int) SizeInBlocks, (int) SizeInBlocks);
 
@@ -580,12 +580,29 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     protected abstract Chunk CreateChunk(ChunkPosition position, ChunkContext context);
 
-    private static bool IsInLimits(ChunkPosition position)
+    /// <summary>
+    ///     Get whether a chunk position is in the maximum allowed world limits.
+    ///     Such a position can still be outside of the reachable <see cref="Extents" />.
+    /// </summary>
+    public static bool IsInLimits(ChunkPosition position)
     {
         return Math.Abs(position.X) <= ChunkLimit && Math.Abs(position.Y) <= ChunkLimit && Math.Abs(position.Z) <= ChunkLimit;
     }
 
-    private static bool IsInLimits(Vector3i position)
+    /// <summary>
+    ///     Get whether a section position is in the maximum allowed world limits.
+    ///     Such a position can still be outside of the reachable <see cref="Extents" />.
+    /// </summary>
+    public static bool IsInLimits(SectionPosition position)
+    {
+        return Math.Abs(position.X) <= SectionLimit && Math.Abs(position.Y) <= SectionLimit && Math.Abs(position.Z) <= SectionLimit;
+    }
+
+    /// <summary>
+    ///     Get whether a block position is in the maximum allowed world limits.
+    ///     Such a position can still be outside of the reachable <see cref="Extents" />.
+    /// </summary>
+    public static bool IsInLimits(Vector3i position)
     {
         if (position.X is int.MinValue) return false;
         if (position.Y is int.MinValue) return false;
