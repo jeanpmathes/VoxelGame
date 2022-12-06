@@ -6,7 +6,6 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Structures;
 
@@ -71,10 +70,10 @@ public class Structures
     /// <summary>
     ///     Search for a given structure.
     /// </summary>
-    public IEnumerable<Vector3i> Search(Vector3i start, string name, uint maxDistance, Generator generator)
+    public IEnumerable<Vector3i>? Search(Vector3i start, string name, uint maxDistance, Generator generator)
     {
         GeneratedStructure? structure = structuresByName.GetValueOrDefault(name);
 
-        return structure == null ? Enumerable.Empty<Vector3i>() : structure.Search(start, maxDistance, generator);
+        return structure?.Search(start, maxDistance, generator);
     }
 }

@@ -370,12 +370,13 @@ public abstract class World : IDisposable, IGrid
 
     /// <summary>
     ///     Search for named generated elements, such as structures.
+    ///     The search is performed on enumeration.
     /// </summary>
     /// <param name="start">The start position.</param>
     /// <param name="name">The name of the element.</param>
     /// <param name="maxDistance">The maximum distance to search.</param>
-    /// <returns>The positions of the elements.</returns>
-    public IEnumerable<Vector3i> SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
+    /// <returns>The positions of the elements, or null if the name is not valid.</returns>
+    public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
     {
         return generator.SearchNamedGeneratedElements(start, name, maxDistance);
     }

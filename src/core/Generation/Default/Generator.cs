@@ -146,7 +146,7 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public IEnumerable<Vector3i> SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
+    public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
     {
         return Structures.Instance.Search(start, name, maxDistance, this);
     }

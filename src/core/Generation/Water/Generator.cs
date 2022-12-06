@@ -59,9 +59,11 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public IEnumerable<Vector3i> SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
+    public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
     {
-        yield break;
+        #pragma warning disable S1168 // A null-return indicates that the name is not valid, which is different from not finding anything.
+        return null;
+        #pragma warning restore S1168
     }
 
     private Content GenerateContent(Vector3i position)

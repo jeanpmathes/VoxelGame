@@ -56,13 +56,19 @@ public class Find : Command
 
         Context.Console.WriteResponse($"Beginning search for {count} {name} elements...");
 
+        IEnumerable<Vector3i>? positions = Context.Player.World
+            .SearchNamedGeneratedElements(Context.Player.Position.Floor(), name, maxDistance);
+
+        if (positions == null)
+        {
+            Context.Console.WriteError($"Search failed, name {name} not valid.");
+
+            return;
+        }
+
         Task.Run(() =>
         {
-            IEnumerable<Vector3i> positions = Context.Player.World
-                .SearchNamedGeneratedElements(Context.Player.Position.Floor(), name, maxDistance)
-                .Take(count);
-
-            foreach (Vector3i position in positions)
+            foreach (Vector3i position in positions.Take(count))
                 Context.Console.EnqueueResponse($"Found {name} at {position}.");
 
             Context.Console.EnqueueResponse($"Search for {name} finished.");

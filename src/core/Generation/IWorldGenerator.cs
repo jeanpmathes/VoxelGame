@@ -56,6 +56,6 @@ public interface IWorldGenerator
     /// <param name="start">The start position.</param>
     /// <param name="name">The name of the element.</param>
     /// <param name="maxDistance">The maximum distance to search.</param>
-    /// <returns>The positions of the elements.</returns>
-    IEnumerable<Vector3i> SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance);
+    /// <returns>The positions of the elements, or null if the name is not valid.</returns>
+    IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance);
 }
