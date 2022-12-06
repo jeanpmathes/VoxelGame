@@ -31,23 +31,8 @@ public class GetDistance : Command
     /// <exclude />
     public void Invoke(string target)
     {
-        switch (target)
-        {
-            case "origin":
-                DetermineDistance((0, 0, 0));
-
-                break;
-
-            case "spawn":
-                DetermineDistance(Context.Player.World.SpawnPosition);
-
-                break;
-
-            default:
-                Context.Console.WriteError($"Unknown target: {target}");
-
-                break;
-        }
+        if (GetNamedPosition(target) is {} position) DetermineDistance(position);
+        else Context.Console.WriteError($"Unknown target: {target}");
     }
 
     private void DetermineDistance(Vector3d position)
