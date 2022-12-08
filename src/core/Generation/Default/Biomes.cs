@@ -89,7 +89,8 @@ public class Biomes
             Decorations.Instance.TropicalTree,
             Decorations.Instance.Roots,
             Decorations.Instance.Vines
-        }
+        },
+        Structure = Structures.Instance.LargeTropicalTree
     };
 
     /// <summary>
