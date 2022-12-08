@@ -33,6 +33,11 @@ public class Structures
     public GeneratedStructure LargeTropicalTree { get; } = new(nameof(LargeTropicalTree), StaticStructure.Load("large_tropical_tree"), rarity: 0.0f, (0, -5, 0));
 
     /// <summary>
+    ///     An old tower.
+    /// </summary>
+    public GeneratedStructure OldTower { get; } = new(nameof(OldTower), StaticStructure.Load("old_tower"), rarity: 10.0f, (0, -2, 0));
+
+    /// <summary>
     ///     Get the structures instance. May only be called after the initialization method has been called.
     /// </summary>
     public static Structures Instance { get; private set; } = null!;
@@ -52,7 +57,8 @@ public class Structures
         List<GeneratedStructure> structures = new()
         {
             Instance.SmallPyramid,
-            Instance.LargeTropicalTree
+            Instance.LargeTropicalTree,
+            Instance.OldTower
         };
 
         Instance.All = structures;

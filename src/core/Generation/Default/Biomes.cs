@@ -339,7 +339,8 @@ public class Biomes
         {
             Decorations.Instance.TallGrass,
             Decorations.Instance.Boulder
-        }
+        },
+        Structure = Structures.Instance.OldTower
     };
 
     /// <summary>
