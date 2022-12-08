@@ -352,7 +352,7 @@ public abstract class World : IDisposable, IGrid
 
     private static uint ClampSize(uint size)
     {
-        return Math.Clamp(size, min: 1024, BlockLimit);
+        return Math.Clamp(size, 16 * Chunk.BlockSize, BlockLimit - Chunk.BlockSize);
     }
 
     private static IWorldGenerator GetGenerator(World world)
