@@ -20,8 +20,26 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 public class GeneratedStructure
 {
+    /// <summary>
+    ///     The kind of the structure. Determines placement and generation.
+    /// </summary>
+    public enum Kind
+    {
+        /// <summary>
+        ///     A surface structure is placed on the surface of the world.
+        /// </summary>
+        Surface,
+
+        /// <summary>
+        ///     An underground structure is placed below the surface of the world.
+        /// </summary>
+        Underground
+    }
+
     private readonly Vector3i effectiveSectionExtents;
     private readonly float frequency;
+
+    private readonly Kind kind;
     private readonly Vector3i offset;
     private readonly Structure structure;
 
@@ -31,16 +49,18 @@ public class GeneratedStructure
     ///     Creates a new generated structure.
     /// </summary>
     /// <param name="name">The name of the structure.</param>
+    /// <param name="kind">The kind of the structure.</param>
     /// <param name="structure">The structure to generate.</param>
     /// <param name="rarity">The rarity of the structure. A higher value means less common. Must be greater or equal 0.</param>
     /// <param name="offset">An offset to apply to the structure. Must be less than the size of a section.</param>
-    public GeneratedStructure(string name, Structure structure, float rarity, Vector3i offset)
+    public GeneratedStructure(string name, Kind kind, Structure structure, float rarity, Vector3i offset)
     {
         Debug.Assert(rarity >= 0);
         rarity += 1;
 
         Name = name;
 
+        this.kind = kind;
         this.structure = structure;
 
         Debug.Assert(Math.Abs(offset.X) < Section.Size);
@@ -93,10 +113,8 @@ public class GeneratedStructure
         }
     }
 
-    private static bool FilterSection(SectionPosition position, Generator generator)
+    private static bool FilterSurfaceSection(SectionPosition position, Generator generator)
     {
-        // Filter out sections that are not at surface level.
-
         Vector2i firstColumn = position.FirstBlock.Xz;
         Vector2i lastColumn = position.LastBlock.Xz;
 
@@ -105,6 +123,29 @@ public class GeneratedStructure
 
         return position.Contains(position.FirstBlock with {Y = firstHeight}) &&
                position.Contains(position.LastBlock with {Y = lastHeight});
+    }
+
+    private static bool FilterUndergroundSection(SectionPosition position, Generator generator)
+    {
+        Vector2i firstColumn = position.FirstBlock.Xz;
+        Vector2i lastColumn = position.LastBlock.Xz;
+
+        int firstHeight = generator.GetWorldHeight(firstColumn);
+        int lastHeight = generator.GetWorldHeight(lastColumn);
+
+        int sectionBlockHeight = position.LastBlock.Y;
+
+        return sectionBlockHeight < firstHeight && sectionBlockHeight < lastHeight;
+    }
+
+    private bool FilterSection(SectionPosition position, Generator generator)
+    {
+        return kind switch
+        {
+            Kind.Surface => FilterSurfaceSection(position, generator),
+            Kind.Underground => FilterUndergroundSection(position, generator),
+            _ => throw new InvalidOperationException()
+        };
     }
 
     private bool CheckSection(SectionPosition position, out float random)
@@ -141,7 +182,19 @@ public class GeneratedStructure
         structure.PlacePartial(new SectionGrid(section, sectionPosition), position, sectionPosition.FirstBlock, sectionPosition.LastBlock, orientation);
     }
 
-    private static (Vector3i position, Orientation orientation) DeterminePlacement(SectionPosition section, float random, Generator generator)
+    private static int DetermineSurfacePlacement(SectionPosition section, (int x, int z) position, Generator generator)
+    {
+        Vector2i column = (section.FirstBlock + (position.x, 0, position.z)).Xz;
+
+        return Generator.GetWorldHeight(column, generator.Map.GetSample(column), out _) - section.FirstBlock.Y;
+    }
+
+    private static int DetermineUndergroundPlacement(Random randomizer)
+    {
+        return randomizer.Next(Section.Size);
+    }
+
+    private (Vector3i position, Orientation orientation) DeterminePlacement(SectionPosition section, float random, Generator generator)
     {
         Random randomizer = new(random.GetHashCode());
 
@@ -149,8 +202,12 @@ public class GeneratedStructure
         position.X = randomizer.Next(Section.Size);
         position.Z = randomizer.Next(Section.Size);
 
-        Vector2i column = (section.FirstBlock + (position.X, 0, position.Z)).Xz;
-        position.Y = Generator.GetWorldHeight(column, generator.Map.GetSample(column), out _) - section.FirstBlock.Y;
+        position.Y = kind switch
+        {
+            Kind.Surface => DetermineSurfacePlacement(section, (position.X, position.Z), generator),
+            Kind.Underground => DetermineUndergroundPlacement(randomizer),
+            _ => throw new InvalidOperationException()
+        };
 
         Orientation orientation = randomizer.NextOrientation();
 
@@ -169,7 +226,7 @@ public class GeneratedStructure
                 yield return position;
     }
 
-    private IEnumerable<Vector3i> SearchAtDistance(Vector3i anchor, int distance, Generator generator)
+    private IEnumerable<Vector3i> SearchAtSurfaceDistance(Vector3i anchor, int distance, Generator generator)
     {
         SectionPosition center = SectionPosition.From(anchor);
 
@@ -199,6 +256,50 @@ public class GeneratedStructure
                 dz++;
             }
         }
+    }
+
+    private IEnumerable<Vector3i> SearchAtUndergroundDistance(Vector3i anchor, int distance, Generator generator)
+    {
+        IEnumerable<Vector3i> SearchRow(SectionPosition sectionPosition, int dx, int dy)
+        {
+            int dz = -distance;
+
+            while (dz <= distance)
+            {
+                SectionPosition current = sectionPosition.Offset(dx, dy, dz);
+
+                if (!World.IsInLimits(current)) continue;
+
+                if (Math.Abs(dx) != distance && Math.Abs(dy) != distance && Math.Abs(dz) != distance)
+                {
+                    dz = distance;
+
+                    continue;
+                }
+
+                if (SearchInSection(generator, dx, dy, dz, sectionPosition, out Vector3i found))
+                    yield return found;
+
+                dz++;
+            }
+        }
+
+        SectionPosition center = SectionPosition.From(anchor);
+
+        for (int dx = -distance; dx <= distance; dx++)
+        for (int dy = -distance; dy <= distance; dy++)
+            foreach (Vector3i position in SearchRow(center, dx, dy))
+                yield return position;
+    }
+
+    private IEnumerable<Vector3i> SearchAtDistance(Vector3i anchor, int distance, Generator generator)
+    {
+        return kind switch
+        {
+            Kind.Surface => SearchAtSurfaceDistance(anchor, distance, generator),
+            Kind.Underground => SearchAtUndergroundDistance(anchor, distance, generator),
+            _ => throw new InvalidOperationException()
+        };
     }
 
     private bool FilterSectionByBiome(SectionPosition section, Generator generator)

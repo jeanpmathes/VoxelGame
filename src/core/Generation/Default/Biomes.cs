@@ -167,7 +167,8 @@ public class Biomes
             Layer.CreateLoose(width: 27),
             Layer.CreateGroundwater(width: 8),
             Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
-        }
+        },
+        Structure = Structures.Instance.BuriedTower
     };
 
     /// <summary>

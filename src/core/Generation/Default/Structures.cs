@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
@@ -25,17 +26,22 @@ public class Structures
     /// <summary>
     ///     A small pyramid.
     /// </summary>
-    public GeneratedStructure SmallPyramid { get; } = new(nameof(SmallPyramid), StaticStructure.Load("small_pyramid"), rarity: 5.0f, (0, -6, 0));
+    public GeneratedStructure SmallPyramid { get; } = new(nameof(SmallPyramid), GeneratedStructure.Kind.Surface, StaticStructure.Load("small_pyramid"), rarity: 5.0f, (0, -6, 0));
 
     /// <summary>
     ///     A large tropical tree.
     /// </summary>
-    public GeneratedStructure LargeTropicalTree { get; } = new(nameof(LargeTropicalTree), StaticStructure.Load("large_tropical_tree"), rarity: 0.0f, (0, -5, 0));
+    public GeneratedStructure LargeTropicalTree { get; } = new(nameof(LargeTropicalTree), GeneratedStructure.Kind.Surface, StaticStructure.Load("large_tropical_tree"), rarity: 0.0f, (0, -5, 0));
 
     /// <summary>
     ///     An old tower.
     /// </summary>
-    public GeneratedStructure OldTower { get; } = new(nameof(OldTower), StaticStructure.Load("old_tower"), rarity: 10.0f, (0, -2, 0));
+    public GeneratedStructure OldTower { get; } = new(nameof(OldTower), GeneratedStructure.Kind.Surface, StaticStructure.Load("old_tower"), rarity: 10.0f, (0, -2, 0));
+
+    /// <summary>
+    ///     A variant of the old tower that is buried in the ground.
+    /// </summary>
+    public GeneratedStructure BuriedTower { get; } = new(nameof(BuriedTower), GeneratedStructure.Kind.Underground, StaticStructure.Load("buried_tower"), rarity: 10.0f, (0, -2, 0));
 
     /// <summary>
     ///     Get the structures instance. May only be called after the initialization method has been called.
@@ -58,7 +64,8 @@ public class Structures
         {
             Instance.SmallPyramid,
             Instance.LargeTropicalTree,
-            Instance.OldTower
+            Instance.OldTower,
+            Instance.BuriedTower
         };
 
         Instance.All = structures;
