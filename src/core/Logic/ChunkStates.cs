@@ -4,9 +4,11 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
@@ -151,6 +153,87 @@ public abstract partial class Chunk
     }
 
     /// <summary>
+    ///     Decorates the chunk.
+    /// </summary>
+    public class Decorating : ChunkState
+    {
+        private readonly Array3D<Chunk?> chunks;
+        private readonly Array3D<(Chunk, Guard)?> neighbors;
+        private (Task task, Guard guard)? activity;
+
+        /// <summary>
+        ///     Creates a new decorating state.
+        /// </summary>
+        /// <param name="self">The guard for the core write access to the chunk itself.</param>
+        /// <param name="neighbors">The neighbors of this chunk, with write access guards.</param>
+        public Decorating(Guard self, Array3D<(Chunk, Guard)?> neighbors) : base(self, extended: null)
+        {
+            Debug.Assert(neighbors.Length == 3);
+
+            this.neighbors = neighbors;
+
+            chunks = new Array3D<Chunk?>(length: 3);
+
+            foreach ((int x, int y, int z) in VMath.Range3(x: 3, y: 3, z: 3))
+            {
+                (Chunk chunk, Guard)? neighbor = neighbors[x, y, z];
+
+                if (neighbor is {chunk: {} chunk})
+                    chunks[x, y, z] = chunk;
+            }
+        }
+
+        /// <inheritdoc />
+        protected override Access CoreAccess => Access.Write;
+
+        /// <inheritdoc />
+        protected override Access ExtendedAccess => Access.None;
+
+        /// <inheritdoc />
+        public override bool IsIntendingToGetReady => true;
+
+        /// <inheritdoc />
+        protected override void OnEnter()
+        {
+            chunks[x: 1, y: 1, z: 1] = Chunk;
+        }
+
+        /// <inheritdoc />
+        protected override void OnUpdate()
+        {
+            if (activity is not {task: {} task, guard: {} guard})
+            {
+                guard = Context.TryAllocate(Chunk.World.MaxDecorationTasks);
+
+                if (guard == null) return;
+
+                activity = (Chunk.DecorateAsync(Context.Generator, chunks), guard);
+            }
+            else if (task.IsCompleted)
+            {
+                guard.Dispose();
+
+                foreach ((Chunk chunk, Guard guard)? potentialNeighbor in neighbors)
+                    if (potentialNeighbor is {} neighbor)
+                        neighbor.guard.Dispose();
+
+                if (task.IsFaulted)
+                {
+                    logger.LogError(
+                        Events.ChunkLoadingError,
+                        task.Exception!.GetBaseException(),
+                        "A critical exception occurred when decorating the chunk {Position}",
+                        Chunk.Position);
+
+                    throw task.Exception!.GetBaseException();
+                }
+
+                SetNextReady();
+            }
+        }
+    }
+
+    /// <summary>
     ///     Saves the chunk to disk.
     /// </summary>
     public class Saving : ChunkState
@@ -213,15 +296,32 @@ public abstract partial class Chunk
         protected override bool AllowStealing => true;
 
         /// <inheritdoc />
-        protected override void OnEnter()
+        protected override void OnUpdate()
         {
-            Context.ActivateWeakly(Chunk);
+            AllowTransition();
         }
+    }
+
+    /// <summary>
+    ///     Hidden state. The chunk is not completely ready, but in a state that allows some operations.
+    /// </summary>
+    public class Hidden : ChunkState
+    {
+        /// <inheritdoc />
+        protected override Access CoreAccess => Access.Write;
+
+        /// <inheritdoc />
+        protected override Access ExtendedAccess => Access.Write;
+
+        /// <inheritdoc />
+        protected override bool AllowStealing => true;
 
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            SetNextActive();
+            if (Chunk.IsFullyDecorated) SetNextReady();
+
+            AllowTransition();
         }
     }
 
@@ -230,6 +330,17 @@ public abstract partial class Chunk
     /// </summary>
     public class Used : ChunkState
     {
+        private readonly bool wasActive;
+
+        /// <summary>
+        ///     Create the used state.
+        /// </summary>
+        /// <param name="wasActive">Whether the chunk was active before.</param>
+        public Used(bool wasActive)
+        {
+            this.wasActive = wasActive;
+        }
+
         /// <inheritdoc />
         protected override Access CoreAccess => Access.None;
 
@@ -237,15 +348,10 @@ public abstract partial class Chunk
         protected override Access ExtendedAccess => Access.None;
 
         /// <inheritdoc />
-        protected override void OnEnter()
-        {
-            Context.ActivateWeakly(Chunk);
-        }
-
-        /// <inheritdoc />
         protected override void OnUpdate()
         {
-            SetNextActive();
+            if (wasActive) SetNextActive();
+            else SetNextReady();
         }
     }
 
@@ -265,8 +371,7 @@ public abstract partial class Chunk
         {
             if (Chunk.IsRequested) return;
 
-            ReleaseResources();
-            Context.Deactivate(Chunk);
+            Deactivate();
         }
 
         /// <inheritdoc />

@@ -72,6 +72,8 @@ public abstract partial class Chunk : IDisposable
     /// </summary>
     [NonSerialized] private Resource coreResource = new(nameof(Chunk) + "Core");
 
+    private DecorationLevels decoration = DecorationLevels.None;
+
     /// <summary>
     ///     Extended resources are defined by users of core, like a client or a server.
     ///     An example for extended resources are meshes and renderers.
@@ -150,6 +152,11 @@ public abstract partial class Chunk : IDisposable
     [field: NonSerialized] public World World { get; private set; }
 
     /// <summary>
+    ///     Get whether this chunk is fully decorated.
+    /// </summary>
+    public bool IsFullyDecorated => decoration == DecorationLevels.All;
+
+    /// <summary>
     ///     Acquire the core resource, possibly stealing it.
     ///     The core resource of a chunk are its sections and their blocks.
     /// </summary>
@@ -174,6 +181,22 @@ public abstract partial class Chunk : IDisposable
         }
 
         return core;
+    }
+
+    /// <summary>
+    ///     Whether it is possible to acquire the core resource.
+    /// </summary>
+    public bool CanAcquireCore(Access access)
+    {
+        return state.CanStealAccess || coreResource.CanAcquire(access);
+    }
+
+    /// <summary>
+    ///     Check if core is held with a specific access by a given guard.
+    /// </summary>
+    public bool IsCoreHeldBy(Guard guard, Access access)
+    {
+        return coreResource.IsHeldBy(guard, access);
     }
 
     /// <summary>
@@ -205,6 +228,22 @@ public abstract partial class Chunk : IDisposable
     }
 
     /// <summary>
+    ///     Whether it is possible to acquire the extended resource.
+    /// </summary>
+    public bool CanAcquireExtended(Access access)
+    {
+        return state.CanStealAccess || extendedResource.CanAcquire(access);
+    }
+
+    /// <summary>
+    ///     Check if extended is held with a specific access by a given guard.
+    /// </summary>
+    public bool IsExtendedHeldBy(Guard guard, Access access)
+    {
+        return extendedResource.IsHeldBy(guard, access);
+    }
+
+    /// <summary>
     ///     Add a request to the chunk to be active.
     /// </summary>
     public void AddRequest()
@@ -218,6 +257,7 @@ public abstract partial class Chunk : IDisposable
     public void RemoveRequest()
     {
         isRequested = false;
+        BeginSaving();
     }
 
     /// <summary>
@@ -232,6 +272,8 @@ public abstract partial class Chunk : IDisposable
     {
         blockTickManager = loaded.blockTickManager;
         fluidTickManager = loaded.fluidTickManager;
+
+        decoration = loaded.decoration;
 
         blockTickManager.Setup(World, World.UpdateCounter);
         fluidTickManager.Setup(World, World.UpdateCounter);
@@ -358,6 +400,19 @@ public abstract partial class Chunk : IDisposable
             Position,
             generator);
 
+        GenerateContent(generator);
+        PlaceStructures(generator);
+        DecorateCenter(generator);
+
+        logger.LogDebug(
+            Events.ChunkOperation,
+            "Finished generating chunk {Position} using '{Name}' generator",
+            Position,
+            generator);
+    }
+
+    private void GenerateContent(IWorldGenerator generator)
+    {
         (int begin, int end) range = (Position.Y * BlockSize, (Position.Y + 1) * BlockSize);
 
         for (var x = 0; x < BlockSize; x++)
@@ -380,12 +435,17 @@ public abstract partial class Chunk : IDisposable
                 y++;
             }
         }
+    }
 
-        logger.LogDebug(
-            Events.ChunkOperation,
-            "Finished generating chunk {Position} using '{Name}' generator",
-            Position,
-            generator);
+    private void PlaceStructures(IWorldGenerator generator)
+    {
+        for (var index = 0; index < SectionCount; index++)
+        {
+            Section section = sections[index];
+            SectionPosition position = SectionPosition.From(Position, IndexToLocalSection(index));
+
+            generator.GenerateStructures(section, position);
+        }
     }
 
     /// <summary>
@@ -440,7 +500,7 @@ public abstract partial class Chunk : IDisposable
     /// <returns>The section.</returns>
     public Section GetSection(SectionPosition position)
     {
-        (int x, int y, int z) = position.GetLocal();
+        (int x, int y, int z) = position.Local;
 
         return sections[LocalSectionToIndex(x, y, z)];
     }
@@ -453,6 +513,14 @@ public abstract partial class Chunk : IDisposable
     public Section GetSection(Vector3i position)
     {
         return GetSection(SectionPosition.From(position));
+    }
+
+    /// <summary>
+    ///     Get a section using local coordinates.
+    /// </summary>
+    protected Section GetLocalSection(int x, int y, int z)
+    {
+        return sections[LocalSectionToIndex(x, y, z)];
     }
 
     /// <summary>
@@ -495,6 +563,257 @@ public abstract partial class Chunk : IDisposable
     public sealed override int GetHashCode()
     {
         return HashCode.Combine(Position);
+    }
+
+    /// <summary>
+    ///     Allow this chunk to begin decoration.
+    /// </summary>
+    /// <returns>The next state, if the chunk needs decoration.</returns>
+    public ChunkState? ProcessDecorationOption()
+    {
+        if (IsFullyDecorated) return null;
+
+        Guard? access = AcquireCore(Access.Write);
+
+        if (access == null) return null;
+
+        Vector3i center = (1, 1, 1);
+
+        Array3D<bool> available = FindAvailableNeighbors();
+
+        var needed = new Array3D<bool>(length: 3);
+
+        bool isAnyDecorationPossible = CheckCornerDecorations(available, needed);
+
+        if (!isAnyDecorationPossible)
+        {
+            access.Dispose();
+
+            return null;
+        }
+
+        var neighbors = new Array3D<(Chunk, Guard)?>(length: 3);
+
+        foreach ((int x, int y, int z) in VMath.Range3(x: 3, y: 3, z: 3))
+        {
+            if ((x, y, z) == center || !needed[x, y, z]) continue;
+
+            Debug.Assert(available[x, y, z]);
+
+            Chunk? chunk = World.TryGetChunk(Position.Offset((x, y, z) - center), out Chunk? neighbor) ? neighbor : null;
+            Debug.Assert(chunk != null);
+
+            Guard? guard = chunk.AcquireCore(Access.Write);
+            Debug.Assert(guard != null);
+
+            neighbors[x, y, z] = (chunk, guard);
+        }
+
+        return new Decorating(access, neighbors);
+    }
+
+    private bool CheckCornerDecorations(Array3D<bool> available, Array3D<bool> needed)
+    {
+        var isAnyDecorationPossible = false;
+
+        foreach ((int x, int y, int z) in VMath.Range3(x: 2, y: 2, z: 2))
+        {
+            if (decoration.HasFlag(GetFlagForCorner(x, y, z))) continue;
+
+            var isCornerAvailable = true;
+
+            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 2, y: 2, z: 2))
+            {
+                Vector3i neededNeighbor = (x + dx, y + dy, z + dz);
+                isCornerAvailable &= available.GetAt(neededNeighbor);
+            }
+
+            if (!isCornerAvailable) continue;
+
+            isAnyDecorationPossible = true;
+
+            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 2, y: 2, z: 2))
+            {
+                Vector3i neededNeighbor = (x + dx, y + dy, z + dz);
+                needed.SetAt(neededNeighbor, value: true);
+            }
+        }
+
+        return isAnyDecorationPossible;
+    }
+
+    private Array3D<bool> FindAvailableNeighbors()
+    {
+        Vector3i center = (1, 1, 1);
+
+        var available = new Array3D<bool>(length: 3);
+
+        foreach ((int x, int y, int z) in VMath.Range3(x: 3, y: 3, z: 3))
+            available[x, y, z] = (x, y, z) == center
+                                 || (World.TryGetChunk(Position.Offset((x, y, z) - center), out Chunk? neighbor) && neighbor.CanAcquireCore(Access.Write));
+
+        return available;
+    }
+
+    private void Decorate(IWorldGenerator generator, Array3D<Chunk?> neighbors)
+    {
+        foreach ((int x, int y, int z) in VMath.Range3(x: 2, y: 2, z: 2))
+        {
+            if (decoration.HasFlag(GetFlagForCorner(x, y, z))) continue;
+
+            var isCornerAvailable = true;
+
+            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 2, y: 2, z: 2))
+            {
+                Vector3i neededNeighbor = (x + dx, y + dy, z + dz);
+                isCornerAvailable &= neighbors.GetAt(neededNeighbor) != null;
+            }
+
+            if (!isCornerAvailable) continue;
+
+            DecorateCorner(generator, neighbors, x, y, z);
+        }
+    }
+
+    /// <summary>
+    ///     Decorate the chunk with the given neighbors. If enough neighbors are available, the chunk will be fully decorated.
+    /// </summary>
+    /// <param name="generator">The world generator.</param>
+    /// <param name="neighbors">The neighbors of this chunk.</param>
+    /// <returns>The task that decorates the chunk.</returns>
+    public Task DecorateAsync(IWorldGenerator generator, Array3D<Chunk?> neighbors)
+    {
+        Debug.Assert(neighbors.Length == 3);
+
+        return Task.Run(() => Decorate(generator, neighbors));
+    }
+
+    private void DecorateCenter(IWorldGenerator generator)
+    {
+        Debug.Assert(!decoration.HasFlag(DecorationLevels.Center));
+
+        decoration |= DecorationLevels.Center;
+
+        var neighbors = new Array3D<Section>(length: 3);
+
+        void SetNeighbors(int x, int y, int z)
+        {
+            Debug.Assert(neighbors != null);
+            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors[dx, dy, dz] = GetLocalSection(x + dx - 1, y + dy - 1, z + dz - 1);
+        }
+
+        void DecorateSection(int x, int y, int z)
+        {
+            SetNeighbors(x, y, z);
+            generator.DecorateSection(SectionPosition.From(Position, (x, y, z)), neighbors);
+        }
+
+        foreach ((int x, int y, int z) in VMath.Range3(x: 2, y: 2, z: 2)) DecorateSection(1 + x, 1 + y, 1 + z);
+    }
+
+    private static DecorationLevels GetFlagForCorner(int x, int y, int z)
+    {
+        return (x, y, z) switch
+        {
+            (0, 0, 0) => DecorationLevels.Corner000,
+            (0, 0, 1) => DecorationLevels.Corner001,
+            (0, 1, 0) => DecorationLevels.Corner010,
+            (0, 1, 1) => DecorationLevels.Corner011,
+            (1, 0, 0) => DecorationLevels.Corner100,
+            (1, 0, 1) => DecorationLevels.Corner101,
+            (1, 1, 0) => DecorationLevels.Corner110,
+            (1, 1, 1) => DecorationLevels.Corner111,
+            _ => throw new ArgumentOutOfRangeException(nameof(x), x, message: null)
+        };
+    }
+
+    private static void DecorateCorner(IWorldGenerator generator, Array3D<Chunk?> chunks, int x, int y, int z)
+    {
+        Vector3i center = (1, 1, 1);
+
+        Debug.Assert(!chunks[center.X, center.Y, center.Z]!.decoration.HasFlag(GetFlagForCorner(x, y, z)));
+
+        foreach ((int dx, int dy, int dz) in VMath.Range3(x: 2, y: 2, z: 2))
+        {
+            Vector3i position = (x + dx, y + dy, z + dz);
+
+            Chunk? chunk = chunks.GetAt(position);
+            Debug.Assert(chunk != null);
+
+            chunk.decoration |= GetFlagForCorner(center.X - dx, center.Y - dy, center.Z - dz);
+        }
+
+        // Go trough all sections on the selected corner.
+        // We want to decorate 56 of them, which is a cube of 4x4x4 without the corners.
+        // The corners of this cube are the centers of the chunks - the cube overlaps with multiple chunks.
+
+        ChunkPosition first = chunks[x: 1, y: 1, z: 1]!.Position.Offset(x: -1, y: -1, z: -1);
+
+        Section GetSection(SectionPosition sectionPosition)
+        {
+            Vector3i offset = first.OffsetTo(sectionPosition.Chunk);
+
+            return chunks[offset.X, offset.Y, offset.Z]!.GetSection(sectionPosition);
+        }
+
+        var neighbors = new Array3D<Section>(length: 3);
+
+        void SetNeighbors(SectionPosition sectionPosition)
+        {
+            Debug.Assert(neighbors != null);
+            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors[dx, dy, dz] = GetSection(sectionPosition.Offset(dx - 1, dy - 1, dz - 1));
+        }
+
+        void DecorateSection(SectionPosition sectionPosition)
+        {
+            SetNeighbors(sectionPosition);
+            generator.DecorateSection(sectionPosition, neighbors);
+        }
+
+        SectionPosition lowCorner = SectionPosition.From(chunks[x, y, z]!.Position, (Size - 2, Size - 2, Size - 2));
+
+        foreach ((int dx, int dy, int dz) in VMath.Range3(x: 4, y: 4, z: 4))
+        {
+            if (IsCorner(dx, dy, dz)) continue;
+
+            DecorateSection(lowCorner.Offset(dx, dy, dz));
+        }
+    }
+
+    private static bool IsCorner(int dx, int dy, int dz)
+    {
+        return (dx, dy, dz) switch
+        {
+            (0, 0, 0) => true,
+            (0, 0, 3) => true,
+            (0, 3, 0) => true,
+            (0, 3, 3) => true,
+            (3, 0, 0) => true,
+            (3, 0, 3) => true,
+            (3, 3, 0) => true,
+            (3, 3, 3) => true,
+            _ => false
+        };
+    }
+
+    [Flags]
+    private enum DecorationLevels
+    {
+        None = 0,
+
+        Center = 1 << 0,
+
+        Corner000 = 1 << 1,
+        Corner001 = 1 << 2,
+        Corner010 = 1 << 3,
+        Corner011 = 1 << 4,
+        Corner100 = 1 << 5,
+        Corner101 = 1 << 6,
+        Corner110 = 1 << 7,
+        Corner111 = 1 << 8,
+
+        AllCorners = Corner000 | Corner001 | Corner010 | Corner011 | Corner100 | Corner101 | Corner110 | Corner111,
+        All = Center | AllCorners
     }
 
 #pragma warning disable CA1051 // Do not declare visible instance fields

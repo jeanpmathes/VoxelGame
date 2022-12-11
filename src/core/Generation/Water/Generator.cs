@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Generation.Water;
@@ -40,9 +41,29 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
+    public void DecorateSection(SectionPosition position, Array3D<Section> sections)
+    {
+        // No decoration.
+    }
+
+    /// <inheritdoc />
     public void EmitViews(string path)
     {
         // No views to emit.
+    }
+
+    /// <inheritdoc />
+    public void GenerateStructures(Section section, SectionPosition position)
+    {
+        // No structures to generate.
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
+    {
+        #pragma warning disable S1168 // A null-return indicates that the name is not valid, which is different from not finding anything.
+        return null;
+        #pragma warning restore S1168
     }
 
     private Content GenerateContent(Vector3i position)

@@ -80,32 +80,75 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     ///     Get this section position as a local position in a chunk.
     /// </summary>
     /// <returns>The local position in a chunk.</returns>
-    public (int x, int y, int z) GetLocal()
+    public (int x, int y, int z) Local
     {
-        int localX = X & (Chunk.Size - 1);
-        int localY = Y & (Chunk.Size - 1);
-        int localZ = Z & (Chunk.Size - 1);
+        get
+        {
+            int localX = X & (Logic.Chunk.Size - 1);
+            int localY = Y & (Logic.Chunk.Size - 1);
+            int localZ = Z & (Logic.Chunk.Size - 1);
 
-        return (localX, localY, localZ);
+            return (localX, localY, localZ);
+        }
     }
 
     /// <summary>
     ///     Get the chunk this section position is in.
     /// </summary>
     /// <returns>The position of the chunk.</returns>
-    public ChunkPosition GetChunk()
+    public ChunkPosition Chunk
     {
-        int chunkX = X >> Chunk.SizeExp;
-        int chunkY = Y >> Chunk.SizeExp;
-        int chunkZ = Z >> Chunk.SizeExp;
+        get
+        {
+            int chunkX = X >> Logic.Chunk.SizeExp;
+            int chunkY = Y >> Logic.Chunk.SizeExp;
+            int chunkZ = Z >> Logic.Chunk.SizeExp;
 
-        return new ChunkPosition(chunkX, chunkY, chunkZ);
+            return new ChunkPosition(chunkX, chunkY, chunkZ);
+        }
+    }
+
+    /// <summary>
+    ///     Offset this section position by the given amount.
+    /// </summary>
+    /// <param name="x">The x offset.</param>
+    /// <param name="y">The y offset.</param>
+    /// <param name="z">The z offset.</param>
+    /// <returns>The offset section position.</returns>
+    public SectionPosition Offset(int x, int y, int z)
+    {
+        return new SectionPosition(X + x, Y + y, Z + z);
+    }
+
+    /// <summary>
+    ///     Check if this section contains the given world position.
+    /// </summary>
+    /// <param name="position">The world position.</param>
+    /// <returns>True if the section contains the position.</returns>
+    public bool Contains(Vector3i position)
+    {
+        return Equals(From(position));
+    }
+
+    /// <summary>
+    ///     Get the offset that has to be applied to this section position to get the given position.
+    /// </summary>
+    /// <param name="other">The position to get the offset to.</param>
+    /// <returns>The offset.</returns>
+    public Vector3i OffsetTo(SectionPosition other)
+    {
+        return new Vector3i(other.X - X, other.Y - Y, other.Z - Z);
     }
 
     /// <summary>
     ///     Get the position of the first block in this section.
     /// </summary>
     public Vector3i FirstBlock => new Vector3i(X, Y, Z) * Section.Size;
+
+    /// <summary>
+    ///     Get the position of the last block in this section.
+    /// </summary>
+    public Vector3i LastBlock => FirstBlock + new Vector3i(Section.Size - 1);
 
     /// <summary>
     ///     Create a section position that contains a world position.

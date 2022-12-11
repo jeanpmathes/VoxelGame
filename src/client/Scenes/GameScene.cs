@@ -147,6 +147,8 @@ public sealed class GameScene : IScene
         {
             counter.Increment();
 
+            Game.Console.Flush();
+
             Game.World.Update(deltaTime);
 
             if (!Screen.IsFocused)

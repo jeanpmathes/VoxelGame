@@ -25,4 +25,11 @@ public interface IMap
     ///     Get the tint for a position.
     /// </summary>
     (TintColor block, TintColor fluid) GetPositionTint(Vector3d position);
+
+    /// <summary>
+    ///     Get the temperature for a position.
+    /// </summary>
+    /// <param name="position">The position to get the temperature for.</param>
+    /// <returns>The temperature, in degrees Celsius.</returns>
+    double GetTemperature(Vector3d position);
 }

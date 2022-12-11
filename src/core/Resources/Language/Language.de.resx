@@ -561,4 +561,10 @@
   <data name="Ice" xml:space="preserve">
     <value>Eis</value>
   </data>
+  <data name="Error" xml:space="preserve">
+    <value>Fehler</value>
+  </data>
+  <data name="Roots" xml:space="preserve">
+    <value>Wurzeln</value>
+  </data>
 </root>

@@ -17,7 +17,7 @@ public interface IBlockBase
     /// <summary>
     ///     Gets the block id which can be any value from 0 to 4095.
     /// </summary>
-    public uint Id { get; }
+    public uint ID { get; }
 
     /// <summary>
     ///     Gets the localized name of the block.
@@ -27,7 +27,7 @@ public interface IBlockBase
     /// <summary>
     ///     An unlocalized string that identifies this block.
     /// </summary>
-    public string NamedId { get; }
+    public string NamedID { get; }
 
     /// <summary>
     ///     This property is only relevant for non-opaque full blocks. It decides if their faces should be rendered next to

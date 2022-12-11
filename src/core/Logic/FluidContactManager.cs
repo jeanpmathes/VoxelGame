@@ -80,13 +80,7 @@ public class FluidContactManager
         Block lavaBlock = world.GetBlock(lava.position)?.Block ?? Block.Air;
 
         if (lavaBlock.IsReplaceable || lavaBlock.Destroy(world, lava.position))
-            world.SetPosition(
-                Block.Pumice,
-                data: 0,
-                Fluid.None,
-                FluidLevel.Eight,
-                isStatic: true,
-                lava.position);
+            world.SetContent(new Content(Block.Pumice), lava.position);
 
         world.SetFluid(
             Fluid.Steam.AsInstance(coolant.level, isStatic: false),

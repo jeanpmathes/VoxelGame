@@ -32,12 +32,11 @@ public partial class Map
     private const double MaxConvergentBoundaryWaterLifting = +0.4;
     private const double MaxConvergentBoundaryWaterSinking = -0.4;
 
-    private static (List<List<short>>, Dictionary<short, double>) FillWithPieces(Data data, int seed)
+    private static (List<List<short>>, Dictionary<short, double>) FillWithPieces(Data data, GeneratingNoise noise)
     {
-        FastNoiseLite noise = new(seed);
-        noise.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
-        noise.SetCellularReturnType(FastNoiseLite.CellularReturnType.CellValue);
-        noise.SetFrequency(frequency: 0.05f);
+        noise.Pieces.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
+        noise.Pieces.SetCellularReturnType(FastNoiseLite.CellularReturnType.CellValue);
+        noise.Pieces.SetFrequency(frequency: 0.05f);
 
         short currentPiece = 0;
         Dictionary<double, short> valueToPiece = new();
@@ -47,7 +46,7 @@ public partial class Map
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
-            double value = noise.GetNoise(x, y);
+            double value = noise.Pieces.GetNoise(x, y);
             ref Cell current = ref data.GetCell(x, y);
 
             if (!valueToPiece.ContainsKey(value)) valueToPiece[value] = currentPiece++;
@@ -64,14 +63,8 @@ public partial class Map
     {
         void AddAdjacency(short a, short b)
         {
-            if (!adjacencyHashed.ContainsKey(a))
-                adjacencyHashed[a] = new HashSet<short>();
-
-            if (!adjacencyHashed.ContainsKey(b))
-                adjacencyHashed[b] = new HashSet<short>();
-
-            adjacencyHashed[a].Add(b);
-            adjacencyHashed[b].Add(a);
+            adjacencyHashed.GetOrAdd(a).Add(b);
+            adjacencyHashed.GetOrAdd(b).Add(a);
         }
 
         (int x, int y) = position;
@@ -250,15 +243,15 @@ public partial class Map
         }
     }
 
-    private static void GenerateTerrain(Data data, int seed)
+    private static void GenerateTerrain(Data data, GeneratingNoise noise)
     {
-        (List<List<short>> adjacency, Dictionary<short, double> pieceToValue) pieces = FillWithPieces(data, seed);
+        (List<List<short>> adjacency, Dictionary<short, double> pieceToValue) pieces = FillWithPieces(data, noise);
 
         AddPieceHeights(data, pieces.pieceToValue);
 
         (List<(short, double)> nodes, Dictionary<short, List<short>> adjancecy) continents = BuildContinents(data, pieces.adjacency, pieces.pieceToValue);
 
-        GenerateStoneTypes(data, seed);
+        GenerateStoneTypes(data, noise);
         SimulateTectonics(data, continents);
     }
 
@@ -318,16 +311,15 @@ public partial class Map
         AddOffsetsToData(data, offsets);
     }
 
-    private static void GenerateStoneTypes(Data data, int seed)
+    private static void GenerateStoneTypes(Data data, GeneratingNoise noise)
     {
-        FastNoiseLite noise = new(seed);
-        noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
-        noise.SetFrequency(frequency: 0.08f);
+        noise.Stone.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        noise.Stone.SetFrequency(frequency: 0.08f);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
-            float value = noise.GetNoise(x, y);
+            float value = noise.Stone.GetNoise(x, y);
             value = Math.Abs(value);
 
             StoneType stoneType = value switch
@@ -561,21 +553,21 @@ public partial class Map
         view.Save(Path.Combine(path, "temperature_view.png"));
     }
 
-    private static MoistureData[] CreateInitialMoistureData()
+    private static HumidityData[] CreateInitialHumidityData()
     {
-        const float initialMoisture = 0.15f;
+        const float initialHumidity = 0.15f;
 
-        var initial = new MoistureData[Width * Width];
+        var initial = new HumidityData[Width * Width];
 
-        for (var index = 0; index < initial.Length; index++) initial[index].moisture = initialMoisture;
+        for (var index = 0; index < initial.Length; index++) initial[index].humidity = initialHumidity;
 
         return initial;
     }
 
-    private static void GenerateMoisture(Data data)
+    private static void GenerateHumidity(Data data)
     {
-        MoistureData[] current = CreateInitialMoistureData();
-        MoistureData[] next = CreateInitialMoistureData();
+        HumidityData[] current = CreateInitialHumidityData();
+        HumidityData[] next = CreateInitialHumidityData();
 
         const int simulationSteps = 100;
 
@@ -589,11 +581,11 @@ public partial class Map
         for (var y = 0; y < Width; y++)
         {
             ref Cell cell = ref data.GetCell(x, y);
-            cell.moisture = Data.Get(current, (x, y)).moisture;
+            cell.humidity = Data.Get(current, (x, y)).humidity;
         }
     }
 
-    private static void SimulateClimate(Data data, MoistureData[] current, MoistureData[] next)
+    private static void SimulateClimate(Data data, HumidityData[] current, HumidityData[] next)
     {
         Parallel.For(fromInclusive: 0,
             CellCount,
@@ -618,7 +610,7 @@ public partial class Map
     ///     The system is inspired by the following tutorial by Jasper Flick:
     ///     https://catlikecoding.com/unity/tutorials/hex-map/part-25/
     /// </summary>
-    private static MoistureData SimulateCellClimate(in Data data, in MoistureData[] state, Vector2i position)
+    private static HumidityData SimulateCellClimate(in Data data, in HumidityData[] state, Vector2i position)
     {
         const float evaporationRate = 0.5f;
         const float precipitationRate = 0.25f;
@@ -626,68 +618,68 @@ public partial class Map
         const float windStrength = 5.0f;
 
         Cell cell = data.GetCell(position);
-        MoistureData current = Data.Get(state, position);
+        HumidityData current = Data.Get(state, position);
 
-        MoistureData next;
+        HumidityData next;
 
         next.clouds = current.clouds;
-        next.moisture = current.moisture;
+        next.humidity = current.humidity;
         next.dispersal = 0.0f;
         next.runoff = 0.0f;
 
         if (cell.IsLand)
         {
-            float evaporation = next.moisture * evaporationRate;
-            next.moisture -= evaporation;
+            float evaporation = next.humidity * evaporationRate;
+            next.humidity -= evaporation;
             next.clouds += evaporation;
         }
         else
         {
-            next.moisture = 1.0f;
+            next.humidity = 1.0f;
             next.clouds += evaporationRate;
         }
 
         float precipitation = next.clouds * precipitationRate;
         next.clouds -= precipitation;
-        next.moisture += precipitation;
+        next.humidity += precipitation;
 
         float cloudMaximum = 1.0f - Math.Min(cell.height, cell.temperature - 0.1f);
 
         if (next.clouds > cloudMaximum)
         {
-            next.moisture += next.clouds - cloudMaximum;
+            next.humidity += next.clouds - cloudMaximum;
             next.clouds = cloudMaximum;
         }
 
         next.dispersal = next.clouds * (1.0f / (3.0f + windStrength));
-        next.runoff = next.moisture * runoffRate * (1.0f / 4.0f);
+        next.runoff = next.humidity * runoffRate * (1.0f / 4.0f);
         next.clouds = 0.0f;
 
         foreach ((Vector2i neighborPosition, bool isInWind) in GetNeighbors(position))
         {
             Cell neighborCell = data.GetCell(neighborPosition);
-            MoistureData neighborData = Data.Get(state, neighborPosition);
+            HumidityData neighborData = Data.Get(state, neighborPosition);
 
             next.clouds += isInWind ? neighborData.dispersal * windStrength : neighborData.dispersal;
 
-            if (neighborCell.height > cell.height) next.moisture += neighborData.runoff;
+            if (neighborCell.height > cell.height) next.humidity += neighborData.runoff;
 
-            if (neighborCell.height < cell.height) next.moisture -= next.runoff;
+            if (neighborCell.height < cell.height) next.humidity -= next.runoff;
         }
 
-        next.moisture = Math.Min(next.moisture, cell.temperature);
+        next.humidity = Math.Min(next.humidity, cell.temperature);
 
         return next;
     }
 
-    private static Color GetMoistureColor(Cell current)
+    private static Color GetHumidityColor(Cell current)
     {
-        Color precipitation = Colors.FromRGB(current.moisture, current.moisture, current.moisture);
+        Color precipitation = Colors.FromRGB(current.humidity, current.humidity, current.humidity);
 
         return current.IsLand ? precipitation : Color.Aqua;
     }
 
-    private static void EmitMoistureView(Data data, string path)
+    private static void EmitHumidityView(Data data, string path)
     {
         using Bitmap view = new(Width, Width);
 
@@ -695,7 +687,7 @@ public partial class Map
         for (var y = 0; y < Width; y++)
         {
             Cell current = data.GetCell(x, y);
-            view.SetPixel(x, y, GetMoistureColor(current));
+            view.SetPixel(x, y, GetHumidityColor(current));
         }
 
         view.Save(Path.Combine(path, "precipitation_view.png"));
@@ -703,7 +695,7 @@ public partial class Map
 
     private static Color GetBiomeColor(Cell current, BiomeDistribution biomes)
     {
-        return current.IsLand ? biomes.GetBiome(current.temperature, current.moisture).Color : Color.White;
+        return current.IsLand ? biomes.GetBiome(current.temperature, current.humidity).Color : Color.White;
     }
 
     private static void EmitBiomeView(Data data, BiomeDistribution biomes, string path)
@@ -749,12 +741,12 @@ public partial class Map
         view.Save(Path.Combine(path, "stone_view.png"));
     }
 
-    private record struct MoistureData
+    private record struct HumidityData
     {
         public float clouds;
 
         public float dispersal;
-        public float moisture;
+        public float humidity;
         public float runoff;
     }
 

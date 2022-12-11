@@ -56,7 +56,7 @@ public static class ManualBuilder
             ((Block block, string description) s) => Section.Create(s.block.Name)
                 .Text(s.description).NewLine()
                 .BeginList()
-                .Item("ID:").Text(s.block.NamedId, TextStyle.Monospace)
+                .Item("ID:").Text(s.block.NamedID, TextStyle.Monospace)
                 .Item("Solid:").Boolean(s.block.IsSolid)
                 .Item("Interactions:").Boolean(s.block.IsInteractable)
                 .Item("Replaceable:").Boolean(s.block.IsReplaceable)
@@ -71,7 +71,7 @@ public static class ManualBuilder
             ((Fluid fluid, string description) s) => Section.Create(s.fluid.Name)
                 .Text(s.description).NewLine()
                 .BeginList()
-                .Item("ID:").Text(s.fluid.NamedId, TextStyle.Monospace)
+                .Item("ID:").Text(s.fluid.NamedID, TextStyle.Monospace)
                 .Item("Viscosity:").Text(s.fluid.Viscosity.ToString(CultureInfo.InvariantCulture))
                 .Item("Density:").Text(s.fluid.Density.ToString(CultureInfo.InvariantCulture))
                 .Finish().EndSection());

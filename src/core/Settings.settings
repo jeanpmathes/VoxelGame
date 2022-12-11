@@ -12,5 +12,8 @@
         <Setting Name="MaxSavingTasks" Type="System.Int32" Scope="Application">
             <Value Profile="(Default)">32</Value>
         </Setting>
+        <Setting Name="MaxDecorationTasks" Type="System.Int32" Scope="Application">
+            <Value Profile="(Default)">32</Value>
+        </Setting>
     </Settings>
 </SettingsFile>

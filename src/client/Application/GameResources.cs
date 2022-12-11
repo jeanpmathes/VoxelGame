@@ -7,6 +7,7 @@
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
 using VoxelGame.Client.Rendering;
+using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics;
@@ -96,7 +97,6 @@ public class GameResources
 
         Shaders = Shaders.Load("Resources/Shaders");
 
-        // Block setup.
         Block.LoadBlocks(BlockTextureArray);
 
         logger.LogDebug(
@@ -104,8 +104,9 @@ public class GameResources
             "Texture/Block ratio: {Ratio:F02}",
             BlockTextureArray.Count / (double) Block.Count);
 
-        // Fluid setup.
         Fluid.LoadFluids(FluidTextureArray);
+
+        Generator.Prepare();
     }
 
     /// <summary>

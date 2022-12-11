@@ -85,6 +85,24 @@ public readonly struct ChunkPosition : IEquatable<ChunkPosition>
     }
 
     /// <summary>
+    ///     Offset a chunk position by the given amount.
+    /// </summary>
+    public ChunkPosition Offset(Vector3i amount)
+    {
+        return Offset(amount.X, amount.Y, amount.Z);
+    }
+
+    /// <summary>
+    ///     Get the offset that has to be applied to this chunk position to get the given position.
+    /// </summary>
+    /// <param name="other">The position to get the offset to.</param>
+    /// <returns>The offset.</returns>
+    public Vector3i OffsetTo(ChunkPosition other)
+    {
+        return new Vector3i(other.X - X, other.Y - Y, other.Z - Z);
+    }
+
+    /// <summary>
     ///     Get the center of this chunk position.
     /// </summary>
     public Vector3d Center => new(

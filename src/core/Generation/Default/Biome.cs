@@ -9,361 +9,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Generation.Default.Deco;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Generation.Default;
 
 /// <summary>
-/// A biome is a collection of attributes of an area in the world.
+///     A biome is a collection of attributes of an area in the world.
 /// </summary>
 public class Biome
 {
-    /// <summary>
-    /// The polar desert biome.
-    /// </summary>
-    public static readonly Biome PolarDesert = new(nameof(PolarDesert))
-    {
-        Color = Color.Gray,
-        Amplitude = 2f,
-        Frequency = 0.007f,
-        Layers = new List<Layer>
-        {
-            Layer.CreateSnow(width: 3),
-            Layer.CreatePermeable(Block.Dirt, width: 5),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 4),
-            Layer.CreateSolid(Block.Permafrost, width: 27),
-            Layer.CreateLoose(width: 27),
-            Layer.CreateGroundwater(width: 8),
-            Layer.CreateSolid(Block.Clay, width: 21)
-        }
-    };
-
-    /// <summary>
-    /// The tropical rainforest biome.
-    /// </summary>
-    public static readonly Biome TropicalRainforest = new(nameof(TropicalRainforest))
-    {
-        Color = Color.DarkGreen,
-        Amplitude = 15f,
-        Frequency = 0.005f,
-        Layers = new List<Layer>
-        {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreatePermeable(Block.Dirt, width: 3),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 26),
-            Layer.CreateLoose(width: 3),
-            Layer.CreateGroundwater(width: 6),
-            Layer.CreateSolid(Block.Clay, width: 3),
-            Layer.CreateLoose(width: 33),
-            Layer.CreateGroundwater(width: 18),
-            Layer.CreateSolid(Block.Clay, width: 21)
-        }
-    };
-
-    /// <summary>
-    /// The temperate rainforest biome.
-    /// </summary>
-    public static readonly Biome TemperateRainforest = new(nameof(TemperateRainforest))
-    {
-        Color = Color.Green,
-        Amplitude = 15f,
-        Frequency = 0.005f,
-        Layers = new List<Layer>
-        {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreatePermeable(Block.Dirt, width: 3),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 26),
-            Layer.CreateLoose(width: 3),
-            Layer.CreateGroundwater(width: 6),
-            Layer.CreateSolid(Block.Clay, width: 3),
-            Layer.CreateLoose(width: 33),
-            Layer.CreateGroundwater(width: 18),
-            Layer.CreateSolid(Block.Clay, width: 21)
-        }
-    };
-
-    /// <summary>
-    /// The taiga biome.
-    /// </summary>
-    public static readonly Biome Taiga = new(nameof(Taiga))
-    {
-        Color = Color.Navy,
-        Amplitude = 3f,
-        Frequency = 0.007f,
-        Layers = new List<Layer>
-        {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreatePermeable(Block.Dirt, width: 7),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 6),
-            Layer.CreateSolid(Block.Permafrost, width: 28),
-            Layer.CreateLoose(width: 27),
-            Layer.CreateGroundwater(width: 8),
-            Layer.CreateSolid(Block.Clay, width: 21)
-        }
-    };
-
-    /// <summary>
-    /// The tundra biome.
-    /// </summary>
-    public static readonly Biome Tundra = new(nameof(Tundra))
-    {
-        Color = Color.CadetBlue,
-        Amplitude = 3f,
-        Frequency = 0.007f,
-        Layers = new List<Layer>
-        {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreatePermeable(Block.Dirt, width: 7),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 6),
-            Layer.CreateSolid(Block.Permafrost, width: 28),
-            Layer.CreateLoose(width: 27),
-            Layer.CreateGroundwater(width: 8),
-            Layer.CreateSolid(Block.Clay, width: 21)
-        }
-    };
-
-    /// <summary>
-    /// The savanna biome.
-    /// </summary>
-    public static readonly Biome Savanna = new(nameof(Savanna))
-    {
-        Color = Color.Olive,
-        Amplitude = 1f,
-        Frequency = 0.01f,
-        Layers = new List<Layer>
-        {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreatePermeable(Block.Dirt, width: 7),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 2),
-            Layer.CreateLoose(width: 3),
-            Layer.CreateGroundwater(width: 2),
-            Layer.CreateSolid(Block.Clay, width: 3),
-            Layer.CreateLoose(width: 37),
-            Layer.CreateGroundwater(width: 18),
-            Layer.CreateSolid(Block.Clay, width: 21)
-        }
-    };
-
-    /// <summary>
-    /// The seasonal forest biome.
-    /// </summary>
-    public static readonly Biome SeasonalForest = new(nameof(SeasonalForest))
-    {
-        Color = Color.LimeGreen,
-        Amplitude = 10f,
-        Frequency = 0.005f,
-        Layers = new List<Layer>
-        {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreatePermeable(Block.Dirt, width: 5),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 20),
-            Layer.CreateLoose(width: 3),
-            Layer.CreateGroundwater(width: 2),
-            Layer.CreateSolid(Block.Clay, width: 3),
-            Layer.CreateLoose(width: 37),
-            Layer.CreateGroundwater(width: 18),
-            Layer.CreateSolid(Block.Clay, width: 21)
-        }
-    };
-
-    /// <summary>
-    /// The dry forest biome.
-    /// </summary>
-    public static readonly Biome DryForest = new(nameof(DryForest))
-    {
-        Color = Color.SeaGreen,
-        Amplitude = 15f,
-        Frequency = 0.005f,
-        Layers = new List<Layer>
-        {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreatePermeable(Block.Dirt, width: 3),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 26),
-            Layer.CreateLoose(width: 3),
-            Layer.CreateGroundwater(width: 6),
-            Layer.CreateSolid(Block.Clay, width: 3),
-            Layer.CreateLoose(width: 33),
-            Layer.CreateGroundwater(width: 18),
-            Layer.CreateSolid(Block.Clay, width: 21)
-        }
-    };
-
-    /// <summary>
-    /// The shrubland biome.
-    /// </summary>
-    public static readonly Biome Shrubland = new(nameof(Shrubland))
-    {
-        Color = Color.Salmon,
-        Amplitude = 1f,
-        Frequency = 0.01f,
-        Layers = new List<Layer>
-        {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreatePermeable(Block.Dirt, width: 7),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 2),
-            Layer.CreateLoose(width: 3),
-            Layer.CreateGroundwater(width: 2),
-            Layer.CreateSolid(Block.Clay, width: 3),
-            Layer.CreateLoose(width: 37),
-            Layer.CreateGroundwater(width: 18),
-            Layer.CreateSolid(Block.Clay, width: 21)
-        }
-    };
-
-    /// <summary>
-    /// The desert biome.
-    /// </summary>
-    public static readonly Biome Desert = new(nameof(Desert))
-    {
-        Color = Color.Yellow,
-        Amplitude = 4f,
-        Frequency = 0.008f,
-        Layers = new List<Layer>
-        {
-            Layer.CreatePermeable(Block.Sand, width: 9),
-            Layer.CreatePermeable(Block.Dirt, width: 4),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 8),
-            Layer.CreateSolid(Block.Sandstone, width: 18),
-            Layer.CreateLoose(width: 22),
-            Layer.CreateGroundwater(width: 18),
-            Layer.CreateSolid(Block.Clay, width: 21)
-        }
-    };
-
-    /// <summary>
-    /// The grassland biome.
-    /// </summary>
-    public static readonly Biome Grassland = new(nameof(Grassland))
-    {
-        Color = Color.SaddleBrown,
-        Amplitude = 4f,
-        Frequency = 0.004f,
-        Layers = new List<Layer>
-        {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreatePermeable(Block.Dirt, width: 7),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 8),
-            Layer.CreateLoose(width: 3),
-            Layer.CreateGroundwater(width: 2),
-            Layer.CreateSolid(Block.Clay, width: 3),
-            Layer.CreateLoose(width: 37),
-            Layer.CreateGroundwater(width: 18),
-            Layer.CreateSolid(Block.Clay, width: 21)
-        }
-    };
-
-    /// <summary>
-    ///     The normal ocean biome.
-    /// </summary>
-    public static readonly Biome Ocean = new(nameof(Ocean))
-    {
-        Color = Color.White,
-        Amplitude = 5.0f,
-        Frequency = 0.005f,
-        Layers = new List<Layer>
-        {
-            Layer.CreatePermeable(Block.Sand, width: 5),
-            Layer.CreatePermeable(Block.Gravel, width: 3),
-            Layer.CreatePermeableDampen(Block.Gravel, maxWidth: 10),
-            Layer.CreateSolid(Block.Limestone, width: 26),
-            Layer.CreateLoose(width: 37),
-            Layer.CreateSolid(Block.Limestone, width: 21)
-        }
-    };
-
-    /// <summary>
-    ///     The polar ocean biome. It is covered in ice and occurs in cold regions.
-    /// </summary>
-    public static readonly Biome PolarOcean = new(nameof(PolarOcean))
-    {
-        Color = Color.White,
-        Amplitude = 5.0f,
-        Frequency = 0.005f,
-        IceWidth = 6,
-        Layers = new List<Layer>
-        {
-            Layer.CreatePermeable(Block.Sand, width: 5),
-            Layer.CreatePermeable(Block.Gravel, width: 3),
-            Layer.CreatePermeableDampen(Block.Gravel, maxWidth: 10),
-            Layer.CreateSolid(Block.Limestone, width: 26),
-            Layer.CreateLoose(width: 37),
-            Layer.CreateSolid(Block.Limestone, width: 21)
-        }
-    };
-
-    /// <summary>
-    ///     The mountain biome. It is a special biome that depends on the height of the terrain.
-    /// </summary>
-    public static readonly Biome Mountains = new(nameof(Mountains))
-    {
-        Color = Color.Black,
-        Amplitude = 30f,
-        Frequency = 0.005f,
-        Layers = new List<Layer>
-        {
-            Layer.CreateStonyCover(width: 9, amplitude: 15),
-            Layer.CreateStonyDampen(maxWidth: 31),
-            Layer.CreateStone(width: 31),
-            Layer.CreateLoose(width: 9),
-            Layer.CreateGroundwater(width: 1),
-            Layer.CreateSolid(Block.Clay, width: 9)
-        }
-    };
-
-    /// <summary>
-    ///     The beach biome. It is found at low heights next to coastlines.
-    /// </summary>
-    public static readonly Biome Beach = new(nameof(Beach))
-    {
-        Color = Color.Black,
-        Amplitude = 4f,
-        Frequency = 0.008f,
-        Layers = new List<Layer>
-        {
-            Layer.CreatePermeable(Block.Sand, width: 5),
-            Layer.CreatePermeable(Block.Gravel, width: 3),
-            Layer.CreatePermeableDampen(Block.Gravel, maxWidth: 10),
-            Layer.CreateSolid(Block.Limestone, width: 13),
-            Layer.CreateLoose(width: 22),
-            Layer.CreateGroundwater(width: 18),
-            Layer.CreateSolid(Block.Clay, width: 21)
-        }
-    };
-
-    /// <summary>
-    ///     The grass covered cliff biome, which is found at coastlines with large height differences.
-    /// </summary>
-    public static readonly Biome GrassyCliff = new(nameof(GrassyCliff))
-    {
-        Color = Color.Black,
-        Amplitude = 4f,
-        Frequency = 0.008f,
-        Layers = new List<Layer>
-        {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreateSolid(Block.Limestone, width: 53),
-            Layer.CreateStonyDampen(maxWidth: 28),
-            Layer.CreateStone(width: 39)
-        }
-    };
-
-    /// <summary>
-    ///     The sand covered cliff biome, which is found at coastlines with large height differences.
-    /// </summary>
-    public static readonly Biome SandyCliff = new(nameof(SandyCliff))
-    {
-        Color = Color.Black,
-        Amplitude = 4f,
-        Frequency = 0.008f,
-        Layers = new List<Layer>
-        {
-            Layer.CreateCover(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreateSolid(Block.Limestone, width: 53),
-            Layer.CreateStonyDampen(maxWidth: 28),
-            Layer.CreateStone(width: 39)
-        }
-    };
-
     private readonly string name;
     private (Layer layer, int depth)[] lowerHorizon = null!;
 
@@ -381,66 +36,87 @@ public class Biome
 
     private (Layer layer, int depth)[] upperHorizon = null!;
 
-    private Biome(string name)
+    /// <summary>
+    ///     Create a new biome. Most values must be set with the init-properties.
+    /// </summary>
+    /// <param name="name">The name of the biome.</param>
+    public Biome(string name)
     {
-        OnSetup += SetupBiome;
         this.name = name;
     }
 
     /// <summary>
-    /// A color representing the biome.
+    ///     A color representing the biome.
     /// </summary>
-    public Color Color { get; private init; }
+    public Color Color { get; init; }
 
     /// <summary>
     ///     Get the normal width of the ice layer on oceans.
     /// </summary>
-    public int IceWidth { get; private init; }
-
-    private float Amplitude { get; init; }
-
-    private float Frequency { get; init; }
-
-    private List<Layer> Layers { get; init; } = null!;
+    public int IceWidth { get; init; }
 
     /// <summary>
-    /// The width of the dampening layer.
+    ///     The amplitude of the noise used to generate the biome.
+    /// </summary>
+    public float Amplitude { get; init; }
+
+    /// <summary>
+    ///     The frequency of the noise used to generate the biome.
+    /// </summary>
+    public float Frequency { get; init; }
+
+    /// <summary>
+    ///     All layers that are part of the biome.
+    /// </summary>
+    public IList<Layer> Layers { get; init; } = null!;
+
+    /// <summary>
+    ///     Get all decorations of this biome.
+    /// </summary>
+    public ICollection<Decoration> Decorations { get; init; } = new List<Decoration>();
+
+    /// <summary>
+    ///     Get the structure of this biome, if any.
+    ///     Each biome can only have one structure.
+    /// </summary>
+    public GeneratedStructure? Structure { get; init; }
+
+    /// <summary>
+    ///     Get the cover of the biome.
+    /// </summary>
+    public Cover Cover { get; init; } = null!;
+
+    /// <summary>
+    ///     The width of the dampening layer.
     /// </summary>
     private int MaxDampenWidth { get; set; }
 
     /// <summary>
-    /// The depth to the dampening layer.
+    ///     The depth to the dampening layer.
     /// </summary>
     private int DepthToDampen { get; set; }
 
     /// <summary>
-    /// The dampen layer.
+    ///     The dampen layer.
     /// </summary>
     private Layer? Dampen { get; set; }
 
     /// <summary>
-    ///     Setup all biomes for current world generation.
-    ///     Because biomes need setup, only one world can be generated at a time.
+    /// Setup the biome. This must be called after all init-properties have been set.
     /// </summary>
-    /// <param name="seed">The seed to use for the noise generation.</param>
-    /// <param name="palette">The palette to use for the generating.</param>
-    public static void Setup(int seed, Palette palette)
+    /// <param name="factory">The noise generator factory to use.</param>
+    /// <param name="palette">The palette to use for the biome.</param>
+    public void SetupBiome(NoiseFactory factory, Palette palette)
     {
-        Debug.Assert(OnSetup != null);
-        OnSetup(sender: null, (seed, palette));
+        SetupNoise(factory.GetNextNoise());
+        SetupLayers(palette);
+
+        Cover.SetupNoise(factory.GetNextNoise());
     }
 
-    private static event EventHandler<(int seed, Palette palette)>? OnSetup;
-
-    private void SetupBiome(object? sender, (int seed, Palette palette) arguments)
+    private void SetupNoise(FastNoiseLite noiseGenerator)
     {
-        SetupNoise(arguments.seed);
-        SetupLayers(arguments.palette);
-    }
-
-    private void SetupNoise(int seed)
-    {
-        noise = new FastNoiseLite(seed);
+        noise = noiseGenerator;
 
         noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
         noise.SetFrequency(Frequency);

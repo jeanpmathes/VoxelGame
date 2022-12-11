@@ -26,7 +26,7 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     The world class. Contains everything that is in the world, e.g. chunks, entities, etc.
 /// </summary>
-public abstract class World : IDisposable
+public abstract class World : IDisposable, IGrid
 {
     /// <summary>
     ///     The limit of the world size.
@@ -35,6 +35,11 @@ public abstract class World : IDisposable
     public const uint BlockLimit = 50_000_000;
 
     private const uint ChunkLimit = BlockLimit / Chunk.BlockSize;
+
+    /// <summary>
+    ///     The limit of the world size, in sections.
+    /// </summary>
+    public const uint SectionLimit = BlockLimit / Section.Size;
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
@@ -47,12 +52,13 @@ public abstract class World : IDisposable
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    protected World(string path, string name, int seed) :
+    protected World(string path, string name, (int upper, int lower) seed) :
         this(
             new WorldInformation
             {
                 Name = name,
-                Seed = seed,
+                UpperSeed = seed.upper,
+                LowerSeed = seed.lower,
                 Creation = DateTime.Now,
                 Version = ApplicationInformation.Instance.Version
             },
@@ -99,6 +105,7 @@ public abstract class World : IDisposable
         ChunkContext = new ChunkContext(ChunkDirectory, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk, generator);
 
         MaxGenerationTasks = ChunkContext.DeclareBudget(Settings.Default.MaxGenerationTasks);
+        MaxDecorationTasks = ChunkContext.DeclareBudget(Settings.Default.MaxDecorationTasks);
         MaxLoadingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxLoadingTasks);
         MaxSavingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxSavingTasks);
 
@@ -142,7 +149,7 @@ public abstract class World : IDisposable
     /// <summary>
     ///     Get the world creation seed.
     /// </summary>
-    public int Seed => Information.Seed;
+    public (int upper, int lower) Seed => (Information.UpperSeed, Information.LowerSeed);
 
     /// <summary>
     /// Get whether the world is active.
@@ -183,7 +190,7 @@ public abstract class World : IDisposable
     }
 
     /// <summary>
-    ///     Get the extents of the world.
+    ///     Get the extents of the world. This mark the reachable area of the world.
     /// </summary>
     public Vector3i Extents => new((int) SizeInBlocks, (int) SizeInBlocks, (int) SizeInBlocks);
 
@@ -208,6 +215,11 @@ public abstract class World : IDisposable
     public Limit MaxGenerationTasks { get; }
 
     /// <summary>
+    ///     The max decoration task limit.
+    /// </summary>
+    public Limit MaxDecorationTasks { get; }
+
+    /// <summary>
     ///     The max loading task limit.
     /// </summary>
     public Limit MaxLoadingTasks { get; }
@@ -216,6 +228,29 @@ public abstract class World : IDisposable
     ///     The max saving task limit.
     /// </summary>
     public Limit MaxSavingTasks { get; }
+
+    /// <summary>
+    ///     Get both the fluid and block instance at a given position.
+    ///     The content can only be retrieved from active chunks.
+    /// </summary>
+    /// <param name="position">The world position.</param>
+    /// <returns>The content, if there is any.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Content? GetContent(Vector3i position)
+    {
+        RetrieveContent(position, out Content? content);
+
+        return content;
+    }
+
+    /// <summary>
+    ///     Set the content of a world position.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetContent(Content content, Vector3i position)
+    {
+        SetContent(content, position, tickFluid: true);
+    }
 
     /// <summary>
     ///     Begin deactivating the world, saving all chunks and the meta information.
@@ -317,7 +352,7 @@ public abstract class World : IDisposable
 
     private static uint ClampSize(uint size)
     {
-        return Math.Clamp(size, min: 1024, BlockLimit);
+        return Math.Clamp(size, 16 * Chunk.BlockSize, BlockLimit - Chunk.BlockSize);
     }
 
     private static IWorldGenerator GetGenerator(World world)
@@ -331,6 +366,19 @@ public abstract class World : IDisposable
     public void EmitViews()
     {
         generator.EmitViews(DebugDirectory);
+    }
+
+    /// <summary>
+    ///     Search for named generated elements, such as structures.
+    ///     The search is performed on enumeration.
+    /// </summary>
+    /// <param name="start">The start position.</param>
+    /// <param name="name">The name of the element.</param>
+    /// <param name="maxDistance">The maximum distance to search.</param>
+    /// <returns>The positions of the elements, or null if the name is not valid.</returns>
+    public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
+    {
+        return generator.SearchNamedGeneratedElements(start, name, maxDistance);
     }
 
     /// <summary>
@@ -355,40 +403,32 @@ public abstract class World : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BlockInstance? GetBlock(Vector3i position)
     {
-        RetrieveContent(position, out Block? block, out uint data, out _, out _, out _);
+        RetrieveContent(position, out Content? content);
 
-        return block?.AsInstance(data);
+        return content?.Block;
     }
 
     /// <summary>
     ///     Retrieve the content at a given position. The content can only be retrieved from active chunks.
     /// </summary>
     /// <param name="position">The position.</param>
-    /// <param name="block">The block at the given position.</param>
-    /// <param name="data">The data of the block.</param>
-    /// <param name="fluid">The fluid at the given position.</param>
-    /// <param name="level">The level of the fluid.</param>
-    /// <param name="isStatic">Whether the fluid is static.</param>
+    /// <param name="potentialContent">The potential content at the given position.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void RetrieveContent(Vector3i position,
-        out Block? block, out uint data,
-        out Fluid? fluid, out FluidLevel level, out bool isStatic)
+    private void RetrieveContent(Vector3i position, out Content? potentialContent)
     {
         Chunk? chunk = GetActiveChunk(position);
 
         if (chunk != null)
         {
             uint val = chunk.GetSection(position).GetContent(position);
-            Section.Decode(val, out block, out data, out fluid, out level, out isStatic);
+            Section.Decode(val, out Content content);
+
+            potentialContent = content;
 
             return;
         }
 
-        block = null;
-        data = 0;
-        fluid = null;
-        level = 0;
-        isStatic = false;
+        potentialContent = null;
     }
 
     /// <summary>
@@ -399,40 +439,9 @@ public abstract class World : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FluidInstance? GetFluid(Vector3i position)
     {
-        RetrieveContent(
-            position,
-            out Block? _,
-            out uint _,
-            out Fluid? fluid,
-            out FluidLevel level,
-            out bool isStatic);
+        RetrieveContent(position, out Content? content);
 
-        return fluid?.AsInstance(level, isStatic);
-    }
-
-    /// <summary>
-    ///     Get both the fluid and block instance at a given position.
-    ///     The content can only be retrieved from active chunks.
-    /// </summary>
-    /// <param name="position">The world position.</param>
-    /// <returns>The content, if there is any.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Content? GetContent(Vector3i position)
-    {
-        RetrieveContent(
-            position,
-            out Block? block,
-            out uint data,
-            out Fluid? fluid,
-            out FluidLevel level,
-            out bool isStatic);
-
-        if (block == null || fluid == null) return null;
-
-        Debug.Assert(block != null);
-        Debug.Assert(fluid != null);
-
-        return new Content(block.AsInstance(data), fluid.AsInstance(level, isStatic));
+        return content?.Fluid;
     }
 
     /// <summary>
@@ -448,15 +457,13 @@ public abstract class World : IDisposable
 
         if (potentialFluid is not {} fluid) return;
 
-        SetContent(block, fluid, position, tickFluid: true);
+        SetContent(new Content(block, fluid), position, tickFluid: true);
     }
 
     /// <summary>
     ///     Sets a fluid in the world, adds the changed sections to the re-mesh set and sends updates to the neighbors of the
     ///     changed block.
     /// </summary>
-    /// <param name="fluid"></param>
-    /// <param name="position"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetFluid(FluidInstance fluid, Vector3i position)
     {
@@ -464,7 +471,7 @@ public abstract class World : IDisposable
 
         if (potentialBlock is not {} block) return;
 
-        SetContent(block, fluid, position, tickFluid: false);
+        SetContent(new Content(block, fluid), position, tickFluid: false);
     }
 
     /// <summary>
@@ -477,34 +484,27 @@ public abstract class World : IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(BlockInstance block, FluidInstance fluid, Vector3i position, bool tickFluid)
-    {
-        SetContent(block.Block, block.Data, fluid.Fluid, fluid.Level, fluid.IsStatic, position, tickFluid);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(IBlockBase block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
-        Vector3i position, bool tickFluid)
+    private void SetContent(in Content content, Vector3i position, bool tickFluid)
     {
         Chunk? chunk = GetActiveChunk(position);
 
         if (chunk == null) return;
 
-        uint val = Section.Encode(block, data, fluid, level, isStatic);
+        uint val = Section.Encode(content);
 
         chunk.GetSection(position).SetContent(position, val);
 
-        if (tickFluid) fluid.TickNow(this, position, level, isStatic);
+        if (tickFluid) content.Fluid.Fluid.TickNow(this, position, content.Fluid.Level, content.Fluid.IsStatic);
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
             Vector3i neighborPosition = side.Offset(position);
 
-            Content? content = GetContent(neighborPosition);
+            Content? neighborContent = GetContent(neighborPosition);
 
-            if (content == null) continue;
+            if (neighborContent == null) continue;
 
-            (BlockInstance blockNeighbor, FluidInstance fluidNeighbor) = content.Value;
+            (BlockInstance blockNeighbor, FluidInstance fluidNeighbor) = neighborContent.Value;
 
             // Side is passed out of the perspective of the block receiving the block update.
             blockNeighbor.Block.BlockUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
@@ -512,16 +512,6 @@ public abstract class World : IDisposable
         }
 
         ProcessChangedSection(chunk, position);
-    }
-
-    /// <summary>
-    ///     Set all data at a world position.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetPosition(IBlockBase block, uint data, Fluid fluid, FluidLevel level, bool isStatic,
-        Vector3i position)
-    {
-        SetContent(block, data, fluid, level, isStatic, position, tickFluid: true);
     }
 
     /// <summary>
@@ -591,12 +581,29 @@ public abstract class World : IDisposable
     /// </summary>
     protected abstract Chunk CreateChunk(ChunkPosition position, ChunkContext context);
 
-    private static bool IsInLimits(ChunkPosition position)
+    /// <summary>
+    ///     Get whether a chunk position is in the maximum allowed world limits.
+    ///     Such a position can still be outside of the reachable <see cref="Extents" />.
+    /// </summary>
+    public static bool IsInLimits(ChunkPosition position)
     {
         return Math.Abs(position.X) <= ChunkLimit && Math.Abs(position.Y) <= ChunkLimit && Math.Abs(position.Z) <= ChunkLimit;
     }
 
-    private static bool IsInLimits(Vector3i position)
+    /// <summary>
+    ///     Get whether a section position is in the maximum allowed world limits.
+    ///     Such a position can still be outside of the reachable <see cref="Extents" />.
+    /// </summary>
+    public static bool IsInLimits(SectionPosition position)
+    {
+        return Math.Abs(position.X) <= SectionLimit && Math.Abs(position.Y) <= SectionLimit && Math.Abs(position.Z) <= SectionLimit;
+    }
+
+    /// <summary>
+    ///     Get whether a block position is in the maximum allowed world limits.
+    ///     Such a position can still be outside of the reachable <see cref="Extents" />.
+    /// </summary>
+    public static bool IsInLimits(Vector3i position)
     {
         if (position.X is int.MinValue) return false;
         if (position.Y is int.MinValue) return false;
@@ -608,12 +615,14 @@ public abstract class World : IDisposable
     /// <summary>
     ///     Process a chunk that has been just activated.
     /// </summary>
+    /// <returns>The next state of the chunk.</returns>
     protected abstract ChunkState ProcessNewlyActivatedChunk(Chunk activatedChunk);
 
     /// <summary>
     ///     Process a chunk that has just switched to the active state trough a weak activation.
     /// </summary>
-    protected abstract void ProcessActivatedChunk(Chunk activatedChunk);
+    /// <returns>An optional next state of the chunk.</returns>
+    protected abstract ChunkState? ProcessActivatedChunk(Chunk activatedChunk);
 
     /// <summary>
     ///     Requests the activation of a chunk. This chunk will either be loaded or generated.

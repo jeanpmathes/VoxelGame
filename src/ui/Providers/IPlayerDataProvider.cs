@@ -48,4 +48,9 @@ public interface IPlayerDataProvider
     ///     Data related to the position of the player in the world.
     /// </summary>
     public string WorldDebugData { get; }
+
+    /// <summary>
+    ///     The current temperature around the player.
+    /// </summary>
+    public double Temperature { get; }
 }

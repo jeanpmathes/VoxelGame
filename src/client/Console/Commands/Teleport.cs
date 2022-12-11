@@ -5,7 +5,6 @@
 // <author>pershingthesecond</author>
 
 using JetBrains.Annotations;
-using OpenTK.Mathematics;
 
 namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
@@ -31,27 +30,13 @@ public class Teleport : Command
     /// <exclude />
     public void Invoke(string target)
     {
-        switch (target)
-        {
-            case "origin":
-                SetPlayerPosition((0, 0, 0));
-
-                break;
-
-            case "spawn":
-                SetPlayerPosition(Context.Player.World.SpawnPosition);
-
-                break;
-
-            default:
-                Context.Console.WriteError($"Unknown target: {target}");
-
-                break;
-        }
-
-        void SetPlayerPosition(Vector3d position)
+        if (GetNamedPosition(target) is {} position)
         {
             Context.Player.Position = position;
+        }
+        else
+        {
+            Context.Console.WriteError($"Unknown target: {target}");
         }
     }
 }

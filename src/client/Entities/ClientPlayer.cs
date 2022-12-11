@@ -141,6 +141,8 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     string IPlayerDataProvider.WorldDebugData => World.Map.GetPositionDebugData(Position);
 
+    double IPlayerDataProvider.Temperature => World.Map.GetTemperature(Position);
+
     string IPlayerDataProvider.Selection => blockMode ? activeBlock.Name : activeFluid.Name;
 
     string IPlayerDataProvider.Mode => blockMode ? Language.Block : Language.Fluid;
@@ -415,7 +417,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
         if (blockMode)
         {
-            long nextBlockId = activeBlock.Id + change;
+            long nextBlockId = activeBlock.ID + change;
             nextBlockId = VMath.ClampRotating(nextBlockId, min: 1, Block.Count);
             activeBlock = Block.TranslateID((uint) nextBlockId);
         }

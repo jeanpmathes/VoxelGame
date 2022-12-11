@@ -66,62 +66,80 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Properties\**" />
-    <EmbeddedResource Remove="Properties\**" />
-    <None Remove="Properties\**" />
+      <Compile Remove="Properties\**"/>
+      <EmbeddedResource Remove="Properties\**"/>
+      <None Remove="Properties\**"/>
+      <None Update="Resources\Structures\tall_flower.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Structures\tall_grass.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Structures\small_pyramid.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Structures\large_tropical_tree.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Structures\old_tower.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Structures\buried_tower.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
   </ItemGroup>
-  <ItemGroup>
-    <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Settings.settings">
-        <Generator>SettingsSingleFileGenerator</Generator>
-        <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-        <CustomToolNamespace>Properties</CustomToolNamespace>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-      <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
-      <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0"/>
-      <PackageReference Include="OpenTK">
-          <Version>4.7.1</Version>
-      </PackageReference>
-      <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0"/>
-      <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
-      <PackageReference Include="System.Drawing.Common" Version="5.0.3"/>
-      <PackageReference Include="System.Text.Json">
-          <Version>5.0.2</Version>
-      </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-      <Compile Update="Settings.Designer.cs">
-          <DesignTimeSharedInput>True</DesignTimeSharedInput>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>Settings.settings</DependentUpon>
-      </Compile>
-    <Compile Update="Resources\Language\Language.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Language.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\logging\VoxelGame.Logging.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Resources\Language\Language.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Language.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <Target Name="FixAL1703Warning" BeforeTargets="GenerateSatelliteAssemblies" Condition="'$(PlatformTarget)' == 'x64'">
-    <Message Text="Adjusting SDK tools directory to use x64 version of AL.EXE" />
-    <PropertyGroup>
-      <TargetFrameworkSDKToolsDirectory>$(TargetFrameworkSDKToolsDirectory)\$(PlatformTarget)\</TargetFrameworkSDKToolsDirectory>
-    </PropertyGroup>
-  </Target>
+    <ItemGroup>
+        <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Update="Settings.settings">
+            <Generator>SettingsSingleFileGenerator</Generator>
+            <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+            <CustomToolNamespace>Properties</CustomToolNamespace>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0"/>
+        <PackageReference Include="OpenTK">
+            <Version>4.7.1</Version>
+        </PackageReference>
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0"/>
+        <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
+        <PackageReference Include="System.Drawing.Common" Version="5.0.3"/>
+        <PackageReference Include="System.Text.Json">
+            <Version>5.0.2</Version>
+        </PackageReference>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Update="Settings.Designer.cs">
+            <DesignTimeSharedInput>True</DesignTimeSharedInput>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Settings.settings</DependentUpon>
+        </Compile>
+        <Compile Update="Resources\Language\Language.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Language.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\logging\VoxelGame.Logging.csproj"/>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Update="Resources\Language\Language.resx">
+            <Generator>PublicResXFileCodeGenerator</Generator>
+            <LastGenOutput>Language.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
+    <Target Name="FixAL1703Warning" BeforeTargets="GenerateSatelliteAssemblies" Condition="'$(PlatformTarget)' == 'x64'">
+        <Message Text="Adjusting SDK tools directory to use x64 version of AL.EXE"/>
+        <PropertyGroup>
+            <TargetFrameworkSDKToolsDirectory>$(TargetFrameworkSDKToolsDirectory)\$(PlatformTarget)\</TargetFrameworkSDKToolsDirectory>
+        </PropertyGroup>
+    </Target>
 </Project>

@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -39,7 +40,7 @@ public class VaryingHeightBlock : Block, IVaryingHeight, IOverlayTextureProvider
     /// <summary>
     ///     Get the block data for a full height block.
     /// </summary>
-    public BlockInstance FullHeightInstance => this.AsInstance((uint) IVaryingHeight.MaximumHeight);
+    public BlockInstance FullHeightInstance => GetInstance(IVaryingHeight.MaximumHeight);
 
     /// <inheritdoc />
     public int TextureIdentifier => layout.Bottom;
@@ -57,6 +58,18 @@ public class VaryingHeightBlock : Block, IVaryingHeight, IOverlayTextureProvider
             TextureIndex = textureIndices[(int) info.Side],
             Tint = TintColor.None
         };
+    }
+
+    /// <summary>
+    ///     Get an instance of this block with the given height.
+    /// </summary>
+    /// <param name="height">The height of the block, in the range [0, 15].</param>
+    /// <returns>The block instance.</returns>
+    public BlockInstance GetInstance(int height)
+    {
+        Debug.Assert(height >= 0 && height <= IVaryingHeight.MaximumHeight);
+
+        return this.AsInstance((uint) height);
     }
 
     private void CreateVolumes()

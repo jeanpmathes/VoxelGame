@@ -1,4 +1,4 @@
-﻿// <copyright file="BlockManagment.cs" company="VoxelGame">
+﻿// <copyright file="BlockManagement.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -17,6 +17,8 @@ using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
+
+#pragma warning disable S1192 // Definition class
 
 public partial class Block
 {
@@ -49,7 +51,7 @@ public partial class Block
             Events.UnknownBlock,
             "No Block with ID {ID} could be found, returning {Air} instead",
             id,
-            Air.NamedId);
+            Air.NamedID);
 
         return Air;
     }
@@ -77,7 +79,7 @@ public partial class Block
             {
                 block.Setup(indexProvider);
 
-                logger.LogDebug(Events.BlockLoad, "Loaded block [{Block}] with ID {ID}", block, block.Id);
+                logger.LogDebug(Events.BlockLoad, "Loaded block [{Block}] with ID {ID}", block, block.ID);
             }
 
             logger.LogInformation(Events.BlockLoad, "Block setup complete, {Count} blocks loaded", Count);
@@ -91,6 +93,8 @@ public partial class Block
         public static readonly ConcreteBlock Concrete = (ConcreteBlock) Block.Concrete;
         public static readonly GroundedModifiableHeightBlock Snow = (GroundedModifiableHeightBlock) Block.Snow;
         public static readonly ModifiableHeightBlock Ice = (ModifiableHeightBlock) Block.Ice;
+        public static readonly RotatedBlock Log = (RotatedBlock) Block.Log;
+        public static readonly FlatBlock Vines = (FlatBlock) Block.Vines;
 #pragma warning restore S3218 // Inner class members should not shadow outer class "static" or type members
     }
 
@@ -229,6 +233,7 @@ public partial class Block
     public static readonly Block Leaves = new NaturalBlock(
         Language.Leaves,
         nameof(Leaves),
+        hasNeutralTint: true,
         new BlockFlags
         {
             IsSolid = true,
@@ -903,6 +908,25 @@ public partial class Block
         Language.Ice,
         nameof(Ice),
         TextureLayout.Uniform("ice"));
+
+    /// <summary>
+    ///     An error block, used as fallback when structure operations fail.
+    /// </summary>
+    public static readonly Block Error = new BasicBlock(
+        Language.Error,
+        nameof(Error),
+        BlockFlags.Basic,
+        TextureLayout.Uniform("missing_texture"));
+
+    /// <summary>
+    ///     Roots grow at the bottom of trees.
+    /// </summary>
+    public static readonly Block Roots = new PermeableNaturalBlock(
+        Language.Roots,
+        nameof(Roots),
+        hasNeutralTint: false,
+        BlockFlags.Basic,
+        TextureLayout.Uniform("roots"));
 
     #endregion NEW BLOCKS
 }

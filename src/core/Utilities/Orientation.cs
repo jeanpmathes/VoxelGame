@@ -216,4 +216,19 @@ public static class OrientationExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
         };
     }
+
+    /// <summary>
+    ///     Select a random orientation.
+    /// </summary>
+    public static Orientation NextOrientation(this Random random)
+    {
+        return random.Next(minValue: 0, maxValue: 4) switch
+        {
+            0 => Orientation.North,
+            1 => Orientation.East,
+            2 => Orientation.South,
+            3 => Orientation.West,
+            _ => throw new ArgumentOutOfRangeException(nameof(random), random, message: null)
+        };
+    }
 }

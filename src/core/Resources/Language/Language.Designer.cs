@@ -340,6 +340,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        public static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Eternal Flame.
         /// </summary>
         public static string EternalFlame {
@@ -1074,6 +1083,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Resume {
             get {
                 return ResourceManager.GetString("Resume", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Roots.
+        /// </summary>
+        public static string Roots {
+            get {
+                return ResourceManager.GetString("Roots", resourceCulture);
             }
         }
         

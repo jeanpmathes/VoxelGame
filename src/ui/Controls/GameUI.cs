@@ -140,7 +140,8 @@ internal class GameUI : ControlBase
         Label info = new(layout)
         {
             Text = $"{Language.VoxelGame} - {ApplicationInformation.Instance.Version}",
-            Font = parent.Context.Fonts.Subtitle
+            Font = parent.Context.Fonts.Subtitle,
+            HorizontalAlignment = HorizontalAlignment.Center
         };
 
         parent.DoOverlayOpen();

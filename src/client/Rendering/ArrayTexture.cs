@@ -24,6 +24,11 @@ namespace VoxelGame.Client.Rendering;
 /// </summary>
 public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
 {
+    /// <summary>
+    ///     Use this texture name to get the fallback texture without causing a warning.
+    /// </summary>
+    public const string MissingTextureName = "missing_texture";
+
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ArrayTexture>();
 
     private readonly Dictionary<string, int> textureIndices = new();
@@ -62,7 +67,7 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
     /// <inheritdoc />
     public int GetTextureIndex(string name)
     {
-        if (name == "missing_texture") return 0;
+        if (name == MissingTextureName) return 0;
 
         if (textureIndices.TryGetValue(name, out int value)) return value;
 

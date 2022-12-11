@@ -82,6 +82,11 @@ public partial class Map : IMap
     }
 
     /// <summary>
+    ///     Height of the highest mountains and deepest oceans.
+    /// </summary>
+    public const int MaxHeight = 10_000;
+
+    /// <summary>
     ///     The size of a map cell.
     /// </summary>
     private const int CellSize = 100_000;
@@ -89,6 +94,9 @@ public partial class Map : IMap
     private const int MinimumWidth = (int) (World.BlockLimit * 2) / CellSize;
     private const int Width = MinimumWidth + 2;
     private const int CellCount = Width * Width;
+
+    private const double MinTemperature = -5.0;
+    private const double MaxTemperature = 30.0;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Map>();
 
     private static readonly Color blockTintWarm = Color.LightGreen;
@@ -169,10 +177,12 @@ public partial class Map : IMap
 
     private readonly BiomeDistribution biomes;
 
-    private readonly FastNoiseLite xNoise = new();
-    private readonly FastNoiseLite yNoise = new();
+    private readonly GeneratingNoise generatingNoise = new();
 
     private Data? data;
+
+    private (FastNoiseLite x, FastNoiseLite y) samplingNoise = (null!, null!);
+    private (FastNoiseLite x, FastNoiseLite y) stoneNoise = (null!, null!);
 
     /// <summary>
     ///     Create a new map.
@@ -189,7 +199,7 @@ public partial class Map : IMap
         Vector3i samplingPosition = position.Floor();
         Sample sample = GetSample(samplingPosition.Xz);
 
-        return $"{nameof(Map)}: {sample.Height:F2} {sample.ActualBiome} {GetStoneType(samplingPosition, sample)} {sample.BlendFactors.Z}";
+        return $"M: [{nameof(Default)}] {sample.Height:F2} {sample.ActualBiome}";
     }
 
     /// <inheritdoc />
@@ -198,17 +208,48 @@ public partial class Map : IMap
         Vector2i samplingPosition = position.Floor().Xz;
         Sample sample = GetSample(samplingPosition);
 
-        Color block = Colors.Mix(Colors.Mix(blockTintCold, blockTintWarm, sample.Temperature), Colors.Mix(blockTintDry, blockTintMoist, sample.Moisture));
-        Color fluid = Colors.Mix(fluidTintCold, fluidTintWarm, sample.Temperature);
+        float temperature = NormalizeTemperature(sample.GetTemperatureInCelsius(position.Y));
+
+        Color block = Colors.Mix(Colors.Mix(blockTintCold, blockTintWarm, temperature), Colors.Mix(blockTintDry, blockTintMoist, sample.Humidity));
+        Color fluid = Colors.Mix(fluidTintCold, fluidTintWarm, temperature);
 
         return (new TintColor(block), new TintColor(fluid));
     }
 
-    private void SetupNoise(int seed)
+    /// <inheritdoc />
+    public double GetTemperature(Vector3d position)
     {
-        void Setup(FastNoiseLite noise, int specificSeed)
+        Vector2i samplingPosition = position.Floor().Xz;
+        Sample sample = GetSample(samplingPosition);
+
+        return sample.GetTemperatureInCelsius(position.Y);
+    }
+
+    private static double ConvertTemperatureToCelsius(float temperature)
+    {
+        return MathHelper.Lerp(MinTemperature, MaxTemperature, temperature);
+    }
+
+    private static float NormalizeTemperature(double temperature)
+    {
+        return (float) VMath.InverseLerp(MinTemperature, MaxTemperature, temperature);
+    }
+
+    private static double GetTemperatureAtHeight(double groundTemperature, float humidity, double heightAboveGround)
+    {
+        if (heightAboveGround < 0) return groundTemperature;
+
+        double decreaseFactor = MathHelper.Lerp(start: 10.0, end: 5.0, humidity);
+
+        return groundTemperature - decreaseFactor * heightAboveGround / 1000.0;
+    }
+
+    private void SetupSamplingNoise(NoiseFactory factory)
+    {
+        FastNoiseLite Create()
         {
-            noise.SetSeed(specificSeed);
+            FastNoiseLite noise = factory.GetNextNoise();
+
             noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
             noise.SetFrequency(frequency: 0.01f);
 
@@ -217,10 +258,12 @@ public partial class Map : IMap
             noise.SetFractalLacunarity(lacunarity: 2.0f);
             noise.SetFractalGain(gain: 0.5f);
             noise.SetFractalWeightedStrength(weightedStrength: 0.0f);
+
+            return noise;
         }
 
-        Setup(xNoise, seed);
-        Setup(yNoise, ~seed);
+        samplingNoise = (Create(), Create());
+        stoneNoise = (Create(), Create());
     }
 
     /// <summary>
@@ -228,8 +271,8 @@ public partial class Map : IMap
     ///     If loading is not possible, it will be generated.
     /// </summary>
     /// <param name="reader">The reader to load the map from.</param>
-    /// <param name="seed">The seed to use for the map generation.</param>
-    public void Initialize(BinaryReader? reader, int seed)
+    /// <param name="factory">The factory to use for noise generator creation.</param>
+    public void Initialize(BinaryReader? reader, NoiseFactory factory)
     {
         logger.LogDebug(Events.WorldGeneration, "Initializing map");
 
@@ -238,12 +281,20 @@ public partial class Map : IMap
             Load(reader);
         }
 
-        if (data == null) Generate(seed);
+        SetupGeneratingNoise(factory);
 
-        SetupNoise(seed);
+        if (data == null) Generate();
+
+        SetupSamplingNoise(factory);
     }
 
-    private void Generate(int seed)
+    private void SetupGeneratingNoise(NoiseFactory factory)
+    {
+        generatingNoise.Pieces = factory.GetNextNoise();
+        generatingNoise.Stone = factory.GetNextNoise();
+    }
+
+    private void Generate()
     {
         Debug.Assert(data == null);
         data = new Data();
@@ -252,9 +303,9 @@ public partial class Map : IMap
 
         var stopwatch = Stopwatch.StartNew();
 
-        GenerateTerrain(data, seed);
+        GenerateTerrain(data, generatingNoise);
         GenerateTemperature(data);
-        GenerateMoisture(data);
+        GenerateHumidity(data);
 
         stopwatch.Stop();
 
@@ -272,7 +323,7 @@ public partial class Map : IMap
         EmitTerrainView(data, path);
         EmitStoneView(data, path);
         EmitTemperatureView(data, path);
-        EmitMoistureView(data, path);
+        EmitHumidityView(data, path);
         EmitBiomeView(data, biomes, path);
     }
 
@@ -288,7 +339,7 @@ public partial class Map : IMap
             cell.continent = reader.ReadInt16();
             cell.height = reader.ReadSingle();
             cell.temperature = reader.ReadSingle();
-            cell.moisture = reader.ReadSingle();
+            cell.humidity = reader.ReadSingle();
             cell.conditions = (CellConditions) reader.ReadByte();
             cell.stoneType = (StoneType) reader.ReadByte();
 
@@ -324,7 +375,7 @@ public partial class Map : IMap
             writer.Write(cell.continent);
             writer.Write(cell.height);
             writer.Write(cell.temperature);
-            writer.Write(cell.moisture);
+            writer.Write(cell.humidity);
             writer.Write((byte) cell.conditions);
             writer.Write((byte) cell.stoneType);
         }
@@ -374,8 +425,8 @@ public partial class Map : IMap
 
         const double transitionFactor = 0.015;
 
-        double blendX = tX + xNoise.GetNoise(position.X, position.Y) * GetBorderStrength(tX) * transitionFactor;
-        double blendY = tY + yNoise.GetNoise(position.X, position.Y) * GetBorderStrength(tY) * transitionFactor;
+        double blendX = tX + samplingNoise.x.GetNoise(position.X, position.Y) * GetBorderStrength(tX) * transitionFactor;
+        double blendY = tY + samplingNoise.y.GetNoise(position.X, position.Y) * GetBorderStrength(tY) * transitionFactor;
 
         const int extents = Width / 2;
 
@@ -385,7 +436,7 @@ public partial class Map : IMap
         ref readonly Cell c11 = ref data.GetCell(x2 + extents, y2 + extents);
 
         var temperature = (float) VMath.BiLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blendX, blendY);
-        var moisture = (float) VMath.BiLerp(c00.moisture, c10.moisture, c01.moisture, c11.moisture, blendX, blendY);
+        var humidity = (float) VMath.BiLerp(c00.humidity, c10.humidity, c01.humidity, c11.humidity, blendX, blendY);
         var height = (float) VMath.BiLerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
 
         float mountainStrength = GetMountainStrength(c00, c10, c01, c11, height, (blendX, blendY));
@@ -396,18 +447,18 @@ public partial class Map : IMap
 
         if (mountainStrength > coastlineStrength)
         {
-            specialBiome = Biome.Mountains;
+            specialBiome = biomes.GetMountainBiome();
             specialStrength = mountainStrength;
         }
         else
         {
-            specialBiome = biomes.GetCoastlineBiome(temperature, moisture, isCliff);
+            specialBiome = biomes.GetCoastlineBiome(temperature, humidity, isCliff);
             specialStrength = coastlineStrength;
         }
 
         Biome GetBiome(in Cell cell)
         {
-            return cell.IsLand ? biomes.GetBiome(cell.temperature, cell.moisture) : biomes.GetOceanBiome(cell.temperature, cell.moisture);
+            return cell.IsLand ? biomes.GetBiome(cell.temperature, cell.humidity) : biomes.GetOceanBiome(cell.temperature, cell.humidity);
         }
 
         Biome actual = VMath.SelectByWeight(GetBiome(c00), GetBiome(c10), GetBiome(c01), GetBiome(c11), specialBiome, (blendX, blendY, specialStrength));
@@ -416,7 +467,7 @@ public partial class Map : IMap
         {
             Height = height,
             Temperature = temperature,
-            Moisture = moisture,
+            Humidity = humidity,
             BlendFactors = (blendX, blendY, specialStrength),
             ActualBiome = actual,
             Biome00 = GetBiome(c00),
@@ -562,8 +613,8 @@ public partial class Map : IMap
 
         Vector3d scaledPosition = position.ToVector3d() * scalingFactor;
 
-        double stoneX = sample.StoneData.tX + xNoise.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tX) * transitionFactor;
-        double stoneY = sample.StoneData.tY + yNoise.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tY) * transitionFactor;
+        double stoneX = sample.StoneData.tX + stoneNoise.x.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tX) * transitionFactor;
+        double stoneY = sample.StoneData.tY + stoneNoise.y.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tY) * transitionFactor;
 
         return VMath.SelectByWeight(sample.StoneData.stone00, sample.StoneData.stone10, sample.StoneData.stone01, sample.StoneData.stone11, (stoneX, stoneY));
     }
@@ -576,10 +627,16 @@ public partial class Map : IMap
         return (t > 0.5 ? 1 - t : t) * 2;
     }
 
+    private sealed class GeneratingNoise
+    {
+        public FastNoiseLite Pieces { get; set; } = null!;
+        public FastNoiseLite Stone { get; set; } = null!;
+    }
+
     /// <summary>
     ///     A sample of the map.
     /// </summary>
-    public record struct Sample
+    public readonly record struct Sample
     {
         /// <summary>
         ///     The height of the sample.
@@ -587,14 +644,14 @@ public partial class Map : IMap
         public float Height { get; init; }
 
         /// <summary>
-        ///     The temperature of the sample.
+        ///     The temperature of the sample. Use <see cref="GetTemperatureInCelsius"/> to retrieve the temperature.
         /// </summary>
-        public float Temperature { get; init; }
+        public float Temperature { private get; init; }
 
         /// <summary>
-        ///     The moisture of the sample.
+        ///     The humidity of the sample.
         /// </summary>
-        public float Moisture { get; init; }
+        public float Humidity { get; init; }
 
         /// <summary>
         ///     Get the actual biome at the sample position.
@@ -635,6 +692,18 @@ public partial class Map : IMap
         ///     Data regarding the stone composition.
         /// </summary>
         public (StoneType stone00, StoneType stone10, StoneType stone01, StoneType stone11, double tX, double tY) StoneData { get; init; }
+
+        /// <summary>
+        ///     Get the temperature at a given height.
+        /// </summary>
+        /// <param name="y">The height.</param>
+        /// <returns>The temperature, in degrees Celsius.</returns>
+        public readonly double GetTemperatureInCelsius(double y)
+        {
+            double groundHeight = Math.Clamp(Height * MaxHeight, min: 0.0, MaxHeight * 0.3);
+
+            return GetTemperatureAtHeight(ConvertTemperatureToCelsius(Temperature), Humidity, y - groundHeight);
+        }
     }
 
     private record struct Cell
@@ -655,9 +724,9 @@ public partial class Map : IMap
         public float height;
 
         /// <summary>
-        ///     The moisture of the cell, in the range [0, 1].
+        ///     The humidity of the cell, in the range [0, 1].
         /// </summary>
-        public float moisture;
+        public float humidity;
 
         /// <summary>
         ///     The height of the cell.

@@ -43,6 +43,11 @@ internal static class Program
     internal static string ScreenshotDirectory { get; private set; } = null!;
 
     /// <summary>
+    ///     Get the directory structures are exported to.
+    /// </summary>
+    internal static string StructureDirectory { get; private set; } = null!;
+
+    /// <summary>
     ///     Get the world directory.
     /// </summary>
     internal static string WorldsDirectory { get; private set; } = null!;
@@ -62,10 +67,16 @@ internal static class Program
             Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
             "VoxelGame");
 
+        StructureDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            "VoxelGame",
+            "Structures");
+
         WorldsDirectory = Path.Combine(AppDataDirectory, "Worlds");
 
         Directory.CreateDirectory(AppDataDirectory);
         Directory.CreateDirectory(ScreenshotDirectory);
+        Directory.CreateDirectory(StructureDirectory);
         Directory.CreateDirectory(WorldsDirectory);
 
 #if DEBUG

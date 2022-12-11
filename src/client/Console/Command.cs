@@ -4,6 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using OpenTK.Mathematics;
+
 namespace VoxelGame.Client.Console;
 
 /// <summary>
@@ -26,6 +28,24 @@ public abstract class Command : ICommand
     void ICommand.SetContext(CommandContext context)
     {
         Context = context;
+    }
+
+    /// <summary>
+    ///     Get a named position in the world.
+    /// </summary>
+    /// <param name="name">The name of the position.</param>
+    /// <returns>The position, or null if it does not exist.</returns>
+    protected Vector3d? GetNamedPosition(string name)
+    {
+        return name switch
+        {
+            "origin" => (0, 0, 0),
+            "spawn" => Context.Player.World.SpawnPosition,
+            "min-corner" => -Context.Player.World.Extents,
+            "max-corner" => Context.Player.World.Extents,
+            "self" => Context.Player.Position,
+            _ => null
+        };
     }
 }
 

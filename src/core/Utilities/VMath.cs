@@ -19,6 +19,44 @@ public static class VMath
     private const float Epsilon = 128 * float.Epsilon;
 
     /// <summary>
+    ///     A simple one-dimensional range.
+    /// </summary>
+    /// <param name="x">The exclusive upper bound.</param>
+    /// <returns>The range from 0 to x.</returns>
+    public static IEnumerable<int> Range(int x)
+    {
+        for (var i = 0; i < x; i++) yield return i;
+    }
+
+    /// <summary>
+    ///     A simple two-dimensional range.
+    /// </summary>
+    /// <param name="x">The exclusive upper bound of the first dimension.</param>
+    /// <param name="y">The exclusive upper bound of the second dimension.</param>
+    /// <returns>The range from (0, 0) to (x, y).</returns>
+    public static IEnumerable<(int, int)> Range2(int x, int y)
+    {
+        for (var i = 0; i < x; i++)
+        for (var j = 0; j < y; j++)
+            yield return (i, j);
+    }
+
+    /// <summary>
+    ///     A simple three-dimensional range.
+    /// </summary>
+    /// <param name="x">The exclusive upper bound of the first dimension.</param>
+    /// <param name="y">The exclusive upper bound of the second dimension.</param>
+    /// <param name="z">The exclusive upper bound of the third dimension.</param>
+    /// <returns>The range from (0, 0, 0) to (x, y, z).</returns>
+    public static IEnumerable<(int, int, int)> Range3(int x, int y, int z)
+    {
+        for (var i = 0; i < x; i++)
+        for (var j = 0; j < y; j++)
+        for (var k = 0; k < z; k++)
+            yield return (i, j, k);
+    }
+
+    /// <summary>
     ///     Clamps a vector between a minimum and maximum length.
     /// </summary>
     /// <param name="vector">The vector to clamp.</param>
@@ -43,6 +81,16 @@ public static class VMath
     public static Vector3d Absolute(this Vector3d vector)
     {
         return new Vector3d(Math.Abs(vector.X), Math.Abs(vector.Y), Math.Abs(vector.Z));
+    }
+
+    /// <summary>
+    ///     Returns a copy of the vector where every component is positive.
+    /// </summary>
+    /// <param name="vector">The vector of which an absolute vector should be created.</param>
+    /// <returns>The absolute vector.</returns>
+    public static Vector3i Absolute(this Vector3i vector)
+    {
+        return new Vector3i(Math.Abs(vector.X), Math.Abs(vector.Y), Math.Abs(vector.Z));
     }
 
     /// <summary>
@@ -427,5 +475,29 @@ public static class VMath
     public static double Max(float a, float b, float c, float d)
     {
         return Math.Max(Math.Max(a, b), Math.Max(c, d));
+    }
+
+    /// <summary>
+    ///     Get the maximum component of a vector.
+    /// </summary>
+    public static int MaxComponent(this Vector3i v)
+    {
+        return Math.Max(Math.Max(v.X, v.Y), v.Z);
+    }
+
+    /// <summary>
+    ///     Get the maximum component of a vector.
+    /// </summary>
+    public static int MaxComponent(this Vector2i v)
+    {
+        return Math.Max(v.X, v.Y);
+    }
+
+    /// <summary>
+    ///     Get the maximum component of a vector.
+    /// </summary>
+    public static float MaxComponent(this Vector3 v)
+    {
+        return Math.Max(Math.Max(v.X, v.Y), v.Z);
     }
 }
