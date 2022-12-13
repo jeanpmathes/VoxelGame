@@ -19,17 +19,18 @@ public class ChunkMeshingContext
     private readonly Chunk mid;
     private (Chunk chunk, Guard? guard)?[] neighbors;
 
-    private ChunkMeshingContext(Chunk mid, (Chunk, Guard?)?[] neighbors, int neighborCount)
+    private ChunkMeshingContext(Chunk mid, (Chunk, Guard?)?[] neighbors, BlockSides availableSides)
     {
         this.mid = mid;
         this.neighbors = neighbors;
-        NeighborCount = neighborCount;
+
+        AvailableSides = availableSides;
     }
 
     /// <summary>
-    ///     Get the number of neighbors that are considered.
+    ///     Get the sides at which neighbors are considered.
     /// </summary>
-    public int NeighborCount { get; }
+    public BlockSides AvailableSides { get; }
 
     /// <summary>
     ///     Get the map of the world.
@@ -45,7 +46,7 @@ public class ChunkMeshingContext
     public static ChunkMeshingContext Acquire(Chunk chunk)
     {
         var foundNeighbors = new (Chunk, Guard?)?[6];
-        var count = 0;
+        var availableSides = BlockSides.None;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
@@ -56,10 +57,10 @@ public class ChunkMeshingContext
             if (guard == null) continue;
 
             foundNeighbors[(int) side] = (neighbor, guard);
-            count++;
+            availableSides |= side.ToFlag();
         }
 
-        return new ChunkMeshingContext(chunk, foundNeighbors, count);
+        return new ChunkMeshingContext(chunk, foundNeighbors, availableSides);
     }
 
     /// <summary>
@@ -70,7 +71,7 @@ public class ChunkMeshingContext
     public static ChunkMeshingContext FromActive(Chunk chunk)
     {
         var foundNeighbors = new (Chunk, Guard?)?[6];
-        var count = 0;
+        var availableSides = BlockSides.None;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
@@ -79,10 +80,10 @@ public class ChunkMeshingContext
             if (neighbor == null) continue;
 
             foundNeighbors[(int) side] = (neighbor, null);
-            count++;
+            availableSides |= side.ToFlag();
         }
 
-        return new ChunkMeshingContext(chunk, foundNeighbors, count);
+        return new ChunkMeshingContext(chunk, foundNeighbors, availableSides);
     }
 
     private Chunk? GetChunk(ChunkPosition position)
@@ -117,3 +118,5 @@ public class ChunkMeshingContext
         neighbors = null!;
     }
 }
+
+

@@ -59,14 +59,16 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
         for (uint data = 0b00_0000; data <= 0b11_1111; data++)
         {
+            var sides = (BlockSides) data;
+
             BlockMesh mesh = BlockModel.GetCombinedMesh(
                 center,
-                BlockSide.Front.IsSet(data) ? connectors.front : surfaces.front,
-                BlockSide.Back.IsSet(data) ? connectors.back : surfaces.back,
-                BlockSide.Left.IsSet(data) ? connectors.left : surfaces.left,
-                BlockSide.Right.IsSet(data) ? connectors.right : surfaces.right,
-                BlockSide.Bottom.IsSet(data) ? connectors.bottom : surfaces.bottom,
-                BlockSide.Top.IsSet(data) ? connectors.top : surfaces.top);
+                BlockSide.Front.IsSet(sides) ? connectors.front : surfaces.front,
+                BlockSide.Back.IsSet(sides) ? connectors.back : surfaces.back,
+                BlockSide.Left.IsSet(sides) ? connectors.left : surfaces.left,
+                BlockSide.Right.IsSet(sides) ? connectors.right : surfaces.right,
+                BlockSide.Bottom.IsSet(sides) ? connectors.bottom : surfaces.bottom,
+                BlockSide.Top.IsSet(sides) ? connectors.top : surfaces.top);
 
             meshes.Add(mesh);
 
@@ -104,7 +106,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
-            if (!side.IsSet(data)) continue;
+            if (!side.IsSet((BlockSides) data)) continue;
 
             var direction = side.Direction().ToVector3d();
 
@@ -147,7 +149,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
     private uint GetConnectionData(World world, Vector3i position)
     {
-        uint data = 0;
+        var sides = BlockSides.None;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
@@ -155,10 +157,10 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
             BlockInstance? otherBlock = world.GetBlock(otherPosition);
 
             if (otherBlock?.Block == this || otherBlock?.Block is TConnect connectable &&
-                connectable.IsConnectable(world, side, otherPosition)) data |= side.ToFlag();
+                connectable.IsConnectable(world, side, otherPosition)) sides |= side.ToFlag();
         }
 
-        return data;
+        return (uint) sides;
     }
 
     private static void OpenOpposingSide(ref uint data)
@@ -176,6 +178,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     {
         BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 
-        return side.IsSet(block.Data);
+        return side.IsSet((BlockSides) block.Data);
     }
 }
+
