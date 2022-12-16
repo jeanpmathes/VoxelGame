@@ -21,7 +21,7 @@ public partial class ClientChunk
     /// </summary>
     public class Meshing : ChunkState
     {
-        private (Task<SectionMeshData[]> task, Guard guard, ChunkMeshingContext context)? activity;
+        private (Task<ChunkMeshData> task, Guard guard, ChunkMeshingContext context)? activity;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Read;
@@ -70,7 +70,7 @@ public partial class ClientChunk
                     {
                         Cleanup = () =>
                         {
-                            foreach (SectionMeshData meshData in task.Result) meshData.Discard();
+                            task.Result.Discard();
                         },
                         PrioritizeLoop = true,
                         PrioritizeDeactivation = true
@@ -84,14 +84,14 @@ public partial class ClientChunk
     /// </summary>
     public class MeshDataSending : ChunkState
     {
-        private readonly SectionMeshData[] meshData;
+        private readonly ChunkMeshData meshData;
         private Guard? guard;
 
         /// <summary>
         ///     Create a new mesh data sending state.
         /// </summary>
         /// <param name="meshData">The mesh data to send.</param>
-        public MeshDataSending(SectionMeshData[] meshData)
+        public MeshDataSending(ChunkMeshData meshData)
         {
             this.meshData = meshData;
         }

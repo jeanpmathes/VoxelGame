@@ -161,7 +161,7 @@ public class ClientWorld : World
 
             // Mesh all listed sections.
             foreach ((Chunk chunk, (int x, int y, int z)) in sectionsToMesh)
-                ((ClientChunk) chunk).CreateAndSetMesh(x, y, z, ChunkMeshingContext.FromActive(chunk));
+                ((ClientChunk) chunk).CreateAndSetMesh(x, y, z, ChunkMeshingContext.UsingActive(chunk));
 
             sectionsToMesh.Clear();
         }
@@ -224,7 +224,10 @@ public class ClientWorld : World
     /// <inheritdoc />
     protected override ChunkState? ProcessActivatedChunk(Chunk activatedChunk)
     {
-        return activatedChunk.ProcessDecorationOption();
+        var clientChunk = (ClientChunk) activatedChunk;
+
+        return activatedChunk.ProcessDecorationOption() ??
+               clientChunk.ProcessMeshingOption();
     }
 
     /// <inheritdoc />

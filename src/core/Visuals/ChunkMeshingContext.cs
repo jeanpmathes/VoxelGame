@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.Linq;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Logic;
@@ -64,11 +65,11 @@ public class ChunkMeshingContext
     }
 
     /// <summary>
-    ///     Create a meshing context from the given chunk. Use this method when meshing on the main thread.
+    ///     Create a meshing context using the given chunk. Use this method when meshing on the main thread.
     /// </summary>
     /// <param name="chunk">The chunk to mesh.</param>
     /// <returns>A context that can be used to mesh the chunk.</returns>
-    public static ChunkMeshingContext FromActive(Chunk chunk)
+    public static ChunkMeshingContext UsingActive(Chunk chunk)
     {
         var foundNeighbors = new (Chunk, Guard?)?[6];
         var availableSides = BlockSides.None;
@@ -84,6 +85,43 @@ public class ChunkMeshingContext
         }
 
         return new ChunkMeshingContext(chunk, foundNeighbors, availableSides);
+    }
+
+    /// <summary>
+    ///     Get the block sides that could be meshed if the context would be acquired now.
+    /// </summary>
+    /// <param name="chunk">The chunk to get the sides of.</param>
+    /// <returns>The sides that could be meshed.</returns>
+    public static BlockSides DetermineAvailableSides(Chunk chunk)
+    {
+        var availableSides = BlockSides.None;
+
+        foreach (BlockSide side in BlockSide.All.Sides())
+        {
+            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
+
+            if (neighbor.CanAcquireCore(Access.Read)) availableSides |= side.ToFlag();
+        }
+
+        return availableSides;
+    }
+
+    /// <summary>
+    ///     Check whether a set of sides is better than older set of sides.
+    /// </summary>
+    /// <param name="old">The old set of sides.</param>
+    /// <param name="available">The new set of sides.</param>
+    /// <returns>True if the new set of sides is better.</returns>
+    public static bool IsImprovement(BlockSides old, BlockSides available)
+    {
+        if (old == available) return false;
+
+        int oldCount = BitHelper.CountSetBits((int) old);
+        int availableCount = BitHelper.CountSetBits((int) available);
+
+        if (availableCount >= oldCount) Console.Beep();
+
+        return availableCount >= oldCount;
     }
 
     private Chunk? GetChunk(ChunkPosition position)
@@ -118,5 +156,3 @@ public class ChunkMeshingContext
         neighbors = null!;
     }
 }
-
-
