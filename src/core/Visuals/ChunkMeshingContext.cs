@@ -4,7 +4,6 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
-using System;
 using System.Linq;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Logic;
@@ -118,8 +117,6 @@ public class ChunkMeshingContext
 
         int oldCount = BitHelper.CountSetBits((int) old);
         int availableCount = BitHelper.CountSetBits((int) available);
-
-        if (availableCount >= oldCount) Console.Beep();
 
         return availableCount >= oldCount;
     }

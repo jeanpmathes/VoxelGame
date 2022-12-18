@@ -82,7 +82,24 @@ public partial class ClientChunk : Chunk
     {
         BlockSides sides = ChunkMeshingContext.DetermineAvailableSides(this);
 
-        return ChunkMeshingContext.IsImprovement(meshedSides, sides) ? new Meshing() : null;
+        bool improvement = ChunkMeshingContext.IsImprovement(meshedSides, sides);
+
+        if (!improvement) return null;
+
+        foreach (BlockSide side in BlockSide.All.Sides())
+        {
+            if (!World.TryGetChunk(side.Offset(Position), out Chunk? chunk)) continue;
+
+            var clientChunk = (ClientChunk) chunk;
+
+            BlockSides neighborSides = ChunkMeshingContext.DetermineAvailableSides(chunk) | side.Opposite().ToFlag();
+
+            if (!ChunkMeshingContext.IsImprovement(clientChunk.meshedSides, neighborSides)) return null;
+
+            clientChunk.BeginMeshing();
+        }
+
+        return new Meshing();
     }
 
     /// <summary>
