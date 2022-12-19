@@ -195,23 +195,9 @@ public class ClientWorld : World
     {
         if (activatedChunk.IsFullyDecorated)
         {
-            if (TryGetChunk(activatedChunk.Position.Offset(x: 1, y: 0, z: 0), out Chunk? neighbor))
-                ((ClientChunk) neighbor).BeginMeshing();
-
-            if (TryGetChunk(activatedChunk.Position.Offset(x: -1, y: 0, z: 0), out neighbor))
-                ((ClientChunk) neighbor).BeginMeshing();
-
-            if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 1, z: 0), out neighbor))
-                ((ClientChunk) neighbor).BeginMeshing();
-
-            if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: -1, z: 0), out neighbor))
-                ((ClientChunk) neighbor).BeginMeshing();
-
-            if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 0, z: 1), out neighbor))
-                ((ClientChunk) neighbor).BeginMeshing();
-
-            if (TryGetChunk(activatedChunk.Position.Offset(x: 0, y: 0, z: -1), out neighbor))
-                ((ClientChunk) neighbor).BeginMeshing();
+            foreach (BlockSide side in BlockSide.All.Sides())
+                if (TryGetChunk(side.Offset(activatedChunk.Position), out Chunk? neighbor))
+                    ((ClientChunk) neighbor).BeginMeshing();
 
             return new ClientChunk.Meshing();
         }
