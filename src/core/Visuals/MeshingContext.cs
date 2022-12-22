@@ -108,12 +108,7 @@ public class MeshingContext
     {
         var holders = new BlockMeshFaceHolder[6];
 
-        holders[(int) BlockSide.Front] = new BlockMeshFaceHolder(BlockSide.Front);
-        holders[(int) BlockSide.Back] = new BlockMeshFaceHolder(BlockSide.Back);
-        holders[(int) BlockSide.Left] = new BlockMeshFaceHolder(BlockSide.Left);
-        holders[(int) BlockSide.Right] = new BlockMeshFaceHolder(BlockSide.Right);
-        holders[(int) BlockSide.Bottom] = new BlockMeshFaceHolder(BlockSide.Bottom);
-        holders[(int) BlockSide.Top] = new BlockMeshFaceHolder(BlockSide.Top);
+        foreach (BlockSide side in BlockSide.All.Sides()) holders[(int) side] = new BlockMeshFaceHolder(side);
 
         return holders;
     }
@@ -122,12 +117,7 @@ public class MeshingContext
     {
         var holders = new VaryingHeightMeshFaceHolder[6];
 
-        holders[(int) BlockSide.Front] = new VaryingHeightMeshFaceHolder(BlockSide.Front);
-        holders[(int) BlockSide.Back] = new VaryingHeightMeshFaceHolder(BlockSide.Back);
-        holders[(int) BlockSide.Left] = new VaryingHeightMeshFaceHolder(BlockSide.Left);
-        holders[(int) BlockSide.Right] = new VaryingHeightMeshFaceHolder(BlockSide.Right);
-        holders[(int) BlockSide.Bottom] = new VaryingHeightMeshFaceHolder(BlockSide.Bottom);
-        holders[(int) BlockSide.Top] = new VaryingHeightMeshFaceHolder(BlockSide.Top);
+        foreach (BlockSide side in BlockSide.All.Sides()) holders[(int) side] = new VaryingHeightMeshFaceHolder(side);
 
         return holders;
     }
@@ -335,3 +325,5 @@ public class MeshingContext
         foreach (VaryingHeightMeshFaceHolder holder in holders) holder.ReturnToPool();
     }
 }
+
+

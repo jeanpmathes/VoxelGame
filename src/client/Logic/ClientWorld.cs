@@ -197,7 +197,13 @@ public class ClientWorld : World
         {
             foreach (BlockSide side in BlockSide.All.Sides())
                 if (TryGetChunk(side.Offset(activatedChunk.Position), out Chunk? neighbor))
+                {
                     ((ClientChunk) neighbor).BeginMeshing();
+
+                    logger.LogDebug("Begin meshing {Chunk} due to {Neighbor} activation",
+                        neighbor.Position,
+                        activatedChunk.Position);
+                }
 
             return new ClientChunk.Meshing();
         }
@@ -210,10 +216,10 @@ public class ClientWorld : World
     /// <inheritdoc />
     protected override ChunkState? ProcessActivatedChunk(Chunk activatedChunk)
     {
-        var clientChunk = (ClientChunk) activatedChunk;
+        var activatedClientChunk = (ClientChunk) activatedChunk;
 
-        return activatedChunk.ProcessDecorationOption() ??
-               clientChunk.ProcessMeshingOption();
+        return activatedClientChunk.ProcessDecorationOption() ??
+               activatedClientChunk.ProcessMeshingOption();
     }
 
     /// <inheritdoc />

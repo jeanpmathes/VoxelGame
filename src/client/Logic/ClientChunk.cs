@@ -88,14 +88,11 @@ public partial class ClientChunk : Chunk
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
-            if (!World.TryGetChunk(side.Offset(Position), out Chunk? chunk)) continue;
+            BlockSides current = side.ToFlag();
+
+            if (!sides.HasFlag(current) || meshedSides.HasFlag(current) || !World.TryGetChunk(side.Offset(Position), out Chunk? chunk)) continue;
 
             var clientChunk = (ClientChunk) chunk;
-
-            BlockSides neighborSides = ChunkMeshingContext.DetermineAvailableSides(chunk) | side.Opposite().ToFlag();
-
-            if (!ChunkMeshingContext.IsImprovement(clientChunk.meshedSides, neighborSides)) return null;
-
             clientChunk.BeginMeshing();
         }
 
