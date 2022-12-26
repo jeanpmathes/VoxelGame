@@ -90,7 +90,6 @@ public partial class ClientChunk
         /// <summary>
         ///     Create a new mesh data sending state.
         /// </summary>
-        /// </summary>
         /// <param name="meshData">The mesh data to send.</param>
         public MeshDataSending(ChunkMeshData meshData)
         {
