@@ -50,7 +50,7 @@ public class ChunkMeshingContext
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
-            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
+            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor) || !neighbor.IsFullyDecorated) continue;
 
             Guard? guard = neighbor.AcquireCore(Access.Read);
 
@@ -77,7 +77,7 @@ public class ChunkMeshingContext
         {
             Chunk? neighbor = chunk.World.GetActiveChunk(side.Offset(chunk.Position));
 
-            if (neighbor == null) continue;
+            if (neighbor is not {IsFullyDecorated: true}) continue;
 
             foundNeighbors[(int) side] = (neighbor, null);
             availableSides |= side.ToFlag();
@@ -97,7 +97,7 @@ public class ChunkMeshingContext
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
-            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
+            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor) || !neighbor.IsFullyDecorated) continue;
 
             if (neighbor.CanAcquireCore(Access.Read)) availableSides |= side.ToFlag();
         }
