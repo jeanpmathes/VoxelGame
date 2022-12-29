@@ -49,7 +49,7 @@ public partial class ClientChunk : Chunk
         {
             AllowDuplicateTypes = false,
             AllowSkipOnDeactivation = true,
-            AllowDiscardOnLoop = true
+            AllowDiscardOnLoop = false
         });
     }
 
@@ -136,6 +136,7 @@ public partial class ClientChunk : Chunk
     public bool DoMeshDataSetStep(ChunkMeshData meshData)
     {
         hasMeshData = false;
+        meshedSides = meshData.Sides;
 
         for (var count = 0; count < MaxMeshDataStep; count++)
         {
@@ -146,7 +147,6 @@ public partial class ClientChunk : Chunk
             {
                 hasMeshData = true;
                 meshDataIndex = 0;
-                meshedSides = meshData.Sides;
 
                 return true;
             }

@@ -134,6 +134,16 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Get a vector as a tuple.
+    /// </summary>
+    /// <param name="vector">The vector to convert.</param>
+    /// <returns>The tuple.</returns>
+    public static (int x, int y, int z) ToTuple(this Vector3i vector)
+    {
+        return (vector.X, vector.Y, vector.Z);
+    }
+
+    /// <summary>
     ///     Creates a scale matrix.
     /// </summary>
     public static Matrix4d CreateScaleMatrix(Vector3d scale)
@@ -224,20 +234,6 @@ public static class VMath
     public static Vector2i Sign(this Vector2d vector)
     {
         return new Vector2i(Math.Sign(vector.X), Math.Sign(vector.Y));
-    }
-
-    /// <summary>
-    ///     Returns a vector where every component is the modulo of m.
-    /// </summary>
-    /// <param name="vector">The vector to use.</param>
-    /// <param name="m">The number m.</param>
-    /// <returns>The modulo vector.</returns>
-    public static Vector3i Mod(this Vector3i vector, int m)
-    {
-        return new Vector3i(
-            (vector.X % m + m) % m,
-            (vector.Y % m + m) % m,
-            (vector.Z % m + m) % m);
     }
 
     /// <summary>

@@ -181,22 +181,22 @@ public class MeshingContext
     {
         (BlockInstance block, FluidInstance fluid)? result;
 
-        if (IsPositionOutOfSection(position))
+        if (Section.IsInBounds(position.ToTuple()))
         {
-            position = position.Mod(Section.Size);
+            BlockInstance block = current.GetBlock(position);
+            FluidInstance fluid = current.GetFluid(position);
+
+            result = (block, fluid);
+        }
+        else
+        {
+            position = Section.ToLocalPosition(position);
 
             Section? neighbor = neighbors[(int) side];
             BlockInstance? block = neighbor?.GetBlock(position);
             FluidInstance? fluid = neighbor?.GetFluid(position);
 
             result = block != null && fluid != null ? (block.Value, fluid.Value) : null;
-        }
-        else
-        {
-            BlockInstance block = current.GetBlock(position);
-            FluidInstance fluid = current.GetFluid(position);
-
-            result = (block, fluid);
         }
 
         return result;
@@ -213,27 +213,19 @@ public class MeshingContext
     {
         BlockInstance? block;
 
-        if (IsPositionOutOfSection(position))
+        if (Section.IsInBounds(position.ToTuple()))
         {
-            position = position.Mod(Section.Size);
+            block = current.GetBlock(position);
+        }
+        else
+        {
+            position = Section.ToLocalPosition(position);
 
             Section? neighbor = neighbors[(int) side];
             block = neighbor?.GetBlock(position);
         }
-        else
-        {
-            block = current.GetBlock(position);
-        }
 
         return block;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsPositionOutOfSection(Vector3i position)
-    {
-        return position.X is < 0 or >= Section.Size ||
-               position.Y is < 0 or >= Section.Size ||
-               position.Z is < 0 or >= Section.Size;
     }
 
     /// <summary>
@@ -325,5 +317,3 @@ public class MeshingContext
         foreach (VaryingHeightMeshFaceHolder holder in holders) holder.ReturnToPool();
     }
 }
-
-

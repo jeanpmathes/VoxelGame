@@ -169,5 +169,3 @@ public interface ISimple : IBlockMeshable
         }
     }
 }
-
-
