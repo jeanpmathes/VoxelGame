@@ -69,6 +69,8 @@ public partial class ClientChunk : Chunk
     /// <param name="context">The chunk meshing context.</param>
     public void CreateAndSetMesh(int x, int y, int z, ChunkMeshingContext context)
     {
+        meshedSides = context.AvailableSides;
+
         ((ClientSection) sections[LocalSectionToIndex(x, y, z)]).CreateAndSetMesh(
             SectionPosition.From(Position, (x, y, z)),
             context);
