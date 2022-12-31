@@ -796,6 +796,26 @@ public abstract partial class Chunk : IDisposable
         };
     }
 
+    /// <summary>
+    ///     Called after the active state was entered.
+    /// </summary>
+    private void OnActiveState()
+    {
+        OnActivation();
+
+        foreach (BlockSide side in BlockSide.All.Sides()) World.GetActiveChunk(side.Offset(Position))?.OnNeighborActivation(this);
+    }
+
+    /// <summary>
+    ///     Called after the inactive state was entered.
+    /// </summary>
+    protected virtual void OnActivation() {}
+
+    /// <summary>
+    ///     Called when a neighbor chunk was activated.
+    /// </summary>
+    protected virtual void OnNeighborActivation(Chunk neighbor) {}
+
     [Flags]
     private enum DecorationLevels
     {

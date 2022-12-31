@@ -69,8 +69,6 @@ public partial class ClientChunk : Chunk
     /// <param name="context">The chunk meshing context.</param>
     public void CreateAndSetMesh(int x, int y, int z, ChunkMeshingContext context)
     {
-        meshedSides = context.AvailableSides;
-
         ((ClientSection) sections[LocalSectionToIndex(x, y, z)]).CreateAndSetMesh(
             SectionPosition.From(Position, (x, y, z)),
             context);
@@ -99,6 +97,29 @@ public partial class ClientChunk : Chunk
         }
 
         return new Meshing();
+    }
+
+    /// <inheritdoc />
+    protected override void OnActivation()
+    {
+        RecreateIncompleteSectionMeshes();
+    }
+
+    /// <inheritdoc />
+    protected override void OnNeighborActivation(Chunk neighbor)
+    {
+        RecreateIncompleteSectionMeshes();
+    }
+
+    private void RecreateIncompleteSectionMeshes()
+    {
+        ChunkMeshingContext context = ChunkMeshingContext.UsingActive(this);
+
+        for (var s = 0; s < SectionCount; s++)
+        {
+            (int x, int y, int z) = IndexToLocalSection(s);
+            ((ClientSection) sections[s]).RecreateIncompleteMesh(SectionPosition.From(Position, (x, y, z)), context);
+        }
     }
 
     /// <summary>

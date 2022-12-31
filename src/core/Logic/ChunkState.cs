@@ -121,12 +121,12 @@ public abstract class ChunkState
     {
         if (previous != null) logger.LogDebug(Events.ChunkOperation, "Chunk {Position} state changed from {PreviousState} to {State}", Chunk.Position, previous, this);
 
-        OnEnter();
         isEntered = true;
+        OnEnter();
     }
 
     /// <summary>
-    ///     Called when this state is entered.
+    ///     Called directly after entering this state.
     /// </summary>
     protected virtual void OnEnter() {}
 
