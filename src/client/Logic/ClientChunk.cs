@@ -80,11 +80,9 @@ public partial class ClientChunk : Chunk
     /// <returns>A target state if the chunk would like to mesh, null otherwise.</returns>
     public ChunkState? ProcessMeshingOption()
     {
-        BlockSides sides = ChunkMeshingContext.DetermineAvailableSides(this);
+        BlockSides sides = ChunkMeshingContext.DetermineImprovementSides(this, meshedSides);
 
-        bool improvement = ChunkMeshingContext.IsImprovement(meshedSides, sides);
-
-        if (!improvement) return null;
+        if (sides == BlockSides.None) return null;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {

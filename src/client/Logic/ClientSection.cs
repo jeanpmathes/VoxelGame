@@ -55,10 +55,10 @@ public class ClientSection : Section
     public void CreateAndSetMesh(SectionPosition position, ChunkMeshingContext context)
     {
         BlockSides required = GetRequiredSides(position);
-        missing = context.AvailableSides & ~required & BlockSides.All;
+        missing = required & ~context.AvailableSides & BlockSides.All;
 
         SectionMeshData meshData = CreateMeshData(position, context);
-        SetMeshData(meshData);
+        SetMeshDataInternal(meshData);
     }
 
     /// <summary>
@@ -143,6 +143,15 @@ public class ClientSection : Section
     /// </summary>
     /// <param name="meshData">The mesh data to use and activate.</param>
     public void SetMeshData(SectionMeshData meshData)
+    {
+        // While the mesh is not necessarily complete,
+        // missing neighbours are the reponsibility of the level that created the passed mesh, e.g. the chunk.
+        missing = BlockSides.None;
+
+        SetMeshDataInternal(meshData);
+    }
+
+    private void SetMeshDataInternal(SectionMeshData meshData)
     {
         Debug.Assert(renderer != null);
         Debug.Assert(hasMesh == meshData.IsFilled);

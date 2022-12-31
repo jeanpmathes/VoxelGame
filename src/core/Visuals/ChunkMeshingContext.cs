@@ -89,38 +89,33 @@ public class ChunkMeshingContext
     }
 
     /// <summary>
-    ///     Get the block sides that could be meshed if the context would be acquired now.
+    ///     Get the block sides at which chunk neighbours should be used to improve the mesh completeness.
+    ///     Only chunks that are available and requested are considered.
+    ///     Improvement is also only considered if all required and requested chunks are available at the same time.
     /// </summary>
     /// <param name="chunk">The chunk to get the sides of.</param>
-    /// <returns>The sides that could be meshed.</returns>
-    public static BlockSides DetermineAvailableSides(Chunk chunk)
+    /// <param name="used">The sides which where used the last time the chunk was meshed.</param>
+    /// <returns>
+    /// The sides that should be used. Is empty if no improvements are necessary or possible.
+    /// </returns>
+    public static BlockSides DetermineImprovementSides(Chunk chunk, BlockSides used)
     {
-        var availableSides = BlockSides.None;
+        var required = BlockSides.None;
+        var improving = BlockSides.None;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
-            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor) || !neighbor.IsFullyDecorated) continue;
+            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
+            if (!chunk.IsRequested || !neighbor.IsFullyDecorated) continue;
 
-            if (neighbor.CanAcquireCore(Access.Read)) availableSides |= side.ToFlag();
+            required |= side.ToFlag();
+
+            if (!neighbor.CanAcquireCore(Access.Read)) return BlockSides.None;
+
+            improving |= side.ToFlag();
         }
 
-        return availableSides;
-    }
-
-    /// <summary>
-    ///     Check whether a set of sides is better than older set of sides.
-    /// </summary>
-    /// <param name="old">The old set of sides.</param>
-    /// <param name="available">The new set of sides.</param>
-    /// <returns>True if the new set of sides is better.</returns>
-    public static bool IsImprovement(BlockSides old, BlockSides available)
-    {
-        if (old == available) return false;
-
-        int oldCount = BitHelper.CountSetBits((int) old);
-        int availableCount = BitHelper.CountSetBits((int) available);
-
-        return availableCount >= oldCount;
+        return used.HasFlag(required) ? BlockSides.None : improving;
     }
 
     private Chunk? GetChunk(ChunkPosition position)
