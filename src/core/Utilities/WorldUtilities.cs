@@ -36,6 +36,7 @@ public static class WorldExtensions
 {
     /// <summary>
     ///     Check if a given position has full and solid ground below it.
+    ///     If the position below cannot be found, false is returned.
     /// </summary>
     public static bool HasFullAndSolidGround(this World world, Vector3i position, bool solidify = false)
     {
@@ -52,12 +53,15 @@ public static class WorldExtensions
 
     /// <summary>
     ///     Check if a given position has an opaque block above it.
+    ///     If the position above cannot be found, null is returned.
     /// </summary>
-    public static bool HasOpaqueTop(this World world, Vector3i position)
+    public static bool? HasOpaqueTop(this World world, Vector3i position)
     {
-        BlockInstance top = world.GetBlock(position.Above()) ?? BlockInstance.Default;
+        BlockInstance? top = world.GetBlock(position.Above());
 
-        return top.Block.IsSolid && top.Block.IsOpaque && top.IsSideFull(BlockSide.Bottom);
+        if (top is null) return null;
+
+        return top.Value.Block is {IsSolid: true, IsOpaque: true} && top.Value.IsSideFull(BlockSide.Bottom);
     }
 
     /// <summary>

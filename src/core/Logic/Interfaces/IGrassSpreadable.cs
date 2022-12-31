@@ -23,7 +23,7 @@ public interface IGrassSpreadable : IBlockBase
     /// <returns>True when the grass block successfully spread.</returns>
     public bool SpreadGrass(World world, Vector3i position, Block grass)
     {
-        if (world.GetBlock(position)?.Block != this || world.HasOpaqueTop(position)) return false;
+        if (world.GetBlock(position)?.Block != this || world.HasOpaqueTop(position) != false) return false;
 
         world.SetBlock(grass.AsInstance(), position);
 
