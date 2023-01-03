@@ -14,7 +14,7 @@ public class UpdateCounter
     /// <summary>
     ///     The number of the current update cycle. It is incremented every time a new cycle begins.
     /// </summary>
-    public long Current { get; private set; }
+    public ulong Current { get; private set; }
 
     /// <summary>
     ///     Increment the update counter.

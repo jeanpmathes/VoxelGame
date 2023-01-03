@@ -23,7 +23,7 @@ public partial class Fluid
     protected void ScheduleTick(World world, Vector3i position)
     {
         Chunk? chunk = world.GetActiveChunk(position);
-        chunk?.ScheduleFluidTick(new FluidTick(position, this), Viscosity);
+        chunk?.ScheduleFluidTick(new FluidTick(position, this), (uint) Viscosity);
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public partial class Fluid
     }
 
     /// <summary>
-    ///     Will schedule a tick for a fluid in the next possible update.
+    ///     Will tick a fluid as soon as possible, meaning now.
     /// </summary>
     internal void TickNow(World world, Vector3i position, FluidLevel level, bool isStatic)
     {

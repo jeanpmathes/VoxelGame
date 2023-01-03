@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
@@ -51,22 +52,22 @@ public class ScheduledTickManager<T> where T : ITickable
     {
         world = containingWorld;
         updateCounter = counter;
-
-        Load();
     }
 
     /// <summary>
     ///     Add a tickable to the manager.
     /// </summary>
     /// <param name="tick">The tickable to add.</param>
-    /// <param name="tickOffset">The offset from the current update until the tickable should be ticked.</param>
-    public void Add(T tick, int tickOffset)
+    /// <param name="tickOffset">The offset from the current update until the tickable should be ticked. Must be greater than 0.</param>
+    public void Add(T tick, uint tickOffset)
     {
+        Debug.Assert(tickOffset > 0);
+
         TicksHolder ticks;
 
         do
         {
-            long targetUpdate = updateCounter.Current + tickOffset;
+            ulong targetUpdate = updateCounter.Current + tickOffset;
             ticks = FindOrCreateTargetTick(targetUpdate);
 
             if (ticks.tickables.Count < maxTicks) break;
@@ -82,7 +83,7 @@ public class ScheduledTickManager<T> where T : ITickable
         ticks.tickables.Add(tick);
     }
 
-    private TicksHolder FindOrCreateTargetTick(long targetTick)
+    private TicksHolder FindOrCreateTargetTick(ulong targetTick)
     {
         TicksHolder? last = null;
         TicksHolder? current = nextTicks;
@@ -125,12 +126,15 @@ public class ScheduledTickManager<T> where T : ITickable
     }
 
     /// <summary>
-    ///     Tick all tickables that are scheduled for the current update or earlier.
+    ///     Tick all tickables that are scheduled for the current update.
+    ///     Earlier scheduled ticks are not valid.
     /// </summary>
     public void Process()
     {
-        if (nextTicks != null && nextTicks.targetUpdate <= updateCounter.Current)
+        while (nextTicks != null && nextTicks.targetUpdate <= updateCounter.Current)
         {
+            Debug.Assert(nextTicks.targetUpdate == updateCounter.Current);
+
             foreach (T scheduledTick in nextTicks.tickables) scheduledTick.Tick(world);
 
             nextTicks = nextTicks.next;
@@ -138,9 +142,10 @@ public class ScheduledTickManager<T> where T : ITickable
     }
 
     /// <summary>
-    ///     Subtracts the current update from all target updates so they are update-independent.
+    ///     Normalizes all target updates so they are offsets from zero, by subtracting the current update.
+    ///     Do this before saving, and before resetting the update counter.
     /// </summary>
-    public void Unload()
+    public void Normalize()
     {
         TicksHolder? current = nextTicks;
 
@@ -151,28 +156,14 @@ public class ScheduledTickManager<T> where T : ITickable
         }
     }
 
-    /// <summary>
-    ///     Adds the current update to all target updates so they will be called.
-    /// </summary>
-    public void Load()
-    {
-        TicksHolder? current = nextTicks;
-
-        while (current != null)
-        {
-            current.targetUpdate += updateCounter.Current;
-            current = current.next;
-        }
-    }
-
     [Serializable]
     private sealed class TicksHolder
     {
         public TicksHolder? next;
-        public long targetUpdate;
+        public ulong targetUpdate;
         public List<T> tickables = new();
 
-        public TicksHolder(long targetUpdate)
+        public TicksHolder(ulong targetUpdate)
         {
             this.targetUpdate = targetUpdate;
         }

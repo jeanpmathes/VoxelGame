@@ -302,6 +302,12 @@ public abstract partial class Chunk
         }
 
         /// <inheritdoc />
+        protected override void OnExit()
+        {
+            Chunk.OnInactiveState();
+        }
+
+        /// <inheritdoc />
         protected override void OnUpdate()
         {
             AllowTransition();
@@ -387,3 +393,5 @@ public abstract partial class Chunk
         }
     }
 }
+
+

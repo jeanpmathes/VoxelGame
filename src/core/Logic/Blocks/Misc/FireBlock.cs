@@ -28,8 +28,8 @@ namespace VoxelGame.Core.Logic.Blocks;
 // t: top
 public class FireBlock : Block, IFillable, IComplex
 {
-    private const int TickOffset = 150;
-    private const int TickVariation = 25;
+    private const uint TickOffset = 150;
+    private const uint TickVariation = 25;
 
     private readonly List<BlockMesh> meshes = new(capacity: 32);
 
@@ -252,7 +252,7 @@ public class FireBlock : Block, IFillable, IComplex
         }
     }
 
-    private static int GetDelay(Vector3i position)
+    private static uint GetDelay(Vector3i position)
     {
         return TickOffset +
                (BlockUtilities.GetPositionDependentNumber(position, TickVariation * 2) - TickVariation);

@@ -26,6 +26,17 @@ public static class BlockUtilities
     {
         return Math.Abs(HashCode.Combine(position.X, position.Y, position.Z)) % mod;
     }
+
+    /// <summary>
+    ///     Get a position dependant number.
+    /// </summary>
+    /// <param name="position">The position.</param>
+    /// <param name="mod">The value range. The resulting number will be in [0, mod).</param>
+    /// <returns></returns>
+    public static uint GetPositionDependentNumber(Vector3i position, uint mod)
+    {
+        return (uint) Math.Abs(HashCode.Combine(position.X, position.Y, position.Z)) % mod;
+    }
 }
 
 /// <summary>
@@ -75,3 +86,5 @@ public static class WorldExtensions
                && block.GetHeight(below.Value.Data) == IHeightVariable.MaximumHeight - 1;
     }
 }
+
+

@@ -15,7 +15,6 @@ using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Updates;
 using VoxelGame.Input.Actions;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
@@ -32,7 +31,6 @@ public sealed class GameScene : IScene
 
     private readonly ToggleButton consoleToggle;
 
-    private readonly UpdateCounter counter;
     private readonly PushButton escapeButton;
 
     private readonly PushButton screenshotButton;
@@ -76,8 +74,6 @@ public sealed class GameScene : IScene
         ui.AnyOverlayOpen += (_, _) => OnOverlayOpen();
         ui.AnyOverlayClosed += (_, _) => OnOverlayClose();
 
-        counter = world.UpdateCounter;
-
         uiToggle = client.Keybinds.GetToggle(client.Keybinds.UI);
 
         screenshotButton = client.Keybinds.GetPushButton(client.Keybinds.Screenshot);
@@ -114,9 +110,7 @@ public sealed class GameScene : IScene
         ui.Resize(Screen.Size);
 
         ui.CreateControl();
-        Game.InitializeConsole(new ConsoleWrapper(ui.Console!));
-
-        counter.Reset();
+        Game.Initialize(new ConsoleWrapper(ui.Console!));
 
         logger.LogInformation(Events.SceneChange, "Loaded GameScene");
     }
@@ -133,7 +127,7 @@ public sealed class GameScene : IScene
         using (logger.BeginScope("GameScene Render"))
         {
             Screen.EnterGameDrawMode();
-            RenderGame();
+            Game.Render();
 
             Screen.EnterUIDrawMode();
             RenderUI();
@@ -145,11 +139,7 @@ public sealed class GameScene : IScene
     {
         using (logger.BeginScope("GameScene Update"))
         {
-            counter.Increment();
-
-            Game.Console.Flush();
-
-            Game.World.Update(deltaTime);
+            Game.Update(deltaTime);
 
             if (!Screen.IsFocused)
                 return;
@@ -172,11 +162,6 @@ public sealed class GameScene : IScene
     {
         Game.Dispose();
         Game = null!;
-    }
-
-    private void RenderGame()
-    {
-        Game.World.Render();
     }
 
     private void RenderUI()
@@ -220,3 +205,5 @@ public sealed class GameScene : IScene
 
     #endregion IDisposable Support.
 }
+
+

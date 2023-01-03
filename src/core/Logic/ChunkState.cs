@@ -131,6 +131,11 @@ public abstract class ChunkState
     protected virtual void OnEnter() {}
 
     /// <summary>
+    ///     Called directly before leaving this state.
+    /// </summary>
+    protected virtual void OnExit() {}
+
+    /// <summary>
     ///     Set the next state. The transition is required, except if certain flags are set in the description.
     /// </summary>
     /// <param name="state">The next state.</param>
@@ -236,7 +241,10 @@ public abstract class ChunkState
 
         ChunkState nextState = DetermineNextState();
 
-        if (!ReferenceEquals(this, nextState)) ReleaseResources();
+        if (ReferenceEquals(this, nextState)) return nextState;
+
+        OnExit();
+        ReleaseResources();
 
         return nextState;
     }
@@ -573,3 +581,5 @@ public abstract class ChunkState
         }
     }
 }
+
+

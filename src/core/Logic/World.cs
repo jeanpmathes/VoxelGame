@@ -17,7 +17,6 @@ using OpenTK.Mathematics;
 using Properties;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Generation.Default;
-using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
@@ -93,8 +92,6 @@ public abstract class World : IDisposable, IGrid
         BlobDirectory = Path.Combine(worldDirectory, "Blobs");
         DebugDirectory = Path.Combine(worldDirectory, "Debug");
 
-        UpdateCounter = new UpdateCounter();
-
         Directory.CreateDirectory(WorldDirectory);
         Directory.CreateDirectory(ChunkDirectory);
         Directory.CreateDirectory(BlobDirectory);
@@ -120,11 +117,6 @@ public abstract class World : IDisposable, IGrid
     protected ChunkContext ChunkContext { get; }
 
     private WorldInformation Information { get; }
-
-    /// <summary>
-    ///     The update counter counting the world updates.
-    /// </summary>
-    public UpdateCounter UpdateCounter { get; }
 
     /// <summary>
     ///     The directory in which this world is stored.
