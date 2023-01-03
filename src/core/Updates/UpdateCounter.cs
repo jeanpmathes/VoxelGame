@@ -4,6 +4,8 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Diagnostics;
+
 namespace VoxelGame.Core.Updates;
 
 /// <summary>
@@ -21,6 +23,8 @@ public class UpdateCounter
     /// </summary>
     public void Increment()
     {
+        Debug.Assert(Current < ulong.MaxValue);
+
         Current++;
     }
 
