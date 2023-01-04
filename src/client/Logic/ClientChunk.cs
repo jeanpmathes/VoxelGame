@@ -39,6 +39,16 @@ public partial class ClientChunk : Chunk
     public ClientChunk(World world, ChunkPosition position, ChunkContext context) : base(world, position, context) {}
 
     /// <summary>
+    ///     Get the client world this chunk is in.
+    /// </summary>
+    public new ClientWorld World => base.World.Cast();
+
+    private ClientSection GetSection(int index)
+    {
+        return sections[index].Cast();
+    }
+
+    /// <summary>
     ///     Begin meshing the chunk.
     /// </summary>
     public void BeginMeshing()
@@ -69,7 +79,7 @@ public partial class ClientChunk : Chunk
     /// <param name="context">The chunk meshing context.</param>
     public void CreateAndSetMesh(int x, int y, int z, ChunkMeshingContext context)
     {
-        ((ClientSection) sections[LocalSectionToIndex(x, y, z)]).CreateAndSetMesh(
+        GetSection(LocalSectionToIndex(x, y, z)).CreateAndSetMesh(
             SectionPosition.From(Position, (x, y, z)),
             context);
     }
@@ -90,8 +100,7 @@ public partial class ClientChunk : Chunk
 
             if (!sides.HasFlag(current) || meshedSides.HasFlag(current) || !World.TryGetChunk(side.Offset(Position), out Chunk? chunk)) continue;
 
-            var clientChunk = (ClientChunk) chunk;
-            clientChunk.BeginMeshing();
+            chunk.Cast().BeginMeshing();
         }
 
         return new Meshing();
@@ -116,7 +125,7 @@ public partial class ClientChunk : Chunk
         for (var s = 0; s < SectionCount; s++)
         {
             (int x, int y, int z) = IndexToLocalSection(s);
-            ((ClientSection) sections[s]).RecreateIncompleteMesh(SectionPosition.From(Position, (x, y, z)), context);
+            GetSection(s).RecreateIncompleteMesh(SectionPosition.From(Position, (x, y, z)), context);
         }
     }
 
@@ -139,7 +148,7 @@ public partial class ClientChunk : Chunk
         for (var s = 0; s < SectionCount; s++)
         {
             (int x, int y, int z) = IndexToLocalSection(s);
-            sectionMeshes[s] = ((ClientSection) sections[s]).CreateMeshData(SectionPosition.From(Position, (x, y, z)), context);
+            sectionMeshes[s] = GetSection(s).CreateMeshData(SectionPosition.From(Position, (x, y, z)), context);
         }
 
         meshDataIndex = 0;
@@ -161,7 +170,7 @@ public partial class ClientChunk : Chunk
 
         for (var count = 0; count < MaxMeshDataStep; count++)
         {
-            ((ClientSection) sections[meshDataIndex]).SetMeshData(meshData.SectionMeshData[meshDataIndex]);
+            GetSection(meshDataIndex).SetMeshData(meshData.SectionMeshData[meshDataIndex]);
 
             // The index has reached the end, all sections have received their mesh data.
             if (meshDataIndex == SectionCount - 1)
@@ -198,8 +207,10 @@ public partial class ClientChunk : Chunk
             if (frustum.IsBoxInFrustum(
                     VMath.CreateBox3(position + Section.Extents, Section.Extents)))
             {
-                renderList.Add(((ClientSection) sections[LocalSectionToIndex(x, y, z)], position));
+                renderList.Add((GetSection(LocalSectionToIndex(x, y, z)), position));
             }
         }
     }
 }
+
+

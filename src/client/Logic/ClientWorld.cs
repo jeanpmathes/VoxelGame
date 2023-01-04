@@ -100,10 +100,7 @@ public class ClientWorld : World
         for (int z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
         {
             Chunk? chunk = GetActiveChunk(player!.Chunk.Offset(x, y, z));
-
-            if (chunk == null) continue;
-
-            ((ClientChunk) chunk).AddCulledToRenderList(context.Frustum, renderList);
+            chunk?.Cast().AddCulledToRenderList(context.Frustum, renderList);
         }
 
         DoRenderPass(context);
@@ -160,8 +157,8 @@ public class ClientWorld : World
             player!.Tick(deltaTime);
 
             // Mesh all listed sections.
-            foreach ((Chunk chunk, (int x, int y, int z)) in sectionsToMesh)
-                ((ClientChunk) chunk).CreateAndSetMesh(x, y, z, ChunkMeshingContext.UsingActive(chunk));
+            foreach ((ClientChunk chunk, (int x, int y, int z)) in sectionsToMesh)
+                chunk.CreateAndSetMesh(x, y, z, ChunkMeshingContext.UsingActive(chunk));
 
             sectionsToMesh.Clear();
         }
@@ -198,7 +195,7 @@ public class ClientWorld : World
             foreach (BlockSide side in BlockSide.All.Sides())
                 if (TryGetChunk(side.Offset(activatedChunk.Position), out Chunk? neighbor))
                 {
-                    ((ClientChunk) neighbor).BeginMeshing();
+                    neighbor.Cast().BeginMeshing();
                 }
 
             return new ClientChunk.Meshing();
@@ -212,17 +209,15 @@ public class ClientWorld : World
     /// <inheritdoc />
     protected override ChunkState? ProcessActivatedChunk(Chunk activatedChunk)
     {
-        var activatedClientChunk = (ClientChunk) activatedChunk;
-
-        return activatedClientChunk.ProcessDecorationOption() ??
-               activatedClientChunk.ProcessMeshingOption();
+        return activatedChunk.Cast().ProcessDecorationOption() ??
+               activatedChunk.Cast().ProcessMeshingOption();
     }
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ProcessChangedSection(Chunk chunk, Vector3i position)
     {
-        sectionsToMesh.Add(((ClientChunk) chunk, SectionPosition.From(position).Local));
+        sectionsToMesh.Add((chunk.Cast(), SectionPosition.From(position).Local));
 
         // Check if sections next to changed section have to be changed:
 
@@ -232,7 +227,7 @@ public class ClientWorld : World
 
             if (neighbor == null) return;
 
-            sectionsToMesh.Add(((ClientChunk) neighbor, SectionPosition.From(neighborPosition).Local));
+            sectionsToMesh.Add((neighbor.Cast(), SectionPosition.From(neighborPosition).Local));
         }
 
         int xSectionPosition = position.X & (Section.Size - 1);
@@ -251,3 +246,5 @@ public class ClientWorld : World
         else if (zSectionPosition == Section.Size - 1) CheckNeighbor(position + (0, 0, 1));
     }
 }
+
+

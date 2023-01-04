@@ -41,8 +41,7 @@ public class ClientSection : Section
     /// <inheritdoc />
     public override void Setup(Section loaded)
     {
-        var clientSection = (ClientSection) loaded;
-        blocks = clientSection.blocks;
+        blocks = loaded.Cast().blocks;
 
         // Loaded section is not disposed because this section takes ownership of the resources.
     }
@@ -186,3 +185,5 @@ public class ClientSection : Section
 
     #endregion IDisposable Support
 }
+
+

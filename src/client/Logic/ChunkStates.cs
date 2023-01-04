@@ -17,9 +17,20 @@ namespace VoxelGame.Client.Logic;
 public partial class ClientChunk
 {
     /// <summary>
+    ///     Utility to allow easier access without casting.
+    /// </summary>
+    public abstract class ClientChunkState : ChunkState
+    {
+        /// <summary>
+        ///     Access the client chunk.
+        /// </summary>
+        protected new ClientChunk Chunk => base.Chunk.Cast();
+    }
+
+    /// <summary>
     ///     Meshes a chunk.
     /// </summary>
-    public class Meshing : ChunkState
+    public class Meshing : ClientChunkState
     {
         private (Task<ChunkMeshData> task, Guard guard, ChunkMeshingContext context)? activity;
 
@@ -35,17 +46,14 @@ public partial class ClientChunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            var chunk = (ClientChunk) Chunk;
-            var world = (ClientWorld) chunk.World;
-
             if (activity is not {task: {} task, guard: {} guard, context: {} context})
             {
-                guard = Context.TryAllocate(world.MaxMeshingTasks);
+                guard = Context.TryAllocate(Chunk.World.MaxMeshingTasks);
 
                 if (guard == null) return;
 
                 context = ChunkMeshingContext.Acquire(Chunk);
-                activity = (chunk.CreateMeshDataAsync(context), guard, context);
+                activity = (Chunk.CreateMeshDataAsync(context), guard, context);
             }
             else if (task.IsCompleted)
             {
@@ -82,7 +90,7 @@ public partial class ClientChunk
     /// <summary>
     ///     Sends mesh data to the GPU.
     /// </summary>
-    public class MeshDataSending : ChunkState
+    public class MeshDataSending : ClientChunkState
     {
         private readonly ChunkMeshData meshData;
         private Guard? guard;
@@ -105,14 +113,11 @@ public partial class ClientChunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            var chunk = (ClientChunk) Chunk;
-            var world = (ClientWorld) chunk.World;
-
-            guard ??= Context.TryAllocate(world.MaxMeshDataSends);
+            guard ??= Context.TryAllocate(Chunk.World.MaxMeshDataSends);
 
             if (guard == null) return;
 
-            bool finished = chunk.DoMeshDataSetStep(meshData);
+            bool finished = Chunk.DoMeshDataSetStep(meshData);
 
             if (!finished) return;
 
@@ -121,3 +126,5 @@ public partial class ClientChunk
         }
     }
 }
+
+
