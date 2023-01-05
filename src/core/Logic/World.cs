@@ -8,9 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
@@ -63,7 +61,7 @@ public abstract class World : IDisposable, IGrid
             },
             path)
     {
-        Information.Save(Path.Combine(WorldDirectory, "meta.json"));
+        Data.SaveInformation(Information);
 
         logger.LogInformation(Events.WorldIO, "Created new world");
     }
@@ -82,24 +80,16 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Setup of readonly fields and non-optional steps.
     /// </summary>
-    private World(WorldInformation information, string worldDirectory)
+    private World(WorldInformation information, string directory)
     {
         Information = information;
         ValidateInformation();
 
-        WorldDirectory = worldDirectory;
-        ChunkDirectory = Path.Combine(worldDirectory, "Chunks");
-        BlobDirectory = Path.Combine(worldDirectory, "Blobs");
-        DebugDirectory = Path.Combine(worldDirectory, "Debug");
-
-        Directory.CreateDirectory(WorldDirectory);
-        Directory.CreateDirectory(ChunkDirectory);
-        Directory.CreateDirectory(BlobDirectory);
-        Directory.CreateDirectory(DebugDirectory);
+        Data = new WorldData(directory);
 
         generator = GetGenerator(this);
 
-        ChunkContext = new ChunkContext(ChunkDirectory, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk, generator);
+        ChunkContext = new ChunkContext(Data.ChunkDirectory, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk, generator);
 
         MaxGenerationTasks = ChunkContext.DeclareBudget(Settings.Default.MaxGenerationTasks);
         MaxDecorationTasks = ChunkContext.DeclareBudget(Settings.Default.MaxDecorationTasks);
@@ -119,24 +109,9 @@ public abstract class World : IDisposable, IGrid
     private WorldInformation Information { get; }
 
     /// <summary>
-    ///     The directory in which this world is stored.
+    /// Get the stored world data.
     /// </summary>
-    private string WorldDirectory { get; }
-
-    /// <summary>
-    ///     The directory in which all chunks of this world are stored.
-    /// </summary>
-    private string ChunkDirectory { get; }
-
-    /// <summary>
-    ///     The directory in named data blobs are stored.
-    /// </summary>
-    private string BlobDirectory { get; }
-
-    /// <summary>
-    ///     The directory at which debug artifacts can be stored.
-    /// </summary>
-    private string DebugDirectory { get; }
+    public WorldData Data { get; }
 
     /// <summary>
     ///     Get the world creation seed.
@@ -258,7 +233,7 @@ public abstract class World : IDisposable, IGrid
         chunks.BeginSaving();
 
         Information.Version = ApplicationInformation.Instance.Version;
-        Task saving = Task.Run(() => Information.Save(Path.Combine(WorldDirectory, "meta.json")));
+        Task saving = Task.Run(() => Data.SaveInformation(Information));
 
         deactivation = (saving, onFinished);
     }
@@ -290,48 +265,6 @@ public abstract class World : IDisposable, IGrid
         chunks.Unload(chunk);
     }
 
-    /// <summary>
-    ///     Get a reader for an existing blob.
-    /// </summary>
-    /// <param name="name">The name of the blob.</param>
-    /// <returns>The reader for the blob, or null if the blob does not exist.</returns>
-    public BinaryReader? GetBlobReader(string name)
-    {
-        try
-        {
-            Stream stream = File.Open(Path.Combine(BlobDirectory, name), FileMode.Open, FileAccess.Read);
-
-            return new BinaryReader(stream, Encoding.UTF8, leaveOpen: false);
-        }
-        catch (IOException)
-        {
-            logger.LogDebug(Events.WorldIO, "Failed to read blob '{Name}'", name);
-
-            return null;
-        }
-    }
-
-    /// <summary>
-    ///     Get a stream to a new blob.
-    /// </summary>
-    /// <param name="name">The name of the blob.</param>
-    /// <returns>The stream to the blob, or null if an error occurred.</returns>
-    public BinaryWriter? GetBlobWriter(string name)
-    {
-        try
-        {
-            Stream stream = File.Open(Path.Combine(BlobDirectory, name), FileMode.Create, FileAccess.Write);
-
-            return new BinaryWriter(stream, Encoding.UTF8, leaveOpen: false);
-        }
-        catch (IOException e)
-        {
-            logger.LogError(Events.WorldIO, e, "Failed to create blob '{Name}'", name);
-
-            return null;
-        }
-    }
-
     private void ValidateInformation()
     {
         uint validWorldSize = ClampSize(Information.Size);
@@ -357,7 +290,7 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     public void EmitViews()
     {
-        generator.EmitViews(DebugDirectory);
+        generator.EmitViews(Data.DebugDirectory);
     }
 
     /// <summary>

@@ -282,13 +282,13 @@ public class Generator : IWorldGenerator
 
     private void Initialize()
     {
-        using BinaryReader? read = world.GetBlobReader(MapBlobName);
+        using BinaryReader? read = world.Data.GetBlobReader(MapBlobName);
         Map.Initialize(read, mapNoiseFactory);
     }
 
     private void Store()
     {
-        using BinaryWriter? write = world.GetBlobWriter(MapBlobName);
+        using BinaryWriter? write = world.Data.GetBlobWriter(MapBlobName);
         if (write != null) Map.Store(write);
     }
 

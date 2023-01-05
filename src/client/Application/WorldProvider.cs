@@ -49,11 +49,9 @@ public class WorldProvider : IWorldProvider
 
         foreach (string directory in Directory.GetDirectories(worldsDirectory))
         {
-            string meta = Path.Combine(directory, "meta.json");
-
-            if (File.Exists(meta))
+            if (WorldData.IsWorldDirectory(directory))
             {
-                WorldInformation information = WorldInformation.Load(meta);
+                WorldInformation information = WorldData.LoadInformation(directory);
                 worlds.Add((information, directory));
 
                 logger.LogDebug(Events.WorldIO, "Valid world directory found: {Directory}", directory);
@@ -178,3 +176,5 @@ public class WorldProvider : IWorldProvider
     /// </summary>
     public event EventHandler<ClientWorld> WorldActivation = null!;
 }
+
+
