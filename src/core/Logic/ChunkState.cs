@@ -43,7 +43,7 @@ public abstract class ChunkState
 
     private bool released;
 
-    private RequestQueue requests = new();
+    private RequestQueue requests = null!;
 
     /// <summary>
     ///     Create a new chunk state.
@@ -121,14 +121,19 @@ public abstract class ChunkState
     {
         if (previous != null) logger.LogDebug(Events.ChunkOperation, "Chunk {Position} state changed from {PreviousState} to {State}", Chunk.Position, previous, this);
 
-        OnEnter();
         isEntered = true;
+        OnEnter();
     }
 
     /// <summary>
-    ///     Called when this state is entered.
+    ///     Called directly after entering this state.
     /// </summary>
     protected virtual void OnEnter() {}
+
+    /// <summary>
+    ///     Called directly before leaving this state.
+    /// </summary>
+    protected virtual void OnExit() {}
 
     /// <summary>
     ///     Set the next state. The transition is required, except if certain flags are set in the description.
@@ -198,7 +203,6 @@ public abstract class ChunkState
     {
         state.Chunk = Chunk;
         state.Context = Context;
-        state.requests = requests;
 
         requests.Enqueue(this, state, description);
     }
@@ -237,7 +241,10 @@ public abstract class ChunkState
 
         ChunkState nextState = DetermineNextState();
 
-        if (!ReferenceEquals(this, nextState)) ReleaseResources();
+        if (ReferenceEquals(this, nextState)) return nextState;
+
+        OnExit();
+        ReleaseResources();
 
         return nextState;
     }
@@ -386,6 +393,7 @@ public abstract class ChunkState
             previousState = state;
             state = state.Update();
             state.previous ??= previousState;
+            state.requests = previousState.requests;
         } while (!ReferenceEquals(previousState, state) && ++count < maxRepeatCount);
     }
 
@@ -400,7 +408,8 @@ public abstract class ChunkState
         state = new Chunk.Unloaded
         {
             Chunk = chunk,
-            Context = context
+            Context = context,
+            requests = new RequestQueue()
         };
     }
 
@@ -425,8 +434,8 @@ public abstract class ChunkState
         if (!ApplicationInformation.Instance.EnsureMainThread($"ChunkState.TryStealAccess({state})", state.Chunk)) return null;
         if (!state.CanStealAccess) return null;
 
-        Debug.Assert(state.CoreAccess == Access.Write && state.coreGuard != null);
-        Debug.Assert(state.ExtendedAccess == Access.Write && state.extendedGuard != null);
+        Debug.Assert(state is {CoreAccess: Access.Write, coreGuard: {}});
+        Debug.Assert(state is {ExtendedAccess: Access.Write, extendedGuard: {}});
 
         Guard? core = state.coreGuard;
         Guard? extended = state.extendedGuard;
@@ -443,6 +452,7 @@ public abstract class ChunkState
         };
 
         state.previous = previousState;
+        state.requests = previousState.requests;
 
         return (core, extended);
     }
@@ -571,3 +581,5 @@ public abstract class ChunkState
         }
     }
 }
+
+

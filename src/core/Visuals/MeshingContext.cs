@@ -108,12 +108,7 @@ public class MeshingContext
     {
         var holders = new BlockMeshFaceHolder[6];
 
-        holders[(int) BlockSide.Front] = new BlockMeshFaceHolder(BlockSide.Front);
-        holders[(int) BlockSide.Back] = new BlockMeshFaceHolder(BlockSide.Back);
-        holders[(int) BlockSide.Left] = new BlockMeshFaceHolder(BlockSide.Left);
-        holders[(int) BlockSide.Right] = new BlockMeshFaceHolder(BlockSide.Right);
-        holders[(int) BlockSide.Bottom] = new BlockMeshFaceHolder(BlockSide.Bottom);
-        holders[(int) BlockSide.Top] = new BlockMeshFaceHolder(BlockSide.Top);
+        foreach (BlockSide side in BlockSide.All.Sides()) holders[(int) side] = new BlockMeshFaceHolder(side);
 
         return holders;
     }
@@ -122,12 +117,7 @@ public class MeshingContext
     {
         var holders = new VaryingHeightMeshFaceHolder[6];
 
-        holders[(int) BlockSide.Front] = new VaryingHeightMeshFaceHolder(BlockSide.Front);
-        holders[(int) BlockSide.Back] = new VaryingHeightMeshFaceHolder(BlockSide.Back);
-        holders[(int) BlockSide.Left] = new VaryingHeightMeshFaceHolder(BlockSide.Left);
-        holders[(int) BlockSide.Right] = new VaryingHeightMeshFaceHolder(BlockSide.Right);
-        holders[(int) BlockSide.Bottom] = new VaryingHeightMeshFaceHolder(BlockSide.Bottom);
-        holders[(int) BlockSide.Top] = new VaryingHeightMeshFaceHolder(BlockSide.Top);
+        foreach (BlockSide side in BlockSide.All.Sides()) holders[(int) side] = new VaryingHeightMeshFaceHolder(side);
 
         return holders;
     }
@@ -191,22 +181,22 @@ public class MeshingContext
     {
         (BlockInstance block, FluidInstance fluid)? result;
 
-        if (IsPositionOutOfSection(position))
+        if (Section.IsInBounds(position.ToTuple()))
         {
-            position = position.Mod(Section.Size);
+            BlockInstance block = current.GetBlock(position);
+            FluidInstance fluid = current.GetFluid(position);
+
+            result = (block, fluid);
+        }
+        else
+        {
+            position = Section.ToLocalPosition(position);
 
             Section? neighbor = neighbors[(int) side];
             BlockInstance? block = neighbor?.GetBlock(position);
             FluidInstance? fluid = neighbor?.GetFluid(position);
 
             result = block != null && fluid != null ? (block.Value, fluid.Value) : null;
-        }
-        else
-        {
-            BlockInstance block = current.GetBlock(position);
-            FluidInstance fluid = current.GetFluid(position);
-
-            result = (block, fluid);
         }
 
         return result;
@@ -223,27 +213,19 @@ public class MeshingContext
     {
         BlockInstance? block;
 
-        if (IsPositionOutOfSection(position))
+        if (Section.IsInBounds(position.ToTuple()))
         {
-            position = position.Mod(Section.Size);
+            block = current.GetBlock(position);
+        }
+        else
+        {
+            position = Section.ToLocalPosition(position);
 
             Section? neighbor = neighbors[(int) side];
             block = neighbor?.GetBlock(position);
         }
-        else
-        {
-            block = current.GetBlock(position);
-        }
 
         return block;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsPositionOutOfSection(Vector3i position)
-    {
-        return position.X is < 0 or >= Section.Size ||
-               position.Y is < 0 or >= Section.Size ||
-               position.Z is < 0 or >= Section.Size;
     }
 
     /// <summary>

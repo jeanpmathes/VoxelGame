@@ -19,17 +19,18 @@ public class ChunkMeshingContext
     private readonly Chunk mid;
     private (Chunk chunk, Guard? guard)?[] neighbors;
 
-    private ChunkMeshingContext(Chunk mid, (Chunk, Guard?)?[] neighbors, int neighborCount)
+    private ChunkMeshingContext(Chunk mid, (Chunk, Guard?)?[] neighbors, BlockSides availableSides)
     {
         this.mid = mid;
         this.neighbors = neighbors;
-        NeighborCount = neighborCount;
+
+        AvailableSides = availableSides;
     }
 
     /// <summary>
-    ///     Get the number of neighbors that are considered.
+    ///     Get the sides at which neighbors are considered.
     /// </summary>
-    public int NeighborCount { get; }
+    public BlockSides AvailableSides { get; }
 
     /// <summary>
     ///     Get the map of the world.
@@ -45,44 +46,76 @@ public class ChunkMeshingContext
     public static ChunkMeshingContext Acquire(Chunk chunk)
     {
         var foundNeighbors = new (Chunk, Guard?)?[6];
-        var count = 0;
+        var availableSides = BlockSides.None;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
-            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
+            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor) || !neighbor.IsFullyDecorated) continue;
 
             Guard? guard = neighbor.AcquireCore(Access.Read);
 
             if (guard == null) continue;
 
             foundNeighbors[(int) side] = (neighbor, guard);
-            count++;
+            availableSides |= side.ToFlag();
         }
 
-        return new ChunkMeshingContext(chunk, foundNeighbors, count);
+        return new ChunkMeshingContext(chunk, foundNeighbors, availableSides);
     }
 
     /// <summary>
-    ///     Create a meshing context from the given chunk. Use this method when meshing on the main thread.
+    ///     Create a meshing context using the given chunk. Use this method when meshing on the main thread.
     /// </summary>
     /// <param name="chunk">The chunk to mesh.</param>
     /// <returns>A context that can be used to mesh the chunk.</returns>
-    public static ChunkMeshingContext FromActive(Chunk chunk)
+    public static ChunkMeshingContext UsingActive(Chunk chunk)
     {
+        ApplicationInformation.Instance.EnsureMainThread("ChunkMeshingContext.UsingActive()", chunk);
+
         var foundNeighbors = new (Chunk, Guard?)?[6];
-        var count = 0;
+        var availableSides = BlockSides.None;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
             Chunk? neighbor = chunk.World.GetActiveChunk(side.Offset(chunk.Position));
 
-            if (neighbor == null) continue;
+            if (neighbor is not {IsFullyDecorated: true}) continue;
 
             foundNeighbors[(int) side] = (neighbor, null);
-            count++;
+            availableSides |= side.ToFlag();
         }
 
-        return new ChunkMeshingContext(chunk, foundNeighbors, count);
+        return new ChunkMeshingContext(chunk, foundNeighbors, availableSides);
+    }
+
+    /// <summary>
+    ///     Get the block sides at which chunk neighbours should be used to improve the mesh completeness.
+    ///     Only chunks that are available and requested are considered.
+    ///     Improvement is also only considered if all required and requested chunks are available at the same time.
+    /// </summary>
+    /// <param name="chunk">The chunk to get the sides of.</param>
+    /// <param name="used">The sides which where used the last time the chunk was meshed.</param>
+    /// <returns>
+    /// The sides that should be used. Is empty if no improvements are necessary or possible.
+    /// </returns>
+    public static BlockSides DetermineImprovementSides(Chunk chunk, BlockSides used)
+    {
+        var required = BlockSides.None;
+        var improving = BlockSides.None;
+
+        foreach (BlockSide side in BlockSide.All.Sides())
+        {
+            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
+            if (!chunk.IsRequested || !neighbor.IsFullyDecorated) continue;
+
+            required |= side.ToFlag();
+
+            if (!neighbor.CanAcquireCore(Access.Read)) return BlockSides.None;
+
+            improving |= side.ToFlag();
+        }
+
+        return used.HasFlag(required) ? BlockSides.None : improving;
     }
 
     private Chunk? GetChunk(ChunkPosition position)

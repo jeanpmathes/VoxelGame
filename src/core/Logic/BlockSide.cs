@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 
@@ -56,6 +56,53 @@ public enum BlockSide
 }
 
 /// <summary>
+///     Flags to select multiple sides.
+/// </summary>
+[Flags]
+public enum BlockSides
+{
+    /// <summary>
+    ///     No sides.
+    /// </summary>
+    None = 0,
+
+    /// <summary>
+    ///     The front side.
+    /// </summary>
+    Front = 1 << 0,
+
+    /// <summary>
+    ///     The back side.
+    /// </summary>
+    Back = 1 << 1,
+
+    /// <summary>
+    ///     The left side.
+    /// </summary>
+    Left = 1 << 2,
+
+    /// <summary>
+    ///     The right side.
+    /// </summary>
+    Right = 1 << 3,
+
+    /// <summary>
+    ///     The bottom side.
+    /// </summary>
+    Bottom = 1 << 4,
+
+    /// <summary>
+    ///     The top side.
+    /// </summary>
+    Top = 1 << 5,
+
+    /// <summary>
+    ///     All sides.
+    /// </summary>
+    All = Front | Back | Left | Right | Bottom | Top
+}
+
+/// <summary>
 ///     Extension methods for <see cref="BlockSide" />.
 /// </summary>
 public static class BlockSideExtensions
@@ -85,6 +132,44 @@ public static class BlockSideExtensions
     private static readonly IReadOnlyCollection<BlockSide> sides = new List<BlockSide>
             {BlockSide.Front, BlockSide.Back, BlockSide.Left, BlockSide.Right, BlockSide.Bottom, BlockSide.Top}
         .AsReadOnly();
+
+    /// <summary>
+    ///     Get a compact string representation of all set sides.
+    /// </summary>
+    /// <param name="side">The side flags.</param>
+    /// <returns>A string representation.</returns>
+    public static string ToCompactString(this BlockSides side)
+    {
+        StringBuilder builder = new(capacity: 6);
+        builder.Append(value: '-', repeatCount: 6);
+
+        if (side.HasFlag(BlockSides.Front)) builder[index: 0] = 'F';
+        if (side.HasFlag(BlockSides.Back)) builder[index: 1] = 'B';
+        if (side.HasFlag(BlockSides.Left)) builder[index: 2] = 'L';
+        if (side.HasFlag(BlockSides.Right)) builder[index: 3] = 'R';
+        if (side.HasFlag(BlockSides.Bottom)) builder[index: 4] = 'D';
+        if (side.HasFlag(BlockSides.Top)) builder[index: 5] = 'U';
+
+        return builder.ToString();
+    }
+
+    /// <summary>
+    ///     Get the flag for a side.
+    /// </summary>
+    public static BlockSides ToFlag(this BlockSide side)
+    {
+        return side switch
+        {
+            BlockSide.All => BlockSides.All,
+            BlockSide.Front => BlockSides.Front,
+            BlockSide.Back => BlockSides.Back,
+            BlockSide.Left => BlockSides.Left,
+            BlockSide.Right => BlockSides.Right,
+            BlockSide.Bottom => BlockSides.Bottom,
+            BlockSide.Top => BlockSides.Top,
+            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+        };
+    }
 
     /// <summary>
     ///     Provides an enumerable that contains all actual blocks sides, meaning not the side <c>All</c>.
@@ -197,7 +282,7 @@ public static class BlockSideExtensions
     {
         return side switch
         {
-            BlockSide.All => throw new InvalidEnumArgumentException(),
+            BlockSide.All => throw new ArgumentOutOfRangeException(nameof(side), side, message: null),
             BlockSide.Front => Utilities.Axis.Z,
             BlockSide.Back => Utilities.Axis.Z,
             BlockSide.Left => Utilities.Axis.X,
@@ -208,30 +293,13 @@ public static class BlockSideExtensions
         };
     }
 
-    /// <summary>
-    ///     Get a bit flag representing this side.
-    /// </summary>
-    public static uint ToFlag(this BlockSide side)
-    {
-        return side switch
-        {
-            BlockSide.All => 0b11_1111,
-            BlockSide.Front => 0b10_0000,
-            BlockSide.Back => 0b01_0000,
-            BlockSide.Left => 0b00_1000,
-            BlockSide.Right => 0b00_0100,
-            BlockSide.Bottom => 0b00_0010,
-            BlockSide.Top => 0b00_0001,
-            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
-        };
-    }
 
     /// <summary>
-    ///     Check if the bit flag of a side is set.
+    ///     Check if this side is contained in the given side flags.
     /// </summary>
-    public static bool IsSet(this BlockSide side, uint flags)
+    public static bool IsSet(this BlockSide side, BlockSides flags)
     {
-        return (flags & side.ToFlag()) != 0;
+        return flags.HasFlag(side.ToFlag());
     }
 
     /// <summary>
@@ -295,3 +363,4 @@ public static class BlockSideExtensions
         }
     }
 }
+

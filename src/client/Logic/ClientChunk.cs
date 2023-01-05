@@ -28,6 +28,7 @@ public partial class ClientChunk : Chunk
 
     [NonSerialized] private bool hasMeshData;
     [NonSerialized] private int meshDataIndex;
+    [NonSerialized] private BlockSides meshedSides;
 
     /// <summary>
     ///     Create a new client chunk.
@@ -36,6 +37,16 @@ public partial class ClientChunk : Chunk
     /// <param name="position">The position of the chunk.</param>
     /// <param name="context">The context of the chunk.</param>
     public ClientChunk(World world, ChunkPosition position, ChunkContext context) : base(world, position, context) {}
+
+    /// <summary>
+    ///     Get the client world this chunk is in.
+    /// </summary>
+    public new ClientWorld World => base.World.Cast();
+
+    private ClientSection GetSection(int index)
+    {
+        return sections[index].Cast();
+    }
 
     /// <summary>
     ///     Begin meshing the chunk.
@@ -48,7 +59,7 @@ public partial class ClientChunk : Chunk
         {
             AllowDuplicateTypes = false,
             AllowSkipOnDeactivation = true,
-            AllowDiscardOnLoop = true
+            AllowDiscardOnLoop = false
         });
     }
 
@@ -68,9 +79,54 @@ public partial class ClientChunk : Chunk
     /// <param name="context">The chunk meshing context.</param>
     public void CreateAndSetMesh(int x, int y, int z, ChunkMeshingContext context)
     {
-        ((ClientSection) sections[LocalSectionToIndex(x, y, z)]).CreateAndSetMesh(
+        GetSection(LocalSectionToIndex(x, y, z)).CreateAndSetMesh(
             SectionPosition.From(Position, (x, y, z)),
             context);
+    }
+
+    /// <summary>
+    ///     Process a chance to mesh the entire chunk.
+    /// </summary>
+    /// <returns>A target state if the chunk would like to mesh, null otherwise.</returns>
+    public ChunkState? ProcessMeshingOption()
+    {
+        BlockSides sides = ChunkMeshingContext.DetermineImprovementSides(this, meshedSides);
+
+        if (sides == BlockSides.None) return null;
+
+        foreach (BlockSide side in BlockSide.All.Sides())
+        {
+            BlockSides current = side.ToFlag();
+
+            if (!sides.HasFlag(current) || meshedSides.HasFlag(current) || !World.TryGetChunk(side.Offset(Position), out Chunk? chunk)) continue;
+
+            chunk.Cast().BeginMeshing();
+        }
+
+        return new Meshing();
+    }
+
+    /// <inheritdoc />
+    protected override void OnActivation()
+    {
+        RecreateIncompleteSectionMeshes();
+    }
+
+    /// <inheritdoc />
+    protected override void OnNeighborActivation(Chunk neighbor)
+    {
+        RecreateIncompleteSectionMeshes();
+    }
+
+    private void RecreateIncompleteSectionMeshes()
+    {
+        ChunkMeshingContext context = ChunkMeshingContext.UsingActive(this);
+
+        for (var s = 0; s < SectionCount; s++)
+        {
+            (int x, int y, int z) = IndexToLocalSection(s);
+            GetSection(s).RecreateIncompleteMesh(SectionPosition.From(Position, (x, y, z)), context);
+        }
     }
 
     /// <summary>
@@ -78,51 +134,43 @@ public partial class ClientChunk : Chunk
     /// </summary>
     /// <param name="context">The chunk meshing context.</param>
     /// <returns>The meshing task.</returns>
-    public Task<SectionMeshData[]> CreateMeshDataAsync(ChunkMeshingContext context)
+    public Task<ChunkMeshData> CreateMeshDataAsync(ChunkMeshingContext context)
     {
         return Task.Run(() => CreateMeshData(context));
     }
 
-    private SectionMeshData[] CreateMeshData(ChunkMeshingContext context)
+    private ChunkMeshData CreateMeshData(ChunkMeshingContext context)
     {
-        logger.LogDebug(Events.ChunkOperation, "Started creating mesh data for chunk {Position} using {NeighborCount} neighbors", Position, context.NeighborCount);
+        logger.LogDebug(Events.ChunkOperation, "Started creating mesh data for chunk {Position} using [{AvailableSides}] neighbors", Position, context.AvailableSides.ToCompactString());
 
         var sectionMeshes = new SectionMeshData[SectionCount];
 
         for (var s = 0; s < SectionCount; s++)
         {
             (int x, int y, int z) = IndexToLocalSection(s);
-            sectionMeshes[s] = ((ClientSection) sections[s]).CreateMeshData(SectionPosition.From(Position, (x, y, z)), context);
+            sectionMeshes[s] = GetSection(s).CreateMeshData(SectionPosition.From(Position, (x, y, z)), context);
         }
 
         meshDataIndex = 0;
 
-        logger.LogDebug(Events.ChunkOperation, "Finished creating mesh data for chunk {Position} using {NeighborCount} neighbors", Position, context.NeighborCount);
+        logger.LogDebug(Events.ChunkOperation, "Finished creating mesh data for chunk {Position} using [{AvailableSides}] neighbors", Position, context.AvailableSides.ToCompactString());
 
-        return sectionMeshes;
-    }
-
-    /// <summary>
-    ///     Reset the mesh data set-step.
-    /// </summary>
-    public void ResetMeshDataSetSteps()
-    {
-        hasMeshData = false;
-        meshDataIndex = 0;
+        return new ChunkMeshData(sectionMeshes, context.AvailableSides);
     }
 
     /// <summary>
     ///     Do a mesh data set-step. This will apply a part of the mesh data and activate the part.
     /// </summary>
-    /// <param name="sectionMeshes">The mesh data to apply.</param>
+    /// <param name="meshData">The mesh data to apply.</param>
     /// <returns>True if this step was the final step.</returns>
-    public bool DoMeshDataSetStep(SectionMeshData[] sectionMeshes)
+    public bool DoMeshDataSetStep(ChunkMeshData meshData)
     {
         hasMeshData = false;
+        meshedSides = meshData.Sides;
 
         for (var count = 0; count < MaxMeshDataStep; count++)
         {
-            ((ClientSection) sections[meshDataIndex]).SetMeshData(sectionMeshes[meshDataIndex]);
+            GetSection(meshDataIndex).SetMeshData(meshData.SectionMeshData[meshDataIndex]);
 
             // The index has reached the end, all sections have received their mesh data.
             if (meshDataIndex == SectionCount - 1)
@@ -159,8 +207,10 @@ public partial class ClientChunk : Chunk
             if (frustum.IsBoxInFrustum(
                     VMath.CreateBox3(position + Section.Extents, Section.Extents)))
             {
-                renderList.Add(((ClientSection) sections[LocalSectionToIndex(x, y, z)], position));
+                renderList.Add((GetSection(LocalSectionToIndex(x, y, z)), position));
             }
         }
     }
 }
+
+

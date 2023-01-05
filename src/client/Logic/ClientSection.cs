@@ -24,6 +24,7 @@ namespace VoxelGame.Client.Logic;
 public class ClientSection : Section
 {
     [NonSerialized] private bool hasMesh;
+    [NonSerialized] private BlockSides missing;
     [NonSerialized] private SectionRenderer? renderer;
 
     /// <summary>
@@ -40,8 +41,7 @@ public class ClientSection : Section
     /// <inheritdoc />
     public override void Setup(Section loaded)
     {
-        var clientSection = (ClientSection) loaded;
-        blocks = clientSection.blocks;
+        blocks = loaded.Cast().blocks;
 
         // Loaded section is not disposed because this section takes ownership of the resources.
     }
@@ -53,8 +53,42 @@ public class ClientSection : Section
     /// <param name="context">The context to use for mesh creation.</param>
     public void CreateAndSetMesh(SectionPosition position, ChunkMeshingContext context)
     {
+        BlockSides required = GetRequiredSides(position);
+        missing = required & ~context.AvailableSides & BlockSides.All;
+
         SectionMeshData meshData = CreateMeshData(position, context);
-        SetMeshData(meshData);
+        SetMeshDataInternal(meshData);
+    }
+
+    /// <summary>
+    ///     Recreate and set the mesh if it is incomplete, which means that it was meshed without all required neighbors.
+    /// </summary>
+    /// <param name="position">The position of the section.</param>
+    /// <param name="context">The context to use for mesh creation.</param>
+    public void RecreateIncompleteMesh(SectionPosition position, ChunkMeshingContext context)
+    {
+        if (missing == BlockSides.None) return;
+
+        BlockSides required = GetRequiredSides(position);
+
+        if (context.AvailableSides.HasFlag(required)) CreateAndSetMesh(position, context);
+    }
+
+    private static BlockSides GetRequiredSides(SectionPosition position)
+    {
+        var required = BlockSides.None;
+        (int x, int y, int z) = position.Local;
+
+        if (x == 0) required |= BlockSides.Left;
+        if (x == Chunk.Size - 1) required |= BlockSides.Right;
+
+        if (y == 0) required |= BlockSides.Bottom;
+        if (y == Chunk.Size - 1) required |= BlockSides.Top;
+
+        if (z == 0) required |= BlockSides.Back;
+        if (z == Chunk.Size - 1) required |= BlockSides.Front;
+
+        return required;
     }
 
     /// <summary>
@@ -109,6 +143,15 @@ public class ClientSection : Section
     /// <param name="meshData">The mesh data to use and activate.</param>
     public void SetMeshData(SectionMeshData meshData)
     {
+        // While the mesh is not necessarily complete,
+        // missing neighbours are the reponsibility of the level that created the passed mesh, e.g. the chunk.
+        missing = BlockSides.None;
+
+        SetMeshDataInternal(meshData);
+    }
+
+    private void SetMeshDataInternal(SectionMeshData meshData)
+    {
         Debug.Assert(renderer != null);
         Debug.Assert(hasMesh == meshData.IsFilled);
 
@@ -142,3 +185,5 @@ public class ClientSection : Section
 
     #endregion IDisposable Support
 }
+
+

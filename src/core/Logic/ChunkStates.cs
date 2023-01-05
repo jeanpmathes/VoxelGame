@@ -296,6 +296,18 @@ public abstract partial class Chunk
         protected override bool AllowStealing => true;
 
         /// <inheritdoc />
+        protected override void OnEnter()
+        {
+            Chunk.OnActiveState();
+        }
+
+        /// <inheritdoc />
+        protected override void OnExit()
+        {
+            Chunk.OnInactiveState();
+        }
+
+        /// <inheritdoc />
         protected override void OnUpdate()
         {
             AllowTransition();
@@ -381,3 +393,5 @@ public abstract partial class Chunk
         }
     }
 }
+
+

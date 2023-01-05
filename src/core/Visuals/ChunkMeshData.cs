@@ -1,4 +1,4 @@
-﻿// <copyright file="SectionMesh.cs" company="VoxelGame">
+﻿// <copyright file="ChunkMeshData.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -6,8 +6,33 @@
 
 using System.Diagnostics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Visuals;
+
+/// <summary>
+///     Mesh data for an entire chunk.
+/// </summary>
+/// <param name="SectionMeshData"></param>
+/// <param name="Sides"></param>
+public record ChunkMeshData(SectionMeshData[] SectionMeshData, BlockSides Sides)
+{
+    /// <summary>
+    ///     Discard the mesh data.
+    /// </summary>
+    public void Discard()
+    {
+        foreach (SectionMeshData section in SectionMeshData) section.Discard();
+    }
+
+    /// <summary>
+    ///     Return all pooled structures to their pools.
+    /// </summary>
+    public void ReturnPooled()
+    {
+        foreach (SectionMeshData section in SectionMeshData) section.ReturnPooled();
+    }
+}
 
 /// <summary>
 ///     Contains the mesh data for a section.

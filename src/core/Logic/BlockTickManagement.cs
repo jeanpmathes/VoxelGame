@@ -20,12 +20,13 @@ public partial class Block
     public static int MaxBlockTicksPerFrameAndChunk => 1024;
 
     /// <summary>
-    ///     Schedules a tick according to the given tick offset;
+    ///     Schedules a tick according to the given tick offset.
+    ///     Note that the system does not guarantee that the tick will be executed exactly at the given offset, as chunks could be inactive.
     /// </summary>
     /// <param name="world">The world in which the block is.</param>
     /// <param name="position">The position of the block a tick should be scheduled for.</param>
-    /// <param name="tickOffset">The offset in frames to when the block should be ticked.</param>
-    protected void ScheduleTick(World world, Vector3i position, int tickOffset)
+    /// <param name="tickOffset">The offset in frames to when the block should be ticked. Must be greater than 0.</param>
+    protected void ScheduleTick(World world, Vector3i position, uint tickOffset)
     {
         Chunk? chunk = world.GetActiveChunk(position);
         chunk?.ScheduleBlockTick(new BlockTick(position, this, TickOperation.Tick), tickOffset);

@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
@@ -82,6 +83,8 @@ public abstract partial class Chunk : IDisposable
 
     private ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
 
+    [NonSerialized] private UpdateCounter localUpdateCounter = new();
+
     /// <summary>
     ///     Create a new chunk.
     /// </summary>
@@ -105,12 +108,12 @@ public abstract partial class Chunk : IDisposable
         blockTickManager = new ScheduledTickManager<Block.BlockTick>(
             Block.MaxBlockTicksPerFrameAndChunk,
             World,
-            World.UpdateCounter);
+            localUpdateCounter);
 
         fluidTickManager = new ScheduledTickManager<Fluid.FluidTick>(
             Fluid.MaxFluidTicksPerFrameAndChunk,
             World,
-            World.UpdateCounter);
+            localUpdateCounter);
 
         ChunkState.Initialize(out state, this, context);
     }
@@ -275,8 +278,8 @@ public abstract partial class Chunk : IDisposable
 
         decoration = loaded.decoration;
 
-        blockTickManager.Setup(World, World.UpdateCounter);
-        fluidTickManager.Setup(World, World.UpdateCounter);
+        blockTickManager.Setup(World, localUpdateCounter);
+        fluidTickManager.Setup(World, localUpdateCounter);
 
         for (var s = 0; s < SectionCount; s++)
         {
@@ -359,8 +362,9 @@ public abstract partial class Chunk : IDisposable
     /// <param name="path">The path of the directory where this chunk should be saved.</param>
     public void Save(string path)
     {
-        blockTickManager.Unload();
-        fluidTickManager.Unload();
+        blockTickManager.Normalize();
+        fluidTickManager.Normalize();
+        localUpdateCounter.Reset();
 
         string chunkFile = Path.Combine(path, GetChunkFileName(Position));
 
@@ -373,9 +377,6 @@ public abstract partial class Chunk : IDisposable
 #pragma warning restore
 
         logger.LogDebug(Events.ChunkOperation, "Finished saving chunk {Position} to: {Path}", Position, chunkFile);
-
-        blockTickManager.Load();
-        fluidTickManager.Load();
     }
 
     /// <summary>
@@ -458,12 +459,12 @@ public abstract partial class Chunk : IDisposable
         return Task.Run(() => Generate(generator));
     }
 
-    internal void ScheduleBlockTick(Block.BlockTick tick, int tickOffset)
+    internal void ScheduleBlockTick(Block.BlockTick tick, uint tickOffset)
     {
         blockTickManager.Add(tick, tickOffset);
     }
 
-    internal void ScheduleFluidTick(Fluid.FluidTick tick, int tickOffset)
+    internal void ScheduleFluidTick(Fluid.FluidTick tick, uint tickOffset)
     {
         fluidTickManager.Add(tick, tickOffset);
     }
@@ -481,8 +482,12 @@ public abstract partial class Chunk : IDisposable
     /// </summary>
     public void Tick()
     {
+        Debug.Assert(IsActive);
+
         blockTickManager.Process();
         fluidTickManager.Process();
+
+        localUpdateCounter.Increment();
 
         int anchor = NumberGenerator.Random.Next(minValue: 0, SectionCount);
 
@@ -795,6 +800,39 @@ public abstract partial class Chunk : IDisposable
             _ => false
         };
     }
+
+    /// <summary>
+    ///     Called after the active state was entered.
+    /// </summary>
+    private void OnActiveState()
+    {
+        OnActivation();
+
+        foreach (BlockSide side in BlockSide.All.Sides()) World.GetActiveChunk(side.Offset(Position))?.OnNeighborActivation(this);
+    }
+
+    /// <summary>
+    ///     Called before the active state is left.
+    /// </summary>
+    private void OnInactiveState()
+    {
+        OnDeactivation();
+    }
+
+    /// <summary>
+    ///     Called after the inactive state was entered.
+    /// </summary>
+    protected virtual void OnActivation() {}
+
+    /// <summary>
+    ///     Called before the inactive state is left.
+    /// </summary>
+    protected virtual void OnDeactivation() {}
+
+    /// <summary>
+    ///     Called when a neighbor chunk was activated.
+    /// </summary>
+    protected virtual void OnNeighborActivation(Chunk neighbor) {}
 
     [Flags]
     private enum DecorationLevels

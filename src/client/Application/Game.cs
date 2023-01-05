@@ -8,6 +8,7 @@ using System;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
+using VoxelGame.Core.Updates;
 
 namespace VoxelGame.Client.Application;
 
@@ -44,12 +45,40 @@ public sealed class Game : IDisposable
     public ConsoleWrapper Console { get; private set; }
 
     /// <summary>
-    ///     Set the console used for the game.
+    ///     Get the update counter used for the game.
+    /// </summary>
+    public UpdateCounter UpdateCounter { get; } = new();
+
+    /// <summary>
+    ///     Set up the game.
     /// </summary>
     /// <param name="console">The console to use.</param>
-    public void InitializeConsole(ConsoleWrapper console)
+    public void Initialize(ConsoleWrapper console)
     {
         Console = console;
+
+        UpdateCounter.Reset();
+    }
+
+    /// <summary>
+    ///     Perform one update cycle.
+    /// </summary>
+    /// <param name="deltaTime">The time since the last update.</param>
+    public void Update(double deltaTime)
+    {
+        UpdateCounter.Increment();
+
+        Console.Flush();
+
+        World.Update(deltaTime);
+    }
+
+    /// <summary>
+    ///     Perform one render cycle.
+    /// </summary>
+    public void Render()
+    {
+        World.Render();
     }
 
     #region IDisposable Support
@@ -79,3 +108,5 @@ public sealed class Game : IDisposable
 
     #endregion IDisposable Support
 }
+
+
