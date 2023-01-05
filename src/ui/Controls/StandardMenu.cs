@@ -63,6 +63,8 @@ internal abstract class StandardMenu : ControlBase
     private static void MakeFiller(ControlBase control)
     {
         VerticalLayout filler = new(control);
+
+        Control.Used(filler);
     }
 
     private void CreateTitle(ControlBase bar)
@@ -74,15 +76,20 @@ internal abstract class StandardMenu : ControlBase
             Alignment = Alignment.Center
         };
 
+        Control.Used(title);
+
         Label subtitle = new(bar)
         {
             Text = ApplicationInformation.Instance.Version,
             Font = Fonts.Subtitle,
             Alignment = Alignment.Center
         };
+
+        Control.Used(subtitle);
     }
 
     protected abstract void CreateMenu(ControlBase menu);
 
     protected abstract void CreateDisplay(ControlBase display);
 }
+

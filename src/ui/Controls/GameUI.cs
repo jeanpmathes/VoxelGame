@@ -14,6 +14,7 @@ using VoxelGame.Core;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
+using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.Controls;
 
@@ -144,6 +145,8 @@ internal class GameUI : ControlBase
             HorizontalAlignment = HorizontalAlignment.Center
         };
 
+        Control.Used(info);
+
         parent.DoOverlayOpen();
     }
 
@@ -199,3 +202,4 @@ internal class GameUI : ControlBase
         // Parent is informed when the console close event is invoked.
     }
 }
+

@@ -67,5 +67,8 @@ internal class MainMenu : StandardMenu
         {
             ImageName = Source.GetImageName("start")
         };
+
+        Control.Used(image);
     }
 }
+
