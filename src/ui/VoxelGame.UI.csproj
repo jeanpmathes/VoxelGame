@@ -53,7 +53,7 @@
         <None Update="Resources\Attribution\wikimedia-textures.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Attribution\icons.txt">
+        <None Update="Resources\Attribution\material_icons.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Attribution\glsl-noise-generation.txt">
