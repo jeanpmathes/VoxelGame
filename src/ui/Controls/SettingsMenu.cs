@@ -15,6 +15,7 @@ using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
 using VoxelGame.UI.UserInterfaces;
+using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.Controls;
 
@@ -91,6 +92,8 @@ internal class SettingsMenu : StandardMenu
                 Document = new Document(settingsProvider.Description)
             };
 
+            Control.Used(description);
+
             ScrollControl scroll = new(categoryLayout)
             {
                 AutoHideBars = true,
@@ -111,3 +114,4 @@ internal class SettingsMenu : StandardMenu
 
     internal event EventHandler Cancel = delegate {};
 }
+

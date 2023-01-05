@@ -25,11 +25,9 @@ internal class StartUI : ControlBase
     private const int SettingsMenuIndex = 1;
     private const int WorldSelectionMenuIndex = 2;
     private const int CreditsMenuIndex = 3;
-    private readonly CreditsMenu creditsMenu;
-    private readonly MainMenu mainMenu;
 
     private readonly List<StandardMenu> menus = new();
-    private readonly SettingsMenu settingsMenu;
+
     private readonly WorldSelection worldSelection;
 
     internal StartUI(StartUserInterface parent, IWorldProvider worldProvider,
@@ -39,19 +37,19 @@ internal class StartUI : ControlBase
 
         Exit = delegate {};
 
-        mainMenu = new MainMenu(this, parent.Context);
+        MainMenu mainMenu = new(this, parent.Context);
         mainMenu.SelectExit += (_, _) => Exit(this, EventArgs.Empty);
         mainMenu.SelectSettings += (_, _) => OpenMenu(SettingsMenuIndex);
         mainMenu.SelectWorlds += (_, _) => OpenMenu(WorldSelectionMenuIndex);
         mainMenu.SelectCredits += (_, _) => OpenMenu(CreditsMenuIndex);
 
-        settingsMenu = new SettingsMenu(this, settingsProviders, parent.Context);
+        SettingsMenu settingsMenu = new(this, settingsProviders, parent.Context);
         settingsMenu.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
         worldSelection = new WorldSelection(this, worldProvider, parent.Context);
         worldSelection.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
-        creditsMenu = new CreditsMenu(this, parent.Context);
+        CreditsMenu creditsMenu = new(this, parent.Context);
         creditsMenu.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
         menus.Add(mainMenu);
@@ -73,3 +71,4 @@ internal class StartUI : ControlBase
 
     internal event EventHandler Exit;
 }
+

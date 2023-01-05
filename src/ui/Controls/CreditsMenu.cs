@@ -6,6 +6,8 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.RichText;
 using VoxelGame.Core.Resources.Language;
@@ -40,26 +42,50 @@ internal class CreditsMenu : StandardMenu
 
     protected override void CreateDisplay(ControlBase display)
     {
-        Document credits = new();
-
-        Paragraph content = new Paragraph()
-            .Font(Context.Fonts.Title).Text("Credits").LineBreak().LineBreak()
-            .Font(Context.Fonts.Default)
-            .Text("Images").LineBreak()
-            .Text(Source.GetTextContent("Resources/GUI/Icons/attribution.txt")).LineBreak()
-            .Text("Textures").LineBreak()
-            .Text(Source.GetTextContent("Resources/Textures/attribution.txt")).LineBreak()
-            .Text("Code").LineBreak()
-            .Text("Noise Generation: https://github.com/Auburn/FastNoiseLite").LineBreak()
-            .Text("glsl Noise Generation: https://github.com/stegu/webgl-noise").LineBreak()
-            .Text("Order Independent Transparency: https://learnopengl.com/Guest-Articles/2020/OIT/Weighted-Blended").LineBreak()
-            .Text("OpenTK Tutorials: https://opentk.net/learn/index.html").LineBreak();
-
-        credits.Paragraphs.Add(content);
-
-        RichLabel creditsDisplay = new(display)
+        TabControl tabs = new(display)
         {
-            Document = credits
+            Dock = Dock.Fill
         };
+
+        foreach (string file in Directory.EnumerateFiles("Resources/Attribution", "*.txt", SearchOption.TopDirectoryOnly))
+        {
+            string name = Path.GetFileNameWithoutExtension(file).Replace(oldChar: '-', newChar: ' ');
+
+            string? text = null;
+
+            try
+            {
+                text = File.ReadAllText(file);
+            }
+            catch (IOException)
+            {
+                // ignored
+            }
+
+            if (text == null) continue;
+
+            Document credits = new();
+
+            Paragraph paragraph = new Paragraph()
+                .Font(Context.Fonts.Title).Text(name).LineBreak().LineBreak()
+                .Font(Context.Fonts.Default)
+                .Text(text).LineBreak();
+
+            credits.Paragraphs.Add(paragraph);
+
+            ScrollControl page = new(tabs)
+            {
+                CanScrollH = false
+            };
+
+            RichLabel content = new(page)
+            {
+                Document = credits
+            };
+
+            Control.Used(content);
+
+            tabs.AddPage(name, page);
+        }
     }
 }

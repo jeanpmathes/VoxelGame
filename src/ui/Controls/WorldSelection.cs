@@ -128,6 +128,8 @@ internal class WorldSelection : StandardMenu
                 Font = Fonts.Small
             };
 
+            Control.Used(date);
+
             Label version = new(infoPanel)
             {
                 Text = info.Version,
@@ -135,12 +137,16 @@ internal class WorldSelection : StandardMenu
                 TextColor = ApplicationInformation.Instance.Version == info.Version ? Color.Green : Color.Red
             };
 
+            Control.Used(version);
+
             Label file = new(infoPanel)
             {
                 Text = path,
                 Font = Fonts.Path,
                 TextColor = Color.Grey
             };
+
+            Control.Used(file);
 
             HorizontalLayout buttons = new(layout)
             {
@@ -212,6 +218,8 @@ internal class WorldSelection : StandardMenu
             Padding = Padding.Five
         };
 
+        Control.Used(info);
+
         TextBox name = new(layout)
         {
             Text = "Hello World",
@@ -248,3 +256,4 @@ internal class WorldSelection : StandardMenu
 
     internal event EventHandler Cancel = delegate {};
 }
+

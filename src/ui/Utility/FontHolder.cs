@@ -15,14 +15,14 @@ namespace VoxelGame.UI.Utility;
 /// </summary>
 internal sealed class FontHolder : IDisposable
 {
-    private const string FontName = "Arial";
+    private const string FontName = "Times New Roman";
 
     private readonly SkinBase skin;
 
     internal FontHolder(SkinBase skin)
     {
         this.skin = skin;
-        skin.DefaultFont.Size = 15;
+        skin.DefaultFont = new Font(skin.Renderer, FontName, size: 15);
 
         Title = Font.Create(skin.Renderer, FontName, size: 30);
         Subtitle = Font.Create(skin.Renderer, FontName);
