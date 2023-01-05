@@ -26,6 +26,35 @@ public class WorldProvider : IWorldProvider
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldProvider>();
 
+    private static readonly ISet<string> reservedNames = new HashSet<string>
+    {
+        "CON",
+        "PRN",
+        "AUX",
+        "NUL",
+        "COM",
+        "COM0",
+        "COM1",
+        "COM2",
+        "COM3",
+        "COM4",
+        "COM5",
+        "COM6",
+        "COM7",
+        "COM8",
+        "COM9",
+        "LPT0",
+        "LPT1",
+        "LPT2",
+        "LPT3",
+        "LPT4",
+        "LPT5",
+        "LPT6",
+        "LPT7",
+        "LPT8",
+        "LPT9"
+    };
+
     private readonly List<(WorldInformation info, string path)> worlds = new();
 
     private readonly string worldsDirectory;
@@ -137,38 +166,7 @@ public class WorldProvider : IWorldProvider
 
     private static bool IsNameReserved(string name)
     {
-        switch (name)
-        {
-            case "CON":
-            case "PRN":
-            case "AUX":
-            case "NUL":
-            case "COM":
-            case "COM0":
-            case "COM1":
-            case "COM2":
-            case "COM3":
-            case "COM4":
-            case "COM5":
-            case "COM6":
-            case "COM7":
-            case "COM8":
-            case "COM9":
-            case "LPT0":
-            case "LPT1":
-            case "LPT2":
-            case "LPT3":
-            case "LPT4":
-            case "LPT5":
-            case "LPT6":
-            case "LPT7":
-            case "LPT8":
-            case "LPT9":
-                return true;
-
-            default:
-                return false;
-        }
+        return reservedNames.Contains(name);
     }
 
     /// <summary>
@@ -176,5 +174,3 @@ public class WorldProvider : IWorldProvider
     /// </summary>
     public event EventHandler<ClientWorld> WorldActivation = null!;
 }
-
-
