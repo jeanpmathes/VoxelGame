@@ -12,6 +12,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.UI.Controls;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.UI.UserInterfaces;
@@ -31,10 +32,12 @@ public class ConsoleInterface
     private readonly IConsoleProvider console;
 
     private readonly LinkedList<(string input, Color color)> consoleLog = new();
+    private readonly LinkedList<string> consoleMemory = new();
+
     private readonly Context context;
 
     private readonly ControlBase root;
-    private TextBox? consoleInput;
+    private MemorizingTextBox? consoleInput;
 
     private ListBox? consoleOutput;
 
@@ -88,11 +91,13 @@ public class ConsoleInterface
             Margin = Margin.One
         };
 
-        consoleInput = new TextBox(bottomBar)
+        consoleInput = new MemorizingTextBox(bottomBar)
         {
             LooseFocusOnSubmit = false,
             Dock = Dock.Fill
         };
+
+        consoleInput.SetMemory(consoleMemory);
 
         Button consoleSubmit = new(bottomBar)
         {
@@ -112,7 +117,7 @@ public class ConsoleInterface
         void Submit()
         {
             string input = consoleInput.Text;
-            consoleInput.SetText("");
+            consoleInput.Memorize();
 
             if (input.Length == 0) return;
 
@@ -191,4 +196,3 @@ public class ConsoleInterface
     }
 }
      #pragma warning restore CA1001
-
