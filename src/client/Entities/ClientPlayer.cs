@@ -22,8 +22,8 @@ namespace VoxelGame.Client.Entities;
 /// </summary>
 public sealed class ClientPlayer : Player, IPlayerDataProvider
 {
-    private const float FlyingSpeed = 5f;
-    private const float FlyingSprintSpeed = 25f;
+    private const float FlyingSpeedFactor = 5f;
+    private const float FlyingSprintSpeedFactor = 25f;
     private readonly Camera camera;
     private readonly Vector3d cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
     private readonly float diveSpeed = 8f;
@@ -77,6 +77,11 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         activeBlock = Block.Grass;
         activeFluid = Fluid.Water;
     }
+
+    /// <summary>
+    ///     Get or set the flying state of the player.
+    /// </summary>
+    public double FlyingSpeed { get; set; } = 1f;
 
     /// <inheritdoc />
     public override Vector3d LookingDirection => camera.Front;
@@ -295,7 +300,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         }
         else
         {
-            Vector3d offset = input.GetFlyingMovement(FlyingSpeed, FlyingSprintSpeed);
+            Vector3d offset = input.GetFlyingMovement(FlyingSpeed * FlyingSpeedFactor, FlyingSpeed * FlyingSprintSpeedFactor);
             Position += offset * deltaTime;
         }
     }

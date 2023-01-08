@@ -114,7 +114,7 @@ internal sealed class PlayerInput
         return Math.Sign(selectionAxis.Value);
     }
 
-    internal Vector3d GetFlyingMovement(float flyingSpeed, float flyingSprintSpeed)
+    internal Vector3d GetFlyingMovement(double flyingSpeed, double flyingSprintSpeed)
     {
         (float x, float z) = movementInput.Value;
         float y = ShouldJump.ToInt() - ShouldCrouch.ToInt();
@@ -129,3 +129,4 @@ internal sealed class PlayerInput
         return movement;
     }
 }
+

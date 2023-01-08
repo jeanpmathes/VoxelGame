@@ -22,7 +22,7 @@ public class Teleport : Command
     public override string HelpText => "Teleport to a specified position or target.";
 
     /// <exclude />
-    public void Invoke(float x, float y, float z)
+    public void Invoke(double x, double y, double z)
     {
         Context.Player.Position = (x, y, z);
     }
@@ -40,3 +40,4 @@ public class Teleport : Command
         }
     }
 }
+

@@ -69,8 +69,8 @@ public class GameConsole : IConsoleProvider
 
         invoker.AddParser(
             Parser.BuildParser(
-                s => float.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
-                s => float.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
+                s => double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
+                s => double.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
 
         invoker.AddParser(Parser.BuildParser(
             s => Enum.IsDefined(typeof(Orientation), s),
@@ -84,3 +84,4 @@ public class GameConsole : IConsoleProvider
         return invoker;
     }
 }
+
