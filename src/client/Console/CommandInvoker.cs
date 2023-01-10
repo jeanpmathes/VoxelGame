@@ -159,13 +159,13 @@ public class CommandInvoker
             else
             {
                 context.Console.WriteError($"No overload found, use 'help {commandName}' for more info.");
-                logger.LogWarning(Events.Console, "No overload found for command '{Command}'", commandName);
+                logger.LogInformation(Events.Console, "No overload found for command '{Command}'", commandName);
             }
         }
         else
         {
             context.Console.WriteError($"No command '{commandName}' found, use 'help' for more info.");
-            logger.LogWarning(Events.Console, "Command '{Command}' not found", commandName);
+            logger.LogInformation(Events.Console, "Command '{Command}' not found", commandName);
         }
     }
 

@@ -26,7 +26,7 @@ namespace VoxelGame.UI.UserInterfaces;
 public class ConsoleInterface
 {
     private const int MaxConsoleLogLength = 200;
-    private static readonly Color inputColor = Color.Gray;
+    private static readonly Color echoColor = Color.Gray;
     private static readonly Color responseColor = Color.White;
     private static readonly Color errorColor = Color.Red;
     private readonly IConsoleProvider console;
@@ -97,7 +97,8 @@ public class ConsoleInterface
         consoleInput = new MemorizingTextBox(bottomBar)
         {
             LooseFocusOnSubmit = false,
-            Dock = Dock.Fill
+            Dock = Dock.Fill,
+            Font = context.Fonts.Console
         };
 
         consoleInput.SetMemory(consoleMemory);
@@ -105,7 +106,8 @@ public class ConsoleInterface
         Button consoleSubmit = new(bottomBar)
         {
             Dock = Dock.Right,
-            Text = Language.Submit
+            Text = Language.Submit,
+            Font = context.Fonts.Console
         };
 
         consoleInput.SubmitPressed += (_, _) => Submit();
@@ -124,7 +126,7 @@ public class ConsoleInterface
 
             if (input.Length == 0) return;
 
-            Write(input, inputColor, Array.Empty<FollowUp>());
+            Write(input, echoColor, context.Fonts.Console, Array.Empty<FollowUp>());
             console.ProcessInput(input);
         }
     }
@@ -134,10 +136,11 @@ public class ConsoleInterface
     /// </summary>
     /// <param name="message">The message text.</param>
     /// <param name="color">The message color.</param>
+    /// <param name="font">The font to use.</param>
     /// <param name="followUp">A group of follow-up actions that can be executed.</param>
-    public void Write(string message, Color color, FollowUp[] followUp)
+    private void Write(string message, Color color, Font font, FollowUp[] followUp)
     {
-        Entry entry = new(message, color, followUp);
+        Entry entry = new(message, color, font, followUp);
 
         if (IsOpen)
         {
@@ -157,14 +160,22 @@ public class ConsoleInterface
         Debug.Assert(content != null);
 
         ListBoxRow row = new(consoleOutput);
-        row.SetTextColor(entry.Color);
 
-        row.SetCellText(columnIndex: 0, "[ ]");
-        row.SetCellText(columnIndex: 1, entry.Text);
+        void SetText(int column, string text)
+        {
+            row.SetCellText(column, text);
+            ((Label) row.GetCellContents(column)).Font = entry.Font;
+            row.SetTextColor(entry.Color);
+        }
+
+        SetText(column: 0, "[ ]");
+        SetText(column: 1, entry.Text);
+
+        consoleOutput.AddRow(row);
 
         if (entry.FollowUp.Length <= 0) return;
 
-        row.SetCellText(columnIndex: 0, "[a]");
+        SetText(column: 0, "[a]");
 
         Menu menu = new(content);
 
@@ -172,7 +183,9 @@ public class ConsoleInterface
         {
             MenuItem item = new(menu)
             {
-                Text = followUp.Description
+                Text = followUp.Description,
+                Font = context.Fonts.Console,
+                Alignment = Alignment.Left
             };
 
             item.Pressed += (_, _) => followUp.Action();
@@ -192,7 +205,7 @@ public class ConsoleInterface
     /// <param name="followUp">A group of follow-up actions that can be executed.</param>
     public void WriteResponse(string message, FollowUp[] followUp)
     {
-        Write(message, responseColor, followUp);
+        Write(message, responseColor, context.Fonts.Console, followUp);
     }
 
     /// <summary>
@@ -202,7 +215,7 @@ public class ConsoleInterface
     /// <param name="followUp">A group of follow-up actions that can be executed.</param>
     public void WriteError(string message, FollowUp[] followUp)
     {
-        Write(message, errorColor, followUp);
+        Write(message, errorColor, context.Fonts.ConsoleError, followUp);
     }
 
     internal void CloseWindow()
@@ -238,6 +251,6 @@ public class ConsoleInterface
         consoleLog.Clear();
     }
 
-    private sealed record Entry(string Text, Color Color, FollowUp[] FollowUp);
+    private sealed record Entry(string Text, Color Color, Font Font, FollowUp[] FollowUp);
 }
      #pragma warning restore CA1001

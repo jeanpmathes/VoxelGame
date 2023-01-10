@@ -15,19 +15,23 @@ namespace VoxelGame.UI.Utility;
 /// </summary>
 internal sealed class FontHolder : IDisposable
 {
-    private const string FontName = "Times New Roman";
+    private const string DefaultFontName = "Times New Roman";
+    private const string ConsoleFontName = "Consolas";
 
     private readonly SkinBase skin;
 
     internal FontHolder(SkinBase skin)
     {
         this.skin = skin;
-        skin.DefaultFont = new Font(skin.Renderer, FontName, size: 15);
+        skin.DefaultFont = new Font(skin.Renderer, DefaultFontName, size: 15);
 
-        Title = Font.Create(skin.Renderer, FontName, size: 30);
-        Subtitle = Font.Create(skin.Renderer, FontName);
-        Small = Font.Create(skin.Renderer, FontName, size: 12);
-        Path = Font.Create(skin.Renderer, FontName, size: 10, FontStyle.Italic);
+        Title = Font.Create(skin.Renderer, DefaultFontName, size: 30);
+        Subtitle = Font.Create(skin.Renderer, DefaultFontName);
+        Small = Font.Create(skin.Renderer, DefaultFontName, size: 12);
+        Path = Font.Create(skin.Renderer, DefaultFontName, style: FontStyle.Italic);
+
+        Console = Font.Create(skin.Renderer, ConsoleFontName, size: 15);
+        ConsoleError = Font.Create(skin.Renderer, ConsoleFontName, size: 15, FontStyle.Bold);
     }
 
     internal Font Default => skin.DefaultFont;
@@ -36,6 +40,9 @@ internal sealed class FontHolder : IDisposable
     internal Font Subtitle { get; }
     internal Font Small { get; }
     internal Font Path { get; }
+
+    internal Font Console { get; }
+    internal Font ConsoleError { get; }
 
     public void Dispose()
     {
