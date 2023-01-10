@@ -48,7 +48,6 @@ public class Teleport : Command
     /// <param name="position">The position to teleport to.</param>
     public static void Do(Context context, Vector3d position)
     {
-        context.Player.Position = position;
+        context.Player.Teleport(position);
     }
 }
-

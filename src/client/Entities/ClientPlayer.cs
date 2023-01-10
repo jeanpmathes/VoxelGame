@@ -101,6 +101,11 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     /// </summary>
     public Vector3d LookingPosition => camera.Position;
 
+    /// <summary>
+    ///     The previous position before teleporting.
+    /// </summary>
+    public Vector3d PreviousPosition { get; private set; }
+
     /// <inheritdoc />
     public override BlockSide TargetSide => targetSide;
 
@@ -151,6 +156,16 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     string IPlayerDataProvider.Selection => blockMode ? activeBlock.Name : activeFluid.Name;
 
     string IPlayerDataProvider.Mode => blockMode ? Language.Block : Language.Fluid;
+
+    /// <summary>
+    ///     Teleport the player to a new position.
+    /// </summary>
+    /// <param name="position">The new position.</param>
+    public void Teleport(Vector3d position)
+    {
+        PreviousPosition = Position;
+        Position = position;
+    }
 
  #pragma warning disable CA1822
     /// <summary>

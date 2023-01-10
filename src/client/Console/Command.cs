@@ -44,6 +44,7 @@ public abstract class Command : ICommand
             "min-corner" => -Context.Player.World.Extents,
             "max-corner" => Context.Player.World.Extents,
             "self" => Context.Player.Position,
+            "prev-self" => Context.Player.PreviousPosition,
             _ => null
         };
     }
@@ -70,4 +71,3 @@ public interface ICommand
     /// <param name="context">The command execution context.</param>
     void SetContext(Context context);
 }
-

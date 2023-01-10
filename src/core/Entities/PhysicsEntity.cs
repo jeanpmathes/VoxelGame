@@ -72,7 +72,7 @@ public abstract class PhysicsEntity : IDisposable
     public Vector3d Position
     {
         get => actualPosition;
-        set => actualPosition = VMath.ClampComponents(value, -World.Extents, World.Extents);
+        protected set => actualPosition = VMath.ClampComponents(value, -World.Extents, World.Extents);
     }
 
     /// <summary>
