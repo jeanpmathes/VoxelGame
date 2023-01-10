@@ -26,6 +26,9 @@ namespace VoxelGame.UI.UserInterfaces;
 public class ConsoleInterface
 {
     private const int MaxConsoleLogLength = 200;
+
+    private const string DefaultMarker = "[ ]";
+    private const string FollowUpMarker = "[a]";
     private static readonly Color echoColor = Color.Gray;
     private static readonly Color responseColor = Color.White;
     private static readonly Color errorColor = Color.Red;
@@ -48,6 +51,11 @@ public class ConsoleInterface
         this.root = root;
         this.console = console;
         this.context = context;
+
+        consoleLog.AddLast(new Entry(
+            $"Welcome! Enter your commands below, and note that entries with {FollowUpMarker} offer follow-up actions in their right-click menu.",
+            EntryType.Echo,
+            Array.Empty<FollowUp>()));
     }
 
     internal bool IsOpen => consoleWindow != null;
@@ -82,7 +90,7 @@ public class ConsoleInterface
         consoleOutput = new ListBox(layout)
         {
             AlternateColor = false,
-            CanScrollH = false,
+            CanScrollH = true,
             CanScrollV = true,
             Dock = Dock.Fill,
             Margin = Margin.One,
@@ -126,7 +134,7 @@ public class ConsoleInterface
 
             if (input.Length == 0) return;
 
-            Write(input, echoColor, context.Fonts.Console, Array.Empty<FollowUp>());
+            Write(input, EntryType.Echo, Array.Empty<FollowUp>());
             console.ProcessInput(input);
         }
     }
@@ -135,12 +143,11 @@ public class ConsoleInterface
     ///     Write a colored message to the console.
     /// </summary>
     /// <param name="message">The message text.</param>
-    /// <param name="color">The message color.</param>
-    /// <param name="font">The font to use.</param>
+    /// <param name="type">The type of message.</param>
     /// <param name="followUp">A group of follow-up actions that can be executed.</param>
-    private void Write(string message, Color color, Font font, FollowUp[] followUp)
+    private void Write(string message, EntryType type, FollowUp[] followUp)
     {
-        Entry entry = new(message, color, font, followUp);
+        Entry entry = new(message, type, followUp);
 
         if (IsOpen)
         {
@@ -161,21 +168,23 @@ public class ConsoleInterface
 
         ListBoxRow row = new(consoleOutput);
 
+        (Font font, Color color) = entry.GetStyle(context);
+
         void SetText(int column, string text)
         {
             row.SetCellText(column, text);
-            ((Label) row.GetCellContents(column)).Font = entry.Font;
-            row.SetTextColor(entry.Color);
+            ((Label) row.GetCellContents(column)).Font = font;
+            row.SetTextColor(color);
         }
 
-        SetText(column: 0, "[ ]");
+        SetText(column: 0, DefaultMarker);
         SetText(column: 1, entry.Text);
 
         consoleOutput.AddRow(row);
 
         if (entry.FollowUp.Length <= 0) return;
 
-        SetText(column: 0, "[a]");
+        SetText(column: 0, FollowUpMarker);
 
         Menu menu = new(content);
 
@@ -205,7 +214,7 @@ public class ConsoleInterface
     /// <param name="followUp">A group of follow-up actions that can be executed.</param>
     public void WriteResponse(string message, FollowUp[] followUp)
     {
-        Write(message, responseColor, context.Fonts.Console, followUp);
+        Write(message, EntryType.Response, followUp);
     }
 
     /// <summary>
@@ -215,7 +224,7 @@ public class ConsoleInterface
     /// <param name="followUp">A group of follow-up actions that can be executed.</param>
     public void WriteError(string message, FollowUp[] followUp)
     {
-        Write(message, errorColor, context.Fonts.ConsoleError, followUp);
+        Write(message, EntryType.Error, followUp);
     }
 
     internal void CloseWindow()
@@ -251,6 +260,25 @@ public class ConsoleInterface
         consoleLog.Clear();
     }
 
-    private sealed record Entry(string Text, Color Color, Font Font, FollowUp[] FollowUp);
+    private enum EntryType
+    {
+        Response,
+        Error,
+        Echo
+    }
+
+    private sealed record Entry(string Text, EntryType Type, FollowUp[] FollowUp)
+    {
+        public (Font font, Color color) GetStyle(Context context)
+        {
+            return Type switch
+            {
+                EntryType.Response => (context.Fonts.Console, responseColor),
+                EntryType.Error => (context.Fonts.ConsoleError, errorColor),
+                EntryType.Echo => (context.Fonts.Console, echoColor),
+                _ => throw new InvalidOperationException()
+            };
+        }
+    }
 }
      #pragma warning restore CA1001
