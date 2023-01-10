@@ -15,7 +15,7 @@ namespace VoxelGame.UI.Controls;
 /// </summary>
 public class MemorizingTextBox : TextBox
 {
-    private const int MaxMemorySize = 999;
+    private const int MaxMemorySize = 99;
 
     private LinkedListNode<string>? current;
     private string? edited;
@@ -110,3 +110,4 @@ public class MemorizingTextBox : TextBox
         return true;
     }
 }
+

@@ -31,17 +31,17 @@ public class ConsoleInterface
     private static readonly Color errorColor = Color.Red;
     private readonly IConsoleProvider console;
 
-    private readonly LinkedList<(string input, Color color)> consoleLog = new();
+    private readonly LinkedList<Entry> consoleLog = new();
     private readonly LinkedList<string> consoleMemory = new();
 
     private readonly Context context;
 
     private readonly ControlBase root;
+
     private MemorizingTextBox? consoleInput;
-
     private ListBox? consoleOutput;
-
     private Window? consoleWindow;
+    private ControlBase? content;
 
     internal ConsoleInterface(ControlBase root, IConsoleProvider console, Context context)
     {
@@ -68,7 +68,9 @@ public class ConsoleInterface
         consoleWindow.Closed += (_, _) => CleanupAfterClose();
         consoleWindow.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
 
-        GridLayout layout = new(consoleWindow)
+        content = new EmptyControl(consoleWindow);
+
+        GridLayout layout = new(content)
         {
             Dock = Dock.Fill,
             Margin = Margin.Ten
@@ -83,7 +85,8 @@ public class ConsoleInterface
             CanScrollH = false,
             CanScrollV = true,
             Dock = Dock.Fill,
-            Margin = Margin.One
+            Margin = Margin.One,
+            ColumnCount = 2
         };
 
         DockLayout bottomBar = new(layout)
@@ -110,7 +113,7 @@ public class ConsoleInterface
 
         consoleInput.Focus();
 
-        foreach ((string entry, Color color) in consoleLog) consoleOutput.AddRow(entry).SetTextColor(color);
+        foreach (Entry entry in consoleLog) AddEntry(entry);
 
         consoleOutput.ScrollToBottom();
 
@@ -121,7 +124,7 @@ public class ConsoleInterface
 
             if (input.Length == 0) return;
 
-            Write(input, inputColor);
+            Write(input, inputColor, Array.Empty<FollowUp>());
             console.ProcessInput(input);
         }
     }
@@ -131,35 +134,75 @@ public class ConsoleInterface
     /// </summary>
     /// <param name="message">The message text.</param>
     /// <param name="color">The message color.</param>
-    public void Write(string message, Color color)
+    /// <param name="followUp">A group of follow-up actions that can be executed.</param>
+    public void Write(string message, Color color, FollowUp[] followUp)
     {
+        Entry entry = new(message, color, followUp);
+
         if (IsOpen)
         {
             Debug.Assert(consoleOutput != null);
-            consoleOutput.AddRow(message).SetTextColor(color);
+
+            AddEntry(entry);
             consoleOutput.ScrollToBottom();
         }
 
-        consoleLog.AddLast((message, color));
+        consoleLog.AddLast(entry);
         while (consoleLog.Count > MaxConsoleLogLength) consoleLog.RemoveFirst();
+    }
+
+    private void AddEntry(Entry entry)
+    {
+        Debug.Assert(consoleOutput != null);
+        Debug.Assert(content != null);
+
+        ListBoxRow row = new(consoleOutput);
+        row.SetTextColor(entry.Color);
+
+        row.SetCellText(columnIndex: 0, "[ ]");
+        row.SetCellText(columnIndex: 1, entry.Text);
+
+        if (entry.FollowUp.Length <= 0) return;
+
+        row.SetCellText(columnIndex: 0, "[a]");
+
+        Menu menu = new(content);
+
+        foreach (FollowUp followUp in entry.FollowUp)
+        {
+            MenuItem item = new(menu)
+            {
+                Text = followUp.Description
+            };
+
+            item.Pressed += (_, _) => followUp.Action();
+        }
+
+        row.RightClicked += (_, arguments) =>
+        {
+            menu.Position = content.CanvasPosToLocal(new Point(arguments.X, arguments.Y));
+            menu.Show();
+        };
     }
 
     /// <summary>
     ///     Write a response message to the console.
     /// </summary>
     /// <param name="message">The message text.</param>
-    public void WriteResponse(string message)
+    /// <param name="followUp">A group of follow-up actions that can be executed.</param>
+    public void WriteResponse(string message, FollowUp[] followUp)
     {
-        Write(message, responseColor);
+        Write(message, responseColor, followUp);
     }
 
     /// <summary>
     ///     Write an error message to the console.
     /// </summary>
     /// <param name="message">The message text.</param>
-    public void WriteError(string message)
+    /// <param name="followUp">A group of follow-up actions that can be executed.</param>
+    public void WriteError(string message, FollowUp[] followUp)
     {
-        Write(message, errorColor);
+        Write(message, errorColor, followUp);
     }
 
     internal void CloseWindow()
@@ -194,5 +237,7 @@ public class ConsoleInterface
         consoleOutput?.Clear();
         consoleLog.Clear();
     }
+
+    private sealed record Entry(string Text, Color Color, FollowUp[] FollowUp);
 }
      #pragma warning restore CA1001

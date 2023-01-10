@@ -17,7 +17,7 @@ public abstract class Command : ICommand
     /// <summary>
     ///     Get the current command execution content. Is set when a command is invoked.
     /// </summary>
-    protected CommandContext Context { get; private set; } = null!;
+    protected Context Context { get; private set; } = null!;
 
     /// <inheritdoc />
     public abstract string Name { get; }
@@ -25,7 +25,7 @@ public abstract class Command : ICommand
     /// <inheritdoc />
     public abstract string HelpText { get; }
 
-    void ICommand.SetContext(CommandContext context)
+    void ICommand.SetContext(Context context)
     {
         Context = context;
     }
@@ -68,5 +68,6 @@ public interface ICommand
     ///     Set the current command execution context.
     /// </summary>
     /// <param name="context">The command execution context.</param>
-    void SetContext(CommandContext context);
+    void SetContext(Context context);
 }
+

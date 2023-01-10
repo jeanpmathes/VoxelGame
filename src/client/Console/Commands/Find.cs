@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
@@ -69,9 +70,11 @@ public class Find : Command
         Task.Run(() =>
         {
             foreach (Vector3i position in positions.Take(count))
-                Context.Console.EnqueueResponse($"Found {name} at {position}.");
+                Context.Console.EnqueueResponse($"Found {name} at {position}.",
+                    new FollowUp($"Teleport to {name}", () => Teleport.Do(Context, position)));
 
             Context.Console.EnqueueResponse($"Search for {name} finished.");
         });
     }
 }
+

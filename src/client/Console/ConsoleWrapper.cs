@@ -16,7 +16,7 @@ namespace VoxelGame.Client.Console;
 public class ConsoleWrapper
 {
     private readonly ConsoleInterface consoleInterface;
-    private readonly ConcurrentQueue<string> responses = new();
+    private readonly ConcurrentQueue<(string message, FollowUp[] followUp)> responses = new();
 
     /// <summary>
     ///     Create a new console wrapper.
@@ -32,20 +32,22 @@ public class ConsoleWrapper
     ///     This method must be called from the main thread.
     /// </summary>
     /// <param name="response">The response to write.</param>
-    public void WriteResponse(string response)
+    /// <param name="followUp">A group of follow-up actions.</param>
+    public void WriteResponse(string response, params FollowUp[] followUp)
     {
         ApplicationInformation.Instance.EnsureMainThread("Console.WriteResponse()", this);
-        consoleInterface.WriteResponse(response);
+        consoleInterface.WriteResponse(response, followUp);
     }
 
     /// <summary>
     ///     Queue a response to be written to the console.
     ///     This method can be called from any thread.
     /// </summary>
-    /// <param name="response"></param>
-    public void EnqueueResponse(string response)
+    /// <param name="response">The response to write.</param>
+    /// <param name="followUp">A group of follow-up actions.</param>
+    public void EnqueueResponse(string response, params FollowUp[] followUp)
     {
-        responses.Enqueue(response);
+        responses.Enqueue((response, followUp));
     }
 
     /// <summary>
@@ -55,7 +57,8 @@ public class ConsoleWrapper
     {
         ApplicationInformation.Instance.EnsureMainThread("Console.Flush()", this);
 
-        while (responses.TryDequeue(out string? message)) WriteResponse(message);
+        while (responses.TryDequeue(out (string message, FollowUp[] followUp) response))
+            WriteResponse(response.message, response.followUp);
     }
 
     /// <summary>
@@ -63,10 +66,11 @@ public class ConsoleWrapper
     ///     This method must be called from the main thread.
     /// </summary>
     /// <param name="error">The error to write.</param>
-    public void WriteError(string error)
+    /// <param name="followUp">A group of follow-up actions.</param>
+    public void WriteError(string error, params FollowUp[] followUp)
     {
         ApplicationInformation.Instance.EnsureMainThread("Console.WriteError()", this);
-        consoleInterface.WriteError(error);
+        consoleInterface.WriteError(error, followUp);
     }
 
     /// <summary>
@@ -79,3 +83,4 @@ public class ConsoleWrapper
         consoleInterface.Clear();
     }
 }
+

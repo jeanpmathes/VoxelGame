@@ -44,7 +44,7 @@ public class GameConsole : IConsoleProvider
 
         commandInvoker.InvokeCommand(
             input,
-            new CommandContext(Console, Application.Client.Instance.CurrentGame.Player));
+            new Context(Console, Application.Client.Instance.CurrentGame.Player));
     }
 
     /// <summary>
@@ -84,4 +84,5 @@ public class GameConsole : IConsoleProvider
         return invoker;
     }
 }
+
 
