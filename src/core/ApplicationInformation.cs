@@ -5,9 +5,8 @@
 // <author>pershingthesecond</author>
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
-using Microsoft.Extensions.Logging;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Core;
 
@@ -16,8 +15,6 @@ namespace VoxelGame.Core;
 /// </summary>
 public class ApplicationInformation
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<ApplicationInformation>();
-
     private ApplicationInformation(string version)
     {
         Version = version;
@@ -45,14 +42,12 @@ public class ApplicationInformation
     ///     Ensure that the current thread is the main thread.
     /// </summary>
     /// <returns>True if the current thread is the main thread.</returns>
-    public bool EnsureMainThread(string operation, object @object)
+    [Conditional("DEBUG")]
+    public void EnsureMainThread(object @object, [CallerMemberName] string operation = "")
     {
-        if (Thread.CurrentThread == MainThread) return true;
+        if (Thread.CurrentThread == MainThread) return;
 
-        logger.LogWarning("Attempted to perform operation '{Operation}' with object '{Object}' from non-main thread", operation, @object);
-        Debug.Fail("Attempted to perform operation from non-main thread");
-
-        return false;
+        Debug.Fail($"Attempted to perform operation '{operation}' with object '{@object}' from non-main thread");
     }
 
     /// <summary>

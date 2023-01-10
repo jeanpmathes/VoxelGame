@@ -70,7 +70,7 @@ public class ChunkMeshingContext
     /// <returns>A context that can be used to mesh the chunk.</returns>
     public static ChunkMeshingContext UsingActive(Chunk chunk)
     {
-        ApplicationInformation.Instance.EnsureMainThread("ChunkMeshingContext.UsingActive()", chunk);
+        ApplicationInformation.Instance.EnsureMainThread(chunk);
 
         var foundNeighbors = new (Chunk, Guard?)?[6];
         var availableSides = BlockSides.None;
@@ -150,3 +150,4 @@ public class ChunkMeshingContext
         neighbors = null!;
     }
 }
+

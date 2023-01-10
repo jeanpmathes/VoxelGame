@@ -35,7 +35,7 @@ public class ConsoleWrapper
     /// <param name="followUp">A group of follow-up actions.</param>
     public void WriteResponse(string response, params FollowUp[] followUp)
     {
-        ApplicationInformation.Instance.EnsureMainThread("Console.WriteResponse()", this);
+        ApplicationInformation.Instance.EnsureMainThread(this);
         consoleInterface.WriteResponse(response, followUp);
     }
 
@@ -55,7 +55,7 @@ public class ConsoleWrapper
     /// </summary>
     public void Flush()
     {
-        ApplicationInformation.Instance.EnsureMainThread("Console.Flush()", this);
+        ApplicationInformation.Instance.EnsureMainThread(this);
 
         while (responses.TryDequeue(out (string message, FollowUp[] followUp) response))
             WriteResponse(response.message, response.followUp);
@@ -69,7 +69,7 @@ public class ConsoleWrapper
     /// <param name="followUp">A group of follow-up actions.</param>
     public void WriteError(string error, params FollowUp[] followUp)
     {
-        ApplicationInformation.Instance.EnsureMainThread("Console.WriteError()", this);
+        ApplicationInformation.Instance.EnsureMainThread(this);
         consoleInterface.WriteError(error, followUp);
     }
 
@@ -79,8 +79,9 @@ public class ConsoleWrapper
     /// </summary>
     public void Clear()
     {
-        ApplicationInformation.Instance.EnsureMainThread("Console.Clear()", this);
+        ApplicationInformation.Instance.EnsureMainThread(this);
         consoleInterface.Clear();
     }
 }
+
 
