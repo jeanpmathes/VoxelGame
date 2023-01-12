@@ -5,6 +5,8 @@
 // <author>pershingthesecond</author>
 
 using JetBrains.Annotations;
+using VoxelGame.Client.Utilities;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
@@ -24,6 +26,11 @@ public class EmitViews : Command
     /// <exclude />
     public void Invoke()
     {
-        Context.Player.World.EmitViews();
+        string path = Context.Player.World.Data.DebugDirectory;
+
+        Context.Player.World.EmitViews(path);
+
+        Context.Console.WriteResponse($"Emitted views to: {path}",
+            new FollowUp("Open folder", () => OS.Start(path)));
     }
 }

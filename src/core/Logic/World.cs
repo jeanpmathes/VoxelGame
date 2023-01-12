@@ -301,9 +301,9 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Emit views of global world data for debugging.
     /// </summary>
-    public void EmitViews()
+    public void EmitViews(string directory)
     {
-        generator.EmitViews(Data.DebugDirectory);
+        generator.EmitViews(directory);
     }
 
     /// <summary>
@@ -704,5 +704,3 @@ public abstract class World : IDisposable, IGrid
 
     #endregion IDisposable Support
 }
-
-
