@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using VoxelGame.Client.Utilities;
 using VoxelGame.UI.UserInterfaces;
@@ -28,9 +29,12 @@ public class EmitViews : Command
     {
         string path = Context.Player.World.Data.DebugDirectory;
 
-        Context.Player.World.EmitViews(path);
+        Task.Run(() =>
+        {
+            Context.Player.World.EmitViews(path);
 
-        Context.Console.WriteResponse($"Emitted views to: {path}",
-            new FollowUp("Open folder", () => OS.Start(path)));
+            Context.Console.EnqueueResponse($"Emitted views to: {path}",
+                new FollowUp("Open folder", () => OS.Start(path)));
+        });
     }
 }
