@@ -91,6 +91,11 @@ public sealed class GameScene : IScene
 
         world.AddPlayer(player);
 
+        world.Ready += (_, _) =>
+        {
+            console.OnWorldReady();
+        };
+
         Game = new Game(world, player);
     }
 

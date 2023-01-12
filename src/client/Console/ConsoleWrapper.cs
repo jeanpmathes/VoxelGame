@@ -11,7 +11,7 @@ using VoxelGame.UI.UserInterfaces;
 namespace VoxelGame.Client.Console;
 
 /// <summary>
-///     A wrapper around the console provided by the UI.
+///     A wrapper around the console interface provided by the UI.
 /// </summary>
 public class ConsoleWrapper
 {

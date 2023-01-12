@@ -29,11 +29,13 @@ public class WorldData
         ChunkDirectory = Path.Combine(directory, "Chunks");
         BlobDirectory = Path.Combine(directory, "Blobs");
         DebugDirectory = Path.Combine(directory, "Debug");
+        ScriptDirectory = Path.Combine(directory, "Scripts");
 
         Directory.CreateDirectory(WorldDirectory);
         Directory.CreateDirectory(ChunkDirectory);
         Directory.CreateDirectory(BlobDirectory);
         Directory.CreateDirectory(DebugDirectory);
+        Directory.CreateDirectory(ScriptDirectory);
     }
 
     /// <summary>
@@ -55,6 +57,11 @@ public class WorldData
     ///     The directory at which debug artifacts can be stored.
     /// </summary>
     public string DebugDirectory { get; }
+
+    /// <summary>
+    ///     The directory in which scripts are stored.
+    /// </summary>
+    public string ScriptDirectory { get; }
 
     /// <summary>
     ///     Get a reader for an existing blob.
@@ -93,6 +100,54 @@ public class WorldData
         catch (IOException e)
         {
             logger.LogError(Events.WorldIO, e, "Failed to create blob '{Name}'", name);
+
+            return null;
+        }
+    }
+
+    private string GetScriptPath(string name)
+    {
+        return Path.Combine(ScriptDirectory, $"{name}.txt");
+    }
+
+    /// <summary>
+    ///     Get the content of a script.
+    /// </summary>
+    /// <param name="name">The name of the script.</param>
+    /// <returns>The content of the script, or null if the script does not exist.</returns>
+    public string? GetScript(string name)
+    {
+        try
+        {
+            return File.ReadAllText(GetScriptPath(name));
+        }
+        catch (IOException)
+        {
+            logger.LogDebug(Events.WorldIO, "Failed to read script '{Name}'", name);
+
+            return null;
+        }
+    }
+
+    /// <summary>
+    ///     Create a new script. If the script already exists, it will not be changed but the path will still be returned.
+    /// </summary>
+    /// <param name="name">The name of the script.</param>
+    /// <param name="content">The initial content of the script.</param>
+    /// <returns>The path to the script, or null if an error occurred.</returns>
+    public string? CreateScript(string name, string content)
+    {
+        try
+        {
+            string path = GetScriptPath(name);
+
+            if (!File.Exists(path)) File.WriteAllText(path, content);
+
+            return path;
+        }
+        catch (IOException e)
+        {
+            logger.LogError(Events.WorldIO, e, "Failed to create script '{Name}'", name);
 
             return null;
         }

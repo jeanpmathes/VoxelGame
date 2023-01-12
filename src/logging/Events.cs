@@ -42,6 +42,11 @@ public static class Events
     public const int WindowState = 11;
 
     /// <summary>
+    ///     Events related to OS interactions.
+    /// </summary>
+    public const int OS = 20;
+
+    /// <summary>
     ///     Events related to file system operations.
     /// </summary>
     public const int FileIO = 50;
@@ -283,3 +288,5 @@ public static class Events
 
     #endregion RENDERING AND VISUALS
 }
+
+
