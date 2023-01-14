@@ -59,11 +59,12 @@ public class GameConsole : IConsoleProvider
         Debug.Assert(Application.Client.Instance.CurrentGame != null);
         ClientPlayer player = Application.Client.Instance.CurrentGame.Player;
 
+        logger.LogDebug("Trying to execute world ready script");
+
         bool executed = RunScript.Do(new Context(Console, commandInvoker, player), WorldReadyScript, ignoreErrors: true);
 
-        if (executed) logger.LogInformation(Events.Console, "Executing world ready script");
-
-
+        if (executed) logger.LogInformation(Events.Console, "Executed world ready script");
+        else logger.LogDebug("No world ready script found");
     }
 
     /// <summary>
@@ -103,3 +104,4 @@ public class GameConsole : IConsoleProvider
         return invoker;
     }
 }
+
