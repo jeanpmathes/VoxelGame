@@ -1,4 +1,4 @@
-﻿// <copyright file="Find.cs" company="VoxelGame">
+﻿// <copyright file="FindNamed.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -20,10 +20,10 @@ namespace VoxelGame.Client.Console.Commands;
 ///     Search and find any named generated object in the world.
 /// </summary>
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-public class Find : Command
+public class FindNamed : Command
 {
     /// <inheritdoc />
-    public override string Name => "find";
+    public override string Name => "find-named";
 
     /// <inheritdoc />
     public override string HelpText => "Search and find any named generated object in the world.";
@@ -77,4 +77,3 @@ public class Find : Command
         });
     }
 }
-
