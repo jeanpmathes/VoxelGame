@@ -7,7 +7,7 @@
 namespace VoxelGame.UI.Providers;
 
 /// <summary>
-///     An interface for a console backend that can process inputs into a console frontend.
+///     An interface for a console backend that can process inputs from a console frontend.
 /// </summary>
 public interface IConsoleProvider
 {
@@ -16,4 +16,9 @@ public interface IConsoleProvider
     /// </summary>
     /// <param name="input">The user input to process.</param>
     void ProcessInput(string input);
+
+    /// <summary>
+    ///     Call this method on world-ready to run init commands.
+    /// </summary>
+    void OnWorldReady();
 }

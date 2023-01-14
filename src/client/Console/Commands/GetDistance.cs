@@ -23,7 +23,7 @@ public class GetDistance : Command
     public override string HelpText => "Get the distance to a specified point or target.";
 
     /// <exclude />
-    public void Invoke(float x, float y, float z)
+    public void Invoke(double x, double y, double z)
     {
         DetermineDistance((x, y, z));
     }
@@ -56,3 +56,4 @@ public class GetDistance : Command
         }
     }
 }
+

@@ -23,7 +23,7 @@ public class SetSpawnPoint : Command
     public override string HelpText => "Sets the spawn position for the current world.";
 
     /// <exclude />
-    public void Invoke(float x, float y, float z)
+    public void Invoke(double x, double y, double z)
     {
         SetSpawnPosition((x, y, z));
     }
@@ -39,3 +39,4 @@ public class SetSpawnPoint : Command
         Context.Player.World.SpawnPosition = newSpawnPoint;
     }
 }
+

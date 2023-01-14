@@ -74,10 +74,9 @@ public sealed class ChunkSet : IDisposable
     /// <returns>The chunk, or null if it does not exist.</returns>
     private Chunk? Get(ChunkPosition position)
     {
-        if (ApplicationInformation.Instance.EnsureMainThread($"ChunkSet.Get({position})", this))
-            return chunks.TryGetValue(position, out Chunk? chunk) ? chunk : null;
+        ApplicationInformation.Instance.EnsureMainThread(this);
 
-        return null;
+        return chunks.TryGetValue(position, out Chunk? chunk) ? chunk : null;
     }
 
     /// <summary>

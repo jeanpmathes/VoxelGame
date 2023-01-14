@@ -6,7 +6,9 @@
 
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Client.Utilities;
 using VoxelGame.Core.Logic.Structures;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
 #pragma warning disable CA1822
@@ -44,7 +46,9 @@ public class ExportStructure : Command
 
         if (structure != null) success = structure.Store(Program.StructureDirectory, name);
 
-        if (success) Context.Console.WriteResponse($"Structure exported to: {Program.StructureDirectory}");
+        if (success)
+            Context.Console.WriteResponse($"Structure exported to: {Program.StructureDirectory}",
+                new FollowUp("Open directory", () => { OS.Start(Program.StructureDirectory); }));
         else Context.Console.WriteError("Failed to export structure.");
     }
 }

@@ -44,6 +44,8 @@ public abstract class World : IDisposable, IGrid
 
     private readonly IWorldGenerator generator;
 
+    private State currentState = State.Activating;
+
     private (Task saving, Action callback)? deactivation;
 
     /// <summary>
@@ -82,6 +84,8 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     private World(WorldInformation information, string directory)
     {
+        Ready += delegate {};
+
         Information = information;
         ValidateInformation();
 
@@ -126,7 +130,16 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Get the world state.
     /// </summary>
-    protected State CurrentState { get; set; } = State.Activating;
+    protected State CurrentState
+    {
+        get => currentState;
+        set
+        {
+            currentState = value;
+
+            if (value == State.Active) Ready(this, EventArgs.Empty);
+        }
+    }
 
     /// <summary>
     ///     Get or set the spawn position in this world.
@@ -288,9 +301,9 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Emit views of global world data for debugging.
     /// </summary>
-    public void EmitViews()
+    public void EmitViews(string directory)
     {
-        generator.EmitViews(Data.DebugDirectory);
+        generator.EmitViews(directory);
     }
 
     /// <summary>
@@ -628,6 +641,11 @@ public abstract class World : IDisposable, IGrid
 
         return chunk != null;
     }
+
+    /// <summary>
+    ///     Fired anytime the world switches to the ready-state.
+    /// </summary>
+    public event EventHandler<EventArgs> Ready;
 
     /// <summary>
     /// The world state.

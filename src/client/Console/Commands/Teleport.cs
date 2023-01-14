@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using JetBrains.Annotations;
+using OpenTK.Mathematics;
 
 namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
@@ -22,9 +23,9 @@ public class Teleport : Command
     public override string HelpText => "Teleport to a specified position or target.";
 
     /// <exclude />
-    public void Invoke(float x, float y, float z)
+    public void Invoke(double x, double y, double z)
     {
-        Context.Player.Position = (x, y, z);
+        Do(Context, (x, y, z));
     }
 
     /// <exclude />
@@ -32,11 +33,21 @@ public class Teleport : Command
     {
         if (GetNamedPosition(target) is {} position)
         {
-            Context.Player.Position = position;
+            Do(Context, position);
         }
         else
         {
             Context.Console.WriteError($"Unknown target: {target}");
         }
+    }
+
+    /// <summary>
+    ///     Externally simulate command invocation, teleporting the player.
+    /// </summary>
+    /// <param name="context">The command context.</param>
+    /// <param name="position">The position to teleport to.</param>
+    public static void Do(Context context, Vector3d position)
+    {
+        context.Player.Teleport(position);
     }
 }

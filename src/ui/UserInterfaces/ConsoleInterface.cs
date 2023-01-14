@@ -12,6 +12,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.UI.Controls;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.UI.UserInterfaces;
@@ -25,26 +26,36 @@ namespace VoxelGame.UI.UserInterfaces;
 public class ConsoleInterface
 {
     private const int MaxConsoleLogLength = 200;
-    private static readonly Color inputColor = Color.Gray;
+
+    private const string DefaultMarker = "[ ]";
+    private const string FollowUpMarker = "[a]";
+    private static readonly Color echoColor = Color.Gray;
     private static readonly Color responseColor = Color.White;
     private static readonly Color errorColor = Color.Red;
     private readonly IConsoleProvider console;
 
-    private readonly LinkedList<(string input, Color color)> consoleLog = new();
+    private readonly LinkedList<Entry> consoleLog = new();
+    private readonly LinkedList<string> consoleMemory = new();
+
     private readonly Context context;
 
     private readonly ControlBase root;
-    private TextBox? consoleInput;
 
+    private MemorizingTextBox? consoleInput;
     private ListBox? consoleOutput;
-
     private Window? consoleWindow;
+    private ControlBase? content;
 
     internal ConsoleInterface(ControlBase root, IConsoleProvider console, Context context)
     {
         this.root = root;
         this.console = console;
         this.context = context;
+
+        consoleLog.AddLast(new Entry(
+            $"Welcome! Enter your commands below, and note that entries with {FollowUpMarker} offer follow-up actions in their right-click menu.",
+            EntryType.Echo,
+            Array.Empty<FollowUp>()));
     }
 
     internal bool IsOpen => consoleWindow != null;
@@ -65,7 +76,9 @@ public class ConsoleInterface
         consoleWindow.Closed += (_, _) => CleanupAfterClose();
         consoleWindow.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
 
-        GridLayout layout = new(consoleWindow)
+        content = new EmptyControl(consoleWindow);
+
+        GridLayout layout = new(content)
         {
             Dock = Dock.Fill,
             Margin = Margin.Ten
@@ -77,10 +90,11 @@ public class ConsoleInterface
         consoleOutput = new ListBox(layout)
         {
             AlternateColor = false,
-            CanScrollH = false,
+            CanScrollH = true,
             CanScrollV = true,
             Dock = Dock.Fill,
-            Margin = Margin.One
+            Margin = Margin.One,
+            ColumnCount = 2
         };
 
         DockLayout bottomBar = new(layout)
@@ -88,16 +102,20 @@ public class ConsoleInterface
             Margin = Margin.One
         };
 
-        consoleInput = new TextBox(bottomBar)
+        consoleInput = new MemorizingTextBox(bottomBar)
         {
             LooseFocusOnSubmit = false,
-            Dock = Dock.Fill
+            Dock = Dock.Fill,
+            Font = context.Fonts.Console
         };
+
+        consoleInput.SetMemory(consoleMemory);
 
         Button consoleSubmit = new(bottomBar)
         {
             Dock = Dock.Right,
-            Text = Language.Submit
+            Text = Language.Submit,
+            Font = context.Fonts.Console
         };
 
         consoleInput.SubmitPressed += (_, _) => Submit();
@@ -105,18 +123,18 @@ public class ConsoleInterface
 
         consoleInput.Focus();
 
-        foreach ((string entry, Color color) in consoleLog) consoleOutput.AddRow(entry).SetTextColor(color);
+        foreach (Entry entry in consoleLog) AddEntry(entry);
 
         consoleOutput.ScrollToBottom();
 
         void Submit()
         {
             string input = consoleInput.Text;
-            consoleInput.SetText("");
+            consoleInput.Memorize();
 
             if (input.Length == 0) return;
 
-            Write(input, inputColor);
+            Write(input, EntryType.Echo, Array.Empty<FollowUp>());
             console.ProcessInput(input);
         }
     }
@@ -125,36 +143,88 @@ public class ConsoleInterface
     ///     Write a colored message to the console.
     /// </summary>
     /// <param name="message">The message text.</param>
-    /// <param name="color">The message color.</param>
-    public void Write(string message, Color color)
+    /// <param name="type">The type of message.</param>
+    /// <param name="followUp">A group of follow-up actions that can be executed.</param>
+    private void Write(string message, EntryType type, FollowUp[] followUp)
     {
+        Entry entry = new(message, type, followUp);
+
         if (IsOpen)
         {
             Debug.Assert(consoleOutput != null);
-            consoleOutput.AddRow(message).SetTextColor(color);
+
+            AddEntry(entry);
             consoleOutput.ScrollToBottom();
         }
 
-        consoleLog.AddLast((message, color));
+        consoleLog.AddLast(entry);
         while (consoleLog.Count > MaxConsoleLogLength) consoleLog.RemoveFirst();
+    }
+
+    private void AddEntry(Entry entry)
+    {
+        Debug.Assert(consoleOutput != null);
+        Debug.Assert(content != null);
+
+        ListBoxRow row = new(consoleOutput);
+
+        (Font font, Color color) = entry.GetStyle(context);
+
+        void SetText(int column, string text)
+        {
+            row.SetCellText(column, text);
+            ((Label) row.GetCellContents(column)).Font = font;
+            row.SetTextColor(color);
+        }
+
+        SetText(column: 0, DefaultMarker);
+        SetText(column: 1, entry.Text);
+
+        consoleOutput.AddRow(row);
+
+        if (entry.FollowUp.Length <= 0) return;
+
+        SetText(column: 0, FollowUpMarker);
+
+        Menu menu = new(content);
+
+        foreach (FollowUp followUp in entry.FollowUp)
+        {
+            MenuItem item = new(menu)
+            {
+                Text = followUp.Description,
+                Font = context.Fonts.Console,
+                Alignment = Alignment.Left
+            };
+
+            item.Pressed += (_, _) => followUp.Action();
+        }
+
+        row.RightClicked += (_, arguments) =>
+        {
+            menu.Position = content.CanvasPosToLocal(new Point(arguments.X, arguments.Y));
+            menu.Show();
+        };
     }
 
     /// <summary>
     ///     Write a response message to the console.
     /// </summary>
     /// <param name="message">The message text.</param>
-    public void WriteResponse(string message)
+    /// <param name="followUp">A group of follow-up actions that can be executed.</param>
+    public void WriteResponse(string message, FollowUp[] followUp)
     {
-        Write(message, responseColor);
+        Write(message, EntryType.Response, followUp);
     }
 
     /// <summary>
     ///     Write an error message to the console.
     /// </summary>
     /// <param name="message">The message text.</param>
-    public void WriteError(string message)
+    /// <param name="followUp">A group of follow-up actions that can be executed.</param>
+    public void WriteError(string message, FollowUp[] followUp)
     {
-        Write(message, errorColor);
+        Write(message, EntryType.Error, followUp);
     }
 
     internal void CloseWindow()
@@ -189,6 +259,26 @@ public class ConsoleInterface
         consoleOutput?.Clear();
         consoleLog.Clear();
     }
+
+    private enum EntryType
+    {
+        Response,
+        Error,
+        Echo
+    }
+
+    private sealed record Entry(string Text, EntryType Type, FollowUp[] FollowUp)
+    {
+        public (Font font, Color color) GetStyle(Context context)
+        {
+            return Type switch
+            {
+                EntryType.Response => (context.Fonts.Console, responseColor),
+                EntryType.Error => (context.Fonts.ConsoleError, errorColor),
+                EntryType.Echo => (context.Fonts.Console, echoColor),
+                _ => throw new InvalidOperationException()
+            };
+        }
+    }
 }
      #pragma warning restore CA1001
-

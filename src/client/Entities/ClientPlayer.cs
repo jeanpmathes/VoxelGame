@@ -22,8 +22,8 @@ namespace VoxelGame.Client.Entities;
 /// </summary>
 public sealed class ClientPlayer : Player, IPlayerDataProvider
 {
-    private const float FlyingSpeed = 5f;
-    private const float FlyingSprintSpeed = 25f;
+    private const float FlyingSpeedFactor = 5f;
+    private const float FlyingSprintSpeedFactor = 25f;
     private readonly Camera camera;
     private readonly Vector3d cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
     private readonly float diveSpeed = 8f;
@@ -78,6 +78,11 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         activeFluid = Fluid.Water;
     }
 
+    /// <summary>
+    ///     Get or set the flying state of the player.
+    /// </summary>
+    public double FlyingSpeed { get; set; } = 1f;
+
     /// <inheritdoc />
     public override Vector3d LookingDirection => camera.Front;
 
@@ -95,6 +100,11 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     ///     Get the looking position of the player, meaning the position of the camera.
     /// </summary>
     public Vector3d LookingPosition => camera.Position;
+
+    /// <summary>
+    ///     The previous position before teleporting.
+    /// </summary>
+    public Vector3d PreviousPosition { get; private set; }
 
     /// <inheritdoc />
     public override BlockSide TargetSide => targetSide;
@@ -146,6 +156,16 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     string IPlayerDataProvider.Selection => blockMode ? activeBlock.Name : activeFluid.Name;
 
     string IPlayerDataProvider.Mode => blockMode ? Language.Block : Language.Fluid;
+
+    /// <summary>
+    ///     Teleport the player to a new position.
+    /// </summary>
+    /// <param name="position">The new position.</param>
+    public void Teleport(Vector3d position)
+    {
+        PreviousPosition = Position;
+        Position = position;
+    }
 
  #pragma warning disable CA1822
     /// <summary>
@@ -295,7 +315,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         }
         else
         {
-            Vector3d offset = input.GetFlyingMovement(FlyingSpeed, FlyingSprintSpeed);
+            Vector3d offset = input.GetFlyingMovement(FlyingSpeed * FlyingSpeedFactor, FlyingSpeed * FlyingSprintSpeedFactor);
             Position += offset * deltaTime;
         }
     }

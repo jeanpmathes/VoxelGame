@@ -30,8 +30,9 @@ public class SetPhysics : Command
     /// <summary>
     ///     Externally simulate a command invocation, setting the physics state.
     /// </summary>
-    public static void Do(CommandContext context, bool enabled)
+    public static void Do(Context context, bool enabled)
     {
         context.Player.DoPhysics = enabled;
     }
 }
+

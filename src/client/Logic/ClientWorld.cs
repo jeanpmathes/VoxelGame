@@ -141,12 +141,12 @@ public class ClientWorld : World
         {
             if (ActiveChunkCount < 3 * 3 * 3) return;
 
-            CurrentState = State.Active;
-
             readyStopwatch.Stop();
             double readyTime = readyStopwatch.Elapsed.TotalSeconds;
 
             logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}s", readyTime);
+
+            CurrentState = State.Active;
         }
 
         void HandleActive()

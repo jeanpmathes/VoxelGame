@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Console.Commands;
+using VoxelGame.Client.Entities;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
@@ -20,6 +21,11 @@ namespace VoxelGame.Client.Console;
 /// </summary>
 public class GameConsole : IConsoleProvider
 {
+    /// <summary>
+    ///     The name of the script to execute when the world is ready.
+    /// </summary>
+    public const string WorldReadyScript = "world_ready";
+
     private static readonly ILogger logger = LoggingHelper.CreateLogger<GameConsole>();
 
     private readonly CommandInvoker commandInvoker;
@@ -38,13 +44,27 @@ public class GameConsole : IConsoleProvider
     /// <inheritdoc />
     public void ProcessInput(string input)
     {
-        Debug.Assert(Application.Client.Instance.CurrentGame != null, "Game must be running to use console.");
+        Debug.Assert(Application.Client.Instance.CurrentGame != null);
 
         logger.LogDebug(Events.Console, "Console command: {Command}", input);
 
         commandInvoker.InvokeCommand(
             input,
-            new CommandContext(Console, Application.Client.Instance.CurrentGame.Player));
+            new Context(Console, commandInvoker, Application.Client.Instance.CurrentGame.Player));
+    }
+
+    /// <inheritdoc />
+    public void OnWorldReady()
+    {
+        Debug.Assert(Application.Client.Instance.CurrentGame != null);
+        ClientPlayer player = Application.Client.Instance.CurrentGame.Player;
+
+        logger.LogDebug("Trying to execute world ready script");
+
+        bool executed = RunScript.Do(new Context(Console, commandInvoker, player), WorldReadyScript, ignoreErrors: true);
+
+        if (executed) logger.LogInformation(Events.Console, "Executed world ready script");
+        else logger.LogDebug("No world ready script found");
     }
 
     /// <summary>
@@ -69,8 +89,8 @@ public class GameConsole : IConsoleProvider
 
         invoker.AddParser(
             Parser.BuildParser(
-                s => float.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
-                s => float.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
+                s => double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
+                s => double.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
 
         invoker.AddParser(Parser.BuildParser(
             s => Enum.IsDefined(typeof(Orientation), s),
@@ -84,3 +104,4 @@ public class GameConsole : IConsoleProvider
         return invoker;
     }
 }
+

@@ -1,4 +1,4 @@
-﻿// <copyright file="Find.cs" company="VoxelGame">
+﻿// <copyright file="FindNamed.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
@@ -19,10 +20,10 @@ namespace VoxelGame.Client.Console.Commands;
 ///     Search and find any named generated object in the world.
 /// </summary>
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-public class Find : Command
+public class FindNamed : Command
 {
     /// <inheritdoc />
-    public override string Name => "find";
+    public override string Name => "find-named";
 
     /// <inheritdoc />
     public override string HelpText => "Search and find any named generated object in the world.";
@@ -69,7 +70,8 @@ public class Find : Command
         Task.Run(() =>
         {
             foreach (Vector3i position in positions.Take(count))
-                Context.Console.EnqueueResponse($"Found {name} at {position}.");
+                Context.Console.EnqueueResponse($"Found {name} at {position}.",
+                    new FollowUp($"Teleport to {name}", () => Teleport.Do(Context, position)));
 
             Context.Console.EnqueueResponse($"Search for {name} finished.");
         });

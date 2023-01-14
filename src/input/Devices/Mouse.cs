@@ -48,7 +48,7 @@ public class Mouse
         delta = Vector2d.Lerp(oldDelta, delta, blend: 0.7f);
 
         oldDelta = Delta;
-        oldPosition = input.Window.MouseState.Position;
+        oldPosition = input.Window.MousePosition;
         Delta = delta;
     }
 
@@ -57,7 +57,7 @@ public class Mouse
     /// </summary>
     public void StorePosition()
     {
-        storedPosition = input.Window.MouseState.Position;
+        storedPosition = input.Window.MousePosition;
     }
 
     /// <summary>

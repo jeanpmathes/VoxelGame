@@ -4,9 +4,11 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
@@ -18,10 +20,11 @@ namespace VoxelGame.Client.Console.Commands;
 public class Help : Command
 {
     private const int PageSize = 5;
-    private readonly Dictionary<string, List<string>> commandDescriptions = new();
+
+    private readonly Dictionary<string, List<Entry>> commandDescriptions = new();
     private readonly CommandInvoker commandInvoker;
 
-    private readonly List<List<string>> commandPages = new();
+    private readonly List<List<Entry>> commandPages = new();
 
     /// <summary>
     ///     Create a help command for all commands discovered by a <see cref="CommandInvoker" />.
@@ -49,16 +52,17 @@ public class Help : Command
     {
         commandPages.Clear();
 
-        List<string> commands = commandInvoker.CommandNames
-            .Select(command => $"{command} # {commandInvoker.GetCommandHelpText(command)}").ToList();
+        List<(string command, string description)> commands = commandInvoker.CommandNames
+            .Select(command => (command, $"{command} # {commandInvoker.GetCommandHelpText(command)}")).ToList();
 
-        commandPages.Add(new List<string>());
+        commandPages.Add(new List<Entry>());
 
-        foreach (string command in commands)
+        foreach ((string command, string description) in commands)
         {
-            if (commandPages[^1].Count >= PageSize) commandPages.Add(new List<string>());
+            if (commandPages[^1].Count >= PageSize) commandPages.Add(new List<Entry>());
 
-            commandPages[^1].Add(command);
+            commandPages[^1].Add(new Entry(description,
+                new[] {new FollowUp("Show details", () => { Invoke(command); })}));
         }
     }
 
@@ -68,8 +72,14 @@ public class Help : Command
 
         foreach (string command in commandInvoker.CommandNames)
         {
-            List<string> description = new() {$"{command} # {commandInvoker.GetCommandHelpText(command)}"};
-            description.AddRange(commandInvoker.GetCommandSignatures(command));
+            List<Entry> description = new()
+            {
+                new Entry($"{command} # {commandInvoker.GetCommandHelpText(command)}", Array.Empty<FollowUp>())
+            };
+
+            description.AddRange(commandInvoker
+                .GetCommandSignatures(command)
+                .Select(signature => new Entry(signature, Array.Empty<FollowUp>())));
 
             commandDescriptions.Add(command, description);
         }
@@ -92,16 +102,22 @@ public class Help : Command
         }
         else
         {
-            Context.Console.WriteResponse($"Page {page} of {commandPages.Count}:");
-            commandPages[page - 1].ForEach(Context.Console.WriteResponse);
+            Context.Console.WriteResponse($"Page {page} of {commandPages.Count}:",
+                new FollowUp("Show next page", () => { Invoke(page + 1); }),
+                new FollowUp("Show previous page", () => { Invoke(page - 1); }));
+
+            commandPages[page - 1].ForEach(entry => Context.Console.WriteResponse(entry.Text, entry.FollowUp));
         }
     }
 
     /// <exclude />
     public void Invoke(string command)
     {
-        if (commandDescriptions.TryGetValue(command, out List<string>? description))
-            description.ForEach(Context.Console.WriteResponse);
+        if (commandDescriptions.TryGetValue(command, out List<Entry>? description))
+            description.ForEach(entry => Context.Console.WriteResponse(entry.Text, entry.FollowUp));
         else Context.Console.WriteError($"Command '{command}' not found.");
     }
+
+    private sealed record Entry(string Text, FollowUp[] FollowUp);
 }
+

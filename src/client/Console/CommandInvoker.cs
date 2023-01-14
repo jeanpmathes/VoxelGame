@@ -144,7 +144,7 @@ public class CommandInvoker
     /// </summary>
     /// <param name="input">The console input.</param>
     /// <param name="context">The command context in which the command should be executed.</param>
-    public void InvokeCommand(string input, CommandContext context)
+    public void InvokeCommand(string input, Context context)
     {
         (string commandName, string[] args) = ParseInput(input);
 
@@ -159,13 +159,13 @@ public class CommandInvoker
             else
             {
                 context.Console.WriteError($"No overload found, use 'help {commandName}' for more info.");
-                logger.LogWarning(Events.Console, "No overload found for command '{Command}'", commandName);
+                logger.LogInformation(Events.Console, "No overload found for command '{Command}'", commandName);
             }
         }
         else
         {
             context.Console.WriteError($"No command '{commandName}' found, use 'help' for more info.");
-            logger.LogWarning(Events.Console, "Command '{Command}' not found", commandName);
+            logger.LogInformation(Events.Console, "Command '{Command}' not found", commandName);
         }
     }
 
@@ -252,7 +252,7 @@ public class CommandInvoker
         return null;
     }
 
-    private void Invoke(ICommand command, MethodBase method, IReadOnlyList<string> args, CommandContext context)
+    private void Invoke(ICommand command, MethodBase method, IReadOnlyList<string> args, Context context)
     {
         ParameterInfo[] parameters = method.GetParameters();
 
@@ -286,3 +286,4 @@ public class CommandInvoker
 
     private sealed record CommandGroup(ICommand Command, List<MethodInfo> Overloads);
 }
+

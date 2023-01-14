@@ -4,7 +4,10 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Threading.Tasks;
 using JetBrains.Annotations;
+using VoxelGame.Client.Utilities;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
@@ -24,6 +27,14 @@ public class EmitViews : Command
     /// <exclude />
     public void Invoke()
     {
-        Context.Player.World.EmitViews();
+        string path = Context.Player.World.Data.DebugDirectory;
+
+        Task.Run(() =>
+        {
+            Context.Player.World.EmitViews(path);
+
+            Context.Console.EnqueueResponse($"Emitted views to: {path}",
+                new FollowUp("Open folder", () => OS.Start(path)));
+        });
     }
 }
