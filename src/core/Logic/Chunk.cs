@@ -25,7 +25,7 @@ namespace VoxelGame.Core.Logic;
 ///     A chunk, a cubic group of sections.
 /// </summary>
 [Serializable]
-public abstract partial class Chunk : IDisposable
+public partial class Chunk : IDisposable
 {
     /// <summary>
     /// The number of sections in a chunk along every axis.
@@ -91,18 +91,15 @@ public abstract partial class Chunk : IDisposable
     /// <param name="world">The world.</param>
     /// <param name="position">The chunk position.</param>
     /// <param name="context">The chunk context.</param>
-    protected Chunk(World world, ChunkPosition position, ChunkContext context)
+    /// <param name="createSection">The section factory.</param>
+    protected Chunk(World world, ChunkPosition position, ChunkContext context, SectionFactory createSection)
     {
         World = world;
         Position = position;
 
         for (var s = 0; s < SectionCount; s++)
         {
-#pragma warning disable S1699 // Constructors should only call non-overridable methods
-#pragma warning disable CA2214 // Do not call overridable methods in constructors
-            sections[s] = CreateSection();
-#pragma warning restore CA2214 // Do not call overridable methods in constructors
-#pragma warning restore S1699 // Constructors should only call non-overridable methods
+            sections[s] = createSection();
         }
 
         blockTickManager = new ScheduledTickManager<Block.BlockTick>(
@@ -262,11 +259,6 @@ public abstract partial class Chunk : IDisposable
         isRequested = false;
         BeginSaving();
     }
-
-    /// <summary>
-    ///     Creates a section.
-    /// </summary>
-    protected abstract Section CreateSection();
 
     /// <summary>
     ///     Setup the chunk and used sections after loading.
@@ -833,6 +825,11 @@ public abstract partial class Chunk : IDisposable
     ///     Called when a neighbor chunk was activated.
     /// </summary>
     protected virtual void OnNeighborActivation(Chunk neighbor) {}
+
+    /// <summary>
+    ///     Creates a section.
+    /// </summary>
+    protected delegate Section SectionFactory();
 
     [Flags]
     private enum DecorationLevels

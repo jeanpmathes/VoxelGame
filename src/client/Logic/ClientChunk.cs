@@ -36,7 +36,7 @@ public partial class ClientChunk : Chunk
     /// <param name="world">The world that contains the chunk.</param>
     /// <param name="position">The position of the chunk.</param>
     /// <param name="context">The context of the chunk.</param>
-    public ClientChunk(World world, ChunkPosition position, ChunkContext context) : base(world, position, context) {}
+    public ClientChunk(World world, ChunkPosition position, ChunkContext context) : base(world, position, context, CreateSection) {}
 
     /// <summary>
     ///     Get the client world this chunk is in.
@@ -63,8 +63,7 @@ public partial class ClientChunk : Chunk
         });
     }
 
-    /// <inheritdoc />
-    protected override Section CreateSection()
+    private static Section CreateSection()
     {
         return new ClientSection();
     }
@@ -212,5 +211,3 @@ public partial class ClientChunk : Chunk
         }
     }
 }
-
-

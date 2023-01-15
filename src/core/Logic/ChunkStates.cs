@@ -14,7 +14,7 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
 
-public abstract partial class Chunk
+public partial class Chunk
 {
     /// <summary>
     ///     Initial state. Tries to activate the chunk.
@@ -393,5 +393,4 @@ public abstract partial class Chunk
         }
     }
 }
-
 
