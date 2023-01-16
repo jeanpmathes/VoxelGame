@@ -45,7 +45,7 @@ public partial class ClientChunk : Chunk
 
     private ClientSection GetSection(int index)
     {
-        return sections[index].Cast();
+        return GetSectionByIndex(index).Cast();
     }
 
     /// <summary>
@@ -55,7 +55,7 @@ public partial class ClientChunk : Chunk
     {
         if (!IsFullyDecorated) return;
 
-        state.RequestNextState<Meshing>(new ChunkState.RequestDescription
+        State.RequestNextState<Meshing>(new ChunkState.RequestDescription
         {
             AllowDuplicateTypes = false,
             AllowSkipOnDeactivation = true,

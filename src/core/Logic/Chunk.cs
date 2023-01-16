@@ -66,6 +66,11 @@ public partial class Chunk : IDisposable
     /// </summary>
     public static readonly int BlockSizeExp2 = (int) Math.Log(BlockSize, newBase: 2) * 2;
 
+    /// <summary>
+    ///     The sections in this chunk.
+    /// </summary>
+    private readonly Section[] sections = new Section[SectionCount];
+
     private ScheduledTickManager<Block.BlockTick> blockTickManager;
 
     /// <summary>
@@ -83,7 +88,17 @@ public partial class Chunk : IDisposable
 
     private ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
 
+    /// <summary>
+    ///     Whether the chunk is currently requested to be active.
+    /// </summary>
+    [NonSerialized] private bool isRequested;
+
     [NonSerialized] private UpdateCounter localUpdateCounter = new();
+
+    /// <summary>
+    ///     The current chunk state.
+    /// </summary>
+    [NonSerialized] private ChunkState state;
 
     /// <summary>
     ///     Create a new chunk.
@@ -155,6 +170,11 @@ public partial class Chunk : IDisposable
     ///     Get whether this chunk is fully decorated.
     /// </summary>
     public bool IsFullyDecorated => decoration == DecorationLevels.All;
+
+    /// <summary>
+    ///     The current chunk state.
+    /// </summary>
+    protected ChunkState State => state;
 
     /// <summary>
     ///     Acquire the core resource, possibly stealing it.
@@ -827,6 +847,14 @@ public partial class Chunk : IDisposable
     protected virtual void OnNeighborActivation(Chunk neighbor) {}
 
     /// <summary>
+    ///     Get a section by index.
+    /// </summary>
+    protected Section GetSectionByIndex(int index)
+    {
+        return sections[index];
+    }
+
+    /// <summary>
     ///     Creates a section.
     /// </summary>
     protected delegate Section SectionFactory();
@@ -850,23 +878,6 @@ public partial class Chunk : IDisposable
         AllCorners = Corner000 | Corner001 | Corner010 | Corner011 | Corner100 | Corner101 | Corner110 | Corner111,
         All = Center | AllCorners
     }
-
-#pragma warning disable CA1051 // Do not declare visible instance fields
-    /// <summary>
-    ///     The sections in this chunk.
-    /// </summary>
-    protected readonly Section[] sections = new Section[SectionCount];
-
-    /// <summary>
-    ///     Whether the chunk is currently requested to be active.
-    /// </summary>
-    [NonSerialized] protected bool isRequested;
-
-    /// <summary>
-    ///     The current chunk state.
-    /// </summary>
-    [NonSerialized] protected ChunkState state;
-#pragma warning restore CA1051 // Do not declare visible instance fields
 
     #region IDisposable Support
 
