@@ -11,7 +11,6 @@ using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic;
 
@@ -45,11 +44,8 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
 
         this.boundingVolume = boundingVolume;
 
-#pragma warning disable S3060 // "is" should not be used with "this"
-        Debug.Assert(
-            this is not ISimple ^ IsFull,
-            $"TargetBuffer '{nameof(ISimple)}' requires {nameof(IsFull)} to be {!IsFull}, all other target buffers cannot be full.");
-#pragma warning restore S3060 // "is" should not be used with "this"
+        IBlockMeshable meshable = this;
+        meshable.Validate();
 
         if (blockList.Count < BlockLimit)
         {
@@ -115,14 +111,15 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
 
         if (content == null) return false;
 
-        (BlockInstance block, FluidInstance fluid) = content.Value;
+        (BlockInstance block, FluidInstance _) = content.Value;
 
         bool canPlace = block.Block.IsReplaceable && CanPlace(world, position, entity);
 
-        if (canPlace) DoPlace(world, position, entity);
+        if (!canPlace) return canPlace;
 
-        if (fluid.Fluid != Fluid.None && this is IFillable fillable)
-            fillable.FluidChange(world, position, fluid.Fluid, fluid.Level);
+        DoPlace(world, position, entity);
+
+        IFillable.OnPlace(world, position);
 
         return canPlace;
     }

@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
@@ -64,6 +65,12 @@ public interface ISimple : IBlockMeshable
         MeshSimpleSide(BlockSide.Right);
         MeshSimpleSide(BlockSide.Bottom);
         MeshSimpleSide(BlockSide.Top);
+    }
+
+    /// <inheritdoc />
+    void IBlockMeshable.Validate()
+    {
+        Debug.Assert(IsFull, "Simple blocks must be full.");
     }
 
     /// <summary>
@@ -169,3 +176,4 @@ public interface ISimple : IBlockMeshable
         }
     }
 }
+

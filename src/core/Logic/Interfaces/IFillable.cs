@@ -51,4 +51,21 @@ public interface IFillable : IBlockBase
         // Method intentionally left empty.
         // Fillable blocks do not have to react when the fluid amount changes.
     }
+
+    /// <summary>
+    ///     Call this after placement, to dispatch correct fluid change events.
+    /// </summary>
+    /// <param name="world">The world this block is in.</param>
+    /// <param name="position">The block position.</param>
+    public static void OnPlace(World world, Vector3i position)
+    {
+        Content? content = world.GetContent(position);
+
+        if (content == null) return;
+
+        (BlockInstance block, FluidInstance fluid) = content.Value;
+
+        if (fluid.Fluid != Fluid.None && block.Block is IFillable fillable)
+            fillable.FluidChange(world, position, fluid.Fluid, fluid.Level);
+    }
 }
