@@ -54,8 +54,6 @@ using System;
 using System.Runtime.CompilerServices;
 using FNLfloat = System.Double;
 
-namespace VoxelGame.Core.Generation;
-
 public class FastNoiseLite
 {
     public enum CellularDistanceFunction
