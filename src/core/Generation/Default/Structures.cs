@@ -8,7 +8,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Structures;
+using VoxelGame.Core.Logic.Definitions.Structures;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -96,3 +96,4 @@ public class Structures
         return structure?.Search(start, maxDistance, generator);
     }
 }
+

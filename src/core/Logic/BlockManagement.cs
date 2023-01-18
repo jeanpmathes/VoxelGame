@@ -9,7 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Blocks;
+using VoxelGame.Core.Logic.Definitions.Blocks;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
@@ -930,3 +930,4 @@ public partial class Block
 
     #endregion NEW BLOCKS
 }
+

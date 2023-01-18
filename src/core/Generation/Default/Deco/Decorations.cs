@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Structures;
+using VoxelGame.Core.Logic.Definitions.Structures;
 
 namespace VoxelGame.Core.Generation.Default.Deco;
 
@@ -96,3 +96,4 @@ public class Decorations
         Instance = new Decorations();
     }
 }
+

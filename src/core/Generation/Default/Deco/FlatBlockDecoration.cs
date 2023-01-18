@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Blocks;
+using VoxelGame.Core.Logic.Definitions.Blocks;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation.Default.Deco;
@@ -52,3 +52,4 @@ public class FlatBlockDecoration : Decoration
         }
     }
 }
+

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Fluids;
+using VoxelGame.Core.Logic.Definitions.Fluids;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Visuals;
@@ -275,3 +275,4 @@ public abstract partial class Fluid
         toElevate.Fluid.Take(world, position, ref elevated);
     }
 }
+
