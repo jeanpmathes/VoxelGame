@@ -48,7 +48,7 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
     /// <inheritdoc />
     public void CoverWithAsh(World world, Vector3i position)
     {
-        world.SetBlock(GrassBurned.AsInstance(), position);
+        world.SetBlock(Logic.Blocks.Instance.GrassBurned.AsInstance(), position);
     }
 
     /// <inheritdoc />
@@ -57,7 +57,7 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
     /// <inheritdoc />
     public void BecomeSolid(World world, Vector3i position)
     {
-        world.SetBlock(Dirt.AsInstance(), position);
+        world.SetBlock(Logic.Blocks.Instance.Dirt.AsInstance(), position);
     }
 
     /// <inheritdoc />
@@ -80,7 +80,7 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
     }
 
     /// <inheritdoc />
-    protected override void Setup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider)
     {
         dryTextureIndices = dryLayout.GetTexIndexArray();
         wetTextureIndices = wetLayout.GetTexIndexArray();

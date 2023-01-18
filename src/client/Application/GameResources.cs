@@ -97,12 +97,12 @@ public class GameResources
 
         Shaders = Shaders.Load("Resources/Shaders");
 
-        Block.LoadBlocks(BlockTextureArray);
+        Blocks.Load(BlockTextureArray);
 
         logger.LogDebug(
             Events.ResourceLoad,
             "Texture/Block ratio: {Ratio:F02}",
-            BlockTextureArray.Count / (double) Block.Count);
+            BlockTextureArray.Count / (double) Blocks.Instance.Count);
 
         Fluids.Load(FluidTextureArray);
 
@@ -120,5 +120,4 @@ public class GameResources
         FluidTextureArray.Dispose();
     }
 }
-
 

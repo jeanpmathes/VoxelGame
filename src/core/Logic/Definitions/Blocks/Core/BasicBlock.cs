@@ -48,7 +48,7 @@ public class BasicBlock : Block, IOverlayTextureProvider, ISimple
     }
 
     /// <inheritdoc />
-    protected override void Setup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider)
     {
         sideTextureIndices = layout.GetTexIndexArray();
     }
@@ -61,4 +61,5 @@ public class BasicBlock : Block, IOverlayTextureProvider, ISimple
         return ISimple.CreateData(sideTextureIndices[(int) info.Side], isTextureRotated: false);
     }
 }
+
 

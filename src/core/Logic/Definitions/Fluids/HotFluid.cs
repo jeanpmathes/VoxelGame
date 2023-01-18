@@ -34,7 +34,7 @@ public class HotFluid : BasicFluid
     /// <inheritdoc />
     protected override void ScheduledUpdate(World world, Vector3i position, FluidLevel level, bool isStatic)
     {
-        if (world.GetBlock(position)?.Block is ICombustible block) block.Burn(world, position, Block.Fire);
+        if (world.GetBlock(position)?.Block is ICombustible block) block.Burn(world, position, Logic.Blocks.Instance.Fire);
 
         BurnAround(world, position);
 
@@ -54,8 +54,8 @@ public class HotFluid : BasicFluid
             Vector3i offsetPosition = side.Offset(position);
 
             if (world.GetBlock(offsetPosition)?.Block is ICombustible block &&
-                block.Burn(world, offsetPosition, Block.Fire))
-                Block.Fire.Place(world, offsetPosition);
+                block.Burn(world, offsetPosition, Logic.Blocks.Instance.Fire))
+                Logic.Blocks.Instance.Fire.Place(world, offsetPosition);
 
         }
     }

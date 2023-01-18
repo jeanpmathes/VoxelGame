@@ -40,7 +40,7 @@ public class ConcreteFluid : BasicFluid
         if (!isStatic) return;
 
         world.SetDefaultFluid(position);
-        Block.Specials.Concrete.Place(world, level, position);
+        Logic.Blocks.Instance.Specials.Concrete.Place(world, level, position);
     }
 }
 

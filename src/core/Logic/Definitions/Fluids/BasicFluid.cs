@@ -75,7 +75,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     /// <inheritdoc />
     protected override void ScheduledUpdate(World world, Vector3i position, FluidLevel level, bool isStatic)
     {
-        Block block = world.GetBlock(position)?.Block ?? Block.Air;
+        Block block = world.GetBlock(position)?.Block ?? Logic.Blocks.Instance.Air;
 
         if (block is IFillable fillable) ValidLocationFlow(world, position, level, fillable);
         else InvalidLocationFlow(world, position, level);
@@ -502,5 +502,4 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         return fluid.Fluid == this && fluid.Level != FluidLevel.Eight;
     }
 }
-
 

@@ -51,12 +51,12 @@ public class Biomes
         Layers = new List<Layer>
         {
             Layer.CreateSnow(width: 3),
-            Layer.CreateSimple(Block.Dirt, width: 5, isSolid: false),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 4),
-            Layer.CreateSimple(Block.Permafrost, width: 27, isSolid: true),
+            Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
+            Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 4),
+            Layer.CreateSimple(Blocks.Instance.Permafrost, width: 27, isSolid: true),
             Layer.CreateLoose(width: 27),
             Layer.CreateGroundwater(width: 8),
-            Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
         }
     };
 
@@ -71,15 +71,15 @@ public class Biomes
         Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
-            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreateSimple(Block.Dirt, width: 3, isSolid: false),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 26),
+            Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+            Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
+            Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 26),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 6),
-            Layer.CreateSimple(Block.Clay, width: 3, isSolid: true),
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
             Layer.CreateLoose(width: 33),
             Layer.CreateGroundwater(width: 18),
-            Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
         },
         Decorations = new List<Decoration>
         {
@@ -104,15 +104,15 @@ public class Biomes
         Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
-            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreateSimple(Block.Dirt, width: 3, isSolid: false),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 26),
+            Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+            Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
+            Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 26),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 6),
-            Layer.CreateSimple(Block.Clay, width: 3, isSolid: true),
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
             Layer.CreateLoose(width: 33),
             Layer.CreateGroundwater(width: 18),
-            Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
         },
         Decorations = new List<Decoration>
         {
@@ -134,13 +134,13 @@ public class Biomes
         Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
-            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreateSimple(Block.Dirt, width: 7, isSolid: false),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 6),
-            Layer.CreateSimple(Block.Permafrost, width: 28, isSolid: true),
+            Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+            Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+            Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 6),
+            Layer.CreateSimple(Blocks.Instance.Permafrost, width: 28, isSolid: true),
             Layer.CreateLoose(width: 27),
             Layer.CreateGroundwater(width: 8),
-            Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
         },
         Decorations = new List<Decoration>
         {
@@ -160,13 +160,13 @@ public class Biomes
         Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
-            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreateSimple(Block.Dirt, width: 7, isSolid: false),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 6),
-            Layer.CreateSimple(Block.Permafrost, width: 28, isSolid: true),
+            Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+            Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+            Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 6),
+            Layer.CreateSimple(Blocks.Instance.Permafrost, width: 28, isSolid: true),
             Layer.CreateLoose(width: 27),
             Layer.CreateGroundwater(width: 8),
-            Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
         },
         Structure = Structures.Instance.BuriedTower
     };
@@ -182,15 +182,15 @@ public class Biomes
         Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
-            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreateSimple(Block.Dirt, width: 7, isSolid: false),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 2),
+            Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+            Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+            Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 2),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 2),
-            Layer.CreateSimple(Block.Clay, width: 3, isSolid: true),
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
             Layer.CreateLoose(width: 37),
             Layer.CreateGroundwater(width: 18),
-            Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
         },
         Decorations = new List<Decoration>
         {
@@ -210,15 +210,15 @@ public class Biomes
         Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
-            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreateSimple(Block.Dirt, width: 5, isSolid: false),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 20),
+            Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+            Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
+            Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 20),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 2),
-            Layer.CreateSimple(Block.Clay, width: 3, isSolid: true),
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
             Layer.CreateLoose(width: 37),
             Layer.CreateGroundwater(width: 18),
-            Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
         },
         Decorations = new List<Decoration>
         {
@@ -241,15 +241,15 @@ public class Biomes
         Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
-            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreateSimple(Block.Dirt, width: 3, isSolid: false),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 26),
+            Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+            Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
+            Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 26),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 6),
-            Layer.CreateSimple(Block.Clay, width: 3, isSolid: true),
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
             Layer.CreateLoose(width: 33),
             Layer.CreateGroundwater(width: 18),
-            Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
         },
         Decorations = new List<Decoration>
         {
@@ -271,15 +271,15 @@ public class Biomes
         Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
-            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreateSimple(Block.Dirt, width: 7, isSolid: false),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 2),
+            Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+            Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+            Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 2),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 2),
-            Layer.CreateSimple(Block.Clay, width: 3, isSolid: true),
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
             Layer.CreateLoose(width: 37),
             Layer.CreateGroundwater(width: 18),
-            Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
         },
         Decorations = new List<Decoration>
         {
@@ -300,13 +300,13 @@ public class Biomes
         Cover = new Cover(hasPlants: false),
         Layers = new List<Layer>
         {
-            Layer.CreateSimple(Block.Sand, width: 9, isSolid: false),
-            Layer.CreateSimple(Block.Dirt, width: 4, isSolid: false),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 8),
-            Layer.CreateSimple(Block.Sandstone, width: 18, isSolid: true),
+            Layer.CreateSimple(Blocks.Instance.Sand, width: 9, isSolid: false),
+            Layer.CreateSimple(Blocks.Instance.Dirt, width: 4, isSolid: false),
+            Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 8),
+            Layer.CreateSimple(Blocks.Instance.Sandstone, width: 18, isSolid: true),
             Layer.CreateLoose(width: 22),
             Layer.CreateGroundwater(width: 18),
-            Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
         },
         Decorations = new List<Decoration>
         {
@@ -326,15 +326,15 @@ public class Biomes
         Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
-            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreateSimple(Block.Dirt, width: 7, isSolid: false),
-            Layer.CreatePermeableDampen(Block.Dirt, maxWidth: 8),
+            Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+            Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+            Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 8),
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 2),
-            Layer.CreateSimple(Block.Clay, width: 3, isSolid: true),
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
             Layer.CreateLoose(width: 37),
             Layer.CreateGroundwater(width: 18),
-            Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
         },
         Decorations = new List<Decoration>
         {
@@ -355,12 +355,12 @@ public class Biomes
         Cover = new Cover(hasPlants: false),
         Layers = new List<Layer>
         {
-            Layer.CreateSimple(Block.Sand, width: 5, isSolid: false),
-            Layer.CreateSimple(Block.Gravel, width: 3, isSolid: false),
-            Layer.CreatePermeableDampen(Block.Gravel, maxWidth: 10),
-            Layer.CreateSimple(Block.Limestone, width: 26, isSolid: true),
+            Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
+            Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
+            Layer.CreatePermeableDampen(Blocks.Instance.Gravel, maxWidth: 10),
+            Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
             Layer.CreateLoose(width: 37),
-            Layer.CreateSimple(Block.Limestone, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
         }
     };
 
@@ -376,12 +376,12 @@ public class Biomes
         Cover = new Cover(hasPlants: false),
         Layers = new List<Layer>
         {
-            Layer.CreateSimple(Block.Sand, width: 5, isSolid: false),
-            Layer.CreateSimple(Block.Gravel, width: 3, isSolid: false),
-            Layer.CreatePermeableDampen(Block.Gravel, maxWidth: 10),
-            Layer.CreateSimple(Block.Limestone, width: 26, isSolid: true),
+            Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
+            Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
+            Layer.CreatePermeableDampen(Blocks.Instance.Gravel, maxWidth: 10),
+            Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
             Layer.CreateLoose(width: 37),
-            Layer.CreateSimple(Block.Limestone, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
         }
     };
 
@@ -401,7 +401,7 @@ public class Biomes
             Layer.CreateStone(width: 31),
             Layer.CreateLoose(width: 9),
             Layer.CreateGroundwater(width: 1),
-            Layer.CreateSimple(Block.Clay, width: 9, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 9, isSolid: true)
         }
     };
 
@@ -416,13 +416,13 @@ public class Biomes
         Cover = new Cover(hasPlants: false),
         Layers = new List<Layer>
         {
-            Layer.CreateSimple(Block.Sand, width: 5, isSolid: false),
-            Layer.CreateSimple(Block.Gravel, width: 3, isSolid: false),
-            Layer.CreatePermeableDampen(Block.Gravel, maxWidth: 10),
-            Layer.CreateSimple(Block.Limestone, width: 13, isSolid: true),
+            Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
+            Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
+            Layer.CreatePermeableDampen(Blocks.Instance.Gravel, maxWidth: 10),
+            Layer.CreateSimple(Blocks.Instance.Limestone, width: 13, isSolid: true),
             Layer.CreateLoose(width: 22),
             Layer.CreateGroundwater(width: 18),
-            Layer.CreateSimple(Block.Clay, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
         },
         Decorations = new List<Decoration>
         {
@@ -441,8 +441,8 @@ public class Biomes
         Cover = new Cover(hasPlants: true),
         Layers = new List<Layer>
         {
-            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreateSimple(Block.Limestone, width: 53, isSolid: true),
+            Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+            Layer.CreateSimple(Blocks.Instance.Limestone, width: 53, isSolid: true),
             Layer.CreateStonyDampen(maxWidth: 28),
             Layer.CreateStone(width: 39)
         }
@@ -459,8 +459,8 @@ public class Biomes
         Cover = new Cover(hasPlants: false),
         Layers = new List<Layer>
         {
-            Layer.CreateTop(Block.Grass, Block.Dirt, width: 1),
-            Layer.CreateSimple(Block.Limestone, width: 53, isSolid: true),
+            Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+            Layer.CreateSimple(Blocks.Instance.Limestone, width: 53, isSolid: true),
             Layer.CreateStonyDampen(maxWidth: 28),
             Layer.CreateStone(width: 39)
         }
@@ -485,3 +485,4 @@ public class Biomes
         foreach (Biome biome in biomes) biome.SetupBiome(factory, palette);
     }
 }
+

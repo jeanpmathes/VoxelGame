@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Physics;
 public static class Raycast
 {
     /// <summary>
-    ///     Checks if a ray intersects with a block that is not <see cref="Block.Air" />.
+    ///     Checks if a ray intersects with a block that is not <see cref="Blocks.Air" />.
     /// </summary>
     /// <param name="world">The world in which to cast the ray.</param>
     /// <param name="ray">The ray.</param>
@@ -148,7 +148,7 @@ public static class Raycast
         if (potentialBlock is not {} block) return false;
 
         // Check if the ray intersects the bounding box of the block.
-        return block.Block != Block.Air && block.Block.GetCollider(world, position).Intersects(ray);
+        return block.Block != Blocks.Instance.Air && block.Block.GetCollider(world, position).Intersects(ray);
     }
 
     private static bool FluidIntersectionCheck(World world, Ray ray, Vector3i position)
@@ -162,5 +162,4 @@ public static class Raycast
                Fluid.GetCollider(position, fluid.Level).Intersects(ray);
     }
 }
-
 

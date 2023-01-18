@@ -78,10 +78,10 @@ public class FluidContactManager
     {
         Select(a, b, Fluids.Instance.Lava, out ContactInformation lava, out ContactInformation coolant);
 
-        Block lavaBlock = world.GetBlock(lava.position)?.Block ?? Block.Air;
+        Block lavaBlock = world.GetBlock(lava.position)?.Block ?? Blocks.Instance.Air;
 
         if (lavaBlock.IsReplaceable || lavaBlock.Destroy(world, lava.position))
-            world.SetContent(new Content(Block.Pumice), lava.position);
+            world.SetContent(new Content(Blocks.Instance.Pumice), lava.position);
 
         world.SetFluid(
             Fluids.Instance.Steam.AsInstance(coolant.level, isStatic: false),
@@ -99,7 +99,7 @@ public class FluidContactManager
         lava.fluid.TickSoon(world, lava.position, lava.isStatic);
 
         world.SetDefaultFluid(burned.position);
-        Block.Fire.Place(world, burned.position);
+        Blocks.Instance.Fire.Place(world, burned.position);
 
         return true;
     }
@@ -257,3 +257,4 @@ public class FluidContactManager
         }
     }
 }
+

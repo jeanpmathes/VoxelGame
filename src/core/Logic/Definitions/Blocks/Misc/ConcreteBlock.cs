@@ -80,7 +80,7 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     }
 
     /// <inheritdoc />
-    protected override void Setup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider)
     {
         textures = layout.GetTexIndexArray();
     }
@@ -133,4 +133,5 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
         height = (int) (data & 0b00_0111) * 2 + 1;
     }
 }
+
 

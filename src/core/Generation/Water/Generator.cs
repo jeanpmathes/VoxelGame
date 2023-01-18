@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Generation.Water;
 /// </summary>
 public class Generator : IWorldGenerator
 {
-    private readonly Content core = new(Block.Core);
+    private readonly Content core = new(Blocks.Instance.Core);
     private readonly Content empty = Content.Default;
     private readonly Content water = new(fluid: Fluids.Instance.Water);
 
@@ -73,5 +73,4 @@ public class Generator : IWorldGenerator
         return position.Y <= waterLevel ? water : empty;
     }
 }
-
 

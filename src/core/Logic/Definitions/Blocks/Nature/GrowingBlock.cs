@@ -36,7 +36,7 @@ public class GrowingBlock : BasicBlock, ICombustible
     /// <inheritdoc />
     public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
     {
-        Block down = world.GetBlock(position.Below())?.Block ?? Air;
+        Block down = world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air;
 
         return down == requiredGround || down == this;
     }
@@ -46,7 +46,7 @@ public class GrowingBlock : BasicBlock, ICombustible
     {
         if (side == BlockSide.Bottom)
         {
-            Block below = world.GetBlock(position.Below())?.Block ?? Air;
+            Block below = world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air;
 
             if (below != requiredGround && below != this) ScheduleDestroy(world, position);
         }

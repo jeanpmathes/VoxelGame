@@ -78,7 +78,7 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
     }
 
     /// <inheritdoc />
-    protected override void Setup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider)
     {
         int baseIndex = indexProvider.GetTextureIndex(texture);
 
@@ -161,7 +161,7 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
     {
         // Check if this block is the lower part and if the ground supports plant growth.
         if (side == BlockSide.Bottom && (data & 0b00_1000) == 0 &&
-            (world.GetBlock(position.Below())?.Block ?? Air) is not IPlantable) Destroy(world, position);
+            (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable) Destroy(world, position);
     }
 
     /// <inheritdoc />
@@ -239,5 +239,4 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
         Final = 7
     }
 }
-
 

@@ -74,7 +74,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         visualization = new PlayerVisualization(this, ui);
         input = new PlayerInput(this);
 
-        activeBlock = Block.Grass;
+        activeBlock = Blocks.Instance.Grass;
         activeFluid = Fluids.Instance.Water;
     }
 
@@ -188,7 +188,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
             (Block selectedBlock, _) = World.GetBlock(position) ?? BlockInstance.Default;
 
 #if DEBUG
-            if (selectedBlock != Block.Air)
+            if (selectedBlock != Blocks.Instance.Air)
 #else
             if (!selectedBlock.IsReplaceable)
 #endif
@@ -438,8 +438,8 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         if (blockMode)
         {
             long nextBlockId = activeBlock.ID + change;
-            nextBlockId = VMath.ClampRotating(nextBlockId, min: 1, Block.Count);
-            activeBlock = Block.TranslateID((uint) nextBlockId);
+            nextBlockId = VMath.ClampRotating(nextBlockId, min: 1, Blocks.Instance.Count);
+            activeBlock = Blocks.Instance.TranslateID((uint) nextBlockId);
         }
         else
         {
@@ -477,5 +477,4 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     #endregion IDisposable Support
 }
-
 

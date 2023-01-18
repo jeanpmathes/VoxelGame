@@ -194,15 +194,15 @@ public class Tree : DynamicStructure
         (int height, float factor) = GetConfig();
 
         if (offset.X == center && offset.Y == 0 && offset.Z == center)
-            return (new Content(Block.Roots), overwrite: true);
+            return (new Content(Logic.Blocks.Instance.Roots), overwrite: true);
 
         if (offset.X == center && offset.Z == center && offset.Y < height)
-            return (new Content(Block.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default), overwrite: true);
+            return (new Content(Logic.Blocks.Instance.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default), overwrite: true);
 
         if (!GetCrownShape().Contains(offset, out float closeness)) return null;
         if (closeness < factor * Random.NextSingle()) return null;
 
-        return (new Content(Block.Leaves), overwrite: false);
+        return (new Content(Logic.Blocks.Instance.Leaves), overwrite: false);
     }
 }
 

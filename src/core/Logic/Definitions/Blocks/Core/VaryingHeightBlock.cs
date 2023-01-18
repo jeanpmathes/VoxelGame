@@ -78,7 +78,7 @@ public class VaryingHeightBlock : Block, IVaryingHeight, IOverlayTextureProvider
     }
 
     /// <inheritdoc />
-    protected override void Setup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider)
     {
         textureIndices = layout.GetTexIndexArray();
     }
@@ -89,4 +89,5 @@ public class VaryingHeightBlock : Block, IVaryingHeight, IOverlayTextureProvider
         return volumes[(int) data & 0b00_1111];
     }
 }
+
 

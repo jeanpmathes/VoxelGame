@@ -57,9 +57,9 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     public bool SupportsFullGrowth { get; }
 
     /// <inheritdoc />
-    protected override void Setup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider)
     {
-        base.Setup(indexProvider);
+        base.OnSetup(indexProvider);
 
         wetTextureIndices = wet.GetTexIndexArray();
     }
@@ -94,4 +94,5 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
         DirtBehaviour.BlockUpdateCovered(world, position, side);
     }
 }
+
 

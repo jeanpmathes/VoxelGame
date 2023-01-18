@@ -37,9 +37,9 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     }
 
     /// <inheritdoc />
-    protected override void Setup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider)
     {
-        base.Setup(indexProvider);
+        base.OnSetup(indexProvider);
 
         wetTextureIndices = wet.GetTexIndexArray();
     }
@@ -63,7 +63,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
         if (potentialFluid is not {} fluid) return;
 
         if (fluid.Fluid == Logic.Fluids.Instance.Water && fluid.Level == FluidLevel.Eight)
-            world.SetBlock(Mud.AsInstance(), position);
+            world.SetBlock(Logic.Blocks.Instance.Mud.AsInstance(), position);
     }
 
     /// <inheritdoc />
@@ -72,10 +72,9 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
         (BlockInstance block, FluidInstance fluid) = content;
 
         if (fluid.Fluid == Logic.Fluids.Instance.Water && fluid.Level == FluidLevel.Eight)
-            return new Content(Mud.AsInstance(), fluid);
+            return new Content(Logic.Blocks.Instance.Mud.AsInstance(), fluid);
 
         return new Content(block, fluid);
     }
 }
-
 

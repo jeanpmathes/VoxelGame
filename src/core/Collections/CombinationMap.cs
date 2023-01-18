@@ -39,20 +39,20 @@ public class CombinationMap<TE, TV> where TE : IIdentifiable<uint>
     {
         get
         {
-            Debug.Assert(a.Id != b.Id);
+            Debug.Assert(a.ID != b.ID);
 
-            var i = (int) Math.Max(a.Id, b.Id);
-            var j = (int) Math.Min(a.Id, b.Id);
+            var i = (int) Math.Max(a.ID, b.ID);
+            var j = (int) Math.Min(a.ID, b.ID);
 
             return table[i][j];
         }
 
         set
         {
-            Debug.Assert(a.Id != b.Id);
+            Debug.Assert(a.ID != b.ID);
 
-            var i = (int) Math.Max(a.Id, b.Id);
-            var j = (int) Math.Min(a.Id, b.Id);
+            var i = (int) Math.Max(a.ID, b.ID);
+            var j = (int) Math.Min(a.ID, b.ID);
 
             Debug.Assert(!flags[i][j], "This combination is already set.");
 
@@ -86,3 +86,4 @@ public class CombinationMap<TE, TV> where TE : IIdentifiable<uint>
         return this[a, b];
     }
 }
+

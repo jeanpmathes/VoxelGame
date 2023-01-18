@@ -61,7 +61,7 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
     }
 
     /// <inheritdoc />
-    protected override void Setup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider)
     {
         bottomTextureIndex = indexProvider.GetTextureIndex(bottomTexture);
         topTextureIndex = bottomTextureIndex + topTexOffset;
@@ -71,7 +71,7 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
     public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
     {
         return world.GetBlock(position.Above())?.Block.IsReplaceable == true &&
-               (world.GetBlock(position.Below())?.Block ?? Air) is IPlantable;
+               (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is IPlantable;
     }
 
     /// <inheritdoc />
@@ -99,7 +99,7 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
     {
         // Check if this block is the lower part and if the ground supports plant growth.
         if (side == BlockSide.Bottom && (data & 0b1) == 0 &&
-            (world.GetBlock(position.Below())?.Block ?? Air) is not IPlantable) Destroy(world, position);
+            (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable) Destroy(world, position);
     }
 }
 

@@ -73,7 +73,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
     }
 
     /// <inheritdoc />
-    protected override void Setup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider)
     {
         int baseTextureIndex = indexProvider.GetTextureIndex(texture);
 
@@ -119,7 +119,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
     /// <inheritdoc />
     public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
-        if (side == BlockSide.Bottom && (world.GetBlock(position.Below())?.Block ?? Air) is not IPlantable)
+        if (side == BlockSide.Bottom && (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable)
             Destroy(world, position);
     }
 
@@ -179,5 +179,4 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
         Dead
     }
 }
-
 

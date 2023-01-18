@@ -49,16 +49,17 @@ public class Cover
 
         double temperature = sample.GetTemperatureInCelsius(position.Y);
 
-        if (temperature < 0) return new Content(Block.Specials.Snow.GetInstance(height: 1), FluidInstance.Default);
+        if (temperature < 0) return new Content(Blocks.Instance.Specials.Snow.GetInstance(height: 1), FluidInstance.Default);
 
         if (hasPlants)
         {
             float value = noise.GetNoise(position.X, position.Y, position.Z);
             value = value > 0 ? value : value + 1;
 
-            if (value < sample.Humidity) return value < sample.Humidity * FlowerFactor ? new Content(Block.Flower) : new Content(Block.TallGrass);
+            if (value < sample.Humidity) return value < sample.Humidity * FlowerFactor ? new Content(Blocks.Instance.Flower) : new Content(Blocks.Instance.TallGrass);
         }
 
         return Content.Default;
     }
 }
+

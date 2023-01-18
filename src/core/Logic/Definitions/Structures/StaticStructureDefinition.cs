@@ -19,7 +19,7 @@ public partial class StaticStructure
     public class Placement
     {
         public Vector Position { get; set; } = new();
-        public string Block { get; set; } = nameof(Logic.Block.Air);
+        public string Block { get; set; } = nameof(Logic.Blocks.Instance.Air);
         public int Data { get; set; }
         public string Fluid { get; set; } = nameof(Logic.Fluids.Instance.None);
         public int Level { get; set; } = (int) FluidLevel.Eight;
@@ -36,5 +36,4 @@ public partial class StaticStructure
     }
      #pragma warning restore CS1591
 }
-
 

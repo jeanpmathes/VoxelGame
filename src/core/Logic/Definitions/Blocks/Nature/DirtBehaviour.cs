@@ -20,7 +20,7 @@ public static class DirtBehaviour
     /// </summary>
     public static bool CanPlaceCovered(World world, Vector3i position, PhysicsEntity? entity)
     {
-        return world.HasOpaqueTop(position) == false || Block.Dirt.CanPlace(world, position, entity);
+        return world.HasOpaqueTop(position) == false || Logic.Blocks.Instance.Dirt.CanPlace(world, position, entity);
     }
 
     /// <summary>
@@ -29,7 +29,7 @@ public static class DirtBehaviour
     public static void DoPlaceCovered(Block self, World world, Vector3i position, PhysicsEntity? entity)
     {
         if (world.HasOpaqueTop(position) == false) world.SetBlock(self.AsInstance(), position);
-        else Block.Dirt.Place(world, position, entity);
+        else Logic.Blocks.Instance.Dirt.Place(world, position, entity);
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public static class DirtBehaviour
     public static void BlockUpdateCovered(World world, Vector3i position, BlockSide side)
     {
         if (side == BlockSide.Top && world.HasOpaqueTop(position) == true)
-            world.SetBlock(Block.Dirt.AsInstance(), position);
+            world.SetBlock(Logic.Blocks.Instance.Dirt.AsInstance(), position);
     }
 }
 

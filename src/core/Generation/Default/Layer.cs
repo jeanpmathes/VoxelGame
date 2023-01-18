@@ -195,7 +195,7 @@ public abstract class Layer
         {
             Width = width;
 
-            snow = new Content(Block.Specials.Snow.FullHeightInstance, FluidInstance.Default);
+            snow = new Content(Blocks.Instance.Specials.Snow.FullHeightInstance, FluidInstance.Default);
             filled = Content.Default;
         }
 
@@ -274,9 +274,9 @@ public abstract class Layer
         {
             Width = width;
 
-            dirt = new Content(Block.Dirt);
+            dirt = new Content(Blocks.Instance.Dirt);
 
-            grass = new Content(Block.Grass);
+            grass = new Content(Blocks.Instance.Grass);
 
             this.amplitude = amplitude;
         }
@@ -296,3 +296,4 @@ public abstract class Layer
         }
     }
 }
+

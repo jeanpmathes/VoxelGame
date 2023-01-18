@@ -19,7 +19,7 @@ public class Cactus : DynamicStructure
     /// <inheritdoc />
     protected override (Content content, bool overwrite)? GetContent(Vector3i offset)
     {
-        return (new Content(Block.Cactus), true);
+        return (new Content(Logic.Blocks.Instance.Cactus), true);
     }
 }
 

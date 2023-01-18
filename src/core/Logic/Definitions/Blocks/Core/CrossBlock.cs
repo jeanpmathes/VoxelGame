@@ -44,9 +44,10 @@ public class CrossBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void Setup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider)
     {
         (vertices, indices, textureIndices) = BlockModels.CreateCrossModel(indexProvider.GetTextureIndex(texture));
     }
 }
+
 

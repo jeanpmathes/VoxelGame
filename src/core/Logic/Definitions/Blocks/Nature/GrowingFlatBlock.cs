@@ -64,7 +64,7 @@ public class GrowingFlatBlock : FlatBlock, ICombustible, IFillable
         var age = (int) ((data & 0b1_1100) >> 2);
 
         if (age < 7) world.SetBlock(this.AsInstance((uint) (((age + 1) << 2) | (int) orientation)), position);
-        else if (world.GetBlock(position.Below())?.Block == Air)
+        else if (world.GetBlock(position.Below())?.Block == Logic.Blocks.Instance.Air)
             world.SetBlock(this.AsInstance((uint) orientation), position.Below());
     }
 }

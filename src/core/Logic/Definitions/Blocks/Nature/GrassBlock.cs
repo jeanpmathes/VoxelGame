@@ -29,7 +29,7 @@ public class GrassBlock : CoveredDirtBlock, ICombustible
     /// <inheritdoc />
     public bool Burn(World world, Vector3i position, Block fire)
     {
-        world.SetBlock(GrassBurned.AsInstance(), position);
+        world.SetBlock(Logic.Blocks.Instance.GrassBurned.AsInstance(), position);
         fire.Place(world, position.Above());
 
         return false;
@@ -41,7 +41,7 @@ public class GrassBlock : CoveredDirtBlock, ICombustible
         FluidInstance? fluid = world.GetFluid(position);
 
         if (fluid?.Fluid == Logic.Fluids.Instance.Water && fluid.Value.Level == FluidLevel.Eight)
-            world.SetBlock(Mud.AsInstance(), position);
+            world.SetBlock(Logic.Blocks.Instance.Mud.AsInstance(), position);
 
         for (int yOffset = -1; yOffset <= 1; yOffset++)
             foreach (Orientation orientation in Orientations.All)
@@ -53,5 +53,4 @@ public class GrassBlock : CoveredDirtBlock, ICombustible
             }
     }
 }
-
 

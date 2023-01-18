@@ -141,7 +141,7 @@ public partial class StaticStructure : Structure
     private static StaticStructure CreateFallback()
     {
         var fallback = new Content?[1, 1, 1];
-        fallback[0, 0, 0] = new Content(Block.Error);
+        fallback[0, 0, 0] = new Content(Logic.Blocks.Instance.Error);
 
         return new StaticStructure(fallback, Vector3i.One);
     }
@@ -158,12 +158,12 @@ public partial class StaticStructure : Structure
 
         var content = Content.Default;
 
-        Block? block = Block.TranslateNamedID(placement.Block);
+        Block? block = Logic.Blocks.Instance.TranslateNamedID(placement.Block);
 
         if (block == null)
         {
             logger.LogWarning(Events.ResourceLoad, "Unknown block '{Block}' in structure '{Name}'", placement.Block, name);
-            block = Block.Air;
+            block = Logic.Blocks.Instance.Air;
         }
 
         content.Block = new BlockInstance(block, (((uint) placement.Data << Section.DataShift) & Section.DataMask) >> Section.DataShift);
@@ -257,5 +257,4 @@ public partial class StaticStructure : Structure
         return false;
     }
 }
-
 

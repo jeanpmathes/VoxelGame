@@ -16,7 +16,7 @@ public readonly record struct BlockInstance(Block Block, uint Data)
     /// <summary>
     ///     Get the default block instance.
     /// </summary>
-    public static BlockInstance Default => new(Block.Air, Data: 0);
+    public static BlockInstance Default => new(Blocks.Instance.Air, Data: 0);
 
     /// <inheritdoc cref="IBlockBase.IsSolidAndFull(uint)" />
     public bool IsSolidAndFull => Block.Base.IsSolidAndFull(Data);
@@ -99,5 +99,4 @@ public static class ContentExtensions
     }
     #pragma warning restore S4226
 }
-
 

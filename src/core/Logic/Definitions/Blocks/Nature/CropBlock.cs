@@ -63,7 +63,7 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
     }
 
     /// <inheritdoc />
-    protected override void Setup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider)
     {
         int baseIndex = indexProvider.GetTextureIndex(texture);
 
@@ -179,5 +179,6 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
         Dead
     }
 }
+
 
 

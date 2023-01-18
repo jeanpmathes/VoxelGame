@@ -140,9 +140,9 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// </summary>
     public Vector3i FlowDirection => Direction.Direction();
 
-    string IIdentifiable<string>.Id => NamedID;
+    string IIdentifiable<string>.ID => NamedID;
 
-    uint IIdentifiable<uint>.Id => ID;
+    uint IIdentifiable<uint>.ID => ID;
 
     private static BoundingVolume[] CreateVolumes()
     {
@@ -628,5 +628,6 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         return NamedID;
     }
 }
+
 
 

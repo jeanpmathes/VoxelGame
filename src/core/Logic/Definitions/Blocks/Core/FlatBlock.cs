@@ -111,7 +111,7 @@ public class FlatBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void Setup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider)
     {
         indices = BlockModels.GenerateIndexDataArray(faces: 2);
         textureIndices = BlockModels.GenerateTextureDataArray(indexProvider.GetTextureIndex(texture), length: 8);
@@ -195,4 +195,5 @@ public class FlatBlock : Block, IFillable, IComplex
         return IComplex.CreateData(vertexCount: 8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
     }
 }
+
 
