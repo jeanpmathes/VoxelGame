@@ -31,7 +31,7 @@ public partial class Fluid
     /// </summary>
     internal void TickSoon(World world, Vector3i position, bool isStatic)
     {
-        if (!isStatic || this == None) return;
+        if (!isStatic || this == Fluids.Instance.None) return;
 
         world.ModifyFluid(isStatic: false, position);
         ScheduleTick(world, position);
@@ -42,7 +42,7 @@ public partial class Fluid
     /// </summary>
     internal void TickNow(World world, Vector3i position, FluidLevel level, bool isStatic)
     {
-        if (this == None) return;
+        if (this == Fluids.Instance.None) return;
 
         ScheduledUpdate(world, position, level, isStatic);
     }
@@ -62,7 +62,7 @@ public partial class Fluid
             y = position.Y;
             z = position.Z;
 
-            this.target = target.Id;
+            this.target = target.ID;
         }
 
         public void Tick(World world)
@@ -71,7 +71,7 @@ public partial class Fluid
 
             if (potentialFluid is not {} fluid) return;
 
-            if (fluid.Fluid.Id == target)
+            if (fluid.Fluid.ID == target)
                 fluid.Fluid.ScheduledUpdate(world, (x, y, z), fluid.Level, fluid.IsStatic);
         }
 
@@ -101,3 +101,5 @@ public partial class Fluid
         }
     }
 }
+
+

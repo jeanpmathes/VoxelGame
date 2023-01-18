@@ -104,7 +104,7 @@ public class GameResources
             "Texture/Block ratio: {Ratio:F02}",
             BlockTextureArray.Count / (double) Block.Count);
 
-        Fluid.LoadFluids(FluidTextureArray);
+        Fluids.Load(FluidTextureArray);
 
         Generator.Prepare();
     }
@@ -120,3 +120,5 @@ public class GameResources
         FluidTextureArray.Dispose();
     }
 }
+
+

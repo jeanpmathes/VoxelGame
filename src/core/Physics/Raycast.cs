@@ -28,7 +28,7 @@ public static class Raycast
     }
 
     /// <summary>
-    ///     Checks if a ray intersects with a fluid that is not <see cref="Fluid.None" />
+    ///     Checks if a ray intersects with a fluid that is not <see cref="Fluids.None" />
     /// </summary>
     /// <param name="world">The world in which to cast the ray.</param>
     /// <param name="ray">The ray.</param>
@@ -158,7 +158,9 @@ public static class Raycast
         if (potentialFluid is not {} fluid) return false;
 
         // Check if the ray intersects the bounding box of the fluid.
-        return fluid.Fluid != Fluid.None &&
+        return fluid.Fluid != Fluids.Instance.None &&
                Fluid.GetCollider(position, fluid.Level).Intersects(ray);
     }
 }
+
+

@@ -186,7 +186,7 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
     {
         BlockInstance? above = world.GetBlock(position.Above());
 
-        if (plantable.TryGrow(world, position.Below(), Fluid.Water, FluidLevel.One) &&
+        if (plantable.TryGrow(world, position.Below(), Logic.Fluids.Instance.Water, FluidLevel.One) &&
             ((above?.Block.IsReplaceable ?? false) || above?.Block == this))
         {
             world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
@@ -239,4 +239,5 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
         Final = 7
     }
 }
+
 

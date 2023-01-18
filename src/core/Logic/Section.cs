@@ -229,7 +229,7 @@ public abstract class Section : IDisposable
     {
         block = Block.TranslateID(val & BlockMask);
         data = (val & DataMask) >> DataShift;
-        fluid = Fluid.TranslateID((val & FluidMask) >> FluidShift);
+        fluid = Fluids.Instance.TranslateID((val & FluidMask) >> FluidShift);
         level = (FluidLevel) ((val & LevelMask) >> LevelShift);
         isStatic = (val & StaticMask) != 0;
     }
@@ -253,7 +253,7 @@ public abstract class Section : IDisposable
     {
         return (uint) ((((isStatic ? 1 : 0) << StaticShift) & StaticMask)
                        | (((uint) level << LevelShift) & LevelMask)
-                       | ((fluid.Id << FluidShift) & FluidMask)
+                       | ((fluid.ID << FluidShift) & FluidMask)
                        | ((data << DataShift) & DataMask)
                        | (block.ID & BlockMask));
     }
@@ -273,7 +273,7 @@ public abstract class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint Encode(IBlockBase? block = null, Fluid? fluid = null)
     {
-        return Encode(block ?? Block.Air, data: 0, fluid ?? Fluid.None, FluidLevel.Eight, isStatic: true);
+        return Encode(block ?? Block.Air, data: 0, fluid ?? Fluids.Instance.None, FluidLevel.Eight, isStatic: true);
     }
 
     /// <summary>
@@ -303,7 +303,7 @@ public abstract class Section : IDisposable
 
         var level = (FluidLevel) ((val & LevelMask) >> LevelShift);
 
-        return Fluid.TranslateID((val & FluidMask) >> FluidShift).AsInstance(level);
+        return Fluids.Instance.TranslateID((val & FluidMask) >> FluidShift).AsInstance(level);
     }
 
     #region IDisposable Support
@@ -333,3 +333,5 @@ public abstract class Section : IDisposable
 
     #endregion IDisposable Support
 }
+
+

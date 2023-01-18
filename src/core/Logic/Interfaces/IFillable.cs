@@ -65,7 +65,9 @@ public interface IFillable : IBlockBase
 
         (BlockInstance block, FluidInstance fluid) = content.Value;
 
-        if (fluid.Fluid != Fluid.None && block.Block is IFillable fillable)
+        if (fluid.Fluid != Fluids.Instance.None && block.Block is IFillable fillable)
             fillable.FluidChange(world, position, fluid.Fluid, fluid.Level);
     }
 }
+
+

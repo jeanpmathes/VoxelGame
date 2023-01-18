@@ -42,7 +42,7 @@ public record struct FluidInstance(Fluid Fluid, FluidLevel Level, bool IsStatic)
     /// <summary>
     ///     Get the default fluid instance.
     /// </summary>
-    public static FluidInstance Default => new(Fluid.None, FluidLevel.Eight, IsStatic: true);
+    public static FluidInstance Default => new(Fluids.Instance.None, FluidLevel.Eight, IsStatic: true);
 }
 
 /// <summary>
@@ -72,7 +72,7 @@ public record struct Content(BlockInstance Block, FluidInstance Fluid)
     /// <summary>
     ///     Whether the block is replaceable and the fluid is empty.
     /// </summary>
-    public bool IsReplaceable => Block.Block.IsReplaceable && Fluid.Fluid == Logic.Fluid.None;
+    public bool IsReplaceable => Block.Block.IsReplaceable && Fluid.Fluid == Fluids.Instance.None;
 }
 
 /// <summary>
@@ -99,3 +99,5 @@ public static class ContentExtensions
     }
     #pragma warning restore S4226
 }
+
+

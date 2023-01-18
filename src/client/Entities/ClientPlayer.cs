@@ -75,7 +75,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         input = new PlayerInput(this);
 
         activeBlock = Block.Grass;
-        activeFluid = Fluid.Water;
+        activeFluid = Fluids.Instance.Water;
     }
 
     /// <summary>
@@ -443,9 +443,9 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         }
         else
         {
-            long nextFluidId = activeFluid.Id + change;
-            nextFluidId = VMath.ClampRotating(nextFluidId, min: 1, Fluid.Count);
-            activeFluid = Fluid.TranslateID((uint) nextFluidId);
+            long nextFluidId = activeFluid.ID + change;
+            nextFluidId = VMath.ClampRotating(nextFluidId, min: 1, Fluids.Instance.Count);
+            activeFluid = Fluids.Instance.TranslateID((uint) nextFluidId);
         }
 
         return true;
@@ -477,3 +477,5 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     #endregion IDisposable Support
 }
+
+

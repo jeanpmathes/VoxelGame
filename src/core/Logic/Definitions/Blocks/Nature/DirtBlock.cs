@@ -62,7 +62,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
 
         if (potentialFluid is not {} fluid) return;
 
-        if (fluid.Fluid == Fluid.Water && fluid.Level == FluidLevel.Eight)
+        if (fluid.Fluid == Logic.Fluids.Instance.Water && fluid.Level == FluidLevel.Eight)
             world.SetBlock(Mud.AsInstance(), position);
     }
 
@@ -71,10 +71,11 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     {
         (BlockInstance block, FluidInstance fluid) = content;
 
-        if (fluid.Fluid == Fluid.Water && fluid.Level == FluidLevel.Eight)
+        if (fluid.Fluid == Logic.Fluids.Instance.Water && fluid.Level == FluidLevel.Eight)
             return new Content(Mud.AsInstance(), fluid);
 
         return new Content(block, fluid);
     }
 }
+
 

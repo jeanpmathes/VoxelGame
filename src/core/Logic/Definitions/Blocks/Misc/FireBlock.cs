@@ -62,7 +62,7 @@ public class FireBlock : Block, IFillable, IComplex
     /// <inheritdoc />
     public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
-        if (fluid != Fluid.None) Destroy(world, position);
+        if (fluid != Logic.Fluids.Instance.None) Destroy(world, position);
     }
 
     private void PrepareMeshes(BlockModel complete, BlockModel side, BlockModel top)
@@ -276,4 +276,5 @@ public class FireBlock : Block, IFillable, IComplex
         return (data & GetFlag(side)) != 0;
     }
 }
+
 

@@ -29,6 +29,8 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
     private const double GasFluidThreshold = 10f;
 
+    private const uint InvalidID = uint.MaxValue;
+
     private static readonly BoundingVolume[] volumes = CreateVolumes();
 
     /// <summary>
@@ -75,24 +77,13 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         ReceiveContact = receiveContact;
 
         RenderType = renderType;
-
-        if (fluidList.Count < FluidLimit)
-        {
-            fluidList.Add(this);
-            namedFluidDictionary.Add(namedId, this);
-
-            Id = (uint) (fluidList.Count - 1);
-        }
-        else
-        {
-            Debug.Fail($"Not more than {FluidLimit} fluids are allowed.");
-        }
     }
 
     /// <summary>
     ///     Gets the fluid id which can be any value from 0 to 31.
+    ///     This value will be initialized after all fluids have been registered, and is therefore not set in the constructor.
     /// </summary>
-    public uint Id { get; }
+    public uint ID { get; private set; } = InvalidID;
 
     /// <summary>
     ///     Gets the localized name of the fluid.
@@ -151,7 +142,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
     string IIdentifiable<string>.Id => NamedID;
 
-    uint IIdentifiable<uint>.Id => Id;
+    uint IIdentifiable<uint>.Id => ID;
 
     private static BoundingVolume[] CreateVolumes()
     {
@@ -174,8 +165,21 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// <summary>
     ///     Called when loading fluids, meant to setup vertex data, indices etc.
     /// </summary>
-    /// <param name="indexProvider"></param>
-    protected virtual void Setup(ITextureIndexProvider indexProvider) {}
+    /// <param name="id">The id of the fluid.</param>
+    /// <param name="indexProvider">A provider for texture indices.</param>
+    public void Setup(uint id, ITextureIndexProvider indexProvider)
+    {
+        Debug.Assert(ID == InvalidID);
+        ID = id;
+
+        OnSetup(indexProvider);
+    }
+
+    /// <summary>
+    ///     Called on fluid setup, after the ID has been set.
+    /// </summary>
+    /// <param name="indexProvider">A provider for texture indices.</param>
+    protected virtual void OnSetup(ITextureIndexProvider indexProvider) {}
 
     /// <summary>
     /// Create the mesh for this fluid.
@@ -325,7 +329,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
                 return true;
             }
 
-            if (target.Fluid == None)
+            if (target.Fluid == Fluids.Instance.None)
             {
                 SetFluid(world, this, level, isStatic: false, fillable, position);
                 ScheduleTick(world, position);
@@ -348,11 +352,11 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     {
         Content? content = world.GetContent(position);
 
-        if (content is not var (block, fluid) || fluid.Fluid != this || this == None) return false;
+        if (content is not var (block, fluid) || fluid.Fluid != this || this == Fluids.Instance.None) return false;
 
         if (level >= fluid.Level)
         {
-            SetFluid(world, None, FluidLevel.Eight, isStatic: true, block.Block as IFillable, position);
+            SetFluid(world, Fluids.Instance.None, FluidLevel.Eight, isStatic: true, block.Block as IFillable, position);
         }
         else
         {
@@ -381,12 +385,12 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     {
         Content? content = world.GetContent(position);
 
-        if (content is not var (block, fluid) || fluid.Fluid != this || this == None ||
+        if (content is not var (block, fluid) || fluid.Fluid != this || this == Fluids.Instance.None ||
             level > fluid.Level) return false;
 
         if (level == fluid.Level)
         {
-            SetFluid(world, None, FluidLevel.Eight, isStatic: true, block.Block as IFillable, position);
+            SetFluid(world, Fluids.Instance.None, FluidLevel.Eight, isStatic: true, block.Block as IFillable, position);
         }
         else
         {
@@ -468,16 +472,16 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
             if (content is not var (neighborBlock, neighborFluid)) continue;
 
-            if (neighborFluid.Fluid == None && neighborBlock.Block is IFillable neighborFillable
-                                            && neighborFillable.AllowInflow(
-                                                world,
-                                                neighborPosition,
-                                                orientation.Opposite().ToBlockSide(),
-                                                this)
-                                            && currentFillable.AllowOutflow(
-                                                world,
-                                                position,
-                                                orientation.ToBlockSide()))
+            if (neighborFluid.Fluid == Fluids.Instance.None && neighborBlock.Block is IFillable neighborFillable
+                                                            && neighborFillable.AllowInflow(
+                                                                world,
+                                                                neighborPosition,
+                                                                orientation.Opposite().ToBlockSide(),
+                                                                this)
+                                                            && currentFillable.AllowOutflow(
+                                                                world,
+                                                                position,
+                                                                orientation.ToBlockSide()))
                 return true;
         }
 
@@ -566,6 +570,46 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     }
 
     /// <summary>
+    ///     Elevate a fluid. This tries to move the fluid up, to the next suitable position.
+    /// </summary>
+    /// <param name="world">The world.</param>
+    /// <param name="position">The position of the fluid.</param>
+    /// <param name="pumpDistance">The maximum amount of elevation.</param>
+    public static void Elevate(World world, Vector3i position, int pumpDistance)
+    {
+        Content? content = world.GetContent(position);
+
+        if (content is not var (start, toElevate)) return;
+        if (toElevate.Fluid == Fluids.Instance.None || toElevate.Fluid.IsGas) return;
+
+        var currentLevel = (int) toElevate.Level;
+
+        if (start.Block is not IFillable startFillable ||
+            !startFillable.AllowOutflow(world, position, BlockSide.Top)) return;
+
+        for (var offset = 1; offset <= pumpDistance && currentLevel > -1; offset++)
+        {
+            Vector3i elevatedPosition = position + (0, offset, 0);
+
+            var currentBlock = world.GetBlock(elevatedPosition)?.Block as IFillable;
+
+            if (currentBlock == null) break;
+
+            toElevate.Fluid.Fill(
+                world,
+                elevatedPosition,
+                (FluidLevel) currentLevel,
+                BlockSide.Bottom,
+                out currentLevel);
+
+            if (!currentBlock.AllowOutflow(world, elevatedPosition, BlockSide.Top)) break;
+        }
+
+        FluidLevel elevated = toElevate.Level - (currentLevel + 1);
+        toElevate.Fluid.Take(world, position, ref elevated);
+    }
+
+    /// <summary>
     ///     Check if a fluid at a given position is at the surface.
     /// </summary>
     /// <param name="world">The world.</param>
@@ -584,3 +628,5 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         return NamedID;
     }
 }
+
+

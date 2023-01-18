@@ -1,22 +1,25 @@
-﻿// <copyright file="FluidManagement.cs" company="VoxelGame">
+﻿// <copyright file="Fluids.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.Extensions.Logging;
-using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Definitions.Fluids;
-using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
 
-public abstract partial class Fluid
+/// <summary>
+///     Contains all fluid definitions of the core game.
+/// </summary>
+public class Fluids
 {
     /// <summary>
     ///     The maximum amount of different fluids that can be registered.
@@ -28,18 +31,66 @@ public abstract partial class Fluid
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Fluid>();
 
-    private static readonly List<Fluid> fluidList = new();
-    private static readonly Dictionary<string, Fluid> namedFluidDictionary = new();
+    private readonly List<Fluid> fluidList = new();
+    private readonly Dictionary<string, Fluid> namedFluidDictionary = new();
+
+    private Fluids(ITextureIndexProvider indexProvider)
+    {
+        using (logger.BeginScope("Fluid Loading"))
+        {
+            List<Fluid> allFluids = new()
+            {
+                None,
+                Water,
+                Milk,
+                Steam,
+                Lava,
+                CrudeOil,
+                NaturalGas,
+                Concrete,
+                Honey,
+                Petrol,
+                Wine,
+                Beer
+            };
+
+            if (allFluids.Count > FluidLimit) Debug.Fail($"Not more than {FluidLimit} fluids are allowed.");
+
+            foreach (Fluid fluid in allFluids.Take(FluidLimit))
+            {
+                fluidList.Add(fluid);
+                namedFluidDictionary.Add(fluid.NamedID, fluid);
+
+                var id = (uint) (fluidList.Count - 1);
+
+                fluid.Setup(id, indexProvider);
+
+                logger.LogDebug(Events.FluidLoad, "Loaded fluid [{Fluid}] with ID '{ID}'", fluid, fluid.ID);
+            }
+
+            logger.LogInformation(
+                Events.FluidLoad,
+                "Fluid setup complete, total of {Count} fluids loaded",
+                Count);
+
+            ContactManager = new FluidContactManager(this);
+        }
+    }
+
+    /// <summary>
+    ///     Get the fluids instance. Only available after a call to <see cref="Load" />
+    /// </summary>
+    public static Fluids Instance { get; private set; } = null!;
 
     /// <summary>
     ///     The absence of a fluid.
     /// </summary>
-    public static readonly Fluid None = new NoFluid(Language.NoFluid, nameof(None));
+    public Fluid None { get; } = new NoFluid(Language.NoFluid, nameof(None));
 
     /// <summary>
     ///     Water is a basic fluid, that allows the player to swim relatively easily.
     /// </summary>
-    public static readonly Fluid Water = new BasicFluid(
+    public Fluid Water { get; } = new BasicFluid(
         Language.Water,
         nameof(Water),
         density: 997f,
@@ -52,7 +103,7 @@ public abstract partial class Fluid
     /// <summary>
     ///     Milk is a white fluid that is obtained from animals.
     /// </summary>
-    public static readonly Fluid Milk = new BasicFluid(
+    public Fluid Milk { get; } = new BasicFluid(
         Language.Milk,
         nameof(Milk),
         density: 1033f,
@@ -64,7 +115,7 @@ public abstract partial class Fluid
     /// <summary>
     ///     Steam is a gas created when water is heated.
     /// </summary>
-    public static readonly Fluid Steam = new BasicFluid(
+    public Fluid Steam { get; } = new BasicFluid(
         Language.Steam,
         nameof(Steam),
         density: 0.5f,
@@ -77,7 +128,7 @@ public abstract partial class Fluid
     /// <summary>
     ///     Lava is a hot fluid, made out of molten stone. It burns flammable objects.
     /// </summary>
-    public static readonly Fluid Lava = new HotFluid(
+    public Fluid Lava { get; } = new HotFluid(
         Language.Lava,
         nameof(Lava),
         density: 3100f,
@@ -89,7 +140,7 @@ public abstract partial class Fluid
     /// <summary>
     ///     Crude oil is a flammable fluid with a high viscosity. It is lighter than water.
     /// </summary>
-    public static readonly Fluid CrudeOil = new BasicFluid(
+    public Fluid CrudeOil { get; } = new BasicFluid(
         Language.CrudeOil,
         nameof(CrudeOil),
         density: 870f,
@@ -101,7 +152,7 @@ public abstract partial class Fluid
     /// <summary>
     ///     Natural gas is a flammable gas.
     /// </summary>
-    public static readonly Fluid NaturalGas = new BasicFluid(
+    public Fluid NaturalGas { get; } = new BasicFluid(
         Language.NaturalGas,
         nameof(NaturalGas),
         density: 0.8f,
@@ -114,7 +165,7 @@ public abstract partial class Fluid
     /// <summary>
     ///     Concrete is a fluid that hardens when staying still for some time, forming concrete blocks.
     /// </summary>
-    public static readonly Fluid Concrete = new ConcreteFluid(
+    public Fluid Concrete { get; } = new ConcreteFluid(
         Language.Concrete,
         nameof(Concrete),
         density: 2400f,
@@ -125,7 +176,7 @@ public abstract partial class Fluid
     /// <summary>
     ///     Honey is a thick fluid.
     /// </summary>
-    public static readonly Fluid Honey = new BasicFluid(
+    public Fluid Honey { get; } = new BasicFluid(
         Language.Honey,
         nameof(Honey),
         density: 1450f,
@@ -138,7 +189,7 @@ public abstract partial class Fluid
     /// <summary>
     ///     Petrol is a flammable fluid.
     /// </summary>
-    public static readonly Fluid Petrol = new BasicFluid(
+    public Fluid Petrol { get; } = new BasicFluid(
         Language.Petrol,
         nameof(Petrol),
         density: 740f,
@@ -151,7 +202,7 @@ public abstract partial class Fluid
     /// <summary>
     ///     Wine is a reddish fluid.
     /// </summary>
-    public static readonly Fluid Wine = new BasicFluid(
+    public Fluid Wine { get; } = new BasicFluid(
         Language.Wine,
         nameof(Wine),
         density: 1090f,
@@ -164,7 +215,7 @@ public abstract partial class Fluid
     /// <summary>
     ///     Beer is a brown fluid.
     /// </summary>
-    public static readonly Fluid Beer = new BasicFluid(
+    public Fluid Beer { get; } = new BasicFluid(
         Language.Beer,
         nameof(Beer),
         density: 1030f,
@@ -177,19 +228,19 @@ public abstract partial class Fluid
     /// <summary>
     ///     The contact manager instance.
     /// </summary>
-    protected static readonly FluidContactManager ContactManager = new();
+    public FluidContactManager ContactManager { get; }
 
     /// <summary>
     ///     Gets the count of registered fluids..
     /// </summary>
-    public static int Count => fluidList.Count;
+    public int Count => fluidList.Count;
 
     /// <summary>
     ///     Translates a fluid ID to a reference to the fluid that has that ID. If the ID is not valid, none is returned.
     /// </summary>
     /// <param name="id">The ID of the block to return.</param>
     /// <returns>The block with the ID or air if the ID is not valid.</returns>
-    public static Fluid TranslateID(uint id)
+    public Fluid TranslateID(uint id)
     {
         if (fluidList.Count > id) return fluidList[(int) id];
 
@@ -207,7 +258,7 @@ public abstract partial class Fluid
     /// </summary>
     /// <param name="namedId">The named ID to translate.</param>
     /// <returns>The fluid, or null.</returns>
-    public static Fluid? TranslateNamedID(string namedId)
+    public Fluid? TranslateNamedID(string namedId)
     {
         namedFluidDictionary.TryGetValue(namedId, out Fluid? fluid);
 
@@ -217,62 +268,8 @@ public abstract partial class Fluid
     /// <summary>
     ///     Calls the setup method on all blocks.
     /// </summary>
-    public static void LoadFluids(ITextureIndexProvider indexProvider)
+    public static void Load(ITextureIndexProvider indexProvider)
     {
-        using (logger.BeginScope("Fluid Loading"))
-        {
-            foreach (Fluid fluid in fluidList)
-            {
-                fluid.Setup(indexProvider);
-
-                logger.LogDebug(Events.FluidLoad, "Loaded fluid [{Fluid}] with ID '{ID}'", fluid, fluid.Id);
-            }
-
-            logger.LogInformation(
-                Events.FluidLoad,
-                "Fluid setup complete, total of {Count} fluids loaded",
-                Count);
-        }
-    }
-
-    /// <summary>
-    ///     Elevate a fluid. This tries to move the fluid up, to the next suitable position.
-    /// </summary>
-    /// <param name="world">The world.</param>
-    /// <param name="position">The position of the fluid.</param>
-    /// <param name="pumpDistance">The maximum amount of elevation.</param>
-    public static void Elevate(World world, Vector3i position, int pumpDistance)
-    {
-        Content? content = world.GetContent(position);
-
-        if (content is not var (start, toElevate)) return;
-        if (toElevate.Fluid == None || toElevate.Fluid.IsGas) return;
-
-        var currentLevel = (int) toElevate.Level;
-
-        if (start.Block is not IFillable startFillable ||
-            !startFillable.AllowOutflow(world, position, BlockSide.Top)) return;
-
-        for (var offset = 1; offset <= pumpDistance && currentLevel > -1; offset++)
-        {
-            Vector3i elevatedPosition = position + (0, offset, 0);
-
-            var currentBlock = world.GetBlock(elevatedPosition)?.Block as IFillable;
-
-            if (currentBlock == null) break;
-
-            toElevate.Fluid.Fill(
-                world,
-                elevatedPosition,
-                (FluidLevel) currentLevel,
-                BlockSide.Bottom,
-                out currentLevel);
-
-            if (!currentBlock.AllowOutflow(world, elevatedPosition, BlockSide.Top)) break;
-        }
-
-        FluidLevel elevated = toElevate.Level - (currentLevel + 1);
-        toElevate.Fluid.Take(world, position, ref elevated);
+        Instance = new Fluids(indexProvider);
     }
 }
-

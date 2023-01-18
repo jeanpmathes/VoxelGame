@@ -18,7 +18,7 @@ public class Generator : IWorldGenerator
 {
     private readonly Content core = new(Block.Core);
     private readonly Content empty = Content.Default;
-    private readonly Content water = new(fluid: Fluid.Water);
+    private readonly Content water = new(fluid: Fluids.Instance.Water);
 
     private readonly int waterLevel;
 
@@ -73,3 +73,5 @@ public class Generator : IWorldGenerator
         return position.Y <= waterLevel ? water : empty;
     }
 }
+
+

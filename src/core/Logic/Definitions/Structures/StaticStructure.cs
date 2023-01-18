@@ -168,12 +168,12 @@ public partial class StaticStructure : Structure
 
         content.Block = new BlockInstance(block, (((uint) placement.Data << Section.DataShift) & Section.DataMask) >> Section.DataShift);
 
-        Fluid? fluid = Fluid.TranslateNamedID(placement.Fluid);
+        Fluid? fluid = Logic.Fluids.Instance.TranslateNamedID(placement.Fluid);
 
         if (fluid == null)
         {
             logger.LogWarning(Events.ResourceLoad, "Unknown fluid '{Fluid}' in structure '{Name}'", placement.Fluid, name);
-            fluid = Fluid.None;
+            fluid = Logic.Fluids.Instance.None;
         }
 
         content.Fluid = new FluidInstance(fluid, (FluidLevel) ((((uint) placement.Level << Section.LevelShift) & Section.LevelMask) >> Section.LevelShift), placement.IsStatic);
@@ -257,4 +257,5 @@ public partial class StaticStructure : Structure
         return false;
     }
 }
+
 
