@@ -17,24 +17,26 @@ namespace VoxelGame.Manual.Utility;
 public static class FieldIterationExtensions
 {
     /// <summary>
-    ///     Get all static fields declared in a class, that match a certain type.
+    ///     Get all properties declared in a class, that match a certain type.
     /// </summary>
-    /// <param name="type">The type to get all fields from.</param>
+    /// <param name="type">The type to get all properties from.</param>
     /// <param name="filterType">The type to filter for.</param>
-    /// <returns>The found fields.</returns>
-    public static IEnumerable<FieldInfo> GetStaticFields(this IReflect type, Type filterType)
+    /// <returns>The found properties.</returns>
+    public static IEnumerable<PropertyInfo> GetProperties(this IReflect type, Type filterType)
     {
-        return type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
-            .Where(info => info.FieldType == filterType);
+        return type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+            .Where(info => info.PropertyType == filterType);
     }
 
     /// <summary>
-    ///     Get the static values for all fields with a certain type, and the corresponding field documentation.
+    ///     Get the values for all fields with a certain type, and the corresponding field documentation.
     /// </summary>
-    public static IEnumerable<(T, string)> GetStaticValues<T>(this IReflect type, Documentation documentation)
+    public static IEnumerable<(T, string)> GetValues<T>(this object obj, Documentation documentation)
     {
-        return type.GetStaticFields(typeof(T))
-            .Where(info => info.GetValue(obj: null) != null)
-            .Select(info => ((T) info.GetValue(obj: null)!, documentation.GetFieldSummary(info)));
+        return obj.GetType().GetProperties(typeof(T))
+            .Where(info => info.GetValue(obj) != null)
+            .Select(info => ((T) info.GetValue(obj)!, documentation.GetPropertySummary(info)));
     }
 }
+
+

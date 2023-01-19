@@ -79,4 +79,20 @@ public class Documentation
             ? summary
             : "";
     }
+
+    /// <summary>
+    ///     Get the documentation for a property
+    /// </summary>
+    /// <param name="property">The property to get the summary for.</param>
+    /// <returns>The summary.</returns>
+    public string GetPropertySummary(MemberInfo property)
+    {
+        return documentation.TryGetValue(
+            $"P:{property.DeclaringType?.FullName ?? ""}.{property.Name}",
+            out string? summary)
+            ? summary
+            : "";
+    }
 }
+
+
