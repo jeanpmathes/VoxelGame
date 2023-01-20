@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Entities;
@@ -187,11 +188,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         {
             (Block selectedBlock, _) = World.GetBlock(position) ?? BlockInstance.Default;
 
-#if DEBUG
-            if (selectedBlock != Blocks.Instance.Air)
-#else
-            if (!selectedBlock.IsReplaceable)
-#endif
+            if (IsBlockBoundingBoxVisualized(selectedBlock))
             {
                 Application.Client.Instance.Resources.Shaders.Selection.SetVector3(
                     "color",
@@ -204,6 +201,21 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         visualization.Draw();
 
         if (OverlayEnabled) visualization.DrawOverlay();
+    }
+
+    private static bool IsBlockBoundingBoxVisualized(Block block)
+    {
+        bool visualized = !block.IsReplaceable;
+
+        [Conditional("DEBUG")]
+        static void IsVisualizedInDebugMode(Block block, ref bool b)
+        {
+            b |= block != Blocks.Instance.Air;
+        }
+
+        IsVisualizedInDebugMode(block, ref visualized);
+
+        return visualized;
     }
 
     /// <inheritdoc />
@@ -477,4 +489,3 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     #endregion IDisposable Support
 }
-

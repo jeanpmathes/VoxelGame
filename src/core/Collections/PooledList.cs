@@ -294,8 +294,6 @@ public class PooledList<T>
         Count = 0;
     }
 
-#if DEBUG
-
     /// <summary>
     ///     Finalizer.
     /// </summary>
@@ -305,6 +303,5 @@ public class PooledList<T>
 
         Debug.Fail("The array is not returned to the pool.");
     }
-
-#endif
 }
+
