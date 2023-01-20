@@ -6,7 +6,7 @@
 
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Structures;
+using VoxelGame.Core.Logic.Definitions.Structures;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -60,3 +60,4 @@ public class ImportStructure : Command
         structure.Place(Context.Player.World, position, orientation);
     }
 }
+

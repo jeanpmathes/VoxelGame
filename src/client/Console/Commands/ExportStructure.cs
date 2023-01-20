@@ -7,7 +7,7 @@
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Utilities;
-using VoxelGame.Core.Logic.Structures;
+using VoxelGame.Core.Logic.Definitions.Structures;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -52,3 +52,4 @@ public class ExportStructure : Command
         else Context.Console.WriteError("Failed to export structure.");
     }
 }
+

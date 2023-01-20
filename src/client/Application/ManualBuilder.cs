@@ -52,7 +52,7 @@ public static class ManualBuilder
         Includable blocks = new("blocks", path);
 
         blocks.CreateSections(
-            typeof(Block).GetStaticValues<Block>(documentation),
+            Blocks.Instance.GetValues<Block>(documentation),
             ((Block block, string description) s) => Section.Create(s.block.Name)
                 .Text(s.description).NewLine()
                 .BeginList()
@@ -67,7 +67,7 @@ public static class ManualBuilder
         Includable fluids = new("fluids", path);
 
         fluids.CreateSections(
-            typeof(Fluid).GetStaticValues<Fluid>(documentation),
+            Fluids.Instance.GetValues<Fluid>(documentation),
             ((Fluid fluid, string description) s) => Section.Create(s.fluid.Name)
                 .Text(s.description).NewLine()
                 .BeginList()
@@ -89,3 +89,5 @@ public static class ManualBuilder
         public static readonly ILogger Logger = LoggingHelper.CreateLogger<Logging>();
     }
 }
+
+

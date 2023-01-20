@@ -15,5 +15,6 @@ public interface IIdentifiable<out T>
     /// <summary>
     ///     Gets the id of the object.
     /// </summary>
-    T Id { get; }
+    T ID { get; }
 }
+

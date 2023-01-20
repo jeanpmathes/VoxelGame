@@ -38,7 +38,7 @@ public class SetFluid : Command
 
     private void Set(string namedID, int levelData, Vector3i position)
     {
-        Fluid? fluid = Fluid.TranslateNamedID(namedID);
+        Fluid? fluid = Fluids.Instance.TranslateNamedID(namedID);
 
         if (fluid == null)
         {
@@ -59,3 +59,5 @@ public class SetFluid : Command
         Context.Player.World.SetFluid(fluid.AsInstance(level), position);
     }
 }
+
+

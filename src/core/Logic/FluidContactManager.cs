@@ -17,33 +17,34 @@ namespace VoxelGame.Core.Logic;
 /// </summary>
 public class FluidContactManager
 {
-    private readonly CombinationMap<Fluid, ContactAction> map =
-        new(Fluid.Count);
+    private readonly CombinationMap<Fluid, ContactAction> map;
 
     /// <summary>
     ///     Create a new fluid contact manager.
     /// </summary>
-    public FluidContactManager()
+    public FluidContactManager(Fluids fluids)
     {
+        map = new CombinationMap<Fluid, ContactAction>(fluids.Count);
+
         map.AddCombination(
-            Fluid.Lava,
+            fluids.Lava,
             ContactAction.LavaCooling,
-            Fluid.Water,
-            Fluid.Milk,
-            Fluid.Concrete,
-            Fluid.Beer,
-            Fluid.Wine,
-            Fluid.Honey);
+            fluids.Water,
+            fluids.Milk,
+            fluids.Concrete,
+            fluids.Beer,
+            fluids.Wine,
+            fluids.Honey);
 
-        map.AddCombination(Fluid.Lava, ContactAction.LavaBurn, Fluid.CrudeOil, Fluid.NaturalGas, Fluid.Petrol);
+        map.AddCombination(fluids.Lava, ContactAction.LavaBurn, fluids.CrudeOil, fluids.NaturalGas, fluids.Petrol);
 
         map.AddCombination(
-            Fluid.Concrete,
+            fluids.Concrete,
             ContactAction.ConcreteDissolve,
-            Fluid.Water,
-            Fluid.Milk,
-            Fluid.Beer,
-            Fluid.Wine);
+            fluids.Water,
+            fluids.Milk,
+            fluids.Beer,
+            fluids.Wine);
     }
 
     /// <summary>
@@ -75,30 +76,30 @@ public class FluidContactManager
 
     private static bool LavaCooling(World world, ContactInformation a, ContactInformation b)
     {
-        Select(a, b, Fluid.Lava, out ContactInformation lava, out ContactInformation coolant);
+        Select(a, b, Fluids.Instance.Lava, out ContactInformation lava, out ContactInformation coolant);
 
-        Block lavaBlock = world.GetBlock(lava.position)?.Block ?? Block.Air;
+        Block lavaBlock = world.GetBlock(lava.position)?.Block ?? Blocks.Instance.Air;
 
         if (lavaBlock.IsReplaceable || lavaBlock.Destroy(world, lava.position))
-            world.SetContent(new Content(Block.Pumice), lava.position);
+            world.SetContent(new Content(Blocks.Instance.Pumice), lava.position);
 
         world.SetFluid(
-            Fluid.Steam.AsInstance(coolant.level, isStatic: false),
+            Fluids.Instance.Steam.AsInstance(coolant.level, isStatic: false),
             coolant.position);
 
-        Fluid.Steam.TickSoon(world, coolant.position, isStatic: true);
+        Fluids.Instance.Steam.TickSoon(world, coolant.position, isStatic: true);
 
         return true;
     }
 
     private static bool LavaBurn(World world, ContactInformation a, ContactInformation b)
     {
-        Select(a, b, Fluid.Lava, out ContactInformation lava, out ContactInformation burned);
+        Select(a, b, Fluids.Instance.Lava, out ContactInformation lava, out ContactInformation burned);
 
         lava.fluid.TickSoon(world, lava.position, lava.isStatic);
 
         world.SetDefaultFluid(burned.position);
-        Block.Fire.Place(world, burned.position);
+        Blocks.Instance.Fire.Place(world, burned.position);
 
         return true;
     }
@@ -148,7 +149,7 @@ public class FluidContactManager
                 world,
                 aboveLightPosition,
                 light.fluid.Direction.EntrySide().Opposite(),
-                light.fluid) || aboveLightFluid.Fluid != Fluid.None) return false;
+                light.fluid) || aboveLightFluid.Fluid != Fluids.Instance.None) return false;
 
         world.SetFluid(
             light.fluid.AsInstance(light.level),
@@ -177,15 +178,15 @@ public class FluidContactManager
 
     private static bool ConcreteDissolve(World world, ContactInformation a, ContactInformation b)
     {
-        Select(a, b, Fluid.Concrete, out ContactInformation concrete, out ContactInformation other);
+        Select(a, b, Fluids.Instance.Concrete, out ContactInformation concrete, out ContactInformation other);
 
         other.fluid.TickSoon(world, other.position, other.isStatic);
 
         world.SetFluid(
-            Fluid.Water.AsInstance(concrete.level),
+            Fluids.Instance.Water.AsInstance(concrete.level),
             concrete.position);
 
-        Fluid.Water.TickSoon(world, concrete.position, isStatic: true);
+        Fluids.Instance.Water.TickSoon(world, concrete.position, isStatic: true);
 
         return true;
     }
@@ -256,3 +257,4 @@ public class FluidContactManager
         }
     }
 }
+

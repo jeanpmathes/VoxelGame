@@ -5,8 +5,10 @@
 // <author>pershingthesecond</author>
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -16,9 +18,6 @@ using VoxelGame.Core;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-#if !DEBUG
-using System.Threading;
-#endif
 
 [assembly: CLSCompliant(isCompliant: false)]
 [assembly: ComVisible(visibility: false)]
@@ -52,12 +51,14 @@ internal static class Program
     /// </summary>
     internal static string WorldsDirectory { get; private set; } = null!;
 
+    [Conditional("DEBUG")]
+    private static void ApplyDebugModification(Arguments arguments)
+    {
+        arguments.logDebug = true;
+    }
+
     [STAThread]
-#if DEBUG
-    private static void Main()
-#else
     private static void Main(string[] args)
-#endif
     {
         AppDataDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -79,31 +80,22 @@ internal static class Program
         Directory.CreateDirectory(StructureDirectory);
         Directory.CreateDirectory(WorldsDirectory);
 
-#if DEBUG
-        const bool logDebug = true;
-#else
-        bool logDebug = args.Length > 0 && args[0] == "-logDebug";
-#endif
-
-        ILogger logger = LoggingHelper.SetupLogging(nameof(Program), logDebug, AppDataDirectory);
-
-#if !DEBUG
-        AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
+        Arguments arguments = new()
         {
-            logger.LogCritical(Events.ApplicationInformation, eventArgs.ExceptionObject as Exception, "Unhandled exception, likely a bug. Terminating: {Exit}", eventArgs.IsTerminating);
-
-            // The runtime will emit a message, to prevent mixing we wait.
-            Thread.Sleep(millisecondsTimeout: 100);
+            logDebug = args.Length > 0 && args[0] == "-logDebug"
         };
-#endif
 
-#if !DEBUG
-        if (logDebug) logger.LogInformation(Events.Meta, "Logging debug messages");
+        ApplyDebugModification(arguments);
+
+        ILogger logger = LoggingHelper.SetupLogging(nameof(Program), arguments.logDebug, AppDataDirectory);
+
+        SetupExceptionHandler(logger);
+
+        if (arguments.logDebug) logger.LogDebug(Events.Meta, "Logging debug messages");
         else
             logger.LogInformation(
                 Events.Meta,
                 "Debug messages will not be logged. Use '-logDebug' to log debug messages");
-#endif
 
         Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";
         ApplicationInformation.Initialize(Version);
@@ -138,4 +130,22 @@ internal static class Program
 
         logger.LogInformation(Events.ApplicationState, "Exiting");
     }
+
+    [Conditional("RELEASE")]
+    private static void SetupExceptionHandler(ILogger logger)
+    {
+        AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
+        {
+            logger.LogCritical(Events.ApplicationInformation, eventArgs.ExceptionObject as Exception, "Unhandled exception, likely a bug. Terminating: {Exit}", eventArgs.IsTerminating);
+
+            // The runtime will emit a message, to prevent mixing we wait.
+            Thread.Sleep(millisecondsTimeout: 100);
+        };
+    }
+
+    private sealed class Arguments
+    {
+        internal bool logDebug;
+    }
 }
+

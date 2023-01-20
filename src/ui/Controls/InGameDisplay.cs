@@ -105,7 +105,7 @@ internal class InGameDisplay : ControlBase
             $"B: {block.NamedID}[{block.ID}], {Convert.ToString(data, toBase: 2).PadLeft(totalWidth: 6, paddingChar: '0')}";
 
         (Fluid fluid, FluidLevel level, bool isStatic) = playerDataProvider.TargetFluid;
-        targetFluid.Text = $"F: {fluid.NamedID}[{fluid.Id}], {level}, {isStatic}";
+        targetFluid.Text = $"F: {fluid.NamedID}[{fluid.ID}], {level}, {isStatic}";
 
         worldData.Text = playerDataProvider.WorldDebugData;
         temperature.Text = $"T: {playerDataProvider.Temperature:F1}°C";
@@ -117,3 +117,5 @@ internal class InGameDisplay : ControlBase
         debugViewContainer.IsHidden = !debugMode;
     }
 }
+
+

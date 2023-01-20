@@ -110,7 +110,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         new(new Vector3d(x: 0.5, y: 0.5, z: 0.5), new Vector3d(x: 0.5, y: 0.5, z: 0.5));
 
     /// <summary>
-    ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Blocks.CrossBlock" />.
+    ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Definitions.Blocks.CrossBlock" />.
     /// </summary>
     public static BoundingVolume CrossBlock => new(
         new Vector3d(x: 0.5, y: 0.5, z: 0.5),

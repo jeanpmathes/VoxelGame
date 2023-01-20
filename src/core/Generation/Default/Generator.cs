@@ -294,7 +294,7 @@ public class Generator : IWorldGenerator
 
     private Content GenerateContent(Vector3i position, in Context context)
     {
-        if (position.Y == -World.BlockLimit) return new Content(Block.Core);
+        if (position.Y == -World.BlockLimit) return new Content(Blocks.Instance.Core);
 
         int depth = context.WorldHeight - position.Y;
         bool isFilled = position.Y <= SeaLevel;
@@ -303,7 +303,7 @@ public class Generator : IWorldGenerator
         {
             bool isIce = isFilled && Math.Abs(position.Y - SeaLevel) < context.IceWidth;
 
-            if (isIce) return new Content(Block.Specials.Ice.FullHeightInstance, FluidInstance.Default);
+            if (isIce) return new Content(Blocks.Instance.Specials.Ice.FullHeightInstance, FluidInstance.Default);
 
             var content = Content.Default;
 
@@ -330,10 +330,10 @@ public class Generator : IWorldGenerator
 
     private static Content FillContent(Content content)
     {
-        if (content.Fluid.Fluid != Fluid.None) return content;
+        if (content.Fluid.Fluid != Fluids.Instance.None) return content;
         if (content.Block.Block is not IFillable) return content;
 
-        return content with {Fluid = Fluid.Water.AsInstance()};
+        return content with {Fluid = Fluids.Instance.Water.AsInstance()};
     }
 
     private readonly record struct Context
@@ -356,3 +356,4 @@ public class Generator : IWorldGenerator
         }
     }
 }
+

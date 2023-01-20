@@ -5,6 +5,7 @@
 // <author>pershingthesecond</author>
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Entities;
@@ -74,8 +75,8 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         visualization = new PlayerVisualization(this, ui);
         input = new PlayerInput(this);
 
-        activeBlock = Block.Grass;
-        activeFluid = Fluid.Water;
+        activeBlock = Blocks.Instance.Grass;
+        activeFluid = Fluids.Instance.Water;
     }
 
     /// <summary>
@@ -187,11 +188,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         {
             (Block selectedBlock, _) = World.GetBlock(position) ?? BlockInstance.Default;
 
-#if DEBUG
-            if (selectedBlock != Block.Air)
-#else
-            if (!selectedBlock.IsReplaceable)
-#endif
+            if (IsBlockBoundingBoxVisualized(selectedBlock))
             {
                 Application.Client.Instance.Resources.Shaders.Selection.SetVector3(
                     "color",
@@ -204,6 +201,21 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         visualization.Draw();
 
         if (OverlayEnabled) visualization.DrawOverlay();
+    }
+
+    private static bool IsBlockBoundingBoxVisualized(Block block)
+    {
+        bool visualized = !block.IsReplaceable;
+
+        [Conditional("DEBUG")]
+        static void IsVisualizedInDebugMode(Block block, ref bool b)
+        {
+            b |= block != Blocks.Instance.Air;
+        }
+
+        IsVisualizedInDebugMode(block, ref visualized);
+
+        return visualized;
     }
 
     /// <inheritdoc />
@@ -438,14 +450,14 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         if (blockMode)
         {
             long nextBlockId = activeBlock.ID + change;
-            nextBlockId = VMath.ClampRotating(nextBlockId, min: 1, Block.Count);
-            activeBlock = Block.TranslateID((uint) nextBlockId);
+            nextBlockId = VMath.ClampRotating(nextBlockId, min: 1, Blocks.Instance.Count);
+            activeBlock = Blocks.Instance.TranslateID((uint) nextBlockId);
         }
         else
         {
-            long nextFluidId = activeFluid.Id + change;
-            nextFluidId = VMath.ClampRotating(nextFluidId, min: 1, Fluid.Count);
-            activeFluid = Fluid.TranslateID((uint) nextFluidId);
+            long nextFluidId = activeFluid.ID + change;
+            nextFluidId = VMath.ClampRotating(nextFluidId, min: 1, Fluids.Instance.Count);
+            activeFluid = Fluids.Instance.TranslateID((uint) nextFluidId);
         }
 
         return true;

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>pershingthesecond</author>
 
+using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 
@@ -24,4 +25,13 @@ public interface IBlockMeshable : IBlockBase
     {
         // Intentionally left empty.
     }
+
+    /// <summary>
+    ///     Validate if all block properties are valid for this meshable.
+    /// </summary>
+    public void Validate()
+    {
+        Debug.Assert(!IsFull, "Only special meshables accept full blocks.");
+    }
 }
+

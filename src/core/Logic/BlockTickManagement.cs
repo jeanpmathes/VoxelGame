@@ -45,7 +45,7 @@ public partial class Block
 
     internal void TickNow(World world, Vector3i position, uint data)
     {
-        if (this == Air) return;
+        if (this == Blocks.Instance.Air) return;
 
         ScheduledUpdate(world, position, data);
     }
@@ -126,3 +126,4 @@ public partial class Block
         }
     }
 }
+

@@ -11,7 +11,6 @@ using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic;
 
@@ -20,6 +19,7 @@ namespace VoxelGame.Core.Logic;
 /// </summary>
 public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<string>
 {
+    private const uint InvalidID = uint.MaxValue;
     private readonly BoundingVolume boundingVolume;
 
     /// <summary>
@@ -45,23 +45,8 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
 
         this.boundingVolume = boundingVolume;
 
-#pragma warning disable S3060 // "is" should not be used with "this"
-        Debug.Assert(
-            this is not ISimple ^ IsFull,
-            $"TargetBuffer '{nameof(ISimple)}' requires {nameof(IsFull)} to be {!IsFull}, all other target buffers cannot be full.");
-#pragma warning restore S3060 // "is" should not be used with "this"
-
-        if (blockList.Count < BlockLimit)
-        {
-            blockList.Add(this);
-            namedBlockDictionary.Add(namedId, this);
-
-            ID = (uint) (blockList.Count - 1);
-        }
-        else
-        {
-            Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
-        }
+        IBlockMeshable meshable = this;
+        meshable.Validate();
     }
 
     /// <summary>
@@ -70,7 +55,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     public IBlockBase Base => this;
 
     /// <inheritdoc />
-    public uint ID { get; }
+    public uint ID { get; private set; } = InvalidID;
 
     /// <inheritdoc />
     public string Name { get; }
@@ -115,14 +100,15 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
 
         if (content == null) return false;
 
-        (BlockInstance block, FluidInstance fluid) = content.Value;
+        (BlockInstance block, FluidInstance _) = content.Value;
 
         bool canPlace = block.Block.IsReplaceable && CanPlace(world, position, entity);
 
-        if (canPlace) DoPlace(world, position, entity);
+        if (!canPlace) return canPlace;
 
-        if (fluid.Fluid != Fluid.None && this is IFillable fillable)
-            fillable.FluidChange(world, position, fluid.Fluid, fluid.Level);
+        DoPlace(world, position, entity);
+
+        IFillable.OnPlace(world, position);
 
         return canPlace;
     }
@@ -147,15 +133,28 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
         return true;
     }
 
-    string IIdentifiable<string>.Id => NamedID;
+    string IIdentifiable<string>.ID => NamedID;
 
-    uint IIdentifiable<uint>.Id => ID;
+    uint IIdentifiable<uint>.ID => ID;
+
+    /// <summary>
+    ///     Setup the block.
+    /// </summary>
+    /// <param name="id">The ID of the block.</param>
+    /// <param name="indexProvider">The index provider for the block textures.</param>
+    public void Setup(uint id, ITextureIndexProvider indexProvider)
+    {
+        Debug.Assert(ID == InvalidID);
+        ID = id;
+
+        OnSetup(indexProvider);
+    }
 
     /// <summary>
     ///     Called when loading blocks, meant to setup vertex data, indices etc.
     /// </summary>
-    /// <param name="indexProvider"></param>
-    protected virtual void Setup(ITextureIndexProvider indexProvider) {}
+    /// <param name="indexProvider">A texture index provider.</param>
+    protected virtual void OnSetup(ITextureIndexProvider indexProvider) {}
 
     /// <summary>
     ///     Returns the collider for a given position.
@@ -305,3 +304,4 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
         return NamedID;
     }
 }
+

@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Structures;
+using VoxelGame.Core.Logic.Definitions.Structures;
 
 namespace VoxelGame.Core.Generation.Default.Deco;
 
@@ -56,7 +56,7 @@ public class Decorations
     /// <summary>
     ///     Palm tree.
     /// </summary>
-    public Decoration PalmTree { get; } = new StructureDecoration(nameof(PalmTree), rarity: 25.0f, new Tree(Tree.Kind.Palm), new CoverDecorator(Block.Sand, Vector3i.UnitY, width: 3));
+    public Decoration PalmTree { get; } = new StructureDecoration(nameof(PalmTree), rarity: 25.0f, new Tree(Tree.Kind.Palm), new CoverDecorator(Blocks.Instance.Sand, Vector3i.UnitY, width: 3));
 
     /// <summary>
     ///     Savanna tree.
@@ -66,7 +66,7 @@ public class Decorations
     /// <summary>
     ///     A cactus.
     /// </summary>
-    public Decoration Cactus { get; } = new StructureDecoration(nameof(Cactus), rarity: 50.0f, new Cactus(), new CoverDecorator(Block.Sand, Vector3i.Zero, width: 3));
+    public Decoration Cactus { get; } = new StructureDecoration(nameof(Cactus), rarity: 50.0f, new Cactus(), new CoverDecorator(Blocks.Instance.Sand, Vector3i.Zero, width: 3));
 
     /// <summary>
     ///     A boulder.
@@ -86,7 +86,7 @@ public class Decorations
     /// <summary>
     ///     Vines.
     /// </summary>
-    public Decoration Vines { get; } = new FlatBlockDecoration(nameof(Vines), rarity: 1.0f, Block.Specials.Vines, new HashSet<Block> {Block.Log, Block.Leaves});
+    public Decoration Vines { get; } = new FlatBlockDecoration(nameof(Vines), rarity: 1.0f, Blocks.Instance.Specials.Vines, new HashSet<Block> {Blocks.Instance.Log, Blocks.Instance.Leaves});
 
     /// <summary>
     ///     Initialize the decorations.
@@ -96,3 +96,4 @@ public class Decorations
         Instance = new Decorations();
     }
 }
+

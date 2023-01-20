@@ -14,16 +14,16 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 public class Palette
 {
-    private readonly Content granite = new(Block.Granite);
+    private readonly Content granite = new(Blocks.Instance.Granite);
 
-    private readonly Content gravel = new(Block.Gravel);
-    private readonly Content gravelGroundwater = new(Block.Gravel, Fluid.Water);
-    private readonly Content limestone = new(Block.Limestone);
-    private readonly Content marble = new(Block.Marble);
+    private readonly Content gravel = new(Blocks.Instance.Gravel);
+    private readonly Content gravelGroundwater = new(Blocks.Instance.Gravel, Fluids.Instance.Water);
+    private readonly Content limestone = new(Blocks.Instance.Limestone);
+    private readonly Content marble = new(Blocks.Instance.Marble);
 
-    private readonly Content sand = new(Block.Sand);
-    private readonly Content sandGroundwater = new(Block.Sand, Fluid.Water);
-    private readonly Content sandstone = new(Block.Sandstone);
+    private readonly Content sand = new(Blocks.Instance.Sand);
+    private readonly Content sandGroundwater = new(Blocks.Instance.Sand, Fluids.Instance.Water);
+    private readonly Content sandstone = new(Blocks.Instance.Sandstone);
 
     internal Content GetStone(Map.StoneType type)
     {
@@ -47,3 +47,4 @@ public class Palette
         return type == Map.StoneType.Sandstone ? sandGroundwater : gravelGroundwater;
     }
 }
+

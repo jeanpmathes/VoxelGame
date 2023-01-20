@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Structures;
+using VoxelGame.Core.Logic.Definitions.Structures;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation.Default;
@@ -326,3 +326,4 @@ public class GeneratedStructure
         return true;
     }
 }
+

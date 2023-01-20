@@ -38,7 +38,7 @@ public class SetBlock : Command
 
     private void Set(string namedID, int data, Vector3i position)
     {
-        Block? block = Block.TranslateNamedID(namedID);
+        Block? block = Blocks.Instance.TranslateNamedID(namedID);
 
         if (block == null)
         {
@@ -57,3 +57,4 @@ public class SetBlock : Command
         Context.Player.World.SetBlock(block.AsInstance((uint) data), position);
     }
 }
+
