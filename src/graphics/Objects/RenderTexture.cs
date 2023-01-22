@@ -1,7 +1,7 @@
 ﻿// <copyright file="Texture.cs" company="VoxelGame">
 //     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using System.Threading;
@@ -209,3 +209,4 @@ public sealed class RenderTexture : IDisposable
 
     #endregion IDisposable Support
 }
+

@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 
@@ -71,3 +71,4 @@ public interface ICommand
     /// <param name="context">The command execution context.</param>
     void SetContext(Context context);
 }
+

@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using Microsoft.Extensions.Logging;
@@ -205,3 +205,4 @@ public sealed class BoxRenderer : IDisposable
 
     #endregion IDisposable Support
 }
+

@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.ComponentModel;
 using Microsoft.Extensions.Logging;
@@ -184,3 +184,4 @@ internal class Client : GameWindow, IPerformanceProvider
         sceneManager.OnResize(size);
     }
 }
+

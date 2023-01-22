@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 namespace VoxelGame.Core.Logic.Interfaces;
 
@@ -35,3 +35,4 @@ public interface IHeightVariable : IBlockBase
     /// <returns>The block height.</returns>
     int GetHeight(uint data);
 }
+

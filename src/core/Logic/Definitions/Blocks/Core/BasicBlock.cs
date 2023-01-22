@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -61,5 +61,4 @@ public class BasicBlock : Block, IOverlayTextureProvider, ISimple
         return ISimple.CreateData(sideTextureIndices[(int) info.Side], isTextureRotated: false);
     }
 }
-
 

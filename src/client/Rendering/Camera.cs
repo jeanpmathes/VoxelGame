@@ -1,7 +1,7 @@
 ﻿// <copyright file="Camera.cs" company="VoxelGame">
 //     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using OpenTK.Mathematics;
@@ -133,3 +133,4 @@ public class Camera : IView
         return Frustum.GetDimensionsAt(distance, fov, Screen.AspectRatio);
     }
 }
+

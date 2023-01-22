@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -628,6 +628,4 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         return NamedID;
     }
 }
-
-
 

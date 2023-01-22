@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using OpenTK.Mathematics;
@@ -240,3 +240,4 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         return HashCode.Combine(Center.GetHashCode(), Extents.GetHashCode(), children);
     }
 }
+

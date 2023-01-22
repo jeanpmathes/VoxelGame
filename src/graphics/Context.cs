@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Graphics.OpenGL4;
 
@@ -23,3 +23,4 @@ public static class Context
     /// </summary>
     public static float MaxAnisotropy => GL.GetFloat((GetPName) All.MaxTextureMaxAnisotropy);
 }
+

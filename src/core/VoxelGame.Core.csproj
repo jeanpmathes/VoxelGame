@@ -50,7 +50,7 @@
         <PackageLicenseExpression>MIT LICENSE</PackageLicenseExpression>
         <SignAssembly>false</SignAssembly>
         <DelaySign>false</DelaySign>
-        <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
+        <CodeAnalysisRuleSet>..\..\.sonarlint\jeanpmathes_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
         <StartupObject></StartupObject>
         <LangVersion>10</LangVersion>
     </PropertyGroup>
@@ -89,7 +89,7 @@
       </None>
   </ItemGroup>
     <ItemGroup>
-        <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml"/>
+        <AdditionalFiles Include="..\..\.sonarlint\jeanpmathes_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml"/>
     </ItemGroup>
     <ItemGroup>
         <None Update="Settings.settings">

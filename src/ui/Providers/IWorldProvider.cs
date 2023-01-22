@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using VoxelGame.Core.Logic;
@@ -50,3 +50,4 @@ public interface IWorldProvider
     /// <param name="path">The path to the world to delete.</param>
     void DeleteWorld(string path);
 }
+

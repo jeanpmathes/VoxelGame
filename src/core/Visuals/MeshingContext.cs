@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -317,3 +317,4 @@ public class MeshingContext
         foreach (VaryingHeightMeshFaceHolder holder in holders) holder.ReturnToPool();
     }
 }
+

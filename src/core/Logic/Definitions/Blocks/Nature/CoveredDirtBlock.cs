@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
@@ -94,5 +94,4 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
         DirtBehaviour.BlockUpdateCovered(world, position, side);
     }
 }
-
 

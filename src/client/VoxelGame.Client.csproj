@@ -9,7 +9,7 @@
       <Version>1.2.0</Version>
       <Platforms>x64</Platforms>
       <ApplicationIcon>vg_icon.ico</ApplicationIcon>
-      <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
+      <CodeAnalysisRuleSet>..\..\.sonarlint\jeanpmathes_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
       <Configurations>Debug;Release;Manual</Configurations>
       <StartupObject>VoxelGame.Client.Program</StartupObject>
       <PackageLicenseExpression>MIT License</PackageLicenseExpression>
@@ -48,7 +48,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+      <AdditionalFiles Include="..\..\.sonarlint\jeanpmathes_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml"/>
   </ItemGroup>
 
   <ItemGroup>

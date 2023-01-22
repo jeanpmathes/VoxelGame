@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
@@ -16,3 +16,4 @@ namespace VoxelGame.Client.Rendering;
 /// <param name="ProjectionMatrix">The projection matrix.</param>
 /// <param name="Frustum">The rendering cull frustum.</param>
 public record PassContext(Matrix4d ViewMatrix, Matrix4d ProjectionMatrix, Frustum Frustum);
+

@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 namespace VoxelGame.Graphics.Groups;
 
@@ -26,3 +26,4 @@ public interface IDrawGroup
     /// </summary>
     public void Draw();
 }
+

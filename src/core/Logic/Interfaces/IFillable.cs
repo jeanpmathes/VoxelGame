@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 
@@ -69,5 +69,4 @@ public interface IFillable : IBlockBase
             fillable.FluidChange(world, position, fluid.Fluid, fluid.Level);
     }
 }
-
 

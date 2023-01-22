@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using Properties;
@@ -142,3 +142,4 @@ public class GraphicsSettings : ISettingsProvider
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;
 }
+

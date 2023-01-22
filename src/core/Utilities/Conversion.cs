@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
@@ -44,3 +44,4 @@ public static class Conversion
         return b ? 1 : 0;
     }
 }
+

@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 // ReSharper disable CommentTypo
 
@@ -185,5 +185,4 @@ public class ClientSection : Section
 
     #endregion IDisposable Support
 }
-
 

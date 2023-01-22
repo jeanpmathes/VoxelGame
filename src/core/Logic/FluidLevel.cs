@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 namespace VoxelGame.Core.Logic;
 
@@ -65,3 +65,4 @@ public static class FluidLevelExtensions
         return (int) level * 2 + 1;
     }
 }
+

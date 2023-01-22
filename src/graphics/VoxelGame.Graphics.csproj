@@ -2,7 +2,7 @@
 
   <PropertyGroup>
       <TargetFramework>net6.0</TargetFramework>
-      <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
+      <CodeAnalysisRuleSet>..\..\.sonarlint\jeanpmathes_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
       <Nullable>enable</Nullable>
       <WarningsAsErrors>nullable</WarningsAsErrors>
       <Version>1.2.0</Version>
@@ -30,7 +30,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml"/>
+        <AdditionalFiles Include="..\..\.sonarlint\jeanpmathes_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml"/>
     </ItemGroup>
 
     <ItemGroup>

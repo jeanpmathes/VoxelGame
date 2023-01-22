@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using OpenTK.Mathematics;
@@ -86,5 +86,4 @@ public static class WorldExtensions
                && block.GetHeight(below.Value.Data) == IHeightVariable.MaximumHeight - 1;
     }
 }
-
 

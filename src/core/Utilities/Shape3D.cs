@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using OpenTK.Mathematics;
@@ -136,3 +136,4 @@ public sealed class Cone : Shape3D
         return height is >= 0 and <= 1 && distanceSquared <= radiusSquared;
     }
 }
+

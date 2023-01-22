@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
@@ -188,3 +188,4 @@ public sealed class Shaders
         foreach (Shader shader in farPlaneSet) shader.SetFloat(FarPlaneUniform, (float) far);
     }
 }
+

@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using Gwen.Net;
@@ -70,3 +70,4 @@ internal class TrueRatioImagePanel : ControlBase
         imagePanel.TextureRect = new Rectangle(x: 0, offset, fittedSize);
     }
 }
+

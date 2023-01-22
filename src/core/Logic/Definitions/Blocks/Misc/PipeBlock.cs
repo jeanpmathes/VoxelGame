@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
@@ -181,5 +181,4 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
         return side.IsSet((BlockSides) block.Data);
     }
 }
-
 

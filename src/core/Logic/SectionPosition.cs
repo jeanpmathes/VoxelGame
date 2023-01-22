@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using OpenTK.Mathematics;
@@ -172,3 +172,4 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
         return new SectionPosition(first.X + localSection.x, first.Y + localSection.y, first.Z + localSection.z);
     }
 }
+

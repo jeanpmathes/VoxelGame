@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using System.Configuration;
@@ -254,3 +254,4 @@ internal class KeybindManager : ISettingsProvider
 
     #endregion KEYBINDS
 }
+

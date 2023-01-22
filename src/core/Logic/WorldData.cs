@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.IO;
 using System.Text;
@@ -181,3 +181,4 @@ public class WorldData
         return File.Exists(Path.Combine(directory, MetaFileName));
     }
 }
+

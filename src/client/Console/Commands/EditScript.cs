@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using JetBrains.Annotations;
 using VoxelGame.Client.Utilities;
@@ -42,3 +42,4 @@ public class EditScript : Command
         OS.Start(path);
     }
 }
+

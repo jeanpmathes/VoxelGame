@@ -1,7 +1,7 @@
 ﻿// <copyright file="Shader.cs" company="VoxelGame">
 //     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
@@ -201,3 +201,4 @@ public class Shader
         GL.DeleteProgram(Handle);
     }
 }
+

@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Diagnostics;
 
@@ -45,3 +45,4 @@ public class Limit
         return $"Limit({id}, from: {source})";
     }
 }
+

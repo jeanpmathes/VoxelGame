@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
@@ -33,3 +33,4 @@ public interface IMap
     /// <returns>The temperature, in degrees Celsius.</returns>
     double GetTemperature(Vector3d position);
 }
+

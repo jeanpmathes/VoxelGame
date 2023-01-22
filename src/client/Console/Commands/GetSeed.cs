@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using JetBrains.Annotations;
 
@@ -28,3 +28,4 @@ public class GetSeed : Command
         Context.Console.WriteResponse($"({upper}, {lower})");
     }
 }
+

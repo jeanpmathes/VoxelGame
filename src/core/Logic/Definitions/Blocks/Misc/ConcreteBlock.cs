@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
@@ -133,5 +133,4 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
         height = (int) (data & 0b00_0111) * 2 + 1;
     }
 }
-
 

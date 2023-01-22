@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 using VoxelGame.Input.Devices;
@@ -43,3 +43,4 @@ public class LookInput
         sensitivity = newSensitivity;
     }
 }
+

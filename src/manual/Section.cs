@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using System.IO;
@@ -52,3 +52,4 @@ public class Section : Chainable
         foreach (IElement element in elements) element.Generate(writer);
     }
 }
+

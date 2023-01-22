@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using VoxelGame.Client.Entities;
 
@@ -26,5 +26,4 @@ public record Context(ConsoleWrapper Console, CommandInvoker Invoker, ClientPlay
         return this with {IsScript = true};
     }
 }
-
 

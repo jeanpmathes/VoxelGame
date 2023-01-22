@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
@@ -195,5 +195,4 @@ public class FlatBlock : Block, IFillable, IComplex
         return IComplex.CreateData(vertexCount: 8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
     }
 }
-
 

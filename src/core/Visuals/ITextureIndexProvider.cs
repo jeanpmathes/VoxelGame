@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 namespace VoxelGame.Core.Visuals;
 
@@ -18,3 +18,4 @@ public interface ITextureIndexProvider
     /// <returns>The texture index.</returns>
     int GetTextureIndex(string name);
 }
+

@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 
@@ -32,3 +32,4 @@ public class InputAxis2
     /// </summary>
     public Vector2 Value => new(x.Value, y.Value);
 }
+

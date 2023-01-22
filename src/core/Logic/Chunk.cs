@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using System.Diagnostics;
@@ -916,3 +916,4 @@ public partial class Chunk : IDisposable
 
     #endregion IDisposable Support
 }
+

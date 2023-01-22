@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.IO;
 
@@ -25,3 +25,4 @@ internal class Key : IElement
         writer.WriteLine(@$" \keys{{{key}}} ");
     }
 }
+
