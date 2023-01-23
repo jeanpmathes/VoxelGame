@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -110,24 +111,31 @@ public sealed class PlayerVisualization : IDisposable
     }
 
     /// <summary>
-    ///     Add a potential overlay for one position.
+    /// Build the overlay, considering the given positions.
     /// </summary>
-    /// <param name="block">The block around the player head.</param>
-    /// <param name="fluid">The fluid around the player head.</param>
-    /// <param name="position">The position of the block/fluid around the player head.</param>
-    public void AddOverlay(BlockInstance block, FluidInstance fluid, Vector3i position)
+    /// <param name="positions">The positions to consider.</param>
+    public void BuildOverlay(IEnumerable<(Content content, Vector3i position)> positions)
     {
-        if (block.Block is IOverlayTextureProvider overlayBlockTextureProvider)
+        ClearOverlay();
+
+        foreach ((Content content, Vector3i position) in positions) AddOverlay(content, position);
+
+        FinalizeOverlay();
+    }
+
+    private void AddOverlay(Content content, Vector3i position)
+    {
+        if (content.Block.Block is IOverlayTextureProvider overlayBlockTextureProvider)
         {
             overlay.SetBlockTexture(overlayBlockTextureProvider.TextureIdentifier);
-            SetOverlayBounds(block, position);
+            SetOverlayBounds(content.Block, position);
 
             renderOverlay = true;
         }
-        else if (fluid.Fluid is IOverlayTextureProvider overlayFluidTextureProvider)
+        else if (content.Fluid.Fluid is IOverlayTextureProvider overlayFluidTextureProvider)
         {
             overlay.SetFluidTexture(overlayFluidTextureProvider.TextureIdentifier);
-            SetOverlayBounds(fluid, position);
+            SetOverlayBounds(content.Fluid, position);
 
             renderOverlay = true;
         }
@@ -184,18 +192,12 @@ public sealed class PlayerVisualization : IDisposable
         upperBound = Math.Max(newUpperBound, upperBound);
     }
 
-    /// <summary>
-    ///     Finalize the overlay after adding all elements.
-    /// </summary>
-    public void FinalizeOverlay()
+    private void FinalizeOverlay()
     {
         overlay.SetBounds(lowerBound, upperBound);
     }
 
-    /// <summary>
-    ///     Clear the current overlay, if there is one.
-    /// </summary>
-    public void ClearOverlay()
+    private void ClearOverlay()
     {
         renderOverlay = false;
 
@@ -271,4 +273,3 @@ public sealed class PlayerVisualization : IDisposable
 
     #endregion IDisposable Support
 }
-

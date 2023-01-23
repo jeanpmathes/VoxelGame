@@ -177,6 +177,23 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     }
 
     /// <summary>
+    ///     Check if this box intersects a frustum.
+    /// </summary>
+    public bool Intersects(Frustum frustum)
+    {
+        if (frustum.IsBoxInFrustum(Box)) return true;
+
+        if (ChildCount == 0) return false;
+        if (!frustum.IsBoxInFrustum(ChildBounds)) return false;
+
+        for (var i = 0; i < ChildCount; i++)
+            if (children[i].Intersects(frustum))
+                return true;
+
+        return false;
+    }
+
+    /// <summary>
     ///     Check if this <see cref="BoundingVolume" /> intersects with a given box.
     /// </summary>
     /// <param name="other"></param>

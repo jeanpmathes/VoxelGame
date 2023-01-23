@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
@@ -12,7 +13,7 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Physics;
 
 /// <summary>
-///     Utility class for raycasts.
+///     Utility class for raycasts and similar operations.
 /// </summary>
 public static class Raycast
 {
@@ -22,9 +23,9 @@ public static class Raycast
     /// <param name="world">The world in which to cast the ray.</param>
     /// <param name="ray">The ray.</param>
     /// <returns>Intersection information, if a hit occurred.</returns>
-    public static (Vector3i hit, BlockSide side)? CastBlock(World world, Ray ray)
+    public static (Vector3i hit, BlockSide side)? CastBlockRay(World world, Ray ray)
     {
-        return CastVoxel(ray, (r, pos) => BlockIntersectionCheck(world, r, pos));
+        return CastVoxelRay(ray, (r, pos) => BlockIntersectionCheck(world, r, pos));
     }
 
     /// <summary>
@@ -33,12 +34,12 @@ public static class Raycast
     /// <param name="world">The world in which to cast the ray.</param>
     /// <param name="ray">The ray.</param>
     /// <returns>Intersection information, if a hit occurred.</returns>
-    public static (Vector3i hit, BlockSide side)? CastFluid(World world, Ray ray)
+    public static (Vector3i hit, BlockSide side)? CastFluidRay(World world, Ray ray)
     {
-        return CastVoxel(ray, (r, pos) => FluidIntersectionCheck(world, r, pos));
+        return CastVoxelRay(ray, (r, pos) => FluidIntersectionCheck(world, r, pos));
     }
 
-    private static (Vector3i hit, BlockSide side)? CastVoxel(Ray ray, Func<Ray, Vector3i, bool> rayIntersectionCheck)
+    private static (Vector3i hit, BlockSide side)? CastVoxelRay(Ray ray, Func<Ray, Vector3i, bool> rayIntersectionCheck)
     {
         Vector3i hit;
         BlockSide side;
@@ -161,5 +162,35 @@ public static class Raycast
         return fluid.Fluid != Fluids.Instance.None &&
                Fluid.GetCollider(position, fluid.Level).Intersects(ray);
     }
-}
 
+    /// <summary>
+    ///     Get all positions that intersect with the frustum.
+    /// </summary>
+    /// <param name="world">The world to check.</param>
+    /// <param name="center">The center of the area to check.</param>
+    /// <param name="range">The range of the area to check in each direction.</param>
+    /// <param name="frustum">The frustum to check against.</param>
+    /// <returns>A list of positions that intersect with the frustum.</returns>
+    public static IEnumerable<(Content content, Vector3i position)> CastFrustum(World world, Vector3i center, int range, Frustum frustum)
+    {
+        int extents = range * 2 + 1;
+
+        List<(Content content, Vector3i position)> positions = new(extents * extents * extents);
+
+        foreach ((int x, int y, int z) offset in VMath.Range3(extents, extents, extents))
+        {
+            Vector3i position = center + offset;
+            Content? content = world.GetContent(position);
+
+            if (content is not var (block, _)) continue;
+
+            BoxCollider collider = block.Block.GetCollider(world, position);
+
+            if (!collider.Intersects(frustum)) continue;
+
+            positions.Add((content.Value, position));
+        }
+
+        return positions;
+    }
+}

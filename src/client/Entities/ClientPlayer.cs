@@ -254,54 +254,18 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     private void SetBlockAndFluidOverlays()
     {
-        Vector3d center = camera.Position;
+        Vector3i center = camera.Position.Floor();
+        Frustum frustum = camera.NearFrustum.Expanded(expansion: 0.001f);
 
-        const double distance = 0.1;
-        (double width, double height) = camera.GetDimensionsAt(distance);
+        IEnumerable<(Content content, Vector3i position)> positions = Raycast.CastFrustum(World, center, range: 2, frustum);
 
-        List<Vector3d> samplePoints = new()
-        {
-            center,
-            center + camera.Up * height,
-            center - camera.Up * height,
-            center + camera.Right * width,
-            center - camera.Right * width,
-            center + camera.Front * distance,
-            center - camera.Front * distance
-        };
-
-        List<Vector3i> samplePositions = new();
-
-        foreach (Vector3d samplePoint in samplePoints)
-        {
-            Vector3i samplePosition = samplePoint.Floor();
-
-            if (samplePositions.Contains(samplePosition)) continue;
-
-            samplePositions.Add(samplePosition);
-        }
-
-        samplePositions.Sort((a, b) => Vector3d.Distance(a, center).CompareTo(Vector3d.Distance(b, center)));
-        samplePositions.Reverse();
-
-        visualization.ClearOverlay();
-
-        foreach (Vector3d point in samplePoints)
-        {
-            Content? sampledContent = World.GetContent(point.Floor());
-
-            if (sampledContent is not var (block, fluid)) continue;
-
-            visualization.AddOverlay(block, fluid, point.Floor());
-        }
-
-        visualization.FinalizeOverlay();
+        visualization.BuildOverlay(positions);
     }
 
     private void UpdateTargets()
     {
         var ray = new Ray(camera.Position, camera.Front, length: 6f);
-        (Vector3i, BlockSide)? hit = Raycast.CastBlock(World, ray);
+        (Vector3i, BlockSide)? hit = Raycast.CastBlockRay(World, ray);
 
         if (hit is var (hitPosition, hitSide) && World.GetContent(hitPosition) is var (block, fluid))
         {

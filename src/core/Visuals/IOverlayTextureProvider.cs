@@ -2,6 +2,7 @@
 
 /// <summary>
 ///     Provides an overlay texture index.
+///     Blocks implementing this interface should have be a full or varying height block for best effect.
 /// </summary>
 public interface IOverlayTextureProvider
 {
@@ -10,3 +11,4 @@ public interface IOverlayTextureProvider
     /// </summary>
     int TextureIdentifier { get; }
 }
+

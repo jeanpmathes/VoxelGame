@@ -41,6 +41,14 @@ public readonly struct Plane : IEquatable<Plane>
     }
 
     /// <summary>
+    ///     Get a translated plane.
+    /// </summary>
+    public Plane Translated(Vector3d offset)
+    {
+        return new Plane(Normal, Point + offset);
+    }
+
+    /// <summary>
     ///     Projects a point onto the plane.
     /// </summary>
     /// <param name="point">The point to project.</param>
@@ -144,4 +152,3 @@ public readonly struct Plane : IEquatable<Plane>
         return !left.Equals(right);
     }
 }
-

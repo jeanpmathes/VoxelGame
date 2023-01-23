@@ -60,6 +60,14 @@ public struct BoxCollider : IEquatable<BoxCollider>
     }
 
     /// <summary>
+    ///     Check if this collider is intersected by a frustum.
+    /// </summary>
+    public bool Intersects(Frustum frustum)
+    {
+        return Volume.Intersects(frustum.Translated(-Position));
+    }
+
+    /// <summary>
     ///     Check if this collider intersects with another collider.
     /// </summary>
     /// <param name="other">The other collider.</param>
@@ -258,4 +266,3 @@ public struct BoxCollider : IEquatable<BoxCollider>
         return !left.Equals(right);
     }
 }
-

@@ -92,6 +92,11 @@ public class Camera : IView
         }
     }
 
+    /// <summary>
+    ///     Get the near frustum, which is the frustum between the camera and the near clipping plane.
+    /// </summary>
+    public Frustum NearFrustum => new(fov, Screen.AspectRatio, (0.0, NearClipping), Position, front, Up, Right);
+
     /// <inheritdoc />
     public double FarClipping => 500.0;
 
@@ -133,4 +138,3 @@ public class Camera : IView
         return Frustum.GetDimensionsAt(distance, fov, Screen.AspectRatio);
     }
 }
-

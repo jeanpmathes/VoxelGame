@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Linq;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Physics;
@@ -15,15 +14,6 @@ namespace VoxelGame.Core.Physics;
 /// </summary>
 public readonly struct Frustum : IEquatable<Frustum>
 {
-    private readonly Plane[] planes;
-
-    private const int PlaneNear = 0;
-    private const int PlaneFar = 1;
-    private const int PlaneLeft = 2;
-    private const int PlaneRight = 3;
-    private const int PlaneBottom = 4;
-    private const int PlaneTop = 5;
-
     /// <summary>
     ///     Create a new frustum.
     /// </summary>
@@ -52,15 +42,37 @@ public readonly struct Frustum : IEquatable<Frustum>
         Vector3d nb = Vector3d.Cross(right, (nc - up * hNear / 2.0 - position).Normalized());
         Vector3d nt = Vector3d.Cross((nc + up * hNear / 2.0 - position).Normalized(), right);
 
-        planes = new[]
+        Near = new Plane(direction, nc);
+        Far = new Plane(-direction, fc);
+        Left = new Plane(nl, position);
+        Right = new Plane(nr, position);
+        Bottom = new Plane(nb, position);
+        Top = new Plane(nt, position);
+    }
+
+    private Frustum(Frustum original, Vector3d offset)
+    {
+        Near = original.Near.Translated(offset);
+        Far = original.Far.Translated(offset);
+        Left = original.Left.Translated(offset);
+        Right = original.Right.Translated(offset);
+        Bottom = original.Bottom.Translated(offset);
+        Top = original.Top.Translated(offset);
+    }
+
+    private Frustum(Frustum original, double expansion)
+    {
+        Plane OffsetPlane(Plane plane)
         {
-            new Plane(direction, nc), // Near.
-            new Plane(-direction, fc), // Far.
-            new Plane(nl, position), // Left.
-            new Plane(nr, position), // Right.
-            new Plane(nb, position), // Bottom.
-            new Plane(nt, position) // Top.
-        };
+            return new Plane(plane.Normal, plane.Point - plane.Normal * expansion);
+        }
+
+        Near = OffsetPlane(original.Near);
+        Far = OffsetPlane(original.Far);
+        Left = OffsetPlane(original.Left);
+        Right = OffsetPlane(original.Right);
+        Bottom = OffsetPlane(original.Bottom);
+        Top = OffsetPlane(original.Top);
     }
 
     /// <summary>
@@ -81,32 +93,46 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <summary>
     ///     Get the near plane.
     /// </summary>
-    public Plane Near => planes[PlaneNear];
+    public Plane Near { get; }
 
     /// <summary>
     ///     Get the far plane.
     /// </summary>
-    public Plane Far => planes[PlaneFar];
+    public Plane Far { get; }
 
     /// <summary>
     ///     Get the left plane.
     /// </summary>
-    public Plane Left => planes[PlaneLeft];
+    public Plane Left { get; }
 
     /// <summary>
     ///     Get the right plane.
     /// </summary>
-    public Plane Right => planes[PlaneRight];
+    public Plane Right { get; }
 
     /// <summary>
     ///     Get the bottom plane.
     /// </summary>
-    public Plane Bottom => planes[PlaneBottom];
+    public Plane Bottom { get; }
 
     /// <summary>
     ///     Get the top plane.
     /// </summary>
-    public Plane Top => planes[PlaneTop];
+    public Plane Top { get; }
+
+    private Plane GetPlane(int index)
+    {
+        return index switch
+        {
+            0 => Near,
+            1 => Far,
+            2 => Left,
+            3 => Right,
+            4 => Bottom,
+            5 => Top,
+            _ => throw new ArgumentOutOfRangeException(nameof(index), index, message: null)
+        };
+    }
 
     /// <summary>
     ///     Check whether a <see cref="Box3" /> is inside this <see cref="Frustum" />.
@@ -116,20 +142,42 @@ public readonly struct Frustum : IEquatable<Frustum>
     {
         for (var i = 0; i < 6; i++)
         {
-            double px = planes[i].Normal.X < 0 ? volume.Min.X : volume.Max.X;
-            double py = planes[i].Normal.Y < 0 ? volume.Min.Y : volume.Max.Y;
-            double pz = planes[i].Normal.Z < 0 ? volume.Min.Z : volume.Max.Z;
+            Plane plane = GetPlane(i);
 
-            if (planes[i].Distance(new Vector3d(px, py, pz)) < 0) return false;
+            double px = plane.Normal.X < 0 ? volume.Min.X : volume.Max.X;
+            double py = plane.Normal.Y < 0 ? volume.Min.Y : volume.Max.Y;
+            double pz = plane.Normal.Z < 0 ? volume.Min.Z : volume.Max.Z;
+
+            if (plane.Distance(new Vector3d(px, py, pz)) < 0) return false;
         }
 
         return true;
     }
 
+    /// <summary>
+    ///     Get a translated frustum.
+    /// </summary>
+    public Frustum Translated(Vector3d offset)
+    {
+        return new Frustum(this, offset);
+    }
+
+    /// <summary>
+    ///     Get an expanded frustum.
+    /// </summary>
+    public Frustum Expanded(double expansion)
+    {
+        return new Frustum(this, expansion);
+    }
+
     /// <inheritdoc />
     public bool Equals(Frustum other)
     {
-        return planes.SequenceEqual(other.planes);
+        for (var i = 0; i < 6; i++)
+            if (!GetPlane(i).Equals(other.GetPlane(i)))
+                return false;
+
+        return true;
     }
 
     /// <inheritdoc />
@@ -141,7 +189,7 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        return planes.GetHashCode();
+        return HashCode.Combine(Near, Far, Left, Right, Bottom, Top);
     }
 
     /// <summary>
@@ -160,4 +208,3 @@ public readonly struct Frustum : IEquatable<Frustum>
         return !left.Equals(right);
     }
 }
-
