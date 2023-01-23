@@ -257,7 +257,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         Vector3i center = camera.Position.Floor();
         Frustum frustum = camera.NearFrustum.Expanded(expansion: 0.001f);
 
-        IEnumerable<(Content content, Vector3i position)> positions = Raycast.CastFrustum(World, center, range: 2, frustum);
+        IEnumerable<(Content content, Vector3i position)> positions = Raycast.CastFrustum(World, center, range: 1, frustum);
 
         visualization.BuildOverlay(positions);
     }

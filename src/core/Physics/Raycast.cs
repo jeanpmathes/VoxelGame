@@ -174,12 +174,13 @@ public static class Raycast
     public static IEnumerable<(Content content, Vector3i position)> CastFrustum(World world, Vector3i center, int range, Frustum frustum)
     {
         int extents = range * 2 + 1;
+        Vector3i min = center - new Vector3i(range);
 
         List<(Content content, Vector3i position)> positions = new(extents * extents * extents);
 
         foreach ((int x, int y, int z) offset in VMath.Range3(extents, extents, extents))
         {
-            Vector3i position = center + offset;
+            Vector3i position = min + offset;
             Content? content = world.GetContent(position);
 
             if (content is not var (block, _)) continue;
