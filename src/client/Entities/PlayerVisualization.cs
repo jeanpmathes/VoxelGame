@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
@@ -118,50 +119,78 @@ public sealed class PlayerVisualization : IDisposable
     {
         ClearOverlay();
 
-        foreach ((Content content, Vector3i position) in positions) AddOverlay(content, position);
+        IEnumerable<(double size, int index, bool isBlock)> overlays = MeasureOverlays(positions).ToList();
+
+        if (!overlays.Any()) return;
+
+        (double size, int index, bool isBlock) max = overlays.MaxBy(x => x.size);
+
+        if (max.isBlock) overlay.SetBlockTexture(max.index);
+        else overlay.SetFluidTexture(max.index);
+
+        renderOverlay = true;
 
         FinalizeOverlay();
     }
 
-    private void AddOverlay(Content content, Vector3i position)
+    private IEnumerable<(double size, int index, bool isBlock)> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions)
     {
-        if (content.Block.Block is IOverlayTextureProvider overlayBlockTextureProvider)
-        {
-            overlay.SetBlockTexture(overlayBlockTextureProvider.TextureIdentifier);
-            SetOverlayBounds(content.Block, position);
+        List<(double size, int index, bool isBlock)> overlays = new();
 
-            renderOverlay = true;
-        }
-        else if (content.Fluid.Fluid is IOverlayTextureProvider overlayFluidTextureProvider)
-        {
-            overlay.SetFluidTexture(overlayFluidTextureProvider.TextureIdentifier);
-            SetOverlayBounds(content.Fluid, position);
+        var anyIsBlock = false;
 
-            renderOverlay = true;
-        }
-        else
+        foreach ((Content content, Vector3i position) in positions)
         {
-            renderOverlay = false;
+            (double, double)? newBounds = null;
+            IOverlayTextureProvider? overlayTextureProvider = null;
+            var isBlock = false;
+
+            if (content.Block.Block is IOverlayTextureProvider overlayBlockTextureProvider)
+            {
+                newBounds = GetOverlayBounds(content.Block, position);
+                overlayTextureProvider = overlayBlockTextureProvider;
+
+                isBlock = true;
+                anyIsBlock = true;
+            }
+
+            if (newBounds == null && content.Fluid.Fluid is IOverlayTextureProvider overlayFluidTextureProvider)
+            {
+                newBounds = GetOverlayBounds(content.Fluid, position);
+                overlayTextureProvider = overlayFluidTextureProvider;
+            }
+
+            if (newBounds is null) continue;
+
+            (double newLowerBound, double newUpperBound) = newBounds.Value;
+            int textureIndex = overlayTextureProvider!.TextureIdentifier;
+
+            lowerBound = Math.Min(newLowerBound, lowerBound);
+            upperBound = Math.Max(newUpperBound, upperBound);
+
+            overlays.Add((newUpperBound - newLowerBound, textureIndex, isBlock));
         }
+
+        return anyIsBlock ? overlays.Where(x => x.isBlock) : overlays;
     }
 
-    private void SetOverlayBounds(BlockInstance block, Vector3d position)
+    private (double lower, double upper)? GetOverlayBounds(BlockInstance block, Vector3d position)
     {
         var height = 15;
 
         if (block.Block is IHeightVariable heightVariable) height = heightVariable.GetHeight(block.Data);
 
-        SetOverlayBounds(height, position, inverted: false);
+        return GetOverlayBounds(height, position, inverted: false);
     }
 
-    private void SetOverlayBounds(FluidInstance fluid, Vector3d position)
+    private (double lower, double upper)? GetOverlayBounds(FluidInstance fluid, Vector3d position)
     {
         int height = fluid.Level.GetBlockHeight();
 
-        SetOverlayBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards);
+        return GetOverlayBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards);
     }
 
-    private void SetOverlayBounds(int height, Vector3d position, bool inverted)
+    private (double lower, double upper)? GetOverlayBounds(int height, Vector3d position, bool inverted)
     {
         float actualHeight = (height + 1) * (1.0f / 16.0f);
         if (inverted) actualHeight = 1.0f - actualHeight;
@@ -171,7 +200,7 @@ public sealed class PlayerVisualization : IDisposable
 
         Line? bound = topPlane.Intersects(viewPlane);
 
-        if (bound == null) return;
+        if (bound == null) return null;
 
         Vector3d axis = player.Right;
         (Vector3d a, Vector3d b) dimensions = player.NearDimensions;
@@ -188,8 +217,7 @@ public sealed class PlayerVisualization : IDisposable
         newLowerBound = Math.Max(newLowerBound, val2: 0);
         newUpperBound = Math.Min(newUpperBound, val2: 1);
 
-        lowerBound = Math.Min(newLowerBound, lowerBound);
-        upperBound = Math.Max(newUpperBound, upperBound);
+        return (newLowerBound, newUpperBound);
     }
 
     private void FinalizeOverlay()
