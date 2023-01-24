@@ -45,7 +45,7 @@
         <NeutralLanguage>en</NeutralLanguage>
         <AssemblyVersion>1.3.0.0</AssemblyVersion>
         <FileVersion>1.3.0.0</FileVersion>
-        <Authors>pershinghtesecond</Authors>
+        <Authors>jeanpmathes</Authors>
         <Company>pershinghtesecond</Company>
         <PackageLicenseExpression>MIT LICENSE</PackageLicenseExpression>
         <SignAssembly>false</SignAssembly>
@@ -55,39 +55,39 @@
         <LangVersion>10</LangVersion>
     </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <PlatformTarget>x64</PlatformTarget>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugSymbols>true</DebugSymbols>
+      <PlatformTarget>x64</PlatformTarget>
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <PlatformTarget>x64</PlatformTarget>
-    <NoWarn>1701;1702</NoWarn>
-    <DefineConstants>DEBUG</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <ItemGroup>
-      <Compile Remove="Properties\**"/>
-      <EmbeddedResource Remove="Properties\**"/>
-      <None Remove="Properties\**"/>
-      <None Update="Resources\Structures\tall_flower.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Structures\tall_grass.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Structures\small_pyramid.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Structures\large_tropical_tree.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Structures\old_tower.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Structures\buried_tower.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-  </ItemGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+        <PlatformTarget>x64</PlatformTarget>
+        <NoWarn>1701;1702</NoWarn>
+        <DefineConstants>DEBUG</DefineConstants>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Remove="Properties\**"/>
+        <EmbeddedResource Remove="Properties\**"/>
+        <None Remove="Properties\**"/>
+        <None Update="Resources\Structures\tall_flower.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Structures\tall_grass.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Structures\small_pyramid.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Structures\large_tropical_tree.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Structures\old_tower.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Structures\buried_tower.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
     <ItemGroup>
         <AdditionalFiles Include="..\..\.sonarlint\jeanpmathes_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml"/>
     </ItemGroup>
