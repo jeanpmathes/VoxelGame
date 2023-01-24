@@ -99,7 +99,9 @@ public sealed class OverlayRenderer : IDisposable
         Shaders.Overlay.SetFloat("lowerBound", lowerBound);
         Shaders.Overlay.SetFloat("upperBound", upperBound);
 
+        GL.Disable(EnableCap.DepthTest);
         drawGroup.DrawElements(PrimitiveType.Triangles);
+        GL.Enable(EnableCap.DepthTest);
 
         GL.BindVertexArray(array: 0);
         GL.UseProgram(program: 0);
@@ -155,4 +157,3 @@ public sealed class OverlayRenderer : IDisposable
 
     #endregion IDisposable Support
 }
-
