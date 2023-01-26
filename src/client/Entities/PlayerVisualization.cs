@@ -13,10 +13,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Input.Actions;
 using VoxelGame.UI.UserInterfaces;
@@ -119,105 +116,18 @@ public sealed class PlayerVisualization : IDisposable
     {
         ClearOverlay();
 
-        IEnumerable<(double size, int index, bool isBlock)> overlays = MeasureOverlays(positions).ToList();
+        IEnumerable<Overlay> overlays = Overlay.MeasureOverlays(positions, player, ref lowerBound, ref upperBound).ToList();
 
         if (!overlays.Any()) return;
 
-        (double size, int index, bool isBlock) max = overlays.MaxBy(x => x.size);
+        Overlay selected = overlays.OrderByDescending(o => o.Size).ThenBy(o => (o.Position - player.Position).Length).First();
 
-        if (max.isBlock) overlay.SetBlockTexture(max.index);
-        else overlay.SetFluidTexture(max.index);
+        if (selected.IsBlock) overlay.SetBlockTexture(selected.Index);
+        else overlay.SetFluidTexture(selected.Index);
 
         renderOverlay = true;
 
         FinalizeOverlay();
-    }
-
-    private IEnumerable<(double size, int index, bool isBlock)> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions)
-    {
-        List<(double size, int index, bool isBlock)> overlays = new();
-
-        var anyIsBlock = false;
-
-        foreach ((Content content, Vector3i position) in positions)
-        {
-            (double, double)? newBounds = null;
-            IOverlayTextureProvider? overlayTextureProvider = null;
-            var isBlock = false;
-
-            if (content.Block.Block is IOverlayTextureProvider overlayBlockTextureProvider)
-            {
-                newBounds = GetOverlayBounds(content.Block, position);
-                overlayTextureProvider = overlayBlockTextureProvider;
-
-                isBlock = true;
-                anyIsBlock = true;
-            }
-
-            if (newBounds == null && content.Fluid.Fluid is IOverlayTextureProvider overlayFluidTextureProvider)
-            {
-                newBounds = GetOverlayBounds(content.Fluid, position);
-                overlayTextureProvider = overlayFluidTextureProvider;
-            }
-
-            if (newBounds is null) continue;
-
-            (double newLowerBound, double newUpperBound) = newBounds.Value;
-            int textureIndex = overlayTextureProvider!.TextureIdentifier;
-
-            lowerBound = Math.Min(newLowerBound, lowerBound);
-            upperBound = Math.Max(newUpperBound, upperBound);
-
-            overlays.Add((newUpperBound - newLowerBound, textureIndex, isBlock));
-        }
-
-        return anyIsBlock ? overlays.Where(x => x.isBlock) : overlays;
-    }
-
-    private (double lower, double upper)? GetOverlayBounds(BlockInstance block, Vector3d position)
-    {
-        var height = 15;
-
-        if (block.Block is IHeightVariable heightVariable) height = heightVariable.GetHeight(block.Data);
-
-        return GetOverlayBounds(height, position, inverted: false);
-    }
-
-    private (double lower, double upper)? GetOverlayBounds(FluidInstance fluid, Vector3d position)
-    {
-        int height = fluid.Level.GetBlockHeight();
-
-        return GetOverlayBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards);
-    }
-
-    private (double lower, double upper)? GetOverlayBounds(int height, Vector3d position, bool inverted)
-    {
-        float actualHeight = (height + 1) * (1.0f / 16.0f);
-        if (inverted) actualHeight = 1.0f - actualHeight;
-
-        Plane topPlane = new(Vector3d.UnitY, position + Vector3d.UnitY * actualHeight);
-        Plane viewPlane = player.View.Frustum.Near;
-
-        Line? bound = topPlane.Intersects(viewPlane);
-
-        if (bound == null) return null;
-
-        Vector3d axis = player.Right;
-        (Vector3d a, Vector3d b) dimensions = player.NearDimensions;
-
-        // Assume the bound is parallel to the view horizon.
-        Vector2d point = viewPlane.Project2D(bound.Value.Any, axis);
-        Vector2d a = viewPlane.Project2D(dimensions.a, axis);
-        Vector2d b = viewPlane.Project2D(dimensions.b, axis);
-
-        double ratio = VMath.InverseLerp(a.Y, b.Y, point.Y);
-
-        (double newLowerBound, double newUpperBound) = inverted ? (ratio, 1.0) : (0.0, ratio);
-
-        newLowerBound = Math.Max(newLowerBound, val2: 0);
-        newUpperBound = Math.Min(newUpperBound, val2: 1);
-
-        return (newLowerBound, newUpperBound);
     }
 
     private void FinalizeOverlay()
