@@ -60,21 +60,6 @@ public readonly struct Frustum : IEquatable<Frustum>
         Top = original.Top.Translated(offset);
     }
 
-    private Frustum(Frustum original, double expansion)
-    {
-        Plane OffsetPlane(Plane plane)
-        {
-            return new Plane(plane.Normal, plane.Point - plane.Normal * expansion);
-        }
-
-        Near = OffsetPlane(original.Near);
-        Far = OffsetPlane(original.Far);
-        Left = OffsetPlane(original.Left);
-        Right = OffsetPlane(original.Right);
-        Bottom = OffsetPlane(original.Bottom);
-        Top = OffsetPlane(original.Top);
-    }
-
     /// <summary>
     ///     Get the dimensions of a frustum at a given distance.
     /// </summary>
@@ -160,14 +145,6 @@ public readonly struct Frustum : IEquatable<Frustum>
     public Frustum Translated(Vector3d offset)
     {
         return new Frustum(this, offset);
-    }
-
-    /// <summary>
-    ///     Get an expanded frustum.
-    /// </summary>
-    public Frustum Expanded(double expansion)
-    {
-        return new Frustum(this, expansion);
     }
 
     /// <inheritdoc />

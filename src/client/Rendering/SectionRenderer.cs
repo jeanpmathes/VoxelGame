@@ -509,4 +509,3 @@ public sealed class SectionRenderer : IDisposable
 
     #endregion IDisposable Support
 }
-

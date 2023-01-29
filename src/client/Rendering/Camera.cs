@@ -92,11 +92,6 @@ public class Camera : IView
         }
     }
 
-    /// <summary>
-    ///     Get the near frustum, which is the frustum between the camera and the near clipping plane.
-    /// </summary>
-    public Frustum NearFrustum => new(fov, Screen.AspectRatio, (0.0, NearClipping), Position, front, Up, Right);
-
     /// <inheritdoc />
     public double FarClipping => 500.0;
 
@@ -115,6 +110,17 @@ public class Camera : IView
         Screen.AspectRatio,
         NearClipping,
         FarClipping);
+
+    /// <summary>
+    ///     Get a partial frustum, which is the view frustum with changed near and far clipping planes.
+    /// </summary>
+    /// <param name="near">The near clipping plane.</param>
+    /// <param name="far">The far clipping plane.</param>
+    /// <returns>The partial frustum.</returns>
+    public Frustum GetPartialFrustum(double near, double far)
+    {
+        return new Frustum(fov, Screen.AspectRatio, (near, far), Position, front, Up, Right);
+    }
 
     private void UpdateVectors()
     {

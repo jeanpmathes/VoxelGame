@@ -164,10 +164,10 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// </summary>
     public bool Contains(Vector3d point)
     {
-        if (Box.Contains(point))
+        if (Box.Contains(point, boundaryInclusive: true))
             return true;
 
-        if (ChildCount == 0 || !ChildBounds.Contains(point)) return false;
+        if (ChildCount == 0 || !ChildBounds.Contains(point, boundaryInclusive: true)) return false;
 
         for (var i = 0; i < ChildCount; i++)
             if (children[i].Contains(point))
@@ -257,4 +257,3 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         return HashCode.Combine(Center.GetHashCode(), Extents.GetHashCode(), children);
     }
 }
-

@@ -44,12 +44,14 @@ public class OS
         }
         catch (FileNotFoundException)
         {
-            logger.LogDebug(Events.OS, "File to start not found: {file}", file);
+            logger.LogDebug(Events.OS, "File to start not found: {File}", file);
         }
         catch (Win32Exception e)
         {
-            logger.LogDebug(Events.OS, e, "Failed to start file: {file}", file);
+            logger.LogDebug(Events.OS, e, "Failed to start file: {File}", file);
         }
     }
 }
+
+
 
