@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Physics;
@@ -27,20 +28,23 @@ public readonly struct Frustum : IEquatable<Frustum>
     public Frustum(double fovY, double ratio, (double near, double far) clip,
         Vector3d position, Vector3d direction, Vector3d up, Vector3d right)
     {
+        Debug.Assert(clip.near < clip.far);
+        Debug.Assert(clip.near >= 0.0);
+
         direction.Normalize();
         up.Normalize();
         right.Normalize();
 
-        (double wNear, double hNear) = GetDimensionsAt(clip.near, fovY, ratio);
+        (double wFar, double hFar) = GetDimensionsAt(clip.far, fovY, ratio);
 
         Vector3d nc = position + direction * clip.near;
         Vector3d fc = position + direction * clip.far;
 
-        Vector3d nl = Vector3d.Cross((nc - right * wNear / 2.0 - position).Normalized(), up);
-        Vector3d nr = Vector3d.Cross(up, (nc + right * wNear / 2.0 - position).Normalized());
+        Vector3d nl = Vector3d.Cross((fc - right * wFar / 2.0 - position).Normalized(), up);
+        Vector3d nr = Vector3d.Cross(up, (fc + right * wFar / 2.0 - position).Normalized());
 
-        Vector3d nb = Vector3d.Cross(right, (nc - up * hNear / 2.0 - position).Normalized());
-        Vector3d nt = Vector3d.Cross((nc + up * hNear / 2.0 - position).Normalized(), right);
+        Vector3d nb = Vector3d.Cross(right, (fc - up * hFar / 2.0 - position).Normalized());
+        Vector3d nt = Vector3d.Cross((fc + up * hFar / 2.0 - position).Normalized(), right);
 
         Near = new Plane(direction, nc);
         Far = new Plane(-direction, fc);
