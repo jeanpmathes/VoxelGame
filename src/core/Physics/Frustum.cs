@@ -198,7 +198,7 @@ public readonly struct Frustum : IEquatable<Frustum>
 
     private static (double min, double max) ProjectBox(Box3d box, Vector3d axis)
     {
-        double radius = Math.Abs(Vector3d.Dot(box.Size, axis.Absolute()));
+        double radius = Math.Abs(Vector3d.Dot(box.HalfSize, axis.Absolute()));
         double distance = Vector3d.Dot(box.Center, axis);
 
         return (distance - radius, distance + radius);
@@ -328,3 +328,4 @@ public readonly struct Frustum : IEquatable<Frustum>
         return !left.Equals(right);
     }
 }
+
