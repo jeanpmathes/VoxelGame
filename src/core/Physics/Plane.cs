@@ -55,7 +55,7 @@ public readonly struct Plane : IEquatable<Plane>
     /// <returns>The projected point.</returns>
     public Vector3d Project(Vector3d point)
     {
-        return point - Normal * Distance(point);
+        return point - Normal * GetDistanceTo(point);
     }
 
     /// <summary>
@@ -109,11 +109,11 @@ public readonly struct Plane : IEquatable<Plane>
     }
 
     /// <summary>
-    ///     Calculate the distance from a point to the plane.
+    ///     Calculate the distance from a point to the plane. The sign of the distance indicates the side.
     /// </summary>
     /// <param name="point">The point to calculate the distance to.</param>
     /// <returns>The distance to the point.</returns>
-    public double Distance(Vector3d point)
+    public double GetDistanceTo(Vector3d point)
     {
         return Vector3d.Dot(point, Normal) + d;
     }
@@ -152,3 +152,4 @@ public readonly struct Plane : IEquatable<Plane>
         return !left.Equals(right);
     }
 }
+

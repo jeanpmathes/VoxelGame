@@ -496,5 +496,22 @@ public static class VMath
     {
         return Math.Max(Math.Max(v.X, v.Y), v.Z);
     }
+
+    /// <summary>
+    ///     Get the corner of a box by its index.
+    /// </summary>
+    /// <param name="box">The box.</param>
+    /// <param name="index">The index of the corner, in the range [0, 7].</param>
+    /// <returns>The corner.</returns>
+    public static Vector3d GetCorner(this Box3d box, int index)
+    {
+        Debug.Assert(index is >= 0 and < 8);
+
+        return new Vector3d(
+            index % 2 == 0 ? box.Min.X : box.Max.X,
+            index / 2 % 2 == 0 ? box.Min.Y : box.Max.Y,
+            index / 4 % 2 == 0 ? box.Min.Z : box.Max.Z
+        );
+    }
 }
 

@@ -194,7 +194,9 @@ public partial class ClientChunk : Chunk
     public void AddCulledToRenderList(Frustum frustum,
         ICollection<(ClientSection section, Vector3d position)> renderList)
     {
-        if (!hasMeshData || !frustum.IsBoxInFrustum(VMath.CreateBox3(ChunkPoint, ChunkExtents))) return;
+        Box3d chunkBox = VMath.CreateBox3(ChunkPoint, ChunkExtents);
+
+        if (!hasMeshData || !frustum.IsBoxVisible(chunkBox)) return;
 
         for (var x = 0; x < Size; x++)
         for (var y = 0; y < Size; y++)
@@ -203,11 +205,11 @@ public partial class ClientChunk : Chunk
             SectionPosition sectionPosition = SectionPosition.From(Position, (x, y, z));
             Vector3d position = sectionPosition.FirstBlock;
 
-            if (frustum.IsBoxInFrustum(
-                    VMath.CreateBox3(position + Section.Extents, Section.Extents)))
-            {
-                renderList.Add((GetSection(LocalSectionToIndex(x, y, z)), position));
-            }
+            Box3d sectionBox = VMath.CreateBox3(position + Section.Extents, Section.Extents);
+
+            if (!frustum.IsBoxVisible(sectionBox)) continue;
+
+            renderList.Add((GetSection(LocalSectionToIndex(x, y, z)), position));
         }
     }
 }
