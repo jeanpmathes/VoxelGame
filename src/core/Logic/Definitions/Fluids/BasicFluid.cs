@@ -17,8 +17,8 @@ namespace VoxelGame.Core.Logic.Definitions.Fluids;
 /// </summary>
 public class BasicFluid : Fluid, IOverlayTextureProvider
 {
+    private readonly bool hasNeutralTint;
     private readonly TextureLayout movingLayout;
-    private readonly bool neutralTint;
     private readonly TextureLayout staticLayout;
 
     private int[] movingTex = null!;
@@ -31,11 +31,11 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     /// <param name="namedId">The named ID of the fluid.</param>
     /// <param name="density">The density of the fluid.</param>
     /// <param name="viscosity">The viscosity of the fluid.</param>
-    /// <param name="neutralTint">Whether this fluid has a neutral tint.</param>
+    /// <param name="hasNeutralTint">Whether this fluid has a neutral tint.</param>
     /// <param name="movingLayout">The texture layout when this fluid is moving.</param>
     /// <param name="staticLayout">The texture layout when this fluid is static.</param>
     /// <param name="renderType">The render type of the fluid.</param>
-    public BasicFluid(string name, string namedId, float density, int viscosity, bool neutralTint,
+    public BasicFluid(string name, string namedId, float density, int viscosity, bool hasNeutralTint,
         TextureLayout movingLayout, TextureLayout staticLayout, RenderType renderType = RenderType.Opaque) :
         base(
             name,
@@ -46,7 +46,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
             receiveContact: false,
             renderType)
     {
-        this.neutralTint = neutralTint;
+        this.hasNeutralTint = hasNeutralTint;
 
         this.movingLayout = movingLayout;
         this.staticLayout = staticLayout;
@@ -56,6 +56,12 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     ///     The texture to use for the fluid overlay.
     /// </summary>
     public int TextureIdentifier => staticLayout.Front;
+
+    /// <inheritdoc />
+    public TintColor GetTintColor(Content content)
+    {
+        return hasNeutralTint ? TintColor.Neutral : TintColor.None;
+    }
 
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider)
@@ -69,7 +75,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     {
         return FluidMeshData.Basic(
             info.IsStatic ? staticTex[(int) info.Side] : movingTex[(int) info.Side],
-            neutralTint ? TintColor.Neutral : TintColor.None);
+            hasNeutralTint ? TintColor.Neutral : TintColor.None);
     }
 
     /// <inheritdoc />
@@ -502,4 +508,5 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         return fluid.Fluid == this && fluid.Level != FluidLevel.Eight;
     }
 }
+
 

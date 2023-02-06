@@ -194,6 +194,17 @@ public class Shader
     }
 
     /// <summary>
+    ///     Set a uniform Color4 on this shader.
+    /// </summary>
+    /// <param name="name">The name of the uniform.</param>
+    /// <param name="data">The data to set.</param>
+    public void SetColor4(string name, Color4 data)
+    {
+        GL.UseProgram(Handle);
+        GL.Uniform4(uniformLocations[name], data);
+    }
+
+    /// <summary>
     ///     Delete the shader.
     /// </summary>
     public void Delete()
@@ -201,4 +212,5 @@ public class Shader
         GL.DeleteProgram(Handle);
     }
 }
+
 

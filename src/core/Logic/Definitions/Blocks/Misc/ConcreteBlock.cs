@@ -51,6 +51,14 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     public int TextureIdentifier => layout.Bottom;
 
     /// <inheritdoc />
+    public TintColor GetTintColor(Content content)
+    {
+        Decode(content.Block.Data, out BlockColor color, out _);
+
+        return color.ToTintColor();
+    }
+
+    /// <inheritdoc />
     public int GetHeight(uint data)
     {
         Decode(data, out _, out int height);
@@ -133,4 +141,5 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
         height = (int) (data & 0b00_0111) * 2 + 1;
     }
 }
+
 

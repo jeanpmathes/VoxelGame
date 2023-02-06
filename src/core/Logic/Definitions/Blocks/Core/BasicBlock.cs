@@ -42,6 +42,12 @@ public class BasicBlock : Block, IOverlayTextureProvider, ISimple
     public virtual int TextureIdentifier => layout.Bottom;
 
     /// <inheritdoc />
+    public virtual TintColor GetTintColor(Content content)
+    {
+        return TintColor.None;
+    }
+
+    /// <inheritdoc />
     ISimple.MeshData ISimple.GetMeshData(BlockMeshInfo info)
     {
         return GetMeshData(info);
@@ -61,4 +67,5 @@ public class BasicBlock : Block, IOverlayTextureProvider, ISimple
         return ISimple.CreateData(sideTextureIndices[(int) info.Side], isTextureRotated: false);
     }
 }
+
 

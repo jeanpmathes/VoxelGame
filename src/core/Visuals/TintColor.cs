@@ -6,6 +6,7 @@
 
 using System;
 using System.Drawing;
+using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -243,6 +244,16 @@ public readonly struct TintColor : IEquatable<TintColor>
     private int ToBits => ((int) (r * 7f) << 6) | ((int) (g * 7f) << 3) | (int) (b * 7f);
 
     /// <summary>
+    ///     Convert this color to a <see cref="Color4" />.
+    /// </summary>
+    /// <param name="tint">The tint to convert.</param>
+    /// <returns>The color.</returns>
+    public static implicit operator Color4(TintColor tint)
+    {
+        return new Color4(tint.r, tint.g, tint.b, a: 1f);
+    }
+
+    /// <summary>
     ///     Get the tint encoded into bits.
     /// </summary>
     /// <param name="neutral">The tint color to use as for neutral tint.</param>
@@ -288,4 +299,5 @@ public readonly struct TintColor : IEquatable<TintColor>
         return !(left == right);
     }
 }
+
 

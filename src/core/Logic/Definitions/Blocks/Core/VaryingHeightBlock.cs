@@ -46,6 +46,12 @@ public class VaryingHeightBlock : Block, IVaryingHeight, IOverlayTextureProvider
     public int TextureIdentifier => layout.Bottom;
 
     /// <inheritdoc />
+    public virtual TintColor GetTintColor(Content content)
+    {
+        return TintColor.None;
+    }
+
+    /// <inheritdoc />
     public virtual int GetHeight(uint data)
     {
         return (int) (data & 0b00_1111);
@@ -89,4 +95,5 @@ public class VaryingHeightBlock : Block, IVaryingHeight, IOverlayTextureProvider
         return volumes[(int) data & 0b00_1111];
     }
 }
+
 

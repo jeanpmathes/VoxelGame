@@ -37,6 +37,12 @@ public class NaturalBlock : BasicBlock, ICombustible
     }
 
     /// <inheritdoc />
+    public override TintColor GetTintColor(Content content)
+    {
+        return hasNeutralTint ? TintColor.Neutral : TintColor.None;
+    }
+
+    /// <inheritdoc />
     protected override ISimple.MeshData GetMeshData(BlockMeshInfo info)
     {
         ISimple.MeshData mesh = base.GetMeshData(info);
@@ -46,4 +52,5 @@ public class NaturalBlock : BasicBlock, ICombustible
         return mesh;
     }
 }
+
 

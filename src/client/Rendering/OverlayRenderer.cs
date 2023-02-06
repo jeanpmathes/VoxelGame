@@ -18,18 +18,19 @@ namespace VoxelGame.Client.Rendering;
 /// </summary>
 public sealed class OverlayRenderer : IDisposable
 {
-    private const int ModeBlock = 0;
-    private const int ModeFluid = 1;
+    private const int BlockMode = 0;
+    private const int FluidMode = 1;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<OverlayRenderer>();
 
     private readonly ElementDrawGroup drawGroup;
 
     private float lowerBound;
 
-    private int mode = ModeBlock;
+    private int mode = BlockMode;
     private int samplerId;
 
     private int textureId;
+    private TintColor tint = TintColor.None;
     private float upperBound;
 
     /// <summary>
@@ -64,7 +65,7 @@ public sealed class OverlayRenderer : IDisposable
         samplerId = number / ArrayTexture.UnitSize + 1;
         textureId = number % ArrayTexture.UnitSize;
 
-        mode = ModeBlock;
+        mode = BlockMode;
     }
 
     /// <summary>
@@ -76,7 +77,16 @@ public sealed class OverlayRenderer : IDisposable
         samplerId = 5;
         textureId = number;
 
-        mode = ModeFluid;
+        mode = FluidMode;
+    }
+
+    /// <summary>
+    ///     Set the tint color of the overlay.
+    /// </summary>
+    /// <param name="newTint">The tint color.</param>
+    public void SetTintColor(TintColor newTint)
+    {
+        tint = newTint;
     }
 
     /// <summary>
@@ -92,12 +102,14 @@ public sealed class OverlayRenderer : IDisposable
 
         Shaders.Overlay.Use();
 
-        Shaders.Overlay.SetInt("texId", textureId);
-        Shaders.Overlay.SetInt("tex", samplerId);
+        Shaders.Overlay.SetInt("textureId", textureId);
+        Shaders.Overlay.SetInt("sampler", samplerId);
         Shaders.Overlay.SetInt("mode", mode);
 
         Shaders.Overlay.SetFloat("lowerBound", lowerBound);
         Shaders.Overlay.SetFloat("upperBound", upperBound);
+
+        Shaders.Overlay.SetColor4("tint", tint);
 
         GL.Disable(EnableCap.DepthTest);
         drawGroup.DrawElements(PrimitiveType.Triangles);

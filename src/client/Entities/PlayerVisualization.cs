@@ -125,6 +125,8 @@ public sealed class PlayerVisualization : IDisposable
         if (selected.IsBlock) overlay.SetBlockTexture(selected.Index);
         else overlay.SetFluidTexture(selected.Index);
 
+        overlay.SetTintColor(selected.Tint);
+
         renderOverlay = true;
 
         FinalizeOverlay();
@@ -211,3 +213,5 @@ public sealed class PlayerVisualization : IDisposable
 
     #endregion IDisposable Support
 }
+
+

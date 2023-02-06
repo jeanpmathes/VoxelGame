@@ -24,7 +24,7 @@ namespace VoxelGame.Client.Entities;
 /// <param name="Index">The texture index of the overlay.</param>
 /// <param name="IsBlock">Whether the overlay is a block or a fluid.</param>
 /// <param name="Position">The position of the overlay block/fluid.</param>
-public sealed record Overlay(double Size, int Index, bool IsBlock, Vector3i Position)
+public sealed record Overlay(double Size, int Index, TintColor Tint, bool IsBlock, Vector3i Position)
 {
     /// <summary>
     ///     Measure the size of the overlay to display with the given positions and their contents.
@@ -65,11 +65,12 @@ public sealed record Overlay(double Size, int Index, bool IsBlock, Vector3i Posi
 
             (double newLowerBound, double newUpperBound) = newBounds.Value;
             int textureIndex = overlayTextureProvider!.TextureIdentifier;
+            TintColor tint = overlayTextureProvider.GetTintColor(content);
 
             lowerBound = Math.Min(newLowerBound, lowerBound);
             upperBound = Math.Max(newUpperBound, upperBound);
 
-            overlays.Add(new Overlay(newUpperBound - newLowerBound, textureIndex, isBlock, position));
+            overlays.Add(new Overlay(newUpperBound - newLowerBound, textureIndex, tint, isBlock, position));
         }
 
         return anyIsBlock ? overlays.Where(x => x.IsBlock) : overlays;
@@ -121,3 +122,5 @@ public sealed record Overlay(double Size, int Index, bool IsBlock, Vector3i Posi
         return (newLowerBound, newUpperBound);
     }
 }
+
+
