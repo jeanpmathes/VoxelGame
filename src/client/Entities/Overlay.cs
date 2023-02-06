@@ -21,10 +21,10 @@ namespace VoxelGame.Client.Entities;
 ///     An overlay fills the entire horizontal screen space and has a flexible upper and lower bound.
 /// </summary>
 /// <param name="Size">The size of the overlay, which is the distance between the upper and lower bound.</param>
-/// <param name="Index">The texture index of the overlay.</param>
+/// <param name="Texture">The texture of the overlay.</param>
 /// <param name="IsBlock">Whether the overlay is a block or a fluid.</param>
 /// <param name="Position">The position of the overlay block/fluid.</param>
-public sealed record Overlay(double Size, int Index, TintColor Tint, bool IsBlock, Vector3i Position)
+public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, Vector3i Position)
 {
     /// <summary>
     ///     Measure the size of the overlay to display with the given positions and their contents.
@@ -64,13 +64,12 @@ public sealed record Overlay(double Size, int Index, TintColor Tint, bool IsBloc
             if (newBounds is null) continue;
 
             (double newLowerBound, double newUpperBound) = newBounds.Value;
-            int textureIndex = overlayTextureProvider!.TextureIdentifier;
-            TintColor tint = overlayTextureProvider.GetTintColor(content);
+            OverlayTexture texture = overlayTextureProvider!.GetOverlayTexture(content);
 
             lowerBound = Math.Min(newLowerBound, lowerBound);
             upperBound = Math.Max(newUpperBound, upperBound);
 
-            overlays.Add(new Overlay(newUpperBound - newLowerBound, textureIndex, tint, isBlock, position));
+            overlays.Add(new Overlay(newUpperBound - newLowerBound, texture, isBlock, position));
         }
 
         return anyIsBlock ? overlays.Where(x => x.IsBlock) : overlays;
@@ -122,5 +121,4 @@ public sealed record Overlay(double Size, int Index, TintColor Tint, bool IsBloc
         return (newLowerBound, newUpperBound);
     }
 }
-
 

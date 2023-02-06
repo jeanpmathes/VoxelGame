@@ -3,22 +3,23 @@
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
+///     Describes an overlay texture.
+/// </summary>
+/// <param name="TextureIdentifier">The texture identifier, in the texture space of the content type.</param>
+/// <param name="Tint">The tint color.</param>
+public record struct OverlayTexture(int TextureIdentifier, TintColor Tint);
+
+/// <summary>
 ///     Provides an overlay texture index.
 ///     Blocks and fluids implementing this interface should have be a full or varying height block for best effect.
 /// </summary>
 public interface IOverlayTextureProvider
 {
     /// <summary>
-    ///     The texture index for the overlay.
-    /// </summary>
-    int TextureIdentifier { get; }
-
-    /// <summary>
-    ///     Get the tint color of this content.
+    ///     Get the overlay texture.
     /// </summary>
     /// <param name="content">The content.</param>
-    /// <returns>The tint color.</returns>
-    TintColor GetTintColor(Content content);
+    /// <returns>The overlay texture.</returns>
+    OverlayTexture GetOverlayTexture(Content content);
 }
-
 

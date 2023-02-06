@@ -34,12 +34,6 @@ public class TintedBlock : BasicBlock, IWideConnectable
     }
 
     /// <inheritdoc />
-    public override TintColor GetTintColor(Content content)
-    {
-        return GetTintColor(content.Block.Data);
-    }
-
-    /// <inheritdoc />
     protected override ISimple.MeshData GetMeshData(BlockMeshInfo info)
     {
         return base.GetMeshData(info) with
@@ -60,5 +54,4 @@ public class TintedBlock : BasicBlock, IWideConnectable
         entity.World.SetBlock(this.AsInstance((data + 1) & 0b01_1111), position);
     }
 }
-
 

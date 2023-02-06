@@ -43,12 +43,9 @@ public class VaryingHeightBlock : Block, IVaryingHeight, IOverlayTextureProvider
     public BlockInstance FullHeightInstance => GetInstance(IVaryingHeight.MaximumHeight);
 
     /// <inheritdoc />
-    public int TextureIdentifier => layout.Bottom;
-
-    /// <inheritdoc />
-    public virtual TintColor GetTintColor(Content content)
+    public virtual OverlayTexture GetOverlayTexture(Content content)
     {
-        return TintColor.None;
+        return new OverlayTexture(layout.Bottom, TintColor.None);
     }
 
     /// <inheritdoc />
@@ -95,5 +92,4 @@ public class VaryingHeightBlock : Block, IVaryingHeight, IOverlayTextureProvider
         return volumes[(int) data & 0b00_1111];
     }
 }
-
 

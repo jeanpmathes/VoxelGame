@@ -48,14 +48,11 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     }
 
     /// <inheritdoc />
-    public int TextureIdentifier => layout.Bottom;
-
-    /// <inheritdoc />
-    public TintColor GetTintColor(Content content)
+    public OverlayTexture GetOverlayTexture(Content content)
     {
         Decode(content.Block.Data, out BlockColor color, out _);
 
-        return color.ToTintColor();
+        return new OverlayTexture(layout.Bottom, color.ToTintColor());
     }
 
     /// <inheritdoc />
@@ -141,5 +138,4 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
         height = (int) (data & 0b00_0111) * 2 + 1;
     }
 }
-
 

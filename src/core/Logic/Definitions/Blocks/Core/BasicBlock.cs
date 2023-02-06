@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 ///     much function, but the class can be extended easily.
 ///     Data bit usage: <c>------</c>
 /// </summary>
-public class BasicBlock : Block, IOverlayTextureProvider, ISimple
+public class BasicBlock : Block, ISimple
 {
     private readonly TextureLayout layout;
     private protected int[] sideTextureIndices = null!;
@@ -39,15 +39,6 @@ public class BasicBlock : Block, IOverlayTextureProvider, ISimple
     }
 
     /// <inheritdoc />
-    public virtual int TextureIdentifier => layout.Bottom;
-
-    /// <inheritdoc />
-    public virtual TintColor GetTintColor(Content content)
-    {
-        return TintColor.None;
-    }
-
-    /// <inheritdoc />
     ISimple.MeshData ISimple.GetMeshData(BlockMeshInfo info)
     {
         return GetMeshData(info);
@@ -67,5 +58,4 @@ public class BasicBlock : Block, IOverlayTextureProvider, ISimple
         return ISimple.CreateData(sideTextureIndices[(int) info.Side], isTextureRotated: false);
     }
 }
-
 

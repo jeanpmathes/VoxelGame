@@ -59,34 +59,29 @@ public sealed class OverlayRenderer : IDisposable
     /// <summary>
     ///     Set the texture to a block texture.
     /// </summary>
-    /// <param name="number">The number of the block texture.</param>
-    public void SetBlockTexture(int number)
+    /// <param name="texture">The texture to use.</param>
+    public void SetBlockTexture(OverlayTexture texture)
     {
-        samplerId = number / ArrayTexture.UnitSize + 1;
-        textureId = number % ArrayTexture.UnitSize;
+        samplerId = texture.TextureIdentifier / ArrayTexture.UnitSize + 1;
+        textureId = texture.TextureIdentifier % ArrayTexture.UnitSize;
 
         mode = BlockMode;
+
+        tint = texture.Tint;
     }
 
     /// <summary>
     ///     Set the texture to a fluid texture.
     /// </summary>
-    /// <param name="number">The number of the fluid texture.</param>
-    public void SetFluidTexture(int number)
+    /// <param name="texture">The texture to use.</param>
+    public void SetFluidTexture(OverlayTexture texture)
     {
         samplerId = 5;
-        textureId = number;
+        textureId = texture.TextureIdentifier;
 
         mode = FluidMode;
-    }
 
-    /// <summary>
-    ///     Set the tint color of the overlay.
-    /// </summary>
-    /// <param name="newTint">The tint color.</param>
-    public void SetTintColor(TintColor newTint)
-    {
-        tint = newTint;
+        tint = texture.Tint;
     }
 
     /// <summary>

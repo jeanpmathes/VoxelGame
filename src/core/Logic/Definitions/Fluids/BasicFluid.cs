@@ -52,15 +52,10 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         this.staticLayout = staticLayout;
     }
 
-    /// <summary>
-    ///     The texture to use for the fluid overlay.
-    /// </summary>
-    public int TextureIdentifier => staticLayout.Front;
-
     /// <inheritdoc />
-    public TintColor GetTintColor(Content content)
+    public OverlayTexture GetOverlayTexture(Content content)
     {
-        return hasNeutralTint ? TintColor.Neutral : TintColor.None;
+        return new OverlayTexture(staticLayout.Front, hasNeutralTint ? TintColor.Neutral : TintColor.None);
     }
 
     /// <inheritdoc />
@@ -508,5 +503,4 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         return fluid.Fluid == this && fluid.Level != FluidLevel.Eight;
     }
 }
-
 
