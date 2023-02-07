@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Visuals.Meshables;
 /// <summary>
 ///     Defines meshing for blocks that have varying height.
 /// </summary>
-public interface IVaryingHeight : IBlockMeshable, IHeightVariable
+public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextureProvider
 {
     void IBlockMeshable.CreateMesh(Vector3i position, BlockMeshInfo info, MeshingContext context)
     {
@@ -52,6 +52,22 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable
         MeshVaryingHeightSide(BlockSide.Right);
         MeshVaryingHeightSide(BlockSide.Bottom);
         MeshVaryingHeightSide(BlockSide.Top);
+    }
+
+    OverlayTexture IOverlayTextureProvider.GetOverlayTexture(Content content)
+    {
+        MeshData mesh = GetMeshData(new BlockMeshInfo
+        {
+            Data = content.Block.Data,
+            Fluid = content.Fluid.Fluid,
+            Side = BlockSide.Front
+        });
+
+        return new OverlayTexture
+        {
+            TextureIdentifier = mesh.TextureIndex,
+            Tint = mesh.Tint
+        };
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -176,4 +192,3 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable
         }
     }
 }
-

@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 // c: color
 // h: height
-public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConnectable, IOverlayTextureProvider
+public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConnectable
 {
     private readonly TextureLayout layout;
 
@@ -45,14 +45,6 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
         }
 
         for (uint data = 0; data <= 0b11_1111; data++) volumes.Add(CreateVolume(data));
-    }
-
-    /// <inheritdoc />
-    public OverlayTexture GetOverlayTexture(Content content)
-    {
-        Decode(content.Block.Data, out BlockColor color, out _);
-
-        return new OverlayTexture(layout.Bottom, color.ToTintColor());
     }
 
     /// <inheritdoc />

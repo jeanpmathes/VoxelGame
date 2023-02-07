@@ -80,7 +80,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         {
             Data = content.Block.Data,
             Fluid = content.Fluid.Fluid,
-            Side = BlockSide.Bottom
+            Side = BlockSide.Front
         });
 
         return new OverlayTexture
