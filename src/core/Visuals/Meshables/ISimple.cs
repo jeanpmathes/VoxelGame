@@ -86,7 +86,8 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         return new OverlayTexture
         {
             TextureIdentifier = mesh.TextureIndex,
-            Tint = mesh.Tint
+            Tint = mesh.Tint,
+            IsAnimated = mesh.IsAnimated
         };
     }
 
@@ -193,4 +194,5 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         }
     }
 }
+
 

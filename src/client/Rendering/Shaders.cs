@@ -133,6 +133,7 @@ public sealed class Shaders
             loader.LoadIncludable("noise", "noise.glsl");
             loader.LoadIncludable("decode", "decode.glsl");
             loader.LoadIncludable("color", "color.glsl");
+            loader.LoadIncludable("animation", "animation.glsl");
 
             SimpleSection = loader.Load("simple_section.vert", SectionFragmentShader);
             ComplexSection = loader.Load("complex_section.vert", SectionFragmentShader);
@@ -188,4 +189,5 @@ public sealed class Shaders
         foreach (Shader shader in farPlaneSet) shader.SetFloat(FarPlaneUniform, (float) far);
     }
 }
+
 

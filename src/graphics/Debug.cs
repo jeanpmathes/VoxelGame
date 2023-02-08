@@ -61,7 +61,7 @@ public class Debug
             idResolved,
             Marshal.PtrToStringAnsi(message, length));
 
-        if (level >= LogLevel.Error) Debugger.Break();
+        if (level >= LogLevel.Error && type != DebugType.DebugTypePerformance) Debugger.Break();
     }
 
     private static (string, int) ResolveEvent(int id)
@@ -124,4 +124,3 @@ public class Debug
         };
     }
 }
-

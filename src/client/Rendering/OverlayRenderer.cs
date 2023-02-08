@@ -7,6 +7,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Logging;
@@ -23,6 +24,7 @@ public sealed class OverlayRenderer : IDisposable
     private static readonly ILogger logger = LoggingHelper.CreateLogger<OverlayRenderer>();
 
     private readonly ElementDrawGroup drawGroup;
+    private bool isAnimated;
 
     private float lowerBound;
 
@@ -67,7 +69,7 @@ public sealed class OverlayRenderer : IDisposable
 
         mode = BlockMode;
 
-        tint = texture.Tint;
+        SetGeneralAttributes(texture);
     }
 
     /// <summary>
@@ -81,7 +83,13 @@ public sealed class OverlayRenderer : IDisposable
 
         mode = FluidMode;
 
+        SetGeneralAttributes(texture);
+    }
+
+    private void SetGeneralAttributes(OverlayTexture texture)
+    {
         tint = texture.Tint;
+        isAnimated = texture.IsAnimated;
     }
 
     /// <summary>
@@ -92,6 +100,7 @@ public sealed class OverlayRenderer : IDisposable
         if (disposed) return;
 
         GL.Enable(EnableCap.Blend);
+        GL.Disable(EnableCap.DepthTest);
 
         drawGroup.BindVertexArray();
 
@@ -105,14 +114,15 @@ public sealed class OverlayRenderer : IDisposable
         Shaders.Overlay.SetFloat("upperBound", upperBound);
 
         Shaders.Overlay.SetColor4("tint", tint);
+        Shaders.Overlay.SetInt("isAnimated", isAnimated.ToInt());
 
-        GL.Disable(EnableCap.DepthTest);
         drawGroup.DrawElements(PrimitiveType.Triangles);
-        GL.Enable(EnableCap.DepthTest);
+
 
         GL.BindVertexArray(array: 0);
         GL.UseProgram(program: 0);
 
+        GL.Enable(EnableCap.DepthTest);
         GL.Disable(EnableCap.Blend);
     }
 

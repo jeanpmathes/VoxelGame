@@ -11,9 +11,11 @@ layout(binding = 5) uniform sampler2DArray arrayTexture;
 
 uniform float time;
 
+#pragma include("animation")
+
 void main()
 {
-	vec4 color = texture(arrayTexture, vec3(texCoord, texIndex + int(mod(time * 16, 16))));
+	vec4 color = texture(arrayTexture, vec3(texCoord, animation_fluid(texIndex, time)));
 
 	color *= tint;
 

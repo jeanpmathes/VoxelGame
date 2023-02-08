@@ -19,13 +19,14 @@ layout(binding = 4) uniform sampler2DArray fourthArrayTexture;
 uniform float time;
 
 #pragma include("color")
+#pragma include("animation")
 
 void main()
 {
 	vec4 color;
 
 	float quadID = -mod(gl_PrimitiveID, 2) + gl_PrimitiveID;
-	int animatedTexOffset = texIndex + int(mod(anim * time * 8 + anim * quadID * 0.125, 8));
+	int animatedTexOffset = (anim == 0) ? texIndex : animation_block(texIndex, time);
 
 	vec2 clampLimit = (texCordMax == ivec2(0)) ? vec2(1.0) : vec2(texCordMax);
 	vec2 clampedTexCoord = clamp(texCoord, vec2(0, 0), clampLimit);

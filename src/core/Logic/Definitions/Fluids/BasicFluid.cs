@@ -55,7 +55,12 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     /// <inheritdoc />
     public OverlayTexture GetOverlayTexture(Content content)
     {
-        return new OverlayTexture(staticLayout.Front, hasNeutralTint ? TintColor.Neutral : TintColor.None);
+        return new OverlayTexture
+        {
+            TextureIdentifier = staticLayout.Front,
+            Tint = hasNeutralTint ? TintColor.Neutral : TintColor.None,
+            IsAnimated = true
+        };
     }
 
     /// <inheritdoc />
@@ -503,4 +508,5 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         return fluid.Fluid == this && fluid.Level != FluidLevel.Eight;
     }
 }
+
 

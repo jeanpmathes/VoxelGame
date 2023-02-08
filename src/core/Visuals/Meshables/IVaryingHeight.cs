@@ -66,7 +66,8 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         return new OverlayTexture
         {
             TextureIdentifier = mesh.TextureIndex,
-            Tint = mesh.Tint
+            Tint = mesh.Tint,
+            IsAnimated = false
         };
     }
 
@@ -192,3 +193,5 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         }
     }
 }
+
+

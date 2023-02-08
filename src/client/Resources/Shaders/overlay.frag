@@ -15,24 +15,45 @@ uniform float upperBound;
 uniform float lowerBound;
 
 uniform vec4 tint;
+uniform int isAnimated;
+
+uniform float time;
 
 #pragma include("color")
+#pragma include("animation")
 
 void main()
 {
-    vec4 color = texture(sampler, vec3(texCoord, textureId));
+    const int BLOCK_MODE = 0;
+    const int FLUID_MODE = 1;
 
-    const int MODE_BLOCK = 0;
-    const int MODE_FLUID = 1;
+    int animatedTextureId;
 
     switch (mode)
     {
-        case MODE_BLOCK:
+        case BLOCK_MODE:
+        animatedTextureId = animation_block(textureId, time);
+        break;
+
+        case FLUID_MODE:
+        animatedTextureId = animation_fluid(textureId, time);
+        break;
+
+        default :
+        animatedTextureId = textureId;
+        break;
+    }
+
+    vec4 color = texture(sampler, vec3(texCoord, (isAnimated != 0) ? animatedTextureId : textureId));
+
+    switch (mode)
+    {
+        case BLOCK_MODE:
         outputColor = color_select(color, 1.0, tint);
         break;
 
-        case MODE_FLUID:
-        outputColor = color;
+        case FLUID_MODE:
+        outputColor = color * tint;
         break;
 
         default :

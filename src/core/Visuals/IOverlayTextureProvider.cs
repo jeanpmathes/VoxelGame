@@ -7,7 +7,8 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 /// <param name="TextureIdentifier">The texture identifier, in the texture space of the content type.</param>
 /// <param name="Tint">The tint color.</param>
-public record struct OverlayTexture(int TextureIdentifier, TintColor Tint);
+/// <param name="IsAnimated">Whether the texture is animated.</param>
+public record struct OverlayTexture(int TextureIdentifier, TintColor Tint, bool IsAnimated);
 
 /// <summary>
 ///     Provides an overlay texture index.
@@ -22,4 +23,3 @@ public interface IOverlayTextureProvider
     /// <returns>The overlay texture.</returns>
     OverlayTexture GetOverlayTexture(Content content);
 }
-
