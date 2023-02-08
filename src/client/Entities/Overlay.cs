@@ -120,5 +120,20 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
 
         return (newLowerBound, newUpperBound);
     }
+
+    /// <summary>
+    ///     Apply the tint of the world position, if the overlay texture tint is neutral.
+    /// </summary>
+    /// <returns>A new overlay texture with the tint applied.</returns>
+    public OverlayTexture GetWithAppliedTint(World world)
+    {
+        if (!Texture.Tint.IsNeutral) return Texture;
+
+        (TintColor block, TintColor fluid) = world.Map.GetPositionTint(Position);
+
+        if (IsBlock) return Texture with {Tint = block};
+
+        return Texture with {Tint = fluid};
+    }
 }
 

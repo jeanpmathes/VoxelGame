@@ -122,8 +122,8 @@ public sealed class PlayerVisualization : IDisposable
 
         Overlay selected = overlays.OrderByDescending(o => o.Size).ThenBy(o => (o.Position - player.Position).Length).First();
 
-        if (selected.IsBlock) overlay.SetBlockTexture(selected.Texture);
-        else overlay.SetFluidTexture(selected.Texture);
+        if (selected.IsBlock) overlay.SetBlockTexture(selected.GetWithAppliedTint(player.World));
+        else overlay.SetFluidTexture(selected.GetWithAppliedTint(player.World));
 
         renderOverlay = true;
 
@@ -211,3 +211,4 @@ public sealed class PlayerVisualization : IDisposable
 
     #endregion IDisposable Support
 }
+

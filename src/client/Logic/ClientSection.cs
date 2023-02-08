@@ -8,7 +8,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
@@ -97,15 +96,10 @@ public class ClientSection : Section
     /// <param name="position">The position of the section.</param>
     /// <param name="chunkContext">The chunk context to use.</param>
     /// <returns>The created mesh data.</returns>
-    [SuppressMessage(
-        "Blocker Code Smell",
-        "S2437:Silly bit operations should not be performed",
-        Justification = "Improves readability.")]
     public SectionMeshData CreateMeshData(SectionPosition position, ChunkMeshingContext chunkContext)
     {
         MeshingContext context = new(position, chunkContext);
 
-        // Loop through the section
         for (var x = 0; x < Size; x++)
         for (var y = 0; y < Size; y++)
         for (var z = 0; z < Size; z++)
