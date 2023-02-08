@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
@@ -38,9 +38,14 @@ public class TintedBlock : BasicBlock, IWideConnectable
     {
         return base.GetMeshData(info) with
         {
-            Tint = ((BlockColor) (0b01_1111 & info.Data)).ToTintColor(),
+            Tint = GetTintColor(info.Data),
             IsAnimated = isAnimated
         };
+    }
+
+    private static TintColor GetTintColor(uint data)
+    {
+        return ((BlockColor) (0b01_1111 & data)).ToTintColor();
     }
 
     /// <inheritdoc />

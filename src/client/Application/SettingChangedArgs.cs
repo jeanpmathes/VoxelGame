@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 namespace VoxelGame.Client.Application;
 
@@ -14,3 +14,4 @@ namespace VoxelGame.Client.Application;
 /// <param name="NewValue">The new value of the setting.</param>
 /// <typeparam name="T">The type of the setting value.</typeparam>
 public record SettingChangedArgs<T>(GeneralSettings Settings, T OldValue, T NewValue);
+

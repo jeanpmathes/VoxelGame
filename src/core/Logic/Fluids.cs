@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -95,7 +95,7 @@ public class Fluids
         nameof(Water),
         density: 997f,
         1 * mPas,
-        neutralTint: false,
+        hasNeutralTint: false,
         TextureLayout.Fluid("water_moving_side", "water_moving"),
         TextureLayout.Fluid("water_static_side", "water_static"),
         RenderType.Transparent);
@@ -108,7 +108,7 @@ public class Fluids
         nameof(Milk),
         density: 1033f,
         2 * mPas,
-        neutralTint: false,
+        hasNeutralTint: false,
         TextureLayout.Fluid("milk_moving_side", "milk_moving"),
         TextureLayout.Fluid("milk_static_side", "milk_static"));
 
@@ -120,7 +120,7 @@ public class Fluids
         nameof(Steam),
         density: 0.5f,
         (int) (0.25 * mPas),
-        neutralTint: false,
+        hasNeutralTint: false,
         TextureLayout.Fluid("steam_moving_side", "steam_moving"),
         TextureLayout.Fluid("steam_static_side", "steam_static"),
         RenderType.Transparent);
@@ -133,7 +133,7 @@ public class Fluids
         nameof(Lava),
         density: 3100f,
         15 * mPas,
-        neutralTint: false,
+        hasNeutralTint: false,
         TextureLayout.Fluid("lava_moving_side", "lava_moving"),
         TextureLayout.Fluid("lava_static_side", "lava_static"));
 
@@ -145,7 +145,7 @@ public class Fluids
         nameof(CrudeOil),
         density: 870f,
         8 * mPas,
-        neutralTint: false,
+        hasNeutralTint: false,
         TextureLayout.Fluid("oil_moving_side", "oil_moving"),
         TextureLayout.Fluid("oil_static_side", "oil_static"));
 
@@ -157,7 +157,7 @@ public class Fluids
         nameof(NaturalGas),
         density: 0.8f,
         (int) (0.5 * mPas),
-        neutralTint: false,
+        hasNeutralTint: false,
         TextureLayout.Fluid("gas_moving_side", "gas_moving"),
         TextureLayout.Fluid("gas_static_side", "gas_static"),
         RenderType.Transparent);
@@ -181,7 +181,7 @@ public class Fluids
         nameof(Honey),
         density: 1450f,
         20 * mPas,
-        neutralTint: false,
+        hasNeutralTint: false,
         TextureLayout.Fluid("honey_moving_side", "honey_moving"),
         TextureLayout.Fluid("honey_static_side", "honey_static"),
         RenderType.Transparent);
@@ -194,7 +194,7 @@ public class Fluids
         nameof(Petrol),
         density: 740f,
         (int) (0.9 * mPas),
-        neutralTint: false,
+        hasNeutralTint: false,
         TextureLayout.Fluid("petrol_moving_side", "petrol_moving"),
         TextureLayout.Fluid("petrol_static_side", "petrol_static"),
         RenderType.Transparent);
@@ -207,7 +207,7 @@ public class Fluids
         nameof(Wine),
         density: 1090f,
         (int) (1.4 * mPas),
-        neutralTint: false,
+        hasNeutralTint: false,
         TextureLayout.Fluid("wine_moving_side", "wine_moving"),
         TextureLayout.Fluid("wine_static_side", "wine_static"),
         RenderType.Transparent);
@@ -220,7 +220,7 @@ public class Fluids
         nameof(Beer),
         density: 1030f,
         (int) (1.5 * mPas),
-        neutralTint: false,
+        hasNeutralTint: false,
         TextureLayout.Fluid("beer_moving_side", "beer_moving"),
         TextureLayout.Fluid("beer_static_side", "beer_static"),
         RenderType.Transparent);
@@ -273,3 +273,6 @@ public class Fluids
         Instance = new Fluids(indexProvider);
     }
 }
+
+
+

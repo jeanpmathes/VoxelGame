@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections;
 using System.Collections.Generic;
@@ -88,3 +88,4 @@ public class Array3D<T> : IEnumerable<T>
         GetRef(position.X, position.Y, position.Z) = value;
     }
 }
+

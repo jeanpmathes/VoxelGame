@@ -9,12 +9,13 @@
       <Version>1.2.0</Version>
       <Platforms>x64</Platforms>
       <ApplicationIcon>vg_icon.ico</ApplicationIcon>
-      <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
+      <CodeAnalysisRuleSet>..\..\.sonarlint\jeanpmathes_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
       <Configurations>Debug;Release;Manual</Configurations>
       <StartupObject>VoxelGame.Client.Program</StartupObject>
       <PackageLicenseExpression>MIT License</PackageLicenseExpression>
       <LangVersion>10</LangVersion>
       <PackageVersion>1.3.0</PackageVersion>
+      <Authors>jeanpmathes</Authors>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -48,36 +49,36 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+    <AdditionalFiles Include="..\..\.sonarlint\jeanpmathes_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml"/>
   </ItemGroup>
 
   <ItemGroup>
-      <PackageReference Include="JetBrains.Annotations" Version="2021.3.0"/>
-      <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
-      <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0"/>
-      <PackageReference Include="OpenTK" Version="4.7.1"/>
-      <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0"/>
-      <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
-      <PackageReference Include="System.Drawing.Common" Version="5.0.3"/>
+    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0"/>
+    <PackageReference Include="OpenTK" Version="4.7.1"/>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0"/>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
+    <PackageReference Include="System.Drawing.Common" Version="5.0.3"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\core\VoxelGame.Core.csproj" />
-    <ProjectReference Include="..\graphics\VoxelGame.Graphics.csproj" />
-    <ProjectReference Include="..\input\VoxelGame.Input.csproj" />
-      <ProjectReference Include="..\manual\VoxelGame.Manual.csproj"/>
-    <ProjectReference Include="..\ui\VoxelGame.UI.csproj" />
+    <ProjectReference Include="..\core\VoxelGame.Core.csproj"/>
+    <ProjectReference Include="..\graphics\VoxelGame.Graphics.csproj"/>
+    <ProjectReference Include="..\input\VoxelGame.Input.csproj"/>
+    <ProjectReference Include="..\manual\VoxelGame.Manual.csproj"/>
+    <ProjectReference Include="..\ui\VoxelGame.UI.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
     <Compile Update="Settings.Designer.cs">
-        <DesignTimeSharedInput>True</DesignTimeSharedInput>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
   </ItemGroup>
 
@@ -597,46 +598,46 @@
     <None Update="Resources\Textures\UI\crosshair.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-      <None Update="Resources\Models\fire_complete.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Models\fire_side.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Models\fire_top.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Shaders\decode.glsl">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Shaders\color.glsl">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Utilities\modelexporter.py">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      </None>
-      <None Remove="Resources\Textures\Blocks\liquid_barrier_closed.png"/>
-      <None Remove="Resources\Textures\Blocks\liquid_barrier_open.png"/>
-      <None Update="Resources\Textures\Blocks\core.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Textures\Blocks\limestone.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Textures\Blocks\marble.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Textures\Blocks\sandstone.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Textures\Blocks\clay.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Textures\Blocks\permafrost.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Textures\Blocks\ice.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="Resources\Models\fire_complete.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Models\fire_side.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Models\fire_top.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Shaders\decode.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Shaders\color.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Utilities\modelexporter.py">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Remove="Resources\Textures\Blocks\liquid_barrier_closed.png"/>
+    <None Remove="Resources\Textures\Blocks\liquid_barrier_open.png"/>
+    <None Update="Resources\Textures\Blocks\core.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Textures\Blocks\limestone.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Textures\Blocks\marble.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Textures\Blocks\sandstone.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Textures\Blocks\clay.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Textures\Blocks\permafrost.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Textures\Blocks\ice.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Shaders\transparent_fluid_section_accumulate.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -648,6 +649,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Textures\Blocks\roots.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Shaders\animation.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

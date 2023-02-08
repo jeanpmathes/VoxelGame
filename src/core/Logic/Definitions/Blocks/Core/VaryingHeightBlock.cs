@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 ///     Data bit usage: <c>--hhhh</c>
 /// </summary>
 // h: height
-public class VaryingHeightBlock : Block, IVaryingHeight, IOverlayTextureProvider
+public class VaryingHeightBlock : Block, IVaryingHeight
 {
     private readonly TextureLayout layout;
 
@@ -41,9 +41,6 @@ public class VaryingHeightBlock : Block, IVaryingHeight, IOverlayTextureProvider
     ///     Get the block data for a full height block.
     /// </summary>
     public BlockInstance FullHeightInstance => GetInstance(IVaryingHeight.MaximumHeight);
-
-    /// <inheritdoc />
-    public int TextureIdentifier => layout.Bottom;
 
     /// <inheritdoc />
     public virtual int GetHeight(uint data)
@@ -89,5 +86,4 @@ public class VaryingHeightBlock : Block, IVaryingHeight, IOverlayTextureProvider
         return volumes[(int) data & 0b00_1111];
     }
 }
-
 

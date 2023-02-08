@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 
@@ -20,3 +20,4 @@ public interface IAshCoverable : IBlockBase
     /// <param name="position">The position of the block.</param>
     public void CoverWithAsh(World world, Vector3i position);
 }
+

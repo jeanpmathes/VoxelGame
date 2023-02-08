@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Drawing;
 using OpenTK.Mathematics;
@@ -53,3 +53,4 @@ public static class Colors
             (int) (MathHelper.Clamp(b, min: 0, max: 1) * 255));
     }
 }
+

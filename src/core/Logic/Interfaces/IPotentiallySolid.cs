@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 
@@ -21,3 +21,4 @@ public interface IPotentiallySolid : IBlockBase
     /// <param name="position">The position of the block.</param>
     void BecomeSolid(World world, Vector3i position);
 }
+

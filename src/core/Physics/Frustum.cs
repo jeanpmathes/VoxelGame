@@ -2,11 +2,12 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
-using System.Linq;
+using System.Diagnostics;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Physics;
 
@@ -15,15 +16,6 @@ namespace VoxelGame.Core.Physics;
 /// </summary>
 public readonly struct Frustum : IEquatable<Frustum>
 {
-    private readonly Plane[] planes;
-
-    private const int PlaneNear = 0;
-    private const int PlaneFar = 1;
-    private const int PlaneLeft = 2;
-    private const int PlaneRight = 3;
-    private const int PlaneBottom = 4;
-    private const int PlaneTop = 5;
-
     /// <summary>
     ///     Create a new frustum.
     /// </summary>
@@ -37,30 +29,68 @@ public readonly struct Frustum : IEquatable<Frustum>
     public Frustum(double fovY, double ratio, (double near, double far) clip,
         Vector3d position, Vector3d direction, Vector3d up, Vector3d right)
     {
+        Debug.Assert(clip.near < clip.far);
+        Debug.Assert(clip.near >= 0.0);
+
         direction.Normalize();
         up.Normalize();
         right.Normalize();
 
-        (double wNear, double hNear) = GetDimensionsAt(clip.near, fovY, ratio);
+        this.right = right;
+        this.up = up;
+
+        (wNear, hNear) = GetDimensionsAt(clip.near, fovY, ratio);
+        (wFar, hFar) = GetDimensionsAt(clip.far, fovY, ratio);
 
         Vector3d nc = position + direction * clip.near;
         Vector3d fc = position + direction * clip.far;
 
-        Vector3d nl = Vector3d.Cross((nc - right * wNear / 2.0 - position).Normalized(), up);
-        Vector3d nr = Vector3d.Cross(up, (nc + right * wNear / 2.0 - position).Normalized());
+        Vector3d nl = Vector3d.Cross((fc - right * wFar / 2.0 - position).Normalized(), up);
+        Vector3d nr = Vector3d.Cross(up, (fc + right * wFar / 2.0 - position).Normalized());
 
-        Vector3d nb = Vector3d.Cross(right, (nc - up * hNear / 2.0 - position).Normalized());
-        Vector3d nt = Vector3d.Cross((nc + up * hNear / 2.0 - position).Normalized(), right);
+        Vector3d nb = Vector3d.Cross(right, (fc - up * hFar / 2.0 - position).Normalized());
+        Vector3d nt = Vector3d.Cross((fc + up * hFar / 2.0 - position).Normalized(), right);
 
-        planes = new[]
-        {
-            new Plane(direction, nc), // Near.
-            new Plane(-direction, fc), // Far.
-            new Plane(nl, position), // Left.
-            new Plane(nr, position), // Right.
-            new Plane(nb, position), // Bottom.
-            new Plane(nt, position) // Top.
-        };
+        Near = new Plane(direction, nc);
+        Far = new Plane(-direction, fc);
+        Left = new Plane(nl, position);
+        Right = new Plane(nr, position);
+        Bottom = new Plane(nb, position);
+        Top = new Plane(nt, position);
+    }
+
+    private Vector3d GetPositionOnNearPlane(double x, double y)
+    {
+        return Near.Point + x * right * wNear / 2.0 + y * up * hNear / 2.0;
+    }
+
+    private Vector3d GetPositionOnFarPlane(double x, double y)
+    {
+        return Far.Point + x * right * wFar / 2.0 + y * up * hFar / 2.0;
+    }
+
+    private readonly Vector3d right;
+    private readonly Vector3d up;
+    private readonly double wNear;
+    private readonly double hNear;
+    private readonly double wFar;
+    private readonly double hFar;
+
+    private Frustum(Frustum original, Vector3d offset)
+    {
+        Near = original.Near.Translated(offset);
+        Far = original.Far.Translated(offset);
+        Left = original.Left.Translated(offset);
+        Right = original.Right.Translated(offset);
+        Bottom = original.Bottom.Translated(offset);
+        Top = original.Top.Translated(offset);
+
+        right = original.right;
+        up = original.up;
+        wNear = original.wNear;
+        hNear = original.hNear;
+        wFar = original.wFar;
+        hFar = original.hFar;
     }
 
     /// <summary>
@@ -81,55 +111,193 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <summary>
     ///     Get the near plane.
     /// </summary>
-    public Plane Near => planes[PlaneNear];
+    public Plane Near { get; }
 
     /// <summary>
     ///     Get the far plane.
     /// </summary>
-    public Plane Far => planes[PlaneFar];
+    public Plane Far { get; }
 
     /// <summary>
     ///     Get the left plane.
     /// </summary>
-    public Plane Left => planes[PlaneLeft];
+    public Plane Left { get; }
 
     /// <summary>
     ///     Get the right plane.
     /// </summary>
-    public Plane Right => planes[PlaneRight];
+    public Plane Right { get; }
 
     /// <summary>
     ///     Get the bottom plane.
     /// </summary>
-    public Plane Bottom => planes[PlaneBottom];
+    public Plane Bottom { get; }
 
     /// <summary>
     ///     Get the top plane.
     /// </summary>
-    public Plane Top => planes[PlaneTop];
+    public Plane Top { get; }
+
+    private Plane GetPlane(int index)
+    {
+        return index switch
+        {
+            0 => Near,
+            1 => Far,
+            2 => Left,
+            3 => Right,
+            4 => Bottom,
+            5 => Top,
+            _ => throw new ArgumentOutOfRangeException(nameof(index), index, message: null)
+        };
+    }
+
+    private static void SetBoxNormals(Span<Vector3d> normals)
+    {
+        normals[index: 0] = Vector3d.UnitX;
+        normals[index: 1] = Vector3d.UnitY;
+        normals[index: 2] = Vector3d.UnitZ;
+    }
+
+    private void SetFrustumNormals(Span<Vector3d> normals)
+    {
+        normals[index: 0] = Near.Normal;
+        normals[index: 1] = Left.Normal;
+        normals[index: 2] = Right.Normal;
+        normals[index: 3] = Bottom.Normal;
+        normals[index: 4] = Top.Normal;
+    }
+
+    private void SetCrossEdges(Span<Vector3d> normals)
+    {
+        void AddEdge(Span<Vector3d> destination, Vector3d edge)
+        {
+            destination[index: 0] = Vector3d.Cross(edge, Vector3d.UnitX);
+            destination[index: 1] = Vector3d.Cross(edge, Vector3d.UnitY);
+            destination[index: 2] = Vector3d.Cross(edge, Vector3d.UnitZ);
+        }
+
+        Vector3d edge0 = GetPositionOnFarPlane(x: -1.0, y: -1.0) - GetPositionOnFarPlane(x: 1.0, y: -1.0);
+        AddEdge(normals[..], edge0);
+
+        Vector3d edge1 = GetPositionOnFarPlane(x: -1.0, y: -1.0) - GetPositionOnFarPlane(x: -1.0, y: 1.0);
+        AddEdge(normals[3..], edge1);
+
+        Vector3d edge2 = GetPositionOnFarPlane(x: -1.0, y: -1.0) - GetPositionOnNearPlane(x: -1.0, y: -1.0);
+        AddEdge(normals[6..], edge2);
+
+        Vector3d edge3 = GetPositionOnFarPlane(x: -1.0, y: 1.0) - GetPositionOnNearPlane(x: -1.0, y: 1.0);
+        AddEdge(normals[9..], edge3);
+
+        Vector3d edge4 = GetPositionOnFarPlane(x: 1.0, y: -1.0) - GetPositionOnNearPlane(x: 1.0, y: -1.0);
+        AddEdge(normals[12..], edge4);
+
+        Vector3d edge5 = GetPositionOnFarPlane(x: 1.0, y: 1.0) - GetPositionOnNearPlane(x: 1.0, y: 1.0);
+        AddEdge(normals[15..], edge5);
+    }
+
+    private static (double min, double max) ProjectBox(Box3d box, Vector3d axis)
+    {
+        double radius = Math.Abs(Vector3d.Dot(box.HalfSize, axis.Absolute()));
+        double distance = Vector3d.Dot(box.Center, axis);
+
+        return (distance - radius, distance + radius);
+    }
+
+    private (double min, double max) ProjectFrustum(Vector3d axis)
+    {
+        Span<Vector3d> corners = stackalloc Vector3d[8];
+
+        corners[index: 0] = GetPositionOnNearPlane(x: -1.0, y: -1.0);
+        corners[index: 1] = GetPositionOnNearPlane(x: -1.0, y: 1.0);
+        corners[index: 2] = GetPositionOnNearPlane(x: 1.0, y: -1.0);
+        corners[index: 3] = GetPositionOnNearPlane(x: 1.0, y: 1.0);
+
+        corners[index: 4] = GetPositionOnFarPlane(x: -1.0, y: -1.0);
+        corners[index: 5] = GetPositionOnFarPlane(x: -1.0, y: 1.0);
+        corners[index: 6] = GetPositionOnFarPlane(x: 1.0, y: -1.0);
+        corners[index: 7] = GetPositionOnFarPlane(x: 1.0, y: 1.0);
+
+        var min = double.MaxValue;
+        var max = double.MinValue;
+
+        foreach (Vector3d corner in corners)
+        {
+            double dot = Vector3d.Dot(axis, corner);
+            min = Math.Min(min, dot);
+            max = Math.Max(max, dot);
+        }
+
+        return (min, max);
+    }
 
     /// <summary>
     ///     Check whether a <see cref="Box3" /> is inside this <see cref="Frustum" />.
+    ///     This is an exact test which is more expensive than <see cref="IsBoxVisible" />.
+    ///     No false-positive results are allowed.
     /// </summary>
     /// <returns>true if the <see cref="Box3" /> is inside; false if not.</returns>
     public bool IsBoxInFrustum(Box3d volume)
     {
-        for (var i = 0; i < 6; i++)
-        {
-            double px = planes[i].Normal.X < 0 ? volume.Min.X : volume.Max.X;
-            double py = planes[i].Normal.Y < 0 ? volume.Min.Y : volume.Max.Y;
-            double pz = planes[i].Normal.Z < 0 ? volume.Min.Z : volume.Max.Z;
+        const int boxNormalCount = 3;
+        const int frustumNormalCount = 5;
+        const int crossEdgeCount = 3 * 6;
 
-            if (planes[i].Distance(new Vector3d(px, py, pz)) < 0) return false;
+        Span<Vector3d> normals = stackalloc Vector3d[boxNormalCount + frustumNormalCount + crossEdgeCount];
+
+        SetBoxNormals(normals);
+        SetFrustumNormals(normals[boxNormalCount..]);
+        SetCrossEdges(normals[(boxNormalCount + frustumNormalCount)..]);
+
+        foreach (Vector3d normal in normals)
+        {
+            (double min, double max) boxProjection = ProjectBox(volume, normal);
+            (double min, double max) frustumProjection = ProjectFrustum(normal);
+
+            if (boxProjection.max < frustumProjection.min || boxProjection.min > frustumProjection.max) return false;
         }
 
         return true;
     }
 
+    /// <summary>
+    ///     Check whether a <see cref="Box3" /> is visible in this <see cref="Frustum" />.
+    ///     This differs from <see cref="IsBoxInFrustum" /> in that a box false-positives are possible,
+    ///     e.g. a box is not culled despite being outside the frustum.
+    /// </summary>
+    /// <returns><c>true</c> if the <see cref="Box3" /> is visible; <c>false</c> if not.</returns>
+    public bool IsBoxVisible(Box3d volume)
+    {
+        for (var i = 0; i < 6; i++)
+        {
+            Plane plane = GetPlane(i);
+
+            double px = plane.Normal.X < 0 ? volume.Min.X : volume.Max.X;
+            double py = plane.Normal.Y < 0 ? volume.Min.Y : volume.Max.Y;
+            double pz = plane.Normal.Z < 0 ? volume.Min.Z : volume.Max.Z;
+
+            if (plane.GetDistanceTo(new Vector3d(px, py, pz)) < 0) return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Get a translated frustum.
+    /// </summary>
+    public Frustum Translated(Vector3d offset)
+    {
+        return new Frustum(this, offset);
+    }
+
     /// <inheritdoc />
     public bool Equals(Frustum other)
     {
-        return planes.SequenceEqual(other.planes);
+        for (var i = 0; i < 6; i++)
+            if (!GetPlane(i).Equals(other.GetPlane(i)))
+                return false;
+
+        return true;
     }
 
     /// <inheritdoc />
@@ -141,7 +309,7 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        return planes.GetHashCode();
+        return HashCode.Combine(Near, Far, Left, Right, Bottom, Top);
     }
 
     /// <summary>
@@ -160,3 +328,4 @@ public readonly struct Frustum : IEquatable<Frustum>
         return !left.Equals(right);
     }
 }
+

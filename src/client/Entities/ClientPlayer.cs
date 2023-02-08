@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,7 +11,6 @@ using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
@@ -36,19 +35,16 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     private readonly Vector3d maxForce = new(x: 500f, y: 0f, z: 500f);
     private readonly Vector3d maxSwimForce = new(x: 0f, y: 2500f, z: 0f);
 
+    private readonly PlacementSelection selector;
+
     private readonly float speed = 4f;
     private readonly float sprintSpeed = 6f;
     private readonly float swimSpeed = 4f;
 
     private readonly PlayerVisualization visualization;
-
-    private Block activeBlock;
-    private Fluid activeFluid;
-
-    private bool blockMode = true;
-
-    private bool firstUpdate = true;
     private Vector3i headPosition;
+
+    private bool isFirstUpdate = true;
 
     private Vector3d movement;
 
@@ -75,8 +71,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
         visualization = new PlayerVisualization(this, ui);
         input = new PlayerInput(this);
 
-        activeBlock = Blocks.Instance.Grass;
-        activeFluid = Fluids.Instance.Water;
+        selector = new PlacementSelection(input, () => targetBlock?.Block);
     }
 
     /// <summary>
@@ -154,9 +149,9 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
     double IPlayerDataProvider.Temperature => World.Map.GetTemperature(Position);
 
-    string IPlayerDataProvider.Selection => blockMode ? activeBlock.Name : activeFluid.Name;
+    string IPlayerDataProvider.Selection => selector.SelectionName;
 
-    string IPlayerDataProvider.Mode => blockMode ? Language.Block : Language.Fluid;
+    string IPlayerDataProvider.Mode => selector.ModeName;
 
     /// <summary>
     ///     Teleport the player to a new position.
@@ -227,7 +222,6 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
         UpdateTargets();
 
-        // Do input handling.
         if (Screen.IsFocused)
         {
             if (!Screen.IsOverlayLockActive)
@@ -245,63 +239,33 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
             SetBlockAndFluidOverlays();
 
-            firstUpdate = false;
+            isFirstUpdate = false;
         }
 
         visualization.Update();
         input.Update(deltaTime);
     }
 
+    private void DoBlockFluidSelection()
+    {
+        bool isUpdated = selector.DoBlockFluidSelection();
+        if (isUpdated || isFirstUpdate) visualization.UpdateData();
+    }
+
     private void SetBlockAndFluidOverlays()
     {
-        Vector3d center = camera.Position;
+        Vector3i center = camera.Position.Floor();
+        Frustum frustum = camera.GetPartialFrustum(near: 0.0, camera.NearClipping);
 
-        const double distance = 0.1;
-        (double width, double height) = camera.GetDimensionsAt(distance);
+        IEnumerable<(Content content, Vector3i position)> positions = Raycast.CastFrustum(World, center, range: 1, frustum);
 
-        List<Vector3d> samplePoints = new()
-        {
-            center,
-            center + camera.Up * height,
-            center - camera.Up * height,
-            center + camera.Right * width,
-            center - camera.Right * width,
-            center + camera.Front * distance,
-            center - camera.Front * distance
-        };
-
-        List<Vector3i> samplePositions = new();
-
-        foreach (Vector3d samplePoint in samplePoints)
-        {
-            Vector3i samplePosition = samplePoint.Floor();
-
-            if (samplePositions.Contains(samplePosition)) continue;
-
-            samplePositions.Add(samplePosition);
-        }
-
-        samplePositions.Sort((a, b) => Vector3d.Distance(a, center).CompareTo(Vector3d.Distance(b, center)));
-        samplePositions.Reverse();
-
-        visualization.ClearOverlay();
-
-        foreach (Vector3d point in samplePoints)
-        {
-            Content? sampledContent = World.GetContent(point.Floor());
-
-            if (sampledContent is not var (block, fluid)) continue;
-
-            visualization.AddOverlay(block, fluid, point.Floor());
-        }
-
-        visualization.FinalizeOverlay();
+        visualization.BuildOverlay(positions);
     }
 
     private void UpdateTargets()
     {
         var ray = new Ray(camera.Position, camera.Front, length: 6f);
-        (Vector3i, BlockSide)? hit = Raycast.CastBlock(World, ray);
+        (Vector3i, BlockSide)? hit = Raycast.CastBlockRay(World, ray);
 
         if (hit is var (hitPosition, hitSide) && World.GetContent(hitPosition) is var (block, fluid))
         {
@@ -381,14 +345,13 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
             if (!currentTarget.Block.IsReplaceable) placePosition = targetSide.Offset(placePosition);
 
             // Prevent block placement if the block would intersect the player.
-            if (!blockMode || !activeBlock.IsSolid || !Collider.Intersects(
-                    activeBlock.GetCollider(World, placePosition)))
-            {
-                if (blockMode) activeBlock.Place(World, placePosition, this);
-                else activeFluid.Fill(World, placePosition, FluidLevel.One, BlockSide.Top, out _);
+            if (selector is {IsBlockMode: true, ActiveBlock.IsSolid: true} && Collider.Intersects(
+                    selector.ActiveBlock.GetCollider(World, placePosition))) return;
 
-                input.RegisterInteraction();
-            }
+            if (selector.IsBlockMode) selector.ActiveBlock.Place(World, placePosition, this);
+            else selector.ActiveFluid.Fill(World, placePosition, FluidLevel.One, BlockSide.Top, out _);
+
+            input.RegisterInteraction();
         }
         else if (currentTarget.Block.IsInteractable)
         {
@@ -404,7 +367,7 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
         if (input.ShouldDestroy)
         {
-            if (blockMode) currentTarget.Block.Destroy(World, targetedPosition, this);
+            if (selector.IsBlockMode) currentTarget.Block.Destroy(World, targetedPosition, this);
             else TakeFluid(targetedPosition);
 
             input.RegisterInteraction();
@@ -419,57 +382,6 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
 
             World.GetFluid(position)?.Fluid.Take(World, position, ref level);
         }
-    }
-
-    private void DoBlockFluidSelection()
-    {
-        var updateData = false;
-
-        updateData |= SelectMode();
-        updateData |= SelectFromList();
-        updateData |= SelectTargeted();
-
-        if (updateData || firstUpdate) visualization.UpdateData();
-    }
-
-    private bool SelectMode()
-    {
-        if (!input.ShouldChangePlacementMode) return false;
-
-        blockMode = !blockMode;
-
-        return true;
-    }
-
-    private bool SelectFromList()
-    {
-        int change = input.GetSelectionChange();
-
-        if (change == 0) return false;
-
-        if (blockMode)
-        {
-            long nextBlockId = activeBlock.ID + change;
-            nextBlockId = VMath.ClampRotating(nextBlockId, min: 1, Blocks.Instance.Count);
-            activeBlock = Blocks.Instance.TranslateID((uint) nextBlockId);
-        }
-        else
-        {
-            long nextFluidId = activeFluid.ID + change;
-            nextFluidId = VMath.ClampRotating(nextFluidId, min: 1, Fluids.Instance.Count);
-            activeFluid = Fluids.Instance.TranslateID((uint) nextFluidId);
-        }
-
-        return true;
-    }
-
-    private bool SelectTargeted()
-    {
-        if (!input.ShouldSelectTargeted || !blockMode) return false;
-
-        activeBlock = targetBlock?.Block ?? activeBlock;
-
-        return true;
     }
 
     #region IDisposable Support

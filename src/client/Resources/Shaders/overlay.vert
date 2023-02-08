@@ -12,7 +12,8 @@ out float height;
 void main()
 {
 	texCoord = aTexCoord;
-	gl_Position = vec4(aPosition, 1.0) * projection;
+	vec4 position = vec4(aPosition, 1.0) * projection;
+	height = (position.y + 1) * 0.5;
 
-	height = (gl_Position.y + 1) * 0.5;
+	gl_Position = position;
 }

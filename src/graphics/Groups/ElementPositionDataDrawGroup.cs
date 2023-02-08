@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using OpenTK.Graphics.OpenGL4;
@@ -142,3 +142,4 @@ public class ElementPositionDataDrawGroup : IDrawGroup
         GL.DeleteVertexArray(vao);
     }
 }
+

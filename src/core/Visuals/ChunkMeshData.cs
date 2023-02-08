@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Diagnostics;
 using VoxelGame.Core.Collections;
@@ -166,3 +166,4 @@ public class SectionMeshData
     public readonly PooledList<int> varyingHeightVertexData;
     #pragma warning restore
 }
+

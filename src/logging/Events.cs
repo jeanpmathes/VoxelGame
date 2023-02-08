@@ -5,7 +5,7 @@
 //     Parts of the documentation of this file are from the OpenGL wiki.
 //
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 namespace VoxelGame.Logging;
 
@@ -288,5 +288,4 @@ public static class Events
 
     #endregion RENDERING AND VISUALS
 }
-
 

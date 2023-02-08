@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 
@@ -54,3 +54,4 @@ public class SectionGrid : IGrid
         section.SetContent(localPosition.x, localPosition.y, localPosition.z, Section.Encode(content));
     }
 }
+

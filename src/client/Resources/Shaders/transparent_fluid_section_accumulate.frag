@@ -23,6 +23,8 @@ uniform float time;
 uniform float nearPlane;
 uniform float farPlane;
 
+#pragma include("animation")
+
 float linearize_depth(float z_b, float zNear, float zFar)
 {
     float z_n = 2.0 * z_b - 1.0;
@@ -38,7 +40,7 @@ vec3 saturate(vec3 rgb, float adjustment)
 
 void main()
 {
-    vec4 color = texture(arrayTexture, vec3(texCoord, texIndex + int(mod(time * 16, 16))));
+    vec4 color = texture(arrayTexture, vec3(texCoord, animation_fluid(texIndex, time)));
     float depth = texelFetch(depthTexture, ivec2(int(gl_FragCoord.x), int(gl_FragCoord.y)), 0).x;
 
     color *= tint;

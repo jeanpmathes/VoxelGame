@@ -2,11 +2,12 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Groups;
 using VoxelGame.Logging;
@@ -18,18 +19,20 @@ namespace VoxelGame.Client.Rendering;
 /// </summary>
 public sealed class OverlayRenderer : IDisposable
 {
-    private const int ModeBlock = 0;
-    private const int ModeFluid = 1;
+    private const int BlockMode = 0;
+    private const int FluidMode = 1;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<OverlayRenderer>();
 
     private readonly ElementDrawGroup drawGroup;
+    private bool isAnimated;
 
     private float lowerBound;
 
-    private int mode = ModeBlock;
+    private int mode = BlockMode;
     private int samplerId;
 
     private int textureId;
+    private TintColor tint = TintColor.None;
     private float upperBound;
 
     /// <summary>
@@ -58,25 +61,35 @@ public sealed class OverlayRenderer : IDisposable
     /// <summary>
     ///     Set the texture to a block texture.
     /// </summary>
-    /// <param name="number">The number of the block texture.</param>
-    public void SetBlockTexture(int number)
+    /// <param name="texture">The texture to use.</param>
+    public void SetBlockTexture(OverlayTexture texture)
     {
-        samplerId = number / ArrayTexture.UnitSize + 1;
-        textureId = number % ArrayTexture.UnitSize;
+        samplerId = texture.TextureIdentifier / ArrayTexture.UnitSize + 1;
+        textureId = texture.TextureIdentifier % ArrayTexture.UnitSize;
 
-        mode = ModeBlock;
+        mode = BlockMode;
+
+        SetGeneralAttributes(texture);
     }
 
     /// <summary>
     ///     Set the texture to a fluid texture.
     /// </summary>
-    /// <param name="number">The number of the fluid texture.</param>
-    public void SetFluidTexture(int number)
+    /// <param name="texture">The texture to use.</param>
+    public void SetFluidTexture(OverlayTexture texture)
     {
         samplerId = 5;
-        textureId = number;
+        textureId = texture.TextureIdentifier;
 
-        mode = ModeFluid;
+        mode = FluidMode;
+
+        SetGeneralAttributes(texture);
+    }
+
+    private void SetGeneralAttributes(OverlayTexture texture)
+    {
+        tint = texture.Tint;
+        isAnimated = texture.IsAnimated;
     }
 
     /// <summary>
@@ -87,23 +100,29 @@ public sealed class OverlayRenderer : IDisposable
         if (disposed) return;
 
         GL.Enable(EnableCap.Blend);
+        GL.Disable(EnableCap.DepthTest);
 
         drawGroup.BindVertexArray();
 
         Shaders.Overlay.Use();
 
-        Shaders.Overlay.SetInt("texId", textureId);
-        Shaders.Overlay.SetInt("tex", samplerId);
+        Shaders.Overlay.SetInt("textureId", textureId);
+        Shaders.Overlay.SetInt("sampler", samplerId);
         Shaders.Overlay.SetInt("mode", mode);
 
         Shaders.Overlay.SetFloat("lowerBound", lowerBound);
         Shaders.Overlay.SetFloat("upperBound", upperBound);
 
+        Shaders.Overlay.SetColor4("tint", tint);
+        Shaders.Overlay.SetInt("isAnimated", isAnimated.ToInt());
+
         drawGroup.DrawElements(PrimitiveType.Triangles);
+
 
         GL.BindVertexArray(array: 0);
         GL.UseProgram(program: 0);
 
+        GL.Enable(EnableCap.DepthTest);
         GL.Disable(EnableCap.Blend);
     }
 

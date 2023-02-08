@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -35,3 +35,4 @@ public class KeyButtonPair
     /// </summary>
     public static KeyButtonPair DefaultValue => new() {Default = true};
 }
+

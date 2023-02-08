@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Console;
@@ -51,3 +51,4 @@ public class SceneFactory
         return new StartScene(client);
     }
 }
+

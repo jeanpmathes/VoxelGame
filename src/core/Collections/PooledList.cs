@@ -1,7 +1,7 @@
 ﻿// <copyright file="PooledList.cs" company="VoxelGame">
 //     Based on the implementation of System.Collections.Generic.List<T>
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using System.Buffers;

@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 namespace VoxelGame.Core.Collections;
 
@@ -114,3 +114,4 @@ public class UnionFind
         return size[Find(p)];
     }
 }
+

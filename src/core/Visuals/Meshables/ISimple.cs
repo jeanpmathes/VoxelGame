@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using System.Diagnostics;
@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Visuals.Meshables;
 /// <summary>
 ///     The meshable for blocks that use only simple full faces.
 /// </summary>
-public interface ISimple : IBlockMeshable
+public interface ISimple : IBlockMeshable, IOverlayTextureProvider
 {
     void IBlockMeshable.CreateMesh(Vector3i position, BlockMeshInfo info, MeshingContext context)
     {
@@ -67,10 +67,28 @@ public interface ISimple : IBlockMeshable
         MeshSimpleSide(BlockSide.Top);
     }
 
+
     /// <inheritdoc />
     void IBlockMeshable.Validate()
     {
         Debug.Assert(IsFull, "Simple blocks must be full.");
+    }
+
+    OverlayTexture IOverlayTextureProvider.GetOverlayTexture(Content content)
+    {
+        MeshData mesh = GetMeshData(new BlockMeshInfo
+        {
+            Data = content.Block.Data,
+            Fluid = content.Fluid.Fluid,
+            Side = BlockSide.Front
+        });
+
+        return new OverlayTexture
+        {
+            TextureIdentifier = mesh.TextureIndex,
+            Tint = mesh.Tint,
+            IsAnimated = mesh.IsAnimated
+        };
     }
 
     /// <summary>
@@ -176,4 +194,5 @@ public interface ISimple : IBlockMeshable
         }
     }
 }
+
 

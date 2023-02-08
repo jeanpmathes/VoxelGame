@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using VoxelGame.Client.Console;
@@ -108,5 +108,4 @@ public sealed class Game : IDisposable
 
     #endregion IDisposable Support
 }
-
 

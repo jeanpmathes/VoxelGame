@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
@@ -30,7 +30,7 @@ public class ConcreteFluid : BasicFluid
             namedId,
             density,
             viscosity,
-            neutralTint: false,
+            hasNeutralTint: false,
             movingLayout,
             staticLayout) {}
 
@@ -43,4 +43,6 @@ public class ConcreteFluid : BasicFluid
         Logic.Blocks.Instance.Specials.Concrete.Place(world, level, position);
     }
 }
+
+
 

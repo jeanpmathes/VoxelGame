@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using VoxelGame.Core.Logic;
 
@@ -19,3 +19,4 @@ public interface ITickable
     /// <param name="world">The world in which the tick occurs.</param>
     void Tick(World world);
 }
+

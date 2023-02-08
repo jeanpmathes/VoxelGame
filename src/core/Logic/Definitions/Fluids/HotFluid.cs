@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
@@ -18,7 +18,7 @@ public class HotFluid : BasicFluid
     /// <summary>
     ///     Create a new <see cref="HotFluid" />.
     /// </summary>
-    public HotFluid(string name, string namedId, float density, int viscosity, bool neutralTint,
+    public HotFluid(string name, string namedId, float density, int viscosity, bool hasNeutralTint,
         TextureLayout movingLayout, TextureLayout staticLayout,
         RenderType renderType = RenderType.Opaque) :
         base(
@@ -26,7 +26,7 @@ public class HotFluid : BasicFluid
             namedId,
             density,
             viscosity,
-            neutralTint,
+            hasNeutralTint,
             movingLayout,
             staticLayout,
             renderType) {}
@@ -60,4 +60,6 @@ public class HotFluid : BasicFluid
         }
     }
 }
+
+
 

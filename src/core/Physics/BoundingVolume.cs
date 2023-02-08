@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using OpenTK.Mathematics;
@@ -164,13 +164,30 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// </summary>
     public bool Contains(Vector3d point)
     {
-        if (Box.Contains(point))
+        if (Box.Contains(point, boundaryInclusive: true))
             return true;
 
-        if (ChildCount == 0 || !ChildBounds.Contains(point)) return false;
+        if (ChildCount == 0 || !ChildBounds.Contains(point, boundaryInclusive: true)) return false;
 
         for (var i = 0; i < ChildCount; i++)
             if (children[i].Contains(point))
+                return true;
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Check if this box intersects a frustum.
+    /// </summary>
+    public bool Intersects(Frustum frustum)
+    {
+        if (frustum.IsBoxInFrustum(Box)) return true;
+
+        if (ChildCount == 0) return false;
+        if (!frustum.IsBoxInFrustum(ChildBounds)) return false;
+
+        for (var i = 0; i < ChildCount; i++)
+            if (children[i].Intersects(frustum))
                 return true;
 
         return false;

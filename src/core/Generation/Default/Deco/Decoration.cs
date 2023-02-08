@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using System.Collections.Generic;
@@ -182,3 +182,4 @@ public abstract class Decoration
     /// <param name="Palette">The palette of the world generation.</param>
     public record struct PlacementContext(float Random, int Depth, Map.StoneType StoneType, Palette Palette);
 }
+

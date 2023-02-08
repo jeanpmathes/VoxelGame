@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using OpenTK.Mathematics;
@@ -22,7 +22,7 @@ public static class Collision
     /// <returns>True if the ray intersects the box.</returns>
     public static bool IsIntersecting(Box3d box, Ray ray)
     {
-        if (box.Contains(ray.Origin) || box.Contains(ray.EndPoint)) return true;
+        if (box.Contains(ray.Origin, boundaryInclusive: true) || box.Contains(ray.EndPoint, boundaryInclusive: true)) return true;
 
         var dirfrac = new Vector3d
         {

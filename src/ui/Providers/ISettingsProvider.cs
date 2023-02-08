@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using VoxelGame.UI.Settings;
@@ -34,3 +34,4 @@ public interface ISettingsProvider
         foreach (Setting setting in Settings) setting.Validate();
     }
 }
+

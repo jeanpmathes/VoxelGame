@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using VoxelGame.Core.Logic;
 
@@ -49,3 +49,4 @@ public readonly record struct FluidMeshInfo
         return new FluidMeshInfo(block, level, side, isStatic);
     }
 }
+

@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.IO;
 using JetBrains.Annotations;
@@ -73,3 +73,4 @@ public class RunScript : Command
         return true;
     }
 }
+

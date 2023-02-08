@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 // c: color
 // h: height
-public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConnectable, IOverlayTextureProvider
+public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConnectable
 {
     private readonly TextureLayout layout;
 
@@ -46,9 +46,6 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
 
         for (uint data = 0; data <= 0b11_1111; data++) volumes.Add(CreateVolume(data));
     }
-
-    /// <inheritdoc />
-    public int TextureIdentifier => layout.Bottom;
 
     /// <inheritdoc />
     public int GetHeight(uint data)
@@ -133,5 +130,4 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
         height = (int) (data & 0b00_0111) * 2 + 1;
     }
 }
-
 

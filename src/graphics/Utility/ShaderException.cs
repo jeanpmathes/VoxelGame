@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using OpenTK.Graphics.OpenGL4;
@@ -37,3 +37,4 @@ public class ShaderException : Exception
     /// <inheritdoc />
     public override string Message => $"Invalid Shader({Shader}): {Info}";
 }
+

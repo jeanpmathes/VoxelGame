@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 namespace VoxelGame.Core.Logic;
 
@@ -86,3 +86,4 @@ public record BlockFlags
     /// </summary>
     public static BlockFlags Trigger => new() {IsTrigger = true, ReceiveCollisions = true};
 }
+

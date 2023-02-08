@@ -5,7 +5,7 @@
       <Nullable>enable</Nullable>
       <Version>1.2.0</Version>
       <Platforms>x64</Platforms>
-      <CodeAnalysisRuleSet>..\..\.sonarlint\pershingthesecond_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
+      <CodeAnalysisRuleSet>..\..\.sonarlint\jeanpmathes_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
       <ApplicationIcon>vg_icon.ico</ApplicationIcon>
       <LangVersion>10</LangVersion>
       <Configurations>Debug;Release</Configurations>
@@ -13,6 +13,7 @@
       <PackageVersion>1.3.0</PackageVersion>
       <AssemblyVersion>1.3.0.0</AssemblyVersion>
       <FileVersion>1.3.0.0</FileVersion>
+      <Authors>jeanpmathes</Authors>
   </PropertyGroup>
 
     <PropertyGroup>
@@ -74,7 +75,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <AdditionalFiles Include="..\..\.sonarlint\pershingthesecond_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml"/>
+        <AdditionalFiles Include="..\..\.sonarlint\jeanpmathes_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml"/>
     </ItemGroup>
 
     <ItemGroup>

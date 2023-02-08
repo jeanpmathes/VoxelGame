@@ -1,7 +1,7 @@
 ﻿// <copyright file="Camera.cs" company="VoxelGame">
 //     Code from https://github.com/opentk/LearnOpenTK
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using OpenTK.Mathematics;
@@ -110,6 +110,17 @@ public class Camera : IView
         Screen.AspectRatio,
         NearClipping,
         FarClipping);
+
+    /// <summary>
+    ///     Get a partial frustum, which is the view frustum with changed near and far clipping planes.
+    /// </summary>
+    /// <param name="near">The near clipping plane.</param>
+    /// <param name="far">The far clipping plane.</param>
+    /// <returns>The partial frustum.</returns>
+    public Frustum GetPartialFrustum(double near, double far)
+    {
+        return new Frustum(fov, Screen.AspectRatio, (near, far), Position, front, Up, Right);
+    }
 
     private void UpdateVectors()
     {

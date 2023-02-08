@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
@@ -59,5 +59,4 @@ public class SetFluid : Command
         Context.Player.World.SetFluid(fluid.AsInstance(level), position);
     }
 }
-
 

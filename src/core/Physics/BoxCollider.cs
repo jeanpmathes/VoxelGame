@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using System.Collections.Generic;
@@ -57,6 +57,14 @@ public struct BoxCollider : IEquatable<BoxCollider>
     public bool Intersects(Ray ray)
     {
         return Volume.Intersects(ray.Translated(-Position));
+    }
+
+    /// <summary>
+    ///     Check if this collider is intersected by a frustum.
+    /// </summary>
+    public bool Intersects(Frustum frustum)
+    {
+        return Volume.Intersects(frustum.Translated(-Position));
     }
 
     /// <summary>

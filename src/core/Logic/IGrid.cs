@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 
@@ -33,3 +33,4 @@ public interface IGrid : IReadOnlyGrid
     /// <param name="position">The position to set the content at.</param>
     void SetContent(Content content, Vector3i position);
 }
+

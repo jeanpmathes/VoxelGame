@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
@@ -59,3 +59,4 @@ public interface IWorldGenerator
     /// <returns>The positions of the elements, or null if the name is not valid.</returns>
     IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance);
 }
+

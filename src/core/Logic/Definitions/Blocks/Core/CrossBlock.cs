@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -49,5 +49,4 @@ public class CrossBlock : Block, IFillable, IComplex
         (vertices, indices, textureIndices) = BlockModels.CreateCrossModel(indexProvider.GetTextureIndex(texture));
     }
 }
-
 

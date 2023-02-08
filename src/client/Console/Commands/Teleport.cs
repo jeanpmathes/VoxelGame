@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
@@ -51,3 +51,4 @@ public class Teleport : Command
         context.Player.Teleport(position);
     }
 }
+

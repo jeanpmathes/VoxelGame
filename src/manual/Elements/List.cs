@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using System.IO;
@@ -41,3 +41,4 @@ internal class List : Chainable, IElement
         return parent;
     }
 }
+

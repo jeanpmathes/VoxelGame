@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 namespace VoxelGame.Core.Logic.Interfaces;
 
@@ -12,3 +12,4 @@ namespace VoxelGame.Core.Logic.Interfaces;
 ///     The connection surface might be transparent.
 /// </summary>
 public interface IThinConnectable : IConnectable {}
+

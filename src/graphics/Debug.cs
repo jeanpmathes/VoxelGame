@@ -2,7 +2,7 @@
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using System;
 using System.Diagnostics;
@@ -61,7 +61,7 @@ public class Debug
             idResolved,
             Marshal.PtrToStringAnsi(message, length));
 
-        if (level >= LogLevel.Error) Debugger.Break();
+        if (level >= LogLevel.Error && type != DebugType.DebugTypePerformance) Debugger.Break();
     }
 
     private static (string, int) ResolveEvent(int id)

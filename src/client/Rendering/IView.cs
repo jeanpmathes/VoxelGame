@@ -2,7 +2,7 @@
 //     MIT License
 //     For full license see the repository.
 // </copyright>
-// <author>pershingthesecond</author>
+// <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
@@ -39,3 +39,4 @@ public interface IView
     /// </summary>
     public Matrix4d ProjectionMatrix { get; }
 }
+
