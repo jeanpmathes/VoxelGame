@@ -59,6 +59,8 @@ internal static class Modals
             Text = message
         };
 
+        Control.Used(label);
+
         return new CloseHandel(modal);
     }
 }
