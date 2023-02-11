@@ -14,6 +14,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
@@ -485,7 +486,7 @@ public sealed class Screen : IDisposable
     ///     Takes a screenshot and saves it to the specified directory.
     /// </summary>
     /// <param name="directory">The directory in which the screenshot should be saved.</param>
-    public static void TakeScreenshot(string directory)
+    public static void TakeScreenshot(DirectoryInfo directory)
     {
         IntPtr data = Marshal.AllocHGlobal(Size.X * Size.Y * 4);
 
@@ -517,9 +518,9 @@ public sealed class Screen : IDisposable
 
         screenshot.RotateFlip(RotateFlipType.RotateNoneFlipY);
 
-        string path = Path.Combine(directory, $"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
+        FileInfo path = FileSystem.GetFilePath(directory, $"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
 
-        screenshot.Save(path);
+        screenshot.Save(path.FullName);
         logger.LogInformation(Events.Screenshot, "Saved a screenshot to: {Path}", path);
 
         Marshal.FreeHGlobal(data);
@@ -649,4 +650,5 @@ public sealed class Screen : IDisposable
 
     #endregion IDisposable Support
 }
+
 

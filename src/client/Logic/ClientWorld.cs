@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
@@ -42,7 +43,7 @@ public class ClientWorld : World
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    public ClientWorld(string path, string name, (int upper, int lower) seed) : base(path, name, seed)
+    public ClientWorld(DirectoryInfo path, string name, (int upper, int lower) seed) : base(path, name, seed)
     {
         Setup();
     }
@@ -50,7 +51,7 @@ public class ClientWorld : World
     /// <summary>
     ///     This constructor is meant for worlds that already exist.
     /// </summary>
-    public ClientWorld(string path, WorldInformation information) : base(path, information)
+    public ClientWorld(DirectoryInfo path, WorldInformation information) : base(path, information)
     {
         Setup();
     }
@@ -246,4 +247,5 @@ public class ClientWorld : World
         else if (zSectionPosition == Section.Size - 1) CheckNeighbor(position + (0, 0, 1));
     }
 }
+
 

@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
@@ -107,7 +108,7 @@ internal class WorldSelection : StandardMenu
 
         worldList.DeleteAllChildren();
 
-        foreach ((WorldInformation info, string path) in worldProvider.Worlds)
+        foreach ((WorldInformation info, DirectoryInfo path) in worldProvider.Worlds)
         {
             GroupBox world = new(worldList)
             {
@@ -141,7 +142,7 @@ internal class WorldSelection : StandardMenu
 
             Label file = new(infoPanel)
             {
-                Text = path,
+                Text = path.FullName,
                 Font = Fonts.Path,
                 TextColor = Color.Grey
             };
@@ -256,4 +257,3 @@ internal class WorldSelection : StandardMenu
 
     internal event EventHandler Cancel = delegate {};
 }
-

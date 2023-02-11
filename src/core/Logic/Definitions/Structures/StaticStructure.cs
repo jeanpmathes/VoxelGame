@@ -24,10 +24,7 @@ public partial class StaticStructure : Structure
     private const int MaxSize = 1024;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<StaticStructure>();
 
-    private static readonly string structureDirectory = Path.Combine(
-        Directory.GetCurrentDirectory(),
-        "Resources",
-        "Structures");
+    private static readonly DirectoryInfo structureDirectory = FileSystem.GetResourceDirectory("Structures");
 
     private readonly Content?[,,] contents;
 
@@ -110,11 +107,11 @@ public partial class StaticStructure : Structure
     /// <param name="directory">The directory to load from.</param>
     /// <param name="name">The name of the structure.</param>
     /// <returns>The loaded structure, or null if the loading failed.</returns>
-    public static StaticStructure Load(string directory, string name)
+    public static StaticStructure Load(DirectoryInfo directory, string name)
     {
         try
         {
-            string json = File.ReadAllText(Path.Combine(directory, GetFileName(name)));
+            string json = FileSystem.GetFilePath(directory, GetFileName(name)).ReadAllText();
             Definition definition = JsonSerializer.Deserialize<Definition>(json) ?? new Definition();
 
             logger.LogDebug(Events.ResourceLoad, "Loaded StaticStructure: {Name}", name);
@@ -207,7 +204,7 @@ public partial class StaticStructure : Structure
     /// <param name="directory">The directory to store the file in.</param>
     /// <param name="name">The name of the structure.</param>
     /// <returns>True if the structure was stored successfully, false otherwise.</returns>
-    public bool Store(string directory, string name)
+    public bool Store(DirectoryInfo directory, string name)
     {
         List<Placement> placements = new();
 
@@ -244,8 +241,7 @@ public partial class StaticStructure : Structure
                     WriteIndented = true
                 });
 
-            string path = Path.Combine(directory, GetFileName(name));
-            File.WriteAllText(path, json);
+            FileSystem.GetFilePath(directory, GetFileName(name)).WriteAllText(json);
 
             return true;
         }
@@ -257,4 +253,5 @@ public partial class StaticStructure : Structure
         return false;
     }
 }
+
 

@@ -130,7 +130,7 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public void EmitViews(string path)
+    public void EmitViews(DirectoryInfo path)
     {
         Map.EmitViews(path);
     }
@@ -356,4 +356,5 @@ public class Generator : IWorldGenerator
         }
     }
 }
+
 

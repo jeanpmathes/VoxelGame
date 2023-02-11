@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System.Collections.Generic;
+using System.IO;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
@@ -47,7 +48,7 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public void EmitViews(string path)
+    public void EmitViews(DirectoryInfo path)
     {
         // No views to emit.
     }
@@ -73,4 +74,5 @@ public class Generator : IWorldGenerator
         return position.Y <= waterLevel ? water : empty;
     }
 }
+
 

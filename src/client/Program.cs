@@ -34,22 +34,22 @@ internal static class Program
     /// <summary>
     ///     Get the app data directory.
     /// </summary>
-    internal static string AppDataDirectory { get; private set; } = null!;
+    internal static DirectoryInfo AppDataDirectory { get; private set; } = null!;
 
     /// <summary>
     ///     Get the screenshot directory.
     /// </summary>
-    internal static string ScreenshotDirectory { get; private set; } = null!;
+    internal static DirectoryInfo ScreenshotDirectory { get; private set; } = null!;
 
     /// <summary>
     ///     Get the directory structures are exported to.
     /// </summary>
-    internal static string StructureDirectory { get; private set; } = null!;
+    internal static DirectoryInfo StructureDirectory { get; private set; } = null!;
 
     /// <summary>
     ///     Get the world directory.
     /// </summary>
-    internal static string WorldsDirectory { get; private set; } = null!;
+    internal static DirectoryInfo WorldsDirectory { get; private set; } = null!;
 
     [Conditional("DEBUG")]
     private static void ApplyDebugModification(Arguments arguments)
@@ -60,25 +60,13 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
-        AppDataDirectory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "voxel");
+        AppDataDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.ApplicationData, "voxel");
 
-        ScreenshotDirectory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
-            "VoxelGame");
+        ScreenshotDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.MyPictures, "VoxelGame");
 
-        StructureDirectory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "VoxelGame",
-            "Structures");
+        StructureDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.MyDocuments, "VoxelGame", "Structures");
 
-        WorldsDirectory = Path.Combine(AppDataDirectory, "Worlds");
-
-        Directory.CreateDirectory(AppDataDirectory);
-        Directory.CreateDirectory(ScreenshotDirectory);
-        Directory.CreateDirectory(StructureDirectory);
-        Directory.CreateDirectory(WorldsDirectory);
+        WorldsDirectory = FileSystem.CreateSubdirectory(AppDataDirectory, "Worlds");
 
         Arguments arguments = new()
         {
@@ -148,4 +136,5 @@ internal static class Program
         internal bool logDebug;
     }
 }
+
 

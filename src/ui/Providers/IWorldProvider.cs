@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System.Collections.Generic;
+using System.IO;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.UI.Providers;
@@ -17,7 +18,7 @@ public interface IWorldProvider
     /// <summary>
     ///     Get all currently known worlds.
     /// </summary>
-    IEnumerable<(WorldInformation info, string path)> Worlds { get; }
+    IEnumerable<(WorldInformation info, DirectoryInfo path)> Worlds { get; }
 
     /// <summary>
     ///     Refresh all known worlds.
@@ -29,7 +30,7 @@ public interface IWorldProvider
     /// </summary>
     /// <param name="information">(Information describing the world to load.</param>
     /// <param name="path">The path to the world to load.</param>
-    void LoadWorld(WorldInformation information, string path);
+    void LoadWorld(WorldInformation information, DirectoryInfo path);
 
     /// <summary>
     ///     Create a new world.
@@ -48,6 +49,7 @@ public interface IWorldProvider
     ///     Delete a world.
     /// </summary>
     /// <param name="path">The path to the world to delete.</param>
-    void DeleteWorld(string path);
+    void DeleteWorld(DirectoryInfo path);
 }
+
 

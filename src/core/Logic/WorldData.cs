@@ -7,6 +7,7 @@
 using System.IO;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
@@ -23,45 +24,41 @@ public class WorldData
     ///     Creates a new world data object.
     /// </summary>
     /// <param name="directory">The directory of the world.</param>
-    public WorldData(string directory)
+    public WorldData(DirectoryInfo directory)
     {
         WorldDirectory = directory;
-        ChunkDirectory = Path.Combine(directory, "Chunks");
-        BlobDirectory = Path.Combine(directory, "Blobs");
-        DebugDirectory = Path.Combine(directory, "Debug");
-        ScriptDirectory = Path.Combine(directory, "Scripts");
+        directory.Create();
 
-        Directory.CreateDirectory(WorldDirectory);
-        Directory.CreateDirectory(ChunkDirectory);
-        Directory.CreateDirectory(BlobDirectory);
-        Directory.CreateDirectory(DebugDirectory);
-        Directory.CreateDirectory(ScriptDirectory);
+        ChunkDirectory = FileSystem.CreateSubdirectory(directory, "Chunks");
+        BlobDirectory = FileSystem.CreateSubdirectory(directory, "Blobs");
+        DebugDirectory = FileSystem.CreateSubdirectory(directory, "Debug");
+        ScriptDirectory = FileSystem.CreateSubdirectory(directory, "Scripts");
     }
 
     /// <summary>
     ///     The directory in which this world is stored.
     /// </summary>
-    public string WorldDirectory { get; }
+    public DirectoryInfo WorldDirectory { get; }
 
     /// <summary>
     ///     The directory in which all chunks of this world are stored.
     /// </summary>
-    public string ChunkDirectory { get; }
+    public DirectoryInfo ChunkDirectory { get; }
 
     /// <summary>
     ///     The directory in named data blobs are stored.
     /// </summary>
-    public string BlobDirectory { get; }
+    public DirectoryInfo BlobDirectory { get; }
 
     /// <summary>
     ///     The directory at which debug artifacts can be stored.
     /// </summary>
-    public string DebugDirectory { get; }
+    public DirectoryInfo DebugDirectory { get; }
 
     /// <summary>
     ///     The directory in which scripts are stored.
     /// </summary>
-    public string ScriptDirectory { get; }
+    public DirectoryInfo ScriptDirectory { get; }
 
     /// <summary>
     ///     Get a reader for an existing blob.
@@ -72,7 +69,7 @@ public class WorldData
     {
         try
         {
-            Stream stream = File.Open(Path.Combine(BlobDirectory, name), FileMode.Open, FileAccess.Read);
+            Stream stream = BlobDirectory.OpenFile(name, FileMode.Open, FileAccess.Read);
 
             return new BinaryReader(stream, Encoding.UTF8, leaveOpen: false);
         }
@@ -93,7 +90,7 @@ public class WorldData
     {
         try
         {
-            Stream stream = File.Open(Path.Combine(BlobDirectory, name), FileMode.Create, FileAccess.Write);
+            Stream stream = BlobDirectory.OpenFile(name, FileMode.Create, FileAccess.Write);
 
             return new BinaryWriter(stream, Encoding.UTF8, leaveOpen: false);
         }
@@ -105,9 +102,9 @@ public class WorldData
         }
     }
 
-    private string GetScriptPath(string name)
+    private FileInfo GetScriptPath(string name)
     {
-        return Path.Combine(ScriptDirectory, $"{name}.txt");
+        return FileSystem.GetFilePath(ScriptDirectory, $"{name}.txt");
     }
 
     /// <summary>
@@ -119,7 +116,7 @@ public class WorldData
     {
         try
         {
-            return File.ReadAllText(GetScriptPath(name));
+            return GetScriptPath(name).ReadAllText();
         }
         catch (IOException)
         {
@@ -135,15 +132,15 @@ public class WorldData
     /// <param name="name">The name of the script.</param>
     /// <param name="content">The initial content of the script.</param>
     /// <returns>The path to the script, or null if an error occurred.</returns>
-    public string? CreateScript(string name, string content)
+    public FileInfo? CreateScript(string name, string content)
     {
         try
         {
-            string path = GetScriptPath(name);
+            FileInfo script = GetScriptPath(name);
 
-            if (!File.Exists(path)) File.WriteAllText(path, content);
+            if (!script.Exists) script.WriteAllText(content);
 
-            return path;
+            return script;
         }
         catch (IOException e)
         {
@@ -158,7 +155,7 @@ public class WorldData
     /// </summary>
     public void SaveInformation(WorldInformation information)
     {
-        information.Save(Path.Combine(WorldDirectory, MetaFileName));
+        information.Save(FileSystem.GetFilePath(WorldDirectory, MetaFileName));
     }
 
     /// <summary>
@@ -166,9 +163,9 @@ public class WorldData
     /// </summary>
     /// <param name="directory">The directory of the world.</param>
     /// <returns>The world information structure.</returns>
-    public static WorldInformation LoadInformation(string directory)
+    public static WorldInformation LoadInformation(DirectoryInfo directory)
     {
-        return WorldInformation.Load(Path.Combine(directory, MetaFileName));
+        return WorldInformation.Load(FileSystem.GetFilePath(directory, MetaFileName));
     }
 
     /// <summary>
@@ -176,9 +173,10 @@ public class WorldData
     /// </summary>
     /// <param name="directory">The directory to check.</param>
     /// <returns>True if the directory is a world directory.</returns>
-    public static bool IsWorldDirectory(string directory)
+    public static bool IsWorldDirectory(DirectoryInfo directory)
     {
-        return File.Exists(Path.Combine(directory, MetaFileName));
+        return FileSystem.GetFilePath(directory, MetaFileName).Exists;
     }
 }
+
 

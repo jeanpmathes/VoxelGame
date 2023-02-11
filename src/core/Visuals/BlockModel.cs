@@ -31,10 +31,7 @@ public sealed class BlockModel
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
 
-    private static readonly string path = Path.Combine(
-        Directory.GetCurrentDirectory(),
-        "Resources",
-        "Models");
+    private static readonly DirectoryInfo path = FileSystem.GetResourceDirectory("Models");
 
     private static ITextureIndexProvider blockTextureIndexProvider = null!;
 
@@ -432,7 +429,7 @@ public sealed class BlockModel
         JsonSerializerOptions options = new() {IgnoreReadOnlyProperties = true, WriteIndented = true};
 
         string json = JsonSerializer.Serialize(this, options);
-        File.WriteAllText(Path.Combine(path, name + ".json"), json);
+        FileSystem.GetFilePath(path, GetFileName(name)).WriteAllText(json);
     }
 
     /// <summary>
@@ -446,6 +443,11 @@ public sealed class BlockModel
 
     #region STATIC METHODS
 
+    private static string GetFileName(string name)
+    {
+        return name + ".json";
+    }
+
     /// <summary>
     ///     Load a block model from file. All models are loaded from a specific directory.
     /// </summary>
@@ -455,7 +457,7 @@ public sealed class BlockModel
     {
         try
         {
-            string json = File.ReadAllText(Path.Combine(path, name + ".json"));
+            string json = FileSystem.GetFilePath(path, GetFileName(name)).ReadAllText();
             BlockModel model = JsonSerializer.Deserialize<BlockModel>(json) ?? new BlockModel();
 
             logger.LogDebug(Events.ResourceLoad, "Loaded BlockModel: {Name}", name);
@@ -932,4 +934,5 @@ public static class BlockModelExtensions
         group.west.Lock();
     }
 }
+
 

@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Utilities;
 
@@ -53,7 +54,7 @@ public class ChunkContext
     /// <param name="weakActivator">Activates a chunk after a transition to the active state.</param>
     /// <param name="deactivator">Deactivates a chunk.</param>
     /// <param name="generator">The world generator used.</param>
-    public ChunkContext(string directory, ChunkFactory factory, ChunkActivatorStrong strongActivator, ChunkActivatorWeak weakActivator, ChunkDeactivator deactivator, IWorldGenerator generator)
+    public ChunkContext(DirectoryInfo directory, ChunkFactory factory, ChunkActivatorStrong strongActivator, ChunkActivatorWeak weakActivator, ChunkDeactivator deactivator, IWorldGenerator generator)
     {
         Directory = directory;
         Generator = generator;
@@ -67,7 +68,7 @@ public class ChunkContext
     /// <summary>
     ///     The directory in which chunks are stored.
     /// </summary>
-    public string Directory { get; }
+    public DirectoryInfo Directory { get; }
 
     /// <summary>
     ///     Get the used world generator.
@@ -148,4 +149,5 @@ public class ChunkContext
         budgets[index] = (max, current + 1);
     }
 }
+
 

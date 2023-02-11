@@ -483,7 +483,7 @@ public partial class Map
         return driftDirections;
     }
 
-    private static void EmitTerrainView(Data data, string path)
+    private static void EmitTerrainView(Data data, DirectoryInfo path)
     {
         using Bitmap view = new(Width, Width);
 
@@ -494,7 +494,7 @@ public partial class Map
             view.SetPixel(x, y, GetTerrainColor(current));
         }
 
-        view.Save(Path.Combine(path, "terrain_view.png"));
+        view.Save(FileSystem.GetFilePath(path, "terrain_view.png").FullName);
     }
 
     private static Color GetTerrainColor(Cell current)
@@ -539,7 +539,7 @@ public partial class Map
         return Colors.Mix(tempered, other);
     }
 
-    private static void EmitTemperatureView(Data data, string path)
+    private static void EmitTemperatureView(Data data, DirectoryInfo path)
     {
         using Bitmap view = new(Width, Width);
 
@@ -550,7 +550,7 @@ public partial class Map
             view.SetPixel(x, y, GetTemperatureColor(current));
         }
 
-        view.Save(Path.Combine(path, "temperature_view.png"));
+        view.Save(FileSystem.GetFilePath(path, "temperature_view.png").FullName);
     }
 
     private static HumidityData[] CreateInitialHumidityData()
@@ -679,7 +679,7 @@ public partial class Map
         return current.IsLand ? precipitation : Color.Aqua;
     }
 
-    private static void EmitHumidityView(Data data, string path)
+    private static void EmitHumidityView(Data data, DirectoryInfo path)
     {
         using Bitmap view = new(Width, Width);
 
@@ -690,7 +690,7 @@ public partial class Map
             view.SetPixel(x, y, GetHumidityColor(current));
         }
 
-        view.Save(Path.Combine(path, "precipitation_view.png"));
+        view.Save(FileSystem.GetFilePath(path, "precipitation_view.png").FullName);
     }
 
     private static Color GetBiomeColor(Cell current, BiomeDistribution biomes)
@@ -698,7 +698,7 @@ public partial class Map
         return current.IsLand ? biomes.GetBiome(current.temperature, current.humidity).Color : Color.White;
     }
 
-    private static void EmitBiomeView(Data data, BiomeDistribution biomes, string path)
+    private static void EmitBiomeView(Data data, BiomeDistribution biomes, DirectoryInfo path)
     {
         using Bitmap view = new(Width, Width);
 
@@ -709,7 +709,7 @@ public partial class Map
             view.SetPixel(x, y, GetBiomeColor(current, biomes));
         }
 
-        view.Save(Path.Combine(path, "biome_view.png"));
+        view.Save(FileSystem.GetFilePath(path, "biome_view.png").FullName);
     }
 
     private static Color GetStoneTypeColor(Cell current)
@@ -727,7 +727,7 @@ public partial class Map
         return Color.White;
     }
 
-    private static void EmitStoneView(Data data, string path)
+    private static void EmitStoneView(Data data, DirectoryInfo path)
     {
         using Bitmap view = new(Width, Width);
 
@@ -738,7 +738,7 @@ public partial class Map
             view.SetPixel(x, y, GetStoneTypeColor(current));
         }
 
-        view.Save(Path.Combine(path, "stone_view.png"));
+        view.Save(FileSystem.GetFilePath(path, "stone_view.png").FullName);
     }
 
     private record struct HumidityData
@@ -764,4 +764,5 @@ public partial class Map
         public Vector2i position;
     }
 }
+
 

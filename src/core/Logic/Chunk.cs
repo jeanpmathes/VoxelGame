@@ -312,13 +312,13 @@ public partial class Chunk : IDisposable
         "ReSharper.DPA",
         "DPA0002: Excessive memory allocations in SOH",
         Justification = "Chunks are allocated here.")]
-    public static Chunk? Load(string path, ChunkPosition position)
+    public static Chunk? Load(FileInfo path, ChunkPosition position)
     {
         logger.LogDebug(Events.ChunkOperation, "Started loading chunk for position: {Position}", position);
 
         Chunk chunk;
 
-        using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+        using (Stream stream = path.Open(FileMode.Open, FileAccess.Read, FileShare.Read))
         {
             IFormatter formatter = new BinaryFormatter();
 
@@ -345,7 +345,7 @@ public partial class Chunk : IDisposable
     /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
     /// <param name="position">The position of the chunk.</param>
     /// <returns>A task containing the loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
-    public static Task<Chunk?> LoadAsync(string path, ChunkPosition position)
+    public static Task<Chunk?> LoadAsync(FileInfo path, ChunkPosition position)
     {
         return Task.Run(() => Load(path, position));
     }
@@ -372,17 +372,17 @@ public partial class Chunk : IDisposable
     ///     Saves this chunk in the directory specified by the path.
     /// </summary>
     /// <param name="path">The path of the directory where this chunk should be saved.</param>
-    public void Save(string path)
+    public void Save(DirectoryInfo path)
     {
         blockTickManager.Normalize();
         fluidTickManager.Normalize();
         localUpdateCounter.Reset();
 
-        string chunkFile = Path.Combine(path, GetChunkFileName(Position));
+        FileInfo chunkFile = FileSystem.GetFilePath(path, GetChunkFileName(Position));
 
         logger.LogDebug(Events.ChunkOperation, "Started saving chunk {Position} to: {Path}", Position, chunkFile);
 
-        using Stream stream = new FileStream(chunkFile, FileMode.Create, FileAccess.Write, FileShare.Read);
+        using Stream stream = chunkFile.Open(FileMode.Create, FileAccess.Write, FileShare.None);
         IFormatter formatter = new BinaryFormatter();
 #pragma warning disable // Will be replaced with custom serialization
         formatter.Serialize(stream, this);
@@ -396,7 +396,7 @@ public partial class Chunk : IDisposable
     /// </summary>
     /// <param name="path">The path of the directory where this chunk should be saved.</param>
     /// <returns>A task.</returns>
-    public Task SaveAsync(string path)
+    public Task SaveAsync(DirectoryInfo path)
     {
         return Task.Run(() => Save(path));
     }
@@ -916,4 +916,5 @@ public partial class Chunk : IDisposable
 
     #endregion IDisposable Support
 }
+
 

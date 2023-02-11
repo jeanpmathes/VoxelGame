@@ -30,9 +30,9 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            string dataPath = Path.Combine(Context.Directory, GetChunkFileName(Chunk.Position));
+            FileInfo data = FileSystem.GetFilePath(Context.Directory, GetChunkFileName(Chunk.Position));
 
-            if (File.Exists(dataPath)) SetNextState<Loading>();
+            if (data.Exists) SetNextState<Loading>();
             else SetNextState<Generating>();
         }
     }
@@ -62,7 +62,7 @@ public partial class Chunk
 
                 if (guard == null) return;
 
-                string path = Path.Combine(Context.Directory, GetChunkFileName(Chunk.Position));
+                FileInfo path = FileSystem.GetFilePath(Context.Directory, GetChunkFileName(Chunk.Position));
                 activity = (LoadAsync(path, Chunk.Position), guard);
             }
             else if (task.IsCompleted)
@@ -393,4 +393,5 @@ public partial class Chunk
         }
     }
 }
+
 
