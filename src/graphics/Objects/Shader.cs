@@ -3,11 +3,11 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using VoxelGame.Graphics.Utility;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Graphics.Objects;
@@ -77,16 +77,13 @@ public class Shader
 
         if (code != (int) All.True)
         {
-            var e = new ShaderException(shader);
-
             logger.LogCritical(
                 Events.ShaderError,
-                e,
                 "Error occurred whilst compiling Shader({Shader}): {Info}",
-                e.Shader,
-                e.Info);
+                shader,
+                GL.GetShaderInfoLog(shader));
 
-            throw e;
+            throw new InvalidOperationException("Error occurred whilst compiling Shader. This is either a bug or caused by tampering with the Shader files.");
         }
 
         logger.LogDebug(Events.ShaderSetup, "Successfully compiled Shader({Shader})", shader);
@@ -101,16 +98,13 @@ public class Shader
 
         if (code != (int) All.True)
         {
-            var e = new ProgramException(program);
-
             logger.LogCritical(
                 Events.ShaderError,
-                e,
                 "Error occurred whilst linking Program({Program}): {Info}",
-                e.Program,
-                e.Info);
+                program,
+                GL.GetProgramInfoLog(program));
 
-            throw e;
+            throw new InvalidOperationException("Error occurred whilst linking Program. This is either a bug or caused by tampering with the Shader files.");
         }
 
         logger.LogDebug(Events.ShaderSetup, "Successfully linked Program({Program})", program);
@@ -212,5 +206,3 @@ public class Shader
         GL.DeleteProgram(Handle);
     }
 }
-
-
