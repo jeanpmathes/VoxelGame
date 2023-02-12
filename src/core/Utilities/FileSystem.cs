@@ -144,4 +144,12 @@ public static class FileSystem
 
         return Directory.CreateDirectory(path.ToString());
     }
+
+    /// <summary>
+    ///     Get the file name without extension.
+    /// </summary>
+    public static string GetFileNameWithoutExtension(this FileInfo file)
+    {
+        return Path.GetFileNameWithoutExtension(file.FullName);
+    }
 }

@@ -40,7 +40,7 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
     /// <summary>
     ///     Create a new array texture. It will be filled with all textures found in the given directory.
     /// </summary>
-    /// <param name="path">The path to load textures from.</param>
+    /// <param name="textureDirectory">The directory to load textures from.</param>
     /// <param name="resolution">The resolution of the array. Textures that do not fit are excluded.</param>
     /// <param name="useCustomMipmapGeneration">
     ///     True if custom mipmap generation should be used instead of the standard OpenGL
@@ -48,10 +48,10 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
     /// </param>
     /// <param name="parameters">Optional texture parameters.</param>
     /// <param name="textureUnits">The texture units to bind the array to.</param>
-    public ArrayTexture(string path, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters,
+    public ArrayTexture(DirectoryInfo textureDirectory, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters,
         params TextureUnit[] textureUnits)
     {
-        Initialize(path, resolution, useCustomMipmapGeneration, parameters, textureUnits);
+        Initialize(textureDirectory, resolution, useCustomMipmapGeneration, parameters, textureUnits);
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
         }
     }
 
-    private void Initialize(string path, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters,
+    private void Initialize(DirectoryInfo textureDirectory, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters,
         params TextureUnit[] units)
     {
         if (resolution <= 0 || (resolution & (resolution - 1)) != 0)
@@ -112,16 +112,16 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
 
         GetHandles(handles);
 
-        string[] texturePaths;
+        FileInfo[] texturePaths;
 
         try
         {
-            texturePaths = Directory.GetFiles(path, "*.png");
+            texturePaths = textureDirectory.GetFiles("*.png");
         }
         catch (DirectoryNotFoundException)
         {
-            texturePaths = Array.Empty<string>();
-            logger.LogWarning(Events.MissingDepository, "A texture directory has not been found: {Path}", path);
+            texturePaths = Array.Empty<FileInfo>();
+            logger.LogWarning(Events.MissingDepository, "A texture directory has not been found: {Path}", textureDirectory);
         }
 
         List<Bitmap> textures = new();
@@ -287,22 +287,22 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
     /// <remarks>
     ///     Textures provided have to have the height given by the resolution, and the width must be a multiple of it.
     /// </remarks>
-    private void LoadBitmaps(int resolution, IReadOnlyCollection<string> paths, ICollection<Bitmap> bitmaps)
+    private void LoadBitmaps(int resolution, IReadOnlyCollection<FileInfo> paths, ICollection<Bitmap> bitmaps)
     {
         if (paths.Count == 0) return;
 
         var texIndex = 1;
 
-        foreach (string path in paths)
+        foreach (FileInfo path in paths)
             try
             {
-                using Bitmap bitmap = new(path);
+                using Bitmap bitmap = new(path.FullName);
 
                 if (bitmap.Width % resolution == 0 &&
                     bitmap.Height == resolution) // Check if image consists of correctly sized textures
                 {
                     int textureCount = bitmap.Width / resolution;
-                    textureIndices.Add(Path.GetFileNameWithoutExtension(path), texIndex);
+                    textureIndices.Add(path.GetFileNameWithoutExtension(), texIndex);
 
                     for (var j = 0; j < textureCount; j++)
                     {
@@ -468,4 +468,3 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
 
     #endregion IDisposable Support
 }
-

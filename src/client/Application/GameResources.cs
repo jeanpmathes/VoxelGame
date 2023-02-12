@@ -73,7 +73,7 @@ public class GameResources
         var texParams = TextureParameters.CreateForWorld(Client.Instance);
 
         BlockTextureArray = new ArrayTexture(
-            "Resources/Textures/Blocks",
+            FileSystem.GetResourceDirectory("Textures", "Blocks"),
             resolution: 32,
             useCustomMipmapGeneration: true,
             texParams,
@@ -85,7 +85,7 @@ public class GameResources
         logger.LogInformation(Events.ResourceLoad, "Block textures loaded");
 
         FluidTextureArray = new ArrayTexture(
-            "Resources/Textures/Fluids",
+            FileSystem.GetResourceDirectory("Textures", "Fluids"),
             resolution: 32,
             useCustomMipmapGeneration: false,
             texParams,
