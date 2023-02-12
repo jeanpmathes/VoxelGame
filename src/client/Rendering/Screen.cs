@@ -518,7 +518,7 @@ public sealed class Screen : IDisposable
 
         screenshot.RotateFlip(RotateFlipType.RotateNoneFlipY);
 
-        FileInfo path = FileSystem.GetFilePath(directory, $"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
+        FileInfo path = directory.GetFile($"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
 
         screenshot.Save(path.FullName);
         logger.LogInformation(Events.Screenshot, "Saved a screenshot to: {Path}", path);

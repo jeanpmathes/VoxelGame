@@ -494,7 +494,7 @@ public partial class Map
             view.SetPixel(x, y, GetTerrainColor(current));
         }
 
-        view.Save(FileSystem.GetFilePath(path, "terrain_view.png").FullName);
+        view.Save(path.GetFile("terrain_view.png").FullName);
     }
 
     private static Color GetTerrainColor(Cell current)
@@ -550,7 +550,7 @@ public partial class Map
             view.SetPixel(x, y, GetTemperatureColor(current));
         }
 
-        view.Save(FileSystem.GetFilePath(path, "temperature_view.png").FullName);
+        view.Save(path.GetFile("temperature_view.png").FullName);
     }
 
     private static HumidityData[] CreateInitialHumidityData()
@@ -690,7 +690,7 @@ public partial class Map
             view.SetPixel(x, y, GetHumidityColor(current));
         }
 
-        view.Save(FileSystem.GetFilePath(path, "precipitation_view.png").FullName);
+        view.Save(path.GetFile("precipitation_view.png").FullName);
     }
 
     private static Color GetBiomeColor(Cell current, BiomeDistribution biomes)
@@ -709,7 +709,7 @@ public partial class Map
             view.SetPixel(x, y, GetBiomeColor(current, biomes));
         }
 
-        view.Save(FileSystem.GetFilePath(path, "biome_view.png").FullName);
+        view.Save(path.GetFile("biome_view.png").FullName);
     }
 
     private static Color GetStoneTypeColor(Cell current)
@@ -738,7 +738,7 @@ public partial class Map
             view.SetPixel(x, y, GetStoneTypeColor(current));
         }
 
-        view.Save(FileSystem.GetFilePath(path, "stone_view.png").FullName);
+        view.Save(path.GetFile("stone_view.png").FullName);
     }
 
     private record struct HumidityData

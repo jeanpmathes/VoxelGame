@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Logic;
@@ -102,17 +103,13 @@ public class WorldProvider : IWorldProvider
 
         if (name[^1] == ' ') return false;
 
-        foreach (char c in Path.GetInvalidFileNameChars())
-            if (!CheckChar(c))
-                return false;
+        if (Path.GetInvalidFileNameChars().Any(c => !IsCharInName(c))) return false;
 
-        foreach (char c in new[] {'.', ',', '{', '}'})
-            if (!CheckChar(c))
-                return false;
+        if (new[] {'.', ',', '{', '}'}.Any(c => !IsCharInName(c))) return false;
 
         return true;
 
-        bool CheckChar(char c)
+        bool IsCharInName(char c)
         {
             return !name.Contains(c, StringComparison.Ordinal);
         }
@@ -136,3 +133,5 @@ public class WorldProvider : IWorldProvider
     /// </summary>
     public event EventHandler<ClientWorld> WorldActivation = null!;
 }
+
+

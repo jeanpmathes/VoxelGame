@@ -429,7 +429,7 @@ public sealed class BlockModel
         JsonSerializerOptions options = new() {IgnoreReadOnlyProperties = true, WriteIndented = true};
 
         string json = JsonSerializer.Serialize(this, options);
-        FileSystem.GetFilePath(path, GetFileName(name)).WriteAllText(json);
+        path.GetFile(GetFileName(name)).WriteAllText(json);
     }
 
     /// <summary>
@@ -457,7 +457,7 @@ public sealed class BlockModel
     {
         try
         {
-            string json = FileSystem.GetFilePath(path, GetFileName(name)).ReadAllText();
+            string json = path.GetFile(GetFileName(name)).ReadAllText();
             BlockModel model = JsonSerializer.Deserialize<BlockModel>(json) ?? new BlockModel();
 
             logger.LogDebug(Events.ResourceLoad, "Loaded BlockModel: {Name}", name);

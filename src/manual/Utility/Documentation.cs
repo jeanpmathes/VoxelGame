@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Manual.Utility;
 
@@ -28,13 +29,13 @@ public class Documentation
         documentation = ReadDocumentation(assembly);
     }
 
-    private static string GetDocumentationFile(Assembly assembly)
+    private static FileInfo GetDocumentationFile(Assembly assembly)
     {
-        string location = assembly.Location;
-        string directory = Path.GetDirectoryName(location)!;
+        FileInfo location = new(assembly.Location);
+        DirectoryInfo directory = location.Directory!;
 
         string name = assembly.GetName().Name!;
-        string path = Path.Combine(directory, name + ".xml");
+        FileInfo path = directory.GetFile(name + ".xml");
 
         return path;
     }
@@ -44,7 +45,7 @@ public class Documentation
         Dictionary<string, string> loadedDocumentation = new();
 
         XmlDocument doc = new();
-        doc.Load(GetDocumentationFile(assembly));
+        doc.Load(GetDocumentationFile(assembly).OpenText());
 
         if (doc.DocumentElement == null) return loadedDocumentation;
 
@@ -94,4 +95,5 @@ public class Documentation
             : "";
     }
 }
+
 

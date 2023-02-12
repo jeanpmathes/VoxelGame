@@ -378,7 +378,7 @@ public partial class Chunk : IDisposable
         fluidTickManager.Normalize();
         localUpdateCounter.Reset();
 
-        FileInfo chunkFile = FileSystem.GetFilePath(path, GetChunkFileName(Position));
+        FileInfo chunkFile = path.GetFile(GetChunkFileName(Position));
 
         logger.LogDebug(Events.ChunkOperation, "Started saving chunk {Position} to: {Path}", Position, chunkFile);
 

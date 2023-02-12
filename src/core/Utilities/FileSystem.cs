@@ -74,7 +74,7 @@ public static class FileSystem
     /// <param name="parent">The parent directory.</param>
     /// <param name="fileName">The file name.</param>
     /// <returns>The file path.</returns>
-    public static FileInfo GetFilePath(DirectoryInfo parent, string fileName)
+    public static FileInfo GetFile(this DirectoryInfo parent, string fileName)
     {
         return new FileInfo(Path.Combine(parent.FullName, fileName));
     }
@@ -90,7 +90,7 @@ public static class FileSystem
     /// <returns>The file stream.</returns>
     public static FileStream OpenFile(this DirectoryInfo parent, string fileName, FileMode mode, FileAccess access, FileShare share = FileShare.None)
     {
-        return GetFilePath(parent, fileName).Open(mode, access, share);
+        return parent.GetFile(fileName).Open(mode, access, share);
     }
 
     /// <summary>
@@ -152,4 +152,16 @@ public static class FileSystem
     {
         return Path.GetFileNameWithoutExtension(file.FullName);
     }
+
+    /// <summary>
+    ///     Get the full path to a directory.
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <returns>The full path.</returns>
+    public static DirectoryInfo GetFullPath(string path)
+    {
+        return new DirectoryInfo(Path.GetFullPath(path));
+    }
 }
+
+

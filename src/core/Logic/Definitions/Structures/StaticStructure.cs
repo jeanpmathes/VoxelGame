@@ -111,7 +111,7 @@ public partial class StaticStructure : Structure
     {
         try
         {
-            string json = FileSystem.GetFilePath(directory, GetFileName(name)).ReadAllText();
+            string json = directory.GetFile(GetFileName(name)).ReadAllText();
             Definition definition = JsonSerializer.Deserialize<Definition>(json) ?? new Definition();
 
             logger.LogDebug(Events.ResourceLoad, "Loaded StaticStructure: {Name}", name);
@@ -241,7 +241,7 @@ public partial class StaticStructure : Structure
                     WriteIndented = true
                 });
 
-            FileSystem.GetFilePath(directory, GetFileName(name)).WriteAllText(json);
+            directory.GetFile(GetFileName(name)).WriteAllText(json);
 
             return true;
         }

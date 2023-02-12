@@ -104,7 +104,7 @@ public class WorldData
 
     private FileInfo GetScriptPath(string name)
     {
-        return FileSystem.GetFilePath(ScriptDirectory, $"{name}.txt");
+        return ScriptDirectory.GetFile($"{name}.txt");
     }
 
     /// <summary>
@@ -155,7 +155,7 @@ public class WorldData
     /// </summary>
     public void SaveInformation(WorldInformation information)
     {
-        information.Save(FileSystem.GetFilePath(WorldDirectory, MetaFileName));
+        information.Save(WorldDirectory.GetFile(MetaFileName));
     }
 
     /// <summary>
@@ -165,7 +165,7 @@ public class WorldData
     /// <returns>The world information structure.</returns>
     public static WorldInformation LoadInformation(DirectoryInfo directory)
     {
-        return WorldInformation.Load(FileSystem.GetFilePath(directory, MetaFileName));
+        return WorldInformation.Load(directory.GetFile(MetaFileName));
     }
 
     /// <summary>
@@ -175,7 +175,7 @@ public class WorldData
     /// <returns>True if the directory is a world directory.</returns>
     public static bool IsWorldDirectory(DirectoryInfo directory)
     {
-        return FileSystem.GetFilePath(directory, MetaFileName).Exists;
+        return directory.GetFile(MetaFileName).Exists;
     }
 }
 

@@ -46,7 +46,7 @@ public class ShaderLoader
     /// <param name="file">The path to the file.</param>
     public void LoadIncludable(string name, string file)
     {
-        includables[name] = FileSystem.GetFilePath(directory, file).ReadAllText();
+        includables[name] = directory.GetFile(file).ReadAllText();
     }
 
     /// <summary>
@@ -57,8 +57,8 @@ public class ShaderLoader
     /// <returns>The loaded shader.</returns>
     public Shader Load(string vert, string frag)
     {
-        using StreamReader vertReader = FileSystem.GetFilePath(directory, vert).OpenText();
-        using StreamReader fragReader = FileSystem.GetFilePath(directory, frag).OpenText();
+        using StreamReader vertReader = directory.GetFile(vert).OpenText();
+        using StreamReader fragReader = directory.GetFile(frag).OpenText();
 
         var shader = new Shader(ProcessSource(vertReader), ProcessSource(fragReader));
 
@@ -95,3 +95,5 @@ public class ShaderLoader
         return source.ToString();
     }
 }
+
+
