@@ -9,6 +9,7 @@ using OpenTK.Graphics.OpenGL4;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics;
 using VoxelGame.Logging;
@@ -95,7 +96,7 @@ public class GameResources
         TextureLayout.SetProviders(BlockTextureArray, FluidTextureArray);
         BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
 
-        Shaders = Shaders.Load("Resources/Shaders");
+        Shaders = Shaders.Load(FileSystem.GetResourceDirectory("Shaders"));
 
         Blocks.Load(BlockTextureArray);
 
@@ -120,4 +121,3 @@ public class GameResources
         FluidTextureArray.Dispose();
     }
 }
-

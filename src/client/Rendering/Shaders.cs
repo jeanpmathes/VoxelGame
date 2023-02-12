@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
@@ -33,7 +34,7 @@ public sealed class Shaders
 
     private readonly ISet<Shader> timedSet = new HashSet<Shader>();
 
-    private Shaders(string directory)
+    private Shaders(DirectoryInfo directory)
     {
         loader = new ShaderLoader(
             directory,
@@ -102,7 +103,7 @@ public sealed class Shaders
     /// </summary>
     /// <param name="directory">The directory containing all shaders.</param>
     /// <returns>An object representing all loaded shaders.</returns>
-    internal static Shaders Load(string directory)
+    internal static Shaders Load(DirectoryInfo directory)
     {
         Shaders shaders = new(directory);
         shaders.LoadAll();
@@ -189,5 +190,3 @@ public sealed class Shaders
         foreach (Shader shader in farPlaneSet) shader.SetFloat(FarPlaneUniform, (float) far);
     }
 }
-
-

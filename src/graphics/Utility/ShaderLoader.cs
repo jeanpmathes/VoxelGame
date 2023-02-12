@@ -9,6 +9,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 
@@ -21,7 +22,7 @@ public class ShaderLoader
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ShaderLoader>();
 
-    private readonly string directory;
+    private readonly DirectoryInfo directory;
     private readonly Dictionary<string, string> includables = new();
 
     private readonly Regex includePattern = new(@"^#pragma(?: )+include\(""(.+)""\)$");
@@ -32,7 +33,7 @@ public class ShaderLoader
     /// </summary>
     /// <param name="directory">The directory to load shaders from.</param>
     /// <param name="sets">Shader sets to fill. Shaders will be added to a set if they contain the specified uniform.</param>
-    public ShaderLoader(string directory, params (ISet<Shader> set, string uniform)[] sets)
+    public ShaderLoader(DirectoryInfo directory, params (ISet<Shader> set, string uniform)[] sets)
     {
         this.directory = directory;
         this.sets = sets;
@@ -45,7 +46,7 @@ public class ShaderLoader
     /// <param name="file">The path to the file.</param>
     public void LoadIncludable(string name, string file)
     {
-        includables[name] = File.ReadAllText(Path.Combine(directory, file), Encoding.UTF8);
+        includables[name] = FileSystem.GetFilePath(directory, file).ReadAllText();
     }
 
     /// <summary>
@@ -56,8 +57,8 @@ public class ShaderLoader
     /// <returns>The loaded shader.</returns>
     public Shader Load(string vert, string frag)
     {
-        using var vertReader = new StreamReader(Path.Combine(directory, vert), Encoding.UTF8);
-        using var fragReader = new StreamReader(Path.Combine(directory, frag), Encoding.UTF8);
+        using StreamReader vertReader = FileSystem.GetFilePath(directory, vert).OpenText();
+        using StreamReader fragReader = FileSystem.GetFilePath(directory, frag).OpenText();
 
         var shader = new Shader(ProcessSource(vertReader), ProcessSource(fragReader));
 
@@ -94,4 +95,3 @@ public class ShaderLoader
         return source.ToString();
     }
 }
-
