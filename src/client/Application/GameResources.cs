@@ -73,7 +73,7 @@ public class GameResources
         var texParams = TextureParameters.CreateForWorld(Client.Instance);
 
         BlockTextureArray = new ArrayTexture(
-            FileSystem.GetResourceDirectory("Textures", "Blocks"),
+            FileSystem.AccessResourceDirectory("Textures", "Blocks"),
             resolution: 32,
             useCustomMipmapGeneration: true,
             texParams,
@@ -85,7 +85,7 @@ public class GameResources
         logger.LogInformation(Events.ResourceLoad, "Block textures loaded");
 
         FluidTextureArray = new ArrayTexture(
-            FileSystem.GetResourceDirectory("Textures", "Fluids"),
+            FileSystem.AccessResourceDirectory("Textures", "Fluids"),
             resolution: 32,
             useCustomMipmapGeneration: false,
             texParams,
@@ -96,7 +96,7 @@ public class GameResources
         TextureLayout.SetProviders(BlockTextureArray, FluidTextureArray);
         BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
 
-        Shaders = Shaders.Load(FileSystem.GetResourceDirectory("Shaders"));
+        Shaders = Shaders.Load(FileSystem.AccessResourceDirectory("Shaders"));
 
         Blocks.Load(BlockTextureArray);
 
@@ -121,3 +121,5 @@ public class GameResources
         FluidTextureArray.Dispose();
     }
 }
+
+

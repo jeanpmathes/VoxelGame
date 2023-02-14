@@ -14,6 +14,7 @@ using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Input.Actions;
 using VoxelGame.UI.UserInterfaces;
@@ -50,7 +51,7 @@ public sealed class PlayerVisualization : IDisposable
         overlay = new OverlayRenderer();
 
         crosshair = new Texture(
-            "Resources/Textures/UI/crosshair.png",
+            FileSystem.AccessResourceDirectory("Textures", "UI").GetFile("crosshair.png"),
             TextureUnit.Texture10,
             fallbackResolution: 32);
 
@@ -211,4 +212,3 @@ public sealed class PlayerVisualization : IDisposable
 
     #endregion IDisposable Support
 }
-

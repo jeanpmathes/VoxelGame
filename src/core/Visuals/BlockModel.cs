@@ -31,7 +31,7 @@ public sealed class BlockModel
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
 
-    private static readonly DirectoryInfo path = FileSystem.GetResourceDirectory("Models");
+    private static readonly DirectoryInfo path = FileSystem.AccessResourceDirectory("Models");
 
     private static ITextureIndexProvider blockTextureIndexProvider = null!;
 
@@ -934,5 +934,7 @@ public static class BlockModelExtensions
         group.west.Lock();
     }
 }
+
+
 
 

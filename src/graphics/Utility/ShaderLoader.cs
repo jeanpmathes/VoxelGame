@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -20,6 +21,26 @@ namespace VoxelGame.Graphics.Utility;
 /// </summary>
 public class ShaderLoader
 {
+    private const string FallbackVertexShader = @"
+#version 330 core
+        
+void main()
+{
+    gl_Position = vec4(0.0);
+}
+    ";
+
+    private const string FallbackFragmentShader = @"
+#version 330 core
+
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(0.0);
+}
+    ";
+
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ShaderLoader>();
 
     private readonly DirectoryInfo directory;
@@ -46,7 +67,16 @@ public class ShaderLoader
     /// <param name="file">The path to the file.</param>
     public void LoadIncludable(string name, string file)
     {
-        includables[name] = directory.GetFile(file).ReadAllText();
+        try
+        {
+            includables[name] = directory.GetFile(file).ReadAllText();
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            logger.LogError(Events.ShaderError, exception, "Cannot load includable: {Name} {File}", name, file);
+
+            includables[name] = string.Empty;
+        }
     }
 
     /// <summary>
@@ -57,10 +87,28 @@ public class ShaderLoader
     /// <returns>The loaded shader.</returns>
     public Shader Load(string vert, string frag)
     {
-        using StreamReader vertReader = directory.GetFile(vert).OpenText();
-        using StreamReader fragReader = directory.GetFile(frag).OpenText();
+        string vertex;
+        string fragment;
 
-        var shader = new Shader(ProcessSource(vertReader), ProcessSource(fragReader));
+        try
+        {
+            using StreamReader vertReader = directory.GetFile(vert).OpenText();
+            using StreamReader fragReader = directory.GetFile(frag).OpenText();
+
+            vertex = ProcessSource(vertReader);
+            fragment = ProcessSource(fragReader);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            logger.LogError(Events.ShaderError, exception, "Cannot load shader: {Vert} {Frag}", vert, frag);
+
+            vertex = FallbackVertexShader;
+            fragment = FallbackFragmentShader;
+        }
+
+
+
+        var shader = new Shader(vertex, fragment);
 
         foreach ((ISet<Shader> set, string uniform) in sets)
             if (shader.IsUniformDefined(uniform))
@@ -73,9 +121,7 @@ public class ShaderLoader
     {
         var source = new StringBuilder();
 
-        string? line;
-
-        while ((line = reader.ReadLine()) != null)
+        while (reader.ReadLine() is {} line)
         {
             Match match = includePattern.Match(line);
 
@@ -95,5 +141,3 @@ public class ShaderLoader
         return source.ToString();
     }
 }
-
-

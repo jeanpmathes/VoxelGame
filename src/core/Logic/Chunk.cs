@@ -382,6 +382,8 @@ public partial class Chunk : IDisposable
 
         logger.LogDebug(Events.ChunkOperation, "Started saving chunk {Position} to: {Path}", Position, chunkFile);
 
+        chunkFile.Directory?.Create();
+
         using Stream stream = chunkFile.Open(FileMode.Create, FileAccess.Write, FileShare.None);
         IFormatter formatter = new BinaryFormatter();
 #pragma warning disable // Will be replaced with custom serialization
@@ -916,5 +918,3 @@ public partial class Chunk : IDisposable
 
     #endregion IDisposable Support
 }
-
-

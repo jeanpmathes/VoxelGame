@@ -138,6 +138,19 @@ public class Shader
         return uniformLocations.ContainsKey(name);
     }
 
+    private bool IsUniformSafe(string name)
+    {
+        if (IsUniformDefined(name)) return true;
+
+        logger.LogError(
+            Events.ShaderError,
+            "Uniform {Uniform} is not defined in shader {Shader}",
+            name,
+            Handle);
+
+        return false;
+    }
+
     /// <summary>
     ///     Set a uniform int on this shader.
     /// </summary>
@@ -145,6 +158,8 @@ public class Shader
     /// <param name="data">The data to set.</param>
     public void SetInt(string name, int data)
     {
+        if (!IsUniformSafe(name)) return;
+
         GL.UseProgram(Handle);
         GL.Uniform1(uniformLocations[name], data);
     }
@@ -156,6 +171,8 @@ public class Shader
     /// <param name="data">The data to set.</param>
     public void SetFloat(string name, float data)
     {
+        if (!IsUniformSafe(name)) return;
+
         GL.UseProgram(Handle);
         GL.Uniform1(uniformLocations[name], data);
     }
@@ -172,6 +189,8 @@ public class Shader
     /// </remarks>
     public void SetMatrix4(string name, Matrix4 data)
     {
+        if (!IsUniformSafe(name)) return;
+
         GL.UseProgram(Handle);
         GL.UniformMatrix4(uniformLocations[name], transpose: true, ref data);
     }
@@ -183,6 +202,8 @@ public class Shader
     /// <param name="data">The data to set.</param>
     public void SetVector3(string name, Vector3 data)
     {
+        if (!IsUniformSafe(name)) return;
+
         GL.UseProgram(Handle);
         GL.Uniform3(uniformLocations[name], data);
     }
@@ -194,6 +215,8 @@ public class Shader
     /// <param name="data">The data to set.</param>
     public void SetColor4(string name, Color4 data)
     {
+        if (!IsUniformSafe(name)) return;
+
         GL.UseProgram(Handle);
         GL.Uniform4(uniformLocations[name], data);
     }

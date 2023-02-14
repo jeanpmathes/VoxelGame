@@ -28,7 +28,7 @@ public sealed class Texture : IDisposable
     /// <param name="path">The path to an image.</param>
     /// <param name="unit">The texture unit to bind this texture to.</param>
     /// <param name="fallbackResolution">The resolution to use for the fallback texture.</param>
-    public Texture(string path, TextureUnit unit, int fallbackResolution = 16)
+    public Texture(FileInfo path, TextureUnit unit, int fallbackResolution = 16)
     {
         TextureUnit = unit;
 
@@ -39,10 +39,10 @@ public sealed class Texture : IDisposable
 
         try
         {
-            using var bitmap = new Bitmap(path);
+            using var bitmap = new Bitmap(path.Open(FileMode.Open));
             SetupTexture(bitmap);
         }
-        catch (Exception exception) when (exception is FileNotFoundException or ArgumentException)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
         {
             using (Bitmap bitmap = CreateFallback(fallbackResolution))
             {
@@ -52,7 +52,7 @@ public sealed class Texture : IDisposable
             logger.LogWarning(
                 Events.MissingResource,
                 exception,
-                "The texture could not be loaded and a fallback was used instead because the file was not found: {Path}",
+                "The texture could not be loaded and a fallback was used instead because the file was either not found or invalid: {Path}",
                 path);
         }
 
@@ -157,4 +157,5 @@ public sealed class Texture : IDisposable
 
     #endregion IDisposable Support
 }
+
 

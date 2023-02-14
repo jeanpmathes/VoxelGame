@@ -24,7 +24,7 @@ public partial class StaticStructure : Structure
     private const int MaxSize = 1024;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<StaticStructure>();
 
-    private static readonly DirectoryInfo structureDirectory = FileSystem.GetResourceDirectory("Structures");
+    private static readonly DirectoryInfo structureDirectory = FileSystem.AccessResourceDirectory("Structures");
 
     private readonly Content?[,,] contents;
 
@@ -253,5 +253,7 @@ public partial class StaticStructure : Structure
         return false;
     }
 }
+
+
 
 

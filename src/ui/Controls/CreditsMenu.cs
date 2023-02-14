@@ -11,6 +11,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.RichText;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
 
@@ -47,15 +48,15 @@ internal class CreditsMenu : StandardMenu
             Dock = Dock.Fill
         };
 
-        foreach (string file in Directory.EnumerateFiles("Resources/Attribution", "*.txt", SearchOption.TopDirectoryOnly))
+        foreach (FileInfo file in FileSystem.AccessResourceDirectory("Attribution").EnumerateFiles("*.txt", SearchOption.TopDirectoryOnly))
         {
-            string name = Path.GetFileNameWithoutExtension(file).Replace(oldChar: '-', newChar: ' ');
+            string name = file.GetFileNameWithoutExtension().Replace(oldChar: '-', newChar: ' ');
 
             string? text = null;
 
             try
             {
-                text = File.ReadAllText(file);
+                text = file.ReadAllText();
             }
             catch (IOException)
             {
@@ -89,4 +90,3 @@ internal class CreditsMenu : StandardMenu
         }
     }
 }
-

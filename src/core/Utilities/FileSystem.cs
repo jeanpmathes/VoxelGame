@@ -115,12 +115,17 @@ public static class FileSystem
 
     /// <summary>
     ///     Get the path of a resource folder in the application resources directory.
+    ///     If the folder does not exist, it will be created.
     /// </summary>
     /// <param name="path">The folder structure.</param>
     /// <returns>The directory path.</returns>
-    public static DirectoryInfo GetResourceDirectory(params string[] path)
+    public static DirectoryInfo AccessResourceDirectory(params string[] path)
     {
-        return new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "Resources", Path.Combine(path)));
+        DirectoryInfo directory = new(Path.Combine(Directory.GetCurrentDirectory(), "Resources", Path.Combine(path)));
+
+        directory.Create();
+
+        return directory;
     }
 
     private static bool IsNameReserved(string name)
@@ -163,5 +168,3 @@ public static class FileSystem
         return new DirectoryInfo(Path.GetFullPath(path));
     }
 }
-
-
