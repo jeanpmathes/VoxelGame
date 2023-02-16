@@ -31,10 +31,12 @@ public class GameUserInterface : UserInterface
     /// </summary>
     /// <param name="window">The window.</param>
     /// <param name="inputListener">The input listener.</param>
+    /// <param name="resources">The resources.</param>
     /// <param name="drawBackground">Whether to draw background.</param>
-    public GameUserInterface(GameWindow window, InputListener inputListener, bool drawBackground) : base(
+    public GameUserInterface(GameWindow window, InputListener inputListener, UIResources resources, bool drawBackground) : base(
         window,
         inputListener,
+        resources,
         drawBackground) {}
 
     /// <summary>

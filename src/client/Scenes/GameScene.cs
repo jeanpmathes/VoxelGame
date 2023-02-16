@@ -57,6 +57,7 @@ public sealed class GameScene : IScene
         ui = new GameUserInterface(
             client,
             client.Keybinds.Input.Listener,
+            client.Resources.UIResources,
             drawBackground: false);
 
         List<ISettingsProvider> settingsProviders = new()
@@ -211,3 +212,4 @@ public sealed class GameScene : IScene
 
     #endregion IDisposable Support.
 }
+

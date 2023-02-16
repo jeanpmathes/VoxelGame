@@ -26,14 +26,16 @@ public abstract class UserInterface : IDisposable
     private readonly bool drawBackground;
     private readonly IGwenGui gui;
     private readonly InputListener inputListener;
+    private readonly UIResources resources;
 
     /// <summary>
     ///     Creates a new user interface.
     /// </summary>
     /// <param name="window">The target window.</param>
     /// <param name="inputListener">The input listener.</param>
+    /// <param name="resources">The ui resources.</param>
     /// <param name="drawBackground">Whether to draw background of the ui.</param>
-    protected UserInterface(GameWindow window, InputListener inputListener, bool drawBackground)
+    protected UserInterface(GameWindow window, InputListener inputListener, UIResources resources, bool drawBackground)
     {
         gui = GwenGuiFactory.CreateFromGame(
             window,
@@ -46,6 +48,7 @@ public abstract class UserInterface : IDisposable
 
         this.drawBackground = drawBackground;
         this.inputListener = inputListener;
+        this.resources = resources;
     }
 
     internal Context Context { get; private set; } = null!;
@@ -63,7 +66,7 @@ public abstract class UserInterface : IDisposable
         gui.Load();
         gui.Root.ShouldDrawBackground = drawBackground;
 
-        Context = new Context(new FontHolder(gui.Root.Skin), inputListener);
+        Context = new Context(new FontHolder(gui.Root.Skin), inputListener, resources);
 
         SetSize(targetSize);
     }

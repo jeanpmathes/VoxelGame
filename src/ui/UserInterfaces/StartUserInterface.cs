@@ -30,11 +30,13 @@ public class StartUserInterface : UserInterface
     /// <param name="inputListener">The input listener.</param>
     /// <param name="worldProvider">The world provider.</param>
     /// <param name="settingsProviders">The settings providers.</param>
+    /// <param name="resources">The resources.</param>
     /// <param name="drawBackground">Whether to draw the ui background.</param>
     public StartUserInterface(GameWindow window, InputListener inputListener, IWorldProvider worldProvider,
-        ICollection<ISettingsProvider> settingsProviders, bool drawBackground) : base(
+        ICollection<ISettingsProvider> settingsProviders, UIResources resources, bool drawBackground) : base(
         window,
         inputListener,
+        resources,
         drawBackground)
     {
         this.worldProvider = worldProvider;

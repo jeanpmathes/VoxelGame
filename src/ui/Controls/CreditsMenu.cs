@@ -6,12 +6,10 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.RichText;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
 
@@ -48,36 +46,8 @@ internal class CreditsMenu : StandardMenu
             Dock = Dock.Fill
         };
 
-        DirectoryInfo directory = FileSystem.AccessResourceDirectory("Attribution");
-
-        if (!directory.Exists) return;
-
-        foreach (FileInfo file in directory.EnumerateFiles("*.txt", SearchOption.TopDirectoryOnly))
+        foreach ((Document credits, string name) in Context.Resources.CreateAttributions(Context))
         {
-            string name = file.GetFileNameWithoutExtension().Replace(oldChar: '-', newChar: ' ');
-
-            string? text = null;
-
-            try
-            {
-                text = file.ReadAllText();
-            }
-            catch (IOException)
-            {
-                // ignored
-            }
-
-            if (text == null) continue;
-
-            Document credits = new();
-
-            Paragraph paragraph = new Paragraph()
-                .Font(Context.Fonts.Title).Text(name).LineBreak().LineBreak()
-                .Font(Context.Fonts.Default)
-                .Text(text).LineBreak();
-
-            credits.Paragraphs.Add(paragraph);
-
             ScrollControl page = new(tabs)
             {
                 CanScrollH = false

@@ -65,7 +65,7 @@ internal class MainMenu : StandardMenu
     {
         TrueRatioImagePanel image = new(display)
         {
-            ImageName = Source.GetImageName("start")
+            ImageName = Context.Resources.StartImage
         };
 
         Control.Used(image);

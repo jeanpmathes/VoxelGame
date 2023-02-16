@@ -157,7 +157,7 @@ internal class WorldSelection : StandardMenu
 
             Button load = new(buttons)
             {
-                ImageName = Source.GetIconName("load"),
+                ImageName = Context.Resources.LoadIcon,
                 ImageSize = new Size(width: 40, height: 40),
                 ToolTipText = Language.Load
 
@@ -165,7 +165,7 @@ internal class WorldSelection : StandardMenu
 
             Button delete = new(buttons)
             {
-                ImageName = Source.GetIconName("delete"),
+                ImageName = Context.Resources.DeleteIcon,
                 ImageSize = new Size(width: 40, height: 40),
                 ToolTipText = Language.Delete
             };
@@ -257,3 +257,4 @@ internal class WorldSelection : StandardMenu
 
     internal event EventHandler Cancel = delegate {};
 }
+

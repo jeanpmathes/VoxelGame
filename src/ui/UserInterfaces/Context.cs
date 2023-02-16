@@ -15,14 +15,17 @@ namespace VoxelGame.UI.UserInterfaces;
 /// </summary>
 internal sealed class Context : IDisposable
 {
-    internal Context(FontHolder fonts, InputListener input)
+    internal Context(FontHolder fonts, InputListener input, UIResources resources)
     {
         Fonts = fonts;
         Input = input;
+        Resources = resources;
     }
 
     internal FontHolder Fonts { get; }
     internal InputListener Input { get; }
+
+    internal UIResources Resources { get; }
 
     public void Dispose()
     {

@@ -34,7 +34,7 @@ public class PlayerResources
             TextureUnit.Texture10,
             fallbackResolution: 32);
 
-        logger.LogDebug(Events.ResourceLoad, "Player resources loaded");
+        logger.LogInformation(Events.ResourceLoad, "Player resources loaded");
     }
 
     /// <summary>
@@ -45,3 +45,4 @@ public class PlayerResources
         Crosshair.Dispose();
     }
 }
+

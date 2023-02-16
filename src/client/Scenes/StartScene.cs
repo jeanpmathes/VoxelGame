@@ -40,6 +40,7 @@ public sealed class StartScene : IScene
             client.Keybinds.Input.Listener,
             worldProvider,
             settingsProviders,
+            client.Resources.UIResources,
             drawBackground: true);
     }
 

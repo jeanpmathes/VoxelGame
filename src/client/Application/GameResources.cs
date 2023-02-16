@@ -13,6 +13,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics;
 using VoxelGame.Logging;
+using VoxelGame.UI;
 using TextureLayout = VoxelGame.Core.Visuals.TextureLayout;
 
 namespace VoxelGame.Client.Application;
@@ -55,6 +56,11 @@ public class GameResources
     ///     The player resources.
     /// </summary>
     public PlayerResources PlayerResources { get; } = new();
+
+    /// <summary>
+    ///     The UI resources.
+    /// </summary>
+    public UIResources UIResources { get; } = new();
 
     /// <summary>
     ///     Prepare resource loading and initialization. This requires a valid OpenGL context.
@@ -113,6 +119,7 @@ public class GameResources
         Fluids.Load(FluidTextureArray);
 
         PlayerResources.Load();
+        UIResources.Load();
 
         Generator.Prepare();
     }
@@ -128,5 +135,7 @@ public class GameResources
         FluidTextureArray.Dispose();
 
         PlayerResources.Unload();
+        UIResources.Unload();
     }
 }
+
