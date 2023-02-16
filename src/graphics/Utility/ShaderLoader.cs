@@ -21,26 +21,6 @@ namespace VoxelGame.Graphics.Utility;
 /// </summary>
 public class ShaderLoader
 {
-    private const string FallbackVertexShader = @"
-#version 330 core
-        
-void main()
-{
-    gl_Position = vec4(0.0);
-}
-    ";
-
-    private const string FallbackFragmentShader = @"
-#version 330 core
-
-out vec4 FragColor;
-
-void main()
-{
-    FragColor = vec4(0.0);
-}
-    ";
-
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ShaderLoader>();
 
     private readonly DirectoryInfo directory;
@@ -84,8 +64,8 @@ void main()
     /// </summary>
     /// <param name="vert">The name of the vertex shader.</param>
     /// <param name="frag">The name of the fragment shader.</param>
-    /// <returns>The loaded shader.</returns>
-    public Shader Load(string vert, string frag)
+    /// <returns>The loaded shader, or null if an error occurred.</returns>
+    public Shader? Load(string vert, string frag)
     {
         string vertex;
         string fragment;
@@ -102,13 +82,12 @@ void main()
         {
             logger.LogError(Events.ShaderError, exception, "Cannot load shader: {Vert} {Frag}", vert, frag);
 
-            vertex = FallbackVertexShader;
-            fragment = FallbackFragmentShader;
+            return null;
         }
 
+        Shader? shader = Shader.Load(vertex, fragment);
 
-
-        var shader = new Shader(vertex, fragment);
+        if (shader == null) return null;
 
         foreach ((ISet<Shader> set, string uniform) in sets)
             if (shader.IsUniformDefined(uniform))

@@ -136,18 +136,18 @@ public sealed class Shaders
             loader.LoadIncludable("color", "color.glsl");
             loader.LoadIncludable("animation", "animation.glsl");
 
-            SimpleSection = loader.Load("simple_section.vert", SectionFragmentShader);
-            ComplexSection = loader.Load("complex_section.vert", SectionFragmentShader);
-            VaryingHeightSection = loader.Load("varying_height_section.vert", SectionFragmentShader);
-            CrossPlantSection = loader.Load("cross_plant_section.vert", SectionFragmentShader);
-            CropPlantSection = loader.Load("crop_plant_section.vert", SectionFragmentShader);
-            OpaqueFluidSection = loader.Load("fluid_section.vert", "opaque_fluid_section.frag");
-            TransparentFluidSectionAccumulate = loader.Load("fluid_section.vert", "transparent_fluid_section_accumulate.frag");
-            TransparentFluidSectionDraw = loader.Load("fullscreen.vert", "transparent_fluid_section_draw.frag");
+            SimpleSection = loader.Load("simple_section.vert", SectionFragmentShader)!;
+            ComplexSection = loader.Load("complex_section.vert", SectionFragmentShader)!;
+            VaryingHeightSection = loader.Load("varying_height_section.vert", SectionFragmentShader)!;
+            CrossPlantSection = loader.Load("cross_plant_section.vert", SectionFragmentShader)!;
+            CropPlantSection = loader.Load("crop_plant_section.vert", SectionFragmentShader)!;
+            OpaqueFluidSection = loader.Load("fluid_section.vert", "opaque_fluid_section.frag")!;
+            TransparentFluidSectionAccumulate = loader.Load("fluid_section.vert", "transparent_fluid_section_accumulate.frag")!;
+            TransparentFluidSectionDraw = loader.Load("fullscreen.vert", "transparent_fluid_section_draw.frag")!;
 
-            Overlay = loader.Load("overlay.vert", "overlay.frag");
-            Selection = loader.Load("selection.vert", "selection.frag");
-            ScreenElement = loader.Load("screen_element.vert", "screen_element.frag");
+            Overlay = loader.Load("overlay.vert", "overlay.frag")!;
+            Selection = loader.Load("selection.vert", "selection.frag")!;
+            ScreenElement = loader.Load("screen_element.vert", "screen_element.frag")!;
 
             UpdateOrthographicProjection();
 
