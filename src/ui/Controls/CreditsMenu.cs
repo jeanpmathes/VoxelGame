@@ -48,7 +48,11 @@ internal class CreditsMenu : StandardMenu
             Dock = Dock.Fill
         };
 
-        foreach (FileInfo file in FileSystem.AccessResourceDirectory("Attribution").EnumerateFiles("*.txt", SearchOption.TopDirectoryOnly))
+        DirectoryInfo directory = FileSystem.AccessResourceDirectory("Attribution");
+
+        if (!directory.Exists) return;
+
+        foreach (FileInfo file in directory.EnumerateFiles("*.txt", SearchOption.TopDirectoryOnly))
         {
             string name = file.GetFileNameWithoutExtension().Replace(oldChar: '-', newChar: ' ');
 

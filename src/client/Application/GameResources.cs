@@ -52,6 +52,11 @@ public class GameResources
     public Shaders Shaders { get; private set; } = null!;
 
     /// <summary>
+    ///     The player resources.
+    /// </summary>
+    public PlayerResources PlayerResources { get; } = new();
+
+    /// <summary>
     ///     Prepare resource loading and initialization. This requires a valid OpenGL context.
     /// </summary>
     public void Prepare()
@@ -107,6 +112,8 @@ public class GameResources
 
         Fluids.Load(FluidTextureArray);
 
+        PlayerResources.Load();
+
         Generator.Prepare();
     }
 
@@ -119,7 +126,7 @@ public class GameResources
 
         BlockTextureArray.Dispose();
         FluidTextureArray.Dispose();
+
+        PlayerResources.Unload();
     }
 }
-
-

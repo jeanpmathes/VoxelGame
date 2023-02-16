@@ -87,7 +87,8 @@ public sealed class GameScene : IScene
             mass: 70f,
             camera,
             new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),
-            ui);
+            ui,
+            client.Resources.PlayerResources);
 
         world.AddPlayer(player);
 
@@ -210,4 +211,3 @@ public sealed class GameScene : IScene
 
     #endregion IDisposable Support.
 }
-

@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
+using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
@@ -62,13 +63,14 @@ public sealed class ClientPlayer : Player, IPlayerDataProvider
     /// <param name="camera">The camera to use for this player.</param>
     /// <param name="boundingVolume">The bounding box of the player.</param>
     /// <param name="ui">The ui used to display player information.</param>
+    /// <param name="resources">The resources used to render the player.</param>
     public ClientPlayer(World world, float mass, Camera camera, BoundingVolume boundingVolume,
-        GameUserInterface ui) : base(world, mass, boundingVolume)
+        GameUserInterface ui, PlayerResources resources) : base(world, mass, boundingVolume)
     {
         this.camera = camera;
         camera.Position = Position;
 
-        visualization = new PlayerVisualization(this, ui);
+        visualization = new PlayerVisualization(this, ui, resources);
         input = new PlayerInput(this);
 
         selector = new PlacementSelection(input, () => targetBlock?.Block);
