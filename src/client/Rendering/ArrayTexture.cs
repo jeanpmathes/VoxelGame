@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -35,11 +36,14 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
 
     private int arrayCount;
     private int[] handles = null!;
+
+    private LoadingContext? loadingContext;
     private TextureUnit[] textureUnits = null!;
 
     /// <summary>
     ///     Create a new array texture. It will be filled with all textures found in the given directory.
     /// </summary>
+    /// <param name="loadingContext">The context in which loading is performed.</param>
     /// <param name="textureDirectory">The directory to load textures from.</param>
     /// <param name="resolution">The resolution of the array. Textures that do not fit are excluded.</param>
     /// <param name="useCustomMipmapGeneration">
@@ -48,10 +52,10 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
     /// </param>
     /// <param name="parameters">Optional texture parameters.</param>
     /// <param name="textureUnits">The texture units to bind the array to.</param>
-    public ArrayTexture(DirectoryInfo textureDirectory, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters,
+    public ArrayTexture(LoadingContext loadingContext, DirectoryInfo textureDirectory, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters,
         params TextureUnit[] textureUnits)
     {
-        Initialize(textureDirectory, resolution, useCustomMipmapGeneration, parameters, textureUnits);
+        Initialize(loadingContext, textureDirectory, resolution, useCustomMipmapGeneration, parameters, textureUnits);
     }
 
     /// <summary>
@@ -69,14 +73,35 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
     {
         if (name == MissingTextureName) return 0;
 
+        if (loadingContext == null)
+        {
+            logger.LogWarning(Events.ResourceLoad, "Loading of textures is currently disabled, fallback will be used instead");
+
+            return 0;
+        }
+
         if (textureIndices.TryGetValue(name, out int value)) return value;
 
-        logger.LogWarning(
-            Events.MissingResource,
-            "The texture '{Name}' is not available, using fallback",
-            name);
+        loadingContext.ReportWarning(Events.MissingResource, "TextureIndex", name, "Texture not found");
 
         return 0;
+    }
+
+    /// <summary>
+    ///     Set the loading context. This will be used for reporting results.
+    /// </summary>
+    /// <param name="usedLoadingContext">The loading context to use.</param>
+    public void EnableLoading(LoadingContext usedLoadingContext)
+    {
+        loadingContext = usedLoadingContext;
+    }
+
+    /// <summary>
+    ///     Disable loading. This will prevent any further loading reports. Only the fallback texture will be available.
+    /// </summary>
+    public void DisableLoading()
+    {
+        loadingContext = null;
     }
 
     /// <summary>
@@ -98,12 +123,10 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
         }
     }
 
-    private void Initialize(DirectoryInfo textureDirectory, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters,
-        params TextureUnit[] units)
+    private void Initialize(LoadingContext initialLoadingContext,
+        DirectoryInfo textureDirectory, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters, params TextureUnit[] units)
     {
-        if (resolution <= 0 || (resolution & (resolution - 1)) != 0)
-            throw new ArgumentException(
-                $"The {nameof(resolution)} '{resolution}' is either negative or not a power of two, which is not allowed.");
+        Debug.Assert(resolution > 0 && (resolution & (resolution - 1)) == 0);
 
         arrayCount = units.Length;
 
@@ -121,7 +144,8 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
         catch (DirectoryNotFoundException)
         {
             texturePaths = Array.Empty<FileInfo>();
-            logger.LogWarning(Events.MissingDepository, "A texture directory has not been found: {Path}", textureDirectory);
+
+            initialLoadingContext.ReportWarning(Events.MissingDepository, nameof(ArrayTexture), textureDirectory, "Texture directory not found");
         }
 
         List<Bitmap> textures = new();
@@ -143,7 +167,7 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
                 UnitSize * handles.Length,
                 units.Length);
 
-            throw new ArgumentException("Too many textures in directory for this ArrayTexture!");
+            textures = textures.GetRange(index: 0, UnitSize * handles.Length);
         }
 
         Count = textures.Count;
@@ -173,7 +197,7 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
         // Cleanup
         foreach (Bitmap bitmap in textures) bitmap.Dispose();
 
-        logger.LogDebug(Events.ResourceLoad, "Loaded ArrayTexture with {Count} textures", Count);
+        initialLoadingContext.ReportSuccess(Events.ResourceLoad, nameof(ArrayTexture), textureDirectory);
     }
 
     private static void PreprocessBitmaps(List<Bitmap> textures)
@@ -468,3 +492,5 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
 
     #endregion IDisposable Support
 }
+
+

@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Gwen.Net.RichText;
-using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.UserInterfaces;
@@ -20,8 +19,6 @@ namespace VoxelGame.UI;
 /// </summary>
 public class UIResources
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<UIResources>();
-
     private readonly List<Attribution> attributions = new();
 
     internal string ResetIcon { get; } = GetIconName("reset");
@@ -30,9 +27,9 @@ public class UIResources
 
     internal string StartImage { get; } = GetImageName("start");
 
-    private void LoadAttributions()
+    private void LoadAttributions(LoadingContext loadingContext)
     {
-        DirectoryInfo directory = FileSystem.AccessResourceDirectory("Attribution");
+        DirectoryInfo directory = FileSystem.GetResourceDirectory("Attribution");
 
         if (!directory.Exists) return;
 
@@ -46,25 +43,27 @@ public class UIResources
             {
                 text = file.ReadAllText();
             }
-            catch (IOException)
+            catch (IOException exception)
             {
-                logger.LogWarning(Events.ResourceLoad, "Could not read attribution file: {Path}", file.FullName);
+                loadingContext.ReportWarning(Events.ResourceLoad, nameof(Attribution), file, exception);
             }
 
             if (text == null) continue;
 
             attributions.Add(new Attribution(name, text));
+            loadingContext.ReportSuccess(Events.ResourceLoad, nameof(Attribution), file);
         }
     }
 
     /// <summary>
     ///     Loads all the resources.
     /// </summary>
-    public void Load()
+    public void Load(LoadingContext loadingContext)
     {
-        LoadAttributions();
-
-        logger.LogInformation(Events.ResourceLoad, "UI resources loaded");
+        using (loadingContext.BeginStep(Events.ResourceLoad, "UI"))
+        {
+            LoadAttributions(loadingContext);
+        }
     }
 
     /// <summary>
@@ -96,13 +95,14 @@ public class UIResources
 
     private static string GetImageName(string name)
     {
-        return FileSystem.AccessResourceDirectory("GUI").GetFile($"{name}.png").FullName;
+        return FileSystem.GetResourceDirectory("GUI").GetFile($"{name}.png").FullName;
     }
 
     private static string GetIconName(string name)
     {
-        return FileSystem.AccessResourceDirectory("GUI", "Icons").GetFile($"{name}.png").FullName;
+        return FileSystem.GetResourceDirectory("GUI", "Icons").GetFile($"{name}.png").FullName;
     }
 
     private sealed record Attribution(string Name, string Text);
 }
+

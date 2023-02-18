@@ -157,10 +157,13 @@ public class Generator : IWorldGenerator
     /// <summary>
     ///     Prepare all required systems to use the generator.
     /// </summary>
-    public static void Prepare()
+    public static void Prepare(LoadingContext loadingContext)
     {
-        Decorations.Initialize();
-        Structures.Initialize();
+        using (loadingContext.BeginStep(Events.ResourceLoad, "Default Generator"))
+        {
+            Decorations.Initialize(loadingContext);
+            Structures.Initialize(loadingContext);
+        }
     }
 
     /// <summary>

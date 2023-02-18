@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Objects;
@@ -17,8 +16,6 @@ namespace VoxelGame.Client.Application;
 /// </summary>
 public class PlayerResources
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<PlayerResources>();
-
     /// <summary>
     ///     The crosshair texture.
     /// </summary>
@@ -27,14 +24,15 @@ public class PlayerResources
     /// <summary>
     ///     Loads all the resources.
     /// </summary>
-    public void Load()
+    public void Load(LoadingContext loadingContext)
     {
-        Crosshair = new Texture(
-            FileSystem.AccessResourceDirectory("Textures", "UI").GetFile("crosshair.png"),
-            TextureUnit.Texture10,
-            fallbackResolution: 32);
-
-        logger.LogInformation(Events.ResourceLoad, "Player resources loaded");
+        using (loadingContext.BeginStep(Events.ResourceLoad, "Player"))
+        {
+            Crosshair = new Texture(loadingContext,
+                FileSystem.GetResourceDirectory("Textures", "UI").GetFile("crosshair.png"),
+                TextureUnit.Texture10,
+                fallbackResolution: 32);
+        }
     }
 
     /// <summary>

@@ -6,7 +6,6 @@
 
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Objects;
@@ -20,13 +19,12 @@ namespace VoxelGame.Client.Rendering;
 /// </summary>
 public sealed class Shaders
 {
-    private const string SectionFragmentShader = "section.frag";
+    private const string SectionFragmentShader = "section";
 
     private const string TimeUniform = "time";
     private const string NearPlaneUniform = "nearPlane";
     private const string FarPlaneUniform = "farPlane";
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Shaders>();
     private readonly ISet<Shader> farPlaneSet = new HashSet<Shader>();
 
     private readonly ShaderLoader loader;
@@ -34,10 +32,11 @@ public sealed class Shaders
 
     private readonly ISet<Shader> timedSet = new HashSet<Shader>();
 
-    private Shaders(DirectoryInfo directory)
+    private Shaders(DirectoryInfo directory, LoadingContext loadingContext)
     {
         loader = new ShaderLoader(
             directory,
+            loadingContext,
             (timedSet, TimeUniform),
             (nearPlaneSet, NearPlaneUniform),
             (farPlaneSet, FarPlaneUniform));
@@ -102,11 +101,16 @@ public sealed class Shaders
     ///     Load all shaders in the given directory.
     /// </summary>
     /// <param name="directory">The directory containing all shaders.</param>
+    /// <param name="loadingContext">The loader to use.</param>
     /// <returns>An object representing all loaded shaders.</returns>
-    internal static Shaders Load(DirectoryInfo directory)
+    internal static Shaders Load(DirectoryInfo directory, LoadingContext loadingContext)
     {
-        Shaders shaders = new(directory);
-        shaders.LoadAll();
+        Shaders shaders = new(directory, loadingContext);
+
+        using (loadingContext.BeginStep(Events.ShaderSetup, "Shader Setup"))
+        {
+            shaders.LoadAll();
+        }
 
         return shaders;
     }
@@ -129,30 +133,25 @@ public sealed class Shaders
 
     private void LoadAll()
     {
-        using (logger.BeginScope("Shader setup"))
-        {
-            loader.LoadIncludable("noise", "noise.glsl");
-            loader.LoadIncludable("decode", "decode.glsl");
-            loader.LoadIncludable("color", "color.glsl");
-            loader.LoadIncludable("animation", "animation.glsl");
+        loader.LoadIncludable("noise");
+        loader.LoadIncludable("decode");
+        loader.LoadIncludable("color");
+        loader.LoadIncludable("animation");
 
-            SimpleSection = loader.Load("simple_section.vert", SectionFragmentShader)!;
-            ComplexSection = loader.Load("complex_section.vert", SectionFragmentShader)!;
-            VaryingHeightSection = loader.Load("varying_height_section.vert", SectionFragmentShader)!;
-            CrossPlantSection = loader.Load("cross_plant_section.vert", SectionFragmentShader)!;
-            CropPlantSection = loader.Load("crop_plant_section.vert", SectionFragmentShader)!;
-            OpaqueFluidSection = loader.Load("fluid_section.vert", "opaque_fluid_section.frag")!;
-            TransparentFluidSectionAccumulate = loader.Load("fluid_section.vert", "transparent_fluid_section_accumulate.frag")!;
-            TransparentFluidSectionDraw = loader.Load("fullscreen.vert", "transparent_fluid_section_draw.frag")!;
+        SimpleSection = loader.Load(nameof(SimpleSection), "simple_section", SectionFragmentShader)!;
+        ComplexSection = loader.Load(nameof(ComplexSection), "complex_section", SectionFragmentShader)!;
+        VaryingHeightSection = loader.Load(nameof(VaryingHeightSection), "varying_height_section", SectionFragmentShader)!;
+        CrossPlantSection = loader.Load(nameof(CrossPlantSection), "cross_plant_section", SectionFragmentShader)!;
+        CropPlantSection = loader.Load(nameof(CropPlantSection), "crop_plant_section", SectionFragmentShader)!;
+        OpaqueFluidSection = loader.Load(nameof(OpaqueFluidSection), "fluid_section", "opaque_fluid_section")!;
+        TransparentFluidSectionAccumulate = loader.Load(nameof(TransparentFluidSectionAccumulate), "fluid_section", "transparent_fluid_section_accumulate")!;
+        TransparentFluidSectionDraw = loader.Load(nameof(TransparentFluidSectionDraw), "fullscreen", "transparent_fluid_section_draw")!;
 
-            Overlay = loader.Load("overlay.vert", "overlay.frag")!;
-            Selection = loader.Load("selection.vert", "selection.frag")!;
-            ScreenElement = loader.Load("screen_element.vert", "screen_element.frag")!;
+        Overlay = loader.Load(nameof(Overlay), "overlay", "overlay")!;
+        Selection = loader.Load(nameof(Selection), "selection", "selection")!;
+        ScreenElement = loader.Load(nameof(ScreenElement), "screen_element", "screen_element")!;
 
-            UpdateOrthographicProjection();
-
-            logger.LogInformation(Events.ShaderSetup, "Completed shader setup");
-        }
+        UpdateOrthographicProjection();
     }
 
     /// <summary>
@@ -190,3 +189,4 @@ public sealed class Shaders
         foreach (Shader shader in farPlaneSet) shader.SetFloat(FarPlaneUniform, (float) far);
     }
 }
+

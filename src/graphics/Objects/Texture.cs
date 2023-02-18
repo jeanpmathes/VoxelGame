@@ -9,6 +9,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
@@ -25,10 +26,11 @@ public sealed class Texture : IDisposable
     ///     Creates a new texture from an image.
     ///     If the image cannot be loaded, a fallback texture is used.
     /// </summary>
+    /// <param name="loadingContext">The loading context.</param>
     /// <param name="path">The path to an image.</param>
     /// <param name="unit">The texture unit to bind this texture to.</param>
     /// <param name="fallbackResolution">The resolution to use for the fallback texture.</param>
-    public Texture(FileInfo path, TextureUnit unit, int fallbackResolution = 16)
+    public Texture(LoadingContext loadingContext, FileInfo path, TextureUnit unit, int fallbackResolution = 16)
     {
         TextureUnit = unit;
 
@@ -49,11 +51,7 @@ public sealed class Texture : IDisposable
                 SetupTexture(bitmap);
             }
 
-            logger.LogWarning(
-                Events.MissingResource,
-                exception,
-                "The texture could not be loaded and a fallback was used instead because the file was either not found or invalid: {Path}",
-                path);
+            loadingContext.ReportWarning(Events.MissingResource, nameof(Texture), path, exception);
         }
 
         GL.TextureParameter(Handle, TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Nearest);
@@ -63,6 +61,8 @@ public sealed class Texture : IDisposable
         GL.TextureParameter(Handle, TextureParameterName.TextureWrapT, (int) TextureWrapMode.Repeat);
 
         GL.GenerateTextureMipmap(Handle);
+
+        loadingContext.ReportSuccess(Events.ResourceLoad, nameof(Texture), path);
     }
 
     private int Handle { get; }

@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Definitions.Structures;
+using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -56,24 +58,27 @@ public class Structures
     /// <summary>
     ///     Initialize and load all structures.
     /// </summary>
-    public static void Initialize()
+    public static void Initialize(LoadingContext loadingContext)
     {
-        Instance = new Structures();
-
-        List<GeneratedStructure> structures = new()
+        using (loadingContext.BeginStep(Events.ResourceLoad, "Structures"))
         {
-            Instance.SmallPyramid,
-            Instance.LargeTropicalTree,
-            Instance.OldTower,
-            Instance.BuriedTower
-        };
+            Instance = new Structures();
 
-        Instance.All = structures;
+            List<GeneratedStructure> structures = new()
+            {
+                Instance.SmallPyramid,
+                Instance.LargeTropicalTree,
+                Instance.OldTower,
+                Instance.BuriedTower
+            };
 
-        foreach (GeneratedStructure structure in structures)
-        {
-            bool success = Instance.structuresByName.TryAdd(structure.Name, structure);
-            Debug.Assert(success);
+            Instance.All = structures;
+
+            foreach (GeneratedStructure structure in structures)
+            {
+                bool success = Instance.structuresByName.TryAdd(structure.Name, structure);
+                Debug.Assert(success);
+            }
         }
     }
 

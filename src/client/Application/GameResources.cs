@@ -9,6 +9,7 @@ using OpenTK.Graphics.OpenGL4;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Definitions.Structures;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics;
@@ -77,51 +78,73 @@ public class GameResources
     /// <summary>
     ///     Load the resources. This requires a valid OpenGL context.
     /// </summary>
-    public void Load()
+    public void Load(LoadingContext loadingContext)
     {
         System.Diagnostics.Debug.Assert(prepared);
 
+        BlockModel.EnableLoading(loadingContext);
+        StaticStructure.SetLoadingContext(loadingContext);
+
+        PerformLoading(loadingContext);
+
+        StaticStructure.ClearLoadingContext();
+        BlockModel.DisableLoading();
+    }
+
+    private void PerformLoading(LoadingContext loadingContext)
+    {
         var texParams = TextureParameters.CreateForWorld(Client.Instance);
 
-        BlockTextureArray = new ArrayTexture(
-            FileSystem.AccessResourceDirectory("Textures", "Blocks"),
-            resolution: 32,
-            useCustomMipmapGeneration: true,
-            texParams,
-            TextureUnit.Texture1,
-            TextureUnit.Texture2,
-            TextureUnit.Texture3,
-            TextureUnit.Texture4);
+        using (loadingContext.BeginStep(Events.ResourceLoad, "World Textures"))
+        {
+            using (loadingContext.BeginStep(Events.ResourceLoad, "Block Textures"))
+            {
+                BlockTextureArray = new ArrayTexture(loadingContext,
+                    FileSystem.GetResourceDirectory("Textures", "Blocks"),
+                    resolution: 32,
+                    useCustomMipmapGeneration: true,
+                    texParams,
+                    TextureUnit.Texture1,
+                    TextureUnit.Texture2,
+                    TextureUnit.Texture3,
+                    TextureUnit.Texture4);
+            }
 
-        logger.LogInformation(Events.ResourceLoad, "Block textures loaded");
-
-        FluidTextureArray = new ArrayTexture(
-            FileSystem.AccessResourceDirectory("Textures", "Fluids"),
-            resolution: 32,
-            useCustomMipmapGeneration: false,
-            texParams,
-            TextureUnit.Texture5);
-
-        logger.LogInformation(Events.ResourceLoad, "Fluid textures loaded");
+            using (loadingContext.BeginStep(Events.ResourceLoad, "Fluid Textures"))
+            {
+                FluidTextureArray = new ArrayTexture(loadingContext,
+                    FileSystem.GetResourceDirectory("Textures", "Fluids"),
+                    resolution: 32,
+                    useCustomMipmapGeneration: false,
+                    texParams,
+                    TextureUnit.Texture5);
+            }
+        }
 
         TextureLayout.SetProviders(BlockTextureArray, FluidTextureArray);
         BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
 
-        Shaders = Shaders.Load(FileSystem.AccessResourceDirectory("Shaders"));
+        BlockTextureArray.EnableLoading(loadingContext);
+        FluidTextureArray.EnableLoading(loadingContext);
 
-        Blocks.Load(BlockTextureArray);
+        Shaders = Shaders.Load(FileSystem.GetResourceDirectory("Shaders"), loadingContext);
+
+        Blocks.Load(BlockTextureArray, loadingContext);
 
         logger.LogDebug(
             Events.ResourceLoad,
             "Texture/Block ratio: {Ratio:F02}",
             BlockTextureArray.Count / (double) Blocks.Instance.Count);
 
-        Fluids.Load(FluidTextureArray);
+        Fluids.Load(FluidTextureArray, loadingContext);
 
-        PlayerResources.Load();
-        UIResources.Load();
+        PlayerResources.Load(loadingContext);
+        UIResources.Load(loadingContext);
 
-        Generator.Prepare();
+        Generator.Prepare(loadingContext);
+
+        BlockTextureArray.DisableLoading();
+        FluidTextureArray.DisableLoading();
     }
 
     /// <summary>

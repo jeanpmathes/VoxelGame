@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -31,7 +32,7 @@ public sealed class BlockModel
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
 
-    private static readonly DirectoryInfo path = FileSystem.AccessResourceDirectory("Models");
+    private static readonly DirectoryInfo path = FileSystem.GetResourceDirectory("Models");
 
     private static ITextureIndexProvider blockTextureIndexProvider = null!;
 
@@ -448,6 +449,27 @@ public sealed class BlockModel
         return name + ".json";
     }
 
+    private static LoadingContext? loader;
+
+    /// <summary>
+    ///     Enable loading of models.
+    /// </summary>
+    /// <param name="context">The context to use for loading.</param>
+    public static void EnableLoading(LoadingContext context)
+    {
+        Debug.Assert(loader == null);
+        loader = context;
+    }
+
+    /// <summary>
+    ///     Disable loading of models. Only fallback models will be available.
+    /// </summary>
+    public static void DisableLoading()
+    {
+        Debug.Assert(loader != null);
+        loader = null;
+    }
+
     /// <summary>
     ///     Load a block model from file. All models are loaded from a specific directory.
     /// </summary>
@@ -455,22 +477,25 @@ public sealed class BlockModel
     /// <returns>The loaded model.</returns>
     public static BlockModel Load(string name)
     {
+        if (loader == null)
+        {
+            logger.LogWarning(Events.ResourceLoad, "Loading of models is currently disabled, fallback will be used instead");
+
+            return CreateFallback();
+        }
+
         try
         {
             string json = path.GetFile(GetFileName(name)).ReadAllText();
             BlockModel model = JsonSerializer.Deserialize<BlockModel>(json) ?? new BlockModel();
 
-            logger.LogDebug(Events.ResourceLoad, "Loaded BlockModel: {Name}", name);
+            loader.ReportSuccess(Events.ResourceLoad, nameof(BlockModel), name);
 
             return model;
         }
         catch (Exception e) when (e is IOException or FileNotFoundException or JsonException)
         {
-            logger.LogWarning(
-                Events.MissingResource,
-                e,
-                "Could not load the model '{Name}' because an exception occurred, fallback will be used instead",
-                name);
+            loader.ReportFailure(Events.MissingResource, nameof(BlockModel), name, e);
 
             return CreateFallback();
         }
@@ -934,7 +959,5 @@ public static class BlockModelExtensions
         group.west.Lock();
     }
 }
-
-
 
 

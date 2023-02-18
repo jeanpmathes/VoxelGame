@@ -86,7 +86,6 @@ public class Shader
     {
         GL.CompileShader(shader);
 
-        // Check for compilation errors
         GL.GetShader(shader, ShaderParameter.CompileStatus, out int code);
 
         if (code != (int) All.True)
@@ -109,7 +108,6 @@ public class Shader
     {
         GL.LinkProgram(program);
 
-        // Check for linking errors
         GL.GetProgram(program, GetProgramParameterName.LinkStatus, out int code);
 
         if (code != (int) All.True)
@@ -224,3 +222,5 @@ public class Shader
         GL.DeleteProgram(Handle);
     }
 }
+
+

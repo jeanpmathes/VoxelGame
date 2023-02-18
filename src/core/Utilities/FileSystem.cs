@@ -118,9 +118,17 @@ public static class FileSystem
     /// </summary>
     /// <param name="path">The folder structure.</param>
     /// <returns>The directory path.</returns>
-    public static DirectoryInfo AccessResourceDirectory(params string[] path)
+    public static DirectoryInfo GetResourceDirectory(params string[] path)
     {
         return new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "Resources", Path.Combine(path)));
+    }
+
+    /// <summary>
+    ///     Get the path to this resource file or directory relative to the resource directory.
+    /// </summary>
+    public static string GetResourceRelativePath(this FileSystemInfo resource)
+    {
+        return Path.GetRelativePath(GetResourceDirectory().FullName, resource.FullName);
     }
 
     private static bool IsNameReserved(string name)
@@ -163,3 +171,5 @@ public static class FileSystem
         return new DirectoryInfo(Path.GetFullPath(path));
     }
 }
+
+

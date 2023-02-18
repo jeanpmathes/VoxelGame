@@ -11,6 +11,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic.Definitions.Fluids;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
@@ -34,9 +35,9 @@ public class Fluids
     private readonly List<Fluid> fluidList = new();
     private readonly Dictionary<string, Fluid> namedFluidDictionary = new();
 
-    private Fluids(ITextureIndexProvider indexProvider)
+    private Fluids(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
     {
-        using (logger.BeginScope("Fluid Loading"))
+        using (loadingContext.BeginStep(Events.FluidLoad, "Fluid Loading"))
         {
             List<Fluid> allFluids = new()
             {
@@ -65,13 +66,8 @@ public class Fluids
 
                 fluid.Setup(id, indexProvider);
 
-                logger.LogDebug(Events.FluidLoad, "Loaded fluid [{Fluid}] with ID '{ID}'", fluid, fluid.ID);
+                loadingContext.ReportSuccess(Events.FluidLoad, nameof(Fluid), fluid.NamedID);
             }
-
-            logger.LogInformation(
-                Events.FluidLoad,
-                "Fluid setup complete, total of {Count} fluids loaded",
-                Count);
 
             ContactManager = new FluidContactManager(this);
         }
@@ -268,11 +264,10 @@ public class Fluids
     /// <summary>
     ///     Calls the setup method on all blocks.
     /// </summary>
-    public static void Load(ITextureIndexProvider indexProvider)
+    public static void Load(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
     {
-        Instance = new Fluids(indexProvider);
+        Instance = new Fluids(indexProvider, loadingContext);
     }
 }
-
 
 

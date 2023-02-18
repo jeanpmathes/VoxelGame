@@ -11,6 +11,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Input;
 using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
@@ -106,7 +107,9 @@ internal class Client : GameWindow, IPerformanceProvider
 
             screenBehaviour = new ScreenBehaviour(this);
 
-            Resources.Load();
+            LoadingContext loadingContext = new();
+
+            Resources.Load(loadingContext);
 
             sceneManager.Load(sceneFactory.CreateStartScene());
 

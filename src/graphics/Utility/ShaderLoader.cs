@@ -27,33 +27,38 @@ public class ShaderLoader
     private readonly Dictionary<string, string> includables = new();
 
     private readonly Regex includePattern = new(@"^#pragma(?: )+include\(""(.+)""\)$");
+
+    private readonly LoadingContext loadingContext;
     private readonly (ISet<Shader> set, string uniform)[] sets;
 
     /// <summary>
     ///     Create a shader loader.
     /// </summary>
     /// <param name="directory">The directory to load shaders from.</param>
+    /// <param name="loadingContext">The loading context.</param>
     /// <param name="sets">Shader sets to fill. Shaders will be added to a set if they contain the specified uniform.</param>
-    public ShaderLoader(DirectoryInfo directory, params (ISet<Shader> set, string uniform)[] sets)
+    public ShaderLoader(DirectoryInfo directory, LoadingContext loadingContext, params (ISet<Shader> set, string uniform)[] sets)
     {
         this.directory = directory;
+        this.loadingContext = loadingContext;
         this.sets = sets;
     }
 
     /// <summary>
     ///     Load a file that can be included in other shaders.
     /// </summary>
-    /// <param name="name">The name of the content. Will be used as marker for including.</param>
-    /// <param name="file">The path to the file.</param>
-    public void LoadIncludable(string name, string file)
+    /// <param name="name">The name of the content. Will be used as marker for including and to construct the file path.</param>
+    public void LoadIncludable(string name)
     {
+        FileInfo file = directory.GetFile($"{name}.glsl");
+
         try
         {
-            includables[name] = directory.GetFile(file).ReadAllText();
+            includables[name] = file.ReadAllText();
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            logger.LogError(Events.ShaderError, exception, "Cannot load includable: {Name} {File}", name, file);
+            loadingContext.ReportFailure(Events.ShaderError, nameof(Shader), file, exception);
 
             includables[name] = string.Empty;
         }
@@ -62,36 +67,48 @@ public class ShaderLoader
     /// <summary>
     ///     Load a shader.
     /// </summary>
+    /// <param name="name">The name of the combined program.</param>
     /// <param name="vert">The name of the vertex shader.</param>
     /// <param name="frag">The name of the fragment shader.</param>
     /// <returns>The loaded shader, or null if an error occurred.</returns>
-    public Shader? Load(string vert, string frag)
+    public Shader? Load(string name, string vert, string frag)
     {
         string vertex;
         string fragment;
 
+        FileInfo vertFile = directory.GetFile($"{vert}.vert");
+        FileInfo fragFile = directory.GetFile($"{frag}.frag");
+
         try
         {
-            using StreamReader vertReader = directory.GetFile(vert).OpenText();
-            using StreamReader fragReader = directory.GetFile(frag).OpenText();
+            using StreamReader vertReader = vertFile.OpenText();
+            using StreamReader fragReader = fragFile.OpenText();
 
             vertex = ProcessSource(vertReader);
             fragment = ProcessSource(fragReader);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            logger.LogError(Events.ShaderError, exception, "Cannot load shader: {Vert} {Frag}", vert, frag);
+            loadingContext.ReportFailure(Events.ShaderError, nameof(Shader), vertFile, exception);
+            loadingContext.ReportFailure(Events.ShaderError, nameof(Shader), fragFile, exception);
 
             return null;
         }
 
         Shader? shader = Shader.Load(vertex, fragment);
 
-        if (shader == null) return null;
+        if (shader == null)
+        {
+            loadingContext.ReportFailure(Events.ShaderError, nameof(Shader), name, "Failed to compile and link shader");
+
+            return null;
+        }
 
         foreach ((ISet<Shader> set, string uniform) in sets)
             if (shader.IsUniformDefined(uniform))
                 set.Add(shader);
+
+        loadingContext.ReportSuccess(Events.ShaderSetup, nameof(Shader), name);
 
         return shader;
     }
@@ -120,3 +137,5 @@ public class ShaderLoader
         return source.ToString();
     }
 }
+
+

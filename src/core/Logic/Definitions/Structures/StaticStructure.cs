@@ -24,7 +24,9 @@ public partial class StaticStructure : Structure
     private const int MaxSize = 1024;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<StaticStructure>();
 
-    private static readonly DirectoryInfo structureDirectory = FileSystem.AccessResourceDirectory("Structures");
+    private static readonly DirectoryInfo structureDirectory = FileSystem.GetResourceDirectory("Structures");
+
+    private static LoadingContext? loadingContext;
 
     private readonly Content?[,,] contents;
 
@@ -92,6 +94,27 @@ public partial class StaticStructure : Structure
     }
 
     /// <summary>
+    ///     Set the current loading context. All loading operations will then be performed in that context.
+    ///     Loading operations can also be performed without a context.
+    ///     When a context is used, no other loading operations on any thread should be performed.
+    /// </summary>
+    /// <param name="newLoadingContext">The new loading context.</param>
+    public static void SetLoadingContext(LoadingContext newLoadingContext)
+    {
+        Debug.Assert(loadingContext == null);
+        loadingContext = newLoadingContext;
+    }
+
+    /// <summary>
+    ///     Clear the current loading context.
+    /// </summary>
+    public static void ClearLoadingContext()
+    {
+        Debug.Assert(loadingContext != null);
+        loadingContext = null;
+    }
+
+    /// <summary>
     ///     Load a structure from the application resources.
     /// </summary>
     /// <param name="name">The name of the structure.</param>
@@ -109,22 +132,27 @@ public partial class StaticStructure : Structure
     /// <returns>The loaded structure, or null if the loading failed.</returns>
     public static StaticStructure Load(DirectoryInfo directory, string name)
     {
+        FileInfo file = directory.GetFile(GetFileName(name));
+
         try
         {
-            string json = directory.GetFile(GetFileName(name)).ReadAllText();
+            string json = file.ReadAllText();
             Definition definition = JsonSerializer.Deserialize<Definition>(json) ?? new Definition();
 
-            logger.LogDebug(Events.ResourceLoad, "Loaded StaticStructure: {Name}", name);
+            if (loadingContext != null) loadingContext.ReportSuccess(Events.ResourceLoad, nameof(StaticStructure), file);
+            else logger.LogDebug(Events.CreationLoad, "Loaded StaticStructure: {Name}", name);
 
             return new StaticStructure(definition, name);
         }
         catch (Exception e) when (e is IOException or FileNotFoundException or JsonException or FileFormatException)
         {
-            logger.LogWarning(
-                Events.MissingResource,
-                e,
-                "Could not load the structure '{Name}' because an exception occurred, fallback will be used instead",
-                name);
+            if (loadingContext != null) loadingContext.ReportFailure(Events.ResourceLoad, nameof(StaticStructure), file, e);
+            else
+                logger.LogWarning(
+                    Events.MissingCreation,
+                    e,
+                    "Could not load the structure '{Name}' because an exception occurred, fallback will be used instead",
+                    name);
 
             return CreateFallback();
         }
@@ -253,7 +281,5 @@ public partial class StaticStructure : Structure
         return false;
     }
 }
-
-
 
 
