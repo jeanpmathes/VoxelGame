@@ -8,7 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Collections;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Utilities;
@@ -20,21 +22,48 @@ public class LoadingContext
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<LoadingContext>();
 
-    private readonly List<(Step step, string previous)> steps = new();
+    private readonly Tree<string> steps;
+    private string currentPath;
 
-    private string CurrentStep { get; set; } = "Base";
+    private Tree<string>.INode currentStep;
+
+    /// <summary>
+    ///     Creates a new loading context.
+    /// </summary>
+    public LoadingContext()
+    {
+        steps = new Tree<string>("Base");
+
+        currentPath = string.Empty;
+        currentStep = steps.Root;
+
+        RecalculatePath();
+    }
+
+    private void RecalculatePath()
+    {
+        List<string> path = new();
+        Tree<string>.INode? node = currentStep;
+
+        while (node != null)
+        {
+            path.Add(node.Value);
+            node = node.Parent;
+        }
+
+        currentPath = path.AsEnumerable().Reverse().Aggregate((a, b) => $"{a} > {b}");
+    }
 
     private void FinishStep(Step step)
     {
-        if (steps[^1].step == step)
+        if (step.Node == currentStep)
         {
-            CurrentStep = steps[^1].previous;
-            steps.RemoveAt(steps.Count - 1);
+            currentStep = currentStep.Parent ?? steps.Root;
+            RecalculatePath();
         }
         else
         {
             Debug.Fail("Step was not the last one.");
-            steps.RemoveAll(s => s.step == step);
         }
 
         logger.LogInformation(step.ID, "Finished loading step '{StepName}'", step.Name);
@@ -49,10 +78,10 @@ public class LoadingContext
     {
         logger.LogDebug(id, "Starting loading step '{StepName}'", name);
 
-        Step step = new(this, id, name, logger.BeginScope(name));
+        currentStep = currentStep.AddChild(name);
+        RecalculatePath();
 
-        steps.Add((step, CurrentStep));
-        CurrentStep = $"{CurrentStep} > {name}";
+        Step step = new(this, id, name, currentStep, logger.BeginScope(name));
 
         return step;
     }
@@ -70,7 +99,7 @@ public class LoadingContext
     /// </summary>
     public void ReportSuccess(EventId id, string type, string resource)
     {
-        logger.LogDebug(id, "{Step}: Loaded {Type} resource '{Resource}'", CurrentStep, type, resource);
+        logger.LogDebug(id, "{Step}: Loaded {Type} resource '{Resource}'", currentPath, type, resource);
     }
 
     /// <summary>
@@ -86,7 +115,7 @@ public class LoadingContext
     /// </summary>
     public void ReportFailure(EventId id, string type, string resource, Exception exception)
     {
-        logger.LogError(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", CurrentStep, type, resource);
+        logger.LogError(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", currentPath, type, resource);
     }
 
     /// <summary>
@@ -102,7 +131,7 @@ public class LoadingContext
     /// </summary>
     public void ReportFailure(EventId id, string type, string resource, string message)
     {
-        logger.LogError(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", CurrentStep, type, resource, message);
+        logger.LogError(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", currentPath, type, resource, message);
     }
 
     /// <summary>
@@ -118,7 +147,7 @@ public class LoadingContext
     /// </summary>
     public void ReportWarning(EventId id, string type, string resource, Exception exception)
     {
-        logger.LogWarning(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", CurrentStep, type, resource);
+        logger.LogWarning(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", currentPath, type, resource);
     }
 
     /// <summary>
@@ -134,10 +163,10 @@ public class LoadingContext
     /// </summary>
     public void ReportWarning(EventId id, string type, string resource, string message)
     {
-        logger.LogWarning(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", CurrentStep, type, resource, message);
+        logger.LogWarning(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", currentPath, type, resource, message);
     }
 
-    private sealed record Step(LoadingContext Context, EventId ID, string Name, IDisposable Scope) : IDisposable
+    private sealed record Step(LoadingContext Context, EventId ID, string Name, Tree<string>.INode Node, IDisposable Scope) : IDisposable
     {
         public void Dispose()
         {
@@ -146,4 +175,3 @@ public class LoadingContext
         }
     }
 }
-
