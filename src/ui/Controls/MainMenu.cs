@@ -20,6 +20,8 @@ namespace VoxelGame.UI.Controls;
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 internal class MainMenu : StandardMenu
 {
+    private Button? worlds;
+
     internal MainMenu(ControlBase parent, Context context) : base(parent, context)
     {
         CreateContent();
@@ -32,12 +34,12 @@ internal class MainMenu : StandardMenu
 
     protected override void CreateMenu(ControlBase menu)
     {
-        Button worlds = new(menu)
+        worlds = new Button(menu)
         {
             Text = Language.Worlds
         };
 
-        worlds.Clicked += (_, _) => SelectWorlds(this, EventArgs.Empty);
+        worlds.Pressed += (_, _) => SelectWorlds(this, EventArgs.Empty);
 
         Button settings = new(menu)
         {
@@ -61,6 +63,11 @@ internal class MainMenu : StandardMenu
         exit.Pressed += (_, _) => SelectExit(this, EventArgs.Empty);
     }
 
+    internal void DisableWorlds()
+    {
+        worlds?.Disable();
+    }
+
     protected override void CreateDisplay(ControlBase display)
     {
         TrueRatioImagePanel image = new(display)
@@ -71,4 +78,3 @@ internal class MainMenu : StandardMenu
         Control.Used(image);
     }
 }
-

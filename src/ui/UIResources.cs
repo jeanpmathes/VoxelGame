@@ -31,7 +31,12 @@ public class UIResources
     {
         DirectoryInfo directory = FileSystem.GetResourceDirectory("Attribution");
 
-        if (!directory.Exists) return;
+        if (!directory.Exists)
+        {
+            loadingContext.ReportWarning(Events.MissingDepository, nameof(Attribution), directory, "Directory does not exist");
+
+            return;
+        }
 
         foreach (FileInfo file in directory.EnumerateFiles("*.txt", SearchOption.TopDirectoryOnly))
         {
@@ -105,4 +110,3 @@ public class UIResources
 
     private sealed record Attribution(string Name, string Text);
 }
-

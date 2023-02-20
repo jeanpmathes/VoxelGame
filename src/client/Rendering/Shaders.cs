@@ -32,6 +32,8 @@ public sealed class Shaders
 
     private readonly ISet<Shader> timedSet = new HashSet<Shader>();
 
+    private bool loaded;
+
     private Shaders(DirectoryInfo directory, LoadingContext loadingContext)
     {
         loader = new ShaderLoader(
@@ -138,18 +140,25 @@ public sealed class Shaders
         loader.LoadIncludable("color");
         loader.LoadIncludable("animation");
 
-        SimpleSection = loader.Load(nameof(SimpleSection), "simple_section", SectionFragmentShader)!;
-        ComplexSection = loader.Load(nameof(ComplexSection), "complex_section", SectionFragmentShader)!;
-        VaryingHeightSection = loader.Load(nameof(VaryingHeightSection), "varying_height_section", SectionFragmentShader)!;
-        CrossPlantSection = loader.Load(nameof(CrossPlantSection), "cross_plant_section", SectionFragmentShader)!;
-        CropPlantSection = loader.Load(nameof(CropPlantSection), "crop_plant_section", SectionFragmentShader)!;
-        OpaqueFluidSection = loader.Load(nameof(OpaqueFluidSection), "fluid_section", "opaque_fluid_section")!;
-        TransparentFluidSectionAccumulate = loader.Load(nameof(TransparentFluidSectionAccumulate), "fluid_section", "transparent_fluid_section_accumulate")!;
-        TransparentFluidSectionDraw = loader.Load(nameof(TransparentFluidSectionDraw), "fullscreen", "transparent_fluid_section_draw")!;
+        Shader Check(Shader? shader)
+        {
+            loaded &= shader != null;
 
-        Overlay = loader.Load(nameof(Overlay), "overlay", "overlay")!;
-        Selection = loader.Load(nameof(Selection), "selection", "selection")!;
-        ScreenElement = loader.Load(nameof(ScreenElement), "screen_element", "screen_element")!;
+            return shader!;
+        }
+
+        SimpleSection = Check(loader.Load(nameof(SimpleSection), "simple_section", SectionFragmentShader));
+        ComplexSection = Check(loader.Load(nameof(ComplexSection), "complex_section", SectionFragmentShader));
+        VaryingHeightSection = Check(loader.Load(nameof(VaryingHeightSection), "varying_height_section", SectionFragmentShader));
+        CrossPlantSection = Check(loader.Load(nameof(CrossPlantSection), "cross_plant_section", SectionFragmentShader));
+        CropPlantSection = Check(loader.Load(nameof(CropPlantSection), "crop_plant_section", SectionFragmentShader));
+        OpaqueFluidSection = Check(loader.Load(nameof(OpaqueFluidSection), "fluid_section", "opaque_fluid_section"));
+        TransparentFluidSectionAccumulate = Check(loader.Load(nameof(TransparentFluidSectionAccumulate), "fluid_section", "transparent_fluid_section_accumulate"));
+        TransparentFluidSectionDraw = Check(loader.Load(nameof(TransparentFluidSectionDraw), "fullscreen", "transparent_fluid_section_draw"));
+
+        Overlay = Check(loader.Load(nameof(Overlay), "overlay", "overlay"));
+        Selection = Check(loader.Load(nameof(Selection), "selection", "selection"));
+        ScreenElement = Check(loader.Load(nameof(ScreenElement), "screen_element", "screen_element"));
 
         UpdateOrthographicProjection();
     }
@@ -159,6 +168,8 @@ public sealed class Shaders
     /// </summary>
     public void UpdateOrthographicProjection()
     {
+        if (!loaded) return;
+
         Overlay.SetMatrix4(
             "projection",
             Matrix4d.CreateOrthographic(width: 1.0, 1.0 / Screen.AspectRatio, depthNear: 0.0, depthFar: 1.0).ToMatrix4());
@@ -174,6 +185,8 @@ public sealed class Shaders
     /// <param name="time">The current time, since the game has started.</param>
     public void SetTime(float time)
     {
+        if (!loaded) return;
+
         foreach (Shader shader in timedSet) shader.SetFloat(TimeUniform, time);
     }
 
@@ -184,6 +197,8 @@ public sealed class Shaders
     /// <param name="far">The far plane distance.</param>
     public void SetPlanes(double near, double far)
     {
+        if (!loaded) return;
+
         foreach (Shader shader in nearPlaneSet) shader.SetFloat(NearPlaneUniform, (float) near);
 
         foreach (Shader shader in farPlaneSet) shader.SetFloat(FarPlaneUniform, (float) far);

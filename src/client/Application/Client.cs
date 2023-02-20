@@ -111,7 +111,7 @@ internal class Client : GameWindow, IPerformanceProvider
 
             Resources.Load(loadingContext);
 
-            sceneManager.Load(sceneFactory.CreateStartScene());
+            sceneManager.Load(sceneFactory.CreateStartScene(loadingContext.State));
 
             logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
 
@@ -176,7 +176,7 @@ internal class Client : GameWindow, IPerformanceProvider
     /// </summary>
     internal void ExitGame()
     {
-        IScene startScene = sceneFactory.CreateStartScene();
+        IScene startScene = sceneFactory.CreateStartScene(resourceLoadingFailure: null);
         sceneManager.Load(startScene);
 
         CurrentGame = null;

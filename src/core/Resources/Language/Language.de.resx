@@ -567,4 +567,7 @@
   <data name="Roots" xml:space="preserve">
     <value>Wurzeln</value>
   </data>
+  <data name="MissingResources" xml:space="preserve">
+    <value>Fehlende Anwendungsressourcen</value>
+  </data>
 </root>

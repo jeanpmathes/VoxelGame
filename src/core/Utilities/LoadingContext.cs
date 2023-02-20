@@ -15,6 +15,16 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Utilities;
 
+using Tree = Tree<string>;
+using Node = Tree<string>.INode;
+
+/// <summary>
+///     Describes a resource loading failure.
+/// </summary>
+/// <param name="MissingResources">The missing resources.</param>
+/// <param name="IsCritical">Whether the failure is critical.</param>
+public record ResourceLoadingFailure(Tree<string> MissingResources, bool IsCritical);
+
 /// <summary>
 ///     A context in which loading operations can be performed.
 /// </summary>
@@ -22,17 +32,23 @@ public class LoadingContext
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<LoadingContext>();
 
-    private readonly Tree<string> steps;
-    private string currentPath;
+    /// <summary>
+    ///     Get the steps and all missing resources as a tree.
+    /// </summary>
+    private readonly Tree steps;
 
-    private Tree<string>.INode currentStep;
+    private string currentPath;
+    private Node currentStep;
+
+    private bool isMissingAny;
+    private bool isMissingCritical;
 
     /// <summary>
     ///     Creates a new loading context.
     /// </summary>
     public LoadingContext()
     {
-        steps = new Tree<string>("Base");
+        steps = new Tree("Base");
 
         currentPath = string.Empty;
         currentStep = steps.Root;
@@ -40,10 +56,15 @@ public class LoadingContext
         RecalculatePath();
     }
 
+    /// <summary>
+    ///     The state of the resource loading. Is either null or an instance of <see cref="ResourceLoadingFailure" />.
+    /// </summary>
+    public ResourceLoadingFailure? State => isMissingAny ? new ResourceLoadingFailure(steps, isMissingCritical) : null;
+
     private void RecalculatePath()
     {
         List<string> path = new();
-        Tree<string>.INode? node = currentStep;
+        Node? node = currentStep;
 
         while (node != null)
         {
@@ -86,6 +107,16 @@ public class LoadingContext
         return step;
     }
 
+    private void ReportMissing(string type, string resource, bool isCritical)
+    {
+        currentStep.AddChild(isCritical
+            ? $"Missing critical {type} resource 'RES:{resource}'"
+            : $"Missing {type} resource 'RES:{resource}'");
+
+        isMissingAny = true;
+        isMissingCritical |= isCritical;
+    }
+
     /// <summary>
     ///     Report a successful loading operation.
     /// </summary>
@@ -116,6 +147,7 @@ public class LoadingContext
     public void ReportFailure(EventId id, string type, string resource, Exception exception)
     {
         logger.LogError(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", currentPath, type, resource);
+        ReportMissing(type, resource, isCritical: true);
     }
 
     /// <summary>
@@ -132,6 +164,7 @@ public class LoadingContext
     public void ReportFailure(EventId id, string type, string resource, string message)
     {
         logger.LogError(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", currentPath, type, resource, message);
+        ReportMissing(type, resource, isCritical: true);
     }
 
     /// <summary>
@@ -148,6 +181,7 @@ public class LoadingContext
     public void ReportWarning(EventId id, string type, string resource, Exception exception)
     {
         logger.LogWarning(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", currentPath, type, resource);
+        ReportMissing(type, resource, isCritical: false);
     }
 
     /// <summary>
@@ -164,9 +198,10 @@ public class LoadingContext
     public void ReportWarning(EventId id, string type, string resource, string message)
     {
         logger.LogWarning(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", currentPath, type, resource, message);
+        ReportMissing(type, resource, isCritical: false);
     }
 
-    private sealed record Step(LoadingContext Context, EventId ID, string Name, Tree<string>.INode Node, IDisposable Scope) : IDisposable
+    private sealed record Step(LoadingContext Context, EventId ID, string Name, Node Node, IDisposable Scope) : IDisposable
     {
         public void Dispose()
         {

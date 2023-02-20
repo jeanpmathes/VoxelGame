@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
+using VoxelGame.Core.Utilities;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -20,11 +21,16 @@ namespace VoxelGame.Client.Scenes;
 public sealed class StartScene : IScene
 {
     private readonly Application.Client client;
+
+    private readonly ResourceLoadingFailure? resourceLoadingFailure;
     private readonly StartUserInterface ui;
 
-    internal StartScene(Application.Client client)
+    internal StartScene(Application.Client client, ResourceLoadingFailure? resourceLoadingFailure)
     {
         this.client = client;
+
+        this.resourceLoadingFailure = resourceLoadingFailure;
+
         WorldProvider worldProvider = new(Program.WorldsDirectory);
         worldProvider.WorldActivation += (_, args) => client.StartGame(args);
 
@@ -56,6 +62,8 @@ public sealed class StartScene : IScene
 
         ui.CreateControl();
         ui.SetExitAction(() => client.Close());
+
+        if (resourceLoadingFailure != null) ui.PresentResourceLoadingFailure(resourceLoadingFailure.MissingResources, resourceLoadingFailure.IsCritical);
     }
 
     /// <inheritdoc />

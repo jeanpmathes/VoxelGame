@@ -7,6 +7,7 @@
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Scenes;
 
@@ -45,10 +46,11 @@ public class SceneFactory
     /// <summary>
     ///     Create a new start scene.
     /// </summary>
+    /// <param name="resourceLoadingFailure">A resource loading failure that occurred during the game start, if any.</param>
     /// <returns>The created scene.</returns>
-    public IScene CreateStartScene()
+    public IScene CreateStartScene(ResourceLoadingFailure? resourceLoadingFailure)
     {
-        return new StartScene(client);
+        return new StartScene(client, resourceLoadingFailure);
     }
 }
 
