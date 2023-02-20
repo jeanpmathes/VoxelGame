@@ -495,7 +495,7 @@ public sealed class BlockModel
         }
         catch (Exception e) when (e is IOException or FileNotFoundException or JsonException)
         {
-            loader.ReportFailure(Events.MissingResource, nameof(BlockModel), name, e);
+            loader.ReportWarning(Events.MissingResource, nameof(BlockModel), name, e);
 
             return CreateFallback();
         }
@@ -503,7 +503,7 @@ public sealed class BlockModel
 
     private static BlockModel CreateFallback()
     {
-        const float begin = 0.375f;
+        const float begin = 0.275f;
         const float size = 0.5f;
 
         int[][] uvs = BlockModels.GetBlockUVs(isRotated: false);
@@ -959,5 +959,3 @@ public static class BlockModelExtensions
         group.west.Lock();
     }
 }
-
-

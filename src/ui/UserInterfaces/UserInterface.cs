@@ -140,4 +140,3 @@ public abstract class UserInterface : IDisposable
 
     #endregion IDisposable Support
 }
-
