@@ -39,28 +39,28 @@ internal class MainMenu : StandardMenu
             Text = Language.Worlds
         };
 
-        worlds.Pressed += (_, _) => SelectWorlds(this, EventArgs.Empty);
+        worlds.Released += (_, _) => SelectWorlds(this, EventArgs.Empty);
 
         Button settings = new(menu)
         {
             Text = Language.Settings
         };
 
-        settings.Pressed += (_, _) => SelectSettings(this, EventArgs.Empty);
+        settings.Released += (_, _) => SelectSettings(this, EventArgs.Empty);
 
         Button credits = new(menu)
         {
             Text = Language.Credits
         };
 
-        credits.Pressed += (_, _) => SelectCredits(this, EventArgs.Empty);
+        credits.Released += (_, _) => SelectCredits(this, EventArgs.Empty);
 
         Button exit = new(menu)
         {
             Text = Language.Exit
         };
 
-        exit.Pressed += (_, _) => SelectExit(this, EventArgs.Empty);
+        exit.Released += (_, _) => SelectExit(this, EventArgs.Empty);
     }
 
     internal void DisableWorlds()
@@ -78,3 +78,4 @@ internal class MainMenu : StandardMenu
         Control.Used(image);
     }
 }
+

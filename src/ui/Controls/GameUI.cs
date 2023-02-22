@@ -118,21 +118,21 @@ internal class GameUI : ControlBase
             Text = Language.Resume
         };
 
-        resume.Pressed += (_, _) => CloseInGameMenu();
+        resume.Released += (_, _) => CloseInGameMenu();
 
         Button settings = new(layout)
         {
             Text = Language.Settings
         };
 
-        settings.Pressed += (_, _) => { OpenSettings(); };
+        settings.Released += (_, _) => { OpenSettings(); };
 
         Button exit = new(layout)
         {
             Text = Language.Exit
         };
 
-        exit.Pressed += (_, _) =>
+        exit.Released += (_, _) =>
         {
             CloseInGameMenu();
             parent.DoWorldExit();

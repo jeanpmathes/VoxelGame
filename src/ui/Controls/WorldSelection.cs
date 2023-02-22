@@ -50,7 +50,7 @@ internal class WorldSelection : StandardMenu
             Text = Language.Back
         };
 
-        back.Pressed += (_, _) =>
+        back.Released += (_, _) =>
         {
             worldCreationWindow?.Close();
             Cancel(this, EventArgs.Empty);
@@ -93,7 +93,7 @@ internal class WorldSelection : StandardMenu
             Text = Language.CreateNewWorld
         };
 
-        createNewWorldButton.Pressed += (_, _) => OpenWorldCreationWindow();
+        createNewWorldButton.Released += (_, _) => OpenWorldCreationWindow();
     }
 
     internal void Refresh()
@@ -170,9 +170,9 @@ internal class WorldSelection : StandardMenu
                 ToolTipText = Language.Delete
             };
 
-            load.Pressed += (_, _) => worldProvider.LoadWorld(info, path);
+            load.Released += (_, _) => worldProvider.LoadWorld(info, path);
 
-            delete.Pressed += (_, _) => Modals.OpenBooleanModal(
+            delete.Released += (_, _) => Modals.OpenBooleanModal(
                 this,
                 Language.DeleteWorldQuery,
                 () =>
@@ -234,7 +234,7 @@ internal class WorldSelection : StandardMenu
         };
 
         name.TextChanged += (_, _) => ValidateInput(out _);
-        create.Pressed += (_, _) => CreateWorld();
+        create.Released += (_, _) => CreateWorld();
 
         void ValidateInput(out bool isValid)
         {

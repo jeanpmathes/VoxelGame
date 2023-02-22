@@ -65,7 +65,7 @@ internal class FloatRangeSetting : Setting
             Text = Language.Select
         };
 
-        select.Pressed += (_, _) =>
+        select.Released += (_, _) =>
         {
             set(floatRange.Value);
             Provider.Validate();
@@ -79,4 +79,3 @@ internal class FloatRangeSetting : Setting
         }
     }
 }
-

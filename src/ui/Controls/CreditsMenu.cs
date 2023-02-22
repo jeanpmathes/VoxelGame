@@ -36,7 +36,7 @@ internal class CreditsMenu : StandardMenu
             Text = Language.Back
         };
 
-        exit.Pressed += (_, _) => Cancel(this, EventArgs.Empty);
+        exit.Released += (_, _) => Cancel(this, EventArgs.Empty);
     }
 
     protected override void CreateDisplay(ControlBase display)

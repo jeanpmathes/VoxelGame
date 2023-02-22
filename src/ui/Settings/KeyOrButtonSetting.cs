@@ -82,7 +82,7 @@ internal class KeyOrButtonSetting : Setting
             Dock = Dock.Right
         };
 
-        resetBind.Pressed += (_, _) =>
+        resetBind.Released += (_, _) =>
         {
             reset();
             rebind.Text = get().ToString();
