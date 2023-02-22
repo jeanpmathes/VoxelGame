@@ -7,10 +7,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Gwen.Net.OpenTk;
 using Gwen.Net.RichText;
+using OpenTK.Windowing.Desktop;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.UserInterfaces;
+using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI;
 
@@ -26,6 +29,10 @@ public class UIResources
     internal string DeleteIcon { get; } = GetIconName("delete");
 
     internal string StartImage { get; } = GetImageName("start");
+
+    internal IGwenGui GUI { get; private set; } = null!;
+
+    internal FontHolder Fonts { get; private set; } = null!;
 
     private void LoadAttributions(LoadingContext loadingContext)
     {
@@ -60,14 +67,34 @@ public class UIResources
         }
     }
 
+    private void LoadGUI(GameWindow window, LoadingContext loadingContext)
+    {
+        FileInfo skin = FileSystem.GetResourceDirectory("GUI").GetFile("VoxelSkin.png");
+
+        GUI = GwenGuiFactory.CreateFromGame(
+            window,
+            GwenGuiSettings.Default.From(
+                settings =>
+                {
+                    settings.SkinFile = new FileInfo(skin.Name);
+                }));
+
+        GUI.Load();
+
+        loadingContext.ReportSuccess(Events.ResourceLoad, nameof(GUI), skin);
+
+        Fonts = new FontHolder(GUI.Root.Skin);
+    }
+
     /// <summary>
     ///     Loads all the resources.
     /// </summary>
-    public void Load(LoadingContext loadingContext)
+    public void Load(GameWindow window, LoadingContext loadingContext)
     {
         using (loadingContext.BeginStep(Events.ResourceLoad, "UI"))
         {
             LoadAttributions(loadingContext);
+            LoadGUI(window, loadingContext);
         }
     }
 
@@ -77,6 +104,7 @@ public class UIResources
     public void Unload()
     {
         attributions.Clear();
+        GUI.Dispose();
     }
 
     private static (Document document, string name) CreateAttribution(Attribution attribution, Context context)

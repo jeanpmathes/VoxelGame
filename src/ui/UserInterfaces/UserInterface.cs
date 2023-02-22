@@ -5,15 +5,11 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.IO;
 using Gwen.Net.Control;
-using Gwen.Net.OpenTk;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using OpenTK.Windowing.Desktop;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Input;
-using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.UserInterfaces;
 
@@ -24,28 +20,17 @@ public abstract class UserInterface : IDisposable
 {
     private static readonly Vector2i targetSize = new(x: 1920, y: 1080);
     private readonly bool drawBackground;
-    private readonly IGwenGui gui;
     private readonly InputListener inputListener;
     private readonly UIResources resources;
 
     /// <summary>
     ///     Creates a new user interface.
     /// </summary>
-    /// <param name="window">The target window.</param>
     /// <param name="inputListener">The input listener.</param>
     /// <param name="resources">The ui resources.</param>
     /// <param name="drawBackground">Whether to draw background of the ui.</param>
-    protected UserInterface(GameWindow window, InputListener inputListener, UIResources resources, bool drawBackground)
+    protected UserInterface(InputListener inputListener, UIResources resources, bool drawBackground)
     {
-        gui = GwenGuiFactory.CreateFromGame(
-            window,
-            GwenGuiSettings.Default.From(
-                settings =>
-                {
-                    settings.SkinFile = new FileInfo("VoxelSkin.png");
-                    settings.DrawBackground = drawBackground;
-                }));
-
         this.drawBackground = drawBackground;
         this.inputListener = inputListener;
         this.resources = resources;
@@ -56,17 +41,16 @@ public abstract class UserInterface : IDisposable
     /// <summary>
     ///     The gui root control.
     /// </summary>
-    public ControlBase Root => gui.Root;
+    public ControlBase Root => resources.GUI.Root;
 
     /// <summary>
     ///     Load the user interface.
     /// </summary>
     public void Load()
     {
-        gui.Load();
-        gui.Root.ShouldDrawBackground = drawBackground;
+        Root.ShouldDrawBackground = drawBackground;
 
-        Context = new Context(new FontHolder(gui.Root.Skin), inputListener, resources);
+        Context = new Context(inputListener, resources);
 
         SetSize(targetSize);
     }
@@ -83,7 +67,7 @@ public abstract class UserInterface : IDisposable
     {
         GL.Disable(EnableCap.CullFace);
 
-        gui.Render();
+        resources.GUI.Render();
 
         GL.Enable(EnableCap.CullFace);
     }
@@ -99,13 +83,13 @@ public abstract class UserInterface : IDisposable
 
     private void SetSize(Vector2i size)
     {
-        gui.Resize(size);
+        resources.GUI.Resize(size);
 
         float scale = Math.Min((float) size.X / targetSize.X, (float) size.Y / targetSize.Y);
 
         if (VMath.NearlyZero(scale)) return;
 
-        gui.Root.Scale = scale;
+        resources.GUI.Root.Scale = scale;
     }
 
     #region IDisposable Support
@@ -122,8 +106,7 @@ public abstract class UserInterface : IDisposable
 
         if (disposing)
         {
-            gui.Dispose();
-            Context.Dispose();
+            Root.DeleteAllChildren();
         }
 
         disposed = true;

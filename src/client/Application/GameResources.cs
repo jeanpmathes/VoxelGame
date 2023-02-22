@@ -6,6 +6,7 @@
 
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Windowing.Desktop;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Logic;
@@ -28,13 +29,17 @@ public class GameResources
 
     private readonly Debug glDebug;
 
+    private readonly GameWindow window;
+
     private bool prepared;
 
     /// <summary>
     ///     Create the graphics resources.
     /// </summary>
-    public GameResources()
+    public GameResources(GameWindow window)
     {
+        this.window = window;
+
         glDebug = new Debug();
     }
 
@@ -139,7 +144,7 @@ public class GameResources
         Fluids.Load(FluidTextureArray, loadingContext);
 
         PlayerResources.Load(loadingContext);
-        UIResources.Load(loadingContext);
+        UIResources.Load(window, loadingContext);
 
         Generator.Prepare(loadingContext);
 

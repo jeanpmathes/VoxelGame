@@ -37,7 +37,7 @@ internal static class Modals
     }
 
     /// <summary>
-    ///     Opens a modal that blocks access to the ui, until it is closed.
+    ///     Opens a modal that blocks access to the ui, until it is closed by code.
     /// </summary>
     internal static CloseHandel OpenBlockingModal(ControlBase parent, string message)
     {

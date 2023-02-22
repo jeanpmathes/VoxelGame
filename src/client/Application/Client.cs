@@ -47,7 +47,7 @@ internal class Client : GameWindow, IPerformanceProvider
         Settings = new GeneralSettings(Properties.Settings.Default);
         Graphics = graphicsSettings;
 
-        Resources = new GameResources();
+        Resources = new GameResources(this);
 
         sceneManager = new SceneManager();
         sceneFactory = new SceneFactory(this);

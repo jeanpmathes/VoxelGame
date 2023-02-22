@@ -18,12 +18,10 @@ internal sealed class FontHolder : IDisposable
     private const string DefaultFontName = "Times New Roman";
     private const string ConsoleFontName = "Consolas";
 
-    private readonly SkinBase skin;
-
     internal FontHolder(SkinBase skin)
     {
-        this.skin = skin;
         skin.DefaultFont = new Font(skin.Renderer, DefaultFontName, size: 15);
+        Default = skin.DefaultFont;
 
         Title = Font.Create(skin.Renderer, DefaultFontName, size: 30);
         Subtitle = Font.Create(skin.Renderer, DefaultFontName);
@@ -34,7 +32,7 @@ internal sealed class FontHolder : IDisposable
         ConsoleError = Font.Create(skin.Renderer, ConsoleFontName, size: 15, FontStyle.Bold);
     }
 
-    internal Font Default => skin.DefaultFont;
+    internal Font Default { get; }
 
     internal Font Title { get; }
     internal Font Subtitle { get; }
@@ -54,7 +52,6 @@ internal sealed class FontHolder : IDisposable
     {
         if (!disposing) return;
 
-        skin.Dispose();
         Title.Dispose();
         Subtitle.Dispose();
         Small.Dispose();
@@ -66,4 +63,3 @@ internal sealed class FontHolder : IDisposable
         Dispose(disposing: false);
     }
 }
-

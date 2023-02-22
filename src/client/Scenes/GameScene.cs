@@ -55,7 +55,6 @@ public sealed class GameScene : IScene
         OnOverlayClose();
 
         ui = new GameUserInterface(
-            client,
             client.Keybinds.Input.Listener,
             client.Resources.UIResources,
             drawBackground: false);

@@ -42,7 +42,6 @@ public sealed class StartScene : IScene
         };
 
         ui = new StartUserInterface(
-            client,
             client.Keybinds.Input.Listener,
             worldProvider,
             settingsProviders,
