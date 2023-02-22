@@ -48,19 +48,23 @@ public class ShaderLoader
     ///     Load a file that can be included in other shaders.
     /// </summary>
     /// <param name="name">The name of the content. Will be used as marker for including and to construct the file path.</param>
-    public void LoadIncludable(string name)
+    /// <returns>True if the file was loaded successfully, false otherwise.</returns>
+    public bool LoadIncludable(string name)
     {
         FileInfo file = directory.GetFile($"{name}.glsl");
 
         try
         {
             includables[name] = file.ReadAllText();
+
+            return true;
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
             loadingContext.ReportFailure(Events.ShaderError, nameof(Shader), file, exception);
-
             includables[name] = string.Empty;
+
+            return false;
         }
     }
 
@@ -137,5 +141,4 @@ public class ShaderLoader
         return source.ToString();
     }
 }
-
 

@@ -135,10 +135,12 @@ public sealed class Shaders
 
     private void LoadAll()
     {
-        loader.LoadIncludable("noise");
-        loader.LoadIncludable("decode");
-        loader.LoadIncludable("color");
-        loader.LoadIncludable("animation");
+        loaded = true;
+
+        loaded &= loader.LoadIncludable("noise");
+        loaded &= loader.LoadIncludable("decode");
+        loaded &= loader.LoadIncludable("color");
+        loaded &= loader.LoadIncludable("animation");
 
         Shader Check(Shader? shader)
         {
@@ -204,4 +206,3 @@ public sealed class Shaders
         foreach (Shader shader in farPlaneSet) shader.SetFloat(FarPlaneUniform, (float) far);
     }
 }
-
