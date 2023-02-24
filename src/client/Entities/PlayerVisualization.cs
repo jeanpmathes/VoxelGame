@@ -28,7 +28,7 @@ public sealed class PlayerVisualization : IDisposable
     private readonly Button debugViewButton;
     private readonly OverlayRenderer overlay;
 
-    private readonly ClientPlayer player;
+    private readonly Player player;
     private readonly BoxRenderer selectionRenderer;
     private readonly GameUserInterface ui;
     private float crosshairScale = Application.Client.Instance.Settings.CrosshairScale;
@@ -43,7 +43,7 @@ public sealed class PlayerVisualization : IDisposable
     /// <param name="player">The player that is visualized.</param>
     /// <param name="ui">The ui to use for some of the data display.</param>
     /// <param name="resources">The resources to use.</param>
-    public PlayerVisualization(ClientPlayer player, GameUserInterface ui, PlayerResources resources)
+    public PlayerVisualization(Player player, GameUserInterface ui, PlayerResources resources)
     {
         overlay = new OverlayRenderer();
 
@@ -204,3 +204,4 @@ public sealed class PlayerVisualization : IDisposable
 
     #endregion IDisposable Support
 }
+

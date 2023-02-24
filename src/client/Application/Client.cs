@@ -163,7 +163,7 @@ internal class Client : GameWindow, IPerformanceProvider
     ///     Start a game in a world. A game can only be started when no other game is running.
     /// </summary>
     /// <param name="world">The world to start the game in.</param>
-    internal void StartGame(ClientWorld world)
+    internal void StartGame(World world)
     {
         IScene gameScene = sceneFactory.CreateGameScene(world, out Game game);
         sceneManager.Load(gameScene);
@@ -187,4 +187,5 @@ internal class Client : GameWindow, IPerformanceProvider
         sceneManager.OnResize(size);
     }
 }
+
 

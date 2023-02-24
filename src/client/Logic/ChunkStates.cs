@@ -14,7 +14,7 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Logic;
 
-public partial class ClientChunk
+public partial class Chunk
 {
     /// <summary>
     ///     Utility to allow easier access without casting.
@@ -24,7 +24,7 @@ public partial class ClientChunk
         /// <summary>
         ///     Access the client chunk.
         /// </summary>
-        protected new ClientChunk Chunk => base.Chunk.Cast();
+        protected new Chunk Chunk => base.Chunk.Cast();
     }
 
     /// <summary>
@@ -126,4 +126,5 @@ public partial class ClientChunk
         }
     }
 }
+
 

@@ -38,7 +38,7 @@ public sealed class GameScene : IScene
     private readonly GameUserInterface ui;
     private readonly ToggleButton uiToggle;
 
-    internal GameScene(Application.Client client, ClientWorld world, IConsoleProvider console)
+    internal GameScene(Application.Client client, World world, IConsoleProvider console)
     {
         void OnOverlayClose()
         {
@@ -82,7 +82,7 @@ public sealed class GameScene : IScene
 
         Camera camera = new(new Vector3d());
 
-        ClientPlayer player = new(
+        Player player = new(
             world,
             mass: 70f,
             camera,
@@ -211,4 +211,5 @@ public sealed class GameScene : IScene
 
     #endregion IDisposable Support.
 }
+
 

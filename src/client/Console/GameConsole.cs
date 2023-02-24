@@ -57,7 +57,7 @@ public class GameConsole : IConsoleProvider
     public void OnWorldReady()
     {
         Debug.Assert(Application.Client.Instance.CurrentGame != null);
-        ClientPlayer player = Application.Client.Instance.CurrentGame.Player;
+        Player player = Application.Client.Instance.CurrentGame.Player;
 
         logger.LogDebug("Trying to execute world ready script");
 
@@ -104,4 +104,5 @@ public class GameConsole : IConsoleProvider
         return invoker;
     }
 }
+
 

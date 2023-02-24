@@ -11,11 +11,11 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Client.Logic;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
+using World = VoxelGame.Client.Logic.World;
 
 namespace VoxelGame.Client.Application;
 
@@ -78,7 +78,7 @@ public class WorldProvider : IWorldProvider
     {
         if (WorldActivation == null) throw new InvalidOperationException();
 
-        ClientWorld world = new(path, information);
+        World world = new(path, information);
         WorldActivation(this, world);
     }
 
@@ -92,7 +92,7 @@ public class WorldProvider : IWorldProvider
 
         DirectoryInfo worldDirectory = FileSystem.GetUniqueDirectory(worldsDirectory, name);
 
-        ClientWorld world = new(worldDirectory, name, seed);
+        World world = new(worldDirectory, name, seed);
         WorldActivation(world, world);
     }
 
@@ -131,7 +131,6 @@ public class WorldProvider : IWorldProvider
     /// <summary>
     ///     Is invoked when a world is requested to be activated.
     /// </summary>
-    public event EventHandler<ClientWorld> WorldActivation = null!;
+    public event EventHandler<World> WorldActivation = null!;
 }
-
 

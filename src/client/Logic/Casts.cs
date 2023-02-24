@@ -4,8 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Core.Logic;
-
 namespace VoxelGame.Client.Logic;
 
 /// <summary>
@@ -16,25 +14,25 @@ public static class Casts
     /// <summary>
     ///     Cast a client world.
     /// </summary>
-    public static ClientWorld Cast(this World chunk)
+    public static World Cast(this Core.Logic.World chunk)
     {
-        return (ClientWorld) chunk;
+        return (World) chunk;
     }
 
     /// <summary>
     ///     Cast a client chunk.
     /// </summary>
-    public static ClientChunk Cast(this Chunk chunk)
+    public static Chunk Cast(this Core.Logic.Chunk chunk)
     {
-        return (ClientChunk) chunk;
+        return (Chunk) chunk;
     }
 
     /// <summary>
     ///     Cast a client section.
     /// </summary>
-    public static ClientSection Cast(this Section section)
+    public static Section Cast(this Core.Logic.Section section)
     {
-        return (ClientSection) section;
+        return (Section) section;
     }
 }
 

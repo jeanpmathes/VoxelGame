@@ -35,7 +35,7 @@ public class SceneFactory
     /// <param name="world">The world in which the game takes place.</param>
     /// <param name="game">This will be set to the newly created game.</param>
     /// <returns>The created game scene.</returns>
-    public IScene CreateGameScene(ClientWorld world, out Game game)
+    public IScene CreateGameScene(World world, out Game game)
     {
         GameScene scene = new(client, world, new GameConsole(commandInvoker));
         game = scene.Game;
@@ -53,4 +53,5 @@ public class SceneFactory
         return new StartScene(client, resourceLoadingFailure);
     }
 }
+
 
