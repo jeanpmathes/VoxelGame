@@ -30,14 +30,14 @@ internal sealed class PlayerInput
 
     private readonly ToggleButton placementModeToggle;
 
-    private readonly ClientPlayer player;
+    private readonly Player player;
     private readonly InputAxis selectionAxis;
     private readonly PushButton selectTargetedButton;
     private readonly Button sprintButton;
 
     private double timer;
 
-    internal PlayerInput(ClientPlayer player)
+    internal PlayerInput(Player player)
     {
         this.player = player;
 
@@ -129,4 +129,5 @@ internal sealed class PlayerInput
         return movement;
     }
 }
+
 

@@ -34,7 +34,7 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
     /// <param name="lowerBound">The total lower bound of the final overlay.</param>
     /// <param name="upperBound">The total upper bound of the final overlay.</param>
     /// <returns>All overlays that can be displayed.</returns>
-    public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, ClientPlayer player, ref double lowerBound, ref double upperBound)
+    public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, Player player, ref double lowerBound, ref double upperBound)
     {
         List<Overlay> overlays = new();
 
@@ -75,7 +75,7 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
         return anyIsBlock ? overlays.Where(x => x.IsBlock) : overlays;
     }
 
-    private static (double lower, double upper)? GetOverlayBounds(BlockInstance block, Vector3d position, ClientPlayer player)
+    private static (double lower, double upper)? GetOverlayBounds(BlockInstance block, Vector3d position, Player player)
     {
         var height = 15;
 
@@ -84,14 +84,14 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
         return GetOverlayBounds(height, position, inverted: false, player);
     }
 
-    private static (double lower, double upper)? GetOverlayBounds(FluidInstance fluid, Vector3d position, ClientPlayer player)
+    private static (double lower, double upper)? GetOverlayBounds(FluidInstance fluid, Vector3d position, Player player)
     {
         int height = fluid.Level.GetBlockHeight();
 
         return GetOverlayBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards, player);
     }
 
-    private static (double lower, double upper)? GetOverlayBounds(int height, Vector3d position, bool inverted, ClientPlayer player)
+    private static (double lower, double upper)? GetOverlayBounds(int height, Vector3d position, bool inverted, Player player)
     {
         float actualHeight = (height + 1) * (1.0f / 16.0f);
         if (inverted) actualHeight = 1.0f - actualHeight;
@@ -136,4 +136,5 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
         return Texture with {Tint = fluid};
     }
 }
+
 

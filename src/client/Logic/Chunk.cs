@@ -1,4 +1,4 @@
-﻿// <copyright file="ClientChunk.cs" company="VoxelGame">
+﻿// <copyright file="Chunk.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -21,10 +21,10 @@ namespace VoxelGame.Client.Logic;
 ///     A chunk of the world, specifically for the client.
 /// </summary>
 [Serializable]
-public partial class ClientChunk : Chunk
+public partial class Chunk : Core.Logic.Chunk
 {
     private const int MaxMeshDataStep = 16;
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<ClientChunk>();
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
 
     [NonSerialized] private bool hasMeshData;
     [NonSerialized] private int meshDataIndex;
@@ -36,14 +36,14 @@ public partial class ClientChunk : Chunk
     /// <param name="world">The world that contains the chunk.</param>
     /// <param name="position">The position of the chunk.</param>
     /// <param name="context">The context of the chunk.</param>
-    public ClientChunk(World world, ChunkPosition position, ChunkContext context) : base(world, position, context, CreateSection) {}
+    public Chunk(Core.Logic.World world, ChunkPosition position, ChunkContext context) : base(world, position, context, CreateSection) {}
 
     /// <summary>
     ///     Get the client world this chunk is in.
     /// </summary>
-    public new ClientWorld World => base.World.Cast();
+    public new World World => base.World.Cast();
 
-    private ClientSection GetSection(int index)
+    private Section GetSection(int index)
     {
         return GetSectionByIndex(index).Cast();
     }
@@ -63,9 +63,9 @@ public partial class ClientChunk : Chunk
         });
     }
 
-    private static Section CreateSection()
+    private static Core.Logic.Section CreateSection()
     {
-        return new ClientSection();
+        return new Section();
     }
 
     /// <summary>
@@ -97,7 +97,7 @@ public partial class ClientChunk : Chunk
         {
             BlockSides current = side.ToFlag();
 
-            if (!sides.HasFlag(current) || meshedSides.HasFlag(current) || !World.TryGetChunk(side.Offset(Position), out Chunk? chunk)) continue;
+            if (!sides.HasFlag(current) || meshedSides.HasFlag(current) || !World.TryGetChunk(side.Offset(Position), out Core.Logic.Chunk? chunk)) continue;
 
             chunk.Cast().BeginMeshing();
         }
@@ -112,7 +112,7 @@ public partial class ClientChunk : Chunk
     }
 
     /// <inheritdoc />
-    protected override void OnNeighborActivation(Chunk neighbor)
+    protected override void OnNeighborActivation(Core.Logic.Chunk neighbor)
     {
         RecreateIncompleteSectionMeshes();
     }
@@ -192,7 +192,7 @@ public partial class ClientChunk : Chunk
     /// <param name="frustum">The view frustum to use for culling.</param>
     /// <param name="renderList">The list to add the chunks and positions too.</param>
     public void AddCulledToRenderList(Frustum frustum,
-        ICollection<(ClientSection section, Vector3d position)> renderList)
+        ICollection<(Section section, Vector3d position)> renderList)
     {
         Box3d chunkBox = VMath.CreateBox3(ChunkPoint, ChunkExtents);
 
@@ -205,7 +205,7 @@ public partial class ClientChunk : Chunk
             SectionPosition sectionPosition = SectionPosition.From(Position, (x, y, z));
             Vector3d position = sectionPosition.FirstBlock;
 
-            Box3d sectionBox = VMath.CreateBox3(position + Section.Extents, Section.Extents);
+            Box3d sectionBox = VMath.CreateBox3(position + Core.Logic.Section.Extents, Core.Logic.Section.Extents);
 
             if (!frustum.IsBoxVisible(sectionBox)) continue;
 
@@ -213,4 +213,3 @@ public partial class ClientChunk : Chunk
         }
     }
 }
-

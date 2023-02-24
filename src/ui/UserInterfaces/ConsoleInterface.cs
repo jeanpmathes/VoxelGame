@@ -119,7 +119,7 @@ public class ConsoleInterface
         };
 
         consoleInput.SubmitPressed += (_, _) => Submit();
-        consoleSubmit.Pressed += (_, _) => Submit();
+        consoleSubmit.Released += (_, _) => Submit();
 
         consoleInput.Focus();
 
@@ -197,7 +197,7 @@ public class ConsoleInterface
                 Alignment = Alignment.Left
             };
 
-            item.Pressed += (_, _) => followUp.Action();
+            item.Released += (_, _) => followUp.Action();
         }
 
         row.RightClicked += (_, arguments) =>

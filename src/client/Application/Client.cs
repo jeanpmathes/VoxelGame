@@ -11,6 +11,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Input;
 using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
@@ -46,7 +47,7 @@ internal class Client : GameWindow, IPerformanceProvider
         Settings = new GeneralSettings(Properties.Settings.Default);
         Graphics = graphicsSettings;
 
-        Resources = new GameResources();
+        Resources = new GameResources(this);
 
         sceneManager = new SceneManager();
         sceneFactory = new SceneFactory(this);
@@ -106,9 +107,11 @@ internal class Client : GameWindow, IPerformanceProvider
 
             screenBehaviour = new ScreenBehaviour(this);
 
-            Resources.Load();
+            LoadingContext loadingContext = new();
 
-            sceneManager.Load(sceneFactory.CreateStartScene());
+            Resources.Load(loadingContext);
+
+            sceneManager.Load(sceneFactory.CreateStartScene(loadingContext.State));
 
             logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
 
@@ -160,7 +163,7 @@ internal class Client : GameWindow, IPerformanceProvider
     ///     Start a game in a world. A game can only be started when no other game is running.
     /// </summary>
     /// <param name="world">The world to start the game in.</param>
-    internal void StartGame(ClientWorld world)
+    internal void StartGame(World world)
     {
         IScene gameScene = sceneFactory.CreateGameScene(world, out Game game);
         sceneManager.Load(gameScene);
@@ -173,7 +176,7 @@ internal class Client : GameWindow, IPerformanceProvider
     /// </summary>
     internal void ExitGame()
     {
-        IScene startScene = sceneFactory.CreateStartScene();
+        IScene startScene = sceneFactory.CreateStartScene(resourceLoadingFailure: null);
         sceneManager.Load(startScene);
 
         CurrentGame = null;
@@ -184,4 +187,5 @@ internal class Client : GameWindow, IPerformanceProvider
         sceneManager.OnResize(size);
     }
 }
+
 

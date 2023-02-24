@@ -49,7 +49,7 @@ internal class ColorSettings : Setting
             Text = Language.Select
         };
 
-        select.Pressed += (_, _) =>
+        select.Released += (_, _) =>
         {
             set(ConvertColor(colorPicker.SelectedColor));
             Provider.Validate();

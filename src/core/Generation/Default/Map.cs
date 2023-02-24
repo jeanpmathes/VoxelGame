@@ -316,7 +316,7 @@ public partial class Map : IMap
     ///     Emit views of different map values.
     /// </summary>
     /// <param name="path">The path to a directory to save the views to.</param>
-    public void EmitViews(string path)
+    public void EmitViews(DirectoryInfo path)
     {
         Debug.Assert(data != null);
 
@@ -805,4 +805,5 @@ public partial class Map : IMap
 
     #endregion BIOME CHANGE FUNCTION
 }
+
 

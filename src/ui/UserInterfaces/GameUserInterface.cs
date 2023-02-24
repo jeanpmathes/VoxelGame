@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using OpenTK.Windowing.Desktop;
 using VoxelGame.Input;
 using VoxelGame.UI.Controls;
 using VoxelGame.UI.Providers;
@@ -29,12 +28,12 @@ public class GameUserInterface : UserInterface
     /// <summary>
     ///     Creates a new game user interface.
     /// </summary>
-    /// <param name="window">The window.</param>
     /// <param name="inputListener">The input listener.</param>
+    /// <param name="resources">The resources.</param>
     /// <param name="drawBackground">Whether to draw background.</param>
-    public GameUserInterface(GameWindow window, InputListener inputListener, bool drawBackground) : base(
-        window,
+    public GameUserInterface(InputListener inputListener, UIResources resources, bool drawBackground) : base(
         inputListener,
+        resources,
         drawBackground) {}
 
     /// <summary>

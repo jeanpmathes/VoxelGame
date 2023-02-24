@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System.Collections.Generic;
+using System.IO;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
@@ -41,7 +42,7 @@ public interface IWorldGenerator
     ///     Emit views of global generated data for debugging.
     /// </summary>
     /// <param name="path">A path to the debug directory.</param>
-    void EmitViews(string path);
+    void EmitViews(DirectoryInfo path);
 
     /// <summary>
     ///     Generate all structures in a section.
@@ -59,4 +60,5 @@ public interface IWorldGenerator
     /// <returns>The positions of the elements, or null if the name is not valid.</returns>
     IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance);
 }
+
 

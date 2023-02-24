@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
@@ -49,7 +50,7 @@ internal class WorldSelection : StandardMenu
             Text = Language.Back
         };
 
-        back.Pressed += (_, _) =>
+        back.Released += (_, _) =>
         {
             worldCreationWindow?.Close();
             Cancel(this, EventArgs.Empty);
@@ -92,7 +93,7 @@ internal class WorldSelection : StandardMenu
             Text = Language.CreateNewWorld
         };
 
-        createNewWorldButton.Pressed += (_, _) => OpenWorldCreationWindow();
+        createNewWorldButton.Released += (_, _) => OpenWorldCreationWindow();
     }
 
     internal void Refresh()
@@ -107,7 +108,7 @@ internal class WorldSelection : StandardMenu
 
         worldList.DeleteAllChildren();
 
-        foreach ((WorldInformation info, string path) in worldProvider.Worlds)
+        foreach ((WorldInformation info, DirectoryInfo path) in worldProvider.Worlds)
         {
             GroupBox world = new(worldList)
             {
@@ -141,7 +142,7 @@ internal class WorldSelection : StandardMenu
 
             Label file = new(infoPanel)
             {
-                Text = path,
+                Text = path.FullName,
                 Font = Fonts.Path,
                 TextColor = Color.Grey
             };
@@ -156,7 +157,7 @@ internal class WorldSelection : StandardMenu
 
             Button load = new(buttons)
             {
-                ImageName = Source.GetIconName("load"),
+                ImageName = Context.Resources.LoadIcon,
                 ImageSize = new Size(width: 40, height: 40),
                 ToolTipText = Language.Load
 
@@ -164,14 +165,14 @@ internal class WorldSelection : StandardMenu
 
             Button delete = new(buttons)
             {
-                ImageName = Source.GetIconName("delete"),
+                ImageName = Context.Resources.DeleteIcon,
                 ImageSize = new Size(width: 40, height: 40),
                 ToolTipText = Language.Delete
             };
 
-            load.Pressed += (_, _) => worldProvider.LoadWorld(info, path);
+            load.Released += (_, _) => worldProvider.LoadWorld(info, path);
 
-            delete.Pressed += (_, _) => Modals.OpenBooleanModal(
+            delete.Released += (_, _) => Modals.OpenBooleanModal(
                 this,
                 Language.DeleteWorldQuery,
                 () =>
@@ -233,7 +234,7 @@ internal class WorldSelection : StandardMenu
         };
 
         name.TextChanged += (_, _) => ValidateInput(out _);
-        create.Pressed += (_, _) => CreateWorld();
+        create.Released += (_, _) => CreateWorld();
 
         void ValidateInput(out bool isValid)
         {

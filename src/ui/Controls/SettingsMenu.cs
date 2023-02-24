@@ -50,7 +50,7 @@ internal class SettingsMenu : StandardMenu
 
             int categoryIndex = i;
 
-            category.Pressed += (_, _) =>
+            category.Released += (_, _) =>
             {
                 if (currentCategoryIndex >= 0) categories[currentCategoryIndex].Hide();
 
@@ -64,7 +64,7 @@ internal class SettingsMenu : StandardMenu
             Text = Language.Back
         };
 
-        back.Pressed += (_, _) => Cancel(this, EventArgs.Empty);
+        back.Released += (_, _) => Cancel(this, EventArgs.Empty);
     }
 
     protected override void CreateDisplay(ControlBase display)

@@ -558,13 +558,16 @@
   <data name="Permafrost" xml:space="preserve">
     <value>Permafrost</value>
   </data>
-  <data name="Ice" xml:space="preserve">
+    <data name="Ice" xml:space="preserve">
     <value>Ice</value>
   </data>
-  <data name="Error" xml:space="preserve">
+    <data name="Error" xml:space="preserve">
     <value>Error</value>
   </data>
-  <data name="Roots" xml:space="preserve">
+    <data name="Roots" xml:space="preserve">
     <value>Roots</value>
+  </data>
+    <data name="MissingResources" xml:space="preserve">
+    <value>Missing Resources</value>
   </data>
 </root>

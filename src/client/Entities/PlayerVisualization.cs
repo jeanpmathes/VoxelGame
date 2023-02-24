@@ -8,13 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
-using VoxelGame.Graphics.Objects;
 using VoxelGame.Input.Actions;
 using VoxelGame.UI.UserInterfaces;
 
@@ -25,13 +23,12 @@ namespace VoxelGame.Client.Entities;
 /// </summary>
 public sealed class PlayerVisualization : IDisposable
 {
-    private readonly Texture crosshair;
     private readonly Vector2 crosshairPosition = new(x: 0.5f, y: 0.5f);
     private readonly ScreenElementRenderer crosshairRenderer;
     private readonly Button debugViewButton;
     private readonly OverlayRenderer overlay;
 
-    private readonly ClientPlayer player;
+    private readonly Player player;
     private readonly BoxRenderer selectionRenderer;
     private readonly GameUserInterface ui;
     private float crosshairScale = Application.Client.Instance.Settings.CrosshairScale;
@@ -45,17 +42,13 @@ public sealed class PlayerVisualization : IDisposable
     /// </summary>
     /// <param name="player">The player that is visualized.</param>
     /// <param name="ui">The ui to use for some of the data display.</param>
-    public PlayerVisualization(ClientPlayer player, GameUserInterface ui)
+    /// <param name="resources">The resources to use.</param>
+    public PlayerVisualization(Player player, GameUserInterface ui, PlayerResources resources)
     {
         overlay = new OverlayRenderer();
 
-        crosshair = new Texture(
-            "Resources/Textures/UI/crosshair.png",
-            TextureUnit.Texture10,
-            fallbackResolution: 32);
-
         crosshairRenderer = new ScreenElementRenderer();
-        crosshairRenderer.SetTexture(crosshair);
+        crosshairRenderer.SetTexture(resources.Crosshair);
         crosshairRenderer.SetColor(Application.Client.Instance.Settings.CrosshairColor);
 
         Application.Client.Instance.Settings.CrosshairColorChanged += UpdateCrosshairColor;
@@ -199,7 +192,7 @@ public sealed class PlayerVisualization : IDisposable
         {
             crosshairRenderer.Dispose();
             selectionRenderer.Dispose();
-            crosshair.Dispose();
+
             overlay.Dispose();
             ui.Dispose();
 

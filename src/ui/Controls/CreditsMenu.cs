@@ -6,7 +6,6 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.RichText;
@@ -37,7 +36,7 @@ internal class CreditsMenu : StandardMenu
             Text = Language.Back
         };
 
-        exit.Pressed += (_, _) => Cancel(this, EventArgs.Empty);
+        exit.Released += (_, _) => Cancel(this, EventArgs.Empty);
     }
 
     protected override void CreateDisplay(ControlBase display)
@@ -47,32 +46,8 @@ internal class CreditsMenu : StandardMenu
             Dock = Dock.Fill
         };
 
-        foreach (string file in Directory.EnumerateFiles("Resources/Attribution", "*.txt", SearchOption.TopDirectoryOnly))
+        foreach ((Document credits, string name) in Context.Resources.CreateAttributions(Context))
         {
-            string name = Path.GetFileNameWithoutExtension(file).Replace(oldChar: '-', newChar: ' ');
-
-            string? text = null;
-
-            try
-            {
-                text = File.ReadAllText(file);
-            }
-            catch (IOException)
-            {
-                // ignored
-            }
-
-            if (text == null) continue;
-
-            Document credits = new();
-
-            Paragraph paragraph = new Paragraph()
-                .Font(Context.Fonts.Title).Text(name).LineBreak().LineBreak()
-                .Font(Context.Fonts.Default)
-                .Text(text).LineBreak();
-
-            credits.Paragraphs.Add(paragraph);
-
             ScrollControl page = new(tabs)
             {
                 CanScrollH = false
@@ -89,4 +64,3 @@ internal class CreditsMenu : StandardMenu
         }
     }
 }
-

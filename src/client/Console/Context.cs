@@ -15,7 +15,7 @@ namespace VoxelGame.Client.Console;
 /// <param name="Invoker">The invoker used to invoke this command.</param>
 /// <param name="Player">The player to execute the command for.</param>
 /// <param name="IsScript">Whether this command originates from a script.</param>
-public record Context(ConsoleWrapper Console, CommandInvoker Invoker, ClientPlayer Player, bool IsScript = false)
+public record Context(ConsoleWrapper Console, CommandInvoker Invoker, Player Player, bool IsScript = false)
 {
     /// <summary>
     ///     Get this context as a script context.
@@ -26,4 +26,5 @@ public record Context(ConsoleWrapper Console, CommandInvoker Invoker, ClientPlay
         return this with {IsScript = true};
     }
 }
+
 

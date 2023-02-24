@@ -1,4 +1,4 @@
-﻿// <copyright file="ClientWorld.cs" company="VoxelGame">
+﻿// <copyright file="World.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -6,13 +6,13 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using Properties;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Rendering;
-using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -23,26 +23,26 @@ namespace VoxelGame.Client.Logic;
 /// <summary>
 ///     The game world, specifically for the client.
 /// </summary>
-public class ClientWorld : World
+public class World : Core.Logic.World
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<ClientWorld>();
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
     private readonly Stopwatch readyStopwatch = Stopwatch.StartNew();
 
-    private readonly List<(ClientSection section, Vector3d position)> renderList = new();
+    private readonly List<(Section section, Vector3d position)> renderList = new();
 
     /// <summary>
     ///     A set of chunks with information on which sections of them are to mesh.
     /// </summary>
-    private readonly HashSet<(ClientChunk chunk, (int x, int y, int z))> sectionsToMesh =
+    private readonly HashSet<(Chunk chunk, (int x, int y, int z))> sectionsToMesh =
         new();
 
-    private ClientPlayer? player;
+    private Player? player;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    public ClientWorld(string path, string name, (int upper, int lower) seed) : base(path, name, seed)
+    public World(DirectoryInfo path, string name, (int upper, int lower) seed) : base(path, name, seed)
     {
         Setup();
     }
@@ -50,7 +50,7 @@ public class ClientWorld : World
     /// <summary>
     ///     This constructor is meant for worlds that already exist.
     /// </summary>
-    public ClientWorld(string path, WorldInformation information) : base(path, information)
+    public World(DirectoryInfo path, WorldInformation information) : base(path, information)
     {
         Setup();
     }
@@ -75,7 +75,7 @@ public class ClientWorld : World
     ///     Add a client player to the world.
     /// </summary>
     /// <param name="newPlayer">The new player.</param>
-    public void AddPlayer(ClientPlayer newPlayer)
+    public void AddPlayer(Player newPlayer)
     {
         player = newPlayer;
     }
@@ -95,11 +95,11 @@ public class ClientWorld : World
         renderList.Clear();
 
         // Fill the render list.
-        for (int x = -Player.LoadDistance; x <= Player.LoadDistance; x++)
-        for (int y = -Player.LoadDistance; y <= Player.LoadDistance; y++)
-        for (int z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
+        for (int x = -Core.Entities.Player.LoadDistance; x <= Core.Entities.Player.LoadDistance; x++)
+        for (int y = -Core.Entities.Player.LoadDistance; y <= Core.Entities.Player.LoadDistance; y++)
+        for (int z = -Core.Entities.Player.LoadDistance; z <= Core.Entities.Player.LoadDistance; z++)
         {
-            Chunk? chunk = GetActiveChunk(player!.Chunk.Offset(x, y, z));
+            Core.Logic.Chunk? chunk = GetActiveChunk(player!.Chunk.Offset(x, y, z));
             chunk?.Cast().AddCulledToRenderList(context.Frustum, renderList);
         }
 
@@ -127,9 +127,9 @@ public class ClientWorld : World
     }
 
     /// <inheritdoc />
-    protected override Chunk CreateChunk(ChunkPosition position, ChunkContext context)
+    protected override Core.Logic.Chunk CreateChunk(ChunkPosition position, ChunkContext context)
     {
-        return new ClientChunk(this, position, context);
+        return new Chunk(this, position, context);
     }
 
     /// <inheritdoc />
@@ -152,12 +152,12 @@ public class ClientWorld : World
         void HandleActive()
         {
             // Tick objects in world.
-            foreach (Chunk chunk in ActiveChunks) chunk.Tick();
+            foreach (Core.Logic.Chunk chunk in ActiveChunks) chunk.Tick();
 
             player!.Tick(deltaTime);
 
             // Mesh all listed sections.
-            foreach ((ClientChunk chunk, (int x, int y, int z)) in sectionsToMesh)
+            foreach ((Chunk chunk, (int x, int y, int z)) in sectionsToMesh)
                 chunk.CreateAndSetMesh(x, y, z, ChunkMeshingContext.UsingActive(chunk));
 
             sectionsToMesh.Clear();
@@ -188,26 +188,26 @@ public class ClientWorld : World
     }
 
     /// <inheritdoc />
-    protected override ChunkState ProcessNewlyActivatedChunk(Chunk activatedChunk)
+    protected override ChunkState ProcessNewlyActivatedChunk(Core.Logic.Chunk activatedChunk)
     {
         if (activatedChunk.IsFullyDecorated)
         {
             foreach (BlockSide side in BlockSide.All.Sides())
-                if (TryGetChunk(side.Offset(activatedChunk.Position), out Chunk? neighbor))
+                if (TryGetChunk(side.Offset(activatedChunk.Position), out Core.Logic.Chunk? neighbor))
                 {
                     neighbor.Cast().BeginMeshing();
                 }
 
-            return new ClientChunk.Meshing();
+            return new Chunk.Meshing();
         }
 
         ChunkState? decoration = activatedChunk.ProcessDecorationOption();
 
-        return decoration ?? new Chunk.Hidden();
+        return decoration ?? new Core.Logic.Chunk.Hidden();
     }
 
     /// <inheritdoc />
-    protected override ChunkState? ProcessActivatedChunk(Chunk activatedChunk)
+    protected override ChunkState? ProcessActivatedChunk(Core.Logic.Chunk activatedChunk)
     {
         return activatedChunk.Cast().ProcessDecorationOption() ??
                activatedChunk.Cast().ProcessMeshingOption();
@@ -215,7 +215,7 @@ public class ClientWorld : World
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void ProcessChangedSection(Chunk chunk, Vector3i position)
+    protected override void ProcessChangedSection(Core.Logic.Chunk chunk, Vector3i position)
     {
         sectionsToMesh.Add((chunk.Cast(), SectionPosition.From(position).Local));
 
@@ -223,27 +223,26 @@ public class ClientWorld : World
 
         void CheckNeighbor(Vector3i neighborPosition)
         {
-            Chunk? neighbor = GetActiveChunk(neighborPosition);
+            Core.Logic.Chunk? neighbor = GetActiveChunk(neighborPosition);
 
             if (neighbor == null) return;
 
             sectionsToMesh.Add((neighbor.Cast(), SectionPosition.From(neighborPosition).Local));
         }
 
-        int xSectionPosition = position.X & (Section.Size - 1);
+        int xSectionPosition = position.X & (Core.Logic.Section.Size - 1);
 
         if (xSectionPosition == 0) CheckNeighbor(position - (1, 0, 0));
-        else if (xSectionPosition == Section.Size - 1) CheckNeighbor(position + (1, 0, 0));
+        else if (xSectionPosition == Core.Logic.Section.Size - 1) CheckNeighbor(position + (1, 0, 0));
 
-        int ySectionPosition = position.Y & (Section.Size - 1);
+        int ySectionPosition = position.Y & (Core.Logic.Section.Size - 1);
 
         if (ySectionPosition == 0) CheckNeighbor(position - (0, 1, 0));
-        else if (ySectionPosition == Section.Size - 1) CheckNeighbor(position + (0, 1, 0));
+        else if (ySectionPosition == Core.Logic.Section.Size - 1) CheckNeighbor(position + (0, 1, 0));
 
-        int zSectionPosition = position.Z & (Section.Size - 1);
+        int zSectionPosition = position.Z & (Core.Logic.Section.Size - 1);
 
         if (zSectionPosition == 0) CheckNeighbor(position - (0, 0, 1));
-        else if (zSectionPosition == Section.Size - 1) CheckNeighbor(position + (0, 0, 1));
+        else if (zSectionPosition == Core.Logic.Section.Size - 1) CheckNeighbor(position + (0, 0, 1));
     }
 }
-

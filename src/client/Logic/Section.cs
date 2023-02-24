@@ -1,4 +1,4 @@
-﻿// <copyright file="ClientSection.cs" company="VoxelGame">
+﻿// <copyright file="Section.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -20,7 +20,7 @@ namespace VoxelGame.Client.Logic;
 ///     Sections do not know their exact position in the world.
 /// </summary>
 [Serializable]
-public class ClientSection : Section
+public class Section : Core.Logic.Section
 {
     [NonSerialized] private bool hasMesh;
     [NonSerialized] private BlockSides missing;
@@ -29,7 +29,7 @@ public class ClientSection : Section
     /// <summary>
     ///     Create a new client section.
     /// </summary>
-    public ClientSection()
+    public Section()
     {
         renderer = new SectionRenderer();
 
@@ -38,7 +38,7 @@ public class ClientSection : Section
     }
 
     /// <inheritdoc />
-    public override void Setup(Section loaded)
+    public override void Setup(Core.Logic.Section loaded)
     {
         blocks = loaded.Cast().blocks;
 
@@ -79,13 +79,13 @@ public class ClientSection : Section
         (int x, int y, int z) = position.Local;
 
         if (x == 0) required |= BlockSides.Left;
-        if (x == Chunk.Size - 1) required |= BlockSides.Right;
+        if (x == Core.Logic.Chunk.Size - 1) required |= BlockSides.Right;
 
         if (y == 0) required |= BlockSides.Bottom;
-        if (y == Chunk.Size - 1) required |= BlockSides.Top;
+        if (y == Core.Logic.Chunk.Size - 1) required |= BlockSides.Top;
 
         if (z == 0) required |= BlockSides.Back;
-        if (z == Chunk.Size - 1) required |= BlockSides.Front;
+        if (z == Core.Logic.Chunk.Size - 1) required |= BlockSides.Front;
 
         return required;
     }
@@ -179,4 +179,3 @@ public class ClientSection : Section
 
     #endregion IDisposable Support
 }
-

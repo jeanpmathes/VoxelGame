@@ -10,6 +10,7 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Manual;
 using VoxelGame.Manual.Modifiers;
@@ -35,12 +36,13 @@ public static class ManualBuilder
     private static void GenerateManual()
     {
         const string path = "./../../../../../../Setup/Resources/Manual";
+        DirectoryInfo directory = FileSystem.GetFullPath(path);
 
         Logging.Logger.LogInformation(Events.ApplicationInformation, "Generating game manual");
 
         Documentation documentation = new(typeof(ApplicationInformation).Assembly);
 
-        Includable controls = new("controls", path);
+        Includable controls = new("controls", directory);
 
         controls.CreateSections(
             Client.Instance.Keybinds.Binds,
@@ -49,7 +51,7 @@ public static class ManualBuilder
 
         controls.Generate();
 
-        Includable blocks = new("blocks", path);
+        Includable blocks = new("blocks", directory);
 
         blocks.CreateSections(
             Blocks.Instance.GetValues<Block>(documentation),
@@ -64,7 +66,7 @@ public static class ManualBuilder
 
         blocks.Generate();
 
-        Includable fluids = new("fluids", path);
+        Includable fluids = new("fluids", directory);
 
         fluids.CreateSections(
             Fluids.Instance.GetValues<Fluid>(documentation),
@@ -81,7 +83,7 @@ public static class ManualBuilder
         Logging.Logger.LogInformation(
             Events.ApplicationInformation,
             "Saved game manual to {Path}",
-            Path.GetFullPath(path));
+            directory.FullName);
     }
 
     private sealed class Logging
@@ -89,4 +91,5 @@ public static class ManualBuilder
         public static readonly ILogger Logger = LoggingHelper.CreateLogger<Logging>();
     }
 }
+
 

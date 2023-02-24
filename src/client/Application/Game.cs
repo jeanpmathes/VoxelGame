@@ -22,7 +22,7 @@ public sealed class Game : IDisposable
     /// </summary>
     /// <param name="world">The world in which the game is played.</param>
     /// <param name="player">The player playing the game.</param>
-    public Game(ClientWorld world, ClientPlayer player)
+    public Game(World world, Player player)
     {
         World = world;
         Player = player;
@@ -32,12 +32,12 @@ public sealed class Game : IDisposable
     /// <summary>
     ///     The player of the game.
     /// </summary>
-    public ClientPlayer Player { get; }
+    public Player Player { get; }
 
     /// <summary>
     ///     The game in which the player is playing.
     /// </summary>
-    public ClientWorld World { get; }
+    public World World { get; }
 
     /// <summary>
     ///     Get the console used for the game.
@@ -108,4 +108,5 @@ public sealed class Game : IDisposable
 
     #endregion IDisposable Support
 }
+
 

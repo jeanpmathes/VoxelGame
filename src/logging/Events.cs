@@ -67,6 +67,12 @@ public static class Events
     public const int ResourceLoad = 100;
 
     /// <summary>
+    ///     Occurs with events or information connected to the successful loading of creations.
+    ///     Creations are user-made resources that are loaded during an active game session.
+    /// </summary>
+    public const int CreationLoad = 102;
+
+    /// <summary>
     ///     Occurs when a texture or model that is requested could not be loaded and a fallback is used.
     /// </summary>
     public const int MissingResource = 110;
@@ -75,6 +81,11 @@ public static class Events
     ///     Occurs when entire resource directories or file structures are not available.
     /// </summary>
     public const int MissingDepository = 111;
+
+    /// <summary>
+    ///     Occurs when a creation is not available or could not be loaded.
+    /// </summary>
+    public const int MissingCreation = 112;
 
     /// <summary>
     ///     A general event category for everything input related.
@@ -288,4 +299,5 @@ public static class Events
 
     #endregion RENDERING AND VISUALS
 }
+
 

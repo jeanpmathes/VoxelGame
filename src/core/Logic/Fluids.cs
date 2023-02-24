@@ -11,6 +11,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic.Definitions.Fluids;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
@@ -34,47 +35,39 @@ public class Fluids
     private readonly List<Fluid> fluidList = new();
     private readonly Dictionary<string, Fluid> namedFluidDictionary = new();
 
-    private Fluids(ITextureIndexProvider indexProvider)
+    private Fluids(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
     {
-        using (logger.BeginScope("Fluid Loading"))
+        List<Fluid> allFluids = new()
         {
-            List<Fluid> allFluids = new()
-            {
-                None,
-                Water,
-                Milk,
-                Steam,
-                Lava,
-                CrudeOil,
-                NaturalGas,
-                Concrete,
-                Honey,
-                Petrol,
-                Wine,
-                Beer
-            };
+            None,
+            Water,
+            Milk,
+            Steam,
+            Lava,
+            CrudeOil,
+            NaturalGas,
+            Concrete,
+            Honey,
+            Petrol,
+            Wine,
+            Beer
+        };
 
-            if (allFluids.Count > FluidLimit) Debug.Fail($"Not more than {FluidLimit} fluids are allowed.");
+        if (allFluids.Count > FluidLimit) Debug.Fail($"Not more than {FluidLimit} fluids are allowed.");
 
-            foreach (Fluid fluid in allFluids.Take(FluidLimit))
-            {
-                fluidList.Add(fluid);
-                namedFluidDictionary.Add(fluid.NamedID, fluid);
+        foreach (Fluid fluid in allFluids.Take(FluidLimit))
+        {
+            fluidList.Add(fluid);
+            namedFluidDictionary.Add(fluid.NamedID, fluid);
 
-                var id = (uint) (fluidList.Count - 1);
+            var id = (uint) (fluidList.Count - 1);
 
-                fluid.Setup(id, indexProvider);
+            fluid.Setup(id, indexProvider);
 
-                logger.LogDebug(Events.FluidLoad, "Loaded fluid [{Fluid}] with ID '{ID}'", fluid, fluid.ID);
-            }
-
-            logger.LogInformation(
-                Events.FluidLoad,
-                "Fluid setup complete, total of {Count} fluids loaded",
-                Count);
-
-            ContactManager = new FluidContactManager(this);
+            loadingContext.ReportSuccess(Events.FluidLoad, nameof(Fluid), fluid.NamedID);
         }
+
+        ContactManager = new FluidContactManager(this);
     }
 
     /// <summary>
@@ -268,11 +261,11 @@ public class Fluids
     /// <summary>
     ///     Calls the setup method on all blocks.
     /// </summary>
-    public static void Load(ITextureIndexProvider indexProvider)
+    public static void Load(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
     {
-        Instance = new Fluids(indexProvider);
+        using (loadingContext.BeginStep(Events.FluidLoad, "Fluid Loading"))
+        {
+            Instance = new Fluids(indexProvider, loadingContext);
+        }
     }
 }
-
-
-

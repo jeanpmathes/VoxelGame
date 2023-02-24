@@ -8,13 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Client.Logic;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
+using World = VoxelGame.Client.Logic.World;
 
 namespace VoxelGame.Client.Application;
 
@@ -26,57 +27,28 @@ public class WorldProvider : IWorldProvider
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldProvider>();
 
-    private static readonly ISet<string> reservedNames = new HashSet<string>
-    {
-        "CON",
-        "PRN",
-        "AUX",
-        "NUL",
-        "COM",
-        "COM0",
-        "COM1",
-        "COM2",
-        "COM3",
-        "COM4",
-        "COM5",
-        "COM6",
-        "COM7",
-        "COM8",
-        "COM9",
-        "LPT0",
-        "LPT1",
-        "LPT2",
-        "LPT3",
-        "LPT4",
-        "LPT5",
-        "LPT6",
-        "LPT7",
-        "LPT8",
-        "LPT9"
-    };
+    private readonly List<(WorldInformation info, DirectoryInfo path)> worlds = new();
 
-    private readonly List<(WorldInformation info, string path)> worlds = new();
-
-    private readonly string worldsDirectory;
+    private readonly DirectoryInfo worldsDirectory;
 
     /// <summary>
     ///     Create a new world provider.
     /// </summary>
     /// <param name="worldsDirectory">The directory where worlds are loaded from and saved to.</param>
-    public WorldProvider(string worldsDirectory)
+    public WorldProvider(DirectoryInfo worldsDirectory)
     {
         this.worldsDirectory = worldsDirectory;
     }
 
     /// <inheritdoc />
-    public IEnumerable<(WorldInformation info, string path)> Worlds => worlds;
+    public IEnumerable<(WorldInformation info, DirectoryInfo path)> Worlds => worlds;
 
     /// <inheritdoc />
     public void Refresh()
     {
         worlds.Clear();
 
-        foreach (string directory in Directory.GetDirectories(worldsDirectory))
+        foreach (DirectoryInfo directory in worldsDirectory.EnumerateDirectories())
         {
             if (WorldData.IsWorldDirectory(directory))
             {
@@ -102,11 +74,11 @@ public class WorldProvider : IWorldProvider
 
     /// <inheritdoc />
     [SuppressMessage("ReSharper", "CA2000")]
-    public void LoadWorld(WorldInformation information, string path)
+    public void LoadWorld(WorldInformation information, DirectoryInfo path)
     {
         if (WorldActivation == null) throw new InvalidOperationException();
 
-        ClientWorld world = new(path, information);
+        World world = new(path, information);
         WorldActivation(this, world);
     }
 
@@ -116,15 +88,11 @@ public class WorldProvider : IWorldProvider
     {
         if (WorldActivation == null) throw new InvalidOperationException();
 
-        StringBuilder path = new(Path.Combine(worldsDirectory, name));
-
-        if (IsNameReserved(name)) path.Append(value: '_');
-
-        while (Directory.Exists(path.ToString())) path.Append(value: '_');
-
         (int upper, int lower) seed = (DateTime.Now.GetHashCode(), RandomNumberGenerator.GetInt32(int.MinValue, int.MaxValue));
 
-        ClientWorld world = new(path.ToString(), name, seed);
+        DirectoryInfo worldDirectory = FileSystem.GetUniqueDirectory(worldsDirectory, name);
+
+        World world = new(worldDirectory, name, seed);
         WorldActivation(world, world);
     }
 
@@ -135,28 +103,24 @@ public class WorldProvider : IWorldProvider
 
         if (name[^1] == ' ') return false;
 
-        foreach (char c in Path.GetInvalidFileNameChars())
-            if (!CheckChar(c))
-                return false;
+        if (Path.GetInvalidFileNameChars().Any(c => !IsCharInName(c))) return false;
 
-        foreach (char c in new[] {'.', ',', '{', '}'})
-            if (!CheckChar(c))
-                return false;
+        if (new[] {'.', ',', '{', '}'}.Any(c => !IsCharInName(c))) return false;
 
         return true;
 
-        bool CheckChar(char c)
+        bool IsCharInName(char c)
         {
             return !name.Contains(c, StringComparison.Ordinal);
         }
     }
 
     /// <inheritdoc />
-    public void DeleteWorld(string path)
+    public void DeleteWorld(DirectoryInfo path)
     {
         try
         {
-            Directory.Delete(path, recursive: true);
+            path.Delete(recursive: true);
         }
         catch (IOException e)
         {
@@ -164,14 +128,9 @@ public class WorldProvider : IWorldProvider
         }
     }
 
-    private static bool IsNameReserved(string name)
-    {
-        return reservedNames.Contains(name);
-    }
-
     /// <summary>
     ///     Is invoked when a world is requested to be activated.
     /// </summary>
-    public event EventHandler<ClientWorld> WorldActivation = null!;
+    public event EventHandler<World> WorldActivation = null!;
 }
 

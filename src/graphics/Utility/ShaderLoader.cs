@@ -4,11 +4,13 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 
@@ -21,49 +23,96 @@ public class ShaderLoader
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ShaderLoader>();
 
-    private readonly string directory;
+    private readonly DirectoryInfo directory;
     private readonly Dictionary<string, string> includables = new();
 
     private readonly Regex includePattern = new(@"^#pragma(?: )+include\(""(.+)""\)$");
+
+    private readonly LoadingContext loadingContext;
     private readonly (ISet<Shader> set, string uniform)[] sets;
 
     /// <summary>
     ///     Create a shader loader.
     /// </summary>
     /// <param name="directory">The directory to load shaders from.</param>
+    /// <param name="loadingContext">The loading context.</param>
     /// <param name="sets">Shader sets to fill. Shaders will be added to a set if they contain the specified uniform.</param>
-    public ShaderLoader(string directory, params (ISet<Shader> set, string uniform)[] sets)
+    public ShaderLoader(DirectoryInfo directory, LoadingContext loadingContext, params (ISet<Shader> set, string uniform)[] sets)
     {
         this.directory = directory;
+        this.loadingContext = loadingContext;
         this.sets = sets;
     }
 
     /// <summary>
     ///     Load a file that can be included in other shaders.
     /// </summary>
-    /// <param name="name">The name of the content. Will be used as marker for including.</param>
-    /// <param name="file">The path to the file.</param>
-    public void LoadIncludable(string name, string file)
+    /// <param name="name">The name of the content. Will be used as marker for including and to construct the file path.</param>
+    /// <returns>True if the file was loaded successfully, false otherwise.</returns>
+    public bool LoadIncludable(string name)
     {
-        includables[name] = File.ReadAllText(Path.Combine(directory, file), Encoding.UTF8);
+        FileInfo file = directory.GetFile($"{name}.glsl");
+
+        try
+        {
+            includables[name] = file.ReadAllText();
+
+            return true;
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            loadingContext.ReportFailure(Events.ShaderError, nameof(Shader), file, exception);
+            includables[name] = string.Empty;
+
+            return false;
+        }
     }
 
     /// <summary>
     ///     Load a shader.
     /// </summary>
+    /// <param name="name">The name of the combined program.</param>
     /// <param name="vert">The name of the vertex shader.</param>
     /// <param name="frag">The name of the fragment shader.</param>
-    /// <returns>The loaded shader.</returns>
-    public Shader Load(string vert, string frag)
+    /// <returns>The loaded shader, or null if an error occurred.</returns>
+    public Shader? Load(string name, string vert, string frag)
     {
-        using var vertReader = new StreamReader(Path.Combine(directory, vert), Encoding.UTF8);
-        using var fragReader = new StreamReader(Path.Combine(directory, frag), Encoding.UTF8);
+        string vertex;
+        string fragment;
 
-        var shader = new Shader(ProcessSource(vertReader), ProcessSource(fragReader));
+        FileInfo vertFile = directory.GetFile($"{vert}.vert");
+        FileInfo fragFile = directory.GetFile($"{frag}.frag");
+
+        try
+        {
+            using StreamReader vertReader = vertFile.OpenText();
+            using StreamReader fragReader = fragFile.OpenText();
+
+            vertex = ProcessSource(vertReader);
+            fragment = ProcessSource(fragReader);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            loadingContext.ReportFailure(Events.ShaderError, nameof(Shader), vertFile, exception);
+            loadingContext.ReportFailure(Events.ShaderError, nameof(Shader), fragFile, exception);
+
+            return null;
+        }
+
+        Shader? shader = Shader.Load(vertex, fragment);
+
+        if (shader == null)
+        {
+            loadingContext.ReportFailure(Events.ShaderError, nameof(Shader), name, "Failed to compile and link shader");
+
+            return null;
+        }
 
         foreach ((ISet<Shader> set, string uniform) in sets)
             if (shader.IsUniformDefined(uniform))
                 set.Add(shader);
+
+        loadingContext.ReportSuccess(Events.ShaderSetup, nameof(Shader), name);
 
         return shader;
     }
@@ -72,9 +121,7 @@ public class ShaderLoader
     {
         var source = new StringBuilder();
 
-        string? line;
-
-        while ((line = reader.ReadLine()) != null)
+        while (reader.ReadLine() is {} line)
         {
             Match match = includePattern.Match(line);
 

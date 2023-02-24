@@ -302,24 +302,26 @@ public partial class Chunk : IDisposable
     }
 
     /// <summary>
-    ///     Loads a chunk from a file specified by the path. If the loaded chunk does not fit the x, y and z parameters, null is
-    ///     returned.
+    ///     Loads a chunk from a file specified by the path.
+    ///     If the loaded chunk does not fit the x, y and z parameters, it is considered invalid.
     /// </summary>
     /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
     /// <param name="position">The position of the chunk.</param>
-    /// <returns>The loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
+    /// <returns>The loading result.</returns>
     [SuppressMessage(
         "ReSharper.DPA",
         "DPA0002: Excessive memory allocations in SOH",
         Justification = "Chunks are allocated here.")]
-    public static Chunk? Load(string path, ChunkPosition position)
+    public static LoadingResult Load(FileInfo path, ChunkPosition position)
     {
         logger.LogDebug(Events.ChunkOperation, "Started loading chunk for position: {Position}", position);
 
         Chunk chunk;
 
-        using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+        try
         {
+            using Stream stream = path.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+
             IFormatter formatter = new BinaryFormatter();
 
  #pragma warning disable // Will be replaced with custom serialization
@@ -327,25 +329,31 @@ public partial class Chunk : IDisposable
             chunk = (Chunk) formatter.Deserialize(stream);
  #pragma warning restore
         }
+        catch (IOException e)
+        {
+            // Because there is no check whether the file exists, IO exceptions are expected.
+            // Thus, they are not logged as errors or warnings.
+            logger.LogDebug(e, "Failed to load chunk for position: {Position}", position);
+
+            return new FileError();
+        }
 
         logger.LogDebug(Events.ChunkOperation, "Finished loading chunk for position: {Position}", position);
 
-        // Checking the chunk
-        if (chunk.Position == position) return chunk;
+        if (chunk.Position == position) return new Success(chunk);
 
         logger.LogWarning("File for the chunk at {Position} was invalid: position did not match", position);
 
-        return null;
+        return new Invalid();
     }
 
     /// <summary>
-    ///     Runs a task that loads a chunk from a file specified by the path. If the loaded chunk does not fit the x and z
-    ///     parameters, null is returned.
+    ///     Runs a task that loads a chunk from a file specified by the path.
     /// </summary>
     /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
     /// <param name="position">The position of the chunk.</param>
-    /// <returns>A task containing the loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
-    public static Task<Chunk?> LoadAsync(string path, ChunkPosition position)
+    /// <returns>A task containing the loading result.</returns>
+    public static Task<LoadingResult> LoadAsync(FileInfo path, ChunkPosition position)
     {
         return Task.Run(() => Load(path, position));
     }
@@ -372,17 +380,19 @@ public partial class Chunk : IDisposable
     ///     Saves this chunk in the directory specified by the path.
     /// </summary>
     /// <param name="path">The path of the directory where this chunk should be saved.</param>
-    public void Save(string path)
+    public void Save(DirectoryInfo path)
     {
         blockTickManager.Normalize();
         fluidTickManager.Normalize();
         localUpdateCounter.Reset();
 
-        string chunkFile = Path.Combine(path, GetChunkFileName(Position));
+        FileInfo chunkFile = path.GetFile(GetChunkFileName(Position));
 
         logger.LogDebug(Events.ChunkOperation, "Started saving chunk {Position} to: {Path}", Position, chunkFile);
 
-        using Stream stream = new FileStream(chunkFile, FileMode.Create, FileAccess.Write, FileShare.Read);
+        chunkFile.Directory?.Create();
+
+        using Stream stream = chunkFile.Open(FileMode.Create, FileAccess.Write, FileShare.None);
         IFormatter formatter = new BinaryFormatter();
 #pragma warning disable // Will be replaced with custom serialization
         formatter.Serialize(stream, this);
@@ -396,7 +406,7 @@ public partial class Chunk : IDisposable
     /// </summary>
     /// <param name="path">The path of the directory where this chunk should be saved.</param>
     /// <returns>A task.</returns>
-    public Task SaveAsync(string path)
+    public Task SaveAsync(DirectoryInfo path)
     {
         return Task.Run(() => Save(path));
     }
@@ -596,9 +606,9 @@ public partial class Chunk : IDisposable
 
         Vector3i center = (1, 1, 1);
 
-        Array3D<bool> available = FindAvailableNeighbors();
+        Neighborhood<bool> available = FindAvailableNeighbors();
 
-        var needed = new Array3D<bool>(length: 3);
+        var needed = new Neighborhood<bool>();
 
         bool isAnyDecorationPossible = CheckCornerDecorations(available, needed);
 
@@ -609,9 +619,9 @@ public partial class Chunk : IDisposable
             return null;
         }
 
-        var neighbors = new Array3D<(Chunk, Guard)?>(length: 3);
+        var neighbors = new Neighborhood<(Chunk, Guard)?>();
 
-        foreach ((int x, int y, int z) in VMath.Range3(x: 3, y: 3, z: 3))
+        foreach ((int x, int y, int z) in Neighborhood.Indices)
         {
             if ((x, y, z) == center || !needed[x, y, z]) continue;
 
@@ -659,20 +669,20 @@ public partial class Chunk : IDisposable
         return isAnyDecorationPossible;
     }
 
-    private Array3D<bool> FindAvailableNeighbors()
+    private Neighborhood<bool> FindAvailableNeighbors()
     {
         Vector3i center = (1, 1, 1);
 
-        var available = new Array3D<bool>(length: 3);
+        var available = new Neighborhood<bool>();
 
-        foreach ((int x, int y, int z) in VMath.Range3(x: 3, y: 3, z: 3))
+        foreach ((int x, int y, int z) in Neighborhood.Indices)
             available[x, y, z] = (x, y, z) == center
                                  || (World.TryGetChunk(Position.Offset((x, y, z) - center), out Chunk? neighbor) && neighbor.CanAcquireCore(Access.Write));
 
         return available;
     }
 
-    private void Decorate(IWorldGenerator generator, Array3D<Chunk?> neighbors)
+    private void Decorate(IWorldGenerator generator, Neighborhood<Chunk?> neighbors)
     {
         foreach ((int x, int y, int z) in VMath.Range3(x: 2, y: 2, z: 2))
         {
@@ -698,10 +708,8 @@ public partial class Chunk : IDisposable
     /// <param name="generator">The world generator.</param>
     /// <param name="neighbors">The neighbors of this chunk.</param>
     /// <returns>The task that decorates the chunk.</returns>
-    public Task DecorateAsync(IWorldGenerator generator, Array3D<Chunk?> neighbors)
+    public Task DecorateAsync(IWorldGenerator generator, Neighborhood<Chunk?> neighbors)
     {
-        Debug.Assert(neighbors.Length == 3);
-
         return Task.Run(() => Decorate(generator, neighbors));
     }
 
@@ -716,7 +724,7 @@ public partial class Chunk : IDisposable
         void SetNeighbors(int x, int y, int z)
         {
             Debug.Assert(neighbors != null);
-            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors[dx, dy, dz] = GetLocalSection(x + dx - 1, y + dy - 1, z + dz - 1);
+            foreach ((int dx, int dy, int dz) in Neighborhood.Indices) neighbors[dx, dy, dz] = GetLocalSection(x + dx - 1, y + dy - 1, z + dz - 1);
         }
 
         void DecorateSection(int x, int y, int z)
@@ -744,7 +752,9 @@ public partial class Chunk : IDisposable
         };
     }
 
-    private static void DecorateCorner(IWorldGenerator generator, Array3D<Chunk?> chunks, int x, int y, int z)
+    #pragma warning disable S3242 // Type carries semantic meaning.
+    private static void DecorateCorner(IWorldGenerator generator, Neighborhood<Chunk?> chunks, int x, int y, int z)
+    #pragma warning restore S3242
     {
         Vector3i center = (1, 1, 1);
 
@@ -773,12 +783,12 @@ public partial class Chunk : IDisposable
             return chunks[offset.X, offset.Y, offset.Z]!.GetSection(sectionPosition);
         }
 
-        var neighbors = new Array3D<Section>(length: 3);
+        var neighbors = new Neighborhood<Section>();
 
         void SetNeighbors(SectionPosition sectionPosition)
         {
             Debug.Assert(neighbors != null);
-            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors[dx, dy, dz] = GetSection(sectionPosition.Offset(dx - 1, dy - 1, dz - 1));
+            foreach ((int dx, int dy, int dz) in Neighborhood.Indices) neighbors[dx, dy, dz] = GetSection(sectionPosition.Offset(dx - 1, dy - 1, dz - 1));
         }
 
         void DecorateSection(SectionPosition sectionPosition)
@@ -855,6 +865,27 @@ public partial class Chunk : IDisposable
     }
 
     /// <summary>
+    ///     The result of a chunk loading operation.
+    /// </summary>
+    public record LoadingResult;
+
+    /// <summary>
+    ///     A successful chunk loading operation.
+    /// </summary>
+    /// <param name="Chunk">The loaded chunk.</param>
+    public record Success(Chunk Chunk) : LoadingResult;
+
+    /// <summary>
+    ///     A chunk loading operation that failed due to an IO error.
+    /// </summary>
+    public record FileError : LoadingResult;
+
+    /// <summary>
+    ///     A chunk loading operation that failed due to an invalid chunk.
+    /// </summary>
+    public record Invalid : LoadingResult;
+
+    /// <summary>
     ///     Creates a section.
     /// </summary>
     protected delegate Section SectionFactory();
@@ -916,4 +947,3 @@ public partial class Chunk : IDisposable
 
     #endregion IDisposable Support
 }
-

@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Diagnostics;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -30,10 +30,7 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            string dataPath = Path.Combine(Context.Directory, GetChunkFileName(Chunk.Position));
-
-            if (File.Exists(dataPath)) SetNextState<Loading>();
-            else SetNextState<Generating>();
+            SetNextState<Loading>();
         }
     }
 
@@ -42,7 +39,7 @@ public partial class Chunk
     /// </summary>
     public class Loading : ChunkState
     {
-        private (Task<Chunk?> task, Guard guard)? activity;
+        private (Task<LoadingResult> task, Guard guard)? activity;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Write;
@@ -58,12 +55,7 @@ public partial class Chunk
         {
             if (activity is not {task: {} task, guard: {} guard})
             {
-                guard = Context.TryAllocate(Chunk.World.MaxLoadingTasks);
-
-                if (guard == null) return;
-
-                string path = Path.Combine(Context.Directory, GetChunkFileName(Chunk.Position));
-                activity = (LoadAsync(path, Chunk.Position), guard);
+                TryStartLoading();
             }
             else if (task.IsCompleted)
             {
@@ -71,36 +63,80 @@ public partial class Chunk
 
                 if (task.IsFaulted)
                 {
-                    logger.LogError(
-                        Events.ChunkLoadingError,
-                        task.Exception!.GetBaseException(),
-                        "An exception occurred when loading the chunk {Position}. " +
-                        "The chunk has been scheduled for generation",
-                        Chunk.Position);
-
-                    SetNextState<Generating>();
+                    HandleFaultedTask(task);
                 }
                 else
                 {
-                    Chunk? loadedChunk = task.Result;
-
-                    if (loadedChunk != null)
-                    {
-                        Chunk.Setup(loadedChunk);
-                        SetNextReady();
-                    }
-                    else
-                    {
-                        logger.LogError(
-                            Events.ChunkLoadingError,
-                            "The chunk for {Position} could not be loaded, " +
-                            "which can be caused by a corrupted chunk file. " +
-                            "Position will be scheduled for generation",
-                            Chunk.Position);
-
-                        SetNextState<Generating>();
-                    }
+                    HandleSuccessfulTask(task);
                 }
+            }
+        }
+
+        private void TryStartLoading()
+        {
+            Guard? guard = Context.TryAllocate(Chunk.World.MaxLoadingTasks);
+
+            if (guard == null) return;
+
+            FileInfo path = Context.Directory.GetFile(GetChunkFileName(Chunk.Position));
+            activity = (LoadAsync(path, Chunk.Position), guard);
+        }
+
+        private void HandleFaultedTask(Task task)
+        {
+            logger.LogError(
+                Events.ChunkLoadingError,
+                task.Exception!.GetBaseException(),
+                "An exception occurred when loading the chunk {Position}. " +
+                "The chunk has been scheduled for generation",
+                Chunk.Position);
+
+            SetNextState<Generating>();
+        }
+
+        private void HandleSuccessfulTask(Task<LoadingResult> task)
+        {
+            LoadingResult result = task.Result;
+
+            switch (result)
+            {
+                case Success success:
+                {
+                    Chunk.Setup(success.Chunk);
+                    SetNextReady();
+
+                    break;
+                }
+
+                case FileError:
+                {
+                    logger.LogDebug(Events.ChunkLoadingError,
+                        "The chunk file for {Position} could not be loaded, " +
+                        "which is likely because the file does not exist. " +
+                        "Position will be scheduled for generation",
+                        Chunk.Position);
+
+                    SetNextState<Generating>();
+
+                    break;
+                }
+
+                case Invalid:
+                {
+                    logger.LogError(
+                        Events.ChunkLoadingError,
+                        "The chunk for {Position} could not be loaded, " +
+                        "which can be caused by a corrupted chunk file. " +
+                        "Position will be scheduled for generation",
+                        Chunk.Position);
+
+                    SetNextState<Generating>();
+
+                    break;
+                }
+
+                default:
+                    throw new InvalidOperationException();
             }
         }
     }
@@ -157,8 +193,8 @@ public partial class Chunk
     /// </summary>
     public class Decorating : ChunkState
     {
-        private readonly Array3D<Chunk?> chunks;
-        private readonly Array3D<(Chunk, Guard)?> neighbors;
+        private readonly Neighborhood<Chunk?> chunks;
+        private readonly Neighborhood<(Chunk, Guard)?> neighbors;
         private (Task task, Guard guard)? activity;
 
         /// <summary>
@@ -166,15 +202,13 @@ public partial class Chunk
         /// </summary>
         /// <param name="self">The guard for the core write access to the chunk itself.</param>
         /// <param name="neighbors">The neighbors of this chunk, with write access guards.</param>
-        public Decorating(Guard self, Array3D<(Chunk, Guard)?> neighbors) : base(self, extended: null)
+        public Decorating(Guard self, Neighborhood<(Chunk, Guard)?> neighbors) : base(self, extended: null)
         {
-            Debug.Assert(neighbors.Length == 3);
-
             this.neighbors = neighbors;
 
-            chunks = new Array3D<Chunk?>(length: 3);
+            chunks = new Neighborhood<Chunk?>();
 
-            foreach ((int x, int y, int z) in VMath.Range3(x: 3, y: 3, z: 3))
+            foreach ((int x, int y, int z) in Neighborhood.Indices)
             {
                 (Chunk chunk, Guard)? neighbor = neighbors[x, y, z];
 
@@ -393,4 +427,5 @@ public partial class Chunk
         }
     }
 }
+
 

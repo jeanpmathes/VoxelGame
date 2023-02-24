@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Collections;
 
@@ -47,6 +48,11 @@ public class Array3D<T> : IEnumerable<T>
         get => GetRef(x, y, z);
         set => GetRef(x, y, z) = value;
     }
+
+    /// <summary>
+    ///     Get all indices of the array.
+    /// </summary>
+    public IEnumerable<(int x, int y, int z)> Indices => VMath.Range3(Length, Length, Length);
 
     /// <inheritdoc />
     public IEnumerator<T> GetEnumerator()
@@ -88,4 +94,5 @@ public class Array3D<T> : IEnumerable<T>
         GetRef(position.X, position.Y, position.Z) = value;
     }
 }
+
 

@@ -35,7 +35,7 @@ public static class LoggingHelper
     /// <param name="logDebug">Whether to log debug messages.</param>
     /// <param name="appDataDirectory">The application directory, in which a log folder is created.</param>
     /// <returns></returns>
-    public static ILogger SetupLogging(string category, bool logDebug, string appDataDirectory)
+    public static ILogger SetupLogging(string category, bool logDebug, FileSystemInfo appDataDirectory)
     {
         Debug.Assert(LoggerFactory == null);
 
@@ -50,11 +50,10 @@ public static class LoggingHelper
                     .AddFilter("VoxelGame", level)
                     .AddSimpleConsole(options => options.IncludeScopes = true)
                     .AddFile(
-                        Path.Combine(appDataDirectory, "Logs", $"voxel-log-{{Date}}{DateTime.Now:_HH-mm-ss}.log"),
+                        Path.Combine(appDataDirectory.FullName, "Logs", $"voxel-log-{{Date}}{DateTime.Now:_HH-mm-ss}.log"),
                         level);
             });
 
         return LoggerFactory.CreateLogger(category);
     }
 }
-

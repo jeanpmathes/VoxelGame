@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -51,7 +52,7 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    protected World(string path, string name, (int upper, int lower) seed) :
+    protected World(DirectoryInfo path, string name, (int upper, int lower) seed) :
         this(
             new WorldInformation
             {
@@ -71,7 +72,7 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     This constructor is meant for worlds that already exist.
     /// </summary>
-    protected World(string path, WorldInformation information) :
+    protected World(DirectoryInfo path, WorldInformation information) :
         this(
             information,
             path)
@@ -82,7 +83,7 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Setup of readonly fields and non-optional steps.
     /// </summary>
-    private World(WorldInformation information, string directory)
+    private World(WorldInformation information, DirectoryInfo directory)
     {
         Ready += delegate {};
 
@@ -301,7 +302,7 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Emit views of global world data for debugging.
     /// </summary>
-    public void EmitViews(string directory)
+    public void EmitViews(DirectoryInfo directory)
     {
         generator.EmitViews(directory);
     }
@@ -704,4 +705,5 @@ public abstract class World : IDisposable, IGrid
 
     #endregion IDisposable Support
 }
+
 

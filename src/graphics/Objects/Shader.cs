@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using VoxelGame.Graphics.Utility;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Graphics.Objects;
@@ -19,46 +18,18 @@ public class Shader
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Shader>();
 
-    private readonly Dictionary<string, int> uniformLocations;
+    private readonly Dictionary<string, int> uniformLocations = new();
 
-    /// <summary>
-    ///     Create a new shader from given source files.
-    /// </summary>
-    /// <param name="vertSource">The path to the vertex shader source file.</param>
-    /// <param name="fragSource">The path to the fragment shader source file.</param>
-    public Shader(string vertSource, string fragSource)
+    private Shader(int handle)
     {
-        GL.EnableVertexAttribArray(index: 0);
+        Handle = handle;
 
-        string shaderSource = vertSource;
-        int vertexShader = GL.CreateShader(ShaderType.VertexShader);
-        GL.ShaderSource(vertexShader, shaderSource);
-        CompileShader(vertexShader);
-
-        shaderSource = fragSource;
-        int fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-        GL.ShaderSource(fragmentShader, shaderSource);
-        CompileShader(fragmentShader);
-
-        Handle = GL.CreateProgram();
-
-        GL.AttachShader(Handle, vertexShader);
-        GL.AttachShader(Handle, fragmentShader);
-
-        LinkProgram(Handle);
-
-        GL.DetachShader(Handle, vertexShader);
-        GL.DetachShader(Handle, fragmentShader);
-        GL.DeleteShader(fragmentShader);
-        GL.DeleteShader(vertexShader);
-
-        GL.GetProgram(Handle, GetProgramParameterName.ActiveUniforms, out int numberOfUniforms);
-        uniformLocations = new Dictionary<string, int>();
+        GL.GetProgram(handle, GetProgramParameterName.ActiveUniforms, out int numberOfUniforms);
 
         for (var i = 0; i < numberOfUniforms; i++)
         {
-            string key = GL.GetActiveUniform(Handle, i, out _, out _);
-            int location = GL.GetUniformLocation(Handle, key);
+            string key = GL.GetActiveUniform(handle, i, out _, out _);
+            int location = GL.GetUniformLocation(handle, key);
 
             uniformLocations.Add(key, location);
         }
@@ -68,52 +39,91 @@ public class Shader
 
     private int Handle { get; }
 
-    private static void CompileShader(int shader)
+    /// <summary>
+    ///     Create a new shader from given source files.
+    /// </summary>
+    /// <param name="vertSource">The path to the vertex shader source file.</param>
+    /// <param name="fragSource">The path to the fragment shader source file.</param>
+    /// <returns>The created shader, or null if an error occurred.</returns>
+    public static Shader? Load(string vertSource, string fragSource)
+    {
+        GL.EnableVertexAttribArray(index: 0);
+
+        int vertexShader = GL.CreateShader(ShaderType.VertexShader);
+        GL.ShaderSource(vertexShader, vertSource);
+        bool isVertexValid = CompileShader(vertexShader);
+
+        int fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+        GL.ShaderSource(fragmentShader, fragSource);
+        bool isFragmentValid = CompileShader(fragmentShader);
+
+        Shader? shader = null;
+
+        if (isVertexValid && isFragmentValid)
+        {
+            int handle = GL.CreateProgram();
+
+            GL.AttachShader(handle, vertexShader);
+            GL.AttachShader(handle, fragmentShader);
+
+            bool isProgramValid = LinkProgram(handle);
+
+            GL.DetachShader(handle, vertexShader);
+            GL.DetachShader(handle, fragmentShader);
+
+            if (isProgramValid) shader = new Shader(handle);
+        }
+
+        GL.DeleteShader(fragmentShader);
+        GL.DeleteShader(vertexShader);
+
+        GL.UseProgram(program: 0);
+
+        return shader;
+    }
+
+    private static bool CompileShader(int shader)
     {
         GL.CompileShader(shader);
 
-        // Check for compilation errors
         GL.GetShader(shader, ShaderParameter.CompileStatus, out int code);
 
         if (code != (int) All.True)
         {
-            var e = new ShaderException(shader);
-
             logger.LogCritical(
                 Events.ShaderError,
-                e,
                 "Error occurred whilst compiling Shader({Shader}): {Info}",
-                e.Shader,
-                e.Info);
+                shader,
+                GL.GetShaderInfoLog(shader));
 
-            throw e;
+            return false;
         }
 
         logger.LogDebug(Events.ShaderSetup, "Successfully compiled Shader({Shader})", shader);
+
+        return true;
     }
 
-    private static void LinkProgram(int program)
+    private static bool LinkProgram(int program)
     {
         GL.LinkProgram(program);
 
-        // Check for linking errors
         GL.GetProgram(program, GetProgramParameterName.LinkStatus, out int code);
 
         if (code != (int) All.True)
         {
-            var e = new ProgramException(program);
-
             logger.LogCritical(
                 Events.ShaderError,
-                e,
                 "Error occurred whilst linking Program({Program}): {Info}",
-                e.Program,
-                e.Info);
+                program,
+                GL.GetProgramInfoLog(program));
 
-            throw e;
+            return false;
         }
 
         logger.LogDebug(Events.ShaderSetup, "Successfully linked Program({Program})", program);
+
+        return true;
     }
 
     /// <summary>

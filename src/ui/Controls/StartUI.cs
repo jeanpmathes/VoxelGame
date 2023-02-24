@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
+using VoxelGame.Core.Collections;
+using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -25,6 +27,7 @@ internal class StartUI : ControlBase
     private const int SettingsMenuIndex = 1;
     private const int WorldSelectionMenuIndex = 2;
     private const int CreditsMenuIndex = 3;
+    private readonly MainMenu mainMenu;
 
     private readonly List<StandardMenu> menus = new();
 
@@ -37,7 +40,7 @@ internal class StartUI : ControlBase
 
         Exit = delegate {};
 
-        MainMenu mainMenu = new(this, parent.Context);
+        mainMenu = new MainMenu(this, parent.Context);
         mainMenu.SelectExit += (_, _) => Exit(this, EventArgs.Empty);
         mainMenu.SelectSettings += (_, _) => OpenMenu(SettingsMenuIndex);
         mainMenu.SelectWorlds += (_, _) => OpenMenu(WorldSelectionMenuIndex);
@@ -69,6 +72,26 @@ internal class StartUI : ControlBase
         if (index == WorldSelectionMenuIndex) worldSelection.Refresh();
     }
 
+    internal void DisableWorldSelection()
+    {
+        mainMenu.DisableWorlds();
+    }
+
+    internal void OpenMissingResourcesWindow(Tree<string> resources)
+    {
+        Window window = new(this)
+        {
+            Title = Language.MissingResources,
+            DeleteOnClose = true,
+            StartPosition = StartPosition.CenterCanvas,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            MinimumSize = new Size(width: 1000, height: 1000)
+        };
+
+        Tree tree = new(window);
+        tree.SetContent(resources);
+    }
+
     internal event EventHandler Exit;
 }
-

@@ -6,7 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using OpenTK.Windowing.Desktop;
+using System.Diagnostics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Input;
 using VoxelGame.UI.Controls;
 using VoxelGame.UI.Providers;
@@ -26,15 +27,15 @@ public class StartUserInterface : UserInterface
     /// <summary>
     ///     Creates a new start user interface.
     /// </summary>
-    /// <param name="window">The game window.</param>
     /// <param name="inputListener">The input listener.</param>
     /// <param name="worldProvider">The world provider.</param>
     /// <param name="settingsProviders">The settings providers.</param>
+    /// <param name="resources">The resources.</param>
     /// <param name="drawBackground">Whether to draw the ui background.</param>
-    public StartUserInterface(GameWindow window, InputListener inputListener, IWorldProvider worldProvider,
-        ICollection<ISettingsProvider> settingsProviders, bool drawBackground) : base(
-        window,
+    public StartUserInterface(InputListener inputListener, IWorldProvider worldProvider,
+        ICollection<ISettingsProvider> settingsProviders, UIResources resources, bool drawBackground) : base(
         inputListener,
+        resources,
         drawBackground)
     {
         this.worldProvider = worldProvider;
@@ -54,9 +55,23 @@ public class StartUserInterface : UserInterface
     /// <param name="exit">The action to invoke.</param>
     public void SetExitAction(Action exit)
     {
-        if (control == null) return;
+        Debug.Assert(control != null);
 
         control.Exit += (_, _) => exit();
+    }
+
+    /// <summary>
+    ///     Set information about the loading results of the resource loading process.
+    /// </summary>
+    /// <param name="resources">The resources that are missing.</param>
+    /// <param name="isCriticalMissing">Whether a critical resource is missing, preventing the game from starting.</param>
+    public void PresentResourceLoadingFailure(Tree<string> resources, bool isCriticalMissing)
+    {
+        Debug.Assert(control != null);
+
+        control.OpenMissingResourcesWindow(resources);
+
+        if (isCriticalMissing) control.DisableWorldSelection();
     }
 }
 

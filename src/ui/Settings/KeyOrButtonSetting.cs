@@ -22,7 +22,9 @@ namespace VoxelGame.UI.Settings;
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 [SuppressMessage("ReSharper", "CA1001")]
+#pragma warning disable S2931
 internal class KeyOrButtonSetting : Setting
+#pragma warning restore S2931
 {
     private readonly Func<KeyOrButton> get;
     private readonly Action reset;
@@ -74,13 +76,13 @@ internal class KeyOrButtonSetting : Setting
 
         Button resetBind = new(layout)
         {
-            ImageName = Source.GetIconName("reset"),
+            ImageName = context.Resources.ResetIcon,
             Size = new Size(width: 40, height: 40),
             ToolTipText = Language.Reset,
             Dock = Dock.Right
         };
 
-        resetBind.Pressed += (_, _) =>
+        resetBind.Released += (_, _) =>
         {
             reset();
             rebind.Text = get().ToString();

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -31,10 +32,7 @@ public sealed class BlockModel
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
 
-    private static readonly string path = Path.Combine(
-        Directory.GetCurrentDirectory(),
-        "Resources",
-        "Models");
+    private static readonly DirectoryInfo path = FileSystem.GetResourceDirectory("Models");
 
     private static ITextureIndexProvider blockTextureIndexProvider = null!;
 
@@ -432,7 +430,7 @@ public sealed class BlockModel
         JsonSerializerOptions options = new() {IgnoreReadOnlyProperties = true, WriteIndented = true};
 
         string json = JsonSerializer.Serialize(this, options);
-        File.WriteAllText(Path.Combine(path, name + ".json"), json);
+        path.GetFile(GetFileName(name)).WriteAllText(json);
     }
 
     /// <summary>
@@ -446,6 +444,32 @@ public sealed class BlockModel
 
     #region STATIC METHODS
 
+    private static string GetFileName(string name)
+    {
+        return name + ".json";
+    }
+
+    private static LoadingContext? loader;
+
+    /// <summary>
+    ///     Enable loading of models.
+    /// </summary>
+    /// <param name="context">The context to use for loading.</param>
+    public static void EnableLoading(LoadingContext context)
+    {
+        Debug.Assert(loader == null);
+        loader = context;
+    }
+
+    /// <summary>
+    ///     Disable loading of models. Only fallback models will be available.
+    /// </summary>
+    public static void DisableLoading()
+    {
+        Debug.Assert(loader != null);
+        loader = null;
+    }
+
     /// <summary>
     ///     Load a block model from file. All models are loaded from a specific directory.
     /// </summary>
@@ -453,22 +477,25 @@ public sealed class BlockModel
     /// <returns>The loaded model.</returns>
     public static BlockModel Load(string name)
     {
+        if (loader == null)
+        {
+            logger.LogWarning(Events.ResourceLoad, "Loading of models is currently disabled, fallback will be used instead");
+
+            return CreateFallback();
+        }
+
         try
         {
-            string json = File.ReadAllText(Path.Combine(path, name + ".json"));
+            string json = path.GetFile(GetFileName(name)).ReadAllText();
             BlockModel model = JsonSerializer.Deserialize<BlockModel>(json) ?? new BlockModel();
 
-            logger.LogDebug(Events.ResourceLoad, "Loaded BlockModel: {Name}", name);
+            loader.ReportSuccess(Events.ResourceLoad, nameof(BlockModel), name);
 
             return model;
         }
         catch (Exception e) when (e is IOException or FileNotFoundException or JsonException)
         {
-            logger.LogWarning(
-                Events.MissingResource,
-                e,
-                "Could not load the model '{Name}' because an exception occurred, fallback will be used instead",
-                name);
+            loader.ReportWarning(Events.MissingResource, nameof(BlockModel), name, e);
 
             return CreateFallback();
         }
@@ -476,7 +503,7 @@ public sealed class BlockModel
 
     private static BlockModel CreateFallback()
     {
-        const float begin = 0.375f;
+        const float begin = 0.275f;
         const float size = 0.5f;
 
         int[][] uvs = BlockModels.GetBlockUVs(isRotated: false);
@@ -932,4 +959,3 @@ public static class BlockModelExtensions
         group.west.Lock();
     }
 }
-

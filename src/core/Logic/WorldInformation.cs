@@ -9,6 +9,7 @@ using System.IO;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
@@ -59,7 +60,7 @@ public class WorldInformation
     ///     Save this world information to a file.
     /// </summary>
     /// <param name="path">The save path.</param>
-    public void Save(string path)
+    public void Save(FileInfo path)
     {
         JsonSerializerOptions options = new()
         {
@@ -68,7 +69,7 @@ public class WorldInformation
         };
 
         string json = JsonSerializer.Serialize(this, options);
-        File.WriteAllText(path, json);
+        path.WriteAllText(json);
     }
 
     /// <summary>
@@ -76,11 +77,11 @@ public class WorldInformation
     /// </summary>
     /// <param name="path">The path to load from.</param>
     /// <returns>The loaded world information.</returns>
-    public static WorldInformation Load(string path)
+    public static WorldInformation Load(FileInfo path)
     {
         try
         {
-            string json = File.ReadAllText(path);
+            string json = path.ReadAllText();
 
             WorldInformation information =
                 JsonSerializer.Deserialize<WorldInformation>(json) ?? new WorldInformation();
@@ -172,4 +173,3 @@ public struct SpawnInformation : IEquatable<SpawnInformation>
         return !left.Equals(right);
     }
 }
-

@@ -130,7 +130,7 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public void EmitViews(string path)
+    public void EmitViews(DirectoryInfo path)
     {
         Map.EmitViews(path);
     }
@@ -157,10 +157,13 @@ public class Generator : IWorldGenerator
     /// <summary>
     ///     Prepare all required systems to use the generator.
     /// </summary>
-    public static void Prepare()
+    public static void Prepare(LoadingContext loadingContext)
     {
-        Decorations.Initialize();
-        Structures.Initialize();
+        using (loadingContext.BeginStep(Events.ResourceLoad, "Default Generator"))
+        {
+            Decorations.Initialize(loadingContext);
+            Structures.Initialize(loadingContext);
+        }
     }
 
     /// <summary>
@@ -356,4 +359,5 @@ public class Generator : IWorldGenerator
         }
     }
 }
+
 

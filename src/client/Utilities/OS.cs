@@ -29,14 +29,14 @@ public class OS
     /// <summary>
     ///     Start a process or launch a file.
     /// </summary>
-    /// <param name="file">The file to launch.</param>
-    public static void Start(string file)
+    /// <param name="path">The path to launch.</param>
+    public static void Start(FileSystemInfo path)
     {
         try
         {
             ProcessStartInfo info = new()
             {
-                FileName = file,
+                FileName = path.FullName,
                 UseShellExecute = true
             };
 
@@ -44,14 +44,13 @@ public class OS
         }
         catch (FileNotFoundException)
         {
-            logger.LogDebug(Events.OS, "File to start not found: {File}", file);
+            logger.LogDebug(Events.OS, "File to start not found: {File}", path);
         }
         catch (Win32Exception e)
         {
-            logger.LogDebug(Events.OS, e, "Failed to start file: {File}", file);
+            logger.LogDebug(Events.OS, e, "Failed to start file: {File}", path);
         }
     }
 }
-
 
 

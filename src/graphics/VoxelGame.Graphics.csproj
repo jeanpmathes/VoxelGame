@@ -45,6 +45,7 @@
     </ItemGroup>
 
   <ItemGroup>
+      <ProjectReference Include="..\core\VoxelGame.Core.csproj"/>
     <ProjectReference Include="..\logging\VoxelGame.Logging.csproj" />
   </ItemGroup>
 </Project>

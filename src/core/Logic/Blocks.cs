@@ -15,6 +15,7 @@ using VoxelGame.Core.Logic.Definitions.Blocks;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
@@ -37,9 +38,9 @@ public class Blocks
     private readonly List<Block> blockList = new();
     private readonly Dictionary<string, Block> namedBlockDictionary = new();
 
-    private Blocks(ITextureIndexProvider indexProvider)
+    private Blocks(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
     {
-        using (logger.BeginScope("Block Loading"))
+        using (loadingContext.BeginStep(Events.BlockLoad, "Block Loading"))
         {
             List<Block> allBlocks = new();
 
@@ -624,10 +625,8 @@ public class Blocks
 
                 block.Setup(id, indexProvider);
 
-                logger.LogDebug(Events.BlockLoad, "Loaded block [{Block}] with ID {ID}", block, block.ID);
+                loadingContext.ReportSuccess(Events.BlockLoad, nameof(Block), block.NamedID);
             }
-
-            logger.LogInformation(Events.BlockLoad, "Block setup complete, {Count} blocks loaded", Count);
         }
 
         Specials = new SpecialBlocks(this);
@@ -682,9 +681,9 @@ public class Blocks
     /// <summary>
     ///     Loads all blocks and sets them up.
     /// </summary>
-    public static void Load(ITextureIndexProvider indexProvider)
+    public static void Load(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
     {
-        Instance = new Blocks(indexProvider);
+        Instance = new Blocks(indexProvider, loadingContext);
     }
 
     [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
@@ -1169,4 +1168,5 @@ public class Blocks
 
     #endregion NEW BLOCKS
 }
+
 

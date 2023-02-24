@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Manual;
 
@@ -16,7 +17,7 @@ namespace VoxelGame.Manual;
 public class Includable
 {
     private readonly string name;
-    private readonly string outputPath;
+    private readonly FileInfo outputPath;
 
     private readonly List<Section> sections = new();
 
@@ -25,10 +26,10 @@ public class Includable
     /// </summary>
     /// <param name="name">The name of this document.</param>
     /// <param name="outputPath">The output path to produce a file at.</param>
-    public Includable(string name, string outputPath)
+    public Includable(string name, DirectoryInfo outputPath)
     {
         this.name = name;
-        this.outputPath = Path.Combine(outputPath, $"{name}.tex");
+        this.outputPath = outputPath.GetFile($"{name}.tex");
     }
 
     /// <summary>
@@ -69,7 +70,7 @@ public class Includable
     /// </summary>
     public void Generate()
     {
-        using StreamWriter writer = File.CreateText(outputPath);
+        using StreamWriter writer = outputPath.CreateText();
 
         foreach (Section section in sections)
         {
@@ -78,4 +79,3 @@ public class Includable
         }
     }
 }
-

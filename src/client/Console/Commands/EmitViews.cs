@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using VoxelGame.Client.Utilities;
@@ -27,7 +28,7 @@ public class EmitViews : Command
     /// <exclude />
     public void Invoke()
     {
-        string path = Context.Player.World.Data.DebugDirectory;
+        DirectoryInfo path = Context.Player.World.Data.DebugDirectory;
 
         Task.Run(() =>
         {
@@ -38,4 +39,5 @@ public class EmitViews : Command
         });
     }
 }
+
 

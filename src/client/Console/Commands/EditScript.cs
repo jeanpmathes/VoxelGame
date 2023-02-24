@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.IO;
 using JetBrains.Annotations;
 using VoxelGame.Client.Utilities;
 
@@ -35,11 +36,12 @@ public class EditScript : Command
     /// <param name="name">The name of the script to edit.</param>
     public static void Do(Context context, string name)
     {
-        string? path = context.Player.World.Data.CreateScript(name, "");
+        FileInfo? path = context.Player.World.Data.CreateScript(name, "");
 
         if (path == null) return;
 
         OS.Start(path);
     }
 }
+
 
