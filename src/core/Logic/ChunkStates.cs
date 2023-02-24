@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -30,10 +31,7 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            FileInfo data = Context.Directory.GetFile(GetChunkFileName(Chunk.Position));
-
-            if (data.Exists) SetNextState<Loading>();
-            else SetNextState<Generating>();
+            SetNextState<Loading>();
         }
     }
 
@@ -42,7 +40,7 @@ public partial class Chunk
     /// </summary>
     public class Loading : ChunkState
     {
-        private (Task<Chunk?> task, Guard guard)? activity;
+        private (Task<LoadingResult> task, Guard guard)? activity;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Write;
@@ -58,12 +56,7 @@ public partial class Chunk
         {
             if (activity is not {task: {} task, guard: {} guard})
             {
-                guard = Context.TryAllocate(Chunk.World.MaxLoadingTasks);
-
-                if (guard == null) return;
-
-                FileInfo path = Context.Directory.GetFile(GetChunkFileName(Chunk.Position));
-                activity = (LoadAsync(path, Chunk.Position), guard);
+                TryStartLoading();
             }
             else if (task.IsCompleted)
             {
@@ -71,36 +64,80 @@ public partial class Chunk
 
                 if (task.IsFaulted)
                 {
-                    logger.LogError(
-                        Events.ChunkLoadingError,
-                        task.Exception!.GetBaseException(),
-                        "An exception occurred when loading the chunk {Position}. " +
-                        "The chunk has been scheduled for generation",
-                        Chunk.Position);
-
-                    SetNextState<Generating>();
+                    HandleFaultedTask(task);
                 }
                 else
                 {
-                    Chunk? loadedChunk = task.Result;
-
-                    if (loadedChunk != null)
-                    {
-                        Chunk.Setup(loadedChunk);
-                        SetNextReady();
-                    }
-                    else
-                    {
-                        logger.LogError(
-                            Events.ChunkLoadingError,
-                            "The chunk for {Position} could not be loaded, " +
-                            "which can be caused by a corrupted chunk file. " +
-                            "Position will be scheduled for generation",
-                            Chunk.Position);
-
-                        SetNextState<Generating>();
-                    }
+                    HandleSuccessfulTask(task);
                 }
+            }
+        }
+
+        private void TryStartLoading()
+        {
+            Guard? guard = Context.TryAllocate(Chunk.World.MaxLoadingTasks);
+
+            if (guard == null) return;
+
+            FileInfo path = Context.Directory.GetFile(GetChunkFileName(Chunk.Position));
+            activity = (LoadAsync(path, Chunk.Position), guard);
+        }
+
+        private void HandleFaultedTask(Task task)
+        {
+            logger.LogError(
+                Events.ChunkLoadingError,
+                task.Exception!.GetBaseException(),
+                "An exception occurred when loading the chunk {Position}. " +
+                "The chunk has been scheduled for generation",
+                Chunk.Position);
+
+            SetNextState<Generating>();
+        }
+
+        private void HandleSuccessfulTask(Task<LoadingResult> task)
+        {
+            LoadingResult result = task.Result;
+
+            switch (result)
+            {
+                case Success success:
+                {
+                    Chunk.Setup(success.Chunk);
+                    SetNextReady();
+
+                    break;
+                }
+
+                case FileError:
+                {
+                    logger.LogDebug(Events.ChunkLoadingError,
+                        "The chunk file for {Position} could not be loaded, " +
+                        "which is likely because the file does not exist. " +
+                        "Position will be scheduled for generation",
+                        Chunk.Position);
+
+                    SetNextState<Generating>();
+
+                    break;
+                }
+
+                case Invalid:
+                {
+                    logger.LogError(
+                        Events.ChunkLoadingError,
+                        "The chunk for {Position} could not be loaded, " +
+                        "which can be caused by a corrupted chunk file. " +
+                        "Position will be scheduled for generation",
+                        Chunk.Position);
+
+                    SetNextState<Generating>();
+
+                    break;
+                }
+
+                default:
+                    throw new InvalidOperationException();
             }
         }
     }
@@ -393,5 +430,3 @@ public partial class Chunk
         }
     }
 }
-
-

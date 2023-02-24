@@ -302,24 +302,26 @@ public partial class Chunk : IDisposable
     }
 
     /// <summary>
-    ///     Loads a chunk from a file specified by the path. If the loaded chunk does not fit the x, y and z parameters, null is
-    ///     returned.
+    ///     Loads a chunk from a file specified by the path.
+    ///     If the loaded chunk does not fit the x, y and z parameters, it is considered invalid.
     /// </summary>
     /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
     /// <param name="position">The position of the chunk.</param>
-    /// <returns>The loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
+    /// <returns>The loading result.</returns>
     [SuppressMessage(
         "ReSharper.DPA",
         "DPA0002: Excessive memory allocations in SOH",
         Justification = "Chunks are allocated here.")]
-    public static Chunk? Load(FileInfo path, ChunkPosition position)
+    public static LoadingResult Load(FileInfo path, ChunkPosition position)
     {
         logger.LogDebug(Events.ChunkOperation, "Started loading chunk for position: {Position}", position);
 
         Chunk chunk;
 
-        using (Stream stream = path.Open(FileMode.Open, FileAccess.Read, FileShare.Read))
+        try
         {
+            using Stream stream = path.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+
             IFormatter formatter = new BinaryFormatter();
 
  #pragma warning disable // Will be replaced with custom serialization
@@ -327,25 +329,31 @@ public partial class Chunk : IDisposable
             chunk = (Chunk) formatter.Deserialize(stream);
  #pragma warning restore
         }
+        catch (IOException e)
+        {
+            // Because there is no check whether the file exists, IO exceptions are expected.
+            // Thus, they are not logged as errors or warnings.
+            logger.LogDebug(e, "Failed to load chunk for position: {Position}", position);
+
+            return new FileError();
+        }
 
         logger.LogDebug(Events.ChunkOperation, "Finished loading chunk for position: {Position}", position);
 
-        // Checking the chunk
-        if (chunk.Position == position) return chunk;
+        if (chunk.Position == position) return new Success(chunk);
 
         logger.LogWarning("File for the chunk at {Position} was invalid: position did not match", position);
 
-        return null;
+        return new Invalid();
     }
 
     /// <summary>
-    ///     Runs a task that loads a chunk from a file specified by the path. If the loaded chunk does not fit the x and z
-    ///     parameters, null is returned.
+    ///     Runs a task that loads a chunk from a file specified by the path.
     /// </summary>
     /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
     /// <param name="position">The position of the chunk.</param>
-    /// <returns>A task containing the loaded chunk if its coordinates fit the requirements; null if they don't.</returns>
-    public static Task<Chunk?> LoadAsync(FileInfo path, ChunkPosition position)
+    /// <returns>A task containing the loading result.</returns>
+    public static Task<LoadingResult> LoadAsync(FileInfo path, ChunkPosition position)
     {
         return Task.Run(() => Load(path, position));
     }
@@ -855,6 +863,27 @@ public partial class Chunk : IDisposable
     {
         return sections[index];
     }
+
+    /// <summary>
+    ///     The result of a chunk loading operation.
+    /// </summary>
+    public record LoadingResult;
+
+    /// <summary>
+    ///     A successful chunk loading operation.
+    /// </summary>
+    /// <param name="Chunk">The loaded chunk.</param>
+    public record Success(Chunk Chunk) : LoadingResult;
+
+    /// <summary>
+    ///     A chunk loading operation that failed due to an IO error.
+    /// </summary>
+    public record FileError : LoadingResult;
+
+    /// <summary>
+    ///     A chunk loading operation that failed due to an invalid chunk.
+    /// </summary>
+    public record Invalid : LoadingResult;
 
     /// <summary>
     ///     Creates a section.
